@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -355,7 +356,115 @@ namespace R1Engine
         /// <param name="stream">The stream to write to</param>
         public void Serialize(Stream stream)
         {
-            throw new NotImplementedException();
+            // HEADER BLOCK
+
+            // Write block pointer
+            stream.Write(EventBlockPointer);
+            stream.Write(TextureOffsetTablePointer);
+
+            // Write map size
+            stream.Write(MapWidth);
+            stream.Write(MapHeight);
+
+            // Write each palette
+            foreach (var palette in ColorPalettes)
+            {
+                foreach (var color in palette.Reverse())
+                {
+                    // Write the palette color as RGB and divide by 4 (as the values are between 0-64)
+                    stream.Write((byte)(color.r / 4));
+                    stream.Write((byte)(color.g / 4));
+                    stream.Write((byte)(color.b / 4));
+                }
+            }
+
+            // Write unknown byte
+            stream.Write(Unknown1);
+
+            // MAP BLOCK
+
+            // Write each map cell
+            stream.Write(Tiles);
+
+            // Write unknown byte
+            stream.Write(Unknown2);
+
+            // Write the background data
+            stream.Write(BackgroundIndex);
+            stream.Write(BackgroundSpritesDES);
+
+            // Write the rough textures count
+            stream.Write(RoughTextureCount);
+
+            // Write the length of the third unknown value
+            stream.Write(Unknown3Count);
+
+            // Write each rough texture
+            for (int i = 0; i < RoughTextureCount; i++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
+                    for (int x = 0; x < 16; x++)
+                    {
+                        stream.Write(RoughTextures[i][x, y]);
+                    }
+                }
+            }
+
+            // Write the checksum for the rough textures
+            stream.Write(RoughTexturesChecksum);
+
+            // Write the index table for the rough textures
+            stream.Write(RoughTexturesIndexTable);
+
+            // Write the items for the third unknown value
+            stream.Write(Unknown3);
+
+            // Write the checksum for the third unknown value
+            stream.Write(Unknown3Checksum);
+
+            // Write the offset table for the third unknown value
+            stream.Write(Unknown3OffsetTable);
+
+            // TEXTURE BLOCK
+
+            // Write the offset table for the textures
+            stream.Write(TexturesOffsetTable);
+
+            // Write the textures count
+            stream.Write(TexturesCount);
+            stream.Write(NonTransparentTexturesCount);
+            stream.Write(TexturesDataTableCount);
+
+            // Write the non-transparent textures
+            foreach (var texture in NonTransparentTextures)
+                // Write the texture
+                stream.Write(texture);
+
+            // Write the transparent textures
+            foreach (var texture in TransparentTextures)
+                // Write the texture
+                stream.Write(texture);
+
+            // Write the fourth unknown value
+            stream.Write(Unknown4);
+
+            // Write the checksum for the textures
+            stream.Write(TexturesChecksum);
+
+            // EVENT BLOCK
+
+            // Write the event count
+            stream.Write(EventCount);
+
+            // Write the event linking table
+            stream.Write(EventLinkingTable);
+
+            // Write the events
+            stream.Write(Events);
+
+            // Write the event commands
+            stream.Write(EventCommands);
         }
 
         #endregion
