@@ -13,7 +13,7 @@ namespace R1Engine.Unity {
 
         void Start() {
             Camera.main.orthographicSize = fov;
-            pos = Controller.obj.lvl.level.raymanPos;
+            pos = Controller.obj.lvl.level.RaymanPos;
         }
 
         void Update() {
@@ -26,8 +26,8 @@ namespace R1Engine.Unity {
 
             vel /= 1f + (1f * friction) * Time.deltaTime;
             pos += vel * Time.deltaTime;
-            pos.x = Mathf.Clamp(pos.x, 0, Controller.obj.lvl.level.width);
-            pos.y = Mathf.Clamp(pos.y, -Controller.obj.lvl.level.height, 0);
+            pos.x = Mathf.Clamp(pos.x, 0, Controller.obj.lvl.level.Width);
+            pos.y = Mathf.Clamp(pos.y, -Controller.obj.lvl.level.Height, 0);
             if (pixelSnap) transform.position = PxlVec.SnapVec(pos);
             else transform.position = pos;
             Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, fov, Time.deltaTime * 8);

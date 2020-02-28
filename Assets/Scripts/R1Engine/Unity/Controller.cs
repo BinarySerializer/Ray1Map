@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace R1Engine.Unity {
     public class Controller : MonoBehaviour {
@@ -15,8 +16,23 @@ namespace R1Engine.Unity {
             lvl = GameObject.Find("Level").GetComponent<LevelBehaviour>();
         }
         void Start() {
-            lvl.LoadLevel(world, levelNo);
-            Camera.main.transform.position = lvl.level.raymanPos;
+            lvl.LoadLevel(GetManager(game), Settings.gameDirs[game], world, levelNo);
+            Camera.main.transform.position = lvl.level.RaymanPos;
+        }
+
+        protected static IGameManager GetManager(GameMode mode)
+        {
+            switch (mode)
+            {
+                case GameMode.RaymanPS1:
+                    return new PS1_R1_Manager();
+
+                case GameMode.RaymanPC:
+                    return new PC_R1_Manager();
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

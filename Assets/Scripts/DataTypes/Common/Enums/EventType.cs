@@ -1,37 +1,8 @@
-﻿namespace R1Engine {
-    public enum GameMode {
-        RaymanPS1,
-    }
-    public enum World {
-        JUN, MUS, MON, IMG, CAV, CAK
-    }
-    public enum TypeCollision {
-        None = 0,
-        Reactionary = 1,
-        Hill_Sleep_Left = 2,
-        Hill_Steep_Right = 3,
-        Hill_Slight_Left_1 = 4,
-        Hill_Slight_Left_2 = 5,
-        Hill_Slight_Right_2 = 6,
-        Hill_Slight_Right_1 = 7,
-        Damage = 8,
-        Bounce = 9,
-        Water = 10,
-        Climb = 12,
-        Passthrough = 14,
-        Solid = 15,
-        Slippery_Steep_Left = 18,
-        Slippery_Steep_Right = 19,
-        Slippery_Slight_Left_1 = 20,
-        Slippery_Slight_Left_2 = 21,
-        Slippery_Slight_Right_2 = 22,
-        Slippery_Slight_Right_1 = 23,
-        Spikes = 24,
-        Cliff = 25,
-        Slippery = 30
-    }
-
-    public enum EventBehaviours {
+﻿namespace R1Engine 
+{
+    // TODO: Remove this
+    public enum EventType
+    {
         //_property = 0x3,
 
         SpriteAnim = 0x04,

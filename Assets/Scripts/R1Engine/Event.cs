@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine {
+
+    // TODO: Clean up & add to common data types
     public class Event {
         public PxlVec pos;
-        public EventBehaviours behaviour;
+        public EventType type;
 
         // Other event data
     }

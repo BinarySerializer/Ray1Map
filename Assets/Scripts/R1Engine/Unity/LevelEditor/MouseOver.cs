@@ -19,7 +19,7 @@ namespace R1Engine.Unity {
             var e = hit.collider?.GetComponent<EventBehaviour>();
             // Mouse over event
             if (e != null) {
-                colText.text = $"{e.ev.behaviour}";
+                colText.text = $"{e.ev.type}";
                 gfxText.text = $"Pos: {e.ev.pos.x}, {e.ev.pos.y}";
             }
             // Else Mouse over type
