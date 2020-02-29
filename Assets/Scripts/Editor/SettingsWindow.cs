@@ -46,7 +46,18 @@ public class SettingsWindow : UnityWindow
 
         Settings.World = (World)EditorGUI.EnumPopup(GetNextRect(ref yPos), new GUIContent("World"), Settings.World);
 
-		var levels = Directory.Exists(Settings.CurrentDirectory) ? Enumerable.Range(1, Settings.GetManager().GetLevelCount(Settings.CurrentDirectory, Settings.World)).ToArray() : new int[0];
+		int lvlCount = 0;
+
+        try
+        {
+            lvlCount = Settings.GetManager().GetLevelCount(Settings.CurrentDirectory, Settings.World);
+        }
+        catch (Exception ex)
+        {
+            // TODO: Log
+        }
+
+		var levels = Directory.Exists(Settings.CurrentDirectory) ? Enumerable.Range(1, lvlCount).ToArray() : new int[0];
 
 		Settings.Level = EditorGUI.IntPopup(GetNextRect(ref yPos), "Map", Settings.Level, levels.Select(x => x.ToString()).ToArray(), levels);
 
