@@ -203,11 +203,11 @@ namespace R1Engine
 
                     Common_Tile newTile = new Common_Tile
                     {
-                        palette = 1,
-                        x = tx,
-                        y = ty,
-                        cType = tiles[tileIndex].col,
-                        gIndex = (16 * graphicY) + graphicX
+                        PaletteIndex = 1,
+                        XPosition = tx,
+                        YPosition = ty,
+                        CollisionType = tiles[tileIndex].col,
+                        TileSetGraphicIndex = (16 * graphicY) + graphicX
                     };
 
                     finalTiles[tileIndex] = newTile;

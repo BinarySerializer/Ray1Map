@@ -23,11 +23,11 @@ namespace R1Engine
             foreach(Common_Tile t in level.Tiles) {
 
                 // Index 0 is collision types tilemap
-                tilemaps[0].SetTile(new Vector3Int(t.x, t.y, 0), typeCollisionTiles[(int)t.cType]);
+                tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), typeCollisionTiles[(int)t.CollisionType]);
 
                 // Assign tiles to their correct tilemaps based on the palette
-                if (level.TileSet[t.palette] != null && t.gIndex!=-1)
-                    tilemaps[t.palette].SetTile(new Vector3Int(t.x, t.y, 0), level.TileSet[t.palette].Tiles[t.gIndex]);
+                if (level.TileSet[t.PaletteIndex] != null && t.TileSetGraphicIndex!=-1)
+                    tilemaps[t.PaletteIndex].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), level.TileSet[t.PaletteIndex].Tiles[t.TileSetGraphicIndex]);
             }
         }
     }

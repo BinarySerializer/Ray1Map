@@ -39,7 +39,7 @@ namespace R1Engine
         /// <param name="match">The predicate used to find the matching item index</param>
         /// <returns>The item index matching the predicate, or -1 if none was found</returns>
         /// <exception cref="ArgumentNullException"/>
-        public static int FindItemIndex<T>(this IList<T> list, Predicate<T> match)
+        public static int FindItemIndex<T>(this IEnumerable<T> list, Predicate<T> match)
         {
             if (list == null)
                 throw new ArgumentNullException(nameof(list));
@@ -47,9 +47,15 @@ namespace R1Engine
             if (match == null)
                 throw new ArgumentNullException(nameof(match));
 
-            for (int i = 0; i < list.Count; i++)
-                if (match(list[i]))
-                    return i;
+            int index = 0;
+
+            foreach (var item in list)
+            {
+                if (match(item))
+                    return index;
+
+                index++;
+            }
 
             return -1;
         }

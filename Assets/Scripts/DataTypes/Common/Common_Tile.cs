@@ -8,26 +8,26 @@
         /// <summary>
         /// The palette index, between 1 and 3
         /// </summary>
-        public int palette { get; set; }
+        public int PaletteIndex { get; set; }
 
         /// <summary>
         /// The x position
         /// </summary>
-        public int x { get; set; }
+        public int XPosition { get; set; }
 
         /// <summary>
         /// The y position
         /// </summary>
-        public int y { get; set; }
+        public int YPosition { get; set; }
 
         /// <summary>
         /// The tile index from the tile-set
         /// </summary>
-        public int gIndex { get; set; }
+        public int TileSetGraphicIndex { get; set; }
 
         /// <summary>
         /// The collision type
         /// </summary>
-        public TileCollisionType cType { get; set; }
+        public TileCollisionType CollisionType { get; set; }
     }
 }
