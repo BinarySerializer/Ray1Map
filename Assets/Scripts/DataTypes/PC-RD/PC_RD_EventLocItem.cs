@@ -29,9 +29,9 @@ namespace R1Engine
         /// <param name="stream">The stream to read from</param>
         public void Deserialize(Stream stream)
         {
-            LocKey = stream.ReadNullTerminatedString(PC_RD_Manager.GetStringEncoding);
-            Name = stream.ReadNullTerminatedString(PC_RD_Manager.GetStringEncoding);
-            Description = stream.ReadNullTerminatedString(PC_RD_Manager.GetStringEncoding);
+            LocKey = stream.ReadNullTerminatedString();
+            Name = stream.ReadNullTerminatedString();
+            Description = stream.ReadNullTerminatedString();
         }
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace R1Engine
         /// <param name="stream">The stream to write to</param>
         public void Serialize(Stream stream)
         {
-            stream.WriteNullTerminatedString(PC_RD_Manager.GetStringEncoding, LocKey);
-            stream.WriteNullTerminatedString(PC_RD_Manager.GetStringEncoding, Name);
-            stream.WriteNullTerminatedString(PC_RD_Manager.GetStringEncoding, Description);
+            stream.WriteNullTerminatedString(LocKey);
+            stream.WriteNullTerminatedString(Name);
+            stream.WriteNullTerminatedString(Description);
         }
     }
 }

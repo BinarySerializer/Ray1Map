@@ -47,7 +47,7 @@ namespace R1Engine
             byte[] values;
             List<ushort> tempList = new List<ushort>();
 
-            while (PC_RD_Manager.GetStringEncoding.GetString(values = stream.ReadBytes(2)) != "MS")
+            while (Settings.StringEncoding.GetString(values = stream.ReadBytes(2)) != "MS")
                 tempList.Add(BitConverter.ToUInt16(values, 0));
 
             Unknown2 = tempList.ToArray();

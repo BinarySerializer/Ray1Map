@@ -188,10 +188,13 @@ namespace R1Engine
         /// Reads a null-terminated string from the stream
         /// </summary>
         /// <param name="stream">The stream to read from</param>
-        /// <param name="encoding">The encoding to use</param>
+        /// <param name="encoding">The encoding to use, or null for the default one</param>
         /// <returns>The string</returns>
-        public static string ReadNullTerminatedString(this Stream stream, Encoding encoding)
+        public static string ReadNullTerminatedString(this Stream stream, Encoding encoding = null)
         {
+            if (encoding == null)
+                encoding = Settings.StringEncoding;
+
             using (var reader = new BinaryReader(stream, encoding, true))
             {
                 string str = String.Empty;
@@ -209,10 +212,13 @@ namespace R1Engine
         /// Writes a null-terminated string to the stream
         /// </summary>
         /// <param name="stream">The stream to write to</param>
-        /// <param name="encoding">The encoding to use</param>
         /// <param name="value">The value to write</param>
-        public static void WriteNullTerminatedString(this Stream stream, Encoding encoding, string value)
+        /// <param name="encoding">The encoding to use, or null for the default one</param>
+        public static void WriteNullTerminatedString(this Stream stream, string value, Encoding encoding = null)
         {
+            if (encoding == null)
+                encoding = Settings.StringEncoding;
+
             // Get the string bytes
             var bytes = encoding.GetBytes(value);
 
