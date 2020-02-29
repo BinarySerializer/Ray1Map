@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace R1Engine
 {
@@ -11,11 +10,6 @@ namespace R1Engine
     /// </summary>
     public class PC_RD_Manager : IGameManager
     {
-        /// <summary>
-        /// The string encoding to use for the files
-        /// </summary>
-        public static Encoding GetStringEncoding => Encoding.GetEncoding(437);
-
         /// <summary>
         /// Gets the localization files for each event, with the language tag as the key
         /// </summary>

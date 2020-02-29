@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEditor;
 
 namespace R1Engine
@@ -32,6 +33,11 @@ namespace R1Engine
         /// Gets the current directory based on the selected mode
         /// </summary>
         public static string CurrentDirectory => GameDirectories.TryGetValue(Mode, out var dir) ? dir : String.Empty;
+
+        /// <summary>
+        /// The string encoding to use for the game files
+        /// </summary>
+        public static Encoding StringEncoding { get; } = Encoding.GetEncoding(437);
 
         #endregion
 
