@@ -1,5 +1,5 @@
 ﻿namespace R1Engine {
-    public class PS1_R1_Tile {
+    public class PS1_R1_MapTile {
         // Graphical offsets for this tile
         public int gX;
         public int gY;

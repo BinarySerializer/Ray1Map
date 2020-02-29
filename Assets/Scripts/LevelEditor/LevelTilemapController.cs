@@ -26,7 +26,7 @@ namespace R1Engine
                 tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), typeCollisionTiles[(int)t.CollisionType]);
 
                 // Assign tiles to their correct tilemaps based on the palette
-                if (level.TileSet[t.PaletteIndex] != null && t.TileSetGraphicIndex!=-1)
+                if (level.TileSet[t.PaletteIndex] != null && t.TileSetGraphicIndex != -1)
                     tilemaps[t.PaletteIndex].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), level.TileSet[t.PaletteIndex].Tiles[t.TileSetGraphicIndex]);
             }
         }

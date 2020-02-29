@@ -15,7 +15,7 @@ namespace R1Engine
 
         public ushort Height { get; set; }
 
-        public PS1_R1_Tile[] Tiles { get; set; }
+        public PS1_R1_MapTile[] Tiles { get; set; }
 
         public Event[] Events { get; set; }
 
@@ -43,11 +43,11 @@ namespace R1Engine
             Height = BitConverter.ToUInt16(XXX, off_types + 2);
 
             int i = off_types + 4;
-            Tiles = new PS1_R1_Tile[Width * Height];
+            Tiles = new PS1_R1_MapTile[Width * Height];
 
             for (int n = 0; n < Width * Height; n++, i += 2)
             {
-                Tiles[n] = new PS1_R1_Tile();
+                Tiles[n] = new PS1_R1_MapTile();
                 int g = XXX[i] + ((XXX[i + 1] & 3) << 8);
                 Tiles[n].gX = g & 15;
                 Tiles[n].gY = g >> 4;

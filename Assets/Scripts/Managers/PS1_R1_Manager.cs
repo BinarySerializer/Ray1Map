@@ -192,7 +192,7 @@ namespace R1Engine
         /// <param name="w">Level width</param>
         /// <param name="h">Level height</param>
         /// <returns>Common_Tile array</returns>
-        public Common_Tile[] ConvertTilesToCommon(PS1_R1_Tile[] tiles, ushort w, ushort h) {
+        public Common_Tile[] ConvertTilesToCommon(PS1_R1_MapTile[] tiles, ushort w, ushort h) {
             Common_Tile[] finalTiles = new Common_Tile[w * h];
 
             int tileIndex = 0;

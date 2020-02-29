@@ -1,7 +1,4 @@
-﻿using System.Text;
-using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Defines a generic game manager
