@@ -10,11 +10,6 @@ namespace R1Engine
     public class PC_R1_Manager : IGameManager
     {
         /// <summary>
-        /// The currently loaded level data
-        /// </summary>
-        public PC_R1_LevFile LevelData { get; set; }
-
-        /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="basePath">The base game path</param>
@@ -81,39 +76,37 @@ namespace R1Engine
         /// <returns>The level</returns>
         public Common_Lev LoadLevel(string basePath, World world, int level)
         {
-            // Open the level
-            using (var lvlFile = File.OpenRead(GetLevelFilePath(basePath, world, level)))
-                // Read the level
-                LevelData = lvlFile.Read<PC_R1_LevFile>();
+            // Read the level data
+            var levelData = FileFactory.Read<PC_R1_LevFile>(GetLevelFilePath(basePath, world, level));
 
             var commonLvl = new Common_Lev()
             {
-                Width = LevelData.MapWidth,
-                Height = LevelData.MapHeight,
+                Width = levelData.MapWidth,
+                Height = levelData.MapHeight,
 
                 // TODO: Clean up by making a common event class
-                Events = LevelData.Events.Select(x => new Event()
+                Events = levelData.Events.Select(x => new Event()
                 {
                     pos = new PxlVec((ushort)x.XPosition, (ushort)x.YPosition)
                 }).ToArray(),
                 
                 // TODO: Clean up by making a common event class
-                Tiles = new Type[LevelData.Tiles.Length],
+                Tiles = new Type[levelData.Tiles.Length],
                 
                 // TODO: Need to set this or else it crashes
                 TileSet = null
             };
 
             // Set the tiles
-            for (int y = 0; y < LevelData.MapHeight; y++)
+            for (int y = 0; y < levelData.MapHeight; y++)
             {
-                for (int x = 0; x < LevelData.MapWidth; x++)
+                for (int x = 0; x < levelData.MapWidth; x++)
                 {
-                    var index = y * LevelData.MapWidth + x;
+                    var index = y * levelData.MapWidth + x;
 
                     commonLvl.Tiles[index] = new Type()
                     {
-                        col = LevelData.Tiles[index].CollisionType,
+                        col = levelData.Tiles[index].CollisionType,
                         gX = x,
                         gY = y
                     };

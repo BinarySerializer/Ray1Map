@@ -12,11 +12,6 @@ namespace R1Engine
     public class PS1_R1_Manager : IGameManager
     {
         /// <summary>
-        /// The currently loaded level data
-        /// </summary>
-        public PS1_R1_LevFile LevelData { get; set; }
-
-        /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="basePath">The base game path</param>
@@ -146,19 +141,17 @@ namespace R1Engine
         /// <returns>The level</returns>
         public Common_Lev LoadLevel(string basePath, World world, int level)
         {
-            // Open the level
-            using (var lvlFile = File.OpenRead(GetLevelFilePath(basePath, world, level)))
-                // Read the level
-                LevelData = lvlFile.Read<PS1_R1_LevFile>();
-
+            // Read the level data
+            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(basePath, world, level));
+            
             // Convert to common level format
             return new Common_Lev
             {
-                Width = LevelData.Width,
-                Height = LevelData.Height,
-                Events = LevelData.Events,
-                RaymanPos = LevelData.RaymanPos,
-                Tiles = LevelData.Tiles,
+                Width = levelData.Width,
+                Height = levelData.Height,
+                Events = levelData.Events,
+                RaymanPos = levelData.RaymanPos,
+                Tiles = levelData.Tiles,
                 TileSet = ReadTileSet(basePath, world)
             };
         }
