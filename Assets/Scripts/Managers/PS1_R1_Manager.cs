@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -16,11 +17,22 @@ namespace R1Engine
         public PS1_R1_LevFile LevelData { get; set; }
 
         /// <summary>
-        /// Gets the file name for the specified world
+        /// Gets the file path for the specified level
         /// </summary>
+        /// <param name="basePath">The base game path</param>
         /// <param name="world">The world</param>
-        /// <returns>The file name</returns>
-        public string GetWorldFileName(World world)
+        /// <param name="level">The level</param>
+        /// <returns>The level file path</returns>
+        public string GetLevelFilePath(string basePath, World world, int level)
+        {
+            return Path.Combine(GetWorldFolderPath(basePath, world), $"{GetWorldName(world)}{level:00}.XXX");
+        }
+
+        /// <summary>
+        /// Gets the name for the world
+        /// </summary>
+        /// <returns>The world name</returns>
+        public string GetWorldName(World world)
         {
             switch (world)
             {
@@ -42,21 +54,34 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the file path for the specified level
+        /// Gets the folder path for the specified world
         /// </summary>
         /// <param name="basePath">The base game path</param>
         /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
-        /// <returns>The level file path</returns>
-        public string GetLevelFilePath(string basePath, World world, int level)
+        /// <returns>The world folder path</returns>
+        public string GetWorldFolderPath(string basePath, World world)
         {
-            return Path.Combine(basePath, GetWorldFileName(world), $"{GetWorldFileName(world)}{level:00}.XXX");
+
+            return Path.Combine(basePath, "RAY", GetWorldName(world));
+        }
+
+        /// <summary>
+        /// Gets the level count for the specified world
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="world">The world</param>
+        /// <returns>The level count</returns>
+        public int GetLevelCount(string basePath, World world)
+        {
+            var worldPath = GetWorldFolderPath(basePath, world);
+
+            return Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count(x => Path.GetFileNameWithoutExtension(x)?.Length == 5);
         }
 
         // TODO: Replace this entire function with the class PS1_R1_WorldFile to store the data in
         public Texture2D ReadTileSet(string basePath, World world)
         {
-            var fileStream = new FileStream(Path.Combine(basePath, GetWorldFileName(world), $"{GetWorldFileName(world)}.XXX"), FileMode.Open);
+            var fileStream = new FileStream(Path.Combine(GetWorldFolderPath(basePath, world), $"{GetWorldName(world)}.XXX"), FileMode.Open);
             byte[] file = new byte[fileStream.Length];
             fileStream.Read(file, 0, (int)fileStream.Length);
             fileStream.Close();

@@ -1,18 +1,28 @@
-﻿namespace R1Engine
+﻿using System.ComponentModel;
+
+namespace R1Engine
 {
     /// <summary>
     /// The available game modes
     /// </summary>
     public enum GameMode 
     {
-        /// <summary>
-        /// Rayman 1 (PS1)
-        /// </summary>
+        [Description("Rayman 1 (PS1)")]
         RaymanPS1,
 
-        /// <summary>
-        /// Rayman 1 (PC)
-        /// </summary>
+        //[Description("Rayman 1 (PS1 - Japanese)")]
+        //RaymanPS1JP,
+
+        [Description("Rayman 1 (PC)")]
         RaymanPC,
+
+        //[Description("Rayman Designer (PC)")]
+        //RaymanDesignerPC,
+
+        //[Description("Rayman by his Fans (PC)")]
+        //RaymanByHisFansPC,
+
+        //[Description("Rayman 60 Levels (PC)")]
+        //Rayman60LevelsPC,
     }
 }

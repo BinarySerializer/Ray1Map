@@ -15,32 +15,6 @@ namespace R1Engine
         public PC_R1_LevFile LevelData { get; set; }
 
         /// <summary>
-        /// Gets the folder name for the specified world
-        /// </summary>
-        /// <param name="world">The world</param>
-        /// <returns>The folder name</returns>
-        public string GetWorldFolderName(World world)
-        {
-            switch (world)
-            {
-                case World.Jungle:
-                    return "JUNGLE";
-                case World.Music:
-                    return "MUSIC";
-                case World.Mountain:
-                    return "MOUNTAIN";
-                case World.Image:
-                    return "IMAGE";
-                case World.Cave:
-                    return "CAVE";
-                case World.Cake:
-                    return "CAKE";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
-            }
-        }
-
-        /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="basePath">The base game path</param>
@@ -49,7 +23,53 @@ namespace R1Engine
         /// <returns>The level file path</returns>
         public string GetLevelFilePath(string basePath, World world, int level)
         {
-            return Path.Combine(basePath, GetWorldFolderName(world), $"RAY{level}.LEV");
+            return Path.Combine(GetWorldFolderPath(basePath, world), $"RAY{level}.LEV");
+        }
+
+        /// <summary>
+        /// Gets the folder path for the specified world
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="world">The world</param>
+        /// <returns>The world folder path</returns>
+        public string GetWorldFolderPath(string basePath, World world)
+        {
+            // Helper method for getting the folder name for the world
+            string GetWorldFolderName()
+            {
+                switch (world)
+                {
+                    case World.Jungle:
+                        return "JUNGLE";
+                    case World.Music:
+                        return "MUSIC";
+                    case World.Mountain:
+                        return "MOUNTAIN";
+                    case World.Image:
+                        return "IMAGE";
+                    case World.Cave:
+                        return "CAVE";
+                    case World.Cake:
+                        return "CAKE";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(world), world, null);
+                }
+            }
+
+            return Path.Combine(basePath, "PCMAP", GetWorldFolderName());
+        }
+
+        /// <summary>
+        /// Gets the level count for the specified world
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="world">The world</param>
+        /// <returns>The level count</returns>
+        public int GetLevelCount(string basePath, World world)
+        {
+            var worldPath = GetWorldFolderPath(basePath, world);
+
+            return Directory.EnumerateFiles(worldPath, "RAY??.LEV", SearchOption.TopDirectoryOnly).Count();
         }
 
         /// <summary>
