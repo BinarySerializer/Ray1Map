@@ -45,7 +45,7 @@ namespace R1Engine
                         return stream.ReadByte() == 1;
 
                     case TypeCode.SByte:
-                        throw new NotImplementedException();
+                        return (sbyte)stream.ReadByte();
 
                     case TypeCode.Byte:
                         return (byte)stream.ReadByte();
@@ -75,8 +75,6 @@ namespace R1Engine
                         return BitConverter.ToDouble(stream.ReadBytes(sizeof(double)), 0);
 
                     case TypeCode.Decimal:
-                        throw new NotImplementedException();
-
                     case TypeCode.String:
                     case TypeCode.Char:
                     case TypeCode.DateTime:
@@ -112,24 +110,25 @@ namespace R1Engine
         /// <summary>
         /// Writes a supported value to the stream
         /// </summary>
-        /// <typeparam name="T">The type of value to write</typeparam>
         /// <param name="stream">The stream to read from</param>
         /// <param name="value">The value</param>
-        public static void Write<T>(this Stream stream, T value)
+        public static void Write(this Stream stream, object value)
         {
-            // TODO: Check if value is an array, if so enumerate it
-
             if (value is ISerializableFile serializable)
                 serializable.Serialize(stream);
+
+            else if (value is byte[] ba)
+                stream.Write(ba, 0, ba.Length);
+
+            else if (value is Array a)
+                foreach (var item in a)
+                    stream.Write(item);
 
             else if (value is bool bo)
                 stream.WriteByte((byte)(bo ? 1 : 0));
 
             else if (value is sbyte sb)
-                throw new NotImplementedException();
-
-            else if (value is byte[] ba)
-                stream.Write(ba, 0, ba.Length);
+                stream.WriteByte((byte)sb);
 
             else if (value is byte by)
                 stream.WriteByte(by);
@@ -158,11 +157,11 @@ namespace R1Engine
             else if (value is double dou)
                 stream.Write(BitConverter.GetBytes(dou));
 
-            else if (value == null)
+            else if (value is null)
                 throw new ArgumentNullException(nameof(value));
 
             else
-                throw new NotSupportedException($"The specified generic type {typeof(T).Name} is not supported and does not implement {nameof(ISerializableFile)}");
+                throw new NotSupportedException($"The specified type {value.GetType().Name} is not supported and does not implement {nameof(ISerializableFile)}");
         }
 
         /// <summary>
