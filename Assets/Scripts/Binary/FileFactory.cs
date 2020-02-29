@@ -1,5 +1,4 @@
-﻿using R1Engine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace R1Engine
@@ -58,15 +57,21 @@ namespace R1Engine
             // Get the cached data
             var data = Cache[filePath];
 
-            // Open the file
-            using (var file = File.OpenWrite(filePath))
+            // Create the file
+            using (var file = File.Create(filePath))
             {
                 // Serialize the file
                 file.Write(data);
-
-                // Set the file length to the current position
-                file.SetLength(file.Position);
             }
         }
+
+        /// <summary>
+        /// The available serializable data types
+        /// </summary>
+        public static System.Type[] SerializableDataTypes { get; } =
+        {
+            typeof(PC_R1_LevFile),
+            typeof(PC_RD_EventLocFile),
+        };
     }
 }

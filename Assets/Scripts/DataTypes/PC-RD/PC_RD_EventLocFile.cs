@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 
 namespace R1Engine
@@ -7,6 +8,7 @@ namespace R1Engine
     /// <summary>
     /// Event localization data for Rayman Designer (PC)
     /// </summary>
+    [Description("Rayman Designer (PC) Event Localization File")]
     public class PC_RD_EventLocFile : PC_RD_BaseFile
     {
         /// <summary>

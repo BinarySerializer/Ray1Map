@@ -1,14 +1,14 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman 1 (PC)
     /// </summary>
+    [Description("Rayman 1 (PC) Level File")]
     public class PC_R1_LevFile : ISerializableFile
     {
         #region Public Properties
@@ -36,7 +36,7 @@ namespace R1Engine
         /// <summary>
         /// The color palettes
         /// </summary>
-        public Color[][] ColorPalettes { get; set; }
+        public RGBColor[][] ColorPalettes { get; set; }
 
         /// <summary>
         /// Unknown byte, always set to 2
@@ -185,11 +185,11 @@ namespace R1Engine
             MapHeight = stream.Read<ushort>();
 
             // Create the palettes
-            ColorPalettes = new Color[][]
+            ColorPalettes = new RGBColor[][]
             {
-                new Color[256],
-                new Color[256],
-                new Color[256],
+                new RGBColor[256],
+                new RGBColor[256],
+                new RGBColor[256],
             };
 
             // Read each palette color
@@ -202,8 +202,8 @@ namespace R1Engine
                 for (int i = 0; i < palette.Length; i++)
                 {
                     // Read the palette color as RGB and multiply by 4 (as the values are between 0-64)
-                    palette[i] = new Color(stream.Read<byte>() * 4, stream.Read<byte>() * 4,
-                        stream.Read<byte>() * 4);
+                    palette[i] = new RGBColor((byte)(stream.Read<byte>() * 4), (byte)(stream.Read<byte>() * 4),
+                        (byte)(stream.Read<byte>() * 4));
                 }
 
                 // Reverse the palette
@@ -372,9 +372,9 @@ namespace R1Engine
                 foreach (var color in palette.Reverse())
                 {
                     // Write the palette color as RGB and divide by 4 (as the values are between 0-64)
-                    stream.Write((byte)(color.r / 4));
-                    stream.Write((byte)(color.g / 4));
-                    stream.Write((byte)(color.b / 4));
+                    stream.Write((byte)(color.Red / 4));
+                    stream.Write((byte)(color.Green / 4));
+                    stream.Write((byte)(color.Blue / 4));
                 }
             }
 

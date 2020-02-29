@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -63,6 +64,43 @@ public class UnityWindow : EditorWindow
         return value;
     }
 
+    protected string FileField(Rect rect, string title, string value, bool save, string extension, bool includeLabel = true)
+    {
+        rect = BrowseButton(rect, title, EditorGUIUtility.IconContent("Folder Icon"), () => 
+        {
+            string file;
+            string directory = "";
+            string defaultName = "";
+            if (!string.IsNullOrEmpty(value))
+            {
+                directory = Path.GetFileName(Path.GetFullPath(value));
+                defaultName = Path.GetFileName(value);
+            }
+            if (save)
+            {
+                file = EditorUtility.SaveFilePanel(title, directory, defaultName, extension);
+            }
+            else
+            {
+                file = EditorUtility.OpenFilePanel(title, directory, extension);
+            }
+            if (!string.IsNullOrEmpty(file))
+            {
+                GUI.FocusControl("Button " + title);
+                value = file;
+                Dirty = true;
+            }
+        });
+        if (!includeLabel)
+        {
+            value = EditorGUI.TextField(rect, value);
+        }
+        else
+        {
+            value = EditorGUI.TextField(rect, new GUIContent(title), value);
+        }
+        return value;
+    }
 
     /// <summary>
     /// Any changes made?
