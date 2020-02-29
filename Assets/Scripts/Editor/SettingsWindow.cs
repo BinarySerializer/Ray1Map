@@ -46,18 +46,18 @@ public class SettingsWindow : UnityWindow
 
         Settings.World = (World)EditorGUI.EnumPopup(GetNextRect(ref yPos), new GUIContent("World"), Settings.World);
 
-		int lvlCount = 0;
-
         try
         {
-            lvlCount = Settings.GetManager().GetLevelCount(Settings.CurrentDirectory, Settings.World);
+			// Only update if previous values don't match
+			if (!ComparePreviousValues())
+                CurrentLevelCount = Settings.GetManager().GetLevelCount(Settings.CurrentDirectory, Settings.World);
         }
         catch (Exception ex)
         {
             // TODO: Log
         }
 
-		var levels = Directory.Exists(Settings.CurrentDirectory) ? Enumerable.Range(1, lvlCount).ToArray() : new int[0];
+		var levels = Directory.Exists(Settings.CurrentDirectory) ? Enumerable.Range(1, CurrentLevelCount).ToArray() : new int[0];
 
 		Settings.Level = EditorGUI.IntPopup(GetNextRect(ref yPos), "Map", Settings.Level, levels.Select(x => x.ToString()).ToArray(), levels);
 
@@ -70,7 +70,10 @@ public class SettingsWindow : UnityWindow
             Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<DescriptionAttribute>()?.Description, Settings.GameDirectories.TryGetValue(mode, out var dir) ? dir : String.Empty);
         }
 
-        TotalyPos = yPos;
+		// Update previous values
+		UpdatePreviousValues();
+
+		TotalyPos = yPos;
 		GUI.EndScrollView();
 
 		if (EditorGUI.EndChangeCheck() || Dirty)
@@ -79,6 +82,36 @@ public class SettingsWindow : UnityWindow
 			Dirty = false;
 		}
 	}
+
+	/// <summary>
+	/// Updates saved previous values
+	/// </summary>
+	private void UpdatePreviousValues()
+    {
+        PrevDir = Settings.CurrentDirectory;
+        PrevWorld = Settings.World;
+    }
+
+	/// <summary>
+	/// Compares previous values and returns true if they're the same
+	/// </summary>
+	/// <returns>True if they're the same, otherwise false</returns>
+	private bool ComparePreviousValues()
+    {
+		return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World;
+    }
+
+	/// <summary>
+	/// The previously saved current directory
+	/// </summary>
+	private string PrevDir { get; set; }
+
+	/// <summary>
+	/// The previously saved world
+	/// </summary>
+	private World PrevWorld { get; set; }
+
+	private int CurrentLevelCount { get; set; }
 
     private float TotalyPos { get; set; }
 
