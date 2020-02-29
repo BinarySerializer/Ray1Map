@@ -36,7 +36,7 @@ namespace R1Engine
         /// <summary>
         /// The color palettes
         /// </summary>
-        public RGBColor[][] ColorPalettes { get; set; }
+        public ARGBColor[][] ColorPalettes { get; set; }
 
         /// <summary>
         /// Unknown byte, always set to 2
@@ -185,11 +185,11 @@ namespace R1Engine
             MapHeight = stream.Read<ushort>();
 
             // Create the palettes
-            ColorPalettes = new RGBColor[][]
+            ColorPalettes = new ARGBColor[][]
             {
-                new RGBColor[256],
-                new RGBColor[256],
-                new RGBColor[256],
+                new ARGBColor[256],
+                new ARGBColor[256],
+                new ARGBColor[256],
             };
 
             // Read each palette color
@@ -202,7 +202,7 @@ namespace R1Engine
                 for (int i = 0; i < palette.Length; i++)
                 {
                     // Read the palette color as RGB and multiply by 4 (as the values are between 0-64)
-                    palette[i] = new RGBColor((byte)(stream.Read<byte>() * 4), (byte)(stream.Read<byte>() * 4),
+                    palette[i] = new ARGBColor((byte)(stream.Read<byte>() * 4), (byte)(stream.Read<byte>() * 4),
                         (byte)(stream.Read<byte>() * 4));
                 }
 

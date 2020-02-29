@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -11,6 +12,11 @@ namespace R1Engine
     /// </summary>
     public class PS1_R1_Manager : IGameManager
     {
+        /// <summary>
+        /// The size of one cell
+        /// </summary>
+        public const int CellSize = 16;
+
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
@@ -74,7 +80,7 @@ namespace R1Engine
         }
 
         // TODO: Replace this entire function with the class PS1_R1_WorldFile to store the data in
-        public Texture2D ReadTileSet(string basePath, World world)
+        public Common_Tileset ReadTileSet(string basePath, World world)
         {
             var fileStream = new FileStream(Path.Combine(GetWorldFolderPath(basePath, world), $"{GetWorldName(world)}.XXX"), FileMode.Open);
             byte[] file = new byte[fileStream.Length];
@@ -114,22 +120,40 @@ namespace R1Engine
 
             for (int yB = 0; yB < height; yB += 16)
             for (int xB = 0; xB < width; xB += 16, tile++)
-            for (int y = 0; y < 16; y++)
-            for (int x = 0; x < 16; x++)
+            for (int y = 0; y < CellSize; y++)
+            for (int x = 0; x < CellSize; x++)
             {
                 if (tile >= tileCount)
                     goto End;
                 int pixel = x + xB + (y + yB) * width;
-                pixels[pixel] = palettes
-                        [file[off_assign + tile]]
-                    [file[off_tiles + pixel]];
+                pixels[pixel] = palettes[file[off_assign + tile]][file[off_tiles + pixel]];
             }
             End:
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            tex.filterMode = FilterMode.Point;
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point
+            };
             tex.SetPixels(pixels);
             tex.Apply();
-            return tex;
+
+            var tiles = new Tile[tex.width * tex.height];
+
+            // Loop through all the 16x16 cells in the tileset Texture2D and generate tiles out of it
+            int tileIndex = 0;
+            for (int yy = 0; yy < (tex.height / CellSize); yy++)
+            {
+                for (int xx = 0; xx < (tex.width / CellSize); xx++)
+                {
+                    // Create a tile
+                    Tile t = ScriptableObject.CreateInstance<Tile>();
+                    t.sprite = Sprite.Create(tex, new Rect(xx * CellSize, yy * CellSize, CellSize, CellSize),
+                        new Vector2(0.5f, 0.5f), CellSize, 20);
+                    tiles[tileIndex] = t;
+                    tileIndex++;
+                }
+            }
+
+            return new Common_Tileset(tiles);
         }
 
         /// <summary>
@@ -144,17 +168,17 @@ namespace R1Engine
             var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(basePath, world, level));
 
             // Convert levelData to common level format
-            Common_Lev c = new Common_Lev();
+            Common_Lev c = new Common_Lev
+            {
+                Width = levelData.Width,
+                Height = levelData.Height,
+                Events = levelData.Events,
+                RaymanPos = levelData.RaymanPos,
+                TileSet = new Common_Tileset[4]
+            };
 
-            c.Width = levelData.Width;
-            c.Height = levelData.Height;
-            c.Events = levelData.Events;
-            c.RaymanPos = levelData.RaymanPos;
-
-            c.TileSet = new Common_Tileset[4];
-            // TODO: Other tilesets should probably be initialized here too
-            Common_Tileset tileset1 = new Common_Tileset(ReadTileSet(basePath, world));
-            c.TileSet[1] = tileset1;
+            Common_Tileset tileSet = ReadTileSet(basePath, world);
+            c.TileSet[1] = tileSet;
 
             c.Tiles = ConvertTilesToCommon(levelData.Tiles, levelData.Width, levelData.Height);
 
@@ -177,13 +201,14 @@ namespace R1Engine
                     var graphicX = tiles[tileIndex].gX;
                     var graphicY = tiles[tileIndex].gY;
 
-                    Common_Tile newTile = new Common_Tile();
-                    newTile.palette = 1; // TODO: How to distinguish between which palette a tile should use?
-                    newTile.x = tx;
-                    newTile.y = ty;
-
-                    newTile.cType = tiles[tileIndex].col;
-                    newTile.gIndex = (16 * graphicY) + graphicX;
+                    Common_Tile newTile = new Common_Tile
+                    {
+                        palette = 1,
+                        x = tx,
+                        y = ty,
+                        cType = tiles[tileIndex].col,
+                        gIndex = (16 * graphicY) + graphicX
+                    };
 
                     finalTiles[tileIndex] = newTile;
 

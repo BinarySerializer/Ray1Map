@@ -34,6 +34,7 @@ namespace R1Engine.Unity {
                     new Vector3(0, -currentLevel.Height)
                 }
             };
+            
             mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
             backgroundTint.sharedMesh = mo;
         }

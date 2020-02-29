@@ -1,7 +1,7 @@
 ﻿namespace R1Engine 
 {
     // TODO: Clean up & add to common data types
-    public struct Common_Tile
+    public class Common_Tile
     {
         // Link to a specific palette (in this case, a tilemap index)
         public int palette;
