@@ -24,9 +24,11 @@ namespace R1Engine.Unity {
             }
             // Else Mouse over type
             else {
-                var type = Controller.obj.lvl.level.TypeFromCoord(Camera.main.ScreenToWorldPoint(mousePosition));
-                colText.text = $"Collision: {type.col.ToString().Replace('_', ' ')}";
-                gfxText.text = $"Graphic tile: {type.gX}, {type.gY}";
+                // TODO: Fix this to check the types tilemap instead (index 0 in LevlTilemapController)
+
+                //var type = Controller.obj.levelController.currentLevel.TypeFromCoord(Camera.main.ScreenToWorldPoint(mousePosition));
+                //colText.text = $"Collision: {type.col.ToString().Replace('_', ' ')}";
+                //gfxText.text = $"Graphic tile: {type.gX}, {type.gY}";
             }
         }
     }

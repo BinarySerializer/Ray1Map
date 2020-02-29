@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -8,14 +9,13 @@ namespace R1Engine
     /// </summary>
     public class Common_Lev
     {
-        // TODO: Abstract this more as PC version handles tiles differently
-        public Texture2D TileSet { get; set; }
+        // TODO: Abstract this more as PC version handles tiles differently (still needed?)
 
         public ushort Width { get; set; }
-
         public ushort Height { get; set; }
 
-        public Type[] Tiles { get; set; }
+        public Common_Tileset[] TileSet { get; set; }
+        public Common_Tile[] Tiles { get; set; }
 
         public Event[] Events { get; set; }
 
@@ -23,6 +23,7 @@ namespace R1Engine
         // TODO: Remove?
         public PxlVec RaymanPos { get; set; }
 
+        /*
         public Type TypeFromCoord(Vector3 pos)
         {
             int i = (int)(Math.Floor(-pos.y) * Width + Math.Floor(pos.x));
@@ -32,5 +33,6 @@ namespace R1Engine
 
             else return new Type();
         }
+        */
     }
 }

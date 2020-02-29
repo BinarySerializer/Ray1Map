@@ -139,21 +139,59 @@ namespace R1Engine
         /// <param name="world">The world</param>
         /// <param name="level">The level</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(string basePath, World world, int level)
-        {
-            // Read the level data
+        public Common_Lev LoadLevel(string basePath, World world, int level) {
+            // Open the level
             var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(basePath, world, level));
-            
-            // Convert to common level format
-            return new Common_Lev
-            {
-                Width = levelData.Width,
-                Height = levelData.Height,
-                Events = levelData.Events,
-                RaymanPos = levelData.RaymanPos,
-                Tiles = levelData.Tiles,
-                TileSet = ReadTileSet(basePath, world)
-            };
+
+            // Convert levelData to common level format
+            Common_Lev c = new Common_Lev();
+
+            c.Width = levelData.Width;
+            c.Height = levelData.Height;
+            c.Events = levelData.Events;
+            c.RaymanPos = levelData.RaymanPos;
+
+            c.TileSet = new Common_Tileset[4];
+            // TODO: Other tilesets should probably be initialized here too
+            Common_Tileset tileset1 = new Common_Tileset(ReadTileSet(basePath, world));
+            c.TileSet[1] = tileset1;
+
+            c.Tiles = ConvertTilesToCommon(levelData.Tiles, levelData.Width, levelData.Height);
+
+            return c;
+        }
+
+        /// <summary>
+        /// Converts a PS1_R1_Tile array to Common_Tile array
+        /// </summary>
+        /// <param name="tiles">Array of PS1 tiles</param>
+        /// <param name="w">Level width</param>
+        /// <param name="h">Level height</param>
+        /// <returns>Common_Tile array</returns>
+        public Common_Tile[] ConvertTilesToCommon(PS1_R1_Tile[] tiles, ushort w, ushort h) {
+            Common_Tile[] finalTiles = new Common_Tile[w * h];
+
+            int tileIndex = 0;
+            for (int ty = 0; ty < (h); ty++) {
+                for (int tx = 0; tx < (w); tx++) {
+                    var graphicX = tiles[tileIndex].gX;
+                    var graphicY = tiles[tileIndex].gY;
+
+                    Common_Tile newTile = new Common_Tile();
+                    newTile.palette = 1; // TODO: How to distinguish between which palette a tile should use?
+                    newTile.x = tx;
+                    newTile.y = ty;
+
+                    newTile.cType = tiles[tileIndex].col;
+                    newTile.gIndex = (16 * graphicY) + graphicX;
+
+                    finalTiles[tileIndex] = newTile;
+
+                    tileIndex++;
+                }
+            }
+
+            return finalTiles;
         }
     }
 }

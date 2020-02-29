@@ -5,17 +5,18 @@ namespace R1Engine.Unity {
     public class Controller : MonoBehaviour {
         public static Controller obj;
 
-        [HideInInspector] public LevelBehaviour lvl;
+        [HideInInspector]
+        public LevelMainController levelController;
 
         void Awake() 
         {
             obj = this;
-            lvl = GameObject.Find("Level").GetComponent<LevelBehaviour>();
+            levelController = GameObject.Find("Level").GetComponent<LevelMainController>();
         }
         void Start() 
         {
-            lvl.LoadLevel(Settings.GetManager(), Settings.CurrentDirectory, Settings.World, Settings.Level);
-            Camera.main.transform.position = lvl.level.RaymanPos;
+            levelController.LoadLevel(Settings.GetManager(), Settings.CurrentDirectory, Settings.World, Settings.Level);
+            Camera.main.transform.position = levelController.currentLevel.RaymanPos;
         }
     }
 }
