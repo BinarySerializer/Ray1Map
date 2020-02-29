@@ -205,13 +205,13 @@ namespace R1Engine
                     var textureIndex = -1;
 
                     // Ignore if fully transparent
-                    if (cell.TransparencyMode != PC_R1_MapTile.PC_R1_MapTileTransparencyMode.FullyTransparent)
+                    if (cell.TransparencyMode != PC_R1_MapTileTransparencyMode.FullyTransparent)
                     {
                         // Get the offset for the texture
                         var texOffset = levelData.TexturesOffsetTable[cell.TextureIndex];
 
                         // Get the texture
-                        var texture = cell.TransparencyMode == PC_R1_MapTile.PC_R1_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TransparentTextures.FindItem(x => x.Offset == texOffset);
+                        var texture = cell.TransparencyMode == PC_R1_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TransparentTextures.FindItem(x => x.Offset == texOffset);
 
                         // Get the index
                         textureIndex = levelData.NonTransparentTextures.Concat(levelData.TransparentTextures).FindItemIndex(x => x == texture);
@@ -268,12 +268,15 @@ namespace R1Engine
                     {
                         for (int x = 0; x < CellSize; x++)
                         {
+                            // Get the index
+                            var cellIndex = CellSize * y + x;
+
                             // Get the color from the current palette
-                            var c = levData.ColorPalettes[i][texture.ColorIndexes[x, y]].GetColor();
+                            var c = levData.ColorPalettes[i][texture.ColorIndexes[cellIndex]].GetColor();
 
                             // If the texture is transparent, add the alpha channel
                             if (texture is PC_R1_TransparentTileTexture tt)
-                                c.a = (float)tt.Alpha[x, y] / Byte.MaxValue;
+                                c.a = (float)tt.Alpha[cellIndex] / Byte.MaxValue;
 
                             // Set the pixel
                             tileTexture.SetPixel(x, y, c);

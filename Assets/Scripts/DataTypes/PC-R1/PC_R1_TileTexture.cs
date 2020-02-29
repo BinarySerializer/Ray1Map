@@ -8,11 +8,6 @@ namespace R1Engine
     public class PC_R1_TileTexture : ISerializableFile
     {
         /// <summary>
-        /// The size of the texture in pixels
-        /// </summary>
-        public const int Size = 16;
-
-        /// <summary>
         /// The offset for this texture, as defines in the textures offset table. This value is not a part of the texture and has to be set manually.
         /// </summary>
         public uint Offset { get; set; }
@@ -20,7 +15,7 @@ namespace R1Engine
         /// <summary>
         /// The color indexes for this texture
         /// </summary>
-        public byte[,] ColorIndexes { get; set; }
+        public byte[] ColorIndexes { get; set; }
 
         /// <summary>
         /// Unknown array of bytes, always 32 in length
@@ -34,16 +29,7 @@ namespace R1Engine
         public virtual void Deserialize(Stream stream)
         {
             // Set the color array
-            ColorIndexes = new byte[Size, Size];
-
-            for (int y = 0; y < Size; y++)
-            {
-                for (int x = 0; x < Size; x++)
-                {
-                    ColorIndexes[x, y] = stream.Read<byte>();
-                }
-            }
-
+            ColorIndexes = stream.ReadBytes(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
             Unknown1 = stream.ReadBytes(32);
         }
 
@@ -53,14 +39,7 @@ namespace R1Engine
         /// <param name="stream">The stream to write to</param>
         public virtual void Serialize(Stream stream)
         {
-            for (int y = 0; y < Size; y++)
-            {
-                for (int x = 0; x < Size; x++)
-                {
-                    stream.Write(ColorIndexes[x, y]);
-                }
-            }
-
+            stream.Write(ColorIndexes);
             stream.Write(Unknown1);
         }
     }

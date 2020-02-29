@@ -77,7 +77,7 @@ namespace R1Engine
         /// <summary>
         /// The color indexes for the rough textures
         /// </summary>
-        public byte[][,] RoughTextures { get; set; }
+        public byte[][] RoughTextures { get; set; }
 
         /// <summary>
         /// The checksum for the <see cref="RoughTextures"/>
@@ -219,13 +219,7 @@ namespace R1Engine
             Tiles = new PC_R1_MapTile[MapWidth * MapHeight];
 
             // Read each map cell
-            for (int y = 0; y < MapHeight; y++)
-            {
-                for (int x = 0; x < MapWidth; x++)
-                {
-                    Tiles[y * MapWidth + x] = stream.Read<PC_R1_MapTile>();
-                }
-            }
+            Tiles = stream.Read<PC_R1_MapTile>((ulong)MapHeight * MapWidth);
 
             // Read unknown byte
             Unknown2 = stream.Read<byte>();
@@ -241,21 +235,11 @@ namespace R1Engine
             Unknown3Count = stream.Read<uint>();
 
             // Create the collection of rough textures
-            RoughTextures = new byte[RoughTextureCount][,];
+            RoughTextures = new byte[RoughTextureCount][];
 
             // Read each rough texture
             for (int i = 0; i < RoughTextureCount; i++)
-            {
-                RoughTextures[i] = new byte[16, 16];
-
-                for (int y = 0; y < 16; y++)
-                {
-                    for (int x = 0; x < 16; x++)
-                    {
-                        RoughTextures[i][x, y] = stream.Read<byte>();
-                    }
-                }
-            }
+                RoughTextures[i] = stream.ReadBytes(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
 
             // Read the checksum for the rough textures
             RoughTexturesChecksum = stream.Read<byte>();
@@ -401,15 +385,7 @@ namespace R1Engine
 
             // Write each rough texture
             for (int i = 0; i < RoughTextureCount; i++)
-            {
-                for (int y = 0; y < 16; y++)
-                {
-                    for (int x = 0; x < 16; x++)
-                    {
-                        stream.Write(RoughTextures[i][x, y]);
-                    }
-                }
-            }
+                stream.Write(RoughTextures[i]);
 
             // Write the checksum for the rough textures
             stream.Write(RoughTexturesChecksum);
