@@ -1,16 +1,33 @@
 ﻿namespace R1Engine 
 {
-    // TODO: Clean up & add to common data types
+    /// <summary>
+    /// A map tile
+    /// </summary>
     public class Common_Tile
     {
-        // Link to a specific palette (in this case, a tilemap index)
-        public int palette;
-        // Coordinates of the tile
-        public int x;
-        public int y;
-        // Graphical index of the tile
-        public int gIndex;
-        // Collision type
-        public TileCollisionType cType;
+        /// <summary>
+        /// The palette index, between 1 and 3
+        /// </summary>
+        public int palette { get; set; }
+
+        /// <summary>
+        /// The x position
+        /// </summary>
+        public int x { get; set; }
+
+        /// <summary>
+        /// The y position
+        /// </summary>
+        public int y { get; set; }
+
+        /// <summary>
+        /// The tile index from the tile-set
+        /// </summary>
+        public int gIndex { get; set; }
+
+        /// <summary>
+        /// The collision type
+        /// </summary>
+        public TileCollisionType cType { get; set; }
     }
 }
