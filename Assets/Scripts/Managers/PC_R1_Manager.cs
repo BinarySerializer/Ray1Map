@@ -238,7 +238,10 @@ namespace R1Engine
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    var tileTexture = new Texture2D(CellSize, CellSize);
+                    var tileTexture = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false)
+                    {
+                        filterMode = FilterMode.Point
+                    };
 
                     // Write each pixel for the texture
                     for (int x = 0; x < CellSize; x++)

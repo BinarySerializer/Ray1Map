@@ -25,15 +25,9 @@ namespace R1Engine
                 // Index 0 is collision types tilemap
                 tilemaps[0].SetTile(new Vector3Int(t.x, t.y, 0), typeCollisionTiles[(int)t.cType]);
 
-                // Indexes 1-3 are normal tilemaps
-                if (level.TileSet[1] != null) 
-                    tilemaps[1].SetTile(new Vector3Int(t.x, t.y, 0), level.TileSet[1].Tiles[t.gIndex]);
-                
-                if (level.TileSet[2] != null) 
-                    tilemaps[2].SetTile(new Vector3Int(t.x, t.y, 0), level.TileSet[2].Tiles[t.gIndex]);
-
-                if (level.TileSet[3] != null) 
-                    tilemaps[3].SetTile(new Vector3Int(t.x, t.y, 0), level.TileSet[3].Tiles[t.gIndex]);
+                // Assign tiles to their correct tilemaps based on the palette
+                if (level.TileSet[t.palette] != null && t.gIndex!=-1)
+                    tilemaps[t.palette].SetTile(new Vector3Int(t.x, t.y, 0), level.TileSet[t.palette].Tiles[t.gIndex]);
             }
         }
     }
