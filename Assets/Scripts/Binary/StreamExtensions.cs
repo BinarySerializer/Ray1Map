@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 
 namespace R1Engine
 {
@@ -8,6 +9,8 @@ namespace R1Engine
     /// </summary>
     public static class StreamExtensions
     {
+        #region Common
+
         /// <summary>
         /// Reads a supported value from the stream
         /// </summary>
@@ -176,5 +179,50 @@ namespace R1Engine
 
             return buffer;
         }
+
+        #endregion
+
+        #region Strings
+
+        /// <summary>
+        /// Reads a null-terminated string from the stream
+        /// </summary>
+        /// <param name="stream">The stream to read from</param>
+        /// <param name="encoding">The encoding to use</param>
+        /// <returns>The string</returns>
+        public static string ReadNullTerminatedString(this Stream stream, Encoding encoding)
+        {
+            using (var reader = new BinaryReader(stream, encoding, true))
+            {
+                string str = String.Empty;
+
+                char ch;
+
+                while ((ch = reader.ReadChar()) != 0)
+                    str += ch;
+
+                return str;
+            }
+        }
+
+        /// <summary>
+        /// Writes a null-terminated string to the stream
+        /// </summary>
+        /// <param name="stream">The stream to write to</param>
+        /// <param name="encoding">The encoding to use</param>
+        /// <param name="value">The value to write</param>
+        public static void WriteNullTerminatedString(this Stream stream, Encoding encoding, string value)
+        {
+            // Get the string bytes
+            var bytes = encoding.GetBytes(value);
+
+            // Write the bytes to the stream
+            stream.Write(bytes);
+
+            // Write the null value
+            stream.Write((byte)0x00);
+        }
+
+        #endregion
     }
 }
