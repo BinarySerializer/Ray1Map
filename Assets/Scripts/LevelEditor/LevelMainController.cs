@@ -38,5 +38,10 @@ namespace R1Engine.Unity {
             mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
             backgroundTint.sharedMesh = mo;
         }
+
+        public void SaveLevelTEMP() {
+            Settings.GetManager().SaveLevel(Settings.CurrentDirectory, Settings.World, Settings.Level, controllerTilemap.Level);
+            Debug.Log("Saved.");
+        }
     }
 }
