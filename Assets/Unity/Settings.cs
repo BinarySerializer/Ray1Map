@@ -74,6 +74,7 @@ namespace R1Engine
             EditorPrefs.SetString("GameMode", Mode.ToString());
             EditorPrefs.SetString("SelectedWorld", World.ToString());
             EditorPrefs.SetInt("SelectedLevelFile", Level);
+            EditorPrefs.SetBool("UseHDCollisionSheet", UseHDCollisionSheet);
         }
 
         /// <summary>
@@ -90,6 +91,7 @@ namespace R1Engine
             Mode = Enum.TryParse(EditorPrefs.GetString("GameMode", Mode.ToString()), out GameMode gameMode) ? gameMode : Mode;
             World = Enum.TryParse(EditorPrefs.GetString("SelectedWorld", World.ToString()), out World world) ? world : World;
             Level = EditorPrefs.GetInt("SelectedLevelFile", Level);
+            UseHDCollisionSheet = EditorPrefs.GetBool("UseHDCollisionSheet", UseHDCollisionSheet);
         }
 
         /// <summary>

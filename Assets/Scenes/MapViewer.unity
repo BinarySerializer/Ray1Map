@@ -575,17 +575,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e4d50737777ac4da0c4261aea17727, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilemaps:
+  Tilemaps:
   - {fileID: 92047765}
   - {fileID: 469623994}
   - {fileID: 107166737}
   - {fileID: 1844136698}
-  events: {fileID: 114616739}
-  layerButtons:
+  Events: {fileID: 114616739}
+  LayerButtons:
   - {fileID: 1507748498}
   - {fileID: 32967535}
   - {fileID: 2130255830}
-  typeCollisionTiles:
+  TypeCollisionTiles:
   - {fileID: 0}
   - {fileID: 11400000, guid: 5cf5a56aca66923429e5f4b9996ae4e9, type: 2}
   - {fileID: 11400000, guid: 280cf40dff46bc740a3a952259b64c6f, type: 2}
@@ -618,6 +618,39 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c4d4e385186d1d345a0c6496172ee289, type: 2}
   - {fileID: 11400000, guid: 4975e0ea8cb557240a5122e4bf84c22e, type: 2}
   - {fileID: 11400000, guid: 9b5cbf16d485a6545a3c72453c0e8b2c, type: 2}
+  TypeCollisionTilesHD:
+  - {fileID: 0}
+  - {fileID: 11400000, guid: 87176761372c8ea489005463a44b70c9, type: 2}
+  - {fileID: 11400000, guid: 75d29617d1ea2ca45b0ca69bcc04a17f, type: 2}
+  - {fileID: 11400000, guid: 656287bcc2825c84c871d564076714b2, type: 2}
+  - {fileID: 11400000, guid: 775086b20a672bd4c95528c75548af5e, type: 2}
+  - {fileID: 11400000, guid: 01d6ba4cd7ecd844f8a58b7a4f9dcc52, type: 2}
+  - {fileID: 11400000, guid: 8b6dd4df93896e9488ce2c48f27867b4, type: 2}
+  - {fileID: 11400000, guid: 592ecc2c91a9f374cb32d513cbf664cd, type: 2}
+  - {fileID: 11400000, guid: 0855c138dedf3fa478f2f578b95bbc71, type: 2}
+  - {fileID: 11400000, guid: 8f36442b70b47c047a63a1b42ac8d1d9, type: 2}
+  - {fileID: 11400000, guid: 8b2c73a1830899a47aeff66280ac3d02, type: 2}
+  - {fileID: 11400000, guid: 9b39c3456334fd347a07e6d2481e5c53, type: 2}
+  - {fileID: 11400000, guid: 6d8cf5ac6f4c5b04094d6c115087eb52, type: 2}
+  - {fileID: 11400000, guid: 58175aa50eed4ac4687dc2c090255090, type: 2}
+  - {fileID: 11400000, guid: a1315b9824245074fbcc8f4544d4d335, type: 2}
+  - {fileID: 11400000, guid: bda971ffae72aa446bc935ac6e8b83a4, type: 2}
+  - {fileID: 11400000, guid: 3d8dd6e62e44e814f9c509af87c15fb6, type: 2}
+  - {fileID: 11400000, guid: 2941b825d6258ec419bfa64842bab0bd, type: 2}
+  - {fileID: 11400000, guid: a6651974d4db9e4419cb576bd8b60929, type: 2}
+  - {fileID: 11400000, guid: 043e9645977b991498683d741cd3eb78, type: 2}
+  - {fileID: 11400000, guid: ead5b5c33afc454468db026c0d44e0ed, type: 2}
+  - {fileID: 11400000, guid: fe3de7d8a3f98aa4e836126f95d3c7d5, type: 2}
+  - {fileID: 11400000, guid: 3301fc1410052d64ab0fe2881b482d60, type: 2}
+  - {fileID: 11400000, guid: 4bc93d46cda1e4f42925bd70cae51260, type: 2}
+  - {fileID: 11400000, guid: 9af10e6169ecc1e4f97b33c8d1be83bd, type: 2}
+  - {fileID: 11400000, guid: 68bee95a417960d4c917758998986af2, type: 2}
+  - {fileID: 11400000, guid: 011934cef475d054dbc471a00eef0729, type: 2}
+  - {fileID: 11400000, guid: 2dbc1228dd26a1f4ea9b7d6b85e77574, type: 2}
+  - {fileID: 11400000, guid: d51af756f8457734287871f44e5740ad, type: 2}
+  - {fileID: 11400000, guid: 2f193f7fe2d731f43a7b49d4a22fad60, type: 2}
+  - {fileID: 11400000, guid: 18cf38b2e4a67fd40900a519486a32ab, type: 2}
+  - {fileID: 11400000, guid: 6a8a4d6c2168e794586512299c6dbe8d, type: 2}
 --- !u!1 &257161189
 GameObject:
   m_ObjectHideFlags: 0
@@ -3638,7 +3671,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 2
+          m_IntArgument: 3
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0

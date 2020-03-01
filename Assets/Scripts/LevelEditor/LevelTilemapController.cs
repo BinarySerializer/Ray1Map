@@ -10,22 +10,23 @@ namespace R1Engine
         /// <summary>
         /// References to specific tilemap gameObjects in inspector
         /// </summary>
-        public Tilemap[] Tilemaps { get; set; }
+        public Tilemap[] Tilemaps;
 
         /// <summary>
         /// The events
         /// </summary>
-        public GameObject Events { get; set; }
+        public GameObject Events;
 
         /// <summary>
         /// The tile layer buttons, so they can be hidden with versions that don't have 3 palettes
         /// </summary>
-        public Button[] LayerButtons { get; set; }
+        public Button[] LayerButtons;
 
         /// <summary>
         /// The type collision tiles
         /// </summary>
-        public Tile[] TypeCollisionTiles { get; set; }
+        public Tile[] TypeCollisionTiles;
+        public Tile[] TypeCollisionTilesHD;
 
         /// <summary>
         /// The current level
@@ -49,7 +50,13 @@ namespace R1Engine
             foreach(Common_Tile t in Level.Tiles) {
 
                 // Index 0 is collision types tilemap
-                Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTiles[(int)t.CollisionType]);
+                if (Settings.UseHDCollisionSheet) {
+                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTilesHD[(int)t.CollisionType]);
+                }
+                else {
+                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTiles[(int)t.CollisionType]);
+                }
+
 
                 // Assign tiles to their correct tilemaps based on the palette
                 if (Level.TileSet[t.PaletteIndex] != null && t.TileSetGraphicIndex != -1)
