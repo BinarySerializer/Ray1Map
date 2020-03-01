@@ -298,5 +298,54 @@ namespace R1Engine
 
             return output;
         }
+
+        /// <summary>
+        /// Saves the specified level
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="world">The world</param>
+        /// <param name="level">The level</param>
+        /// <param name="levelData">The common level data</param>
+        public void SaveLevel(string basePath, World world, int level, Common_Lev levelData)
+        {
+            // Get the level file path
+            var lvlPath = GetLevelFilePath(basePath, world, level);
+
+            // Get the level data
+            var lvlData = FileFactory.Read<PC_R1_LevFile>(lvlPath);
+
+            // Update the tiles
+            for (int y = 0; y < lvlData.MapHeight; y++)
+            {
+                for (int x = 0; x < lvlData.MapWidth; x++)
+                {
+                    // Get the tiles
+                    var tile = lvlData.Tiles[y * CellSize + x];
+                    var commonTile = levelData.Tiles[y * CellSize + x];
+
+                    // Update the tile
+                    tile.CollisionType = commonTile.CollisionType;
+
+                    if (commonTile.TileSetGraphicIndex == -1)
+                    {
+                        tile.TextureIndex = 0;
+                        tile.TransparencyMode = PC_R1_MapTileTransparencyMode.FullyTransparent;
+                    }
+                    else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount)
+                    {
+                        tile.TextureIndex = (ushort)commonTile.TileSetGraphicIndex;
+                        tile.TransparencyMode = PC_R1_MapTileTransparencyMode.NoTransparency;
+                    }
+                    else
+                    { 
+                        tile.TextureIndex = (ushort)(commonTile.TileSetGraphicIndex + lvlData.NonTransparentTexturesCount);
+                        tile.TransparencyMode = PC_R1_MapTileTransparencyMode.PartiallyTransparent;
+                    }
+                }
+            }
+
+            // Save the file
+            FileFactory.Write(lvlPath);
+        }
     }
 }

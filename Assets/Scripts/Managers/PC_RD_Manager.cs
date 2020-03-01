@@ -125,5 +125,17 @@ namespace R1Engine
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Saves the specified level
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="world">The world</param>
+        /// <param name="level">The level</param>
+        /// <param name="levelData">The common level data</param>
+        public void SaveLevel(string basePath, World world, int level, Common_Lev levelData)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
