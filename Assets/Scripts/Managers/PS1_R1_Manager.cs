@@ -172,7 +172,11 @@ namespace R1Engine
             {
                 Width = levelData.Width,
                 Height = levelData.Height,
-                Events = levelData.Events,
+                Events = levelData.Events.Select(x => new Event()
+                {
+                    pos = new PxlVec(x.XPosition, x.YPosition),
+                    type = (EventType)x.Type
+                }).ToArray(),
                 RaymanPos = levelData.RaymanPos,
                 TileSet = new Common_Tileset[4]
             };

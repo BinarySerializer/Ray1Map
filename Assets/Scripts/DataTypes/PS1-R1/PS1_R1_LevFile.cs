@@ -9,15 +9,66 @@ namespace R1Engine
     /// </summary>
     public class PS1_R1_LevFile : ISerializableFile
     {
-        // TODO: Add remaining properties
+        /// <summary>
+        /// The pointer to the offset block
+        /// </summary>
+        public uint OffsetBlockPointer { get; set; }
+
+        /// <summary>
+        /// The pointer to the background block
+        /// </summary>
+        public uint BackgroundBlockPointer { get; set; }
+
+        /// <summary>
+        /// The pointer to the event block
+        /// </summary>
+        public uint EventBlockPointer { get; set; }
+
+        /// <summary>
+        /// The pointer to the map block
+        /// </summary>
+        public uint MapBlockPointer { get; set; }
+
+        /// <summary>
+        /// The pointer to the texture block
+        /// </summary>
+        public uint TextureBlockPointer { get; set; }
+
+        /// <summary>
+        /// The pointer to the end of the file
+        /// </summary>
+        public uint FileEndPointer { get; set; }
+
+        // TODO: This is a temp property until we serialize the actual data
+        public byte[] BackgroundBlock { get; set; }
+
+        public uint Unknown1 { get; set; }
+
+        /// <summary>
+        /// The amount of events in the file
+        /// </summary>
+        public uint EventCount { get; set; }
+
+        public uint Unknown2 { get; set; }
+
+        // NOTE: Always the same as EventCount
+        public uint Unknown3 { get; set; }
+
+        /// <summary>
+        /// The events
+        /// </summary>
+        public PS1_R1_Event[] Events { get; set; }
+
+
+
+
+        // TODO: Below here are old values which are still currently being used
 
         public ushort Width { get; set; }
 
         public ushort Height { get; set; }
 
         public PS1_R1_MapTile[] Tiles { get; set; }
-
-        public Event[] Events { get; set; }
 
         // TODO: Remove?
         public PxlVec RaymanPos { get; set; }
@@ -28,16 +79,50 @@ namespace R1Engine
         /// <param name="stream">The stream to read from</param>
         public void Deserialize(Stream stream)
         {
-            // TODO: Redo everything below here to use stream rather than buffer and make sure to read entire file so we can write it back
+            // Read the offset block pointer
+            OffsetBlockPointer = stream.Read<uint>();
 
-            int event_off_pos = 0x1C;
-            int event_off_type = 0x63;
+            // OFFSET BLOCK
+
+            // Read the pointers
+            BackgroundBlockPointer = stream.Read<uint>();
+            EventBlockPointer = stream.Read<uint>();
+            MapBlockPointer = stream.Read<uint>();
+            TextureBlockPointer = stream.Read<uint>();
+            FileEndPointer = stream.Read<uint>();
+
+            // BACKGROUND BLOCK
+
+            BackgroundBlock = stream.ReadBytes((int)(EventBlockPointer - BackgroundBlockPointer));
+
+            // EVENT BLOCK
+
+            // Read header
+            Unknown1 = stream.Read<uint>();
+            EventCount = stream.Read<uint>();
+            Unknown2 = stream.Read<uint>();
+            Unknown3 = stream.Read<uint>();
+
+            // Read every event
+            Events = stream.Read<PS1_R1_Event>(EventCount);
+
+            // MAP BLOCK
+
+            // TODO: Read
+
+            // TEXTURE BLOCK
+
+            // TODO: Read
+
+
+
+
+            stream.Position = 0;
+            // TODO: Everything below is the old current code which is being changed
 
             var XXX = stream.ReadBytes((int)stream.Length);
 
-            int off_events = BitConverter.ToInt32(XXX, 0x8);
             int off_types = BitConverter.ToInt32(XXX, 0xC);
-            int off_sprites = BitConverter.ToInt32(XXX, 0x10);
 
             Width = BitConverter.ToUInt16(XXX, off_types);
             Height = BitConverter.ToUInt16(XXX, off_types + 2);
@@ -53,25 +138,6 @@ namespace R1Engine
                 Tiles[n].gY = g >> 4;
                 Tiles[n].col = (TileCollisionType)(XXX[i + 1] >> 2);
             }
-
-
-            // Events
-            var evs = new List<Event>();
-            for (int e = off_events + 16; XXX[e] > 0; e += 0x70)
-            {
-                var ev = new Event
-                {
-                    pos = new PxlVec(
-                        BitConverter.ToUInt16(XXX, e + event_off_pos),
-                        BitConverter.ToUInt16(XXX, e + event_off_pos + 2)),
-                    type = (EventType) XXX[e + event_off_type]
-                };
-                evs.Add(ev);
-
-                off_types -= 113;
-                off_sprites -= 113;
-            }
-            Events = evs.ToArray();
 
             // hack get rayman pos
             for (int b = 0; b + 4 < XXX.Length; b++)
