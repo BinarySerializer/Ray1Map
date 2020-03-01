@@ -58,15 +58,22 @@ namespace R1Engine
         /// </summary>
         public PS1_R1_Event[] Events { get; set; }
 
+        // TODO: This is a temp property until we serialize the actual data
+        public byte[] EventBlock { get; set; }
 
-
-
-        // TODO: Below here are old values which are still currently being used
-
+        /// <summary>
+        /// The map width, in tiles
+        /// </summary>
         public ushort Width { get; set; }
 
+        /// <summary>
+        /// The map height, in tiles
+        /// </summary>
         public ushort Height { get; set; }
 
+        /// <summary>
+        /// The tiles
+        /// </summary>
         public PS1_R1_MapTile[] Tiles { get; set; }
 
         /// <summary>
@@ -102,38 +109,20 @@ namespace R1Engine
             // Read every event
             Events = stream.Read<PS1_R1_Event>(EventCount);
 
+            EventBlock = stream.ReadBytes((int)(MapBlockPointer - stream.Position));
+
             // MAP BLOCK
 
-            // TODO: Read
+            // Read map size
+            Width = stream.Read<ushort>();
+            Height = stream.Read<ushort>();
+
+            // Read tiles
+            Tiles = stream.Read<PS1_R1_MapTile>((ulong)(Width * Height));
 
             // TEXTURE BLOCK
 
             // TODO: Read
-
-
-
-
-            stream.Position = 0;
-            // TODO: Everything below is the old current code which is being changed
-
-            var XXX = stream.ReadBytes((int)stream.Length);
-
-            int off_types = BitConverter.ToInt32(XXX, 0xC);
-
-            Width = BitConverter.ToUInt16(XXX, off_types);
-            Height = BitConverter.ToUInt16(XXX, off_types + 2);
-
-            int i = off_types + 4;
-            Tiles = new PS1_R1_MapTile[Width * Height];
-
-            for (int n = 0; n < Width * Height; n++, i += 2)
-            {
-                Tiles[n] = new PS1_R1_MapTile();
-                int g = XXX[i] + ((XXX[i + 1] & 3) << 8);
-                Tiles[n].gX = g & 15;
-                Tiles[n].gY = g >> 4;
-                Tiles[n].col = (TileCollisionType)(XXX[i + 1] >> 2);
-            }
         }
 
         /// <summary>

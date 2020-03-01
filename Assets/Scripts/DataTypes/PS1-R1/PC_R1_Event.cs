@@ -36,11 +36,15 @@ namespace R1Engine
         public void Deserialize(Stream stream)
         {
             Unknown1 = stream.ReadBytes(28);
+
             XPosition = stream.Read<ushort>();
             YPosition = stream.Read<ushort>();
+
             Unknown2 = stream.ReadBytes(67);
+
             Type = stream.Read<byte>();
-            Unknown2 = stream.ReadBytes(12);
+
+            Unknown3 = stream.ReadBytes(12);
         }
 
         /// <summary>

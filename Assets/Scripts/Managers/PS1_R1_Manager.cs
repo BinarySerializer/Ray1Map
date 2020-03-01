@@ -201,15 +201,15 @@ namespace R1Engine
             int tileIndex = 0;
             for (int ty = 0; ty < (h); ty++) {
                 for (int tx = 0; tx < (w); tx++) {
-                    var graphicX = tiles[tileIndex].gX;
-                    var graphicY = tiles[tileIndex].gY;
+                    var graphicX = tiles[tileIndex].XPosition;
+                    var graphicY = tiles[tileIndex].YPosition;
 
                     Common_Tile newTile = new Common_Tile
                     {
                         PaletteIndex = 1,
                         XPosition = tx,
                         YPosition = ty,
-                        CollisionType = tiles[tileIndex].col,
+                        CollisionType = tiles[tileIndex].CollisionType,
                         TileSetGraphicIndex = (16 * graphicY) + graphicX
                     };
 
