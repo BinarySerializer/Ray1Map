@@ -29,6 +29,31 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets the name for the world
+        /// </summary>
+        /// <returns>The world name</returns>
+        public string GetWorldName(World world)
+        {
+            switch (world)
+            {
+                case World.Jungle:
+                    return "JUNGLE";
+                case World.Music:
+                    return "MUSIC";
+                case World.Mountain:
+                    return "MOUNTAIN";
+                case World.Image:
+                    return "IMAGE";
+                case World.Cave:
+                    return "CAVE";
+                case World.Cake:
+                    return "CAKE";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
+            }
+        }
+
+        /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
         /// <param name="basePath">The base game path</param>
@@ -36,29 +61,7 @@ namespace R1Engine
         /// <returns>The world folder path</returns>
         public string GetWorldFolderPath(string basePath, World world)
         {
-            // Helper method for getting the folder name for the world
-            string GetWorldFolderName()
-            {
-                switch (world)
-                {
-                    case World.Jungle:
-                        return "JUNGLE";
-                    case World.Music:
-                        return "MUSIC";
-                    case World.Mountain:
-                        return "MOUNTAIN";
-                    case World.Image:
-                        return "IMAGE";
-                    case World.Cave:
-                        return "CAVE";
-                    case World.Cake:
-                        return "CAKE";
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(world), world, null);
-                }
-            }
-
-            return Path.Combine(basePath, "PCMAP", GetWorldFolderName());
+            return Path.Combine(basePath, "PCMAP", GetWorldName(world));
         }
 
         /// <summary>

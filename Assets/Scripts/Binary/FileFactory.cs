@@ -72,6 +72,7 @@ namespace R1Engine
         {
             typeof(PC_R1_LevFile),
             typeof(PC_RD_EventLocFile),
+            typeof(PC_RD_EventManifestFile),
         };
     }
 }
