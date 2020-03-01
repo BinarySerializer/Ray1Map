@@ -335,7 +335,7 @@ namespace R1Engine
                         tile.TransparencyMode = PC_R1_MapTileTransparencyMode.NoTransparency;
                     }
                     else {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex + lvlData.NonTransparentTexturesCount)].Offset);
+                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].Offset);
                         tile.TransparencyMode = PC_R1_MapTileTransparencyMode.PartiallyTransparent;
                     }
                 }
