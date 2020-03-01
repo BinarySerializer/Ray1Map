@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace R1Engine
@@ -70,9 +69,6 @@ namespace R1Engine
 
         public PS1_R1_MapTile[] Tiles { get; set; }
 
-        // TODO: Remove?
-        public PxlVec RaymanPos { get; set; }
-
         /// <summary>
         /// Deserializes the file contents
         /// </summary>
@@ -138,16 +134,6 @@ namespace R1Engine
                 Tiles[n].gY = g >> 4;
                 Tiles[n].col = (TileCollisionType)(XXX[i + 1] >> 2);
             }
-
-            // hack get rayman pos
-            for (int b = 0; b + 4 < XXX.Length; b++)
-                if (XXX[b] == 0x07 && XXX[b + 1] == 0x63 && XXX[b + 2] == 0 && XXX[b + 3] == 0)
-                {
-                    RaymanPos = new PxlVec(
-                        BitConverter.ToUInt16(XXX, b - 0x46),
-                        BitConverter.ToUInt16(XXX, b - 0x44));
-                    break;
-                }
         }
 
         /// <summary>

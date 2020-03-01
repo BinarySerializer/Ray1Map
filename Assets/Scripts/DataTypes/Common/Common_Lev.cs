@@ -29,8 +29,5 @@
         /// The events
         /// </summary>
         public Event[] Events { get; set; }
-
-        // TODO: Remove?
-        public PxlVec RaymanPos { get; set; }
     }
 }

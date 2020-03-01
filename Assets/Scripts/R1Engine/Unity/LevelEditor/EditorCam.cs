@@ -13,7 +13,11 @@ namespace R1Engine.Unity {
 
         void Start() {
             Camera.main.orthographicSize = fov;
-            pos = Controller.obj.levelController.currentLevel.RaymanPos;
+
+            var startEvent = Controller.obj.levelController.currentLevel.Events.FindItem(x => (int)x.type == 99 || (int)x.type == 124);
+
+            if (startEvent != null)
+                pos = startEvent.pos;
         }
 
         void Update() {
