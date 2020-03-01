@@ -7,7 +7,7 @@
     {
         None = 0,
         Reactionary = 1,
-        Hill_Sleep_Left = 2,
+        Hill_Steep_Left = 2,
         Hill_Steep_Right = 3,
         Hill_Slight_Left_1 = 4,
         Hill_Slight_Left_2 = 5,
