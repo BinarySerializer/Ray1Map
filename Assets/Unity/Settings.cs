@@ -21,12 +21,29 @@ namespace R1Engine
 
         #region Public Properties
 
+        /// <summary>
+        /// The selected game mode
+        /// </summary>
         public static GameMode Mode { get; set; }
 
+        /// <summary>
+        /// The selected game world
+        /// </summary>
         public static World World { get; set; }
 
+        /// <summary>
+        /// The selected level index, starting from 1
+        /// </summary>
         public static int Level { get; set; }
 
+        /// <summary>
+        /// True for the HD collision sheet to be used, false for the original Rayman Designer one to be used
+        /// </summary>
+        public static bool UseHDCollisionSheet { get; set; }
+
+        /// <summary>
+        /// The specified game directories for each mode
+        /// </summary>
         public static Dictionary<GameMode, string> GameDirectories { get; set; }
 
         /// <summary>

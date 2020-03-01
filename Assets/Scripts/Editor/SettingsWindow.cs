@@ -40,13 +40,13 @@ public class SettingsWindow : UnityWindow
 		// Mode
 		DrawHeader(ref yPos, "Mode");
 
-		Settings.Mode = (GameMode)EditorGUI.EnumPopup(GetNextRect(ref yPos), new GUIContent("Game"), Settings.Mode);
+		Settings.Mode = (GameMode)EditorGUI.EnumPopup(GetNextRect(ref yPos), "Game", Settings.Mode);
 
 		// Map
 
 		DrawHeader(ref yPos, "Map");
 
-        Settings.World = (World)EditorGUI.EnumPopup(GetNextRect(ref yPos), new GUIContent("World"), Settings.World);
+        Settings.World = (World)EditorGUI.EnumPopup(GetNextRect(ref yPos), "World", Settings.World);
 
         try
         {
@@ -72,7 +72,13 @@ public class SettingsWindow : UnityWindow
             Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<DescriptionAttribute>()?.Description, Settings.GameDirectories.TryGetValue(mode, out var dir) ? dir : String.Empty);
         }
 
-		// Update previous values
+        // Miscellaneous
+
+        DrawHeader(ref yPos, "Miscellaneous");
+
+        Settings.UseHDCollisionSheet = EditorGUI.Toggle(GetNextRect(ref yPos), "Use HD collision sheet", Settings.UseHDCollisionSheet);
+
+        // Update previous values
 		UpdatePreviousValues();
 
 		TotalyPos = yPos;
