@@ -128,15 +128,56 @@ namespace R1Engine
             // Check which type of palette changer we have
             bool isPaletteHorizontal = paletteXChangers.Any();
 
+            // Keep track of the default palette
+            int defaultPalette = 1;
+
+            // Get the default palette
+            if (isPaletteHorizontal)
+            {
+                switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
+                {
+                    case PC_R1_PaletteChangerMode.Left1toRight2:
+                    case PC_R1_PaletteChangerMode.Left1toRight3:
+                        defaultPalette = 1;
+                        break;
+                    case PC_R1_PaletteChangerMode.Left2toRight1:
+                    case PC_R1_PaletteChangerMode.Left2toRight3:
+                        defaultPalette = 2;
+                        break;
+                    case PC_R1_PaletteChangerMode.Left3toRight1:
+                    case PC_R1_PaletteChangerMode.Left3toRight2:
+                        defaultPalette = 3;
+                        break;
+                }
+            }
+            else
+            {
+                switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
+                {
+                    case PC_R1_PaletteChangerMode.Top1tobottom2:
+                    case PC_R1_PaletteChangerMode.Top1tobottom3:
+                        defaultPalette = 1;
+                        break;
+                    case PC_R1_PaletteChangerMode.Top2tobottom1:
+                    case PC_R1_PaletteChangerMode.Top2tobottom3:
+                        defaultPalette = 2;
+                        break;
+                    case PC_R1_PaletteChangerMode.Top3tobottom1:
+                    case PC_R1_PaletteChangerMode.Top3tobottom2:
+                        defaultPalette = 3;
+                        break;
+                }
+            }
+
             // Keep track of the current palette
-            int currentPalette = 1;
+            int currentPalette = defaultPalette;
 
             // Enumerate each cell
             for (int cellY = 0; cellY < levelData.MapHeight; cellY++)
             {
                 // Reset the palette on each row if we have a horizontal changer
                 if (isPaletteHorizontal)
-                    currentPalette = 1;
+                    currentPalette = defaultPalette;
                 // Otherwise check the y position
                 else
                 {
