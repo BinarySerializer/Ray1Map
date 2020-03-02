@@ -2882,7 +2882,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Save (Temp, PC tiles only)
+  m_Text: Save (tiles only)
 --- !u!222 &1158281759
 CanvasRenderer:
   m_ObjectHideFlags: 0
