@@ -132,7 +132,7 @@ namespace R1Engine
             int defaultPalette = 1;
 
             // Get the default palette
-            if (isPaletteHorizontal)
+            if (isPaletteHorizontal && paletteXChangers.Any())
             {
                 switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
                 {
@@ -150,7 +150,7 @@ namespace R1Engine
                         break;
                 }
             }
-            else
+            else if (!isPaletteHorizontal && paletteYChangers.Any())
             {
                 switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
                 {
