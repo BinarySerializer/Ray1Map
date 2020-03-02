@@ -16,7 +16,11 @@ namespace R1Engine.Unity {
         void Start() 
         {
             levelController.LoadLevel(Settings.GetManager(), Settings.CurrentDirectory, Settings.World, Settings.Level);
-            Camera.main.transform.position = levelController.currentLevel.RaymanPos;
+
+            var startEvent = levelController.currentLevel.Events.FindItem(x => (int)x.type == 99 || (int)x.type == 124);
+
+            if (startEvent != null)
+                Camera.main.transform.position = startEvent.pos;
         }
     }
 }

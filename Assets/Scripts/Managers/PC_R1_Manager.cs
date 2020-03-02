@@ -93,8 +93,8 @@ namespace R1Engine
             Common_Lev commonLev = new Common_Lev
             {
                 // Set the dimensions
-                Width = levelData.MapWidth,
-                Height = levelData.MapHeight,
+                Width = levelData.Width,
+                Height = levelData.Height,
 
                 // TODO: Clean up by making a common event class
                 // Set the events
@@ -106,7 +106,7 @@ namespace R1Engine
 
                 // Create the tile arrays
                 TileSet = new Common_Tileset[4],
-                Tiles = new Common_Tile[levelData.MapWidth * levelData.MapHeight]
+                Tiles = new Common_Tile[levelData.Width * levelData.Height]
             };
 
             // Read the 3 tile sets (one for each palette)
@@ -128,15 +128,56 @@ namespace R1Engine
             // Check which type of palette changer we have
             bool isPaletteHorizontal = paletteXChangers.Any();
 
+            // Keep track of the default palette
+            int defaultPalette = 1;
+
+            // Get the default palette
+            if (isPaletteHorizontal && paletteXChangers.Any())
+            {
+                switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
+                {
+                    case PC_R1_PaletteChangerMode.Left1toRight2:
+                    case PC_R1_PaletteChangerMode.Left1toRight3:
+                        defaultPalette = 1;
+                        break;
+                    case PC_R1_PaletteChangerMode.Left2toRight1:
+                    case PC_R1_PaletteChangerMode.Left2toRight3:
+                        defaultPalette = 2;
+                        break;
+                    case PC_R1_PaletteChangerMode.Left3toRight1:
+                    case PC_R1_PaletteChangerMode.Left3toRight2:
+                        defaultPalette = 3;
+                        break;
+                }
+            }
+            else if (!isPaletteHorizontal && paletteYChangers.Any())
+            {
+                switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
+                {
+                    case PC_R1_PaletteChangerMode.Top1tobottom2:
+                    case PC_R1_PaletteChangerMode.Top1tobottom3:
+                        defaultPalette = 1;
+                        break;
+                    case PC_R1_PaletteChangerMode.Top2tobottom1:
+                    case PC_R1_PaletteChangerMode.Top2tobottom3:
+                        defaultPalette = 2;
+                        break;
+                    case PC_R1_PaletteChangerMode.Top3tobottom1:
+                    case PC_R1_PaletteChangerMode.Top3tobottom2:
+                        defaultPalette = 3;
+                        break;
+                }
+            }
+
             // Keep track of the current palette
-            int currentPalette = 1;
+            int currentPalette = defaultPalette;
 
             // Enumerate each cell
-            for (int cellY = 0; cellY < levelData.MapHeight; cellY++)
+            for (int cellY = 0; cellY < levelData.Height; cellY++)
             {
                 // Reset the palette on each row if we have a horizontal changer
                 if (isPaletteHorizontal)
-                    currentPalette = 1;
+                    currentPalette = defaultPalette;
                 // Otherwise check the y position
                 else
                 {
@@ -168,10 +209,10 @@ namespace R1Engine
                     }
                 }
 
-                for (int cellX = 0; cellX < levelData.MapWidth; cellX++)
+                for (int cellX = 0; cellX < levelData.Width; cellX++)
                 {
                     // Get the cell
-                    var cell = levelData.Tiles[cellY * levelData.MapWidth + cellX];
+                    var cell = levelData.Tiles[cellY * levelData.Width + cellX];
 
                     // Check the x position for palette changing
                     if (isPaletteHorizontal)
@@ -221,7 +262,7 @@ namespace R1Engine
                     }
 
                     // Set the common tile
-                    commonLev.Tiles[cellY * levelData.MapWidth + cellX] = new Common_Tile()
+                    commonLev.Tiles[cellY * levelData.Width + cellX] = new Common_Tile()
                     {
                         TileSetGraphicIndex = textureIndex,
                         CollisionType = cell.CollisionType,
@@ -315,13 +356,13 @@ namespace R1Engine
             var lvlData = FileFactory.Read<PC_R1_LevFile>(lvlPath);
 
             // Update the tiles
-            for (int y = 0; y < lvlData.MapHeight; y++)
+            for (int y = 0; y < lvlData.Height; y++)
             {
-                for (int x = 0; x < lvlData.MapWidth; x++)
+                for (int x = 0; x < lvlData.Width; x++)
                 {
                     // Get the tiles
-                    var tile = lvlData.Tiles[y * lvlData.MapWidth + x];
-                    var commonTile = levelData.Tiles[y * lvlData.MapWidth + x];
+                    var tile = lvlData.Tiles[y * lvlData.Width + x];
+                    var commonTile = levelData.Tiles[y * lvlData.Width + x];
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
