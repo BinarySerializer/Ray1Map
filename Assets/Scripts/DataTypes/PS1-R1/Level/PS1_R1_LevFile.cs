@@ -50,15 +50,22 @@ namespace R1Engine
 
         public uint Unknown2 { get; set; }
 
-        // NOTE: Always the same as EventCount
-        public uint Unknown3 { get; set; }
+        /// <summary>
+        /// The amount of event links in the file
+        /// </summary>
+        public uint EventLinkCount { get; set; }
 
         /// <summary>
         /// The events
         /// </summary>
         public PS1_R1_Event[] Events { get; set; }
 
-        // TODO: This is a temp property until we serialize the actual data
+        /// <summary>
+        /// Data table for event linking
+        /// </summary>
+        public byte[] EventLinkingTable { get; set; }
+
+        // TODO: This is a temp property until we serialize the actual data - this appears to contain the event commands
         public byte[] EventBlock { get; set; }
 
         /// <summary>
@@ -119,10 +126,16 @@ namespace R1Engine
             Unknown1 = stream.Read<uint>();
             EventCount = stream.Read<uint>();
             Unknown2 = stream.Read<uint>();
-            Unknown3 = stream.Read<uint>();
+            EventLinkCount = stream.Read<uint>();
+
+            if (EventCount != EventLinkCount)
+                Debug.LogError("Event counts don't match");
 
             // Read every event
             Events = stream.Read<PS1_R1_Event>(EventCount);
+
+            // Read the event linking table
+            EventLinkingTable = stream.ReadBytes((int)EventLinkCount);
 
             EventBlock = stream.ReadBytes((int)(MapBlockPointer - stream.Position));
 
@@ -182,10 +195,13 @@ namespace R1Engine
             stream.Write(Unknown1);
             stream.Write(EventCount);
             stream.Write(Unknown2);
-            stream.Write(Unknown3);
+            stream.Write(EventLinkCount);
 
             // Read every event
             stream.Write(Events);
+
+            // Write the event linking table
+            stream.Write(EventLinkingTable);
 
             stream.Write(EventBlock);
 
