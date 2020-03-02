@@ -1,5 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -76,6 +76,9 @@ namespace R1Engine
         /// </summary>
         public PS1_R1_MapTile[] Tiles { get; set; }
 
+        // TODO: This is a temp property until we serialize the actual data
+        public byte[] TextureBlock { get; set; }
+
         /// <summary>
         /// Deserializes the file contents
         /// </summary>
@@ -87,6 +90,10 @@ namespace R1Engine
 
             // OFFSET BLOCK
 
+            // At this point the stream position should match the offset block offset
+            if (stream.Position != OffsetBlockPointer)
+                Debug.LogError("Offset block offset is incorrect");
+
             // Read the pointers
             BackgroundBlockPointer = stream.Read<uint>();
             EventBlockPointer = stream.Read<uint>();
@@ -96,9 +103,17 @@ namespace R1Engine
 
             // BACKGROUND BLOCK
 
+            // At this point the stream position should match the background block offset
+            if (stream.Position != BackgroundBlockPointer)
+                Debug.LogError("Background block offset is incorrect");
+
             BackgroundBlock = stream.ReadBytes((int)(EventBlockPointer - BackgroundBlockPointer));
 
             // EVENT BLOCK
+
+            // At this point the stream position should match the event block offset
+            if (stream.Position != EventBlockPointer)
+                Debug.LogError("Event block offset is incorrect");
 
             // Read header
             Unknown1 = stream.Read<uint>();
@@ -113,6 +128,10 @@ namespace R1Engine
 
             // MAP BLOCK
 
+            // At this point the stream position should match the map block offset
+            if (stream.Position != MapBlockPointer)
+                Debug.LogError("Map block offset is incorrect");
+
             // Read map size
             Width = stream.Read<ushort>();
             Height = stream.Read<ushort>();
@@ -122,7 +141,17 @@ namespace R1Engine
 
             // TEXTURE BLOCK
 
-            // TODO: Read
+            // At this point the stream position should match the texture block offset
+            if (stream.Position != TextureBlockPointer)
+                Debug.LogError("Texture block offset is incorrect");
+
+            TextureBlock = stream.ReadBytes((int)(FileEndPointer - TextureBlockPointer));
+
+            // At this point the stream position should match the end offset
+            if (stream.Position != FileEndPointer)
+                Debug.LogError("End offset is incorrect");
+
+            Debug.Log($"PS1 R1 level loaded with size {Width}x{Height} and {EventCount} events");
         }
 
         /// <summary>
@@ -131,7 +160,47 @@ namespace R1Engine
         /// <param name="stream">The stream to write to</param>
         public void Serialize(Stream stream)
         {
-            throw new NotImplementedException();
+            // Write the offset block pointer
+            stream.Write(OffsetBlockPointer);
+
+            // OFFSET BLOCK
+
+            // Read the pointers
+            stream.Write(BackgroundBlockPointer);
+            stream.Write(EventBlockPointer);
+            stream.Write(MapBlockPointer);
+            stream.Write(TextureBlockPointer);
+            stream.Write(FileEndPointer);
+
+            // BACKGROUND BLOCK
+
+            stream.Write(BackgroundBlock);
+
+            // EVENT BLOCK
+
+            // Read header
+            stream.Write(Unknown1);
+            stream.Write(EventCount);
+            stream.Write(Unknown2);
+            stream.Write(Unknown3);
+
+            // Read every event
+            stream.Write(Events);
+
+            stream.Write(EventBlock);
+
+            // MAP BLOCK
+
+            // Read map size
+            stream.Write(Width);
+            stream.Write(Height);
+
+            // Read tiles
+            stream.Write(Tiles);
+
+            // TEXTURE BLOCK
+
+            stream.Write(TextureBlock);
         }
     }
 }

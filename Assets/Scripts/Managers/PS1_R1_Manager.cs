@@ -201,8 +201,8 @@ namespace R1Engine
             int tileIndex = 0;
             for (int ty = 0; ty < (h); ty++) {
                 for (int tx = 0; tx < (w); tx++) {
-                    var graphicX = tiles[tileIndex].XPosition;
-                    var graphicY = tiles[tileIndex].YPosition;
+                    var graphicX = tiles[tileIndex].TileMapX;
+                    var graphicY = tiles[tileIndex].TileMapY;
 
                     Common_Tile newTile = new Common_Tile
                     {
@@ -210,7 +210,7 @@ namespace R1Engine
                         XPosition = tx,
                         YPosition = ty,
                         CollisionType = tiles[tileIndex].CollisionType,
-                        TileSetGraphicIndex = (16 * graphicY) + graphicX
+                        TileSetGraphicIndex = (CellSize * graphicY) + graphicX
                     };
 
                     finalTiles[tileIndex] = newTile;
@@ -231,7 +231,30 @@ namespace R1Engine
         /// <param name="levelData">The common level data</param>
         public void SaveLevel(string basePath, World world, int level, Common_Lev levelData)
         {
-            throw new NotImplementedException();
+            // Get the level file path
+            var lvlPath = GetLevelFilePath(basePath, world, level);
+
+            // Get the level data
+            var lvlData = FileFactory.Read<PS1_R1_LevFile>(lvlPath);
+
+            // Update the tiles
+            for (int y = 0; y < lvlData.Height; y++)
+            {
+                for (int x = 0; x < lvlData.Width; x++)
+                {
+                    // Get the tiles
+                    var tile = lvlData.Tiles[y * lvlData.Width + x];
+                    var commonTile = levelData.Tiles[y * lvlData.Width + x];
+
+                    // Update the tile
+                    tile.CollisionType = commonTile.CollisionType;
+                    tile.TileMapY = (int)Math.Floor(commonTile.TileSetGraphicIndex / 16d);
+                    tile.TileMapX = commonTile.TileSetGraphicIndex - (CellSize * tile.TileMapY);
+                }
+            }
+
+            // Save the file
+            FileFactory.Write(lvlPath);
         }
     }
 }

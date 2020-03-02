@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace R1Engine
 {
@@ -53,7 +52,16 @@ namespace R1Engine
         /// <param name="stream">The stream to write to</param>
         public void Serialize(Stream stream)
         {
-            throw new NotImplementedException();
+            stream.Write(Unknown1);
+
+            stream.Write(XPosition);
+            stream.Write(YPosition);
+
+            stream.Write(Unknown2);
+
+            stream.Write(Type);
+
+            stream.Write(Unknown3);
         }
     }
 }

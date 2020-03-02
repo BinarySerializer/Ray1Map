@@ -1,7 +1,7 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -26,12 +26,12 @@ namespace R1Engine
         /// <summary>
         /// The width of the map, in cells
         /// </summary>
-        public ushort MapWidth { get; set; }
+        public ushort Width { get; set; }
 
         /// <summary>
         /// The height of the map, in cells
         /// </summary>
-        public ushort MapHeight { get; set; }
+        public ushort Height { get; set; }
 
         /// <summary>
         /// The color palettes
@@ -181,8 +181,8 @@ namespace R1Engine
             TextureOffsetTablePointer = stream.Read<uint>();
 
             // Read map size
-            MapWidth = stream.Read<ushort>();
-            MapHeight = stream.Read<ushort>();
+            Width = stream.Read<ushort>();
+            Height = stream.Read<ushort>();
 
             // Create the palettes
             ColorPalettes = new ARGBColor[][]
@@ -216,10 +216,10 @@ namespace R1Engine
             // MAP BLOCK
 
             // Create the collection of map cells
-            Tiles = new PC_R1_MapTile[MapWidth * MapHeight];
+            Tiles = new PC_R1_MapTile[Width * Height];
 
             // Read each map cell
-            Tiles = stream.Read<PC_R1_MapTile>((ulong)MapHeight * MapWidth);
+            Tiles = stream.Read<PC_R1_MapTile>((ulong)Height * Width);
 
             // Read unknown byte
             Unknown2 = stream.Read<byte>();
@@ -260,7 +260,7 @@ namespace R1Engine
 
             // At this point the stream position should match the texture block offset
             if (stream.Position != TextureOffsetTablePointer)
-                throw new Exception("Texture block offset is incorrect");
+                Debug.LogError("Texture block offset is incorrect");
 
             // Read the offset table for the textures
             TexturesOffsetTable = stream.Read<uint>(1200);
@@ -332,6 +332,8 @@ namespace R1Engine
 
             // Read the event commands
             EventCommands = stream.Read<PC_R1_EventCommand>(EventCount);
+
+            Debug.Log($"PC R1 level loaded with size {Width}x{Height} and {EventCount} events");
         }
 
         /// <summary>
@@ -347,8 +349,8 @@ namespace R1Engine
             stream.Write(TextureOffsetTablePointer);
 
             // Write map size
-            stream.Write(MapWidth);
-            stream.Write(MapHeight);
+            stream.Write(Width);
+            stream.Write(Height);
 
             // Write each palette
             foreach (var palette in ColorPalettes)

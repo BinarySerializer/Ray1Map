@@ -8,14 +8,14 @@ namespace R1Engine
     public class PS1_R1_MapTile : ISerializableFile
     {
         /// <summary>
-        /// The x position
+        /// The tile map x position
         /// </summary>
-        public int XPosition { get; set; }
+        public int TileMapX { get; set; }
 
         /// <summary>
-        /// The y position
+        /// The tile map y position
         /// </summary>
-        public int YPosition;
+        public int TileMapY { get; set; }
 
         /// <summary>
         /// The collision type
@@ -33,14 +33,18 @@ namespace R1Engine
 
             int g = byte1 + ((byte2 & 3) << 8);
 
-            XPosition = g & 15;
-            YPosition = g >> 4;
+            TileMapX = g & 15;
+            TileMapY = g >> 4;
             CollisionType = (TileCollisionType)(byte2 >> 2);
         }
 
         public void Serialize(Stream stream)
         {
-            throw new System.NotImplementedException();
+            var byte1 = (byte)(TileMapX + (TileMapY << 4));
+            var byte2 = (byte)(((int)CollisionType << 2) + (byte1 >> 8));
+
+            stream.Write(byte1);
+            stream.Write(byte2);
         }
     }
 }
