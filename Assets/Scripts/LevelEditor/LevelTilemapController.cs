@@ -128,7 +128,7 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Get the tile under the mouse.
+        /// Returns the tile under the mouse.
         /// </summary>
         /// <returns></returns>
         public Common_Tile GetMouseTile() {

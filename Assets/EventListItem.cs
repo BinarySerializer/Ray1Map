@@ -7,7 +7,6 @@ namespace R1Engine.Unity {
     public class EventListItem : MonoBehaviour, IPointerDownHandler {
         public Event ev;
         public Text evName;
-        bool selected;
         EventList list;
         Image bg;
 
@@ -22,7 +21,7 @@ namespace R1Engine.Unity {
         }
 
         void Update() {
-            bg.enabled = selected;
+            bg.enabled = list.selection == ev;
         }
     }
 }
