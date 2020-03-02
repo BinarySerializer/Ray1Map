@@ -70,7 +70,9 @@ namespace R1Engine
         /// </summary>
         public static System.Type[] SerializableDataTypes { get; } =
         {
+            typeof(PS1_R1_LevFile),
             typeof(PC_R1_LevFile),
+            typeof(PC_R1_WorldFile),
             typeof(PC_RD_EventLocFile),
             typeof(PC_RD_EventManifestFile),
         };
