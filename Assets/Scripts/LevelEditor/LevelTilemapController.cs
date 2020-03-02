@@ -44,7 +44,7 @@ namespace R1Engine
         public int currentType = 0;
         public int targetLayer = 1;
 
-        private void Update() {
+        private void Update() {/*
             Vector3 mousePositionTile = MouseToTileCoords(Input.mousePosition);
             // Update square tile cursor
             tileCursor.transform.position = new Vector3(mousePositionTile.x, mousePositionTile.y, 10);
@@ -80,7 +80,7 @@ namespace R1Engine
                 else {
                     SetTileAtPos((int)mousePositionTile.x, -(int)mousePositionTile.y, currentTile, targetLayer);
                 }
-            }
+            }*/
         }
 
         public void InitializeTilemaps(Common_Lev lvl) {
@@ -122,7 +122,18 @@ namespace R1Engine
 
         // Get one common tile at given position
         public Common_Tile GetTileAtPos(int x, int y) {
-            return Array.Find(Level.Tiles, t => t.XPosition == x && t.YPosition == y);
+            return Level.Tiles[
+                Mathf.Clamp(Mathf.FloorToInt(x), 0, Level.Width - 1)
+                + Mathf.Clamp(Mathf.FloorToInt(-y), 0, Level.Height - 1) * Level.Width];
+        }
+
+        /// <summary>
+        /// Get the tile under the mouse.
+        /// </summary>
+        /// <returns></returns>
+        public Common_Tile GetMouseTile() {
+            var worldMouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            return GetTileAtPos(Mathf.FloorToInt(worldMouse.x), Mathf.FloorToInt(worldMouse.y + 1));
         }
 
         public void SetTileAtPos(int x, int y, int gIndex, int layer) {

@@ -7,9 +7,9 @@ namespace R1Engine.Unity {
         public float fov = 15;
         public float inertia = 0.05f;
         public float friction = 3;
-        Vector3 vel;
+        [HideInInspector] public Vector3 pos;
+        [HideInInspector] public Vector3 vel;
         Vector3 mousePosPrev;
-        Vector3 pos;
 
         void Start() {
             Camera.main.orthographicSize = fov;
