@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace R1Engine 
+namespace R1Engine
 {
     /// <summary>
     /// Map tile data for Rayman 1 (PS1)
@@ -44,8 +44,9 @@ namespace R1Engine
         /// <param name="stream">The stream to write to</param>
         public void Serialize(Stream stream)
         {
-            var byte1 = (byte)(TileMapX + (TileMapY << 4));
-            var byte2 = (byte)(((int)CollisionType << 2) + (byte1 >> 8));
+            var graphic = (TileMapX + (TileMapY << 4));
+            var byte1 = (byte)graphic;
+            var byte2 = (byte)(((int)CollisionType << 2) + (graphic >> 8));
 
             stream.Write(byte1);
             stream.Write(byte2);
