@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using UnityEngine;
 
 namespace R1Engine
@@ -6,6 +7,7 @@ namespace R1Engine
     /// <summary>
     /// Level data for Rayman 1 (PS1)
     /// </summary>
+    [Description("Rayman 1 (PS1) Level File")]
     public class PS1_R1_LevFile : ISerializableFile
     {
         /// <summary>
