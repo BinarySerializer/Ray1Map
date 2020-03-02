@@ -38,6 +38,10 @@ namespace R1Engine
             CollisionType = (TileCollisionType)(byte2 >> 2);
         }
 
+        /// <summary>
+        /// Serializes the file contents
+        /// </summary>
+        /// <param name="stream">The stream to write to</param>
         public void Serialize(Stream stream)
         {
             var byte1 = (byte)(TileMapX + (TileMapY << 4));
