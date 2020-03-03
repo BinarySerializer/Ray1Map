@@ -55,6 +55,8 @@ public class FileSerializerWindow : UnityWindow
 
                 // Serialize to JSON
                 JsonHelpers.SerializeToFile(fileData, SelectedOutputFile);
+
+                Debug.Log("File has been serialized");
             }
         }
 
@@ -72,6 +74,8 @@ public class FileSerializerWindow : UnityWindow
                 // Serialize the file
                 file.Write(fileData);
             }
+
+            Debug.Log("File has been deserialized");
         }
 
         TotalyPos = yPos;

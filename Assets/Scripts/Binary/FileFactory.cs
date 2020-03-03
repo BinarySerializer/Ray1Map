@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -39,6 +40,10 @@ namespace R1Engine
             {
                 // Deserialize file
                 var fileData = file.Read<T>();
+
+                // Make sure the entire file was read
+                if (file.Position != file.Length)
+                    Debug.LogError("The entire file wasn't read");
 
                 // Cache the data
                 Cache[filePath] = fileData;
