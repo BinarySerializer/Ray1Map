@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace R1Engine
@@ -16,6 +17,7 @@ namespace R1Engine
             Blue = blue;
         }
 
+        [JsonConstructor]
         public ARGBColor(byte alpha, byte red, byte green, byte blue)
         {
             Alpha = alpha;

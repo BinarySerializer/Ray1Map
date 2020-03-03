@@ -14,10 +14,10 @@ namespace R1Engine
 
         public override bool CanWrite => true;
 
-        public override byte[] ReadJson(JsonReader reader, System.Type objectType, byte[] existingValue, bool hasExistingValue,
+        public override byte[] ReadJson(JsonReader reader, Type objectType, byte[] existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
-            return reader.Value.ToString().Split(' ').Select(x => Byte.Parse(x, NumberStyles.HexNumber)).ToArray();
+            return reader.Value.ToString().Split(' ').Where(x => !String.IsNullOrWhiteSpace(x)).Select(x => Byte.Parse(x, NumberStyles.HexNumber)).ToArray();
         }
 
         public override void WriteJson(JsonWriter writer, byte[] value, JsonSerializer serializer)
