@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -73,7 +74,7 @@ namespace R1Engine
         /// <summary>
         /// The available serializable data types
         /// </summary>
-        public static System.Type[] SerializableDataTypes { get; } =
+        public static Type[] SerializableDataTypes { get; } =
         {
             typeof(PS1_R1_LevFile),
             typeof(PC_R1_LevFile),

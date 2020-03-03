@@ -54,10 +54,13 @@ public class SettingsWindow : UnityWindow
         }
         catch (Exception ex)
         {
-            // TODO: Log
+            Debug.LogWarning(ex.Message);
         }
 
 		var levels = Directory.Exists(Settings.CurrentDirectory) ? Enumerable.Range(1, CurrentLevelCount).ToArray() : new int[0];
+
+		if (Settings.Level > CurrentLevelCount)
+			Settings.Level = 1;
 
 		Settings.Level = EditorGUI.IntPopup(GetNextRect(ref yPos), "Map", Settings.Level, levels.Select(x => x.ToString()).ToArray(), levels);
 
