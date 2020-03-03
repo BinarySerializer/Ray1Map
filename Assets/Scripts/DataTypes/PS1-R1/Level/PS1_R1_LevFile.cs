@@ -40,8 +40,19 @@ namespace R1Engine
         /// </summary>
         public uint FileEndPointer { get; set; }
 
-        // TODO: This is a temp property until we serialize the actual data
-        public byte[] BackgroundBlock { get; set; }
+        /// <summary>
+        /// The background layer positions
+        /// </summary>
+        public PS1_R1_BackgroundLayerPosition[] BackgroundLayerPositions { get; set; }
+
+        public byte[] Unknown3 { get; set; }
+
+        /// <summary>
+        /// The background layer info items
+        /// </summary>
+        public PS1_R1_BackgroundLayerInfo[] BackgroundLayerInfos { get; set; }
+
+        public byte[] Unknown4 { get; set; }
 
         public uint Unknown1 { get; set; }
 
@@ -116,7 +127,11 @@ namespace R1Engine
             if (stream.Position != BackgroundBlockPointer)
                 Debug.LogError("Background block offset is incorrect");
 
-            BackgroundBlock = stream.ReadBytes((int)(EventBlockPointer - BackgroundBlockPointer));
+            // Read the background layer information (always 12)
+            BackgroundLayerPositions = stream.Read<PS1_R1_BackgroundLayerPosition>(12);
+            Unknown3 = stream.ReadBytes(16);
+            BackgroundLayerInfos = stream.Read<PS1_R1_BackgroundLayerInfo>(12);
+            Unknown4 = stream.ReadBytes(80);
 
             // EVENT BLOCK
 
@@ -189,7 +204,11 @@ namespace R1Engine
 
             // BACKGROUND BLOCK
 
-            stream.Write(BackgroundBlock);
+            // Write the background layer information (always 12)
+            stream.Write(BackgroundLayerPositions);
+            stream.Write(Unknown3);
+            stream.Write(BackgroundLayerInfos);
+            stream.Write(Unknown4);
 
             // EVENT BLOCK
 

@@ -25,7 +25,7 @@ namespace R1Engine
                 // Get the type
                 var type = typeof(T);
 
-                switch (System.Type.GetTypeCode(type))
+                switch (Type.GetTypeCode(type))
                 {
                     case TypeCode.Object:
                         // Make sure the type implements the interface
@@ -172,10 +172,17 @@ namespace R1Engine
         /// <returns>The byte</returns>
         public static byte[] ReadBytes(this Stream stream, int count)
         {
+            // Create the buffer
             var buffer = new byte[count];
 
-            stream.Read(buffer, 0, count);
+            // Read into the buffer
+            var readCount = stream.Read(buffer, 0, count);
 
+            // Verify the correct number of bytes were read
+            if (readCount != count)
+                throw new Exception("The requested number of bytes were not read");
+
+            // Return the byte buffer
             return buffer;
         }
 
@@ -191,18 +198,25 @@ namespace R1Engine
         /// <returns>The string</returns>
         public static string ReadNullTerminatedString(this Stream stream, Encoding encoding = null)
         {
+            // Set encoding if null
             if (encoding == null)
                 encoding = Settings.StringEncoding;
 
+            // Use a binary reader so we can read characters
             using (var reader = new BinaryReader(stream, encoding, true))
             {
+                // Create the string to read to
                 string str = String.Empty;
 
+                // Current character
                 char ch;
 
-                while ((ch = reader.ReadChar()) != 0)
+                // Read until null (0x00)
+                while ((ch = reader.ReadChar()) != 0x00)
+                    // Append the character
                     str += ch;
 
+                // Return the string
                 return str;
             }
         }
@@ -215,6 +229,7 @@ namespace R1Engine
         /// <param name="encoding">The encoding to use, or null for the default one</param>
         public static void WriteNullTerminatedString(this Stream stream, string value, Encoding encoding = null)
         {
+            // Set encoding if null
             if (encoding == null)
                 encoding = Settings.StringEncoding;
 
