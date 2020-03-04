@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace R1Engine.Unity {
+namespace R1Engine {
     public class LevelMainController : MonoBehaviour {
 
         // The current level we are operating with
@@ -8,7 +8,7 @@ namespace R1Engine.Unity {
 
         // References to specific level controller gameObjects in inspector
         public LevelTilemapController controllerTilemap;
-        // TODO: public LevelEventController controllerEvent... or something similar
+        public LevelEventController controllerEvents;
 
         // Reference to the background ting
         public MeshFilter backgroundTint;
@@ -19,12 +19,10 @@ namespace R1Engine.Unity {
             // Load the level
             currentLevel = manager.LoadLevel(basePath, world, levelIndex, EventInfoManager.LoadEventInfo());
 
-            // Make the tilemap controller to init all the tilemaps
-            controllerTilemap.InitializeTilemaps(currentLevel);
-
-            // TODO: Make a event controller to do all the event things
-            foreach (var e in currentLevel.Events)
-                Instantiate(EventBehaviour.resource).GetComponent<EventBehaviour>().ev = e;
+            // Init all tilemaps
+            controllerTilemap.InitializeTilemaps();
+            // Init all events
+            controllerEvents.InitializeEvents();
 
             // Draw the background tint
             var mo = new Mesh {
@@ -40,7 +38,7 @@ namespace R1Engine.Unity {
         }
 
         public void SaveLevelTEMP() {
-            Settings.GetManager().SaveLevel(Settings.CurrentDirectory, Settings.World, Settings.Level, controllerTilemap.Level);
+            Settings.GetManager().SaveLevel(Settings.CurrentDirectory, Settings.World, Settings.Level, currentLevel);
             Debug.Log("Saved.");
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace R1Engine.Unity {
+namespace R1Engine {
     public class Controller : MonoBehaviour {
         public static Controller obj;
 

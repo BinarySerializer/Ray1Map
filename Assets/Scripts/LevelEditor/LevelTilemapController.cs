@@ -28,21 +28,16 @@ namespace R1Engine
         public Tile[] TypeCollisionTiles;
         public Tile[] TypeCollisionTilesHD;
 
-        /// <summary>
-        /// The current level
-        /// </summary>
-        public Common_Lev Level { get; set; }
-
         // Reference to tile cursor
-        public Transform tileCursor;
+        //public Transform tileCursor;
 
         // References to temp things on the UI
-        public Image tileImage;
-        public Image typeImage;
+        //public Image tileImage;
+        //public Image typeImage;
 
-        public int currentTile = 0;
-        public int currentType = 0;
-        public int targetLayer = 1;
+        //public int currentTile = 0;
+        //public int currentType = 0;
+        //public int targetLayer = 1;
 
         private void Update() {/*
             Vector3 mousePositionTile = MouseToTileCoords(Input.mousePosition);
@@ -83,9 +78,8 @@ namespace R1Engine
             }*/
         }
 
-        public void InitializeTilemaps(Common_Lev lvl) {
+        public void InitializeTilemaps() {
 
-            Level = lvl;
 
             // Hide layer buttons according to the version
             if (Settings.Mode == GameMode.RaymanPS1) {
@@ -97,7 +91,7 @@ namespace R1Engine
             }
 
             // Loop through the level tiledata and populate the tilemaps with it
-            foreach(Common_Tile t in Level.Tiles) {
+            foreach(Common_Tile t in Controller.obj.levelController.currentLevel.Tiles) {
 
                 // Index 0 is collision types tilemap
                 if (Settings.UseHDCollisionSheet) {
@@ -109,8 +103,8 @@ namespace R1Engine
 
 
                 // Assign tiles to their correct tilemaps based on the palette
-                if (Level.TileSet[t.PaletteIndex] != null && t.TileSetGraphicIndex != -1)
-                    Tilemaps[t.PaletteIndex].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), Level.TileSet[t.PaletteIndex].Tiles[t.TileSetGraphicIndex]);
+                if (Controller.obj.levelController.currentLevel.TileSet[t.PaletteIndex] != null && t.TileSetGraphicIndex != -1)
+                    Tilemaps[t.PaletteIndex].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), Controller.obj.levelController.currentLevel.TileSet[t.PaletteIndex].Tiles[t.TileSetGraphicIndex]);
             }
         }
 
@@ -122,9 +116,9 @@ namespace R1Engine
 
         // Get one common tile at given position
         public Common_Tile GetTileAtPos(int x, int y) {
-            return Level.Tiles[
-                Mathf.Clamp(Mathf.FloorToInt(x), 0, Level.Width - 1)
-                + Mathf.Clamp(Mathf.FloorToInt(-y), 0, Level.Height - 1) * Level.Width];
+            return Controller.obj.levelController.currentLevel.Tiles[
+                Mathf.Clamp(Mathf.FloorToInt(x), 0, Controller.obj.levelController.currentLevel.Width - 1)
+                + Mathf.Clamp(Mathf.FloorToInt(-y), 0, Controller.obj.levelController.currentLevel.Height - 1) * Controller.obj.levelController.currentLevel.Width];
         }
 
         /// <summary>
@@ -155,7 +149,7 @@ namespace R1Engine
                     Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), null);
                 }
                 else {
-                    Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), Level.TileSet[layer].Tiles[gIndex]);
+                    Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[layer].Tiles[gIndex]);
                 }               
             }
         }

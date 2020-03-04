@@ -1,9 +1,12 @@
-﻿namespace R1Engine
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common level data
     /// </summary>
-    public class Common_Lev
+    public class Common_Lev : MonoBehaviour
     {
         /// <summary>
         /// The level width
@@ -28,6 +31,6 @@
         /// <summary>
         /// The events
         /// </summary>
-        public Common_Event[] Events { get; set; }
+        public List<Common_Event> Events { get; set; }
     }
 }

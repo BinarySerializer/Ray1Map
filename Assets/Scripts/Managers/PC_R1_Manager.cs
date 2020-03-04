@@ -104,7 +104,7 @@ namespace R1Engine
                     EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == x.GetEventID()),
                     XPosition = x.XPosition,
                     YPosition = x.YPosition
-                }).ToArray(),
+                }).ToArray().ToList(),
 
                 // Create the tile arrays
                 TileSet = new Common_Tileset[4],
