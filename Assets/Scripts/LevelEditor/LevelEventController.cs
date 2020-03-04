@@ -21,6 +21,7 @@ namespace R1Engine {
                 newEvent.EventInfoData = eve.EventInfoData;
                 newEvent.XPosition = eve.XPosition;
                 newEvent.YPosition = eve.YPosition;
+                newEvent.LinkIndex = eve.LinkIndex;
                 // Set as child of events gameobject
                 newEvent.gameObject.transform.parent = eventParent.transform;
                 // Add to list

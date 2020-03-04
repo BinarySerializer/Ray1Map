@@ -839,7 +839,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad9276c16b45a7d489f7e0e124e5838c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentLevel: {fileID: 0}
   controllerTilemap: {fileID: 172781303}
   controllerEvents: {fileID: 172781304}
   backgroundTint: {fileID: 1369872174}
@@ -6033,7 +6032,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Save (Temp, PC tiles only)
+  m_Text: Save
 --- !u!222 &1158281759
 CanvasRenderer:
   m_ObjectHideFlags: 0
