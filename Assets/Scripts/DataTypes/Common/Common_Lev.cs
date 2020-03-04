@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace R1Engine
 {
     /// <summary>
     /// Common level data
     /// </summary>
-    public class Common_Lev : MonoBehaviour
+    public class Common_Lev
     {
         /// <summary>
         /// The level width

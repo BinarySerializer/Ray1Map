@@ -22,9 +22,15 @@ namespace R1Engine
         /// </summary>
         public uint YPosition;
 
+        /// <summary>
+        /// The link index
+        /// </summary>
+        public int LinkIndex;
 
-        public int LinkId; // 0 = no link; anything else = link group
-
+        /// <summary>
+        /// The display name
+        /// </summary>
+        public string DisplayName => EventInfoData.DesignerName ?? EventInfoData.CustomName;
 
         // TODO: Update here is just a quick and dirty way to update the X and Y
         // Most likely not the most efficent way when a level has a lot of events

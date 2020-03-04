@@ -97,14 +97,13 @@ namespace R1Engine
                 Width = levelData.Width,
                 Height = levelData.Height,
 
-                // TODO: Clean up by making a common event class
                 // Set the events
                 Events = levelData.Events.Select(x => new Common_Event()
                 {
                     EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == x.GetEventID()),
                     XPosition = x.XPosition,
                     YPosition = x.YPosition
-                }).ToArray().ToList(),
+                }).ToList(),
 
                 // Create the tile arrays
                 TileSet = new Common_Tileset[4],

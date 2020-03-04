@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-namespace R1Engine.Unity {
+namespace R1Engine {
     public class SelectSquare : MonoBehaviour {
         Common_Lev lvl => tileController.currentLevel;
         Image main, overlay;

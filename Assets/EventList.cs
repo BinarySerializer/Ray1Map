@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace R1Engine.Unity
+namespace R1Engine
 {
     public class EventList : MonoBehaviour {
         public RectTransform list;
@@ -27,5 +27,4 @@ namespace R1Engine.Unity
             }
         }
     }
-
 }

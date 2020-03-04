@@ -6,7 +6,7 @@ using System;
 using static UnityEngine.Input;
 using UnityEngine.Tilemaps;
 
-namespace R1Engine.Unity {
+namespace R1Engine {
     public class Editor : MonoBehaviour {
         public int autoScrollMargin = 60;
         public float autoScrollSpeed = 5;

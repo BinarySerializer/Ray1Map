@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace R1Engine.Unity {
+namespace R1Engine {
     public class Icon : MonoBehaviour {
         void Start() {
         }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using static UnityEngine.Input;
 
-namespace R1Engine.Unity {
+namespace R1Engine {
     public class EditorCam : MonoBehaviour {
         public bool pixelSnap;
         public float fov = 15;

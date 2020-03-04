@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace R1Engine.Unity {
+namespace R1Engine {
     public class EventBehaviour : MonoBehaviour {
         public static GameObject resource { get {
                 if (_resource == null) _resource = Resources.Load<GameObject>("Event");

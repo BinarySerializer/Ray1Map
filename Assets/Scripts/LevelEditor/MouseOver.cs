@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using static UnityEngine.Input;
 
-namespace R1Engine.Unity
+namespace R1Engine
 {
     public class MouseOver : MonoBehaviour {
         public Text textGraphic, textCollision;
@@ -18,7 +18,7 @@ namespace R1Engine.Unity
             var e = hit.collider?.GetComponent<EventBehaviour>();
             // Mouse over event
             if (e != null) {
-                textCollision.text = $"{e.ev.EventInfoData.DesignerName ?? e.ev.EventInfoData.CustomName}";
+                textCollision.text = $"{e.ev.DisplayName}";
                 textGraphic.text = $"Pos: {e.ev.XPosition}, {e.ev.YPosition}";
             }
             // Else Mouse over type

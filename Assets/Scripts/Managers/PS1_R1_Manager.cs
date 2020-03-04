@@ -179,7 +179,7 @@ namespace R1Engine
                     EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == x.GetEventID()),
                     XPosition = x.XPosition,
                     YPosition = x.YPosition
-                }).ToArray().ToList(),
+                }).ToList(),
                 TileSet = new Common_Tileset[4]
             };
 
