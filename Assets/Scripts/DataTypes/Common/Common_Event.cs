@@ -28,6 +28,16 @@ namespace R1Engine
         public int LinkIndex;
 
         /// <summary>
+        /// Offset BX
+        /// </summary>
+        public int OffsetBX;
+
+        /// <summary>
+        /// Offset BY
+        /// </summary>
+        public int OffsetBY;
+
+        /// <summary>
         /// The display name
         /// </summary>
         public string DisplayName => EventInfoData.DesignerName ?? EventInfoData.CustomName;

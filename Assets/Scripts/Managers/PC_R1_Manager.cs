@@ -116,6 +116,8 @@ namespace R1Engine
                     EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
+                    OffsetBX = e.OffsetBX,
+                    OffsetBY = e.OffsetBY,
                     LinkIndex = levelData.EventLinkingTable[index]
                 });
 
