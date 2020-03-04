@@ -503,7 +503,7 @@ namespace R1Engine
             foreach (var e in commonLevelData.Events)
             {
                 // Get the event
-                var r1Event = e.EventInfoData.PC_R1_Info.ToEvent();
+                var r1Event = e.EventInfoData.PC_R1_Info.ToEvent(world);
 
                 // Set position
                 r1Event.XPosition = e.XPosition;

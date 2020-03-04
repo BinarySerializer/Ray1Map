@@ -131,11 +131,16 @@ namespace R1Engine
             /// </summary>
             /// <param name="e">The event</param>
             /// <param name="cmd">The event command</param>
-            public PC_R1_EventInfoData(PC_R1_Event e, PC_R1_EventCommand cmd)
+            /// <param name="world">The world the event is for</param>
+            public PC_R1_EventInfoData(PC_R1_Event e, PC_R1_EventCommand cmd, World world)
             {
-                DES = e.DES;
-                DES2 = e.DES2;
-                DES3 = e.DES3;
+                DES = new Dictionary<World, uint>()
+                {
+                    {
+                        world,
+                        e.DES
+                    }
+                };
                 ETA = e.ETA;
                 OffsetBX = e.OffsetBX;
                 OffsetBY = e.OffsetBY;
@@ -152,14 +157,13 @@ namespace R1Engine
             /// <summary>
             /// Converts the info data to an event data type
             /// </summary>
+            /// <param name="world">The world to get the event for</param>
             /// <returns>The event data type</returns>
-            public PC_R1_Event ToEvent()
+            public PC_R1_Event ToEvent(World world)
             {
                 return new PC_R1_Event()
                 {
-                    DES = DES,
-                    DES2 = DES2,
-                    DES3 = DES3,
+                    DES = DES[world],
                     ETA = ETA,
                     OffsetBX = OffsetBX,
                     OffsetBY = OffsetBY,
@@ -176,11 +180,7 @@ namespace R1Engine
                 };
             }
 
-            public uint DES { get; set; }
-
-            public uint DES2 { get; set; }
-
-            public uint DES3 { get; set; }
+            public Dictionary<World, uint> DES { get; set; }
 
             public uint ETA { get; set; }
 

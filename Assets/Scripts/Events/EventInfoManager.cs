@@ -96,7 +96,10 @@ namespace R1Engine
                             data.Worlds.Add(world);
 
                         if (data.PC_R1_Info == null)
-                            data.PC_R1_Info = new EventInfoData.PC_R1_EventInfoData(e, lvl.EventCommands[index]);
+                            data.PC_R1_Info = new EventInfoData.PC_R1_EventInfoData(e, lvl.EventCommands[index], world);
+
+                        if (!data.PC_R1_Info.DES.ContainsKey(world))
+                            data.PC_R1_Info.DES.Add(world, e.DES);
 
                         if (!eventInfo.Contains(data))
                             eventInfo.Add(data);
