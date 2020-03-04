@@ -403,7 +403,17 @@ namespace R1Engine
             // Set events
             foreach (var e in commonLevelData.Events)
             {
-                events.Add(e.EventInfoData.PC_R1_Info.ToEvent());
+                // Get the event
+                var r1Event = e.EventInfoData.PC_R1_Info.ToEvent();
+
+                // Set position
+                r1Event.XPosition = e.XPosition;
+                r1Event.YPosition = e.YPosition;
+
+                // Add the event
+                events.Add(r1Event);
+
+                // Add the event commands
                 eventCommands.Add(new PC_R1_EventCommand()
                 {
                     CodeCount = (ushort)e.EventInfoData.PC_R1_Info.Commands.Length,
@@ -411,6 +421,8 @@ namespace R1Engine
                     LabelOffsetCount = (ushort)e.EventInfoData.PC_R1_Info.LabelOffsets.Length,
                     LabelOffsetTable = e.EventInfoData.PC_R1_Info.LabelOffsets
                 });
+
+                // Add the event links
                 eventLinkingTable.Add((ushort)e.LinkIndex);
             }
 
