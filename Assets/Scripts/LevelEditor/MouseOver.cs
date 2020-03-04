@@ -14,12 +14,15 @@ namespace R1Engine
             transform.position = mousePosition;
             Vector3 mousePositionTile = tilemapController.MouseToTileCoords(mousePosition);
 
-            Physics.Raycast(Camera.main.ScreenPointToRay(mousePosition), out var hit, 30);
-            var e = hit.collider?.GetComponent<EventBehaviour>();
+            //Physics2D.Raycast(Camera.main.ScreenPointToRay(mousePosition), out var hit, 30);
+
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(mousePosition), Vector2.zero);
+
+            var e = hit.collider?.GetComponentInParent<Common_Event>();
             // Mouse over event
             if (e != null) {
-                textCollision.text = $"{e.ev.DisplayName}";
-                textGraphic.text = $"Pos: {e.ev.XPosition}, {e.ev.YPosition}";
+                textCollision.text = $"{e.DisplayName}";
+                textGraphic.text = $"Pos: {e.XPosition}, {e.YPosition}";
             }
             // Else Mouse over type
             else {
