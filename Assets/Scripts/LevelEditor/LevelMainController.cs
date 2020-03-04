@@ -19,9 +19,9 @@ namespace R1Engine {
             // Load the level
             currentLevel = manager.LoadLevel(basePath, world, levelIndex, EventInfoManager.LoadEventInfo());
 
-            // Init all tilemaps
+            // Init tilemaps
             controllerTilemap.InitializeTilemaps();
-            // Init all events
+            // Init event things
             controllerEvents.InitializeEvents();
 
             // Draw the background tint
