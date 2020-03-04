@@ -125,7 +125,7 @@
   },
   {
     "DesignerName": "Big livingstone",
-    "CustomName": null,
+    "CustomName": "Livingstone (Spat From Tentacle Flower)",
     "DesignerDescription": "Goes back and forth on the platform.\\Rayman can get rid of him by punching\\him, frightening him by making faces,\\or throwing a plum on his head.",
     "Type": 0,
     "Etat": 0,
@@ -299,7 +299,7 @@
   },
   {
     "DesignerName": "Fruit that swings",
-    "CustomName": null,
+    "CustomName": "Plum (Swinging)",
     "DesignerDescription": "Swings all the time.",
     "Type": 1,
     "Etat": 0,
@@ -350,7 +350,7 @@
   },
   {
     "DesignerName": "Fruit that swings after have been punched",
-    "CustomName": null,
+    "CustomName": "Plum (Swings Upon Punch)",
     "DesignerDescription": "Swing that is caused by Rayman's punch.",
     "Type": 1,
     "Etat": 0,
@@ -401,7 +401,7 @@
   },
   {
     "DesignerName": "Steady water lily",
-    "CustomName": null,
+    "CustomName": "Cloud [Music]",
     "DesignerDescription": "Stays motionless when Rayman jumps on\\it.",
     "Type": 1,
     "Etat": 0,
@@ -457,7 +457,7 @@
   },
   {
     "DesignerName": "Steady ying-yang",
-    "CustomName": null,
+    "CustomName": "Yinyang (Unpunchable)",
     "DesignerDescription": "Steady. Rayman can't shoot it. Platform\\on which Rayman can climb.",
     "Type": 1,
     "Etat": 0,
@@ -508,7 +508,7 @@
   },
   {
     "DesignerName": "Steady pencil sharpener",
-    "CustomName": null,
+    "CustomName": "Pencil Sharpener",
     "DesignerDescription": "Stay motionless when Rayman jumps on it.",
     "Type": 1,
     "Etat": 0,
@@ -595,7 +595,7 @@
   },
   {
     "DesignerName": "Power+1",
-    "CustomName": null,
+    "CustomName": "Power Up (1HP)",
     "DesignerDescription": "Gives one life point to Rayman.",
     "Type": 2,
     "Etat": 6,
@@ -651,7 +651,7 @@
   },
   {
     "DesignerName": "Power+2",
-    "CustomName": null,
+    "CustomName": "Power Up (2HP)",
     "DesignerDescription": "Gives two life points to Rayman.",
     "Type": 2,
     "Etat": 6,
@@ -707,7 +707,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Electoon [Music]",
     "DesignerDescription": null,
     "Type": 3,
     "Etat": 2,
@@ -821,7 +821,7 @@
   },
   {
     "DesignerName": "Animated flower",
-    "CustomName": null,
+    "CustomName": "Flower Dancing",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -872,7 +872,7 @@
   },
   {
     "DesignerName": "Tightrope walker mushrooms",
-    "CustomName": null,
+    "CustomName": "Mushrooms (Dancing)",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -923,7 +923,7 @@
   },
   {
     "DesignerName": "Jumper mushrooms",
-    "CustomName": null,
+    "CustomName": "Birds",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -976,7 +976,7 @@
   },
   {
     "DesignerName": "Butterfly 1",
-    "CustomName": null,
+    "CustomName": "Butterfly 1",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1027,7 +1027,7 @@
   },
   {
     "DesignerName": "Butterfly 2",
-    "CustomName": null,
+    "CustomName": "Butterfly 2",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1078,7 +1078,7 @@
   },
   {
     "DesignerName": "Butterfly 3",
-    "CustomName": null,
+    "CustomName": "Butterfly 3",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1129,7 +1129,7 @@
   },
   {
     "DesignerName": "Butterfly 4",
-    "CustomName": null,
+    "CustomName": "Butterfly 4",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1180,7 +1180,7 @@
   },
   {
     "DesignerName": "Butterfly 5",
-    "CustomName": null,
+    "CustomName": "Butterfly 5",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1231,7 +1231,7 @@
   },
   {
     "DesignerName": "Butterfly 6",
-    "CustomName": null,
+    "CustomName": "Butterfly 6",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1282,7 +1282,7 @@
   },
   {
     "DesignerName": "Butterfly 7",
-    "CustomName": null,
+    "CustomName": "Butterfly 7",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1333,7 +1333,7 @@
   },
   {
     "DesignerName": "Butterfly 8",
-    "CustomName": null,
+    "CustomName": "Butterfly 8",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1384,7 +1384,7 @@
   },
   {
     "DesignerName": "Background torch",
-    "CustomName": null,
+    "CustomName": "Musician's Wife And Child",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 4,
     "Etat": 0,
@@ -1436,7 +1436,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Sparkling Effect (4 Stars Horizontal Obtuse)",
     "DesignerDescription": null,
     "Type": 4,
     "Etat": 0,
@@ -1467,7 +1467,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Sparkling Effect (Single Star 1)",
     "DesignerDescription": null,
     "Type": 4,
     "Etat": 0,
@@ -1498,7 +1498,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Sparkling Effect (Band Land Spikes Multiple)",
     "DesignerDescription": null,
     "Type": 4,
     "Etat": 5,
@@ -1527,7 +1527,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Sparkling Effect (Band Land Spikes Single)",
     "DesignerDescription": null,
     "Type": 4,
     "Etat": 5,
@@ -1556,7 +1556,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Sparkling Effect (Single Star 2)",
     "DesignerDescription": null,
     "Type": 4,
     "Etat": 0,
@@ -1586,7 +1586,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Sparkling Effect (4 Stars Vertical Obtuse)",
     "DesignerDescription": null,
     "Type": 4,
     "Etat": 0,
@@ -1616,7 +1616,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Magician (Bonus) [Jungle]",
     "DesignerDescription": null,
     "Type": 5,
     "Etat": 8,
@@ -1649,7 +1649,7 @@
   },
   {
     "DesignerName": "Releasable steady ying-yang pick",
-    "CustomName": null,
+    "CustomName": "Yinyang (With Pin)",
     "DesignerDescription": "Each time Rayman hits the ball with his\\fist, the ball bounces.",
     "Type": 6,
     "Etat": 0,
@@ -1751,7 +1751,7 @@
   },
   {
     "DesignerName": "Swinging prickly fruit",
-    "CustomName": null,
+    "CustomName": "Small Spiky Fruit (Swinging)",
     "DesignerDescription": "Swings all the time.",
     "Type": 7,
     "Etat": 0,
@@ -1802,7 +1802,7 @@
   },
   {
     "DesignerName": "Steady plum 1",
-    "CustomName": null,
+    "CustomName": "Plum (1)",
     "DesignerDescription": "Steady plum that you can move with your\\punch. Once in the water, if Rayman\\starts it and if he goes down, then the\\plum continues its way.",
     "Type": 8,
     "Etat": 0,
@@ -1889,7 +1889,7 @@
   },
   {
     "DesignerName": "Little livingstone",
-    "CustomName": null,
+    "CustomName": "Little Livingstone (Spat From Tentacle Flower)",
     "DesignerDescription": "Goes back and forth on the platform.",
     "Type": 9,
     "Etat": 0,
@@ -2029,7 +2029,7 @@
   },
   {
     "DesignerName": "Piranhas",
-    "CustomName": null,
+    "CustomName": "Piranha",
     "DesignerDescription": "Gets out of the water and goes up\\vertically all over the map.",
     "Type": 10,
     "Etat": 0,
@@ -2082,7 +2082,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman (Fist Hit Animation) [Image]",
     "DesignerDescription": null,
     "Type": 11,
     "Etat": 5,
@@ -2138,7 +2138,7 @@
   },
   {
     "DesignerName": "Hunter 1",
-    "CustomName": null,
+    "CustomName": "Hunter (Horizontal Aim) [Music]",
     "DesignerDescription": "Shoots mallets horizontally.",
     "Type": 12,
     "Etat": 0,
@@ -2194,7 +2194,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Hunter (Bullet Shot) [Music]",
     "DesignerDescription": null,
     "Type": 13,
     "Etat": 2,
@@ -2327,7 +2327,7 @@
   },
   {
     "DesignerName": "Little water lily falling",
-    "CustomName": null,
+    "CustomName": "Small Liana (Falling)",
     "DesignerDescription": "Falls when Rayman is on it.",
     "Type": 16,
     "Etat": 0,
@@ -2392,7 +2392,7 @@
   },
   {
     "DesignerName": "Falling cloud",
-    "CustomName": null,
+    "CustomName": "Cloud (Falling) [Music]",
     "DesignerDescription": "Falls down when Rayman jumps on it.",
     "Type": 16,
     "Etat": 0,
@@ -2461,7 +2461,7 @@
   },
   {
     "DesignerName": "Falling stalactit platform",
-    "CustomName": null,
+    "CustomName": "Stalactite (Falling)",
     "DesignerDescription": "Falls when Rayman is on it.",
     "Type": 16,
     "Etat": 0,
@@ -2527,7 +2527,7 @@
   },
   {
     "DesignerName": "Little water lily going up",
-    "CustomName": null,
+    "CustomName": "Small Liana (Rising)",
     "DesignerDescription": "Goes up when Rayman is on it.",
     "Type": 17,
     "Etat": 0,
@@ -2592,7 +2592,7 @@
   },
   {
     "DesignerName": "Rising cloud",
-    "CustomName": null,
+    "CustomName": "Cloud (Rising) [Music]",
     "DesignerDescription": "Goes up when Rayman jumps on it.",
     "Type": 17,
     "Etat": 0,
@@ -2661,7 +2661,7 @@
   },
   {
     "DesignerName": "Stalactit rising platform",
-    "CustomName": null,
+    "CustomName": "Stalactite (Rising)",
     "DesignerDescription": "Goes up when Rayman jumps on it.",
     "Type": 17,
     "Etat": 0,
@@ -2727,7 +2727,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Splash [Music]",
     "DesignerDescription": null,
     "Type": 19,
     "Etat": 0,
@@ -2781,7 +2781,7 @@
   },
   {
     "DesignerName": "Flower tentacle",
-    "CustomName": null,
+    "CustomName": "Tentacle Flower",
     "DesignerDescription": "Goes back and forth along the entire\\map throwing fruit and livingstones.",
     "Type": 20,
     "Etat": 1,
@@ -2925,7 +2925,7 @@
   },
   {
     "DesignerName": "Photographer",
-    "CustomName": null,
+    "CustomName": "Photographer",
     "DesignerDescription": "Backup site. If Rayman takes a picture\\and dies afterwards, he will\\reappear at that spot.",
     "Type": 21,
     "Etat": 7,
@@ -2991,7 +2991,7 @@
   },
   {
     "DesignerName": "Horizontal water lily",
-    "CustomName": null,
+    "CustomName": "Liana (Horizontal)",
     "DesignerDescription": "Makes a constant horizontal move in an\\area that is limited by orange types.",
     "Type": 22,
     "Etat": 0,
@@ -3059,7 +3059,7 @@
   },
   {
     "DesignerName": "Horizontal cloud",
-    "CustomName": null,
+    "CustomName": "Cloud (Horizontal) [Music]",
     "DesignerDescription": "Makes a constant horizontal move in\\an area that is limited by orange types.",
     "Type": 22,
     "Etat": 0,
@@ -3131,7 +3131,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman (On Bzzit)",
     "DesignerDescription": null,
     "Type": 23,
     "Etat": 6,
@@ -3160,7 +3160,7 @@
   },
   {
     "DesignerName": "Steady cloud",
-    "CustomName": null,
+    "CustomName": "Cloud (Spring) [Music]",
     "DesignerDescription": "Stay motionless when Rayman jumps on it.",
     "Type": 25,
     "Etat": 0,
@@ -3213,7 +3213,7 @@
   },
   {
     "DesignerName": "Water lily that disappears",
-    "CustomName": null,
+    "CustomName": "Cloud (Disappearing) [Music]",
     "DesignerDescription": "It disappears when Rayman jumps on it.",
     "Type": 26,
     "Etat": 0,
@@ -3269,7 +3269,7 @@
   },
   {
     "DesignerName": "Water lily spring",
-    "CustomName": null,
+    "CustomName": "Cloud (Trampoline) [Music]",
     "DesignerDescription": "Rayman bounces but he can do big or\\small jumps.",
     "Type": 27,
     "Etat": 0,
@@ -3325,7 +3325,7 @@
   },
   {
     "DesignerName": "Flashing cloud",
-    "CustomName": null,
+    "CustomName": "Cloud (Flashing) [Music]",
     "DesignerDescription": "Appears and disappears regularly.",
     "Type": 28,
     "Etat": 0,
@@ -3421,7 +3421,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Candy Chateau Ambient Drums (2)",
     "DesignerDescription": null,
     "Type": 30,
     "Etat": 5,
@@ -3450,7 +3450,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman (Lives Given) [Non Image]",
     "DesignerDescription": null,
     "Type": 31,
     "Etat": 5,
@@ -3506,7 +3506,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (2nd Phase)",
     "DesignerDescription": null,
     "Type": 32,
     "Etat": 0,
@@ -3535,7 +3535,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Fireballs)",
     "DesignerDescription": null,
     "Type": 33,
     "Etat": 0,
@@ -3620,7 +3620,7 @@
   },
   {
     "DesignerName": "Lava rock-throwing stone man",
-    "CustomName": null,
+    "CustomName": "Stone Man (Throws Lava Ball)",
     "DesignerDescription": "Moves back and forth on the platforms\\and throws lava rocks when Rayman enters\\in his detection zone.",
     "Type": 35,
     "Etat": 0,
@@ -3787,7 +3787,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava Ball (Created By Stone Man)",
     "DesignerDescription": null,
     "Type": 36,
     "Etat": 2,
@@ -3857,7 +3857,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Tarayzan (Gives Seed)",
     "DesignerDescription": null,
     "Type": 37,
     "Etat": 0,
@@ -3886,7 +3886,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Tarayzan (Seed)",
     "DesignerDescription": null,
     "Type": 38,
     "Etat": 0,
@@ -3937,7 +3937,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Planted Flower",
     "DesignerDescription": null,
     "Type": 39,
     "Etat": 0,
@@ -3988,7 +3988,7 @@
   },
   {
     "DesignerName": "Stone dog",
-    "CustomName": null,
+    "CustomName": "Stone Dog [Mountain]",
     "DesignerDescription": "Moves back and forth on the platforms,\\and jumps in the opposite direction when\\it encounters an orange type.",
     "Type": 40,
     "Etat": 0,
@@ -4167,7 +4167,7 @@
   },
   {
     "DesignerName": "Prickly ball",
-    "CustomName": null,
+    "CustomName": "Spiky Ball [Music]",
     "DesignerDescription": "Steady prickly ball.",
     "Type": 41,
     "Etat": 0,
@@ -4222,7 +4222,7 @@
   },
   {
     "DesignerName": "Right ending sign",
-    "CustomName": null,
+    "CustomName": "Exit Sign [Music]",
     "DesignerDescription": "Lets the player exit from the map. It\\appears once the blue tings have been\\taken (there are generally 50 or 100\\blue tings).",
     "Type": 42,
     "Etat": 0,
@@ -4319,7 +4319,7 @@
   },
   {
     "DesignerName": "Flame-launching stone man",
-    "CustomName": null,
+    "CustomName": "Stone Man (Shoots Flame)",
     "DesignerDescription": "Moves back and forth on the platforms\\and launches flames when Rayman enters in\\his detection zone.",
     "Type": 43,
     "Etat": 0,
@@ -4488,7 +4488,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Flame (Stone Man) [Mountain]",
     "DesignerDescription": null,
     "Type": 44,
     "Etat": 2,
@@ -4554,7 +4554,7 @@
   },
   {
     "DesignerName": "Horizontal prickly ball",
-    "CustomName": null,
+    "CustomName": "Spiky Ball (Moves Square) [Mountain]",
     "DesignerDescription": "Makes a constant horizontal move in an\\area that is limited by orange types.",
     "Type": 45,
     "Etat": 0,
@@ -4623,7 +4623,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Stone (Boss)",
     "DesignerDescription": null,
     "Type": 46,
     "Etat": 0,
@@ -4660,7 +4660,7 @@
   },
   {
     "DesignerName": "Small bounce lava rock",
-    "CustomName": null,
+    "CustomName": "Lava Ball (Small Bounce) [Mountain]",
     "DesignerDescription": "Small bounces on the platform.",
     "Type": 47,
     "Etat": 2,
@@ -4712,7 +4712,7 @@
   },
   {
     "DesignerName": "First ground torch",
-    "CustomName": null,
+    "CustomName": "Torch (Foreground)",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 48,
     "Etat": 0,
@@ -4764,7 +4764,7 @@
   },
   {
     "DesignerName": "Big fat stone to the bottom",
-    "CustomName": null,
+    "CustomName": "Flat Stone (Platform)",
     "DesignerDescription": "Goes down when Rayman jumps on it but\\can not be stopped by types.",
     "Type": 49,
     "Etat": 0,
@@ -4869,7 +4869,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Moskito (Bzzit)",
     "DesignerDescription": null,
     "Type": 50,
     "Etat": 0,
@@ -4901,7 +4901,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Small Spiky Fruit (Thrown By Moskito)",
     "DesignerDescription": null,
     "Type": 51,
     "Etat": 2,
@@ -4954,7 +4954,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Medium Spiky Fruit (Thrown By Moskito)",
     "DesignerDescription": null,
     "Type": 52,
     "Etat": 2,
@@ -5064,7 +5064,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Small Spiky Fruit (Falling)",
     "DesignerDescription": null,
     "Type": 53,
     "Etat": 0,
@@ -5095,7 +5095,7 @@
   },
   {
     "DesignerName": "Hippie",
-    "CustomName": null,
+    "CustomName": "Musician",
     "DesignerDescription": "Sprite of animated decoration.",
     "Type": 55,
     "Etat": 0,
@@ -5389,7 +5389,7 @@
   },
   {
     "DesignerName": "Pick to the left",
-    "CustomName": null,
+    "CustomName": "Stake (Facing Right) [Mountain]",
     "DesignerDescription": "Goes left as soon as Rayman enters its\\area.",
     "Type": 57,
     "Etat": 0,
@@ -5496,7 +5496,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Cage [Music]",
     "DesignerDescription": null,
     "Type": 58,
     "Etat": 0,
@@ -5529,7 +5529,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Cage  (Appearing) [Music]",
     "DesignerDescription": null,
     "Type": 58,
     "Etat": 2,
@@ -5562,7 +5562,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Opened Cage Rising [Music]",
     "DesignerDescription": null,
     "Type": 59,
     "Etat": 0,
@@ -5596,7 +5596,7 @@
   },
   {
     "DesignerName": "Punching clown",
-    "CustomName": null,
+    "CustomName": "Big Clown",
     "DesignerDescription": "Moves back and forth on the platform and\\strikes the ground with his hammer when\\Rayman enters in his detection zone. This\\makes Rayman fall if he is on the same\\platform, although he does not lose\\any life points.",
     "Type": 60,
     "Etat": 0,
@@ -5734,7 +5734,7 @@
   },
   {
     "DesignerName": "Bubble throwing clown",
-    "CustomName": null,
+    "CustomName": "Water Clown",
     "DesignerDescription": "Moves back and forth on the platform and\\launches bubbles at Rayman when he\\enters his detection zone.",
     "Type": 61,
     "Etat": 0,
@@ -5882,7 +5882,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Water Clown (Water Balloon)",
     "DesignerDescription": null,
     "Type": 62,
     "Etat": 2,
@@ -6182,7 +6182,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Screen Moving (Increase Right Speed) [Music]",
     "DesignerDescription": null,
     "Type": 64,
     "Etat": 0,
@@ -6213,7 +6213,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Screen Moving (Toggle Up Fast Speed) [Mountain/Jungle]",
     "DesignerDescription": null,
     "Type": 64,
     "Etat": 0,
@@ -6429,7 +6429,7 @@
   },
   {
     "DesignerName": "Flower spring",
-    "CustomName": null,
+    "CustomName": "Slingshot Plant Platform",
     "DesignerDescription": "Flower that swings each time Rayman\\jumps on it.",
     "Type": 67,
     "Etat": 0,
@@ -6480,7 +6480,7 @@
   },
   {
     "DesignerName": "Big bounce lava rock",
-    "CustomName": null,
+    "CustomName": "Lava Ball (Big Bounce) [Mountain]",
     "DesignerDescription": "Big bounces on the platform.",
     "Type": 69,
     "Etat": 2,
@@ -6532,7 +6532,7 @@
   },
   {
     "DesignerName": "Steady blowing trumpet",
-    "CustomName": null,
+    "CustomName": "Trumpet (Sucks Right)",
     "DesignerDescription": "Moves on the platforms and blows on\\Rayman when he enters its detection\\area.",
     "Type": 70,
     "Etat": 0,
@@ -6675,7 +6675,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Pirate With Earring)",
     "DesignerDescription": null,
     "Type": 72,
     "Etat": 2,
@@ -6704,7 +6704,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Pirate's Earring)",
     "DesignerDescription": null,
     "Type": 73,
     "Etat": 2,
@@ -6736,7 +6736,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Boss)",
     "DesignerDescription": null,
     "Type": 74,
     "Etat": 0,
@@ -6802,7 +6802,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Bouncy Rubber (Glitter)",
     "DesignerDescription": null,
     "Type": 75,
     "Etat": 0,
@@ -6987,7 +6987,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Bomber Pirate)",
     "DesignerDescription": null,
     "Type": 77,
     "Etat": 0,
@@ -7016,7 +7016,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Pirate's Bombs)",
     "DesignerDescription": null,
     "Type": 78,
     "Etat": 2,
@@ -7048,7 +7048,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava Ball (Piece 1) [Mountain]",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7100,7 +7100,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava Ball (Piece 2) [Mountain]",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7152,7 +7152,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava Ball (Piece 3) [Mountain]",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7204,7 +7204,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava Ball (Piece 4) [Mountain]",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7256,7 +7256,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava Ball (Piece 5) [Mountain]",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7308,7 +7308,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava Ball (Piece 6) [Mountain]",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7360,7 +7360,7 @@
   },
   {
     "DesignerName": "Cymbals",
-    "CustomName": null,
+    "CustomName": "Cymbal",
     "DesignerDescription": "Platform that go to the left or to\\the right according to Rayman's place.\\Rayman can't be hit if he is in the\\middle when these platforms hit\\each other.",
     "Type": 81,
     "Etat": 0,
@@ -7432,7 +7432,7 @@
   },
   {
     "DesignerName": "Super power",
-    "CustomName": null,
+    "CustomName": "Big Power Up (Breakout Game)",
     "DesignerDescription": "Gives all the life points to\\Rayman.",
     "Type": 82,
     "Etat": 6,
@@ -7488,7 +7488,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman (Dust Explosion) [Music]",
     "DesignerDescription": null,
     "Type": 83,
     "Etat": 0,
@@ -7577,7 +7577,7 @@
   },
   {
     "DesignerName": "Eyes",
-    "CustomName": null,
+    "CustomName": "Friendly Eyes",
     "DesignerDescription": "Animated sprite of decoration",
     "Type": 85,
     "Etat": 0,
@@ -7628,7 +7628,7 @@
   },
   {
     "DesignerName": "Spring maracas",
-    "CustomName": null,
+    "CustomName": "Maracas (Rocket)",
     "DesignerDescription": "Spring when Rayman jump on it.",
     "Type": 86,
     "Etat": 0,
@@ -7679,7 +7679,7 @@
   },
   {
     "DesignerName": "Bongo right eye",
-    "CustomName": null,
+    "CustomName": "Little Bongo Platform (Facing Right)",
     "DesignerDescription": "Falls down as soon as Rayman is on it.",
     "Type": 87,
     "Etat": 0,
@@ -7744,7 +7744,7 @@
   },
   {
     "DesignerName": "Bongo left eye",
-    "CustomName": null,
+    "CustomName": "Little Bongo Platform (Facing Left)",
     "DesignerDescription": "Falls down as soon as Rayman is on it.",
     "Type": 87,
     "Etat": 0,
@@ -7809,7 +7809,7 @@
   },
   {
     "DesignerName": "Bongo",
-    "CustomName": null,
+    "CustomName": "Little Bongo Platform (Middle)",
     "DesignerDescription": "Falls down as soon as Rayman is on it.",
     "Type": 88,
     "Etat": 0,
@@ -7874,7 +7874,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Joe",
     "DesignerDescription": null,
     "Type": 89,
     "Etat": 0,
@@ -7910,7 +7910,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Wrong Note)",
     "DesignerDescription": null,
     "Type": 90,
     "Etat": 2,
@@ -7963,7 +7963,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Wrong Note Bomb 1)",
     "DesignerDescription": null,
     "Type": 91,
     "Etat": 2,
@@ -8016,7 +8016,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Wrong Note Bomb 2)",
     "DesignerDescription": null,
     "Type": 92,
     "Etat": 2,
@@ -8069,7 +8069,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Punched Wrong Note)",
     "DesignerDescription": null,
     "Type": 93,
     "Etat": 2,
@@ -8122,7 +8122,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman's Fist [Jungle Only]",
     "DesignerDescription": null,
     "Type": 94,
     "Etat": 5,
@@ -8176,7 +8176,7 @@
   },
   {
     "DesignerName": "Gold punch",
-    "CustomName": null,
+    "CustomName": "Goldfist",
     "DesignerDescription": "Gives an additional power level to\\Rayman (there are two power levels).",
     "Type": 95,
     "Etat": 5,
@@ -8230,7 +8230,7 @@
   },
   {
     "DesignerName": "Fast punch",
-    "CustomName": null,
+    "CustomName": "Speedfist",
     "DesignerDescription": "Can be recognized by an 'S' that\\surrounds the punch. It accelerates the\\punch.",
     "Type": 95,
     "Etat": 5,
@@ -8284,7 +8284,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Stone (Stationary Totem)",
     "DesignerDescription": null,
     "Type": 96,
     "Etat": 1,
@@ -8313,7 +8313,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Boulder (Created By Mr Stone)",
     "DesignerDescription": null,
     "Type": 97,
     "Etat": 2,
@@ -8342,7 +8342,7 @@
   },
   {
     "DesignerName": "Rayman",
-    "CustomName": null,
+    "CustomName": "Rayman",
     "DesignerDescription": "Is placed where we want the map to begin.",
     "Type": 99,
     "Etat": 0,
@@ -8396,7 +8396,7 @@
   },
   {
     "DesignerName": "Moth",
-    "CustomName": null,
+    "CustomName": "Moth (Aggressive)",
     "DesignerDescription": "Makes small jumps and gives head blows to\\Rayman when he enters its detection\\area.",
     "Type": 100,
     "Etat": 2,
@@ -8563,7 +8563,7 @@
   },
   {
     "DesignerName": "Fruit that swings",
-    "CustomName": null,
+    "CustomName": "Large Spiky Ball (Swinging) [Mountain]",
     "DesignerDescription": "Swings all the time.",
     "Type": 101,
     "Etat": 0,
@@ -8615,7 +8615,7 @@
   },
   {
     "DesignerName": "Activatable prickly swing",
-    "CustomName": null,
+    "CustomName": "Large Spiky Ball (Swings Upon Punch) [Mountain]",
     "DesignerDescription": "Once Rayman activates it with a punch,\\it swings.",
     "Type": 101,
     "Etat": 0,
@@ -8667,7 +8667,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Wrong Note (Tiny Version From Bomb)",
     "DesignerDescription": null,
     "Type": 102,
     "Etat": 2,
@@ -8720,7 +8720,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Large Eyed Fish",
     "DesignerDescription": null,
     "Type": 103,
     "Etat": 2,
@@ -8749,7 +8749,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Large Nosed Fish",
     "DesignerDescription": null,
     "Type": 104,
     "Etat": 2,
@@ -8784,7 +8784,7 @@
   },
   {
     "DesignerName": "Bouncing rock",
-    "CustomName": null,
+    "CustomName": "Bouncing Blue Crystal Rock",
     "DesignerDescription": "Jumps up and down\\rooted to the spot.\\Rayman can step on it.",
     "Type": 105,
     "Etat": 0,
@@ -8887,7 +8887,7 @@
   },
   {
     "DesignerName": "Prickly ball",
-    "CustomName": null,
+    "CustomName": "Large Spiky Ball [Mountain]",
     "DesignerDescription": "Stationary prickly ball.",
     "Type": 107,
     "Etat": 0,
@@ -8939,7 +8939,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Electoons Giving Rayman His Fist)",
     "DesignerDescription": null,
     "Type": 108,
     "Etat": 2,
@@ -8992,7 +8992,7 @@
   },
   {
     "DesignerName": "Rock",
-    "CustomName": null,
+    "CustomName": "Boulder [Mountain]",
     "DesignerDescription": "Rayman can walk on it and brake it with\\his fist.",
     "Type": 109,
     "Etat": 0,
@@ -9044,7 +9044,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Boulder (Destroyed) [Mountain]",
     "DesignerDescription": null,
     "Type": 110,
     "Etat": 2,
@@ -9101,7 +9101,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Boulder (Crushed Guitar)",
     "DesignerDescription": null,
     "Type": 111,
     "Etat": 0,
@@ -9130,7 +9130,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Washing Machine 1)",
     "DesignerDescription": null,
     "Type": 112,
     "Etat": 0,
@@ -9159,7 +9159,7 @@
   },
   {
     "DesignerName": "Stunning mallet",
-    "CustomName": null,
+    "CustomName": "Drumstick (Crushing)",
     "DesignerDescription": "Flattens Rayman if he is hit on the head.",
     "Type": 113,
     "Etat": 0,
@@ -9216,7 +9216,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Cloud (Created By Mr Stone)",
     "DesignerDescription": null,
     "Type": 115,
     "Etat": 0,
@@ -9247,7 +9247,7 @@
   },
   {
     "DesignerName": "Bomb-launching, following clown",
-    "CustomName": null,
+    "CustomName": "Bomber Clown (Follows Left And Right)",
     "DesignerDescription": "Moves towards Rayman when he\\enters his detection zone and\\bombards him continuously. Can\\move in a zone defined by\\vertical types.",
     "Type": 116,
     "Etat": 0,
@@ -9473,7 +9473,7 @@
   },
   {
     "DesignerName": "Bomb-launching flying clown",
-    "CustomName": null,
+    "CustomName": "Bomber Clown (Follows Rayman And Files Away)",
     "DesignerDescription": "Moves towards Rayman when\\he enters his detection zone and\\bombards him continuously.",
     "Type": 117,
     "Etat": 0,
@@ -9699,7 +9699,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Bomber Clown (Bombs)",
     "DesignerDescription": null,
     "Type": 119,
     "Etat": 2,
@@ -9750,7 +9750,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Red Drummer",
     "DesignerDescription": null,
     "Type": 120,
     "Etat": 0,
@@ -9853,7 +9853,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Stone Dog (Mr Stone)",
     "DesignerDescription": null,
     "Type": 122,
     "Etat": 0,
@@ -10033,7 +10033,7 @@
   },
   {
     "DesignerName": "Antitoon walker",
-    "CustomName": null,
+    "CustomName": "Antitoon (Walks back and forth and jumps) [Music]",
     "DesignerDescription": "Moves back and forth on the hard types\\of the platform.",
     "Type": 123,
     "Etat": 1,
@@ -10109,7 +10109,7 @@
   },
   {
     "DesignerName": "Antitoon jumper",
-    "CustomName": null,
+    "CustomName": "Antitoon (Charging) [Music]",
     "DesignerDescription": "Doesn't move unless Rayman jumps over\\him. In that case, moves vertically in\\Rayman's direction.",
     "Type": 123,
     "Etat": 0,
@@ -10208,7 +10208,7 @@
   },
   {
     "DesignerName": "Antitoon flyer",
-    "CustomName": null,
+    "CustomName": "Antitoon (Flies back and forth) [Music]",
     "DesignerDescription": "Flies following a pre-defined trajectory\\but can be located in a specific area\\which is limited by directional orange types.",
     "Type": 123,
     "Etat": 0,
@@ -10277,7 +10277,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Back Sign [Music]",
     "DesignerDescription": null,
     "Type": 124,
     "Etat": 0,
@@ -10562,7 +10562,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Antitoon Eyes [Music]",
     "DesignerDescription": null,
     "Type": 130,
     "Etat": 0,
@@ -10674,7 +10674,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Large Mouthed Fish",
     "DesignerDescription": null,
     "Type": 132,
     "Etat": 2,
@@ -10710,7 +10710,7 @@
   },
   {
     "DesignerName": "Super helicopter phial",
-    "CustomName": null,
+    "CustomName": "Super Helicopter Flask",
     "DesignerDescription": "Gives the super-helicopter power to\\Rayman. Is used by pressing the jump\\button several times.",
     "Type": 133,
     "Etat": 2,
@@ -10802,7 +10802,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Flame (Mr Stone)",
     "DesignerDescription": null,
     "Type": 135,
     "Etat": 2,
@@ -10834,7 +10834,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Little Rayman [Image]",
     "DesignerDescription": null,
     "Type": 136,
     "Etat": 0,
@@ -10932,7 +10932,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Reducer Elf",
     "DesignerDescription": null,
     "Type": 137,
     "Etat": 5,
@@ -11091,7 +11091,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Maracas (Flying)",
     "DesignerDescription": null,
     "Type": 139,
     "Etat": 2,
@@ -11140,7 +11140,7 @@
   },
   {
     "DesignerName": "Steady ring",
-    "CustomName": null,
+    "CustomName": "Ring Vertical [Music]",
     "DesignerDescription": "Still ring on which Rayman hangs with\\his punching fist.",
     "Type": 140,
     "Etat": 0,
@@ -11196,7 +11196,7 @@
   },
   {
     "DesignerName": "Falling ring",
-    "CustomName": null,
+    "CustomName": "Ring Falling/Damaged [Mountain]",
     "DesignerDescription": "Ring that falls when Rayman hangs on it\\with his punching fist.",
     "Type": 140,
     "Etat": 0,
@@ -11330,7 +11330,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Snow (Start)",
     "DesignerDescription": null,
     "Type": 141,
     "Etat": 0,
@@ -11360,7 +11360,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Snow (Stop)",
     "DesignerDescription": null,
     "Type": 141,
     "Etat": 0,
@@ -11389,7 +11389,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Snow (Wind Blowing Right Fast)",
     "DesignerDescription": null,
     "Type": 141,
     "Etat": 0,
@@ -11418,7 +11418,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Snow (No Wind)",
     "DesignerDescription": null,
     "Type": 141,
     "Etat": 0,
@@ -11447,7 +11447,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Snow (Wind Blowing Right Slow)",
     "DesignerDescription": null,
     "Type": 141,
     "Etat": 0,
@@ -11476,7 +11476,7 @@
   },
   {
     "DesignerName": "One up",
-    "CustomName": null,
+    "CustomName": "Extra Life",
     "DesignerDescription": "Additional life.",
     "Type": 142,
     "Etat": 5,
@@ -11532,7 +11532,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Item Collect Animation [Image Only]",
     "DesignerDescription": null,
     "Type": 143,
     "Etat": 5,
@@ -11588,7 +11588,7 @@
   },
   {
     "DesignerName": "Flashing eye",
-    "CustomName": null,
+    "CustomName": "Flashing Eyes [Music]",
     "DesignerDescription": "Throws flashes of lightning in Rayman's\\direction.",
     "Type": 145,
     "Etat": 0,
@@ -11641,7 +11641,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lightning Bolt [Jungle]",
     "DesignerDescription": null,
     "Type": 146,
     "Etat": 0,
@@ -11696,7 +11696,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Moskito (Carrying Huge Spiky Fruit Shaking)",
     "DesignerDescription": null,
     "Type": 147,
     "Etat": 0,
@@ -11725,7 +11725,7 @@
   },
   {
     "DesignerName": "Treble clef",
-    "CustomName": null,
+    "CustomName": "Treble Clef",
     "DesignerDescription": "Steady sprite of decoration",
     "Type": 149,
     "Etat": 0,
@@ -11776,7 +11776,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Skops (Chase & Fight)",
     "DesignerDescription": null,
     "Type": 150,
     "Etat": 0,
@@ -11819,7 +11819,7 @@
   },
   {
     "DesignerName": "Ball",
-    "CustomName": null,
+    "CustomName": "Hunter (Bullet) [Mountain]",
     "DesignerDescription": "Goes on the side of Rayman and has him\\lose one life point.",
     "Type": 151,
     "Etat": 2,
@@ -12007,7 +12007,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Betilla [Music]",
     "DesignerDescription": null,
     "Type": 153,
     "Etat": 0,
@@ -12041,7 +12041,7 @@
   },
   {
     "DesignerName": "Big turnstile to the bottom",
-    "CustomName": null,
+    "CustomName": "Sprinkler (4 Heads Moves Down)",
     "DesignerDescription": "Goes down when Rayman jumps on it and\\can be stopped by types.",
     "Type": 154,
     "Etat": 0,
@@ -12136,7 +12136,7 @@
   },
   {
     "DesignerName": "Small turnstile to the right",
-    "CustomName": null,
+    "CustomName": "Sprinkler (3 Heads)",
     "DesignerDescription": "Goes to the right when Rayman jumps on\\it and can be stopped by types.",
     "Type": 155,
     "Etat": 0,
@@ -12211,7 +12211,7 @@
   },
   {
     "DesignerName": "Note 1",
-    "CustomName": null,
+    "CustomName": "Wrong Note (1)",
     "DesignerDescription": "Moves back and forth on the platform in\\an area that is limited by types, or\\falls on the lower platform. Once\\it hits a type, it moves back and forth\\on the platform.",
     "Type": 156,
     "Etat": 1,
@@ -12282,7 +12282,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Water (Follow) [Mountain]",
     "DesignerDescription": null,
     "Type": 157,
     "Etat": 0,
@@ -12338,7 +12338,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Water [Mountain]",
     "DesignerDescription": null,
     "Type": 157,
     "Etat": 0,
@@ -12370,7 +12370,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Palette Change (Left 1 to Right 2)",
     "DesignerDescription": null,
     "Type": 158,
     "Etat": 9,
@@ -12403,7 +12403,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Palette Change (Left 2 to Right 1)",
     "DesignerDescription": null,
     "Type": 158,
     "Etat": 9,
@@ -12435,7 +12435,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Palette Change (Top 2 to Bottom 1)",
     "DesignerDescription": null,
     "Type": 158,
     "Etat": 9,
@@ -12465,7 +12465,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Palette Change (Top 1 to Bottom 2)",
     "DesignerDescription": null,
     "Type": 158,
     "Etat": 9,
@@ -12494,7 +12494,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Palette Change (Left 1 to Right 3)",
     "DesignerDescription": null,
     "Type": 158,
     "Etat": 9,
@@ -12523,7 +12523,7 @@
   },
   {
     "DesignerName": "Tibetan with platform balls",
-    "CustomName": null,
+    "CustomName": "Tibetan (Ball Bridge)",
     "DesignerDescription": "Unroll a series of balls on which\\Rayman can climb.",
     "Type": 159,
     "Etat": 3,
@@ -12572,7 +12572,7 @@
   },
   {
     "DesignerName": "Tibetan with bongo",
-    "CustomName": null,
+    "CustomName": "Tibetan (Bongos)",
     "DesignerDescription": "Holds a bongo in each hand that he\\regularly spreads and moves closer.",
     "Type": 160,
     "Etat": 4,
@@ -12621,7 +12621,7 @@
   },
   {
     "DesignerName": "Blue Ting",
-    "CustomName": null,
+    "CustomName": "Ting D1 (Breakout Game)",
     "DesignerDescription": "If you take 100 blue Tings, the ending\\sign will appear.",
     "Type": 161,
     "Etat": 5,
@@ -12675,7 +12675,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Ting E",
     "DesignerDescription": null,
     "Type": 161,
     "Etat": 5,
@@ -12709,7 +12709,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Ting F",
     "DesignerDescription": null,
     "Type": 161,
     "Etat": 5,
@@ -12743,7 +12743,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Ting A",
     "DesignerDescription": null,
     "Type": 161,
     "Etat": 5,
@@ -12777,7 +12777,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Ting B",
     "DesignerDescription": null,
     "Type": 161,
     "Etat": 5,
@@ -12811,7 +12811,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Ting D2",
     "DesignerDescription": null,
     "Type": 161,
     "Etat": 5,
@@ -12844,7 +12844,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Ting G",
     "DesignerDescription": null,
     "Type": 161,
     "Etat": 5,
@@ -12878,7 +12878,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Ting C",
     "DesignerDescription": null,
     "Type": 161,
     "Etat": 5,
@@ -12911,7 +12911,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Flying Saucer Platform",
     "DesignerDescription": null,
     "Type": 162,
     "Etat": 0,
@@ -12940,7 +12940,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Circuit Box (┌)",
     "DesignerDescription": null,
     "Type": 163,
     "Etat": 0,
@@ -12969,7 +12969,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Circuit Box (┐)",
     "DesignerDescription": null,
     "Type": 163,
     "Etat": 0,
@@ -12998,7 +12998,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Circuit Box (┘)",
     "DesignerDescription": null,
     "Type": 163,
     "Etat": 0,
@@ -13027,7 +13027,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Circuit Box (└)",
     "DesignerDescription": null,
     "Type": 163,
     "Etat": 0,
@@ -13056,7 +13056,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Circuit Box (Reverse Direction)",
     "DesignerDescription": null,
     "Type": 163,
     "Etat": 0,
@@ -13201,7 +13201,7 @@
   },
   {
     "DesignerName": "Gendoor size 1",
-    "CustomName": null,
+    "CustomName": "Gendoor 1 (Rayman Size)",
     "DesignerDescription": "Makes one or several events appear.\\You have to join the links together and\\validate with the right button of the\\mouse (the validated links are yellow).\\It is possible to link more than one event\\to one gendoor, but event can not\\be link to more than one gendoor",
     "Type": 164,
     "Etat": 10,
@@ -13372,7 +13372,7 @@
   },
   {
     "DesignerName": "Ferocious little livingstone",
-    "CustomName": null,
+    "CustomName": "Little Livingstone (Aggressive)",
     "DesignerDescription": "Goes back and forth on the platform and\\throws his arms towards Rayman to hurt\\him.",
     "Type": 165,
     "Etat": 0,
@@ -13512,7 +13512,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lever/Switch (1)",
     "DesignerDescription": null,
     "Type": 166,
     "Etat": 5,
@@ -13541,7 +13541,7 @@
   },
   {
     "DesignerName": "Steady plum 3",
-    "CustomName": null,
+    "CustomName": "Plum (3)",
     "DesignerDescription": "Just like steady plum 1 except that it\\can be used only once.",
     "Type": 167,
     "Etat": 0,
@@ -13592,7 +13592,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Skops (Beam)",
     "DesignerDescription": null,
     "Type": 170,
     "Etat": 3,
@@ -13621,7 +13621,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman (Becoming Friends With Bzzit Cutscene)",
     "DesignerDescription": null,
     "Type": 171,
     "Etat": 6,
@@ -13874,7 +13874,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Ship)",
     "DesignerDescription": null,
     "Type": 173,
     "Etat": 0,
@@ -13966,7 +13966,7 @@
   },
   {
     "DesignerName": "Drawing pin platform",
-    "CustomName": null,
+    "CustomName": "Pin (Facing Down Platform)",
     "DesignerDescription": "Can kill Rayman but he can climb on it.",
     "Type": 175,
     "Etat": 0,
@@ -14017,7 +14017,7 @@
   },
   {
     "DesignerName": "Drawing pin down oriented",
-    "CustomName": null,
+    "CustomName": "Pin (Facing Down)",
     "DesignerDescription": "The tip is fatal",
     "Type": 175,
     "Etat": 0,
@@ -14068,7 +14068,7 @@
   },
   {
     "DesignerName": "Down pencil wall fixed",
-    "CustomName": null,
+    "CustomName": "Pencil (Pointing Down)",
     "DesignerDescription": "Steady and directed toward the bottom.\\Several colours that change automatically.",
     "Type": 176,
     "Etat": 0,
@@ -14119,7 +14119,7 @@
   },
   {
     "DesignerName": "Releasable steady ying-yang",
-    "CustomName": null,
+    "CustomName": "Yinyang",
     "DesignerDescription": "Each time Rayman hits the ball with\\his fist, the ball bounces. It's a\\platform on which Rayman can climb\\whether it is steady or moving.",
     "Type": 177,
     "Etat": 0,
@@ -14170,7 +14170,7 @@
   },
   {
     "DesignerName": "Bounced ying-yang",
-    "CustomName": null,
+    "CustomName": "Yinyang (Punched)",
     "DesignerDescription": "Bounces constantly.",
     "Type": 177,
     "Etat": 2,
@@ -14221,7 +14221,7 @@
   },
   {
     "DesignerName": "Pencil wall going down -only one",
-    "CustomName": null,
+    "CustomName": "Pencil (Pointing Down Moving Only One)",
     "DesignerDescription": "Directed toward the bottom, of several\\colours, it moves back and forth from\\the top to the bottom. Must not be linked\\to any other pencil.",
     "Type": 178,
     "Etat": 0,
@@ -14272,7 +14272,7 @@
   },
   {
     "DesignerName": "Pencil wall going down -suite",
-    "CustomName": null,
+    "CustomName": "Pencil (Pointing Down Moving Wave)",
     "DesignerDescription": "Directed toward the bottom, of several\\colours, it moves back and forth from\\the top to the bottom. It's the pencil\\that you need to use after the 'Pencil wall\\going down -first', to create a pencil wall",
     "Type": 179,
     "Etat": 0,
@@ -14323,7 +14323,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Boss/Chase)",
     "DesignerDescription": null,
     "Type": 180,
     "Etat": 0,
@@ -14352,7 +14352,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Decrease Walk Speed)",
     "DesignerDescription": null,
     "Type": 181,
     "Etat": 0,
@@ -14381,7 +14381,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (Increase Walk Speed)",
     "DesignerDescription": null,
     "Type": 181,
     "Etat": 0,
@@ -14439,7 +14439,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Sax (First Encounter)",
     "DesignerDescription": null,
     "Type": 183,
     "Etat": 0,
@@ -14574,7 +14574,7 @@
   },
   {
     "DesignerName": "Note 2",
-    "CustomName": null,
+    "CustomName": "Wrong Note (2)",
     "DesignerDescription": "Moves back and forth on the platform in\\an area that is limited by types,\\or falls on the lower platform.",
     "Type": 185,
     "Etat": 1,
@@ -14645,7 +14645,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Pirate (Frying Pan Files Away)",
     "DesignerDescription": null,
     "Type": 186,
     "Etat": 0,
@@ -14705,7 +14705,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama",
     "DesignerDescription": null,
     "Type": 187,
     "Etat": 0,
@@ -14734,7 +14734,7 @@
   },
   {
     "DesignerName": "Steady prickly stone",
-    "CustomName": null,
+    "CustomName": "Spiky Red Crystal Platform",
     "DesignerDescription": "Stay motionless when Rayman jumps on it.",
     "Type": 188,
     "Etat": 0,
@@ -14786,7 +14786,7 @@
   },
   {
     "DesignerName": "Horizontal prickly stone",
-    "CustomName": null,
+    "CustomName": "Spiky Red Crystal Platform (Horizontal)",
     "DesignerDescription": "Makes a constant horizontal move in an\\area that is limited by orange types.",
     "Type": 189,
     "Etat": 0,
@@ -14913,7 +14913,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Sword)",
     "DesignerDescription": null,
     "Type": 190,
     "Etat": 2,
@@ -14942,7 +14942,7 @@
   },
   {
     "DesignerName": "Falling pencil",
-    "CustomName": null,
+    "CustomName": "Pencil (Falling 5)",
     "DesignerDescription": "Falls down -is usually gendoored.",
     "Type": 191,
     "Etat": 2,
@@ -14993,7 +14993,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Beam)",
     "DesignerDescription": null,
     "Type": 192,
     "Etat": 1,
@@ -15022,7 +15022,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Boiling Pot)",
     "DesignerDescription": null,
     "Type": 193,
     "Etat": 0,
@@ -15051,7 +15051,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Boiling Pot Parts 1)",
     "DesignerDescription": null,
     "Type": 194,
     "Etat": 1,
@@ -15083,7 +15083,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Boiling Pot Parts 2)",
     "DesignerDescription": null,
     "Type": 194,
     "Etat": 1,
@@ -15115,7 +15115,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Boiling Pot Parts 3)",
     "DesignerDescription": null,
     "Type": 194,
     "Etat": 1,
@@ -15147,7 +15147,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Boiling Pot Parts 4)",
     "DesignerDescription": null,
     "Type": 194,
     "Etat": 1,
@@ -15179,7 +15179,7 @@
   },
   {
     "DesignerName": "Climbing spider",
-    "CustomName": null,
+    "CustomName": "Spider (Ceiling)",
     "DesignerDescription": "Moves back and forth on the platform\\and climbs on the ceilings. Throws\\daggars at Rayman when he enters in its\\detection zone",
     "Type": 195,
     "Etat": 0,
@@ -15266,7 +15266,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Spider (Homing Projectile)",
     "DesignerDescription": null,
     "Type": 196,
     "Etat": 0,
@@ -15321,7 +15321,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Cage Medallion [Music]",
     "DesignerDescription": null,
     "Type": 197,
     "Etat": 5,
@@ -15354,7 +15354,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Stone (Chase)",
     "DesignerDescription": null,
     "Type": 198,
     "Etat": 0,
@@ -15470,7 +15470,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman (Reverse Spell Stars 1)",
     "DesignerDescription": null,
     "Type": 202,
     "Etat": 0,
@@ -15521,7 +15521,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman (Reverse Spell Stars 2)",
     "DesignerDescription": null,
     "Type": 202,
     "Etat": 0,
@@ -15572,7 +15572,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Washing Machine 2)",
     "DesignerDescription": null,
     "Type": 203,
     "Etat": 0,
@@ -15601,7 +15601,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Dark Rayman",
     "DesignerDescription": null,
     "Type": 204,
     "Etat": 0,
@@ -15654,7 +15654,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Fireball For Dark Rayman Spell)",
     "DesignerDescription": null,
     "Type": 205,
     "Etat": 5,
@@ -15707,7 +15707,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Rayman's Feet [Image Only]",
     "DesignerDescription": null,
     "Type": 206,
     "Etat": 2,
@@ -15763,7 +15763,7 @@
   },
   {
     "DesignerName": "Slippery frying pan",
-    "CustomName": null,
+    "CustomName": "Frying Pan",
     "DesignerDescription": "When Rayman steps on it, he must\\finish out the map on it. It has to be\\used on slippery platforms otherwise it\\remains stationery. On it, Rayman can\\only punch and jump.",
     "Type": 207,
     "Etat": 0,
@@ -15814,7 +15814,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Large Dust Circle [Music]",
     "DesignerDescription": null,
     "Type": 208,
     "Etat": 0,
@@ -15869,7 +15869,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Flame 1)",
     "DesignerDescription": null,
     "Type": 209,
     "Etat": 0,
@@ -16216,7 +16216,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Flame 2)",
     "DesignerDescription": null,
     "Type": 210,
     "Etat": 0,
@@ -16522,7 +16522,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Stone (Swinging Totem)",
     "DesignerDescription": null,
     "Type": 211,
     "Etat": 2,
@@ -16575,7 +16575,7 @@
   },
   {
     "DesignerName": "Mr Dark: Bad Rayman",
-    "CustomName": null,
+    "CustomName": "Mr Dark (Dark Rayman Curse)",
     "DesignerDescription": "An evil twin of Rayman that follows him\\at a regular interval and makes the same\\movements as he does",
     "Type": 212,
     "Etat": 0,
@@ -16626,7 +16626,7 @@
   },
   {
     "DesignerName": "Mr Dark: forced run",
-    "CustomName": null,
+    "CustomName": "Mr Dark (Forced Run Curse)",
     "DesignerDescription": "Rayman is forced to run and jump, as a\\matter of fact.",
     "Type": 212,
     "Etat": 0,
@@ -16677,7 +16677,7 @@
   },
   {
     "DesignerName": "Mr Dark: reverse control",
-    "CustomName": null,
+    "CustomName": "Mr Dark (Reversed Controls Curse)",
     "DesignerDescription": "The commands used to control Rayman are\\inversed (left is right, etc).",
     "Type": 212,
     "Etat": 0,
@@ -16764,7 +16764,7 @@
   },
   {
     "DesignerName": "Mr Dark steals the fist",
-    "CustomName": null,
+    "CustomName": "Mr Dark (Removes Fist Curse)",
     "DesignerDescription": "Rayman can not use his fist.",
     "Type": 212,
     "Etat": 0,
@@ -16815,7 +16815,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Boss With Rope)",
     "DesignerDescription": null,
     "Type": 212,
     "Etat": 0,
@@ -16844,7 +16844,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (Inside/Behind Washing Machine)",
     "DesignerDescription": null,
     "Type": 213,
     "Etat": 0,
@@ -16876,7 +16876,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Buoy",
     "DesignerDescription": null,
     "Type": 214,
     "Etat": 0,
@@ -16905,7 +16905,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Fireball For Spells)",
     "DesignerDescription": null,
     "Type": 215,
     "Etat": 0,
@@ -16956,7 +16956,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Eat At Joe’s Sign",
     "DesignerDescription": null,
     "Type": 216,
     "Etat": 0,
@@ -16989,7 +16989,7 @@
   },
   {
     "DesignerName": "Crual moth",
-    "CustomName": null,
+    "CustomName": "Moth",
     "DesignerDescription": "Makes high jumps and gives head blows to\\Rayman when he enters its detection\\area.",
     "Type": 217,
     "Etat": 2,
@@ -17152,7 +17152,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Mr Sax/Space Mama/Moskito)",
     "DesignerDescription": null,
     "Type": 218,
     "Etat": 0,
@@ -17187,7 +17187,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Flat Stone (Rope)",
     "DesignerDescription": null,
     "Type": 219,
     "Etat": 0,
@@ -17216,7 +17216,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Flat Stone (With Ropes)",
     "DesignerDescription": null,
     "Type": 220,
     "Etat": 0,
@@ -17245,7 +17245,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Flat Stone (Rope Smoke/Dust)",
     "DesignerDescription": null,
     "Type": 221,
     "Etat": 0,
@@ -17298,7 +17298,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Flat Stone (Detached Ropes)",
     "DesignerDescription": null,
     "Type": 222,
     "Etat": 2,
@@ -17351,7 +17351,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Mr Skops/Mr Stone)",
     "DesignerDescription": null,
     "Type": 223,
     "Etat": 1,
@@ -17380,7 +17380,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Mr Skops/Mr Stone Claw)",
     "DesignerDescription": null,
     "Type": 224,
     "Etat": 0,
@@ -17569,7 +17569,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Moskito",
     "DesignerDescription": null,
     "Type": 227,
     "Etat": 0,
@@ -17601,7 +17601,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Electrical Plug",
     "DesignerDescription": null,
     "Type": 228,
     "Etat": 0,
@@ -17634,7 +17634,7 @@
   },
   {
     "DesignerName": "Drawing pin up oriented",
-    "CustomName": null,
+    "CustomName": "Pin (Facing Up)",
     "DesignerDescription": "The tip is fatal",
     "Type": 229,
     "Etat": 0,
@@ -17685,7 +17685,7 @@
   },
   {
     "DesignerName": "Drawing pin left oriented",
-    "CustomName": null,
+    "CustomName": "Pin (Facing Left)",
     "DesignerDescription": "The tip is fatal",
     "Type": 230,
     "Etat": 0,
@@ -17736,7 +17736,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Viking Mama/Moskito Right)",
     "DesignerDescription": null,
     "Type": 231,
     "Etat": 0,
@@ -17765,7 +17765,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Viking Mama/Moskito Left)",
     "DesignerDescription": null,
     "Type": 232,
     "Etat": 0,
@@ -17794,7 +17794,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Viking Mama/Moskito Beam)",
     "DesignerDescription": null,
     "Type": 233,
     "Etat": 0,
@@ -17823,7 +17823,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Lava",
     "DesignerDescription": null,
     "Type": 234,
     "Etat": 0,
@@ -17928,7 +17928,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Amulet (Deletes Mr Dark's Curses)",
     "DesignerDescription": null,
     "Type": 236,
     "Etat": 5,
@@ -17957,7 +17957,7 @@
   },
   {
     "DesignerName": "Bounced rubber",
-    "CustomName": null,
+    "CustomName": "Bouncy Rubber",
     "DesignerDescription": "Rayman bounces on it. Is placed above\\the pens that are in the graphical\\blocks under the mapper.",
     "Type": 237,
     "Etat": 0,
@@ -18060,7 +18060,7 @@
   },
   {
     "DesignerName": "Up pencil wall fixed",
-    "CustomName": null,
+    "CustomName": "Pencil (Pointing Up)",
     "DesignerDescription": "Steady and directed toward the top.\\Several colours that change\\automatically.",
     "Type": 240,
     "Etat": 0,
@@ -18111,7 +18111,7 @@
   },
   {
     "DesignerName": "Pencil wall going up -only one",
-    "CustomName": null,
+    "CustomName": "Pencil (Pointing Up Moving First)",
     "DesignerDescription": "Directed toward the top, of several\\colours, it moves back and forth from\\the top to the bottom. Mustn't be linked\\to any other pen.",
     "Type": 241,
     "Etat": 0,
@@ -18162,7 +18162,7 @@
   },
   {
     "DesignerName": "Pencil wall going up -suite",
-    "CustomName": null,
+    "CustomName": "Pencil (Pointing Up Moving Wave)",
     "DesignerDescription": "Directed toward the top, of several\\colours, it moves back and forth from\\the top to the bottom. It's the pencil\\that you need to use after the 'Pencil wall\\going up -first', to create a pencil wall",
     "Type": 242,
     "Etat": 0,
@@ -18213,7 +18213,7 @@
   },
   {
     "DesignerName": "Bounced pen",
-    "CustomName": null,
+    "CustomName": "Bouncy Pen",
     "DesignerDescription": "Rayman can bounce on its head but this\\pen can still kill Rayman.",
     "Type": 243,
     "Etat": 0,
@@ -18264,7 +18264,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Space Mama (2nd Consecutive Beam)",
     "DesignerDescription": null,
     "Type": 244,
     "Etat": 1,
@@ -18293,7 +18293,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Joe’s Beach",
     "DesignerDescription": null,
     "Type": 245,
     "Etat": 0,
@@ -18322,7 +18322,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Dark (Separate Rope)",
     "DesignerDescription": null,
     "Type": 246,
     "Etat": 0,
@@ -18351,7 +18351,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Mr Skops (Claw)",
     "DesignerDescription": null,
     "Type": 248,
     "Etat": 3,
@@ -18380,7 +18380,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Theatre (Top Curtain)",
     "DesignerDescription": null,
     "Type": 249,
     "Etat": 0,
@@ -18411,7 +18411,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Theatre (Back Curtain)",
     "DesignerDescription": null,
     "Type": 249,
     "Etat": 0,
@@ -18442,7 +18442,7 @@
   },
   {
     "DesignerName": "Double drawing pin",
-    "CustomName": null,
+    "CustomName": "Pin (Facing Up and Down)",
     "DesignerDescription": "Tips are fatal",
     "Type": 250,
     "Etat": 0,
@@ -18493,7 +18493,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Water Theatre Prop 1)",
     "DesignerDescription": null,
     "Type": 251,
     "Etat": 0,
@@ -18522,7 +18522,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Viking Mama (Water Theatre Prop 2)",
     "DesignerDescription": null,
     "Type": 252,
     "Etat": 0,
@@ -18551,7 +18551,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Breakout Game (Plum)",
     "DesignerDescription": null,
     "Type": 256,
     "Etat": 0,
@@ -18604,7 +18604,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": null,
+    "CustomName": "Breakout Game",
     "DesignerDescription": null,
     "Type": 257,
     "Etat": 0,

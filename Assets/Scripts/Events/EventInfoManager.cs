@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -15,8 +16,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="designerBasePath">The Rayman Designer base path</param>
         /// <param name="pcBasePath">The Rayman 1 PC base path</param>
+        /// <param name="csvPath">The .csv file path</param>
         /// <param name="outputFilePath">The JSON output path</param>
-        public static void GenerateEventInfo(string designerBasePath, string pcBasePath, string outputFilePath)
+        public static void GenerateEventInfo(string designerBasePath, string pcBasePath, string csvPath, string outputFilePath)
         {
             var rdManager = new PC_RD_Manager();
             var pcManager = new PC_R1_Manager();
@@ -100,6 +102,43 @@ namespace R1Engine
                             eventInfo.Add(data);
 
                         index++;
+                    }
+                }
+            }
+
+            // Add names from .csv file
+            using (var csvFile = File.OpenRead(csvPath))
+            {
+                using (var reader = new StreamReader(csvFile))
+                {
+                    // Ignore header line
+                    reader.ReadLine();
+
+                    // Enumerate each line
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine()?.Split(',');
+
+                        if (line == null)
+                            break;
+
+                        var desc = line[1].Trim('"');
+                        var type = Int32.Parse(line[6]);
+                        var subEtat = Int32.Parse(line[9]);
+                        var etat = Int32.Parse(line[10]);
+
+                        // Find matching item
+                        var item = eventInfo.Find(x => x.Type == type &&
+                                                       x.Etat == etat &&
+                                                       x.SubEtat == subEtat);
+
+                        if (item == null)
+                        {
+                            Debug.LogWarning($"No matching even for {desc} of type {type}");
+                            continue;
+                        }
+
+                        item.CustomName = desc;
                     }
                 }
             }
@@ -360,8 +399,6 @@ namespace R1Engine
                 public uint Follow_sprite { get; set; }
 
                 public uint Hitpoints { get; set; }
-
-                public string Obj_type { get; set; }
 
                 public uint Hit_sprite { get; set; }
 
