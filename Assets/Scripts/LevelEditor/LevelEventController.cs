@@ -68,11 +68,12 @@ namespace R1Engine {
             newEvent.EventInfoData = e;
             newEvent.XPosition = 0;
             newEvent.YPosition = 0;
-            newEvent.LinkIndex = Controller.obj.levelController.currentLevel.Events.Max(t => t.LinkIndex) + 1;
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
             // Add to list
             Controller.obj.levelController.currentLevel.Events.Add(newEvent);
+            // Set link to be the index
+            newEvent.LinkIndex = Controller.obj.levelController.currentLevel.Events.IndexOf(newEvent);
         }
     }
 }
