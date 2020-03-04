@@ -164,6 +164,8 @@ namespace R1Engine
                 return new PC_R1_Event()
                 {
                     DES = DES[world],
+                    DES2 = DES[world],
+                    DES3 = DES[world],
                     ETA = ETA,
                     OffsetBX = OffsetBX,
                     OffsetBY = OffsetBY,
