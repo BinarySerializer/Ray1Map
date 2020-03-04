@@ -395,7 +395,7 @@
   },
   {
     "DesignerName": "Steady water lily",
-    "CustomName": "Cloud [Music]",
+    "CustomName": "Cloud",
     "DesignerDescription": "Stays motionless when Rayman jumps on\\it.",
     "Type": 1,
     "Etat": 0,
@@ -695,7 +695,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Electoon [Music]",
+    "CustomName": "Electoon",
     "DesignerDescription": null,
     "Type": 3,
     "Etat": 2,
@@ -1591,7 +1591,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Magician (Bonus) [Jungle]",
+    "CustomName": "Magician (Bonus)",
     "DesignerDescription": null,
     "Type": 5,
     "Etat": 8,
@@ -2050,7 +2050,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Rayman (Fist Hit Animation) [Image]",
+    "CustomName": "Rayman (Fist Hit Animation)",
     "DesignerDescription": null,
     "Type": 11,
     "Etat": 5,
@@ -2105,7 +2105,7 @@
   },
   {
     "DesignerName": "Hunter 1",
-    "CustomName": "Hunter (Horizontal Aim) [Music]",
+    "CustomName": "Hunter (Horizontal Aim)",
     "DesignerDescription": "Shoots mallets horizontally.",
     "Type": 12,
     "Etat": 0,
@@ -2160,7 +2160,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Hunter (Bullet Shot) [Music]",
+    "CustomName": "Hunter (Bullet Shot)",
     "DesignerDescription": null,
     "Type": 13,
     "Etat": 2,
@@ -2355,7 +2355,7 @@
   },
   {
     "DesignerName": "Falling cloud",
-    "CustomName": "Cloud (Falling) [Music]",
+    "CustomName": "Cloud (Falling)",
     "DesignerDescription": "Falls down when Rayman jumps on it.",
     "Type": 16,
     "Etat": 0,
@@ -2552,7 +2552,7 @@
   },
   {
     "DesignerName": "Rising cloud",
-    "CustomName": "Cloud (Rising) [Music]",
+    "CustomName": "Cloud (Rising)",
     "DesignerDescription": "Goes up when Rayman jumps on it.",
     "Type": 17,
     "Etat": 0,
@@ -2685,7 +2685,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Splash [Music]",
+    "CustomName": "Splash",
     "DesignerDescription": null,
     "Type": 19,
     "Etat": 0,
@@ -3013,7 +3013,7 @@
   },
   {
     "DesignerName": "Horizontal cloud",
-    "CustomName": "Cloud (Horizontal) [Music]",
+    "CustomName": "Cloud (Horizontal)",
     "DesignerDescription": "Makes a constant horizontal move in\\an area that is limited by orange types.",
     "Type": 22,
     "Etat": 0,
@@ -3113,7 +3113,7 @@
   },
   {
     "DesignerName": "Steady cloud",
-    "CustomName": "Cloud (Spring) [Music]",
+    "CustomName": "Cloud (Spring)",
     "DesignerDescription": "Stay motionless when Rayman jumps on it.",
     "Type": 25,
     "Etat": 0,
@@ -3165,7 +3165,7 @@
   },
   {
     "DesignerName": "Water lily that disappears",
-    "CustomName": "Cloud (Disappearing) [Music]",
+    "CustomName": "Cloud (Disappearing)",
     "DesignerDescription": "It disappears when Rayman jumps on it.",
     "Type": 26,
     "Etat": 0,
@@ -3220,7 +3220,7 @@
   },
   {
     "DesignerName": "Water lily spring",
-    "CustomName": "Cloud (Trampoline) [Music]",
+    "CustomName": "Cloud (Trampoline)",
     "DesignerDescription": "Rayman bounces but he can do big or\\small jumps.",
     "Type": 27,
     "Etat": 0,
@@ -3275,7 +3275,7 @@
   },
   {
     "DesignerName": "Flashing cloud",
-    "CustomName": "Cloud (Flashing) [Music]",
+    "CustomName": "Cloud (Flashing)",
     "DesignerDescription": "Appears and disappears regularly.",
     "Type": 28,
     "Etat": 0,
@@ -3398,7 +3398,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Rayman (Lives Given) [Non Image]",
+    "CustomName": "Rayman (Lives Given)",
     "DesignerDescription": null,
     "Type": 31,
     "Etat": 5,
@@ -3930,7 +3930,7 @@
   },
   {
     "DesignerName": "Stone dog",
-    "CustomName": "Stone Dog [Mountain]",
+    "CustomName": "Stone Dog",
     "DesignerDescription": "Moves back and forth on the platforms,\\and jumps in the opposite direction when\\it encounters an orange type.",
     "Type": 40,
     "Etat": 0,
@@ -4108,7 +4108,7 @@
   },
   {
     "DesignerName": "Prickly ball",
-    "CustomName": "Spiky Ball [Music]",
+    "CustomName": "Spiky Ball",
     "DesignerDescription": "Steady prickly ball.",
     "Type": 41,
     "Etat": 0,
@@ -4162,7 +4162,7 @@
   },
   {
     "DesignerName": "Right ending sign",
-    "CustomName": "Exit Sign [Music]",
+    "CustomName": "Exit Sign",
     "DesignerDescription": "Lets the player exit from the map. It\\appears once the blue tings have been\\taken (there are generally 50 or 100\\blue tings).",
     "Type": 42,
     "Etat": 0,
@@ -4425,7 +4425,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Flame (Stone Man) [Mountain]",
+    "CustomName": "Flame (Stone Man)",
     "DesignerDescription": null,
     "Type": 44,
     "Etat": 2,
@@ -4490,7 +4490,7 @@
   },
   {
     "DesignerName": "Horizontal prickly ball",
-    "CustomName": "Spiky Ball (Moves Square) [Mountain]",
+    "CustomName": "Spiky Ball (Moves Square)",
     "DesignerDescription": "Makes a constant horizontal move in an\\area that is limited by orange types.",
     "Type": 45,
     "Etat": 0,
@@ -4595,7 +4595,7 @@
   },
   {
     "DesignerName": "Small bounce lava rock",
-    "CustomName": "Lava Ball (Small Bounce) [Mountain]",
+    "CustomName": "Lava Ball (Small Bounce)",
     "DesignerDescription": "Small bounces on the platform.",
     "Type": 47,
     "Etat": 2,
@@ -5314,7 +5314,7 @@
   },
   {
     "DesignerName": "Pick to the left",
-    "CustomName": "Stake (Facing Right) [Mountain]",
+    "CustomName": "Stake (Facing Right)",
     "DesignerDescription": "Goes left as soon as Rayman enters its\\area.",
     "Type": 57,
     "Etat": 0,
@@ -5420,7 +5420,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Cage [Music]",
+    "CustomName": "Cage",
     "DesignerDescription": null,
     "Type": 58,
     "Etat": 0,
@@ -5453,7 +5453,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Cage  (Appearing) [Music]",
+    "CustomName": "Cage  (Appearing)",
     "DesignerDescription": null,
     "Type": 58,
     "Etat": 2,
@@ -5486,7 +5486,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Opened Cage Rising [Music]",
+    "CustomName": "Opened Cage Rising",
     "DesignerDescription": null,
     "Type": 59,
     "Etat": 0,
@@ -6100,7 +6100,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Screen Moving (Increase Right Speed) [Music]",
+    "CustomName": "Screen Moving (Increase Right Speed)",
     "DesignerDescription": null,
     "Type": 64,
     "Etat": 0,
@@ -6131,7 +6131,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Screen Moving (Toggle Up Fast Speed) [Mountain/Jungle]",
+    "CustomName": "Screen Moving (Toggle Up Fast Speed)",
     "DesignerDescription": null,
     "Type": 64,
     "Etat": 0,
@@ -6395,7 +6395,7 @@
   },
   {
     "DesignerName": "Big bounce lava rock",
-    "CustomName": "Lava Ball (Big Bounce) [Mountain]",
+    "CustomName": "Lava Ball (Big Bounce)",
     "DesignerDescription": "Big bounces on the platform.",
     "Type": 69,
     "Etat": 2,
@@ -6956,7 +6956,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Lava Ball (Piece 1) [Mountain]",
+    "CustomName": "Lava Ball (Piece 1)",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7007,7 +7007,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Lava Ball (Piece 2) [Mountain]",
+    "CustomName": "Lava Ball (Piece 2)",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7058,7 +7058,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Lava Ball (Piece 3) [Mountain]",
+    "CustomName": "Lava Ball (Piece 3)",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7109,7 +7109,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Lava Ball (Piece 4) [Mountain]",
+    "CustomName": "Lava Ball (Piece 4)",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7160,7 +7160,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Lava Ball (Piece 5) [Mountain]",
+    "CustomName": "Lava Ball (Piece 5)",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7211,7 +7211,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Lava Ball (Piece 6) [Mountain]",
+    "CustomName": "Lava Ball (Piece 6)",
     "DesignerDescription": null,
     "Type": 79,
     "Etat": 0,
@@ -7388,7 +7388,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Rayman (Dust Explosion) [Music]",
+    "CustomName": "Rayman (Dust Explosion)",
     "DesignerDescription": null,
     "Type": 83,
     "Etat": 0,
@@ -8011,7 +8011,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Rayman's Fist [Jungle Only]",
+    "CustomName": "Rayman's Fist",
     "DesignerDescription": null,
     "Type": 94,
     "Etat": 5,
@@ -8447,7 +8447,7 @@
   },
   {
     "DesignerName": "Fruit that swings",
-    "CustomName": "Large Spiky Ball (Swinging) [Mountain]",
+    "CustomName": "Large Spiky Ball (Swinging)",
     "DesignerDescription": "Swings all the time.",
     "Type": 101,
     "Etat": 0,
@@ -8498,7 +8498,7 @@
   },
   {
     "DesignerName": "Activatable prickly swing",
-    "CustomName": "Large Spiky Ball (Swings Upon Punch) [Mountain]",
+    "CustomName": "Large Spiky Ball (Swings Upon Punch)",
     "DesignerDescription": "Once Rayman activates it with a punch,\\it swings.",
     "Type": 101,
     "Etat": 0,
@@ -8766,7 +8766,7 @@
   },
   {
     "DesignerName": "Prickly ball",
-    "CustomName": "Large Spiky Ball [Mountain]",
+    "CustomName": "Large Spiky Ball",
     "DesignerDescription": "Stationary prickly ball.",
     "Type": 107,
     "Etat": 0,
@@ -8869,7 +8869,7 @@
   },
   {
     "DesignerName": "Rock",
-    "CustomName": "Boulder [Mountain]",
+    "CustomName": "Boulder",
     "DesignerDescription": "Rayman can walk on it and brake it with\\his fist.",
     "Type": 109,
     "Etat": 0,
@@ -8920,7 +8920,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Boulder (Destroyed) [Mountain]",
+    "CustomName": "Boulder (Destroyed)",
     "DesignerDescription": null,
     "Type": 110,
     "Etat": 2,
@@ -9901,7 +9901,7 @@
   },
   {
     "DesignerName": "Antitoon walker",
-    "CustomName": "Antitoon (Walks back and forth and jumps) [Music]",
+    "CustomName": "Antitoon (Walks back and forth and jumps)",
     "DesignerDescription": "Moves back and forth on the hard types\\of the platform.",
     "Type": 123,
     "Etat": 1,
@@ -9976,7 +9976,7 @@
   },
   {
     "DesignerName": "Antitoon jumper",
-    "CustomName": "Antitoon (Charging) [Music]",
+    "CustomName": "Antitoon (Charging)",
     "DesignerDescription": "Doesn't move unless Rayman jumps over\\him. In that case, moves vertically in\\Rayman's direction.",
     "Type": 123,
     "Etat": 0,
@@ -10074,7 +10074,7 @@
   },
   {
     "DesignerName": "Antitoon flyer",
-    "CustomName": "Antitoon (Flies back and forth) [Music]",
+    "CustomName": "Antitoon (Flies back and forth)",
     "DesignerDescription": "Flies following a pre-defined trajectory\\but can be located in a specific area\\which is limited by directional orange types.",
     "Type": 123,
     "Etat": 0,
@@ -10142,7 +10142,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Back Sign [Music]",
+    "CustomName": "Back Sign",
     "DesignerDescription": null,
     "Type": 124,
     "Etat": 0,
@@ -10420,7 +10420,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Antitoon Eyes [Music]",
+    "CustomName": "Antitoon Eyes",
     "DesignerDescription": null,
     "Type": 130,
     "Etat": 0,
@@ -10688,7 +10688,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Little Rayman [Image]",
+    "CustomName": "Little Rayman",
     "DesignerDescription": null,
     "Type": 136,
     "Etat": 0,
@@ -10990,7 +10990,7 @@
   },
   {
     "DesignerName": "Steady ring",
-    "CustomName": "Ring Vertical [Music]",
+    "CustomName": "Ring Vertical",
     "DesignerDescription": "Still ring on which Rayman hangs with\\his punching fist.",
     "Type": 140,
     "Etat": 0,
@@ -11045,7 +11045,7 @@
   },
   {
     "DesignerName": "Falling ring",
-    "CustomName": "Ring Falling/Damaged [Mountain]",
+    "CustomName": "Ring Falling/Damaged",
     "DesignerDescription": "Ring that falls when Rayman hangs on it\\with his punching fist.",
     "Type": 140,
     "Etat": 0,
@@ -11378,7 +11378,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Item Collect Animation [Image Only]",
+    "CustomName": "Item Collect Animation",
     "DesignerDescription": null,
     "Type": 143,
     "Etat": 5,
@@ -11433,7 +11433,7 @@
   },
   {
     "DesignerName": "Flashing eye",
-    "CustomName": "Flashing Eyes [Music]",
+    "CustomName": "Flashing Eyes",
     "DesignerDescription": "Throws flashes of lightning in Rayman's\\direction.",
     "Type": 145,
     "Etat": 0,
@@ -11485,7 +11485,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Lightning Bolt [Jungle]",
+    "CustomName": "Lightning Bolt",
     "DesignerDescription": null,
     "Type": 146,
     "Etat": 0,
@@ -11661,7 +11661,7 @@
   },
   {
     "DesignerName": "Ball",
-    "CustomName": "Hunter (Bullet) [Mountain]",
+    "CustomName": "Hunter (Bullet)",
     "DesignerDescription": "Goes on the side of Rayman and has him\\lose one life point.",
     "Type": 151,
     "Etat": 2,
@@ -11846,7 +11846,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Betilla [Music]",
+    "CustomName": "Betilla",
     "DesignerDescription": null,
     "Type": 153,
     "Etat": 0,
@@ -12118,7 +12118,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Water (Follow) [Mountain]",
+    "CustomName": "Water (Follow)",
     "DesignerDescription": null,
     "Type": 157,
     "Etat": 0,
@@ -12173,7 +12173,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Water [Mountain]",
+    "CustomName": "Water",
     "DesignerDescription": null,
     "Type": 157,
     "Etat": 0,
@@ -15127,7 +15127,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Cage Medallion [Music]",
+    "CustomName": "Cage Medallion",
     "DesignerDescription": null,
     "Type": 197,
     "Etat": 5,
@@ -15509,7 +15509,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Rayman's Feet [Image Only]",
+    "CustomName": "Rayman's Feet",
     "DesignerDescription": null,
     "Type": 206,
     "Etat": 2,
@@ -15614,7 +15614,7 @@
   },
   {
     "DesignerName": null,
-    "CustomName": "Large Dust Circle [Music]",
+    "CustomName": "Large Dust Circle",
     "DesignerDescription": null,
     "Type": 208,
     "Etat": 0,
