@@ -10,16 +10,16 @@ namespace R1Engine.Unity {
 
 
         static Transform root;
-        public Event ev;
+        public Common_Event ev;
         public Transform icon;
 
         void Start() {
             if (ev == null)
-                ev = new Event();
+                ev = new Common_Event();
             if (root == null) root = GameObject.Find("Events").transform;
-            name = $"{root.childCount} | {ev.type}";
+            name = $"{root.childCount} | {ev.EventInfoData.Type}";
             transform.parent = root;
-            transform.position = ev.pos + Vector3.forward * 5;
+            transform.position = new Vector3(ev.XPosition, ev.YPosition) + Vector3.forward * 5;
         }
     }
 }

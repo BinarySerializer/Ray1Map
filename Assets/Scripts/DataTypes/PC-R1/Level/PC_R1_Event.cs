@@ -65,6 +65,12 @@ namespace R1Engine
 
         public ushort Unknown12 { get; set; }
 
+        /// <summary>
+        /// Gets the event ID
+        /// </summary>
+        /// <returns>The event ID</returns>
+        public string GetEventID() => $"{Type.ToString().PadLeft(3, '0')}{Etat.ToString().PadLeft(3, '0')}{SubEtat.ToString().PadLeft(3, '0')}";
+
         public void Deserialize(Stream stream)
         {
             DES = stream.Read<uint>();

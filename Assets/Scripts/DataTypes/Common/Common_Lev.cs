@@ -28,6 +28,6 @@
         /// <summary>
         /// The events
         /// </summary>
-        public Event[] Events { get; set; }
+        public Common_Event[] Events { get; set; }
     }
 }

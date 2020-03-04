@@ -17,7 +17,7 @@ namespace R1Engine.Unity {
         public void LoadLevel(IGameManager manager, string basePath, World world, int levelIndex) 
         {
             // Load the level
-            currentLevel = manager.LoadLevel(basePath, world, levelIndex);
+            currentLevel = manager.LoadLevel(basePath, world, levelIndex, EventInfoManager.LoadEventInfo());
 
             // Make the tilemap controller to init all the tilemaps
             controllerTilemap.InitializeTilemaps(currentLevel);

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace R1Engine.Unity {
     public class EventListItem : MonoBehaviour, IPointerDownHandler {
-        public Event ev;
+        public Common_Event ev;
         public Text evName;
         EventList list;
         Image bg;
@@ -13,7 +13,7 @@ namespace R1Engine.Unity {
         void Start() {
             list = GetComponentInParent<EventList>();
             bg = GetComponent<Image>();
-            evName.text = ev.type.ToString();
+            evName.text = ev.EventInfoData.Type.ToString();
         }
 
         public void OnPointerDown(PointerEventData eventData) {

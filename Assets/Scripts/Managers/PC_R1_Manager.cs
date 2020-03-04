@@ -83,8 +83,9 @@ namespace R1Engine
         /// <param name="basePath">The base game path</param>
         /// <param name="world">The world</param>
         /// <param name="level">The level</param>
+        /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(string basePath, World world, int level)
+        public Common_Lev LoadLevel(string basePath, World world, int level, EventInfoData[] eventInfoData)
         {
             // Read the level data
             var levelData = FileFactory.Read<PC_R1_LevFile>(GetLevelFilePath(basePath, world, level));
@@ -98,10 +99,11 @@ namespace R1Engine
 
                 // TODO: Clean up by making a common event class
                 // Set the events
-                Events = levelData.Events.Select(x => new Event()
+                Events = levelData.Events.Select(x => new Common_Event()
                 {
-                    pos = new PxlVec((ushort) x.XPosition, (ushort) x.YPosition),
-                    type = (EventType)x.Type
+                    EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == x.GetEventID()),
+                    XPosition = x.XPosition,
+                    YPosition = x.YPosition
                 }).ToArray(),
 
                 // Create the tile arrays

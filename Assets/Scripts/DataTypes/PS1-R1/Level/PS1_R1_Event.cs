@@ -63,6 +63,12 @@ namespace R1Engine
         public byte[] Unknown10 { get; set; }
 
         /// <summary>
+        /// Gets the event ID
+        /// </summary>
+        /// <returns>The event ID</returns>
+        public string GetEventID() => $"{Type.ToString().PadLeft(3, '0')}{Etat.ToString().PadLeft(3, '0')}{SubEtat.ToString().PadLeft(3, '0')}";
+
+        /// <summary>
         /// Deserializes the file contents
         /// </summary>
         /// <param name="stream">The stream to read from</param>

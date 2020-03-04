@@ -71,8 +71,9 @@ namespace R1Engine
         /// <param name="basePath">The base game path</param>
         /// <param name="world">The world</param>
         /// <param name="level">The level</param>
+        /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(string basePath, World world, int level)
+        public Common_Lev LoadLevel(string basePath, World world, int level, EventInfoData[] eventInfoData)
         {
             throw new NotImplementedException();
         }

@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace R1Engine.Unity {
+namespace R1Engine.Unity
+{
     public class EventList : MonoBehaviour {
         public RectTransform list;
         public InputField search;
-        public Event selection;
+        public Common_Event selection;
 
         static GameObject listItemRes;
         LevelMainController lvlCtrl;
