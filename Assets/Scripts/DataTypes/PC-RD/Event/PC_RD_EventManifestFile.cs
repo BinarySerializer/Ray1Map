@@ -29,7 +29,7 @@ namespace R1Engine
             var items = new List<PC_RD_EventManifestItem>();
 
             // Use a stream reader for easier string handling
-            using (var reader = new StreamReader(stream, Settings.StringEncoding))
+            using (var reader = new StreamReader(stream, Settings.StringEncoding, false, 1024, true))
             {
                 // Flag for if we've reached the end of the file
                 bool end = false;
@@ -197,8 +197,8 @@ namespace R1Engine
                     eventManifestItem.Offset_BY = UInt32.Parse(nextValue());
                     eventManifestItem.Offset_HY = UInt32.Parse(nextValue());
 
-                    eventManifestItem.Follow_enabled = nextValue() == "1";
-                    eventManifestItem.Follow_sprite = nextValue() == "1";
+                    eventManifestItem.Follow_enabled = UInt32.Parse(nextValue());
+                    eventManifestItem.Follow_sprite = UInt32.Parse(nextValue());
                     eventManifestItem.Hitpoints = UInt32.Parse(nextValue());
 
                     eventManifestItem.Obj_type = nextValue();
@@ -269,9 +269,9 @@ namespace R1Engine
 
             public uint Offset_HY { get; set; }
 
-            public bool Follow_enabled { get; set; }
+            public uint Follow_enabled { get; set; }
 
-            public bool Follow_sprite { get; set; }
+            public uint Follow_sprite { get; set; }
 
             public uint Hitpoints { get; set; }
 

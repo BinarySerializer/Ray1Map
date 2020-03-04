@@ -131,7 +131,8 @@ namespace R1Engine
             BackgroundLayerPositions = stream.Read<PS1_R1_BackgroundLayerPosition>(12);
             Unknown3 = stream.ReadBytes(16);
             BackgroundLayerInfos = stream.Read<PS1_R1_BackgroundLayerInfo>(12);
-            Unknown4 = stream.ReadBytes(80);
+            // On PAL/NTSC this is 80 bytes. On NTSC-J it's more, which is why we just read the remaining bytes for now
+            Unknown4 = stream.ReadBytes((int)(EventBlockPointer - stream.Position));
 
             // EVENT BLOCK
 

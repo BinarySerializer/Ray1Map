@@ -11,55 +11,6 @@ namespace R1Engine
     public class PC_RD_Manager : IGameManager
     {
         /// <summary>
-        /// Generated a JSON file with the common event information
-        /// </summary>
-        /// <param name="basePath">The Rayman Designer base path</param>
-        /// <param name="outputFilePath">The JSON output path</param>
-        public void GenerateEventInfo(string basePath, string outputFilePath)
-        {
-            // Read the event localization files
-            var loc = GetEventLocFiles(basePath)["USA"].SelectMany(x => x.LocItems).ToArray();
-         
-            // Create the event info to serialize
-            var eventInfo = new Dictionary<World, List<Common_EventInfo>>();
-
-            // Enumerate each world
-            foreach (World world in EnumHelpers.GetValues<World>())
-            {
-                // Create the world entry
-                eventInfo.Add(world, new List<Common_EventInfo>());
-
-                // Get the event manifest file path
-                var eventFilePath = Path.Combine(basePath, GetWorldName(world), "EVE.MLT");
-
-                // Read the manifest
-                var eventFile = FileFactory.Read<PC_RD_EventManifestFile>(eventFilePath);
-
-                // Add each entry
-                foreach (var e in eventFile.Items)
-                {
-                    // Attempt to find the matching localization entry
-                    var locItem = loc.FindItem(x => x.LocKey == e.Name);
-
-                    // Add the common info
-                    eventInfo[world].Add(new Common_EventInfo
-                    {
-                        Type = Int32.TryParse(e.Obj_type, out var v) ? v : -1,
-                        Etat = (int)e.Etat,
-                        SubEtat = e.SubEtat,
-                        DesignerName = locItem?.Name ?? "N/A",
-                        CustomName = null,
-                        DesignerDescription = locItem?.Description ?? "N/A",
-                        IsAlways = e.DesignerGroup == -1
-                    });
-                }
-            }
-
-            // Serialize to the file
-            JsonHelpers.SerializeToFile(eventInfo, outputFilePath);
-        }
-
-        /// <summary>
         /// Gets the localization files for each event, with the language tag as the key
         /// </summary>
         /// <param name="basePath">The base game path</param>
