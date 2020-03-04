@@ -7,11 +7,14 @@ namespace R1Engine {
 
         [HideInInspector]
         public LevelMainController levelController;
+        [HideInInspector]
+        public LevelEventController levelEventController;
 
         void Awake() 
         {
             obj = this;
             levelController = GameObject.Find("Level").GetComponent<LevelMainController>();
+            levelEventController = GameObject.Find("Level").GetComponent<LevelEventController>();
         }
         void Start() 
         {

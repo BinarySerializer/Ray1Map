@@ -206,17 +206,17 @@ namespace R1Engine
             var index = 0;
 
             // Add the events
+            commonLev.Events = new List<Common_Event>();
             foreach (var e in levelData.Events)
             {
-                commonLev.Events.Add(new Common_Event()
-                {
-                    EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
-                    OffsetBX = e.OffsetBX,
-                    OffsetBY = e.OffsetBY,
-                    LinkIndex = levelData.EventLinkingTable[index]
-                });
+                // Instantiate event prefab using LevelEventController
+                commonLev.Events.Add(Controller.obj.levelEventController.AddEvent(
+                    eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
+                    e.XPosition,
+                    e.YPosition,
+                    e.OffsetBX,
+                    e.OffsetBY,
+                    levelData.EventLinkingTable[index]));
 
                 index++;
             }
