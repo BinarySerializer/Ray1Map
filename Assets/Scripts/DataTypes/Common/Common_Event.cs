@@ -40,7 +40,7 @@ namespace R1Engine
         /// <summary>
         /// The display name
         /// </summary>
-        public string DisplayName => EventInfoData.DesignerName ?? EventInfoData.CustomName;
+        public string DisplayName => EventInfoData?.DesignerName ?? EventInfoData?.CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
 
 
         // Used for displaying one sprite isntead o

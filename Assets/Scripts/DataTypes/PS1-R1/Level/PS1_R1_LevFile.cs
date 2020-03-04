@@ -8,37 +8,27 @@ namespace R1Engine
     /// Level data for Rayman 1 (PS1)
     /// </summary>
     [Description("Rayman 1 (PS1) Level File")]
-    public class PS1_R1_LevFile : ISerializableFile
+    public class PS1_R1_LevFile : PS1_R1_BaseFile
     {
-        /// <summary>
-        /// The pointer to the offset block
-        /// </summary>
-        public uint OffsetBlockPointer { get; set; }
-
         /// <summary>
         /// The pointer to the background block
         /// </summary>
-        public uint BackgroundBlockPointer { get; set; }
+        public uint BackgroundBlockPointer => Pointers[0];
 
         /// <summary>
         /// The pointer to the event block
         /// </summary>
-        public uint EventBlockPointer { get; set; }
+        public uint EventBlockPointer => Pointers[1];
 
         /// <summary>
         /// The pointer to the map block
         /// </summary>
-        public uint MapBlockPointer { get; set; }
+        public uint MapBlockPointer => Pointers[2];
 
         /// <summary>
         /// The pointer to the texture block
         /// </summary>
-        public uint TextureBlockPointer { get; set; }
-
-        /// <summary>
-        /// The pointer to the end of the file
-        /// </summary>
-        public uint FileEndPointer { get; set; }
+        public uint TextureBlockPointer => Pointers[3];
 
         /// <summary>
         /// The background layer positions
@@ -103,23 +93,11 @@ namespace R1Engine
         /// Deserializes the file contents
         /// </summary>
         /// <param name="stream">The stream to read from</param>
-        public void Deserialize(Stream stream)
+        public override void Deserialize(Stream stream)
         {
-            // Read the offset block pointer
-            OffsetBlockPointer = stream.Read<uint>();
+            // HEADER
 
-            // OFFSET BLOCK
-
-            // At this point the stream position should match the offset block offset
-            if (stream.Position != OffsetBlockPointer)
-                Debug.LogError("Offset block offset is incorrect");
-
-            // Read the pointers
-            BackgroundBlockPointer = stream.Read<uint>();
-            EventBlockPointer = stream.Read<uint>();
-            MapBlockPointer = stream.Read<uint>();
-            TextureBlockPointer = stream.Read<uint>();
-            FileEndPointer = stream.Read<uint>();
+            base.Deserialize(stream);
 
             // BACKGROUND BLOCK
 
@@ -176,10 +154,10 @@ namespace R1Engine
             if (stream.Position != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            TextureBlock = stream.ReadBytes((int)(FileEndPointer - TextureBlockPointer));
+            TextureBlock = stream.ReadBytes((int)(FileSize - TextureBlockPointer));
 
             // At this point the stream position should match the end offset
-            if (stream.Position != FileEndPointer)
+            if (stream.Position != FileSize)
                 Debug.LogError("End offset is incorrect");
 
             Debug.Log($"PS1 R1 level loaded with size {Width}x{Height} and {EventCount} events");
@@ -189,19 +167,11 @@ namespace R1Engine
         /// Serializes the file contents
         /// </summary>
         /// <param name="stream">The stream to write to</param>
-        public void Serialize(Stream stream)
+        public override void Serialize(Stream stream)
         {
-            // Write the offset block pointer
-            stream.Write(OffsetBlockPointer);
+            // HEADER
 
-            // OFFSET BLOCK
-
-            // Read the pointers
-            stream.Write(BackgroundBlockPointer);
-            stream.Write(EventBlockPointer);
-            stream.Write(MapBlockPointer);
-            stream.Write(TextureBlockPointer);
-            stream.Write(FileEndPointer);
+            base.Serialize(stream);
 
             // BACKGROUND BLOCK
 
