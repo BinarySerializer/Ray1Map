@@ -30,6 +30,17 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets the file path for the specified world
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="world">The world</param>
+        /// <returns>The world file path</returns>
+        public string GetWorldFilePath(string basePath, World world)
+        {
+            return Path.Combine(basePath, "PCMAP", $"RAY{(int)world + 1}.WLD");
+        }
+
+        /// <summary>
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
@@ -76,6 +87,92 @@ namespace R1Engine
             var worldPath = GetWorldFolderPath(basePath, world);
 
             return Directory.EnumerateFiles(worldPath, "RAY??.LEV", SearchOption.TopDirectoryOnly).Count();
+        }
+
+        /// <summary>
+        /// Exports all sprite textures to the specified output directory
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportSpriteTextures(string basePath, string outputDir)
+        {
+            // Enumerate every world
+            foreach (World world in EnumHelpers.GetValues<World>())
+            {
+                // Read the world file
+                var worldFile = FileFactory.Read<PC_R1_WorldFile>(GetWorldFilePath(basePath, world));
+
+                // Enumerate each sprite group
+                for (int i = 0; i < worldFile.SpriteGroups.Length; i++)
+                {
+                    // Get the sprite group
+                    var sprite = worldFile.SpriteGroups[i];
+
+                    // Enumerate each image
+                    for (int j = 0; j < sprite.ImageDescriptors.Length; j++)
+                    {
+                        // Get the texture
+                        var tex = GetSpriteTexture(basePath, world, 1, sprite, sprite.ImageDescriptors[j]);
+
+                        // Get the directory
+                        var dir = Path.Combine(outputDir, world.ToString());
+
+                        // Create the directory
+                        Directory.CreateDirectory(dir);
+
+                        // Write the texture
+                        File.WriteAllBytes(Path.Combine(dir, $"{i.ToString().PadLeft(2, '0')}{j.ToString().PadLeft(2, '0')}.png"), tex.EncodeToPNG());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the texture for a sprite
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <param name="world">The world</param>
+        /// <param name="level">The level</param>
+        /// <param name="spriteGroup">The sprite group</param>
+        /// <param name="imgDescriptor">The image descriptor</param>
+        /// <returns>The texture</returns>
+        public Texture2D GetSpriteTexture(string basePath, World world, int level, PC_R1_SpriteGroup spriteGroup, PC_R1_ImageDescriptor imgDescriptor)
+        {
+            // Load the level to get the palette
+            var lvl = FileFactory.Read<PC_R1_LevFile>(GetLevelFilePath(basePath, world, level));
+
+            // Get the image properties
+            var width = imgDescriptor.InnerWidth;
+            var height = imgDescriptor.InnerHeight;
+            var offset = imgDescriptor.ImageOffset;
+
+            // Create the texture
+            var tex = new Texture2D(width, height);
+
+            // Set every pixel
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    // Get the pixel offset
+                    var pixelOffset = y * width + x + offset;
+
+                    // Get the pixel and decrypt it
+                    var pixel = spriteGroup.ImageData[pixelOffset] ^ 112;
+
+                    // Get the color from the palette
+                    var color = lvl.ColorPalettes[0][pixel];
+
+                    // Set the pixel
+                    tex.SetPixel(x, height - y - 1, color.GetColor());
+                }
+            }
+
+            // Apply the changes
+            tex.Apply();
+
+            // Return the texture
+            return tex;
         }
 
         /// <summary>

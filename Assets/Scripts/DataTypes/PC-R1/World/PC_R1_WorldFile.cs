@@ -32,6 +32,9 @@ namespace R1Engine
         /// </summary>
         public PC_R1_SpriteGroup[] SpriteGroups { get; set; }
 
+        // TODO: This is a temp property until we serialize the actual data - this appears to contain the event commands
+        public byte[] EtaBlock { get; set; }
+
         #endregion
 
         #region Public Methods
@@ -54,8 +57,7 @@ namespace R1Engine
             SpriteGroups = stream.Read<PC_R1_SpriteGroup>(SpriteGroupCount);
 
             // Read ETA data
-            // TODO: Finish
-            //throw new NotImplementedException();
+            EtaBlock = stream.ReadBytes((int)(stream.Length - stream.Position));
         }
 
         /// <summary>
