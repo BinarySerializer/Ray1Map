@@ -50,7 +50,6 @@ namespace R1Engine
         {
             ImageOffset = stream.Read<uint>();
             Unknown1 = stream.Read<byte>();
-            Unknown1 = stream.Read<byte>();
             OuterWidth = stream.Read<byte>();
             OuterHeight = stream.Read<byte>();
             InnerWidth = stream.Read<byte>();

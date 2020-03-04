@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -42,7 +43,12 @@ namespace R1Engine
                         return instance;
 
                     case TypeCode.Boolean:
-                        return stream.ReadByte() == 1;
+                        var b = stream.ReadByte();
+
+                        if (b != 0 && b != 1)
+                            Debug.LogWarning("Binary boolean was not correctly formatted");
+
+                        return b == 1;
 
                     case TypeCode.SByte:
                         return (sbyte)stream.ReadByte();

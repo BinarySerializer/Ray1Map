@@ -54,7 +54,8 @@ namespace R1Engine
             SpriteGroups = stream.Read<PC_R1_SpriteGroup>(SpriteGroupCount);
 
             // Read ETA data
-            throw new NotImplementedException();
+            // TODO: Finish
+            //throw new NotImplementedException();
         }
 
         /// <summary>
