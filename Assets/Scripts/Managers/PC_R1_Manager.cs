@@ -410,6 +410,11 @@ namespace R1Engine
                 r1Event.XPosition = e.XPosition;
                 r1Event.YPosition = e.YPosition;
 
+                // Set type values
+                r1Event.Type = (uint)e.EventInfoData.Type;
+                r1Event.Etat = (byte)e.EventInfoData.Etat;
+                r1Event.SubEtat = (byte)e.EventInfoData.SubEtat;
+
                 // Add the event
                 events.Add(r1Event);
 
