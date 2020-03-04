@@ -149,6 +149,33 @@ namespace R1Engine
                 Commands = cmd.EventCode;
             }
 
+            /// <summary>
+            /// Converts the info data to an event data type
+            /// </summary>
+            /// <returns>The event data type</returns>
+            public PC_R1_Event ToEvent()
+            {
+                return new PC_R1_Event()
+                {
+                    DES = DES,
+                    DES2 = DES2,
+                    DES3 = DES3,
+                    ETA = ETA,
+                    OffsetBX = OffsetBX,
+                    OffsetBY = OffsetBY,
+                    OffsetHY = OffsetHY,
+                    FollowSprite = FollowSprite,
+                    HitPoints = HitPoints,
+                    UnkGroup = UnkGroup,
+                    HitSprite = HitSprite,
+                    FollowEnabled = FollowEnabled,
+                    Unknown3 = new byte[16],
+                    Unknown4 = new byte[20],
+                    Unknown5 = new byte[28],
+                    Unknown10 = new byte[6]
+                };
+            }
+
             public uint DES { get; set; }
 
             public uint DES2 { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -97,18 +98,29 @@ namespace R1Engine
                 Width = levelData.Width,
                 Height = levelData.Height,
 
-                // Set the events
-                Events = levelData.Events.Select(x => new Common_Event()
-                {
-                    EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == x.GetEventID()),
-                    XPosition = x.XPosition,
-                    YPosition = x.YPosition
-                }).ToList(),
+                // Create the events list
+                Events = new List<Common_Event>(),
 
                 // Create the tile arrays
                 TileSet = new Common_Tileset[4],
                 Tiles = new Common_Tile[levelData.Width * levelData.Height]
             };
+
+            var index = 0;
+
+            // Add the events
+            foreach (var e in levelData.Events)
+            {
+                commonLev.Events.Add(new Common_Event()
+                {
+                    EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
+                    XPosition = e.XPosition,
+                    YPosition = e.YPosition,
+                    LinkIndex = levelData.EventLinkingTable[index]
+                });
+
+                index++;
+            }
 
             // Read the 3 tile sets (one for each palette)
             var tileSets = ReadTileSets(levelData);
@@ -347,8 +359,8 @@ namespace R1Engine
         /// <param name="basePath">The base game path</param>
         /// <param name="world">The world</param>
         /// <param name="level">The level</param>
-        /// <param name="levelData">The common level data</param>
-        public void SaveLevel(string basePath, World world, int level, Common_Lev levelData)
+        /// <param name="commonLevelData">The common level data</param>
+        public void SaveLevel(string basePath, World world, int level, Common_Lev commonLevelData)
         {
             // Get the level file path
             var lvlPath = GetLevelFilePath(basePath, world, level);
@@ -363,7 +375,7 @@ namespace R1Engine
                 {
                     // Get the tiles
                     var tile = lvlData.Tiles[y * lvlData.Width + x];
-                    var commonTile = levelData.Tiles[y * lvlData.Width + x];
+                    var commonTile = commonLevelData.Tiles[y * lvlData.Width + x];
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
@@ -382,6 +394,31 @@ namespace R1Engine
                     }
                 }
             }
+
+            // Temporary event lists
+            var events = new List<PC_R1_Event>();
+            var eventCommands = new List<PC_R1_EventCommand>();
+            var eventLinkingTable = new List<ushort>();
+
+            // Set events
+            foreach (var e in commonLevelData.Events)
+            {
+                events.Add(e.EventInfoData.PC_R1_Info.ToEvent());
+                eventCommands.Add(new PC_R1_EventCommand()
+                {
+                    CodeCount = (ushort)e.EventInfoData.PC_R1_Info.Commands.Length,
+                    EventCode = e.EventInfoData.PC_R1_Info.Commands,
+                    LabelOffsetCount = (ushort)e.EventInfoData.PC_R1_Info.LabelOffsets.Length,
+                    LabelOffsetTable = e.EventInfoData.PC_R1_Info.LabelOffsets
+                });
+                eventLinkingTable.Add((ushort)e.LinkIndex);
+            }
+
+            // Update event values
+            lvlData.EventCount = (ushort)events.Count;
+            lvlData.Events = events.ToArray();
+            lvlData.EventCommands = eventCommands.ToArray();
+            lvlData.EventLinkingTable = eventLinkingTable.ToArray();
 
             // Save the file
             FileFactory.Write(lvlPath);

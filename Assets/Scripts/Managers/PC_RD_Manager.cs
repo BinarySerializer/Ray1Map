@@ -84,8 +84,8 @@ namespace R1Engine
         /// <param name="basePath">The base game path</param>
         /// <param name="world">The world</param>
         /// <param name="level">The level</param>
-        /// <param name="levelData">The common level data</param>
-        public void SaveLevel(string basePath, World world, int level, Common_Lev levelData)
+        /// <param name="commonLevelData">The common level data</param>
+        public void SaveLevel(string basePath, World world, int level, Common_Lev commonLevelData)
         {
             throw new NotImplementedException();
         }

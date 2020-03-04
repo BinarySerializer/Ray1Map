@@ -172,16 +172,32 @@ namespace R1Engine
             // Convert levelData to common level format
             Common_Lev c = new Common_Lev
             {
+                // Set the dimensions
                 Width = levelData.Width,
                 Height = levelData.Height,
-                Events = levelData.Events.Select(x => new Common_Event()
-                {
-                    EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == x.GetEventID()),
-                    XPosition = x.XPosition,
-                    YPosition = x.YPosition
-                }).ToList(),
+
+                // Create the events list
+                Events = new List<Common_Event>(),
+                
+                // Create the tile array
                 TileSet = new Common_Tileset[4]
             };
+
+            var index = 0;
+
+            // Add the events
+            foreach (var e in levelData.Events)
+            {
+                c.Events.Add(new Common_Event()
+                {
+                    EventInfoData = eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
+                    XPosition = e.XPosition,
+                    YPosition = e.YPosition,
+                    LinkIndex = levelData.EventLinkingTable[index]
+                });
+
+                index++;
+            }
 
             Common_Tileset tileSet = ReadTileSet(basePath, world);
             c.TileSet[1] = tileSet;
@@ -231,8 +247,8 @@ namespace R1Engine
         /// <param name="basePath">The base game path</param>
         /// <param name="world">The world</param>
         /// <param name="level">The level</param>
-        /// <param name="levelData">The common level data</param>
-        public void SaveLevel(string basePath, World world, int level, Common_Lev levelData)
+        /// <param name="commonLevelData">The common level data</param>
+        public void SaveLevel(string basePath, World world, int level, Common_Lev commonLevelData)
         {
             // Get the level file path
             var lvlPath = GetLevelFilePath(basePath, world, level);
@@ -247,7 +263,7 @@ namespace R1Engine
                 {
                     // Get the tiles
                     var tile = lvlData.Tiles[y * lvlData.Width + x];
-                    var commonTile = levelData.Tiles[y * lvlData.Width + x];
+                    var commonTile = commonLevelData.Tiles[y * lvlData.Width + x];
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
@@ -255,6 +271,9 @@ namespace R1Engine
                     tile.TileMapX = commonTile.TileSetGraphicIndex - (CellSize * tile.TileMapY);
                 }
             }
+
+            // Set events
+            // TODO: Implement
 
             // Save the file
             FileFactory.Write(lvlPath);
