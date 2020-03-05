@@ -50,7 +50,7 @@ public class SettingsWindow : UnityWindow
         {
 			// Only update if previous values don't match
 			if (!ComparePreviousValues())
-                CurrentLevelCount = Settings.GetManager().GetLevelCount(Settings.CurrentDirectory, Settings.World);
+                CurrentLevelCount = Settings.GetManager().GetLevelCount(Settings.GetGameSettings);
         }
         catch (Exception ex)
         {

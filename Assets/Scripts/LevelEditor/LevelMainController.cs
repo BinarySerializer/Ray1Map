@@ -14,10 +14,10 @@ namespace R1Engine {
         public MeshFilter backgroundTint;
 
 
-        public void LoadLevel(IGameManager manager, string basePath, World world, int levelIndex) 
+        public void LoadLevel(IGameManager manager, GameSettings settings) 
         {
             // Load the level
-            currentLevel = manager.LoadLevel(basePath, world, levelIndex, EventInfoManager.LoadEventInfo());
+            currentLevel = manager.LoadLevel(settings, EventInfoManager.LoadEventInfo());
 
             // Init tilemaps
             controllerTilemap.InitializeTilemaps();
@@ -38,7 +38,7 @@ namespace R1Engine {
         }
 
         public void SaveLevelTEMP() {
-            Settings.GetManager().SaveLevel(Settings.CurrentDirectory, Settings.World, Settings.Level, currentLevel);
+            Settings.GetManager().SaveLevel(Settings.GetGameSettings, currentLevel);
             Debug.Log("Saved.");
         }
     }

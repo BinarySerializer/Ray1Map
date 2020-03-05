@@ -20,24 +20,21 @@ namespace R1Engine
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public string GetLevelFilePath(string basePath, World world, int level)
+        public string GetLevelFilePath(GameSettings settings)
         {
-            return Path.Combine(GetWorldFolderPath(basePath, world), $"RAY{level}.LEV");
+            return Path.Combine(GetWorldFolderPath(settings), $"RAY{settings.Level}.LEV");
         }
 
         /// <summary>
         /// Gets the file path for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public string GetWorldFilePath(string basePath, World world)
+        public string GetWorldFilePath(GameSettings settings)
         {
-            return Path.Combine(basePath, "PCMAP", $"RAY{(int)world + 1}.WLD");
+            return Path.Combine(settings.GameDirectory, "PCMAP", $"RAY{(int)settings.World + 1}.WLD");
         }
 
         /// <summary>
@@ -68,23 +65,21 @@ namespace R1Engine
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(string basePath, World world)
+        public string GetWorldFolderPath(GameSettings settings)
         {
-            return Path.Combine(basePath, "PCMAP", GetWorldName(world));
+            return Path.Combine(settings.GameDirectory, "PCMAP", GetWorldName(settings.World));
         }
 
         /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The level count</returns>
-        public int GetLevelCount(string basePath, World world)
+        public int GetLevelCount(GameSettings settings)
         {
-            var worldPath = GetWorldFolderPath(basePath, world);
+            var worldPath = GetWorldFolderPath(settings);
 
             return Directory.EnumerateFiles(worldPath, "RAY??.LEV", SearchOption.TopDirectoryOnly).Count();
         }
@@ -92,15 +87,18 @@ namespace R1Engine
         /// <summary>
         /// Exports all sprite textures to the specified output directory
         /// </summary>
-        /// <param name="basePath">The base game path</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(string basePath, string outputDir)
+        public void ExportSpriteTextures(GameSettings settings, string outputDir)
         {
             // Enumerate every world
             foreach (World world in EnumHelpers.GetValues<World>())
             {
+                // Set the world
+                settings.World = world;
+
                 // Read the world file
-                var worldFile = FileFactory.Read<PC_R1_WorldFile>(GetWorldFilePath(basePath, world));
+                var worldFile = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
 
                 // Enumerate each sprite group
                 for (int i = 0; i < worldFile.SpriteGroups.Length; i++)
@@ -116,7 +114,7 @@ namespace R1Engine
                         try
                         {
                             // Get the texture
-                            tex = GetSpriteTexture(basePath, world, 1, sprite, sprite.ImageDescriptors[j]);
+                            tex = GetSpriteTexture(settings, sprite, sprite.ImageDescriptors[j]);
                         }
                         catch (Exception ex)
                         {
@@ -141,16 +139,14 @@ namespace R1Engine
         /// <summary>
         /// Gets the texture for a sprite
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
-        /// <param name="spriteGroup">The sprite group</param>
+        /// <param name="settings">The game settings</param>
+        /// <param name="desItem">The sprite group</param>
         /// <param name="imgDescriptor">The image descriptor</param>
         /// <returns>The texture</returns>
-        public Texture2D GetSpriteTexture(string basePath, World world, int level, PC_R1_SpriteGroup spriteGroup, PC_R1_ImageDescriptor imgDescriptor)
+        public Texture2D GetSpriteTexture(GameSettings settings, PC_DesItem desItem, PC_ImageDescriptor imgDescriptor)
         {
             // Load the level to get the palette
-            var lvl = FileFactory.Read<PC_R1_LevFile>(GetLevelFilePath(basePath, world, level));
+            var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
             // Get the image properties
             var width = imgDescriptor.OuterWidth;
@@ -171,7 +167,7 @@ namespace R1Engine
                     var pixelOffset = y * width + x + offset;
 
                     // Get the pixel and decrypt it
-                    var pixel = spriteGroup.ImageData[pixelOffset] ^ 112;
+                    var pixel = desItem.ImageData[pixelOffset] ^ 112;
 
                     // Get the color from the palette
                     var color = pixel < 96 ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
@@ -191,15 +187,13 @@ namespace R1Engine
         /// <summary>
         /// Loads the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(string basePath, World world, int level, EventInfoData[] eventInfoData)
+        public Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData)
         {
             // Read the level data
-            var levelData = FileFactory.Read<PC_R1_LevFile>(GetLevelFilePath(basePath, world, level));
+            var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
@@ -219,7 +213,7 @@ namespace R1Engine
             var index = 0;
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_R1_WorldFile>(GetWorldFilePath(basePath, world));
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
@@ -238,7 +232,7 @@ namespace R1Engine
                 try
                 {
                     // Set the event sprite
-                    ee.SetSprite(GetSpriteTexture(basePath, world, level, worldData.SpriteGroups[4], worldData.SpriteGroups[4].ImageDescriptors[31]));
+                    ee.SetSprite(GetSpriteTexture(settings, worldData.SpriteGroups[4], worldData.SpriteGroups[4].ImageDescriptors[31]));
                 }
                 catch (Exception ex)
                 {
@@ -260,8 +254,8 @@ namespace R1Engine
             commonLev.TileSet[3] = tileSets[2];
 
             // Get the palette changers
-            var paletteXChangers = levelData.Events.Where(x => x.Type == 158 && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_R1_PaletteChangerMode)x.SubEtat);                  
-            var paletteYChangers = levelData.Events.Where(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_R1_PaletteChangerMode)x.SubEtat);
+            var paletteXChangers = levelData.Events.Where(x => x.Type == 158 && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);                  
+            var paletteYChangers = levelData.Events.Where(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
             // Make sure we don't have both horizontal and vertical palette changers as they would conflict
             if (paletteXChangers.Any() && paletteYChangers.Any())
@@ -278,16 +272,16 @@ namespace R1Engine
             {
                 switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
                 {
-                    case PC_R1_PaletteChangerMode.Left1toRight2:
-                    case PC_R1_PaletteChangerMode.Left1toRight3:
+                    case PC_PaletteChangerMode.Left1toRight2:
+                    case PC_PaletteChangerMode.Left1toRight3:
                         defaultPalette = 1;
                         break;
-                    case PC_R1_PaletteChangerMode.Left2toRight1:
-                    case PC_R1_PaletteChangerMode.Left2toRight3:
+                    case PC_PaletteChangerMode.Left2toRight1:
+                    case PC_PaletteChangerMode.Left2toRight3:
                         defaultPalette = 2;
                         break;
-                    case PC_R1_PaletteChangerMode.Left3toRight1:
-                    case PC_R1_PaletteChangerMode.Left3toRight2:
+                    case PC_PaletteChangerMode.Left3toRight1:
+                    case PC_PaletteChangerMode.Left3toRight2:
                         defaultPalette = 3;
                         break;
                 }
@@ -296,16 +290,16 @@ namespace R1Engine
             {
                 switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
                 {
-                    case PC_R1_PaletteChangerMode.Top1tobottom2:
-                    case PC_R1_PaletteChangerMode.Top1tobottom3:
+                    case PC_PaletteChangerMode.Top1tobottom2:
+                    case PC_PaletteChangerMode.Top1tobottom3:
                         defaultPalette = 1;
                         break;
-                    case PC_R1_PaletteChangerMode.Top2tobottom1:
-                    case PC_R1_PaletteChangerMode.Top2tobottom3:
+                    case PC_PaletteChangerMode.Top2tobottom1:
+                    case PC_PaletteChangerMode.Top2tobottom3:
                         defaultPalette = 2;
                         break;
-                    case PC_R1_PaletteChangerMode.Top3tobottom1:
-                    case PC_R1_PaletteChangerMode.Top3tobottom2:
+                    case PC_PaletteChangerMode.Top3tobottom1:
+                    case PC_PaletteChangerMode.Top3tobottom2:
                         defaultPalette = 3;
                         break;
                 }
@@ -327,23 +321,23 @@ namespace R1Engine
                     for (int y = 0; y < CellSize; y++)
                     {
                         // Attempt to find a matching palette changer on this pixel
-                        var py = paletteYChangers.TryGetValue((uint)(CellSize * cellY + y), out PC_R1_PaletteChangerMode pm) ? (PC_R1_PaletteChangerMode?)pm : null;
+                        var py = paletteYChangers.TryGetValue((uint)(CellSize * cellY + y), out PC_PaletteChangerMode pm) ? (PC_PaletteChangerMode?)pm : null;
 
                         // If one was found, change the palette based on type
                         if (py != null)
                         {
                             switch (py)
                             {
-                                case PC_R1_PaletteChangerMode.Top2tobottom1:
-                                case PC_R1_PaletteChangerMode.Top3tobottom1:
+                                case PC_PaletteChangerMode.Top2tobottom1:
+                                case PC_PaletteChangerMode.Top3tobottom1:
                                     currentPalette = 1;
                                     break;
-                                case PC_R1_PaletteChangerMode.Top1tobottom2:
-                                case PC_R1_PaletteChangerMode.Top3tobottom2:
+                                case PC_PaletteChangerMode.Top1tobottom2:
+                                case PC_PaletteChangerMode.Top3tobottom2:
                                     currentPalette = 2;
                                     break;
-                                case PC_R1_PaletteChangerMode.Top1tobottom3:
-                                case PC_R1_PaletteChangerMode.Top2tobottom3:
+                                case PC_PaletteChangerMode.Top1tobottom3:
+                                case PC_PaletteChangerMode.Top2tobottom3:
                                     currentPalette = 3;
                                     break;
                             }
@@ -363,23 +357,23 @@ namespace R1Engine
                         for (int x = 0; x < CellSize; x++)
                         {
                             // Attempt to find a matching palette changer on this pixel
-                            var px = paletteXChangers.TryGetValue((uint)(CellSize * cellX + x), out PC_R1_PaletteChangerMode pm) ? (PC_R1_PaletteChangerMode?)pm : null;
+                            var px = paletteXChangers.TryGetValue((uint)(CellSize * cellX + x), out PC_PaletteChangerMode pm) ? (PC_PaletteChangerMode?)pm : null;
 
                             // If one was found, change the palette based on type
                             if (px != null)
                             {
                                 switch (px)
                                 {
-                                    case PC_R1_PaletteChangerMode.Left3toRight1:
-                                    case PC_R1_PaletteChangerMode.Left2toRight1:
+                                    case PC_PaletteChangerMode.Left3toRight1:
+                                    case PC_PaletteChangerMode.Left2toRight1:
                                         currentPalette = 1;
                                         break;
-                                    case PC_R1_PaletteChangerMode.Left1toRight2:
-                                    case PC_R1_PaletteChangerMode.Left3toRight2:
+                                    case PC_PaletteChangerMode.Left1toRight2:
+                                    case PC_PaletteChangerMode.Left3toRight2:
                                         currentPalette = 2;
                                         break;
-                                    case PC_R1_PaletteChangerMode.Left1toRight3:
-                                    case PC_R1_PaletteChangerMode.Left2toRight3:
+                                    case PC_PaletteChangerMode.Left1toRight3:
+                                    case PC_PaletteChangerMode.Left2toRight3:
                                         currentPalette = 3;
                                         break;
                                 }
@@ -391,13 +385,13 @@ namespace R1Engine
                     var textureIndex = -1;
 
                     // Ignore if fully transparent
-                    if (cell.TransparencyMode != PC_R1_MapTileTransparencyMode.FullyTransparent)
+                    if (cell.TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent)
                     {
                         // Get the offset for the texture
                         var texOffset = levelData.TexturesOffsetTable[cell.TextureIndex];
 
                         // Get the texture
-                        var texture = cell.TransparencyMode == PC_R1_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TransparentTextures.FindItem(x => x.Offset == texOffset);
+                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TransparentTextures.FindItem(x => x.Offset == texOffset);
 
                         // Get the index
                         textureIndex = levelData.NonTransparentTextures.Concat(levelData.TransparentTextures).FindItemIndex(x => x == texture);
@@ -424,7 +418,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="levData">The level data to get the tile-set for</param>
         /// <returns>The 3 tile-sets</returns>
-        public Common_Tileset[] ReadTileSets(PC_R1_LevFile levData) 
+        public Common_Tileset[] ReadTileSets(PC_LevFile levData) 
         {
             // Create the output array
             var output = new Common_Tileset[]
@@ -461,7 +455,7 @@ namespace R1Engine
                             var c = levData.ColorPalettes[i][texture.ColorIndexes[cellIndex]].GetColor();
 
                             // If the texture is transparent, add the alpha channel
-                            if (texture is PC_R1_TransparentTileTexture tt)
+                            if (texture is PC_TransparentTileTexture tt)
                                 c.a = (float)tt.Alpha[cellIndex] / Byte.MaxValue;
 
                             // Set the pixel
@@ -485,17 +479,15 @@ namespace R1Engine
         /// <summary>
         /// Saves the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(string basePath, World world, int level, Common_Lev commonLevelData)
+        public void SaveLevel(GameSettings settings, Common_Lev commonLevelData)
         {
             // Get the level file path
-            var lvlPath = GetLevelFilePath(basePath, world, level);
+            var lvlPath = GetLevelFilePath(settings);
 
             // Get the level data
-            var lvlData = FileFactory.Read<PC_R1_LevFile>(lvlPath);
+            var lvlData = FileFactory.Read<PC_LevFile>(lvlPath, settings);
 
             // Update the tiles
             for (int y = 0; y < lvlData.Height; y++)
@@ -511,29 +503,29 @@ namespace R1Engine
 
                     if (commonTile.TileSetGraphicIndex == -1) {
                         tile.TextureIndex = 0;
-                        tile.TransparencyMode = PC_R1_MapTileTransparencyMode.FullyTransparent;
+                        tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
                     else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount) {
                         tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
-                        tile.TransparencyMode = PC_R1_MapTileTransparencyMode.NoTransparency;
+                        tile.TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
                     }
                     else {
                         tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].Offset);
-                        tile.TransparencyMode = PC_R1_MapTileTransparencyMode.PartiallyTransparent;
+                        tile.TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
                     }
                 }
             }
 
             // Temporary event lists
-            var events = new List<PC_R1_Event>();
-            var eventCommands = new List<PC_R1_EventCommand>();
+            var events = new List<PC_Event>();
+            var eventCommands = new List<PC_EventCommand>();
             var eventLinkingTable = new List<ushort>();
 
             // Set events
             foreach (var e in commonLevelData.Events)
             {
                 // Get the event
-                var r1Event = e.EventInfoData.PC_R1_Info.ToEvent(world);
+                var r1Event = e.EventInfoData.PC_R1_Info.ToEvent(settings.World);
 
                 // Set position
                 r1Event.XPosition = e.XPosition;
@@ -548,7 +540,7 @@ namespace R1Engine
                 events.Add(r1Event);
 
                 // Add the event commands
-                eventCommands.Add(new PC_R1_EventCommand()
+                eventCommands.Add(new PC_EventCommand()
                 {
                     CodeCount = (ushort)e.EventInfoData.PC_R1_Info.Commands.Length,
                     EventCode = e.EventInfoData.PC_R1_Info.Commands,
@@ -567,7 +559,7 @@ namespace R1Engine
             lvlData.EventLinkingTable = eventLinkingTable.ToArray();
 
             // Save the file
-            FileFactory.Write(lvlPath);
+            FileFactory.Write(lvlPath, settings);
         }
     }
 }

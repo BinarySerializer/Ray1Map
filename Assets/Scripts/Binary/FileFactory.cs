@@ -15,22 +15,23 @@ namespace R1Engine
         /// </summary>
         static FileFactory()
         {
-            Cache = new Dictionary<string, ISerializableFile>();
+            Cache = new Dictionary<string, IBinarySerializable>();
         }
 
         /// <summary>
         /// The file cache
         /// </summary>
-        private static Dictionary<string, ISerializableFile> Cache { get; }
+        private static Dictionary<string, IBinarySerializable> Cache { get; }
 
         /// <summary>
         /// Reads a file or gets it from the cache
         /// </summary>
         /// <typeparam name="T">The type to serialize to</typeparam>
         /// <param name="filePath">The file path to read from</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The file data</returns>
-        public static T Read<T>(string filePath)
-            where T : ISerializableFile
+        public static T Read<T>(string filePath, GameSettings settings)
+            where T : IBinarySerializable
         {
             // Check if it's been cached
             if (Cache.ContainsKey(filePath))
@@ -39,8 +40,11 @@ namespace R1Engine
             // Open the file
             using (var file = File.OpenRead(filePath))
             {
+                // Create the deserializer
+                var deserializer = new BinaryDeserializer(file, filePath, settings);
+
                 // Deserialize file
-                var fileData = file.Read<T>();
+                var fileData = deserializer.Read<T>();
 
                 // Make sure the entire file was read
                 if (file.Position != file.Length)
@@ -58,7 +62,8 @@ namespace R1Engine
         /// Writes the data from the cache to the specified path
         /// </summary>
         /// <param name="filePath">The file path to write to</param>
-        public static void Write(string filePath)
+        /// <param name="settings">The game settings</param>
+        public static void Write(string filePath, GameSettings settings)
         {
             // Get the cached data
             var data = Cache[filePath];
@@ -66,8 +71,11 @@ namespace R1Engine
             // Create the file
             using (var file = File.Create(filePath))
             {
+                // Create the serializer
+                var serializer = new BinarySerializer(file, filePath, settings);
+
                 // Serialize the file
-                file.Write(data);
+                serializer.Write(data);
             }
         }
 
@@ -77,8 +85,8 @@ namespace R1Engine
         public static Type[] SerializableDataTypes { get; } =
         {
             typeof(PS1_R1_LevFile),
-            typeof(PC_R1_LevFile),
-            typeof(PC_R1_WorldFile),
+            typeof(PC_LevFile),
+            typeof(PC_WorldFile),
             typeof(PC_RD_EventLocFile),
             typeof(PC_RD_EventManifestFile),
         };

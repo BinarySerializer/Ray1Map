@@ -23,7 +23,7 @@ namespace R1Engine
 
             foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
             {
-                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_RD_EventLocFile>(locFile)).ToArray());
+                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_RD_EventLocFile>(locFile, new GameSettings(basePath))).ToArray());
             }
 
             return output;
@@ -57,10 +57,9 @@ namespace R1Engine
         /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The level count</returns>
-        public int GetLevelCount(string basePath, World world)
+        public int GetLevelCount(GameSettings settings)
         {
             throw new NotImplementedException();
         }
@@ -68,12 +67,10 @@ namespace R1Engine
         /// <summary>
         /// Loads the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(string basePath, World world, int level, EventInfoData[] eventInfoData)
+        public Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData)
         {
             throw new NotImplementedException();
         }
@@ -81,11 +78,9 @@ namespace R1Engine
         /// <summary>
         /// Saves the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(string basePath, World world, int level, Common_Lev commonLevelData)
+        public void SaveLevel(GameSettings settings, Common_Lev commonLevelData)
         {
             throw new NotImplementedException();
         }

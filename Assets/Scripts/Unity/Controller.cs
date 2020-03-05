@@ -1,7 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     public class Controller : MonoBehaviour {
         public static Controller obj;
 
@@ -18,7 +18,7 @@ namespace R1Engine {
         }
         void Start() 
         {
-            levelController.LoadLevel(Settings.GetManager(), Settings.CurrentDirectory, Settings.World, Settings.Level);
+            levelController.LoadLevel(Settings.GetManager(), Settings.GetGameSettings);
 
             var startEvent = levelController.currentLevel.Events.FindItem(x => x.EventInfoData?.Type == 99 || x.EventInfoData?.Type == 124);
 

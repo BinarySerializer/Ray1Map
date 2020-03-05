@@ -56,6 +56,11 @@ namespace R1Engine
         /// </summary>
         public static Encoding StringEncoding { get; } = Encoding.GetEncoding(437);
 
+        /// <summary>
+        /// Gets the current game settings
+        /// </summary>
+        public static GameSettings GetGameSettings => new GameSettings(CurrentDirectory, World, Level);
+
         #endregion
 
         #region Public Methods

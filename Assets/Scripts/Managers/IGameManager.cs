@@ -8,28 +8,23 @@
         /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The level count</returns>
-        int GetLevelCount(string basePath, World world);
+        int GetLevelCount(GameSettings settings);
 
         /// <summary>
         /// Loads the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        Common_Lev LoadLevel(string basePath, World world, int level, EventInfoData[] eventInfoData);
+        Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData);
 
         /// <summary>
         /// Saves the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="commonLevelData">The common level data</param>
-        void SaveLevel(string basePath, World world, int level, Common_Lev commonLevelData);
+        void SaveLevel(GameSettings settings, Common_Lev commonLevelData);
     }
 }

@@ -1,10 +1,9 @@
-﻿using System;
+﻿using R1Engine;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
-using R1Engine;
 using UnityEditor;
 using UnityEngine;
 
@@ -48,10 +47,15 @@ public class FileSerializerWindow : UnityWindow
             using (var file = File.OpenRead(SelectedInputFile))
             {
                 // Create the file
-                var fileData = (ISerializableFile)Activator.CreateInstance(FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
+                var fileData = (IBinarySerializable)Activator.CreateInstance(FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
+
+                // Create the deserializer
+                var deserializer = new BinaryDeserializer(file, SelectedInputFile, 
+                    // TODO: Find solution
+                    new GameSettings(null));
 
                 // Deserialize the file
-                fileData.Deserialize(file);
+                fileData.Deserialize(deserializer);
 
                 // Serialize to JSON
                 JsonHelpers.SerializeToFile(fileData, SelectedOutputFile);
@@ -66,13 +70,18 @@ public class FileSerializerWindow : UnityWindow
                 throw new Exception("Input file doesn't exist");
 
             // Deserialize the file
-            var fileData = JsonHelpers.DeserializeFromFile<ISerializableFile>(SelectedInputFile, FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
+            var fileData = JsonHelpers.DeserializeFromFile<IBinarySerializable>(SelectedInputFile, FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
 
             // Create the file
             using (var file = File.Create(SelectedOutputFile))
             {
+                // Create the serializer
+                var serializer = new BinarySerializer(file, SelectedInputFile,
+                    // TODO: Find solution
+                    new GameSettings(null));
+
                 // Serialize the file
-                file.Write(fileData);
+                serializer.Write(fileData);
             }
 
             Debug.Log("File has been deserialized");

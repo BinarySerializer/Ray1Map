@@ -20,13 +20,11 @@ namespace R1Engine
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public string GetLevelFilePath(string basePath, World world, int level)
+        public string GetLevelFilePath(GameSettings settings)
         {
-            return Path.Combine(GetWorldFolderPath(basePath, world), $"{GetWorldName(world)}{level:00}.XXX");
+            return Path.Combine(GetWorldFolderPath(settings), $"{GetWorldName(settings.World)}{settings.Level:00}.XXX");
         }
 
         /// <summary>
@@ -57,24 +55,22 @@ namespace R1Engine
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(string basePath, World world)
+        public string GetWorldFolderPath(GameSettings settings)
         {
 
-            return Path.Combine(basePath, "RAY", GetWorldName(world));
+            return Path.Combine(settings.GameDirectory, "RAY", GetWorldName(settings.World));
         }
 
         /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The level count</returns>
-        public int GetLevelCount(string basePath, World world)
+        public int GetLevelCount(GameSettings settings)
         {
-            var worldPath = GetWorldFolderPath(basePath, world);
+            var worldPath = GetWorldFolderPath(settings);
 
             return Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count(x => Path.GetFileNameWithoutExtension(x)?.Length == 5);
         }
@@ -82,16 +78,15 @@ namespace R1Engine
         /// <summary>
         /// Reads the tile set for the specified world
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The tile set</returns>
-        public Common_Tileset ReadTileSet(string basePath, World world)
+        public Common_Tileset ReadTileSet(GameSettings settings)
         {
             // Get the file name
-            var fileName = Path.Combine(GetWorldFolderPath(basePath, world), $"{GetWorldName(world)}.XXX");
+            var fileName = Path.Combine(GetWorldFolderPath(settings), $"{GetWorldName(settings.World)}.XXX");
 
             // Read the file
-            var worldFile = FileFactory.Read<PS1_R1_WorldFile>(fileName);
+            var worldFile = FileFactory.Read<PS1_R1_WorldFile>(fileName, settings);
 
             int tile = 0;
             int tileCount = worldFile.PaletteIndexTable.Length;
@@ -142,15 +137,13 @@ namespace R1Engine
         /// <summary>
         /// Loads the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(string basePath, World world, int level, EventInfoData[] eventInfoData)
+        public Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData)
         {
             // Open the level
-            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(basePath, world, level));
+            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(settings), settings);
 
             // Convert levelData to common level format
             Common_Lev c = new Common_Lev
@@ -183,7 +176,7 @@ namespace R1Engine
                 index++;
             }
 
-            Common_Tileset tileSet = ReadTileSet(basePath, world);
+            Common_Tileset tileSet = ReadTileSet(settings);
             c.TileSet[1] = tileSet;
 
             c.Tiles = ConvertTilesToCommon(levelData.Tiles, levelData.Width, levelData.Height);
@@ -228,17 +221,15 @@ namespace R1Engine
         /// <summary>
         /// Saves the specified level
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <param name="world">The world</param>
-        /// <param name="level">The level</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(string basePath, World world, int level, Common_Lev commonLevelData)
+        public void SaveLevel(GameSettings settings, Common_Lev commonLevelData)
         {
             // Get the level file path
-            var lvlPath = GetLevelFilePath(basePath, world, level);
+            var lvlPath = GetLevelFilePath(settings);
 
             // Get the level data
-            var lvlData = FileFactory.Read<PS1_R1_LevFile>(lvlPath);
+            var lvlData = FileFactory.Read<PS1_R1_LevFile>(lvlPath, settings);
 
             // Update the tiles
             for (int y = 0; y < lvlData.Height; y++)
@@ -260,7 +251,7 @@ namespace R1Engine
             // TODO: Implement
 
             // Save the file
-            FileFactory.Write(lvlPath);
+            FileFactory.Write(lvlPath, settings);
         }
     }
 }

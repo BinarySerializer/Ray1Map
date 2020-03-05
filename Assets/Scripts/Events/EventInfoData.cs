@@ -40,7 +40,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="e">The event item</param>
         /// <param name="world">The world the event appears in</param>
-        public void Import(PC_R1_Event e, World world)
+        public void Import(PC_Event e, World world)
         {
             Type = (int)e.Type;
             Etat = e.Etat;
@@ -132,7 +132,7 @@ namespace R1Engine
             /// <param name="e">The event</param>
             /// <param name="cmd">The event command</param>
             /// <param name="world">The world the event is for</param>
-            public PC_R1_EventInfoData(PC_R1_Event e, PC_R1_EventCommand cmd, World world)
+            public PC_R1_EventInfoData(PC_Event e, PC_EventCommand cmd, World world)
             {
                 DES = new Dictionary<World, uint>()
                 {
@@ -159,9 +159,9 @@ namespace R1Engine
             /// </summary>
             /// <param name="world">The world to get the event for</param>
             /// <returns>The event data type</returns>
-            public PC_R1_Event ToEvent(World world)
+            public PC_Event ToEvent(World world)
             {
-                return new PC_R1_Event()
+                return new PC_Event()
                 {
                     DES = DES[world],
                     DES2 = DES[world],

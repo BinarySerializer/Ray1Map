@@ -36,7 +36,7 @@ namespace R1Engine
                 var eventFilePath = Path.Combine(designerBasePath, rdManager.GetWorldName(world), "EVE.MLT");
 
                 // Read the manifest
-                var eventFile = FileFactory.Read<PC_RD_EventManifestFile>(eventFilePath);
+                var eventFile = FileFactory.Read<PC_RD_EventManifestFile>(eventFilePath, new GameSettings(designerBasePath));
 
                 // Add each entry
                 foreach (PC_RD_EventManifestFile.PC_RD_EventManifestItem e in eventFile.Items)
@@ -69,13 +69,16 @@ namespace R1Engine
             foreach (World world in EnumHelpers.GetValues<World>())
             {
                 // Enumerate each level
-                for (int i = 1; i < pcManager.GetLevelCount(pcBasePath, world) + 1; i++)
+                for (int i = 1; i < pcManager.GetLevelCount(new GameSettings(pcBasePath, world)) + 1; i++)
                 {
+                    // Get the settings
+                    var s = new GameSettings(pcBasePath, world, i);
+
                     // Get the level file path
-                    var lvlFilePath = pcManager.GetLevelFilePath(pcBasePath, world, i);
+                    var lvlFilePath = pcManager.GetLevelFilePath(s);
 
                     // Read the level
-                    var lvl = FileFactory.Read<PC_R1_LevFile>(lvlFilePath);
+                    var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, s);
 
                     var index = 0;
 
