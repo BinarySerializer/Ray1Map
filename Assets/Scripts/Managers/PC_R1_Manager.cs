@@ -111,8 +111,19 @@ namespace R1Engine
                     // Enumerate each image
                     for (int j = 0; j < sprite.ImageDescriptors.Length; j++)
                     {
-                        // Get the texture
-                        var tex = GetSpriteTexture(basePath, world, 1, sprite, sprite.ImageDescriptors[j]);
+                        Texture2D tex;
+
+                        try
+                        {
+                            // Get the texture
+                            tex = GetSpriteTexture(basePath, world, 1, sprite, sprite.ImageDescriptors[j]);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"Error exporting sprite {i}-{j} in {world}: {ex.Message}");
+
+                            continue;
+                        }
 
                         // Get the directory
                         var dir = Path.Combine(outputDir, world.ToString());
@@ -142,8 +153,8 @@ namespace R1Engine
             var lvl = FileFactory.Read<PC_R1_LevFile>(GetLevelFilePath(basePath, world, level));
 
             // Get the image properties
-            var width = imgDescriptor.InnerWidth;
-            var height = imgDescriptor.InnerHeight;
+            var width = imgDescriptor.OuterWidth;
+            var height = imgDescriptor.OuterHeight;
             var offset = imgDescriptor.ImageOffset;
 
             // Create the texture
@@ -161,7 +172,7 @@ namespace R1Engine
                     var pixel = spriteGroup.ImageData[pixelOffset] ^ 112;
 
                     // Get the color from the palette
-                    var color = lvl.ColorPalettes[0][pixel];
+                    var color = pixel < 96 ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
 
                     // Set the pixel
                     tex.SetPixel(x, height - y - 1, color.GetColor());
