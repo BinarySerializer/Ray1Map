@@ -158,7 +158,9 @@ namespace R1Engine
             var offset = imgDescriptor.ImageOffset;
 
             // Create the texture
-            var tex = new Texture2D(width, height);
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
+                filterMode = FilterMode.Point
+            };
 
             // Set every pixel
             for (int y = 0; y < height; y++)
