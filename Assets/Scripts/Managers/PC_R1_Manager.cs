@@ -232,8 +232,16 @@ namespace R1Engine
                     e.OffsetBY,
                     levelData.EventLinkingTable[index]);
 
-                // Set the event sprite
-                ee.SetSprite(GetSpriteTexture(basePath, world, level, worldData.SpriteGroups[4], worldData.SpriteGroups[4].ImageDescriptors[31]));
+                // TODO: Clean up and fix
+                try
+                {
+                    // Set the event sprite
+                    ee.SetSprite(GetSpriteTexture(basePath, world, level, worldData.SpriteGroups[4], worldData.SpriteGroups[4].ImageDescriptors[31]));
+                }
+                catch (Exception ex)
+                {
+                    
+                }
 
                 // Add the event
                 commonLev.Events.Add(ee);
