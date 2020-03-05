@@ -216,18 +216,27 @@ namespace R1Engine
 
             var index = 0;
 
+            // Read the world data
+            var worldData = FileFactory.Read<PC_R1_WorldFile>(GetWorldFilePath(basePath, world));
+
             // Add the events
             commonLev.Events = new List<Common_Event>();
             foreach (var e in levelData.Events)
             {
                 // Instantiate event prefab using LevelEventController
-                commonLev.Events.Add(Controller.obj.levelEventController.AddEvent(
+                var ee = Controller.obj.levelEventController.AddEvent(
                     eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
                     e.XPosition,
                     e.YPosition,
                     e.OffsetBX,
                     e.OffsetBY,
-                    levelData.EventLinkingTable[index]));
+                    levelData.EventLinkingTable[index]);
+
+                // Set the event sprite
+                ee.SetSprite(GetSpriteTexture(basePath, world, level, worldData.SpriteGroups[4], worldData.SpriteGroups[4].ImageDescriptors[31]));
+
+                // Add the event
+                commonLev.Events.Add(ee);
 
                 index++;
             }
