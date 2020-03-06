@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+// ReSharper disable UnusedMember.Local
 
 public class FileSerializerWindow : UnityWindow
 {
@@ -36,7 +37,7 @@ public class FileSerializerWindow : UnityWindow
         SelectedInputFile = FileField(GetNextRect(ref yPos), "Input File", SelectedInputFile, false, "*");
         SelectedOutputFile = FileField(GetNextRect(ref yPos), "Output File", SelectedOutputFile, true, "*");
 
-        SelectedDataTypeIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Data Type", SelectedDataTypeIndex, FileFactory.SerializableDataTypes.Select(x => CustomAttributeExtensions.GetCustomAttribute<DescriptionAttribute>((MemberInfo) x)?.Description ?? "Unknown").ToArray());
+        SelectedDataTypeIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Data Type", SelectedDataTypeIndex, FileFactory.SerializableDataTypes.Select(x => x.GetCustomAttribute<DescriptionAttribute>()?.Description ?? "Unknown").ToArray());
 
         if (GUI.Button(GetNextRect(ref yPos), new GUIContent("Serialize to JSON")))
         {
@@ -50,9 +51,7 @@ public class FileSerializerWindow : UnityWindow
                 var fileData = (IBinarySerializable)Activator.CreateInstance(FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
 
                 // Create the deserializer
-                var deserializer = new BinaryDeserializer(file, SelectedInputFile, 
-                    // TODO: Find solution
-                    new GameSettings(GameMode.RaymanPC, null));
+                var deserializer = new BinaryDeserializer(file, SelectedInputFile, Settings.GetGameSettings);
 
                 // Deserialize the file
                 fileData.Deserialize(deserializer);
@@ -76,9 +75,7 @@ public class FileSerializerWindow : UnityWindow
             using (var file = File.Create(SelectedOutputFile))
             {
                 // Create the serializer
-                var serializer = new BinarySerializer(file, SelectedInputFile,
-                    // TODO: Find solution
-                    new GameSettings(GameMode.RaymanPC, null));
+                var serializer = new BinarySerializer(file, SelectedInputFile, Settings.GetGameSettings);
 
                 // Serialize the file
                 serializer.Write(fileData);

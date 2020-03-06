@@ -3,6 +3,8 @@ using System.ComponentModel;
 
 namespace R1Engine
 {
+    // TODO: Add support for bray.dat and read the data which appears at the end of the allfix.dat file
+
     /// <summary>
     /// World data for PC
     /// </summary>
@@ -95,8 +97,7 @@ namespace R1Engine
                 // Read sprites
                 SpriteGroupCount = deserializer.Read<ushort>();
 
-                // TODO: Not sure about bray, it doesn't work yet
-                if (deserializer.FileName == "allfix.dat" || deserializer.FileName == "bray.dat")
+                if (deserializer.FileName == "allfix.dat")
                     SpriteGroupCount--;
 
                 SpriteGroups = deserializer.Read<PC_DesItem>(SpriteGroupCount);
