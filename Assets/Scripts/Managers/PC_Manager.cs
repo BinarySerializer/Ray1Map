@@ -14,6 +14,9 @@ namespace R1Engine
     {
         #region Values and paths
 
+        // TODO: Move this?
+        public static Dictionary<uint, Dictionary<byte, Texture2D[]>> SpriteAnimationCache { get; } = new Dictionary<uint, Dictionary<byte, Texture2D[]>>();
+
         /// <summary>
         /// The size of one cell
         /// </summary>
@@ -396,8 +399,28 @@ namespace R1Engine
                     // Get the animation item
                     var animItem = desItem.AnimationDescriptors[animIndex];
 
+                    Texture2D[] animation;
+
+                    // Check if the animation has been cached
+                    if (SpriteAnimationCache.ContainsKey(e.DES) && SpriteAnimationCache[e.DES].ContainsKey(animIndex))
+                    {
+                        animation = SpriteAnimationCache[e.DES][animIndex];
+                    }
+                    else
+                    {
+                        // Get the animation
+                        animation = GetSpriteFrames(settings, desItem, animItem, Settings.AnimateSprites);
+
+                        // Create the cache dictionary
+                        if (!SpriteAnimationCache.ContainsKey(e.DES))
+                            SpriteAnimationCache[e.DES] = new Dictionary<byte, Texture2D[]>();
+
+                        // Cache it
+                        SpriteAnimationCache[e.DES][animIndex] = animation;
+                    }
+
                     // Set the event sprite
-                    ee.SetSprite(GetSpriteFrames(settings, desItem, animItem, Settings.AnimateSprites).First());
+                    ee.SetSprite(animation.First());
                 }
                 catch (Exception ex)
                 {
