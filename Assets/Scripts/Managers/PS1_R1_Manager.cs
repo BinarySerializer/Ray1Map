@@ -12,6 +12,8 @@ namespace R1Engine
     /// </summary>
     public class PS1_R1_Manager : IGameManager
     {
+        #region Values and paths
+
         /// <summary>
         /// The size of one cell
         /// </summary>
@@ -75,6 +77,10 @@ namespace R1Engine
             return Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count(x => Path.GetFileNameWithoutExtension(x)?.Length == 5);
         }
 
+        #endregion
+
+        #region Manager Methods
+
         /// <summary>
         /// Reads the tile set for the specified world
         /// </summary>
@@ -95,17 +101,17 @@ namespace R1Engine
             Color[] pixels = new Color[width * height];
 
             for (int yB = 0; yB < height; yB += 16)
-            for (int xB = 0; xB < width; xB += 16, tile++)
-            for (int y = 0; y < CellSize; y++)
-            for (int x = 0; x < CellSize; x++)
-            {
-                if (tile >= tileCount)
-                    goto End;
+                for (int xB = 0; xB < width; xB += 16, tile++)
+                    for (int y = 0; y < CellSize; y++)
+                        for (int x = 0; x < CellSize; x++)
+                        {
+                            if (tile >= tileCount)
+                                goto End;
 
-                int pixel = x + xB + (y + yB) * width;
+                            int pixel = x + xB + (y + yB) * width;
 
-                pixels[pixel] = worldFile.ColorPalettes[worldFile.PaletteIndexTable[tile]][worldFile.TilesIndexTable[pixel]].GetColor();
-            }
+                            pixels[pixel] = worldFile.ColorPalettes[worldFile.PaletteIndexTable[tile]][worldFile.TilesIndexTable[pixel]].GetColor();
+                        }
             End:
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
             {
@@ -154,7 +160,7 @@ namespace R1Engine
 
                 // Create the events list
                 Events = new List<Common_Event>(),
-                
+
                 // Create the tile array
                 TileSet = new Common_Tileset[4]
             };
@@ -191,12 +197,15 @@ namespace R1Engine
         /// <param name="w">Level width</param>
         /// <param name="h">Level height</param>
         /// <returns>Common_Tile array</returns>
-        public Common_Tile[] ConvertTilesToCommon(PS1_R1_MapTile[] tiles, ushort w, ushort h) {
+        public Common_Tile[] ConvertTilesToCommon(PS1_R1_MapTile[] tiles, ushort w, ushort h)
+        {
             Common_Tile[] finalTiles = new Common_Tile[w * h];
 
             int tileIndex = 0;
-            for (int ty = 0; ty < (h); ty++) {
-                for (int tx = 0; tx < (w); tx++) {
+            for (int ty = 0; ty < (h); ty++)
+            {
+                for (int tx = 0; tx < (w); tx++)
+                {
                     var graphicX = tiles[tileIndex].TileMapX;
                     var graphicY = tiles[tileIndex].TileMapY;
 
@@ -253,5 +262,7 @@ namespace R1Engine
             // Save the file
             FileFactory.Write(lvlPath, settings);
         }
+
+        #endregion
     }
 }

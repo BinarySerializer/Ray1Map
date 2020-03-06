@@ -10,24 +10,12 @@ namespace R1Engine
     /// </summary>
     public class PC_RD_Manager : IGameManager
     {
+        #region Values and paths
+
         /// <summary>
-        /// Gets the localization files for each event, with the language tag as the key
+        /// The size of one cell
         /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <returns>The localization files</returns>
-        public Dictionary<string, PC_RD_EventLocFile[]> GetEventLocFiles(string basePath)
-        {
-            var pcDataDir = Path.Combine(basePath, "PCMAP");
-            
-            var output = new Dictionary<string, PC_RD_EventLocFile[]>();
-
-            foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
-            {
-                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_RD_EventLocFile>(locFile, new GameSettings(GameMode.RaymanDesignerPC, basePath))).ToArray());
-            }
-
-            return output;
-        }
+        public const int CellSize = 16;
 
         /// <summary>
         /// Gets the name for the world
@@ -64,6 +52,29 @@ namespace R1Engine
             throw new NotImplementedException();
         }
 
+        #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Gets the localization files for each event, with the language tag as the key
+        /// </summary>
+        /// <param name="basePath">The base game path</param>
+        /// <returns>The localization files</returns>
+        public Dictionary<string, PC_RD_EventLocFile[]> GetEventLocFiles(string basePath)
+        {
+            var pcDataDir = Path.Combine(basePath, "PCMAP");
+
+            var output = new Dictionary<string, PC_RD_EventLocFile[]>();
+
+            foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
+            {
+                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_RD_EventLocFile>(locFile, new GameSettings(GameMode.RaymanDesignerPC, basePath))).ToArray());
+            }
+
+            return output;
+        }
+
         /// <summary>
         /// Loads the specified level
         /// </summary>
@@ -84,5 +95,7 @@ namespace R1Engine
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }

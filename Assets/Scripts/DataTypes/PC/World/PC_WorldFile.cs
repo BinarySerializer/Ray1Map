@@ -24,9 +24,9 @@ namespace R1Engine
         public byte[] Unknown4 { get; set; }
 
         /// <summary>
-        /// The amount of sprite groups
+        /// The amount of DES items
         /// </summary>
-        public ushort SpriteGroupCount { get; set; }
+        public ushort DesItemCount { get; set; }
 
         /// <summary>
         /// The DES items
@@ -99,12 +99,12 @@ namespace R1Engine
             void ReadSprites()
             {
                 // Read sprites
-                SpriteGroupCount = deserializer.Read<ushort>();
+                DesItemCount = deserializer.Read<ushort>();
 
                 if (deserializer.FileName == "allfix.dat")
-                    SpriteGroupCount--;
+                    DesItemCount--;
 
-                DesItems = deserializer.Read<PC_DesItem>(SpriteGroupCount);
+                DesItems = deserializer.Read<PC_DesItem>(DesItemCount);
             }
         }
 

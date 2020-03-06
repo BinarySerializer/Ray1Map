@@ -24,6 +24,8 @@ namespace R1Engine
 
             if (startEvent != null)
                 Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition);
+
+            new PC_R1_Manager().ExportSpriteTextures(new GameSettings(GameMode.RaymanPC, @"C:\Program Files (x86)\GOG Galaxy\Games\Rayman Forever\Rayman"), @"C:\Users\RayCarrot\Downloads\Rayman 1 Sprites");
         }
     }
 }
