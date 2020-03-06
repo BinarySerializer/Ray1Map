@@ -11,6 +11,8 @@ namespace R1Engine
     {
         #region Public Properties
 
+        public ushort Unknown5 { get; set; }
+
         /// <summary>
         /// The pointer to the event block
         /// </summary>
@@ -20,6 +22,8 @@ namespace R1Engine
         /// The pointer to <see cref="TexturesOffsetTable"/>
         /// </summary>
         public uint TextureOffsetTablePointer { get; set; }
+
+        public byte[] Unknown6 { get; set; }
 
         /// <summary>
         /// The width of the map, in cells
@@ -102,6 +106,8 @@ namespace R1Engine
         /// </summary>
         public uint[] Unknown3OffsetTable { get; set; }
 
+        public byte Unknown7 { get; set; }
+
         /// <summary>
         /// The offset table for the <see cref="NonTransparentTextures"/> and <see cref="TransparentTextures"/>
         /// </summary>
@@ -176,7 +182,8 @@ namespace R1Engine
 
             base.Deserialize(deserializer);
 
-            // TODO: Kit & edu ushort
+            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+                Unknown5 = deserializer.Read<ushort>();
 
             // HEADER BLOCK
 
@@ -184,15 +191,18 @@ namespace R1Engine
             EventBlockPointer = deserializer.Read<uint>();
             TextureOffsetTablePointer = deserializer.Read<uint>();
 
-            // TODO: Kit & edu 69 bytes
+            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+                Unknown6 = deserializer.ReadArray<byte>(68);
 
             // Read map size
             Width = deserializer.Read<ushort>();
             Height = deserializer.Read<ushort>();
 
-            // TODO: Kit has 1
             // Create the palettes
-            ColorPalettes = new ARGBColor[][]
+            ColorPalettes = deserializer.GameSettings.GameMode == GameMode.RaymanDesignerPC ? new ARGBColor[][]
+            {
+                new ARGBColor[256], 
+            } : new ARGBColor[][]
             {
                 new ARGBColor[256],
                 new ARGBColor[256],
@@ -228,6 +238,7 @@ namespace R1Engine
             // Read each map cell
             Tiles = deserializer.ReadArray<PC_MapTile>((ulong)Height * Width);
 
+            // TODO: Data below here is incorrect in kit and edu
             // Read unknown byte
             Unknown2 = deserializer.Read<byte>();
 
@@ -269,7 +280,8 @@ namespace R1Engine
             if (deserializer.BaseStream.Position != TextureOffsetTablePointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            // TODO: Kit & edu 1 byte
+            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+                Unknown7 = deserializer.Read<byte>();
 
             // TODO: Kit & edu xor 4812 following bytes with 255 (previous byte?)
 
@@ -362,11 +374,17 @@ namespace R1Engine
 
             base.Serialize(serializer);
 
+            if (serializer.GameSettings.GameMode != GameMode.RaymanPC)
+                serializer.Write(Unknown5);
+
             // HEADER BLOCK
 
             // Write block pointer
             serializer.Write(EventBlockPointer);
             serializer.Write(TextureOffsetTablePointer);
+
+            if (serializer.GameSettings.GameMode != GameMode.RaymanPC)
+                serializer.Write(Unknown6);
 
             // Write map size
             serializer.Write(Width);

@@ -147,8 +147,6 @@ namespace R1Engine
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset</param>
         public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset)
         {
-            // TODO: Get the right palette
-
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
@@ -184,6 +182,8 @@ namespace R1Engine
                         // Find a matching animation descriptor
                         var animDesc = desItem.AnimationDescriptors.FindItemIndex(x => x.Layers.Any(y => y.ImageIndex == j));
 
+                        bool foundCorrectPalette = false;
+
                         if (animDesc != -1)
                         {
                             // Attempt to find the ETA where it appears
@@ -192,12 +192,24 @@ namespace R1Engine
                             if (eta != null)
                             {
                                 // Attempt to find the level where it appears
-                                lvl = levels.Find(x => x.Events.Any(y => y.DES == desOffset + 1 + i && y.Etat == eta.Etat && y.SubEtat == eta.SubEtat && y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta)))) ?? levels.First();
+                                var lvlMatch = levels.Find(x => x.Events.Any(y => y.DES == desOffset + 1 + i && y.Etat == eta.Etat && y.SubEtat == eta.SubEtat && y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
+
+                                if (lvlMatch != null)
+                                {
+                                    lvl = lvlMatch;
+                                    foundCorrectPalette = true;
+                                }
                             }
                         }
 
-                        if (levels.IndexOf(lvl) > 0)
-                            Debug.Log(levels.IndexOf(lvl));
+                        // Check background DES
+                        if (!foundCorrectPalette)
+                        {
+                            var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
+
+                            if (lvlMatch != null)
+                                lvl = lvlMatch;
+                        }
 
                         // Get the image descriptor
                         var imgDescriptor = desItem.ImageDescriptors[j];
