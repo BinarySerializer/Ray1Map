@@ -52,7 +52,7 @@ public class FileSerializerWindow : UnityWindow
                 // Create the deserializer
                 var deserializer = new BinaryDeserializer(file, SelectedInputFile, 
                     // TODO: Find solution
-                    new GameSettings(null));
+                    new GameSettings(GameMode.RaymanPC, null));
 
                 // Deserialize the file
                 fileData.Deserialize(deserializer);
@@ -78,7 +78,7 @@ public class FileSerializerWindow : UnityWindow
                 // Create the serializer
                 var serializer = new BinarySerializer(file, SelectedInputFile,
                     // TODO: Find solution
-                    new GameSettings(null));
+                    new GameSettings(GameMode.RaymanPC, null));
 
                 // Serialize the file
                 serializer.Write(fileData);

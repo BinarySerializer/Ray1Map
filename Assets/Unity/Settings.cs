@@ -59,7 +59,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the current game settings
         /// </summary>
-        public static GameSettings GetGameSettings => new GameSettings(CurrentDirectory, World, Level);
+        public static GameSettings GetGameSettings => new GameSettings(Mode, CurrentDirectory, World, Level);
 
         #endregion
 

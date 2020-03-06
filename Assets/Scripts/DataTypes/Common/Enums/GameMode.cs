@@ -24,11 +24,8 @@ namespace R1Engine
         [Description("Rayman 1 (PC)")]
         RaymanPC,
 
-        //[Description("Rayman Designer (PC - 24 New Levels)")]
-        //RaymanDesignerPC,
-
-        //[Description("Rayman Designer (PC - Custom Maps)")]
-        //RaymanDesignerCustomMapsPC,
+        [Description("Rayman Designer (PC)")]
+        RaymanDesignerPC,
 
         // NOTE: Same as Designer
         //[Description("Rayman by his Fans (PC)")]

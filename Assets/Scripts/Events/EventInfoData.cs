@@ -141,7 +141,13 @@ namespace R1Engine
                         e.DES
                     }
                 };
-                ETA = e.ETA;
+                ETA = new Dictionary<World, uint>()
+                {
+                    {
+                        world,
+                        e.ETA
+                    }
+                };
                 OffsetBX = e.OffsetBX;
                 OffsetBY = e.OffsetBY;
                 OffsetHY = e.OffsetHY;
@@ -166,7 +172,7 @@ namespace R1Engine
                     DES = DES[world],
                     DES2 = DES[world],
                     DES3 = DES[world],
-                    ETA = ETA,
+                    ETA = ETA[world],
                     OffsetBX = OffsetBX,
                     OffsetBY = OffsetBY,
                     OffsetHY = OffsetHY,
@@ -184,7 +190,7 @@ namespace R1Engine
 
             public Dictionary<World, uint> DES { get; set; }
 
-            public uint ETA { get; set; }
+            public Dictionary<World, uint> ETA { get; set; }
 
             public byte OffsetBX { get; set; }
 

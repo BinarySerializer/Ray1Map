@@ -135,7 +135,9 @@
       "DES": {
         "Jungle": 13
       },
-      "ETA": 10,
+      "ETA": {
+        "Jungle": 10
+      },
       "OffsetBX": 80,
       "OffsetBY": 97,
       "OffsetHY": 30,
@@ -308,7 +310,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 10,
@@ -358,7 +362,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 10,
@@ -417,7 +423,13 @@
         "Cave": 14,
         "Cake": 17
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13,
+        "Music": 11,
+        "Mountain": 10,
+        "Cave": 12,
+        "Cake": 16
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 18,
@@ -467,7 +479,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 64,
       "OffsetHY": 10,
@@ -517,7 +531,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 4,
@@ -611,7 +627,13 @@
         "Image": 2,
         "Cave": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Music": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cave": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -670,7 +692,13 @@
         "Image": 2,
         "Cave": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Music": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cave": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -730,7 +758,14 @@
         "Cave": 13,
         "Cake": 14
       },
-      "ETA": 7,
+      "ETA": {
+        "Jungle": 7,
+        "Music": 6,
+        "Mountain": 7,
+        "Image": 8,
+        "Cave": 9,
+        "Cake": 11
+      },
       "OffsetBX": 16,
       "OffsetBY": 62,
       "OffsetHY": 44,
@@ -838,7 +873,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -888,7 +925,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -941,7 +980,10 @@
         "Jungle": 16,
         "Mountain": 21
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13,
+        "Mountain": 15
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -991,7 +1033,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1041,7 +1085,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1091,7 +1137,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1141,7 +1189,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1191,7 +1241,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1241,7 +1293,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1291,7 +1345,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1341,7 +1397,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1392,7 +1450,9 @@
       "DES": {
         "Mountain": 21
       },
-      "ETA": 15,
+      "ETA": {
+        "Mountain": 15
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -1446,7 +1506,11 @@
         "Mountain": 4,
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Mountain": 2,
+        "Cave": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1479,7 +1543,11 @@
         "Mountain": 4,
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Mountain": 2,
+        "Cave": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1508,7 +1576,9 @@
       "DES": {
         "Music": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Music": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 50,
@@ -1537,7 +1607,9 @@
       "DES": {
         "Music": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Music": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 50,
@@ -1568,7 +1640,10 @@
         "Mountain": 4,
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Mountain": 2,
+        "Cave": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1599,7 +1674,10 @@
         "Mountain": 4,
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Mountain": 2,
+        "Cave": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -1636,7 +1714,13 @@
         "Image": 2,
         "Cave": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Music": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cave": 1
+      },
       "OffsetBX": 56,
       "OffsetBY": 97,
       "OffsetHY": 80,
@@ -1665,7 +1749,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 64,
       "OffsetHY": 48,
@@ -1715,7 +1801,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 64,
       "OffsetHY": 48,
@@ -1765,7 +1853,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 20,
       "OffsetHY": 0,
@@ -1815,7 +1905,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 20,
       "OffsetBY": 30,
       "OffsetHY": 9,
@@ -1900,7 +1992,9 @@
       "DES": {
         "Jungle": 13
       },
-      "ETA": 11,
+      "ETA": {
+        "Jungle": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 95,
       "OffsetHY": 50,
@@ -2039,7 +2133,9 @@
       "DES": {
         "Jungle": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Jungle": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 0,
@@ -2101,7 +2197,14 @@
         "Cave": 2,
         "Cake": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Music": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cave": 1,
+        "Cake": 1
+      },
       "OffsetBX": 24,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -2160,7 +2263,13 @@
         "Image": 11,
         "Cave": 10
       },
-      "ETA": 4,
+      "ETA": {
+        "Jungle": 4,
+        "Music": 4,
+        "Mountain": 5,
+        "Image": 4,
+        "Cave": 5
+      },
       "OffsetBX": 80,
       "OffsetBY": 95,
       "OffsetHY": 32,
@@ -2219,7 +2328,13 @@
         "Image": 11,
         "Cave": 10
       },
-      "ETA": 5,
+      "ETA": {
+        "Jungle": 5,
+        "Music": 5,
+        "Mountain": 6,
+        "Image": 5,
+        "Cave": 6
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 50,
@@ -2345,7 +2460,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 40,
       "OffsetBY": 50,
       "OffsetHY": 18,
@@ -2414,7 +2531,10 @@
         "Music": 13,
         "Mountain": 13
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Mountain": 10
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -2479,7 +2599,9 @@
       "DES": {
         "Cave": 23
       },
-      "ETA": 22,
+      "ETA": {
+        "Cave": 22
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 9,
@@ -2543,7 +2665,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 50,
       "OffsetHY": 18,
@@ -2613,7 +2737,11 @@
         "Mountain": 13,
         "Cave": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Mountain": 10,
+        "Cave": 12
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -2678,7 +2806,9 @@
       "DES": {
         "Cave": 23
       },
-      "ETA": 22,
+      "ETA": {
+        "Cave": 22
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 9,
@@ -2748,7 +2878,12 @@
         "Cave": 31,
         "Cake": 25
       },
-      "ETA": 15,
+      "ETA": {
+        "Jungle": 15,
+        "Music": 24,
+        "Cave": 30,
+        "Cake": 23
+      },
       "OffsetBX": 40,
       "OffsetBY": 42,
       "OffsetHY": 0,
@@ -2798,7 +2933,9 @@
       "DES": {
         "Jungle": 19
       },
-      "ETA": 16,
+      "ETA": {
+        "Jungle": 16
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 0,
@@ -2951,7 +3088,14 @@
         "Cave": 2,
         "Cake": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Music": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cave": 1,
+        "Cake": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -3011,7 +3155,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 40,
       "OffsetBY": 0,
       "OffsetHY": 18,
@@ -3085,7 +3231,12 @@
         "Image": 13,
         "Cake": 17
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Mountain": 10,
+        "Image": 7,
+        "Cake": 16
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -3152,7 +3303,9 @@
       "DES": {
         "Jungle": 23
       },
-      "ETA": 19,
+      "ETA": {
+        "Jungle": 19
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -3184,7 +3337,10 @@
         "Music": 13,
         "Cave": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Cave": 12
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -3243,7 +3399,13 @@
         "Cave": 14,
         "Cake": 17
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Mountain": 10,
+        "Image": 12,
+        "Cave": 12,
+        "Cake": 16
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -3301,7 +3463,12 @@
         "Image": 16,
         "Cave": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Mountain": 10,
+        "Image": 12,
+        "Cave": 12
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -3358,7 +3525,12 @@
         "Image": 16,
         "Cave": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Mountain": 10,
+        "Image": 12,
+        "Cave": 12
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -3448,7 +3620,9 @@
       "DES": {
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Cake": 2
+      },
       "OffsetBX": 64,
       "OffsetBY": 64,
       "OffsetHY": 64,
@@ -3487,7 +3661,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 32,
@@ -3537,7 +3718,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 136,
       "OffsetHY": 0,
@@ -3566,7 +3749,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 96,
       "OffsetBY": 144,
       "OffsetHY": 112,
@@ -3618,7 +3803,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 40,
       "OffsetBY": 0,
       "OffsetHY": 18,
@@ -3651,7 +3838,9 @@
       "DES": {
         "Mountain": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Mountain": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 127,
       "OffsetHY": 0,
@@ -3817,7 +4006,9 @@
       "DES": {
         "Mountain": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Mountain": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 80,
@@ -3885,7 +4076,9 @@
       "DES": {
         "Jungle": 20
       },
-      "ETA": 17,
+      "ETA": {
+        "Jungle": 17
+      },
       "OffsetBX": 80,
       "OffsetBY": 97,
       "OffsetHY": 80,
@@ -3914,7 +4107,9 @@
       "DES": {
         "Jungle": 20
       },
-      "ETA": 17,
+      "ETA": {
+        "Jungle": 17
+      },
       "OffsetBX": 20,
       "OffsetBY": 34,
       "OffsetHY": 20,
@@ -3964,7 +4159,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 40,
       "OffsetBY": 118,
       "OffsetHY": 18,
@@ -4016,7 +4213,10 @@
         "Mountain": 15,
         "Cave": 17
       },
-      "ETA": 12,
+      "ETA": {
+        "Mountain": 12,
+        "Cave": 15
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 64,
@@ -4195,12 +4395,15 @@
     ],
     "PC_R1_Info": {
       "DES": {
-        "Jungle": 25,
         "Music": 25,
         "Mountain": 23,
         "Cave": 23
       },
-      "ETA": 22,
+      "ETA": {
+        "Music": 22,
+        "Mountain": 18,
+        "Cave": 22
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -4260,7 +4463,14 @@
         "Cave": 13,
         "Cake": 14
       },
-      "ETA": 8,
+      "ETA": {
+        "Jungle": 8,
+        "Music": 7,
+        "Mountain": 8,
+        "Image": 9,
+        "Cave": 10,
+        "Cake": 12
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 50,
@@ -4351,7 +4561,9 @@
       "DES": {
         "Mountain": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Mountain": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 127,
       "OffsetHY": 0,
@@ -4521,7 +4733,10 @@
         "Mountain": 12,
         "Cake": 14
       },
-      "ETA": 7,
+      "ETA": {
+        "Mountain": 7,
+        "Cake": 11
+      },
       "OffsetBX": 24,
       "OffsetBY": 14,
       "OffsetHY": 0,
@@ -4586,7 +4801,10 @@
         "Mountain": 23,
         "Cave": 23
       },
-      "ETA": 18,
+      "ETA": {
+        "Mountain": 18,
+        "Cave": 22
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -4653,7 +4871,9 @@
       "DES": {
         "Mountain": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Mountain": 13
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 30,
@@ -4692,7 +4912,10 @@
         "Mountain": 14,
         "Cave": 39
       },
-      "ETA": 11,
+      "ETA": {
+        "Mountain": 11,
+        "Cave": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 80,
@@ -4743,7 +4966,9 @@
       "DES": {
         "Mountain": 20
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 50,
       "OffsetHY": 18,
@@ -4794,7 +5019,9 @@
       "DES": {
         "Cave": 37
       },
-      "ETA": 4,
+      "ETA": {
+        "Cave": 4
+      },
       "OffsetBX": 128,
       "OffsetBY": 50,
       "OffsetHY": 20,
@@ -4897,7 +5124,9 @@
       "DES": {
         "Jungle": 14
       },
-      "ETA": 12,
+      "ETA": {
+        "Jungle": 12
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -4929,7 +5158,9 @@
       "DES": {
         "Jungle": 15
       },
-      "ETA": 12,
+      "ETA": {
+        "Jungle": 12
+      },
       "OffsetBX": 19,
       "OffsetBY": 20,
       "OffsetHY": 0,
@@ -4981,7 +5212,9 @@
       "DES": {
         "Jungle": 15
       },
-      "ETA": 12,
+      "ETA": {
+        "Jungle": 12
+      },
       "OffsetBX": 40,
       "OffsetBY": 70,
       "OffsetHY": 0,
@@ -5089,7 +5322,9 @@
       "DES": {
         "Jungle": 28
       },
-      "ETA": 24,
+      "ETA": {
+        "Jungle": 24
+      },
       "OffsetBX": 20,
       "OffsetBY": 32,
       "OffsetHY": 8,
@@ -5120,7 +5355,9 @@
       "DES": {
         "Mountain": 21
       },
-      "ETA": 15,
+      "ETA": {
+        "Mountain": 15
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -5171,7 +5408,9 @@
       "DES": {
         "Mountain": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Mountain": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 127,
       "OffsetHY": 0,
@@ -5306,7 +5545,10 @@
         "Mountain": 18,
         "Cave": 37
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 28,
       "OffsetBY": 18,
       "OffsetHY": 0,
@@ -5360,7 +5602,10 @@
         "Mountain": 18,
         "Cave": 37
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 28,
       "OffsetBY": 18,
       "OffsetHY": 0,
@@ -5414,7 +5659,10 @@
         "Mountain": 18,
         "Cave": 37
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 28,
       "OffsetBY": 18,
       "OffsetHY": 0,
@@ -5527,7 +5775,13 @@
         "Image": 14,
         "Cave": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Jungle": 7,
+        "Music": 6,
+        "Mountain": 7,
+        "Image": 8,
+        "Cave": 9
+      },
       "OffsetBX": 80,
       "OffsetBY": 89,
       "OffsetHY": 0,
@@ -5564,7 +5818,13 @@
         "Image": 14,
         "Cave": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Jungle": 7,
+        "Music": 6,
+        "Mountain": 7,
+        "Image": 8,
+        "Cave": 9
+      },
       "OffsetBX": 80,
       "OffsetBY": 89,
       "OffsetHY": 0,
@@ -5603,7 +5863,14 @@
         "Cave": 13,
         "Cake": 14
       },
-      "ETA": 7,
+      "ETA": {
+        "Jungle": 7,
+        "Music": 6,
+        "Mountain": 7,
+        "Image": 8,
+        "Cave": 9,
+        "Cake": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 89,
       "OffsetHY": 0,
@@ -5632,7 +5899,9 @@
       "DES": {
         "Cake": 15
       },
-      "ETA": 14,
+      "ETA": {
+        "Cake": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -5769,7 +6038,9 @@
       "DES": {
         "Cake": 16
       },
-      "ETA": 15,
+      "ETA": {
+        "Cake": 15
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -5916,7 +6187,9 @@
       "DES": {
         "Cake": 31
       },
-      "ETA": 27,
+      "ETA": {
+        "Cake": 27
+      },
       "OffsetBX": 64,
       "OffsetBY": 80,
       "OffsetHY": 64,
@@ -5987,7 +6260,12 @@
         "Cave": 14,
         "Cake": 17
       },
-      "ETA": 11,
+      "ETA": {
+        "Music": 11,
+        "Mountain": 10,
+        "Cave": 12,
+        "Cake": 16
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -6063,7 +6341,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 40,
       "OffsetBY": 0,
       "OffsetHY": 18,
@@ -6139,7 +6419,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 4,
@@ -6219,7 +6501,11 @@
         "Music": 10,
         "Mountain": 12
       },
-      "ETA": 8,
+      "ETA": {
+        "Jungle": 8,
+        "Music": 7,
+        "Mountain": 8
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 50,
@@ -6250,7 +6536,10 @@
         "Jungle": 12,
         "Mountain": 12
       },
-      "ETA": 8,
+      "ETA": {
+        "Jungle": 8,
+        "Mountain": 8
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 50,
@@ -6463,7 +6752,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 25,
@@ -6515,7 +6806,10 @@
         "Mountain": 14,
         "Cave": 39
       },
-      "ETA": 11,
+      "ETA": {
+        "Mountain": 11,
+        "Cave": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 80,
@@ -6565,7 +6859,9 @@
       "DES": {
         "Music": 11
       },
-      "ETA": 9,
+      "ETA": {
+        "Music": 9
+      },
       "OffsetBX": 80,
       "OffsetBY": 92,
       "OffsetHY": 48,
@@ -6707,7 +7003,9 @@
       "DES": {
         "Image": 17
       },
-      "ETA": 13,
+      "ETA": {
+        "Image": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 48,
@@ -6736,7 +7034,9 @@
       "DES": {
         "Image": 17
       },
-      "ETA": 13,
+      "ETA": {
+        "Image": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 90,
@@ -6768,7 +7068,9 @@
       "DES": {
         "Music": 12
       },
-      "ETA": 10,
+      "ETA": {
+        "Music": 10
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 32,
@@ -6833,7 +7135,9 @@
       "DES": {
         "Image": 33
       },
-      "ETA": 28,
+      "ETA": {
+        "Image": 28
+      },
       "OffsetBX": 112,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -7014,7 +7318,9 @@
       "DES": {
         "Image": 18
       },
-      "ETA": 14,
+      "ETA": {
+        "Image": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 32,
@@ -7043,7 +7349,9 @@
       "DES": {
         "Image": 18
       },
-      "ETA": 14,
+      "ETA": {
+        "Image": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 72,
@@ -7077,7 +7385,10 @@
         "Mountain": 19,
         "Cave": 9
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -7129,7 +7440,10 @@
         "Mountain": 19,
         "Cave": 9
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -7181,7 +7495,10 @@
         "Mountain": 19,
         "Cave": 9
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -7233,7 +7550,10 @@
         "Mountain": 19,
         "Cave": 9
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -7285,7 +7605,10 @@
         "Mountain": 19,
         "Cave": 9
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -7337,7 +7660,10 @@
         "Mountain": 19,
         "Cave": 9
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14,
+        "Cave": 4
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -7387,7 +7713,9 @@
       "DES": {
         "Music": 14
       },
-      "ETA": 12,
+      "ETA": {
+        "Music": 12
+      },
       "OffsetBX": 128,
       "OffsetBY": 192,
       "OffsetHY": 12,
@@ -7468,7 +7796,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 0,
@@ -7526,7 +7861,13 @@
         "Image": 20,
         "Cake": 19
       },
-      "ETA": 6,
+      "ETA": {
+        "Jungle": 6,
+        "Music": 20,
+        "Mountain": 20,
+        "Image": 16,
+        "Cake": 18
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 48,
@@ -7609,7 +7950,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 50,
@@ -7659,7 +8002,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 56,
       "OffsetBY": 128,
       "OffsetHY": 16,
@@ -7709,7 +8054,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 16,
       "OffsetBY": 30,
       "OffsetHY": 4,
@@ -7773,7 +8120,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 16,
       "OffsetBY": 32,
       "OffsetHY": 4,
@@ -7837,7 +8186,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 2,
@@ -7901,7 +8252,9 @@
       "DES": {
         "Cave": 29
       },
-      "ETA": 28,
+      "ETA": {
+        "Cave": 28
+      },
       "OffsetBX": 80,
       "OffsetBY": 100,
       "OffsetHY": 10,
@@ -7937,7 +8290,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 72,
       "OffsetHY": 12,
@@ -7989,7 +8344,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 12,
@@ -8041,7 +8398,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 12,
@@ -8093,7 +8452,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 72,
       "OffsetHY": 12,
@@ -8155,7 +8516,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 60,
       "OffsetBY": 48,
       "OffsetHY": 32,
@@ -8213,7 +8581,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -8270,7 +8645,13 @@
         "Image": 4,
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -8318,7 +8699,9 @@
       "DES": {
         "Mountain": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Mountain": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -8347,7 +8730,9 @@
       "DES": {
         "Mountain": 21
       },
-      "ETA": 16,
+      "ETA": {
+        "Mountain": 16
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 9,
@@ -8386,7 +8771,14 @@
         "Cave": 1,
         "Cake": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Jungle": 0,
+        "Music": 0,
+        "Mountain": 0,
+        "Image": 0,
+        "Cave": 0,
+        "Cake": 0
+      },
       "OffsetBX": 80,
       "OffsetBY": 78,
       "OffsetHY": 20,
@@ -8434,7 +8826,9 @@
       "DES": {
         "Music": 18
       },
-      "ETA": 15,
+      "ETA": {
+        "Music": 15
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 38,
@@ -8602,7 +8996,10 @@
         "Mountain": 23,
         "Cave": 23
       },
-      "ETA": 18,
+      "ETA": {
+        "Mountain": 18,
+        "Cave": 22
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 10,
@@ -8654,7 +9051,10 @@
         "Mountain": 23,
         "Cave": 23
       },
-      "ETA": 18,
+      "ETA": {
+        "Mountain": 18,
+        "Cave": 22
+      },
       "OffsetBX": 80,
       "OffsetBY": 0,
       "OffsetHY": 10,
@@ -8704,7 +9104,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 12,
@@ -8756,7 +9158,9 @@
       "DES": {
         "Cave": 21
       },
-      "ETA": 20,
+      "ETA": {
+        "Cave": 20
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -8785,7 +9189,9 @@
       "DES": {
         "Cave": 21
       },
-      "ETA": 20,
+      "ETA": {
+        "Cave": 20
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -8821,7 +9227,9 @@
       "DES": {
         "Cave": 23
       },
-      "ETA": 22,
+      "ETA": {
+        "Cave": 22
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 5,
@@ -8923,7 +9331,10 @@
         "Mountain": 23,
         "Cave": 23
       },
-      "ETA": 18,
+      "ETA": {
+        "Mountain": 18,
+        "Cave": 22
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -8973,7 +9384,9 @@
       "DES": {
         "Cake": 14
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 16,
       "OffsetBY": 64,
       "OffsetHY": 48,
@@ -9027,7 +9440,10 @@
         "Mountain": 21,
         "Cave": 38
       },
-      "ETA": 16,
+      "ETA": {
+        "Mountain": 16,
+        "Cave": 18
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 16,
@@ -9079,7 +9495,10 @@
         "Mountain": 21,
         "Cave": 38
       },
-      "ETA": 16,
+      "ETA": {
+        "Mountain": 16,
+        "Cave": 18
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -9134,7 +9553,9 @@
       "DES": {
         "Mountain": 21
       },
-      "ETA": 16,
+      "ETA": {
+        "Mountain": 16
+      },
       "OffsetBX": 160,
       "OffsetBY": 176,
       "OffsetHY": 16,
@@ -9163,7 +9584,9 @@
       "DES": {
         "Image": 19
       },
-      "ETA": 15,
+      "ETA": {
+        "Image": 15
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 100,
@@ -9192,7 +9615,9 @@
       "DES": {
         "Music": 19
       },
-      "ETA": 16,
+      "ETA": {
+        "Music": 16
+      },
       "OffsetBX": 112,
       "OffsetBY": 112,
       "OffsetHY": 3,
@@ -9248,7 +9673,9 @@
       "DES": {
         "Mountain": 13
       },
-      "ETA": 10,
+      "ETA": {
+        "Mountain": 10
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 12,
@@ -9279,7 +9706,9 @@
       "DES": {
         "Cake": 18
       },
-      "ETA": 17,
+      "ETA": {
+        "Cake": 17
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 30,
@@ -9504,7 +9933,9 @@
       "DES": {
         "Cake": 18
       },
-      "ETA": 17,
+      "ETA": {
+        "Cake": 17
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 30,
@@ -9728,7 +10159,9 @@
       "DES": {
         "Cake": 18
       },
-      "ETA": 17,
+      "ETA": {
+        "Cake": 17
+      },
       "OffsetBX": 80,
       "OffsetBY": 98,
       "OffsetHY": 74,
@@ -9778,7 +10211,9 @@
       "DES": {
         "Music": 21
       },
-      "ETA": 18,
+      "ETA": {
+        "Music": 18
+      },
       "OffsetBX": 160,
       "OffsetBY": 248,
       "OffsetHY": 0,
@@ -9817,7 +10252,9 @@
       "DES": {
         "Mountain": 12
       },
-      "ETA": 7,
+      "ETA": {
+        "Mountain": 7
+      },
       "OffsetBX": 24,
       "OffsetBY": 14,
       "OffsetHY": 0,
@@ -9880,7 +10317,9 @@
       "DES": {
         "Mountain": 15
       },
-      "ETA": 12,
+      "ETA": {
+        "Mountain": 12
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 64,
@@ -10069,7 +10508,14 @@
         "Cave": 22,
         "Cake": 20
       },
-      "ETA": 18,
+      "ETA": {
+        "Jungle": 18,
+        "Music": 19,
+        "Mountain": 19,
+        "Image": 17,
+        "Cave": 21,
+        "Cake": 19
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -10148,7 +10594,13 @@
         "Image": 21,
         "Cave": 22
       },
-      "ETA": 18,
+      "ETA": {
+        "Jungle": 18,
+        "Music": 19,
+        "Mountain": 19,
+        "Image": 17,
+        "Cave": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -10249,7 +10701,12 @@
         "Image": 21,
         "Cave": 22
       },
-      "ETA": 18,
+      "ETA": {
+        "Jungle": 18,
+        "Music": 19,
+        "Image": 17,
+        "Cave": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -10320,7 +10777,13 @@
         "Image": 14,
         "Cave": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Jungle": 7,
+        "Music": 6,
+        "Mountain": 7,
+        "Image": 8,
+        "Cave": 9
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -10604,7 +11067,14 @@
         "Cave": 22,
         "Cake": 20
       },
-      "ETA": 18,
+      "ETA": {
+        "Jungle": 18,
+        "Music": 19,
+        "Mountain": 19,
+        "Image": 17,
+        "Cave": 21,
+        "Cake": 19
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -10709,7 +11179,9 @@
       "DES": {
         "Cave": 21
       },
-      "ETA": 20,
+      "ETA": {
+        "Cave": 20
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -10751,7 +11223,10 @@
         "Mountain": 4,
         "Image": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Mountain": 2,
+        "Image": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 75,
       "OffsetHY": 50,
@@ -10836,7 +11311,9 @@
       "DES": {
         "Mountain": 12
       },
-      "ETA": 7,
+      "ETA": {
+        "Mountain": 7
+      },
       "OffsetBX": 24,
       "OffsetBY": 14,
       "OffsetHY": 0,
@@ -10874,7 +11351,11 @@
         "Image": 3,
         "Cake": 3
       },
-      "ETA": 0,
+      "ETA": {
+        "Music": 0,
+        "Image": 0,
+        "Cake": 0
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -10968,7 +11449,10 @@
         "Music": 4,
         "Image": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Music": 2,
+        "Image": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -10997,7 +11481,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 10,
@@ -11125,7 +11611,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 56,
       "OffsetBY": 128,
       "OffsetHY": 16,
@@ -11183,7 +11671,14 @@
         "Cave": 25,
         "Cake": 21
       },
-      "ETA": 21,
+      "ETA": {
+        "Jungle": 21,
+        "Music": 25,
+        "Mountain": 21,
+        "Image": 18,
+        "Cave": 24,
+        "Cake": 20
+      },
       "OffsetBX": 36,
       "OffsetBY": 32,
       "OffsetHY": 20,
@@ -11236,12 +11731,15 @@
     ],
     "PC_R1_Info": {
       "DES": {
-        "Jungle": 26,
         "Mountain": 26,
         "Image": 22,
         "Cave": 25
       },
-      "ETA": 21,
+      "ETA": {
+        "Mountain": 21,
+        "Image": 18,
+        "Cave": 24
+      },
       "OffsetBX": 36,
       "OffsetBY": 32,
       "OffsetHY": 20,
@@ -11370,7 +11868,10 @@
         "Music": 1,
         "Mountain": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Music": 0,
+        "Mountain": 0
+      },
       "OffsetBX": 5,
       "OffsetBY": 5,
       "OffsetHY": 0,
@@ -11399,7 +11900,9 @@
       "DES": {
         "Music": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Music": 0
+      },
       "OffsetBX": 5,
       "OffsetBY": 5,
       "OffsetHY": 0,
@@ -11428,7 +11931,9 @@
       "DES": {
         "Mountain": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Mountain": 0
+      },
       "OffsetBX": 5,
       "OffsetBY": 5,
       "OffsetHY": 0,
@@ -11457,7 +11962,9 @@
       "DES": {
         "Mountain": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Mountain": 0
+      },
       "OffsetBX": 5,
       "OffsetBY": 5,
       "OffsetHY": 0,
@@ -11486,7 +11993,9 @@
       "DES": {
         "Mountain": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Mountain": 0
+      },
       "OffsetBX": 5,
       "OffsetBY": 5,
       "OffsetHY": 0,
@@ -11525,7 +12034,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 32,
@@ -11585,7 +12101,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 48,
@@ -11639,7 +12162,11 @@
         "Image": 27,
         "Cave": 16
       },
-      "ETA": 21,
+      "ETA": {
+        "Music": 21,
+        "Image": 24,
+        "Cave": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 50,
@@ -11693,7 +12220,11 @@
         "Image": 27,
         "Cave": 16
       },
-      "ETA": 21,
+      "ETA": {
+        "Music": 21,
+        "Image": 24,
+        "Cave": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 0,
@@ -11745,7 +12276,9 @@
       "DES": {
         "Jungle": 14
       },
-      "ETA": 12,
+      "ETA": {
+        "Jungle": 12
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -11774,7 +12307,9 @@
       "DES": {
         "Music": 20
       },
-      "ETA": 17,
+      "ETA": {
+        "Music": 17
+      },
       "OffsetBX": 56,
       "OffsetBY": 128,
       "OffsetHY": 16,
@@ -11824,7 +12359,9 @@
       "DES": {
         "Cave": 24
       },
-      "ETA": 23,
+      "ETA": {
+        "Cave": 23
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 32,
@@ -11874,7 +12411,11 @@
         "Mountain": 11,
         "Cave": 10
       },
-      "ETA": 5,
+      "ETA": {
+        "Jungle": 5,
+        "Mountain": 6,
+        "Cave": 6
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 50,
@@ -12058,7 +12599,11 @@
         "Music": 29,
         "Mountain": 27
       },
-      "ETA": 22,
+      "ETA": {
+        "Jungle": 22,
+        "Music": 26,
+        "Mountain": 22
+      },
       "OffsetBX": 80,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -12090,7 +12635,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 10,
@@ -12184,7 +12731,9 @@
       "DES": {
         "Music": 15
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 64,
       "OffsetBY": 0,
       "OffsetHY": 10,
@@ -12258,7 +12807,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 64,
@@ -12334,7 +12885,12 @@
         "Image": 15,
         "Cave": 27
       },
-      "ETA": 20,
+      "ETA": {
+        "Jungle": 20,
+        "Mountain": 23,
+        "Image": 11,
+        "Cave": 26
+      },
       "OffsetBX": 50,
       "OffsetBY": 80,
       "OffsetHY": 0,
@@ -12392,7 +12948,12 @@
         "Image": 15,
         "Cave": 27
       },
-      "ETA": 20,
+      "ETA": {
+        "Jungle": 20,
+        "Mountain": 23,
+        "Image": 11,
+        "Cave": 26
+      },
       "OffsetBX": 50,
       "OffsetBY": 80,
       "OffsetHY": 0,
@@ -12429,7 +12990,13 @@
         "Image": 2,
         "Cake": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Music": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cake": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 0,
@@ -12464,7 +13031,12 @@
         "Image": 2,
         "Cake": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cake": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 0,
@@ -12495,7 +13067,10 @@
         "Music": 2,
         "Mountain": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Music": 1,
+        "Mountain": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 0,
@@ -12524,7 +13099,9 @@
       "DES": {
         "Music": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Music": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 0,
@@ -12553,7 +13130,9 @@
       "DES": {
         "Image": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Image": 1
+      },
       "OffsetBX": 80,
       "OffsetBY": 64,
       "OffsetHY": 0,
@@ -12582,7 +13161,9 @@
       "DES": {
         "Music": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 112,
       "OffsetBY": 192,
       "OffsetHY": 8,
@@ -12630,7 +13211,9 @@
       "DES": {
         "Music": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Music": 13
+      },
       "OffsetBX": 112,
       "OffsetBY": 240,
       "OffsetHY": 4,
@@ -12688,7 +13271,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -12746,7 +13336,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -12785,7 +13382,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -12824,7 +13428,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -12863,7 +13474,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -12900,7 +13518,13 @@
         "Image": 4,
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -12939,7 +13563,14 @@
         "Cave": 4,
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2,
+        "Cake": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -12976,7 +13607,13 @@
         "Image": 4,
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -13005,7 +13642,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 60,
       "OffsetBY": 96,
       "OffsetHY": 8,
@@ -13034,7 +13673,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13063,7 +13704,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13092,7 +13735,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13121,7 +13766,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13150,7 +13797,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13179,7 +13828,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13208,7 +13859,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13237,7 +13890,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13266,7 +13921,9 @@
       "DES": {
         "Cave": 28
       },
-      "ETA": 27,
+      "ETA": {
+        "Cave": 27
+      },
       "OffsetBX": 16,
       "OffsetBY": 16,
       "OffsetHY": 0,
@@ -13305,7 +13962,14 @@
         "Cave": 2,
         "Cake": 2
       },
-      "ETA": 1,
+      "ETA": {
+        "Jungle": 1,
+        "Music": 1,
+        "Mountain": 1,
+        "Image": 1,
+        "Cave": 1,
+        "Cake": 1
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -13467,7 +14131,9 @@
       "DES": {
         "Jungle": 13
       },
-      "ETA": 11,
+      "ETA": {
+        "Jungle": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 95,
       "OffsetHY": 50,
@@ -13606,7 +14272,9 @@
       "DES": {
         "Cave": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Cave": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 0,
@@ -13635,7 +14303,9 @@
       "DES": {
         "Jungle": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Jungle": 13
+      },
       "OffsetBX": 20,
       "OffsetBY": 30,
       "OffsetHY": 9,
@@ -13685,7 +14355,9 @@
       "DES": {
         "Cave": 24
       },
-      "ETA": 23,
+      "ETA": {
+        "Cave": 23
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 0,
@@ -13714,7 +14386,9 @@
       "DES": {
         "Jungle": 23
       },
-      "ETA": 19,
+      "ETA": {
+        "Jungle": 19
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -13767,7 +14441,9 @@
       "DES": {
         "Mountain": 14
       },
-      "ETA": 11,
+      "ETA": {
+        "Mountain": 11
+      },
       "OffsetBX": 80,
       "OffsetBY": 127,
       "OffsetHY": 0,
@@ -13965,7 +14641,9 @@
       "DES": {
         "Image": 23
       },
-      "ETA": 19,
+      "ETA": {
+        "Image": 19
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -13999,7 +14677,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -14028,7 +14708,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -14057,7 +14739,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 48,
       "OffsetHY": 8,
@@ -14107,7 +14791,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 48,
       "OffsetHY": 8,
@@ -14157,7 +14843,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 78,
       "OffsetBY": 127,
       "OffsetHY": 7,
@@ -14207,7 +14895,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 64,
       "OffsetHY": 10,
@@ -14257,7 +14947,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 64,
       "OffsetHY": 10,
@@ -14307,7 +14999,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 78,
       "OffsetBY": 127,
       "OffsetHY": 7,
@@ -14357,7 +15051,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 78,
       "OffsetBY": 127,
       "OffsetHY": 7,
@@ -14407,7 +15103,9 @@
       "DES": {
         "Music": 12
       },
-      "ETA": 10,
+      "ETA": {
+        "Music": 10
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 32,
@@ -14436,7 +15134,9 @@
       "DES": {
         "Music": 12
       },
-      "ETA": 10,
+      "ETA": {
+        "Music": 10
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -14465,7 +15165,9 @@
       "DES": {
         "Music": 12
       },
-      "ETA": 10,
+      "ETA": {
+        "Music": 10
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -14494,7 +15196,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 72,
       "OffsetHY": 12,
@@ -14523,7 +15227,9 @@
       "DES": {
         "Music": 12
       },
-      "ETA": 10,
+      "ETA": {
+        "Music": 10
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 32,
@@ -14552,7 +15258,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -14604,7 +15312,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -14656,7 +15366,9 @@
       "DES": {
         "Music": 17
       },
-      "ETA": 14,
+      "ETA": {
+        "Music": 14
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 64,
@@ -14726,7 +15438,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -14785,7 +15499,9 @@
       "DES": {
         "Image": 23
       },
-      "ETA": 19,
+      "ETA": {
+        "Image": 19
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 0,
@@ -14815,7 +15531,9 @@
       "DES": {
         "Cave": 23
       },
-      "ETA": 22,
+      "ETA": {
+        "Cave": 22
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 5,
@@ -14866,7 +15584,9 @@
       "DES": {
         "Cave": 23
       },
-      "ETA": 22,
+      "ETA": {
+        "Cave": 22
+      },
       "OffsetBX": 18,
       "OffsetBY": 32,
       "OffsetHY": 5,
@@ -14990,7 +15710,9 @@
       "DES": {
         "Image": 23
       },
-      "ETA": 19,
+      "ETA": {
+        "Image": 19
+      },
       "OffsetBX": 128,
       "OffsetBY": 120,
       "OffsetHY": 1,
@@ -15019,7 +15741,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 78,
       "OffsetBY": 127,
       "OffsetHY": 7,
@@ -15069,7 +15793,9 @@
       "DES": {
         "Image": 19
       },
-      "ETA": 15,
+      "ETA": {
+        "Image": 15
+      },
       "OffsetBX": 32,
       "OffsetBY": 32,
       "OffsetHY": 16,
@@ -15098,7 +15824,9 @@
       "DES": {
         "Image": 26
       },
-      "ETA": 23,
+      "ETA": {
+        "Image": 23
+      },
       "OffsetBX": 79,
       "OffsetBY": 97,
       "OffsetHY": 64,
@@ -15127,7 +15855,9 @@
       "DES": {
         "Image": 26
       },
-      "ETA": 23,
+      "ETA": {
+        "Image": 23
+      },
       "OffsetBX": 79,
       "OffsetBY": 97,
       "OffsetHY": 64,
@@ -15159,7 +15889,9 @@
       "DES": {
         "Image": 26
       },
-      "ETA": 23,
+      "ETA": {
+        "Image": 23
+      },
       "OffsetBX": 79,
       "OffsetBY": 97,
       "OffsetHY": 64,
@@ -15191,7 +15923,9 @@
       "DES": {
         "Image": 26
       },
-      "ETA": 23,
+      "ETA": {
+        "Image": 23
+      },
       "OffsetBX": 79,
       "OffsetBY": 97,
       "OffsetHY": 64,
@@ -15223,7 +15957,9 @@
       "DES": {
         "Image": 26
       },
-      "ETA": 23,
+      "ETA": {
+        "Image": 23
+      },
       "OffsetBX": 79,
       "OffsetBY": 97,
       "OffsetHY": 64,
@@ -15255,7 +15991,9 @@
       "DES": {
         "Cave": 20
       },
-      "ETA": 19,
+      "ETA": {
+        "Cave": 19
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 48,
@@ -15340,7 +16078,9 @@
       "DES": {
         "Cave": 20
       },
-      "ETA": 19,
+      "ETA": {
+        "Cave": 19
+      },
       "OffsetBX": 64,
       "OffsetBY": 80,
       "OffsetHY": 16,
@@ -15402,7 +16142,13 @@
         "Image": 31,
         "Cave": 35
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2,
+        "Image": 2,
+        "Cave": 2
+      },
       "OffsetBX": 152,
       "OffsetBY": 93,
       "OffsetHY": 0,
@@ -15431,7 +16177,9 @@
       "DES": {
         "Mountain": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Mountain": 13
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 30,
@@ -15460,7 +16208,9 @@
       "DES": {
         "Mountain": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Mountain": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -15489,7 +16239,9 @@
       "DES": {
         "Mountain": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Mountain": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -15518,7 +16270,9 @@
       "DES": {
         "Mountain": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Mountain": 13
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -15547,7 +16301,9 @@
       "DES": {
         "Cake": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Cake": 0
+      },
       "OffsetBX": 80,
       "OffsetBY": 48,
       "OffsetHY": 16,
@@ -15597,7 +16353,9 @@
       "DES": {
         "Cake": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Cake": 0
+      },
       "OffsetBX": 80,
       "OffsetBY": 48,
       "OffsetHY": 16,
@@ -15647,7 +16405,9 @@
       "DES": {
         "Image": 19
       },
-      "ETA": 15,
+      "ETA": {
+        "Image": 15
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 100,
@@ -15676,7 +16436,9 @@
       "DES": {
         "Cake": 26
       },
-      "ETA": 0,
+      "ETA": {
+        "Cake": 0
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 20,
@@ -15728,7 +16490,9 @@
       "DES": {
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Cake": 2
+      },
       "OffsetBX": 60,
       "OffsetBY": 48,
       "OffsetHY": 32,
@@ -15790,7 +16554,14 @@
         "Cave": 1,
         "Cake": 1
       },
-      "ETA": 0,
+      "ETA": {
+        "Jungle": 0,
+        "Music": 0,
+        "Mountain": 0,
+        "Image": 0,
+        "Cave": 0,
+        "Cake": 0
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 20,
@@ -15840,7 +16611,9 @@
       "DES": {
         "Cake": 23
       },
-      "ETA": 22,
+      "ETA": {
+        "Cake": 22
+      },
       "OffsetBX": 24,
       "OffsetBY": 36,
       "OffsetHY": 12,
@@ -15898,7 +16671,13 @@
         "Cave": 12,
         "Cake": 10
       },
-      "ETA": 28,
+      "ETA": {
+        "Music": 28,
+        "Mountain": 4,
+        "Image": 6,
+        "Cave": 8,
+        "Cake": 4
+      },
       "OffsetBX": 64,
       "OffsetBY": 64,
       "OffsetHY": 64,
@@ -15948,7 +16727,9 @@
       "DES": {
         "Cake": 13
       },
-      "ETA": 10,
+      "ETA": {
+        "Cake": 10
+      },
       "OffsetBX": 72,
       "OffsetBY": 112,
       "OffsetHY": 0,
@@ -16294,7 +17075,9 @@
       "DES": {
         "Cake": 13
       },
-      "ETA": 10,
+      "ETA": {
+        "Cake": 10
+      },
       "OffsetBX": 72,
       "OffsetBY": 112,
       "OffsetHY": 0,
@@ -16599,7 +17382,9 @@
       "DES": {
         "Mountain": 16
       },
-      "ETA": 13,
+      "ETA": {
+        "Mountain": 13
+      },
       "OffsetBX": 32,
       "OffsetBY": 32,
       "OffsetHY": 128,
@@ -16651,7 +17436,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 128,
       "OffsetBY": 240,
       "OffsetHY": 0,
@@ -16701,7 +17488,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 128,
       "OffsetBY": 240,
       "OffsetHY": 88,
@@ -16751,7 +17540,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 128,
       "OffsetBY": 240,
       "OffsetHY": 88,
@@ -16836,7 +17627,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 128,
       "OffsetBY": 240,
       "OffsetHY": 88,
@@ -16886,7 +17679,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 128,
       "OffsetBY": 240,
       "OffsetHY": 0,
@@ -16915,7 +17710,9 @@
       "DES": {
         "Image": 19
       },
-      "ETA": 15,
+      "ETA": {
+        "Image": 15
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 100,
@@ -16947,7 +17744,9 @@
       "DES": {
         "Cave": 11
       },
-      "ETA": 7,
+      "ETA": {
+        "Cave": 7
+      },
       "OffsetBX": 80,
       "OffsetBY": 100,
       "OffsetHY": 10,
@@ -16976,7 +17775,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 96,
       "OffsetBY": 128,
       "OffsetHY": 64,
@@ -17026,7 +17827,9 @@
       "DES": {
         "Cave": 30
       },
-      "ETA": 29,
+      "ETA": {
+        "Cave": 29
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -17059,7 +17862,9 @@
       "DES": {
         "Music": 18
       },
-      "ETA": 15,
+      "ETA": {
+        "Music": 15
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 48,
@@ -17221,7 +18026,9 @@
       "DES": {
         "Cake": 11
       },
-      "ETA": 6,
+      "ETA": {
+        "Cake": 6
+      },
       "OffsetBX": 128,
       "OffsetBY": 198,
       "OffsetHY": 112,
@@ -17256,7 +18063,9 @@
       "DES": {
         "Mountain": 18
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14
+      },
       "OffsetBX": 128,
       "OffsetBY": 128,
       "OffsetHY": 128,
@@ -17285,7 +18094,9 @@
       "DES": {
         "Mountain": 18
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14
+      },
       "OffsetBX": 128,
       "OffsetBY": 128,
       "OffsetHY": 128,
@@ -17314,7 +18125,9 @@
       "DES": {
         "Mountain": 18
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14
+      },
       "OffsetBX": 128,
       "OffsetBY": 128,
       "OffsetHY": 128,
@@ -17366,7 +18179,9 @@
       "DES": {
         "Mountain": 18
       },
-      "ETA": 14,
+      "ETA": {
+        "Mountain": 14
+      },
       "OffsetBX": 128,
       "OffsetBY": 128,
       "OffsetHY": 128,
@@ -17418,7 +18233,9 @@
       "DES": {
         "Cake": 11
       },
-      "ETA": 7,
+      "ETA": {
+        "Cake": 7
+      },
       "OffsetBX": 128,
       "OffsetBY": 200,
       "OffsetHY": 64,
@@ -17447,7 +18264,9 @@
       "DES": {
         "Cake": 11
       },
-      "ETA": 7,
+      "ETA": {
+        "Cake": 7
+      },
       "OffsetBX": 192,
       "OffsetBY": 128,
       "OffsetHY": 170,
@@ -17476,7 +18295,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -17526,7 +18347,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -17576,7 +18399,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -17605,7 +18430,9 @@
       "DES": {
         "Image": 24
       },
-      "ETA": 21,
+      "ETA": {
+        "Image": 21
+      },
       "OffsetBX": 80,
       "OffsetBY": 96,
       "OffsetHY": 0,
@@ -17634,7 +18461,9 @@
       "DES": {
         "Jungle": 15
       },
-      "ETA": 12,
+      "ETA": {
+        "Jungle": 12
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -17666,7 +18495,9 @@
       "DES": {
         "Cave": 32
       },
-      "ETA": 31,
+      "ETA": {
+        "Cave": 31
+      },
       "OffsetBX": 80,
       "OffsetBY": 80,
       "OffsetHY": 48,
@@ -17699,7 +18530,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 96,
       "OffsetHY": 48,
@@ -17749,7 +18582,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 96,
       "OffsetHY": 96,
@@ -17799,7 +18634,9 @@
       "DES": {
         "Cake": 11
       },
-      "ETA": 5,
+      "ETA": {
+        "Cake": 5
+      },
       "OffsetBX": 116,
       "OffsetBY": 160,
       "OffsetHY": 112,
@@ -17828,7 +18665,9 @@
       "DES": {
         "Cake": 11
       },
-      "ETA": 5,
+      "ETA": {
+        "Cake": 5
+      },
       "OffsetBX": 116,
       "OffsetBY": 160,
       "OffsetHY": 112,
@@ -17857,7 +18696,9 @@
       "DES": {
         "Cake": 11
       },
-      "ETA": 5,
+      "ETA": {
+        "Cake": 5
+      },
       "OffsetBX": 116,
       "OffsetBY": 152,
       "OffsetHY": 136,
@@ -17886,7 +18727,9 @@
       "DES": {
         "Cave": 33
       },
-      "ETA": 32,
+      "ETA": {
+        "Cave": 32
+      },
       "OffsetBX": 50,
       "OffsetBY": 80,
       "OffsetHY": 0,
@@ -17989,7 +18832,9 @@
       "DES": {
         "Cake": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Cake": 2
+      },
       "OffsetBX": 80,
       "OffsetBY": 136,
       "OffsetHY": 88,
@@ -18018,7 +18863,9 @@
       "DES": {
         "Image": 29
       },
-      "ETA": 26,
+      "ETA": {
+        "Image": 26
+      },
       "OffsetBX": 72,
       "OffsetBY": 47,
       "OffsetHY": 10,
@@ -18093,7 +18940,11 @@
         "Music": 4,
         "Mountain": 4
       },
-      "ETA": 2,
+      "ETA": {
+        "Jungle": 2,
+        "Music": 2,
+        "Mountain": 2
+      },
       "OffsetBX": 64,
       "OffsetBY": 48,
       "OffsetHY": 32,
@@ -18122,7 +18973,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 78,
       "OffsetBY": 127,
       "OffsetHY": 32,
@@ -18172,7 +19025,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 78,
       "OffsetBY": 127,
       "OffsetHY": 32,
@@ -18222,7 +19077,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 78,
       "OffsetBY": 127,
       "OffsetHY": 32,
@@ -18272,7 +19129,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 88,
       "OffsetBY": 144,
       "OffsetHY": 16,
@@ -18322,7 +19181,9 @@
       "DES": {
         "Image": 19
       },
-      "ETA": 15,
+      "ETA": {
+        "Image": 15
+      },
       "OffsetBX": 32,
       "OffsetBY": 32,
       "OffsetHY": 18,
@@ -18351,7 +19212,9 @@
       "DES": {
         "Cave": 34
       },
-      "ETA": 33,
+      "ETA": {
+        "Cave": 33
+      },
       "OffsetBX": 80,
       "OffsetBY": 32,
       "OffsetHY": 0,
@@ -18380,7 +19243,9 @@
       "DES": {
         "Cake": 24
       },
-      "ETA": 13,
+      "ETA": {
+        "Cake": 13
+      },
       "OffsetBX": 92,
       "OffsetBY": 204,
       "OffsetHY": 0,
@@ -18409,7 +19274,9 @@
       "DES": {
         "Cave": 24
       },
-      "ETA": 23,
+      "ETA": {
+        "Cave": 23
+      },
       "OffsetBX": 192,
       "OffsetBY": 128,
       "OffsetHY": 170,
@@ -18438,7 +19305,9 @@
       "DES": {
         "Image": 30
       },
-      "ETA": 20,
+      "ETA": {
+        "Image": 20
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -18469,7 +19338,9 @@
       "DES": {
         "Image": 30
       },
-      "ETA": 20,
+      "ETA": {
+        "Image": 20
+      },
       "OffsetBX": 0,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -18500,7 +19371,9 @@
       "DES": {
         "Image": 13
       },
-      "ETA": 7,
+      "ETA": {
+        "Image": 7
+      },
       "OffsetBX": 90,
       "OffsetBY": 48,
       "OffsetHY": 8,
@@ -18550,7 +19423,9 @@
       "DES": {
         "Image": 23
       },
-      "ETA": 20,
+      "ETA": {
+        "Image": 20
+      },
       "OffsetBX": 160,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -18579,7 +19454,9 @@
       "DES": {
         "Image": 23
       },
-      "ETA": 20,
+      "ETA": {
+        "Image": 20
+      },
       "OffsetBX": 160,
       "OffsetBY": 0,
       "OffsetHY": 0,
@@ -18608,7 +19485,9 @@
       "DES": {
         "Jungle": 31
       },
-      "ETA": 26,
+      "ETA": {
+        "Jungle": 26
+      },
       "OffsetBX": 64,
       "OffsetBY": 64,
       "OffsetHY": 0,
@@ -18660,7 +19539,9 @@
       "DES": {
         "Jungle": 31
       },
-      "ETA": 26,
+      "ETA": {
+        "Jungle": 26
+      },
       "OffsetBX": 64,
       "OffsetBY": 64,
       "OffsetHY": 0,
