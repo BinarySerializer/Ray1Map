@@ -18,6 +18,16 @@ namespace R1Engine
         public const int CellSize = 16;
 
         /// <summary>
+        /// Gets the file path for the specified level
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The level file path</returns>
+        public string GetLevelFilePath(GameSettings settings)
+        {
+            return Path.Combine(settings.GameDirectory, "PCMAP", $"{GetWorldShortName(settings.World)}{settings.Level:00}.LEV");
+        }
+
+        /// <summary>
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
@@ -37,6 +47,31 @@ namespace R1Engine
                     return "CAVE";
                 case World.Cake:
                     return "CAKE";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
+            }
+        }
+
+        /// <summary>
+        /// Gets the short name for the world
+        /// </summary>
+        /// <returns>The short world name</returns>
+        public string GetWorldShortName(World world)
+        {
+            switch (world)
+            {
+                case World.Jungle:
+                    return "JUN";
+                case World.Music:
+                    return "MUS";
+                case World.Mountain:
+                    return "MON";
+                case World.Image:
+                    return "IMA";
+                case World.Cave:
+                    return "CAV";
+                case World.Cake:
+                    return "CAK";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
             }

@@ -300,7 +300,7 @@ namespace R1Engine
                             if (pixel <= 159) 
                             {
                                 // Get the x pixel position based on if it's flipper or not
-                                var pixelX = (animationLayer.HasHorizontalReflection ? (width - 1 - x) : x) + animationLayer.XPosition;
+                                var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x) + animationLayer.XPosition;
 
                                 // Set the pixel
                                 tex.SetPixel(pixelX, -(y + animationLayer.YPosition), color.GetColor());
