@@ -244,8 +244,7 @@ namespace R1Engine
         /// <param name="desItem">The sprite group</param>
         /// <param name="animationDescriptor">The animation descriptor</param>
         /// <returns>The texture</returns>
-        public Texture2D[] GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor)
-        {
+        public Texture2D[] GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor) {
             // Create the output
             var output = new Texture2D[animationDescriptor.Layers.Length];
 
@@ -253,29 +252,25 @@ namespace R1Engine
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
             // Create each frame
-            for (int i = 0; i < animationDescriptor.FrameCount; i++)
-            {
+            for (int i = 0; i < animationDescriptor.FrameCount; i++) {
                 // Get the frame
                 var frame = animationDescriptor.Frames[i];
 
                 // Create the texture
-                Texture2D tex = new Texture2D(frame.Width + 1, frame.Height + 1, TextureFormat.RGBA32, false)
-                {
+                //frame.Width+1 frame.Height+1
+                Texture2D tex = new Texture2D(frame.XPosition + frame.Width + 1, frame.YPosition + frame.Height + 1, TextureFormat.RGBA32, false) {
                     filterMode = FilterMode.Point
                 };
 
                 // Default to fully transparent
-                for (int y = 0; y < tex.height; y++)
-                {
-                    for (int x = 0; x < tex.width; x++)
-                    {
+                for (int y = 0; y < tex.height; y++) {
+                    for (int x = 0; x < tex.width; x++) {
                         tex.SetPixel(x, y, new Color(0, 0, 0, 0));
                     }
                 }
 
                 // Write each layer
-                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
-                {
+                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++) {
                     var animationLayer = animationDescriptor.Layers[layerIndex];
 
                     // TODO: Is this index correct?
@@ -288,10 +283,8 @@ namespace R1Engine
                     var offset = sprite.ImageOffset;
 
                     // Set every pixel
-                    for (int y = 0; y < height; y++)
-                    {
-                        for (int x = 0; x < width; x++)
-                        {
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
                             // Get the pixel offset
                             var pixelOffset = y * width + x + offset;
 
@@ -302,10 +295,9 @@ namespace R1Engine
                             var color = lvl.ColorPalettes[0][pixel];
 
                             // Make sure the color isn't transparent
-                            if (pixel <= 159)
-                            {
+                            if (pixel <= 159) {
                                 // Set the pixel
-                                tex.SetPixel(x + animationLayer.XPosition - frame.XPosition, frame.Height - y - animationLayer.YPosition + frame.YPosition, color.GetColor());
+                                tex.SetPixel(x + animationLayer.XPosition, -(y + animationLayer.YPosition), color.GetColor());
                             }
                         }
                     }

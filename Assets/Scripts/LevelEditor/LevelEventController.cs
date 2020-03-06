@@ -50,7 +50,7 @@ namespace R1Engine {
             newEvent.OffsetBY = offby;
             newEvent.LinkIndex = link;
             // Offset the child sprite a bit offsetX and offsetY
-            newEvent.transform.GetChild(0).transform.localPosition = new Vector3(offbx / 16f, -(offby / 16f), 5f);
+            //newEvent.transform.GetChild(0).transform.localPosition = new Vector3(offbx / 16f, -(offby / 16f), 5f);
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
             // Add to list

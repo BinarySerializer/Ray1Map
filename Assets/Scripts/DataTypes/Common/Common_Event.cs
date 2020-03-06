@@ -38,6 +38,11 @@ namespace R1Engine
         public int OffsetBY;
 
         /// <summary>
+        /// Offset HY
+        /// </summary>
+        public int OffsetHY;
+
+        /// <summary>
         /// Gets the display name based on world
         /// </summary>
         /// <param name="world">The world</param>
@@ -48,9 +53,13 @@ namespace R1Engine
         public Sprite tempSprite;
 
         public void SetSprite(Texture2D texture) {
-            tempSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), 16, 20);
+            tempSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0f, 1f), 16, 20);
             SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
             sr.sprite = tempSprite;
+            //Change collider size
+            BoxCollider2D bx = GetComponentInChildren<BoxCollider2D>();
+            bx.size = new Vector2(texture.width/16f, texture.height/16f);
+            bx.offset = new Vector2((texture.width / 16f) / 2f, -(texture.height / 16f) / 2f);
         }
         public void SetSprite(Sprite sprt) {
             tempSprite = sprt;
