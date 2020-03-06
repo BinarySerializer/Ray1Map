@@ -53,9 +53,13 @@ namespace R1Engine
                     // Check if the data has already been added, if so use that instead
                     data = eventInfo.Find(x => x.MatchesType(data)) ?? data;
 
-                    if (!data.Worlds.Contains(world))
+                    if (!data.Names.ContainsKey(world))
                         // Add the world
-                        data.Worlds.Add(world); 
+                        data.Names.Add(world, new EventInfoData.EventInfoItemName()
+                        {
+                            DesignerName = locItem?.Name,
+                            DesignerDescription = locItem?.Description
+                        }); 
 
                     if (data.PC_RD_Info == null)
                         data.PC_RD_Info = new EventInfoData.PC_RD_EventInfoData(e);
@@ -96,9 +100,9 @@ namespace R1Engine
                         // Check if the data has already been added, if so use that instead
                         data = eventInfo.Find(x => x.MatchesType(data)) ?? data;
 
-                        if (!data.Worlds.Contains(world))
+                        if (!data.Names.ContainsKey(world))
                             // Add the world
-                            data.Worlds.Add(world);
+                            data.Names.Add(world, new EventInfoData.EventInfoItemName());
 
                         if (data.PC_R1_Info == null)
                             data.PC_R1_Info = new EventInfoData.PC_R1_EventInfoData(e, lvl.EventCommands[index], world);
@@ -149,7 +153,11 @@ namespace R1Engine
                             continue;
                         }
 
-                        item.CustomName = desc;
+                        // Get the world
+                        var world = Path.GetFileName(Path.GetDirectoryName(line[17].Trim('"')));
+                        
+                        // Set the name
+                        item.Names[(World)Enum.Parse(typeof(World), world, true)].CustomName = desc;
                     }
                 }
             }

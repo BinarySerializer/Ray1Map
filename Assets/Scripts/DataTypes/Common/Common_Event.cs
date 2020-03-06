@@ -38,10 +38,11 @@ namespace R1Engine
         public int OffsetBY;
 
         /// <summary>
-        /// The display name
+        /// Gets the display name based on world
         /// </summary>
-        public string DisplayName => EventInfoData?.DesignerName ?? EventInfoData?.CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
-
+        /// <param name="world">The world</param>
+        /// <returns>The display name</returns>
+        public string DisplayName(World world) => EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
 
         // Used for displaying one sprite isntead o
         public Sprite tempSprite;

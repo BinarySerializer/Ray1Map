@@ -16,12 +16,12 @@ namespace R1Engine {
         public void InitializeEvents() {
             // Fill the dropdown menu
             var info = EventInfoManager.LoadEventInfo();
-            availableEvents = info.Where(x => x.Worlds.Contains(Settings.World)).ToArray();
+            availableEvents = info.Where(x => x.Names.ContainsKey(Settings.World)).ToArray();
 
             foreach (var e in availableEvents) {
-                if (e.CustomName!=null && e.DesignerName != null) {
+                if (e.Names[Settings.World].CustomName!=null && e.Names[Settings.World].DesignerName != null) {
                     Dropdown.OptionData dat = new Dropdown.OptionData();
-                    dat.text = e.CustomName == null ? e.CustomName : e.DesignerName;
+                    dat.text = e.Names[Settings.World].CustomName == null ? e.Names[Settings.World].CustomName : e.Names[Settings.World].DesignerName;
                     eventDropdown.options.Add(dat);
                 }
             }
@@ -33,7 +33,7 @@ namespace R1Engine {
         // Add event which matches the dropdown string
         public void AddSelectedEvent() {
             foreach (var e in availableEvents) {
-                if (e.CustomName==eventDropdown.options[eventDropdown.value].text || e.DesignerName == eventDropdown.options[eventDropdown.value].text) {
+                if (e.Names[Settings.World].CustomName==eventDropdown.options[eventDropdown.value].text || e.Names[Settings.World].DesignerName == eventDropdown.options[eventDropdown.value].text) {
                     AddEvent(e);
                 }
             }

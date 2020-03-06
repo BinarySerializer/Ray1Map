@@ -13,7 +13,7 @@ namespace R1Engine
         /// </summary>
         public EventInfoData()
         {
-            Worlds = new List<World>();
+            Names = new Dictionary<World, EventInfoItemName>();
         }
 
         /// <summary>
@@ -24,15 +24,17 @@ namespace R1Engine
         /// <param name="world">The world the event appears in</param>
         public void Import(PC_RD_EventManifestFile.PC_RD_EventManifestItem e, PC_RD_EventLocItem locItem, World world)
         {
-            DesignerName = locItem?.Name;
-            DesignerDescription = locItem?.Description;
             Type = Int32.TryParse(e.Obj_type, out var v) ? v : -1;
             Etat = (int)e.Etat;
             SubEtat = Int32.TryParse(e.SubEtat, out var vv) ? vv : -1;
             IsAlways = e.DesignerGroup == -1;
 
-            if (!Worlds.Contains(world))
-                Worlds.Add(world);
+            if (!Names.ContainsKey(world))
+                Names.Add(world, new EventInfoItemName()
+                {
+                    DesignerName = locItem?.Name,
+                    DesignerDescription = locItem?.Description
+                });
         }
 
         /// <summary>
@@ -46,8 +48,8 @@ namespace R1Engine
             Etat = e.Etat;
             SubEtat = e.SubEtat;
 
-            if (!Worlds.Contains(world))
-                Worlds.Add(world);
+            if (!Names.ContainsKey(world))
+                Names.Add(world, new EventInfoItemName());
         }
 
         /// <summary>
@@ -64,19 +66,9 @@ namespace R1Engine
         public string GetEventID() => $"{Type.ToString().PadLeft(3, '0')}{Etat.ToString().PadLeft(3, '0')}{SubEtat.ToString().PadLeft(3, '0')}";
 
         /// <summary>
-        /// The localized name from Rayman Designer
+        /// The event names, based on the world it appears in
         /// </summary>
-        public string DesignerName { get; set; }
-
-        /// <summary>
-        /// The custom name, if none was found in Rayman Designer
-        /// </summary>
-        public string CustomName { get; set; }
-
-        /// <summary>
-        /// The localized description from Rayman Designer
-        /// </summary>
-        public string DesignerDescription { get; set; }
+        public Dictionary<World, EventInfoItemName> Names { get; set; }
 
         /// <summary>
         /// The event type
@@ -97,11 +89,6 @@ namespace R1Engine
         /// Indicates if the event is an always event or not
         /// </summary>
         public bool? IsAlways { get; set; }
-
-        /// <summary>
-        /// The worlds the event can appear in
-        /// </summary>
-        public List<World> Worlds { get; set; }
 
         /// <summary>
         /// The Rayman 1 (PC) info
@@ -278,6 +265,27 @@ namespace R1Engine
             public uint Hit_sprite { get; set; }
 
             public int DesignerGroup { get; set; }
+        }
+
+        /// <summary>
+        /// Name for an event info item
+        /// </summary>
+        public class EventInfoItemName
+        {
+            /// <summary>
+            /// The localized name from Rayman Designer
+            /// </summary>
+            public string DesignerName { get; set; }
+
+            /// <summary>
+            /// The custom name, if none was found in Rayman Designer
+            /// </summary>
+            public string CustomName { get; set; }
+
+            /// <summary>
+            /// The localized description from Rayman Designer
+            /// </summary>
+            public string DesignerDescription { get; set; }
         }
     }
 }

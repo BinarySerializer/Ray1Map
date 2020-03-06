@@ -13,7 +13,7 @@ namespace R1Engine {
         void Start() {
             list = GetComponentInParent<EventList>();
             bg = GetComponent<Image>();
-            evName.text = ev.DisplayName;
+            evName.text = ev.DisplayName(Settings.World);
         }
 
         public void OnPointerDown(PointerEventData eventData) {
