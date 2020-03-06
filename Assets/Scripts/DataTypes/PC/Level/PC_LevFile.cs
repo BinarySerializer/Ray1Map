@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -206,7 +205,7 @@ namespace R1Engine
                 }
 
                 // Reverse the palette
-                ColorPalettes[paletteIndex] = palette.Reverse().ToArray();
+                ColorPalettes[paletteIndex] = palette;
             }
 
             // Read unknown byte
@@ -354,7 +353,7 @@ namespace R1Engine
             // Write each palette
             foreach (var palette in ColorPalettes)
             {
-                foreach (var color in palette.Reverse())
+                foreach (var color in palette)
                 {
                     // Write the palette color as RGB and divide by 4 (as the values are between 0-64)
                     serializer.Write((byte)(color.Red / 4));

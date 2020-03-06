@@ -167,10 +167,10 @@ namespace R1Engine
                     var pixelOffset = y * width + x + offset;
 
                     // Get the pixel and decrypt it
-                    var pixel = desItem.ImageData[pixelOffset] ^ 112;
+                    var pixel = desItem.ImageData[pixelOffset] ^ 143;
 
                     // Get the color from the palette
-                    var color = pixel < 96 ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
+                    var color = pixel > 159 && desItem.RequiresBackgroundClearing ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
 
                     // Set the pixel
                     tex.SetPixel(x, height - y - 1, color.GetColor());
@@ -452,7 +452,7 @@ namespace R1Engine
                             var cellIndex = CellSize * y + x;
 
                             // Get the color from the current palette
-                            var c = levData.ColorPalettes[i][texture.ColorIndexes[cellIndex]].GetColor();
+                            var c = levData.ColorPalettes[i][255 - texture.ColorIndexes[cellIndex]].GetColor();
 
                             // If the texture is transparent, add the alpha channel
                             if (texture is PC_TransparentTileTexture tt)
