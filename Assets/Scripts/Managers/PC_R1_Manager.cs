@@ -178,18 +178,26 @@ namespace R1Engine
             // Load the level to get the palette
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
-            // TODO: Do all frames
             // Create each frame
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
                 // Get the frame
                 var frame = animationDescriptor.Frames[i];
-
+                
                 // Create the texture
                 Texture2D tex = new Texture2D(frame.Width+1, frame.Height+1, TextureFormat.RGBA32, false)
                 {
                     filterMode = FilterMode.Point
                 };
+
+                // Default to fully transparent
+                for (int y = 0; y < tex.height; y++)
+                {
+                    for (int x = 0; x < tex.width; x++)
+                    {
+                        tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                    }
+                }
 
                 // Write each layer
                 for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
