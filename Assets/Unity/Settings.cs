@@ -42,6 +42,11 @@ namespace R1Engine
         public static bool UseHDCollisionSheet { get; set; }
 
         /// <summary>
+        /// Indicates if sprites should be animated in the editor
+        /// </summary>
+        public static bool AnimateSprites { get; set; }
+
+        /// <summary>
         /// The specified game directories for each mode
         /// </summary>
         public static Dictionary<GameMode, string> GameDirectories { get; set; }
@@ -80,6 +85,7 @@ namespace R1Engine
             EditorPrefs.SetString("SelectedWorld", World.ToString());
             EditorPrefs.SetInt("SelectedLevelFile", Level);
             EditorPrefs.SetBool("UseHDCollisionSheet", UseHDCollisionSheet);
+            EditorPrefs.SetBool("AnimateSprites", AnimateSprites);
         }
 
         /// <summary>
@@ -97,6 +103,7 @@ namespace R1Engine
             World = Enum.TryParse(EditorPrefs.GetString("SelectedWorld", World.ToString()), out World world) ? world : World;
             Level = EditorPrefs.GetInt("SelectedLevelFile", Level);
             UseHDCollisionSheet = EditorPrefs.GetBool("UseHDCollisionSheet", UseHDCollisionSheet);
+            AnimateSprites = EditorPrefs.GetBool("AnimateSprites", AnimateSprites);
         }
 
         /// <summary>

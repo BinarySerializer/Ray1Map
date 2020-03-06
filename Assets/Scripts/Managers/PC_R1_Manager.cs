@@ -243,8 +243,9 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="desItem">The sprite group</param>
         /// <param name="animationDescriptor">The animation descriptor</param>
+        /// <param name="readAllFrames">Indicates if all frames should be read</param>
         /// <returns>The texture</returns>
-        public Texture2D[] GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor) {
+        public Texture2D[] GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor, bool readAllFrames) {
             // Create the output
             var output = new Texture2D[animationDescriptor.Layers.Length];
 
@@ -252,12 +253,11 @@ namespace R1Engine
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
             // Create each frame
-            for (int i = 0; i < animationDescriptor.FrameCount; i++) {
+            for (int i = 0; i < (readAllFrames ? 1 : animationDescriptor.FrameCount); i++) {
                 // Get the frame
                 var frame = animationDescriptor.Frames[i];
 
                 // Create the texture
-                //frame.Width+1 frame.Height+1
                 Texture2D tex = new Texture2D(frame.XPosition + frame.Width + 1, frame.YPosition + frame.Height + 1, TextureFormat.RGBA32, false) {
                     filterMode = FilterMode.Point
                 };
@@ -384,7 +384,7 @@ namespace R1Engine
                     var animItem = desItem.AnimationDescriptors[animIndex];
 
                     // Set the event sprite
-                    ee.SetSprite(GetSpriteFrames(settings, desItem, animItem).First());
+                    ee.SetSprite(GetSpriteFrames(settings, desItem, animItem, Settings.AnimateSprites).First());
                 }
                 catch (Exception ex)
                 {

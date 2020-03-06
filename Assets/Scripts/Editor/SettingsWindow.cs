@@ -79,6 +79,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.UseHDCollisionSheet = EditorGUI.Toggle(GetNextRect(ref yPos), "Use HD collision sheet", Settings.UseHDCollisionSheet);
 
+        Settings.AnimateSprites = EditorGUI.Toggle(GetNextRect(ref yPos), "Animate sprites", Settings.AnimateSprites);
+
         // Update previous values
 		UpdatePreviousValues();
 
