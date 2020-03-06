@@ -8,9 +8,9 @@ namespace R1Engine
     public class PC_AnimationLayer : IBinarySerializable
     {
         /// <summary>
-        /// Indicates if the layer has horizontal reflection
+        /// Indicates if the layer is flipped horizontally
         /// </summary>
-        public bool HasHorizontalReflection { get; set; }
+        public bool IsFlipped { get; set; }
 
         /// <summary>
         /// The x position
@@ -33,7 +33,7 @@ namespace R1Engine
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            HasHorizontalReflection = deserializer.Read<bool>();
+            IsFlipped = deserializer.Read<bool>();
             XPosition = deserializer.Read<byte>();
             YPosition = deserializer.Read<byte>();
             ImageIndex = deserializer.Read<byte>();

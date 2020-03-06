@@ -283,8 +283,10 @@ namespace R1Engine
                     var offset = sprite.ImageOffset;
 
                     // Set every pixel
-                    for (int y = 0; y < height; y++) {
-                        for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) 
+                    {
+                        for (int x = 0; x < width; x++) 
+                        {
                             // Get the pixel offset
                             var pixelOffset = y * width + x + offset;
 
@@ -295,9 +297,13 @@ namespace R1Engine
                             var color = lvl.ColorPalettes[0][pixel];
 
                             // Make sure the color isn't transparent
-                            if (pixel <= 159) {
+                            if (pixel <= 159) 
+                            {
+                                // Get the x pixel position based on if it's flipper or not
+                                var pixelX = (animationLayer.HasHorizontalReflection ? (width - 1 - x) : x) + animationLayer.XPosition;
+
                                 // Set the pixel
-                                tex.SetPixel(x + animationLayer.XPosition, -(y + animationLayer.YPosition), color.GetColor());
+                                tex.SetPixel(pixelX, -(y + animationLayer.YPosition), color.GetColor());
                             }
                         }
                     }
