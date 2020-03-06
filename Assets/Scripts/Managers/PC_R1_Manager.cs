@@ -28,6 +28,16 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets the file path for the allfix file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The allfix file path</returns>
+        public string GetAllfixFilePath(GameSettings settings)
+        {
+            return Path.Combine(settings.GameDirectory, "PCMAP", "allfix.dat");
+        }
+
+        /// <summary>
         /// Gets the file path for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -123,81 +133,109 @@ namespace R1Engine
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
-            // Enumerate each sprite group
-            for (int i = 0; i < worldFile.SpriteGroups.Length; i++)
-            {
-                // Get the sprite group
-                var sprite = worldFile.SpriteGroups[i];
+            // TODO: Update this
+            //// Enumerate each sprite group
+            //for (int i = 0; i < worldFile.DesItems.Length; i++)
+            //{
+            //    // Get the sprite group
+            //    var sprite = worldFile.DesItems[i];
 
-                // Enumerate each image
-                for (int j = 0; j < sprite.ImageDescriptors.Length; j++)
-                {
-                    Texture2D tex;
+            //    // Enumerate each image
+            //    for (int j = 0; j < sprite.ImageDescriptors.Length; j++)
+            //    {
+            //        Texture2D tex;
 
-                    try
-                    {
-                        // Get the texture
-                        tex = GetSpriteTexture(settings, sprite, sprite.ImageDescriptors[j]);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Error exporting sprite {i}-{j}: {ex.Message}");
+            //        try
+            //        {
+            //            // Get the texture
+            //            tex = GetSpriteFrames(settings, sprite, sprite.ImageDescriptors[j]);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Debug.LogWarning($"Error exporting sprite {i}-{j}: {ex.Message}");
 
-                        continue;
-                    }
+            //            continue;
+            //        }
 
-                    // Write the texture
-                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString().PadLeft(2, '0')}{j.ToString().PadLeft(2, '0')}.png"), tex.EncodeToPNG());
-                }
-            }
+            //        // Write the texture
+            //        File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString().PadLeft(2, '0')}{j.ToString().PadLeft(2, '0')}.png"), tex.EncodeToPNG());
+            //    }
+            //}
         }
 
         /// <summary>
-        /// Gets the texture for a sprite
+        /// Gets the frames for a sprite
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="desItem">The sprite group</param>
-        /// <param name="imgDescriptor">The image descriptor</param>
+        /// <param name="animationDescriptor">The animation descriptor</param>
         /// <returns>The texture</returns>
-        public Texture2D GetSpriteTexture(GameSettings settings, PC_DesItem desItem, PC_ImageDescriptor imgDescriptor)
+        public Texture2D[] GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor)
         {
+            // Create the output
+            var output = new Texture2D[animationDescriptor.Layers.Length];
+
             // Load the level to get the palette
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
-            // Get the image properties
-            var width = imgDescriptor.OuterWidth;
-            var height = imgDescriptor.OuterHeight;
-            var offset = imgDescriptor.ImageOffset;
-
-            // Create the texture
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                filterMode = FilterMode.Point
-            };
-
-            // Set every pixel
-            for (int y = 0; y < height; y++)
+            // TODO: Do all frames
+            // Create each frame
+            for (int i = 0; i < 1; i++)
             {
-                for (int x = 0; x < width; x++)
+                // Get the frame
+                var frame = animationDescriptor.Frames[i];
+
+                // Create the texture
+                Texture2D tex = new Texture2D(frame.Width, frame.Height, TextureFormat.RGBA32, false)
                 {
-                    // Get the pixel offset
-                    var pixelOffset = y * width + x + offset;
+                    filterMode = FilterMode.Point
+                };
 
-                    // Get the pixel and decrypt it
-                    var pixel = desItem.ImageData[pixelOffset] ^ 143;
+                // Write each layer
+                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
+                {
+                    var animationLayer = animationDescriptor.Layers[layerIndex];
 
-                    // Get the color from the palette
-                    var color = pixel > 159 ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
+                    // TODO: Is this index correct?
+                    // Get the sprite
+                    var sprite = desItem.ImageDescriptors[animationLayer.ImageIndex];
+                    
+                    // Get the image properties
+                    var width = sprite.OuterWidth;
+                    var height = sprite.OuterHeight;
+                    var offset = sprite.ImageOffset;
 
-                    // Set the pixel
-                    tex.SetPixel(x, height - y - 1, color.GetColor());
+                    // Set every pixel
+                    for (int y = 0; y < height; y++)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            // Get the pixel offset
+                            var pixelOffset = y * width + x + offset;
+
+                            // Get the pixel and decrypt it
+                            var pixel = desItem.ImageData[pixelOffset] ^ 143;
+
+                            // Get the color from the palette
+                            var color = lvl.ColorPalettes[0][pixel];
+                            
+                            // Make sure the color isn't transparent
+                            if (pixel <= 159)
+                                // Set the pixel
+                                tex.SetPixel(x + animationLayer.XPosition + frame.XPosition, height - y - 1 + animationLayer.YPosition + frame.YPosition, color.GetColor());
+                        }
+                    }
                 }
+
+                // Apply the changes
+                tex.Apply();
+
+                // Add the texture
+                output[i] = tex;
             }
 
-            // Apply the changes
-            tex.Apply();
-
             // Return the texture
-            return tex;
+            return output;
         }
 
         /// <summary>
@@ -228,8 +266,15 @@ namespace R1Engine
 
             var index = 0;
 
+            // Read the fixed data
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings);
+
             // Read the world data
             var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
+
+            // Get the DES and ETA
+            var des = allfix.DesItems.Concat(worldData.DesItems).ToArray();
+            var eta = allfix.Eta.Concat(worldData.Eta).ToArray();
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
@@ -247,8 +292,17 @@ namespace R1Engine
                 // TODO: Clean up and fix
                 try
                 {
+                    // Find the animation index
+                    var animIndex = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat).AnimationIndex;
+
+                    // Get the DES item
+                    var desItem = des[e.DES - 1];
+
+                    // Get the animation item
+                    var animItem = desItem.AnimationDescriptors[animIndex];
+
                     // Set the event sprite
-                    ee.SetSprite(GetSpriteTexture(settings, worldData.SpriteGroups[4], worldData.SpriteGroups[4].ImageDescriptors[31]));
+                    ee.SetSprite(GetSpriteFrames(settings, desItem, animItem).First());
                 }
                 catch (Exception ex)
                 {

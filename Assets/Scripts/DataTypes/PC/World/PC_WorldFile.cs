@@ -29,14 +29,16 @@ namespace R1Engine
         public ushort SpriteGroupCount { get; set; }
 
         /// <summary>
-        /// The sprite groups
+        /// The DES items
         /// </summary>
-        public PC_DesItem[] SpriteGroups { get; set; }
+        public PC_DesItem[] DesItems { get; set; }
 
         /// <summary>
         /// The ETA data
         /// </summary>
         public PC_Eta[][][] Eta { get; set; }
+
+        public byte[] Unknown5 { get; set; }
 
         #endregion
 
@@ -69,6 +71,8 @@ namespace R1Engine
                 ReadSprites();
             }
 
+            Unknown5 = deserializer.Read<byte>((ulong)(deserializer.BaseStream.Length - deserializer.BaseStream.Position));
+
             // Helper method for reading the eta
             void ReadEta()
             {
@@ -100,7 +104,7 @@ namespace R1Engine
                 if (deserializer.FileName == "allfix.dat")
                     SpriteGroupCount--;
 
-                SpriteGroups = deserializer.Read<PC_DesItem>(SpriteGroupCount);
+                DesItems = deserializer.Read<PC_DesItem>(SpriteGroupCount);
             }
         }
 
