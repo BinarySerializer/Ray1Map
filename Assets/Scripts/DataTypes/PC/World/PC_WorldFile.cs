@@ -9,7 +9,7 @@ namespace R1Engine
     /// World data for PC
     /// </summary>
     [Description("Rayman PC World File")]
-    public class PC_WorldFile : IBinarySerializable
+    public class PC_WorldFile : PC_BaseFile
     {
         #region Public Properties
 
@@ -48,8 +48,11 @@ namespace R1Engine
         /// Deserializes the file contents
         /// </summary>
         /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
+        public override void Deserialize(BinaryDeserializer deserializer)
         {
+            // Read PC Header
+            base.Deserialize(deserializer);
+
             if (deserializer.FileExtension == ".wld")
             {
                 // Read unknown header
@@ -112,8 +115,11 @@ namespace R1Engine
         /// Serializes the file contents
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
+        public override void Serialize(BinarySerializer serializer)
         {
+            // Write PC Header
+            base.Serialize(serializer);
+
             throw new NotImplementedException();
         }
 

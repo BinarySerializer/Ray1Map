@@ -120,6 +120,9 @@ namespace R1Engine
                 case GameMode.RaymanPC:
                     return new PC_R1_Manager();
 
+                case GameMode.RaymanDesignerPC:
+                    return new PC_RD_Manager();
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

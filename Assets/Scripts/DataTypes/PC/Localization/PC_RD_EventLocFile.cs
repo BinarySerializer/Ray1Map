@@ -8,7 +8,7 @@ namespace R1Engine
     /// Event localization data for Rayman Designer (PC)
     /// </summary>
     [Description("Rayman Designer (PC) Event Localization File")]
-    public class PC_RD_EventLocFile : PC_RD_BaseFile
+    public class PC_RD_EventLocFile : PC_BaseFile
     {
         /// <summary>
         /// Unknown value, possibly a boolean

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -8,84 +7,37 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman Designer (PC)
     /// </summary>
-    public class PC_RD_Manager : IGameManager
+    public class PC_RD_Manager : PC_Manager
     {
         #region Values and paths
-
-        /// <summary>
-        /// The size of one cell
-        /// </summary>
-        public const int CellSize = 16;
 
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public string GetLevelFilePath(GameSettings settings)
-        {
-            return Path.Combine(settings.GameDirectory, "PCMAP", $"{GetWorldShortName(settings.World)}{settings.Level:00}.LEV");
-        }
+        public override string GetLevelFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}{settings.Level:00}.LEV");
 
         /// <summary>
-        /// Gets the name for the world
+        /// Gets the file path for the allfix file
         /// </summary>
-        /// <returns>The world name</returns>
-        public string GetWorldName(World world)
-        {
-            switch (world)
-            {
-                case World.Jungle:
-                    return "JUNGLE";
-                case World.Music:
-                    return "MUSIC";
-                case World.Mountain:
-                    return "MOUNTAIN";
-                case World.Image:
-                    return "IMAGE";
-                case World.Cave:
-                    return "CAVE";
-                case World.Cake:
-                    return "CAKE";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
-            }
-        }
+        /// <param name="settings">The game settings</param>
+        /// <returns>The allfix file path</returns>
+        public override string GetAllfixFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"ALLFIX.DAT");
 
         /// <summary>
-        /// Gets the short name for the world
+        /// Gets the file path for the specified world file
         /// </summary>
-        /// <returns>The short world name</returns>
-        public string GetWorldShortName(World world)
-        {
-            switch (world)
-            {
-                case World.Jungle:
-                    return "JUN";
-                case World.Music:
-                    return "MUS";
-                case World.Mountain:
-                    return "MON";
-                case World.Image:
-                    return "IMA";
-                case World.Cave:
-                    return "CAV";
-                case World.Cake:
-                    return "CAK";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
-            }
-        }
+        /// <param name="settings">The game settings</param>
+        /// <returns>The world file path</returns>
+        public override string GetWorldFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"RAY{((int)settings.World + 1):00}.WLD");
 
         /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level count</returns>
-        public int GetLevelCount(GameSettings settings)
-        {
-            throw new NotImplementedException();
-        }
+        public override int GetLevelCount(GameSettings settings) => Directory.EnumerateFiles(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count();
 
         #endregion
 
@@ -108,27 +60,6 @@ namespace R1Engine
             }
 
             return output;
-        }
-
-        /// <summary>
-        /// Loads the specified level
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="eventInfoData">The loaded event info data</param>
-        /// <returns>The level</returns>
-        public Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Saves the specified level
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(GameSettings settings, Common_Lev commonLevelData)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

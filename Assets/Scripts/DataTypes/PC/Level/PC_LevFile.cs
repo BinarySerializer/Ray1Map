@@ -7,7 +7,7 @@ namespace R1Engine
     /// Level data for PC
     /// </summary>
     [Description("Rayman PC Level File")]
-    public class PC_LevFile : IBinarySerializable
+    public class PC_LevFile : PC_BaseFile
     {
         #region Public Properties
 
@@ -170,8 +170,12 @@ namespace R1Engine
         /// Deserializes the file contents
         /// </summary>
         /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
+        public override void Deserialize(BinaryDeserializer deserializer)
         {
+            // PC HEADER
+
+            base.Deserialize(deserializer);
+
             // HEADER BLOCK
 
             // Read block pointer
@@ -237,7 +241,7 @@ namespace R1Engine
 
             // Read each rough texture
             for (int i = 0; i < RoughTextureCount; i++)
-                RoughTextures[i] = deserializer.Read<byte>(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
+                RoughTextures[i] = deserializer.Read<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
 
             // Read the checksum for the rough textures
             RoughTexturesChecksum = deserializer.Read<byte>();
@@ -338,8 +342,12 @@ namespace R1Engine
         /// Serializes the file contents
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
+        public override void Serialize(BinarySerializer serializer)
         {
+            // PC HEADER
+
+            base.Serialize(serializer);
+
             // HEADER BLOCK
 
             // Write block pointer
