@@ -400,7 +400,7 @@ namespace R1Engine
                     var animItem = desItem.AnimationDescriptors[animIndex];
 
                     Texture2D[] animation;
-
+                    
                     // Check if the animation has been cached
                     if (SpriteAnimationCache.ContainsKey(e.DES) && SpriteAnimationCache[e.DES].ContainsKey(animIndex))
                     {

@@ -60,7 +60,7 @@ namespace R1Engine
                 Unknown2 = deserializer.Read<ushort>();
                 Unknown4Count = deserializer.Read<ushort>();
                 Unknown3 = deserializer.Read<byte>();
-                Unknown4 = deserializer.Read<byte>(Unknown4Count);
+                Unknown4 = deserializer.ReadArray<byte>(Unknown4Count);
             }
 
             if (deserializer.FileExtension == ".wld")
@@ -74,7 +74,7 @@ namespace R1Engine
                 ReadSprites();
             }
 
-            Unknown5 = deserializer.Read<byte>((ulong)(deserializer.BaseStream.Length - deserializer.BaseStream.Position));
+            Unknown5 = deserializer.ReadArray<byte>((ulong)(deserializer.BaseStream.Length - deserializer.BaseStream.Position));
 
             // Helper method for reading the eta
             void ReadEta()
@@ -107,7 +107,7 @@ namespace R1Engine
                 if (deserializer.FileName == "allfix.dat")
                     DesItemCount--;
 
-                DesItems = deserializer.Read<PC_DesItem>(DesItemCount);
+                DesItems = deserializer.ReadArray<PC_DesItem>(DesItemCount);
             }
         }
 

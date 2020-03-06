@@ -27,8 +27,8 @@
         public virtual void Deserialize(BinaryDeserializer deserializer)
         {
             // Set the color array
-            ColorIndexes = deserializer.Read<byte>(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
-            Unknown1 = deserializer.Read<byte>(32);
+            ColorIndexes = deserializer.ReadArray<byte>(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
+            Unknown1 = deserializer.ReadArray<byte>(32);
         }
 
         /// <summary>

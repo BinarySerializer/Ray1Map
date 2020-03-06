@@ -60,7 +60,7 @@ namespace R1Engine
                         return (sbyte)ReadByte();
 
                     case TypeCode.Byte:
-                        return (byte)ReadByte();
+                        return ReadByte();
 
                     case TypeCode.Int16:
                         return BitConverter.ToInt16(ReadBytes(sizeof(short)), 0);
@@ -102,12 +102,82 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Reads a supported encrypted value from the stream
+        /// </summary>
+        /// <typeparam name="T">The type of value to read</typeparam>
+        /// <param name="xorKey">The xor key to use</param>
+        /// <returns>The decrypted value</returns>
+        public T Read<T>(byte xorKey)
+        {
+            // Helper method which returns an object so we can cast it
+            object ReadObject()
+            {
+                // Get the type
+                var type = typeof(T);
+
+                switch (Type.GetTypeCode(type))
+                {
+                    case TypeCode.Boolean:
+                        var b = ReadByte(xorKey);
+
+                        if (b != 0 && b != 1)
+                            Debug.LogWarning("Binary boolean was not correctly formatted");
+
+                        return b == 1;
+
+                    case TypeCode.SByte:
+                        return (sbyte)ReadByte(xorKey);
+
+                    case TypeCode.Byte:
+                        return ReadByte(xorKey);
+
+                    case TypeCode.Int16:
+                        return BitConverter.ToInt16(ReadBytes(sizeof(short), xorKey), 0);
+
+                    case TypeCode.UInt16:
+                        return BitConverter.ToUInt16(ReadBytes(sizeof(ushort), xorKey), 0);
+
+                    case TypeCode.Int32:
+                        return BitConverter.ToInt32(ReadBytes(sizeof(int), xorKey), 0);
+
+                    case TypeCode.UInt32:
+                        return BitConverter.ToUInt32(ReadBytes(sizeof(uint), xorKey), 0);
+
+                    case TypeCode.Int64:
+                        return BitConverter.ToInt64(ReadBytes(sizeof(long), xorKey), 0);
+
+                    case TypeCode.UInt64:
+                        return BitConverter.ToUInt64(ReadBytes(sizeof(ulong), xorKey), 0);
+
+                    case TypeCode.Single:
+                        return BitConverter.ToSingle(ReadBytes(sizeof(float), xorKey), 0);
+
+                    case TypeCode.Double:
+                        return BitConverter.ToDouble(ReadBytes(sizeof(double), xorKey), 0);
+
+                    case TypeCode.Object:
+                    case TypeCode.Decimal:
+                    case TypeCode.String:
+                    case TypeCode.Char:
+                    case TypeCode.DateTime:
+                    case TypeCode.Empty:
+                    case TypeCode.DBNull:
+                    default:
+                        throw new NotSupportedException("The specified generic type can not be read from the reader");
+                }
+            }
+
+            // Return the object cast to the generic type
+            return (T)ReadObject();
+        }
+
+        /// <summary>
         /// Reads an array of supported values from the stream
         /// </summary>
         /// <typeparam name="T">The type of value to read</typeparam>
         /// <param name="count">The amount of values to read</param>
         /// <returns>The values</returns>
-        public T[] Read<T>(ulong count)
+        public T[] ReadArray<T>(ulong count)
         {
             // Use byte reading method if requested
             if (typeof(T) == typeof(byte))
@@ -125,20 +195,20 @@ namespace R1Engine
         /// <summary>
         /// Reads a byte from the stream
         /// </summary>
-        /// <param name="xor">The xor key to use</param>
+        /// <param name="xorKey">The xor key to use</param>
         /// <returns>The byte</returns>
-        protected byte ReadByte(byte xor = 0)
+        protected byte ReadByte(byte xorKey = 0)
         {
             // Read the byte
             var b = BaseStream.ReadByte();
 
-            // Decrypt the byte
-            if (xor != 0)
-                b ^= xor;
-
             // Make sure it was read
             if (b == -1)
                 throw new Exception("The byte could not be read");
+
+            // Decrypt the byte
+            if (xorKey != 0)
+                b ^= xorKey;
 
             // Return it
             return (byte)b;
@@ -148,8 +218,9 @@ namespace R1Engine
         /// Reads the specified number of bytes from the stream
         /// </summary>
         /// <param name="count">The amount of bytes to read</param>
+        /// <param name="xorKey">The xor key to use</param>
         /// <returns>The byte</returns>
-        protected byte[] ReadBytes(int count)
+        protected byte[] ReadBytes(int count, byte xorKey = 0)
         {
             // Create the buffer
             var buffer = new byte[count];
@@ -160,6 +231,13 @@ namespace R1Engine
             // Verify the correct number of bytes were read
             if (readCount != count)
                 throw new Exception("The requested number of bytes were not read");
+
+            // Decrypt the bytes
+            if (xorKey != 0)
+            {
+                for (int i = 0; i < count; i++)
+                    buffer[i] ^= xorKey;
+            }
 
             // Return the byte buffer
             return buffer;

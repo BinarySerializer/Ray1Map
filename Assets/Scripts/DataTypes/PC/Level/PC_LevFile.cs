@@ -226,7 +226,7 @@ namespace R1Engine
             Tiles = new PC_MapTile[Width * Height];
 
             // Read each map cell
-            Tiles = deserializer.Read<PC_MapTile>((ulong)Height * Width);
+            Tiles = deserializer.ReadArray<PC_MapTile>((ulong)Height * Width);
 
             // Read unknown byte
             Unknown2 = deserializer.Read<byte>();
@@ -246,22 +246,22 @@ namespace R1Engine
 
             // Read each rough texture
             for (int i = 0; i < RoughTextureCount; i++)
-                RoughTextures[i] = deserializer.Read<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
+                RoughTextures[i] = deserializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
 
             // Read the checksum for the rough textures
             RoughTexturesChecksum = deserializer.Read<byte>();
 
             // Read the index table for the rough textures
-            RoughTexturesIndexTable = deserializer.Read<uint>(1200);
+            RoughTexturesIndexTable = deserializer.ReadArray<uint>(1200);
 
             // Read the items for the third unknown value
-            Unknown3 = deserializer.Read<byte>(Unknown3Count);
+            Unknown3 = deserializer.ReadArray<byte>(Unknown3Count);
 
             // Read the checksum for the third unknown value
             Unknown3Checksum = deserializer.Read<byte>();
 
             // Read the offset table for the third unknown value
-            Unknown3OffsetTable = deserializer.Read<uint>(1200);
+            Unknown3OffsetTable = deserializer.ReadArray<uint>(1200);
 
             // TEXTURE BLOCK
 
@@ -274,7 +274,7 @@ namespace R1Engine
             // TODO: Kit & edu xor 4812 following bytes with 255 (previous byte?)
 
             // Read the offset table for the textures
-            TexturesOffsetTable = deserializer.Read<uint>(1200);
+            TexturesOffsetTable = deserializer.ReadArray<uint>(1200);
 
             // Read the textures count
             TexturesCount = deserializer.Read<uint>();
@@ -325,7 +325,7 @@ namespace R1Engine
             }
 
             // Read the fourth unknown value
-            Unknown4 = deserializer.Read<byte>(32);
+            Unknown4 = deserializer.ReadArray<byte>(32);
 
             // Read the checksum for the textures
             TexturesChecksum = deserializer.Read<byte>();
@@ -340,14 +340,14 @@ namespace R1Engine
             EventCount = deserializer.Read<ushort>();
 
             // Read the event linking table
-            EventLinkingTable = deserializer.Read<ushort>(EventCount);
+            EventLinkingTable = deserializer.ReadArray<ushort>(EventCount);
 
             // TODO: Kit & edu have 4 more bytes in event
             // Read the events
-            Events = deserializer.Read<PC_Event>(EventCount);
+            Events = deserializer.ReadArray<PC_Event>(EventCount);
 
             // Read the event commands
-            EventCommands = deserializer.Read<PC_EventCommand>(EventCount);
+            EventCommands = deserializer.ReadArray<PC_EventCommand>(EventCount);
 
             Debug.Log($"PC R1 level loaded with size {Width}x{Height} and {EventCount} events");
         }

@@ -34,7 +34,7 @@
             Layer = deserializer.Read<byte>();
             Width = deserializer.Read<byte>();
             Height = deserializer.Read<byte>();
-            Unknown2 = deserializer.Read<byte>(13);
+            Unknown2 = deserializer.ReadArray<byte>(13);
         }
 
         /// <summary>

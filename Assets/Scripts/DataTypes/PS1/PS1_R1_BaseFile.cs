@@ -27,7 +27,7 @@
         public virtual void Deserialize(BinaryDeserializer deserializer)
         {
             PointerCount = deserializer.Read<uint>();
-            Pointers = deserializer.Read<uint>(PointerCount);
+            Pointers = deserializer.ReadArray<uint>(PointerCount);
             FileSize = deserializer.Read<uint>();
         }
 

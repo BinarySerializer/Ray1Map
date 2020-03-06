@@ -83,14 +83,14 @@
             Unknown1 = deserializer.Read<uint>();
             Unknown2 = deserializer.Read<uint>();
 
-            Unknown3 = deserializer.Read<byte>(16);
+            Unknown3 = deserializer.ReadArray<byte>(16);
 
             XPosition = deserializer.Read<uint>();
             YPosition = deserializer.Read<uint>();
 
-            Unknown4 = deserializer.Read<byte>(20);
+            Unknown4 = deserializer.ReadArray<byte>(20);
 
-            Unknown5 = deserializer.Read<byte>(28);
+            Unknown5 = deserializer.ReadArray<byte>(28);
 
             Type = deserializer.Read<uint>();
             Unknown6 = deserializer.Read<uint>();
@@ -112,7 +112,7 @@
             UnkGroup = deserializer.Read<byte>();
             HitSprite = deserializer.Read<byte>();
 
-            Unknown10 = deserializer.Read<byte>(6);
+            Unknown10 = deserializer.ReadArray<byte>(6);
 
             Unknown11 = deserializer.Read<byte>();
             FollowEnabled = deserializer.Read<byte>();

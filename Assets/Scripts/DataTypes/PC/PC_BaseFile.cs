@@ -23,8 +23,8 @@
         {
             if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
             {
-                PrimaryKitHeader = deserializer.Read<byte>(5);
-                SecondaryKitHeader = deserializer.Read<byte>(5);
+                PrimaryKitHeader = deserializer.ReadArray<byte>(5);
+                SecondaryKitHeader = deserializer.ReadArray<byte>(5);
             }
         }
 

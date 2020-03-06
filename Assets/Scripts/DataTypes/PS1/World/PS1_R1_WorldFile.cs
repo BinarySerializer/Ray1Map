@@ -91,23 +91,23 @@ namespace R1Engine
 
             // BLOCK 1
 
-            FirstBlock = deserializer.Read<byte>((ulong)(SecondBlockPointer - deserializer.BaseStream.Position));
+            FirstBlock = deserializer.ReadArray<byte>((ulong)(SecondBlockPointer - deserializer.BaseStream.Position));
 
             // BLOCK 2
 
-            SecondBlock = deserializer.Read<byte>((ulong)(ThirdBlockPointer - deserializer.BaseStream.Position));
+            SecondBlock = deserializer.ReadArray<byte>((ulong)(ThirdBlockPointer - deserializer.BaseStream.Position));
 
             // BLOCK 3
 
-            ThirdBlock = deserializer.Read<byte>((ulong)(FourthBlockPointer - deserializer.BaseStream.Position));
+            ThirdBlock = deserializer.ReadArray<byte>((ulong)(FourthBlockPointer - deserializer.BaseStream.Position));
 
             // BLOCK 4
 
-            FourthBlock = deserializer.Read<byte>((ulong)(FifthBlockPointer - deserializer.BaseStream.Position));
+            FourthBlock = deserializer.ReadArray<byte>((ulong)(FifthBlockPointer - deserializer.BaseStream.Position));
 
             // BLOCK 5
 
-            FifthBlock = deserializer.Read<byte>((ulong)(TilesBlockPointer - deserializer.BaseStream.Position));
+            FifthBlock = deserializer.ReadArray<byte>((ulong)(TilesBlockPointer - deserializer.BaseStream.Position));
 
             // TILES
 
@@ -116,7 +116,7 @@ namespace R1Engine
                 Debug.LogError("Tiles block offset is incorrect");
 
             // Read the tiles index table
-            TilesIndexTable = deserializer.Read<byte>((ulong)(PaletteBlockPointer - deserializer.BaseStream.Position));
+            TilesIndexTable = deserializer.ReadArray<byte>((ulong)(PaletteBlockPointer - deserializer.BaseStream.Position));
 
             // PALETTE
 
@@ -166,7 +166,7 @@ namespace R1Engine
                 Debug.LogError("Palette assign block offset is incorrect");
 
             // Read the palette index table
-            PaletteIndexTable = deserializer.Read<byte>((ulong)(FileSize - deserializer.BaseStream.Position));
+            PaletteIndexTable = deserializer.ReadArray<byte>((ulong)(FileSize - deserializer.BaseStream.Position));
 
             // At this point the stream position should match the end offset
             if (deserializer.BaseStream.Position != FileSize)

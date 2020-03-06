@@ -54,8 +54,8 @@ namespace R1Engine
             if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
                 Debug.LogWarning("Frame table offset is wrong");
             
-            Layers = deserializer.Read<PC_AnimationLayer>((ulong)(LayersPerFrame * FrameCount));
-            Frames = deserializer.Read<PC_AnimationFrame>(((ulong)FrameCount + 1));
+            Layers = deserializer.ReadArray<PC_AnimationLayer>((ulong)(LayersPerFrame * FrameCount));
+            Frames = deserializer.ReadArray<PC_AnimationFrame>(((ulong)FrameCount + 1));
         }
 
         /// <summary>

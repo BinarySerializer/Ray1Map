@@ -62,19 +62,19 @@ namespace R1Engine
                 RequiresBackgroundClearing = deserializer.Read<bool>();
 
             if (deserializer.FileName == "allfix.dat")
-                Unknown1 = deserializer.Read<byte>(12);
+                Unknown1 = deserializer.ReadArray<byte>(12);
             
             ImageDataLength = deserializer.Read<uint>();
-            ImageData = deserializer.Read<byte>(ImageDataLength);
+            ImageData = deserializer.ReadArray<byte>(ImageDataLength);
             ImageDataChecksum = deserializer.Read<byte>();
 
             if (deserializer.FileName == "allfix.dat")
                 Unknown2 = deserializer.Read<uint>();
 
             ImageDescriptorCount = deserializer.Read<ushort>();
-            ImageDescriptors = deserializer.Read<PC_ImageDescriptor>(ImageDescriptorCount);
+            ImageDescriptors = deserializer.ReadArray<PC_ImageDescriptor>(ImageDescriptorCount);
             AnimationDescriptorCount = deserializer.Read<byte>();
-            AnimationDescriptors = deserializer.Read<PC_AnimationDescriptor>(AnimationDescriptorCount);
+            AnimationDescriptors = deserializer.ReadArray<PC_AnimationDescriptor>(AnimationDescriptorCount);
         }
 
         /// <summary>

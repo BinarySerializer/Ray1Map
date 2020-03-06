@@ -22,9 +22,9 @@
             CodeCount = deserializer.Read<ushort>();
             LabelOffsetCount = deserializer.Read<ushort>();
 
-            EventCode = deserializer.Read<byte>(CodeCount);
+            EventCode = deserializer.ReadArray<byte>(CodeCount);
 
-            LabelOffsetTable = deserializer.Read<ushort>(LabelOffsetCount);
+            LabelOffsetTable = deserializer.ReadArray<ushort>(LabelOffsetCount);
         }
 
         /// <summary>

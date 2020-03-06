@@ -46,7 +46,7 @@ namespace R1Engine
             byte[] values;
             List<ushort> tempList = new List<ushort>();
 
-            while (Settings.StringEncoding.GetString(values = deserializer.Read<byte>(2)) != "MS")
+            while (Settings.StringEncoding.GetString(values = deserializer.ReadArray<byte>(2)) != "MS")
                 tempList.Add(BitConverter.ToUInt16(values, 0));
 
             Unknown2 = tempList.ToArray();
@@ -54,7 +54,7 @@ namespace R1Engine
             // Go back two steps...
             deserializer.BaseStream.Position -= 2;
 
-            LocItems = deserializer.Read<PC_RD_EventLocItem>(LocCount);
+            LocItems = deserializer.ReadArray<PC_RD_EventLocItem>(LocCount);
         }
 
         /// <summary>
