@@ -49,7 +49,7 @@ namespace R1Engine
                         return instance;
 
                     case TypeCode.Boolean:
-                        var b = BaseStream.ReadByte();
+                        var b = ReadByte();
 
                         if (b != 0 && b != 1)
                             Debug.LogWarning("Binary boolean was not correctly formatted");
@@ -57,10 +57,10 @@ namespace R1Engine
                         return b == 1;
 
                     case TypeCode.SByte:
-                        return (sbyte)BaseStream.ReadByte();
+                        return (sbyte)ReadByte();
 
                     case TypeCode.Byte:
-                        return (byte)BaseStream.ReadByte();
+                        return (byte)ReadByte();
 
                     case TypeCode.Int16:
                         return BitConverter.ToInt16(ReadBytes(sizeof(short)), 0);
@@ -120,6 +120,28 @@ namespace R1Engine
                 buffer[i] = Read<T>();
 
             return buffer;
+        }
+
+        /// <summary>
+        /// Reads a byte from the stream
+        /// </summary>
+        /// <param name="xor">The xor key to use</param>
+        /// <returns>The byte</returns>
+        protected byte ReadByte(byte xor = 0)
+        {
+            // Read the byte
+            var b = BaseStream.ReadByte();
+
+            // Decrypt the byte
+            if (xor != 0)
+                b ^= xor;
+
+            // Make sure it was read
+            if (b == -1)
+                throw new Exception("The byte could not be read");
+
+            // Return it
+            return (byte)b;
         }
 
         /// <summary>

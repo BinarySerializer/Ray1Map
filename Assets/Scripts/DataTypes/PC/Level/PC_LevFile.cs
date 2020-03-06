@@ -176,16 +176,21 @@ namespace R1Engine
 
             base.Deserialize(deserializer);
 
+            // TODO: Kit & edu ushort
+
             // HEADER BLOCK
 
             // Read block pointer
             EventBlockPointer = deserializer.Read<uint>();
             TextureOffsetTablePointer = deserializer.Read<uint>();
 
+            // TODO: Kit & edu 69 bytes
+
             // Read map size
             Width = deserializer.Read<ushort>();
             Height = deserializer.Read<ushort>();
 
+            // TODO: Kit has 1
             // Create the palettes
             ColorPalettes = new ARGBColor[][]
             {
@@ -264,6 +269,10 @@ namespace R1Engine
             if (deserializer.BaseStream.Position != TextureOffsetTablePointer)
                 Debug.LogError("Texture block offset is incorrect");
 
+            // TODO: Kit & edu 1 byte
+
+            // TODO: Kit & edu xor 4812 following bytes with 255 (previous byte?)
+
             // Read the offset table for the textures
             TexturesOffsetTable = deserializer.Read<uint>(1200);
 
@@ -323,12 +332,17 @@ namespace R1Engine
 
             // EVENT BLOCK
 
+            // TODO: Kit & edu 1 byte
+
+            // TODO: Kit & edu xor remaining bytes with 145 (previous byte?)
+
             // Read the event count
             EventCount = deserializer.Read<ushort>();
 
             // Read the event linking table
             EventLinkingTable = deserializer.Read<ushort>(EventCount);
 
+            // TODO: Kit & edu have 4 more bytes in event
             // Read the events
             Events = deserializer.Read<PC_Event>(EventCount);
 
