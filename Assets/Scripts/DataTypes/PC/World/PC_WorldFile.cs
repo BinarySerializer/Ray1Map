@@ -46,33 +46,60 @@ namespace R1Engine
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            // Read header
-            Unknown1 = deserializer.Read<ushort>();
-            Unknown2 = deserializer.Read<ushort>();
-            Unknown4Count = deserializer.Read<ushort>();
-            Unknown3 = deserializer.Read<byte>();
-            Unknown4 = deserializer.Read<byte>(Unknown4Count);
-
-            // Read sprites
-            SpriteGroupCount = deserializer.Read<ushort>();
-            SpriteGroups = deserializer.Read<PC_DesItem>(SpriteGroupCount);
-
-            // Read the ETA data into a 3-fold array
-            Eta = new PC_Eta[deserializer.Read<byte>()][][];
-
-            for (int i = 0; i < Eta.Length; i++)
+            if (deserializer.FileExtension == ".wld")
             {
-                Eta[i] = new PC_Eta[deserializer.Read<byte>()][];
+                // Read unknown header
+                Unknown1 = deserializer.Read<ushort>();
+                Unknown2 = deserializer.Read<ushort>();
+                Unknown4Count = deserializer.Read<ushort>();
+                Unknown3 = deserializer.Read<byte>();
+                Unknown4 = deserializer.Read<byte>(Unknown4Count);
+            }
 
-                for (int j = 0; j < Eta[i].Length; j++)
+            if (deserializer.FileExtension == ".wld")
+            {
+                ReadSprites();
+                ReadEta();
+            }
+            else
+            {
+                ReadEta();
+                ReadSprites();
+            }
+
+            // Helper method for reading the eta
+            void ReadEta()
+            {
+                // Read the ETA data into a 3-fold array
+                Eta = new PC_Eta[deserializer.Read<byte>()][][];
+
+                for (int i = 0; i < Eta.Length; i++)
                 {
-                    Eta[i][j] = new PC_Eta[deserializer.Read<byte>()];
+                    Eta[i] = new PC_Eta[deserializer.Read<byte>()][];
 
-                    for (int k = 0; k < Eta[i][j].Length; k++)
+                    for (int j = 0; j < Eta[i].Length; j++)
                     {
-                        Eta[i][j][k] = deserializer.Read<PC_Eta>();
+                        Eta[i][j] = new PC_Eta[deserializer.Read<byte>()];
+
+                        for (int k = 0; k < Eta[i][j].Length; k++)
+                        {
+                            Eta[i][j][k] = deserializer.Read<PC_Eta>();
+                        }
                     }
                 }
+            }
+
+            // Helper method for reading the sprites
+            void ReadSprites()
+            {
+                // Read sprites
+                SpriteGroupCount = deserializer.Read<ushort>();
+
+                // TODO: Not sure about bray, it doesn't work yet
+                if (deserializer.FileName == "allfix.dat" || deserializer.FileName == "bray.dat")
+                    SpriteGroupCount--;
+
+                SpriteGroups = deserializer.Read<PC_DesItem>(SpriteGroupCount);
             }
         }
 

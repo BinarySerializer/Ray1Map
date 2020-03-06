@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Background later data for Rayman 1 (PS1)
@@ -36,7 +34,7 @@ namespace R1Engine
             Layer = deserializer.Read<byte>();
             Width = deserializer.Read<byte>();
             Height = deserializer.Read<byte>();
-            Unknown2 = deserializer.ReadBytes(13);
+            Unknown2 = deserializer.Read<byte>(13);
         }
 
         /// <summary>

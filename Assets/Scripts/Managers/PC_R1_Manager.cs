@@ -100,38 +100,54 @@ namespace R1Engine
                 // Read the world file
                 var worldFile = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
 
-                // Enumerate each sprite group
-                for (int i = 0; i < worldFile.SpriteGroups.Length; i++)
+                // Export the sprite textures
+                ExportSpriteTextures(settings, worldFile, Path.Combine(outputDir, world.ToString()));
+            }
+
+            // TODO: Finish
+            //// Read the allfix file
+            //var allfix = FileFactory.Read<PC_WorldFile>(, settings);
+
+            //// Export the sprite textures
+            //ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, world.ToString()));
+        }
+
+        /// <summary>
+        /// Exports all sprite textures from the world file to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="worldFile">The world file</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir)
+        {
+            // Create the directory
+            Directory.CreateDirectory(outputDir);
+
+            // Enumerate each sprite group
+            for (int i = 0; i < worldFile.SpriteGroups.Length; i++)
+            {
+                // Get the sprite group
+                var sprite = worldFile.SpriteGroups[i];
+
+                // Enumerate each image
+                for (int j = 0; j < sprite.ImageDescriptors.Length; j++)
                 {
-                    // Get the sprite group
-                    var sprite = worldFile.SpriteGroups[i];
+                    Texture2D tex;
 
-                    // Enumerate each image
-                    for (int j = 0; j < sprite.ImageDescriptors.Length; j++)
+                    try
                     {
-                        Texture2D tex;
-
-                        try
-                        {
-                            // Get the texture
-                            tex = GetSpriteTexture(settings, sprite, sprite.ImageDescriptors[j]);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogWarning($"Error exporting sprite {i}-{j} in {world}: {ex.Message}");
-
-                            continue;
-                        }
-
-                        // Get the directory
-                        var dir = Path.Combine(outputDir, world.ToString());
-
-                        // Create the directory
-                        Directory.CreateDirectory(dir);
-
-                        // Write the texture
-                        File.WriteAllBytes(Path.Combine(dir, $"{i.ToString().PadLeft(2, '0')}{j.ToString().PadLeft(2, '0')}.png"), tex.EncodeToPNG());
+                        // Get the texture
+                        tex = GetSpriteTexture(settings, sprite, sprite.ImageDescriptors[j]);
                     }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Error exporting sprite {i}-{j}: {ex.Message}");
+
+                        continue;
+                    }
+
+                    // Write the texture
+                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString().PadLeft(2, '0')}{j.ToString().PadLeft(2, '0')}.png"), tex.EncodeToPNG());
                 }
             }
         }
@@ -170,7 +186,7 @@ namespace R1Engine
                     var pixel = desItem.ImageData[pixelOffset] ^ 143;
 
                     // Get the color from the palette
-                    var color = pixel > 159 && desItem.RequiresBackgroundClearing ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
+                    var color = pixel > 159 ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
 
                     // Set the pixel
                     tex.SetPixel(x, height - y - 1, color.GetColor());

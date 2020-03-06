@@ -72,16 +72,16 @@
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            Unknown1 = deserializer.ReadBytes(28);
+            Unknown1 = deserializer.Read<byte>(28);
 
             XPosition = deserializer.Read<ushort>();
             YPosition = deserializer.Read<ushort>();
 
-            Unknown2 = deserializer.ReadBytes(16);
+            Unknown2 = deserializer.Read<byte>(16);
             Unknown3 = deserializer.Read<ushort>();
             Unknown4 = deserializer.Read<ushort>();
             Unknown5 = deserializer.Read<ushort>();
-            Unknown6 = deserializer.ReadBytes(28);
+            Unknown6 = deserializer.Read<byte>(28);
 
             OffsetBX = deserializer.Read<byte>();
             OffsetBY = deserializer.Read<byte>();
@@ -105,7 +105,7 @@
 
             HitSprite = deserializer.Read<ushort>();
 
-            Unknown10 = deserializer.ReadBytes(10);
+            Unknown10 = deserializer.Read<byte>(10);
         }
 
         /// <summary>

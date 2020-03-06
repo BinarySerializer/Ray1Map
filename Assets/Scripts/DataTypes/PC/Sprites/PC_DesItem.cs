@@ -7,13 +7,11 @@ namespace R1Engine
     /// </summary>
     public class PC_DesItem : IBinarySerializable
     {
-        // TODO: Only there for .wld
         /// <summary>
         /// Indicates if the sprite has some gradation and requires clearing
         /// </summary>
         public bool RequiresBackgroundClearing { get; set; }
 
-        // TODO: Only there for allfix - 12 bytes
         public byte[] Unknown1 { get; set; }
 
         /// <summary>
@@ -32,7 +30,6 @@ namespace R1Engine
         /// </summary>
         public byte ImageDataChecksum { get; set; }
 
-        // TODO: Only there for allfix - 4 bytes
         public uint Unknown2 { get; set; }
 
         /// <summary>
@@ -61,11 +58,19 @@ namespace R1Engine
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            // Read header
-            RequiresBackgroundClearing = deserializer.Read<bool>();
+            if (deserializer.FileExtension == ".wld")
+                RequiresBackgroundClearing = deserializer.Read<bool>();
+
+            if (deserializer.FileName == "allfix.dat")
+                Unknown1 = deserializer.Read<byte>(12);
+            
             ImageDataLength = deserializer.Read<uint>();
-            ImageData = deserializer.ReadBytes((int)ImageDataLength);
+            ImageData = deserializer.Read<byte>(ImageDataLength);
             ImageDataChecksum = deserializer.Read<byte>();
+
+            if (deserializer.FileName == "allfix.dat")
+                Unknown2 = deserializer.Read<uint>();
+
             ImageDescriptorCount = deserializer.Read<ushort>();
             ImageDescriptors = deserializer.Read<PC_ImageDescriptor>(ImageDescriptorCount);
             AnimationDescriptorCount = deserializer.Read<byte>();

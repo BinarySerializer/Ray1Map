@@ -106,10 +106,10 @@ namespace R1Engine
 
             // Read the background layer information (always 12)
             BackgroundLayerPositions = deserializer.Read<PS1_R1_BackgroundLayerPosition>(12);
-            Unknown3 = deserializer.ReadBytes(16);
+            Unknown3 = deserializer.Read<byte>(16);
             BackgroundLayerInfos = deserializer.Read<PS1_R1_BackgroundLayerInfo>(12);
             // On PAL/NTSC this is 80 bytes. On NTSC-J it's more, which is why we just read the remaining bytes for now
-            Unknown4 = deserializer.ReadBytes((int)(EventBlockPointer - deserializer.BaseStream.Position));
+            Unknown4 = deserializer.Read<byte>((ulong)(EventBlockPointer - deserializer.BaseStream.Position));
 
             // EVENT BLOCK
 
@@ -130,9 +130,9 @@ namespace R1Engine
             Events = deserializer.Read<PS1_R1_Event>(EventCount);
 
             // Read the event linking table
-            EventLinkingTable = deserializer.ReadBytes((int)EventLinkCount);
+            EventLinkingTable = deserializer.Read<byte>(EventLinkCount);
 
-            EventBlock = deserializer.ReadBytes((int)(MapBlockPointer - deserializer.BaseStream.Position));
+            EventBlock = deserializer.Read<byte>((ulong)(MapBlockPointer - deserializer.BaseStream.Position));
 
             // MAP BLOCK
 
@@ -153,7 +153,7 @@ namespace R1Engine
             if (deserializer.BaseStream.Position != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            TextureBlock = deserializer.ReadBytes((int)(FileSize - TextureBlockPointer));
+            TextureBlock = deserializer.Read<byte>(FileSize - TextureBlockPointer);
 
             // At this point the stream position should match the end offset
             if (deserializer.BaseStream.Position != FileSize)

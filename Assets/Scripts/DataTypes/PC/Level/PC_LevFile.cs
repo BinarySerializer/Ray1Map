@@ -237,7 +237,7 @@ namespace R1Engine
 
             // Read each rough texture
             for (int i = 0; i < RoughTextureCount; i++)
-                RoughTextures[i] = deserializer.ReadBytes(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
+                RoughTextures[i] = deserializer.Read<byte>(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
 
             // Read the checksum for the rough textures
             RoughTexturesChecksum = deserializer.Read<byte>();
@@ -312,7 +312,7 @@ namespace R1Engine
             }
 
             // Read the fourth unknown value
-            Unknown4 = deserializer.ReadBytes(32);
+            Unknown4 = deserializer.Read<byte>(32);
 
             // Read the checksum for the textures
             TexturesChecksum = deserializer.Read<byte>();

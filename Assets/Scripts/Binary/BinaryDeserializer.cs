@@ -127,7 +127,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="count">The amount of bytes to read</param>
         /// <returns>The byte</returns>
-        public byte[] ReadBytes(int count)
+        protected byte[] ReadBytes(int count)
         {
             // Create the buffer
             var buffer = new byte[count];

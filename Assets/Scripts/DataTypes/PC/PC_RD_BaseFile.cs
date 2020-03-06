@@ -23,8 +23,8 @@
         /// <param name="deserializer">The deserializer</param>
         public virtual void Deserialize(BinaryDeserializer deserializer)
         {
-            PrimaryKitHeader = deserializer.ReadBytes(5);
-            SecondaryKitHeader = deserializer.ReadBytes(5);
+            PrimaryKitHeader = deserializer.Read<byte>(5);
+            SecondaryKitHeader = deserializer.Read<byte>(5);
         }
 
         /// <summary>
