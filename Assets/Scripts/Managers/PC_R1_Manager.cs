@@ -186,7 +186,7 @@ namespace R1Engine
                 var frame = animationDescriptor.Frames[i];
 
                 // Create the texture
-                Texture2D tex = new Texture2D(frame.Width, frame.Height, TextureFormat.RGBA32, false)
+                Texture2D tex = new Texture2D(frame.Width+1, frame.Height+1, TextureFormat.RGBA32, false)
                 {
                     filterMode = FilterMode.Point
                 };
@@ -220,9 +220,10 @@ namespace R1Engine
                             var color = lvl.ColorPalettes[0][pixel];
                             
                             // Make sure the color isn't transparent
-                            if (pixel <= 159)
+                            if (pixel <= 159) {
                                 // Set the pixel
-                                tex.SetPixel(x + animationLayer.XPosition + frame.XPosition, height - y - 1 + animationLayer.YPosition + frame.YPosition, color.GetColor());
+                                tex.SetPixel(x + animationLayer.XPosition - frame.XPosition, frame.Height - y - animationLayer.YPosition + frame.YPosition, color.GetColor());
+                            }                           
                         }
                     }
                 }
