@@ -141,18 +141,18 @@ public class SettingsWindow : UnityWindow
 	/// <summary>
 	/// The previously saved current directory
 	/// </summary>
-	private string PrevDir { get; set; }
+	private string PrevDir { get; set; } = String.Empty;
 
 	/// <summary>
 	/// The previously saved world
 	/// </summary>
-	private World PrevWorld { get; set; }
+	private World PrevWorld { get; set; } = World.Jungle;
 
-	private string PrevEduVolume { get; set; }
+	private string PrevEduVolume { get; set; } = String.Empty;
 
-	private int[] CurrentLevels { get; set; }
+	private int[] CurrentLevels { get; set; } = new int[0];
 
-	private string[] CurrentEduVolumes { get; set; }
+	private string[] CurrentEduVolumes { get; set; } = new string[0];
 
     private float TotalyPos { get; set; }
 
