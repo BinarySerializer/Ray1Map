@@ -83,6 +83,9 @@ namespace R1Engine {
         public SpriteRenderer[] prefabRendereds;
 
         private void Start() {
+
+            name = DisplayName(Settings.World);
+
             // Try to find the correct animation
             if (DefaultAnimation >= 0) {
                 CurrentAnimation = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations[DefaultAnimation];
