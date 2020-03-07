@@ -16,8 +16,8 @@
         /// <param name="deserializer">The deserializer</param>
         public override void Deserialize(BinaryDeserializer deserializer)
         {
-            ColorIndexes = deserializer.ReadArray<byte>(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
-            Alpha = deserializer.ReadArray<byte>(PC_R1_Manager.CellSize * PC_R1_Manager.CellSize);
+            ColorIndexes = deserializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
+            Alpha = deserializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
             Unknown1 = deserializer.ReadArray<byte>(32);
         }
 

@@ -19,9 +19,9 @@ namespace R1Engine
         public uint EventBlockPointer { get; set; }
 
         /// <summary>
-        /// The pointer to <see cref="TexturesOffsetTable"/>
+        /// The pointer to the texture block
         /// </summary>
-        public uint TextureOffsetTablePointer { get; set; }
+        public uint TextureBlockPointer { get; set; }
 
         public byte[] Unknown6 { get; set; }
 
@@ -49,6 +49,9 @@ namespace R1Engine
         /// The tiles for the map
         /// </summary>
         public PC_MapTile[] Tiles { get; set; }
+
+        // TODO: This probably contains the same data as the below properties for Kit and Edu, but encrypted?
+        public byte[] Unknown7 { get; set; }
 
         /// <summary>
         /// Unknown byte, different for each level
@@ -106,7 +109,10 @@ namespace R1Engine
         /// </summary>
         public uint[] Unknown3OffsetTable { get; set; }
 
-        public byte Unknown7 { get; set; }
+        /// <summary>
+        /// The checksum for the decrypted texture block
+        /// </summary>
+        public byte TextureBlockChecksum { get; set; }
 
         /// <summary>
         /// The offset table for the <see cref="NonTransparentTextures"/> and <see cref="TransparentTextures"/>
@@ -149,6 +155,11 @@ namespace R1Engine
         public byte TexturesChecksum { get; set; }
 
         /// <summary>
+        /// The checksum for the decrypted event block
+        /// </summary>
+        public byte EventBlockChecksum { get; set; }
+
+        /// <summary>
         /// The number of available events in the map
         /// </summary>
         public ushort EventCount { get; set; }
@@ -189,7 +200,7 @@ namespace R1Engine
 
             // Read block pointer
             EventBlockPointer = deserializer.Read<uint>();
-            TextureOffsetTablePointer = deserializer.Read<uint>();
+            TextureBlockPointer = deserializer.Read<uint>();
 
             if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
                 Unknown6 = deserializer.ReadArray<byte>(68);
@@ -237,61 +248,69 @@ namespace R1Engine
 
             // Read each map cell
             Tiles = deserializer.ReadArray<PC_MapTile>((ulong)Height * Width);
+            // TODO: Update all below changes for other versions when writing
+            if (deserializer.GameSettings.GameMode == GameMode.RaymanPC)
+            {
+                // Read unknown byte
+                Unknown2 = deserializer.Read<byte>();
 
-            // TODO: Data below here is incorrect in kit and edu
-            // Read unknown byte
-            Unknown2 = deserializer.Read<byte>();
+                // Read the background data
+                BackgroundIndex = deserializer.Read<byte>();
+                BackgroundSpritesDES = deserializer.Read<uint>();
 
-            // Read the background data
-            BackgroundIndex = deserializer.Read<byte>();
-            BackgroundSpritesDES = deserializer.Read<uint>();
+                // Read the rough textures count
+                RoughTextureCount = deserializer.Read<uint>();
 
-            // Read the rough textures count
-            RoughTextureCount = deserializer.Read<uint>();
+                // Read the length of the third unknown value
+                Unknown3Count = deserializer.Read<uint>();
 
-            // Read the length of the third unknown value
-            Unknown3Count = deserializer.Read<uint>();
+                // Create the collection of rough textures
+                RoughTextures = new byte[RoughTextureCount][];
 
-            // Create the collection of rough textures
-            RoughTextures = new byte[RoughTextureCount][];
+                // Read each rough texture
+                for (int i = 0; i < RoughTextureCount; i++)
+                    RoughTextures[i] = deserializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
 
-            // Read each rough texture
-            for (int i = 0; i < RoughTextureCount; i++)
-                RoughTextures[i] = deserializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
+                // Read the checksum for the rough textures
+                RoughTexturesChecksum = deserializer.Read<byte>();
 
-            // Read the checksum for the rough textures
-            RoughTexturesChecksum = deserializer.Read<byte>();
+                // Read the index table for the rough textures
+                RoughTexturesIndexTable = deserializer.ReadArray<uint>(1200);
 
-            // Read the index table for the rough textures
-            RoughTexturesIndexTable = deserializer.ReadArray<uint>(1200);
+                // Read the items for the third unknown value
+                Unknown3 = deserializer.ReadArray<byte>(Unknown3Count);
 
-            // Read the items for the third unknown value
-            Unknown3 = deserializer.ReadArray<byte>(Unknown3Count);
+                // Read the checksum for the third unknown value
+                Unknown3Checksum = deserializer.Read<byte>();
 
-            // Read the checksum for the third unknown value
-            Unknown3Checksum = deserializer.Read<byte>();
-
-            // Read the offset table for the third unknown value
-            Unknown3OffsetTable = deserializer.ReadArray<uint>(1200);
+                // Read the offset table for the third unknown value
+                Unknown3OffsetTable = deserializer.ReadArray<uint>(1200);
+            }
+            else
+            {
+                // Read unknown values
+                Unknown7 = deserializer.ReadArray<byte>((ulong)(TextureBlockPointer - deserializer.BaseStream.Position));
+            }
 
             // TEXTURE BLOCK
 
             // At this point the stream position should match the texture block offset
-            if (deserializer.BaseStream.Position != TextureOffsetTablePointer)
+            if (deserializer.BaseStream.Position != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
             if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
-                Unknown7 = deserializer.Read<byte>();
+                TextureBlockChecksum = deserializer.Read<byte>();
 
-            // TODO: Kit & edu xor 4812 following bytes with 255 (previous byte?)
+            // Get the xor key to use for the texture block
+            byte texXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 255);
 
             // Read the offset table for the textures
-            TexturesOffsetTable = deserializer.ReadArray<uint>(1200);
+            TexturesOffsetTable = deserializer.ReadArray<uint>(1200, texXor);
 
             // Read the textures count
-            TexturesCount = deserializer.Read<uint>();
-            NonTransparentTexturesCount = deserializer.Read<uint>();
-            TexturesDataTableCount = deserializer.Read<uint>();
+            TexturesCount = deserializer.Read<uint>(texXor);
+            NonTransparentTexturesCount = deserializer.Read<uint>(texXor);
+            TexturesDataTableCount = deserializer.Read<uint>(texXor);
 
             // Get the current offset to use for the texture offsets
             var textureBaseOffset = deserializer.BaseStream.Position;
@@ -339,22 +358,30 @@ namespace R1Engine
             // Read the fourth unknown value
             Unknown4 = deserializer.ReadArray<byte>(32);
 
-            // Read the checksum for the textures
-            TexturesChecksum = deserializer.Read<byte>();
+            if (deserializer.GameSettings.GameMode == GameMode.RaymanPC)
+            {
+                // Read the checksum for the textures
+                TexturesChecksum = deserializer.Read<byte>();
+            }
 
             // EVENT BLOCK
 
-            // TODO: Kit & edu 1 byte
+            // At this point the stream position should match the event block offset
+            if (deserializer.BaseStream.Position != EventBlockPointer)
+                Debug.LogError("Event block offset is incorrect");
 
-            // TODO: Kit & edu xor remaining bytes with 145 (previous byte?)
+            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+                EventBlockChecksum = deserializer.Read<byte>();
+
+            // Get the xor key to use for the event block
+            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 145);
 
             // Read the event count
-            EventCount = deserializer.Read<ushort>();
+            EventCount = deserializer.Read<ushort>(eveXor);
 
             // Read the event linking table
-            EventLinkingTable = deserializer.ReadArray<ushort>(EventCount);
+            EventLinkingTable = deserializer.ReadArray<ushort>(EventCount, eveXor);
 
-            // TODO: Kit & edu have 4 more bytes in event
             // Read the events
             Events = deserializer.ReadArray<PC_Event>(EventCount);
 
@@ -381,7 +408,7 @@ namespace R1Engine
 
             // Write block pointer
             serializer.Write(EventBlockPointer);
-            serializer.Write(TextureOffsetTablePointer);
+            serializer.Write(TextureBlockPointer);
 
             if (serializer.GameSettings.GameMode != GameMode.RaymanPC)
                 serializer.Write(Unknown6);

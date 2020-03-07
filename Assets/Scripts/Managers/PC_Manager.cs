@@ -15,7 +15,7 @@ namespace R1Engine
         #region Values and paths
 
         // TODO: Move this?
-        public static Dictionary<uint, Dictionary<byte, Texture2D[]>> SpriteAnimationCache { get; } = new Dictionary<uint, Dictionary<byte, Texture2D[]>>();
+        public static Dictionary<uint, Common_Animation[]> SpriteAnimationCache { get; } = new Dictionary<uint, Common_Animation[]>();
 
         /// <summary>
         /// The size of one cell
@@ -423,31 +423,40 @@ namespace R1Engine
                     // Get the DES item
                     var desItem = des[e.DES - 1];
 
-                    // Get the animation item
-                    var animItem = desItem.AnimationDescriptors[animIndex];
-
-                    Texture2D[] animation;
+                    Common_Animation[] animations;
                     
-                    // Check if the animation has been cached
-                    if (SpriteAnimationCache.ContainsKey(e.DES) && SpriteAnimationCache[e.DES].ContainsKey(animIndex))
+                    // Check if the animations have been cached
+                    if (SpriteAnimationCache.ContainsKey(e.DES))
                     {
-                        animation = SpriteAnimationCache[e.DES][animIndex];
+                        animations = SpriteAnimationCache[e.DES];
                     }
                     else
                     {
-                        // Get the animation
-                        animation = GetSpriteFrames(settings, desItem, animItem, Settings.AnimateSprites);
+                        // Create the animation array
+                        animations = new Common_Animation[desItem.AnimationDescriptorCount];
 
-                        // Create the cache dictionary
-                        if (!SpriteAnimationCache.ContainsKey(e.DES))
-                            SpriteAnimationCache[e.DES] = new Dictionary<byte, Texture2D[]>();
+                        // Get the animations
+                        for (int i = 0; i < animations.Length; i++)
+                        {
+                            animations[i] = new Common_Animation()
+                            {
+                                Frames = GetSpriteFrames(settings, desItem, desItem.AnimationDescriptors[i], Settings.AnimateSprites),
+                                
+                                // TODO: Set this correctly
+                                Framerate = 60
+                            };
+                        }
 
-                        // Cache it
-                        SpriteAnimationCache[e.DES][animIndex] = animation;
+                        // Cache the animations
+                        SpriteAnimationCache[e.DES] = animations;
                     }
 
-                    // Set the event sprite
-                    ee.SetSprite(animation); //.First()
+                    // Create the sprite
+                    var sprite = new Common_Sprite()
+                    {
+                        Animations = animations,
+                        DefaultAnimation = animIndex
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -649,8 +658,9 @@ namespace R1Engine
             // Enumerate every texture
             foreach (var texture in levData.NonTransparentTextures.Concat(levData.TransparentTextures))
             {
+                // TODO: Support 1 palette for Kit
                 // Enumerate every palette
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < levData.ColorPalettes.Length; i++)
                 {
                     // Create the texture to use for the tile
                     var tileTexture = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false)

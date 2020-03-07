@@ -43,6 +43,11 @@ namespace R1Engine
         public int OffsetHY;
 
         /// <summary>
+        /// The event sprite
+        /// </summary>
+        public Common_Sprite EventSprite { get; set; }
+
+        /// <summary>
         /// Gets the display name based on world
         /// </summary>
         /// <param name="world">The world</param>
@@ -57,18 +62,18 @@ namespace R1Engine
         public SpriteRenderer spriteRendered;
         public BoxCollider2D boxCollider;
 
-        public void SetSprite(Texture2D[] textures) {
-            animationFrames = new Sprite[textures.Length];
-            currentFrame = 0;
+        //public void SetSprite(Texture2D[] textures) {
+        //    animationFrames = new Sprite[textures.Length];
+        //    currentFrame = 0;
 
-            for (int i=0; i<textures.Length; i++) {
-                animationFrames[i] = Sprite.Create(textures[i], new Rect(0, 0, textures[i].width, textures[i].height), new Vector2(0f, 1f), 16, 20);
-            }
+        //    for (int i=0; i<textures.Length; i++) {
+        //        animationFrames[i] = Sprite.Create(textures[i], new Rect(0, 0, textures[i].width, textures[i].height), new Vector2(0f, 1f), 16, 20);
+        //    }
 
-            // Resize box collider
-            boxCollider.size = new Vector2(textures[0].width/16f, textures[0].height/16f);
-            boxCollider.offset = new Vector2((textures[0].width / 16f) / 2f, -(textures[0].height / 16f) / 2f);
-        }
+        //    // Resize box collider
+        //    boxCollider.size = new Vector2(textures[0].width/16f, textures[0].height/16f);
+        //    boxCollider.offset = new Vector2((textures[0].width / 16f) / 2f, -(textures[0].height / 16f) / 2f);
+        //}
 
         void Update() {
             // TODO: Update here is just a quick and dirty way to update the X and Y

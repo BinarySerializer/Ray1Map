@@ -176,18 +176,19 @@ namespace R1Engine
         /// </summary>
         /// <typeparam name="T">The type of value to read</typeparam>
         /// <param name="count">The amount of values to read</param>
+        /// <param name="xorKey">The xor key to use</param>
         /// <returns>The values</returns>
-        public T[] ReadArray<T>(ulong count)
+        public T[] ReadArray<T>(ulong count, byte xorKey = 0)
         {
             // Use byte reading method if requested
             if (typeof(T) == typeof(byte))
-                return (T[])(object)ReadBytes((int)count);
+                return (T[])(object)ReadBytes((int)count, xorKey);
 
             var buffer = new T[count];
 
             for (ulong i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = Read<T>();
+                buffer[i] = xorKey == 0 ? Read<T>() : Read<T>(xorKey);
 
             return buffer;
         }

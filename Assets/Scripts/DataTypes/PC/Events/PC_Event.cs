@@ -88,6 +88,12 @@
             XPosition = deserializer.Read<uint>();
             YPosition = deserializer.Read<uint>();
 
+            // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
+            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+            {
+                deserializer.Read<uint>();
+            }
+
             Unknown4 = deserializer.ReadArray<byte>(20);
 
             Unknown5 = deserializer.ReadArray<byte>(28);
