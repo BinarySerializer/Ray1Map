@@ -276,6 +276,8 @@ namespace R1Engine
             // Load the level to get the palette
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
+            var layer = 0;
+
             // Create each frame
             for (int i = 0; i < (readAllFrames ? 1 : animationDescriptor.FrameCount); i++)
             {
@@ -298,7 +300,7 @@ namespace R1Engine
                 }
 
                 // Write each layer
-                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
+                for (var layerIndex = layer; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++, layer++)
                 {
                     var animationLayer = animationDescriptor.Layers[layerIndex];
 
