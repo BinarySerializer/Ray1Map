@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace R1Engine {
@@ -6,6 +7,8 @@ namespace R1Engine {
 
         // The current level we are operating with
         public Common_Lev currentLevel;
+        // The current designs we are using
+        public List<Common_Design> currentDesigns;
 
         // References to specific level controller gameObjects in inspector
         public LevelTilemapController controllerTilemap;

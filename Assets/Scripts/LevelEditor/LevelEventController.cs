@@ -40,7 +40,7 @@ namespace R1Engine {
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(EventInfoData e, uint xpos, uint ypos, int offbx, int offby, int link) {
+        public Common_Event AddEvent(EventInfoData e, uint xpos, uint ypos, int offbx, int offby, int link, uint des, uint eta) {
             // Instantiate prefab
             Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
             newEvent.EventInfoData = e;
@@ -49,8 +49,9 @@ namespace R1Engine {
             newEvent.OffsetBX = offbx;
             newEvent.OffsetBY = offby;
             newEvent.LinkIndex = link;
-            // Offset the child sprite a bit offsetX and offsetY
-            //newEvent.transform.GetChild(0).transform.localPosition = new Vector3(offbx / 16f, -(offby / 16f), 5f);
+            newEvent.Des = des;
+            newEvent.Eta = eta;
+
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
             // Add to list

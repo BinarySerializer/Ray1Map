@@ -188,7 +188,7 @@ namespace R1Engine
             foreach (var e in levelData.Events)
             {
                 Controller.status = $"Loading event {index}/{levelData.EventCount}";
-
+                /*
                 // Instantiate event prefab using LevelEventController
                 c.Events.Add(Controller.obj.levelEventController.AddEvent(
                     eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
@@ -197,7 +197,7 @@ namespace R1Engine
                     e.OffsetBX,
                     e.OffsetBY,
                     levelData.EventLinkingTable[index]));
-
+                    */
                 index++;
             }
 

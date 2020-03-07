@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace R1Engine
-{
+namespace R1Engine {
     /// <summary>
     /// Base game manager for PC
     /// </summary>
-    public abstract class PC_Manager : IGameManager
-    {
+    public abstract class PC_Manager : IGameManager {
         #region Values and paths
 
         // TODO: Move this?
@@ -34,10 +32,8 @@ namespace R1Engine
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public string GetWorldName(World world)
-        {
-            switch (world)
-            {
+        public string GetWorldName(World world) {
+            switch (world) {
                 case World.Jungle:
                     return "JUNGLE";
                 case World.Music:
@@ -59,10 +55,8 @@ namespace R1Engine
         /// Gets the short name for the world
         /// </summary>
         /// <returns>The short world name</returns>
-        public string GetShortWorldName(World world)
-        {
-            switch (world)
-            {
+        public string GetShortWorldName(World world) {
+            switch (world) {
                 case World.Jungle:
                     return "JUN";
                 case World.Music:
@@ -107,10 +101,10 @@ namespace R1Engine
         public abstract bool Has3Palettes { get; }
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the level count for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The levels</returns>
+        /// <returns>The level count</returns>
         public abstract int[] GetLevels(GameSettings settings);
 
         /// <summary>
@@ -129,8 +123,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(GameSettings settings, string outputDir)
-        {
+        public void ExportSpriteTextures(GameSettings settings, string outputDir) {
             // Read the allfix file
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings);
 
@@ -138,8 +131,7 @@ namespace R1Engine
             ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, "Allfix"), 0);
 
             // Enumerate every world
-            foreach (World world in EnumHelpers.GetValues<World>())
-            {
+            foreach (World world in EnumHelpers.GetValues<World>()) {
                 // Set the world
                 settings.World = world;
 
@@ -164,16 +156,14 @@ namespace R1Engine
         /// <param name="worldFile">The world file</param>
         /// <param name="outputDir">The output directory</param>
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset</param>
-        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset)
-        {
+        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(settings))
-            {
+            foreach (var i in GetLevels(settings)) {
                 // Set the level number
                 settings.Level = i;
 
@@ -182,18 +172,15 @@ namespace R1Engine
             }
 
             // Enumerate each sprite group
-            for (int i = 0; i < worldFile.DesItems.Length; i++)
-            {
+            for (int i = 0; i < worldFile.DesItems.Length; i++) {
                 // Get the sprite group
                 var desItem = worldFile.DesItems[i];
 
                 // Enumerate each image
-                for (int j = 0; j < desItem.ImageDescriptors.Length; j++)
-                {
+                for (int j = 0; j < desItem.ImageDescriptors.Length; j++) {
                     Texture2D tex;
 
-                    try
-                    {
+                    try {
                         // TODO: This isn't really working for finding the correct palette
 
                         // Default to the first level
@@ -204,18 +191,15 @@ namespace R1Engine
 
                         bool foundCorrectPalette = false;
 
-                        if (animDesc != -1)
-                        {
+                        if (animDesc != -1) {
                             // Attempt to find the ETA where it appears
                             var eta = worldFile.Eta.SelectMany(x => x).SelectMany(x => x).FindItem(x => x.AnimationIndex == animDesc);
 
-                            if (eta != null)
-                            {
+                            if (eta != null) {
                                 // Attempt to find the level where it appears
                                 var lvlMatch = levels.Find(x => x.Events.Any(y => y.DES == desOffset + 1 + i && y.Etat == eta.Etat && y.SubEtat == eta.SubEtat && y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
 
-                                if (lvlMatch != null)
-                                {
+                                if (lvlMatch != null) {
                                     lvl = lvlMatch;
                                     foundCorrectPalette = true;
                                 }
@@ -223,8 +207,7 @@ namespace R1Engine
                         }
 
                         // Check background DES
-                        if (!foundCorrectPalette)
-                        {
+                        if (!foundCorrectPalette) {
                             var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
 
                             if (lvlMatch != null)
@@ -240,16 +223,13 @@ namespace R1Engine
                         var offset = imgDescriptor.ImageOffset;
 
                         // Create the texture
-                        tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
-                        {
+                        tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
                             filterMode = FilterMode.Point
                         };
 
                         // Set every pixel
-                        for (int y = 0; y < height; y++)
-                        {
-                            for (int x = 0; x < width; x++)
-                            {
+                        for (int y = 0; y < height; y++) {
+                            for (int x = 0; x < width; x++) {
                                 // Get the pixel offset
                                 var pixelOffset = y * width + x + offset;
 
@@ -267,8 +247,7 @@ namespace R1Engine
                         // Apply the changes
                         tex.Apply();
                     }
-                    catch (Exception ex)
-                    {
+                    catch (Exception ex) {
                         Debug.LogWarning($"Error exporting sprite {i}-{j}: {ex.Message}");
 
                         continue;
@@ -281,113 +260,12 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the frames for a sprite
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="desItem">The sprite group</param>
-        /// <param name="animationDescriptor">The animation descriptor</param>
-        /// <returns>The texture</returns>
-        public Common_Animation GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor)
-        {
-            // Create the animation
-            var animation = new Common_Animation
-            {
-                Frames = new Common_AnimationPart[animationDescriptor.FrameCount, animationDescriptor.LayersPerFrame]
-            };
-
-            // Load the level to get the palette
-            var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
-
-            // The layer index
-            var layer = 0;
-
-            // Create each frame
-            for (int i = 0; i < animationDescriptor.FrameCount; i++)
-            {
-                //// Get the frame
-                //var frame = animationDescriptor.Frames[i];
-                
-                // Create each layer
-                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
-                {
-                    var animationLayer = animationDescriptor.Layers[layer];
-                    layer++;
-
-                    // Get the sprite
-                    var sprite = desItem.ImageDescriptors[animationLayer.ImageIndex];
-
-                    // Get the image properties
-                    var width = sprite.OuterWidth;
-                    var height = sprite.OuterHeight;
-                    var offset = sprite.ImageOffset;
-
-                    // Create the texture
-                    Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                        filterMode = FilterMode.Point
-                    };
-
-                    // Default to fully transparent
-                    for (int y = 0; y < tex.height; y++) {
-                        for (int x = 0; x < tex.width; x++) {
-                            tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                        }
-                    }
-
-                    // Set every pixel
-                    for (int y = 0; y < height; y++)
-                    {
-                        for (int x = 0; x < width; x++)
-                        {
-                            // Get the pixel offset
-                            var pixelOffset = y * width + x + offset;
-
-                            // Get the pixel and decrypt it
-                            var pixel = desItem.ImageData[pixelOffset] ^ 143;
-
-                            // Get the color from the palette
-                            var color = lvl.ColorPalettes[0][pixel];
-
-                            // Make sure the color isn't transparent (i.e. uses the event palette)
-                            if (pixel > 159) 
-                                continue;
-
-                            // Get the x pixel position based on if it's flipper or not
-                            var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x);
-
-                            // Set the pixel
-                            tex.SetPixel(pixelX, - (y + 1), color.GetColor());
-                        }
-                    }
-
-                    // Apply the changes
-                    tex.Apply();
-
-                    // Create the animation part
-                    var part = new Common_AnimationPart
-                    {
-                        Sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16,
-                            20),
-                        X = animationLayer.XPosition,
-                        Y = animationLayer.YPosition
-                    };
-
-                    // Add the texture
-                    animation.Frames[i, layerIndex] = part;
-                }
-            }
-
-            // Return the texture
-            return animation;
-        }
-
-        /// <summary>
         /// Loads the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData)
-        {
+        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData) {
             Controller.status = $"Loading map data for {settings.World} {settings.Level}";
 
             // Read the level data
@@ -396,8 +274,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Convert levelData to common level format
-            Common_Lev commonLev = new Common_Lev
-            {
+            Common_Lev commonLev = new Common_Lev {
                 // Set the dimensions
                 Width = levelData.Width,
                 Height = levelData.Height,
@@ -428,13 +305,100 @@ namespace R1Engine
             var des = allfix.DesItems.Concat(worldData.DesItems).ToArray();
             var eta = allfix.Eta.Concat(worldData.Eta).ToArray();
 
+            // Commonize DES and ETA and store them in this list:
+            Controller.obj.levelController.currentDesigns = new List<Common_Design>();
+
+            foreach (var d in des) {
+                Common_Design finalDesign = new Common_Design();
+                finalDesign.Sprites = new List<Sprite>();
+                finalDesign.Animations = new List<Common_Animation>();
+
+                // Sprites
+                foreach (var s in d.ImageDescriptors) {
+                    // Get the image properties
+                    var width = s.OuterWidth;
+                    var height = s.OuterHeight;
+                    var offset = s.ImageOffset;
+                    // Create the texture
+                    Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
+                        filterMode = FilterMode.Point
+                    };
+                    // Default to fully transparent
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                        }
+                    }
+                    // Set every pixel
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            // Get the pixel offset
+                            var pixelOffset = y * width + x + offset;
+                            // Get the pixel and decrypt it
+                            var pixel = d.ImageData[pixelOffset] ^ 143;
+
+                            // Get the color from the palette
+                            var color = levelData.ColorPalettes[0][pixel];
+
+                            // Make sure the color isn't transparent (i.e. uses the event palette)
+                            if (pixel > 159)
+                                continue;
+
+                            // Get the x pixel position based on if it's flipper or not
+                            //var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x);
+                            // Set the pixel
+                            tex.SetPixel(x, -(y + 1), color.GetColor());
+                        }
+                    }
+                    // Apply the changes
+                    tex.Apply();
+                    // Add it to the array
+                    finalDesign.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                }
+
+                // Animations
+                foreach (var a in d.AnimationDescriptors) {
+                    // Create the animation
+                    var animation = new Common_Animation {
+                        Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame]
+                    };
+                    // The layer index
+                    var layer = 0;
+                    // Create each frame
+                    for (int i = 0; i < a.FrameCount; i++) {
+                        //// Get the frame
+                        //var frame = animationDescriptor.Frames[i];
+
+                        // Create each layer
+                        for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++) {
+                            var animationLayer = a.Layers[layer];
+                            layer++;
+
+                            // Create the animation part
+                            var part = new Common_AnimationPart {
+                                SpriteIndex = animationLayer.ImageIndex,
+                                X = animationLayer.XPosition,
+                                Y = animationLayer.YPosition
+                            };
+
+                            // Add the texture
+                            animation.Frames[i, layerIndex] = part;
+                        }
+                    }
+                    // Add the animation to list
+                    finalDesign.Animations.Add(animation);
+                }
+
+                // Add to the designs
+                Controller.obj.levelController.currentDesigns.Add(finalDesign);
+            }
+
             // Add the events
             commonLev.Events = new List<Common_Event>();
 
             var index = 0;
 
-            foreach (var e in levelData.Events)
-            {
+            foreach (var e in levelData.Events) {
                 Controller.status = $"Loading event {index}/{levelData.EventCount}";
 
                 await Controller.WaitIfNecessary();
@@ -446,30 +410,9 @@ namespace R1Engine
                     e.YPosition,
                     e.OffsetBX,
                     e.OffsetBY,
-                    levelData.EventLinkingTable[index]);
-
-                try
-                {
-                    // Get the DES item
-                    var desItem = des[e.DES - 1];
-
-                    // Find the ETA item
-                    var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-
-                    // Find the animation index
-                    var animIndex = etaItem.AnimationIndex;
-                    
-                    // Get the animation item
-                    var animItem = desItem.AnimationDescriptors[animIndex];
-
-                    Common_Animation animation = GetSpriteFrames(settings, desItem, animItem);
-
-                    ee.CommonAnimation = animation;
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning($"Reading sprite animation failed for DES {e.DES}: {ex.Message}");
-                }
+                    levelData.EventLinkingTable[index],
+                    e.DES,
+                    e.ETA);
 
                 // Add the event
                 commonLev.Events.Add(ee);
@@ -502,10 +445,8 @@ namespace R1Engine
             int defaultPalette = 1;
 
             // Get the default palette
-            if (isPaletteHorizontal && paletteXChangers.Any())
-            {
-                switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
-                {
+            if (isPaletteHorizontal && paletteXChangers.Any()) {
+                switch (paletteXChangers.OrderBy(x => x.Key).First().Value) {
                     case PC_PaletteChangerMode.Left1toRight2:
                     case PC_PaletteChangerMode.Left1toRight3:
                         defaultPalette = 1;
@@ -520,10 +461,8 @@ namespace R1Engine
                         break;
                 }
             }
-            else if (!isPaletteHorizontal && paletteYChangers.Any())
-            {
-                switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
-                {
+            else if (!isPaletteHorizontal && paletteYChangers.Any()) {
+                switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value) {
                     case PC_PaletteChangerMode.Top1tobottom2:
                     case PC_PaletteChangerMode.Top1tobottom3:
                         defaultPalette = 1;
@@ -543,25 +482,20 @@ namespace R1Engine
             int currentPalette = defaultPalette;
 
             // Enumerate each cell
-            for (int cellY = 0; cellY < levelData.Height; cellY++)
-            {
+            for (int cellY = 0; cellY < levelData.Height; cellY++) {
                 // Reset the palette on each row if we have a horizontal changer
                 if (isPaletteHorizontal)
                     currentPalette = defaultPalette;
                 // Otherwise check the y position
-                else
-                {
+                else {
                     // Check every pixel 16 steps forward
-                    for (int y = 0; y < CellSize; y++)
-                    {
+                    for (int y = 0; y < CellSize; y++) {
                         // Attempt to find a matching palette changer on this pixel
                         var py = paletteYChangers.TryGetValue((uint)(CellSize * cellY + y), out PC_PaletteChangerMode pm) ? (PC_PaletteChangerMode?)pm : null;
 
                         // If one was found, change the palette based on type
-                        if (py != null)
-                        {
-                            switch (py)
-                            {
+                        if (py != null) {
+                            switch (py) {
                                 case PC_PaletteChangerMode.Top2tobottom1:
                                 case PC_PaletteChangerMode.Top3tobottom1:
                                     currentPalette = 1;
@@ -579,25 +513,20 @@ namespace R1Engine
                     }
                 }
 
-                for (int cellX = 0; cellX < levelData.Width; cellX++)
-                {
+                for (int cellX = 0; cellX < levelData.Width; cellX++) {
                     // Get the cell
                     var cell = levelData.Tiles[cellY * levelData.Width + cellX];
 
                     // Check the x position for palette changing
-                    if (isPaletteHorizontal)
-                    {
+                    if (isPaletteHorizontal) {
                         // Check every pixel 16 steps forward
-                        for (int x = 0; x < CellSize; x++)
-                        {
+                        for (int x = 0; x < CellSize; x++) {
                             // Attempt to find a matching palette changer on this pixel
                             var px = paletteXChangers.TryGetValue((uint)(CellSize * cellX + x), out PC_PaletteChangerMode pm) ? (PC_PaletteChangerMode?)pm : null;
 
                             // If one was found, change the palette based on type
-                            if (px != null)
-                            {
-                                switch (px)
-                                {
+                            if (px != null) {
+                                switch (px) {
                                     case PC_PaletteChangerMode.Left3toRight1:
                                     case PC_PaletteChangerMode.Left2toRight1:
                                         currentPalette = 1;
@@ -619,8 +548,7 @@ namespace R1Engine
                     var textureIndex = -1;
 
                     // Ignore if fully transparent
-                    if (cell.TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent)
-                    {
+                    if (cell.TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent) {
                         // Get the offset for the texture
                         var texOffset = levelData.TexturesOffsetTable[cell.TextureIndex];
 
@@ -632,8 +560,7 @@ namespace R1Engine
                     }
 
                     // Set the common tile
-                    commonLev.Tiles[cellY * levelData.Width + cellX] = new Common_Tile()
-                    {
+                    commonLev.Tiles[cellY * levelData.Width + cellX] = new Common_Tile() {
                         TileSetGraphicIndex = textureIndex,
                         CollisionType = cell.CollisionType,
                         PaletteIndex = currentPalette,
@@ -652,8 +579,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="levData">The level data to get the tile-set for</param>
         /// <returns>The 3 tile-sets</returns>
-        public Common_Tileset[] ReadTileSets(PC_LevFile levData)
-        {
+        public Common_Tileset[] ReadTileSets(PC_LevFile levData) {
             // Create the output array
             var output = new Common_Tileset[]
             {
@@ -666,22 +592,17 @@ namespace R1Engine
             int index = 0;
 
             // Enumerate every texture
-            foreach (var texture in levData.NonTransparentTextures.Concat(levData.TransparentTextures))
-            {
+            foreach (var texture in levData.NonTransparentTextures.Concat(levData.TransparentTextures)) {
                 // Enumerate every palette
-                for (int i = 0; i < levData.ColorPalettes.Length; i++)
-                {
+                for (int i = 0; i < levData.ColorPalettes.Length; i++) {
                     // Create the texture to use for the tile
-                    var tileTexture = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false)
-                    {
+                    var tileTexture = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false) {
                         filterMode = FilterMode.Point
                     };
 
                     // Write each pixel to the texture
-                    for (int y = 0; y < CellSize; y++)
-                    {
-                        for (int x = 0; x < CellSize; x++)
-                        {
+                    for (int y = 0; y < CellSize; y++) {
+                        for (int x = 0; x < CellSize; x++) {
                             // Get the index
                             var cellIndex = CellSize * y + x;
 
@@ -715,8 +636,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(GameSettings settings, Common_Lev commonLevelData)
-        {
+        public void SaveLevel(GameSettings settings, Common_Lev commonLevelData) {
             // Get the level file path
             var lvlPath = GetLevelFilePath(settings);
 
@@ -724,10 +644,8 @@ namespace R1Engine
             var lvlData = FileFactory.Read<PC_LevFile>(lvlPath, settings);
 
             // Update the tiles
-            for (int y = 0; y < lvlData.Height; y++)
-            {
-                for (int x = 0; x < lvlData.Width; x++)
-                {
+            for (int y = 0; y < lvlData.Height; y++) {
+                for (int x = 0; x < lvlData.Width; x++) {
                     // Get the tiles
                     var tile = lvlData.Tiles[y * lvlData.Width + x];
                     var commonTile = commonLevelData.Tiles[y * lvlData.Width + x];
@@ -735,18 +653,15 @@ namespace R1Engine
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
 
-                    if (commonTile.TileSetGraphicIndex == -1)
-                    {
+                    if (commonTile.TileSetGraphicIndex == -1) {
                         tile.TextureIndex = 0;
                         tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
-                    else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount)
-                    {
+                    else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount) {
                         tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
                     }
-                    else
-                    {
+                    else {
                         tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].Offset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
                     }
@@ -759,8 +674,7 @@ namespace R1Engine
             var eventLinkingTable = new List<ushort>();
 
             // Set events
-            foreach (var e in commonLevelData.Events)
-            {
+            foreach (var e in commonLevelData.Events) {
                 // Get the event
                 var r1Event = e.EventInfoData.PC_R1_Info.ToEvent(settings.World);
 
@@ -777,8 +691,7 @@ namespace R1Engine
                 events.Add(r1Event);
 
                 // Add the event commands
-                eventCommands.Add(new PC_EventCommand()
-                {
+                eventCommands.Add(new PC_EventCommand() {
                     CodeCount = (ushort)e.EventInfoData.PC_R1_Info.Commands.Length,
                     EventCode = e.EventInfoData.PC_R1_Info.Commands,
                     LabelOffsetCount = (ushort)e.EventInfoData.PC_R1_Info.LabelOffsets.Length,

@@ -1,13 +1,27 @@
 ﻿using System;
 using UnityEngine;
 
-namespace R1Engine
-{
+namespace R1Engine {
     /// <summary>
     /// Common event data
     /// </summary>
-    public class Common_Event : MonoBehaviour
-    {
+    public class Common_Event : MonoBehaviour {
+        /// <summary>
+        /// Gets the display name based on world
+        /// </summary>
+        /// <param name="world">The world</param>
+        /// <returns>The display name</returns>
+        public string DisplayName(World world) {
+            try {
+                return EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
+            }
+            catch (Exception ex) {
+                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.Type}: {ex.Message}");
+
+                return "N/A";
+            }
+        }
+
         /// <summary>
         /// The event info data
         /// </summary>
@@ -44,43 +58,38 @@ namespace R1Engine
         public int OffsetHY;
 
         /// <summary>
-        /// The event sprite
+        /// DES
         /// </summary>
-        public Common_Animation CommonAnimation;
+        public uint Des;
 
         /// <summary>
-        /// Gets the display name based on world
+        /// ETA
         /// </summary>
-        /// <param name="world">The world</param>
-        /// <returns>The display name</returns>
-        public string DisplayName(World world)
-        {
-            try
-            {
-                return EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.Type}: {ex.Message}");
+        public uint Eta;
 
-                return "N/A";
-            }
-        }
+        /// <summary>
+        /// The event current animation of this event
+        /// </summary>
+        public Common_Animation CurrentAnimation;
 
         // Current frame in the animation
         public float currentFrame = 0;
 
         // Reference to spritepart prefab
         public GameObject prefabSpritepart;
-
+        // Reference to the created renderers
         public SpriteRenderer[] prefabRendereds;
 
         private void Start() {
-            if (CommonAnimation != null) {
+            // Try to find the correct animation
+            CurrentAnimation = Controller.obj.levelController.currentDesigns[(int)Des].Animations[(int)Eta];
+
+            if (CurrentAnimation != null) {
+                var len = CurrentAnimation.Frames.GetLength(1);
                 // Create array
-                prefabRendereds = new SpriteRenderer[CommonAnimation.Frames.GetLength(1)];
+                prefabRendereds = new SpriteRenderer[len];
                 // Populate it with empty ones
-                for (int i = 0; i < CommonAnimation.Frames.GetLength(1); i++) {
+                for (int i = 0; i < len; i++) {
                     // Instantiate prefab
                     SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
                     newRenderer.sortingOrder = i;
@@ -99,20 +108,20 @@ namespace R1Engine
 
             // Update Event's x and y here
             if (transform.hasChanged) {
-                transform.position = new Vector3(Mathf.Clamp(XPosition / 16f,0,Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f),-Controller.obj.levelController.currentLevel.Height,0), transform.position.z);
+                transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
             }
 
-            if (prefabRendereds.Length > 0 && CommonAnimation != null && Settings.AnimateSprites) {
+            if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites) {
                 // Scroll through the frames           
                 currentFrame += 0.1f;
-                if (currentFrame >= CommonAnimation.Frames.GetLength(0))
+                if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 
                 // Update child renderers with correct part and position
                 int floored = Mathf.FloorToInt(currentFrame);
-                for (int i = 0; i < CommonAnimation.Frames.GetLength(1); i++) {
-                    prefabRendereds[i].sprite = CommonAnimation.Frames[floored, i].Sprite;
-                    prefabRendereds[i].transform.localPosition = new Vector3(CommonAnimation.Frames[floored, i].X / 16f, -(CommonAnimation.Frames[floored, i].Y / 16f), 0);
+                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
+                    prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des].Sprites[CurrentAnimation.Frames[floored, i].SpriteIndex];
+                    prefabRendereds[i].transform.localPosition = new Vector3(CurrentAnimation.Frames[floored, i].X / 16f, -(CurrentAnimation.Frames[floored, i].Y / 16f), 0);
                 }
             }
         }

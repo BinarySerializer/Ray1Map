@@ -7,7 +7,7 @@ namespace R1Engine {
         /// <summary>
         /// The sprite
         /// </summary>
-        public Sprite Sprite { get; set; }
+        public int SpriteIndex { get; set; }
 
         /// <summary>
         /// The x position
