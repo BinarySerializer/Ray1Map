@@ -75,54 +75,58 @@
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            DES = deserializer.Read<uint>();
-            DES2 = deserializer.Read<uint>();
-            DES3 = deserializer.Read<uint>();
-            ETA = deserializer.Read<uint>();
+            // TODO: Add for writing
+            // Get the xor key to use for the event
+            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 145);
 
-            Unknown1 = deserializer.Read<uint>();
-            Unknown2 = deserializer.Read<uint>();
+            DES = deserializer.Read<uint>(eveXor);
+            DES2 = deserializer.Read<uint>(eveXor);
+            DES3 = deserializer.Read<uint>(eveXor);
+            ETA = deserializer.Read<uint>(eveXor);
 
-            Unknown3 = deserializer.ReadArray<byte>(16);
+            Unknown1 = deserializer.Read<uint>(eveXor);
+            Unknown2 = deserializer.Read<uint>(eveXor);
 
-            XPosition = deserializer.Read<uint>();
-            YPosition = deserializer.Read<uint>();
+            Unknown3 = deserializer.ReadArray<byte>(16, eveXor);
 
-            // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
+            XPosition = deserializer.Read<uint>(eveXor);
+            YPosition = deserializer.Read<uint>(eveXor);
+
+            // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong? - add for writing
             if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
             {
-                deserializer.Read<uint>();
+                deserializer.Read<uint>(eveXor);
             }
 
-            Unknown4 = deserializer.ReadArray<byte>(20);
+            Unknown4 = deserializer.ReadArray<byte>(20, eveXor);
 
-            Unknown5 = deserializer.ReadArray<byte>(28);
+            Unknown5 = deserializer.ReadArray<byte>(28, eveXor);
 
-            Type = deserializer.Read<uint>();
-            Unknown6 = deserializer.Read<uint>();
+            Type = deserializer.Read<uint>(eveXor);
+            Unknown6 = deserializer.Read<uint>(eveXor);
 
-            OffsetBX = deserializer.Read<byte>();
-            OffsetBY = deserializer.Read<byte>();
+            OffsetBX = deserializer.Read<byte>(eveXor);
+            OffsetBY = deserializer.Read<byte>(eveXor);
 
-            Unknown7 = deserializer.Read<ushort>();
+            Unknown7 = deserializer.Read<ushort>(eveXor);
 
-            SubEtat = deserializer.Read<byte>();
-            Etat = deserializer.Read<byte>();
+            SubEtat = deserializer.Read<byte>(eveXor);
+            Etat = deserializer.Read<byte>(eveXor);
 
-            Unknown8 = deserializer.Read<ushort>();
-            Unknown9 = deserializer.Read<uint>();
+            Unknown8 = deserializer.Read<ushort>(eveXor);
+            Unknown9 = deserializer.Read<uint>(eveXor);
 
-            OffsetHY = deserializer.Read<byte>();
-            FollowSprite = deserializer.Read<byte>();
-            HitPoints = deserializer.Read<ushort>();
-            UnkGroup = deserializer.Read<byte>();
-            HitSprite = deserializer.Read<byte>();
+            OffsetHY = deserializer.Read<byte>(eveXor);
+            FollowSprite = deserializer.Read<byte>(eveXor);
+            HitPoints = deserializer.Read<ushort>(eveXor);
+            UnkGroup = deserializer.Read<byte>(eveXor);
+            HitSprite = deserializer.Read<byte>(eveXor);
 
-            Unknown10 = deserializer.ReadArray<byte>(6);
+            Unknown10 = deserializer.ReadArray<byte>(6, eveXor);
 
-            Unknown11 = deserializer.Read<byte>();
-            FollowEnabled = deserializer.Read<byte>();
-            Unknown12 = deserializer.Read<ushort>();
+            Unknown11 = deserializer.Read<byte>(eveXor);
+            FollowEnabled = deserializer.Read<byte>(eveXor);
+            Unknown12 = deserializer.Read<ushort>(eveXor);
         }
 
         /// <summary>

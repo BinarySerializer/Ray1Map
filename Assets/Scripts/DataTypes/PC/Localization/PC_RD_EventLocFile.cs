@@ -11,11 +11,6 @@ namespace R1Engine
     public class PC_RD_EventLocFile : PC_BaseFile
     {
         /// <summary>
-        /// Unknown value, possibly a boolean
-        /// </summary>
-        public ushort Unknown1 { get; set; }
-
-        /// <summary>
         /// The amount of localization items
         /// </summary>
         public uint LocCount { get; set; }
@@ -38,7 +33,6 @@ namespace R1Engine
         {
             base.Deserialize(deserializer);
 
-            Unknown1 = deserializer.Read<ushort>();
             LocCount = deserializer.Read<uint>();
 
             // TODO: Find way to avoid this
@@ -65,7 +59,6 @@ namespace R1Engine
         {
             base.Serialize(serializer);
 
-            serializer.Write(Unknown1);
             serializer.Write(LocCount);
             serializer.Write(Unknown2);
             serializer.Write(LocItems);

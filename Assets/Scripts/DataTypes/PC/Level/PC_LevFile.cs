@@ -11,8 +11,6 @@ namespace R1Engine
     {
         #region Public Properties
 
-        public ushort Unknown5 { get; set; }
-
         /// <summary>
         /// The pointer to the event block
         /// </summary>
@@ -192,9 +190,6 @@ namespace R1Engine
             // PC HEADER
 
             base.Deserialize(deserializer);
-
-            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
-                Unknown5 = deserializer.Read<ushort>();
 
             // HEADER BLOCK
 
@@ -400,9 +395,6 @@ namespace R1Engine
             // PC HEADER
 
             base.Serialize(serializer);
-
-            if (serializer.GameSettings.GameMode != GameMode.RaymanPC)
-                serializer.Write(Unknown5);
 
             // HEADER BLOCK
 

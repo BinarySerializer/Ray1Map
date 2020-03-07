@@ -19,12 +19,15 @@
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            CodeCount = deserializer.Read<ushort>();
-            LabelOffsetCount = deserializer.Read<ushort>();
+            // Get the xor key to use for the command
+            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 145);
 
-            EventCode = deserializer.ReadArray<byte>(CodeCount);
+            CodeCount = deserializer.Read<ushort>(eveXor);
+            LabelOffsetCount = deserializer.Read<ushort>(eveXor);
 
-            LabelOffsetTable = deserializer.ReadArray<ushort>(LabelOffsetCount);
+            EventCode = deserializer.ReadArray<byte>(CodeCount, eveXor);
+
+            LabelOffsetTable = deserializer.ReadArray<ushort>(LabelOffsetCount, eveXor);
         }
 
         /// <summary>
@@ -33,10 +36,13 @@
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            serializer.Write(CodeCount);
-            serializer.Write(LabelOffsetCount);
-            serializer.Write(EventCode);
-            serializer.Write(LabelOffsetTable);
+            // Get the xor key to use for the command
+            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 145);
+
+            serializer.Write(CodeCount, eveXor);
+            serializer.Write(LabelOffsetCount, eveXor);
+            serializer.Write(EventCode, eveXor);
+            serializer.Write(LabelOffsetTable, eveXor);
         }
     }
 }

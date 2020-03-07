@@ -13,7 +13,7 @@ namespace R1Engine
     {
         #region Public Properties
 
-        public ushort Unknown1 { get; set; }
+        public ushort Unknown6 { get; set; }
 
         public ushort Unknown2 { get; set; }
 
@@ -56,11 +56,11 @@ namespace R1Engine
             if (deserializer.FileExtension == ".wld")
             {
                 // Read unknown header
-                Unknown1 = deserializer.Read<ushort>();
+                Unknown6 = deserializer.Read<ushort>();
                 Unknown2 = deserializer.Read<ushort>();
                 Unknown4Count = deserializer.Read<ushort>();
                 Unknown3 = deserializer.Read<byte>();
-                Unknown4 = deserializer.ReadArray<byte>(Unknown4Count);
+                Unknown4 = deserializer.ReadArray<byte>((ulong)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? Unknown4Count : Unknown4Count * 8));
             }
 
             if (deserializer.FileExtension == ".wld")

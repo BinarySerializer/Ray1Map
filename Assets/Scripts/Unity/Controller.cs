@@ -18,6 +18,8 @@ namespace R1Engine
         }
         void Start() 
         {
+            new PC_RD_Manager().ExportSpriteTextures(new GameSettings(GameMode.RaymanDesignerPC, @"C:\Program Files (x86)\GOG Galaxy\Games\Rayman Forever\RayKit"), @"C:\Users\RayCarrot\Downloads\RayKit Sprites");
+
             levelController.LoadLevel(Settings.GetManager(), Settings.GetGameSettings);
 
             var startEvent = levelController.currentLevel.Events.FindItem(x => x.EventInfoData?.Type == 99 || x.EventInfoData?.Type == 124);

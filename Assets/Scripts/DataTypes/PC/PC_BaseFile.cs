@@ -16,6 +16,11 @@
         public byte[] SecondaryKitHeader { get; set; }
 
         /// <summary>
+        /// Unknown value, possibly a boolean
+        /// </summary>
+        public ushort Unknown1 { get; set; }
+
+        /// <summary>
         /// Deserializes the file contents
         /// </summary>
         /// <param name="deserializer">The deserializer</param>
@@ -25,6 +30,7 @@
             {
                 PrimaryKitHeader = deserializer.ReadArray<byte>(5);
                 SecondaryKitHeader = deserializer.ReadArray<byte>(5);
+                Unknown1 = deserializer.Read<ushort>();
             }
         }
 
@@ -38,6 +44,7 @@
             {
                 serializer.Write(PrimaryKitHeader);
                 serializer.Write(SecondaryKitHeader);
+                serializer.Write(Unknown1);
             }
         }
     }
