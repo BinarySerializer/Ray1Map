@@ -79,7 +79,7 @@ namespace R1Engine
 
             // Scroll through the frames
             if (animationFrames.Length > 0) {
-                currentFrame+=0.6f;
+                currentFrame+=0.3f;
                 if (currentFrame >= animationFrames.Length)
                     currentFrame = 0;
 
