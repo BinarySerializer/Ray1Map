@@ -308,13 +308,19 @@ namespace R1Engine {
             // Commonize DES and ETA and store them in this list:
             Controller.obj.levelController.currentDesigns = new List<Common_Design>();
 
+            int desIndex = 0;
             foreach (var d in des) {
+                Controller.status = $"Loading DES {desIndex}/{des.Length}";
+
+                await Controller.WaitIfNecessary();
+
                 Common_Design finalDesign = new Common_Design();
                 finalDesign.Sprites = new List<Sprite>();
                 finalDesign.Animations = new List<Common_Animation>();
 
                 // Sprites
                 foreach (var s in d.ImageDescriptors) {
+
                     // Get the image properties
                     var width = s.OuterWidth;
                     var height = s.OuterHeight;
@@ -391,6 +397,7 @@ namespace R1Engine {
 
                 // Add to the designs
                 Controller.obj.levelController.currentDesigns.Add(finalDesign);
+                desIndex++;
             }
 
             // Add the events
@@ -403,6 +410,10 @@ namespace R1Engine {
 
                 await Controller.WaitIfNecessary();
 
+                //Get animation index from the eta item
+                var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
+                var animIndex = etaItem == null ? -1 : etaItem.AnimationIndex;
+
                 // Instantiate event prefab using LevelEventController
                 var ee = Controller.obj.levelEventController.AddEvent(
                     eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
@@ -412,7 +423,8 @@ namespace R1Engine {
                     e.OffsetBY,
                     levelData.EventLinkingTable[index],
                     e.DES,
-                    e.ETA);
+                    e.ETA,
+                    animIndex);
 
                 // Add the event
                 commonLev.Events.Add(ee);

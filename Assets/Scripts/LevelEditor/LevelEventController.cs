@@ -40,7 +40,7 @@ namespace R1Engine {
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(EventInfoData e, uint xpos, uint ypos, int offbx, int offby, int link, uint des, uint eta) {
+        public Common_Event AddEvent(EventInfoData e, uint xpos, uint ypos, int offbx, int offby, int link, uint des, uint eta, int animIndex) {
             // Instantiate prefab
             Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
             newEvent.EventInfoData = e;
@@ -51,6 +51,7 @@ namespace R1Engine {
             newEvent.LinkIndex = link;
             newEvent.Des = des;
             newEvent.Eta = eta;
+            newEvent.DefaultAnimation = animIndex;
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
