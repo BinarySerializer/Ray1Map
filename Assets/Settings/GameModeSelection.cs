@@ -23,5 +23,8 @@ namespace R1Engine
 
         [GameMode(GameMode.RayKit, "Rayman 60 Levels (PC)", typeof(PC_RD_Manager))]
         Rayman60LevelsPC,
+
+        [GameMode(GameMode.RayEduPC, "Rayman Educational (PC)", typeof(PC_EDU_Manager))]
+        RaymanEducationalPC,
     }
 }

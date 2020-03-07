@@ -39,5 +39,10 @@
         /// The game level, starting at 1
         /// </summary>
         public int Level { get; set; }
+
+        /// <summary>
+        /// The educational game volume name
+        /// </summary>
+        public string EduVolume { get; set; }
     }
 }

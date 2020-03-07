@@ -35,6 +35,7 @@ public class SettingsWindow : UnityWindow
 		EditorGUI.BeginChangeCheck();
 
 		// Mode
+
 		DrawHeader(ref yPos, "Mode");
 
 		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.EnumPopup(GetNextRect(ref yPos), "Game", Settings.SelectedGameMode);
@@ -49,19 +50,47 @@ public class SettingsWindow : UnityWindow
         {
 			// Only update if previous values don't match
 			if (!ComparePreviousValues())
-                CurrentLevelCount = Settings.GetGameManager.GetLevelCount(Settings.GetGameSettings);
+            {
+                Debug.Log("Updated levels");
+                CurrentLevels = Settings.GetGameManager.GetLevels(Settings.GetGameSettings);
+            }
         }
         catch (Exception ex)
         {
             Debug.LogWarning(ex.Message);
         }
 
-		var levels = Directory.Exists(Settings.CurrentDirectory) ? Enumerable.Range(1, CurrentLevelCount).ToArray() : new int[0];
+		var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new int[0];
 
-		if (Settings.Level > CurrentLevelCount)
+		if (!levels.Contains(Settings.Level))
 			Settings.Level = 1;
 
-		Settings.Level = EditorGUI.IntPopup(GetNextRect(ref yPos), "Map", Settings.Level, levels.Select(x => x.ToString()).ToArray(), levels);
+		var lvlIndex = EditorGUI.IntPopup(GetNextRect(ref yPos), "Map", levels.FindItemIndex(x => x == Settings.Level), levels.Select(x => x.ToString()).ToArray(), levels);
+
+        if (levels.Length > lvlIndex && lvlIndex != -1)
+            Settings.Level = levels[lvlIndex];
+
+        // Update previous values
+        UpdatePreviousValues();
+
+		try
+		{
+            // Only update if previous values don't match
+            if (!ComparePreviousValues())
+            {
+				Debug.Log("Updated EDU volumes");
+                CurrentEduVolumes = Settings.GetGameManager.GetEduVolumes(Settings.GetGameSettings);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning(ex.Message);
+        }
+
+		var eduIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Volume", CurrentEduVolumes.FindItemIndex(x => x == Settings.EduVolume), CurrentEduVolumes);
+
+		if (CurrentEduVolumes.Length > eduIndex && eduIndex != -1)
+			Settings.EduVolume = CurrentEduVolumes[eduIndex];
 
 		// Directories
 
@@ -80,9 +109,6 @@ public class SettingsWindow : UnityWindow
 
         Settings.AnimateSprites = EditorGUI.Toggle(GetNextRect(ref yPos), "Animate sprites", Settings.AnimateSprites);
 
-        // Update previous values
-		UpdatePreviousValues();
-
 		TotalyPos = yPos;
 		GUI.EndScrollView();
 
@@ -100,6 +126,7 @@ public class SettingsWindow : UnityWindow
     {
         PrevDir = Settings.CurrentDirectory;
         PrevWorld = Settings.World;
+        PrevEduVolume = Settings.EduVolume;
     }
 
 	/// <summary>
@@ -108,7 +135,7 @@ public class SettingsWindow : UnityWindow
 	/// <returns>True if they're the same, otherwise false</returns>
 	private bool ComparePreviousValues()
     {
-		return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World;
+		return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World && PrevEduVolume == Settings.EduVolume;
     }
 
 	/// <summary>
@@ -121,7 +148,11 @@ public class SettingsWindow : UnityWindow
 	/// </summary>
 	private World PrevWorld { get; set; }
 
-	private int CurrentLevelCount { get; set; }
+	private string PrevEduVolume { get; set; }
+
+	private int[] CurrentLevels { get; set; }
+
+	private string[] CurrentEduVolumes { get; set; }
 
     private float TotalyPos { get; set; }
 

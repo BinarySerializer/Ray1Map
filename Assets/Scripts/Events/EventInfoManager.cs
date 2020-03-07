@@ -75,7 +75,7 @@ namespace R1Engine
             foreach (World world in EnumHelpers.GetValues<World>())
             {
                 // Enumerate each level
-                for (int i = 1; i < pcManager.GetLevelCount(new GameSettings(GameMode.RayPC, pcBasePath, world)) + 1; i++)
+                foreach (var i in pcManager.GetLevels(new GameSettings(GameMode.RayPC, pcBasePath, world)))
                 {
                     // Get the settings
                     var s = new GameSettings(GameMode.RayPC, pcBasePath, world, i);

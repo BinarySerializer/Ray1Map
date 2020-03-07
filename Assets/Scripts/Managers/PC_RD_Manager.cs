@@ -19,13 +19,6 @@ namespace R1Engine
         public override string GetLevelFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}{settings.Level:00}.LEV");
 
         /// <summary>
-        /// Gets the file path for the allfix file
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The allfix file path</returns>
-        public override string GetAllfixFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"ALLFIX.DAT");
-
-        /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -38,11 +31,11 @@ namespace R1Engine
         public override bool Has3Palettes => false;
 
         /// <summary>
-        /// Gets the level count for the specified world
+        /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The level count</returns>
-        public override int GetLevelCount(GameSettings settings) => Directory.EnumerateFiles(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count();
+        /// <returns>The levels</returns>
+        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
 
         #endregion
 

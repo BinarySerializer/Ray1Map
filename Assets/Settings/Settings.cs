@@ -37,6 +37,11 @@ namespace R1Engine
         public static int Level { get; set; }
 
         /// <summary>
+        /// The selected educational game volume
+        /// </summary>
+        public static string EduVolume { get; set; }
+
+        /// <summary>
         /// True for the HD collision sheet to be used, false for the original Rayman Designer one to be used
         /// </summary>
         public static bool UseHDCollisionSheet { get; set; }
@@ -64,7 +69,10 @@ namespace R1Engine
         /// <summary>
         /// Gets the current game settings
         /// </summary>
-        public static GameSettings GetGameSettings => new GameSettings(GetGameMode, CurrentDirectory, World, Level);
+        public static GameSettings GetGameSettings => new GameSettings(GetGameMode, CurrentDirectory, World, Level)
+        {
+            EduVolume = EduVolume
+        };
 
         /// <summary>
         /// Gets the game mode
@@ -94,6 +102,7 @@ namespace R1Engine
 
             EditorPrefs.SetString("GameMode", SelectedGameMode.ToString());
             EditorPrefs.SetString("SelectedWorld", World.ToString());
+            EditorPrefs.SetString("EduVolume", EduVolume);
             EditorPrefs.SetInt("SelectedLevelFile", Level);
             EditorPrefs.SetBool("UseHDCollisionSheet", UseHDCollisionSheet);
             EditorPrefs.SetBool("AnimateSprites", AnimateSprites);
@@ -112,6 +121,7 @@ namespace R1Engine
 
             SelectedGameMode = Enum.TryParse(EditorPrefs.GetString("GameMode", SelectedGameMode.ToString()), out GameModeSelection gameMode) ? gameMode : SelectedGameMode;
             World = Enum.TryParse(EditorPrefs.GetString("SelectedWorld", World.ToString()), out World world) ? world : World;
+            EduVolume = EditorPrefs.GetString("EduVolume", EduVolume);
             Level = EditorPrefs.GetInt("SelectedLevelFile", Level);
             UseHDCollisionSheet = EditorPrefs.GetBool("UseHDCollisionSheet", UseHDCollisionSheet);
             AnimateSprites = EditorPrefs.GetBool("AnimateSprites", AnimateSprites);

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -52,7 +53,19 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The display name</returns>
-        public string DisplayName(World world) => EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
+        public string DisplayName(World world)
+        {
+            try
+            {
+                return EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.Type}: {ex.Message}");
+
+                return "N/A";
+            }
+        }
 
         // Current frame in the animation
         public float currentFrame = 0;

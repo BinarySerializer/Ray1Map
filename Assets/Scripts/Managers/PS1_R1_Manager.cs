@@ -72,16 +72,23 @@ namespace R1Engine
         public bool Has3Palettes => false;
 
         /// <summary>
-        /// Gets the level count for the specified world
+        /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The level count</returns>
-        public int GetLevelCount(GameSettings settings)
+        /// <returns>The levels</returns>
+        public int[] GetLevels(GameSettings settings)
         {
             var worldPath = GetWorldFolderPath(settings);
 
-            return Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count(x => Path.GetFileNameWithoutExtension(x)?.Length == 5);
+            return Enumerable.Range(1, Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count(x => Path.GetFileNameWithoutExtension(x)?.Length == 5)).ToArray();
         }
+
+        /// <summary>
+        /// Gets the available educational volumes
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The available educational volumes</returns>
+        public virtual string[] GetEduVolumes(GameSettings settings) => new string[0];
 
         #endregion
 

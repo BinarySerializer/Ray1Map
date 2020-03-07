@@ -13,11 +13,18 @@ namespace R1Engine
         bool Has3Palettes { get; }
 
         /// <summary>
-        /// Gets the level count for the specified world
+        /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The level count</returns>
-        int GetLevelCount(GameSettings settings);
+        /// <returns>The levels</returns>
+        int[] GetLevels(GameSettings settings);
+
+        /// <summary>
+        /// Gets the available educational volumes
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The available educational volumes</returns>
+        string[] GetEduVolumes(GameSettings settings);
 
         /// <summary>
         /// Loads the specified level

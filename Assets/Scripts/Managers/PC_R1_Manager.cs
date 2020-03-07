@@ -11,11 +11,11 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
-        /// Gets the level count for the specified world
+        /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The level count</returns>
-        public override int GetLevelCount(GameSettings settings) => Directory.EnumerateFiles(GetWorldFolderPath(settings), "RAY??.LEV", SearchOption.TopDirectoryOnly).Count();
+        /// <returns>The levels</returns>
+        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(GetWorldFolderPath(settings), "RAY??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
 
         /// <summary>
         /// Gets the folder path for the specified world
@@ -30,13 +30,6 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
         public override string GetLevelFilePath(GameSettings settings) => Path.Combine(GetWorldFolderPath(settings), $"RAY{settings.Level}.LEV");
-
-        /// <summary>
-        /// Gets the file path for the allfix file
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The allfix file path</returns>
-        public override string GetAllfixFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), "allfix.dat");
 
         /// <summary>
         /// Gets the file path for the specified world file

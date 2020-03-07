@@ -92,7 +92,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The allfix file path</returns>
-        public abstract string GetAllfixFilePath(GameSettings settings);
+        public virtual string GetAllfixFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"ALLFIX.DAT");
 
         /// <summary>
         /// Gets the file path for the specified world file
@@ -107,11 +107,18 @@ namespace R1Engine
         public abstract bool Has3Palettes { get; }
 
         /// <summary>
-        /// Gets the level count for the specified world
+        /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The level count</returns>
-        public abstract int GetLevelCount(GameSettings settings);
+        /// <returns>The levels</returns>
+        public abstract int[] GetLevels(GameSettings settings);
+
+        /// <summary>
+        /// Gets the available educational volumes
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The available educational volumes</returns>
+        public virtual string[] GetEduVolumes(GameSettings settings) => new string[0];
 
         #endregion
 
@@ -165,10 +172,10 @@ namespace R1Engine
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            for (int i = 0; i < GetLevelCount(settings); i++)
+            foreach (var i in GetLevels(settings))
             {
                 // Set the level number
-                settings.Level = i + 1;
+                settings.Level = i;
 
                 // Load the level
                 levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings));
