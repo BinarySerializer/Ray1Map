@@ -271,7 +271,7 @@ namespace R1Engine
         public Texture2D[] GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor, bool readAllFrames)
         {
             // Create the output
-            var output = new Texture2D[animationDescriptor.Layers.Length];
+            var output = new Texture2D[animationDescriptor.FrameCount];
 
             // Load the level to get the palette
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
@@ -279,13 +279,25 @@ namespace R1Engine
             var layer = 0;
 
             // Create each frame
-            for (int i = 0; i < (readAllFrames ? 1 : animationDescriptor.FrameCount); i++)
+            for (int i = 0; i < (readAllFrames ? animationDescriptor.FrameCount : 1); i++)
             {
                 // Get the frame
                 var frame = animationDescriptor.Frames[i];
 
-                // Create the texture
-                Texture2D tex = new Texture2D(frame.XPosition + frame.Width + 1, frame.YPosition + frame.Height + 1, TextureFormat.RGBA32, false)
+                int maxW = 0;
+                int maxH = 0;
+                for (var temp = 0; temp < animationDescriptor.LayersPerFrame; temp++) {
+                    var al = animationDescriptor.Layers[layer+temp];
+                    var sp = desItem.ImageDescriptors[al.ImageIndex];
+                    if (sp.OuterWidth > maxW)
+                        maxW = sp.OuterWidth;
+                    if (sp.OuterHeight > maxH)
+                        maxH = sp.OuterHeight;
+                }
+
+                //var maxW = desItem.ImageDescriptors.Max(x => x.OuterWidth);
+                //var maxH = desItem.ImageDescriptors.Max(x => x.OuterHeight);
+                Texture2D tex = new Texture2D(frame.XPosition + frame.Width + maxW + 1, frame.YPosition + frame.Height + maxH + 1, TextureFormat.RGBA32, false)
                 {
                     filterMode = FilterMode.Point
                 };
@@ -300,9 +312,10 @@ namespace R1Engine
                 }
 
                 // Write each layer
-                for (var layerIndex = layer; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++, layer++)
+                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
                 {
-                    var animationLayer = animationDescriptor.Layers[layerIndex];
+                    var animationLayer = animationDescriptor.Layers[layer];
+                    layer++;
 
                     // TODO: Is this index correct?
                     // Get the sprite
@@ -334,7 +347,7 @@ namespace R1Engine
                                 var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x) + animationLayer.XPosition;
 
                                 // Set the pixel
-                                tex.SetPixel(pixelX, - (y + animationLayer.YPosition), color.GetColor());
+                                tex.SetPixel(pixelX, - (y + animationLayer.YPosition + 1), color.GetColor());
                             }
                         }
                     }
@@ -434,7 +447,7 @@ namespace R1Engine
                     }
 
                     // Set the event sprite
-                    ee.SetSprite(animation.First());
+                    ee.SetSprite(animation); //.First()
                 }
                 catch (Exception ex)
                 {

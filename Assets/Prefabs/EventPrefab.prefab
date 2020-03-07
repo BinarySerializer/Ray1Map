@@ -49,7 +49,11 @@ MonoBehaviour:
   LinkIndex: 0
   OffsetBX: 0
   OffsetBY: 0
-  tempSprite: {fileID: 0}
+  OffsetHY: 0
+  animationFrames: []
+  currentFrame: 0
+  spriteRendered: {fileID: 6292559150599956680}
+  boxCollider: {fileID: 3685822364775164657}
 --- !u!1 &8187918766221443119
 GameObject:
   m_ObjectHideFlags: 0
