@@ -446,8 +446,11 @@ namespace R1Engine
                     // Get the DES item
                     var desItem = des[e.DES - 1];
 
+                    // Find the ETA item
+                    var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
+
                     // Find the animation index
-                    var animIndex = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat).AnimationIndex;
+                    var animIndex = etaItem.AnimationIndex;
                     
                     // Get the animation item
                     var animItem = desItem.AnimationDescriptors[animIndex];
