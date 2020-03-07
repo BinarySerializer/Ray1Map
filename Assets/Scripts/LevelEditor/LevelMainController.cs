@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine {
     public class LevelMainController : MonoBehaviour {
@@ -14,15 +15,26 @@ namespace R1Engine {
         public MeshFilter backgroundTint;
 
 
-        public void LoadLevel(IGameManager manager, GameSettings settings) 
+        public async Task LoadLevelAsync(IGameManager manager, GameSettings settings) 
         {
             // Load the level
-            currentLevel = manager.LoadLevel(settings, EventInfoManager.LoadEventInfo());
+            currentLevel = await manager.LoadLevelAsync(settings, EventInfoManager.LoadEventInfo());
+
+            await Controller.WaitIfNecessary();
+
+            Controller.status = $"Initializing tile maps";
 
             // Init tilemaps
             controllerTilemap.InitializeTilemaps();
+
+            await Controller.WaitIfNecessary();
+
+            Controller.status = $"Initializing events";
+
             // Init event things
             controllerEvents.InitializeEvents();
+
+            await Controller.WaitIfNecessary();
 
             // Draw the background tint
             var mo = new Mesh {

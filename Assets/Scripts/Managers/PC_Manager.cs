@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -378,10 +379,14 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData)
+        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData)
         {
+            Controller.status = $"Loading map data for {settings.World} {settings.Level}";
+
             // Read the level data
             var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
+
+            await Controller.WaitIfNecessary();
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
@@ -398,13 +403,19 @@ namespace R1Engine
                 Tiles = new Common_Tile[levelData.Width * levelData.Height]
             };
 
-            var index = 0;
+            Controller.status = $"Loading allfix";
 
             // Read the fixed data
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings);
 
+            await Controller.WaitIfNecessary();
+
+            Controller.status = $"Loading world";
+
             // Read the world data
             var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
+
+            await Controller.WaitIfNecessary();
 
             // Get the DES and ETA
             var des = allfix.DesItems.Concat(worldData.DesItems).ToArray();
@@ -413,8 +424,14 @@ namespace R1Engine
             // Add the events
             commonLev.Events = new List<Common_Event>();
 
+            var index = 0;
+
             foreach (var e in levelData.Events)
             {
+                Controller.status = $"Loading event {index}/{levelData.EventCount}";
+
+                await Controller.WaitIfNecessary();
+
                 // Instantiate event prefab using LevelEventController
                 var ee = Controller.obj.levelEventController.AddEvent(
                     eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
@@ -449,6 +466,8 @@ namespace R1Engine
 
                 index++;
             }
+
+            Controller.status = $"Loading tile set";
 
             // Read the 3 tile sets (one for each palette)
             var tileSets = ReadTileSets(levelData);

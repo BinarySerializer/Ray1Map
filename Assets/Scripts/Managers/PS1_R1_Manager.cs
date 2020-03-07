@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -151,10 +152,14 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        public Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData)
+        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData)
         {
-            // Open the level
+            Controller.status = $"Loading map data for {settings.World} {settings.Level}";
+
+            // Read the level
             var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(settings), settings);
+
+            await Controller.WaitIfNecessary();
 
             // Convert levelData to common level format
             Common_Lev c = new Common_Lev
@@ -175,6 +180,8 @@ namespace R1Engine
             // Add the events
             foreach (var e in levelData.Events)
             {
+                Controller.status = $"Loading event {index}/{levelData.EventCount}";
+
                 // Instantiate event prefab using LevelEventController
                 c.Events.Add(Controller.obj.levelEventController.AddEvent(
                     eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
@@ -187,8 +194,14 @@ namespace R1Engine
                 index++;
             }
 
+            await Controller.WaitIfNecessary();
+
+            Controller.status = $"Loading tile set";
+
             Common_Tileset tileSet = ReadTileSet(settings);
             c.TileSet[1] = tileSet;
+
+            await Controller.WaitIfNecessary();
 
             c.Tiles = ConvertTilesToCommon(levelData.Tiles, levelData.Width, levelData.Height);
 

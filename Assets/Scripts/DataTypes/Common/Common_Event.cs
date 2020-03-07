@@ -80,6 +80,10 @@ namespace R1Engine
         }
 
         void Update() {
+
+            if (Controller.obj?.levelController?.currentLevel == null)
+                return;
+
             // Update Event's x and y here
             if (transform.hasChanged) {
                 transform.position = new Vector3(Mathf.Clamp(XPosition / 16f,0,Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f),-Controller.obj.levelController.currentLevel.Height,0), transform.position.z);
@@ -87,7 +91,7 @@ namespace R1Engine
 
             if (prefabRendereds.Length > 0 && CommonAnimation != null && Settings.AnimateSprites) {
                 // Scroll through the frames           
-                currentFrame += 0.3f;
+                currentFrame += 0.1f;
                 if (currentFrame >= CommonAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 

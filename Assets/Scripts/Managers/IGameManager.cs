@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Threading.Tasks;
+
+namespace R1Engine
 {
     /// <summary>
     /// Defines a generic game manager
@@ -23,7 +25,7 @@
         /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
         /// <returns>The level</returns>
-        Common_Lev LoadLevel(GameSettings settings, EventInfoData[] eventInfoData);
+        Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData);
 
         /// <summary>
         /// Saves the specified level
