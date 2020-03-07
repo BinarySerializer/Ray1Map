@@ -116,9 +116,13 @@ namespace R1Engine
 
         // Get one common tile at given position
         public Common_Tile GetTileAtPos(int x, int y) {
-            return Controller.obj.levelController.currentLevel.Tiles[
-                Mathf.Clamp(Mathf.FloorToInt(x), 0, Controller.obj.levelController.currentLevel.Width - 1)
-                + Mathf.Clamp(Mathf.FloorToInt(-y), 0, Controller.obj.levelController.currentLevel.Height - 1) * Controller.obj.levelController.currentLevel.Width];
+            if (Controller.obj.levelController.currentLevel == null) {
+                return null;
+            }else { 
+                return Controller.obj.levelController.currentLevel.Tiles[
+                    Mathf.Clamp(Mathf.FloorToInt(x), 0, Controller.obj.levelController.currentLevel.Width - 1)
+                    + Mathf.Clamp(Mathf.FloorToInt(-y), 0, Controller.obj.levelController.currentLevel.Height - 1) * Controller.obj.levelController.currentLevel.Width];
+            }
         }
 
         /// <summary>

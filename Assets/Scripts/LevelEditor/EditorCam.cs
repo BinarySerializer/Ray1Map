@@ -19,10 +19,12 @@ namespace R1Engine {
             fricStart = friction;
             editor = FindObjectOfType<Editor>();
 
-            var startEvent = Controller.obj.levelController.currentLevel.Events.FindItem(x => x.EventInfoData?.Type == 99 || x.EventInfoData?.Type == 124);
+            if (Controller.obj.levelController != null) {
+                var startEvent = Controller.obj.levelController.currentLevel.Events.FindItem(x => x.EventInfoData?.Type == 99 || x.EventInfoData?.Type == 124);
 
-            if (startEvent != null)
-                pos = new Vector3(startEvent.XPosition, startEvent.YPosition);
+                if (startEvent != null)
+                    pos = new Vector3(startEvent.XPosition, startEvent.YPosition);
+            }
         }
 
         void Update() {

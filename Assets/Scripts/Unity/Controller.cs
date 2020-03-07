@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace R1Engine
 {
@@ -10,12 +11,16 @@ namespace R1Engine
         [HideInInspector]
         public LevelEventController levelEventController;
 
+        // The loading string
+        public Text loadingText;
+
         void Awake() 
         {
             obj = this;
             levelController = GameObject.Find("Level").GetComponent<LevelMainController>();
             levelEventController = GameObject.Find("Level").GetComponent<LevelEventController>();
         }
+
         void Start() 
         {
             levelController.LoadLevel(Settings.GetGameManager, Settings.GetGameSettings);
