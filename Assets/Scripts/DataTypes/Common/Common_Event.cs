@@ -45,7 +45,7 @@ namespace R1Engine
         /// <summary>
         /// The event sprite
         /// </summary>
-        public Common_Sprite EventSprite { get; set; }
+        public Common_Animation CommonAnimation;
 
         /// <summary>
         /// Gets the display name based on world
@@ -54,41 +54,49 @@ namespace R1Engine
         /// <returns>The display name</returns>
         public string DisplayName(World world) => EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
 
-        // Animation frames
-        public Sprite[] animationFrames;
+        // Current frame in the animation
         public float currentFrame = 0;
 
-        // References to certain components with this prefab
-        public SpriteRenderer spriteRendered;
-        public BoxCollider2D boxCollider;
+        // Reference to spritepart prefab
+        public GameObject prefabSpritepart;
 
-        //public void SetSprite(Texture2D[] textures) {
-        //    animationFrames = new Sprite[textures.Length];
-        //    currentFrame = 0;
+        public SpriteRenderer[] prefabRendereds;
 
-        //    for (int i=0; i<textures.Length; i++) {
-        //        animationFrames[i] = Sprite.Create(textures[i], new Rect(0, 0, textures[i].width, textures[i].height), new Vector2(0f, 1f), 16, 20);
-        //    }
-
-        //    // Resize box collider
-        //    boxCollider.size = new Vector2(textures[0].width/16f, textures[0].height/16f);
-        //    boxCollider.offset = new Vector2((textures[0].width / 16f) / 2f, -(textures[0].height / 16f) / 2f);
-        //}
+        private void Start() {
+            if (CommonAnimation != null) {
+                // Create array
+                prefabRendereds = new SpriteRenderer[CommonAnimation.Frames.GetLength(1)];
+                // Populate it with empty ones
+                for (int i = 0; i < CommonAnimation.Frames.GetLength(1); i++) {
+                    // Instantiate prefab
+                    SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
+                    newRenderer.sortingOrder = i;
+                    // Set as child of events gameobject
+                    newRenderer.gameObject.transform.parent = gameObject.transform;
+                    // Add to list
+                    prefabRendereds[i] = newRenderer;
+                }
+            }
+        }
 
         void Update() {
-            // TODO: Update here is just a quick and dirty way to update the X and Y
-            // Most likely not the most efficent way when a level has a lot of events
+            // Update Event's x and y here
             if (transform.hasChanged) {
                 transform.position = new Vector3(Mathf.Clamp(XPosition / 16f,0,Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f),-Controller.obj.levelController.currentLevel.Height,0), transform.position.z);
             }
 
-            // Scroll through the frames
-            if (animationFrames.Length > 0) {
-                currentFrame+=0.3f;
-                if (currentFrame >= animationFrames.Length)
+            if (prefabRendereds.Length > 0 && CommonAnimation != null && Settings.AnimateSprites) {
+                // Scroll through the frames           
+                currentFrame += 0.3f;
+                if (currentFrame >= CommonAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 
-                spriteRendered.sprite = animationFrames[Mathf.FloorToInt(currentFrame)];
+                // Update child renderers with correct part and position
+                int floored = Mathf.FloorToInt(currentFrame);
+                for (int i = 0; i < CommonAnimation.Frames.GetLength(1); i++) {
+                    prefabRendereds[i].sprite = CommonAnimation.Frames[floored, i].Sprite;
+                    prefabRendereds[i].transform.localPosition = new Vector3(CommonAnimation.Frames[floored, i].X / 16f, -(CommonAnimation.Frames[floored, i].Y / 16f), 0);
+                }
             }
         }
     }

@@ -268,56 +268,30 @@ namespace R1Engine
         /// <param name="animationDescriptor">The animation descriptor</param>
         /// <param name="readAllFrames">Indicates if all frames should be read</param>
         /// <returns>The texture</returns>
-        public Texture2D[] GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor, bool readAllFrames)
+        public Common_Animation GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor)
         {
             // Create the output
-            var output = new Texture2D[animationDescriptor.FrameCount];
+            var output = new Common_Animation();
+            output.Frames = new Common_AnimationPart[animationDescriptor.FrameCount, animationDescriptor.LayersPerFrame];
 
             // Load the level to get the palette
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
 
+            // The layer index
             var layer = 0;
 
             // Create each frame
-            for (int i = 0; i < (readAllFrames ? animationDescriptor.FrameCount : 1); i++)
+            for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
                 // Get the frame
                 var frame = animationDescriptor.Frames[i];
 
-                int maxW = 0;
-                int maxH = 0;
-                for (var temp = 0; temp < animationDescriptor.LayersPerFrame; temp++) {
-                    var al = animationDescriptor.Layers[layer+temp];
-                    var sp = desItem.ImageDescriptors[al.ImageIndex];
-                    if (sp.OuterWidth > maxW)
-                        maxW = sp.OuterWidth;
-                    if (sp.OuterHeight > maxH)
-                        maxH = sp.OuterHeight;
-                }
-
-                //var maxW = desItem.ImageDescriptors.Max(x => x.OuterWidth);
-                //var maxH = desItem.ImageDescriptors.Max(x => x.OuterHeight);
-                Texture2D tex = new Texture2D(frame.XPosition + frame.Width + maxW + 1, frame.YPosition + frame.Height + maxH + 1, TextureFormat.RGBA32, false)
-                {
-                    filterMode = FilterMode.Point
-                };
-
-                // Default to fully transparent
-                for (int y = 0; y < tex.height; y++)
-                {
-                    for (int x = 0; x < tex.width; x++)
-                    {
-                        tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                    }
-                }
-
-                // Write each layer
+                // Create each layer
                 for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
                 {
                     var animationLayer = animationDescriptor.Layers[layer];
                     layer++;
 
-                    // TODO: Is this index correct?
                     // Get the sprite
                     var sprite = desItem.ImageDescriptors[animationLayer.ImageIndex];
 
@@ -325,6 +299,18 @@ namespace R1Engine
                     var width = sprite.OuterWidth;
                     var height = sprite.OuterHeight;
                     var offset = sprite.ImageOffset;
+
+                    // Create the texture
+                    Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
+                        filterMode = FilterMode.Point
+                    };
+
+                    // Default to fully transparent
+                    for (int y = 0; y < tex.height; y++) {
+                        for (int x = 0; x < tex.width; x++) {
+                            tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                        }
+                    }
 
                     // Set every pixel
                     for (int y = 0; y < height; y++)
@@ -344,20 +330,25 @@ namespace R1Engine
                             if (pixel <= 159)
                             {
                                 // Get the x pixel position based on if it's flipper or not
-                                var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x) + animationLayer.XPosition;
+                                var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x);
 
                                 // Set the pixel
-                                tex.SetPixel(pixelX, - (y + animationLayer.YPosition + 1), color.GetColor());
+                                tex.SetPixel(pixelX, - (y + 1), color.GetColor());
                             }
                         }
                     }
+
+                    // Apply the changes
+                    tex.Apply();
+
+                    var part = new Common_AnimationPart();
+                    part.Sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
+                    part.X = animationLayer.XPosition;
+                    part.Y = animationLayer.YPosition;
+
+                    // Add the texture
+                    output.Frames[i, layerIndex] = part;
                 }
-
-                // Apply the changes
-                tex.Apply();
-
-                // Add the texture
-                output[i] = tex;
             }
 
             // Return the texture
@@ -417,14 +408,17 @@ namespace R1Engine
 
                 try
                 {
-                    // Find the animation index
-                    var animIndex = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat).AnimationIndex;
-
                     // Get the DES item
                     var desItem = des[e.DES - 1];
+                    // Find the animation index
+                    var animIndex = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat).AnimationIndex;
+                    // Get the animation item
+                    var animItem = desItem.AnimationDescriptors[animIndex];
 
-                    Common_Animation[] animations;
-                    
+                    Common_Animation animation = GetSpriteFrames(settings, desItem, animItem);
+
+                    ee.CommonAnimation = animation;
+                    /*
                     // Check if the animations have been cached
                     if (SpriteAnimationCache.ContainsKey(e.DES))
                     {
@@ -449,14 +443,14 @@ namespace R1Engine
 
                         // Cache the animations
                         SpriteAnimationCache[e.DES] = animations;
-                    }
+                    }*/
 
                     // Create the sprite
-                    var sprite = new Common_Sprite()
-                    {
-                        Animations = animations,
-                        DefaultAnimation = animIndex
-                    };
+                    //var sprite = new Common_Sprite()
+                    //{
+                    //    Animations = animations,
+                    //    DefaultAnimation = animIndex
+                    //};
                 }
                 catch (Exception ex)
                 {

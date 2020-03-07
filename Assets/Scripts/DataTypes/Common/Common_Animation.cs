@@ -10,7 +10,7 @@ namespace R1Engine
         /// <summary>
         /// The frames in the animation
         /// </summary>
-        public Texture2D[] Frames { get; set; }
+        public Common_AnimationPart[,] Frames { get; set; }
 
         /// <summary>
         /// The frame rate is frames per second
