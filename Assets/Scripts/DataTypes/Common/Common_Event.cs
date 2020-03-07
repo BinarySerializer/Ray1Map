@@ -1,21 +1,26 @@
 ﻿using System;
 using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// Common event data
     /// </summary>
-    public class Common_Event : MonoBehaviour {
+    public class Common_Event : MonoBehaviour
+    {
         /// <summary>
         /// Gets the display name based on world
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The display name</returns>
-        public string DisplayName(World world) {
-            try {
+        public string DisplayName(World world)
+        {
+            try
+            {
                 return EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.Type}: {ex.Message}");
 
                 return "N/A";
@@ -82,20 +87,24 @@ namespace R1Engine {
         // Reference to the created renderers
         public SpriteRenderer[] prefabRendereds;
 
-        private void Start() {
+        private void Start()
+        {
 
             name = DisplayName(Settings.World);
 
             // Try to find the correct animation
-            if (DefaultAnimation >= 0) {
+            if (DefaultAnimation >= 0 && Controller.obj.levelController.currentDesigns.Count > (int)Des - 1 && Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count > DefaultAnimation)
+            {
                 CurrentAnimation = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations[DefaultAnimation];
 
-                if (CurrentAnimation != null) {
+                if (CurrentAnimation != null)
+                {
                     var len = CurrentAnimation.Frames.GetLength(1);
                     // Create array
                     prefabRendereds = new SpriteRenderer[len];
                     // Populate it with empty ones
-                    for (int i = 0; i < len; i++) {
+                    for (int i = 0; i < len; i++)
+                    {
                         // Instantiate prefab
                         SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = i;
@@ -106,19 +115,26 @@ namespace R1Engine {
                     }
                 }
             }
+            else
+            {
+                Debug.LogWarning($"Error loading animation for event type {EventInfoData.Type} with name {DisplayName(Settings.World)}");
+            }
         }
 
-        void Update() {
+        void Update()
+        {
 
             if (Controller.obj?.levelController?.currentLevel == null)
                 return;
 
             // Update Event's x and y here
-            if (transform.hasChanged) {
+            if (transform.hasChanged)
+            {
                 transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
             }
 
-            if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites && DefaultAnimation>=0) {
+            if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites && DefaultAnimation >= 0)
+            {
                 // Scroll through the frames           
                 currentFrame += 0.1f;
                 if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
@@ -127,7 +143,8 @@ namespace R1Engine {
                 // Update child renderers with correct part and position
                 // TODO: I will refactor and make this a lot cleaner -Ryemanni
                 int floored = Mathf.FloorToInt(currentFrame);
-                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
+                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++)
+                {
                     prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[floored, i].SpriteIndex];
                     prefabRendereds[i].flipX = CurrentAnimation.Frames[floored, i].Flipped;
 

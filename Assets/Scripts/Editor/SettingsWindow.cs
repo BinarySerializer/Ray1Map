@@ -65,7 +65,7 @@ public class SettingsWindow : UnityWindow
 		if (!levels.Contains(Settings.Level))
 			Settings.Level = 1;
 
-		var lvlIndex = EditorGUI.IntPopup(GetNextRect(ref yPos), "Map", levels.FindItemIndex(x => x == Settings.Level), levels.Select(x => x.ToString()).ToArray(), levels);
+		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", levels.FindItemIndex(x => x == Settings.Level), levels.Select(x => x.ToString()).ToArray());
 
         if (levels.Length > lvlIndex && lvlIndex != -1)
             Settings.Level = levels[lvlIndex];

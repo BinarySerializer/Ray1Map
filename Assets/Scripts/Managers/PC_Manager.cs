@@ -13,9 +13,6 @@ namespace R1Engine {
     public abstract class PC_Manager : IGameManager {
         #region Values and paths
 
-        // TODO: Move this?
-        public static Dictionary<uint, Common_Animation[]> SpriteAnimationCache { get; } = new Dictionary<uint, Common_Animation[]>();
-
         /// <summary>
         /// The size of one cell
         /// </summary>
@@ -305,7 +302,7 @@ namespace R1Engine {
             var des = allfix.DesItems.Concat(worldData.DesItems).ToArray();
             var eta = allfix.Eta.Concat(worldData.Eta).ToArray();
 
-            // Commonize DES and ETA and store them in this list:
+            // Create common DES and ETA objects and store them in this list:
             Controller.obj.levelController.currentDesigns = new List<Common_Design>();
 
             int desIndex = 0;
@@ -314,9 +311,10 @@ namespace R1Engine {
 
                 await Controller.WaitIfNecessary();
 
-                Common_Design finalDesign = new Common_Design();
-                finalDesign.Sprites = new List<Sprite>();
-                finalDesign.Animations = new List<Common_Animation>();
+                Common_Design finalDesign = new Common_Design
+                {
+                    Sprites = new List<Sprite>(), Animations = new List<Common_Animation>()
+                };
 
                 // Sprites
                 foreach (var s in d.ImageDescriptors) {
@@ -350,8 +348,6 @@ namespace R1Engine {
                             if (pixel > 159)
                                 continue;
 
-                            // Get the x pixel position based on if it's flipper or not
-                            //var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x);
                             // Set the pixel
                             tex.SetPixel(x, -(y + 1), color.GetColor());
                         }
@@ -372,9 +368,6 @@ namespace R1Engine {
                     var layer = 0;
                     // Create each frame
                     for (int i = 0; i < a.FrameCount; i++) {
-                        //// Get the frame
-                        //var frame = animationDescriptor.Frames[i];
-
                         // Create each layer
                         for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++) {
                             var animationLayer = a.Layers[layer];
@@ -413,7 +406,7 @@ namespace R1Engine {
 
                 //Get animation index from the eta item
                 var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-                var animIndex = etaItem == null ? 0 : etaItem.AnimationIndex;
+                var animIndex = etaItem?.AnimationIndex ?? 0;
 
                 // Instantiate event prefab using LevelEventController
                 var ee = Controller.obj.levelEventController.AddEvent(
