@@ -676,7 +676,7 @@ namespace R1Engine {
             // Set events
             foreach (var e in commonLevelData.Events) {
                 // Get the event
-                var r1Event = e.EventInfoData.PC_R1_Info.ToEvent(settings.World);
+                var r1Event = e.EventInfoData.PCInfo[settings.GameMode].ToEvent(settings.World);
 
                 // Set position
                 r1Event.XPosition = e.XPosition;
@@ -692,10 +692,10 @@ namespace R1Engine {
 
                 // Add the event commands
                 eventCommands.Add(new PC_EventCommand() {
-                    CodeCount = (ushort)e.EventInfoData.PC_R1_Info.Commands.Length,
-                    EventCode = e.EventInfoData.PC_R1_Info.Commands,
-                    LabelOffsetCount = (ushort)e.EventInfoData.PC_R1_Info.LabelOffsets.Length,
-                    LabelOffsetTable = e.EventInfoData.PC_R1_Info.LabelOffsets
+                    CodeCount = (ushort)e.EventInfoData.PCInfo[settings.GameMode].Commands.Length,
+                    EventCode = e.EventInfoData.PCInfo[settings.GameMode].Commands,
+                    LabelOffsetCount = (ushort)e.EventInfoData.PCInfo[settings.GameMode].LabelOffsets.Length,
+                    LabelOffsetTable = e.EventInfoData.PCInfo[settings.GameMode].LabelOffsets
                 });
 
                 // Add the event links

@@ -12,19 +12,16 @@ namespace R1Engine
     public static class EventInfoManager
     {
         /// <summary>
-        /// Generated a JSON file with the common event information
+        /// Generated a JSON file with the common event information based on the current settings
         /// </summary>
-        /// <param name="designerBasePath">The Rayman Designer base path</param>
-        /// <param name="pcBasePath">The Rayman 1 PC base path</param>
         /// <param name="csvPath">The .csv file path</param>
-        /// <param name="outputFilePath">The JSON output path</param>
-        public static void GenerateEventInfo(string designerBasePath, string pcBasePath, string csvPath, string outputFilePath)
+        /// <param name="outputFilePath">The output file path</param>
+        public static void GenerateEventInfo(string csvPath, string outputFilePath)
         {
             var rdManager = new PC_RD_Manager();
-            var pcManager = new PC_R1_Manager();
 
             // Read the event localization files
-            var loc = rdManager.GetEventLocFiles(designerBasePath)["USA"].SelectMany(x => x.LocItems).ToArray();
+            var loc = rdManager.GetEventLocFiles(Settings.GameDirectories[GameModeSelection.RaymanDesignerPC])["USA"].SelectMany(x => x.LocItems).ToArray();
 
             // Create the event info to serialize
             var eventInfo = new List<EventInfoData>();
@@ -33,10 +30,10 @@ namespace R1Engine
             foreach (World world in EnumHelpers.GetValues<World>())
             {
                 // Get the event manifest file path
-                var eventFilePath = Path.Combine(designerBasePath, rdManager.GetWorldName(world), "EVE.MLT");
+                var eventFilePath = Path.Combine(Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], rdManager.GetWorldName(world), "EVE.MLT");
 
                 // Read the manifest
-                var eventFile = FileFactory.Read<PC_RD_EventManifestFile>(eventFilePath, new GameSettings(GameMode.RayKit, designerBasePath));
+                var eventFile = FileFactory.Read<PC_RD_EventManifestFile>(eventFilePath, new GameSettings(GameMode.RayKit, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC]));
 
                 // Add each entry
                 foreach (PC_RD_EventManifestFile.PC_RD_EventManifestItem e in eventFile.Items)
@@ -61,62 +58,83 @@ namespace R1Engine
                             DesignerDescription = locItem?.Description
                         }); 
 
-                    if (data.PC_RD_Info == null)
-                        data.PC_RD_Info = new EventInfoData.PC_RD_EventInfoData(e);
+                    if (data.PCDesignerManifest == null)
+                        data.PCDesignerManifest = new EventInfoData.PC_DesignerEventManifestData(e);
 
                     if (!eventInfo.Contains(data))
                         eventInfo.Add(data);
                 }
             }
 
-            // TODO: Enumerate built-in Designer levels
-
-            // Enumerate each PC world
-            foreach (World world in EnumHelpers.GetValues<World>())
+            // Enumerate the PC versions
+            foreach (GameModeSelection mode in new GameModeSelection[]
             {
-                // Enumerate each level
-                foreach (var i in pcManager.GetLevels(new GameSettings(GameMode.RayPC, pcBasePath, world)))
+                GameModeSelection.RaymanPC,
+                GameModeSelection.RaymanDesignerPC,
+                GameModeSelection.RaymanByHisFansPC,
+                GameModeSelection.Rayman60LevelsPC,
+                GameModeSelection.RaymanEducationalPC,
+            })
+            {
+                // Get the attribute data
+                var attr = mode.GetAttribute<GameModeAttribute>();
+
+                // Get the manager
+                var manager = (PC_Manager)Activator.CreateInstance(attr.ManagerType);
+
+                // Enumerate each PC world
+                foreach (World world in EnumHelpers.GetValues<World>())
                 {
                     // Get the settings
-                    var s = new GameSettings(GameMode.RayPC, pcBasePath, world, i);
-
-                    // Get the level file path
-                    var lvlFilePath = pcManager.GetLevelFilePath(s);
-
-                    // Read the level
-                    var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, s);
-
-                    var index = 0;
-
-                    // Add every event
-                    foreach (var e in lvl.Events)
+                    var s = new GameSettings(attr.GameMode, Settings.GameDirectories[mode], world)
                     {
-                        // Create the event info data
-                        var data = new EventInfoData();
+                        EduVolume = Settings.EduVolume
+                    };
 
-                        // Import the data
-                        data.Import(e, world);
+                    // Enumerate each Rayman 1 level
+                    foreach (var i in manager.GetLevels(s))
+                    {
+                        // Set the level
+                        s.Level = i;
 
-                        // Check if the data has already been added, if so use that instead
-                        data = eventInfo.Find(x => x.MatchesType(data)) ?? data;
+                        // Get the level file path
+                        var lvlFilePath = manager.GetLevelFilePath(s);
 
-                        if (!data.Names.ContainsKey(world))
-                            // Add the world
-                            data.Names.Add(world, new EventInfoData.EventInfoItemName());
+                        // Read the level
+                        var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, s);
 
-                        if (data.PC_R1_Info == null)
-                            data.PC_R1_Info = new EventInfoData.PC_R1_EventInfoData(e, lvl.EventCommands[index], world);
+                        var index = 0;
 
-                        if (!data.PC_R1_Info.ETA.ContainsKey(world))
-                            data.PC_R1_Info.ETA.Add(world, e.ETA);
+                        // Add every event
+                        foreach (var e in lvl.Events)
+                        {
+                            // Create the event info data
+                            var data = new EventInfoData();
 
-                        if (!data.PC_R1_Info.DES.ContainsKey(world))
-                            data.PC_R1_Info.DES.Add(world, e.DES);
+                            // Import the data
+                            data.Import(e, world);
 
-                        if (!eventInfo.Contains(data))
-                            eventInfo.Add(data);
+                            // Check if the data has already been added, if so use that instead
+                            data = eventInfo.Find(x => x.MatchesType(data)) ?? data;
 
-                        index++;
+                            if (!data.Names.ContainsKey(world))
+                                // Add the world
+                                data.Names.Add(world, new EventInfoData.EventInfoItemName());
+
+                            if (!data.PCInfo.ContainsKey(attr.GameMode))
+                                data.PCInfo.Add(attr.GameMode, new EventInfoData.PC_EventInfo(e, lvl.EventCommands[index], world));
+
+                            if (!data.PCInfo[attr.GameMode].ETA.ContainsKey(world))
+                                data.PCInfo[attr.GameMode].ETA.Add(world, e.ETA);
+
+                            if (!data.PCInfo[attr.GameMode].DES.ContainsKey(world))
+                                data.PCInfo[attr.GameMode].DES.Add(world, e.DES);
+
+                            if (!eventInfo.Contains(data))
+                                eventInfo.Add(data);
+
+                            index++;
+                        }
                     }
                 }
             }

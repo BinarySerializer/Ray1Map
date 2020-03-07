@@ -14,6 +14,7 @@ namespace R1Engine
         public EventInfoData()
         {
             Names = new Dictionary<World, EventInfoItemName>();
+            PCInfo = new Dictionary<GameMode, PC_EventInfo>();
         }
 
         /// <summary>
@@ -91,24 +92,24 @@ namespace R1Engine
         public bool? IsAlways { get; set; }
 
         /// <summary>
-        /// The Rayman 1 (PC) info
+        /// The Rayman PC event info
         /// </summary>
-        public PC_R1_EventInfoData PC_R1_Info { get; set; }
+        public Dictionary<GameMode, PC_EventInfo> PCInfo { get; set; }
 
         /// <summary>
-        /// The Rayman Designer (PC) info
+        /// The Rayman Designer (PC) event manifest data
         /// </summary>
-        public PC_RD_EventInfoData PC_RD_Info { get; set; }
+        public PC_DesignerEventManifestData PCDesignerManifest { get; set; }
 
         /// <summary>
-        /// Event info data for Rayman 1 (PC)
+        /// Event info data for Rayman PC
         /// </summary>
-        public class PC_R1_EventInfoData
+        public class PC_EventInfo
         {
             /// <summary>
             /// Default constructor
             /// </summary>
-            public PC_R1_EventInfoData()
+            public PC_EventInfo()
             {
 
             }
@@ -119,7 +120,7 @@ namespace R1Engine
             /// <param name="e">The event</param>
             /// <param name="cmd">The event command</param>
             /// <param name="world">The world the event is for</param>
-            public PC_R1_EventInfoData(PC_Event e, PC_EventCommand cmd, World world)
+            public PC_EventInfo(PC_Event e, PC_EventCommand cmd, World world)
             {
                 DES = new Dictionary<World, uint>()
                 {
@@ -201,14 +202,14 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Event info data for Rayman Designer (PC)
+        /// Event manifest data for Rayman Designer
         /// </summary>
-        public class PC_RD_EventInfoData
+        public class PC_DesignerEventManifestData
         {
             /// <summary>
             /// Default constructor
             /// </summary>
-            public PC_RD_EventInfoData()
+            public PC_DesignerEventManifestData()
             {
 
             }
@@ -217,7 +218,7 @@ namespace R1Engine
             /// Constructor from an existing event
             /// </summary>
             /// <param name="e">The event</param>
-            public PC_RD_EventInfoData(PC_RD_EventManifestFile.PC_RD_EventManifestItem e)
+            public PC_DesignerEventManifestData(PC_RD_EventManifestFile.PC_RD_EventManifestItem e)
             {
                 DESFile = e.DESFile;
                 IfCommand = e.IfCommand;
