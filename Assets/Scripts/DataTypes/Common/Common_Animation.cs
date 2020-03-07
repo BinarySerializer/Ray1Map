@@ -11,10 +11,5 @@ namespace R1Engine
         /// The frames in the animation
         /// </summary>
         public Common_AnimationPart[,] Frames { get; set; }
-
-        /// <summary>
-        /// The frame rate is frames per second
-        /// </summary>
-        public int Framerate { get; set; }
     }
 }

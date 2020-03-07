@@ -362,7 +362,7 @@ namespace R1Engine {
                 foreach (var a in d.AnimationDescriptors) {
                     // Create the animation
                     var animation = new Common_Animation {
-                        Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame]
+                        Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
                     };
                     // The layer index
                     var layer = 0;
@@ -418,7 +418,8 @@ namespace R1Engine {
                     levelData.EventLinkingTable[index],
                     e.DES,
                     e.ETA,
-                    animIndex);
+                    animIndex,
+                    etaItem.AnimationSpeed);
 
                 // Add the event
                 commonLev.Events.Add(ee);

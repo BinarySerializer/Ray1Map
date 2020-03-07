@@ -74,6 +74,8 @@ namespace R1Engine
 
         public int DefaultAnimation;
 
+        public int Speed;
+
         /// <summary>
         /// The event current animation of this event
         /// </summary>
@@ -135,8 +137,9 @@ namespace R1Engine
 
             if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites && DefaultAnimation >= 0)
             {
-                // Scroll through the frames           
-                currentFrame += 0.1f;
+                // Scroll through the frames        
+                // TODO: Fix the speed
+                currentFrame += Speed / 60f;
                 if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 
