@@ -77,7 +77,7 @@
         {
             // TODO: Add for writing
             // Get the xor key to use for the event
-            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 145);
+            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 145);
 
             DES = deserializer.Read<uint>(eveXor);
             DES2 = deserializer.Read<uint>(eveXor);
@@ -93,7 +93,7 @@
             YPosition = deserializer.Read<uint>(eveXor);
 
             // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong? - add for writing
-            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+            if (deserializer.GameSettings.GameMode != GameMode.RayPC)
             {
                 deserializer.Read<uint>(eveXor);
             }

@@ -26,7 +26,7 @@
         /// <param name="deserializer">The deserializer</param>
         public virtual void Deserialize(BinaryDeserializer deserializer)
         {
-            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+            if (deserializer.GameSettings.GameMode != GameMode.RayPC)
             {
                 PrimaryKitHeader = deserializer.ReadArray<byte>(5);
                 SecondaryKitHeader = deserializer.ReadArray<byte>(5);
@@ -40,7 +40,7 @@
         /// <param name="serializer">The serializer</param>
         public virtual void Serialize(BinarySerializer serializer)
         {
-            if (serializer.GameSettings.GameMode != GameMode.RaymanPC)
+            if (serializer.GameSettings.GameMode != GameMode.RayPC)
             {
                 serializer.Write(PrimaryKitHeader);
                 serializer.Write(SecondaryKitHeader);

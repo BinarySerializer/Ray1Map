@@ -197,7 +197,8 @@ namespace R1Engine
             EventBlockPointer = deserializer.Read<uint>();
             TextureBlockPointer = deserializer.Read<uint>();
 
-            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+            // TODO: Does this contain the level name + description?
+            if (deserializer.GameSettings.GameMode != GameMode.RayPC)
                 Unknown6 = deserializer.ReadArray<byte>(68);
 
             // Read map size
@@ -205,7 +206,7 @@ namespace R1Engine
             Height = deserializer.Read<ushort>();
 
             // Create the palettes
-            ColorPalettes = deserializer.GameSettings.GameMode == GameMode.RaymanDesignerPC ? new ARGBColor[][]
+            ColorPalettes = deserializer.GameSettings.GameMode == GameMode.RayKit ? new ARGBColor[][]
             {
                 new ARGBColor[256], 
             } : new ARGBColor[][]
@@ -244,7 +245,7 @@ namespace R1Engine
             // Read each map cell
             Tiles = deserializer.ReadArray<PC_MapTile>((ulong)Height * Width);
             // TODO: Update all below changes for other versions when writing
-            if (deserializer.GameSettings.GameMode == GameMode.RaymanPC)
+            if (deserializer.GameSettings.GameMode == GameMode.RayPC)
             {
                 // Read unknown byte
                 Unknown2 = deserializer.Read<byte>();
@@ -293,11 +294,11 @@ namespace R1Engine
             if (deserializer.BaseStream.Position != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+            if (deserializer.GameSettings.GameMode != GameMode.RayPC)
                 TextureBlockChecksum = deserializer.Read<byte>();
 
             // Get the xor key to use for the texture block
-            byte texXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 255);
+            byte texXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 255);
 
             // Read the offset table for the textures
             TexturesOffsetTable = deserializer.ReadArray<uint>(1200, texXor);
@@ -353,7 +354,7 @@ namespace R1Engine
             // Read the fourth unknown value
             Unknown4 = deserializer.ReadArray<byte>(32);
 
-            if (deserializer.GameSettings.GameMode == GameMode.RaymanPC)
+            if (deserializer.GameSettings.GameMode == GameMode.RayPC)
             {
                 // Read the checksum for the textures
                 TexturesChecksum = deserializer.Read<byte>();
@@ -365,11 +366,11 @@ namespace R1Engine
             if (deserializer.BaseStream.Position != EventBlockPointer)
                 Debug.LogError("Event block offset is incorrect");
 
-            if (deserializer.GameSettings.GameMode != GameMode.RaymanPC)
+            if (deserializer.GameSettings.GameMode != GameMode.RayPC)
                 EventBlockChecksum = deserializer.Read<byte>();
 
             // Get the xor key to use for the event block
-            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? 0 : 145);
+            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 145);
 
             // Read the event count
             EventCount = deserializer.Read<ushort>(eveXor);
@@ -402,7 +403,7 @@ namespace R1Engine
             serializer.Write(EventBlockPointer);
             serializer.Write(TextureBlockPointer);
 
-            if (serializer.GameSettings.GameMode != GameMode.RaymanPC)
+            if (serializer.GameSettings.GameMode != GameMode.RayPC)
                 serializer.Write(Unknown6);
 
             // Write map size

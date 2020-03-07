@@ -48,7 +48,7 @@ namespace R1Engine
 
                 // Make sure the entire file was read
                 if (file.Position != file.Length)
-                    Debug.LogError("The entire file wasn't read");
+                    Debug.LogWarning("The entire file wasn't read");
 
                 // Cache the data
                 Cache[filePath] = fileData;

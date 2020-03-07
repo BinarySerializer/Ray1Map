@@ -12,7 +12,7 @@ namespace R1Engine
 
         static Settings()
         {
-            GameDirectories = new Dictionary<GameMode, string>();
+            GameDirectories = new Dictionary<GameModeSelection, string>();
 
             Load();
         }
@@ -24,7 +24,7 @@ namespace R1Engine
         /// <summary>
         /// The selected game mode
         /// </summary>
-        public static GameMode Mode { get; set; }
+        public static GameModeSelection SelectedGameMode { get; set; }
 
         /// <summary>
         /// The selected game world
@@ -49,12 +49,12 @@ namespace R1Engine
         /// <summary>
         /// The specified game directories for each mode
         /// </summary>
-        public static Dictionary<GameMode, string> GameDirectories { get; set; }
+        public static Dictionary<GameModeSelection, string> GameDirectories { get; set; }
 
         /// <summary>
         /// Gets the current directory based on the selected mode
         /// </summary>
-        public static string CurrentDirectory => GameDirectories.TryGetValue(Mode, out var dir) ? dir : String.Empty;
+        public static string CurrentDirectory => GameDirectories.TryGetValue(SelectedGameMode, out var dir) ? dir : String.Empty;
 
         /// <summary>
         /// The string encoding to use for the game files
@@ -64,7 +64,18 @@ namespace R1Engine
         /// <summary>
         /// Gets the current game settings
         /// </summary>
-        public static GameSettings GetGameSettings => new GameSettings(Mode, CurrentDirectory, World, Level);
+        public static GameSettings GetGameSettings => new GameSettings(GetGameMode, CurrentDirectory, World, Level);
+
+        /// <summary>
+        /// Gets the game mode
+        /// </summary>
+        public static GameMode GetGameMode => SelectedGameMode.GetAttribute<GameModeAttribute>().GameMode;
+
+        /// <summary>
+        /// Gets a new manager instance for the specified mode
+        /// </summary>
+        /// <returns></returns>
+        public static IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(SelectedGameMode.GetAttribute<GameModeAttribute>().ManagerType);
 
         #endregion
 
@@ -75,13 +86,13 @@ namespace R1Engine
         /// </summary>
         public static void Save()
         {
-            foreach (var mode in EnumHelpers.GetValues<GameMode>())
+            foreach (var mode in EnumHelpers.GetValues<GameModeSelection>())
             {
                 string dir = GameDirectories.ContainsKey(mode) ? GameDirectories[mode] : "";
                 EditorPrefs.SetString("Directory" + mode, dir);
             }
 
-            EditorPrefs.SetString("GameMode", Mode.ToString());
+            EditorPrefs.SetString("GameMode", SelectedGameMode.ToString());
             EditorPrefs.SetString("SelectedWorld", World.ToString());
             EditorPrefs.SetInt("SelectedLevelFile", Level);
             EditorPrefs.SetBool("UseHDCollisionSheet", UseHDCollisionSheet);
@@ -93,39 +104,17 @@ namespace R1Engine
         /// </summary>
         public static void Load()
         {
-            foreach (var mode in EnumHelpers.GetValues<GameMode>())
+            foreach (var mode in EnumHelpers.GetValues<GameModeSelection>())
             {
                 string dir = GameDirectories.ContainsKey(mode) ? GameDirectories[mode] : "";
                 GameDirectories[mode] = EditorPrefs.GetString("Directory" + mode, dir);
             }
 
-            Mode = Enum.TryParse(EditorPrefs.GetString("GameMode", Mode.ToString()), out GameMode gameMode) ? gameMode : Mode;
+            SelectedGameMode = Enum.TryParse(EditorPrefs.GetString("GameMode", SelectedGameMode.ToString()), out GameModeSelection gameMode) ? gameMode : SelectedGameMode;
             World = Enum.TryParse(EditorPrefs.GetString("SelectedWorld", World.ToString()), out World world) ? world : World;
             Level = EditorPrefs.GetInt("SelectedLevelFile", Level);
             UseHDCollisionSheet = EditorPrefs.GetBool("UseHDCollisionSheet", UseHDCollisionSheet);
             AnimateSprites = EditorPrefs.GetBool("AnimateSprites", AnimateSprites);
-        }
-
-        /// <summary>
-        /// Gets a new manager instance for the specified mode
-        /// </summary>
-        /// <returns></returns>
-        public static IGameManager GetManager()
-        {
-            switch (Mode)
-            {
-                case GameMode.RaymanPS1:
-                    return new PS1_R1_Manager();
-
-                case GameMode.RaymanPC:
-                    return new PC_R1_Manager();
-
-                case GameMode.RaymanDesignerPC:
-                    return new PC_RD_Manager();
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         #endregion

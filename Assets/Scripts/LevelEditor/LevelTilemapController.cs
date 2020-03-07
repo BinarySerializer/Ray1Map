@@ -82,7 +82,7 @@ namespace R1Engine
 
 
             // Hide layer buttons according to the version
-            if (Settings.Mode == GameMode.RaymanPS1) {
+            if (Settings.GetGameMode == GameMode.RayPS1) {
                 LayerButtons[1].interactable = false;
                 LayerButtons[1].transform.GetChild(0).GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
 
@@ -134,7 +134,7 @@ namespace R1Engine
             Common_Tile found = GetTileAtPos(x, y);
             if (found != null) {
                 // If on PC and trying to assign 0 (empty), change to -1 instead
-                if (Settings.Mode == GameMode.RaymanPC && gIndex==0) {
+                if (Settings.GetGameMode == GameMode.RayPC && gIndex==0) {
                     found.TileSetGraphicIndex = -1;
                 }
                 else {

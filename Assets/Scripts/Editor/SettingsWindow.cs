@@ -1,6 +1,5 @@
 ﻿using R1Engine;
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -38,7 +37,7 @@ public class SettingsWindow : UnityWindow
 		// Mode
 		DrawHeader(ref yPos, "Mode");
 
-		Settings.Mode = (GameMode)EditorGUI.EnumPopup(GetNextRect(ref yPos), "Game", Settings.Mode);
+		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.EnumPopup(GetNextRect(ref yPos), "Game", Settings.SelectedGameMode);
 
 		// Map
 
@@ -50,7 +49,7 @@ public class SettingsWindow : UnityWindow
         {
 			// Only update if previous values don't match
 			if (!ComparePreviousValues())
-                CurrentLevelCount = Settings.GetManager().GetLevelCount(Settings.GetGameSettings);
+                CurrentLevelCount = Settings.GetGameManager.GetLevelCount(Settings.GetGameSettings);
         }
         catch (Exception ex)
         {
@@ -68,9 +67,9 @@ public class SettingsWindow : UnityWindow
 
 		DrawHeader(ref yPos, "Directories");
 
-        foreach (var mode in EnumHelpers.GetValues<GameMode>())
+        foreach (var mode in EnumHelpers.GetValues<GameModeSelection>())
         {
-            Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<DescriptionAttribute>()?.Description, Settings.GameDirectories.TryGetValue(mode, out var dir) ? dir : String.Empty);
+            Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetValue(mode, out var dir) ? dir : String.Empty);
         }
 
         // Miscellaneous

@@ -38,7 +38,7 @@ namespace R1Engine {
         }
 
         public void SaveLevelTEMP() {
-            Settings.GetManager().SaveLevel(Settings.GetGameSettings, currentLevel);
+            Settings.GetGameManager.SaveLevel(Settings.GetGameSettings, currentLevel);
             Debug.Log("Saved.");
         }
     }

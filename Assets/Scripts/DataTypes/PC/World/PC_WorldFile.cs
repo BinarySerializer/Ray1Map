@@ -60,7 +60,7 @@ namespace R1Engine
                 Unknown2 = deserializer.Read<ushort>();
                 Unknown4Count = deserializer.Read<ushort>();
                 Unknown3 = deserializer.Read<byte>();
-                Unknown4 = deserializer.ReadArray<byte>((ulong)(deserializer.GameSettings.GameMode == GameMode.RaymanPC ? Unknown4Count : Unknown4Count * 8));
+                Unknown4 = deserializer.ReadArray<byte>((ulong)(deserializer.GameSettings.GameMode == GameMode.RayPC ? Unknown4Count : Unknown4Count * 8));
             }
 
             if (deserializer.FileExtension == ".wld")

@@ -56,7 +56,7 @@ namespace R1Engine
 
             foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
             {
-                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_RD_EventLocFile>(locFile, new GameSettings(GameMode.RaymanDesignerPC, basePath))).ToArray());
+                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_RD_EventLocFile>(locFile, new GameSettings(GameMode.RayKit, basePath))).ToArray());
             }
 
             return output;

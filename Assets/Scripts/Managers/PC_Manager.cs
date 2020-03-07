@@ -130,8 +130,14 @@ namespace R1Engine
                 // Set the world
                 settings.World = world;
 
+                // Get the world file path
+                var worldPath = GetWorldFilePath(settings);
+
+                if (!File.Exists(worldPath))
+                    continue;
+
                 // Read the world file
-                var worldFile = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
+                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, settings);
 
                 // Export the sprite textures
                 ExportSpriteTextures(settings, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount);
