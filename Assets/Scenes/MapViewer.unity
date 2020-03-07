@@ -9610,6 +9610,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelController: {fileID: 0}
   levelEventController: {fileID: 0}
+  loadingText: {fileID: 1441919765}
 --- !u!4 &1683842180
 Transform:
   m_ObjectHideFlags: 0
