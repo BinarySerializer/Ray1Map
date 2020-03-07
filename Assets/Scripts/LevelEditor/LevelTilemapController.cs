@@ -80,9 +80,8 @@ namespace R1Engine
 
         public void InitializeTilemaps() {
 
-
             // Hide layer buttons according to the version
-            if (Settings.GetGameMode == GameMode.RayPS1) {
+            if (!Settings.GetGameManager.Has3Palettes) {
                 LayerButtons[1].interactable = false;
                 LayerButtons[1].transform.GetChild(0).GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
 

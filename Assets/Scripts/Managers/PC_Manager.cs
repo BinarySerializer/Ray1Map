@@ -101,6 +101,11 @@ namespace R1Engine
         public abstract string GetWorldFilePath(GameSettings settings);
 
         /// <summary>
+        /// Indicates if the game has 3 palettes it swaps between
+        /// </summary>
+        public abstract bool Has3Palettes { get; }
+
+        /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -182,6 +187,7 @@ namespace R1Engine
                     try
                     {
                         // TODO: This isn't really working for finding the correct palette
+
                         // Default to the first level
                         var lvl = levels.First();
 
@@ -272,13 +278,14 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="desItem">The sprite group</param>
         /// <param name="animationDescriptor">The animation descriptor</param>
-        /// <param name="readAllFrames">Indicates if all frames should be read</param>
         /// <returns>The texture</returns>
         public Common_Animation GetSpriteFrames(GameSettings settings, PC_DesItem desItem, PC_AnimationDescriptor animationDescriptor)
         {
-            // Create the output
-            var output = new Common_Animation();
-            output.Frames = new Common_AnimationPart[animationDescriptor.FrameCount, animationDescriptor.LayersPerFrame];
+            // Create the animation
+            var animation = new Common_Animation
+            {
+                Frames = new Common_AnimationPart[animationDescriptor.FrameCount, animationDescriptor.LayersPerFrame]
+            };
 
             // Load the level to get the palette
             var lvl = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
@@ -289,9 +296,9 @@ namespace R1Engine
             // Create each frame
             for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
-                // Get the frame
-                var frame = animationDescriptor.Frames[i];
-
+                //// Get the frame
+                //var frame = animationDescriptor.Frames[i];
+                
                 // Create each layer
                 for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
                 {
@@ -332,33 +339,37 @@ namespace R1Engine
                             // Get the color from the palette
                             var color = lvl.ColorPalettes[0][pixel];
 
-                            // Make sure the color isn't transparent
-                            if (pixel <= 159)
-                            {
-                                // Get the x pixel position based on if it's flipper or not
-                                var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x);
+                            // Make sure the color isn't transparent (i.e. uses the event palette)
+                            if (pixel > 159) 
+                                continue;
 
-                                // Set the pixel
-                                tex.SetPixel(pixelX, - (y + 1), color.GetColor());
-                            }
+                            // Get the x pixel position based on if it's flipper or not
+                            var pixelX = (animationLayer.IsFlipped ? (width - 1 - x) : x);
+
+                            // Set the pixel
+                            tex.SetPixel(pixelX, - (y + 1), color.GetColor());
                         }
                     }
 
                     // Apply the changes
                     tex.Apply();
 
-                    var part = new Common_AnimationPart();
-                    part.Sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
-                    part.X = animationLayer.XPosition;
-                    part.Y = animationLayer.YPosition;
+                    // Create the animation part
+                    var part = new Common_AnimationPart
+                    {
+                        Sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16,
+                            20),
+                        X = animationLayer.XPosition,
+                        Y = animationLayer.YPosition
+                    };
 
                     // Add the texture
-                    output.Frames[i, layerIndex] = part;
+                    animation.Frames[i, layerIndex] = part;
                 }
             }
 
             // Return the texture
-            return output;
+            return animation;
         }
 
         /// <summary>
@@ -401,6 +412,7 @@ namespace R1Engine
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
+
             foreach (var e in levelData.Events)
             {
                 // Instantiate event prefab using LevelEventController
@@ -416,51 +428,20 @@ namespace R1Engine
                 {
                     // Get the DES item
                     var desItem = des[e.DES - 1];
+
                     // Find the animation index
                     var animIndex = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat).AnimationIndex;
+                    
                     // Get the animation item
                     var animItem = desItem.AnimationDescriptors[animIndex];
 
                     Common_Animation animation = GetSpriteFrames(settings, desItem, animItem);
 
                     ee.CommonAnimation = animation;
-                    /*
-                    // Check if the animations have been cached
-                    if (SpriteAnimationCache.ContainsKey(e.DES))
-                    {
-                        animations = SpriteAnimationCache[e.DES];
-                    }
-                    else
-                    {
-                        // Create the animation array
-                        animations = new Common_Animation[desItem.AnimationDescriptorCount];
-
-                        // Get the animations
-                        for (int i = 0; i < animations.Length; i++)
-                        {
-                            animations[i] = new Common_Animation()
-                            {
-                                Frames = GetSpriteFrames(settings, desItem, desItem.AnimationDescriptors[i], Settings.AnimateSprites),
-                                
-                                // TODO: Set this correctly
-                                Framerate = 60
-                            };
-                        }
-
-                        // Cache the animations
-                        SpriteAnimationCache[e.DES] = animations;
-                    }*/
-
-                    // Create the sprite
-                    //var sprite = new Common_Sprite()
-                    //{
-                    //    Animations = animations,
-                    //    DefaultAnimation = animIndex
-                    //};
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"Reading sprite frames failed for DES {e.DES}: {ex.Message}");
+                    Debug.LogWarning($"Reading sprite animation failed for DES {e.DES}: {ex.Message}");
                 }
 
                 // Add the event
@@ -658,7 +639,6 @@ namespace R1Engine
             // Enumerate every texture
             foreach (var texture in levData.NonTransparentTextures.Concat(levData.TransparentTextures))
             {
-                // TODO: Support 1 palette for Kit
                 // Enumerate every palette
                 for (int i = 0; i < levData.ColorPalettes.Length; i++)
                 {

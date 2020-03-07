@@ -6,6 +6,11 @@
     public interface IGameManager
     {
         /// <summary>
+        /// Indicates if the game has 3 palettes it swaps between
+        /// </summary>
+        bool Has3Palettes { get; }
+
+        /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>

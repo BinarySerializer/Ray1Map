@@ -66,6 +66,11 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Indicates if the game has 3 palettes it swaps between
+        /// </summary>
+        public bool Has3Palettes => false;
+
+        /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>

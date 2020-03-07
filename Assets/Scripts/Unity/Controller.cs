@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace R1Engine
@@ -29,6 +31,8 @@ namespace R1Engine
 
             if (startEvent != null)
                 Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition);
+
+            Debug.Log("Loaded");
         }
     }
 }

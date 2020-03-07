@@ -33,6 +33,11 @@ namespace R1Engine
         public override string GetWorldFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"RAY{((int)settings.World + 1):00}.WLD");
 
         /// <summary>
+        /// Indicates if the game has 3 palettes it swaps between
+        /// </summary>
+        public override bool Has3Palettes => false;
+
+        /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>

@@ -1,8 +1,12 @@
-﻿namespace R1Engine
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace R1Engine
 {
     /// <summary>
     /// The available game modes to select from
     /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum GameModeSelection
     {
         [GameMode(GameMode.RayPS1, "Rayman 1 (PS1)", typeof(PS1_R1_Manager))]
