@@ -18,5 +18,10 @@ namespace R1Engine {
         /// The y position
         /// </summary>
         public int Y { get; set; }
+
+        /// <summary>
+        /// Flipped or not?
+        /// </summary>
+        public bool Flipped { get; set; }
     }
 }

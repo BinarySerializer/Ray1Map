@@ -384,7 +384,8 @@ namespace R1Engine {
                             var part = new Common_AnimationPart {
                                 SpriteIndex = animationLayer.ImageIndex,
                                 X = animationLayer.XPosition,
-                                Y = animationLayer.YPosition
+                                Y = animationLayer.YPosition,
+                                Flipped = animationLayer.IsFlipped
                             };
 
                             // Add the texture

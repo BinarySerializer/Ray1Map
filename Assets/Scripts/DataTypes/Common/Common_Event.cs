@@ -125,10 +125,14 @@ namespace R1Engine {
                     currentFrame = 0;
 
                 // Update child renderers with correct part and position
+                // TODO: I will refactor and make this a lot cleaner -Ryemanni
                 int floored = Mathf.FloorToInt(currentFrame);
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[floored, i].SpriteIndex];
-                    prefabRendereds[i].transform.localPosition = new Vector3(CurrentAnimation.Frames[floored, i].X / 16f, -(CurrentAnimation.Frames[floored, i].Y / 16f), 0);
+                    prefabRendereds[i].flipX = CurrentAnimation.Frames[floored, i].Flipped;
+
+                    var extraX = prefabRendereds[i].sprite.texture.width;
+                    prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[floored, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[floored, i].Y / 16f), 0);
                 }
             }
         }
