@@ -306,7 +306,7 @@ namespace R1Engine {
             Controller.obj.levelController.currentDesigns = new List<Common_Design>();
 
             // 1 pixel offset used for sprite alignment
-            var pcExtra = Settings.GetGameMode == GameMode.RayPC ? 0 : 1;
+            var pcExtra = settings.GameMode == GameMode.RayPC ? 0 : 1;
 
             int desIndex = 0;
             foreach (var d in des) {
