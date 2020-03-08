@@ -109,6 +109,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.AnimateSprites = EditorGUI.Toggle(GetNextRect(ref yPos), "Animate sprites", Settings.AnimateSprites);
 
+        Settings.ShowAlwaysEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show always events", Settings.ShowAlwaysEvents);
+
 		TotalyPos = yPos;
 		GUI.EndScrollView();
 
