@@ -66,6 +66,7 @@ namespace R1Engine
         /// DES
         /// </summary>
         public uint Des;
+        private uint DesOld;
 
         /// <summary>
         /// ETA
@@ -81,6 +82,7 @@ namespace R1Engine
         /// The animation index to use
         /// </summary>
         public int AnimationIndex;
+        private int AnimationIndexOld;
 
         /// <summary>
         /// The current animation of this event
@@ -102,15 +104,7 @@ namespace R1Engine
             // Set display name for this prefab
             name = DisplayName(Settings.World);
 
-            // Change to new animation
-            ChangeAnimation(AnimationIndex);
-
-            // Update parts for the first time
-            currentFrame = 0;
-            UpdateParts(0);
-
-            // Collider
-            ChangeColliderSize();
+            ChangeAppearance(Des, AnimationIndex);
         }
 
         void Update()
@@ -118,6 +112,11 @@ namespace R1Engine
 
             if (Controller.obj?.levelController?.currentLevel == null)
                 return;
+
+            // Change appearance on the fly
+            if (Des!=DesOld || AnimationIndexOld != AnimationIndex) {
+                ChangeAppearance(Des, AnimationIndex);
+            }
 
             // Update Event's x and y here
             if (transform.hasChanged)
@@ -140,6 +139,24 @@ namespace R1Engine
             }
         }
 
+        // Change des and everything
+        private void ChangeAppearance(uint newDes, int newAnimation) {
+            Des = newDes;
+            AnimationIndex = newAnimation;
+            DesOld = newDes;
+            AnimationIndexOld = AnimationIndex;
+
+            // Change to new animation
+            ChangeAnimation(AnimationIndex);
+
+            // Update parts for the first time
+            currentFrame = 0;
+            UpdateParts(0);
+
+            // Collider
+            ChangeColliderSize();
+        }
+
         // Try to load a new animation and change to it
         private void ChangeAnimation(int newAnim) {
             if (Controller.obj.levelController.currentDesigns.Count > (int)Des - 1 && Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count > newAnim) {
@@ -149,8 +166,13 @@ namespace R1Engine
                 if (CurrentAnimation != null) {
                     var len = CurrentAnimation.Frames.GetLength(1);
                     // Clear old array
-                    if (prefabRendereds!=null)
+                    if (prefabRendereds != null) {
+                        for (int i=0; i<prefabRendereds.Length; i++) {
+                            Destroy(prefabRendereds[i].gameObject);                       
+                        }
                         Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
+                    }
+                        
                     // Create array
                     prefabRendereds = new SpriteRenderer[len];
                     // Populate it with empty ones
