@@ -115,7 +115,17 @@ namespace R1Engine
 
             // Change appearance on the fly
             if (Des!=DesOld || AnimationIndexOld != AnimationIndex) {
-                ChangeAppearance(Des, AnimationIndex);
+                if (Des<0 || Des> Controller.obj.levelController.currentDesigns.Count-1) {
+                    Debug.LogWarning("Trying to set an out of range DES");
+                    Des = 0;
+                }
+                else if (AnimationIndex<0 || AnimationIndex> Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count-1) {
+                    Debug.LogWarning("Trying to set an out of range AnimationIndex");
+                    AnimationIndex = 0;
+                }
+                else {
+                    ChangeAppearance(Des, AnimationIndex);
+                }
             }
 
             // Update Event's x and y here
@@ -214,12 +224,14 @@ namespace R1Engine
 
         // Update all child sprite parts
         private void UpdateParts(int frame) {
-            for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
-                prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
-                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
+            if (CurrentAnimation != null) {
+                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
+                    prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                    prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 
-                var extraX = prefabRendereds[i].sprite.texture.width;
-                prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
+                    var extraX = prefabRendereds[i].sprite.texture.width;
+                    prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
+                }
             }
         }
     }
