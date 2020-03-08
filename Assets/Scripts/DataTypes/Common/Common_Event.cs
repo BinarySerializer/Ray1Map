@@ -92,7 +92,6 @@ namespace R1Engine
         // Current frame in the animation
         [HideInInspector]
         public float currentFrame = 0;
-        public float frameTimer = 0;
 
         // Reference to spritepart prefab
         public GameObject prefabSpritepart;
@@ -153,21 +152,10 @@ namespace R1Engine
             // Scroll through animation frames
             if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites)
             {
-                // TODO: Fix speed  
                 // Scroll through the frames
-                //currentFrame += Speed == 0 ? 0 : (1f / 60) * (30f / Speed);
-                //currentFrame+= 1 - (Speed / 60f) * Time.deltaTime;
-                //if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
-                //    currentFrame = 0;
-
-                frameTimer += 60f * Time.deltaTime;
-                if (frameTimer >= Speed) {
-                    frameTimer = 0;
-                    currentFrame++;
-                    if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
-                        currentFrame = 0;
-                }
-
+                currentFrame += (60f / Speed) * Time.deltaTime;
+                if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
+                    currentFrame = 0;
 
                 // Update child renderers with correct part and position
                 int floored = Mathf.FloorToInt(currentFrame);
