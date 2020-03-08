@@ -51,7 +51,7 @@ namespace R1Engine {
             newEvent.LinkIndex = link;
             newEvent.Des = des;
             newEvent.Eta = eta;
-            newEvent.DefaultAnimation = animIndex;
+            newEvent.AnimationIndex = animIndex;
             newEvent.Speed = speed;
 
             // Set as child of events gameobject

@@ -333,24 +333,32 @@ namespace R1Engine {
                             tex.SetPixel(x, y, new Color(0, 0, 0, 0));
                         }
                     }
-                    // Set every pixel
-                    for (int y = 0; y < height; y++) {
-                        for (int x = 0; x < width; x++) {
-                            // Get the pixel offset
-                            var pixelOffset = y * width + x + offset;
-                            // Get the pixel and decrypt it
-                            var pixel = d.ImageData[pixelOffset] ^ 143;
 
-                            // Get the color from the palette
-                            var color = levelData.ColorPalettes[0][pixel];
+                    try {
+                        // Set every pixel
+                        for (int y = 0; y < height; y++) {
+                            for (int x = 0; x < width; x++) {
+                                // Get the pixel offset
+                                var pixelOffset = y * width + x + offset;
 
-                            // Make sure the color isn't transparent (i.e. uses the event palette)
-                            if (pixel > 159)
-                                continue;
+                                var pixel = d.ImageData[pixelOffset] ^ 143;
 
-                            // Set the pixel
-                            tex.SetPixel(x, -(y + 1), color.GetColor());
+                                // Get the color from the palette
+                                var color = levelData.ColorPalettes[0][pixel];
+
+                                // Make sure the color isn't transparent (i.e. uses the event palette)
+                                if (pixel > 159)
+                                    continue;
+
+                                // Set the pixel
+                                tex.SetPixel(x, -(y + 1), color.GetColor());
+                            }
                         }
+                    }
+                    catch (Exception ex) {
+                        Debug.LogWarning($"Couldn't load sprite for DES {desIndex}: {ex.Message}");
+
+                        continue;
                     }
                     // Apply the changes
                     tex.Apply();
