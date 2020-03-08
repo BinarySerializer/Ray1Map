@@ -22,7 +22,7 @@ namespace R1Engine
             // Mouse over event
             if (e != null) {
                 textCollision.text = $"{e.DisplayName(Settings.World)} ({e.EventInfoData?.Type})";
-                textGraphic.text = $"Pos: {e.XPosition}, {e.YPosition}";
+                textGraphic.text = $"Pos: {e.XPosition}, {e.YPosition}\nAnimSpeed: {e.Speed}";
             }
             // Else Mouse over type
             else {

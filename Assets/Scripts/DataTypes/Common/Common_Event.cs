@@ -88,7 +88,8 @@ namespace R1Engine
         public GameObject prefabSpritepart;
         // Reference to the created renderers
         public SpriteRenderer[] prefabRendereds;
-
+        // Reference to box collider
+        public BoxCollider2D boxCollider;
         private void Start()
         {
             // Set display name for this prefab
@@ -114,6 +115,11 @@ namespace R1Engine
                         // Add to list
                         prefabRendereds[i] = newRenderer;
                     }
+
+                    //Set box collider size to be the combination of all parts
+                    var sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, 0].SpriteIndex];
+                    boxCollider.size = new Vector2(sprite.texture.width/16f, sprite.texture.height/16f);
+                    boxCollider.offset = new Vector2(((sprite.texture.width / 16f) / 2f)+(CurrentAnimation.Frames[0, 0].X / 16f), (-(sprite.texture.height / 16f) / 2f) - (CurrentAnimation.Frames[0, 0].Y / 16f));
                 }
             }
             else
