@@ -18,14 +18,64 @@ namespace R1Engine
         /// <param name="outputFilePath">The output file path</param>
         public static void GenerateEventInfo(string customInfoPath, string outputFilePath)
         {
-            // Read the custom info and create the info
-            var eventInfo = JsonHelpers.DeserializeFromFile<GeneralEventInfoData[]>(customInfoPath).Select(x => new EventInfoData(x)).ToArray();
+            var eventInfo = new List<EventInfoData>();
 
+            // Read the custom info
+            using (var file = File.OpenRead(customInfoPath))
+            {
+                using (var reader = new StreamReader(file))
+                {
+                    // Ignore header line
+                    reader.ReadLine();
+
+                    // Enumerate each line
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine()?.Split(',');
+
+                        if (line == null)
+                            break;
+
+                        var type = Int32.Parse(line[0]);
+                        var etat = Int32.Parse(line[1]);
+                        var subEtat = Int32.Parse(line[2]);
+
+                        var names = new Dictionary<World, string>();
+                        var index = 3;
+
+                        foreach (World world in EnumHelpers.GetValues<World>())
+                        {
+                            var name = line[index].Trim('"');
+
+                            if (!String.IsNullOrWhiteSpace(name))
+                                names.Add(world, name);
+
+                            index++;
+                        }
+
+                        bool? isAlways = line[index] == "TRUE" ? true : line[index] == "FALSE" ? (bool?)false : null;
+
+                        index++;
+
+                        bool? editorOnly = line[index] == "TRUE" ? true : line[index] == "FALSE" ? (bool?)false : null; 
+
+                        // Get the ID
+                        var id = new EventID(type, etat, subEtat);
+
+                        // Create the item
+                        eventInfo.Add(new EventInfoData(new GeneralEventInfoData()
+                        {
+                            ID = id,
+                            Names = names,
+                            IsAlways = isAlways,
+                            EditorOnly = editorOnly
+                        }));
+                    }
+                }
+            }
+            
             // Create a Designer manager
             var rdManager = new PC_RD_Manager();
-
-            // Read the event localization files
-            var loc = rdManager.GetEventLocFiles(Settings.GameDirectories[GameModeSelection.RaymanDesignerPC])["USA"].SelectMany(x => x.LocItems).ToArray();
 
             // Enumerate each Designer world
             foreach (World world in EnumHelpers.GetValues<World>())
@@ -48,7 +98,7 @@ namespace R1Engine
                     var id = new EventID(type, etat, subEtat);
 
                     // Find the event info
-                    var data = eventInfo.FindItem(x => x.ID == id);
+                    var data = eventInfo.Find(x => x.ID == id);
 
                     // Ignore if not found
                     if (data == null)
@@ -138,11 +188,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Generates a file with custom event info to be filled out
+        /// Generates a .csv file with custom event info to be filled out
         /// </summary>
-        /// <param name="csvPath"></param>
-        /// <param name="outputFilePath"></param>
-        public static void GenerateCustomEventInfo(string csvPath, string outputFilePath)
+        /// <param name="oldCsvFilePath">The old .csv file path</param>
+        /// <param name="outputFilePath">The new .csv output file path</param>
+        public static void GenerateCustomEventInfo(string oldCsvFilePath, string outputFilePath)
         {
             // Create the output
             var output = new List<GeneralEventInfoData>();
@@ -201,11 +251,7 @@ namespace R1Engine
                     // Add the name
                     if (!data.Names.ContainsKey(world))
                         // Add the world
-                        data.Names.Add(world, new GeneralEventInfoData.GeneralEventNameInfoData()
-                        {
-                            DesignerName = locItem?.Name,
-                            //DesignerDescription = locItem?.Description
-                        });
+                        data.Names.Add(world, "?");
                 }
             }
 
@@ -268,14 +314,17 @@ namespace R1Engine
 
                             if (!data.Names.ContainsKey(world))
                                 // Add the world
-                                data.Names.Add(world, new GeneralEventInfoData.GeneralEventNameInfoData());
+                                data.Names.Add(world, "?");
                         }
                     }
                 }
             }
 
+            // Order the data
+            output = output.OrderBy(x => x.ID.Type).ToList();
+
             // Add names from .csv file
-            using (var csvFile = File.OpenRead(csvPath))
+            using (var csvFile = File.OpenRead(oldCsvFilePath))
             {
                 using (var reader = new StreamReader(csvFile))
                 {
@@ -311,13 +360,44 @@ namespace R1Engine
                         var world = Path.GetFileName(Path.GetDirectoryName(line[17].Trim('"')));
 
                         // Set the name
-                        item.Names[(World)Enum.Parse(typeof(World), world, true)].DisplayName = name;
+                        item.Names[(World)Enum.Parse(typeof(World), world, true)] = name;
                     }
                 }
             }
 
-            // Serialize to the file
-            JsonHelpers.SerializeToFile(output.OrderBy(x => x.ID.Type), outputFilePath);
+            // Write to file
+            using (var file = File.Create(outputFilePath))
+            {
+                using (var writer = new StreamWriter(file))
+                {
+                    // Write header
+                    writer.Write("\"Type\",");
+                    writer.Write("\"Etat\",");
+                    writer.Write("\"SubEtat\",");
+
+                    foreach (World world in EnumHelpers.GetValues<World>())
+                        writer.Write($"\"Name ({world})\",");
+
+                    writer.Write("\"IsAlways\",");
+                    writer.Write("\"EditorOnly\"");
+
+                    // Write values
+                    foreach (var item in output)
+                    {
+                        writer.WriteLine();
+
+                        writer.Write(item.ID.Type + ",");
+                        writer.Write(item.ID.Etat + ",");
+                        writer.Write(item.ID.SubEtat + ",");
+
+                        foreach (World world in EnumHelpers.GetValues<World>())
+                            writer.Write($"\"{(item.Names.TryGetValue(world, out string value) ? value : String.Empty)}\",");
+
+                        writer.Write($"\"{(item.IsAlways?.ToString() ?? String.Empty)}\",");
+                        writer.Write($"\"{(item.EditorOnly?.ToString() ?? String.Empty)}\"");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -350,7 +430,7 @@ namespace R1Engine
         /// </summary>
         public GeneralEventInfoData()
         {
-            Names = new Dictionary<World, GeneralEventNameInfoData>();
+            Names = new Dictionary<World, string>();
         }
 
         /// <summary>
@@ -361,7 +441,7 @@ namespace R1Engine
         /// <summary>
         /// The event names
         /// </summary>
-        public Dictionary<World, GeneralEventNameInfoData> Names { get; set; }
+        public Dictionary<World, string> Names { get; set; }
 
         /// <summary>
         /// Indicates if the event is an always event
@@ -372,21 +452,5 @@ namespace R1Engine
         /// Indicates if the event should only be displayed in the editor
         /// </summary>
         public bool? EditorOnly { get; set; }
-
-        /// <summary>
-        /// General event name info data
-        /// </summary>
-        public class GeneralEventNameInfoData
-        {
-            /// <summary>
-            /// The event name from Rayman Designer, if available
-            /// </summary>
-            public string DesignerName { get; set; }
-
-            /// <summary>
-            /// The final display name
-            /// </summary>
-            public string DisplayName { get; set; }
-        }
     }
 }

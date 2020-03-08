@@ -17,7 +17,7 @@ namespace R1Engine
         {
             try
             {
-                return EventInfoData?.Info.Names[world].DisplayName ?? EventInfoData?.ID?.Type.ToString() ?? "N/A";
+                return EventInfoData?.Info.Names[world] ?? EventInfoData?.ID?.Type.ToString() ?? "N/A";
             }
             catch (Exception ex)
             {
