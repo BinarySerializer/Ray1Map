@@ -149,6 +149,7 @@ namespace R1Engine
                 transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
             }
 
+            // Scroll through animation frames
             if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites)
             {
                 // Scroll through the frames        
@@ -158,9 +159,14 @@ namespace R1Engine
                     currentFrame = 0;
 
                 // Update child renderers with correct part and position
-                // TODO: I will refactor and make this a lot cleaner -Ryemanni
                 int floored = Mathf.FloorToInt(currentFrame);
                 UpdateParts(floored);
+            }
+
+            //Change collider with show always events
+            if (EventInfoData.IsAlways == true) {
+                boxCollider.enabled = Settings.ShowAlwaysEvents;
+                return;
             }
         }
 
@@ -246,6 +252,11 @@ namespace R1Engine
 
                     var extraX = prefabRendereds[i].sprite.texture.width;
                     prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
+
+                    //Change visibility if always
+                    if (EventInfoData.IsAlways == true) {
+                        prefabRendereds[i].enabled = Settings.ShowAlwaysEvents;
+                    }
                 }
             }
         }
