@@ -115,17 +115,31 @@ namespace R1Engine
 
             // Change appearance on the fly
             if (Des!=DesOld || AnimationIndexOld != AnimationIndex) {
-                if (Des<0 || Des> Controller.obj.levelController.currentDesigns.Count-1) {
+                if (Des<1) {
                     Debug.LogWarning("Trying to set an out of range DES");
-                    Des = 0;
+                    Des = 1;
+                    DesOld = 1;
+                }else if(Des > Controller.obj.levelController.currentDesigns.Count) {
+                    Debug.LogWarning("Trying to set an out of range DES");
+                    Des = (uint)Controller.obj.levelController.currentDesigns.Count;
+                    DesOld = (uint)Controller.obj.levelController.currentDesigns.Count;
                 }
-                else if (AnimationIndex<0 || AnimationIndex> Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count-1) {
+                else if (AnimationIndex<0) {
                     Debug.LogWarning("Trying to set an out of range AnimationIndex");
                     AnimationIndex = 0;
+                    AnimationIndexOld = 0;
+                }else if(AnimationIndex > Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count-1) {
+                    Debug.LogWarning("Trying to set an out of range AnimationIndex");
+                    if (Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count == 0) {
+                        AnimationIndex = 0;
+                        AnimationIndexOld = 0;
+                    }
+                    else {
+                        AnimationIndex = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count - 1;
+                        AnimationIndexOld = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count - 1;
+                    }
                 }
-                else {
-                    ChangeAppearance(Des, AnimationIndex);
-                }
+                ChangeAppearance(Des, AnimationIndex);
             }
 
             // Update Event's x and y here
