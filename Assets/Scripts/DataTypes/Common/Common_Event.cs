@@ -90,6 +90,7 @@ namespace R1Engine
         public Common_Animation CurrentAnimation;
 
         // Current frame in the animation
+        [HideInInspector]
         public float currentFrame = 0;
 
         // Reference to spritepart prefab
