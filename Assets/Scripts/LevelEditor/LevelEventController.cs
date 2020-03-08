@@ -15,28 +15,28 @@ namespace R1Engine {
 
         public void InitializeEvents() {
             // Fill the dropdown menu
-            var info = EventInfoManager.LoadEventInfo();
-            availableEvents = info.Where(x => x.Names.ContainsKey(Settings.World)).ToArray();
+            //var info = EventInfoManager.LoadEventInfo();
+            //availableEvents = info.Where(x => x.Names.ContainsKey(Settings.World)).ToArray();
 
-            foreach (var e in availableEvents) {
-                if (e.Names[Settings.World].CustomName!=null && e.Names[Settings.World].DesignerName != null) {
-                    Dropdown.OptionData dat = new Dropdown.OptionData();
-                    dat.text = e.Names[Settings.World].CustomName == null ? e.Names[Settings.World].CustomName : e.Names[Settings.World].DesignerName;
-                    eventDropdown.options.Add(dat);
-                }
-            }
+            //foreach (var e in availableEvents) {
+            //    if (e.Names[Settings.World].CustomName!=null && e.Names[Settings.World].DesignerName != null) {
+            //        Dropdown.OptionData dat = new Dropdown.OptionData();
+            //        dat.text = e.Names[Settings.World].CustomName == null ? e.Names[Settings.World].CustomName : e.Names[Settings.World].DesignerName;
+            //        eventDropdown.options.Add(dat);
+            //    }
+            //}
 
-            eventDropdown.value = 1;
-            eventDropdown.value = 0;
+            //eventDropdown.value = 1;
+            //eventDropdown.value = 0;
         }
 
         // Add event which matches the dropdown string
         public void AddSelectedEvent() {
-            foreach (var e in availableEvents) {
-                if (e.Names[Settings.World].CustomName==eventDropdown.options[eventDropdown.value].text || e.Names[Settings.World].DesignerName == eventDropdown.options[eventDropdown.value].text) {
-                    AddEvent(e);
-                }
-            }
+            //foreach (var e in availableEvents) {
+            //    if (e.Names[Settings.World].CustomName==eventDropdown.options[eventDropdown.value].text || e.Names[Settings.World].DesignerName == eventDropdown.options[eventDropdown.value].text) {
+            //        AddEvent(e);
+            //    }
+            //}
         }
 
         // Add events to the list via the managers

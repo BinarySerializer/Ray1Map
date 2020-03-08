@@ -11,85 +11,22 @@ namespace R1Engine
         /// <summary>
         /// Default constructor
         /// </summary>
-        public EventInfoData()
+        /// <param name="info">The general event info</param>
+        public EventInfoData(GeneralEventInfoData info)
         {
-            Names = new Dictionary<World, EventInfoItemName>();
+            Info = info;
             PCInfo = new Dictionary<GameMode, PC_EventInfo>();
         }
 
         /// <summary>
-        /// Imports common data from Rayman Designer (PC)
+        /// The general event info
         /// </summary>
-        /// <param name="e">The event manifest item</param>
-        /// <param name="locItem">The localization item, if available</param>
-        /// <param name="world">The world the event appears in</param>
-        public void Import(PC_RD_EventManifestFile.PC_RD_EventManifestItem e, PC_RD_EventLocItem locItem, World world)
-        {
-            Type = Int32.TryParse(e.Obj_type, out var v) ? v : -1;
-            Etat = (int)e.Etat;
-            SubEtat = Int32.TryParse(e.SubEtat, out var vv) ? vv : -1;
-            IsAlways = e.DesignerGroup == -1;
-
-            if (!Names.ContainsKey(world))
-                Names.Add(world, new EventInfoItemName()
-                {
-                    DesignerName = locItem?.Name,
-                    DesignerDescription = locItem?.Description
-                });
-        }
+        public GeneralEventInfoData Info { get; }
 
         /// <summary>
-        /// Imports common data from Rayman 1 (PC)
+        /// The event ID
         /// </summary>
-        /// <param name="e">The event item</param>
-        /// <param name="world">The world the event appears in</param>
-        public void Import(PC_Event e, World world)
-        {
-            Type = (int)e.Type;
-            Etat = e.Etat;
-            SubEtat = e.SubEtat;
-
-            if (!Names.ContainsKey(world))
-                Names.Add(world, new EventInfoItemName());
-        }
-
-        /// <summary>
-        /// Checks if the specified info data item matches the current one in term of types
-        /// </summary>
-        /// <param name="eventInfoData">The info data item to compare to</param>
-        /// <returns>True if they match</returns>
-        public bool MatchesType(EventInfoData eventInfoData) => GetEventID() == eventInfoData.GetEventID();
-
-        /// <summary>
-        /// Gets the event ID
-        /// </summary>
-        /// <returns>The event ID</returns>
-        public string GetEventID() => $"{Type.ToString().PadLeft(3, '0')}{Etat.ToString().PadLeft(3, '0')}{SubEtat.ToString().PadLeft(3, '0')}";
-
-        /// <summary>
-        /// The event names, based on the world it appears in
-        /// </summary>
-        public Dictionary<World, EventInfoItemName> Names { get; set; }
-
-        /// <summary>
-        /// The event type
-        /// </summary>
-        public int Type { get; set; }
-
-        /// <summary>
-        /// The Etat index
-        /// </summary>
-        public int Etat { get; set; }
-
-        /// <summary>
-        /// The SubEtat index
-        /// </summary>
-        public int SubEtat { get; set; }
-
-        /// <summary>
-        /// Indicates if the event is an always event or not
-        /// </summary>
-        public bool? IsAlways { get; set; }
+        public EventID ID => Info.ID;
 
         /// <summary>
         /// The Rayman PC event info
@@ -266,27 +203,6 @@ namespace R1Engine
             public uint Hit_sprite { get; set; }
 
             public int DesignerGroup { get; set; }
-        }
-
-        /// <summary>
-        /// Name for an event info item
-        /// </summary>
-        public class EventInfoItemName
-        {
-            /// <summary>
-            /// The localized name from Rayman Designer
-            /// </summary>
-            public string DesignerName { get; set; }
-
-            /// <summary>
-            /// The custom name, if none was found in Rayman Designer
-            /// </summary>
-            public string CustomName { get; set; }
-
-            /// <summary>
-            /// The localized description from Rayman Designer
-            /// </summary>
-            public string DesignerDescription { get; set; }
         }
     }
 }

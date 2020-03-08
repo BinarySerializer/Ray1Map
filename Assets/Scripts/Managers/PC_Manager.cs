@@ -168,6 +168,7 @@ namespace R1Engine {
                 levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings));
             }
 
+            // TODO: Skip the first one?
             // Enumerate each sprite group
             for (int i = 0; i < worldFile.DesItems.Length; i++) {
                 // Get the sprite group
@@ -305,6 +306,7 @@ namespace R1Engine {
             // Create common DES and ETA objects and store them in this list:
             Controller.obj.levelController.currentDesigns = new List<Common_Design>();
 
+            // TODO: Why do we have to do this?
             // 1 pixel offset used for sprite alignment
             var pcExtra = settings.GameMode == GameMode.RayPC ? 0 : 1;
 
@@ -422,7 +424,7 @@ namespace R1Engine {
 
                 // Instantiate event prefab using LevelEventController
                 var ee = Controller.obj.levelEventController.AddEvent(
-                    eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
+                    eventInfoData.FindItem(y => y.ID == e.GetEventID()),
                     e.XPosition,
                     e.YPosition,
                     e.OffsetBX,
@@ -702,9 +704,9 @@ namespace R1Engine {
                 r1Event.YPosition = e.YPosition;
 
                 // Set type values
-                r1Event.Type = (uint)e.EventInfoData.Type;
-                r1Event.Etat = (byte)e.EventInfoData.Etat;
-                r1Event.SubEtat = (byte)e.EventInfoData.SubEtat;
+                r1Event.Type = (uint)e.EventInfoData.ID.Type;
+                r1Event.Etat = (byte)e.EventInfoData.ID.Etat;
+                r1Event.SubEtat = (byte)e.EventInfoData.ID.SubEtat;
 
                 // Add the event
                 events.Add(r1Event);

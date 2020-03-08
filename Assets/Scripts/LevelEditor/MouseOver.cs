@@ -21,7 +21,7 @@ namespace R1Engine
             var e = hit.collider?.GetComponentInParent<Common_Event>();
             // Mouse over event
             if (e != null) {
-                textCollision.text = $"{e.DisplayName(Settings.World)} ({e.EventInfoData?.Type})";
+                textCollision.text = $"{e.DisplayName(Settings.World)} ({e.EventInfoData?.ID.Type})";
                 textGraphic.text = $"Pos: {e.XPosition}, {e.YPosition}\nAnimSpeed: {e.Speed}";
             }
             // Else Mouse over type

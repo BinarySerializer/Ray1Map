@@ -17,11 +17,11 @@ namespace R1Engine
         {
             try
             {
-                return EventInfoData?.Names[world].DesignerName ?? EventInfoData?.Names[world].CustomName ?? EventInfoData?.Type.ToString() ?? "N/A";
+                return EventInfoData?.Info.Names[world].DisplayName ?? EventInfoData?.ID?.Type.ToString() ?? "N/A";
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.Type}: {ex.Message}");
+                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.ID?.Type}: {ex.Message}");
 
                 return "N/A";
             }
@@ -163,7 +163,7 @@ namespace R1Engine
             }
 
             //Change collider with show always events
-            if (EventInfoData.IsAlways == true) {
+            if (EventInfoData.Info.IsAlways == true) {
                 boxCollider.enabled = Settings.ShowAlwaysEvents;
                 return;
             }
@@ -254,7 +254,7 @@ namespace R1Engine
 
                     // TODO: Why do we have to ignore the first sprite?
                     //Change visibility if always or if the first sprite
-                    if (EventInfoData.IsAlways == true || CurrentAnimation.Frames[frame, i].SpriteIndex == 0) {
+                    if (EventInfoData.Info.IsAlways == true || CurrentAnimation.Frames[frame, i].SpriteIndex == 0) {
                         prefabRendereds[i].enabled = Settings.ShowAlwaysEvents;
                     }
                 }

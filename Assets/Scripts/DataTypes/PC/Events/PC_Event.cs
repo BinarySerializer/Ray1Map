@@ -69,7 +69,7 @@
         /// Gets the event ID
         /// </summary>
         /// <returns>The event ID</returns>
-        public string GetEventID() => $"{Type.ToString().PadLeft(3, '0')}{Etat.ToString().PadLeft(3, '0')}{SubEtat.ToString().PadLeft(3, '0')}";
+        public EventID GetEventID() => new EventID((int)Type, Etat, SubEtat);
 
         /// <summary>
         /// Deserializes the file contents
