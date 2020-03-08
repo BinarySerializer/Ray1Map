@@ -351,7 +351,8 @@ namespace R1Engine {
                                     continue;
 
                                 // Set the pixel
-                                tex.SetPixel(x, -(y + 1), color.GetColor());
+                                var pcExtra = Settings.GetGameMode == GameMode.RayPC ? 0 : 1;
+                                tex.SetPixel(x-pcExtra, -(y + 1), color.GetColor());
                             }
                         }
                     }
