@@ -91,11 +91,10 @@ namespace R1Engine
 
         private void Start()
         {
-
+            // Set display name for this prefab
             name = DisplayName(Settings.World);
-
             // Try to find the correct animation
-            if (DefaultAnimation >= 0 && Controller.obj.levelController.currentDesigns.Count > (int)Des - 1 && Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count > DefaultAnimation)
+            if (Controller.obj.levelController.currentDesigns.Count > (int)Des - 1 && Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count > DefaultAnimation)
             {
                 CurrentAnimation = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations[DefaultAnimation];
 
@@ -135,11 +134,11 @@ namespace R1Engine
                 transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
             }
 
-            if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites && DefaultAnimation >= 0)
+            if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites)
             {
                 // Scroll through the frames        
                 // TODO: Fix the speed
-                currentFrame += Speed / 60f;
+                currentFrame += 0.3f; //Speed / 60f;
                 if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 

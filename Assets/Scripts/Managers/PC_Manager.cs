@@ -406,7 +406,8 @@ namespace R1Engine {
 
                 //Get animation index from the eta item
                 var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-                var animIndex = etaItem?.AnimationIndex ?? 0;
+                int animIndex = etaItem?.AnimationIndex ?? 0;
+                int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                 // Instantiate event prefab using LevelEventController
                 var ee = Controller.obj.levelEventController.AddEvent(
@@ -419,7 +420,7 @@ namespace R1Engine {
                     e.DES,
                     e.ETA,
                     animIndex,
-                    etaItem.AnimationSpeed);
+                    animSpeed);
 
                 // Add the event
                 commonLev.Events.Add(ee);
