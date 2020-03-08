@@ -305,6 +305,9 @@ namespace R1Engine {
             // Create common DES and ETA objects and store them in this list:
             Controller.obj.levelController.currentDesigns = new List<Common_Design>();
 
+            // 1 pixel offset used for sprite alignment
+            var pcExtra = Settings.GetGameMode == GameMode.RayPC ? 0 : 1;
+
             int desIndex = 0;
             foreach (var d in des) {
                 Controller.status = $"Loading DES {desIndex}/{des.Length}";
@@ -351,7 +354,6 @@ namespace R1Engine {
                                     continue;
 
                                 // Set the pixel
-                                var pcExtra = Settings.GetGameMode == GameMode.RayPC ? 0 : 1;
                                 tex.SetPixel(x-pcExtra, -(y + 1), color.GetColor());
                             }
                         }
