@@ -152,9 +152,9 @@ namespace R1Engine
             // Scroll through animation frames
             if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites)
             {
-                // Scroll through the frames        
-                // TODO: Fix the speed
-                currentFrame += 0.3f; //Speed / 60f;
+                // TODO: Fix speed  
+                // Scroll through the frames
+                currentFrame += Speed == 0 ? 0 : (1f / 60) * (25f / Speed); //Speed / 60f;
                 if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 
