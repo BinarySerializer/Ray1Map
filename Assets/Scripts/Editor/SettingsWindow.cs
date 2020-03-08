@@ -49,7 +49,7 @@ public class SettingsWindow : UnityWindow
         try
         {
 			// Only update if previous values don't match
-			if (!ComparePreviousValues())
+			if (!PrevLvlValues.ComparePreviousValues())
             {
                 Debug.Log("Updated levels");
                 CurrentLevels = Settings.GetGameManager.GetLevels(Settings.GetGameSettings);
@@ -63,7 +63,7 @@ public class SettingsWindow : UnityWindow
 		var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new int[0];
 
 		if (!levels.Contains(Settings.Level))
-			Settings.Level = 1;
+			Settings.Level = levels.FirstOrDefault();
 
 		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", levels.FindItemIndex(x => x == Settings.Level), levels.Select(x => x.ToString()).ToArray());
 
@@ -71,12 +71,14 @@ public class SettingsWindow : UnityWindow
             Settings.Level = levels[lvlIndex];
 
         // Update previous values
-        UpdatePreviousValues();
+        PrevLvlValues.UpdatePreviousValues();
 
-		try
+        EditorGUI.BeginDisabledGroup(Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPC);
+
+        try
 		{
             // Only update if previous values don't match
-            if (!ComparePreviousValues())
+            if (!PrevVolumeValues.ComparePreviousValues())
             {
 				Debug.Log("Updated EDU volumes");
                 CurrentEduVolumes = Settings.GetGameManager.GetEduVolumes(Settings.GetGameSettings);
@@ -92,9 +94,14 @@ public class SettingsWindow : UnityWindow
 		if (CurrentEduVolumes.Length > eduIndex && eduIndex != -1)
 			Settings.EduVolume = CurrentEduVolumes[eduIndex];
 
-		// Directories
+        // Update previous values
+        PrevVolumeValues.UpdatePreviousValues();
 
-		DrawHeader(ref yPos, "Directories");
+        EditorGUI.EndDisabledGroup();
+
+        // Directories
+
+        DrawHeader(ref yPos, "Directories");
 
         foreach (var mode in EnumHelpers.GetValues<GameModeSelection>())
         {
@@ -121,42 +128,49 @@ public class SettingsWindow : UnityWindow
 		}
 	}
 
-	/// <summary>
-	/// Updates saved previous values
-	/// </summary>
-	private void UpdatePreviousValues()
-    {
-        PrevDir = Settings.CurrentDirectory;
-        PrevWorld = Settings.World;
-        PrevEduVolume = Settings.EduVolume;
-    }
+    private PrevValues PrevLvlValues { get; } = new PrevValues();
 
-	/// <summary>
-	/// Compares previous values and returns true if they're the same
-	/// </summary>
-	/// <returns>True if they're the same, otherwise false</returns>
-	private bool ComparePreviousValues()
-    {
-		return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World && PrevEduVolume == Settings.EduVolume;
-    }
+    private PrevValues PrevVolumeValues { get; } = new PrevValues();
 
-	/// <summary>
-	/// The previously saved current directory
-	/// </summary>
-	private string PrevDir { get; set; } = String.Empty;
-
-	/// <summary>
-	/// The previously saved world
-	/// </summary>
-	private World PrevWorld { get; set; } = World.Jungle;
-
-	private string PrevEduVolume { get; set; } = String.Empty;
-
-	private int[] CurrentLevels { get; set; } = new int[0];
+    private int[] CurrentLevels { get; set; } = new int[0];
 
 	private string[] CurrentEduVolumes { get; set; } = new string[0];
 
     private float TotalyPos { get; set; }
 
 	private Vector2 ScrollPosition { get; set; } = Vector2.zero;
+
+	public class PrevValues
+    {
+        /// <summary>
+        /// Updates saved previous values
+        /// </summary>
+        public void UpdatePreviousValues()
+        {
+            PrevDir = Settings.CurrentDirectory;
+            PrevWorld = Settings.World;
+            PrevEduVolume = Settings.EduVolume;
+        }
+
+        /// <summary>
+        /// Compares previous values and returns true if they're the same
+        /// </summary>
+        /// <returns>True if they're the same, otherwise false</returns>
+        public bool ComparePreviousValues()
+        {
+            return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World && PrevEduVolume == Settings.EduVolume;
+        }
+
+        /// <summary>
+        /// The previously saved current directory
+        /// </summary>
+        private string PrevDir { get; set; } = String.Empty;
+
+        /// <summary>
+        /// The previously saved world
+        /// </summary>
+        private World PrevWorld { get; set; } = World.Jungle;
+
+        private string PrevEduVolume { get; set; } = String.Empty;
+    }
 }
