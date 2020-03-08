@@ -172,6 +172,15 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Reads the remaining bytes from the stream
+        /// </summary>
+        /// <returns>The remaining bytes</returns>
+        public byte[] ReadRemainingBytes()
+        {
+            return ReadArray<byte>((ulong)(BaseStream.Length - BaseStream.Position));
+        }
+
+        /// <summary>
         /// Reads an array of supported values from the stream
         /// </summary>
         /// <typeparam name="T">The type of value to read</typeparam>

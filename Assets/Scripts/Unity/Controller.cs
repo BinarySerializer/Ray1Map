@@ -51,7 +51,7 @@ namespace R1Engine
             levelEventController = GameObject.Find("Level").GetComponent<LevelEventController>();
         }
 
-        async Task Start() 
+        async void Start() 
         {
             stopwatch.Start();
 

@@ -21,6 +21,7 @@ namespace R1Engine
         /// </summary>
         public uint TextureBlockPointer { get; set; }
 
+        // TODO: Does this contain the level name + description for Kit?
         public byte[] Unknown6 { get; set; }
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace R1Engine
         /// <summary>
         /// Unknown byte, always set to 2
         /// </summary>
-        public byte Unknown1 { get; set; }
+        public byte Unknown10 { get; set; }
 
         /// <summary>
         /// The tiles for the map
@@ -177,6 +178,8 @@ namespace R1Engine
         /// </summary>
         public PC_EventCommand[] EventCommands { get; set; }
 
+        public byte[] Unknown8 { get; set; }
+
         #endregion
 
         #region Public Methods
@@ -197,7 +200,6 @@ namespace R1Engine
             EventBlockPointer = deserializer.Read<uint>();
             TextureBlockPointer = deserializer.Read<uint>();
 
-            // TODO: Does this contain the level name + description?
             if (deserializer.GameSettings.GameMode != GameMode.RayPC)
                 Unknown6 = deserializer.ReadArray<byte>(68);
 
@@ -235,7 +237,7 @@ namespace R1Engine
             }
 
             // Read unknown byte
-            Unknown1 = deserializer.Read<byte>();
+            Unknown10 = deserializer.Read<byte>();
 
             // MAP BLOCK
 
@@ -244,7 +246,7 @@ namespace R1Engine
 
             // Read each map cell
             Tiles = deserializer.ReadArray<PC_MapTile>((ulong)Height * Width);
-            // TODO: Update all below changes for other versions when writing
+
             if (deserializer.GameSettings.GameMode == GameMode.RayPC)
             {
                 // Read unknown byte
@@ -384,6 +386,9 @@ namespace R1Engine
             // Read the event commands
             EventCommands = deserializer.ReadArray<PC_EventCommand>(EventCount);
 
+            // Read remaining data (appears in some Kit levels)
+            Unknown8 = deserializer.ReadRemainingBytes();
+
             Debug.Log($"PC R1 level loaded with size {Width}x{Height} and {EventCount} events");
         }
 
@@ -423,54 +428,67 @@ namespace R1Engine
             }
 
             // Write unknown byte
-            serializer.Write(Unknown1);
+            serializer.Write(Unknown10);
 
             // MAP BLOCK
 
             // Write each map cell
             serializer.Write(Tiles);
 
-            // Write unknown byte
-            serializer.Write(Unknown2);
+            if (serializer.GameSettings.GameMode == GameMode.RayPC)
+            {
+                // Write unknown byte
+                serializer.Write(Unknown2);
 
-            // Write the background data
-            serializer.Write(BackgroundIndex);
-            serializer.Write(BackgroundSpritesDES);
+                // Write the background data
+                serializer.Write(BackgroundIndex);
+                serializer.Write(BackgroundSpritesDES);
 
-            // Write the rough textures count
-            serializer.Write(RoughTextureCount);
+                // Write the rough textures count
+                serializer.Write(RoughTextureCount);
 
-            // Write the length of the third unknown value
-            serializer.Write(Unknown3Count);
+                // Write the length of the third unknown value
+                serializer.Write(Unknown3Count);
 
-            // Write each rough texture
-            for (int i = 0; i < RoughTextureCount; i++)
-                serializer.Write(RoughTextures[i]);
+                // Write each rough texture
+                for (int i = 0; i < RoughTextureCount; i++)
+                    serializer.Write(RoughTextures[i]);
 
-            // Write the checksum for the rough textures
-            serializer.Write(RoughTexturesChecksum);
+                // Write the checksum for the rough textures
+                serializer.Write(RoughTexturesChecksum);
 
-            // Write the index table for the rough textures
-            serializer.Write(RoughTexturesIndexTable);
+                // Write the index table for the rough textures
+                serializer.Write(RoughTexturesIndexTable);
 
-            // Write the items for the third unknown value
-            serializer.Write(Unknown3);
+                // Write the items for the third unknown value
+                serializer.Write(Unknown3);
 
-            // Write the checksum for the third unknown value
-            serializer.Write(Unknown3Checksum);
+                // Write the checksum for the third unknown value
+                serializer.Write(Unknown3Checksum);
 
-            // Write the offset table for the third unknown value
-            serializer.Write(Unknown3OffsetTable);
+                // Write the offset table for the third unknown value
+                serializer.Write(Unknown3OffsetTable);
+            }
+            else
+            {
+                serializer.Write(Unknown7);
+            }
 
             // TEXTURE BLOCK
 
+            if (serializer.GameSettings.GameMode != GameMode.RayPC)
+                serializer.Write(TextureBlockChecksum);
+
+            // Get the xor key to use for the texture block
+            byte texXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 255);
+
             // Write the offset table for the textures
-            serializer.Write(TexturesOffsetTable);
+            serializer.Write(TexturesOffsetTable, texXor);
 
             // Write the textures count
-            serializer.Write(TexturesCount);
-            serializer.Write(NonTransparentTexturesCount);
-            serializer.Write(TexturesDataTableCount);
+            serializer.Write(TexturesCount, texXor);
+            serializer.Write(NonTransparentTexturesCount, texXor);
+            serializer.Write(TexturesDataTableCount, texXor);
 
             // Write the non-transparent textures
             foreach (var texture in NonTransparentTextures)
@@ -485,22 +503,34 @@ namespace R1Engine
             // Write the fourth unknown value
             serializer.Write(Unknown4);
 
-            // Write the checksum for the textures
-            serializer.Write(TexturesChecksum);
+            if (serializer.GameSettings.GameMode == GameMode.RayPC)
+            {
+                // Write the checksum for the textures
+                serializer.Write(TexturesChecksum);
+            }
 
             // EVENT BLOCK
 
+            if (serializer.GameSettings.GameMode != GameMode.RayPC)
+                serializer.Write(EventBlockChecksum);
+
+            // Get the xor key to use for the event block
+            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 145);
+
             // Write the event count
-            serializer.Write(EventCount);
+            serializer.Write(EventCount, eveXor);
 
             // Write the event linking table
-            serializer.Write(EventLinkingTable);
+            serializer.Write(EventLinkingTable, eveXor);
 
             // Write the events
             serializer.Write(Events);
 
             // Write the event commands
             serializer.Write(EventCommands);
+
+            // Write remaining data (appears in some Kit levels)
+            serializer.Write(Unknown8);
         }
 
         #endregion
