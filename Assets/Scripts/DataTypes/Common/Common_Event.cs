@@ -92,7 +92,7 @@ namespace R1Engine
         // Current frame in the animation
         [HideInInspector]
         public float currentFrame = 0;
-        public int frameTimer = 0;
+        public float frameTimer = 0;
 
         // Reference to spritepart prefab
         public GameObject prefabSpritepart;
@@ -155,11 +155,12 @@ namespace R1Engine
             {
                 // TODO: Fix speed  
                 // Scroll through the frames
-                //currentFrame += Speed == 0 ? 0 : (1f / 60) * (30f / Speed); //Speed / 60f;
+                //currentFrame += Speed == 0 ? 0 : (1f / 60) * (30f / Speed);
+                //currentFrame+= 1 - (Speed / 60f) * Time.deltaTime;
                 //if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                 //    currentFrame = 0;
 
-                frameTimer++;
+                frameTimer += 60f * Time.deltaTime;
                 if (frameTimer >= Speed) {
                     frameTimer = 0;
                     currentFrame++;
