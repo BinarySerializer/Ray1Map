@@ -116,10 +116,25 @@ namespace R1Engine
                         prefabRendereds[i] = newRenderer;
                     }
 
+                    UpdateParts(0);
+
                     //Set box collider size to be the combination of all parts
-                    var sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, 0].SpriteIndex];
-                    boxCollider.size = new Vector2(sprite.texture.width/16f, sprite.texture.height/16f);
-                    boxCollider.offset = new Vector2(((sprite.texture.width / 16f) / 2f)+(CurrentAnimation.Frames[0, 0].X / 16f), (-(sprite.texture.height / 16f) / 2f) - (CurrentAnimation.Frames[0, 0].Y / 16f));
+                    int leftX = 0, topY = 0, rightX = 0, bottomY = 0;
+                    for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
+                        var frame = CurrentAnimation.Frames[0, i];
+                        var sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
+                        if (frame.X < leftX || i == 0)
+                            leftX = frame.X;
+                        if (frame.X+sprite.texture.width > rightX || i == 0)
+                            rightX = frame.X + sprite.texture.width;
+                        if (frame.Y < topY || i == 0)
+                            topY = frame.Y;
+                        if (frame.Y+sprite.texture.height > bottomY || i == 0)
+                            bottomY = frame.Y + sprite.texture.height;
+                    }
+
+                    boxCollider.size = new Vector2((rightX-leftX) / 16f, (bottomY - topY) / 16f);
+                    boxCollider.offset = new Vector2(leftX/16f + ((rightX - leftX) / 16f) / 2f, -topY/16f - ((bottomY - topY) / 16f) / 2f);
                 }
             }
             else
@@ -151,14 +166,18 @@ namespace R1Engine
                 // Update child renderers with correct part and position
                 // TODO: I will refactor and make this a lot cleaner -Ryemanni
                 int floored = Mathf.FloorToInt(currentFrame);
-                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++)
-                {
-                    prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[floored, i].SpriteIndex];
-                    prefabRendereds[i].flipX = CurrentAnimation.Frames[floored, i].Flipped;
+                UpdateParts(floored);
+            }
+        }
 
-                    var extraX = prefabRendereds[i].sprite.texture.width;
-                    prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[floored, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[floored, i].Y / 16f), 0);
-                }
+        // Update all child sprite parts
+        private void UpdateParts(int frame) {
+            for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
+                prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
+
+                var extraX = prefabRendereds[i].sprite.texture.width;
+                prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
             }
         }
     }
