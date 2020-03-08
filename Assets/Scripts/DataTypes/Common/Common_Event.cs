@@ -72,12 +72,18 @@ namespace R1Engine
         /// </summary>
         public uint Eta;
 
-        public int DefaultAnimation;
-
+        /// <summary>
+        /// Animation speed
+        /// </summary>
         public int Speed;
 
         /// <summary>
-        /// The event current animation of this event
+        /// The animation index to use
+        /// </summary>
+        public int AnimationIndex;
+
+        /// <summary>
+        /// The current animation of this event
         /// </summary>
         public Common_Animation CurrentAnimation;
 
@@ -90,57 +96,21 @@ namespace R1Engine
         public SpriteRenderer[] prefabRendereds;
         // Reference to box collider
         public BoxCollider2D boxCollider;
+
         private void Start()
         {
             // Set display name for this prefab
             name = DisplayName(Settings.World);
-            // Try to find the correct animation
-            if (Controller.obj.levelController.currentDesigns.Count > (int)Des - 1 && Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count > DefaultAnimation)
-            {
-                CurrentAnimation = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations[DefaultAnimation];
 
-                if (CurrentAnimation != null)
-                {
-                    var len = CurrentAnimation.Frames.GetLength(1);
-                    // Create array
-                    prefabRendereds = new SpriteRenderer[len];
-                    // Populate it with empty ones
-                    for (int i = 0; i < len; i++)
-                    {
-                        // Instantiate prefab
-                        SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
-                        newRenderer.sortingOrder = i;
-                        // Set as child of events gameobject
-                        newRenderer.gameObject.transform.parent = gameObject.transform;
-                        // Add to list
-                        prefabRendereds[i] = newRenderer;
-                    }
+            // Change to new animation
+            ChangeAnimation(AnimationIndex);
 
-                    UpdateParts(0);
+            // Update parts for the first time
+            currentFrame = 0;
+            UpdateParts(0);
 
-                    //Set box collider size to be the combination of all parts
-                    int leftX = 0, topY = 0, rightX = 0, bottomY = 0;
-                    for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
-                        var frame = CurrentAnimation.Frames[0, i];
-                        var sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
-                        if (frame.X < leftX || i == 0)
-                            leftX = frame.X;
-                        if (frame.X+sprite.texture.width > rightX || i == 0)
-                            rightX = frame.X + sprite.texture.width;
-                        if (frame.Y < topY || i == 0)
-                            topY = frame.Y;
-                        if (frame.Y+sprite.texture.height > bottomY || i == 0)
-                            bottomY = frame.Y + sprite.texture.height;
-                    }
-
-                    boxCollider.size = new Vector2((rightX-leftX) / 16f, (bottomY - topY) / 16f);
-                    boxCollider.offset = new Vector2(leftX/16f + ((rightX - leftX) / 16f) / 2f, -topY/16f - ((bottomY - topY) / 16f) / 2f);
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"Error loading animation for event type {EventInfoData.Type} with name {DisplayName(Settings.World)}");
-            }
+            // Collider
+            ChangeColliderSize();
         }
 
         void Update()
@@ -167,6 +137,56 @@ namespace R1Engine
                 // TODO: I will refactor and make this a lot cleaner -Ryemanni
                 int floored = Mathf.FloorToInt(currentFrame);
                 UpdateParts(floored);
+            }
+        }
+
+        // Try to load a new animation and change to it
+        private void ChangeAnimation(int newAnim) {
+            if (Controller.obj.levelController.currentDesigns.Count > (int)Des - 1 && Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count > newAnim) {
+
+                CurrentAnimation = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations[newAnim];
+
+                if (CurrentAnimation != null) {
+                    var len = CurrentAnimation.Frames.GetLength(1);
+                    // Clear old array
+                    if (prefabRendereds!=null)
+                        Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
+                    // Create array
+                    prefabRendereds = new SpriteRenderer[len];
+                    // Populate it with empty ones
+                    for (int i = 0; i < len; i++) {
+                        // Instantiate prefab
+                        SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
+                        newRenderer.sortingOrder = i;
+                        // Set as child of events gameobject
+                        newRenderer.gameObject.transform.parent = gameObject.transform;
+                        // Add to list
+                        prefabRendereds[i] = newRenderer;
+                    }
+                }
+            }
+        }
+
+        // Change collider size
+        private void ChangeColliderSize() {
+            if (CurrentAnimation != null) {
+                //Set box collider size to be the combination of all parts
+                int leftX = 0, topY = 0, rightX = 0, bottomY = 0;
+                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
+                    var frame = CurrentAnimation.Frames[0, i];
+                    var sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
+                    if (frame.X < leftX || i == 0)
+                        leftX = frame.X;
+                    if (frame.X + sprite.texture.width > rightX || i == 0)
+                        rightX = frame.X + sprite.texture.width;
+                    if (frame.Y < topY || i == 0)
+                        topY = frame.Y;
+                    if (frame.Y + sprite.texture.height > bottomY || i == 0)
+                        bottomY = frame.Y + sprite.texture.height;
+                }
+
+                boxCollider.size = new Vector2((rightX - leftX) / 16f, (bottomY - topY) / 16f);
+                boxCollider.offset = new Vector2(leftX / 16f + ((rightX - leftX) / 16f) / 2f, -topY / 16f - ((bottomY - topY) / 16f) / 2f);
             }
         }
 
