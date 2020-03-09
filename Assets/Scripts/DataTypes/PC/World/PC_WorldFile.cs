@@ -3,8 +3,6 @@ using System.ComponentModel;
 
 namespace R1Engine
 {
-    // TODO: Add support for bray.dat and read the data which appears at the end of the allfix.dat file (palette?)
-
     /// <summary>
     /// World data for PC
     /// </summary>

@@ -387,13 +387,8 @@ namespace R1Engine {
                     // Get the texture
                     Texture2D tex = GetSpriteTexture(settings, d, s, levelData.ColorPalettes.First());
 
-                    // TODO: Skipping will change the indexing :/ Add null instead to list?
-                    // Skip if null
-                    if (tex == null)
-                        continue;
-
                     // Add it to the array
-                    finalDesign.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                 }
 
                 // Animations
