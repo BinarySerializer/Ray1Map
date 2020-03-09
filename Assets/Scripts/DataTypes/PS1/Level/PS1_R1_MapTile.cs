@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System;
 
 namespace R1Engine
 {
@@ -28,14 +28,27 @@ namespace R1Engine
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            var byte1 = deserializer.Read<byte>();
-            var byte2 = deserializer.Read<byte>();
+            if (deserializer.GameSettings.GameMode == GameMode.RayPS1)
+            {
+                // TODO: Clean up
 
-            int g = byte1 + ((byte2 & 3) << 8);
+                var byte1 = deserializer.Read<byte>();
+                var byte2 = deserializer.Read<byte>();
+                int g = byte1 + ((byte2 & 3) << 8);
 
-            TileMapX = g & 15;
-            TileMapY = g >> 4;
-            CollisionType = (TileCollisionType)(byte2 >> 2);
+                TileMapX = g & 15;
+                TileMapY = g >> 4;
+                CollisionType = (TileCollisionType)(byte2 >> 2);
+            }
+            else if (deserializer.GameSettings.GameMode == GameMode.RayPS1JP)
+            {
+                // Read the value
+                var value = deserializer.Read<ushort>();
+
+                TileMapY = 0;
+                TileMapX = BitHelpers.ExtractBits(value, 9, 0);
+                CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 7, 9);
+            }
         }
 
         /// <summary>
@@ -44,12 +57,21 @@ namespace R1Engine
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            var graphic = (TileMapX + (TileMapY << 4));
-            var byte1 = (byte)graphic;
-            var byte2 = (byte)(((int)CollisionType << 2) + (graphic >> 8));
+            if (serializer.GameSettings.GameMode == GameMode.RayPS1)
+            {
+                // TODO: Clean up
 
-            serializer.Write(byte1);
-            serializer.Write(byte2);
+                var graphic = (TileMapX + (TileMapY << 4));
+                var byte1 = (byte)graphic;
+                var byte2 = (byte)(((int)CollisionType << 2) + (graphic >> 8));
+
+                serializer.Write(byte1);
+                serializer.Write(byte2);
+            }
+            else if (serializer.GameSettings.GameMode == GameMode.RayPS1JP)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

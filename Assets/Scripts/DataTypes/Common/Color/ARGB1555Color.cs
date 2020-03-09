@@ -27,7 +27,7 @@ namespace R1Engine
         public void Deserialize(BinaryDeserializer deserializer)
         {
             // Read the color value
-            uint colour16 = deserializer.Read<ushort>();
+            ushort colour16 = deserializer.Read<ushort>();
 
             // Extract the bits
             Alpha = 255;
