@@ -66,7 +66,9 @@ namespace R1Engine
             
             ImageDataLength = deserializer.Read<uint>();
             ImageData = deserializer.ReadArray<byte>(ImageDataLength);
-            ImageDataChecksum = deserializer.Read<byte>();
+            
+            if (deserializer.FileName != "bray.dat" && deserializer.FileName != "bigray.dat")
+                ImageDataChecksum = deserializer.Read<byte>();
 
             if (deserializer.FileName == "allfix.dat")
                 Unknown2 = deserializer.Read<uint>();

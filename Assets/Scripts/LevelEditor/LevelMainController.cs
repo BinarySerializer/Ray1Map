@@ -1,14 +1,15 @@
-﻿using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     public class LevelMainController : MonoBehaviour {
 
         // The current level we are operating with
         public Common_Lev currentLevel;
-        // The current designs we are using
-        public List<Common_Design> currentDesigns;
+
+        public List<Common_Design> eventDesigns;
 
         // References to specific level controller gameObjects in inspector
         public LevelTilemapController controllerTilemap;
@@ -20,8 +21,11 @@ namespace R1Engine {
 
         public async Task LoadLevelAsync(IGameManager manager, GameSettings settings) 
         {
+            // Create the list
+            eventDesigns = new List<Common_Design>();
+
             // Load the level
-            currentLevel = await manager.LoadLevelAsync(settings, EventInfoManager.LoadEventInfo());
+            currentLevel = await manager.LoadLevelAsync(settings, EventInfoManager.LoadEventInfo(), eventDesigns);
 
             await Controller.WaitIfNecessary();
 

@@ -86,6 +86,13 @@ namespace R1Engine {
         public virtual string GetAllfixFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"ALLFIX.DAT");
 
         /// <summary>
+        /// Gets the file path for the big ray file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The big ray file path</returns>
+        public virtual string GetBigRayFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"BIGRAY.DAT");
+
+        /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -120,15 +127,23 @@ namespace R1Engine {
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(GameSettings settings, string outputDir) {
+        public void ExportSpriteTextures(GameSettings settings, string outputDir) 
+        { 
+            // Read the big ray file
+            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings);
+
             // Read the allfix file
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings);
+
+            // Export the sprite textures
+            ExportSpriteTextures(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0);
 
             // Export the sprite textures
             ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, "Allfix"), 0);
 
             // Enumerate every world
-            foreach (World world in EnumHelpers.GetValues<World>()) {
+            foreach (World world in EnumHelpers.GetValues<World>()) 
+            {
                 // Set the world
                 settings.World = world;
 
@@ -152,7 +167,7 @@ namespace R1Engine {
         /// <param name="settings">The game settings</param>
         /// <param name="worldFile">The world file</param>
         /// <param name="outputDir">The output directory</param>
-        /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset</param>
+        /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -160,7 +175,9 @@ namespace R1Engine {
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(settings)) {
+            foreach (var i in GetLevels(settings)
+                // TODO: Once we get the palette-finding working, remove this
+                .Take(1)) {
                 // Set the level number
                 settings.Level = i;
 
@@ -168,88 +185,54 @@ namespace R1Engine {
                 levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings));
             }
 
-            // TODO: Skip the first one?
             // Enumerate each sprite group
             for (int i = 0; i < worldFile.DesItems.Length; i++) {
                 // Get the sprite group
                 var desItem = worldFile.DesItems[i];
 
-                // Enumerate each image
-                for (int j = 0; j < desItem.ImageDescriptors.Length; j++) {
-                    Texture2D tex;
+                // Enumerate each image (skip the first one)
+                for (int j = 1; j < desItem.ImageDescriptors.Length; j++) {
+                    // Default to the first level
+                    var lvl = levels.First();
 
-                    try {
-                        // TODO: This isn't really working for finding the correct palette
+                    // TODO: This isn't really working for finding the correct palette
+                    //// Find a matching animation descriptor
+                    //var animDesc = desItem.AnimationDescriptors.FindItemIndex(x => x.Layers.Any(y => y.ImageIndex == j));
 
-                        // Default to the first level
-                        var lvl = levels.First();
+                    //bool foundCorrectPalette = false;
 
-                        // Find a matching animation descriptor
-                        var animDesc = desItem.AnimationDescriptors.FindItemIndex(x => x.Layers.Any(y => y.ImageIndex == j));
+                    //if (animDesc != -1) {
+                    //    // Attempt to find the ETA where it appears
+                    //    var eta = worldFile.Eta.SelectMany(x => x).SelectMany(x => x).FindItem(x => x.AnimationIndex == animDesc);
 
-                        bool foundCorrectPalette = false;
+                    //    if (eta != null) {
+                    //        // Attempt to find the level where it appears
+                    //        var lvlMatch = levels.Find(x => x.Events.Any(y => y.DES == desOffset + 1 + i && y.Etat == eta.Etat && y.SubEtat == eta.SubEtat && y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
 
-                        if (animDesc != -1) {
-                            // Attempt to find the ETA where it appears
-                            var eta = worldFile.Eta.SelectMany(x => x).SelectMany(x => x).FindItem(x => x.AnimationIndex == animDesc);
+                    //        if (lvlMatch != null) {
+                    //            lvl = lvlMatch;
+                    //            foundCorrectPalette = true;
+                    //        }
+                    //    }
+                    //}
 
-                            if (eta != null) {
-                                // Attempt to find the level where it appears
-                                var lvlMatch = levels.Find(x => x.Events.Any(y => y.DES == desOffset + 1 + i && y.Etat == eta.Etat && y.SubEtat == eta.SubEtat && y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
+                    //// Check background DES
+                    //if (!foundCorrectPalette) {
+                    //    var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
 
-                                if (lvlMatch != null) {
-                                    lvl = lvlMatch;
-                                    foundCorrectPalette = true;
-                                }
-                            }
-                        }
+                    //    if (lvlMatch != null)
+                    //        lvl = lvlMatch;
+                    //}
 
-                        // Check background DES
-                        if (!foundCorrectPalette) {
-                            var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
+                    // Get the image descriptor
+                    var imgDescriptor = desItem.ImageDescriptors[j];
 
-                            if (lvlMatch != null)
-                                lvl = lvlMatch;
-                        }
+                    // Get the texture
+                    Texture2D tex = GetSpriteTexture(settings, desItem, imgDescriptor, lvl.ColorPalettes.First());
 
-                        // Get the image descriptor
-                        var imgDescriptor = desItem.ImageDescriptors[j];
-
-                        // Get the image properties
-                        var width = imgDescriptor.OuterWidth;
-                        var height = imgDescriptor.OuterHeight;
-                        var offset = imgDescriptor.ImageOffset;
-
-                        // Create the texture
-                        tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                            filterMode = FilterMode.Point
-                        };
-
-                        // Set every pixel
-                        for (int y = 0; y < height; y++) {
-                            for (int x = 0; x < width; x++) {
-                                // Get the pixel offset
-                                var pixelOffset = y * width + x + offset;
-
-                                // Get the pixel and decrypt it
-                                var pixel = desItem.ImageData[pixelOffset] ^ 143;
-
-                                // Get the color from the palette
-                                var color = pixel > 159 ? new ARGBColor(0, 0, 0, 0) : lvl.ColorPalettes[0][pixel];
-
-                                // Set the pixel
-                                tex.SetPixel(x, height - y - 1, color.GetColor());
-                            }
-                        }
-
-                        // Apply the changes
-                        tex.Apply();
-                    }
-                    catch (Exception ex) {
-                        Debug.LogWarning($"Error exporting sprite {i}-{j}: {ex.Message}");
-
+                    // Skip if null
+                    if (tex == null)
                         continue;
-                    }
 
                     // Write the texture
                     File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString().PadLeft(2, '0')}{j.ToString().PadLeft(2, '0')}.png"), tex.EncodeToPNG());
@@ -258,12 +241,85 @@ namespace R1Engine {
         }
 
         /// <summary>
+        /// Gets the texture for a sprite
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="d">The DES item</param>
+        /// <param name="s">The image descriptor</param>
+        /// <param name="palette">The palette to use</param>
+        /// <returns>The sprite texture</returns>
+        public Texture2D GetSpriteTexture(GameSettings settings, PC_DesItem d, PC_ImageDescriptor s, ARGBColor[] palette)
+        {
+            // Get the image properties
+            var width = s.OuterWidth;
+            var height = s.OuterHeight;
+            var offset = s.ImageOffset;
+
+            // Create the texture
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point
+            };
+
+            // Default to fully transparent
+            for (int y = 0; y < tex.height; y++)
+            {
+                for (int x = 0; x < tex.width; x++)
+                {
+                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                }
+            }
+
+            // TODO: Why do we have to do this?
+            // 1 pixel offset used for sprite alignment
+            var pcExtra = settings.GameMode == GameMode.RayPC ? 0 : 1;
+
+            try
+            {
+                // Set every pixel
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        // Get the pixel offset
+                        var pixelOffset = y * width + x + offset;
+
+                        var pixel = d.ImageData[pixelOffset] ^ 143;
+
+                        // Make sure the color isn't transparent (i.e. uses the event palette)
+                        if (pixel > 159)
+                            continue;
+
+                        // Get the color from the palette
+                        var color = palette[pixel];
+
+                        // Set the pixel
+                        tex.SetPixel(x - pcExtra, -(y + 1), color.GetColor());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Couldn't load sprite for DES: {ex.Message}");
+
+                return null;
+            }
+
+            // Apply the changes
+            tex.Apply();
+
+            // Return the texture
+            return tex;
+        }
+
+        /// <summary>
         /// Loads the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
+        /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData) {
+        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData, List<Common_Design> eventDesigns) {
             Controller.status = $"Loading map data for {settings.World} {settings.Level}";
 
             // Read the level data
@@ -282,7 +338,7 @@ namespace R1Engine {
 
                 // Create the tile arrays
                 TileSet = new Common_Tileset[4],
-                Tiles = new Common_Tile[levelData.Width * levelData.Height]
+                Tiles = new Common_Tile[levelData.Width * levelData.Height],
             };
 
             Controller.status = $"Loading allfix";
@@ -299,19 +355,23 @@ namespace R1Engine {
 
             await Controller.WaitIfNecessary();
 
+            Controller.status = $"Loading big ray";
+
+            // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
+            // Read the big ray data
+            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings);
+
+            await Controller.WaitIfNecessary();
+
             // Get the DES and ETA
-            var des = allfix.DesItems.Concat(worldData.DesItems).ToArray();
-            var eta = allfix.Eta.Concat(worldData.Eta).ToArray();
-
-            // Create common DES and ETA objects and store them in this list:
-            Controller.obj.levelController.currentDesigns = new List<Common_Design>();
-
-            // TODO: Why do we have to do this?
-            // 1 pixel offset used for sprite alignment
-            var pcExtra = settings.GameMode == GameMode.RayPC ? 0 : 1;
+            var des = allfix.DesItems.Concat(worldData.DesItems).Concat(bigRayData.DesItems).ToArray();
+            var eta = allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta).ToArray();
 
             int desIndex = 0;
-            foreach (var d in des) {
+
+            // Read every DES item
+            foreach (var d in des) 
+            {
                 Controller.status = $"Loading DES {desIndex}/{des.Length}";
 
                 await Controller.WaitIfNecessary();
@@ -324,49 +384,14 @@ namespace R1Engine {
                 // Sprites
                 foreach (var s in d.ImageDescriptors) {
 
-                    // Get the image properties
-                    var width = s.OuterWidth;
-                    var height = s.OuterHeight;
-                    var offset = s.ImageOffset;
-                    // Create the texture
-                    Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                        filterMode = FilterMode.Point
-                    };
-                    // Default to fully transparent
-                    for (int y = 0; y < tex.height; y++) {
-                        for (int x = 0; x < tex.width; x++) {
-                            tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                        }
-                    }
+                    // Get the texture
+                    Texture2D tex = GetSpriteTexture(settings, d, s, levelData.ColorPalettes.First());
 
-                    try {
-                        // Set every pixel
-                        for (int y = 0; y < height; y++) {
-                            for (int x = 0; x < width; x++) {
-                                // Get the pixel offset
-                                var pixelOffset = y * width + x + offset;
-
-                                var pixel = d.ImageData[pixelOffset] ^ 143;
-
-                                // Get the color from the palette
-                                var color = levelData.ColorPalettes[0][pixel];
-
-                                // Make sure the color isn't transparent (i.e. uses the event palette)
-                                if (pixel > 159)
-                                    continue;
-
-                                // Set the pixel
-                                tex.SetPixel(x-pcExtra, -(y + 1), color.GetColor());
-                            }
-                        }
-                    }
-                    catch (Exception ex) {
-                        Debug.LogWarning($"Couldn't load sprite for DES {desIndex}: {ex.Message}");
-
+                    // TODO: Skipping will change the indexing :/ Add null instead to list?
+                    // Skip if null
+                    if (tex == null)
                         continue;
-                    }
-                    // Apply the changes
-                    tex.Apply();
+
                     // Add it to the array
                     finalDesign.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                 }
@@ -403,7 +428,7 @@ namespace R1Engine {
                 }
 
                 // Add to the designs
-                Controller.obj.levelController.currentDesigns.Add(finalDesign);
+                eventDesigns.Add(finalDesign);
                 desIndex++;
             }
 

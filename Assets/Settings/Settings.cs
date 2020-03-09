@@ -57,6 +57,11 @@ namespace R1Engine
         public static bool ShowAlwaysEvents { get; set; }
 
         /// <summary>
+        /// Indicates if editor events should be shown
+        /// </summary>
+        public static bool ShowEditorEvents { get; set; }
+
+        /// <summary>
         /// The specified game directories for each mode
         /// </summary>
         public static Dictionary<GameModeSelection, string> GameDirectories { get; set; }
@@ -112,6 +117,7 @@ namespace R1Engine
             EditorPrefs.SetBool("UseHDCollisionSheet", UseHDCollisionSheet);
             EditorPrefs.SetBool("AnimateSprites", AnimateSprites);
             EditorPrefs.SetBool("ShowAlwaysEvents", ShowAlwaysEvents);
+            EditorPrefs.SetBool("ShowEditorEvents", ShowEditorEvents);
         }
 
         /// <summary>
@@ -132,6 +138,7 @@ namespace R1Engine
             UseHDCollisionSheet = EditorPrefs.GetBool("UseHDCollisionSheet", UseHDCollisionSheet);
             AnimateSprites = EditorPrefs.GetBool("AnimateSprites", AnimateSprites);
             ShowAlwaysEvents = EditorPrefs.GetBool("ShowAlwaysEvents", ShowAlwaysEvents);
+            ShowEditorEvents = EditorPrefs.GetBool("ShowEditorEvents", ShowEditorEvents);
         }
 
         #endregion

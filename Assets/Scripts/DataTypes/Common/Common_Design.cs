@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace R1Engine {
+    /// <summary>
+    /// Common event design data
+    /// </summary>
     [System.Serializable]
     public class Common_Design {
 

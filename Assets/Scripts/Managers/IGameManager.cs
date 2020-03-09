@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -31,8 +32,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="eventInfoData">The loaded event info data</param>
+        /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData);
+        Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData, List<Common_Design> eventDesigns);
 
         /// <summary>
         /// Saves the specified level

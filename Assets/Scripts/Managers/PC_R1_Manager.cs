@@ -25,6 +25,13 @@ namespace R1Engine
         public string GetWorldFolderPath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), GetWorldName(settings.World));
 
         /// <summary>
+        /// Gets the file path for the big ray file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The big ray file path</returns>
+        public override string GetBigRayFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"BRAY.DAT");
+
+        /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>

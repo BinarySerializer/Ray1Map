@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace R1Engine
 {
-    // TODO: Add support for bray.dat and read the data which appears at the end of the allfix.dat file
+    // TODO: Add support for bray.dat and read the data which appears at the end of the allfix.dat file (palette?)
 
     /// <summary>
     /// World data for PC
@@ -66,6 +66,14 @@ namespace R1Engine
             if (deserializer.FileExtension == ".wld")
             {
                 ReadSprites();
+                ReadEta();
+            }
+            else if (deserializer.FileName == "bray.dat" || deserializer.FileName == "bigray.dat")
+            {
+                DesItemCount = 1;
+
+                DesItems = deserializer.ReadArray<PC_DesItem>(DesItemCount);
+
                 ReadEta();
             }
             else

@@ -120,24 +120,24 @@ namespace R1Engine
                     Debug.LogWarning("Trying to set an out of range DES");
                     Des = 1;
                     DesOld = 1;
-                }else if(Des > Controller.obj.levelController.currentDesigns.Count) {
+                }else if(Des > Controller.obj.levelController.eventDesigns.Count) {
                     Debug.LogWarning("Trying to set an out of range DES");
-                    Des = (uint)Controller.obj.levelController.currentDesigns.Count;
-                    DesOld = (uint)Controller.obj.levelController.currentDesigns.Count;
+                    Des = (uint)Controller.obj.levelController.eventDesigns.Count;
+                    DesOld = (uint)Controller.obj.levelController.eventDesigns.Count;
                 }
                 else if (AnimationIndex<0) {
                     Debug.LogWarning("Trying to set an out of range AnimationIndex");
                     AnimationIndex = 0;
                     AnimationIndexOld = 0;
-                }else if(AnimationIndex > Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count-1) {
+                }else if(AnimationIndex > Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count-1) {
                     Debug.LogWarning("Trying to set an out of range AnimationIndex");
-                    if (Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count == 0) {
+                    if (Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count == 0) {
                         AnimationIndex = 0;
                         AnimationIndexOld = 0;
                     }
                     else {
-                        AnimationIndex = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count - 1;
-                        AnimationIndexOld = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count - 1;
+                        AnimationIndex = Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count - 1;
+                        AnimationIndexOld = Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count - 1;
                     }
                 }
                 ChangeAppearance(Des, AnimationIndex);
@@ -162,11 +162,8 @@ namespace R1Engine
                 UpdateParts(floored);
             }
 
-            //Change collider with show always events
-            if (EventInfoData.Info.IsAlways == true) {
-                boxCollider.enabled = Settings.ShowAlwaysEvents;
-                return;
-            }
+            //Change collider with show always/editor events
+            boxCollider.enabled = !(EventInfoData.Info.IsAlways == true && !Settings.ShowAlwaysEvents) && !(EventInfoData.Info.EditorOnly == true && !Settings.ShowEditorEvents);
         }
 
         // Change des and everything
@@ -189,9 +186,9 @@ namespace R1Engine
 
         // Try to load a new animation and change to it
         private void ChangeAnimation(int newAnim) {
-            if (Controller.obj.levelController.currentDesigns.Count > (int)Des - 1 && Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations.Count > newAnim) {
+            if (Controller.obj.levelController.eventDesigns.Count > (int)Des - 1 && Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count > newAnim) {
 
-                CurrentAnimation = Controller.obj.levelController.currentDesigns[(int)Des - 1].Animations[newAnim];
+                CurrentAnimation = Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations[newAnim];
 
                 if (CurrentAnimation != null) {
                     var len = CurrentAnimation.Frames.GetLength(1);
@@ -226,7 +223,7 @@ namespace R1Engine
                 int leftX = 0, topY = 0, rightX = 0, bottomY = 0;
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     var frame = CurrentAnimation.Frames[0, i];
-                    var sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
+                    var sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
                     if (frame.X < leftX || i == 0)
                         leftX = frame.X;
                     if (frame.X + sprite.texture.width > rightX || i == 0)
@@ -246,7 +243,7 @@ namespace R1Engine
         private void UpdateParts(int frame) {
             if (CurrentAnimation != null) {
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
-                    prefabRendereds[i].sprite = Controller.obj.levelController.currentDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                    prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                     prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 
                     var extraX = prefabRendereds[i].sprite.texture.width;
@@ -254,9 +251,7 @@ namespace R1Engine
 
                     // TODO: Why do we have to ignore the first sprite?
                     //Change visibility if always or if the first sprite
-                    if (EventInfoData.Info.IsAlways == true || CurrentAnimation.Frames[frame, i].SpriteIndex == 0) {
-                        prefabRendereds[i].enabled = Settings.ShowAlwaysEvents;
-                    }
+                    prefabRendereds[i].enabled = CurrentAnimation.Frames[frame, i].SpriteIndex != 0 && !(EventInfoData.Info.IsAlways == true && !Settings.ShowAlwaysEvents) && !(EventInfoData.Info.EditorOnly == true && !Settings.ShowEditorEvents);
                 }
             }
         }

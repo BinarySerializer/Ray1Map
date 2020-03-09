@@ -118,6 +118,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowAlwaysEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show always events", Settings.ShowAlwaysEvents);
 
+        Settings.ShowEditorEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show editor events", Settings.ShowEditorEvents);
+
 		TotalyPos = yPos;
 		GUI.EndScrollView();
 
