@@ -190,8 +190,15 @@ namespace R1Engine {
                 // Get the sprite group
                 var desItem = worldFile.DesItems[i];
 
-                // Enumerate each image (skip the first one)
-                for (int j = 1; j < desItem.ImageDescriptors.Length; j++) {
+                // Enumerate each image
+                for (int j = 0; j < desItem.ImageDescriptors.Length; j++) {
+                    // Get the image descriptor
+                    var imgDescriptor = desItem.ImageDescriptors[j];
+
+                    // Ignore garbage sprites
+                    if (imgDescriptor.InnerHeight == 0 || imgDescriptor.InnerWidth == 0)
+                        continue;
+
                     // Default to the first level
                     var lvl = levels.First();
 
@@ -224,9 +231,6 @@ namespace R1Engine {
                     //        lvl = lvlMatch;
                     //}
 
-                    // Get the image descriptor
-                    var imgDescriptor = desItem.ImageDescriptors[j];
-
                     // Get the texture
                     Texture2D tex = GetSpriteTexture(settings, desItem, imgDescriptor, lvl.ColorPalettes.First());
 
@@ -235,7 +239,7 @@ namespace R1Engine {
                         continue;
 
                     // Write the texture
-                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString().PadLeft(2, '0')}{j.ToString().PadLeft(2, '0')}.png"), tex.EncodeToPNG());
+                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString().PadLeft(3, '0')}{j.ToString().PadLeft(3, '0')}.png"), tex.EncodeToPNG());
                 }
             }
         }
@@ -380,8 +384,11 @@ namespace R1Engine {
                 // Sprites
                 foreach (var s in d.ImageDescriptors) {
 
+                    // Ignore garbage sprites
+                    var isGarbage = s.InnerHeight == 0 || s.InnerWidth == 0;
+
                     // Get the texture
-                    Texture2D tex = GetSpriteTexture(settings, d, s, levelData.ColorPalettes.First());
+                    Texture2D tex = isGarbage ? null : GetSpriteTexture(settings, d, s, levelData.ColorPalettes.First());
 
                     // Add it to the array
                     finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));

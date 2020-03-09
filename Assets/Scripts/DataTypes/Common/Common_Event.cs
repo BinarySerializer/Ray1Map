@@ -250,9 +250,8 @@ namespace R1Engine
                     var extraX = prefabRendereds[i].sprite.texture.width;
                     prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
 
-                    // TODO: Why do we have to ignore the first sprite?
-                    //Change visibility if always or if the first sprite
-                    prefabRendereds[i].enabled = CurrentAnimation.Frames[frame, i].SpriteIndex != 0 && !(EventInfoData.Info.IsAlways == true && !Settings.ShowAlwaysEvents) && !(EventInfoData.Info.EditorOnly == true && !Settings.ShowEditorEvents);
+                    //Change visibility if always/editor
+                    prefabRendereds[i].enabled = !(EventInfoData.Info.IsAlways == true && !Settings.ShowAlwaysEvents) && !(EventInfoData.Info.EditorOnly == true && !Settings.ShowEditorEvents);
                 }
             }
         }
