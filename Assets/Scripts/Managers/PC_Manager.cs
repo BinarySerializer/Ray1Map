@@ -270,10 +270,6 @@ namespace R1Engine {
                 }
             }
 
-            // TODO: Why do we have to do this?
-            // 1 pixel offset used for sprite alignment
-            var pcExtra = settings.GameMode == GameMode.RayPC ? 0 : 1;
-
             try
             {
                 // Set every pixel
@@ -294,7 +290,7 @@ namespace R1Engine {
                         var color = palette[pixel];
 
                         // Set the pixel
-                        tex.SetPixel(x - pcExtra, -(y + 1), color.GetColor());
+                        tex.SetPixel(x, -(y + 1), color.GetColor());
                     }
                 }
             }
