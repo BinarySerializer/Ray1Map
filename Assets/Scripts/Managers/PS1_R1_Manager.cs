@@ -108,7 +108,7 @@ namespace R1Engine
             var worldFile = FileFactory.Read<PS1_R1_WorldFile>(fileName, settings);
 
             int tile = 0;
-            int tileCount = worldFile.PaletteIndexTable.Length;
+            int tileCount = worldFile.TilePaletteIndexTable.Length;
             const int width = 256;
             int height = (worldFile.TilesIndexTable.Length) / width;
             Color[] pixels = new Color[width * height];
@@ -123,7 +123,7 @@ namespace R1Engine
 
                             int pixel = x + xB + (y + yB) * width;
 
-                            pixels[pixel] = worldFile.ColorPalettes[worldFile.PaletteIndexTable[tile]][worldFile.TilesIndexTable[pixel]].GetColor();
+                            pixels[pixel] = worldFile.TileColorPalettes[worldFile.TilePaletteIndexTable[tile]][worldFile.TilesIndexTable[pixel]].GetColor();
                         }
             End:
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)

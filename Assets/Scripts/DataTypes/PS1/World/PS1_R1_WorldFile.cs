@@ -25,14 +25,14 @@ namespace R1Engine
         public uint ThirdBlockPointer => Pointers[2];
 
         /// <summary>
-        /// The pointer to the fourth block
+        /// The pointer to the event palette 1 block
         /// </summary>
-        public uint FourthBlockPointer => Pointers[3];
+        public uint EventPalette1BlockPointer => Pointers[3];
 
         /// <summary>
-        /// The pointer to the fifth block
+        /// The pointer to the event palette 2 block
         /// </summary>
-        public uint FifthBlockPointer => Pointers[4];
+        public uint EventPalette2BlockPointer => Pointers[4];
 
         /// <summary>
         /// The pointer to the tiles block
@@ -58,11 +58,15 @@ namespace R1Engine
         // Empty
         public byte[] ThirdBlock { get; set; }
 
-        // TODO: This is a temp property until we serialize the actual data
-        public byte[] FourthBlock { get; set; }
+        /// <summary>
+        /// The event palette
+        /// </summary>
+        public ARGBColor[] EventPalette1 { get; set; }
 
-        // TODO: This is a temp property until we serialize the actual data
-        public byte[] FifthBlock { get; set; }
+        /// <summary>
+        /// The event palette
+        /// </summary>
+        public ARGBColor[] EventPalette2 { get; set; }
 
         /// <summary>
         /// The tiles palette index table
@@ -70,14 +74,14 @@ namespace R1Engine
         public byte[] TilesIndexTable { get; set; }
 
         /// <summary>
-        /// The color palettes
+        /// The tile color palettes
         /// </summary>
-        public ARGBColor[][] ColorPalettes { get; set; }
+        public ARGBColor[][] TileColorPalettes { get; set; }
 
         /// <summary>
-        /// The palette index table
+        /// The tile palette index table
         /// </summary>
-        public byte[] PaletteIndexTable { get; set; }
+        public byte[] TilePaletteIndexTable { get; set; }
 
         /// <summary>
         /// Deserializes the file contents
@@ -99,15 +103,15 @@ namespace R1Engine
 
             // BLOCK 3
 
-            ThirdBlock = deserializer.ReadArray<byte>((ulong)(FourthBlockPointer - deserializer.BaseStream.Position));
+            ThirdBlock = deserializer.ReadArray<byte>((ulong)(EventPalette1BlockPointer - deserializer.BaseStream.Position));
 
-            // BLOCK 4
+            // EVENT PALETTE 1
 
-            FourthBlock = deserializer.ReadArray<byte>((ulong)(FifthBlockPointer - deserializer.BaseStream.Position));
+            EventPalette1 = ReadPalette();
 
-            // BLOCK 5
+            // EVENT PALETTE 2
 
-            FifthBlock = deserializer.ReadArray<byte>((ulong)(TilesBlockPointer - deserializer.BaseStream.Position));
+            EventPalette2 = ReadPalette();
 
             // TILES
 
@@ -118,7 +122,7 @@ namespace R1Engine
             // Read the tiles index table
             TilesIndexTable = deserializer.ReadArray<byte>((ulong)(PaletteBlockPointer - deserializer.BaseStream.Position));
 
-            // PALETTE
+            // TILE PALETTES
 
             // At this point the stream position should match the palette block offset
             if (deserializer.BaseStream.Position != PaletteBlockPointer)
@@ -129,6 +133,27 @@ namespace R1Engine
 
             // TODO: Find way to know the number of palettes
             while (deserializer.BaseStream.Position < PaletteIndexBlockPointer)
+                // Read and add to the palettes
+                palettes.Add(ReadPalette());
+
+            // Set the palettes
+            TileColorPalettes = palettes.ToArray();
+
+            // TILE PALETTE ASSIGN
+
+            // At this point the stream position should match the palette assign block offset
+            if (deserializer.BaseStream.Position != PaletteIndexBlockPointer)
+                Debug.LogError("Palette assign block offset is incorrect");
+
+            // Read the palette index table
+            TilePaletteIndexTable = deserializer.ReadArray<byte>((ulong)(FileSize - deserializer.BaseStream.Position));
+
+            // At this point the stream position should match the end offset
+            if (deserializer.BaseStream.Position != FileSize)
+                Debug.LogError("End offset is incorrect");
+
+            // Helper method for reading a palette
+            ARGBColor[] ReadPalette()
             {
                 // Create the palette
                 var palette = new ARGBColor[256];
@@ -144,7 +169,6 @@ namespace R1Engine
                     byte g = (byte)(((colour16 & 0x3E0) >> 5) << 3);
                     byte b = (byte)(((colour16 & 0x7C00) >> 10) << 3);
 
-                    // TODO: There might be an opacity mask in the file we can apply instead?
                     if (r == 0 && g == 0 && b == 0)
                         a = 0;
 
@@ -152,25 +176,9 @@ namespace R1Engine
                     palette[i] = new ARGBColor(a, r, g, b);
                 }
 
-                // Add to the palettes
-                palettes.Add(palette);
+                // Return the palette
+                return palette;
             }
-
-            // Set the palettes
-            ColorPalettes = palettes.ToArray();
-
-            // PALETTE ASSIGN
-
-            // At this point the stream position should match the palette assign block offset
-            if (deserializer.BaseStream.Position != PaletteIndexBlockPointer)
-                Debug.LogError("Palette assign block offset is incorrect");
-
-            // Read the palette index table
-            PaletteIndexTable = deserializer.ReadArray<byte>((ulong)(FileSize - deserializer.BaseStream.Position));
-
-            // At this point the stream position should match the end offset
-            if (deserializer.BaseStream.Position != FileSize)
-                Debug.LogError("End offset is incorrect");
         }
 
         /// <summary>

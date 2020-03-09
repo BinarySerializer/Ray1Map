@@ -85,7 +85,7 @@ namespace R1Engine
         /// </summary>
         public PS1_R1_MapTile[] Tiles { get; set; }
 
-        // TODO: This is a temp property until we serialize the actual data
+        // TODO: This is a temp property until we serialize the actual data - this block has a texture sheet with a width of 256
         public byte[] TextureBlock { get; set; }
 
         /// <summary>
