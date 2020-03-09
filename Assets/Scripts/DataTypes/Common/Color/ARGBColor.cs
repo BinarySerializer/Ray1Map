@@ -26,13 +26,13 @@ namespace R1Engine
             Blue = blue;
         }
 
-        public byte Alpha { get; }
+        public byte Alpha { get; set; }
 
-        public byte Red { get; }
+        public byte Red { get; set; }
         
-        public byte Green { get; }
+        public byte Green { get; set; }
         
-        public byte Blue { get; }
+        public byte Blue { get; set; }
 
         public Color GetColor() => new Color((float)Red / Byte.MaxValue, (float)Green / Byte.MaxValue, (float)Blue / Byte.MaxValue, (float)Alpha / Byte.MaxValue);
     }

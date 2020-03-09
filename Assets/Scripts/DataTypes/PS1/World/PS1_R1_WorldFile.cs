@@ -61,12 +61,12 @@ namespace R1Engine
         /// <summary>
         /// The event palette
         /// </summary>
-        public ARGBColor[] EventPalette1 { get; set; }
+        public ARGB1555Color[] EventPalette1 { get; set; }
 
         /// <summary>
         /// The event palette
         /// </summary>
-        public ARGBColor[] EventPalette2 { get; set; }
+        public ARGB1555Color[] EventPalette2 { get; set; }
 
         /// <summary>
         /// The tiles palette index table
@@ -76,7 +76,7 @@ namespace R1Engine
         /// <summary>
         /// The tile color palettes
         /// </summary>
-        public ARGBColor[][] TileColorPalettes { get; set; }
+        public ARGB1555Color[][] TileColorPalettes { get; set; }
 
         /// <summary>
         /// The tile palette index table
@@ -107,11 +107,11 @@ namespace R1Engine
 
             // EVENT PALETTE 1
 
-            EventPalette1 = ReadPalette();
+            EventPalette1 = deserializer.ReadArray<ARGB1555Color>(256);
 
             // EVENT PALETTE 2
 
-            EventPalette2 = ReadPalette();
+            EventPalette2 = deserializer.ReadArray<ARGB1555Color>(256);
 
             // TILES
 
@@ -129,12 +129,12 @@ namespace R1Engine
                 Debug.LogError("Palette block offset is incorrect");
 
             // Create the palettes
-            var palettes = new List<ARGBColor[]>();
+            var palettes = new List<ARGB1555Color[]>();
 
             // TODO: Find way to know the number of palettes
             while (deserializer.BaseStream.Position < PaletteIndexBlockPointer)
                 // Read and add to the palettes
-                palettes.Add(ReadPalette());
+                palettes.Add(deserializer.ReadArray<ARGB1555Color>(256));
 
             // Set the palettes
             TileColorPalettes = palettes.ToArray();
@@ -151,34 +151,6 @@ namespace R1Engine
             // At this point the stream position should match the end offset
             if (deserializer.BaseStream.Position != FileSize)
                 Debug.LogError("End offset is incorrect");
-
-            // Helper method for reading a palette
-            ARGBColor[] ReadPalette()
-            {
-                // Create the palette
-                var palette = new ARGBColor[256];
-
-                // Read each color
-                for (int i = 0; i < palette.Length; i++)
-                {
-                    // Read the color value (BGR 1555)
-                    uint colour16 = deserializer.Read<ushort>();
-
-                    byte a = 255;
-                    byte r = (byte)((colour16 & 0x1F) << 3);
-                    byte g = (byte)(((colour16 & 0x3E0) >> 5) << 3);
-                    byte b = (byte)(((colour16 & 0x7C00) >> 10) << 3);
-
-                    if (r == 0 && g == 0 && b == 0)
-                        a = 0;
-
-                    // Add to the palette
-                    palette[i] = new ARGBColor(a, r, g, b);
-                }
-
-                // Return the palette
-                return palette;
-            }
         }
 
         /// <summary>

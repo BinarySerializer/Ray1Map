@@ -12,6 +12,9 @@ namespace R1Engine
         [GameMode(GameMode.RayPS1, "Rayman 1 (PS1)", typeof(PS1_R1_Manager))]
         RaymanPS1,
 
+        [GameMode(GameMode.RayPS1JP, "Rayman 1 (PS1 - Japan)", typeof(PS1_R1JP_Manager))]
+        RaymanPS1Japan,
+
         [GameMode(GameMode.RayPC, "Rayman 1 (PC)", typeof(PC_R1_Manager))]
         RaymanPC,
 

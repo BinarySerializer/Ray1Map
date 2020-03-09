@@ -100,10 +100,19 @@ namespace R1Engine
                     Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTiles[(int)t.CollisionType]);
                 }
 
+                try
+                {
+                    var tileIndex = t.TileSetGraphicIndex;
 
-                // Assign tiles to their correct tilemaps based on the palette
-                if (Controller.obj.levelController.currentLevel.TileSet[t.PaletteIndex] != null && t.TileSetGraphicIndex != -1)
-                    Tilemaps[t.PaletteIndex].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), Controller.obj.levelController.currentLevel.TileSet[t.PaletteIndex].Tiles[t.TileSetGraphicIndex]);
+                    // Assign tiles to their correct tilemaps based on the palette
+                    if (Controller.obj.levelController.currentLevel.TileSet[t.PaletteIndex] != null && tileIndex != -1)
+                        Tilemaps[t.PaletteIndex].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), Controller.obj.levelController.currentLevel.TileSet[t.PaletteIndex].Tiles[tileIndex]);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Failed to load tile: {t.TileSetGraphicIndex} with max: {Controller.obj.levelController.currentLevel.TileSet[t.PaletteIndex].Tiles.Length}. Exception: {ex.Message}");
+                }
+
             }
         }
 

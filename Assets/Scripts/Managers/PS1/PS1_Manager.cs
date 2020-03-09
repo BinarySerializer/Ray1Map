@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
     /// <summary>
-    /// The game manager for Rayman 1 (PS1)
+    /// Base game manager for PS1
     /// </summary>
-    public class PS1_R1_Manager : IGameManager
+    public abstract class PS1_Manager : IGameManager
     {
         #region Values and paths
 
@@ -99,59 +97,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The tile set</returns>
-        public Common_Tileset ReadTileSet(GameSettings settings)
-        {
-            // Get the file name
-            var fileName = Path.Combine(GetWorldFolderPath(settings), $"{GetWorldName(settings.World)}.XXX");
-
-            // Read the file
-            var worldFile = FileFactory.Read<PS1_R1_WorldFile>(fileName, settings);
-
-            int tile = 0;
-            int tileCount = worldFile.TilePaletteIndexTable.Length;
-            const int width = 256;
-            int height = (worldFile.TilesIndexTable.Length) / width;
-            Color[] pixels = new Color[width * height];
-
-            for (int yB = 0; yB < height; yB += 16)
-                for (int xB = 0; xB < width; xB += 16, tile++)
-                    for (int y = 0; y < CellSize; y++)
-                        for (int x = 0; x < CellSize; x++)
-                        {
-                            if (tile >= tileCount)
-                                goto End;
-
-                            int pixel = x + xB + (y + yB) * width;
-
-                            pixels[pixel] = worldFile.TileColorPalettes[worldFile.TilePaletteIndexTable[tile]][worldFile.TilesIndexTable[pixel]].GetColor();
-                        }
-            End:
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
-            {
-                filterMode = FilterMode.Point
-            };
-            tex.SetPixels(pixels);
-            tex.Apply();
-
-            var tiles = new Tile[tex.width * tex.height];
-
-            // Loop through all the 16x16 cells in the tileset Texture2D and generate tiles out of it
-            int tileIndex = 0;
-            for (int yy = 0; yy < (tex.height / CellSize); yy++)
-            {
-                for (int xx = 0; xx < (tex.width / CellSize); xx++)
-                {
-                    // Create a tile
-                    Tile t = ScriptableObject.CreateInstance<Tile>();
-                    t.sprite = Sprite.Create(tex, new Rect(xx * CellSize, yy * CellSize, CellSize, CellSize),
-                        new Vector2(0.5f, 0.5f), CellSize, 20);
-                    tiles[tileIndex] = t;
-                    tileIndex++;
-                }
-            }
-
-            return new Common_Tileset(tiles);
-        }
+        public abstract Common_Tileset ReadTileSet(GameSettings settings);
 
         /// <summary>
         /// Loads the specified level
@@ -211,46 +157,33 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            c.Tiles = ConvertTilesToCommon(levelData.Tiles, levelData.Width, levelData.Height);
-
-            return c;
-        }
-
-        /// <summary>
-        /// Converts a PS1_R1_Tile array to Common_Tile array
-        /// </summary>
-        /// <param name="tiles">Array of PS1 tiles</param>
-        /// <param name="w">Level width</param>
-        /// <param name="h">Level height</param>
-        /// <returns>Common_Tile array</returns>
-        public Common_Tile[] ConvertTilesToCommon(PS1_R1_MapTile[] tiles, ushort w, ushort h)
-        {
-            Common_Tile[] finalTiles = new Common_Tile[w * h];
+            // Set the tiles
+            c.Tiles = new Common_Tile[levelData.Width * levelData.Height];
 
             int tileIndex = 0;
-            for (int ty = 0; ty < (h); ty++)
+            for (int ty = 0; ty < (levelData.Height); ty++)
             {
-                for (int tx = 0; tx < (w); tx++)
+                for (int tx = 0; tx < (levelData.Width); tx++)
                 {
-                    var graphicX = tiles[tileIndex].TileMapX;
-                    var graphicY = tiles[tileIndex].TileMapY;
+                    var graphicX = levelData.Tiles[tileIndex].TileMapX;
+                    var graphicY = levelData.Tiles[tileIndex].TileMapY;
 
                     Common_Tile newTile = new Common_Tile
                     {
                         PaletteIndex = 1,
                         XPosition = tx,
                         YPosition = ty,
-                        CollisionType = tiles[tileIndex].CollisionType,
+                        CollisionType = levelData.Tiles[tileIndex].CollisionType,
                         TileSetGraphicIndex = (CellSize * graphicY) + graphicX
                     };
 
-                    finalTiles[tileIndex] = newTile;
+                    c.Tiles[tileIndex] = newTile;
 
                     tileIndex++;
                 }
             }
 
-            return finalTiles;
+            return c;
         }
 
         /// <summary>
