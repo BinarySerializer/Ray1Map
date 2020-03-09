@@ -912,7 +912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad9276c16b45a7d489f7e0e124e5838c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentDesigns: []
+  eventDesigns: []
   controllerTilemap: {fileID: 172781303}
   controllerEvents: {fileID: 172781304}
   backgroundTint: {fileID: 1369872174}
@@ -3694,8 +3694,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 171.71, y: 30}
+  m_AnchoredPosition: {x: -0.0009498596, y: 0}
+  m_SizeDelta: {x: 102.53, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &766496297
 MonoBehaviour:
@@ -6596,8 +6596,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 171.71, y: 30}
+  m_AnchoredPosition: {x: 0.0015087, y: 0}
+  m_SizeDelta: {x: 58.837, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1158281758
 MonoBehaviour:

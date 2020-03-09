@@ -150,10 +150,11 @@ namespace R1Engine
             }
 
             // Scroll through animation frames
-            if (prefabRendereds.Length > 0 && CurrentAnimation != null && Settings.AnimateSprites)
+            if (prefabRendereds.Length > 0 && CurrentAnimation != null)
             {
                 // Scroll through the frames
-                currentFrame += (60f / Speed) * Time.deltaTime;
+                if (Settings.AnimateSprites)
+                    currentFrame += (60f / Speed) * Time.deltaTime;
                 if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 
