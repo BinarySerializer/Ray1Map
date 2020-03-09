@@ -225,14 +225,16 @@ namespace R1Engine
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     var frame = CurrentAnimation.Frames[0, i];
                     var sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
-                    if (frame.X < leftX || i == 0)
-                        leftX = frame.X;
-                    if (frame.X + sprite.texture.width > rightX || i == 0)
-                        rightX = frame.X + sprite.texture.width;
-                    if (frame.Y < topY || i == 0)
-                        topY = frame.Y;
-                    if (frame.Y + sprite.texture.height > bottomY || i == 0)
-                        bottomY = frame.Y + sprite.texture.height;
+                    if (sprite != null) {
+                        if (frame.X < leftX || i == 0)
+                            leftX = frame.X;
+                        if (frame.X + sprite.texture.width > rightX || i == 0)
+                            rightX = frame.X + sprite.texture.width;
+                        if (frame.Y < topY || i == 0)
+                            topY = frame.Y;
+                        if (frame.Y + sprite.texture.height > bottomY || i == 0)
+                            bottomY = frame.Y + sprite.texture.height;
+                    }
                 }
 
                 boxCollider.size = new Vector2((rightX - leftX) / 16f, (bottomY - topY) / 16f);
@@ -247,7 +249,7 @@ namespace R1Engine
                     prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                     prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 
-                    var extraX = prefabRendereds[i].sprite.texture.width;
+                    var extraX = prefabRendereds[i].sprite==null ? 0 : prefabRendereds[i].sprite.texture.width;
                     prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
 
                     //Change visibility if always/editor
