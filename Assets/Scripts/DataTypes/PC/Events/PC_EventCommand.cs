@@ -20,7 +20,7 @@
         public void Deserialize(BinaryDeserializer deserializer)
         {
             // Get the xor key to use for the command
-            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 145);
+            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC || deserializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
 
             CodeCount = deserializer.Read<ushort>(eveXor);
             LabelOffsetCount = deserializer.Read<ushort>(eveXor);
@@ -37,7 +37,7 @@
         public void Serialize(BinarySerializer serializer)
         {
             // Get the xor key to use for the command
-            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 145);
+            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
 
             serializer.Write(CodeCount, eveXor);
             serializer.Write(LabelOffsetCount, eveXor);

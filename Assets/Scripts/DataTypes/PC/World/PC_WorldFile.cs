@@ -51,22 +51,22 @@ namespace R1Engine
             // Read PC Header
             base.Deserialize(deserializer);
 
-            if (deserializer.FileExtension == ".wld")
+            if (deserializer.FileName.Contains(".wld"))
             {
                 // Read unknown header
                 Unknown6 = deserializer.Read<ushort>();
                 Unknown2 = deserializer.Read<ushort>();
                 Unknown4Count = deserializer.Read<ushort>();
                 Unknown3 = deserializer.Read<byte>();
-                Unknown4 = deserializer.ReadArray<byte>((ulong)(deserializer.GameSettings.GameMode == GameMode.RayPC ? Unknown4Count : Unknown4Count * 8));
+                Unknown4 = deserializer.ReadArray<byte>((ulong)(deserializer.GameSettings.GameMode == GameMode.RayPC || deserializer.GameSettings.GameMode == GameMode.RayPocketPC ? Unknown4Count : Unknown4Count * 8));
             }
 
-            if (deserializer.FileExtension == ".wld")
+            if (deserializer.FileName.Contains(".wld"))
             {
                 ReadSprites();
                 ReadEta();
             }
-            else if (deserializer.FileName == "bray.dat" || deserializer.FileName == "bigray.dat")
+            else if (deserializer.FileName.Contains("bray.dat") || deserializer.FileName.Contains("bigray.dat"))
             {
                 DesItemCount = 1;
 
@@ -110,7 +110,7 @@ namespace R1Engine
                 // Read sprites
                 DesItemCount = deserializer.Read<ushort>();
 
-                if (deserializer.FileName == "allfix.dat")
+                if (deserializer.FileName.Contains("allfix.dat"))
                     DesItemCount--;
 
                 DesItems = deserializer.ReadArray<PC_DesItem>(DesItemCount);

@@ -26,7 +26,7 @@
         /// <param name="deserializer">The deserializer</param>
         public virtual void Deserialize(BinaryDeserializer deserializer)
         {
-            if (deserializer.GameSettings.GameMode != GameMode.RayPC)
+            if (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC)
             {
                 PrimaryKitHeader = deserializer.ReadArray<byte>(5);
                 SecondaryKitHeader = deserializer.ReadArray<byte>(5);
@@ -40,7 +40,7 @@
         /// <param name="serializer">The serializer</param>
         public virtual void Serialize(BinarySerializer serializer)
         {
-            if (serializer.GameSettings.GameMode != GameMode.RayPC)
+            if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
             {
                 serializer.Write(PrimaryKitHeader);
                 serializer.Write(SecondaryKitHeader);

@@ -78,7 +78,7 @@
         public void Deserialize(BinaryDeserializer deserializer)
         {
             // Get the xor key to use for the event
-            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 145);
+            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC || deserializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
 
             DES = deserializer.Read<uint>(eveXor);
             DES2 = deserializer.Read<uint>(eveXor);
@@ -94,7 +94,7 @@
             YPosition = deserializer.Read<uint>(eveXor);
 
             // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-            if (deserializer.GameSettings.GameMode != GameMode.RayPC)
+            if (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC)
                 Unknown13 = deserializer.Read<uint>(eveXor);
 
             Unknown4 = deserializer.ReadArray<byte>(20, eveXor);
@@ -135,7 +135,7 @@
         public void Serialize(BinarySerializer serializer)
         {
             // Get the xor key to use for the event
-            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC ? 0 : 145);
+            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
 
             serializer.Write(DES, eveXor);
             serializer.Write(DES2, eveXor);
@@ -151,7 +151,7 @@
             serializer.Write(YPosition, eveXor);
 
             // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-            if (serializer.GameSettings.GameMode != GameMode.RayPC)
+            if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
                 serializer.Write(Unknown13, eveXor);
 
             serializer.Write(Unknown4, eveXor);

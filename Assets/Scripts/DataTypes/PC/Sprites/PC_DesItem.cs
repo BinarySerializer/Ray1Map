@@ -58,19 +58,19 @@ namespace R1Engine
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
-            if (deserializer.FileExtension == ".wld")
+            if (deserializer.FileName.Contains(".wld"))
                 RequiresBackgroundClearing = deserializer.Read<bool>();
 
-            if (deserializer.FileName == "allfix.dat")
+            if (deserializer.FileName.Contains("allfix.dat"))
                 Unknown1 = deserializer.ReadArray<byte>(12);
             
             ImageDataLength = deserializer.Read<uint>();
             ImageData = deserializer.ReadArray<byte>(ImageDataLength);
             
-            if (deserializer.FileName != "bray.dat" && deserializer.FileName != "bigray.dat")
+            if (!deserializer.FileName.Contains("bray.dat") && !deserializer.FileName.Contains("bigray.dat"))
                 ImageDataChecksum = deserializer.Read<byte>();
 
-            if (deserializer.FileName == "allfix.dat")
+            if (deserializer.FileName.Contains("allfix.dat"))
                 Unknown2 = deserializer.Read<uint>();
 
             ImageDescriptorCount = deserializer.Read<ushort>();

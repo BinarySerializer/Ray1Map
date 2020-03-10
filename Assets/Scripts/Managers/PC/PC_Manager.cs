@@ -19,6 +19,11 @@ namespace R1Engine {
         public const int CellSize = 16;
 
         /// <summary>
+        /// The file mode to use
+        /// </summary>
+        public virtual FileMode FileMode => FileMode.None;
+
+        /// <summary>
         /// Gets the base path for the game data
         /// </summary>
         /// <param name="basePath">The game base path</param>
@@ -130,10 +135,10 @@ namespace R1Engine {
         public void ExportSpriteTextures(GameSettings settings, string outputDir) 
         { 
             // Read the big ray file
-            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings);
+            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
 
             // Read the allfix file
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings);
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
 
             // Export the sprite textures
             ExportSpriteTextures(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0);
@@ -154,7 +159,7 @@ namespace R1Engine {
                     continue;
 
                 // Read the world file
-                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, settings);
+                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, settings, FileMode);
 
                 // Export the sprite textures
                 ExportSpriteTextures(settings, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount);
@@ -182,7 +187,7 @@ namespace R1Engine {
                 settings.Level = i;
 
                 // Load the level
-                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings));
+                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings, FileMode));
             }
 
             // Enumerate each sprite group
@@ -323,7 +328,7 @@ namespace R1Engine {
             Controller.status = $"Loading map data for {settings.World} {settings.Level}";
 
             // Read the level data
-            var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings);
+            var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings, FileMode);
 
             await Controller.WaitIfNecessary();
 
@@ -344,14 +349,14 @@ namespace R1Engine {
             Controller.status = $"Loading allfix";
 
             // Read the fixed data
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings);
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
 
             await Controller.WaitIfNecessary();
 
             Controller.status = $"Loading world";
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings, FileMode);
 
             await Controller.WaitIfNecessary();
 
@@ -359,7 +364,7 @@ namespace R1Engine {
 
             // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
             // Read the big ray data
-            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings);
+            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
 
             await Controller.WaitIfNecessary();
 
@@ -686,7 +691,7 @@ namespace R1Engine {
             var lvlPath = GetLevelFilePath(settings);
 
             // Get the level data
-            var lvlData = FileFactory.Read<PC_LevFile>(lvlPath, settings);
+            var lvlData = FileFactory.Read<PC_LevFile>(lvlPath, settings, FileMode);
 
             // Update the tiles
             for (int y = 0; y < lvlData.Height; y++) {

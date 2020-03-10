@@ -29,5 +29,8 @@ namespace R1Engine
 
         [GameMode(GameMode.RayEduPC, "Rayman Educational (PC)", typeof(PC_EDU_Manager))]
         RaymanEducationalPC,
+
+        [GameMode(GameMode.RayPocketPC, "Rayman Ultimate (Pocket PC)", typeof(PocketPC_R1_Manager))]
+        RaymanPocketPC,
     }
 }
