@@ -99,6 +99,10 @@ namespace R1Engine
         public SpriteRenderer[] prefabRendereds;
         // Reference to box collider
         public BoxCollider2D boxCollider;
+        // Reference to line renderer
+        public LineRenderer lineRend;
+        // Midpoint of this event when taking all the spriteparts into account
+        public Vector2 midpoint;
 
         private void Start()
         {
@@ -147,6 +151,7 @@ namespace R1Engine
             if (transform.hasChanged)
             {
                 transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
+                midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
             }
 
             // Scroll through animation frames
@@ -165,6 +170,13 @@ namespace R1Engine
 
             //Change collider with show always/editor events
             boxCollider.enabled = !(EventInfoData.Info.IsAlways == true && !Settings.ShowAlwaysEvents) && !(EventInfoData.Info.EditorOnly == true && !Settings.ShowEditorEvents);
+
+            //Link lines
+            if (LinkIndex != Controller.obj.levelController.currentLevel.Events.IndexOf(this)) {
+                lineRend.SetPosition(0, midpoint);
+                var linkedEvent = Controller.obj.levelController.currentLevel.Events[LinkIndex];
+                lineRend.SetPosition(1, linkedEvent.midpoint);
+            }
         }
 
         // Change des and everything
