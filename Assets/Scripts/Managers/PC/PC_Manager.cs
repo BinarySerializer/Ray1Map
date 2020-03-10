@@ -478,9 +478,10 @@ namespace R1Engine {
             var paletteXChangers = levelData.Events.Where(x => x.Type == 158 && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
             var paletteYChangers = levelData.Events.Where(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
-            // Make sure we don't have both horizontal and vertical palette changers as they would conflict
-            if (paletteXChangers.Any() && paletteYChangers.Any())
-                throw new Exception("Horizontal and vertical palette changers can't both appear in the same level");
+            // TODO: Fix and find solution to this
+            //// Make sure we don't have both horizontal and vertical palette changers as they would conflict
+            //if (paletteXChangers.Any() && paletteYChangers.Any())
+            //    throw new Exception("Horizontal and vertical palette changers can't both appear in the same level");
 
             // Check which type of palette changer we have
             bool isPaletteHorizontal = paletteXChangers.Any();

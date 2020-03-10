@@ -27,13 +27,13 @@ namespace R1Engine
         public void Deserialize(BinaryDeserializer deserializer)
         {
             // Read the color value
-            ushort colour16 = deserializer.Read<ushort>();
+            ushort color16 = deserializer.Read<ushort>();
 
             // Extract the bits
             Alpha = 255;
-            Red = (byte)((colour16 & 0x1F) << 3);
-            Green = (byte)(((colour16 & 0x3E0) >> 5) << 3);
-            Blue = (byte)(((colour16 & 0x7C00) >> 10) << 3);
+            Red = (byte)((BitHelpers.ExtractBits(color16, 5, 0) / 31f) * 255);
+            Green = (byte)((BitHelpers.ExtractBits(color16, 5, 5) / 31f) * 255);
+            Blue = (byte)((BitHelpers.ExtractBits(color16, 5, 10) / 31f) * 255);
 
             // Check if transparent
             if (Red == 0 && Green == 0 && Blue == 0)

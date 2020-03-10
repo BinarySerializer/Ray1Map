@@ -28,23 +28,17 @@ namespace R1Engine
         /// <param name="deserializer">The deserializer</param>
         public void Deserialize(BinaryDeserializer deserializer)
         {
+            // Read the value
+            var value = deserializer.Read<ushort>();
+
             if (deserializer.GameSettings.GameMode == GameMode.RayPS1)
             {
-                // TODO: Clean up
-
-                var byte1 = deserializer.Read<byte>();
-                var byte2 = deserializer.Read<byte>();
-                int g = byte1 + ((byte2 & 3) << 8);
-
-                TileMapX = g & 15;
-                TileMapY = g >> 4;
-                CollisionType = (TileCollisionType)(byte2 >> 2);
+                TileMapX = BitHelpers.ExtractBits(value, 4, 0);
+                TileMapY = BitHelpers.ExtractBits(value, 6, 4);
+                CollisionType = (TileCollisionType)(BitHelpers.ExtractBits(value, 6, 10));
             }
             else if (deserializer.GameSettings.GameMode == GameMode.RayPS1JP)
             {
-                // Read the value
-                var value = deserializer.Read<ushort>();
-
                 TileMapY = 0;
                 TileMapX = BitHelpers.ExtractBits(value, 9, 0);
                 CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 7, 9);
