@@ -17,7 +17,7 @@ namespace R1Engine
         {
             try
             {
-                return EventInfoData?.Name ?? EventInfoData?.Type.ToString() ?? "N/A";
+                return String.IsNullOrWhiteSpace(EventInfoData?.Name) ? $"Unknown type {EventInfoData?.Type}" : EventInfoData?.Name;
             }
             catch (Exception ex)
             {

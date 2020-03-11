@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Input;
 
@@ -21,8 +22,11 @@ namespace R1Engine
             var e = hit.collider?.GetComponentInParent<Common_Event>();
             // Mouse over event
             if (e != null) {
-                textCollision.text = $"{e.DisplayName(Settings.World)} ({e.EventInfoData?.Type})";
-                textGraphic.text = $"Pos: {e.XPosition}, {e.YPosition}\nAnimSpeed: {e.Speed}";
+                textCollision.text = $"{e.DisplayName(Settings.World)}";
+                textGraphic.text = $"Type: {e.EventInfoData?.Type}{Environment.NewLine}" +
+                                   $"Pos: {e.XPosition}, {e.YPosition}{Environment.NewLine}" +
+                                   $"AnimSpeed: {e.Speed}{Environment.NewLine}" +
+                                   $"Offsets: {e.OffsetBX} x {e.OffsetBY} x {e.OffsetHY}";
             }
             // Else Mouse over type
             else {
