@@ -17,11 +17,11 @@ namespace R1Engine
         {
             try
             {
-                return EventInfoData?.Info.Names[world] ?? EventInfoData?.ID?.Type.ToString() ?? "N/A";
+                return EventInfoData?.Name ?? EventInfoData?.Type.ToString() ?? "N/A";
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.ID?.Type}: {ex.Message}");
+                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.Type}: {ex.Message}");
 
                 return "N/A";
             }
@@ -30,7 +30,7 @@ namespace R1Engine
         /// <summary>
         /// The event info data
         /// </summary>
-        public EventInfoData EventInfoData;
+        public GeneralEventInfoData EventInfoData;
 
         /// <summary>
         /// The x position
@@ -169,7 +169,7 @@ namespace R1Engine
             }
 
             //Change collider with show always/editor events
-            boxCollider.enabled = !(EventInfoData.Info.IsAlways == true && !Settings.ShowAlwaysEvents) && !(EventInfoData.Info.EditorOnly == true && !Settings.ShowEditorEvents);
+            boxCollider.enabled = !(EventInfoData.Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(EventInfoData.Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
 
             //Link lines
             if (LinkIndex != Controller.obj.levelController.currentLevel.Events.IndexOf(this)) {
@@ -199,24 +199,32 @@ namespace R1Engine
 
         // Try to load a new animation and change to it
         private void ChangeAnimation(int newAnim) {
-            if (Controller.obj.levelController.eventDesigns.Count > (int)Des - 1 && Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count > newAnim) {
 
-                CurrentAnimation = Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations[newAnim];
+            var desIndex = (int)Des - 1;
 
-                if (CurrentAnimation != null) {
+            if (Controller.obj.levelController.eventDesigns.Count > desIndex && Controller.obj.levelController.eventDesigns[desIndex].Animations.Count > newAnim)
+            {
+
+                CurrentAnimation = Controller.obj.levelController.eventDesigns[desIndex].Animations[newAnim];
+
+                if (CurrentAnimation != null)
+                {
                     var len = CurrentAnimation.Frames.GetLength(1);
                     // Clear old array
-                    if (prefabRendereds != null) {
-                        for (int i=0; i<prefabRendereds.Length; i++) {
-                            Destroy(prefabRendereds[i].gameObject);                       
+                    if (prefabRendereds != null)
+                    {
+                        for (int i = 0; i < prefabRendereds.Length; i++)
+                        {
+                            Destroy(prefabRendereds[i].gameObject);
                         }
                         Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
                     }
-                        
+
                     // Create array
                     prefabRendereds = new SpriteRenderer[len];
                     // Populate it with empty ones
-                    for (int i = 0; i < len; i++) {
+                    for (int i = 0; i < len; i++)
+                    {
                         // Instantiate prefab
                         SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = i;
@@ -265,7 +273,7 @@ namespace R1Engine
                     prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
 
                     //Change visibility if always/editor
-                    prefabRendereds[i].enabled = !(EventInfoData.Info.IsAlways == true && !Settings.ShowAlwaysEvents) && !(EventInfoData.Info.EditorOnly == true && !Settings.ShowEditorEvents);
+                    prefabRendereds[i].enabled = !(EventInfoData.Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(EventInfoData.Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
                 }
             }
         }

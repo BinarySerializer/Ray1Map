@@ -321,10 +321,9 @@ namespace R1Engine {
         /// Loads the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <param name="eventInfoData">The loaded event info data</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData, List<Common_Design> eventDesigns) {
+        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns) {
             Controller.status = $"Loading map data for {settings.World} {settings.Level}";
 
             // Read the level data
@@ -440,7 +439,7 @@ namespace R1Engine {
 
             var index = 0;
 
-            foreach (var e in levelData.Events) {
+            foreach (PC_Event e in levelData.Events) {
                 Controller.status = $"Loading event {index}/{levelData.EventCount}";
 
                 await Controller.WaitIfNecessary();
@@ -451,15 +450,10 @@ namespace R1Engine {
                 int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(
-                    eventInfoData.FindItem(y => y.ID == e.GetEventID()),
+                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetEventInfo(settings.GameMode, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.UnkGroup, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
                     e.XPosition,
                     e.YPosition,
-                    e.OffsetBX,
-                    e.OffsetBY,
                     levelData.EventLinkingTable[index],
-                    e.DES,
-                    e.ETA,
                     animIndex,
                     animSpeed);
 
@@ -724,28 +718,53 @@ namespace R1Engine {
             var eventLinkingTable = new List<ushort>();
 
             // Set events
-            foreach (var e in commonLevelData.Events) {
-                // Get the event
-                var r1Event = e.EventInfoData.PCInfo[settings.GameMode].ToEvent(settings.World);
-
-                // Set position
-                r1Event.XPosition = e.XPosition;
-                r1Event.YPosition = e.YPosition;
-
-                // Set type values
-                r1Event.Type = (uint)e.EventInfoData.ID.Type;
-                r1Event.Etat = (byte)e.EventInfoData.ID.Etat;
-                r1Event.SubEtat = (byte)e.EventInfoData.ID.SubEtat;
+            foreach (var e in commonLevelData.Events)
+            {
+                // Create the event
+                var r1Event = new PC_Event
+                {
+                    DES = e.Des,
+                    DES2 = e.Des,
+                    DES3 = e.Des,
+                    ETA = e.Eta,
+                    Unknown1 = 0,
+                    Unknown2 = 0,
+                    Unknown3 = new byte[16],
+                    XPosition = e.XPosition,
+                    YPosition = e.YPosition,
+                    Unknown13 = 0,
+                    Unknown4 = new byte[20],
+                    Unknown5 = new byte[28],
+                    Type = (uint)e.EventInfoData.Type,
+                    Unknown6 = 0,
+                    OffsetBX = (byte)e.EventInfoData.OffsetBX,
+                    OffsetBY = (byte)e.EventInfoData.OffsetBY,
+                    Unknown7 = 0,
+                    SubEtat = (byte)e.EventInfoData.SubEtat,
+                    Etat = (byte)e.EventInfoData.Etat,
+                    Unknown8 = 0,
+                    Unknown9 = 0,
+                    OffsetHY = (byte)e.EventInfoData.OffsetHY,
+                    FollowSprite = (byte)e.EventInfoData.FollowSprite,
+                    HitPoints = (byte)e.EventInfoData.HitPoints,
+                    UnkGroup = (byte)e.EventInfoData.UnkGroup,
+                    HitSprite = (byte)e.EventInfoData.HitSprite,
+                    Unknown10 = new byte[6],
+                    Unknown11 = 0,
+                    FollowEnabled = (byte)e.EventInfoData.FollowEnabled,
+                    Unknown12 = 0
+                };
 
                 // Add the event
                 events.Add(r1Event);
 
                 // Add the event commands
-                eventCommands.Add(new PC_EventCommand() {
-                    CodeCount = (ushort)e.EventInfoData.PCInfo[settings.GameMode].Commands.Length,
-                    EventCode = e.EventInfoData.PCInfo[settings.GameMode].Commands,
-                    LabelOffsetCount = (ushort)e.EventInfoData.PCInfo[settings.GameMode].LabelOffsets.Length,
-                    LabelOffsetTable = e.EventInfoData.PCInfo[settings.GameMode].LabelOffsets
+                eventCommands.Add(new PC_EventCommand()
+                {
+                    CodeCount = (ushort)e.EventInfoData.Commands.Length,
+                    EventCode = e.EventInfoData.Commands,
+                    LabelOffsetCount = (ushort)e.EventInfoData.LabelOffsets.Length,
+                    LabelOffsetTable = e.EventInfoData.LabelOffsets
                 });
 
                 // Add the event links

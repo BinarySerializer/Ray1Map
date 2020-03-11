@@ -25,7 +25,7 @@ namespace R1Engine
             eventDesigns = new List<Common_Design>();
 
             // Load the level
-            currentLevel = await manager.LoadLevelAsync(settings, EventInfoManager.LoadEventInfo(), eventDesigns);
+            currentLevel = await manager.LoadLevelAsync(settings, eventDesigns);
 
             await Controller.WaitIfNecessary();
 

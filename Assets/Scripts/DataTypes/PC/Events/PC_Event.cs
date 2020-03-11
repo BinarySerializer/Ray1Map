@@ -66,12 +66,6 @@
         public ushort Unknown12 { get; set; }
 
         /// <summary>
-        /// Gets the event ID
-        /// </summary>
-        /// <returns>The event ID</returns>
-        public EventID GetEventID() => new EventID((int)Type, Etat, SubEtat);
-
-        /// <summary>
         /// Deserializes the file contents
         /// </summary>
         /// <param name="deserializer">The deserializer</param>

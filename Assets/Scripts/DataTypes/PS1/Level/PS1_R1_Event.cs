@@ -61,12 +61,6 @@
         public byte[] Unknown10 { get; set; }
 
         /// <summary>
-        /// Gets the event ID
-        /// </summary>
-        /// <returns>The event ID</returns>
-        public EventID GetEventID() => new EventID(Type, Etat, SubEtat);
-
-        /// <summary>
         /// Deserializes the file contents
         /// </summary>
         /// <param name="deserializer">The deserializer</param>

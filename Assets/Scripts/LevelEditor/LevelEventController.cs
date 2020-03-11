@@ -1,17 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace R1Engine {
+namespace R1Engine
+{
     public class LevelEventController : MonoBehaviour {
 
         public GameObject eventParent;
         public GameObject prefabEvent;
 
         public Dropdown eventDropdown;
-        public EventInfoData[] availableEvents;
 
         public void InitializeEvents() {
             // Fill the dropdown menu
@@ -40,17 +37,14 @@ namespace R1Engine {
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(EventInfoData e, uint xpos, uint ypos, int offbx, int offby, int link, uint des, uint eta, int animIndex, int speed) {
+        public Common_Event AddEvent(GeneralEventInfoData e, uint xpos, uint ypos, int link, int animIndex, int speed) {
             // Instantiate prefab
             Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
             newEvent.EventInfoData = e;
+            newEvent.Des = (uint)e.DES;
             newEvent.XPosition = xpos;
             newEvent.YPosition = ypos;
-            newEvent.OffsetBX = offbx;
-            newEvent.OffsetBY = offby;
             newEvent.LinkIndex = link;
-            newEvent.Des = des;
-            newEvent.Eta = eta;
             newEvent.AnimationIndex = animIndex;
             newEvent.Speed = speed;
 
@@ -58,21 +52,6 @@ namespace R1Engine {
             newEvent.gameObject.transform.parent = eventParent.transform;
             // Add to list
             return newEvent;
-        }
-
-        // Add events from the list with eventinfo
-        public void AddEvent(EventInfoData e) {
-            // Instantiate prefab
-            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<Common_Event>();
-            newEvent.EventInfoData = e;
-            newEvent.XPosition = 0;
-            newEvent.YPosition = 0;
-            // Set as child of events gameobject
-            newEvent.gameObject.transform.parent = eventParent.transform;
-            // Add to list
-            Controller.obj.levelController.currentLevel.Events.Add(newEvent);
-            // Set link to be the index
-            newEvent.LinkIndex = Controller.obj.levelController.currentLevel.Events.IndexOf(newEvent);
         }
     }
 }

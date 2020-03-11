@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -11,446 +11,298 @@ namespace R1Engine
     /// </summary>
     public static class EventInfoManager
     {
-        /// <summary>
-        /// Generated a JSON file with the common event information based on the current settings
-        /// </summary>
-        /// <param name="customInfoPath">The custom info file path</param>
-        /// <param name="outputFilePath">The output file path</param>
-        public static void GenerateEventInfo(string customInfoPath, string outputFilePath)
+        // TODO: Clean up this method - have each manager handle generating its own info? Right now it only works for PC.
+        public static void GenerateCSVFiles(string outputDir)
         {
-            var eventInfo = new List<EventInfoData>();
-
-            // Read the custom info
-            using (var file = File.OpenRead(customInfoPath))
+            var modes = new Dictionary<GameMode, GameModeSelection[]>()
             {
-                using (var reader = new StreamReader(file))
                 {
-                    // Ignore header line
-                    reader.ReadLine();
-
-                    // Enumerate each line
-                    while (!reader.EndOfStream)
+                    GameMode.RayPC,
+                    new GameModeSelection[]
                     {
-                        var line = reader.ReadLine()?.Split(',');
-
-                        if (line == null)
-                            break;
-
-                        var type = Int32.Parse(line[0]);
-                        var etat = Int32.Parse(line[1]);
-                        var subEtat = Int32.Parse(line[2]);
-
-                        var names = new Dictionary<World, string>();
-                        var index = 3;
-
-                        foreach (World world in EnumHelpers.GetValues<World>())
-                        {
-                            var name = line[index].Trim('"');
-
-                            if (!String.IsNullOrWhiteSpace(name))
-                                names.Add(world, name);
-
-                            index++;
-                        }
-
-                        bool? isAlways = line[index] == "TRUE" ? true : line[index] == "FALSE" ? (bool?)false : null;
-
-                        index++;
-
-                        bool? editorOnly = line[index] == "TRUE" ? true : line[index] == "FALSE" ? (bool?)false : null; 
-
-                        // Get the ID
-                        var id = new EventID(type, etat, subEtat);
-
-                        // Create the item
-                        eventInfo.Add(new EventInfoData(new GeneralEventInfoData()
-                        {
-                            ID = id,
-                            Names = names,
-                            IsAlways = isAlways,
-                            EditorOnly = editorOnly
-                        }));
+                        GameModeSelection.RaymanPC,
                     }
-                }
-            }
-            
-            // Create a Designer manager
-            var rdManager = new PC_RD_Manager();
-
-            // Enumerate each Designer world
-            foreach (World world in EnumHelpers.GetValues<World>())
-            {
-                // Get the event manifest file path
-                var eventFilePath = Path.Combine(Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], rdManager.GetWorldName(world), "EVE.MLT");
-
-                // Read the manifest
-                var eventFile = FileFactory.Read<PC_RD_EventManifestFile>(eventFilePath, new GameSettings(GameMode.RayKit, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC]));
-
-                // Add each entry
-                foreach (PC_RD_EventManifestFile.PC_RD_EventManifestItem e in eventFile.Items)
+                },
                 {
-                    // Get the ID values
-                    var type = Int32.TryParse(e.Obj_type, out var v) ? v : -1;
-                    var etat = (int)e.Etat;
-                    var subEtat = Int32.TryParse(e.SubEtat, out var v2) ? v2 : -1;
-
-                    // Get the ID
-                    var id = new EventID(type, etat, subEtat);
-
-                    // Find the event info
-                    var data = eventInfo.Find(x => x.ID == id);
-
-                    // Ignore if not found
-                    if (data == null)
+                    GameMode.RayKit,
+                    new GameModeSelection[]
                     {
-                        Debug.LogWarning("No matching event found for Designer");
-                        continue;
+                        GameModeSelection.RaymanDesignerPC,
+                        GameModeSelection.RaymanByHisFansPC,
+                        GameModeSelection.Rayman60LevelsPC,
                     }
+                },
+                {
+                    GameMode.RayEduPC,
+                    new GameModeSelection[]
+                    {
+                        GameModeSelection.RaymanEducationalPC,
+                    }
+                },
+            };
 
-                    // Add the data
-                    if (data.PCDesignerManifest == null)
-                        data.PCDesignerManifest = new EventInfoData.PC_DesignerEventManifestData(e);
-                }
-            }
-            // Enumerate the PC versions
-            foreach (GameModeSelection mode in new GameModeSelection[]
-            {
-                GameModeSelection.RaymanPC,
-                GameModeSelection.RaymanDesignerPC,
-                GameModeSelection.RaymanByHisFansPC,
-                GameModeSelection.Rayman60LevelsPC,
-                GameModeSelection.RaymanEducationalPC,
-            })
+            foreach (var mode in modes)
             {
                 // Get the attribute data
-                var attr = mode.GetAttribute<GameModeAttribute>();
+                var attr = mode.Value.First().GetAttribute<GameModeAttribute>();
 
                 // Get the manager
                 var manager = (PC_Manager)Activator.CreateInstance(attr.ManagerType);
 
-                // Enumerate each PC world
-                foreach (World world in EnumHelpers.GetValues<World>())
+                using (var file = File.Create(Path.Combine(outputDir, $"{mode.Key.ToString()}.csv")))
                 {
-                    // Get the settings
-                    var s = new GameSettings(attr.GameMode, Settings.GameDirectories[mode], world)
+                    using (var writer = new StreamWriter(file))
                     {
-                        EduVolume = Settings.EduVolume
-                    };
+                        void WriteLine(params object[] values)
+                        {
+                            foreach (var value in values)
+                            {
+                                var toWrite = value?.ToString();
 
-                    // Enumerate each level
-                    foreach (var i in manager.GetLevels(s))
+                                if (value is IEnumerable enu && !(enu is string))
+                                {
+                                    toWrite = enu.Cast<object>().Aggregate(String.Empty, (current, o) => current + $"_{o}");
+
+                                    if (toWrite.Length > 1)
+                                        toWrite = toWrite.Remove(0, 1);
+                                }
+
+                                writer.Write($"{toWrite},");
+                            }
+
+                            writer.Flush();
+
+                            file.Position--;
+                            
+                            writer.Write(Environment.NewLine);
+                        }
+
+                        WriteLine("Name", "World", "Type", "Etat", "SubEtat", "Flag", "DES", "ETA", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "UnkGroup", "HitSprite", "FollowEnabled", "LabelOffsets", "Commands");
+
+                        var events = new List<GeneralEventInfoData>();
+
+                        foreach (var modeSelection in mode.Value)
+                        {
+                            // Get the settings
+                            var s = new GameSettings(attr.GameMode, Settings.GameDirectories[modeSelection])
+                            {
+                                EduVolume = Settings.EduVolume
+                            };
+
+                            var allfixDesCount = FileFactory.Read<PC_WorldFile>(manager.GetAllfixFilePath(s), s).DesItemCount;
+
+                            // Enumerate each PC world
+                            foreach (World world in EnumHelpers.GetValues<World>())
+                            {
+                                s.World = world;
+
+                                // Enumerate each level
+                                foreach (var i in manager.GetLevels(s))
+                                {
+                                    // Set the level
+                                    s.Level = i;
+
+                                    // Get the level file path
+                                    var lvlFilePath = manager.GetLevelFilePath(s);
+
+                                    // Read the level
+                                    var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, s);
+
+                                    var eventIndex = 0;
+                                    
+                                    // Add every event
+                                    foreach (var e in lvl.Events)
+                                    {
+                                        EventWorld world2;
+
+                                        if (e.DES <= allfixDesCount)
+                                            world2 = EventWorld.All;
+                                        else
+                                        {
+                                            switch (world)
+                                            {
+                                                case World.Jungle:
+                                                    world2 = EventWorld.Jungle;
+                                                    break;
+                                                case World.Music:
+                                                    world2 = EventWorld.Music;
+                                                    break;
+                                                case World.Mountain:
+                                                    world2 = EventWorld.Mountain;
+                                                    break;
+                                                case World.Image:
+                                                    world2 = EventWorld.Image;
+                                                    break;
+                                                case World.Cave:
+                                                    world2 = EventWorld.Cave;
+                                                    break;
+                                                case World.Cake:
+                                                    world2 = EventWorld.Cake;
+                                                    break;
+                                                default:
+                                                    throw new ArgumentOutOfRangeException();
+                                            }
+                                        }
+
+                                        // Create the event info data
+                                        GeneralEventInfoData eventData = new GeneralEventInfoData(String.Empty, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.UnkGroup, e.HitSprite, e.FollowEnabled, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode);
+
+                                        eventIndex++;
+
+                                        if (events.Any(x => x.Equals(eventData)))
+                                            continue;
+
+                                        events.Add(eventData);
+                                    }
+                                }
+                            }
+                        }
+
+                        foreach (var e in events.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat))
+                        {
+                            WriteLine(e.Name, e.World, e.Type, e.Etat, e.SubEtat, e.Flag, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.UnkGroup, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads the event info
+        /// </summary>
+        /// <param name="mode">The game mode to get the info for</param>
+        /// <returns>The loaded event info</returns>
+        public static GeneralEventInfoData[] LoadEventInfo(GameMode mode)
+        {
+            if (!Cache.ContainsKey(mode))
+                Cache.Add(mode, LoadEventInfo($"{mode}.csv"));
+
+            return Cache[mode];
+        }
+
+        /// <summary>
+        /// Loads the event info from the specified file
+        /// </summary>
+        /// <param name="filePath">The file to load from</param>
+        /// <returns>The loaded info data</returns>
+        private static GeneralEventInfoData[] LoadEventInfo(string filePath)
+        {
+            // Open the file
+            using (var fileStream = File.OpenRead(filePath))
+            {
+                // Use a reader
+                using (var reader = new StreamReader(fileStream))
+                {
+                    // Create the output
+                    var output = new List<GeneralEventInfoData>();
+
+                    // Skip header
+                    reader.ReadLine();
+
+                    // Read every line
+                    while (!reader.EndOfStream)
                     {
-                        // Set the level
-                        s.Level = i;
+                        // Read the line
+                        var line = reader.ReadLine()?.Split(',');
 
-                        // Get the level file path
-                        var lvlFilePath = manager.GetLevelFilePath(s);
+                        // Make sure we read something
+                        if (line == null)
+                            break;
 
-                        // Read the level
-                        var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, s);
-
+                        // Keep track of the value index
                         var index = 0;
 
-                        // Handle every event
-                        foreach (var e in lvl.Events)
-                        {
-                            // Get the ID
-                            var id = new EventID((int)e.Type, e.Etat, e.SubEtat);
+                        // Helper methods for parsing values
+                        string nextValue() => line[index++];
+                        int nextIntValue() => Int32.Parse(nextValue());
+                        T? nextEnumValue<T>() where T : struct => Enum.TryParse(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
+                        ushort[] next16ArrayValue() => nextValue().Split('_').Where(x => !String.IsNullOrWhiteSpace(x)).Select(UInt16.Parse).ToArray();
+                        byte[] next8ArrayValue() => nextValue().Split('_').Where(x => !String.IsNullOrWhiteSpace(x)).Select(Byte.Parse).ToArray();
 
-                            // Find the event info
-                            var data = eventInfo.FindItem(x => x.ID == id);
-
-                            // Ignore if not found
-                            if (data == null)
-                            {
-                                Debug.LogWarning("No matching event found");
-                                continue;
-                            }
-
-                            // Add the data
-                            if (!data.PCInfo.ContainsKey(attr.GameMode))
-                                data.PCInfo.Add(attr.GameMode, new EventInfoData.PC_EventInfo(e, lvl.EventCommands[index], world));
-
-                            if (!data.PCInfo[attr.GameMode].ETA.ContainsKey(world))
-                                data.PCInfo[attr.GameMode].ETA.Add(world, e.ETA);
-
-                            if (!data.PCInfo[attr.GameMode].DES.ContainsKey(world))
-                                data.PCInfo[attr.GameMode].DES.Add(world, e.DES);
-
-                            index++;
-                        }
-                    }
-                }
-            }
-
-            // Serialize to the file
-            JsonHelpers.SerializeToFile(eventInfo, outputFilePath);
-        }
-
-        /// <summary>
-        /// Generates a .csv file with custom event info to be filled out
-        /// </summary>
-        /// <param name="oldCsvFilePath">The old .csv file path</param>
-        /// <param name="outputFilePath">The new .csv output file path</param>
-        public static void GenerateCustomEventInfo(string oldCsvFilePath, string outputFilePath)
-        {
-            // Create the output
-            var output = new List<GeneralEventInfoData>();
-
-            var rdManager = new PC_RD_Manager();
-
-            // Read the event localization files
-            var loc = rdManager.GetEventLocFiles(Settings.GameDirectories[GameModeSelection.RaymanDesignerPC])["USA"].SelectMany(x => x.LocItems).ToArray();
-
-            // Enumerate each Designer world
-            foreach (World world in EnumHelpers.GetValues<World>())
-            {
-                // Get the event manifest file path
-                var eventFilePath = Path.Combine(Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], rdManager.GetWorldName(world), "EVE.MLT");
-
-                // Read the manifest
-                var eventFile = FileFactory.Read<PC_RD_EventManifestFile>(eventFilePath, new GameSettings(GameMode.RayKit, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC]));
-
-                // Add each entry
-                foreach (PC_RD_EventManifestFile.PC_RD_EventManifestItem e in eventFile.Items)
-                {
-                    // Attempt to find the matching localization entry
-                    PC_RD_EventLocItem locItem = loc.FindItem(x => x.LocKey == e.Name);
-
-                    var type = Int32.TryParse(e.Obj_type, out int res) ? res : -1;
-
-                    if (type == -1)
-                        continue;
-
-                    var subEtat = Int32.TryParse(e.SubEtat, out int res2) ? res2 : -1;
-
-                    if (subEtat == -1)
-                        continue;
-
-                    // Create the ID
-                    var id = new EventID(type, (int)e.Etat, subEtat);
-
-                    // Try and get the item
-                    var data = output.Find(x => x.ID == id);
-
-                    // If not found, create it
-                    if (data == null)
-                    {
-                        data = new GeneralEventInfoData()
-                        {
-                            ID = id
-                        };
-
-                        output.Add(data);
+                        // Add the item to the output
+                        output.Add(new GeneralEventInfoData(nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), next16ArrayValue(), next8ArrayValue()));
                     }
 
-                    // Update always flag
-                    if (data.IsAlways == null)
-                        data.IsAlways = e.DesignerGroup == -1;
-
-                    // Add the name
-                    if (!data.Names.ContainsKey(world))
-                        // Add the world
-                        data.Names.Add(world, "?");
-                }
-            }
-
-            // Enumerate the PC versions
-            foreach (GameModeSelection mode in new GameModeSelection[]
-            {
-                GameModeSelection.RaymanPC,
-                GameModeSelection.RaymanDesignerPC,
-                GameModeSelection.RaymanByHisFansPC,
-                GameModeSelection.Rayman60LevelsPC,
-                GameModeSelection.RaymanEducationalPC,
-            })
-            {
-                // Get the attribute data
-                var attr = mode.GetAttribute<GameModeAttribute>();
-
-                // Get the manager
-                var manager = (PC_Manager)Activator.CreateInstance(attr.ManagerType);
-
-                // Enumerate each PC world
-                foreach (World world in EnumHelpers.GetValues<World>())
-                {
-                    // Get the settings
-                    var s = new GameSettings(attr.GameMode, Settings.GameDirectories[mode], world)
-                    {
-                        EduVolume = Settings.EduVolume
-                    };
-
-                    // Enumerate each Rayman 1 level
-                    foreach (var i in manager.GetLevels(s))
-                    {
-                        // Set the level
-                        s.Level = i;
-
-                        // Get the level file path
-                        var lvlFilePath = manager.GetLevelFilePath(s);
-
-                        // Read the level
-                        var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, s);
-
-                        // Add every event
-                        foreach (var e in lvl.Events)
-                        {
-                            // Get the ID
-                            var id = e.GetEventID();
-
-                            // Check if the data has already been added
-                            var data = output.Find(x => x.ID == id);
-
-                            // If not found, create it
-                            if (data == null)
-                            {
-                                data = new GeneralEventInfoData()
-                                {
-                                    ID = id
-                                };
-
-                                output.Add(data);
-                            }
-
-                            if (!data.Names.ContainsKey(world))
-                                // Add the world
-                                data.Names.Add(world, "?");
-                        }
-                    }
-                }
-            }
-
-            // Order the data
-            output = output.OrderBy(x => x.ID.Type).ToList();
-
-            // Add names from .csv file
-            using (var csvFile = File.OpenRead(oldCsvFilePath))
-            {
-                using (var reader = new StreamReader(csvFile))
-                {
-                    // Ignore header line
-                    reader.ReadLine();
-
-                    // Enumerate each line
-                    while (!reader.EndOfStream)
-                    {
-                        var line = reader.ReadLine()?.Split(',');
-
-                        if (line == null)
-                            break;
-
-                        var name = line[1].Trim('"');
-                        var type = Int32.Parse(line[6]);
-                        var subEtat = Int32.Parse(line[9]);
-                        var etat = Int32.Parse(line[10]);
-
-                        // Get the ID
-                        var id = new EventID(type, etat, subEtat);
-
-                        // Find matching item
-                        var item = output.Find(x => x.ID == id);
-
-                        if (item == null)
-                        {
-                            Debug.LogWarning($"No matching even for {name} of type {type}");
-                            continue;
-                        }
-
-                        // Get the world
-                        var world = Path.GetFileName(Path.GetDirectoryName(line[17].Trim('"')));
-
-                        // Set the name
-                        item.Names[(World)Enum.Parse(typeof(World), world, true)] = name;
-                    }
-                }
-            }
-
-            // Write to file
-            using (var file = File.Create(outputFilePath))
-            {
-                using (var writer = new StreamWriter(file))
-                {
-                    // Write header
-                    writer.Write("\"Type\",");
-                    writer.Write("\"Etat\",");
-                    writer.Write("\"SubEtat\",");
-
-                    foreach (World world in EnumHelpers.GetValues<World>())
-                        writer.Write($"\"Name ({world})\",");
-
-                    writer.Write("\"IsAlways\",");
-                    writer.Write("\"EditorOnly\"");
-
-                    // Write values
-                    foreach (var item in output)
-                    {
-                        writer.WriteLine();
-
-                        writer.Write(item.ID.Type + ",");
-                        writer.Write(item.ID.Etat + ",");
-                        writer.Write(item.ID.SubEtat + ",");
-
-                        foreach (World world in EnumHelpers.GetValues<World>())
-                            writer.Write($"\"{(item.Names.TryGetValue(world, out string value) ? value : String.Empty)}\",");
-
-                        writer.Write($"\"{(item.IsAlways?.ToString() ?? String.Empty)}\",");
-                        writer.Write($"\"{(item.EditorOnly?.ToString() ?? String.Empty)}\"");
-                    }
+                    // Return the output
+                    return output.ToArray();
                 }
             }
         }
 
         /// <summary>
-        /// Loads the event info from a file
+        /// Gets the event info data which matches the specified values, or null if none was found
         /// </summary>
-        /// <param name="filePath">The file path to load from</param>
-        /// <returns>The loaded event info</returns>
-        public static EventInfoData[] LoadEventInfo(string filePath = null)
+        /// <param name="mode"></param>
+        /// <param name="world"></param>
+        /// <param name="type"></param>
+        /// <param name="etat"></param>
+        /// <param name="subEtat"></param>
+        /// <param name="des"></param>
+        /// <param name="eta"></param>
+        /// <param name="offsetBx"></param>
+        /// <param name="offsetBy"></param>
+        /// <param name="offsetHy"></param>
+        /// <param name="followSprite"></param>
+        /// <param name="hitPoints"></param>
+        /// <param name="unkGroup"></param>
+        /// <param name="hitSprite"></param>
+        /// <param name="followEnabled"></param>
+        /// <param name="labelOffsets"></param>
+        /// <param name="commands"></param>
+        /// <returns></returns>
+        public static GeneralEventInfoData GetEventInfo(GameMode mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int unkGroup, int hitSprite, int followEnabled, ushort[] labelOffsets, byte[] commands)
         {
-            // Default the path
-            if (filePath == null)
-                filePath = "CommonEvents.json";
+            // Load the event info
+            var allInfo = LoadEventInfo(mode);
 
-            return Cache ?? (Cache = JsonHelpers.DeserializeFromFile<EventInfoData[]>(filePath));
+            EventWorld eventWorld;
+
+            switch (world)
+            {
+                case World.Jungle:
+                    eventWorld = EventWorld.Jungle;
+                    break;
+                case World.Music:
+                    eventWorld = EventWorld.Music;
+                    break;
+                case World.Mountain:
+                    eventWorld = EventWorld.Mountain;
+                    break;
+                case World.Image:
+                    eventWorld = EventWorld.Image;
+                    break;
+                case World.Cave:
+                    eventWorld = EventWorld.Cave;
+                    break;
+                case World.Cake:
+                    eventWorld = EventWorld.Cake;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
+            }
+
+            // Find a matching item
+            return allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
+                                  x.Type == type &&
+                                  x.Etat == etat &&
+                                  x.SubEtat == subEtat &&
+                                  x.DES == des &&
+                                  x.ETA == eta &&
+                                  x.OffsetBX == offsetBx &&
+                                  x.OffsetBY == offsetBy &&
+                                  x.OffsetHY == offsetHy &&
+                                  x.FollowSprite == followSprite &&
+                                  x.HitPoints == hitPoints &&
+                                  x.UnkGroup == unkGroup &&
+                                  x.HitSprite == hitSprite &&
+                                  x.FollowEnabled == followEnabled &&
+                                  x.LabelOffsets.SequenceEqual(labelOffsets) &&
+                                  x.Commands.SequenceEqual(commands));
         }
 
         /// <summary>
         /// The loaded event info cache
         /// </summary>
-        private static EventInfoData[] Cache { get; set; }
-    }
-
-    /// <summary>
-    /// General event info data
-    /// </summary>
-    public class GeneralEventInfoData
-    {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public GeneralEventInfoData()
-        {
-            Names = new Dictionary<World, string>();
-        }
-
-        /// <summary>
-        /// The event ID
-        /// </summary>
-        public EventID ID { get; set; }
-
-        /// <summary>
-        /// The event names
-        /// </summary>
-        public Dictionary<World, string> Names { get; set; }
-
-        /// <summary>
-        /// Indicates if the event is an always event
-        /// </summary>
-        public bool? IsAlways { get; set; }
-
-        /// <summary>
-        /// Indicates if the event should only be displayed in the editor
-        /// </summary>
-        public bool? EditorOnly { get; set; }
+        private static Dictionary<GameMode, GeneralEventInfoData[]> Cache { get; } = new Dictionary<GameMode, GeneralEventInfoData[]>();
     }
 }

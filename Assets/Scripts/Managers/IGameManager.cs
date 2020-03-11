@@ -31,10 +31,9 @@ namespace R1Engine
         /// Loads the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <param name="eventInfoData">The loaded event info data</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData, List<Common_Design> eventDesigns);
+        Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns);
 
         /// <summary>
         /// Saves the specified level

@@ -103,10 +103,9 @@ namespace R1Engine
         /// Loads the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <param name="eventInfoData">The loaded event info data</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, EventInfoData[] eventInfoData, List<Common_Design> eventDesigns)
+        public async Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns)
         {
             Controller.status = $"Loading map data for {settings.World} {settings.Level}";
 
