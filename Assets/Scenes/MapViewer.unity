@@ -4598,7 +4598,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!1 &944864211
 GameObject:
@@ -10876,8 +10876,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 768d329e37cef3a4a9dd091e3dc2a1eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoScrollMargin: 100
-  autoScrollSpeed: 3
+  autoScrollMargin: 50
+  autoScrollSpeed: 2
   colorSelect: {r: 0.9245283, g: 0.82632285, b: 0.10902455, a: 1}
   colorNew: {r: 0.14926623, g: 0.7264151, b: 0.13363299, a: 1}
   colorDelete: {r: 1, g: 0, b: 0, a: 1}
