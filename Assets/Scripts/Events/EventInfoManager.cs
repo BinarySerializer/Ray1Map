@@ -343,7 +343,7 @@ namespace R1Engine
                     
                     // TODO: Might differ between commands
                     case 2:
-                        output.Add($"Unknown {ReadArg()}");
+                        output.Add($"Unknown {command}: {ReadArg()}");
                         break;
                     
                     // TODO: Might differ between commands
