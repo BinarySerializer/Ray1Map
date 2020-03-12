@@ -74,6 +74,8 @@ namespace R1Engine
         /// </summary>
         public Common_Animation CurrentAnimation;
 
+        public string[] Commands;
+
         // Current frame in the animation
         [HideInInspector]
         public float currentFrame = 0;

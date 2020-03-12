@@ -312,6 +312,179 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Parses a command
+        /// </summary>
+        /// <param name="cmds">The command bytes</param>
+        /// <returns>The parsed command</returns>
+        public static string[] ParseCommands(byte[] cmds)
+        {
+            // Create the output
+            var output = new List<string>();
+
+            // Handle every command byte
+            for (int i = 0; i < cmds.Length;)
+            {
+                var command = cmds[i++];
+                byte ReadArg() => cmds[i++];
+                sbyte ReadSArg() => (sbyte)cmds[i++];
+
+                // Handle the commands
+                switch (command)
+                {
+                    // TODO: Might differ between commands
+                    case 0:
+                        output.Add($"Move right {ReadSArg()}");
+                        break;
+                    
+                    // TODO: Might differ between commands
+                    case 1:
+                        output.Add($"Move left {ReadSArg()}");
+                        break;
+                    
+                    // TODO: Might differ between commands
+                    case 2:
+                        output.Add($"Unknown {ReadArg()}");
+                        break;
+                    
+                    // TODO: Might differ between commands
+                    case 3:
+                        output.Add($"Move up {ReadSArg()}");
+                        break;
+
+                    // TODO: Might differ between commands
+                    case 4:
+                        output.Add($"Move down {ReadSArg()}");
+                        break;
+
+                    case 5:
+                        output.Add($"Set SubEtat to {ReadArg()}");
+                        break;
+
+                    case 6:
+                        output.Add($"Skip to line {ReadArg()}");
+                        break;
+
+                    // TODO: Might differ between commands
+                    case 7:
+                        output.Add($"Unknown {command}: {ReadArg()}");
+                        break;
+
+                    case 8:
+                        output.Add($"Set Etat to {ReadArg()}");
+                        break;
+
+                    case 9:
+                        output.Add($"Prepare loop {ReadArg()}");
+                        break;
+
+                    case 10:
+                        output.Add($"Do loop");
+                        break;
+
+                    case 11:
+                        output.Add($"Label {ReadArg()}");
+                        break;
+
+                    case 12:
+                        output.Add($"Go to label {ReadArg()}");
+                        break;
+
+                    case 13:
+                        output.Add($"Go sub {ReadArg()}");
+                        break;
+
+                    case 14:
+                        output.Add($"Return");
+                        break;
+
+                    case 15:
+                        output.Add($"Branch true {ReadArg()}");
+                        break;
+
+                    case 16:
+                        output.Add($"Branch false {ReadArg()}");
+                        break;
+
+                    case 17:
+                        var arg1 = ReadArg();
+
+                        output.Add(arg1 <= 4 ? $"Test {arg1} {ReadArg()}" : $"Test {arg1}");
+
+                        break;
+
+                    case 18:
+                        output.Add($"Set test {ReadArg()}");
+                        break;
+
+                    case 19:
+                        output.Add($"Wait {ReadArg()} seconds");
+                        break;
+
+                    // TODO: Might differ between commands
+                    case 20:
+                        output.Add($"Move for {ReadArg()} seconds, speedX {ReadSArg()} and speedY {ReadSArg()}");
+                        break;
+
+                    case 21:
+                        output.Add($"Set X to {ReadArg().ToString() + ReadArg().ToString()}");
+                        break;
+
+                    case 22:
+                        output.Add($"Set Y to {ReadArg().ToString() + ReadArg().ToString()}");
+                        break;
+
+                    case 23:
+                        output.Add($"RESERVED_GO_SKIP_and_RESERVED_GO_GOTO {ReadArg()}");
+                        break;
+
+                    case 24:
+                        output.Add($"RESERVED_GO_SKIP_and_RESERVED_GO_GOTO {ReadArg()}");
+                        break;
+
+                    case 25:
+                        output.Add($"RESERVED_GO_GOSUB {ReadArg()}");
+                        break;
+
+                    case 26:
+                        output.Add($"RESERVED_GO_BRANCHTRUE {ReadArg()}");
+                        break;
+
+                    case 27:
+                        output.Add($"RESERVED_GO_BRANCHFALSE {ReadArg()}");
+                        break;
+
+                    case 28:
+                        output.Add($"RESERVED_GO_SKIPTRUE {ReadArg()}");
+                        break;
+
+                    case 29:
+                        output.Add($"RESERVED_GO_SKIPFALSE {ReadArg()}");
+                        break;
+
+                    // TODO: Might differ between commands
+                    case 30:
+                        output.Add($"Unknown {command}: {ReadArg()}");
+                        break;
+
+                    case 31:
+                        output.Add($"Skip true {ReadArg()}");
+                        break;
+
+                    case 32:
+                        output.Add($"Skip false {ReadArg()}");
+                        break;
+
+                    case 33:
+                        output.Add($"End ({ReadArg()})");
+                        break;
+                }
+            }
+
+            // Return the output
+            return output.ToArray();
+        }
+
+        /// <summary>
         /// The loaded event info cache
         /// </summary>
         private static Dictionary<GameMode, GeneralEventInfoData[]> Cache { get; } = new Dictionary<GameMode, GeneralEventInfoData[]>();

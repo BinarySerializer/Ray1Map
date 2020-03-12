@@ -41,6 +41,7 @@ namespace R1Engine
             // Instantiate prefab
             Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
             newEvent.EventInfoData = e;
+            newEvent.Commands = EventInfoManager.ParseCommands(e.Commands);
             newEvent.Des = (uint)e.DES;
             newEvent.XPosition = xpos;
             newEvent.YPosition = ypos;
