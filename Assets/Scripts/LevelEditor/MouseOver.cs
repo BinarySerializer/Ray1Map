@@ -26,7 +26,7 @@ namespace R1Engine
                 textGraphic.text = $"Type: {e.EventInfoData?.Type}{Environment.NewLine}" +
                                    $"Pos: {e.XPosition}, {e.YPosition}{Environment.NewLine}" +
                                    $"AnimSpeed: {e.Speed}{Environment.NewLine}" +
-                                   $"Offsets: {e.OffsetBX} x {e.OffsetBY} x {e.OffsetHY}";
+                                   $"Offsets: {e.EventInfoData?.OffsetBX} x {e.EventInfoData?.OffsetBY} x {e.EventInfoData?.OffsetHY}";
             }
             // Else Mouse over type
             else {

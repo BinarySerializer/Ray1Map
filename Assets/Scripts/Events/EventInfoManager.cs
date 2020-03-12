@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -230,7 +231,7 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the event info data which matches the specified values, or null if none was found
+        /// Gets the event info data which matches the specified values
         /// </summary>
         /// <param name="mode"></param>
         /// <param name="world"></param>
@@ -282,7 +283,7 @@ namespace R1Engine
             }
 
             // Find a matching item
-            return allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
+            var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
                                   x.Type == type &&
                                   x.Etat == etat &&
                                   x.SubEtat == subEtat &&
@@ -298,6 +299,16 @@ namespace R1Engine
                                   x.FollowEnabled == followEnabled &&
                                   x.LabelOffsets.SequenceEqual(labelOffsets) &&
                                   x.Commands.SequenceEqual(commands));
+
+            // Create dummy item if not found
+            if (match == null)
+            {
+                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
+                match = new GeneralEventInfoData(null, eventWorld, type, etat, subEtat, null, des, eta, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, unkGroup, hitSprite, followEnabled, labelOffsets, commands);
+            }
+
+            // Return the item
+            return match;
         }
 
         /// <summary>

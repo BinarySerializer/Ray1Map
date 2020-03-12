@@ -48,21 +48,6 @@ namespace R1Engine
         public int LinkIndex;
 
         /// <summary>
-        /// Offset BX
-        /// </summary>
-        public int OffsetBX;
-
-        /// <summary>
-        /// Offset BY
-        /// </summary>
-        public int OffsetBY;
-
-        /// <summary>
-        /// Offset HY
-        /// </summary>
-        public int OffsetHY;
-
-        /// <summary>
         /// DES
         /// </summary>
         public uint Des;
@@ -201,6 +186,12 @@ namespace R1Engine
         private void ChangeAnimation(int newAnim) {
 
             var desIndex = (int)Des - 1;
+
+            if (desIndex < 0)
+            {
+                Debug.LogWarning($"DES index is below 0");
+                return;
+            }
 
             if (Controller.obj.levelController.eventDesigns.Count > desIndex && Controller.obj.levelController.eventDesigns[desIndex].Animations.Count > newAnim)
             {
