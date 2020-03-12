@@ -7,10 +7,10 @@ using System.Linq;
 namespace R1Engine
 {
     /// <summary>
-    /// Event manifest data for Rayman Designer (PC)
+    /// Event manifest data for Rayman Mapper (PC)
     /// </summary>
-    [Description("Rayman Designer (PC) Event Manifest File")]
-    public class PC_RD_EventManifestFile : IBinarySerializable
+    [Description("Rayman Mapper (PC) Event Manifest File")]
+    public class PC_Mapper_EventManifestFile : IBinarySerializable
     {
         /// <summary>
         /// The event manifest items

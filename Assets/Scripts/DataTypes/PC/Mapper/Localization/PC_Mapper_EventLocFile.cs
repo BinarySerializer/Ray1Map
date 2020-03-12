@@ -5,10 +5,10 @@ using System.ComponentModel;
 namespace R1Engine
 {
     /// <summary>
-    /// Event localization data for Rayman Designer (PC)
+    /// Event localization data for Rayman Mapper (PC)
     /// </summary>
-    [Description("Rayman Designer (PC) Event Localization File")]
-    public class PC_RD_EventLocFile : PC_BaseFile
+    [Description("Rayman Mapper (PC) Event Localization File")]
+    public class PC_Mapper_EventLocFile : PC_BaseFile
     {
         /// <summary>
         /// The amount of localization items
@@ -23,7 +23,7 @@ namespace R1Engine
         /// <summary>
         /// The localization items
         /// </summary>
-        public PC_RD_EventLocItem[] LocItems { get; set; }
+        public PC_Mapper_EventLocItem[] LocItems { get; set; }
 
         /// <summary>
         /// Deserializes the file contents
@@ -48,7 +48,7 @@ namespace R1Engine
             // Go back two steps...
             deserializer.BaseStream.Position -= 2;
 
-            LocItems = deserializer.ReadArray<PC_RD_EventLocItem>(LocCount);
+            LocItems = deserializer.ReadArray<PC_Mapper_EventLocItem>(LocCount);
         }
 
         /// <summary>

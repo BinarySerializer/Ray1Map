@@ -80,7 +80,7 @@ namespace R1Engine
                     var b = VGAPalette[(paletteIndex * 3) + 2] / 255f;
 
                     // Set the pixel
-                    tex.SetPixel(x, ImageHeight - y - 1, new Color(r, g, b, 1));
+                    tex.SetPixel(x, y, new Color(r, g, b, 1));
                 }
             }
 

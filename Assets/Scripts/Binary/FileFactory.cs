@@ -119,8 +119,8 @@ namespace R1Engine
             typeof(PS1_R1_LevFile),
             typeof(PC_LevFile),
             typeof(PC_WorldFile),
-            typeof(PC_RD_EventLocFile),
-            typeof(PC_RD_EventManifestFile),
+            typeof(PC_Mapper_EventLocFile),
+            typeof(PC_Mapper_EventManifestFile),
         };
     }
 

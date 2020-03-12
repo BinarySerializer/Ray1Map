@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Event localization item for Rayman Designer (PC)
+    /// Event localization item for Rayman Mapper (PC)
     /// </summary>
-    public class PC_RD_EventLocItem : IBinarySerializable
+    public class PC_Mapper_EventLocItem : IBinarySerializable
     {
         /// <summary>
         /// The localization key

@@ -38,28 +38,5 @@ namespace R1Engine
         public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
 
         #endregion
-
-        #region Manager Methods
-
-        /// <summary>
-        /// Gets the localization files for each event, with the language tag as the key
-        /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <returns>The localization files</returns>
-        public Dictionary<string, PC_RD_EventLocFile[]> GetEventLocFiles(string basePath)
-        {
-            var pcDataDir = Path.Combine(basePath, "PCMAP");
-
-            var output = new Dictionary<string, PC_RD_EventLocFile[]>();
-
-            foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
-            {
-                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_RD_EventLocFile>(locFile, new GameSettings(GameMode.RayKit, basePath))).ToArray());
-            }
-
-            return output;
-        }
-
-        #endregion
     }
 }

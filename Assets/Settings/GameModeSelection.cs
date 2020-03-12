@@ -21,6 +21,9 @@ namespace R1Engine
         [GameMode(GameMode.RayKit, "Rayman Designer (PC)", typeof(PC_RD_Manager))]
         RaymanDesignerPC,
 
+        [GameMode(GameMode.RayKit, "Rayman Mapper (PC)", typeof(PC_Mapper_Manager))]
+        MapperPC,
+
         [GameMode(GameMode.RayKit, "Rayman by his Fans (PC)", typeof(PC_RD_Manager))]
         RaymanByHisFansPC,
 
