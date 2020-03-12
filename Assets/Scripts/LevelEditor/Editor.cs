@@ -8,26 +8,70 @@ using UnityEngine.Tilemaps;
 
 namespace R1Engine {
     public class Editor : MonoBehaviour {
+        //Settings
         public int autoScrollMargin = 60;
         public float autoScrollSpeed = 5;
+        //Colours for selections
         public Color colorSelect, colorNew, colorDelete;
+        //References
         public LevelMainController lvlController;
         public SelectSquare tileSelectSquare;
 
         public Common_Tile mouseTile;
 
+
         bool dragging;
-        [HideInInspector] public bool scrolling;
+        [HideInInspector]
+        public bool scrolling;
+        [HideInInspector]
+        public EditorCam cam;
 
-        EditorCam cam;
+        //Different edit modes to choose from
+        public enum EditMode { Tiles, Collisions, Events, Links }
+        //Current edit mode
+        [HideInInspector]
+        public EditMode currentMode;
 
+        //Reference to UI buttons
+        public Button[] modeButtons;
+        //Reference to everything that should be visible in each mode
+        public GameObject[] modeContents;
+        //Reference to layer buttons
+        public GameObject layerTypes;
+        public GameObject layerEvents;
 
-        public enum EditMode { Graphics, Collision, Events, Linking }
-        EditMode _mode;
         public void SetEditMode(int mode) {
-            this.mode = (EditMode)mode;
+            // Set
+            currentMode = (EditMode)mode;
+            //Change button visibility
+            for(int i=0; i<modeButtons.Length; i++) {
+                ColorBlock b = modeButtons[i].colors;
+                if ((int)currentMode == i) {
+                    b.normalColor = new Color(1,1,1);
+                    modeContents[i].SetActive(true);
+                }
+                else {
+                    b.normalColor = new Color(0.75f, 0.75f, 0.75f);
+                    modeContents[i].SetActive(false);
+                }
+                modeButtons[i].colors = b;
+            }
+            //Special cases
+            if (currentMode == EditMode.Collisions) {
+                layerTypes.SetActive(true);
+                layerEvents.SetActive(false);
+            }
+            else if (currentMode == EditMode.Events || currentMode == EditMode.Links) {
+                layerTypes.SetActive(false);
+                layerEvents.SetActive(true);
+            }
+            else if (currentMode == EditMode.Tiles) {
+                layerTypes.SetActive(false);
+                layerEvents.SetActive(false);
+            }
         }
 
+        /*
         void SetAlpha(float visAlpha, float colAlpha) {
             foreach (var tm in lvlController.controllerTilemap.Tilemaps)
                 if (tm.name == "TilemapTypes")
@@ -41,24 +85,25 @@ namespace R1Engine {
 
                 // Set display transparencies for different edit modes
                 switch (value) {
-                    case EditMode.Graphics:
+                    case EditMode.Tiles:
                     case EditMode.Events:
-                    case EditMode.Linking:
+                    case EditMode.Links:
                         SetAlpha(1, 0); break;
-                    case EditMode.Collision:
+                    case EditMode.Collisions:
                         SetAlpha(0.35f, 0.9f); break;
                 }
 
                 tileSelectSquare.Clear();
             } }
-
+        */
 
         void Awake() {
             cam = Camera.main.GetComponent<EditorCam>();
         }
 
         void Start() {
-            mode = EditMode.Graphics;
+            //Default to events
+            SetEditMode(2);
         }
 
         void Update() {
@@ -122,11 +167,11 @@ namespace R1Engine {
 
 
 
-
+            /*
             switch (mode) {
 
-                // =============== GRAPHICS EDITING ===============
-                case EditMode.Graphics:
+                // =============== Tiles EDITING ===============
+                case EditMode.Tiles:
 
                     // Press Delete to clear selected tiles
                     if (GetKeyDown(KeyCode.Delete))
@@ -137,7 +182,7 @@ namespace R1Engine {
                             }
                     break;
 
-            }
+            }*/
         }
     }
 }
