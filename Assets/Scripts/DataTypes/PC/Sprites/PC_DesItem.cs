@@ -65,12 +65,21 @@ namespace R1Engine
 
             if (deserializer.FileName.Contains("allfix.dat"))
                 Unknown1 = deserializer.ReadArray<byte>(12);
-            
+
             ImageDataLength = deserializer.Read<uint>();
-            ImageData = deserializer.ReadArray<byte>(ImageDataLength);
-            
-            if (!deserializer.FileName.Contains("bray.dat") && !deserializer.FileName.Contains("bigray.dat"))
+
+            if (deserializer.FileName.Contains(".wld") && (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC))
+            {
                 ImageDataChecksum = deserializer.Read<byte>();
+                ImageData = deserializer.ReadArray<byte>(ImageDataLength);
+            }
+            else
+            {
+                ImageData = deserializer.ReadArray<byte>(ImageDataLength);
+
+                if (!deserializer.FileName.Contains("bray.dat") && !deserializer.FileName.Contains("bigray.dat"))
+                    ImageDataChecksum = deserializer.Read<byte>();
+            }
 
             if (deserializer.FileName.Contains("allfix.dat"))
                 Unknown2 = deserializer.Read<uint>();
