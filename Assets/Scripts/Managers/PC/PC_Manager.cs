@@ -524,7 +524,7 @@ namespace R1Engine {
                 Events = new List<Common_Event>(),
 
                 // Create the tile arrays
-                TileSet = new Common_Tileset[4],
+                TileSet = new Common_Tileset[3],
                 Tiles = new Common_Tile[levelData.Width * levelData.Height],
             };
 
@@ -655,9 +655,9 @@ namespace R1Engine {
             var tileSets = ReadTileSets(levelData);
 
             // Set the tile sets
-            commonLev.TileSet[1] = tileSets[0];
-            commonLev.TileSet[2] = tileSets[1];
-            commonLev.TileSet[3] = tileSets[2];
+            commonLev.TileSet[0] = tileSets[0];
+            commonLev.TileSet[1] = tileSets[1];
+            commonLev.TileSet[2] = tileSets[2];
 
             // Enumerate each cell
             for (int cellY = 0; cellY < levelData.Height; cellY++) 

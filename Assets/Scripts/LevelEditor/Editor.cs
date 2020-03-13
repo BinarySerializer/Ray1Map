@@ -51,7 +51,7 @@ namespace R1Engine {
                     modeContents[i].SetActive(true);
                 }
                 else {
-                    b.normalColor = new Color(0.75f, 0.75f, 0.75f);
+                    b.normalColor = new Color(0.5f, 0.5f, 0.5f);
                     modeContents[i].SetActive(false);
                 }
                 modeButtons[i].colors = b;
