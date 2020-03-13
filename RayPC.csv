@@ -215,15 +215,15 @@ Pencil Sharpener (Move down on contact),,Image,63,0,11,Normal,13,7,80,80,4,0,0,5
 Pencil Sharpener (Move left on contact),,Image,63,0,11,Normal,13,7,80,80,4,0,0,5,0,32,,23_9_17,2_10_23_0_11_0_5_10_11_99_20_1_224_0_23_1_11_99_20_1_32_0_23_2_33_255
 Pencil Sharpener (Move up on contact),,Image,63,0,11,Normal,13,7,80,80,4,0,0,5,0,32,,23_9_17,2_10_23_0_11_0_5_10_11_99_20_1_0_32_23_1_11_99_20_1_0_224_23_2_33_255
 Water Lily (Move right on contact),,Jungle,63,0,16,Normal,16,13,40,0,18,0,0,4,0,32,,23_9_17,2_10_23_0_11_0_5_10_11_99_20_1_32_0_23_1_11_99_20_1_224_0_23_2_33_255
-Moving screen (Increase right speed),,Jungle,64,0,0,Normal,12,8,80,96,50,0,0,4,0,0,,,2_254_33_255
-Moving screen (Increase left speed),,Jungle,64,0,0,Normal,12,8,80,96,50,0,1,4,0,0,,,2_254_33_255
-Moving screen (Increase left speed),,Music,64,0,0,Normal,10,7,80,96,50,0,1,1,0,0,,,2_254_33_255
-Moving screen (Increase right speed),,Music,64,0,0,Normal,10,7,80,96,50,0,0,4,0,0,,,2_254_33_255
-Moving screen (Increase right speed),,Music,64,0,0,Normal,10,7,80,96,50,0,0,1,0,0,,,2_254_33_255
-Moving screen (Increase right speed),,Mountain,64,0,0,Normal,12,8,80,96,50,0,1,1,0,0,,,2_254_33_255
-Moving screen (Increase left speed),,Mountain,64,0,0,Normal,12,8,80,96,50,0,0,1,0,0,,,2_254_33_255
-Moving Screen (Up slow),,Jungle,64,0,2,Normal,12,8,80,96,50,0,3,4,0,0,,,2_254_33_255
-Moving Screen (Up fast),,Mountain,64,0,2,Normal,12,8,80,96,50,0,2,1,0,0,,,2_254_33_255
+Moving screen (Increase right speed),,Jungle,64,0,0,Editor,12,8,80,96,50,0,0,4,0,0,,,2_254_33_255
+Moving screen (Increase left speed),,Jungle,64,0,0,Editor,12,8,80,96,50,0,1,4,0,0,,,2_254_33_255
+Moving screen (Increase left speed),,Music,64,0,0,Editor,10,7,80,96,50,0,1,1,0,0,,,2_254_33_255
+Moving screen (Increase right speed),,Music,64,0,0,Editor,10,7,80,96,50,0,0,4,0,0,,,2_254_33_255
+Moving screen (Increase right speed),,Music,64,0,0,Editor,10,7,80,96,50,0,0,1,0,0,,,2_254_33_255
+Moving screen (Increase right speed),,Mountain,64,0,0,Editor,12,8,80,96,50,0,1,1,0,0,,,2_254_33_255
+Moving screen (Increase left speed),,Mountain,64,0,0,Editor,12,8,80,96,50,0,0,1,0,0,,,2_254_33_255
+Moving Screen (Up slow),,Jungle,64,0,2,Editor,12,8,80,96,50,0,3,4,0,0,,,2_254_33_255
+Moving Screen (Up fast),,Mountain,64,0,2,Editor,12,8,80,96,50,0,2,1,0,0,,,2_254_33_255
 Spring Flower,,Jungle,67,0,2,Normal,16,13,0,0,25,8,0,4,0,32,,,2_254_33_255
 Lava Ball (Big bounce),,Mountain,69,2,2,Normal,14,11,80,96,80,3,2,4,255,0,,,2_254_33_255
 Lava Ball (Big bounce),,Cave,69,2,2,Normal,39,13,80,96,80,3,2,4,255,0,,,2_254_33_255
