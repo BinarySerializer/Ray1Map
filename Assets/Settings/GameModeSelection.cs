@@ -18,6 +18,9 @@ namespace R1Engine
         [GameMode(GameMode.RayPC, "Rayman 1 (PC)", typeof(PC_R1_Manager))]
         RaymanPC,
 
+        [GameMode(GameMode.RayKit, "Rayman Gold (PC - Demo)", typeof(PC_RD_Manager))]
+        RaymanGoldPCDemo,
+
         [GameMode(GameMode.RayKit, "Rayman Designer (PC)", typeof(PC_RD_Manager))]
         RaymanDesignerPC,
 
