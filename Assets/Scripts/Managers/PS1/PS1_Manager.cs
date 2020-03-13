@@ -134,24 +134,7 @@ namespace R1Engine
                 TileSet = new Common_Tileset[4]
             };
 
-            var index = 0;
-
-            // Add the events
-            foreach (var e in levelData.Events)
-            {
-                Controller.status = $"Loading event {index}/{levelData.EventCount}";
-                /*
-                // Instantiate event prefab using LevelEventController
-                c.Events.Add(Controller.obj.levelEventController.AddEvent(
-                    eventInfoData.FindItem(y => y.GetEventID() == e.GetEventID()),
-                    e.XPosition,
-                    e.YPosition,
-                    e.OffsetBX,
-                    e.OffsetBY,
-                    levelData.EventLinkingTable[index]));
-                    */
-                index++;
-            }
+            // TODO: Load events
 
             await Controller.WaitIfNecessary();
 
@@ -166,9 +149,9 @@ namespace R1Engine
             c.Tiles = new Common_Tile[levelData.Width * levelData.Height];
 
             int tileIndex = 0;
-            for (int ty = 0; ty < (levelData.Height); ty++)
+            for (int y = 0; y < (levelData.Height); y++)
             {
-                for (int tx = 0; tx < (levelData.Width); tx++)
+                for (int x = 0; x < (levelData.Width); x++)
                 {
                     var graphicX = levelData.Tiles[tileIndex].TileMapX;
                     var graphicY = levelData.Tiles[tileIndex].TileMapY;
@@ -176,8 +159,8 @@ namespace R1Engine
                     Common_Tile newTile = new Common_Tile
                     {
                         PaletteIndex = 1,
-                        XPosition = tx,
-                        YPosition = ty,
+                        XPosition = x,
+                        YPosition = y,
                         CollisionType = levelData.Tiles[tileIndex].CollisionType,
                         TileSetGraphicIndex = (CellSize * graphicY) + graphicX
                     };

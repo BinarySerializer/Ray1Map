@@ -24,6 +24,13 @@ namespace R1Engine
         public override string GetLevelFilePath(GameSettings settings) => Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"MAP{settings.Level}");
 
         /// <summary>
+        /// Gets the file path for the PCX tile map
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The PCX tile map file path</returns>
+        public string GetPCXFilePath(GameSettings settings) => Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"{GetShortWorldName(settings.World)}.PCX");
+
+        /// <summary>
         /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -89,9 +96,8 @@ namespace R1Engine
 
             Controller.status = $"Loading tile set";
 
-            // TODO: Get path from method
             // Read the .pcx file and get the texture
-            var pcxtex = FileFactory.Read<PCX>(Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"{GetShortWorldName(settings.World)}.PCX"), settings).ToTexture();
+            var pcxtex = FileFactory.Read<PCX>(GetPCXFilePath(settings), settings).ToTexture();
 
             var tileSetWidth = pcxtex.width / CellSize;
             var tileSetHeight = pcxtex.height / CellSize;

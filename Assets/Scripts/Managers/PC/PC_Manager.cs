@@ -376,11 +376,7 @@ namespace R1Engine {
             var paletteXChangers = level.Events.Where(x => x.EventInfoData.Type == 158 && x.EventInfoData.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.EventInfoData.SubEtat);
             var paletteYChangers = level.Events.Where(x => x.EventInfoData.Type == 158 && x.EventInfoData.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.EventInfoData.SubEtat);
 
-            // TODO: Fix and find solution to this
-            //// Make sure we don't have both horizontal and vertical palette changers as they would conflict
-            //if (paletteXChangers.Any() && paletteYChangers.Any())
-            //    throw new Exception("Horizontal and vertical palette changers can't both appear in the same level");
-
+            // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
             bool isPaletteHorizontal = paletteXChangers.Any();
 
@@ -467,9 +463,6 @@ namespace R1Engine {
 
                 for (int cellX = 0; cellX < level.Width; cellX++)
                 {
-                    // Get the cell
-                    var cell = level.Tiles[cellY * level.Width + cellX];
-
                     // Check the x position for palette changing
                     if (isPaletteHorizontal)
                     {
