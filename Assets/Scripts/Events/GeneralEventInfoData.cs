@@ -11,7 +11,7 @@ namespace R1Engine
     {
         #region Constructor
 
-        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int unkGroup, int hitSprite, int followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
+        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, int followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
         {
             Name = name;
             MapperID = mapperId;
@@ -27,7 +27,6 @@ namespace R1Engine
             OffsetHY = offsetHy;
             FollowSprite = followSprite;
             HitPoints = hitPoints;
-            UnkGroup = unkGroup;
             HitSprite = hitSprite;
             FollowEnabled = followEnabled;
             ConnectedEvents = connectedEvents ?? new string[0];
@@ -67,8 +66,6 @@ namespace R1Engine
 
         public int HitPoints { get; }
 
-        public int UnkGroup { get; }
-
         public int HitSprite { get; }
 
         public int FollowEnabled { get; }
@@ -99,7 +96,6 @@ namespace R1Engine
                                                           OffsetHY == other.OffsetHY &&
                                                           FollowSprite == other.FollowSprite &&
                                                           HitPoints == other.HitPoints &&
-                                                          UnkGroup == other.UnkGroup &&
                                                           HitSprite == other.HitSprite &&
                                                           FollowEnabled == other.FollowEnabled &&
                                                           LabelOffsets.SequenceEqual(other.LabelOffsets) &&
@@ -132,7 +128,6 @@ namespace R1Engine
                 hashCode = (hashCode * 397) ^ OffsetHY;
                 hashCode = (hashCode * 397) ^ FollowSprite;
                 hashCode = (hashCode * 397) ^ HitPoints;
-                hashCode = (hashCode * 397) ^ UnkGroup;
                 hashCode = (hashCode * 397) ^ HitSprite;
                 hashCode = (hashCode * 397) ^ FollowEnabled;
                 hashCode = (hashCode * 397) ^ (LabelOffsets != null ? LabelOffsets.GetHashCode() : 0);

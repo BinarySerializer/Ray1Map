@@ -636,7 +636,7 @@ namespace R1Engine {
                 int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetEventInfo(settings.GameMode, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.UnkGroup, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
+                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetEventInfo(settings.GameMode, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
                     e.XPosition,
                     e.YPosition,
                     levelData.EventLinkingTable[index],
@@ -827,7 +827,7 @@ namespace R1Engine {
                     OffsetHY = (byte)e.EventInfoData.OffsetHY,
                     FollowSprite = (byte)e.EventInfoData.FollowSprite,
                     HitPoints = (byte)e.EventInfoData.HitPoints,
-                    UnkGroup = (byte)e.EventInfoData.UnkGroup,
+                    UnkGroup = 0,
                     HitSprite = (byte)e.EventInfoData.HitSprite,
                     Unknown10 = new byte[6],
                     Unknown11 = 0,
