@@ -21,6 +21,8 @@ namespace R1Engine
         /// Palette buttons
         /// </summary>
         public Button[] paletteButtons;
+        //The ui text
+        public GameObject paletteText;
         //0 is auto
         private int currentPalette = 1;
 
@@ -29,6 +31,17 @@ namespace R1Engine
         /// </summary>
         public Tile[] TypeCollisionTiles;
         public Tile[] TypeCollisionTilesHD;
+
+        public void Start() {
+            // Disable palette buttons based on if there are 3 palettes or not
+            if (!Settings.GetGameManager.Has3Palettes) {
+                paletteText.SetActive(false);
+                paletteButtons[0].gameObject.SetActive(false);
+                paletteButtons[1].gameObject.SetActive(false);
+                paletteButtons[2].gameObject.SetActive(false);
+                paletteButtons[3].gameObject.SetActive(false);
+            }
+        }
 
         public void InitializeTilemaps() {
             // Fill out types first
