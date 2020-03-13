@@ -667,8 +667,8 @@ namespace R1Engine {
                     // Get the cell
                     var cell = levelData.Tiles[cellY * levelData.Width + cellX];
 
-                    // Get the texture index, default to -1 for fully transparent (no texture)
-                    var textureIndex = -1;
+                    // Get the texture index, default to 0 for fully transparent (no texture)
+                    var textureIndex = 0;
 
                     // Ignore if fully transparent
                     if (cell.TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent) {
@@ -734,8 +734,8 @@ namespace R1Engine {
                             // Get the index
                             var cellIndex = CellSize * y + x;
 
-                            // Get the color from the current palette
-                            var c = levData.ColorPalettes[i][255 - texture.ColorIndexes[cellIndex]].GetColor();
+                            // Get the color from the current palette (or default to fully transparent if it's the first tile)
+                            var c = index == 0 ? new Color(0, 0, 0, 0) : levData.ColorPalettes[i][255 - texture.ColorIndexes[cellIndex]].GetColor();
 
                             // If the texture is transparent, add the alpha channel
                             if (texture is PC_TransparentTileTexture tt)
@@ -781,7 +781,7 @@ namespace R1Engine {
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
 
-                    if (commonTile.TileSetGraphicIndex == -1) {
+                    if (commonTile.TileSetGraphicIndex == 0) {
                         tile.TextureIndex = 0;
                         tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
