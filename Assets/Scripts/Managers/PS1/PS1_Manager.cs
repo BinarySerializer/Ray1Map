@@ -141,7 +141,7 @@ namespace R1Engine
             Controller.status = $"Loading tile set";
 
             Common_Tileset tileSet = ReadTileSet(settings);
-            c.TileSet[1] = tileSet;
+            c.TileSet[0] = tileSet;
 
             await Controller.WaitIfNecessary();
 
