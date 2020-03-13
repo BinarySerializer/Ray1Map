@@ -694,10 +694,6 @@ namespace R1Engine {
                 }
             }
 
-            // TODO: Remove?
-            // Default to auto-palette
-            AutoApplyPalette(commonLev);
-
             // Return the common level data
             return commonLev;
         }

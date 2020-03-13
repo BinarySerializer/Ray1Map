@@ -42,7 +42,7 @@ namespace R1Engine
                 }
             }
             // Fill out tiles
-            RefreshTiles(1);
+            RefreshTiles(Settings.GetGameManager.Has3Palettes ? 0 : 1);
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
@@ -59,10 +59,19 @@ namespace R1Engine
                 }
                 paletteButtons[i].colors = b;
             }
+
+            // Get the current level
+            var lvl = Controller.obj.levelController.currentLevel;
+
+            // If auto, refresh indexes in manager
+            if (palette == 0)
+                Settings.GetGameManager.AutoApplyPalette(lvl);
+
             //Refresh tiles
-            foreach (Common_Tile t in Controller.obj.levelController.currentLevel.Tiles) {
-                int p = palette == 0 ? t.PaletteIndex : palette-1;
-                Tilemaps[1].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), Controller.obj.levelController.currentLevel.TileSet[p].Tiles[t.TileSetGraphicIndex]);
+            foreach (Common_Tile t in lvl.Tiles)
+            {
+                int p = (palette == 0 ? t.PaletteIndex : palette) - 1;
+                Tilemaps[1].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), lvl.TileSet[p].Tiles[t.TileSetGraphicIndex]);
             }
         }
 
