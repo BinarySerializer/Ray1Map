@@ -100,6 +100,12 @@ namespace R1Engine
         public abstract Common_Tileset ReadTileSet(GameSettings settings);
 
         /// <summary>
+        /// Auto applies the palette to the tiles in the level
+        /// </summary>
+        /// <param name="level">The level to auto-apply the palette to</param>
+        public void AutoApplyPalette(Common_Lev level) { }
+
+        /// <summary>
         /// Loads the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>

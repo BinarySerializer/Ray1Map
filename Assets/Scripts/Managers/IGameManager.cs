@@ -28,6 +28,12 @@ namespace R1Engine
         string[] GetEduVolumes(GameSettings settings);
 
         /// <summary>
+        /// Auto applies the palette to the tiles in the level
+        /// </summary>
+        /// <param name="level">The level to auto-apply the palette to</param>
+        void AutoApplyPalette(Common_Lev level);
+
+        /// <summary>
         /// Loads the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
