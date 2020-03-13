@@ -156,9 +156,75 @@ namespace R1Engine
                                         events.Add(eventData);
                                     }
                                 }
+
+                                //// Read the event manifest if Designer
+                                //if (modeSelection == GameModeSelection.RaymanDesignerPC)
+                                //{
+                                //    // Get the manager
+                                //    var mapperManager = new PC_Mapper_Manager();
+
+                                //    // Read the event loc files
+                                //    var eventLoc = mapperManager.GetEventLocFiles(s.GameDirectory);
+
+                                //    // Read the event manifest
+                                //    var manifest = FileFactory.Read<PC_Mapper_EventManifestFile>(Path.Combine(s.GameDirectory, mapperManager.GetWorldName(world), "eve.mlt"), s);
+
+                                //    // Enumerate each item
+                                //    foreach (var e in manifest.Items)
+                                //    {
+                                //        // Get the DES index
+                                //        var des = 0;
+
+                                //        // Get the type
+                                //        var type = 0;
+
+                                //        // Get the sub-etat
+                                //        var subEtat = 0;
+
+                                //        // Get the ETA index
+                                //        var eta = 0;
+
+                                //        // Get the label offset
+                                //        var labelOffsets = new ushort[0];
+
+                                //        EventWorld world2;
+
+                                //        if (des <= allfixDesCount)
+                                //            world2 = EventWorld.All;
+                                //        else
+                                //        {
+                                //            switch (world)
+                                //            {
+                                //                case World.Jungle:
+                                //                    world2 = EventWorld.Jungle;
+                                //                    break;
+                                //                case World.Music:
+                                //                    world2 = EventWorld.Music;
+                                //                    break;
+                                //                case World.Mountain:
+                                //                    world2 = EventWorld.Mountain;
+                                //                    break;
+                                //                case World.Image:
+                                //                    world2 = EventWorld.Image;
+                                //                    break;
+                                //                case World.Cave:
+                                //                    world2 = EventWorld.Cave;
+                                //                    break;
+                                //                case World.Cake:
+                                //                    world2 = EventWorld.Cake;
+                                //                    break;
+                                //                default:
+                                //                    throw new ArgumentOutOfRangeException();
+                                //            }
+                                //        }
+
+                                //        // Create the event info data
+                                //        GeneralEventInfoData eventData = new GeneralEventInfoData(String.Empty, world2, type, (int)e.Etat, subEtat, null, des, eta, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.UnkGroup, (int)e.Hit_sprite, (int)e.Follow_enabled, labelOffsets, e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
+
+                                //    }
+                                //}
                             }
                         }
-
                         foreach (var e in events.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat))
                         {
                             WriteLine(e.Name, e.World, e.Type, e.Etat, e.SubEtat, e.Flag, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.UnkGroup, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands);
@@ -315,8 +381,9 @@ namespace R1Engine
         /// Parses a command
         /// </summary>
         /// <param name="cmds">The command bytes</param>
+        /// <param name="labelOffsets">The label offsets</param>
         /// <returns>The parsed command</returns>
-        public static string[] ParseCommands(byte[] cmds)
+        public static string[] ParseCommands(byte[] cmds, ushort[] labelOffsets)
         {
             // Create the output
             var output = new List<string>();
@@ -331,29 +398,24 @@ namespace R1Engine
                 // Handle the commands
                 switch (command)
                 {
-                    // TODO: Might differ between commands
                     case 0:
-                        output.Add($"Move right {ReadSArg()}");
+                        output.Add($"Self handled {command}: {ReadSArg()}");
                         break;
                     
-                    // TODO: Might differ between commands
                     case 1:
-                        output.Add($"Move left {ReadSArg()}");
+                        output.Add($"Self handled {command}: {ReadSArg()}");
                         break;
                     
-                    // TODO: Might differ between commands
                     case 2:
-                        output.Add($"Unknown {command}: {ReadArg()}");
+                        output.Add($"Self handled {command}: {ReadSArg()}");
                         break;
                     
-                    // TODO: Might differ between commands
                     case 3:
-                        output.Add($"Move up {ReadSArg()}");
+                        output.Add($"Self handled {command}: {ReadSArg()}");
                         break;
 
-                    // TODO: Might differ between commands
                     case 4:
-                        output.Add($"Move down {ReadSArg()}");
+                        output.Add($"Self handled {command}: {ReadSArg()}");
                         break;
 
                     case 5:
@@ -361,12 +423,11 @@ namespace R1Engine
                         break;
 
                     case 6:
-                        output.Add($"Skip to line {ReadArg()}");
+                        output.Add($"Skip {ReadArg()} commands");
                         break;
 
-                    // TODO: Might differ between commands
                     case 7:
-                        output.Add($"Unknown {command}: {ReadArg()}");
+                        output.Add($"Self handled {command}: {ReadSArg()}");
                         break;
 
                     case 8:
@@ -382,7 +443,7 @@ namespace R1Engine
                         break;
 
                     case 11:
-                        output.Add($"Label {ReadArg()}");
+                        output.Add($"Set label {ReadArg()}");
                         break;
 
                     case 12:
@@ -390,19 +451,19 @@ namespace R1Engine
                         break;
 
                     case 13:
-                        output.Add($"Go sub {ReadArg()}");
+                        output.Add($"Enter sub-function with label {ReadArg()}");
                         break;
 
                     case 14:
-                        output.Add($"Return");
+                        output.Add($"Exit sub-function");
                         break;
 
                     case 15:
-                        output.Add($"Branch true {ReadArg()}");
+                        output.Add($"Go to label {ReadArg()} if flag is true");
                         break;
 
                     case 16:
-                        output.Add($"Branch false {ReadArg()}");
+                        output.Add($"Go to label {ReadArg()} if flag is false");
                         break;
 
                     case 17:
@@ -434,44 +495,43 @@ namespace R1Engine
                         break;
 
                     case 23:
-                        output.Add($"RESERVED_GO_SKIP_and_RESERVED_GO_GOTO {ReadArg()}");
+                        output.Add($"Skip/go to offset {labelOffsets[ReadArg()]}");
                         break;
 
                     case 24:
-                        output.Add($"RESERVED_GO_SKIP_and_RESERVED_GO_GOTO {ReadArg()}");
+                        output.Add($"Skip/go to offset {labelOffsets[ReadArg()]}");
                         break;
 
                     case 25:
-                        output.Add($"RESERVED_GO_GOSUB {ReadArg()}");
+                        output.Add($"Enter sub-function with label {labelOffsets[ReadArg()]}");
                         break;
 
                     case 26:
-                        output.Add($"RESERVED_GO_BRANCHTRUE {ReadArg()}");
+                        output.Add($"Go to offset {labelOffsets[ReadArg()]} if flag is true");
                         break;
 
                     case 27:
-                        output.Add($"RESERVED_GO_BRANCHFALSE {ReadArg()}");
+                        output.Add($"Go to offset {labelOffsets[ReadArg()]} if flag is false");
                         break;
 
                     case 28:
-                        output.Add($"RESERVED_GO_SKIPTRUE {ReadArg()}");
+                        output.Add($"Skip to offset {labelOffsets[ReadArg()]} if flag is true");
                         break;
 
                     case 29:
-                        output.Add($"RESERVED_GO_SKIPFALSE {ReadArg()}");
+                        output.Add($"Skip to offset {labelOffsets[ReadArg()]} if flag is false");
                         break;
 
-                    // TODO: Might differ between commands
                     case 30:
-                        output.Add($"Unknown {command}: {ReadArg()}");
+                        output.Add($"Self handled {command}: {ReadSArg()}");
                         break;
 
                     case 31:
-                        output.Add($"Skip true {ReadArg()}");
+                        output.Add($"Skip {ReadArg()} commands if flag is true");
                         break;
 
                     case 32:
-                        output.Add($"Skip false {ReadArg()}");
+                        output.Add($"Skip {ReadArg()} commands if flag is false");
                         break;
 
                     case 33:

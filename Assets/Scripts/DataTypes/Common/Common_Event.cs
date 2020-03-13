@@ -54,11 +54,6 @@ namespace R1Engine
         private uint DesOld;
 
         /// <summary>
-        /// ETA
-        /// </summary>
-        public uint Eta;
-
-        /// <summary>
         /// Animation speed
         /// </summary>
         public int Speed;

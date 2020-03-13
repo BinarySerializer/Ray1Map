@@ -726,7 +726,7 @@ namespace R1Engine {
                     DES = e.Des,
                     DES2 = e.Des,
                     DES3 = e.Des,
-                    ETA = e.Eta,
+                    ETA = (uint)e.EventInfoData.ETA,
                     Unknown1 = 0,
                     Unknown2 = 0,
                     Unknown3 = new byte[16],
