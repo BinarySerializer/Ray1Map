@@ -15,6 +15,7 @@ namespace R1Engine {
         public Color colorSelect, colorNew, colorDelete;
         //References
         public LevelMainController lvlController;
+        public LevelEventController lvlEventController;
         public SelectSquare tileSelectSquare;
 
         public Common_Tile mouseTile;
@@ -56,18 +57,27 @@ namespace R1Engine {
                 }
                 modeButtons[i].colors = b;
             }
-            //Special cases
+
+            //What to show/hide with each mode
             if (currentMode == EditMode.Collisions) {
                 layerTypes.SetActive(true);
                 layerEvents.SetActive(false);
+                lvlEventController.ToggleLinks(false);
             }
-            else if (currentMode == EditMode.Events || currentMode == EditMode.Links) {
+            else if (currentMode == EditMode.Events) {
                 layerTypes.SetActive(false);
                 layerEvents.SetActive(true);
+                lvlEventController.ToggleLinks(false);
+            }
+            else if (currentMode == EditMode.Links) {
+                layerTypes.SetActive(false);
+                layerEvents.SetActive(true);
+                lvlEventController.ToggleLinks(true);
             }
             else if (currentMode == EditMode.Tiles) {
                 layerTypes.SetActive(false);
                 layerEvents.SetActive(false);
+                lvlEventController.ToggleLinks(false);
             }
         }
 

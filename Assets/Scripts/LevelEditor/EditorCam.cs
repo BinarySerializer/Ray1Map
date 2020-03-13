@@ -60,8 +60,12 @@ namespace R1Engine {
                 pos += vel * Time.deltaTime;
                 pos.x = Mathf.Clamp(pos.x, 0, Controller.obj.levelController.currentLevel.Width);
                 pos.y = Mathf.Clamp(pos.y, -Controller.obj.levelController.currentLevel.Height, 0);
-                if (pixelSnap) transform.position = PxlVec.SnapVec(pos);
-                else transform.position = pos;
+                pos.z = -10f;
+                if (pixelSnap) {
+                    transform.position = PxlVec.SnapVec(pos);
+                }else {
+                    transform.position = pos;
+                }
                 Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, fov, Time.deltaTime * 8);
                 mousePosPrev = mousePosition;
             }

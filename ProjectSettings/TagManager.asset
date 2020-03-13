@@ -41,3 +41,18 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Tiles
+    uniqueID: 2904260121
+    locked: 0
+  - name: Types
+    uniqueID: 126383975
+    locked: 0
+  - name: Event Sprites
+    uniqueID: 2065233017
+    locked: 0
+  - name: Links
+    uniqueID: 1789067413
+    locked: 0
+  - name: WorldSpace
+    uniqueID: 40863365
+    locked: 0

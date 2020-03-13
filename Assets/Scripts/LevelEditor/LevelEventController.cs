@@ -10,6 +10,8 @@ namespace R1Engine
 
         public Dropdown eventDropdown;
 
+        public bool areLinksVisible = false;
+
         public void InitializeEvents() {
             // Fill the dropdown menu
             //var info = EventInfoManager.LoadEventInfo();
@@ -34,6 +36,18 @@ namespace R1Engine
             //        AddEvent(e);
             //    }
             //}
+        }
+
+        // Show/Hide links
+        public void ToggleLinks(bool t) {
+            if (Controller.obj.levelController.currentLevel != null) {
+                if (areLinksVisible != t) {
+                    areLinksVisible = t;
+                    foreach (var e in Controller.obj.levelController.currentLevel.Events) {
+                        e.lineRend.enabled = t;
+                    }
+                }
+            }
         }
 
         // Add events to the list via the managers

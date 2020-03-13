@@ -66,7 +66,7 @@ namespace R1Engine
             var startEvent = levelController.currentLevel.Events.FindItem(x => x.EventInfoData?.Type == 99 || x.EventInfoData?.Type == 124);
 
             if (startEvent != null)
-                Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition);
+                Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition, -10f);
 
             Debug.Log("Loaded");
         }
