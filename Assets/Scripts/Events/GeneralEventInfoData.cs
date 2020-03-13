@@ -11,9 +11,10 @@ namespace R1Engine
     {
         #region Constructor
 
-        public GeneralEventInfoData(string name, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int unkGroup, int hitSprite, int followEnabled, ushort[] labelOffsets, byte[] commands)
+        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int unkGroup, int hitSprite, int followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
         {
             Name = name;
+            MapperID = mapperId;
             World = world;
             Type = type;
             Etat = etat;
@@ -29,6 +30,7 @@ namespace R1Engine
             UnkGroup = unkGroup;
             HitSprite = hitSprite;
             FollowEnabled = followEnabled;
+            ConnectedEvents = connectedEvents ?? new string[0];
             LabelOffsets = labelOffsets ?? new ushort[0];
             Commands = commands ?? new byte[0];
         }
@@ -38,6 +40,8 @@ namespace R1Engine
         #region Public Properties
 
         public string Name { get; }
+
+        public string MapperID { get; }
         
         public EventWorld? World { get; }
         
@@ -68,6 +72,8 @@ namespace R1Engine
         public int HitSprite { get; }
 
         public int FollowEnabled { get; }
+
+        public string[] ConnectedEvents { get; }
 
         public ushort[] LabelOffsets { get; }
 

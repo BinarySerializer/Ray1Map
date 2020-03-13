@@ -195,6 +195,9 @@ namespace R1Engine {
                 // Get the sprite group
                 var desItem = worldFile.DesItems[i];
 
+                // Process the image data
+                var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
+
                 // Enumerate each image
                 for (int j = 0; j < desItem.ImageDescriptors.Length; j++) {
                     // Get the image descriptor
@@ -237,7 +240,7 @@ namespace R1Engine {
                     //}
 
                     // Get the texture
-                    Texture2D tex = GetSpriteTexture(settings, desItem, imgDescriptor, lvl.ColorPalettes.First());
+                    Texture2D tex = GetSpriteTexture(imgDescriptor, lvl.ColorPalettes.First(), processedImageData);
 
                     // Skip if null
                     if (tex == null)
@@ -250,14 +253,59 @@ namespace R1Engine {
         }
 
         /// <summary>
+        /// Processes the image data
+        /// </summary>
+        /// <param name="imageData">The image data to process</param>
+        /// <param name="requiresBackgroundClearing">Indicates if the data requires background clearing</param>
+        /// <returns>The processed image data</returns>
+        public byte[] ProcessImageData(byte[] imageData, bool requiresBackgroundClearing)
+        {
+            // Create the output array
+            var processedData = new byte[imageData.Length];
+
+            int flag = -1;
+
+            for (int i = imageData.Length - 1; i >= 0; i--)
+            {
+                // Decrypt the byte
+                processedData[i] = (byte)(imageData[i] ^ 143);
+
+                // Continue to next if we don't need to do background clearing
+                if (!requiresBackgroundClearing) 
+                    continue;
+                
+                int num6 = (flag < 255) ? (flag + 1) : 255;
+
+                if (processedData[i] == 161 || processedData[i] == 250)
+                {
+                    flag = processedData[i];
+                    processedData[i] = 0;
+                }
+                else if (flag != -1)
+                {
+                    if (processedData[i] == num6)
+                    {
+                        processedData[i] = 0;
+                        flag = num6;
+                    }
+                    else
+                    {
+                        flag = -1;
+                    }
+                }
+            }
+
+            return processedData;
+        }
+
+        /// <summary>
         /// Gets the texture for a sprite
         /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="d">The DES item</param>
         /// <param name="s">The image descriptor</param>
         /// <param name="palette">The palette to use</param>
+        /// <param name="processedImageData">The processed image data to use</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(GameSettings settings, PC_DesItem d, PC_ImageDescriptor s, ARGBColor[] palette)
+        public Texture2D GetSpriteTexture(PC_ImageDescriptor s, ARGBColor[] palette, byte[] processedImageData)
         {
             // Get the image properties
             var width = s.OuterWidth;
@@ -289,10 +337,11 @@ namespace R1Engine {
                         // Get the pixel offset
                         var pixelOffset = y * width + x + offset;
 
-                        var pixel = d.ImageData[pixelOffset] ^ 143;
+                        // Get the palette index
+                        var pixel = processedImageData[pixelOffset];
 
-                        // Make sure the color isn't transparent (i.e. uses the event palette)
-                        if (pixel > 159)
+                        // Ignore if 0
+                        if (pixel == 0)
                             continue;
 
                         // Get the color from the palette
@@ -385,6 +434,9 @@ namespace R1Engine {
                     Sprites = new List<Sprite>(), Animations = new List<Common_Animation>()
                 };
 
+                // Process the image data
+                var processedImageData = ProcessImageData(d.ImageData, d.RequiresBackgroundClearing);
+
                 // Sprites
                 foreach (var s in d.ImageDescriptors) {
 
@@ -392,7 +444,7 @@ namespace R1Engine {
                     var isGarbage = s.InnerHeight == 0 || s.InnerWidth == 0;
 
                     // Get the texture
-                    Texture2D tex = isGarbage ? null : GetSpriteTexture(settings, d, s, levelData.ColorPalettes.First());
+                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, levelData.ColorPalettes.First(), processedImageData);
 
                     // Add it to the array
                     finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));

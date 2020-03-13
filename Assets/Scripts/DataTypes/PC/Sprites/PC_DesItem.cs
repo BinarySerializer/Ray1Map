@@ -60,6 +60,8 @@ namespace R1Engine
         {
             if (deserializer.FileName.Contains(".wld"))
                 RequiresBackgroundClearing = deserializer.Read<bool>();
+            else
+                RequiresBackgroundClearing = true;
 
             if (deserializer.FileName.Contains("allfix.dat"))
                 Unknown1 = deserializer.ReadArray<byte>(12);
