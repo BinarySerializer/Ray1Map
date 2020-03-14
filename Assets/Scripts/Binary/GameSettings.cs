@@ -8,17 +8,23 @@
         /// <summary>
         /// Default constructor
         /// </summary>
-        /// <param name="gameMode">The game mode</param>
+        /// <param name="gameModeSelection">The game mode selection</param>
         /// <param name="gameDirectory">The game directory</param>
         /// <param name="world">The game world</param>
         /// <param name="level">The game level, starting at 1</param>
-        public GameSettings(GameMode gameMode, string gameDirectory, World world = World.Jungle, int level = 1)
+        public GameSettings(GameModeSelection gameModeSelection, string gameDirectory, World world = World.Jungle, int level = 1)
         {
-            GameMode = gameMode;
+            GameModeSelection = gameModeSelection;
+            GameMode = gameModeSelection.GetAttribute<GameModeAttribute>().GameMode;
             GameDirectory = gameDirectory;
             World = world;
             Level = level;
         }
+
+        /// <summary>
+        /// The game mode selection
+        /// </summary>
+        public GameModeSelection GameModeSelection { get; }
 
         /// <summary>
         /// The game mode

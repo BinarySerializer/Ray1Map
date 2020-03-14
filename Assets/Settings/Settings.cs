@@ -79,15 +79,10 @@ namespace R1Engine
         /// <summary>
         /// Gets the current game settings
         /// </summary>
-        public static GameSettings GetGameSettings => new GameSettings(GetGameMode, CurrentDirectory, World, Level)
+        public static GameSettings GetGameSettings => new GameSettings(SelectedGameMode, CurrentDirectory, World, Level)
         {
             EduVolume = EduVolume
         };
-
-        /// <summary>
-        /// Gets the game mode
-        /// </summary>
-        public static GameMode GetGameMode => SelectedGameMode.GetAttribute<GameModeAttribute>().GameMode;
 
         /// <summary>
         /// Gets a new manager instance for the specified mode

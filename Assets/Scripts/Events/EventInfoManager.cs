@@ -90,7 +90,7 @@ namespace R1Engine
                         foreach (var modeSelection in mode.Value)
                         {
                             // Get the settings
-                            var s = new GameSettings(attr.GameMode, Settings.GameDirectories[modeSelection])
+                            var s = new GameSettings(modeSelection, Settings.GameDirectories[modeSelection])
                             {
                                 EduVolume = Settings.EduVolume
                             };
@@ -213,12 +213,37 @@ namespace R1Engine
         /// </summary>
         /// <param name="mode">The game mode to get the info for</param>
         /// <returns>The loaded event info</returns>
-        public static GeneralEventInfoData[] LoadEventInfo(GameMode mode)
+        public static GeneralEventInfoData[] LoadEventInfo(GameModeSelection mode)
         {
-            if (!Cache.ContainsKey(mode))
-                Cache.Add(mode, LoadEventInfo($"{mode}.csv"));
+            // Get the file name
+            string fileName;
 
-            return Cache[mode];
+            switch (mode)
+            {
+                case GameModeSelection.RaymanPC:
+                    fileName = "RayPC.csv";
+                    break;
+                
+                case GameModeSelection.RaymanDesignerPC:
+                case GameModeSelection.MapperPC: 
+                    fileName = "RayKit.csv";
+                    break;
+
+                default:
+                    fileName = null;
+                    break;
+            }
+
+            // Return empty collection if no file was found
+            if (fileName == null)
+                return new GeneralEventInfoData[0];
+
+            // Load the file if not already loaded
+            if (!Cache.ContainsKey(fileName))
+                Cache.Add(fileName, LoadEventInfo(fileName));
+
+            // Return the loaded datas
+            return Cache[fileName];
         }
 
         /// <summary>
@@ -293,7 +318,7 @@ namespace R1Engine
         /// <param name="labelOffsets"></param>
         /// <param name="commands"></param>
         /// <returns>The item which matches the values</returns>
-        public static GeneralEventInfoData GetEventInfo(GameMode mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
+        public static GeneralEventInfoData GetEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
         {
             // Load the event info
             var allInfo = LoadEventInfo(mode);
@@ -358,7 +383,7 @@ namespace R1Engine
         /// <param name="mode">The game mode</param>
         /// <param name="mapperId">The Mapper ID</param>
         /// <returns>The item which matches the ID</returns>
-        public static GeneralEventInfoData GetEventInfo(GameMode mode, string mapperId)
+        public static GeneralEventInfoData GetEventInfo(GameModeSelection mode, string mapperId)
         {
             // Load the event info
             var allInfo = LoadEventInfo(mode);
@@ -537,6 +562,6 @@ namespace R1Engine
         /// <summary>
         /// The loaded event info cache
         /// </summary>
-        private static Dictionary<GameMode, GeneralEventInfoData[]> Cache { get; } = new Dictionary<GameMode, GeneralEventInfoData[]>();
+        private static Dictionary<string, GeneralEventInfoData[]> Cache { get; } = new Dictionary<string, GeneralEventInfoData[]>();
     }
 }

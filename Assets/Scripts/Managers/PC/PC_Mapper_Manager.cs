@@ -54,7 +54,7 @@ namespace R1Engine
 
             foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
             {
-                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_Mapper_EventLocFile>(locFile, new GameSettings(GameMode.RayKit, basePath))).ToArray());
+                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_Mapper_EventLocFile>(locFile, new GameSettings(GameModeSelection.MapperPC, basePath))).ToArray());
             }
 
             return output;
