@@ -267,21 +267,41 @@ namespace R1Engine
                     // Create the collection of rough textures
                     RoughTextures = new byte[RoughTextureCount][];
 
+                    // Begin calculating the rough texture checksum
+                    deserializer.BeginCalculateChecksum(new Checksum8Calculator());
+
                     // Read each rough texture
                     for (int i = 0; i < RoughTextureCount; i++)
                         RoughTextures[i] = deserializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
 
+                    // Get the checksum
+                    var c1 = deserializer.EndCalculateChecksum<byte>();
+
                     // Read the checksum for the rough textures
                     RoughTexturesChecksum = deserializer.Read<byte>();
+
+                    // Verify the checksum
+                    if (c1 != RoughTexturesChecksum)
+                        Debug.LogWarning("Rough textures checksum does not match");
 
                     // Read the index table for the rough textures
                     RoughTexturesIndexTable = deserializer.ReadArray<uint>(1200);
 
+                    // Begin calculating the unknown 3 checksum
+                    deserializer.BeginCalculateChecksum(new Checksum8Calculator());
+
                     // Read the items for the third unknown value
                     Unknown3 = deserializer.ReadArray<byte>(Unknown3Count);
 
+                    // Get the checksum
+                    var c2 = deserializer.EndCalculateChecksum<byte>();
+
                     // Read the checksum for the third unknown value
                     Unknown3Checksum = deserializer.Read<byte>();
+
+                    // Verify the checksum
+                    if (c2 != Unknown3Checksum)
+                        Debug.LogWarning("Unknown 3 checksum does not match");
 
                     // Read the offset table for the third unknown value
                     Unknown3OffsetTable = deserializer.ReadArray<uint>(1200);
@@ -305,6 +325,7 @@ namespace R1Engine
                 Debug.LogError("Texture block offset is incorrect");
 
             if (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC)
+                // TODO: Verify checksum
                 TextureBlockChecksum = deserializer.Read<byte>();
 
             // Get the xor key to use for the texture block
@@ -320,6 +341,10 @@ namespace R1Engine
 
             // Get the current offset to use for the texture offsets
             var textureBaseOffset = deserializer.BaseStream.Position;
+
+            // Begin calculating the texture checksum
+            if (deserializer.GameSettings.GameMode == GameMode.RayPC || deserializer.GameSettings.GameMode == GameMode.RayPocketPC)
+                deserializer.BeginCalculateChecksum(new Checksum8Calculator());
 
             // Create the collection of non-transparent textures
             NonTransparentTextures = new PC_TileTexture[NonTransparentTexturesCount];
@@ -366,8 +391,15 @@ namespace R1Engine
 
             if (deserializer.GameSettings.GameMode == GameMode.RayPC || deserializer.GameSettings.GameMode == GameMode.RayPocketPC)
             {
+                // Get the checksum
+                var c = deserializer.EndCalculateChecksum<byte>();
+
                 // Read the checksum for the textures
                 TexturesChecksum = deserializer.Read<byte>();
+
+                // Verify the checksum
+                if (c != TexturesChecksum)
+                    Debug.LogWarning("Texture checksum does not match");
             }
 
             // EVENT BLOCK
@@ -377,6 +409,7 @@ namespace R1Engine
                 Debug.LogError("Event block offset is incorrect");
 
             if (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC)
+                // TODO: Verify checksum
                 EventBlockChecksum = deserializer.Read<byte>();
 
             // Get the xor key to use for the event block

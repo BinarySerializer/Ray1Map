@@ -220,8 +220,14 @@ namespace R1Engine
             if (xorKey != 0)
                 b ^= xorKey;
 
+            // Cast to a byte
+            var bb = (byte)b;
+
+            // Add to the checksum
+            CurrentChecksumCalculator?.AddByte(bb);
+
             // Return it
-            return (byte)b;
+            return bb;
         }
 
         /// <summary>
@@ -249,6 +255,9 @@ namespace R1Engine
                     buffer[i] ^= xorKey;
             }
 
+            // Add to the checksum
+            CurrentChecksumCalculator?.AddBytes(buffer);
+
             // Return the byte buffer
             return buffer;
         }
@@ -273,6 +282,8 @@ namespace R1Engine
                 // Current character
                 char ch;
 
+                // TODO: Add to checksum
+
                 // Read until null (0x00)
                 while ((ch = reader.ReadChar()) != 0x00)
                     // Append the character
@@ -281,6 +292,30 @@ namespace R1Engine
                 // Return the string
                 return str;
             }
+        }
+
+        /// <summary>
+        /// The current checksum calculator
+        /// </summary>
+        protected IChecksumCalculator CurrentChecksumCalculator { get; set; }
+
+        /// <summary>
+        /// Begins calculating byte checksum for all decrypted bytes read from the stream
+        /// </summary>
+        /// <param name="checksumCalculator">The checksum calculator to use</param>
+        public void BeginCalculateChecksum(IChecksumCalculator checksumCalculator)
+        {
+            CurrentChecksumCalculator = checksumCalculator;
+        }
+
+        /// <summary>
+        /// Ends calculating the checksum and return the value
+        /// </summary>
+        /// <typeparam name="T">The type of checksum value</typeparam>
+        /// <returns>The checksum value</returns>
+        public T EndCalculateChecksum<T>()
+        {
+            return ((IChecksumCalculator<T>)CurrentChecksumCalculator).ChecksumValue;
         }
     }
 }
