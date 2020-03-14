@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Debug = UnityEngine.Debug;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// Base game manager for PC
     /// </summary>
@@ -133,7 +135,7 @@ namespace R1Engine {
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
         public void ExportSpriteTextures(GameSettings settings, string outputDir) 
-        { 
+        {
             // Read the big ray file
             var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
 
@@ -180,9 +182,7 @@ namespace R1Engine {
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(settings)
-                // TODO: Once we get the palette-finding working, remove this
-                .Take(1)) {
+            foreach (var i in GetLevels(settings)) {
                 // Set the level number
                 settings.Level = i;
 
@@ -192,6 +192,11 @@ namespace R1Engine {
 
             // Enumerate each sprite group
             for (int i = 0; i < worldFile.DesItems.Length; i++) {
+                bool foundForSpriteGroup = false;
+                var defaultPalette = levels.First();
+
+                Beginning:
+
                 // Get the sprite group
                 var desItem = worldFile.DesItems[i];
 
@@ -208,36 +213,48 @@ namespace R1Engine {
                         continue;
 
                     // Default to the first level
-                    var lvl = levels.First();
+                    var lvl = defaultPalette;
 
-                    // TODO: This isn't really working for finding the correct palette
-                    //// Find a matching animation descriptor
-                    //var animDesc = desItem.AnimationDescriptors.FindItemIndex(x => x.Layers.Any(y => y.ImageIndex == j));
+                    bool foundCorrectPalette = false;
 
-                    //bool foundCorrectPalette = false;
+                    // Check all matching animation descriptor
+                    foreach (var animDesc in desItem.AnimationDescriptors.Where(x => x.Layers.Any(y => y.ImageIndex == j)).Select(x => desItem.AnimationDescriptors.FindItemIndex(y => y == x)))
+                    {
+                        // Check all ETA's where it appears
+                        foreach (var eta in worldFile.Eta.SelectMany(x => x).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
+                        {
+                            // Attempt to find the level where it appears
+                            var lvlMatch = levels.FindLast(x => x.Events.Any(y =>
+                                y.DES == desOffset + 1 + i &&
+                                y.Etat == eta.Etat &&
+                                y.SubEtat == eta.SubEtat &&
+                                y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
 
-                    //if (animDesc != -1) {
-                    //    // Attempt to find the ETA where it appears
-                    //    var eta = worldFile.Eta.SelectMany(x => x).SelectMany(x => x).FindItem(x => x.AnimationIndex == animDesc);
+                            if (lvlMatch != null)
+                            {
+                                lvl = lvlMatch;
+                                foundCorrectPalette = true;
 
-                    //    if (eta != null) {
-                    //        // Attempt to find the level where it appears
-                    //        var lvlMatch = levels.Find(x => x.Events.Any(y => y.DES == desOffset + 1 + i && y.Etat == eta.Etat && y.SubEtat == eta.SubEtat && y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
+                                if (!foundForSpriteGroup)
+                                {
+                                    foundForSpriteGroup = true;
+                                    defaultPalette = lvlMatch;
+                                    goto Beginning;
+                                }
 
-                    //        if (lvlMatch != null) {
-                    //            lvl = lvlMatch;
-                    //            foundCorrectPalette = true;
-                    //        }
-                    //    }
-                    //}
+                                break;
+                            }
+                        }
+                    }
 
-                    //// Check background DES
-                    //if (!foundCorrectPalette) {
-                    //    var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
+                    // Check background DES
+                    if (!foundCorrectPalette)
+                    {
+                        var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
 
-                    //    if (lvlMatch != null)
-                    //        lvl = lvlMatch;
-                    //}
+                        if (lvlMatch != null)
+                            lvl = lvlMatch;
+                    }
 
                     // Get the texture
                     Texture2D tex = GetSpriteTexture(imgDescriptor, lvl.ColorPalettes.First(), processedImageData);
