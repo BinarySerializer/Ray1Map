@@ -831,7 +831,7 @@ namespace R1Engine {
                     HitSprite = (byte)e.EventInfoData.HitSprite,
                     Unknown10 = new byte[6],
                     Unknown11 = 0,
-                    FollowEnabled = (byte)e.EventInfoData.FollowEnabled,
+                    FollowEnabled = e.EventInfoData.FollowEnabled,
                     Unknown12 = 0
                 };
 

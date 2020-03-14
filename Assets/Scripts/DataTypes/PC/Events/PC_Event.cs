@@ -61,7 +61,10 @@
 
         public byte Unknown11 { get; set; }
 
-        public byte FollowEnabled { get; set; }
+        /// <summary>
+        /// Indicates if the event has collision
+        /// </summary>
+        public bool FollowEnabled { get; set; }
 
         public ushort Unknown12 { get; set; }
 
@@ -118,7 +121,10 @@
             Unknown10 = deserializer.ReadArray<byte>(6, eveXor);
 
             Unknown11 = deserializer.Read<byte>(eveXor);
-            FollowEnabled = deserializer.Read<byte>(eveXor);
+
+            // NOTE: This is 32 when true and 0 when false
+            FollowEnabled = deserializer.Read<byte>(eveXor) != 0;
+            
             Unknown12 = deserializer.Read<ushort>(eveXor);
         }
 
@@ -174,7 +180,8 @@
             serializer.Write(Unknown10, eveXor);
             serializer.Write(Unknown11, eveXor);
 
-            serializer.Write(FollowEnabled, eveXor);
+            // NOTE: This is 32 when true and 0 when false
+            serializer.Write(FollowEnabled ? 32 : 0, eveXor);
 
             serializer.Write(Unknown12, eveXor);
         }

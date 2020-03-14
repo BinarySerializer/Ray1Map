@@ -11,7 +11,7 @@ namespace R1Engine
     {
         #region Constructor
 
-        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, int followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
+        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
         {
             Name = name;
             MapperID = mapperId;
@@ -68,7 +68,7 @@ namespace R1Engine
 
         public int HitSprite { get; }
 
-        public int FollowEnabled { get; }
+        public bool FollowEnabled { get; }
 
         public string[] ConnectedEvents { get; }
 
@@ -129,7 +129,7 @@ namespace R1Engine
                 hashCode = (hashCode * 397) ^ FollowSprite;
                 hashCode = (hashCode * 397) ^ HitPoints;
                 hashCode = (hashCode * 397) ^ HitSprite;
-                hashCode = (hashCode * 397) ^ FollowEnabled;
+                hashCode = (hashCode * 397) ^ (FollowEnabled ? 1 : 0);
                 hashCode = (hashCode * 397) ^ (LabelOffsets != null ? LabelOffsets.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Commands != null ? Commands.GetHashCode() : 0);
                 return hashCode;
