@@ -369,7 +369,9 @@ namespace R1Engine
             // Create dummy item if not found
             if (match == null)
             {
-                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
+                if (allInfo.Any())
+                    Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
+                
                 match = new GeneralEventInfoData(null, null, eventWorld, type, etat, subEtat, null, des, eta, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, labelOffsets, commands);
             }
 
