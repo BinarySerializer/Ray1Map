@@ -181,7 +181,7 @@
             serializer.Write(Unknown11, eveXor);
 
             // NOTE: This is 32 when true and 0 when false
-            serializer.Write(FollowEnabled ? 32 : 0, eveXor);
+            serializer.Write((byte)(FollowEnabled ? 32 : 0), eveXor);
 
             serializer.Write(Unknown12, eveXor);
         }
