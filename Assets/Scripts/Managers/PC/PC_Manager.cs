@@ -125,6 +125,18 @@ namespace R1Engine
         /// <returns>The available educational volumes</returns>
         public virtual string[] GetEduVolumes(GameSettings settings) => new string[0];
 
+        /// <summary>
+        /// Reverse searches an animation
+        /// </summary>
+        /// <param name="wld">The world file</param>
+        /// <param name="eta">The ETA index</param>
+        /// <param name="animationIndex">The animation index</param>
+        public void ReverseSearchAnimation(PC_WorldFile wld, int eta, int animationIndex)
+        {
+            foreach (var e in wld.Eta[eta].SelectMany(x => x).Where(x => x.AnimationIndex == animationIndex))
+                Debug.Log($"Etat: {e.Etat}, SubEtat: {e.SubEtat}, Speed: {e.AnimationSpeed}");
+        }
+
         #endregion
 
         #region Manager Methods
