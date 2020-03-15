@@ -135,7 +135,7 @@ namespace R1Engine
             }
 
             // Set the tile-set
-            commonLev.TileSet[1] = new Common_Tileset(tiles);
+            commonLev.TileSet[0] = new Common_Tileset(tiles);
 
             // Set the tiles
             commonLev.Tiles = new Common_Tile[mapData.Width * mapData.Height];

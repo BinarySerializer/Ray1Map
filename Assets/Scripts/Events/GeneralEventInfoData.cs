@@ -11,7 +11,7 @@ namespace R1Engine
     {
         #region Constructor
 
-        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
+        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, string desFileName, int eta, string etaFileName, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
         {
             Name = name;
             MapperID = mapperId;
@@ -21,7 +21,9 @@ namespace R1Engine
             SubEtat = subEtat;
             Flag = flag;
             DES = des;
+            DESFileName = desFileName;
             ETA = eta;
+            ETAFileName = etaFileName;
             OffsetBX = offsetBx;
             OffsetBY = offsetBy;
             OffsetHY = offsetHy;
@@ -38,9 +40,9 @@ namespace R1Engine
 
         #region Public Properties
 
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public string MapperID { get; set; }
+        public string MapperID { get; }
         
         public EventWorld? World { get; }
         
@@ -50,11 +52,15 @@ namespace R1Engine
 
         public int SubEtat { get; }
 
-        public EventFlag? Flag { get; set; }
+        public EventFlag? Flag { get; }
 
         public int DES { get; }
 
+        public string DESFileName { get; }
+
         public int ETA { get; }
+
+        public string ETAFileName { get; }
 
         public int OffsetBX { get; }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Debug = UnityEngine.Debug;
@@ -86,7 +85,7 @@ namespace R1Engine
                             writer.Write(Environment.NewLine);
                         }
 
-                        WriteLine("Name", "MapperID", "World", "Type", "Etat", "SubEtat", "Flag", "DES", "ETA", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "ConnectedEvents", "LabelOffsets", "Commands");
+                        WriteLine("Name", "MapperID", "World", "Type", "Etat", "SubEtat", "Flag", "DES", "DESFileName", "ETA", "ETAFileName", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "ConnectedEvents", "LabelOffsets", "Commands");
 
                         var events = new List<GeneralEventInfoData>();
 
@@ -154,7 +153,7 @@ namespace R1Engine
                                         }
 
                                         // Create the event info data
-                                        GeneralEventInfoData eventData = new GeneralEventInfoData(String.Empty, null, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, null, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode);
+                                        GeneralEventInfoData eventData = new GeneralEventInfoData(String.Empty, null, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, null, (int)e.ETA, null, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, null, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode);
 
                                         eventIndex++;
 
@@ -175,98 +174,30 @@ namespace R1Engine
                                     // Read the event manifest
                                     var manifest = FileFactory.Read<PC_Mapper_EventManifestFile>(Path.Combine(s.GameDirectory, mapperManager.GetWorldName(world), "eve.mlt"), s);
 
-                                    // Read the world file
-                                    var wld = FileFactory.Read<PC_WorldFile>(manager.GetWorldFilePath(s), s);
-
-                                    // Get the DES and ETA manifests
-                                    var desTable = new List<string>();
-                                    var etaTable = new List<string>();
-
-                                    int index = 1;
-
-                                    while (index < wld.Unknown5.Length)
-                                    {
-                                        var length = 0;
-
-                                        for (int i = 0; i < 13; i++)
-                                        {
-                                            if (wld.Unknown5[index + i] == 0x00)
-                                                break;
-
-                                            length++;
-                                        }
-
-                                        var str = Settings.StringEncoding.GetString(wld.Unknown5, index, length);
-
-                                        if (str.Contains("DES"))
-                                        {
-                                            desTable.Add(str);
-                                        }
-                                        else if (str.Contains("ETA"))
-                                        {
-                                            etaTable.Add(str);
-                                        }
-
-                                        index += 13;
-                                    }
-
                                     // Enumerate each item
                                     foreach (var e in manifest.Items)
                                     {
-                                        // Get the DES index
-                                        var des = desTable.IndexOf(e.DESFile + ".DES");
-
-                                        if (des != -1)
-                                            des += 1;
-
                                         // Get the type
                                         var type = Int32.TryParse(e.Obj_type, out var t) ? t : -1;
 
                                         // Get the sub-etat
                                         var subEtat = Int32.TryParse(e.SubEtat, out var se) ? se : -1;
 
-                                        // Get the ETA index
-                                        var eta = etaTable.IndexOf(e.ETAFile);
-
                                         // Get the localized name
                                         var locName = eventLoc.FindItem(x => x.LocKey == e.Name)?.Name;
 
                                         // Create the event info data
-                                        GeneralEventInfoData eventData = new GeneralEventInfoData(locName, e.Name, null, type, (int)e.Etat, subEtat, e.DesignerGroup == -1 ? (EventFlag?)EventFlag.Always : null, des, eta, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled != 0, e.IfCommand?.Select(x => eventLoc.FindItem(y => y.LocKey == x)?.Name ?? x).ToArray(), new ushort[0], e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
+                                        GeneralEventInfoData eventData = new GeneralEventInfoData(locName, e.Name, null, type, (int)e.Etat, subEtat, e.DesignerGroup == -1 ? (EventFlag?)EventFlag.Always : null, -1, e.DESFile, -1, e.ETAFile, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled != 0, e.IfCommand?.Select(x => eventLoc.FindItem(y => y.LocKey == x)?.Name ?? x).ToArray(), new ushort[0], e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
 
                                         if (!events.Any(x => x.Flag != EventFlag.Always && !String.IsNullOrWhiteSpace(x.MapperID) && x.MapperID == eventData.MapperID))
-                                        {
-                                            var match = events.Where(x => x.Type == eventData.Type &&
-                                                                         x.Etat == eventData.Etat &&
-                                                                         x.SubEtat == eventData.SubEtat &&
-                                                                         x.DES == eventData.DES &&
-                                                                         x.OffsetBX == eventData.OffsetBX &&
-                                                                         x.OffsetBY == eventData.OffsetBY &&
-                                                                         x.OffsetHY == eventData.OffsetHY &&
-                                                                         x.FollowSprite == eventData.FollowSprite &&
-                                                                         x.HitPoints == eventData.HitPoints &&
-                                                                         x.HitSprite == eventData.HitSprite &&
-                                                                         x.FollowEnabled == eventData.FollowEnabled &&
-                                                                         x.Commands.SequenceEqual(eventData.Commands)).ToArray();
-
-                                            if (match.Length == 1)
-                                            {
-                                                match.First().Name = eventData.Name;
-                                                match.First().MapperID = eventData.MapperID;
-                                                match.First().Flag = eventData.Flag;
-                                            }
-                                            else
-                                            {
-                                                events.Add(eventData);
-                                            }
-                                        }
+                                            events.Add(eventData);
                                     }
                                 }
                             }
                         }
                         foreach (var e in events.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat))
                         {
-                            WriteLine(e.Name, e.MapperID, e.World, e.Type, e.Etat, e.SubEtat, e.Flag, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.ConnectedEvents, e.LabelOffsets, e.Commands);
+                            WriteLine(e.Name, e.MapperID, e.World, e.Type, e.Etat, e.SubEtat, e.Flag, e.DES, e.DESFileName, e.ETA, e.ETAFileName, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.ConnectedEvents, e.LabelOffsets, e.Commands);
                         }
                     }
                 }
@@ -352,9 +283,8 @@ namespace R1Engine
                         byte[] next8ArrayValue() => nextValue().Split('_').Where(x => !String.IsNullOrWhiteSpace(x)).Select(Byte.Parse).ToArray();
                         string[] nextStringArrayValue() => nextValue().Split('/').Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
 
-
                         // Add the item to the output
-                        output.Add(new GeneralEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue()));
+                        output.Add(new GeneralEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextValue(), nextIntValue(), nextValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue()));
                     }
 
                     // Return the output
@@ -437,7 +367,7 @@ namespace R1Engine
                 if (allInfo.Any())
                     Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
                 
-                match = new GeneralEventInfoData(null, null, eventWorld, type, etat, subEtat, null, des, eta, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, labelOffsets, commands);
+                match = new GeneralEventInfoData(null, null, eventWorld, type, etat, subEtat, null, des, null, eta, null, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, labelOffsets, commands);
             }
 
             // Return the item
