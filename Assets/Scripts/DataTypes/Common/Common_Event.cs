@@ -48,6 +48,11 @@ namespace R1Engine
         public int LinkIndex;
 
         /// <summary>
+        /// The link ID used by the editor
+        /// </summary>
+        public int LinkID;
+
+        /// <summary>
         /// DES
         /// </summary>
         public uint Des;

@@ -13,6 +13,29 @@ namespace R1Engine
         public bool areLinksVisible = false;
 
         public void InitializeEvents() {
+            // Convert linkindex of each event to linkid
+            var eventList = Controller.obj.levelController.currentLevel.Events;
+            int currentId = 1;
+            for (int i=0; i < eventList.Count; i++) {
+                // No link
+                if (eventList[i].LinkIndex == i) {
+                    eventList[i].LinkID = 0;
+                }
+                else {
+                    //Ignore already assigned ones
+                    if (eventList[i].LinkID == 0) {
+                        // Link found, loop through everyone on the link chain
+                        int nextEvent = eventList[i].LinkIndex;
+                        eventList[i].LinkID = currentId;
+                        while (nextEvent != i) {
+                            eventList[nextEvent].LinkID = currentId;
+                            nextEvent = eventList[nextEvent].LinkIndex;
+                        }
+                        currentId++;
+                    }
+                }
+            }
+
             // Fill the dropdown menu
             //var info = EventInfoManager.LoadEventInfo();
             //availableEvents = info.Where(x => x.Names.ContainsKey(Settings.World)).ToArray();

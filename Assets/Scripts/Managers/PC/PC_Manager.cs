@@ -850,8 +850,43 @@ namespace R1Engine
             var eventLinkingTable = new List<ushort>();
 
             // Set events
-            foreach (var e in commonLevelData.Events)
-            {
+            // First correct their linkIndexes based on their linkID
+            int currentId = 1;
+            List<int> alreadyChained = new List<int>();
+            for (int i = 0; i < commonLevelData.Events.Count; i++) {
+                // No link
+                if (commonLevelData.Events[i].LinkID == 0) {
+                    commonLevelData.Events[i].LinkIndex = commonLevelData.Events.IndexOf(commonLevelData.Events[i]);
+                }
+                else {
+                    //Skip if already chained
+                    if (alreadyChained.IndexOf(commonLevelData.Events.IndexOf(commonLevelData.Events[i])) == -1) {
+                        // Find all the events with the same linkId and store their indexes
+                        List<int> indexesOfSameId = new List<int>();
+                        foreach (var e in commonLevelData.Events) {
+                            if (e.LinkID == currentId) {
+                                indexesOfSameId.Add(commonLevelData.Events.IndexOf(e));
+                                alreadyChained.Add(commonLevelData.Events.IndexOf(e));
+                            }
+                        }
+                        // Loop through and chain them
+                        for (int j = 0; j < indexesOfSameId.Count; j++) {
+                            int next = j + 1;
+                            if (next == indexesOfSameId.Count)
+                                next = 0;
+
+                            commonLevelData.Events[indexesOfSameId[j]].LinkIndex = indexesOfSameId[next];
+                        }
+
+                        currentId++;
+                    }
+                }
+            }
+
+            int indexx = 0; //Only for debugging
+            foreach (var e in commonLevelData.Events) {
+                Debug.Log(indexx + ":" + e.LinkIndex + " - " + e.name);
+                indexx++;
                 // Create the event
                 var r1Event = new PC_Event
                 {
