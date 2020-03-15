@@ -70,8 +70,11 @@ namespace R1Engine
         {
             Controller.status = $"Loading Mapper map data for {settings.World} {settings.Level}";
 
+            // Get the level folder path
+            var basePath = GetLevelFilePath(settings);
+
             // Read the map data
-            var mapData = FileFactory.Read<Mapper_Map>(Path.Combine(GetLevelFilePath(settings), $"EVENT.MAP"), settings, FileMode);
+            var mapData = FileFactory.Read<Mapper_Map>(Path.Combine(basePath, $"EVENT.MAP"), settings, FileMode);
 
             await Controller.WaitIfNecessary();
 
@@ -90,9 +93,71 @@ namespace R1Engine
                 Tiles = new Common_Tile[mapData.Width * mapData.Height],
             };
 
+            Controller.status = $"Loading Mapper files";
+
+            // Read the DES CMD manifest
+            var desCmdManifest = FileFactory.Read<Mapper_RayLev>(Path.Combine(basePath, $"RAY.LEV"), settings, FileMode).DESManifest;
+
+            // Read the CMD files
+            var cmd = desCmdManifest.Values.Skip(1).ToDictionary(cmdFile => cmdFile, 
+                cmdFile => FileFactory.Read<Mapper_EventCMD>(Path.Combine(basePath, cmdFile), settings, FileMode));
+
             await Controller.WaitIfNecessary();
 
-            // TODO: Load DES/ETA & events
+            // TODO: Better way to get this - same as PCX?
+            var dummySettings = new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], settings.World);
+            var palette = FileFactory.Read<PC_LevFile>(new PC_RD_Manager().GetLevelFilePath(dummySettings), dummySettings).ColorPalettes.First();
+
+            // Load the sprites
+            var eta = await LoadSpritesAsync(settings, palette, eventDesigns);
+
+            // Add the events
+            commonLev.Events = new List<Common_Event>();
+
+            var index = 0;
+
+            // Get the event count
+            var eventCount = cmd.SelectMany(x => x.Value.Items).Count();
+
+            // Handle each event
+            foreach (var c in cmd)
+            {
+                // Get the DES file name
+                var desFile = c.Key.Replace(".DES", String.Empty);
+
+                foreach (var e in c.Value.Items)
+                {
+                    Controller.status = $"Loading event {index}/{eventCount}";
+
+                    await Controller.WaitIfNecessary();
+
+                    // Find the matching event info item
+                    var eventInfo = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, desFile, e.ETAFile, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.Name);
+
+                    // Get animation index from the eta item
+                    var etaItem = eventInfo.ETA == -1 ? null : eta[eventInfo.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == eventInfo.SubEtat);
+                    int animIndex = etaItem?.AnimationIndex ?? 0;
+                    int animSpeed = etaItem?.AnimationSpeed ?? 0;
+
+                    // Instantiate event prefab using LevelEventController
+                    var ee = Controller.obj.levelEventController.AddEvent(eventInfo,
+                        (uint)e.XPosition,
+                        (uint)e.YPosition,
+                        
+                        // TODO: Update this
+                        index,
+
+                        animIndex,
+                        animSpeed);
+
+                    // Add the event
+                    commonLev.Events.Add(ee);
+
+                    index++;
+                }
+            }
+
+            await Controller.WaitIfNecessary();
 
             Controller.status = $"Loading tile set";
 

@@ -12,7 +12,7 @@ namespace R1Engine
         /// <summary>
         /// The event items
         /// </summary>
-        public PC_Mapper_ManifestItem[] Items { get; set; }
+        public PC_Mapper_EventCMDItem[] Items { get; set; }
 
         /// <summary>
         /// Deserializes the file contents
@@ -21,7 +21,7 @@ namespace R1Engine
         public void Deserialize(BinaryDeserializer deserializer)
         {
             // Temporary list for adding new items
-            var items = new List<PC_Mapper_ManifestItem>();
+            var items = new List<PC_Mapper_EventCMDItem>();
 
             // Use a command parser
             using (var parser = new MapperEngineCommandParser(deserializer.BaseStream))
@@ -31,7 +31,7 @@ namespace R1Engine
                 while ((firstValue = parser.NextValue()) != null)
                 {
                     // Create the manifest item
-                    var eventManifestItem = new PC_Mapper_ManifestItem();
+                    var eventManifestItem = new PC_Mapper_EventCMDItem();
 
                     // Get the values
                     eventManifestItem.ETAFile = firstValue;
@@ -65,6 +65,12 @@ namespace R1Engine
                     // Read values
                     eventManifestItem.XPosition = Int32.Parse(parser.NextValue());
                     eventManifestItem.YPosition = Int32.Parse(parser.NextValue());
+
+                    if (eventManifestItem.Name != "always")
+                    {
+                        eventManifestItem.Unk1 = Int32.Parse(parser.NextValue());
+                        eventManifestItem.Unk2 = Int32.Parse(parser.NextValue());
+                    }
 
                     eventManifestItem.Etat = UInt32.Parse(parser.NextValue());
                     eventManifestItem.SubEtat = parser.NextValue();

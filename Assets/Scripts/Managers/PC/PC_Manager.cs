@@ -530,33 +530,14 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level
+        /// Loads the sprites for the level
         /// </summary>
         /// <param name="settings">The game settings</param>
+        /// <param name="palette">The palette to use</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
-        /// <returns>The level</returns>
-        public virtual async Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns) {
-            Controller.status = $"Loading map data for {settings.World} {settings.Level}";
-
-            // Read the level data
-            var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings, FileMode);
-
-            await Controller.WaitIfNecessary();
-
-            // Convert levelData to common level format
-            Common_Lev commonLev = new Common_Lev {
-                // Set the dimensions
-                Width = levelData.Width,
-                Height = levelData.Height,
-
-                // Create the events list
-                Events = new List<Common_Event>(),
-
-                // Create the tile arrays
-                TileSet = new Common_Tileset[3],
-                Tiles = new Common_Tile[levelData.Width * levelData.Height],
-            };
-
+        /// <returns>The ETA</returns>
+        public async Task<PC_Eta[][][]> LoadSpritesAsync(GameSettings settings, ARGBColor[] palette, List<Common_Design> eventDesigns)
+        {
             Controller.status = $"Loading allfix";
 
             // Read the fixed data
@@ -586,7 +567,7 @@ namespace R1Engine
             int desIndex = 0;
 
             // Read every DES item
-            foreach (var d in des) 
+            foreach (var d in des)
             {
                 Controller.status = $"Loading DES {desIndex}/{des.Length}";
 
@@ -594,42 +575,49 @@ namespace R1Engine
 
                 Common_Design finalDesign = new Common_Design
                 {
-                    Sprites = new List<Sprite>(), Animations = new List<Common_Animation>()
+                    Sprites = new List<Sprite>(),
+                    Animations = new List<Common_Animation>()
                 };
 
                 // Process the image data
                 var processedImageData = ProcessImageData(d.ImageData, d.RequiresBackgroundClearing);
 
                 // Sprites
-                foreach (var s in d.ImageDescriptors) {
+                foreach (var s in d.ImageDescriptors)
+                {
 
                     // Ignore garbage sprites
                     var isGarbage = s.InnerHeight == 0 || s.InnerWidth == 0;
 
                     // Get the texture
-                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, levelData.ColorPalettes.First(), processedImageData);
+                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, palette, processedImageData);
 
                     // Add it to the array
                     finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                 }
 
                 // Animations
-                foreach (var a in d.AnimationDescriptors) {
+                foreach (var a in d.AnimationDescriptors)
+                {
                     // Create the animation
-                    var animation = new Common_Animation {
+                    var animation = new Common_Animation
+                    {
                         Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
                     };
                     // The layer index
                     var layer = 0;
                     // Create each frame
-                    for (int i = 0; i < a.FrameCount; i++) {
+                    for (int i = 0; i < a.FrameCount; i++)
+                    {
                         // Create each layer
-                        for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++) {
+                        for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
+                        {
                             var animationLayer = a.Layers[layer];
                             layer++;
 
                             // Create the animation part
-                            var part = new Common_AnimationPart {
+                            var part = new Common_AnimationPart
+                            {
                                 SpriteIndex = animationLayer.ImageIndex,
                                 X = animationLayer.XPosition,
                                 Y = animationLayer.YPosition,
@@ -649,6 +637,41 @@ namespace R1Engine
                 desIndex++;
             }
 
+            // Return the ETA
+            return eta;
+        }
+
+        /// <summary>
+        /// Loads the specified level
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="eventDesigns">The list of event designs to populate</param>
+        /// <returns>The level</returns>
+        public virtual async Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns) {
+            Controller.status = $"Loading map data for {settings.World} {settings.Level}";
+
+            // Read the level data
+            var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings, FileMode);
+
+            await Controller.WaitIfNecessary();
+
+            // Convert levelData to common level format
+            Common_Lev commonLev = new Common_Lev {
+                // Set the dimensions
+                Width = levelData.Width,
+                Height = levelData.Height,
+
+                // Create the events list
+                Events = new List<Common_Event>(),
+
+                // Create the tile arrays
+                TileSet = new Common_Tileset[3],
+                Tiles = new Common_Tile[levelData.Width * levelData.Height],
+            };
+
+            // Load the sprites
+            var eta = await LoadSpritesAsync(settings, levelData.ColorPalettes.First(), eventDesigns);
+
             // Add the events
             commonLev.Events = new List<Common_Event>();
 
@@ -665,7 +688,7 @@ namespace R1Engine
                 int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
+                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetPCEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
                     e.XPosition,
                     e.YPosition,
                     levelData.EventLinkingTable[index],

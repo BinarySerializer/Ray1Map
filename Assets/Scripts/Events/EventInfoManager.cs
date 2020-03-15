@@ -294,7 +294,7 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the event info data which matches the specified values
+        /// Gets the event info data which matches the specified values for a PC event
         /// </summary>
         /// <param name="mode"></param>
         /// <param name="world"></param>
@@ -313,7 +313,7 @@ namespace R1Engine
         /// <param name="labelOffsets"></param>
         /// <param name="commands"></param>
         /// <returns>The item which matches the values</returns>
-        public static GeneralEventInfoData GetEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
+        public static GeneralEventInfoData GetPCEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
         {
             // Load the event info
             var allInfo = LoadEventInfo(mode);
@@ -375,19 +375,84 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the event info data which matches the Mapper ID
+        /// Gets the event info data which matches the specified values for a Mapper event
         /// </summary>
-        /// <param name="mode">The game mode</param>
-        /// <param name="mapperId">The Mapper ID</param>
-        /// <returns>The item which matches the ID</returns>
-        public static GeneralEventInfoData GetEventInfo(GameModeSelection mode, string mapperId)
+        /// <param name="mode"></param>
+        /// <param name="world"></param>
+        /// <param name="type"></param>
+        /// <param name="etat"></param>
+        /// <param name="subEtat"></param>
+        /// <param name="desFile"></param>
+        /// <param name="etaFile"></param>
+        /// <param name="offsetBx"></param>
+        /// <param name="offsetBy"></param>
+        /// <param name="offsetHy"></param>
+        /// <param name="followSprite"></param>
+        /// <param name="hitPoints"></param>
+        /// <param name="hitSprite"></param>
+        /// <param name="followEnabled"></param>
+        /// <param name="mapperID"></param>
+        /// <returns>The item which matches the values</returns>
+        public static GeneralEventInfoData GetMapperEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, string desFile, string etaFile, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string mapperID)
         {
             // Load the event info
             var allInfo = LoadEventInfo(mode);
 
-            // Find and return a matching item
-            return allInfo.FindItem(x => x.MapperID == mapperId);
+            EventWorld eventWorld;
+
+            switch (world)
+            {
+                case World.Jungle:
+                    eventWorld = EventWorld.Jungle;
+                    break;
+                case World.Music:
+                    eventWorld = EventWorld.Music;
+                    break;
+                case World.Mountain:
+                    eventWorld = EventWorld.Mountain;
+                    break;
+                case World.Image:
+                    eventWorld = EventWorld.Image;
+                    break;
+                case World.Cave:
+                    eventWorld = EventWorld.Cave;
+                    break;
+                case World.Cake:
+                    eventWorld = EventWorld.Cake;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
+            }
+
+            // Find a matching item
+            var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
+                                  x.Type == type &&
+                                  x.Etat == etat &&
+                                  x.SubEtat == subEtat &&
+                                  x.DESFileName == desFile &&
+                                  x.ETAFileName == etaFile &&
+                                  x.OffsetBX == offsetBx &&
+                                  x.OffsetBY == offsetBy &&
+                                  x.OffsetHY == offsetHy &&
+                                  x.FollowSprite == followSprite &&
+                                  x.HitPoints == hitPoints &&
+                                  x.HitSprite == hitSprite &&
+                                  x.FollowEnabled == followEnabled &&
+                                  x.MapperID == mapperID);
+
+            // Create dummy item if not found
+            if (match == null)
+            {
+                if (allInfo.Any())
+                    Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
+                
+                match = new GeneralEventInfoData(null, mapperID, eventWorld, type, etat, subEtat, null, -1, desFile, -1, etaFile, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, null, null);
+            }
+
+            // Return the item
+            return match;
         }
+
 
         /// <summary>
         /// Parses a command
