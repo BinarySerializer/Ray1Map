@@ -38,9 +38,9 @@ namespace R1Engine
 
         #region Public Properties
 
-        public string Name { get; }
+        public string Name { get; set; }
 
-        public string MapperID { get; }
+        public string MapperID { get; set; }
         
         public EventWorld? World { get; }
         
@@ -50,7 +50,7 @@ namespace R1Engine
 
         public int SubEtat { get; }
 
-        public EventFlag? Flag { get; }
+        public EventFlag? Flag { get; set; }
 
         public int DES { get; }
 

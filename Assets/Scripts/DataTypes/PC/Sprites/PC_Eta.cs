@@ -33,7 +33,7 @@ namespace R1Engine
         public byte SubEtat { get; set; }
         
         /// <summary>
-        /// The animation speed
+        /// The amount of frames to skip in the animation each second, or 0 for it to not animate
         /// </summary>
         public byte AnimationSpeed { get; set; }
         
