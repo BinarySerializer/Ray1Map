@@ -293,6 +293,8 @@ namespace R1Engine
             }
         }
 
+        // TODO: There might be some issues with creating the dummy values as some values are lost - verify?
+
         /// <summary>
         /// Gets the event info data which matches the specified values for a PC event
         /// </summary>

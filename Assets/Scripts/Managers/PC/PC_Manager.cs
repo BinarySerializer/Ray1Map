@@ -853,33 +853,34 @@ namespace R1Engine
             // First correct their linkIndexes based on their linkID
             int currentId = 1;
             List<int> alreadyChained = new List<int>();
-            for (int i = 0; i < commonLevelData.Events.Count; i++) {
+            foreach (Common_Event ee in commonLevelData.Events)
+            {
                 // No link
-                if (commonLevelData.Events[i].LinkID == 0) {
-                    commonLevelData.Events[i].LinkIndex = commonLevelData.Events.IndexOf(commonLevelData.Events[i]);
+                if (ee.LinkID == 0) {
+                    ee.LinkIndex = commonLevelData.Events.IndexOf(ee);
                 }
                 else {
-                    //Skip if already chained
-                    if (alreadyChained.IndexOf(commonLevelData.Events.IndexOf(commonLevelData.Events[i])) == -1) {
-                        // Find all the events with the same linkId and store their indexes
-                        List<int> indexesOfSameId = new List<int>();
-                        foreach (var e in commonLevelData.Events) {
-                            if (e.LinkID == currentId) {
-                                indexesOfSameId.Add(commonLevelData.Events.IndexOf(e));
-                                alreadyChained.Add(commonLevelData.Events.IndexOf(e));
-                            }
-                        }
-                        // Loop through and chain them
-                        for (int j = 0; j < indexesOfSameId.Count; j++) {
-                            int next = j + 1;
-                            if (next == indexesOfSameId.Count)
-                                next = 0;
+                    // Skip if already chained
+                    if (alreadyChained.Contains(commonLevelData.Events.IndexOf(ee)))
+                        continue;
 
-                            commonLevelData.Events[indexesOfSameId[j]].LinkIndex = indexesOfSameId[next];
-                        }
-
-                        currentId++;
+                    // Find all the events with the same linkId and store their indexes
+                    List<int> indexesOfSameId = new List<int>();
+                    foreach (Common_Event e in commonLevelData.Events.Where(e => e.LinkID == currentId))
+                    {
+                        indexesOfSameId.Add(commonLevelData.Events.IndexOf(e));
+                        alreadyChained.Add(commonLevelData.Events.IndexOf(e));
                     }
+                    // Loop through and chain them
+                    for (int j = 0; j < indexesOfSameId.Count; j++) {
+                        int next = j + 1;
+                        if (next == indexesOfSameId.Count)
+                            next = 0;
+
+                        commonLevelData.Events[indexesOfSameId[j]].LinkIndex = indexesOfSameId[next];
+                    }
+
+                    currentId++;
                 }
             }
 

@@ -99,8 +99,8 @@ namespace R1Engine
             var desCmdManifest = FileFactory.Read<Mapper_RayLev>(Path.Combine(basePath, $"RAY.LEV"), settings, FileMode).DESManifest;
 
             // Read the CMD files
-            var cmd = desCmdManifest.Values.Skip(1).ToDictionary(cmdFile => cmdFile, 
-                cmdFile => FileFactory.Read<Mapper_EventCMD>(Path.Combine(basePath, cmdFile), settings, FileMode));
+            var cmd = desCmdManifest.Skip(1).ToDictionary(item => item.Key, 
+                item => FileFactory.Read<Mapper_EventCMD>(Path.Combine(basePath, item.Value), settings, FileMode));
 
             await Controller.WaitIfNecessary();
 
