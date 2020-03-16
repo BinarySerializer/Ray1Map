@@ -14,32 +14,30 @@ namespace R1Engine
         public Dictionary<string, string> DESManifest { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Create the dictionary
-            DESManifest = new Dictionary<string, string>();
-
-            // Use a command parser
-            using (var parser = new MapperEngineCommandParser(deserializer.BaseStream))
-            {
-                string firstValue;
-
-                while ((firstValue = parser.NextValue()) != null)
-                    // Add the item
-                    DESManifest.Add(firstValue, parser.NextValue());
-            }
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            if (serializer.Mode == SerializerMode.Read)
+            {
+                // Create the dictionary
+                DESManifest = new Dictionary<string, string>();
+
+                // Use a command parser
+                using (var parser = new MapperEngineCommandParser(serializer.BaseStream))
+                {
+                    string firstValue;
+
+                    while ((firstValue = parser.NextValue()) != null)
+                        // Add the item
+                        DESManifest.Add(firstValue, parser.NextValue());
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

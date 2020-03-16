@@ -69,67 +69,7 @@
         public ushort Unknown12 { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Get the xor key to use for the event
-            byte eveXor = (byte)(deserializer.GameSettings.GameMode == GameMode.RayPC || deserializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
-
-            DES = deserializer.Read<uint>(eveXor);
-            DES2 = deserializer.Read<uint>(eveXor);
-            DES3 = deserializer.Read<uint>(eveXor);
-            ETA = deserializer.Read<uint>(eveXor);
-
-            Unknown1 = deserializer.Read<uint>(eveXor);
-            Unknown2 = deserializer.Read<uint>(eveXor);
-
-            Unknown3 = deserializer.ReadArray<byte>(16, eveXor);
-
-            XPosition = deserializer.Read<uint>(eveXor);
-            YPosition = deserializer.Read<uint>(eveXor);
-
-            // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-            if (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC)
-                Unknown13 = deserializer.Read<uint>(eveXor);
-
-            Unknown4 = deserializer.ReadArray<byte>(20, eveXor);
-
-            Unknown5 = deserializer.ReadArray<byte>(28, eveXor);
-
-            Type = deserializer.Read<uint>(eveXor);
-            Unknown6 = deserializer.Read<uint>(eveXor);
-
-            OffsetBX = deserializer.Read<byte>(eveXor);
-            OffsetBY = deserializer.Read<byte>(eveXor);
-
-            Unknown7 = deserializer.Read<ushort>(eveXor);
-
-            SubEtat = deserializer.Read<byte>(eveXor);
-            Etat = deserializer.Read<byte>(eveXor);
-
-            Unknown8 = deserializer.Read<ushort>(eveXor);
-            Unknown9 = deserializer.Read<uint>(eveXor);
-
-            OffsetHY = deserializer.Read<byte>(eveXor);
-            FollowSprite = deserializer.Read<byte>(eveXor);
-            HitPoints = deserializer.Read<ushort>(eveXor);
-            UnkGroup = deserializer.Read<byte>(eveXor);
-            HitSprite = deserializer.Read<byte>(eveXor);
-
-            Unknown10 = deserializer.ReadArray<byte>(6, eveXor);
-
-            Unknown11 = deserializer.Read<byte>(eveXor);
-
-            // NOTE: This is 32 when true and 0 when false
-            FollowEnabled = deserializer.Read<byte>(eveXor) != 0;
-            
-            Unknown12 = deserializer.Read<ushort>(eveXor);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
@@ -137,53 +77,57 @@
             // Get the xor key to use for the event
             byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
 
-            serializer.Write(DES, eveXor);
-            serializer.Write(DES2, eveXor);
-            serializer.Write(DES3, eveXor);
-            serializer.Write(ETA, eveXor);
+            serializer.Serialize(nameof(DES), eveXor);
+            serializer.Serialize(nameof(DES2), eveXor);
+            serializer.Serialize(nameof(DES3), eveXor);
+            serializer.Serialize(nameof(ETA), eveXor);
 
-            serializer.Write(Unknown1, eveXor);
-            serializer.Write(Unknown2, eveXor);
+            serializer.Serialize(nameof(Unknown1), eveXor);
+            serializer.Serialize(nameof(Unknown2), eveXor);
 
-            serializer.Write(Unknown3, eveXor);
+            serializer.SerializeArray<byte>(nameof(Unknown3), 16, eveXor);
 
-            serializer.Write(XPosition, eveXor);
-            serializer.Write(YPosition, eveXor);
+            serializer.Serialize(nameof(XPosition), eveXor);
+            serializer.Serialize(nameof(YPosition), eveXor);
 
             // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
             if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
-                serializer.Write(Unknown13, eveXor);
+                serializer.Serialize(nameof(Unknown13), eveXor);
 
-            serializer.Write(Unknown4, eveXor);
-            serializer.Write(Unknown5, eveXor);
+            serializer.SerializeArray<byte>(nameof(Unknown4), 20, eveXor);
+            serializer.SerializeArray<byte>(nameof(Unknown5), 28, eveXor);
 
-            serializer.Write(Type, eveXor);
-            serializer.Write(Unknown6, eveXor);
+            serializer.Serialize(nameof(Type), eveXor);
+            serializer.Serialize(nameof(Unknown6), eveXor);
 
-            serializer.Write(OffsetBX, eveXor);
-            serializer.Write(OffsetBY, eveXor);
+            serializer.Serialize(nameof(OffsetBX), eveXor);
+            serializer.Serialize(nameof(OffsetBY), eveXor);
 
-            serializer.Write(Unknown7, eveXor);
+            serializer.Serialize(nameof(Unknown7), eveXor);
 
-            serializer.Write(SubEtat, eveXor);
-            serializer.Write(Etat, eveXor);
+            serializer.Serialize(nameof(SubEtat), eveXor);
+            serializer.Serialize(nameof(Etat), eveXor);
 
-            serializer.Write(Unknown8, eveXor);
-            serializer.Write(Unknown9, eveXor);
+            serializer.Serialize(nameof(Unknown8), eveXor);
+            serializer.Serialize(nameof(Unknown9), eveXor);
 
-            serializer.Write(OffsetHY, eveXor);
-            serializer.Write(FollowSprite, eveXor);
-            serializer.Write(HitPoints, eveXor);
-            serializer.Write(UnkGroup, eveXor);
-            serializer.Write(HitSprite, eveXor);
+            serializer.Serialize(nameof(OffsetHY), eveXor);
+            serializer.Serialize(nameof(FollowSprite), eveXor);
+            serializer.Serialize(nameof(HitPoints), eveXor);
+            serializer.Serialize(nameof(UnkGroup), eveXor);
+            serializer.Serialize(nameof(HitSprite), eveXor);
 
-            serializer.Write(Unknown10, eveXor);
-            serializer.Write(Unknown11, eveXor);
+            serializer.SerializeArray<byte>(nameof(Unknown10), 6, eveXor);
+
+            serializer.Serialize(nameof(Unknown11), eveXor);
 
             // NOTE: This is 32 when true and 0 when false
-            serializer.Write((byte)(FollowEnabled ? 32 : 0), eveXor);
+            if (serializer.Mode == SerializerMode.Read)
+                FollowEnabled = serializer.Read<byte>(eveXor) != 0;
+            else
+                serializer.Write((byte)(FollowEnabled ? 32 : 0), eveXor);
 
-            serializer.Write(Unknown12, eveXor);
+            serializer.Serialize(nameof(Unknown12), eveXor);
         }
     }
 }

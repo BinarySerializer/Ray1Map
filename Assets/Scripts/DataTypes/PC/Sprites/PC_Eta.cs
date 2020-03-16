@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// ETA data for PC
@@ -48,28 +46,19 @@ namespace R1Engine
         public byte InteractionType { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            RightSpeed = deserializer.Read<sbyte>();
-            LeftSpeed = deserializer.Read<sbyte>();
-            AnimationIndex = deserializer.Read<byte>();
-            Etat = deserializer.Read<byte>();
-            SubEtat = deserializer.Read<byte>();
-            AnimationSpeed = deserializer.Read<byte>();
-            SoundIndex = deserializer.Read<byte>();
-            InteractionType = deserializer.Read<byte>();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            serializer.Serialize(nameof(RightSpeed));
+            serializer.Serialize(nameof(LeftSpeed));
+            serializer.Serialize(nameof(AnimationIndex));
+            serializer.Serialize(nameof(Etat));
+            serializer.Serialize(nameof(SubEtat));
+            serializer.Serialize(nameof(AnimationSpeed));
+            serializer.Serialize(nameof(SoundIndex));
+            serializer.Serialize(nameof(InteractionType));
         }
     }
 }

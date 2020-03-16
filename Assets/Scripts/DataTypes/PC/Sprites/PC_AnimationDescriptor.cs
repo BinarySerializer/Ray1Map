@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace R1Engine
 {
@@ -38,32 +37,23 @@ namespace R1Engine
         public PC_AnimationFrame[] Frames { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            LayersPerFrame = deserializer.Read<byte>();
-            Unknown1 = deserializer.Read<byte>();
-            FrameCount = deserializer.Read<byte>();
-            Unknown2 = deserializer.Read<byte>();
-            Unknown3 = deserializer.Read<uint>();
-            FrameTableOffset = deserializer.Read<ushort>();
-            
-            if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
-                Debug.LogWarning("Frame table offset is wrong");
-            
-            Layers = deserializer.ReadArray<PC_AnimationLayer>((ulong)(LayersPerFrame * FrameCount));
-            Frames = deserializer.ReadArray<PC_AnimationFrame>(((ulong)FrameCount + 1));
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            serializer.Serialize(nameof(LayersPerFrame));
+            serializer.Serialize(nameof(Unknown1));
+            serializer.Serialize(nameof(FrameCount));
+            serializer.Serialize(nameof(Unknown2));
+            serializer.Serialize(nameof(Unknown3));
+            serializer.Serialize(nameof(FrameTableOffset));
+            
+            if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
+                Debug.LogWarning("Frame table offset is wrong");
+            
+            serializer.SerializeArray<PC_AnimationLayer>(nameof(Layers), LayersPerFrame * FrameCount);
+            serializer.SerializeArray<PC_AnimationFrame>(nameof(Frames), FrameCount + 1);
         }
     }
 }

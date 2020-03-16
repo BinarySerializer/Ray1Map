@@ -61,87 +61,45 @@
         public byte[] Unknown10 { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            Unknown1 = deserializer.ReadArray<byte>(28);
-
-            XPosition = deserializer.Read<ushort>();
-            YPosition = deserializer.Read<ushort>();
-
-            Unknown2 = deserializer.ReadArray<byte>(16);
-            Unknown3 = deserializer.Read<ushort>();
-            Unknown4 = deserializer.Read<ushort>();
-            Unknown5 = deserializer.Read<ushort>();
-            Unknown6 = deserializer.ReadArray<byte>(28);
-
-            OffsetBX = deserializer.Read<byte>();
-            OffsetBY = deserializer.Read<byte>();
-            
-            Unknown7 = deserializer.Read<ushort>();
-
-            Etat = deserializer.Read<ushort>();
-            SubEtat = deserializer.Read<ushort>();
-
-            Unknown8 = deserializer.Read<ushort>();
-            Unknown9 = deserializer.Read<ushort>();
-
-            OffsetHY = deserializer.Read<byte>();
-            FollowSprite = deserializer.Read<byte>();
-
-            Hitpoints = deserializer.Read<ushort>();
-
-            UnkGroup = deserializer.Read<byte>();
-
-            Type = deserializer.Read<byte>();
-
-            HitSprite = deserializer.Read<ushort>();
-
-            Unknown10 = deserializer.ReadArray<byte>(10);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            serializer.Write(Unknown1);
+            serializer.SerializeArray<byte>(nameof(Unknown1), 28);
 
-            serializer.Write(XPosition);
-            serializer.Write(YPosition);
+            serializer.Serialize(nameof(XPosition));
+            serializer.Serialize(nameof(YPosition));
 
-            serializer.Write(Unknown2);
-            serializer.Write(Unknown3);
-            serializer.Write(Unknown4);
-            serializer.Write(Unknown5);
-            serializer.Write(Unknown6);
+            serializer.SerializeArray<byte>(nameof(Unknown2), 16);
+            serializer.Serialize(nameof(Unknown3));
+            serializer.Serialize(nameof(Unknown4));
+            serializer.Serialize(nameof(Unknown5));
+            serializer.SerializeArray<byte>(nameof(Unknown6), 28);
 
-            serializer.Write(OffsetBX);
-            serializer.Write(OffsetBY);
+            serializer.Serialize(nameof(OffsetBX));
+            serializer.Serialize(nameof(OffsetBY));
+            
+            serializer.Serialize(nameof(Unknown7));
 
-            serializer.Write(Unknown7);
+            serializer.Serialize(nameof(Etat));
+            serializer.Serialize(nameof(SubEtat));
 
-            serializer.Write(Etat);
-            serializer.Write(SubEtat);
+            serializer.Serialize(nameof(Unknown8));
+            serializer.Serialize(nameof(Unknown9));
 
-            serializer.Write(Unknown8);
-            serializer.Write(Unknown9);
+            serializer.Serialize(nameof(OffsetHY));
+            serializer.Serialize(nameof(FollowSprite));
 
-            serializer.Write(OffsetHY);
-            serializer.Write(FollowSprite);
+            serializer.Serialize(nameof(Hitpoints));
 
-            serializer.Write(Hitpoints);
+            serializer.Serialize(nameof(UnkGroup));
 
-            serializer.Write(UnkGroup);
+            serializer.Serialize(nameof(Type));
 
-            serializer.Write(Type);
+            serializer.Serialize(nameof(HitSprite));
 
-            serializer.Write(HitSprite);
-
-            serializer.Write(Unknown10);
+            serializer.SerializeArray<byte>(nameof(Unknown10), 10);
         }
     }
 }

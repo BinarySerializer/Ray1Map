@@ -49,17 +49,17 @@ public class FileSerializerWindow : UnityWindow
             {
                 // Create the file
                 var fileData = (IBinarySerializable)Activator.CreateInstance(FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
+                throw new NotImplementedException();
+                //// Create the deserializer
+                //var deserializer = new BinaryDeserializer(file, SelectedInputFile, Settings.GetGameSettings);
 
-                // Create the deserializer
-                var deserializer = new BinaryDeserializer(file, SelectedInputFile, Settings.GetGameSettings);
+                //// Deserialize the file
+                //fileData.Deserialize(deserializer);
 
-                // Deserialize the file
-                fileData.Deserialize(deserializer);
+                //// Serialize to JSON
+                //JsonHelpers.SerializeToFile(fileData, SelectedOutputFile);
 
-                // Serialize to JSON
-                JsonHelpers.SerializeToFile(fileData, SelectedOutputFile);
-
-                Debug.Log("File has been serialized");
+                //Debug.Log("File has been serialized");
             }
         }
 
@@ -74,11 +74,12 @@ public class FileSerializerWindow : UnityWindow
             // Create the file
             using (var file = File.Create(SelectedOutputFile))
             {
-                // Create the serializer
-                var serializer = new BinarySerializer(file, SelectedInputFile, Settings.GetGameSettings);
+                throw new NotImplementedException();
+                //// Create the serializer
+                //var serializer = new BinarySerializer(file, SelectedInputFile, Settings.GetGameSettings);
 
-                // Serialize the file
-                serializer.Write(fileData);
+                //// Serialize the file
+                //serializer.Write(fileData);
             }
 
             Debug.Log("File has been deserialized");

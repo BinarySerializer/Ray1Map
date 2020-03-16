@@ -31,29 +31,16 @@
         public byte Unknown2 { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            TextureIndex = deserializer.Read<ushort>();
-            CollisionType = (TileCollisionType)deserializer.Read<byte>();
-            Unknown1 = deserializer.Read<byte>();
-            TransparencyMode = (PC_MapTileTransparencyMode)deserializer.Read<byte>();
-            Unknown2 = deserializer.Read<byte>();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            serializer.Write(TextureIndex);
-            serializer.Write((byte)CollisionType);
-            serializer.Write(Unknown1);
-            serializer.Write((byte)TransparencyMode);
-            serializer.Write(Unknown2);
+            serializer.Serialize(nameof(TextureIndex));
+            serializer.Serialize(nameof(CollisionType));
+            serializer.Serialize(nameof(Unknown1));
+            serializer.Serialize(nameof(TransparencyMode));
+            serializer.Serialize(nameof(Unknown2));
         }
     }
 }

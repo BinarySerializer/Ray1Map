@@ -84,77 +84,7 @@ namespace R1Engine
         public byte[] TilePaletteIndexTable { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public override void Deserialize(BinaryDeserializer deserializer)
-        {
-            // HEADER
-
-            base.Deserialize(deserializer);
-
-            // BLOCK 1
-
-            FirstBlock = deserializer.ReadArray<byte>((ulong)(SecondBlockPointer - deserializer.BaseStream.Position));
-
-            // BLOCK 2
-
-            SecondBlock = deserializer.ReadArray<byte>((ulong)(ThirdBlockPointer - deserializer.BaseStream.Position));
-
-            // BLOCK 3
-
-            ThirdBlock = deserializer.ReadArray<byte>((ulong)(EventPalette1BlockPointer - deserializer.BaseStream.Position));
-
-            // EVENT PALETTE 1
-
-            EventPalette1 = deserializer.ReadArray<ARGB1555Color>(256);
-
-            // EVENT PALETTE 2
-
-            EventPalette2 = deserializer.ReadArray<ARGB1555Color>(256);
-
-            // TILES
-
-            // At this point the stream position should match the tiles block offset
-            if (deserializer.BaseStream.Position != TilesBlockPointer)
-                Debug.LogError("Tiles block offset is incorrect");
-
-            // Read the tiles index table
-            TilesIndexTable = deserializer.ReadArray<byte>((ulong)(PaletteBlockPointer - deserializer.BaseStream.Position));
-
-            // TILE PALETTES
-
-            // At this point the stream position should match the palette block offset
-            if (deserializer.BaseStream.Position != PaletteBlockPointer)
-                Debug.LogError("Palette block offset is incorrect");
-
-            // Create the palettes
-            var palettes = new List<ARGB1555Color[]>();
-
-            // TODO: Find way to know the number of palettes
-            while (deserializer.BaseStream.Position < PaletteIndexBlockPointer)
-                // Read and add to the palettes
-                palettes.Add(deserializer.ReadArray<ARGB1555Color>(256));
-
-            // Set the palettes
-            TileColorPalettes = palettes.ToArray();
-
-            // TILE PALETTE ASSIGN
-
-            // At this point the stream position should match the palette assign block offset
-            if (deserializer.BaseStream.Position != PaletteIndexBlockPointer)
-                Debug.LogError("Palette assign block offset is incorrect");
-
-            // Read the palette index table
-            TilePaletteIndexTable = deserializer.ReadArray<byte>((ulong)(FileSize - deserializer.BaseStream.Position));
-
-            // At this point the stream position should match the end offset
-            if (deserializer.BaseStream.Position != FileSize)
-                Debug.LogError("End offset is incorrect");
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void Serialize(BinarySerializer serializer)
@@ -163,7 +93,71 @@ namespace R1Engine
 
             base.Serialize(serializer);
 
-            throw new NotImplementedException();
+            // BLOCK 1
+
+            serializer.SerializeArray<byte>(nameof(FirstBlock), SecondBlockPointer - serializer.BaseStream.Position);
+
+            // BLOCK 2
+
+            serializer.SerializeArray<byte>(nameof(SecondBlock), ThirdBlockPointer - serializer.BaseStream.Position);
+
+            // BLOCK 3
+
+            serializer.SerializeArray<byte>(nameof(ThirdBlock), EventPalette1BlockPointer - serializer.BaseStream.Position);
+
+            // EVENT PALETTE 1
+
+            serializer.SerializeArray<ARGB1555Color>(nameof(EventPalette1), 256);
+
+            // EVENT PALETTE 2
+
+            serializer.SerializeArray<ARGB1555Color>(nameof(EventPalette2), 256);
+
+            // TILES
+
+            // At this point the stream position should match the tiles block offset
+            if (serializer.BaseStream.Position != TilesBlockPointer)
+                Debug.LogError("Tiles block offset is incorrect");
+
+            // Read the tiles index table
+            serializer.SerializeArray<byte>(nameof(TilesIndexTable), PaletteBlockPointer - serializer.BaseStream.Position);
+
+            // TILE PALETTES
+
+            // At this point the stream position should match the palette block offset
+            if (serializer.BaseStream.Position != PaletteBlockPointer)
+                Debug.LogError("Palette block offset is incorrect");
+
+            if (serializer.Mode == SerializerMode.Read)
+            {
+                // Create the palettes
+                var palettes = new List<ARGB1555Color[]>();
+
+                // TODO: Find way to know the number of palettes
+                while (serializer.BaseStream.Position < PaletteIndexBlockPointer)
+                    // Read and add to the palettes
+                    palettes.Add(serializer.ReadArray<ARGB1555Color>(256));
+
+                // Set the palettes
+                TileColorPalettes = palettes.ToArray();
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            // TILE PALETTE ASSIGN
+
+            // At this point the stream position should match the palette assign block offset
+            if (serializer.BaseStream.Position != PaletteIndexBlockPointer)
+                Debug.LogError("Palette assign block offset is incorrect");
+
+            // Read the palette index table
+            serializer.SerializeArray<byte>(nameof(TilePaletteIndexTable), FileSize - serializer.BaseStream.Position);
+
+            // At this point the stream position should match the end offset
+            if (serializer.BaseStream.Position != FileSize)
+                Debug.LogError("End offset is incorrect");
         }
     }
 }

@@ -42,7 +42,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateDirectories(Path.Combine(settings.GameDirectory, GetWorldName(settings.World)), "MAP???", SearchOption.TopDirectoryOnly).Select(x => Int32.Parse(Path.GetFileName(x).Replace("_", String.Empty).Substring(3))).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateDirectories(Path.Combine(settings.GameDirectory, GetWorldName(settings.World)), "MAP???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).Where(x => x.Length < 7).Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3))).ToArray();
 
         #endregion
 

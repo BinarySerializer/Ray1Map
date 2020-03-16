@@ -58,51 +58,7 @@ namespace R1Engine
         public ARGB1555Color[][] Tiles { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public override void Deserialize(BinaryDeserializer deserializer)
-        {
-            // HEADER
-
-            base.Deserialize(deserializer);
-
-            // BLOCK 1
-
-            FirstBlock = deserializer.ReadArray<byte>((ulong)(SecondBlockPointer - deserializer.BaseStream.Position));
-
-            // BLOCK 2
-
-            SecondBlock = deserializer.ReadArray<byte>((ulong)(EventTexturesBlockPointer - deserializer.BaseStream.Position));
-
-            // EVENT TEXTURES
-
-            EventTexturesBlock = deserializer.ReadArray<byte>((ulong)(FourthBlockPointer - deserializer.BaseStream.Position));
-
-            // BLOCK 4
-
-            FourthBlock = deserializer.ReadArray<byte>((ulong)(UnknownPaletteBlockPointer - deserializer.BaseStream.Position));
-
-            // UNKNOWN PALETTE
-
-            UnknownPalette = deserializer.ReadArray<ARGB1555Color>(256);
-
-            // TILES
-
-            // At this point the stream position should match the tiles block offset
-            if (deserializer.BaseStream.Position != TilesBlockPointer)
-                Debug.LogError("Tiles block offset is incorrect");
-
-            // Create the tiles array
-            Tiles = new ARGB1555Color[(FileSize - deserializer.BaseStream.Position) / (PS1_R1_Manager.CellSize * PS1_R1_Manager.CellSize * 2)][];
-
-            // Read every tile
-            for (int i = 0; i < Tiles.Length; i++)
-                Tiles[i] = deserializer.ReadArray<ARGB1555Color>(PS1_R1_Manager.CellSize * PS1_R1_Manager.CellSize);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void Serialize(BinarySerializer serializer)
@@ -111,7 +67,45 @@ namespace R1Engine
 
             base.Serialize(serializer);
 
-            throw new NotImplementedException();
+            // BLOCK 1
+
+            serializer.SerializeArray<byte>(nameof(FirstBlock), SecondBlockPointer - serializer.BaseStream.Position);
+
+            // BLOCK 2
+
+            serializer.SerializeArray<byte>(nameof(SecondBlock), EventTexturesBlockPointer - serializer.BaseStream.Position);
+
+            // EVENT TEXTURES
+
+            serializer.SerializeArray<byte>(nameof(EventTexturesBlock), FourthBlockPointer - serializer.BaseStream.Position);
+
+            // BLOCK 4
+
+            serializer.SerializeArray<byte>(nameof(FourthBlock), UnknownPaletteBlockPointer - serializer.BaseStream.Position);
+
+            // UNKNOWN PALETTE
+
+            serializer.SerializeArray<ARGB1555Color>(nameof(UnknownPalette), 256);
+
+            // TILES
+
+            // At this point the stream position should match the tiles block offset
+            if (serializer.BaseStream.Position != TilesBlockPointer)
+                Debug.LogError("Tiles block offset is incorrect");
+
+            if (serializer.Mode == SerializerMode.Read)
+            {
+                // Create the tiles array
+                Tiles = new ARGB1555Color[(FileSize - serializer.BaseStream.Position) / (PS1_Manager.CellSize * PS1_Manager.CellSize * 2)][];
+
+                // Read every tile
+                for (int i = 0; i < Tiles.Length; i++)
+                    Tiles[i] = serializer.ReadArray<ARGB1555Color>(PS1_Manager.CellSize * PS1_Manager.CellSize);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

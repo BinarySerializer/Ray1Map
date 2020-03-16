@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Animation layer data for PC
@@ -28,24 +26,15 @@ namespace R1Engine
         public byte ImageIndex { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            IsFlipped = deserializer.Read<bool>();
-            XPosition = deserializer.Read<byte>();
-            YPosition = deserializer.Read<byte>();
-            ImageIndex = deserializer.Read<byte>();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            serializer.Serialize(nameof(IsFlipped));
+            serializer.Serialize(nameof(XPosition));
+            serializer.Serialize(nameof(YPosition));
+            serializer.Serialize(nameof(ImageIndex));
         }
     }
 }

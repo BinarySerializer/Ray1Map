@@ -89,81 +89,7 @@ namespace R1Engine
         public byte[] TextureBlock { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public override void Deserialize(BinaryDeserializer deserializer)
-        {
-            // HEADER
-
-            base.Deserialize(deserializer);
-
-            // BACKGROUND BLOCK
-
-            // At this point the stream position should match the background block offset
-            if (deserializer.BaseStream.Position != BackgroundBlockPointer)
-                Debug.LogError("Background block offset is incorrect");
-
-            // Read the background layer information (always 12)
-            BackgroundLayerPositions = deserializer.ReadArray<PS1_R1_BackgroundLayerPosition>(12);
-            Unknown3 = deserializer.ReadArray<byte>(16);
-            BackgroundLayerInfos = deserializer.ReadArray<PS1_R1_BackgroundLayerInfo>(12);
-            // On PAL/NTSC this is 80 bytes. On NTSC-J it's more, which is why we just read the remaining bytes for now
-            Unknown4 = deserializer.ReadArray<byte>((ulong)(EventBlockPointer - deserializer.BaseStream.Position));
-
-            // EVENT BLOCK
-
-            // At this point the stream position should match the event block offset
-            if (deserializer.BaseStream.Position != EventBlockPointer)
-                Debug.LogError("Event block offset is incorrect");
-
-            // Read header
-            Unknown1 = deserializer.Read<uint>();
-            EventCount = deserializer.Read<uint>();
-            Unknown2 = deserializer.Read<uint>();
-            EventLinkCount = deserializer.Read<uint>();
-
-            if (EventCount != EventLinkCount)
-                Debug.LogError("Event counts don't match");
-
-            // Read every event
-            Events = deserializer.ReadArray<PS1_R1_Event>(EventCount);
-
-            // Read the event linking table
-            EventLinkingTable = deserializer.ReadArray<byte>(EventLinkCount);
-
-            EventBlock = deserializer.ReadArray<byte>((ulong)(MapBlockPointer - deserializer.BaseStream.Position));
-
-            // MAP BLOCK
-
-            // At this point the stream position should match the map block offset
-            if (deserializer.BaseStream.Position != MapBlockPointer)
-                Debug.LogError("Map block offset is incorrect");
-
-            // Read map size
-            Width = deserializer.Read<ushort>();
-            Height = deserializer.Read<ushort>();
-
-            // Read tiles
-            Tiles = deserializer.ReadArray<PS1_R1_MapTile>((ulong)(Width * Height));
-
-            // TEXTURE BLOCK
-
-            // At this point the stream position should match the texture block offset
-            if (deserializer.BaseStream.Position != TextureBlockPointer)
-                Debug.LogError("Texture block offset is incorrect");
-
-            TextureBlock = deserializer.ReadArray<byte>(FileSize - TextureBlockPointer);
-
-            // At this point the stream position should match the end offset
-            if (deserializer.BaseStream.Position != FileSize)
-                Debug.LogError("End offset is incorrect");
-
-            Debug.Log($"PS1 R1 level loaded with size {Width}x{Height} and {EventCount} events");
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void Serialize(BinarySerializer serializer)
@@ -174,40 +100,64 @@ namespace R1Engine
 
             // BACKGROUND BLOCK
 
-            // Write the background layer information (always 12)
-            serializer.Write(BackgroundLayerPositions);
-            serializer.Write(Unknown3);
-            serializer.Write(BackgroundLayerInfos);
-            serializer.Write(Unknown4);
+            // At this point the stream position should match the background block offset
+            if (serializer.BaseStream.Position != BackgroundBlockPointer)
+                Debug.LogError("Background block offset is incorrect");
+
+            // Serialize the background layer information (always 12)
+            serializer.SerializeArray<PS1_R1_BackgroundLayerPosition>(nameof(BackgroundLayerPositions), 12);
+            serializer.SerializeArray<byte>(nameof(Unknown3), 16);
+            serializer.SerializeArray<PS1_R1_BackgroundLayerInfo>(nameof(BackgroundLayerInfos), 12);
+            // On PAL/NTSC this is 80 bytes. On NTSC-J it's more, which is why we just serialize the remaining bytes for now
+            serializer.SerializeArray<byte>(nameof(Unknown4), EventBlockPointer - serializer.BaseStream.Position);
 
             // EVENT BLOCK
 
-            // Read header
-            serializer.Write(Unknown1);
-            serializer.Write(EventCount);
-            serializer.Write(Unknown2);
-            serializer.Write(EventLinkCount);
+            // At this point the stream position should match the event block offset
+            if (serializer.BaseStream.Position != EventBlockPointer)
+                Debug.LogError("Event block offset is incorrect");
 
-            // Read every event
-            serializer.Write(Events);
+            // Serialize header
+            serializer.Serialize(nameof(Unknown1));
+            serializer.Serialize(nameof(EventCount));
+            serializer.Serialize(nameof(Unknown2));
+            serializer.Serialize(nameof(EventLinkCount));
 
-            // Write the event linking table
-            serializer.Write(EventLinkingTable);
+            if (EventCount != EventLinkCount)
+                Debug.LogError("Event counts don't match");
 
-            serializer.Write(EventBlock);
+            // Serialize every event
+            serializer.SerializeArray<PS1_R1_Event>(nameof(Events), EventCount);
+
+            // Serialize the event linking table
+            serializer.SerializeArray<byte>(nameof(EventLinkingTable), EventLinkCount);
+
+            serializer.SerializeArray<byte>(nameof(EventBlock), MapBlockPointer - serializer.BaseStream.Position);
 
             // MAP BLOCK
 
-            // Read map size
-            serializer.Write(Width);
-            serializer.Write(Height);
+            // At this point the stream position should match the map block offset
+            if (serializer.BaseStream.Position != MapBlockPointer)
+                Debug.LogError("Map block offset is incorrect");
 
-            // Read tiles
-            serializer.Write(Tiles);
+            // Serialize map size
+            serializer.Serialize(nameof(Width));
+            serializer.Serialize(nameof(Height));
+
+            // Serialize tiles
+            serializer.SerializeArray<PS1_R1_MapTile>(nameof(Tiles), Width * Height);
 
             // TEXTURE BLOCK
 
-            serializer.Write(TextureBlock);
+            // At this point the stream position should match the texture block offset
+            if (serializer.BaseStream.Position != TextureBlockPointer)
+                Debug.LogError("Texture block offset is incorrect");
+
+            serializer.SerializeArray<byte>(nameof(TextureBlock), FileSize - TextureBlockPointer);
+
+            // At this point the stream position should match the end offset
+            if (serializer.BaseStream.Position != FileSize)
+                Debug.LogError("End offset is incorrect");
         }
     }
 }

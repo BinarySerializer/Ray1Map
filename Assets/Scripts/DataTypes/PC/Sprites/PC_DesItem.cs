@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// DES item data for PC
@@ -53,50 +51,41 @@ namespace R1Engine
         public PC_AnimationDescriptor[] AnimationDescriptors { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            if (deserializer.FileName.Contains(".wld"))
-                RequiresBackgroundClearing = deserializer.Read<bool>();
-            else
-                RequiresBackgroundClearing = true;
-
-            if (deserializer.FileName.Contains("allfix.dat"))
-                Unknown1 = deserializer.ReadArray<byte>(12);
-
-            ImageDataLength = deserializer.Read<uint>();
-
-            if (deserializer.FileName.Contains(".wld") && (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC))
-            {
-                ImageDataChecksum = deserializer.Read<byte>();
-                ImageData = deserializer.ReadArray<byte>(ImageDataLength);
-            }
-            else
-            {
-                ImageData = deserializer.ReadArray<byte>(ImageDataLength);
-
-                if (!deserializer.FileName.Contains("bray.dat") && !deserializer.FileName.Contains("bigray.dat"))
-                    ImageDataChecksum = deserializer.Read<byte>();
-            }
-
-            if (deserializer.FileName.Contains("allfix.dat"))
-                Unknown2 = deserializer.Read<uint>();
-
-            ImageDescriptorCount = deserializer.Read<ushort>();
-            ImageDescriptors = deserializer.ReadArray<PC_ImageDescriptor>(ImageDescriptorCount);
-            AnimationDescriptorCount = deserializer.Read<byte>();
-            AnimationDescriptors = deserializer.ReadArray<PC_AnimationDescriptor>(AnimationDescriptorCount);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            if (serializer.FileName.Contains(".wld"))
+                serializer.Serialize(nameof(RequiresBackgroundClearing));
+            else
+                RequiresBackgroundClearing = true;
+
+            if (serializer.FileName.Contains("allfix.dat"))
+                serializer.SerializeArray<byte>(nameof(Unknown1), 12);
+
+            serializer.Serialize(nameof(ImageDataLength));
+
+            if (serializer.FileName.Contains(".wld") && (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC))
+            {
+                serializer.Serialize(nameof(ImageDataChecksum));
+                serializer.SerializeArray<byte>(nameof(ImageData), ImageDataLength);
+            }
+            else
+            {
+                serializer.SerializeArray<byte>(nameof(ImageData), ImageDataLength);
+
+                if (!serializer.FileName.Contains("bray.dat") && !serializer.FileName.Contains("bigray.dat"))
+                    serializer.Serialize(nameof(ImageDataChecksum));
+            }
+
+            if (serializer.FileName.Contains("allfix.dat"))
+                serializer.Serialize(nameof(Unknown2));
+
+            serializer.Serialize(nameof(ImageDescriptorCount));
+            serializer.SerializeArray<PC_ImageDescriptor>(nameof(ImageDescriptors), ImageDescriptorCount);
+            serializer.Serialize(nameof(AnimationDescriptorCount));
+            serializer.SerializeArray<PC_AnimationDescriptor>(nameof(AnimationDescriptors), AnimationDescriptorCount);
         }
     }
 }

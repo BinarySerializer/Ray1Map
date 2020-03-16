@@ -21,25 +21,14 @@
         public uint FileSize { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public virtual void Deserialize(BinaryDeserializer deserializer)
-        {
-            PointerCount = deserializer.Read<uint>();
-            Pointers = deserializer.ReadArray<uint>(PointerCount);
-            FileSize = deserializer.Read<uint>();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public virtual void Serialize(BinarySerializer serializer)
         {
-            serializer.Write(PointerCount);
-            serializer.Write(Pointers);
-            serializer.Write(FileSize);
+            serializer.Serialize(nameof(PointerCount));
+            serializer.SerializeArray<uint>(nameof(Pointers), PointerCount);
+            serializer.Serialize(nameof(FileSize));
         }
     }
 }

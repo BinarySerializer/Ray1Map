@@ -92,98 +92,96 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Read the header
-            Identifier = deserializer.Read<byte>();
-            Version = deserializer.Read<byte>();
-            Encoding = deserializer.Read<byte>();
-            BitsPerPixel = deserializer.Read<byte>();
-            XStart = deserializer.Read<ushort>();
-            YStart = deserializer.Read<ushort>();
-            XEnd = deserializer.Read<ushort>();
-            YEnd = deserializer.Read<ushort>();
-            HorRes = deserializer.Read<ushort>();
-            VerRes = deserializer.Read<ushort>();
-            EGAPalette = deserializer.ReadArray<byte>(48);
-            Reserved1 = deserializer.Read<byte>();
-            BitPlaneCount = deserializer.Read<byte>();
-            BytesPerLine = deserializer.Read<ushort>();
-            PaletteType = deserializer.Read<ushort>();
-            HorScreenSize = deserializer.Read<ushort>();
-            VerScreenSize = deserializer.Read<ushort>();
-            Reserved2 = deserializer.ReadArray<byte>(54);
-
-            // Calculate properties
-            var scanLineLength = BitPlaneCount * BytesPerLine;
-            var linePaddingSize = ((scanLineLength) * (8 / BitsPerPixel)) - ImageWidth;
-
-            // Create the scan-line array
-            ScanLines = new byte[ImageHeight][];
-
-            // Read every scan-line
-            for (int i = 0; i < ImageHeight; i++)
-            {
-                // Keep track of the index
-                int index = 0;
-
-                // Create the buffer
-                byte[] buffer = new byte[scanLineLength];
-
-                do
-                {
-                    // Read the byte
-                    var b = deserializer.Read<byte>();
-
-                    int repeatCount;
-                    byte runValue;
-
-                    // Check if it should be repeated
-                    if ((b & 0xC0) == 0xC0)
-                    {
-                        repeatCount = b & 0x3F;
-                        runValue = deserializer.Read<byte>();
-                    }
-                    else
-                    {
-                        repeatCount = 1;
-                        runValue = b;
-                    }
-
-                    // Write the specified number of bytes
-                    while (index < buffer.Length && repeatCount > 0)
-                    {
-                        buffer[index] = runValue;
-                        repeatCount--;
-                        index++;
-                    }
-
-                } while (index < buffer.Length);
-
-                // Set the scan-line
-                ScanLines[i] = buffer;
-
-                // Read padding
-                deserializer.ReadArray<byte>((ulong)linePaddingSize);
-            }
-
-            // Read the initial palette byte
-            PaletteStart = deserializer.Read<byte>();
-
-            // Read the palette
-            VGAPalette = deserializer.ReadArray<byte>(256 * 3);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            // Serialize the header
+            serializer.Serialize(nameof(Identifier));
+            serializer.Serialize(nameof(Version));
+            serializer.Serialize(nameof(Encoding));
+            serializer.Serialize(nameof(BitsPerPixel));
+            serializer.Serialize(nameof(XStart));
+            serializer.Serialize(nameof(YStart));
+            serializer.Serialize(nameof(XEnd));
+            serializer.Serialize(nameof(YEnd));
+            serializer.Serialize(nameof(HorRes));
+            serializer.Serialize(nameof(VerRes));
+            serializer.SerializeArray<byte>(nameof(EGAPalette), 48);
+            serializer.Serialize(nameof(Reserved1));
+            serializer.Serialize(nameof(BitPlaneCount));
+            serializer.Serialize(nameof(BytesPerLine));
+            serializer.Serialize(nameof(PaletteType));
+            serializer.Serialize(nameof(HorScreenSize));
+            serializer.Serialize(nameof(VerScreenSize));
+            serializer.SerializeArray<byte>(nameof(Reserved2), 54);
+
+            if (serializer.Mode == SerializerMode.Read)
+            {
+                // Calculate properties
+                var scanLineLength = BitPlaneCount * BytesPerLine;
+                var linePaddingSize = ((scanLineLength) * (8 / BitsPerPixel)) - ImageWidth;
+
+                // Create the scan-line array
+                ScanLines = new byte[ImageHeight][];
+
+                // Read every scan-line
+                for (int i = 0; i < ImageHeight; i++)
+                {
+                    // Keep track of the index
+                    int index = 0;
+
+                    // Create the buffer
+                    byte[] buffer = new byte[scanLineLength];
+
+                    do
+                    {
+                        // Read the byte
+                        var b = serializer.Read<byte>();
+
+                        int repeatCount;
+                        byte runValue;
+
+                        // Check if it should be repeated
+                        if ((b & 0xC0) == 0xC0)
+                        {
+                            repeatCount = b & 0x3F;
+                            runValue = serializer.Read<byte>();
+                        }
+                        else
+                        {
+                            repeatCount = 1;
+                            runValue = b;
+                        }
+
+                        // Write the specified number of bytes
+                        while (index < buffer.Length && repeatCount > 0)
+                        {
+                            buffer[index] = runValue;
+                            repeatCount--;
+                            index++;
+                        }
+
+                    } while (index < buffer.Length);
+
+                    // Set the scan-line
+                    ScanLines[i] = buffer;
+
+                    // Read padding
+                    serializer.ReadArray<byte>(linePaddingSize);
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
+            // Serialize the initial palette byte
+            serializer.Serialize(nameof(PaletteStart));
+
+            // Serialize the palette
+            serializer.SerializeArray<byte>(nameof(VGAPalette), 256 * 3);
         }
     }
 }

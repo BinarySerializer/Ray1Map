@@ -21,24 +21,13 @@
         public byte[] Unknown1 { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public virtual void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Set the color array
-            ColorIndexes = deserializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
-            Unknown1 = deserializer.ReadArray<byte>(32);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public virtual void Serialize(BinarySerializer serializer)
         {
-            serializer.Write(ColorIndexes);
-            serializer.Write(Unknown1);
+            serializer.SerializeArray<byte>(nameof(ColorIndexes), PC_Manager.CellSize * PC_Manager.CellSize);
+            serializer.SerializeArray<byte>(nameof(Unknown1), 32);
         }
     }
 }

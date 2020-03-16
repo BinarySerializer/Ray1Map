@@ -21,30 +21,16 @@
         public ushort Unknown1 { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public virtual void Deserialize(BinaryDeserializer deserializer)
-        {
-            if (deserializer.GameSettings.GameMode == GameMode.RayKit || deserializer.GameSettings.GameMode == GameMode.RayEduPC)
-            {
-                PrimaryKitHeader = deserializer.ReadArray<byte>(5);
-                SecondaryKitHeader = deserializer.ReadArray<byte>(5);
-                Unknown1 = deserializer.Read<ushort>();
-            }
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public virtual void Serialize(BinarySerializer serializer)
         {
             if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
             {
-                serializer.Write(PrimaryKitHeader);
-                serializer.Write(SecondaryKitHeader);
-                serializer.Write(Unknown1);
+                serializer.SerializeArray<byte>(nameof(PrimaryKitHeader), 5);
+                serializer.SerializeArray<byte>(nameof(SecondaryKitHeader), 5);
+                serializer.Serialize(nameof(Unknown1));
             }
         }
     }

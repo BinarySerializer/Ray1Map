@@ -43,90 +43,85 @@ namespace R1Engine
         #region Public Methods
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public override void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Read PC Header
-            base.Deserialize(deserializer);
-
-            if (deserializer.FileName.Contains(".wld"))
-            {
-                // Read unknown header
-                Unknown6 = deserializer.Read<ushort>();
-                Unknown2 = deserializer.Read<ushort>();
-                Unknown4Count = deserializer.Read<ushort>();
-                Unknown3 = deserializer.Read<byte>();
-                Unknown4 = deserializer.ReadArray<byte>((ulong)(deserializer.GameSettings.GameMode == GameMode.RayPC || deserializer.GameSettings.GameMode == GameMode.RayPocketPC ? Unknown4Count : Unknown4Count * 8));
-            }
-
-            if (deserializer.FileName.Contains(".wld"))
-            {
-                ReadSprites();
-                ReadEta();
-            }
-            else if (deserializer.FileName.Contains("bray.dat") || deserializer.FileName.Contains("bigray.dat"))
-            {
-                DesItemCount = 1;
-
-                DesItems = deserializer.ReadArray<PC_DesItem>(DesItemCount);
-
-                ReadEta();
-            }
-            else
-            {
-                ReadEta();
-                ReadSprites();
-            }
-
-            Unknown5 = deserializer.ReadArray<byte>((ulong)(deserializer.BaseStream.Length - deserializer.BaseStream.Position));
-
-            // Helper method for reading the eta
-            void ReadEta()
-            {
-                // Read the ETA data into a 3-fold array
-                Eta = new PC_Eta[deserializer.Read<byte>()][][];
-
-                for (int i = 0; i < Eta.Length; i++)
-                {
-                    Eta[i] = new PC_Eta[deserializer.Read<byte>()][];
-
-                    for (int j = 0; j < Eta[i].Length; j++)
-                    {
-                        Eta[i][j] = new PC_Eta[deserializer.Read<byte>()];
-
-                        for (int k = 0; k < Eta[i][j].Length; k++)
-                        {
-                            Eta[i][j][k] = deserializer.Read<PC_Eta>();
-                        }
-                    }
-                }
-            }
-
-            // Helper method for reading the sprites
-            void ReadSprites()
-            {
-                // Read sprites
-                DesItemCount = deserializer.Read<ushort>();
-
-                if (deserializer.FileName.Contains("allfix.dat"))
-                    DesItemCount--;
-
-                DesItems = deserializer.ReadArray<PC_DesItem>(DesItemCount);
-            }
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void Serialize(BinarySerializer serializer)
         {
-            // Write PC Header
+            // Serialize PC Header
             base.Serialize(serializer);
 
-            throw new NotImplementedException();
+            if (serializer.FileName.Contains(".wld"))
+            {
+                // Serialize unknown header
+                serializer.Serialize(nameof(Unknown6));
+                serializer.Serialize(nameof(Unknown2));
+                serializer.Serialize(nameof(Unknown4Count));
+                serializer.Serialize(nameof(Unknown3));
+                serializer.SerializeArray<byte>(nameof(Unknown4), serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? Unknown4Count : Unknown4Count * 8);
+            }
+
+            if (serializer.FileName.Contains(".wld"))
+            {
+                SerializeSprites();
+                SerializeEta();
+            }
+            else if (serializer.FileName.Contains("bray.dat") || serializer.FileName.Contains("bigray.dat"))
+            {
+                DesItemCount = 1;
+
+                serializer.SerializeArray<PC_DesItem>(nameof(DesItems), DesItemCount);
+
+                SerializeEta();
+            }
+            else
+            {
+                SerializeEta();
+                SerializeSprites();
+            }
+
+            serializer.SerializeArray<byte>(nameof(Unknown5), serializer.BaseStream.Length - serializer.BaseStream.Position);
+
+            // Helper method for reading the eta
+            void SerializeEta()
+            {
+                if (serializer.Mode == SerializerMode.Read)
+                {
+                    // Read the ETA data into a 3-fold array
+                    Eta = new PC_Eta[serializer.Read<byte>()][][];
+
+                    for (int i = 0; i < Eta.Length; i++)
+                    {
+                        Eta[i] = new PC_Eta[serializer.Read<byte>()][];
+
+                        for (int j = 0; j < Eta[i].Length; j++)
+                        {
+                            Eta[i][j] = new PC_Eta[serializer.Read<byte>()];
+
+                            for (int k = 0; k < Eta[i][j].Length; k++)
+                            {
+                                Eta[i][j][k] = serializer.Read<PC_Eta>();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            // Helper method for reading the sprites
+            void SerializeSprites()
+            {
+                // Serialize sprites
+                serializer.Serialize(nameof(DesItemCount));
+
+                if (serializer.FileName.Contains("allfix.dat") && serializer.Mode == SerializerMode.Read)
+                    DesItemCount--;
+
+                serializer.SerializeArray<PC_DesItem>(nameof(DesItems), DesItemCount);
+            }
         }
 
         #endregion

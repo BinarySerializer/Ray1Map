@@ -23,48 +23,46 @@ namespace R1Engine
         public TileCollisionType CollisionType { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Read the value
-            var value = deserializer.Read<ushort>();
-
-            if (deserializer.GameSettings.GameMode == GameMode.RayPS1)
-            {
-                TileMapX = BitHelpers.ExtractBits(value, 4, 0);
-                TileMapY = BitHelpers.ExtractBits(value, 6, 4);
-                CollisionType = (TileCollisionType)(BitHelpers.ExtractBits(value, 6, 10));
-            }
-            else if (deserializer.GameSettings.GameMode == GameMode.RayPS1JP)
-            {
-                TileMapY = 0;
-                TileMapX = BitHelpers.ExtractBits(value, 9, 0);
-                CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 7, 9);
-            }
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            if (serializer.GameSettings.GameMode == GameMode.RayPS1)
+            if (serializer.Mode == SerializerMode.Read)
             {
-                // TODO: Clean up
+                // Read the value
+                var value = serializer.Read<ushort>();
 
-                var graphic = (TileMapX + (TileMapY << 4));
-                var byte1 = (byte)graphic;
-                var byte2 = (byte)(((int)CollisionType << 2) + (graphic >> 8));
-
-                serializer.Write(byte1);
-                serializer.Write(byte2);
+                if (serializer.GameSettings.GameMode == GameMode.RayPS1)
+                {
+                    TileMapX = BitHelpers.ExtractBits(value, 4, 0);
+                    TileMapY = BitHelpers.ExtractBits(value, 6, 4);
+                    CollisionType = (TileCollisionType)(BitHelpers.ExtractBits(value, 6, 10));
+                }
+                else if (serializer.GameSettings.GameMode == GameMode.RayPS1JP)
+                {
+                    TileMapY = 0;
+                    TileMapX = BitHelpers.ExtractBits(value, 9, 0);
+                    CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 7, 9);
+                }
             }
-            else if (serializer.GameSettings.GameMode == GameMode.RayPS1JP)
+            else
             {
-                throw new NotImplementedException();
+                if (serializer.GameSettings.GameMode == GameMode.RayPS1)
+                {
+                    // TODO: Clean up
+
+                    var graphic = (TileMapX + (TileMapY << 4));
+                    var byte1 = (byte)graphic;
+                    var byte2 = (byte)(((int)CollisionType << 2) + (graphic >> 8));
+
+                    serializer.Write(byte1);
+                    serializer.Write(byte2);
+                }
+                else if (serializer.GameSettings.GameMode == GameMode.RayPS1JP)
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
     }

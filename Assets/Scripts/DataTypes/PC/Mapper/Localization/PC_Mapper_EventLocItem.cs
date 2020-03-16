@@ -21,25 +21,23 @@
         public string Description { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            LocKey = deserializer.ReadNullTerminatedString();
-            Name = deserializer.ReadNullTerminatedString();
-            Description = deserializer.ReadNullTerminatedString();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            serializer.WriteNullTerminatedString(LocKey);
-            serializer.WriteNullTerminatedString(Name);
-            serializer.WriteNullTerminatedString(Description);
+            if (serializer.Mode == SerializerMode.Read)
+            {
+                LocKey = serializer.ReadNullTerminatedString();
+                Name = serializer.ReadNullTerminatedString();
+                Description = serializer.ReadNullTerminatedString();
+            }
+            else
+            {
+                serializer.WriteNullTerminatedString(LocKey);
+                serializer.WriteNullTerminatedString(Name);
+                serializer.WriteNullTerminatedString(Description);
+            }
         }
     }
 }

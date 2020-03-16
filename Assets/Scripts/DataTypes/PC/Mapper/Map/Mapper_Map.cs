@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Map data for the Mapper
@@ -29,26 +27,17 @@ namespace R1Engine
         #region Public Methods
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Read map size
-            Width = deserializer.Read<ushort>();
-            Height = deserializer.Read<ushort>();
-
-            // Read tiles
-            Tiles = deserializer.ReadArray<Mapper_MapTile>((ulong)(Width * Height));
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            // Serialize map size
+            serializer.Serialize(nameof(Width));
+            serializer.Serialize(nameof(Height));
+
+            // Serialize tiles
+            serializer.SerializeArray<Mapper_MapTile>(nameof(Tiles), Width * Height);
         }
 
         #endregion

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Exported map data for the Mapper
@@ -77,36 +75,27 @@ namespace R1Engine
         #region Serializer Methods
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Read the header
-            Header = deserializer.ReadArray<byte>(4);
-            MapPropertiesPointer = deserializer.Read<uint>();
-            MapPropertiesLength = deserializer.Read<uint>();
-            MapDataPointer = deserializer.Read<uint>();
-            MapDataLength = deserializer.Read<uint>();
-            EventMevDataPointer = deserializer.Read<uint>();
-            EventMevDataLength = deserializer.Read<uint>();
-            EventSevDataPointer = deserializer.Read<uint>();
-            EventSevDataLength = deserializer.Read<uint>();
-
-            // Read the data blocks
-            MapProperties = deserializer.ReadArray<byte>(MapPropertiesLength);
-            MapData = deserializer.Read<Mapper_Map>();
-            EventMevData = deserializer.ReadArray<byte>(EventMevDataLength);
-            EventSevData = deserializer.ReadArray<byte>(EventSevDataLength);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            // Serialize the header
+            serializer.SerializeArray<byte>(nameof(Header), 4);
+            serializer.Serialize(nameof(MapPropertiesPointer));
+            serializer.Serialize(nameof(MapPropertiesLength));
+            serializer.Serialize(nameof(MapDataPointer));
+            serializer.Serialize(nameof(MapDataLength));
+            serializer.Serialize(nameof(EventMevDataPointer));
+            serializer.Serialize(nameof(EventMevDataLength));
+            serializer.Serialize(nameof(EventSevDataPointer));
+            serializer.Serialize(nameof(EventSevDataLength));
+
+            // Read the data blocks
+            serializer.SerializeArray<byte>(nameof(MapProperties), MapPropertiesLength);
+            serializer.Serialize(nameof(MapData));
+            serializer.SerializeArray<byte>(nameof(EventMevData), EventMevDataLength);
+            serializer.SerializeArray<byte>(nameof(EventSevData), EventSevDataLength);
         }
 
         #endregion

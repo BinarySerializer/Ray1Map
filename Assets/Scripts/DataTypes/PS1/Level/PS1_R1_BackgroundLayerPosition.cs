@@ -18,23 +18,13 @@ namespace R1Engine
         public ushort YPosition { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            XPosition = deserializer.Read<ushort>();
-            YPosition = deserializer.Read<ushort>();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            serializer.Write(XPosition);
-            serializer.Write(YPosition);
+            serializer.Serialize(nameof(XPosition));
+            serializer.Serialize(nameof(YPosition));
         }
     }
 }

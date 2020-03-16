@@ -71,8 +71,11 @@ namespace R1Engine
                 // Get the stream and use it when deserializing
                 using (var stream = GetStream())
                 {
+                    // Create the instance
+                    var instance = Activator.CreateInstance<T>();
+
                     // Create the deserializer
-                    var deserializer = new BinaryDeserializer(stream, filePath, settings);
+                    var deserializer = new BinarySerializer(SerializerMode.Read, stream, instance, filePath, settings);
 
                     // Deserialize file
                     var fileData = deserializer.Read<T>();
@@ -104,7 +107,7 @@ namespace R1Engine
             using (var file = File.Create(filePath))
             {
                 // Create the serializer
-                var serializer = new BinarySerializer(file, filePath, settings);
+                var serializer = new BinarySerializer(SerializerMode.Write, file, data, filePath, settings);
 
                 // Serialize the file
                 serializer.Write(data);

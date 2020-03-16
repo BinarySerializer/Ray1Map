@@ -21,32 +21,30 @@ namespace R1Engine
 
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            // Read the color value
-            ushort color16 = deserializer.Read<ushort>();
-
-            // Extract the bits
-            Alpha = 255;
-            Red = (byte)((BitHelpers.ExtractBits(color16, 5, 0) / 31f) * 255);
-            Green = (byte)((BitHelpers.ExtractBits(color16, 5, 5) / 31f) * 255);
-            Blue = (byte)((BitHelpers.ExtractBits(color16, 5, 10) / 31f) * 255);
-
-            // Check if transparent
-            if (Red == 0 && Green == 0 && Blue == 0)
-                Alpha = 0;
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            if (serializer.Mode == SerializerMode.Read)
+            {
+                // Read the color value
+                ushort color16 = serializer.Read<ushort>();
+
+                // Extract the bits
+                Alpha = 255;
+                Red = (byte)((BitHelpers.ExtractBits(color16, 5, 0) / 31f) * 255);
+                Green = (byte)((BitHelpers.ExtractBits(color16, 5, 5) / 31f) * 255);
+                Blue = (byte)((BitHelpers.ExtractBits(color16, 5, 10) / 31f) * 255);
+
+                // Check if transparent
+                if (Red == 0 && Green == 0 && Blue == 0)
+                    Alpha = 0;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

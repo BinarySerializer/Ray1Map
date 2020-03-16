@@ -1,18 +1,12 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Defines a serializable file
+    /// Defines a serializable data type
     /// </summary>
     public interface IBinarySerializable
     {
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        void Deserialize(BinaryDeserializer deserializer);
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         void Serialize(BinarySerializer serializer);

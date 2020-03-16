@@ -25,29 +25,16 @@
         public byte[] Unknown2 { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            Unknown1 = deserializer.Read<uint>();
-            Layer = deserializer.Read<byte>();
-            Width = deserializer.Read<byte>();
-            Height = deserializer.Read<byte>();
-            Unknown2 = deserializer.ReadArray<byte>(13);
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            serializer.Write(Unknown1);
-            serializer.Write(Layer);
-            serializer.Write(Width);
-            serializer.Write(Height);
-            serializer.Write(Unknown2);
+            serializer.Serialize(nameof(Unknown1));
+            serializer.Serialize(nameof(Layer));
+            serializer.Serialize(nameof(Width));
+            serializer.Serialize(nameof(Height));
+            serializer.SerializeArray<byte>(nameof(Unknown2), 13);
         }
     }
 }

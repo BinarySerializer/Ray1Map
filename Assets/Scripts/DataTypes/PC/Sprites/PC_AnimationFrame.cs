@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Animation frame data for PC
@@ -31,24 +28,15 @@ namespace R1Engine
         public byte Height { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            XPosition = deserializer.Read<byte>();
-            YPosition = deserializer.Read<byte>();
-            Width = deserializer.Read<byte>();
-            Height = deserializer.Read<byte>();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            serializer.Serialize(nameof(XPosition));
+            serializer.Serialize(nameof(YPosition));
+            serializer.Serialize(nameof(Width));
+            serializer.Serialize(nameof(Height));
         }
     }
 }

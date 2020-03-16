@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Map tile data for the Mapper
@@ -18,22 +16,17 @@ namespace R1Engine
         public TileCollisionType CollisionType { get; set; }
 
         /// <summary>
-        /// Deserializes the file contents
-        /// </summary>
-        /// <param name="deserializer">The deserializer</param>
-        public void Deserialize(BinaryDeserializer deserializer)
-        {
-            TileIndex = deserializer.Read<ushort>();
-            CollisionType = (TileCollisionType)deserializer.Read<ushort>();
-        }
-
-        /// <summary>
-        /// Serializes the file contents
+        /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public void Serialize(BinarySerializer serializer)
         {
-            throw new NotImplementedException();
+            serializer.Serialize(nameof(TileIndex));
+
+            if (serializer.Mode == SerializerMode.Read)
+                CollisionType = (TileCollisionType)serializer.Read<ushort>();
+            else
+                serializer.Write((ushort)CollisionType);
         }
     }
 }
