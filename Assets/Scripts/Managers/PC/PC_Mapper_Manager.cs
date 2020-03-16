@@ -15,13 +15,20 @@ namespace R1Engine
     {
         #region Values and paths
 
-        // TODO: Only works for custom levels - not original ones
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"MAP{settings.Level}");
+        public override string GetLevelFilePath(GameSettings settings)
+        {
+            var custom = Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"MAP{settings.Level}");
+
+            if (Directory.Exists(custom))
+                return custom;
+
+            return Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"MAP_{settings.Level}");
+        }
 
         /// <summary>
         /// Gets the file path for the PCX tile map
@@ -35,7 +42,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateDirectories(Path.Combine(settings.GameDirectory, GetWorldName(settings.World)), "MAP???", SearchOption.TopDirectoryOnly).Where(x => !x.Contains('_')).Select(x => Int32.Parse(Path.GetFileName(x).Substring(3))).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateDirectories(Path.Combine(settings.GameDirectory, GetWorldName(settings.World)), "MAP???", SearchOption.TopDirectoryOnly).Select(x => Int32.Parse(Path.GetFileName(x).Replace("_", String.Empty).Substring(3))).ToArray();
 
         #endregion
 
