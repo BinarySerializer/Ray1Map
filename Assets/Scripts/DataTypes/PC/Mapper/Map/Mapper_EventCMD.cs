@@ -69,7 +69,7 @@ namespace R1Engine
                     if (eventManifestItem.Name != "always")
                     {
                         eventManifestItem.Unk1 = Int32.Parse(parser.NextValue());
-                        eventManifestItem.Unk2 = Int32.Parse(parser.NextValue());
+                        eventManifestItem.LinkID = Int32.Parse(parser.NextValue());
                     }
 
                     eventManifestItem.Etat = UInt32.Parse(parser.NextValue());

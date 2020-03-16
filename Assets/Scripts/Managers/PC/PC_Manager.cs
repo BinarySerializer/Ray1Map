@@ -359,7 +359,7 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="processedImageData">The processed image data to use</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(PC_ImageDescriptor s, ARGBColor[] palette, byte[] processedImageData)
+        public Texture2D GetSpriteTexture(PC_ImageDescriptor s, IList<ARGBColor> palette, byte[] processedImageData)
         {
             // Get the image properties
             var width = s.OuterWidth;
@@ -561,7 +561,7 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The ETA</returns>
-        public async Task<PC_Eta[][][]> LoadSpritesAsync(GameSettings settings, ARGBColor[] palette, List<Common_Design> eventDesigns)
+        public async Task<PC_Eta[][][]> LoadSpritesAsync(GameSettings settings, IList<ARGBColor> palette, List<Common_Design> eventDesigns)
         {
             Controller.status = $"Loading allfix";
 

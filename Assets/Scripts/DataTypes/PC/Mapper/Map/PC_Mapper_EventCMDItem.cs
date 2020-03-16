@@ -19,8 +19,7 @@
 
         public int Unk1 { get; set; }
         
-        // Link ID?
-        public int Unk2 { get; set; }
+        public int LinkID { get; set; }
 
         public uint Etat { get; set; }
 

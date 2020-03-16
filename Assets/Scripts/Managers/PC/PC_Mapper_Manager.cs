@@ -104,7 +104,7 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            // TODO: Better way to get this - same as PCX?
+            // TODO: Better way to get this
             var dummySettings = new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], settings.World);
             var palette = FileFactory.Read<PC_LevFile>(new PC_RD_Manager().GetLevelFilePath(dummySettings), dummySettings).ColorPalettes.First();
 
@@ -148,7 +148,7 @@ namespace R1Engine
                     var etaItem = eventInfo.ETA == -1 ? null : eta[eventInfo.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == eventInfo.SubEtat);
                     int animIndex = etaItem?.AnimationIndex ?? 0;
                     int animSpeed = etaItem?.AnimationSpeed ?? 0;
-
+                    
                     // Instantiate event prefab using LevelEventController
                     var ee = Controller.obj.levelEventController.AddEvent(eventInfo,
                         (uint)e.XPosition,
