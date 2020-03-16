@@ -11,7 +11,7 @@ namespace R1Engine
     {
         #region Constructor
 
-        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, string desFileName, int eta, string etaFileName, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands)
+        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
         {
             Name = name;
             MapperID = mapperId;
@@ -21,9 +21,7 @@ namespace R1Engine
             SubEtat = subEtat;
             Flag = flag;
             DES = des;
-            DESFileName = desFileName;
             ETA = eta;
-            ETAFileName = etaFileName;
             OffsetBX = offsetBx;
             OffsetBY = offsetBy;
             OffsetHY = offsetHy;
@@ -34,6 +32,7 @@ namespace R1Engine
             ConnectedEvents = connectedEvents ?? new string[0];
             LabelOffsets = labelOffsets ?? new ushort[0];
             Commands = commands ?? new byte[0];
+            LocalCommands = localCommands ?? new byte[0];
         }
 
         #endregion
@@ -56,11 +55,7 @@ namespace R1Engine
 
         public int DES { get; }
 
-        public string DESFileName { get; }
-
         public int ETA { get; }
-
-        public string ETAFileName { get; }
 
         public int OffsetBX { get; }
 
@@ -81,6 +76,8 @@ namespace R1Engine
         public ushort[] LabelOffsets { get; }
 
         public byte[] Commands { get; }
+
+        public byte[] LocalCommands { get; }
 
         #endregion
 

@@ -29,8 +29,6 @@ namespace R1Engine
                     new GameModeSelection[]
                     {
                         GameModeSelection.RaymanDesignerPC,
-                        GameModeSelection.RaymanByHisFansPC,
-                        GameModeSelection.Rayman60LevelsPC,
                     }
                 },
                 {
@@ -41,6 +39,10 @@ namespace R1Engine
                     }
                 },
             };
+
+            // Get the Designer DES and ETA names
+            var kitDESNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x => new PC_RD_Manager().GetDESNames(new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], x)).ToArray());
+            var kitETANames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x => new PC_RD_Manager().GetETANames(new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], x)).ToArray());
 
             foreach (var mode in modes)
             {
@@ -85,7 +87,7 @@ namespace R1Engine
                             writer.Write(Environment.NewLine);
                         }
 
-                        WriteLine("Name", "MapperID", "World", "Type", "Etat", "SubEtat", "Flag", "DES", "DESFileName", "ETA", "ETAFileName", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "ConnectedEvents", "LabelOffsets", "Commands");
+                        WriteLine("Name", "MapperID", "World", "Type", "Etat", "SubEtat", "Flag", "DES", "ETA", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "ConnectedEvents", "LabelOffsets", "Commands", "LocalCommands");
 
                         var events = new List<GeneralEventInfoData>();
 
@@ -153,7 +155,7 @@ namespace R1Engine
                                         }
 
                                         // Create the event info data
-                                        GeneralEventInfoData eventData = new GeneralEventInfoData(String.Empty, null, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, null, (int)e.ETA, null, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, null, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode);
+                                        GeneralEventInfoData eventData = new GeneralEventInfoData(String.Empty, null, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, null, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode, null);
 
                                         eventIndex++;
 
@@ -186,18 +188,57 @@ namespace R1Engine
                                         // Get the localized name
                                         var locName = eventLoc.FindItem(x => x.LocKey == e.Name)?.Name;
 
-                                        // Create the event info data
-                                        GeneralEventInfoData eventData = new GeneralEventInfoData(locName, e.Name, null, type, (int)e.Etat, subEtat, e.DesignerGroup == -1 ? (EventFlag?)EventFlag.Always : null, -1, e.DESFile, -1, e.ETAFile, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled != 0, e.IfCommand?.Select(x => eventLoc.FindItem(y => y.LocKey == x)?.Name ?? x).ToArray(), new ushort[0], e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
+                                        // Get the DES index
+                                        var desIndex = kitDESNames[world].FindItemIndex(x => x == e.DESFile + ".DES");
 
-                                        if (!events.Any(x => x.Flag != EventFlag.Always && !String.IsNullOrWhiteSpace(x.MapperID) && x.MapperID == eventData.MapperID))
-                                            events.Add(eventData);
+                                        // Get the ETA index
+                                        var etaIndex = kitETANames[world].FindItemIndex(x => x == e.ETAFile);
+
+                                        if (desIndex != -1)
+                                            desIndex += 1;
+
+                                        EventWorld world2;
+
+                                        if (desIndex <= allfixDesCount)
+                                            world2 = EventWorld.All;
+                                        else
+                                        {
+                                            switch (world)
+                                            {
+                                                case World.Jungle:
+                                                    world2 = EventWorld.Jungle;
+                                                    break;
+                                                case World.Music:
+                                                    world2 = EventWorld.Music;
+                                                    break;
+                                                case World.Mountain:
+                                                    world2 = EventWorld.Mountain;
+                                                    break;
+                                                case World.Image:
+                                                    world2 = EventWorld.Image;
+                                                    break;
+                                                case World.Cave:
+                                                    world2 = EventWorld.Cave;
+                                                    break;
+                                                case World.Cake:
+                                                    world2 = EventWorld.Cake;
+                                                    break;
+                                                default:
+                                                    throw new ArgumentOutOfRangeException();
+                                            }
+                                        }
+
+                                        // Create the event info data
+                                        GeneralEventInfoData eventData = new GeneralEventInfoData(locName, e.Name, world2, type, (int)e.Etat, subEtat, e.DesignerGroup == -1 ? (EventFlag?)EventFlag.Always : null, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled != 0, e.IfCommand?.Select(x => eventLoc.FindItem(y => y.LocKey == x)?.Name ?? x).ToArray(), null, null, e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
+
+                                        events.Add(eventData);
                                     }
                                 }
                             }
                         }
                         foreach (var e in events.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat))
                         {
-                            WriteLine(e.Name, e.MapperID, e.World, e.Type, e.Etat, e.SubEtat, e.Flag, e.DES, e.DESFileName, e.ETA, e.ETAFileName, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.ConnectedEvents, e.LabelOffsets, e.Commands);
+                            WriteLine(e.Name, e.MapperID, e.World, e.Type, e.Etat, e.SubEtat, e.Flag, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.ConnectedEvents, e.LabelOffsets, e.Commands, e.LocalCommands);
                         }
                     }
                 }
@@ -284,7 +325,7 @@ namespace R1Engine
                         string[] nextStringArrayValue() => nextValue().Split('/').Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
 
                         // Add the item to the output
-                        output.Add(new GeneralEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextValue(), nextIntValue(), nextValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue()));
+                        output.Add(new GeneralEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
                     }
 
                     // Return the output
@@ -292,8 +333,6 @@ namespace R1Engine
                 }
             }
         }
-
-        // TODO: There might be some issues with creating the dummy values as some values are lost - verify?
 
         /// <summary>
         /// Gets the event info data which matches the specified values for a PC event
@@ -369,7 +408,7 @@ namespace R1Engine
                 if (allInfo.Any())
                     Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
                 
-                match = new GeneralEventInfoData(null, null, eventWorld, type, etat, subEtat, null, des, null, eta, null, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, labelOffsets, commands);
+                match = new GeneralEventInfoData(null, null, eventWorld, type, etat, subEtat, null, des, eta, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, labelOffsets, commands, null);
             }
 
             // Return the item
@@ -384,8 +423,8 @@ namespace R1Engine
         /// <param name="type"></param>
         /// <param name="etat"></param>
         /// <param name="subEtat"></param>
-        /// <param name="desFile"></param>
-        /// <param name="etaFile"></param>
+        /// <param name="des"></param>
+        /// <param name="eta"></param>
         /// <param name="offsetBx"></param>
         /// <param name="offsetBy"></param>
         /// <param name="offsetHy"></param>
@@ -393,9 +432,10 @@ namespace R1Engine
         /// <param name="hitPoints"></param>
         /// <param name="hitSprite"></param>
         /// <param name="followEnabled"></param>
+        /// <param name="localCommands"></param>
         /// <param name="mapperID"></param>
         /// <returns>The item which matches the values</returns>
-        public static GeneralEventInfoData GetMapperEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, string desFile, string etaFile, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string mapperID)
+        public static GeneralEventInfoData GetMapperEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, byte[] localCommands, string mapperID)
         {
             // Load the event info
             var allInfo = LoadEventInfo(mode);
@@ -431,8 +471,8 @@ namespace R1Engine
                                   x.Type == type &&
                                   x.Etat == etat &&
                                   x.SubEtat == subEtat &&
-                                  x.DESFileName == desFile &&
-                                  x.ETAFileName == etaFile &&
+                                  x.DES == des &&
+                                  x.ETA == eta &&
                                   x.OffsetBX == offsetBx &&
                                   x.OffsetBY == offsetBy &&
                                   x.OffsetHY == offsetHy &&
@@ -440,15 +480,16 @@ namespace R1Engine
                                   x.HitPoints == hitPoints &&
                                   x.HitSprite == hitSprite &&
                                   x.FollowEnabled == followEnabled &&
-                                  x.MapperID == mapperID);
+                                  x.MapperID == mapperID &&
+                                  x.LocalCommands.SequenceEqual(localCommands));
 
             // Create dummy item if not found
             if (match == null)
             {
                 if (allInfo.Any())
                     Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
-                
-                match = new GeneralEventInfoData(null, mapperID, eventWorld, type, etat, subEtat, null, -1, desFile, -1, etaFile, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, null, null);
+
+                match = new GeneralEventInfoData(null, mapperID, eventWorld, type, etat, subEtat, null, des, eta, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, null, null, localCommands);
             }
 
             // Return the item

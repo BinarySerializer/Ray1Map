@@ -137,6 +137,20 @@ namespace R1Engine
                 Debug.Log($"Etat: {e.Etat}, SubEtat: {e.SubEtat}, Speed: {e.AnimationSpeed}");
         }
 
+        /// <summary>
+        /// Gets the DES file names, in order, for the world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The DES file names</returns>
+        public virtual IEnumerable<string> GetDESNames(GameSettings settings) => new string[0];
+
+        /// <summary>
+        /// Gets the ETA file names, in order, for the world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The ETA file names</returns>
+        public virtual IEnumerable<string> GetETANames(GameSettings settings) => new string[0];
+
         #endregion
 
         #region Manager Methods
@@ -148,6 +162,13 @@ namespace R1Engine
         /// <param name="outputDir">The output directory</param>
         public void ExportSpriteTextures(GameSettings settings, string outputDir) 
         {
+            // Get the DES names for every world
+            var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
+            {
+                settings.World = x;
+                return GetDESNames(settings).ToArray();
+            });
+
             // Read the big ray file
             var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
 
@@ -155,10 +176,10 @@ namespace R1Engine
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
 
             // Export the sprite textures
-            ExportSpriteTextures(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0);
+            ExportSpriteTextures(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0, null);
 
             // Export the sprite textures
-            ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, "Allfix"), 0);
+            ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
 
             // Enumerate every world
             foreach (World world in EnumHelpers.GetValues<World>()) 
@@ -176,7 +197,7 @@ namespace R1Engine
                 var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, settings, FileMode);
 
                 // Export the sprite textures
-                ExportSpriteTextures(settings, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount);
+                ExportSpriteTextures(settings, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
             }
         }
 
@@ -187,7 +208,8 @@ namespace R1Engine
         /// <param name="worldFile">The world file</param>
         /// <param name="outputDir">The output directory</param>
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
-        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset) {
+        /// <param name="desNames">The DES names, if available</param>
+        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
@@ -275,8 +297,11 @@ namespace R1Engine
                     if (tex == null)
                         continue;
 
+                    // Get the DES name
+                    var desName = desNames != null ? $" ({desNames[desOffset + i]})" : String.Empty;
+
                     // Write the texture
-                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString().PadLeft(3, '0')}{j.ToString().PadLeft(3, '0')}.png"), tex.EncodeToPNG());
+                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString()}{desName} - {j}.png"), tex.EncodeToPNG());
                 }
             }
         }

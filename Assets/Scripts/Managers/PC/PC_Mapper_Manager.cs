@@ -119,20 +119,30 @@ namespace R1Engine
             // Get the event count
             var eventCount = cmd.SelectMany(x => x.Value.Items).Count();
 
+            // Get the Designer DES and ETA names
+            var kitDESNames = GetDESNames(settings).ToArray();
+            var kitETANames = GetETANames(settings).ToArray();
+
             // Handle each event
             foreach (var c in cmd)
             {
-                // Get the DES file name
-                var desFile = c.Key.Replace(".DES", String.Empty);
-
                 foreach (var e in c.Value.Items)
                 {
                     Controller.status = $"Loading event {index}/{eventCount}";
 
                     await Controller.WaitIfNecessary();
 
+                    // Get the DES index
+                    var desIndex = kitDESNames.FindItemIndex(x => x == c.Key);
+
+                    // Get the ETA index
+                    var etaIndex = kitETANames.FindItemIndex(x => x == e.ETAFile);
+
+                    if (desIndex != -1)
+                        desIndex += 1;
+
                     // Find the matching event info item
-                    var eventInfo = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, desFile, e.ETAFile, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.Name);
+                    var eventInfo = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray(), e.Name);
 
                     // Get animation index from the eta item
                     var etaItem = eventInfo.ETA == -1 ? null : eta[eventInfo.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == eventInfo.SubEtat);
