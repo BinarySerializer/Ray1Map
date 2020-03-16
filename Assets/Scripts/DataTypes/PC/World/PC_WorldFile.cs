@@ -36,6 +36,7 @@ namespace R1Engine
         /// </summary>
         public PC_Eta[][][] Eta { get; set; }
 
+        // Includes file name manifest
         public byte[] Unknown5 { get; set; }
 
         #endregion

@@ -156,6 +156,13 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
+        /// Gets the BigRay color palette, if available
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The color palette or null if not available</returns>
+        protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
+
+        /// <summary>
         /// Exports all sprite textures to the specified output directory
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -176,7 +183,7 @@ namespace R1Engine
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
 
             // Export the sprite textures
-            ExportSpriteTextures(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0, null);
+            ExportSpriteTextures(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(settings));
 
             // Export the sprite textures
             ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
@@ -209,7 +216,8 @@ namespace R1Engine
         /// <param name="outputDir">The output directory</param>
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
-        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames) {
+        /// <param name="palette">Optional palette to use</param>
+        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
@@ -291,7 +299,7 @@ namespace R1Engine
                     }
 
                     // Get the texture
-                    Texture2D tex = GetSpriteTexture(imgDescriptor, lvl.ColorPalettes.First(), processedImageData);
+                    Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
 
                     // Skip if null
                     if (tex == null)
@@ -610,12 +618,18 @@ namespace R1Engine
                 // Sprites
                 foreach (var s in d.ImageDescriptors)
                 {
-
                     // Ignore garbage sprites
                     var isGarbage = s.InnerHeight == 0 || s.InnerWidth == 0;
 
+                    // Get the palette to use
+                    var p = palette;
+
+                    // Use BigRay palette if the last item
+                    if (desIndex == des.Length - 1)
+                        p = GetBigRayPalette(settings) ?? palette;
+
                     // Get the texture
-                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, palette, processedImageData);
+                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, p, processedImageData);
 
                     // Add it to the array
                     finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));

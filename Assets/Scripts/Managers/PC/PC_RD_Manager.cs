@@ -12,6 +12,25 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
+        /// Gets the BigRay color palette, if available
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The color palette or null if not available</returns>
+        protected override IList<ARGBColor> GetBigRayPalette(GameSettings settings)
+        {
+            // Read the PCX file
+            var pcx = FileFactory.Read<PCX>(Path.Combine(settings.GameDirectory, "DATA", "Kitfond.pcx"), settings);
+
+            // Convert the bytes to a palette
+            var palette = new List<ARGBColor>();
+            for (var i = 0; i < pcx.VGAPalette.Length; i += 3)
+                palette.Add(new ARGBColor(pcx.VGAPalette[i + 0], pcx.VGAPalette[i + 1], pcx.VGAPalette[i + 2]));
+
+            // Return the palette
+            return palette;
+        }
+
+        /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
