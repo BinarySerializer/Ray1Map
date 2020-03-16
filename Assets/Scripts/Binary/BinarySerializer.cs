@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -10,7 +11,12 @@ namespace R1Engine
     /// </summary>
     public class BinarySerializer
     {
-        #region Constructor
+        #region Constructors
+
+        static BinarySerializer()
+        {
+            ChecksumCalculators = new Dictionary<string, IChecksumCalculator>();
+        }
 
         /// <summary>
         /// Default constructor
@@ -287,7 +293,8 @@ namespace R1Engine
             var bb = (byte)b;
 
             // Add to the checksum
-            CurrentChecksumCalculator?.AddByte(bb);
+            if (ChecksumCalculators.ContainsKey(FilePath))
+                ChecksumCalculators[FilePath].AddByte(bb);
 
             // Return it
             return bb;
@@ -319,7 +326,8 @@ namespace R1Engine
             }
 
             // Add to the checksum
-            CurrentChecksumCalculator?.AddBytes(buffer);
+            if (ChecksumCalculators.ContainsKey(FilePath))
+                ChecksumCalculators[FilePath].AddBytes(buffer);
 
             // Return the byte buffer
             return buffer;
@@ -357,10 +365,14 @@ namespace R1Engine
             }
         }
 
+        #endregion
+
+        #region Checksum
+
         /// <summary>
-        /// The current checksum calculator
+        /// The current checksum calculators
         /// </summary>
-        protected IChecksumCalculator CurrentChecksumCalculator { get; set; }
+        protected static Dictionary<string, IChecksumCalculator> ChecksumCalculators { get; set; }
 
         /// <summary>
         /// Begins calculating byte checksum for all decrypted bytes read from the stream
@@ -368,7 +380,7 @@ namespace R1Engine
         /// <param name="checksumCalculator">The checksum calculator to use</param>
         public void BeginCalculateChecksum(IChecksumCalculator checksumCalculator)
         {
-            CurrentChecksumCalculator = checksumCalculator;
+            ChecksumCalculators.Add(FilePath, checksumCalculator);
         }
 
         /// <summary>
@@ -378,7 +390,14 @@ namespace R1Engine
         /// <returns>The checksum value</returns>
         public T EndCalculateChecksum<T>()
         {
-            return ((IChecksumCalculator<T>)CurrentChecksumCalculator).ChecksumValue;
+            // Get the calculator
+            var cc = (IChecksumCalculator<T>)ChecksumCalculators[FilePath];
+
+            // Remove the entry
+            ChecksumCalculators.Remove(FilePath);
+
+            // Return the value
+            return cc.ChecksumValue;
         }
 
         #endregion
