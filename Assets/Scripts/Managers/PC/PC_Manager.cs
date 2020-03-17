@@ -160,28 +160,7 @@ namespace R1Engine
 
         #endregion
 
-        #region Manager Methods
-
-        /// <summary>
-        /// Gets the BigRay color palette, if available
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The color palette or null if not available</returns>
-        protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
-
-        /// <summary>
-        /// Exports all vignette textures to the specified output directory
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="outputDir">The output directory</param>
-        public void ExportVignetteTextures(GameSettings settings, string outputDir)
-        {
-            // Get the file path
-            var vigFilePath = GetVignetteFilePath(settings);
-
-            // Extract the file
-            ExtractEncryptedPCX(vigFilePath, outputDir);
-        }
+        #region Texture Methods
 
         /// <summary>
         /// Extracts all found .pcx from an xor encrypted file
@@ -261,7 +240,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(GameSettings settings, string outputDir) 
+        public void ExportSpriteTextures(GameSettings settings, string outputDir)
         {
             // Get the DES names for every world
             var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
@@ -284,7 +263,7 @@ namespace R1Engine
             ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
 
             // Enumerate every world
-            foreach (World world in EnumHelpers.GetValues<World>()) 
+            foreach (World world in EnumHelpers.GetValues<World>())
             {
                 // Set the world
                 settings.World = world;
@@ -312,14 +291,16 @@ namespace R1Engine
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
         /// <param name="palette">Optional palette to use</param>
-        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null) {
+        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null)
+        {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(settings)) {
+            foreach (var i in GetLevels(settings))
+            {
                 // Set the level number
                 settings.Level = i;
 
@@ -328,73 +309,14 @@ namespace R1Engine
             }
 
             // Enumerate each sprite group
-            for (int i = 0; i < worldFile.DesItems.Length; i++) {
-                bool foundForSpriteGroup = false;
-                var defaultPalette = levels.First();
-
-                Beginning:
-
-                // Get the sprite group
-                var desItem = worldFile.DesItems[i];
-
-                // Process the image data
-                var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
+            for (int i = 0; i < worldFile.DesItems.Length; i++)
+            {
+                int index = -1;
 
                 // Enumerate each image
-                for (int j = 0; j < desItem.ImageDescriptors.Length; j++) {
-                    // Get the image descriptor
-                    var imgDescriptor = desItem.ImageDescriptors[j];
-
-                    // Ignore garbage sprites
-                    if (imgDescriptor.InnerHeight == 0 || imgDescriptor.InnerWidth == 0)
-                        continue;
-
-                    // Default to the first level
-                    var lvl = defaultPalette;
-
-                    bool foundCorrectPalette = false;
-
-                    // Check all matching animation descriptor
-                    foreach (var animDesc in desItem.AnimationDescriptors.Where(x => x.Layers.Any(y => y.ImageIndex == j)).Select(x => desItem.AnimationDescriptors.FindItemIndex(y => y == x)))
-                    {
-                        // Check all ETA's where it appears
-                        foreach (var eta in worldFile.Eta.SelectMany(x => x).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
-                        {
-                            // Attempt to find the level where it appears
-                            var lvlMatch = levels.FindLast(x => x.Events.Any(y =>
-                                y.DES == desOffset + 1 + i &&
-                                y.Etat == eta.Etat &&
-                                y.SubEtat == eta.SubEtat &&
-                                y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
-
-                            if (lvlMatch != null)
-                            {
-                                lvl = lvlMatch;
-                                foundCorrectPalette = true;
-
-                                if (!foundForSpriteGroup)
-                                {
-                                    foundForSpriteGroup = true;
-                                    defaultPalette = lvlMatch;
-                                    goto Beginning;
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check background DES
-                    if (!foundCorrectPalette)
-                    {
-                        var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
-
-                        if (lvlMatch != null)
-                            lvl = lvlMatch;
-                    }
-
-                    // Get the texture
-                    Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
+                foreach (var tex in GetSpriteTextures(levels, worldFile.DesItems[i], worldFile, desOffset + 1 + i, palette))
+                {
+                    index++;
 
                     // Skip if null
                     if (tex == null)
@@ -404,7 +326,342 @@ namespace R1Engine
                     var desName = desNames != null ? $" ({desNames[desOffset + i]})" : String.Empty;
 
                     // Write the texture
-                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString()}{desName} - {j}.png"), tex.EncodeToPNG());
+                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString()}{desName} - {index}.png"), tex.EncodeToPNG());
+                }
+            }
+        }
+
+        public Texture2D[] GetSpriteTextures(List<PC_LevFile> levels, PC_DesItem desItem, PC_WorldFile worldFile, int desIndex, IList<ARGBColor> palette = null)
+        {
+            // Create the output array
+            var output = new Texture2D[desItem.ImageDescriptors.Length];
+
+            bool foundForSpriteGroup = false;
+            var defaultPalette = levels.First();
+
+            Beginning:
+
+            // Process the image data
+            var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
+
+            // Enumerate each image
+            for (int i = 0; i < desItem.ImageDescriptors.Length; i++)
+            {
+                // Get the image descriptor
+                var imgDescriptor = desItem.ImageDescriptors[i];
+
+                // Ignore garbage sprites
+                if (imgDescriptor.InnerHeight == 0 || imgDescriptor.InnerWidth == 0)
+                    continue;
+
+                // Default to the first level
+                var lvl = defaultPalette;
+
+                bool foundCorrectPalette = false;
+
+                // Check all matching animation descriptor
+                foreach (var animDesc in desItem.AnimationDescriptors.Where(x => x.Layers.Any(y => y.ImageIndex == i)).Select(x => desItem.AnimationDescriptors.FindItemIndex(y => y == x)))
+                {
+                    // Check all ETA's where it appears
+                    foreach (var eta in worldFile.Eta.SelectMany(x => x).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
+                    {
+                        // Attempt to find the level where it appears
+                        var lvlMatch = levels.FindLast(x => x.Events.Any(y =>
+                            y.DES == desIndex &&
+                            y.Etat == eta.Etat &&
+                            y.SubEtat == eta.SubEtat &&
+                            y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
+
+                        if (lvlMatch != null)
+                        {
+                            lvl = lvlMatch;
+                            foundCorrectPalette = true;
+
+                            if (!foundForSpriteGroup)
+                            {
+                                foundForSpriteGroup = true;
+                                defaultPalette = lvlMatch;
+                                goto Beginning;
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                // Check background DES
+                if (!foundCorrectPalette)
+                {
+                    var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desIndex);
+
+                    if (lvlMatch != null)
+                        lvl = lvlMatch;
+                }
+
+                // Get the texture
+                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
+
+                // Set the texture
+                output[i] = tex;
+            }
+
+            // Return the output
+            return output;
+        }
+
+        /// <summary>
+        /// Exports all animation frames to the specified directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The directory to export to</param>
+        public void ExportAnimationFrames(GameSettings settings, string outputDir)
+        {
+            // Get the DES names for every world
+            var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
+            {
+                settings.World = x;
+                var a = GetDESNames(settings).ToArray();
+                return a.Any() ? a : null;
+            });
+
+            // Read the big ray file
+            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
+
+            // Read the allfix file
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
+
+            // Export the sprite textures
+            // TODO: Temp commented out for testing
+            //ExportAnimationFrames(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(settings));
+
+            // Export the sprite textures
+            ExportAnimationFrames(settings, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
+            
+            // TODO: Temp return for testing
+            return;
+
+            // Enumerate every world
+            foreach (World world in EnumHelpers.GetValues<World>())
+            {
+                // Set the world
+                settings.World = world;
+
+                // Get the world file path
+                var worldPath = GetWorldFilePath(settings);
+
+                if (!File.Exists(worldPath))
+                    continue;
+
+                // Read the world file
+                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, settings, FileMode);
+
+                // Export the sprite textures
+                ExportAnimationFrames(settings, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
+            }
+        }
+
+        /// <summary>
+        /// Exports the animation frames
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="worldFile">The world file to export from</param>
+        /// <param name="outputDir">The directory to export to</param>
+        /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
+        /// <param name="desNames">The DES names, if available</param>
+        /// <param name="palette">Optional palette to use</param>
+        public void ExportAnimationFrames(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null)
+        {
+            // Create the directory
+            Directory.CreateDirectory(outputDir);
+
+            var levels = new List<PC_LevFile>();
+
+            // Load the levels to get the palettes
+            foreach (var i in GetLevels(settings))
+            {
+                // Set the level number
+                settings.Level = i;
+
+                // Load the level
+                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings, FileMode));
+            }
+
+            // Enumerate each sprite group
+            for (int i = 0; i < worldFile.DesItems.Length; i++)
+            {
+                // Get the DES item
+                var des = worldFile.DesItems[i];
+
+                // Get the DES index
+                var desIndex = desOffset + 1 + i;
+
+                // Get the textures
+                var textures = GetSpriteTextures(levels, des, worldFile, desIndex, palette);
+
+                // Get the DES name
+                var desName = desNames != null ? $" ({desNames[desIndex - 1]})" : String.Empty;
+
+                // Get the folder
+                var desFolderPath = Path.Combine(outputDir, $"{i}{desName}");
+
+                PC_Eta prevEta = new PC_Eta()
+                {
+                    AnimationSpeed = 4
+                };
+
+                // Enumerate the animations
+                for (var j = 0; j < des.AnimationDescriptors.Length; j++)
+                {
+                    // Get the animation descriptor
+                    var anim = des.AnimationDescriptors[j];
+
+                    PC_Eta eta = null;
+
+                    IEnumerable<PC_Eta> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].SelectMany(x => x).Where(x => x.AnimationIndex == j);
+
+                    // Attempt to find a perfect match
+                    for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
+                    {
+                        if (eta != null)
+                            break;
+
+                        foreach (var etaMatch in GetEtaMatches(etaIndex))
+                        {
+                            // Check if it's a perfect match
+                            if (levels.SelectMany(x => x.Events).Any(x => x.DES == desIndex &&
+                                                                          x.ETA == etaIndex &&
+                                                                          x.Etat == etaMatch.Etat &&
+                                                                          x.SubEtat == etaMatch.SubEtat))
+                            {
+                                eta = etaMatch;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (eta == null)
+                    {
+                        // Attempt to find a semi-perfect match
+                        for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
+                        {
+                            if (eta != null)
+                                break;
+
+                            foreach (var etaMatch in GetEtaMatches(etaIndex))
+                            {
+                                // Check if it's a semi-perfect match
+                                if (levels.SelectMany(x => x.Events).Any(x => x.DES == desIndex && x.ETA == etaIndex))
+                                {
+                                    eta = etaMatch;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (eta == null)
+                        {
+                            // Attempt to find a any match
+                            for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
+                            {
+                                if (eta != null)
+                                    break;
+
+                                // Use first eta match
+                                eta = GetEtaMatches(etaIndex).FirstOrDefault();
+                            }
+
+                            if (eta == null)
+                            {
+                                // Use previous eta
+                                eta = prevEta;
+                            }
+                        }
+                    }
+
+                    // Set the previous eta
+                    prevEta = eta;
+
+                    // Get the folder
+                    var animFolderPath = Path.Combine(desFolderPath, $"{j}-{eta.AnimationSpeed}-{eta.Etat}-{eta.SubEtat}");
+
+                    // Create the directory
+                    Directory.CreateDirectory(animFolderPath);
+
+                    // The layer index
+                    var layer = 0;
+
+                    // Create each animation frame
+                    for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
+                    {
+                        // TODO: Below here doesn't work correctly
+
+                        // Get the frame
+                        var frame = anim.Frames[frameIndex];
+
+                        int maxW = 0;
+                        int maxH = 0;
+
+                        for (var temp = 0; temp < anim.LayersPerFrame; temp++)
+                        {
+                            var al = anim.Layers[layer + temp];
+                            var sp = des.ImageDescriptors[al.ImageIndex];
+
+                            if (sp.OuterWidth > maxW)
+                                maxW = sp.OuterWidth;
+                            if (sp.OuterHeight > maxH)
+                                maxH = sp.OuterHeight;
+                        }
+
+                        Texture2D tex = new Texture2D(frame.Width + maxW + 1, frame.Height + maxH + 1, TextureFormat.RGBA32, false)
+                        {
+                            filterMode = FilterMode.Point
+                        };
+
+                        // Default to fully transparent
+                        for (int y = 0; y < tex.height; y++)
+                        {
+                            for (int x = 0; x < tex.width; x++)
+                            {
+                                tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                            }
+                        }
+
+                        // Write each layer
+                        for (var layerIndex = 0; layerIndex < anim.LayersPerFrame; layerIndex++)
+                        {
+                            var animationLayer = anim.Layers[layer];
+
+                            layer++;
+
+                            // Get the sprite
+                            var sprite = textures[animationLayer.ImageIndex];
+
+                            if (sprite != null)
+                            {
+                                // Set every pixel
+                                for (int y = 0; y < sprite.height; y++)
+                                {
+                                    for (int x = 0; x < sprite.width; x++)
+                                    {
+                                        var c = sprite.GetPixel(x, sprite.height - y - 1);
+
+                                        var xStart = animationLayer.XPosition - frame.XPosition;
+                                        var yStart = animationLayer.YPosition - frame.YPosition;
+                                        var xPosition = xStart + x;
+                                        var yPosition = tex.height - (yStart + y) - 1;
+
+                                        if (c.a != 0)
+                                            tex.SetPixel(xPosition, yPosition, c);
+                                    }
+                                }
+                            }
+                        }
+
+                        tex.Apply();
+
+                        // Save the file
+                        File.WriteAllBytes(Path.Combine(animFolderPath, $"{frameIndex}.png"), tex.EncodeToPNG());
+                    }
                 }
             }
         }
@@ -428,9 +685,9 @@ namespace R1Engine
                 processedData[i] = (byte)(imageData[i] ^ 143);
 
                 // Continue to next if we don't need to do background clearing
-                if (!requiresBackgroundClearing) 
+                if (!requiresBackgroundClearing)
                     continue;
-                
+
                 int num6 = (flag < 255) ? (flag + 1) : 255;
 
                 if (processedData[i] == 161 || processedData[i] == 250)
@@ -521,6 +778,31 @@ namespace R1Engine
 
             // Return the texture
             return tex;
+        }
+
+        #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Gets the BigRay color palette, if available
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The color palette or null if not available</returns>
+        protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
+
+        /// <summary>
+        /// Exports all vignette textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportVignetteTextures(GameSettings settings, string outputDir)
+        {
+            // Get the file path
+            var vigFilePath = GetVignetteFilePath(settings);
+
+            // Extract the file
+            ExtractEncryptedPCX(vigFilePath, outputDir);
         }
 
         /// <summary>
