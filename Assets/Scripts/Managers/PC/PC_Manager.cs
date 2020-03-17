@@ -163,6 +163,79 @@ namespace R1Engine
         protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
 
         /// <summary>
+        /// Extracts all found .pcx from an xor encrypted file
+        /// </summary>
+        /// <param name="filePath">The path of the file to extract from</param>
+        /// <param name="outputDir">The directory to output the files to</param>
+        public void ExtractEncryptedPCX(string filePath, string outputDir)
+        {
+            // Create the directory
+            Directory.CreateDirectory(outputDir);
+
+            // Read the file bytes
+            var originalBytes = File.ReadAllBytes(filePath);
+
+            // Enumerate every possible xor key
+            for (int i = 0; i < 255; i++)
+            {
+                // Create a buffer
+                var buffer = new byte[originalBytes.Length];
+
+                // Decrypt the bytes to the buffer
+                for (int j = 0; j < buffer.Length; j++)
+                    buffer[j] = (byte)(originalBytes[j] ^ i);
+
+                // Enumerate every byte
+                for (int j = 0; j < buffer.Length - 100; j++)
+                {
+                    // Check if a valid PCX header is found
+                    if (buffer[j + 0] != 0x0A || buffer[j + 1] != 0x05 || buffer[j + 2] != 0x01 ||
+                        buffer[j + 3] != 0x08 || buffer[j + 4] != 0x00 || buffer[j + 5] != 0x00 ||
+                        buffer[j + 6] != 0x00 || buffer[j + 7] != 0x00)
+                        continue;
+
+                    // Attempt to read the PCX file
+                    try
+                    {
+                        // Create the PCX data
+                        var pcx = new PCX();
+
+                        // Serialize the data
+                        using (var stream = new MemoryStream(buffer.Skip(j).ToArray()))
+                            pcx.Serialize(new BinarySerializer(SerializerMode.Read, stream, pcx, "", Settings.GetGameSettings));
+
+                        // Convert to a texture
+                        var tex = pcx.ToTexture();
+
+                        // Flip the texture
+                        var flippedTex = new Texture2D(tex.width, tex.height);
+
+                        for (int x = 0; x < tex.width; x++)
+                        {
+                            for (int y = 0; y < tex.height; y++)
+                            {
+                                flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
+                            }
+                        }
+
+                        // Apply the pixels
+                        flippedTex.Apply();
+
+                        // Save the file
+                        File.WriteAllBytes(Path.Combine(outputDir, $"{i} - {j}.png"), flippedTex.EncodeToPNG());
+
+                        Debug.Log("Exported PCX");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Failed to create PCX: {ex.Message}");
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
         /// Exports all sprite textures to the specified output directory
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -173,7 +246,8 @@ namespace R1Engine
             var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
             {
                 settings.World = x;
-                return GetDESNames(settings).ToArray();
+                var a = GetDESNames(settings).ToArray();
+                return a.Any() ? a : null;
             });
 
             // Read the big ray file
