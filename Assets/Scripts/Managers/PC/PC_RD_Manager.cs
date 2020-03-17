@@ -18,8 +18,15 @@ namespace R1Engine
         /// <returns>The color palette or null if not available</returns>
         protected override IList<ARGBColor> GetBigRayPalette(GameSettings settings)
         {
+            // TODO: This file is actually only used by the installer - find way to get the actual PCX from the vignette.dat file
+            // Get the file path
+            var filePath = Path.Combine(settings.GameDirectory, "DATA", "Kitfond.pcx");
+
+            if (!File.Exists(filePath))
+                return null;
+
             // Read the PCX file
-            var pcx = FileFactory.Read<PCX>(Path.Combine(settings.GameDirectory, "DATA", "Kitfond.pcx"), settings);
+            var pcx = FileFactory.Read<PCX>(filePath, settings);
 
             // Convert the bytes to a palette
             var palette = new List<ARGBColor>();
