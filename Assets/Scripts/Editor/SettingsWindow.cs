@@ -120,7 +120,29 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowEditorEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show editor events", Settings.ShowEditorEvents);
 
-		TotalyPos = yPos;
+        // Tools
+
+        DrawHeader(ref yPos, "Tools");
+
+        if (GUI.Button(GetNextRect(ref yPos), "Extract Sprites"))
+        {
+            // Get the output directory
+            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+            if (!string.IsNullOrEmpty(selectedFolder))
+                Settings.GetGameManager.ExportSpriteTextures(Settings.GetGameSettings, selectedFolder);
+        }
+
+        if (GUI.Button(GetNextRect(ref yPos), "Extract Vignette"))
+        {
+            // Get the output directory
+            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+            if (!string.IsNullOrEmpty(selectedFolder))
+                Settings.GetGameManager.ExportVignetteTextures(Settings.GetGameSettings, selectedFolder);
+        }
+
+        TotalyPos = yPos;
 		GUI.EndScrollView();
 
 		if (EditorGUI.EndChangeCheck() || Dirty)

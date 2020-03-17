@@ -28,6 +28,20 @@ namespace R1Engine
         string[] GetEduVolumes(GameSettings settings);
 
         /// <summary>
+        /// Exports all vignette textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        void ExportVignetteTextures(GameSettings settings, string outputDir);
+
+        /// <summary>
+        /// Exports all sprite textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        void ExportSpriteTextures(GameSettings settings, string outputDir);
+
+        /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>

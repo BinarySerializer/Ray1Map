@@ -26,6 +26,13 @@ namespace R1Engine
         public override string GetWorldFilePath(GameSettings settings) => Path.Combine(GetVolumePath(settings), $"RAY{((int)settings.World + 1):00}.WLD");
 
         /// <summary>
+        /// Gets the file path for the vignette file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The vignette file path</returns>
+        public override string GetVignetteFilePath(GameSettings settings) => Path.Combine(GetVolumePath(settings), $"VIGNET.DAT");
+
+        /// <summary>
         /// Gets the volume data path
         /// </summary>
         /// <param name="settings">The game settings</param>

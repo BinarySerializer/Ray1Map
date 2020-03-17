@@ -93,6 +93,20 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
+        /// Exports all vignette textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportVignetteTextures(GameSettings settings, string outputDir) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Exports all sprite textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportSpriteTextures(GameSettings settings, string outputDir) => throw new NotImplementedException();
+
+        /// <summary>
         /// Reads the tile set for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>

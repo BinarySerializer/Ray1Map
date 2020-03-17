@@ -100,6 +100,13 @@ namespace R1Engine
         public virtual string GetBigRayFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"BIGRAY.DAT");
 
         /// <summary>
+        /// Gets the file path for the vignette file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The vignette file path</returns>
+        public abstract string GetVignetteFilePath(GameSettings settings);
+
+        /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -161,6 +168,20 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The color palette or null if not available</returns>
         protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
+
+        /// <summary>
+        /// Exports all vignette textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportVignetteTextures(GameSettings settings, string outputDir)
+        {
+            // Get the file path
+            var vigFilePath = GetVignetteFilePath(settings);
+
+            // Extract the file
+            ExtractEncryptedPCX(vigFilePath, outputDir);
+        }
 
         /// <summary>
         /// Extracts all found .pcx from an xor encrypted file

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 
 namespace R1Engine
@@ -28,6 +29,13 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The big ray file path</returns>
         public override string GetBigRayFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"bray.dat.gz");
+
+        /// <summary>
+        /// Gets the file path for the vignette file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The vignette file path</returns>
+        public override string GetVignetteFilePath(GameSettings settings) => throw new NotImplementedException();
 
         /// <summary>
         /// Gets the file path for the allfix file
