@@ -45,13 +45,30 @@ namespace R1Engine
 
         public void InitializeTilemaps() {
             // Fill out types first
-            foreach(Common_Tile t in Controller.obj.levelController.currentLevel.Tiles) {
+            foreach(Common_Tile t in Controller.obj.levelController.currentLevel.Tiles) 
+            {
+                var collisionTypeIndex = (int)t.CollisionType;
+
                 // Fill out types first
-                if (Settings.UseHDCollisionSheet) {
-                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTilesHD[(int)t.CollisionType]);
+                if (Settings.UseHDCollisionSheet) 
+                {
+                    if (collisionTypeIndex >= TypeCollisionTilesHD.Length)
+                    {
+                        Debug.LogWarning($"Collision type {t.CollisionType} is not supported");
+                        collisionTypeIndex = 0;
+                    }
+
+                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTilesHD[collisionTypeIndex]);
                 }
-                else {
-                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTiles[(int)t.CollisionType]);
+                else 
+                {
+                    if (collisionTypeIndex >= TypeCollisionTiles.Length)
+                    {
+                        Debug.LogWarning($"Collision type {t.CollisionType} is not supported");
+                        collisionTypeIndex = 0;
+                    }
+
+                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTiles[collisionTypeIndex]);
                 }
             }
             // Fill out tiles
