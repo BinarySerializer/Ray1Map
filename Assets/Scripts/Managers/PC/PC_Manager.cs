@@ -598,18 +598,10 @@ namespace R1Engine
                         // Get the frame
                         var frame = anim.Frames[frameIndex];
 
-                        int maxW = 0;
-                        int maxH = 0;
-                        for (var temp = 0; temp < anim.LayersPerFrame; temp++) {
-                            var al = anim.Layers[layer + temp];
-                            var sp = des.ImageDescriptors[al.ImageIndex];
-                            if (sp.OuterWidth > maxW)
-                                maxW = sp.OuterWidth;
-                            if (sp.OuterHeight > maxH)
-                                maxH = sp.OuterHeight;
-                        }
+                        var frameWidth = anim.Frames.Max(x => x.XPosition + x.Width) + 1;
+                        var frameHeight = anim.Frames.Max(x => x.YPosition + x.Height) + 1;
 
-                        Texture2D tex = new Texture2D(frame.XPosition + frame.Width + maxW + 1, frame.YPosition + frame.Height + maxH + 1, TextureFormat.RGBA32, false)
+                        Texture2D tex = new Texture2D(frameWidth, frameHeight, TextureFormat.RGBA32, false)
                         {
                             filterMode = FilterMode.Point
                         };
