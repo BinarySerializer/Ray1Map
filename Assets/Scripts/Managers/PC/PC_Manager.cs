@@ -532,6 +532,7 @@ namespace R1Engine
                         }
                     }
 
+                    // If still null, find semi-perfect match
                     if (speed == null)
                     {
                         // Attempt to find a semi-perfect match
@@ -551,24 +552,9 @@ namespace R1Engine
                             }
                         }
 
+                        // If still null, use previous eta
                         if (speed == null)
-                        {
-                            // Attempt to find a any match
-                            for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
-                            {
-                                if (speed != null)
-                                    break;
-
-                                // Use first eta match
-                                speed = GetEtaMatches(etaIndex).FirstOrDefault()?.AnimationSpeed;
-                            }
-
-                            if (speed == null)
-                            {
-                                // Use previous eta
-                                speed = prevSpeed;
-                            }
-                        }
+                            speed = prevSpeed;
                     }
 
                     // Set the previous eta
@@ -625,7 +611,7 @@ namespace R1Engine
 
                                     var xStart = animationLayer.XPosition;
                                     var yStart = animationLayer.YPosition;
-                                    var xPosition = xStart + x;
+                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + xStart - 1;
                                     var yPosition = -(y + yStart + 1);
 
                                     if (c.a != 0)
