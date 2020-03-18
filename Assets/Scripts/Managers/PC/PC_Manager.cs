@@ -590,6 +590,12 @@ namespace R1Engine
                     // The layer index
                     var layer = 0;
 
+                    var frameWidth = anim.Frames.Max(x => x.XPosition + x.Width) + 1;
+                    var frameHeight = anim.Frames.Max(x => x.YPosition + x.Height) + 1;
+
+                    var marginWidth = anim.Layers.Min(x => x.XPosition);
+                    var marginHeight = anim.Layers.Min(x => frameHeight - x.YPosition - 1);
+
                     // Create each animation frame
                     for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
                     {
@@ -598,10 +604,7 @@ namespace R1Engine
                         // Get the frame
                         var frame = anim.Frames[frameIndex];
 
-                        var frameWidth = anim.Frames.Max(x => x.XPosition + x.Width) + 1;
-                        var frameHeight = anim.Frames.Max(x => x.YPosition + x.Height) + 1;
-
-                        Texture2D tex = new Texture2D(frameWidth, frameHeight, TextureFormat.RGBA32, false)
+                        Texture2D tex = new Texture2D(frameWidth - marginWidth, frameHeight - marginHeight, TextureFormat.RGBA32, false)
                         {
                             filterMode = FilterMode.Point
                         };
@@ -640,7 +643,7 @@ namespace R1Engine
                                         var yPosition = -(y + yStart + 1);
 
                                         if (c.a != 0)
-                                            tex.SetPixel(xPosition, yPosition, c);
+                                            tex.SetPixel(xPosition - marginWidth, yPosition - marginHeight - 1, c);
                                     }
                                 }
                             }
