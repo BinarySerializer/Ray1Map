@@ -431,15 +431,11 @@ namespace R1Engine
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
 
             // Export the sprite textures
-            // TODO: Temp commented out for testing
-            //ExportAnimationFrames(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(settings));
+            ExportAnimationFrames(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(settings));
 
             // Export the sprite textures
             ExportAnimationFrames(settings, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
             
-            // TODO: Temp return for testing
-            return;
-
             // Enumerate every world
             foreach (World world in EnumHelpers.GetValues<World>())
             {
@@ -581,9 +577,6 @@ namespace R1Engine
                     // Get the folder
                     var animFolderPath = Path.Combine(desFolderPath, $"{j}-{speed}");
 
-                    // Create the directory
-                    Directory.CreateDirectory(animFolderPath);
-
                     // The layer index
                     var layer = 0;
 
@@ -614,31 +607,37 @@ namespace R1Engine
 
                             layer++;
 
+                            if (animationLayer.ImageIndex >= textures.Length)
+                                continue;
+
                             // Get the sprite
                             var sprite = textures[animationLayer.ImageIndex];
 
-                            if (sprite != null)
+                            if (sprite == null)
+                                continue;
+                            
+                            // Set every pixel
+                            for (int y = 0; y < sprite.height; y++)
                             {
-                                // Set every pixel
-                                for (int y = 0; y < sprite.height; y++)
+                                for (int x = 0; x < sprite.width; x++)
                                 {
-                                    for (int x = 0; x < sprite.width; x++)
-                                    {
-                                        var c = sprite.GetPixel(x, sprite.height - y - 1);
+                                    var c = sprite.GetPixel(x, sprite.height - y - 1);
 
-                                        var xStart = animationLayer.XPosition;
-                                        var yStart = animationLayer.YPosition;
-                                        var xPosition = xStart + x;
-                                        var yPosition = -(y + yStart + 1);
+                                    var xStart = animationLayer.XPosition;
+                                    var yStart = animationLayer.YPosition;
+                                    var xPosition = xStart + x;
+                                    var yPosition = -(y + yStart + 1);
 
-                                        if (c.a != 0)
-                                            tex.SetPixel(xPosition, yPosition, c);
-                                    }
+                                    if (c.a != 0)
+                                        tex.SetPixel(xPosition, yPosition, c);
                                 }
                             }
                         }
 
                         tex.Apply();
+
+                        // Create the directory
+                        Directory.CreateDirectory(animFolderPath);
 
                         // Save the file
                         File.WriteAllBytes(Path.Combine(animFolderPath, $"{frameIndex}.png"), tex.EncodeToPNG());
