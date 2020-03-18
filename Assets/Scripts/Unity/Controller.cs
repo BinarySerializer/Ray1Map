@@ -53,8 +53,6 @@ namespace R1Engine
 
         async void Start()
         {
-            //new PC_R1_Manager().ExportAnimationFrames(Settings.GetGameSettings, @"E:\RayExports");
-
             stopwatch.Start();
 
             status = "Starting...";

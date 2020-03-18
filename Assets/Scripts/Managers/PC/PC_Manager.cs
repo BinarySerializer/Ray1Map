@@ -314,7 +314,7 @@ namespace R1Engine
                 int index = -1;
 
                 // Enumerate each image
-                foreach (var tex in GetSpriteTextures(levels, worldFile.DesItems[i], worldFile, desOffset + 1 + i, palette))
+                foreach (var tex in GetSpriteTextures(settings, levels, worldFile.DesItems[i], worldFile, desOffset + 1 + i, palette))
                 {
                     index++;
 
@@ -331,7 +331,17 @@ namespace R1Engine
             }
         }
 
-        public Texture2D[] GetSpriteTextures(List<PC_LevFile> levels, PC_DesItem desItem, PC_WorldFile worldFile, int desIndex, IList<ARGBColor> palette = null)
+        /// <summary>
+        /// Gets all sprite textures for a DES item
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="levels">The levels in the world to check for the palette</param>
+        /// <param name="desItem">The DES item</param>
+        /// <param name="worldFile">The world data</param>
+        /// <param name="desIndex">The DES index</param>
+        /// <param name="palette">Optional palette to use</param>
+        /// <returns>The sprite textures</returns>
+        public Texture2D[] GetSpriteTextures(GameSettings settings, List<PC_LevFile> levels, PC_DesItem desItem, PC_WorldFile worldFile, int desIndex, IList<ARGBColor> palette = null)
         {
             // Create the output array
             var output = new Texture2D[desItem.ImageDescriptors.Length];
@@ -397,6 +407,12 @@ namespace R1Engine
                     if (lvlMatch != null)
                         lvl = lvlMatch;
                 }
+
+                // Hard-code palette for certain DES groups
+                if (settings.GameMode == GameMode.RayPC && settings.World == World.Music && desIndex == 16)
+                    lvl = levels[11];
+                else if (settings.GameMode == GameMode.RayPC && settings.World == World.Image && desIndex == 19)
+                    lvl = levels[10];
 
                 // Get the texture
                 Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
@@ -492,7 +508,7 @@ namespace R1Engine
                 var desIndex = desOffset + 1 + i;
 
                 // Get the textures
-                var textures = GetSpriteTextures(levels, des, worldFile, desIndex, palette);
+                var textures = GetSpriteTextures(settings, levels, des, worldFile, desIndex, palette);
 
                 // Get the DES name
                 var desName = desNames != null ? $" ({desNames[desIndex - 1]})" : String.Empty;
@@ -586,6 +602,8 @@ namespace R1Engine
                             }
                         }
 
+                        bool hasLayers = false;
+
                         // Write each layer
                         for (var layerIndex = 0; layerIndex < anim.LayersPerFrame; layerIndex++)
                         {
@@ -611,16 +629,21 @@ namespace R1Engine
 
                                     var xStart = animationLayer.XPosition;
                                     var yStart = animationLayer.YPosition;
-                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + xStart - 1;
+                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + xStart;
                                     var yPosition = -(y + yStart + 1);
 
                                     if (c.a != 0)
                                         tex.SetPixel(xPosition, yPosition, c);
                                 }
                             }
+
+                            hasLayers = true;
                         }
 
                         tex.Apply();
+
+                        if (!hasLayers)
+                            continue;
 
                         // Create the directory
                         Directory.CreateDirectory(animFolderPath);

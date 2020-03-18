@@ -142,6 +142,15 @@ public class SettingsWindow : UnityWindow
                 Settings.GetGameManager.ExportVignetteTextures(Settings.GetGameSettings, selectedFolder);
         }
 
+        if (GUI.Button(GetNextRect(ref yPos), "Extract Animation Frames"))
+        {
+            // Get the output directory
+            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+            if (!string.IsNullOrEmpty(selectedFolder))
+                Settings.GetGameManager.ExportAnimationFrames(Settings.GetGameSettings, selectedFolder);
+        }
+
         TotalyPos = yPos;
 		GUI.EndScrollView();
 

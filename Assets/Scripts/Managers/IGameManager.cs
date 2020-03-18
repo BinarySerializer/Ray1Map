@@ -42,6 +42,13 @@ namespace R1Engine
         void ExportSpriteTextures(GameSettings settings, string outputDir);
 
         /// <summary>
+        /// Exports all animation frames to the specified directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The directory to export to</param>
+        void ExportAnimationFrames(GameSettings settings, string outputDir);
+
+        /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>

@@ -107,6 +107,13 @@ namespace R1Engine
         public void ExportSpriteTextures(GameSettings settings, string outputDir) => throw new NotImplementedException();
 
         /// <summary>
+        /// Exports all animation frames to the specified directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The directory to export to</param>
+        public void ExportAnimationFrames(GameSettings settings, string outputDir) => throw new NotImplementedException();
+
+        /// <summary>
         /// Reads the tile set for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
