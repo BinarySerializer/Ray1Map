@@ -1093,7 +1093,8 @@ namespace R1Engine
                 int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetPCEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
+                var ee = Controller.obj.levelEventController.AddEvent(
+                    EventInfoManager.GetPCEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
                     e.XPosition,
                     e.YPosition,
                     levelData.EventLinkingTable[index],
@@ -1296,9 +1297,9 @@ namespace R1Engine
                 // Create the event
                 var r1Event = new PC_Event
                 {
-                    DES = e.Des,
-                    DES2 = e.Des,
-                    DES3 = e.Des,
+                    DES = (uint)e.EventInfoData.DES,
+                    DES2 = (uint)e.EventInfoData.DES,
+                    DES3 = (uint)e.EventInfoData.DES,
                     ETA = (uint)e.EventInfoData.ETA,
                     Unknown1 = 0,
                     Unknown2 = 0,

@@ -53,7 +53,7 @@ namespace R1Engine
 
         public EventFlag? Flag { get; }
 
-        public int DES { get; }
+        public int DES { get; set; }
 
         public int ETA { get; }
 

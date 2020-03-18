@@ -117,7 +117,7 @@ namespace R1Engine {
         }
 
         void Update() {
-
+            /*
             // Get the tile under the mouse
             mouseTile = lvlController.controllerTilemap.GetMouseTile();
 
@@ -175,9 +175,6 @@ namespace R1Engine {
                 dragging = false;
             }
 
-
-
-            /*
             switch (mode) {
 
                 // =============== Tiles EDITING ===============

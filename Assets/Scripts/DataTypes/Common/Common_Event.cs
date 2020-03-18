@@ -53,12 +53,6 @@ namespace R1Engine
         public int LinkID;
 
         /// <summary>
-        /// DES
-        /// </summary>
-        public uint Des;
-        private uint DesOld;
-
-        /// <summary>
         /// Animation speed
         /// </summary>
         public int Speed;
@@ -67,7 +61,9 @@ namespace R1Engine
         /// The animation index to use
         /// </summary>
         public int AnimationIndex;
-        private int AnimationIndexOld;
+
+        private int desOld;
+        private int animationIndexOld;
 
         /// <summary>
         /// The current animation of this event
@@ -96,7 +92,7 @@ namespace R1Engine
             // Set display name for this prefab
             name = DisplayName(Settings.World);
 
-            ChangeAppearance(Des, AnimationIndex);
+            ChangeAppearance(EventInfoData.DES, AnimationIndex);
         }
 
         void Update()
@@ -106,32 +102,32 @@ namespace R1Engine
                 return;
 
             // Change appearance on the fly
-            if (Des!=DesOld || AnimationIndexOld != AnimationIndex) {
-                if (Des<1) {
+            if (EventInfoData.DES != desOld || animationIndexOld != AnimationIndex) {
+                if (EventInfoData.DES < 1) {
                     Debug.LogWarning("Trying to set an out of range DES");
-                    Des = 1;
-                    DesOld = 1;
-                }else if(Des > Controller.obj.levelController.eventDesigns.Count) {
+                    EventInfoData.DES = 1;
+                    desOld = 1;
+                }else if(EventInfoData.DES > Controller.obj.levelController.eventDesigns.Count) {
                     Debug.LogWarning("Trying to set an out of range DES");
-                    Des = (uint)Controller.obj.levelController.eventDesigns.Count;
-                    DesOld = (uint)Controller.obj.levelController.eventDesigns.Count;
+                    EventInfoData.DES = Controller.obj.levelController.eventDesigns.Count;
+                    desOld = Controller.obj.levelController.eventDesigns.Count;
                 }
                 else if (AnimationIndex<0) {
                     Debug.LogWarning("Trying to set an out of range AnimationIndex");
                     AnimationIndex = 0;
-                    AnimationIndexOld = 0;
-                }else if(AnimationIndex > Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count-1) {
+                    animationIndexOld = 0;
+                }else if(AnimationIndex > Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count-1) {
                     Debug.LogWarning("Trying to set an out of range AnimationIndex");
-                    if (Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count == 0) {
+                    if (Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count == 0) {
                         AnimationIndex = 0;
-                        AnimationIndexOld = 0;
+                        animationIndexOld = 0;
                     }
                     else {
-                        AnimationIndex = Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count - 1;
-                        AnimationIndexOld = Controller.obj.levelController.eventDesigns[(int)Des - 1].Animations.Count - 1;
+                        AnimationIndex = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count - 1;
+                        animationIndexOld = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count - 1;
                     }
                 }
-                ChangeAppearance(Des, AnimationIndex);
+                ChangeAppearance(EventInfoData.DES, AnimationIndex);
             }
 
             // Update Event's x and y here
@@ -167,11 +163,11 @@ namespace R1Engine
         }
 
         // Change des and everything
-        private void ChangeAppearance(uint newDes, int newAnimation) {
-            Des = newDes;
+        private void ChangeAppearance(int newDes, int newAnimation) {
+            EventInfoData.DES = newDes;
             AnimationIndex = newAnimation;
-            DesOld = newDes;
-            AnimationIndexOld = AnimationIndex;
+            desOld = newDes;
+            animationIndexOld = AnimationIndex;
 
             // Change to new animation
             ChangeAnimation(AnimationIndex);
@@ -187,7 +183,7 @@ namespace R1Engine
         // Try to load a new animation and change to it
         private void ChangeAnimation(int newAnim) {
 
-            var desIndex = (int)Des - 1;
+            var desIndex = EventInfoData.DES - 1;
 
             if (desIndex < 0)
             {
@@ -238,8 +234,8 @@ namespace R1Engine
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     var frame = CurrentAnimation.Frames[0, i];
                     //Skips sprites out of bounds
-                    if (CurrentAnimation.Frames[0, i].SpriteIndex < Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites.Count) {
-                        var sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
+                    if (CurrentAnimation.Frames[0, i].SpriteIndex < Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites.Count) {
+                        var sprite = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
                         if (sprite != null) {
                             if (frame.X < leftX || i == 0)
                                 leftX = frame.X;
@@ -263,11 +259,11 @@ namespace R1Engine
             if (CurrentAnimation != null) {
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     //Skips sprites out of bounds
-                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites.Count) {
+                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites.Count) {
                         prefabRendereds[i].sprite = null;
                     }
                     else {
-                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                     }
                     prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 

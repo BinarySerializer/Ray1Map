@@ -4,11 +4,32 @@ using UnityEngine.UI;
 namespace R1Engine
 {
     public class LevelEventController : MonoBehaviour {
-
+        // Prefabs
         public GameObject eventParent;
         public GameObject prefabEvent;
 
-        public Dropdown eventDropdown;
+        public Editor editor;
+        public Common_Event currentlySelected;
+
+        // Event info things for the ui
+        public GameObject eventInfoWindow;
+        public Text eventInfoName;
+        public InputField eventInfoX;
+        public InputField eventInfoY;
+        public InputField eventInfoDes;
+        public InputField eventInfoEta;
+        public InputField eventInfoEtat;
+        public InputField eventInfoSubEtat;
+        public InputField eventInfoOffsetBx;
+        public InputField eventInfoOffsetBy;
+        public InputField eventInfoOffsetHy;
+        public InputField eventInfoFollowSprite;
+        public InputField eventInfoHitPoints;
+        public InputField eventInfoHitSprite;
+        public InputField eventInfoFollow;
+        public InputField eventInfoType;
+
+        //public Dropdown eventDropdown;
 
         public bool areLinksVisible = false;
 
@@ -52,6 +73,52 @@ namespace R1Engine
             //eventDropdown.value = 0;
         }
 
+        private void Update() {
+            //Only do this if in event mode
+            if (editor.currentMode == Editor.EditMode.Events) {
+                //Detect event under mouse when clicked
+                if (Input.GetMouseButtonDown(0)) {
+                    RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+                    var e = hit.collider?.GetComponentInParent<Common_Event>();
+                    if (e != null) {
+                        currentlySelected = e;
+                        //Change event info if event is selected
+                        eventInfoWindow.SetActive(true);
+                        eventInfoName.text = currentlySelected.name;
+                        eventInfoX.text = currentlySelected.XPosition.ToString();
+                        eventInfoY.text = currentlySelected.YPosition.ToString();
+                        eventInfoDes.text = currentlySelected.EventInfoData.DES.ToString();
+                        eventInfoEta.text = currentlySelected.EventInfoData.ETA.ToString();
+                        eventInfoEtat.text = currentlySelected.EventInfoData.Etat.ToString();
+                        eventInfoSubEtat.text = currentlySelected.EventInfoData.SubEtat.ToString();
+                        eventInfoOffsetBx.text = currentlySelected.EventInfoData.OffsetBX.ToString();
+                        eventInfoOffsetBy.text = currentlySelected.EventInfoData.OffsetBY.ToString();
+                        eventInfoOffsetHy.text = currentlySelected.EventInfoData.OffsetHY.ToString();
+                        eventInfoFollowSprite.text = currentlySelected.EventInfoData.FollowSprite.ToString();
+                        eventInfoHitPoints.text = currentlySelected.EventInfoData.HitPoints.ToString();
+                        eventInfoHitSprite.text = currentlySelected.EventInfoData.HitSprite.ToString();
+                        eventInfoFollow.text = currentlySelected.EventInfoData.FollowEnabled?"TRUE":"FALSE";
+                        eventInfoType.text = currentlySelected.EventInfoData.Type.ToString();
+                    }
+                    else {
+                        currentlySelected = null;
+                        eventInfoWindow.SetActive(false);
+                    }
+                }
+            }
+        }
+
+        public void FieldValueChanged(int property, int newVal) {
+            if (currentlySelected != null) {
+                switch (property) {
+                    //X position
+                    case 0: currentlySelected.XPosition = (uint)newVal; break;
+                    //Y position
+                    case 1: currentlySelected.YPosition = (uint)newVal; break;
+                }
+            }
+        }
+
         // Add event which matches the dropdown string
         public void AddSelectedEvent() {
             //foreach (var e in availableEvents) {
@@ -77,14 +144,14 @@ namespace R1Engine
         public Common_Event AddEvent(GeneralEventInfoData e, uint xpos, uint ypos, int link, int animIndex, int speed) {
             // Instantiate prefab
             Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
+
             newEvent.EventInfoData = e;
-            newEvent.Commands = EventInfoManager.ParseCommands(e.Commands, e.LabelOffsets);
-            newEvent.Des = (uint)e.DES;
             newEvent.XPosition = xpos;
             newEvent.YPosition = ypos;
             newEvent.LinkIndex = link;
             newEvent.AnimationIndex = animIndex;
             newEvent.Speed = speed;
+            newEvent.Commands = EventInfoManager.ParseCommands(e.Commands, e.LabelOffsets);
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
