@@ -504,10 +504,7 @@ namespace R1Engine
                 // Get the folder
                 var desFolderPath = Path.Combine(outputDir, $"{i}{desName}");
 
-                PC_Eta prevEta = new PC_Eta()
-                {
-                    AnimationSpeed = 4
-                };
+                byte prevSpeed = 4;
 
                 // Enumerate the animations
                 for (var j = 0; j < des.AnimationDescriptors.Length; j++)
@@ -515,14 +512,14 @@ namespace R1Engine
                     // Get the animation descriptor
                     var anim = des.AnimationDescriptors[j];
 
-                    PC_Eta eta = null;
+                    byte? speed = null;
 
                     IEnumerable<PC_Eta> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].SelectMany(x => x).Where(x => x.AnimationIndex == j);
 
                     // Attempt to find a perfect match
                     for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
                     {
-                        if (eta != null)
+                        if (speed != null)
                             break;
 
                         foreach (var etaMatch in GetEtaMatches(etaIndex))
@@ -533,18 +530,18 @@ namespace R1Engine
                                                                           x.Etat == etaMatch.Etat &&
                                                                           x.SubEtat == etaMatch.SubEtat))
                             {
-                                eta = etaMatch;
+                                speed = etaMatch.AnimationSpeed;
                                 break;
                             }
                         }
                     }
 
-                    if (eta == null)
+                    if (speed == null)
                     {
                         // Attempt to find a semi-perfect match
                         for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
                         {
-                            if (eta != null)
+                            if (speed != null)
                                 break;
 
                             foreach (var etaMatch in GetEtaMatches(etaIndex))
@@ -552,37 +549,37 @@ namespace R1Engine
                                 // Check if it's a semi-perfect match
                                 if (levels.SelectMany(x => x.Events).Any(x => x.DES == desIndex && x.ETA == etaIndex))
                                 {
-                                    eta = etaMatch;
+                                    speed = etaMatch.AnimationSpeed;
                                     break;
                                 }
                             }
                         }
 
-                        if (eta == null)
+                        if (speed == null)
                         {
                             // Attempt to find a any match
                             for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
                             {
-                                if (eta != null)
+                                if (speed != null)
                                     break;
 
                                 // Use first eta match
-                                eta = GetEtaMatches(etaIndex).FirstOrDefault();
+                                speed = GetEtaMatches(etaIndex).FirstOrDefault()?.AnimationSpeed;
                             }
 
-                            if (eta == null)
+                            if (speed == null)
                             {
                                 // Use previous eta
-                                eta = prevEta;
+                                speed = prevSpeed;
                             }
                         }
                     }
 
                     // Set the previous eta
-                    prevEta = eta;
+                    prevSpeed = speed.Value;
 
                     // Get the folder
-                    var animFolderPath = Path.Combine(desFolderPath, $"{j}-{eta.AnimationSpeed}-{eta.Etat}-{eta.SubEtat}");
+                    var animFolderPath = Path.Combine(desFolderPath, $"{j}-{speed}");
 
                     // Create the directory
                     Directory.CreateDirectory(animFolderPath);
@@ -593,18 +590,10 @@ namespace R1Engine
                     var frameWidth = anim.Frames.Max(x => x.XPosition + x.Width) + 1;
                     var frameHeight = anim.Frames.Max(x => x.YPosition + x.Height) + 1;
 
-                    var marginWidth = anim.Layers.Min(x => x.XPosition);
-                    var marginHeight = anim.Layers.Min(x => frameHeight - x.YPosition - 1);
-
                     // Create each animation frame
                     for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
                     {
-                        // TODO: Below here doesn't work correctly
-
-                        // Get the frame
-                        var frame = anim.Frames[frameIndex];
-
-                        Texture2D tex = new Texture2D(frameWidth - marginWidth, frameHeight - marginHeight, TextureFormat.RGBA32, false)
+                        Texture2D tex = new Texture2D(frameWidth, frameHeight, TextureFormat.RGBA32, false)
                         {
                             filterMode = FilterMode.Point
                         };
@@ -643,7 +632,7 @@ namespace R1Engine
                                         var yPosition = -(y + yStart + 1);
 
                                         if (c.a != 0)
-                                            tex.SetPixel(xPosition - marginWidth, yPosition - marginHeight - 1, c);
+                                            tex.SetPixel(xPosition, yPosition, c);
                                     }
                                 }
                             }
