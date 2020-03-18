@@ -598,7 +598,18 @@ namespace R1Engine
                         // Get the frame
                         var frame = anim.Frames[frameIndex];
 
-                        Texture2D tex = new Texture2D(frame.XPosition + frame.Width + 1, frame.YPosition + frame.Height + 1, TextureFormat.RGBA32, false)
+                        int maxW = 0;
+                        int maxH = 0;
+                        for (var temp = 0; temp < anim.LayersPerFrame; temp++) {
+                            var al = anim.Layers[layer + temp];
+                            var sp = des.ImageDescriptors[al.ImageIndex];
+                            if (sp.OuterWidth > maxW)
+                                maxW = sp.OuterWidth;
+                            if (sp.OuterHeight > maxH)
+                                maxH = sp.OuterHeight;
+                        }
+
+                        Texture2D tex = new Texture2D(frame.XPosition + frame.Width + maxW + 1, frame.YPosition + frame.Height + maxH + 1, TextureFormat.RGBA32, false)
                         {
                             filterMode = FilterMode.Point
                         };
@@ -634,7 +645,7 @@ namespace R1Engine
                                         var xStart = animationLayer.XPosition;
                                         var yStart = animationLayer.YPosition;
                                         var xPosition = xStart + x;
-                                        var yPosition = -(y + yStart);
+                                        var yPosition = -(y + yStart + 1);
 
                                         if (c.a != 0)
                                             tex.SetPixel(xPosition, yPosition, c);
