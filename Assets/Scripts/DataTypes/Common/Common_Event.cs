@@ -237,16 +237,19 @@ namespace R1Engine
                 int leftX = 0, topY = 0, rightX = 0, bottomY = 0;
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     var frame = CurrentAnimation.Frames[0, i];
-                    var sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
-                    if (sprite != null) {
-                        if (frame.X < leftX || i == 0)
-                            leftX = frame.X;
-                        if (frame.X + sprite.texture.width > rightX || i == 0)
-                            rightX = frame.X + sprite.texture.width;
-                        if (frame.Y < topY || i == 0)
-                            topY = frame.Y;
-                        if (frame.Y + sprite.texture.height > bottomY || i == 0)
-                            bottomY = frame.Y + sprite.texture.height;
+                    //Skips sprites out of bounds
+                    if (CurrentAnimation.Frames[0, i].SpriteIndex < Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites.Count) {
+                        var sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
+                        if (sprite != null) {
+                            if (frame.X < leftX || i == 0)
+                                leftX = frame.X;
+                            if (frame.X + sprite.texture.width > rightX || i == 0)
+                                rightX = frame.X + sprite.texture.width;
+                            if (frame.Y < topY || i == 0)
+                                topY = frame.Y;
+                            if (frame.Y + sprite.texture.height > bottomY || i == 0)
+                                bottomY = frame.Y + sprite.texture.height;
+                        }
                     }
                 }
 
@@ -259,7 +262,13 @@ namespace R1Engine
         private void UpdateParts(int frame) {
             if (CurrentAnimation != null) {
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
-                    prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                    //Skips sprites out of bounds
+                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites.Count) {
+                        prefabRendereds[i].sprite = null;
+                    }
+                    else {
+                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[(int)Des - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                    }
                     prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 
                     var extraX = prefabRendereds[i].sprite==null ? 0 : prefabRendereds[i].sprite.texture.width;
