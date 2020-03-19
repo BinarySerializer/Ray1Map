@@ -119,24 +119,29 @@ namespace R1Engine
         /// </summary>
         public void RefreshEditorInfo()
         {
-            // TODO: All these don't need to be called for every change
-
             // Get the event info data
             var eventInfo = Settings.GetGameManager.GetEditorEventInfo(Settings.GetGameSettings, this);
-
-            // TODO: Refresh this for every value change
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
-
-            // TODO: Never refresh this except once
             // Set the flag
             Flag = eventInfo?.Flag;
 
-            // TODO: Refresh this when commands have been edited
+            RefreshCommands();
+
+            RefreshVisuals();
+        }
+        public void RefreshName() {
+            // Get the event info data
+            var eventInfo = Settings.GetGameManager.GetEditorEventInfo(Settings.GetGameSettings, this);
+
+            // Set the name
+            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
+        }
+        public void RefreshCommands() {
             // Refresh parsed commands
             ParsedCommands = EventInfoManager.ParseCommands(Commands, LabelOffsets);
-
-            // TODO: Refresh this when DES, ETA, Etat or SubEtat changes
+        }
+        public void RefreshVisuals() {
             // Get the animation info
             var animInfo = Settings.GetGameManager.GetAnimationInfo(Settings.GetGameSettings, this);
 
@@ -145,6 +150,8 @@ namespace R1Engine
 
             if (animInfo.AnimationSpeed != -1)
                 AnimSpeed = animInfo.AnimationSpeed;
+
+            ChangeAppearance();
         }
 
         #endregion
@@ -158,9 +165,6 @@ namespace R1Engine
         /// The link ID used by the editor
         /// </summary>
         public int LinkID;
-
-        private int desOld;
-        private int animationIndexOld;
 
         /// <summary>
         /// The current animation of this event
@@ -188,35 +192,6 @@ namespace R1Engine
 
             if (Controller.obj?.levelController?.currentLevel == null)
                 return;
-
-            // Change appearance on the fly
-            if (DES != desOld || animationIndexOld != AnimationIndex) {
-                if (DES < 1) {
-                    Debug.LogWarning("Trying to set an out of range DES");
-                    DES = 1;
-                    desOld = 1;
-                }else if(DES > Controller.obj.levelController.eventDesigns.Count) {
-                    Debug.LogWarning("Trying to set an out of range DES");
-                    DES = Controller.obj.levelController.eventDesigns.Count;
-                    desOld = Controller.obj.levelController.eventDesigns.Count;
-                }
-                else if (AnimationIndex<0) {
-                    Debug.LogWarning("Trying to set an out of range AnimationIndex");
-                    AnimationIndex = 0;
-                    animationIndexOld = 0;
-                }else if(AnimationIndex > Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count-1) {
-                    Debug.LogWarning("Trying to set an out of range AnimationIndex");
-                    if (Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count == 0) {
-                        AnimationIndex = 0;
-                        animationIndexOld = 0;
-                    }
-                    else {
-                        AnimationIndex = Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count - 1;
-                        animationIndexOld = Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count - 1;
-                    }
-                }
-                ChangeAppearance(DES, AnimationIndex);
-            }
 
             // Update Event's x and y here
             if (transform.hasChanged)
@@ -252,12 +227,7 @@ namespace R1Engine
         }
 
         // Change des and everything
-        private void ChangeAppearance(int newDes, int newAnimation) {
-            DES = newDes;
-            AnimationIndex = newAnimation;
-            desOld = newDes;
-            animationIndexOld = AnimationIndex;
-
+        private void ChangeAppearance() {
             // Change to new animation
             ChangeAnimation(AnimationIndex);
 

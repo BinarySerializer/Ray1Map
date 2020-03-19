@@ -135,49 +135,6 @@ namespace R1Engine
                         eventInfoY.text = Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y-selectedPosition.y) * 16),0,Controller.obj.levelController.currentLevel.Height*16).ToString();
                     }
                 }
-                //Update event's values when the fields are modified
-                if (currentlySelected != null) {
-                    uint.TryParse(eventInfoX.text, out var new_x);
-                    currentlySelected.XPosition = new_x;
-
-                    uint.TryParse(eventInfoY.text, out var new_y);
-                    currentlySelected.YPosition = new_y;
-
-                    int.TryParse(eventInfoDes.text, out var new_des);
-                    currentlySelected.DES = new_des;
-
-                    int.TryParse(eventInfoEta.text, out var new_eta);
-                    currentlySelected.ETA = new_eta;
-
-                    int.TryParse(eventInfoEtat.text, out var new_etat);
-                    currentlySelected.Etat = new_etat;
-
-                    int.TryParse(eventInfoSubEtat.text, out var new_subetat);
-                    currentlySelected.SubEtat = new_subetat;
-
-                    int.TryParse(eventInfoOffsetBx.text, out var new_offbx);
-                    currentlySelected.OffsetBX = new_offbx;
-
-                    int.TryParse(eventInfoOffsetBy.text, out var new_offby);
-                    currentlySelected.OffsetBY = new_offby;
-
-                    int.TryParse(eventInfoOffsetHy.text, out var new_offhy);
-                    currentlySelected.OffsetHY = new_offhy;
-
-                    int.TryParse(eventInfoFollowSprite.text, out var new_fsprite);
-                    currentlySelected.FollowSprite = new_fsprite;
-
-                    int.TryParse(eventInfoHitPoints.text, out var new_hp);
-                    currentlySelected.HitPoints = new_hp;
-
-                    int.TryParse(eventInfoHitSprite.text, out var new_hsprite);
-                    currentlySelected.HitSprite = new_hsprite;
-
-                    currentlySelected.FollowEnabled = eventInfoFollow.text == "TRUE";
-
-                    int.TryParse(eventInfoType.text, out var new_type);
-                    currentlySelected.Type = new_type;
-                }
                 //Delete selected event
                 if (Input.GetKeyDown(KeyCode.Delete)) {
                     if (currentlySelected != null) {
@@ -194,7 +151,7 @@ namespace R1Engine
         }
 
         private void LateUpdate() {
-            //Update link lines
+            //Update selection square lines
             if (currentlySelected != null) {
                 selectedLineRend.SetPosition(0, new Vector2(currentlySelected.midpoint.x - currentlySelected.boxCollider.size.x / 2f, currentlySelected.midpoint.y - currentlySelected.boxCollider.size.y / 2f));
                 selectedLineRend.SetPosition(1, new Vector2(currentlySelected.midpoint.x + currentlySelected.boxCollider.size.x / 2f, currentlySelected.midpoint.y - currentlySelected.boxCollider.size.y / 2f));
@@ -210,6 +167,122 @@ namespace R1Engine
                 selectedLineRend.SetPosition(4, Vector2.zero);
             }
         }
+
+        //-----OnChanged methods for each field-----
+
+        public void FieldXPosition() {
+            if (currentlySelected != null) {
+                uint.TryParse(eventInfoX.text, out var new_x);
+                currentlySelected.XPosition = new_x;
+            }
+        }
+        public void FieldYPosition() {
+            if (currentlySelected != null) {
+                uint.TryParse(eventInfoY.text, out var new_y);
+                currentlySelected.YPosition = new_y;
+            }
+        }
+        public void FieldDes() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoDes.text, out var new_des);
+                currentlySelected.DES = new_des;
+
+                currentlySelected.RefreshName();
+                currentlySelected.RefreshVisuals();
+            }
+        }
+        public void FieldEta() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoEta.text, out var new_eta);
+                currentlySelected.ETA = new_eta;
+
+                currentlySelected.RefreshName();
+                currentlySelected.RefreshVisuals();
+            }
+        }
+        public void FieldEtat() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoEtat.text, out var new_etat);
+                currentlySelected.Etat = new_etat;
+
+                currentlySelected.RefreshName();
+                currentlySelected.RefreshVisuals();
+            }
+        }
+        public void FieldSubEtat() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoSubEtat.text, out var new_subetat);
+                currentlySelected.SubEtat = new_subetat;
+
+                currentlySelected.RefreshName();
+                currentlySelected.RefreshVisuals();
+            }
+        }
+        public void FieldOffsetBx() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoOffsetBx.text, out var new_offbx);
+                currentlySelected.OffsetBX = new_offbx;
+
+                currentlySelected.RefreshName();
+            }
+        }
+        public void FieldOffsetBy() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoOffsetBy.text, out var new_offby);
+                currentlySelected.OffsetBY = new_offby;
+
+                currentlySelected.RefreshName();
+            }
+        }
+        public void FieldOffsetHy() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoOffsetHy.text, out var new_offhy);
+                currentlySelected.OffsetHY = new_offhy;
+
+                currentlySelected.RefreshName();
+            }
+        }
+        public void FieldFollowSprite() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoFollowSprite.text, out var new_fsprite);
+                currentlySelected.FollowSprite = new_fsprite;
+
+                currentlySelected.RefreshName();
+            }
+        }
+        public void FieldHitPoints() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoHitPoints.text, out var new_hp);
+                currentlySelected.HitPoints = new_hp;
+
+                currentlySelected.RefreshName();
+            }
+        }
+        public void FieldHitSprite() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoHitSprite.text, out var new_hsprite);
+                currentlySelected.HitSprite = new_hsprite;
+
+                currentlySelected.RefreshName();
+            }
+        }
+        public void FieldFollowEnabled() {
+            if (currentlySelected != null) {
+                currentlySelected.FollowEnabled = eventInfoFollow.text == "TRUE";
+
+                currentlySelected.RefreshName();
+            }
+        }
+        public void FieldType() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoType.text, out var new_type);
+                currentlySelected.Type = new_type;
+
+                currentlySelected.RefreshName();
+            }
+        }
+
+        //--------------------
 
         private void ClearInfoWindow() {
             eventInfoName.text = "";
