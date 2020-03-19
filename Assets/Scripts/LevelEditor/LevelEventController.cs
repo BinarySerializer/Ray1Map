@@ -15,6 +15,8 @@ namespace R1Engine
         public Vector2 selectedPosition;
         public LineRenderer selectedLineRend;
 
+        public Dropdown eventDropdown;
+
         // Event info things for the ui
         public GameObject eventInfoWindow;
         public Text eventInfoName;
@@ -32,8 +34,6 @@ namespace R1Engine
         public InputField eventInfoHitSprite;
         public InputField eventInfoFollow;
         public InputField eventInfoType;
-
-        //public Dropdown eventDropdown;
 
         public bool areLinksVisible = false;
 
@@ -61,26 +61,36 @@ namespace R1Engine
                 }
             }
 
-            // Fill the dropdown menu
-            //var info = EventInfoManager.LoadEventInfo();
-            //availableEvents = info.Where(x => x.Names.ContainsKey(Settings.World)).ToArray();
-
-            //foreach (var e in availableEvents) {
-            //    if (e.Names[Settings.World].CustomName!=null && e.Names[Settings.World].DesignerName != null) {
-            //        Dropdown.OptionData dat = new Dropdown.OptionData();
-            //        dat.text = e.Names[Settings.World].CustomName == null ? e.Names[Settings.World].CustomName : e.Names[Settings.World].DesignerName;
-            //        eventDropdown.options.Add(dat);
-            //    }
-            //}
-
-            //eventDropdown.value = 1;
-            //eventDropdown.value = 0;
+            // Fill the dropdown menu TODO: get rid of hardcoding
+            var info = EventInfoManager.LoadPCEventInfo(GameModeSelection.RaymanPC);
+            
+            foreach (var e in info) {
+                if (e.World.Equals(EventWorld.Jungle) || e.World.Equals(EventWorld.All)) {
+                    Dropdown.OptionData dat = new Dropdown.OptionData();
+                    dat.text = e.Name;
+                    eventDropdown.options.Add(dat);
+                }
+            }
         }
 
         private void Update() {
             //Only do this if in event mode
             if (editor.currentMode == Editor.EditMode.Events) {
                 selectedLineRend.enabled = true;
+                //Add events if right clicked
+                if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject()) {
+                    var info = EventInfoManager.LoadPCEventInfo(GameModeSelection.RaymanPC);
+                    foreach (var e in info) {
+                        if (e.Name == eventDropdown.options[eventDropdown.value].text) {
+                            if (e.World.Equals(EventWorld.Jungle) || e.World.Equals(EventWorld.All)) {
+                                Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                                Common_Event eve = AddEvent(e.Type, e.Etat, e.SubEtat, (uint)mousepo.x*16, (uint)-mousepo.y*16, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, 0, 1);
+                                Controller.obj.levelController.currentLevel.Events.Add(eve);
+                                break;
+                            }
+                        }
+                    }
+                }
                 //Detect event under mouse when clicked
                 if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
                     RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
@@ -211,15 +221,6 @@ namespace R1Engine
                 selectedLineRend.SetPosition(3, Vector2.zero);
                 selectedLineRend.SetPosition(4, Vector2.zero);
             }
-        }
-
-        // Add event which matches the dropdown string
-        public void AddSelectedEvent() {
-            //foreach (var e in availableEvents) {
-            //    if (e.Names[Settings.World].CustomName==eventDropdown.options[eventDropdown.value].text || e.Names[Settings.World].DesignerName == eventDropdown.options[eventDropdown.value].text) {
-            //        AddEvent(e);
-            //    }
-            //}
         }
 
         // Show/Hide links
