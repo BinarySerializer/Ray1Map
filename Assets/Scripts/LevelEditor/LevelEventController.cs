@@ -13,6 +13,7 @@ namespace R1Engine
 
         public Common_Event currentlySelected;
         public Vector2 selectedPosition;
+        public LineRenderer selectedLineRend;
 
         // Event info things for the ui
         public GameObject eventInfoWindow;
@@ -79,6 +80,7 @@ namespace R1Engine
         private void Update() {
             //Only do this if in event mode
             if (editor.currentMode == Editor.EditMode.Events) {
+                selectedLineRend.enabled = true;
                 //Detect event under mouse when clicked
                 if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
                     RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
@@ -107,6 +109,7 @@ namespace R1Engine
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
                     }
                     else {
+                        selectedLineRend.enabled = false;
                         currentlySelected = null;
                         eventInfoWindow.SetActive(false);
                     }
@@ -122,6 +125,7 @@ namespace R1Engine
                 }
                 //Update event's values when the fields are modified
                 if (currentlySelected != null) {
+                    
                     uint new_x = 0;
                     uint.TryParse(eventInfoX.text, out new_x);
                     currentlySelected.XPosition = new_x;
@@ -185,6 +189,27 @@ namespace R1Engine
                         eventInfoWindow.SetActive(false);
                     }
                 }
+            }
+            else {
+                selectedLineRend.enabled = false;
+            }
+        }
+
+        private void LateUpdate() {
+            //Update link lines
+            if (currentlySelected != null) {
+                selectedLineRend.SetPosition(0, new Vector2(currentlySelected.midpoint.x - currentlySelected.boxCollider.size.x / 2f, currentlySelected.midpoint.y - currentlySelected.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(1, new Vector2(currentlySelected.midpoint.x + currentlySelected.boxCollider.size.x / 2f, currentlySelected.midpoint.y - currentlySelected.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(2, new Vector2(currentlySelected.midpoint.x + currentlySelected.boxCollider.size.x / 2f, currentlySelected.midpoint.y + currentlySelected.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(3, new Vector2(currentlySelected.midpoint.x - currentlySelected.boxCollider.size.x / 2f, currentlySelected.midpoint.y + currentlySelected.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(4, new Vector2(currentlySelected.midpoint.x - currentlySelected.boxCollider.size.x / 2f, currentlySelected.midpoint.y - currentlySelected.boxCollider.size.y / 2f));
+            }
+            else {
+                selectedLineRend.SetPosition(0, Vector2.zero);
+                selectedLineRend.SetPosition(1, Vector2.zero);
+                selectedLineRend.SetPosition(2, Vector2.zero);
+                selectedLineRend.SetPosition(3, Vector2.zero);
+                selectedLineRend.SetPosition(4, Vector2.zero);
             }
         }
 
