@@ -116,8 +116,8 @@ namespace R1Engine
                     if (currentlySelected != null) {
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                        eventInfoX.text = Mathf.RoundToInt((mousePos.x-selectedPosition.x) * 16).ToString();
-                        eventInfoY.text = Mathf.RoundToInt(-(mousePos.y-selectedPosition.y) * 16).ToString();
+                        eventInfoX.text = Mathf.Clamp(Mathf.RoundToInt((mousePos.x-selectedPosition.x) * 16),0,Controller.obj.levelController.currentLevel.Width*16).ToString();
+                        eventInfoY.text = Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y-selectedPosition.y) * 16),0,Controller.obj.levelController.currentLevel.Height*16).ToString();
                     }
                 }
                 //Update event's values when the fields are modified

@@ -1312,7 +1312,7 @@ namespace R1Engine
 
             int indexx = 0; //Only for debugging
             foreach (var e in commonLevelData.Events) {
-                Debug.Log(indexx + ":" + e.LinkIndex + " - " + e.name);
+                //Debug.Log(indexx + ":" + e.LinkIndex + " - " + e.name);
                 indexx++;
                 // Create the event
                 var r1Event = new PC_Event
