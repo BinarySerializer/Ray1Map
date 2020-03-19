@@ -1391,12 +1391,12 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the animation index for an event
+        /// Gets the animation info for an event
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="e">The event</param>
-        /// <returns>The animation index</returns>
-        public int GetAnimationIndex(GameSettings settings, Common_Event e)
+        /// <returns>The animation info</returns>
+        public Common_AnimationInfo GetAnimationInfo(GameSettings settings, Common_Event e)
         {
             // Read the fixed data
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
@@ -1414,7 +1414,42 @@ namespace R1Engine
             var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
             
             // Return the index
-            return etaItem?.AnimationIndex ?? 0;
+            return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);
+        }
+
+        /// <summary>
+        /// Gets the available event names to add for the current world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The names of the available events to add</returns>
+        public virtual string[] GetEvents(GameSettings settings)
+        {
+            var w = settings.World.ToEventWorld();
+
+            return EventInfoManager.LoadPCEventInfo(settings.GameModeSelection)?.Where(x => x.World == EventWorld.All || x.World == w).Select(x => x.Name).ToArray() ?? new string[0];
+        }
+
+        /// <summary>
+        /// Adds a new event to the controller and returns it
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="eventController">The event controller to add to</param>
+        /// <param name="index">The event index from the available events</param>
+        /// <param name="xPos">The x position</param>
+        /// <param name="yPos">The y position</param>
+        /// <returns></returns>
+        public virtual Common_Event AddEvent(GameSettings settings, LevelEventController eventController, int index, uint xPos, uint yPos)
+        {
+            var w = settings.World.ToEventWorld();
+
+            // Get the event
+            var e = EventInfoManager.LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
+
+            // TODO: Before Designer is merged we need to find the "used" commands
+            var cmds = e.Commands.Any() ? e.Commands : e.LocalCommands;
+
+            // Add and return the event
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0, 1);
         }
 
         #endregion

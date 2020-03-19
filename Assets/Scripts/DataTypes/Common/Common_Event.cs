@@ -124,17 +124,27 @@ namespace R1Engine
             // Get the event info data
             var eventInfo = Settings.GetGameManager.GetEditorEventInfo(Settings.GetGameSettings, this);
 
+            // TODO: Refresh this for every value change
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
 
+            // TODO: Never refresh this except once
             // Set the flag
             Flag = eventInfo?.Flag;
 
+            // TODO: Refresh this when commands have been edited
             // Refresh parsed commands
             ParsedCommands = EventInfoManager.ParseCommands(Commands, LabelOffsets);
 
-            // Get the animation index
-            AnimationIndex = Settings.GetGameManager.GetAnimationIndex(Settings.GetGameSettings, this);
+            // TODO: Refresh this when DES, ETA, Etat or SubEtat changes
+            // Get the animation info
+            var animInfo = Settings.GetGameManager.GetAnimationInfo(Settings.GetGameSettings, this);
+
+            if (animInfo.AnimationIndex != -1)
+                AnimationIndex = animInfo.AnimationIndex;
+
+            if (animInfo.AnimationSpeed != -1)
+                AnimSpeed = animInfo.AnimationSpeed;
         }
 
         #endregion

@@ -129,31 +129,7 @@ namespace R1Engine
                                         if (e.DES <= allfixDesCount)
                                             world2 = EventWorld.All;
                                         else
-                                        {
-                                            switch (world)
-                                            {
-                                                case World.Jungle:
-                                                    world2 = EventWorld.Jungle;
-                                                    break;
-                                                case World.Music:
-                                                    world2 = EventWorld.Music;
-                                                    break;
-                                                case World.Mountain:
-                                                    world2 = EventWorld.Mountain;
-                                                    break;
-                                                case World.Image:
-                                                    world2 = EventWorld.Image;
-                                                    break;
-                                                case World.Cave:
-                                                    world2 = EventWorld.Cave;
-                                                    break;
-                                                case World.Cake:
-                                                    world2 = EventWorld.Cake;
-                                                    break;
-                                                default:
-                                                    throw new ArgumentOutOfRangeException();
-                                            }
-                                        }
+                                            world2 = world.ToEventWorld();
 
                                         // Create the event info data
                                         GeneralPCEventInfoData pcEventData = new GeneralPCEventInfoData(String.Empty, null, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, null, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode, null);
@@ -203,31 +179,7 @@ namespace R1Engine
                                         if (desIndex <= allfixDesCount)
                                             world2 = EventWorld.All;
                                         else
-                                        {
-                                            switch (world)
-                                            {
-                                                case World.Jungle:
-                                                    world2 = EventWorld.Jungle;
-                                                    break;
-                                                case World.Music:
-                                                    world2 = EventWorld.Music;
-                                                    break;
-                                                case World.Mountain:
-                                                    world2 = EventWorld.Mountain;
-                                                    break;
-                                                case World.Image:
-                                                    world2 = EventWorld.Image;
-                                                    break;
-                                                case World.Cave:
-                                                    world2 = EventWorld.Cave;
-                                                    break;
-                                                case World.Cake:
-                                                    world2 = EventWorld.Cake;
-                                                    break;
-                                                default:
-                                                    throw new ArgumentOutOfRangeException();
-                                            }
-                                        }
+                                            world2 = world.ToEventWorld();
 
                                         // Create the event info data
                                         GeneralPCEventInfoData pcEventData = new GeneralPCEventInfoData(locName, e.Name, world2, type, (int)e.Etat, subEtat, e.DesignerGroup == -1 ? (EventFlag?)EventFlag.Always : null, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled != 0, e.IfCommand?.Select(x => eventLoc.FindItem(y => y.LocKey == x)?.Name ?? x).ToArray(), null, null, e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
@@ -368,31 +320,7 @@ namespace R1Engine
             // Load the event info
             var allInfo = LoadPCEventInfo(mode);
 
-            EventWorld eventWorld;
-
-            switch (world)
-            {
-                case World.Jungle:
-                    eventWorld = EventWorld.Jungle;
-                    break;
-                case World.Music:
-                    eventWorld = EventWorld.Music;
-                    break;
-                case World.Mountain:
-                    eventWorld = EventWorld.Mountain;
-                    break;
-                case World.Image:
-                    eventWorld = EventWorld.Image;
-                    break;
-                case World.Cave:
-                    eventWorld = EventWorld.Cave;
-                    break;
-                case World.Cake:
-                    eventWorld = EventWorld.Cake;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
-            }
+            EventWorld eventWorld = world.ToEventWorld();
 
             // Find a matching item
             var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
@@ -443,31 +371,7 @@ namespace R1Engine
             // Load the event info
             var allInfo = LoadPCEventInfo(mode);
 
-            EventWorld eventWorld;
-
-            switch (world)
-            {
-                case World.Jungle:
-                    eventWorld = EventWorld.Jungle;
-                    break;
-                case World.Music:
-                    eventWorld = EventWorld.Music;
-                    break;
-                case World.Mountain:
-                    eventWorld = EventWorld.Mountain;
-                    break;
-                case World.Image:
-                    eventWorld = EventWorld.Image;
-                    break;
-                case World.Cave:
-                    eventWorld = EventWorld.Cave;
-                    break;
-                case World.Cake:
-                    eventWorld = EventWorld.Cake;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
-            }
+            EventWorld eventWorld = world.ToEventWorld();
 
             // Find a matching item
             var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&

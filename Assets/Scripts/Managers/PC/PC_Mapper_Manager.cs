@@ -260,6 +260,39 @@ namespace R1Engine
             return new Common_EditorEventInfo(match?.Name, match?.Flag);
         }
 
+        // TODO: Until Designer is merged we need to only add supported events
+        /// <summary>
+        /// Gets the available event names to add for the current world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The names of the available events to add</returns>
+        public override string[] GetEvents(GameSettings settings)
+        {
+            var w = settings.World.ToEventWorld();
+
+            return EventInfoManager.LoadPCEventInfo(settings.GameModeSelection)?.Where(x => x.MapperID != null).Where(x => x.World == EventWorld.All || x.World == w).Select(x => x.Name).ToArray() ?? new string[0];
+        }
+
+        /// <summary>
+        /// Adds a new event to the controller and returns it
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="eventController">The event controller to add to</param>
+        /// <param name="index">The event index from the available events</param>
+        /// <param name="xPos">The x position</param>
+        /// <param name="yPos">The y position</param>
+        /// <returns></returns>
+        public override Common_Event AddEvent(GameSettings settings, LevelEventController eventController, int index, uint xPos, uint yPos)
+        {
+            var w = settings.World.ToEventWorld();
+
+            // Get the event
+            var e = EventInfoManager.LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
+
+            // Add and return the event
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.LocalCommands, 0, 1);
+        }
+
         #endregion
     }
 }

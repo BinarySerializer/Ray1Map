@@ -61,15 +61,15 @@ namespace R1Engine
                 }
             }
 
-            // Fill the dropdown menu TODO: get rid of hardcoding
-            var info = EventInfoManager.LoadPCEventInfo(GameModeSelection.RaymanPC);
+            // Fill the dropdown menu
+            var events = Settings.GetGameManager.GetEvents(Settings.GetGameSettings);
             
-            foreach (var e in info) {
-                if (e.World.Equals(EventWorld.Jungle) || e.World.Equals(EventWorld.All)) {
-                    Dropdown.OptionData dat = new Dropdown.OptionData();
-                    dat.text = e.Name;
-                    eventDropdown.options.Add(dat);
-                }
+            foreach (var e in events) {
+                Dropdown.OptionData dat = new Dropdown.OptionData
+                {
+                    text = e
+                };
+                eventDropdown.options.Add(dat);
             }
         }
 
@@ -79,17 +79,12 @@ namespace R1Engine
                 selectedLineRend.enabled = true;
                 //Add events if right clicked
                 if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject()) {
-                    var info = EventInfoManager.LoadPCEventInfo(GameModeSelection.RaymanPC);
-                    foreach (var e in info) {
-                        if (e.Name == eventDropdown.options[eventDropdown.value].text) {
-                            if (e.World.Equals(EventWorld.Jungle) || e.World.Equals(EventWorld.All)) {
-                                Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                                Common_Event eve = AddEvent(e.Type, e.Etat, e.SubEtat, (uint)mousepo.x*16, (uint)-mousepo.y*16, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, 0, 1);
-                                Controller.obj.levelController.currentLevel.Events.Add(eve);
-                                break;
-                            }
-                        }
-                    }
+
+                    Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+                    var eve = Settings.GetGameManager.AddEvent(Settings.GetGameSettings, this, eventDropdown.value, (uint)mousepo.x * 16, (uint)-mousepo.y * 16);
+
+                    Controller.obj.levelController.currentLevel.Events.Add(eve);
                 }
                 //Detect event under mouse when clicked
                 if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
@@ -135,59 +130,45 @@ namespace R1Engine
                 }
                 //Update event's values when the fields are modified
                 if (currentlySelected != null) {
-                    
-                    uint new_x = 0;
-                    uint.TryParse(eventInfoX.text, out new_x);
+                    uint.TryParse(eventInfoX.text, out var new_x);
                     currentlySelected.XPosition = new_x;
 
-                    uint new_y = 0;
-                    uint.TryParse(eventInfoY.text, out new_y);
+                    uint.TryParse(eventInfoY.text, out var new_y);
                     currentlySelected.YPosition = new_y;
 
-                    int new_des = 0;
-                    int.TryParse(eventInfoDes.text, out new_des);
+                    int.TryParse(eventInfoDes.text, out var new_des);
                     currentlySelected.DES = new_des;
 
-                    int new_eta = 0;
-                    int.TryParse(eventInfoEta.text, out new_eta);
+                    int.TryParse(eventInfoEta.text, out var new_eta);
                     currentlySelected.ETA = new_eta;
 
-                    int new_etat = 0;
-                    int.TryParse(eventInfoEtat.text, out new_etat);
+                    int.TryParse(eventInfoEtat.text, out var new_etat);
                     currentlySelected.Etat = new_etat;
 
-                    int new_subetat = 0;
-                    int.TryParse(eventInfoSubEtat.text, out new_subetat);
+                    int.TryParse(eventInfoSubEtat.text, out var new_subetat);
                     currentlySelected.SubEtat = new_subetat;
 
-                    int new_offbx = 0;
-                    int.TryParse(eventInfoOffsetBx.text, out new_offbx);
+                    int.TryParse(eventInfoOffsetBx.text, out var new_offbx);
                     currentlySelected.OffsetBX = new_offbx;
 
-                    int new_offby = 0;
-                    int.TryParse(eventInfoOffsetBy.text, out new_offby);
+                    int.TryParse(eventInfoOffsetBy.text, out var new_offby);
                     currentlySelected.OffsetBY = new_offby;
 
-                    int new_offhy = 0;
-                    int.TryParse(eventInfoOffsetHy.text, out new_offhy);
+                    int.TryParse(eventInfoOffsetHy.text, out var new_offhy);
                     currentlySelected.OffsetHY = new_offhy;
 
-                    int new_fsprite = 0;
-                    int.TryParse(eventInfoFollowSprite.text, out new_fsprite);
+                    int.TryParse(eventInfoFollowSprite.text, out var new_fsprite);
                     currentlySelected.FollowSprite = new_fsprite;
 
-                    int new_hp = 0;
-                    int.TryParse(eventInfoHitPoints.text, out new_hp);
+                    int.TryParse(eventInfoHitPoints.text, out var new_hp);
                     currentlySelected.HitPoints = new_hp;
 
-                    int new_hsprite = 0;
-                    int.TryParse(eventInfoHitSprite.text, out new_hsprite);
+                    int.TryParse(eventInfoHitSprite.text, out var new_hsprite);
                     currentlySelected.HitSprite = new_hsprite;
 
-                    currentlySelected.FollowEnabled = eventInfoFollow.text=="TRUE"?true:false;
+                    currentlySelected.FollowEnabled = eventInfoFollow.text == "TRUE";
 
-                    int new_type = 0;
-                    int.TryParse(eventInfoType.text, out new_type);
+                    int.TryParse(eventInfoType.text, out var new_type);
                     currentlySelected.Type = new_type;
                 }
                 //Delete selected event

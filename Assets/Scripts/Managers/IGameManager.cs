@@ -78,11 +78,29 @@ namespace R1Engine
         Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e);
 
         /// <summary>
-        /// Gets the animation index for an event
+        /// Gets the animation info for an event
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="e">The event</param>
-        /// <returns>The animation index</returns>
-        int GetAnimationIndex(GameSettings settings, Common_Event e);
+        /// <returns>The animation info</returns>
+        Common_AnimationInfo GetAnimationInfo(GameSettings settings, Common_Event e);
+
+        /// <summary>
+        /// Gets the available event names to add for the current world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The names of the available events to add</returns>
+        string[] GetEvents(GameSettings settings);
+
+        /// <summary>
+        /// Adds a new event to the controller and returns it
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="eventController">The event controller to add to</param>
+        /// <param name="index">The event index from the available events</param>
+        /// <param name="xPos">The x position</param>
+        /// <param name="yPos">The y position</param>
+        /// <returns></returns>
+        Common_Event AddEvent(GameSettings settings, LevelEventController eventController, int index, uint xPos, uint yPos);
     }
 }
