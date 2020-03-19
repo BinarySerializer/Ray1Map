@@ -170,6 +170,7 @@ namespace R1Engine
         // Reference to line renderer
         public LineRenderer lineRend;
         // Midpoint of this event when taking all the spriteparts into account
+        [HideInInspector]
         public Vector2 midpoint;
 
         void Update()

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace R1Engine
@@ -9,7 +10,9 @@ namespace R1Engine
         public GameObject prefabEvent;
 
         public Editor editor;
+
         public Common_Event currentlySelected;
+        public Vector2 selectedPosition;
 
         // Event info things for the ui
         public GameObject eventInfoWindow;
@@ -77,7 +80,7 @@ namespace R1Engine
             //Only do this if in event mode
             if (editor.currentMode == Editor.EditMode.Events) {
                 //Detect event under mouse when clicked
-                if (Input.GetMouseButtonDown(0)) {
+                if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
                     RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
                     var e = hit.collider?.GetComponentInParent<Common_Event>();
                     if (e != null) {
@@ -99,22 +102,79 @@ namespace R1Engine
                         eventInfoHitSprite.text = currentlySelected.HitSprite.ToString();
                         eventInfoFollow.text = currentlySelected.FollowEnabled?"TRUE":"FALSE";
                         eventInfoType.text = currentlySelected.Type.ToString();
+                        //Recor selected position
+                        var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
                     }
                     else {
                         currentlySelected = null;
                         eventInfoWindow.SetActive(false);
                     }
                 }
-            }
-        }
+                //Drag and move the event
+                if (Input.GetMouseButton(0)) {
+                    if (currentlySelected != null) {
+                        var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        public void FieldValueChanged(int property, int newVal) {
-            if (currentlySelected != null) {
-                switch (property) {
-                    //X position
-                    case 0: currentlySelected.XPosition = (uint)newVal; break;
-                    //Y position
-                    case 1: currentlySelected.YPosition = (uint)newVal; break;
+                        eventInfoX.text = Mathf.RoundToInt((mousePos.x-selectedPosition.x) * 16).ToString();
+                        eventInfoY.text = Mathf.RoundToInt(-(mousePos.y-selectedPosition.y) * 16).ToString();
+                    }
+                }
+                //Update event's values when the fields are modified
+                if (currentlySelected != null) {
+                    uint new_x = 0;
+                    uint.TryParse(eventInfoX.text, out new_x);
+                    currentlySelected.XPosition = new_x;
+
+                    uint new_y = 0;
+                    uint.TryParse(eventInfoY.text, out new_y);
+                    currentlySelected.YPosition = new_y;
+
+                    int new_des = 0;
+                    int.TryParse(eventInfoDes.text, out new_des);
+                    currentlySelected.DES = new_des;
+
+                    int new_eta = 0;
+                    int.TryParse(eventInfoEta.text, out new_eta);
+                    currentlySelected.ETA = new_eta;
+
+                    int new_etat = 0;
+                    int.TryParse(eventInfoEtat.text, out new_etat);
+                    currentlySelected.Etat = new_etat;
+
+                    int new_subetat = 0;
+                    int.TryParse(eventInfoSubEtat.text, out new_subetat);
+                    currentlySelected.SubEtat = new_subetat;
+
+                    int new_offbx = 0;
+                    int.TryParse(eventInfoOffsetBx.text, out new_offbx);
+                    currentlySelected.OffsetBX = new_offbx;
+
+                    int new_offby = 0;
+                    int.TryParse(eventInfoOffsetBy.text, out new_offby);
+                    currentlySelected.OffsetBY = new_offby;
+
+                    int new_offhy = 0;
+                    int.TryParse(eventInfoOffsetHy.text, out new_offhy);
+                    currentlySelected.OffsetHY = new_offhy;
+
+                    int new_fsprite = 0;
+                    int.TryParse(eventInfoFollowSprite.text, out new_fsprite);
+                    currentlySelected.FollowSprite = new_fsprite;
+
+                    int new_hp = 0;
+                    int.TryParse(eventInfoHitPoints.text, out new_hp);
+                    currentlySelected.HitPoints = new_hp;
+
+                    int new_hsprite = 0;
+                    int.TryParse(eventInfoHitSprite.text, out new_hsprite);
+                    currentlySelected.HitSprite = new_hsprite;
+
+                    currentlySelected.FollowEnabled = eventInfoFollow.text=="TRUE"?true:false;
+
+                    int new_type = 0;
+                    int.TryParse(eventInfoType.text, out new_type);
+                    currentlySelected.Type = new_type;
                 }
             }
         }
