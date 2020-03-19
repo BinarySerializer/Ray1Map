@@ -1398,11 +1398,20 @@ namespace R1Engine
         /// <returns>The animation index</returns>
         public int GetAnimationIndex(GameSettings settings, Common_Event e)
         {
-            // Get the world data
-            var wld = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
+            // Read the fixed data
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
+
+            // Read the world data
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings, FileMode);
+
+            // Read the big ray data
+            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
+
+            // Get the eta items
+            var eta = allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
 
             // Get animation index from the matching ETA item
-            var etaItem = wld.Eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
+            var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
             
             // Return the index
             return etaItem?.AnimationIndex ?? 0;

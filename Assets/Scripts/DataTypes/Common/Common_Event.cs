@@ -135,9 +135,6 @@ namespace R1Engine
 
             // Get the animation index
             AnimationIndex = Settings.GetGameManager.GetAnimationIndex(Settings.GetGameSettings, this);
-
-            // Update the appearance
-            ChangeAppearance(DES, AnimationIndex);
         }
 
         #endregion
