@@ -428,7 +428,7 @@ namespace R1Engine
                 BaseStream.WriteByte((byte)(sb ^ xorKey));
 
             else if (value.GetType().IsEnum)
-                BaseStream.WriteByte((byte)((byte)value ^ xorKey));
+                BaseStream.WriteByte((byte)((int)value ^ xorKey));
 
             else if (value is byte by)
                 BaseStream.WriteByte((byte)(by ^ xorKey));
