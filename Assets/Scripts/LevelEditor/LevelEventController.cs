@@ -71,6 +71,9 @@ namespace R1Engine
                 };
                 eventDropdown.options.Add(dat);
             }
+
+            // Default to the first string
+            eventDropdown.captionText.text = eventDropdown.options[0].text;
         }
 
         private void Update() {
@@ -79,12 +82,16 @@ namespace R1Engine
                 selectedLineRend.enabled = true;
                 //Add events with mmb
                 if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject()) {
-
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    var mox = mousepo.x * 16;
+                    var moy = mousepo.y * 16;
+                    //Don't add if clicked outside of the level bounds
+                    if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Width*16 && -moy < Controller.obj.levelController.currentLevel.Height*16) {
 
-                    var eve = Settings.GetGameManager.AddEvent(Settings.GetGameSettings, this, eventDropdown.value, (uint)mousepo.x * 16, (uint)-mousepo.y * 16);
+                        var eve = Settings.GetGameManager.AddEvent(Settings.GetGameSettings, this, eventDropdown.value, (uint)mox, (uint)-moy);
 
-                    Controller.obj.levelController.currentLevel.Events.Add(eve);
+                        Controller.obj.levelController.currentLevel.Events.Add(eve);
+                    }
                 }
                 //Detect event under mouse when clicked
                 if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
