@@ -68,5 +68,21 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="commonLevelData">The common level data</param>
         void SaveLevel(GameSettings settings, Common_Lev commonLevelData);
+
+        /// <summary>
+        /// Gets the common editor event info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The common editor event info</returns>
+        Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e);
+
+        /// <summary>
+        /// Gets the animation index for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The animation index</returns>
+        int GetAnimationIndex(GameSettings settings, Common_Event e);
     }
 }

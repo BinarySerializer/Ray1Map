@@ -12,7 +12,8 @@ namespace R1Engine
     /// </summary>
     public static class EventInfoManager
     {
-        // TODO: Clean up this method - have each manager handle generating its own info? Right now it only works for PC.
+        // TODO: Clean up this class - move all PC methods to PC manager
+
         public static void GenerateCSVFiles(string outputDir)
         {
             var modes = new Dictionary<GameMode, GameModeSelection[]>()
@@ -89,7 +90,7 @@ namespace R1Engine
 
                         WriteLine("Name", "MapperID", "World", "Type", "Etat", "SubEtat", "Flag", "DES", "ETA", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "ConnectedEvents", "LabelOffsets", "Commands", "LocalCommands");
 
-                        var events = new List<GeneralEventInfoData>();
+                        var events = new List<GeneralPCEventInfoData>();
 
                         foreach (var modeSelection in mode.Value)
                         {
@@ -155,12 +156,12 @@ namespace R1Engine
                                         }
 
                                         // Create the event info data
-                                        GeneralEventInfoData eventData = new GeneralEventInfoData(String.Empty, null, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, null, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode, null);
+                                        GeneralPCEventInfoData pcEventData = new GeneralPCEventInfoData(String.Empty, null, world2, (int)e.Type, e.Etat, e.SubEtat, null, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, null, lvl.EventCommands[eventIndex].LabelOffsetTable, lvl.EventCommands[eventIndex].EventCode, null);
 
                                         eventIndex++;
 
-                                        if (!events.Any(x => x.Equals(eventData)))
-                                            events.Add(eventData);
+                                        if (!events.Any(x => x.Equals(pcEventData)))
+                                            events.Add(pcEventData);
                                     }
                                 }
 
@@ -229,9 +230,9 @@ namespace R1Engine
                                         }
 
                                         // Create the event info data
-                                        GeneralEventInfoData eventData = new GeneralEventInfoData(locName, e.Name, world2, type, (int)e.Etat, subEtat, e.DesignerGroup == -1 ? (EventFlag?)EventFlag.Always : null, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled != 0, e.IfCommand?.Select(x => eventLoc.FindItem(y => y.LocKey == x)?.Name ?? x).ToArray(), null, null, e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
+                                        GeneralPCEventInfoData pcEventData = new GeneralPCEventInfoData(locName, e.Name, world2, type, (int)e.Etat, subEtat, e.DesignerGroup == -1 ? (EventFlag?)EventFlag.Always : null, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled != 0, e.IfCommand?.Select(x => eventLoc.FindItem(y => y.LocKey == x)?.Name ?? x).ToArray(), null, null, e.EventCommands.Select(x => (byte)(sbyte)x).ToArray());
 
-                                        events.Add(eventData);
+                                        events.Add(pcEventData);
                                     }
                                 }
                             }
@@ -246,11 +247,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the event info
+        /// Loads the PC event info
         /// </summary>
         /// <param name="mode">The game mode to get the info for</param>
         /// <returns>The loaded event info</returns>
-        public static GeneralEventInfoData[] LoadEventInfo(GameModeSelection mode)
+        public static GeneralPCEventInfoData[] LoadPCEventInfo(GameModeSelection mode)
         {
             // Get the file name
             string fileName;
@@ -273,22 +274,22 @@ namespace R1Engine
 
             // Return empty collection if no file was found
             if (fileName == null)
-                return new GeneralEventInfoData[0];
+                return new GeneralPCEventInfoData[0];
 
             // Load the file if not already loaded
-            if (!Cache.ContainsKey(fileName))
-                Cache.Add(fileName, LoadEventInfo(fileName));
+            if (!PCCache.ContainsKey(fileName))
+                PCCache.Add(fileName, LoadPCEventInfo(fileName));
 
             // Return the loaded datas
-            return Cache[fileName];
+            return PCCache[fileName];
         }
 
         /// <summary>
-        /// Loads the event info from the specified file
+        /// Loads the PC event info from the specified file
         /// </summary>
         /// <param name="filePath">The file to load from</param>
         /// <returns>The loaded info data</returns>
-        private static GeneralEventInfoData[] LoadEventInfo(string filePath)
+        private static GeneralPCEventInfoData[] LoadPCEventInfo(string filePath)
         {
             // Open the file
             using (var fileStream = File.OpenRead(filePath))
@@ -297,7 +298,7 @@ namespace R1Engine
                 using (var reader = new StreamReader(fileStream))
                 {
                     // Create the output
-                    var output = new List<GeneralEventInfoData>();
+                    var output = new List<GeneralPCEventInfoData>();
 
                     // Skip header
                     reader.ReadLine();
@@ -327,7 +328,7 @@ namespace R1Engine
                             string[] nextStringArrayValue() => nextValue().Split('/').Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
 
                             // Add the item to the output
-                            output.Add(new GeneralEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
+                            output.Add(new GeneralPCEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
                         }
                         catch (Exception ex)
                         {
@@ -362,10 +363,10 @@ namespace R1Engine
         /// <param name="labelOffsets"></param>
         /// <param name="commands"></param>
         /// <returns>The item which matches the values</returns>
-        public static GeneralEventInfoData GetPCEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
+        public static GeneralPCEventInfoData GetPCEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
         {
             // Load the event info
-            var allInfo = LoadEventInfo(mode);
+            var allInfo = LoadPCEventInfo(mode);
 
             EventWorld eventWorld;
 
@@ -395,29 +396,24 @@ namespace R1Engine
 
             // Find a matching item
             var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
-                                  x.Type == type &&
-                                  x.Etat == etat &&
-                                  x.SubEtat == subEtat &&
-                                  x.DES == des &&
-                                  x.ETA == eta &&
-                                  x.OffsetBX == offsetBx &&
-                                  x.OffsetBY == offsetBy &&
-                                  x.OffsetHY == offsetHy &&
-                                  x.FollowSprite == followSprite &&
-                                  x.HitPoints == hitPoints &&
-                                  x.HitSprite == hitSprite &&
-                                  x.FollowEnabled == followEnabled &&
-                                  x.LabelOffsets.SequenceEqual(labelOffsets) &&
-                                  x.Commands.SequenceEqual(commands));
+                                         x.Type == type &&
+                                         x.Etat == etat &&
+                                         x.SubEtat == subEtat &&
+                                         x.DES == des &&
+                                         x.ETA == eta &&
+                                         x.OffsetBX == offsetBx &&
+                                         x.OffsetBY == offsetBy &&
+                                         x.OffsetHY == offsetHy &&
+                                         x.FollowSprite == followSprite &&
+                                         x.HitPoints == hitPoints &&
+                                         x.HitSprite == hitSprite &&
+                                         x.FollowEnabled == followEnabled &&
+                                         x.LabelOffsets.SequenceEqual(labelOffsets) &&
+                                         x.Commands.SequenceEqual(commands));
 
             // Create dummy item if not found
-            if (match == null)
-            {
-                if (allInfo.Any())
-                    Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
-                
-                match = new GeneralEventInfoData(null, null, eventWorld, type, etat, subEtat, null, des, eta, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, labelOffsets, commands, null);
-            }
+            if (match == null && allInfo.Any())
+                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
 
             // Return the item
             return match;
@@ -441,12 +437,11 @@ namespace R1Engine
         /// <param name="hitSprite"></param>
         /// <param name="followEnabled"></param>
         /// <param name="localCommands"></param>
-        /// <param name="mapperID"></param>
         /// <returns>The item which matches the values</returns>
-        public static GeneralEventInfoData GetMapperEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, byte[] localCommands, string mapperID)
+        public static GeneralPCEventInfoData GetMapperEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, byte[] localCommands)
         {
             // Load the event info
-            var allInfo = LoadEventInfo(mode);
+            var allInfo = LoadPCEventInfo(mode);
 
             EventWorld eventWorld;
 
@@ -488,22 +483,16 @@ namespace R1Engine
                                   x.HitPoints == hitPoints &&
                                   x.HitSprite == hitSprite &&
                                   x.FollowEnabled == followEnabled &&
-                                  x.MapperID == mapperID &&
+                                  //x.MapperID == mapperID &&
                                   x.LocalCommands.SequenceEqual(localCommands));
 
             // Create dummy item if not found
-            if (match == null)
-            {
-                if (allInfo.Any())
-                    Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
-
-                match = new GeneralEventInfoData(null, mapperID, eventWorld, type, etat, subEtat, null, des, eta, offsetBx, offsetBy, offsetHy, followSprite, hitPoints, hitSprite, followEnabled, null, null, null, localCommands);
-            }
+            if (match == null && allInfo.Any())
+                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
 
             // Return the item
             return match;
         }
-
 
         /// <summary>
         /// Parses a command
@@ -673,8 +662,8 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// The loaded event info cache
+        /// The loaded PC  info cache
         /// </summary>
-        private static Dictionary<string, GeneralEventInfoData[]> Cache { get; } = new Dictionary<string, GeneralEventInfoData[]>();
+        private static Dictionary<string, GeneralPCEventInfoData[]> PCCache { get; } = new Dictionary<string, GeneralPCEventInfoData[]>();
     }
 }

@@ -152,22 +152,18 @@ namespace R1Engine
                         desIndex += 1;
 
                     // Find the matching event info item
-                    var eventInfo = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray(), e.Name);
+                    var eventInfo = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r11) ? r11 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r22) ? r22 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray());
 
                     // Get animation index from the eta item
                     var etaItem = eventInfo.ETA == -1 ? null : eta[eventInfo.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == eventInfo.SubEtat);
-                    int animIndex = etaItem?.AnimationIndex ?? 0;
                     int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                     // Instantiate event prefab using LevelEventController
-                    var ee = Controller.obj.levelEventController.AddEvent(eventInfo,
-                        (uint)e.XPosition,
-                        (uint)e.YPosition,
-                        
+                    var ee = Controller.obj.levelEventController.AddEvent(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], e.EventCommands.Select(x => (byte)x).ToArray(),
+
                         // TODO: Update this
                         index,
 
-                        animIndex,
                         animSpeed);
 
                     // Add the event
@@ -247,6 +243,21 @@ namespace R1Engine
 
             // Return the common level data
             return commonLev;
+        }
+
+        /// <summary>
+        /// Gets the common editor event info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The common editor event info</returns>
+        public override Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
+        {
+            // Find match
+            var match = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.Commands);
+
+            // Return the editor info
+            return new Common_EditorEventInfo(match?.Name, match?.Flag);
         }
 
         #endregion

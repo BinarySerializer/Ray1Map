@@ -582,13 +582,39 @@ namespace R1Engine
                     // The layer index
                     var layer = 0;
 
-                    var frameWidth = anim.Frames.Max(x => x.XPosition + x.Width) + 1;
-                    var frameHeight = anim.Frames.Max(x => x.YPosition + x.Height) + 1;
+                    var tempLayer = layer;
+
+                    int? frameWidth = null;
+                    int? frameHeight = null;
+
+                    for (var dummy = 0; dummy < anim.LayersPerFrame * anim.FrameCount; dummy++)
+                    {
+                        var l = anim.Layers[tempLayer];
+
+                        if (l.ImageIndex < textures.Length)
+                        {
+                            var s = textures[l.ImageIndex];
+
+                            if (s != null)
+                            {
+                                var w = s.width + l.XPosition;
+                                var h = s.height + l.YPosition;
+
+                                if (frameWidth == null || frameWidth < w)
+                                    frameWidth = w;
+
+                                if (frameHeight == null || frameHeight < h)
+                                    frameHeight = h;
+                            }
+                        }
+
+                        tempLayer++;
+                    }
 
                     // Create each animation frame
                     for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
                     {
-                        Texture2D tex = new Texture2D(frameWidth, frameHeight, TextureFormat.RGBA32, false)
+                        Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
                         {
                             filterMode = FilterMode.Point
                         };
@@ -627,10 +653,11 @@ namespace R1Engine
                                 {
                                     var c = sprite.GetPixel(x, sprite.height - y - 1);
 
-                                    var xStart = animationLayer.XPosition;
-                                    var yStart = animationLayer.YPosition;
-                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + xStart;
-                                    var yPosition = -(y + yStart + 1);
+                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
+                                    var yPosition = -(y + animationLayer.YPosition + 1);
+
+                                    if (xPosition >= tex.width)
+                                        throw new Exception("Horizontal overflow!");
 
                                     if (c.a != 0)
                                         tex.SetPixel(xPosition, yPosition, c);
@@ -801,8 +828,8 @@ namespace R1Engine
         public void AutoApplyPalette(Common_Lev level)
         {
             // Get the palette changers
-            var paletteXChangers = level.Events.Where(x => x.EventInfoData.Type == 158 && x.EventInfoData.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.EventInfoData.SubEtat);
-            var paletteYChangers = level.Events.Where(x => x.EventInfoData.Type == 158 && x.EventInfoData.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.EventInfoData.SubEtat);
+            var paletteXChangers = level.Events.Where(x => x.Type == 158 && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteYChangers = level.Events.Where(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
             // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
@@ -1089,17 +1116,10 @@ namespace R1Engine
 
                 //Get animation index from the eta item
                 var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-                int animIndex = etaItem?.AnimationIndex ?? 0;
                 int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(
-                    EventInfoManager.GetPCEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
-                    e.XPosition,
-                    e.YPosition,
-                    levelData.EventLinkingTable[index],
-                    animIndex,
-                    animSpeed);
+                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode, levelData.EventLinkingTable[index], animSpeed);
 
                 // Add the event
                 commonLev.Events.Add(ee);
@@ -1297,10 +1317,10 @@ namespace R1Engine
                 // Create the event
                 var r1Event = new PC_Event
                 {
-                    DES = (uint)e.EventInfoData.DES,
-                    DES2 = (uint)e.EventInfoData.DES,
-                    DES3 = (uint)e.EventInfoData.DES,
-                    ETA = (uint)e.EventInfoData.ETA,
+                    DES = (uint)e.DES,
+                    DES2 = (uint)e.DES,
+                    DES3 = (uint)e.DES,
+                    ETA = (uint)e.ETA,
                     Unknown1 = 0,
                     Unknown2 = 0,
                     Unknown3 = new byte[16],
@@ -1309,23 +1329,23 @@ namespace R1Engine
                     Unknown13 = 0,
                     Unknown4 = new byte[20],
                     Unknown5 = new byte[28],
-                    Type = (uint)e.EventInfoData.Type,
+                    Type = (uint)e.Type,
                     Unknown6 = 0,
-                    OffsetBX = (byte)e.EventInfoData.OffsetBX,
-                    OffsetBY = (byte)e.EventInfoData.OffsetBY,
+                    OffsetBX = (byte)e.OffsetBX,
+                    OffsetBY = (byte)e.OffsetBY,
                     Unknown7 = 0,
-                    SubEtat = (byte)e.EventInfoData.SubEtat,
-                    Etat = (byte)e.EventInfoData.Etat,
+                    SubEtat = (byte)e.SubEtat,
+                    Etat = (byte)e.Etat,
                     Unknown8 = 0,
                     Unknown9 = 0,
-                    OffsetHY = (byte)e.EventInfoData.OffsetHY,
-                    FollowSprite = (byte)e.EventInfoData.FollowSprite,
-                    HitPoints = (byte)e.EventInfoData.HitPoints,
+                    OffsetHY = (byte)e.OffsetHY,
+                    FollowSprite = (byte)e.FollowSprite,
+                    HitPoints = (byte)e.HitPoints,
                     UnkGroup = 0,
-                    HitSprite = (byte)e.EventInfoData.HitSprite,
+                    HitSprite = (byte)e.HitSprite,
                     Unknown10 = new byte[6],
                     Unknown11 = 0,
-                    FollowEnabled = e.EventInfoData.FollowEnabled,
+                    FollowEnabled = e.FollowEnabled,
                     Unknown12 = 0
                 };
 
@@ -1335,10 +1355,10 @@ namespace R1Engine
                 // Add the event commands
                 eventCommands.Add(new PC_EventCommand()
                 {
-                    CodeCount = (ushort)e.EventInfoData.Commands.Length,
-                    EventCode = e.EventInfoData.Commands,
-                    LabelOffsetCount = (ushort)e.EventInfoData.LabelOffsets.Length,
-                    LabelOffsetTable = e.EventInfoData.LabelOffsets
+                    CodeCount = (ushort)e.Commands.Length,
+                    EventCode = e.Commands,
+                    LabelOffsetCount = (ushort)e.LabelOffsets.Length,
+                    LabelOffsetTable = e.LabelOffsets
                 });
 
                 // Add the event links
@@ -1353,6 +1373,39 @@ namespace R1Engine
 
             // Save the file
             FileFactory.Write(lvlPath, settings);
+        }
+
+        /// <summary>
+        /// Gets the common editor event info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The common editor event info</returns>
+        public virtual Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
+        {
+            // Find match
+            var match = EventInfoManager.GetPCEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands);
+
+            // Return the editor info
+            return new Common_EditorEventInfo(match?.Name, match?.Flag);
+        }
+
+        /// <summary>
+        /// Gets the animation index for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The animation index</returns>
+        public int GetAnimationIndex(GameSettings settings, Common_Event e)
+        {
+            // Get the world data
+            var wld = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings);
+
+            // Get animation index from the matching ETA item
+            var etaItem = wld.Eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
+            
+            // Return the index
+            return etaItem?.AnimationIndex ?? 0;
         }
 
         #endregion

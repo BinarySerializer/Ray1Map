@@ -87,18 +87,18 @@ namespace R1Engine
                         eventInfoName.text = currentlySelected.name;
                         eventInfoX.text = currentlySelected.XPosition.ToString();
                         eventInfoY.text = currentlySelected.YPosition.ToString();
-                        eventInfoDes.text = currentlySelected.EventInfoData.DES.ToString();
-                        eventInfoEta.text = currentlySelected.EventInfoData.ETA.ToString();
-                        eventInfoEtat.text = currentlySelected.EventInfoData.Etat.ToString();
-                        eventInfoSubEtat.text = currentlySelected.EventInfoData.SubEtat.ToString();
-                        eventInfoOffsetBx.text = currentlySelected.EventInfoData.OffsetBX.ToString();
-                        eventInfoOffsetBy.text = currentlySelected.EventInfoData.OffsetBY.ToString();
-                        eventInfoOffsetHy.text = currentlySelected.EventInfoData.OffsetHY.ToString();
-                        eventInfoFollowSprite.text = currentlySelected.EventInfoData.FollowSprite.ToString();
-                        eventInfoHitPoints.text = currentlySelected.EventInfoData.HitPoints.ToString();
-                        eventInfoHitSprite.text = currentlySelected.EventInfoData.HitSprite.ToString();
-                        eventInfoFollow.text = currentlySelected.EventInfoData.FollowEnabled?"TRUE":"FALSE";
-                        eventInfoType.text = currentlySelected.EventInfoData.Type.ToString();
+                        eventInfoDes.text = currentlySelected.DES.ToString();
+                        eventInfoEta.text = currentlySelected.ETA.ToString();
+                        eventInfoEtat.text = currentlySelected.Etat.ToString();
+                        eventInfoSubEtat.text = currentlySelected.SubEtat.ToString();
+                        eventInfoOffsetBx.text = currentlySelected.OffsetBX.ToString();
+                        eventInfoOffsetBy.text = currentlySelected.OffsetBY.ToString();
+                        eventInfoOffsetHy.text = currentlySelected.OffsetHY.ToString();
+                        eventInfoFollowSprite.text = currentlySelected.FollowSprite.ToString();
+                        eventInfoHitPoints.text = currentlySelected.HitPoints.ToString();
+                        eventInfoHitSprite.text = currentlySelected.HitSprite.ToString();
+                        eventInfoFollow.text = currentlySelected.FollowEnabled?"TRUE":"FALSE";
+                        eventInfoType.text = currentlySelected.Type.ToString();
                     }
                     else {
                         currentlySelected = null;
@@ -141,20 +141,41 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(GeneralEventInfoData e, uint xpos, uint ypos, int link, int animIndex, int speed) {
+        public Common_Event AddEvent(int type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands, int link, int animSpeed) {
             // Instantiate prefab
             Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
 
-            newEvent.EventInfoData = e;
+            newEvent.Type = type;
+            newEvent.Etat = etat;
+            newEvent.SubEtat = subEtat;
+
             newEvent.XPosition = xpos;
             newEvent.YPosition = ypos;
+            
+            newEvent.DES = des;
+            newEvent.ETA = eta;
+            
+            newEvent.OffsetBX = offsetBX;
+            newEvent.OffsetBY = offsetBY;
+            newEvent.OffsetHY = offsetHY;
+            
+            newEvent.FollowSprite = followSprite;
+            newEvent.HitPoints = hitpoints;
+            newEvent.HitSprite = hitSprite;
+            newEvent.FollowEnabled = followEnabled;
+            
+            newEvent.LabelOffsets = labelOffsets;
+            newEvent.Commands = commands;
+
             newEvent.LinkIndex = link;
-            newEvent.AnimationIndex = animIndex;
-            newEvent.Speed = speed;
-            newEvent.Commands = EventInfoManager.ParseCommands(e.Commands, e.LabelOffsets);
+            newEvent.AnimSpeed = animSpeed;
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
+
+            // Refresh
+            newEvent.RefreshEditorInfo();
+
             // Add to list
             return newEvent;
         }

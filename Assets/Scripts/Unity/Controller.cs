@@ -63,7 +63,7 @@ namespace R1Engine
 
             stopwatch.Stop();
 
-            var startEvent = levelController.currentLevel.Events.FindItem(x => x.EventInfoData?.Type == 99 || x.EventInfoData?.Type == 124);
+            var startEvent = levelController.currentLevel.Events.FindItem(x => x.Type == 99 || x.Type == 124);
 
             if (startEvent != null)
                 Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition, -10f);

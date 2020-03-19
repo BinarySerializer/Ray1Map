@@ -231,6 +231,22 @@ namespace R1Engine
             FileFactory.Write(lvlPath, settings);
         }
 
+        /// <summary>
+        /// Gets the common editor event info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The common editor event info</returns>
+        public Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e) => null;
+
+        /// <summary>
+        /// Gets the animation index for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The animation index</returns>
+        public int GetAnimationIndex(GameSettings settings, Common_Event e) => 0;
+
         #endregion
     }
 }

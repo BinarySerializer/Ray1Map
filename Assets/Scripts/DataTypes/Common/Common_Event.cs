@@ -8,39 +8,139 @@ namespace R1Engine
     /// </summary>
     public class Common_Event : MonoBehaviour
     {
-        /// <summary>
-        /// Gets the display name based on world
-        /// </summary>
-        /// <param name="world">The world</param>
-        /// <returns>The display name</returns>
-        public string DisplayName(World world)
-        {
-            try
-            {
-                return String.IsNullOrWhiteSpace(EventInfoData?.Name) ? $"Unknown type {EventInfoData?.Type}" : EventInfoData?.Name;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Error when getting event display name for type {EventInfoData?.Type}: {ex.Message}");
+        #region Event Data
 
-                return "N/A";
-            }
+        /// <summary>
+        /// The event display name
+        /// </summary>
+        public string DisplayName { get; set; }
+
+        /// <summary>
+        /// The event flag
+        /// </summary>
+        public EventFlag? Flag { get; set; }
+
+        /// <summary>
+        /// The animation index to use
+        /// </summary>
+        public int AnimationIndex { get; set; }
+
+        /// <summary>
+        /// Animation speed
+        /// </summary>
+        public int AnimSpeed { get; set; }
+
+        /// <summary>
+        /// The event type
+        /// </summary>
+        public int Type { get; set; }
+
+        /// <summary>
+        /// The event state
+        /// </summary>
+        public int Etat { get; set; }
+
+        /// <summary>
+        /// The event sub-state
+        /// </summary>
+        public int SubEtat { get; set; }
+
+        /// <summary>
+        /// The x position
+        /// </summary>
+        public uint XPosition { get; set; }
+
+        /// <summary>
+        /// The x position
+        /// </summary>
+        public uint YPosition { get; set; }
+
+        /// <summary>
+        /// The event design index
+        /// </summary>
+        public int DES { get; set; }
+
+        // TODO: PC only?
+        /// <summary>
+        /// The event ETA index
+        /// </summary>
+        public int ETA { get; set; }
+
+        /// <summary>
+        /// The event offset BX
+        /// </summary>
+        public int OffsetBX { get; set; }
+
+        /// <summary>
+        /// The event offset BY
+        /// </summary>
+        public int OffsetBY { get; set; }
+
+        /// <summary>
+        /// The event offset HY
+        /// </summary>
+        public int OffsetHY { get; set; }
+
+        public int FollowSprite { get; set; }
+
+        /// <summary>
+        /// The event hit-points
+        /// </summary>
+        public int HitPoints { get; set; }
+
+        public int HitSprite { get; set; }
+
+        /// <summary>
+        /// Indicates if the event has collision
+        /// </summary>
+        public bool FollowEnabled { get; set; }
+
+        /// <summary>
+        /// The label offsets
+        /// </summary>
+        public ushort[] LabelOffsets { get; set; }
+
+        /// <summary>
+        /// The event commands
+        /// </summary>
+        public byte[] Commands { get; set; }
+
+        /// <summary>
+        /// The parsed event commands
+        /// </summary>
+        public string[] ParsedCommands { get; set; }
+
+        #endregion
+
+        #region Event Methods
+
+        /// <summary>
+        /// Refreshes the editor event info
+        /// </summary>
+        public void RefreshEditorInfo()
+        {
+            // TODO: All these don't need to be called for every change
+
+            // Get the event info data
+            var eventInfo = Settings.GetGameManager.GetEditorEventInfo(Settings.GetGameSettings, this);
+
+            // Set the name
+            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
+
+            // Set the flag
+            Flag = eventInfo?.Flag;
+
+            // Refresh parsed commands
+            ParsedCommands = EventInfoManager.ParseCommands(Commands, LabelOffsets);
+
+            // Get the animation index
+            AnimationIndex = Settings.GetGameManager.GetAnimationIndex(Settings.GetGameSettings, this);
+
+            // Update the appearance
+            ChangeAppearance(DES, AnimationIndex);
         }
 
-        /// <summary>
-        /// The event info data
-        /// </summary>
-        public GeneralEventInfoData EventInfoData;
-
-        /// <summary>
-        /// The x position
-        /// </summary>
-        public uint XPosition;
-
-        /// <summary>
-        /// The x position
-        /// </summary>
-        public uint YPosition;
+        #endregion
 
         /// <summary>
         /// The link index
@@ -52,16 +152,6 @@ namespace R1Engine
         /// </summary>
         public int LinkID;
 
-        /// <summary>
-        /// Animation speed
-        /// </summary>
-        public int Speed;
-
-        /// <summary>
-        /// The animation index to use
-        /// </summary>
-        public int AnimationIndex;
-
         private int desOld;
         private int animationIndexOld;
 
@@ -69,8 +159,6 @@ namespace R1Engine
         /// The current animation of this event
         /// </summary>
         public Common_Animation CurrentAnimation;
-
-        public string[] Commands;
 
         // Current frame in the animation
         [HideInInspector]
@@ -87,14 +175,6 @@ namespace R1Engine
         // Midpoint of this event when taking all the spriteparts into account
         public Vector2 midpoint;
 
-        private void Start()
-        {
-            // Set display name for this prefab
-            name = DisplayName(Settings.World);
-
-            ChangeAppearance(EventInfoData.DES, AnimationIndex);
-        }
-
         void Update()
         {
 
@@ -102,32 +182,32 @@ namespace R1Engine
                 return;
 
             // Change appearance on the fly
-            if (EventInfoData.DES != desOld || animationIndexOld != AnimationIndex) {
-                if (EventInfoData.DES < 1) {
+            if (DES != desOld || animationIndexOld != AnimationIndex) {
+                if (DES < 1) {
                     Debug.LogWarning("Trying to set an out of range DES");
-                    EventInfoData.DES = 1;
+                    DES = 1;
                     desOld = 1;
-                }else if(EventInfoData.DES > Controller.obj.levelController.eventDesigns.Count) {
+                }else if(DES > Controller.obj.levelController.eventDesigns.Count) {
                     Debug.LogWarning("Trying to set an out of range DES");
-                    EventInfoData.DES = Controller.obj.levelController.eventDesigns.Count;
+                    DES = Controller.obj.levelController.eventDesigns.Count;
                     desOld = Controller.obj.levelController.eventDesigns.Count;
                 }
                 else if (AnimationIndex<0) {
                     Debug.LogWarning("Trying to set an out of range AnimationIndex");
                     AnimationIndex = 0;
                     animationIndexOld = 0;
-                }else if(AnimationIndex > Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count-1) {
+                }else if(AnimationIndex > Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count-1) {
                     Debug.LogWarning("Trying to set an out of range AnimationIndex");
-                    if (Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count == 0) {
+                    if (Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count == 0) {
                         AnimationIndex = 0;
                         animationIndexOld = 0;
                     }
                     else {
-                        AnimationIndex = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count - 1;
-                        animationIndexOld = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Animations.Count - 1;
+                        AnimationIndex = Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count - 1;
+                        animationIndexOld = Controller.obj.levelController.eventDesigns[DES - 1].Animations.Count - 1;
                     }
                 }
-                ChangeAppearance(EventInfoData.DES, AnimationIndex);
+                ChangeAppearance(DES, AnimationIndex);
             }
 
             // Update Event's x and y here
@@ -142,7 +222,7 @@ namespace R1Engine
             {
                 // Scroll through the frames
                 if (Settings.AnimateSprites)
-                    currentFrame += (60f / Speed) * Time.deltaTime;
+                    currentFrame += (60f / AnimSpeed) * Time.deltaTime;
                 if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 
@@ -152,7 +232,7 @@ namespace R1Engine
             }
 
             //Change collider with show always/editor events
-            boxCollider.enabled = !(EventInfoData.Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(EventInfoData.Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
+            boxCollider.enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
 
             //Link lines
             if (LinkIndex != Controller.obj.levelController.currentLevel.Events.IndexOf(this)) {
@@ -164,7 +244,7 @@ namespace R1Engine
 
         // Change des and everything
         private void ChangeAppearance(int newDes, int newAnimation) {
-            EventInfoData.DES = newDes;
+            DES = newDes;
             AnimationIndex = newAnimation;
             desOld = newDes;
             animationIndexOld = AnimationIndex;
@@ -183,7 +263,7 @@ namespace R1Engine
         // Try to load a new animation and change to it
         private void ChangeAnimation(int newAnim) {
 
-            var desIndex = EventInfoData.DES - 1;
+            var desIndex = DES - 1;
 
             if (desIndex < 0)
             {
@@ -234,8 +314,8 @@ namespace R1Engine
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     var frame = CurrentAnimation.Frames[0, i];
                     //Skips sprites out of bounds
-                    if (CurrentAnimation.Frames[0, i].SpriteIndex < Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites.Count) {
-                        var sprite = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
+                    if (CurrentAnimation.Frames[0, i].SpriteIndex < Controller.obj.levelController.eventDesigns[DES - 1].Sprites.Count) {
+                        var sprite = Controller.obj.levelController.eventDesigns[DES - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
                         if (sprite != null) {
                             if (frame.X < leftX || i == 0)
                                 leftX = frame.X;
@@ -259,11 +339,11 @@ namespace R1Engine
             if (CurrentAnimation != null) {
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     //Skips sprites out of bounds
-                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites.Count) {
+                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[DES - 1].Sprites.Count) {
                         prefabRendereds[i].sprite = null;
                     }
                     else {
-                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[EventInfoData.DES - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[DES - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                     }
                     prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 
@@ -271,7 +351,7 @@ namespace R1Engine
                     prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
 
                     //Change visibility if always/editor
-                    prefabRendereds[i].enabled = !(EventInfoData.Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(EventInfoData.Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
+                    prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
                 }
             }
         }
