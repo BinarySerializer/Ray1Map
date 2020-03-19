@@ -112,7 +112,7 @@ namespace R1Engine
                     }
                 }
                 //Drag and move the event
-                if (Input.GetMouseButton(0)) {
+                if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) {
                     if (currentlySelected != null) {
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -175,6 +175,15 @@ namespace R1Engine
                     int new_type = 0;
                     int.TryParse(eventInfoType.text, out new_type);
                     currentlySelected.Type = new_type;
+                }
+                //Delete selected event
+                if (Input.GetKeyDown(KeyCode.Delete)) {
+                    if (currentlySelected != null) {
+                        currentlySelected.Delete();
+
+                        currentlySelected = null;
+                        eventInfoWindow.SetActive(false);
+                    }
                 }
             }
         }

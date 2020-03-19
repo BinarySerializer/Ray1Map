@@ -233,11 +233,12 @@ namespace R1Engine
             boxCollider.enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
 
             //Link lines
+            /*
             if (LinkIndex != Controller.obj.levelController.currentLevel.Events.IndexOf(this)) {
                 lineRend.SetPosition(0, midpoint);
                 var linkedEvent = Controller.obj.levelController.currentLevel.Events[LinkIndex];
                 lineRend.SetPosition(1, linkedEvent.midpoint);
-            }
+            }*/
         }
 
         // Change des and everything
@@ -352,6 +353,21 @@ namespace R1Engine
                     prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
                 }
             }
+        }
+
+        // Delete this event properly
+        public void Delete() {
+            // Remove this from the event list
+            Controller.obj.levelController.currentLevel.Events.Remove(this);
+            // Remove all children
+            if (prefabRendereds != null) {
+                for (int i = 0; i < prefabRendereds.Length; i++) {
+                    Destroy(prefabRendereds[i].gameObject);
+                }
+                Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
+            }
+            // Remove self
+            Destroy(gameObject);
         }
     }
 }
