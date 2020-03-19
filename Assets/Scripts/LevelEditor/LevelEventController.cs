@@ -93,7 +93,6 @@ namespace R1Engine
                     if (e != null) {
                         currentlySelected = e;
                         //Change event info if event is selected
-                        eventInfoWindow.SetActive(true);
                         eventInfoName.text = currentlySelected.name;
                         eventInfoX.text = currentlySelected.XPosition.ToString();
                         eventInfoY.text = currentlySelected.YPosition.ToString();
@@ -116,7 +115,8 @@ namespace R1Engine
                     else {
                         selectedLineRend.enabled = false;
                         currentlySelected = null;
-                        eventInfoWindow.SetActive(false);
+                        //Clear info window
+                        ClearInfoWindow();
                     }
                 }
                 //Drag and move the event
@@ -175,9 +175,9 @@ namespace R1Engine
                 if (Input.GetKeyDown(KeyCode.Delete)) {
                     if (currentlySelected != null) {
                         currentlySelected.Delete();
-
                         currentlySelected = null;
-                        eventInfoWindow.SetActive(false);
+
+                        ClearInfoWindow();
                     }
                 }
             }
@@ -202,6 +202,24 @@ namespace R1Engine
                 selectedLineRend.SetPosition(3, Vector2.zero);
                 selectedLineRend.SetPosition(4, Vector2.zero);
             }
+        }
+
+        private void ClearInfoWindow() {
+            eventInfoName.text = "";
+            eventInfoX.text = "";
+            eventInfoY.text = "";
+            eventInfoDes.text = "";
+            eventInfoEta.text = "";
+            eventInfoEtat.text = "";
+            eventInfoSubEtat.text = "";
+            eventInfoOffsetBx.text = "";
+            eventInfoOffsetBy.text = "";
+            eventInfoOffsetHy.text = "";
+            eventInfoFollowSprite.text = "";
+            eventInfoHitPoints.text = "";
+            eventInfoHitSprite.text = "";
+            eventInfoFollow.text = "";
+            eventInfoType.text = "";
         }
 
         // Show/Hide links
