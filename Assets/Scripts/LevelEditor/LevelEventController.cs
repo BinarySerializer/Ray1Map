@@ -77,8 +77,8 @@ namespace R1Engine
             //Only do this if in event mode
             if (editor.currentMode == Editor.EditMode.Events) {
                 selectedLineRend.enabled = true;
-                //Add events if right clicked
-                if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject()) {
+                //Add events with mmb
+                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject()) {
 
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
