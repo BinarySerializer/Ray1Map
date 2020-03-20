@@ -139,7 +139,7 @@ namespace R1Engine
         }
         public void RefreshCommands() {
             // Refresh parsed commands
-            ParsedCommands = EventInfoManager.ParseCommands(Commands, LabelOffsets);
+            ParsedCommands = EventHelpers.ParseCommands(Commands, LabelOffsets);
         }
         public void RefreshVisuals() {
             // Get the animation info

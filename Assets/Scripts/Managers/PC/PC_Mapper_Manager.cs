@@ -152,7 +152,7 @@ namespace R1Engine
                         desIndex += 1;
 
                     // Find the matching event info item
-                    var eventInfo = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r11) ? r11 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r22) ? r22 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray());
+                    var eventInfo = GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r11) ? r11 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r22) ? r22 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray());
 
                     // Get animation index from the eta item
                     var etaItem = eventInfo.ETA == -1 ? null : eta[eventInfo.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == eventInfo.SubEtat);
@@ -254,7 +254,7 @@ namespace R1Engine
         public override Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
         {
             // Find match
-            var match = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.Commands);
+            var match = GetMapperEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.Commands);
 
             // Return the editor info
             return new Common_EditorEventInfo(match?.Name, match?.Flag);
@@ -270,7 +270,7 @@ namespace R1Engine
         {
             var w = settings.World.ToEventWorld();
 
-            return EventInfoManager.LoadPCEventInfo(settings.GameModeSelection)?.Where(x => x.MapperID != null).Where(x => x.World == EventWorld.All || x.World == w).Select(x => x.Name).ToArray() ?? new string[0];
+            return LoadPCEventInfo(settings.GameModeSelection)?.Where(x => x.MapperID != null).Where(x => x.World == EventWorld.All || x.World == w).Select(x => x.Name).ToArray() ?? new string[0];
         }
 
         /// <summary>
@@ -287,10 +287,61 @@ namespace R1Engine
             var w = settings.World.ToEventWorld();
 
             // Get the event
-            var e = EventInfoManager.LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
+            var e = LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
 
             // Add and return the event
             return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.LocalCommands, 0, 1);
+        }
+
+        /// <summary>
+        /// Gets the event info data which matches the specified values for a Mapper event
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="world"></param>
+        /// <param name="type"></param>
+        /// <param name="etat"></param>
+        /// <param name="subEtat"></param>
+        /// <param name="des"></param>
+        /// <param name="eta"></param>
+        /// <param name="offsetBx"></param>
+        /// <param name="offsetBy"></param>
+        /// <param name="offsetHy"></param>
+        /// <param name="followSprite"></param>
+        /// <param name="hitPoints"></param>
+        /// <param name="hitSprite"></param>
+        /// <param name="followEnabled"></param>
+        /// <param name="localCommands"></param>
+        /// <returns>The item which matches the values</returns>
+        public GeneralPCEventInfoData GetMapperEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, byte[] localCommands)
+        {
+            // Load the event info
+            var allInfo = LoadPCEventInfo(mode);
+
+            EventWorld eventWorld = world.ToEventWorld();
+
+            // Find a matching item
+            var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
+                                  x.Type == type &&
+                                  x.Etat == etat &&
+                                  x.SubEtat == subEtat &&
+                                  x.DES == des &&
+                                  x.ETA == eta &&
+                                  x.OffsetBX == offsetBx &&
+                                  x.OffsetBY == offsetBy &&
+                                  x.OffsetHY == offsetHy &&
+                                  x.FollowSprite == followSprite &&
+                                  x.HitPoints == hitPoints &&
+                                  x.HitSprite == hitSprite &&
+                                  x.FollowEnabled == followEnabled &&
+                                  //x.MapperID == mapperID &&
+                                  x.LocalCommands.SequenceEqual(localCommands));
+
+            // Create dummy item if not found
+            if (match == null && allInfo.Any())
+                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
+
+            // Return the item
+            return match;
         }
 
         #endregion
