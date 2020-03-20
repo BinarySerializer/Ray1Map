@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -72,8 +73,10 @@ namespace R1Engine
                 eventDropdown.options.Add(dat);
             }
 
-            // Default to the first string
-            eventDropdown.captionText.text = eventDropdown.options[0].text;
+            // TODO: Have some flag for if current game mode supports editing
+            if (eventDropdown.options.Any())
+                // Default to the first string
+                eventDropdown.captionText.text = eventDropdown.options[0].text;
         }
 
         private void Update() {
