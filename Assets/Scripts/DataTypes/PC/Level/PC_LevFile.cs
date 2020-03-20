@@ -42,7 +42,7 @@ namespace R1Engine
         /// <summary>
         /// Unknown byte, always set to 2
         /// </summary>
-        public byte Unknown10 { get; set; }
+        public byte LastPlan1Palette { get; set; }
 
         /// <summary>
         /// The tiles for the map
@@ -63,7 +63,7 @@ namespace R1Engine
         public byte BackgroundIndex { get; set; }
 
         /// <summary>
-        /// The DES for the background sprites
+        /// The DES for the background sprites when parallax scrolling is enabled
         /// </summary>
         public uint BackgroundSpritesDES { get; set; }
 
@@ -255,7 +255,7 @@ namespace R1Engine
             }
 
             // Serialize unknown byte
-            serializer.Serialize(nameof(Unknown10));
+            serializer.Serialize(nameof(LastPlan1Palette));
 
             // MAP BLOCK
 
@@ -282,6 +282,7 @@ namespace R1Engine
                     // Begin calculating the rough texture checksum
                     serializer.BeginCalculateChecksum(new Checksum8Calculator());
 
+                    // TODO: Encrypted with xor 0xFD
                     if (serializer.Mode == SerializerMode.Read)
                     {
                         // Create the collection of rough textures
@@ -314,6 +315,7 @@ namespace R1Engine
                     // Begin calculating the unknown 3 checksum
                     serializer.BeginCalculateChecksum(new Checksum8Calculator());
 
+                    // TODO: Encrypted with xor 0xF3
                     // Serialize the items for the third unknown value
                     serializer.SerializeArray<byte>(nameof(Unknown3), Unknown3Count);
 
