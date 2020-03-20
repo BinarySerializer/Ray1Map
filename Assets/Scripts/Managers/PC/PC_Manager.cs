@@ -533,6 +533,7 @@ namespace R1Engine
 
                     IEnumerable<PC_Eta> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].SelectMany(x => x).Where(x => x.AnimationIndex == j);
 
+                    // TODO: Redo this to use new ETA indexing system
                     // Attempt to find a perfect match
                     for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
                     {
@@ -1412,7 +1413,8 @@ namespace R1Engine
             var eta = allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
 
             // Get animation index from the matching ETA item
-            var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
+            //var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
+            var etaItem = eta.ElementAt(e.ETA).ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
 
             // Return the index
             return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);
