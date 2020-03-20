@@ -11,15 +11,17 @@ namespace R1Engine
     {
         #region Public Properties
 
-        public ushort Unknown6 { get; set; }
+        // Unknown values related to backgrounds (most likely parallax scrolling)
+        public ushort BG1 { get; set; }
+        public ushort BG2 { get; set; }
 
-        public ushort Unknown2 { get; set; }
+        // Some DOS related values?
+        public byte BiosCheckSum { get; set; }
+        public byte VideoBiosCheckSum { get; set; }
 
-        public ushort Unknown4Count { get; set; }
-
-        public byte Unknown3 { get; set; }
-
-        public byte[] Unknown4 { get; set; }
+        // Something related to the background PCX files
+        public byte Plan0NumPcxCount { get; set; }
+        public byte[] Plan0NumPcx { get; set; }
 
         /// <summary>
         /// The amount of DES items
@@ -55,11 +57,12 @@ namespace R1Engine
             if (serializer.FileName.Contains(".wld"))
             {
                 // Serialize unknown header
-                serializer.Serialize(nameof(Unknown6));
-                serializer.Serialize(nameof(Unknown2));
-                serializer.Serialize(nameof(Unknown4Count));
-                serializer.Serialize(nameof(Unknown3));
-                serializer.SerializeArray<byte>(nameof(Unknown4), serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? Unknown4Count : Unknown4Count * 8);
+                serializer.Serialize(nameof(BG1));
+                serializer.Serialize(nameof(BG2));
+                serializer.Serialize(nameof(Plan0NumPcxCount));
+                serializer.Serialize(nameof(VideoBiosCheckSum));
+                serializer.Serialize(nameof(BiosCheckSum));
+                serializer.SerializeArray<byte>(nameof(Plan0NumPcx), serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, 0x15);
             }
 
             if (serializer.FileName.Contains(".wld"))
