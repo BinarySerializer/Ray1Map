@@ -151,20 +151,11 @@ namespace R1Engine
                     if (desIndex != -1)
                         desIndex += 1;
 
-                    // Find the matching event info item
-                    var eventInfo = GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r11) ? r11 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r22) ? r22 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray());
-
-                    // Get animation index from the eta item
-                    var etaItem = eventInfo.ETA == -1 ? null : eta[eventInfo.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == eventInfo.SubEtat);
-                    int animSpeed = etaItem?.AnimationSpeed ?? 0;
-
                     // Instantiate event prefab using LevelEventController
                     var ee = Controller.obj.levelEventController.AddEvent(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], e.EventCommands.Select(x => (byte)x).ToArray(),
 
                         // TODO: Update this
-                        index,
-
-                        animSpeed);
+                        index);
 
                     // Add the event
                     commonLev.Events.Add(ee);
@@ -290,7 +281,7 @@ namespace R1Engine
             var e = LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
 
             // Add and return the event
-            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.LocalCommands, 0, 1);
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.LocalCommands, 0);
         }
 
         /// <summary>

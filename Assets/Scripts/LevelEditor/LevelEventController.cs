@@ -318,7 +318,7 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(int type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands, int link, int animSpeed) {
+        public Common_Event AddEvent(int type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands, int link) {
             // Instantiate prefab
             Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
 
@@ -345,7 +345,6 @@ namespace R1Engine
             newEvent.Commands = commands;
 
             newEvent.LinkIndex = link;
-            newEvent.AnimSpeed = animSpeed;
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;

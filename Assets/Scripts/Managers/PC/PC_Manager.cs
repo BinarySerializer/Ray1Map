@@ -1119,12 +1119,8 @@ namespace R1Engine
 
                 await Controller.WaitIfNecessary();
 
-                //Get animation index from the eta item
-                var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-                int animSpeed = etaItem?.AnimationSpeed ?? 0;
-
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode, levelData.EventLinkingTable[index], animSpeed);
+                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode, levelData.EventLinkingTable[index]);
 
                 // Add the event
                 commonLev.Events.Add(ee);
@@ -1417,7 +1413,7 @@ namespace R1Engine
 
             // Get animation index from the matching ETA item
             var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-            
+
             // Return the index
             return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);
         }
@@ -1454,7 +1450,7 @@ namespace R1Engine
             var cmds = e.Commands.Any() ? e.Commands : e.LocalCommands;
 
             // Add and return the event
-            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0, 1);
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0);
         }
 
         /// <summary>
