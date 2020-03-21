@@ -15,35 +15,35 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(GetWorldFolderPath(settings), "RAY??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), "RAY??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
 
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), GetWorldName(settings.World));
+        public string GetWorldFolderPath(GameSettings settings) => GetDataPath() + GetWorldName(settings.World) + "/";
 
         /// <summary>
         /// Gets the file path for the big ray file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The big ray file path</returns>
-        public override string GetBigRayFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"BRAY.DAT");
+        public override string GetBigRayFilePath(GameSettings settings) => GetDataPath() + $"BRAY.DAT";
 
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => Path.Combine(GetWorldFolderPath(settings), $"RAY{settings.Level}.LEV");
+        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"RAY{settings.Level}.LEV";
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"RAY{(int)settings.World + 1}.WLD");
+        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{(int)settings.World + 1}.WLD";
 
         /// <summary>
         /// Indicates if the game has 3 palettes it swaps between

@@ -48,7 +48,7 @@ public class FileSerializerWindow : UnityWindow
             using (var file = File.OpenRead(SelectedInputFile))
             {
                 // Create the file
-                var fileData = (IBinarySerializable)Activator.CreateInstance(FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
+                var fileData = (R1Serializable)Activator.CreateInstance(FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
                 throw new NotImplementedException();
                 //// Create the deserializer
                 //var deserializer = new BinaryDeserializer(file, SelectedInputFile, Settings.GetGameSettings);
@@ -69,7 +69,7 @@ public class FileSerializerWindow : UnityWindow
                 throw new Exception("Input file doesn't exist");
 
             // Deserialize the file
-            var fileData = JsonHelpers.DeserializeFromFile<IBinarySerializable>(SelectedInputFile, FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
+            var fileData = JsonHelpers.DeserializeFromFile<R1Serializable>(SelectedInputFile, FileFactory.SerializableDataTypes[SelectedDataTypeIndex]);
 
             // Create the file
             using (var file = File.Create(SelectedOutputFile))

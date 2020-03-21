@@ -12,42 +12,42 @@ namespace R1Engine
         /// <summary>
         /// The pointer to the first block. This block is always 0 bytes.
         /// </summary>
-        public uint FirstBlockPointer => Pointers[0];
+        public Pointer FirstBlockPointer => BlockPointers[0];
 
         /// <summary>
         /// The pointer to the second block
         /// </summary>
-        public uint SecondBlockPointer => Pointers[1];
+        public Pointer SecondBlockPointer => BlockPointers[1];
 
         /// <summary>
         /// The pointer to the third block. This block is always 0 bytes.
         /// </summary>
-        public uint ThirdBlockPointer => Pointers[2];
+        public Pointer ThirdBlockPointer => BlockPointers[2];
 
         /// <summary>
         /// The pointer to the event palette 1 block
         /// </summary>
-        public uint EventPalette1BlockPointer => Pointers[3];
+        public Pointer EventPalette1BlockPointer => BlockPointers[3];
 
         /// <summary>
         /// The pointer to the event palette 2 block
         /// </summary>
-        public uint EventPalette2BlockPointer => Pointers[4];
+        public Pointer EventPalette2BlockPointer => BlockPointers[4];
 
         /// <summary>
         /// The pointer to the tiles block
         /// </summary>
-        public uint TilesBlockPointer => Pointers[5];
+        public Pointer TilesBlockPointer => BlockPointers[5];
 
         /// <summary>
         /// The pointer to the palette block
         /// </summary>
-        public uint PaletteBlockPointer => Pointers[6];
+        public Pointer PaletteBlockPointer => BlockPointers[6];
 
         /// <summary>
         /// The pointer to the palette index block
         /// </summary>
-        public uint PaletteIndexBlockPointer => Pointers[7];
+        public Pointer PaletteIndexBlockPointer => BlockPointers[7];
 
         // Empty
         public byte[] FirstBlock { get; set; }
@@ -87,77 +87,58 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public override void Serialize(BinarySerializer serializer)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             // HEADER
-
-            base.Serialize(serializer);
+            base.SerializeImpl(s);
 
             // BLOCK 1
-
-            serializer.SerializeArray<byte>(nameof(FirstBlock), SecondBlockPointer - serializer.BaseStream.Position);
+            s.DoAt(FirstBlockPointer, () => {
+                FirstBlock = s.SerializeArray<byte>(FirstBlock, SecondBlockPointer - s.CurrentPointer, name: "FirstBlock");
+            });
 
             // BLOCK 2
-
-            serializer.SerializeArray<byte>(nameof(SecondBlock), ThirdBlockPointer - serializer.BaseStream.Position);
+            s.DoAt(SecondBlockPointer, () => {
+                SecondBlock = s.SerializeArray<byte>(SecondBlock, ThirdBlockPointer - s.CurrentPointer, name: "SecondBlock");
+            });
 
             // BLOCK 3
-
-            serializer.SerializeArray<byte>(nameof(ThirdBlock), EventPalette1BlockPointer - serializer.BaseStream.Position);
+            s.DoAt(ThirdBlockPointer, () => {
+                ThirdBlock = s.SerializeArray<byte>(ThirdBlock, EventPalette1BlockPointer - s.CurrentPointer, name: "ThirdBlock");
+            });
 
             // EVENT PALETTE 1
-
-            serializer.SerializeArray<ARGB1555Color>(nameof(EventPalette1), 256);
+            s.DoAt(EventPalette1BlockPointer, () => {
+                EventPalette1 = s.SerializeObjectArray<ARGB1555Color>(EventPalette1, 256, name: "EventPalette1");
+            });
 
             // EVENT PALETTE 2
-
-            serializer.SerializeArray<ARGB1555Color>(nameof(EventPalette2), 256);
+            s.DoAt(EventPalette2BlockPointer, () => {
+                EventPalette2 = s.SerializeObjectArray<ARGB1555Color>(EventPalette2, 256, name: "EventPalette2");
+            });
 
             // TILES
-
-            // At this point the stream position should match the tiles block offset
-            if (serializer.BaseStream.Position != TilesBlockPointer)
-                Debug.LogError("Tiles block offset is incorrect");
-
-            // Read the tiles index table
-            serializer.SerializeArray<byte>(nameof(TilesIndexTable), PaletteBlockPointer - serializer.BaseStream.Position);
+            s.DoAt(TilesBlockPointer, () => {
+                // Read the tiles index table
+                TilesIndexTable = s.SerializeArray<byte>(TilesIndexTable, PaletteBlockPointer - TilesBlockPointer, name: "TilesIndexTable");
+            });
 
             // TILE PALETTES
-
-            // At this point the stream position should match the palette block offset
-            if (serializer.BaseStream.Position != PaletteBlockPointer)
-                Debug.LogError("Palette block offset is incorrect");
-
-            if (serializer.Mode == SerializerMode.Read)
-            {
-                // Create the palettes
-                var palettes = new List<ARGB1555Color[]>();
-
-                // TODO: Find way to know the number of palettes
-                while (serializer.BaseStream.Position < PaletteIndexBlockPointer)
-                    // Read and add to the palettes
-                    palettes.Add(serializer.ReadArray<ARGB1555Color>(256));
-
-                // Set the palettes
-                TileColorPalettes = palettes.ToArray();
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            s.DoAt(PaletteBlockPointer, () => {
+                // TODO: Find a better way to know the number of palettes
+                uint numPalettes = (uint)(PaletteIndexBlockPointer - PaletteBlockPointer) / (256 * 2);
+                if (TileColorPalettes == null) {
+                    TileColorPalettes = new ARGB1555Color[numPalettes][];
+                }
+                for (int i = 0; i < TileColorPalettes.Length; i++) {
+                    TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: "TileColorPalettes[" + i + "]");
+                }
+            });
 
             // TILE PALETTE ASSIGN
-
-            // At this point the stream position should match the palette assign block offset
-            if (serializer.BaseStream.Position != PaletteIndexBlockPointer)
-                Debug.LogError("Palette assign block offset is incorrect");
-
-            // Read the palette index table
-            serializer.SerializeArray<byte>(nameof(TilePaletteIndexTable), FileSize - serializer.BaseStream.Position);
-
-            // At this point the stream position should match the end offset
-            if (serializer.BaseStream.Position != FileSize)
-                Debug.LogError("End offset is incorrect");
+            s.DoAt(PaletteIndexBlockPointer, () => {
+                // Read the palette index table
+                TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: "TilePaletteIndexTable");
+            });
         }
     }
 }

@@ -5,7 +5,7 @@ namespace R1Engine
     /// <summary>
     /// Background later position data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_BackgroundLayerPosition : IBinarySerializable
+    public class PS1_R1_BackgroundLayerPosition : R1Serializable
     {
         /// <summary>
         /// The layer x position
@@ -21,10 +21,9 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(XPosition));
-            serializer.Serialize(nameof(YPosition));
+        public override void SerializeImpl(SerializerObject s) {
+            XPosition = s.Serialize(XPosition, name: "XPosition");
+            YPosition = s.Serialize(YPosition, name: "YPosition");
         }
     }
 }

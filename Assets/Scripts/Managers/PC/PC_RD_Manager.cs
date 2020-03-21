@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using R1Engine.Serialize;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -16,10 +17,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The color palette or null if not available</returns>
-        protected override IList<ARGBColor> GetBigRayPalette(GameSettings settings)
+        protected override IList<ARGBColor> GetBigRayPalette(Context context)
         {
             // Read the PCX file
-            var pcx = FileFactory.Read<PCX>(Path.Combine(settings.GameDirectory, "DATA", "Kitfond.pcx"), settings);
+            var pcx = FileFactory.Read<PCX>(context.Settings.GameDirectory + "DATA/" + "Kitfond.pcx", context);
 
             // Convert the bytes to a palette
             var palette = new List<ARGBColor>();
@@ -35,14 +36,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}{settings.Level:00}.LEV");
+        public override string GetLevelFilePath(GameSettings settings) => GetDataPath() + $"{GetShortWorldName(settings.World)}{settings.Level:00}.LEV";
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"RAY{((int)settings.World + 1):00}.WLD");
+        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{((int)settings.World + 1):00}.WLD";
 
         /// <summary>
         /// Indicates if the game has 3 palettes it swaps between
@@ -54,16 +55,16 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(GetDataPath(settings.GameDirectory), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + "/" + GetDataPath(), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
 
         /// <summary>
         /// Gets the DES file names, in order, for the world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The DES file names</returns>
-        public override IEnumerable<string> GetDESNames(GameSettings settings)
+        public override IEnumerable<string> GetDESNames(Context context)
         {
-            return EnumerateWLDManifest(settings).Where(str => str.Contains("DES"));
+            return EnumerateWLDManifest(context).Where(str => str.Contains("DES"));
         }
 
         /// <summary>
@@ -71,9 +72,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The ETA file names</returns>
-        public override IEnumerable<string> GetETANames(GameSettings settings)
+        public override IEnumerable<string> GetETANames(Context context)
         {
-            return EnumerateWLDManifest(settings).Where(str => str.Contains("ETA"));
+            return EnumerateWLDManifest(context).Where(str => str.Contains("ETA"));
         }
 
         /// <summary>
@@ -81,14 +82,15 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The found strings</returns>
-        protected IEnumerable<string> EnumerateWLDManifest(GameSettings settings)
+        protected IEnumerable<string> EnumerateWLDManifest(Context context)
         {
             // Get the encoding
             var e = Settings.StringEncoding;
 
             // TODO: Find better way to parse this
             // Read the world file and get the last data group
-            var wld = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings).Unknown5;
+            var wld = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
+                data => data.FileType = PC_WorldFile.Type.World).Unknown5;
 
             // Get the DES file names
             for (int i = 1; i < wld.Length; i += 13)

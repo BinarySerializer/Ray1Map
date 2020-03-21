@@ -29,33 +29,32 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public override void Serialize(BinarySerializer serializer)
-        {
-            base.Serialize(serializer);
+        public override void SerializeImpl(SerializerObject s) {
+            base.SerializeImpl(s);
 
-            serializer.Serialize(nameof(LocCount));
+            LocCount = s.Serialize(LocCount, name: "LocCount");
 
-            if (serializer.Mode == SerializerMode.Read)
+            if (s is BinaryDeserializer)
             {
                 // TODO: Find way to avoid this
                 // Since we don't know the length we go on until we hit the bytes for the localization items (they always start with MS)
                 byte[] values;
                 List<ushort> tempList = new List<ushort>();
 
-                while (Settings.StringEncoding.GetString(values = serializer.ReadArray<byte>(2)) != "MS")
+                while (Settings.StringEncoding.GetString(values = s.SerializeArray<byte>(null,2)) != "MS")
                     tempList.Add(BitConverter.ToUInt16(values, 0));
 
                 Unknown2 = tempList.ToArray();
 
                 // Go back two steps...
-                serializer.BaseStream.Position -= 2;
+                s.Goto(s.CurrentPointer - 2);
             }
             else
             {
-                serializer.Write(Unknown2);
+                s.SerializeArray(Unknown2, Unknown2.Length, name: "Unknown2");
             }
 
-            serializer.SerializeArray<PC_Mapper_EventLocItem>(nameof(LocItems), LocCount);
+            LocItems = s.SerializeObjectArray<PC_Mapper_EventLocItem>(LocItems, LocCount, name: "LocItems");
         }
     }
 }

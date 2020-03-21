@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using R1Engine.Serialize;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,15 +13,14 @@ namespace R1Engine
         /// <summary>
         /// Reads the tile set for the specified world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The serialization context</param>
         /// <returns>The tile set</returns>
-        public override Common_Tileset ReadTileSet(GameSettings settings)
-        {
+        public override Common_Tileset ReadTileSet(Context context) {
             // Get the file name
-            var fileName = Path.Combine(GetWorldFolderPath(settings), $"{GetWorldName(settings.World)}.XXX");
+            var filename = GetWorldFilePath(context.Settings);
 
             // Read the file
-            var worldFile = FileFactory.Read<PS1_R1_WorldFile>(fileName, settings);
+            var worldFile = FileFactory.Read<PS1_R1_WorldFile>(filename, context);
 
             int tile = 0;
             int tileCount = worldFile.TilePaletteIndexTable.Length;
@@ -38,7 +38,9 @@ namespace R1Engine
 
                             int pixel = x + xB + (y + yB) * width;
 
-                            pixels[pixel] = worldFile.TileColorPalettes[worldFile.TilePaletteIndexTable[tile]][worldFile.TilesIndexTable[pixel]].GetColor();
+                            byte tileIndex1 = worldFile.TilePaletteIndexTable[tile];
+                            byte tileIndex2 = worldFile.TilesIndexTable[pixel];
+                            pixels[pixel] = worldFile.TileColorPalettes[tileIndex1][tileIndex2].GetColor();
                         }
             End:
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)

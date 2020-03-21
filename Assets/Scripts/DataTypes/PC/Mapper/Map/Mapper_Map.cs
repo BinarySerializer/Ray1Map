@@ -3,7 +3,7 @@
     /// <summary>
     /// Map data for the Mapper
     /// </summary>
-    public class Mapper_Map : IBinarySerializable
+    public class Mapper_Map : R1Serializable
     {
         #region Public Properties
 
@@ -30,14 +30,13 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             // Serialize map size
-            serializer.Serialize(nameof(Width));
-            serializer.Serialize(nameof(Height));
+            Width = s.Serialize(Width, name: "Width");
+            Height = s.Serialize(Height, name: "Height");
 
             // Serialize tiles
-            serializer.SerializeArray<Mapper_MapTile>(nameof(Tiles), Width * Height);
+            Tiles = s.SerializeObjectArray<Mapper_MapTile>(Tiles, Width * Height, name: "Tiles");
         }
 
         #endregion

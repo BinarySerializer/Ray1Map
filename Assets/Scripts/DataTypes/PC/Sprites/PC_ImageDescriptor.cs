@@ -3,7 +3,7 @@
     /// <summary>
     /// Image descriptor data for PC
     /// </summary>
-    public class PC_ImageDescriptor : IBinarySerializable
+    public class PC_ImageDescriptor : R1Serializable
     {
         /// <summary>
         /// The image offset in the image data
@@ -43,17 +43,16 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(ImageOffset));
-            serializer.Serialize(nameof(Unknown1));
-            serializer.Serialize(nameof(OuterWidth));
-            serializer.Serialize(nameof(OuterHeight));
-            serializer.Serialize(nameof(InnerWidth));
-            serializer.Serialize(nameof(InnerHeight));
-            serializer.Serialize(nameof(Unknown2));
-            serializer.Serialize(nameof(Unknown3));
-            serializer.Serialize(nameof(Unknown4));
+        public override void SerializeImpl(SerializerObject s) {
+            ImageOffset = s.Serialize(ImageOffset, name: "ImageOffset");
+            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
+            OuterWidth = s.Serialize(OuterWidth, name: "OuterWidth");
+            OuterHeight = s.Serialize(OuterHeight, name: "OuterHeight");
+            InnerWidth = s.Serialize(InnerWidth, name: "InnerWidth");
+            InnerHeight = s.Serialize(InnerHeight, name: "InnerHeight");
+            Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
+            Unknown3 = s.Serialize(Unknown3, name: "Unknown3");
+            Unknown4 = s.Serialize(Unknown4, name: "Unknown4");
         }
     }
 }

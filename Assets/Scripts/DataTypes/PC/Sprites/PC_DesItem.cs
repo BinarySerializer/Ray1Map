@@ -1,10 +1,13 @@
 ﻿namespace R1Engine
 {
+    using Type = PC_WorldFile.Type;
+
     /// <summary>
     /// DES item data for PC
     /// </summary>
-    public class PC_DesItem : IBinarySerializable
-    {
+    public class PC_DesItem : R1Serializable {
+        public Type FileType { get; set; }
+
         /// <summary>
         /// Indicates if the sprite has some gradation and requires clearing
         /// </summary>
@@ -54,38 +57,37 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            if (serializer.FileName.Contains(".wld"))
-                serializer.Serialize(nameof(RequiresBackgroundClearing));
+        public override void SerializeImpl(SerializerObject s) {
+            if (FileType == Type.World)
+                RequiresBackgroundClearing = s.Serialize(RequiresBackgroundClearing, name: "RequiresBackgroundClearing");
             else
                 RequiresBackgroundClearing = true;
 
-            if (serializer.FileName.Contains("allfix.dat"))
-                serializer.SerializeArray<byte>(nameof(Unknown1), 12);
+            if (FileType == Type.AllFix)
+                Unknown1 = s.SerializeArray<byte>(Unknown1, 12, name: "Unknown1");
 
-            serializer.Serialize(nameof(ImageDataLength));
+            ImageDataLength = s.Serialize(ImageDataLength, name: "ImageDataLength");
 
-            if (serializer.FileName.Contains(".wld") && (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC))
+            if (FileType == Type.World && (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC))
             {
-                serializer.Serialize(nameof(ImageDataChecksum));
-                serializer.SerializeArray<byte>(nameof(ImageData), ImageDataLength);
+                ImageDataChecksum = s.Serialize(ImageDataChecksum, name: "ImageDataChecksum");
+                ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: "ImageData");
             }
             else
             {
-                serializer.SerializeArray<byte>(nameof(ImageData), ImageDataLength);
+                ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: "ImageData");
 
-                if (!serializer.FileName.Contains("bray.dat") && !serializer.FileName.Contains("bigray.dat"))
-                    serializer.Serialize(nameof(ImageDataChecksum));
+                if (FileType != Type.BigRay)
+                    ImageDataChecksum = s.Serialize(ImageDataChecksum, name: "ImageDataChecksum");
             }
 
-            if (serializer.FileName.Contains("allfix.dat"))
-                serializer.Serialize(nameof(Unknown2));
+            if (FileType == Type.AllFix)
+                Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
 
-            serializer.Serialize(nameof(ImageDescriptorCount));
-            serializer.SerializeArray<PC_ImageDescriptor>(nameof(ImageDescriptors), ImageDescriptorCount);
-            serializer.Serialize(nameof(AnimationDescriptorCount));
-            serializer.SerializeArray<PC_AnimationDescriptor>(nameof(AnimationDescriptors), AnimationDescriptorCount);
+            ImageDescriptorCount = s.Serialize(ImageDescriptorCount, name: "ImageDescriptorCount");
+            ImageDescriptors = s.SerializeObjectArray<PC_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: "ImageDescriptors");
+            AnimationDescriptorCount = s.Serialize(AnimationDescriptorCount, name: "AnimationDescriptorCount");
+            AnimationDescriptors = s.SerializeObjectArray<PC_AnimationDescriptor>(AnimationDescriptors, AnimationDescriptorCount, name: "AnimationDescriptors");
         }
     }
 }

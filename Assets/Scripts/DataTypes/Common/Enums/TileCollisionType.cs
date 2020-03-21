@@ -3,7 +3,7 @@
     /// <summary>
     /// The tile collision types
     /// </summary>
-    public enum TileCollisionType 
+    public enum TileCollisionType : byte
     {
         None = 0,
         Reactionary = 1,

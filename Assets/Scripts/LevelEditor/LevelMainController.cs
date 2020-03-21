@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ namespace R1Engine
 
         // The current level we are operating with
         public Common_Lev currentLevel;
+
+        // The context, to reuse when writing
+        private Serialize.Context serializeContext;
 
         public List<Common_Design> eventDesigns;
 
@@ -24,40 +28,51 @@ namespace R1Engine
             // Create the list
             eventDesigns = new List<Common_Design>();
 
-            // Load the level
-            currentLevel = await manager.LoadLevelAsync(settings, eventDesigns);
+            // Create the context
+            serializeContext = new Serialize.Context(settings);
 
-            await Controller.WaitIfNecessary();
+            // Make sure all the necessary files are downloaded
+            await manager.LoadFilesAsync(serializeContext);
 
-            Controller.status = $"Initializing tile maps";
+            try {
+                // Load the level
+                currentLevel = await manager.LoadLevelAsync(serializeContext, eventDesigns);
 
-            // Init tilemaps
-            controllerTilemap.InitializeTilemaps();
+                await Controller.WaitIfNecessary();
 
-            await Controller.WaitIfNecessary();
+                Controller.status = $"Initializing tile maps";
 
-            Controller.status = $"Initializing events";
+                // Init tilemaps
+                controllerTilemap.InitializeTilemaps();
 
-            // Init event things
-            controllerEvents.InitializeEvents();
+                await Controller.WaitIfNecessary();
 
-            await Controller.WaitIfNecessary();
+                Controller.status = $"Initializing events";
 
-            // Draw the background tint
-            var mo = new Mesh {
-                vertices = new Vector3[]
-                {
+                // Init event things
+                controllerEvents.InitializeEvents();
+
+                await Controller.WaitIfNecessary();
+
+                // Draw the background tint
+                var mo = new Mesh {
+                    vertices = new Vector3[]
+                    {
                     new Vector3(0, 0), new Vector3(currentLevel.Width, 0), new Vector3(currentLevel.Width, -currentLevel.Height),
                     new Vector3(0, -currentLevel.Height)
-                }
-            };
-            
-            mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
-            backgroundTint.sharedMesh = mo;
+                    }
+                };
+
+                mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
+                backgroundTint.sharedMesh = mo;
+            } finally {
+                // Closes any open serializers and logs to the file
+                serializeContext.Close();
+            }
         }
 
         public void SaveLevelTEMP() {
-            Settings.GetGameManager.SaveLevel(Settings.GetGameSettings, currentLevel);
+            Settings.GetGameManager.SaveLevel(serializeContext, currentLevel);
             Debug.Log("Saved.");
         }
     }

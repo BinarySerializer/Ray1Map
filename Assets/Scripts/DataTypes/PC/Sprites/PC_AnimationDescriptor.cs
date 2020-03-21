@@ -5,7 +5,7 @@ namespace R1Engine
     /// <summary>
     /// Animation descriptor data for PC
     /// </summary>
-    public class PC_AnimationDescriptor : IBinarySerializable
+    public class PC_AnimationDescriptor : R1Serializable
     {
         /// <summary>
         /// The number of layers to use per frame
@@ -40,20 +40,19 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(LayersPerFrame));
-            serializer.Serialize(nameof(Unknown1));
-            serializer.Serialize(nameof(FrameCount));
-            serializer.Serialize(nameof(Unknown2));
-            serializer.Serialize(nameof(Unknown3));
-            serializer.Serialize(nameof(FrameTableOffset));
+        public override void SerializeImpl(SerializerObject s) {
+            LayersPerFrame = s.Serialize(LayersPerFrame, name: "LayersPerFrame");
+            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
+            FrameCount = s.Serialize(FrameCount, name: "FrameCount");
+            Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
+            Unknown3 = s.Serialize(Unknown3, name: "Unknown3");
+            FrameTableOffset = s.Serialize(FrameTableOffset, name: "FrameTableOffset");
             
             if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
                 Debug.LogWarning("Frame table offset is wrong");
             
-            serializer.SerializeArray<PC_AnimationLayer>(nameof(Layers), LayersPerFrame * FrameCount);
-            serializer.SerializeArray<PC_AnimationFrame>(nameof(Frames), FrameCount + 1);
+            Layers = s.SerializeObjectArray<PC_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: "Layers");
+            Frames = s.SerializeObjectArray<PC_AnimationFrame>(Frames, FrameCount + 1, name: "Frames");
         }
     }
 }

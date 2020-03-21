@@ -14,12 +14,12 @@ namespace R1Engine
         /// <summary>
         /// The pointer to the event block
         /// </summary>
-        public uint EventBlockPointer { get; set; }
+        public Pointer EventBlockPointer { get; set; }
 
         /// <summary>
         /// The pointer to the texture block
         /// </summary>
-        public uint TextureBlockPointer { get; set; }
+        public Pointer TextureBlockPointer { get; set; }
 
         // TODO: Does this contain the level name + description for Kit?
         public byte[] Unknown6 { get; set; }
@@ -37,12 +37,12 @@ namespace R1Engine
         /// <summary>
         /// The color palettes
         /// </summary>
-        public ARGBColor[][] ColorPalettes { get; set; }
+        public RGB666Color[][] ColorPalettes { get; set; }
 
         /// <summary>
-        /// Unknown byte, always set to 2
+        /// Last Plan 1 Palettte, always set to 2
         /// </summary>
-        public byte Unknown10 { get; set; }
+        public byte LastPlan1Palette { get; set; }
 
         /// <summary>
         /// The tiles for the map
@@ -188,286 +188,211 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public override void Serialize(BinarySerializer serializer)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             // PC HEADER
-
-            base.Serialize(serializer);
+            base.SerializeImpl(s);
 
             // HEADER BLOCK
 
             // Serialize block pointer
-            serializer.Serialize(nameof(EventBlockPointer));
-            serializer.Serialize(nameof(TextureBlockPointer));
+            EventBlockPointer = s.SerializePointer(EventBlockPointer, name: "EventBlockPointer");
+            TextureBlockPointer = s.SerializePointer(TextureBlockPointer, name: "TextureBlockPointer");
 
-            if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
-                serializer.SerializeArray<byte>(nameof(Unknown6), 68);
+            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
+                Unknown6 = s.SerializeArray<byte>(Unknown6, 68, name: "Unknown6");
 
             // Serialize map size
-            serializer.Serialize(nameof(Width));
-            serializer.Serialize(nameof(Height));
+            Width = s.Serialize(Width, name: "Width");
+            Height = s.Serialize(Height, name: "Height");
 
-            // Serialize the palettes
-            if (serializer.Mode == SerializerMode.Read)
-            {
-                // Create the palettes
-                ColorPalettes = serializer.GameSettings.GameMode == GameMode.RayKit ? new ARGBColor[][]
+            // Create the palettes if necessary
+            if (ColorPalettes == null) {
+                ColorPalettes = s.GameSettings.GameMode == GameMode.RayKit ? new RGB666Color[][]
                 {
-                    new ARGBColor[256],
-                } : new ARGBColor[][]
+                    new RGB666Color[256],
+                } : new RGB666Color[][]
                 {
-                    new ARGBColor[256],
-                    new ARGBColor[256],
-                    new ARGBColor[256],
+                    new RGB666Color[256],
+                    new RGB666Color[256],
+                    new RGB666Color[256],
                 };
-
-                // Read each palette color
-                for (var paletteIndex = 0; paletteIndex < ColorPalettes.Length; paletteIndex++)
-                {
-                    // Get the palette
-                    var palette = ColorPalettes[paletteIndex];
-
-                    // Read each color
-                    for (int i = 0; i < palette.Length; i++)
-                    {
-                        // Read the palette color as RGB and multiply by 4 (as the values are between 0-64)
-                        palette[i] = new ARGBColor((byte)(serializer.Read<byte>() * 4), (byte)(serializer.Read<byte>() * 4),
-                            (byte)(serializer.Read<byte>() * 4));
-                    }
-
-                    // Reverse the palette
-                    ColorPalettes[paletteIndex] = palette;
-                }
             }
-            else
-            {
-                // Write each palette
-                foreach (var palette in ColorPalettes)
-                {
-                    foreach (var color in palette)
-                    {
-                        // Write the palette color as RGB and divide by 4 (as the values are between 0-64)
-                        serializer.Write((byte)(color.Red / 4));
-                        serializer.Write((byte)(color.Green / 4));
-                        serializer.Write((byte)(color.Blue / 4));
-                    }
-                }
+
+            // Serialize each palette
+            for (var paletteIndex = 0; paletteIndex < ColorPalettes.Length; paletteIndex++) {
+                var palette = ColorPalettes[paletteIndex];
+                ColorPalettes[paletteIndex] = s.SerializeObjectArray<RGB666Color>(palette, palette.Length, name: "ColorPalettes[" + paletteIndex + "]");
             }
 
             // Serialize unknown byte
-            serializer.Serialize(nameof(Unknown10));
+            LastPlan1Palette = s.Serialize(LastPlan1Palette, name: "LastPlan1Palette");
 
             // MAP BLOCK
 
             // Serialize the map cells
-            serializer.SerializeArray<PC_MapTile>(nameof(Tiles), Height * Width);
+            Tiles = s.SerializeObjectArray<PC_MapTile>(Tiles, Height * Width, name: "Tiles");
 
-            if (serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC)
+            if (s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC)
             {
                 // Serialize unknown byte
-                serializer.Serialize(nameof(Unknown2));
+                Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
 
                 // Serialize the background data
-                serializer.Serialize(nameof(BackgroundIndex));
-                serializer.Serialize(nameof(BackgroundSpritesDES));
+                BackgroundIndex = s.Serialize(BackgroundIndex, name: "BackgroundIndex");
+                BackgroundSpritesDES = s.Serialize(BackgroundSpritesDES, name: "BackgroundSpritesDES");
 
-                if (serializer.GameSettings.GameMode == GameMode.RayPC)
+                if (s.GameSettings.GameMode == GameMode.RayPC)
                 {
                     // Serialize the rough textures count
-                    serializer.Serialize(nameof(RoughTextureCount));
+                    RoughTextureCount = s.Serialize(RoughTextureCount, name: "RoughTextureCount");
 
                     // Serialize the length of the third unknown value
-                    serializer.Serialize(nameof(Unknown3Count));
+                    Unknown3Count = s.Serialize(Unknown3Count, name: "Unknown3Count");
 
                     // Begin calculating the rough texture checksum
-                    serializer.BeginCalculateChecksum(new Checksum8Calculator());
+                    s.BeginCalculateChecksum(new Checksum8Calculator());
 
-                    if (serializer.Mode == SerializerMode.Read)
-                    {
-                        // Create the collection of rough textures
+                    // Create the collection of rough textures if necessary
+                    if (RoughTextures == null) {
                         RoughTextures = new byte[RoughTextureCount][];
+                    }
 
-                        // Read each rough texture
-                        for (int i = 0; i < RoughTextureCount; i++)
-                            RoughTextures[i] = serializer.ReadArray<byte>(PC_Manager.CellSize * PC_Manager.CellSize);
-                    }
-                    else
-                    {
-                        // Write each rough texture
-                        for (int i = 0; i < RoughTextureCount; i++)
-                            serializer.Write(RoughTextures[i]);
-                    }
+                    // Serialize each rough texture
+                    for (int i = 0; i < RoughTextureCount; i++)
+                        RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], PC_Manager.CellSize * PC_Manager.CellSize, "RoughTextures[" + i + "]");
 
                     // Get the checksum
-                    var c1 = serializer.EndCalculateChecksum<byte>();
+                    var c1 = s.EndCalculateChecksum<byte>();
 
-                    // Read the checksum for the rough textures
-                    serializer.Serialize(nameof(RoughTexturesChecksum));
-
-                    // Verify the checksum
-                    if (c1 != RoughTexturesChecksum && serializer.Mode == SerializerMode.Read)
-                        Debug.LogWarning("Rough textures checksum does not match");
+                    // Read & verify the checksum for the rough textures
+                    RoughTexturesChecksum = s.SerializeChecksum<byte>(c1, name: "RoughTexturesChecksum");
 
                     // Read the index table for the rough textures
-                    serializer.SerializeArray<uint>(nameof(RoughTexturesIndexTable), 1200);
+                    RoughTexturesIndexTable = s.SerializeArray<uint>(RoughTexturesIndexTable, 1200, name: "RoughTexturesIndexTable");
 
                     // Begin calculating the unknown 3 checksum
-                    serializer.BeginCalculateChecksum(new Checksum8Calculator());
+                    s.BeginCalculateChecksum(new Checksum8Calculator());
 
                     // Serialize the items for the third unknown value
-                    serializer.SerializeArray<byte>(nameof(Unknown3), Unknown3Count);
+                    Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: "Unknown3");
 
                     // Get the checksum
-                    var c2 = serializer.EndCalculateChecksum<byte>();
+                    var c2 = s.EndCalculateChecksum<byte>();
 
                     // Serialize the checksum for the third unknown value
-                    serializer.Serialize(nameof(Unknown3Checksum));
-
-                    // Verify the checksum
-                    if (c2 != Unknown3Checksum && serializer.Mode == SerializerMode.Read)
-                        Debug.LogWarning("Unknown 3 checksum does not match");
+                    Unknown3Checksum = s.SerializeChecksum(c2, name: "Unknown3Checksum");
 
                     // Read the offset table for the third unknown value
-                    serializer.SerializeArray<uint>(nameof(Unknown3OffsetTable), 1200);
+                    Unknown3OffsetTable = s.SerializeArray<uint>(Unknown3OffsetTable, 1200, name: "Unknown3OffsetTable");
                 }
                 else
                 {
                     // Read unknown values
-                    serializer.SerializeArray<byte>(nameof(Unknown7), TextureBlockPointer - serializer.BaseStream.Position);
+                    Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer.FileOffset - s.CurrentPointer.FileOffset, name: "Unknown7");
                 }
             }
             else
             {
                 // Read unknown values
-                serializer.SerializeArray<byte>(nameof(Unknown7), TextureBlockPointer - serializer.BaseStream.Position);
+                Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer.FileOffset - s.CurrentPointer.FileOffset, name: "Unknown7");
             }
 
             // TEXTURE BLOCK
 
             // At this point the stream position should match the texture block offset
-            if (serializer.BaseStream.Position != TextureBlockPointer)
+            if (s.CurrentPointer != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
+            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
                 // TODO: Verify checksum
-                serializer.Serialize(nameof(TextureBlockChecksum));
+                TextureBlockChecksum = s.Serialize(TextureBlockChecksum, name: "TextureBlockChecksum");
 
             // Get the xor key to use for the texture block
-            byte texXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 255);
+            byte texXor = (byte)(s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 255);
+            s.BeginXOR(texXor);
 
             // Read the offset table for the textures
-            serializer.SerializeArray<uint>(nameof(TexturesOffsetTable), 1200, texXor);
+            TexturesOffsetTable = s.SerializeArray<uint>(TexturesOffsetTable, 1200, name: "TexturesOffsetTable");
 
             // Read the textures count
-            serializer.Serialize(nameof(TexturesCount), texXor);
-            serializer.Serialize(nameof(NonTransparentTexturesCount), texXor);
-            serializer.Serialize(nameof(TexturesDataTableCount), texXor);
+            TexturesCount = s.Serialize(TexturesCount, name: "TexturesCount");
+            NonTransparentTexturesCount = s.Serialize(NonTransparentTexturesCount, name: "NonTransparentTexturesCount");
+            TexturesDataTableCount = s.Serialize(TexturesDataTableCount, name: "TexturesDataTableCount");
+            s.EndXOR();
 
             // Get the current offset to use for the texture offsets
-            var textureBaseOffset = serializer.BaseStream.Position;
+            var textureBaseOffset = s.CurrentPointer.FileOffset;
 
             // Begin calculating the texture checksum
-            if (serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC)
-                serializer.BeginCalculateChecksum(new Checksum8Calculator());
+            if (s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC)
+                s.BeginCalculateChecksum(new Checksum8Calculator());
 
-            if (serializer.Mode == SerializerMode.Read)
-            {
+            if (NonTransparentTextures == null) {
                 // Create the collection of non-transparent textures
                 NonTransparentTextures = new PC_TileTexture[NonTransparentTexturesCount];
+            }
 
-                // Read the non-transparent textures
-                for (int i = 0; i < NonTransparentTextures.Length; i++)
-                {
-                    // Create the texture
-                    var t = new PC_TileTexture()
-                    {
-                        // Set the offset
-                        Offset = (uint)(serializer.BaseStream.Position - textureBaseOffset)
-                    };
+            // Serialize the non-transparent textures
+            for (int i = 0; i < NonTransparentTextures.Length; i++)
+            {
+                // Serialize the texture
+                uint texOffset = (uint)(s.CurrentPointer.FileOffset - textureBaseOffset);
+                NonTransparentTextures[i] = s.SerializeObject<PC_TileTexture>(NonTransparentTextures[i], onPreSerialize: t => t.TextureOffset = texOffset, name: "NonTransparentTextures[" + i + "]");
+            }
 
-                    // Deserialize the texture
-                    t.Serialize(new BinarySerializer(serializer.Mode, serializer.BaseStream, t, serializer.FilePath, serializer.GameSettings));
-
-                    // Add the texture to the collection
-                    NonTransparentTextures[i] = t;
-                }
-
+            if (TransparentTextures == null) {
                 // Create the collection of transparent textures
                 TransparentTextures = new PC_TransparentTileTexture[TexturesCount - NonTransparentTexturesCount];
-
-                // Read the transparent textures
-                for (int i = 0; i < TransparentTextures.Length; i++)
-                {
-                    // Create the texture
-                    var t = new PC_TransparentTileTexture()
-                    {
-                        // Set the offset
-                        Offset = (uint)(serializer.BaseStream.Position - textureBaseOffset)
-                    };
-
-                    // Deserialize the texture
-                    t.Serialize(new BinarySerializer(serializer.Mode, serializer.BaseStream, t, serializer.FilePath, serializer.GameSettings));
-
-                    // Add the texture to the collection
-                    TransparentTextures[i] = t;
-                }
             }
-            else
-            {
-                // Write the non-transparent textures
-                foreach (var texture in NonTransparentTextures)
-                    // Write the texture
-                    serializer.Write(texture);
 
-                // Write the transparent textures
-                foreach (var texture in TransparentTextures)
-                    // Write the texture
-                    serializer.Write(texture);
+            // Read the transparent textures
+            for (int i = 0; i < TransparentTextures.Length; i++)
+            {
+                uint texOffset = (uint)(s.CurrentPointer.FileOffset - textureBaseOffset);
+                TransparentTextures[i] = s.SerializeObject<PC_TransparentTileTexture>(TransparentTextures[i], onPreSerialize: t => t.TextureOffset = texOffset, name: "TransparentTextures[" + i + "]");
             }
 
             // Serialize the fourth unknown value
-            serializer.SerializeArray<byte>(nameof(Unknown4), 32);
+            Unknown4 = s.SerializeArray<byte>(Unknown4, 32, name: "Unknown4");
 
-            if (serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC)
+            if (s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC)
             {
                 // Get the checksum
-                var c = serializer.EndCalculateChecksum<byte>();
+                var c = s.EndCalculateChecksum<byte>();
 
                 // Serialize the checksum for the textures
-                serializer.Serialize(nameof(TexturesChecksum));
-
-                // Verify the checksum
-                if (c != TexturesChecksum && serializer.Mode == SerializerMode.Read)
-                    Debug.LogWarning("Texture checksum does not match");
+                TexturesChecksum = s.SerializeChecksum<byte>(c, name: "TexturesChecksum");
             }
 
             // EVENT BLOCK
 
             // At this point the stream position should match the event block offset (ignore the Pocket PC version here since it uses leftover pointers from PC version)
-            if (serializer.GameSettings.GameMode != GameMode.RayPocketPC && serializer.BaseStream.Position != EventBlockPointer)
+            if (s.GameSettings.GameMode != GameMode.RayPocketPC && s.CurrentPointer != EventBlockPointer)
                 Debug.LogError("Event block offset is incorrect");
 
-            if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
+            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
                 // TODO: Verify checksum
-                serializer.Serialize(nameof(EventBlockChecksum));
+                EventBlockChecksum = s.Serialize(EventBlockChecksum, name: "EventBlockChecksum");
 
             // Get the xor key to use for the event block
-            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
+            byte eveXor = (byte)(s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
+            s.BeginXOR(eveXor);
 
             // Serialize the event count
-            serializer.Serialize(nameof(EventCount), eveXor);
+            EventCount = s.Serialize<ushort>(EventCount, name: "EventCount");
 
             // Serialize the event linking table
-            serializer.SerializeArray<ushort>(nameof(EventLinkingTable), EventCount, eveXor);
+            EventLinkingTable = s.SerializeArray<ushort>(EventLinkingTable, EventCount, name: "EventLinkingTable");
 
             // Serialize the events
-            serializer.SerializeArray<PC_Event>(nameof(Events), EventCount, eveXor);
+            Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: "Events");
 
             // Serialize the event commands
-            serializer.SerializeArray<PC_EventCommand>(nameof(EventCommands), EventCount, eveXor);
+            EventCommands = s.SerializeObjectArray<PC_EventCommand>(EventCommands, EventCount, name: "EventCommands");
+            s.EndXOR();
 
             // Serialize remaining data (appears in some Kit levels)
-            serializer.SerializeArray<byte>(nameof(Unknown8), serializer.BaseStream.Length - serializer.BaseStream.Position);
+            Unknown8 = s.SerializeArray<byte>(Unknown8, s.CurrentLength - s.CurrentPointer.FileOffset, name: "Unknown8");
         }
 
         #endregion

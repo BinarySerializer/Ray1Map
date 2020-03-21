@@ -3,7 +3,7 @@
     /// <summary>
     /// ETA data for PC
     /// </summary>
-    public class PC_Eta : IBinarySerializable
+    public class PC_Eta : R1Serializable
     {
         /// <summary>
         /// The right speed
@@ -49,16 +49,15 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(RightSpeed));
-            serializer.Serialize(nameof(LeftSpeed));
-            serializer.Serialize(nameof(AnimationIndex));
-            serializer.Serialize(nameof(Etat));
-            serializer.Serialize(nameof(SubEtat));
-            serializer.Serialize(nameof(AnimationSpeed));
-            serializer.Serialize(nameof(SoundIndex));
-            serializer.Serialize(nameof(InteractionType));
+        public override void SerializeImpl(SerializerObject s) {
+            RightSpeed = s.Serialize(RightSpeed, name: "RightSpeed");
+            LeftSpeed = s.Serialize(LeftSpeed, name: "LeftSpeed");
+            AnimationIndex = s.Serialize(AnimationIndex, name: "AnimationIndex");
+            Etat = s.Serialize(Etat, name: "Etat");
+            SubEtat = s.Serialize(SubEtat, name: "SubEtat");
+            AnimationSpeed = s.Serialize(AnimationSpeed, name: "AnimationSpeed");
+            SoundIndex = s.Serialize(SoundIndex, name: "SoundIndex");
+            InteractionType = s.Serialize(InteractionType, name: "InteractionType");
         }
     }
 }

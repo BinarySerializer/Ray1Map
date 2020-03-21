@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using R1Engine.Serialize;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,15 +13,15 @@ namespace R1Engine
         /// <summary>
         /// Reads the tile set for the specified world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The serialization context</param>
         /// <returns>The tile set</returns>
-        public override Common_Tileset ReadTileSet(GameSettings settings)
+        public override Common_Tileset ReadTileSet(Context context)
         {
             // Get the file name
-            var fileName = Path.Combine(GetWorldFolderPath(settings), $"{GetWorldName(settings.World)}.XXX");
+            var filename = GetWorldFilePath(context.Settings);
 
             // Read the file
-            var worldJPFile = FileFactory.Read<PS1_R1JP_WorldFile>(fileName, settings);
+            var worldJPFile = FileFactory.Read<PS1_R1JP_WorldFile>(filename, context);
 
             // Create the tile array
             var tilesJP = new Tile[worldJPFile.Tiles.Length];

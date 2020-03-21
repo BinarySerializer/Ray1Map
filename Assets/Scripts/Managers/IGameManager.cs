@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using R1Engine.Serialize;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace R1Engine
@@ -36,16 +37,23 @@ namespace R1Engine
         /// <summary>
         /// Loads the specified level
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The serialization context</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns);
+        Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns);
 
         /// <summary>
         /// Saves the specified level
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The serialization context</param>
         /// <param name="commonLevelData">The common level data</param>
-        void SaveLevel(GameSettings settings, Common_Lev commonLevelData);
+        void SaveLevel(Context context, Common_Lev commonLevelData);
+
+
+        /// <summary>
+        /// Preloads all the necessary files into the context
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        Task LoadFilesAsync(Context context);
     }
 }

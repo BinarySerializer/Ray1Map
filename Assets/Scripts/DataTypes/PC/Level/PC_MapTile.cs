@@ -3,7 +3,7 @@
     /// <summary>
     /// Map tile data for PC
     /// </summary>
-    public class PC_MapTile : IBinarySerializable
+    public class PC_MapTile : R1Serializable
     {
         /// <summary>
         /// The index for the texture for this cell
@@ -34,13 +34,12 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(TextureIndex));
-            serializer.Serialize(nameof(CollisionType));
-            serializer.Serialize(nameof(Unknown1));
-            serializer.Serialize(nameof(TransparencyMode));
-            serializer.Serialize(nameof(Unknown2));
+        public override void SerializeImpl(SerializerObject s) {
+            TextureIndex = s.Serialize(TextureIndex, name: "TextureIndex");
+            CollisionType = s.Serialize(CollisionType, name: "CollisionType");
+            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
+            TransparencyMode = s.Serialize(TransparencyMode, name: "TransparencyMode");
+            Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
         }
     }
 }

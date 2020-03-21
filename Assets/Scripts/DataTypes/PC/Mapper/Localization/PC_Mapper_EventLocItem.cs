@@ -3,7 +3,7 @@
     /// <summary>
     /// Event localization item for Rayman Mapper (PC)
     /// </summary>
-    public class PC_Mapper_EventLocItem : IBinarySerializable
+    public class PC_Mapper_EventLocItem : R1Serializable
     {
         /// <summary>
         /// The localization key
@@ -24,20 +24,10 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            if (serializer.Mode == SerializerMode.Read)
-            {
-                LocKey = serializer.ReadNullTerminatedString();
-                Name = serializer.ReadNullTerminatedString();
-                Description = serializer.ReadNullTerminatedString();
-            }
-            else
-            {
-                serializer.WriteNullTerminatedString(LocKey);
-                serializer.WriteNullTerminatedString(Name);
-                serializer.WriteNullTerminatedString(Description);
-            }
+        public override void SerializeImpl(SerializerObject s) {
+            LocKey = s.SerializeNullTerminatedString(LocKey);
+            Name = s.SerializeNullTerminatedString(Name);
+            Description = s.SerializeNullTerminatedString(Description);
         }
     }
 }

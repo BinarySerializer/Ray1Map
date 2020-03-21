@@ -3,7 +3,7 @@
     /// <summary>
     /// Animation layer data for PC
     /// </summary>
-    public class PC_AnimationLayer : IBinarySerializable
+    public class PC_AnimationLayer : R1Serializable
     {
         /// <summary>
         /// Indicates if the layer is flipped horizontally
@@ -29,12 +29,11 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(IsFlipped));
-            serializer.Serialize(nameof(XPosition));
-            serializer.Serialize(nameof(YPosition));
-            serializer.Serialize(nameof(ImageIndex));
+        public override void SerializeImpl(SerializerObject s) {
+            IsFlipped = s.Serialize(IsFlipped, name: "IsFlipped");
+            XPosition = s.Serialize(XPosition, name: "XPosition");
+            YPosition = s.Serialize(YPosition, name: "YPosition");
+            ImageIndex = s.Serialize(ImageIndex, name: "ImageIndex");
         }
     }
 }

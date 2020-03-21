@@ -1,4 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,16 +22,10 @@ namespace R1Engine
         public const int CellSize = 16;
 
         /// <summary>
-        /// The file mode to use
-        /// </summary>
-        public virtual FileMode FileMode => FileMode.None;
-
-        /// <summary>
         /// Gets the base path for the game data
         /// </summary>
-        /// <param name="basePath">The game base path</param>
         /// <returns>The data path</returns>
-        public string GetDataPath(string basePath) => Path.Combine(basePath, "PCMAP");
+        public virtual string GetDataPath() => "PCMAP/";
 
         /// <summary>
         /// Gets the name for the world
@@ -90,14 +85,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The allfix file path</returns>
-        public virtual string GetAllfixFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"ALLFIX.DAT");
+        public virtual string GetAllfixFilePath(GameSettings settings) => GetDataPath() + $"ALLFIX.DAT";
 
         /// <summary>
         /// Gets the file path for the big ray file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The big ray file path</returns>
-        public virtual string GetBigRayFilePath(GameSettings settings) => Path.Combine(GetDataPath(settings.GameDirectory), $"BIGRAY.DAT");
+        public virtual string GetBigRayFilePath(GameSettings settings) => GetDataPath() + $"BIGRAY.DAT";
 
         /// <summary>
         /// Gets the file path for the specified world file
@@ -142,14 +137,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The DES file names</returns>
-        public virtual IEnumerable<string> GetDESNames(GameSettings settings) => new string[0];
+        public virtual IEnumerable<string> GetDESNames(Context context) => new string[0];
 
         /// <summary>
         /// Gets the ETA file names, in order, for the world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The ETA file names</returns>
-        public virtual IEnumerable<string> GetETANames(GameSettings settings) => new string[0];
+        public virtual IEnumerable<string> GetETANames(Context context) => new string[0];
 
         #endregion
 
@@ -160,51 +155,54 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The color palette or null if not available</returns>
-        protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
+        protected virtual IList<ARGBColor> GetBigRayPalette(Context context) => null;
 
         /// <summary>
         /// Exports all sprite textures to the specified output directory
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(GameSettings settings, string outputDir) 
+        public void ExportSpriteTextures(Context context, string outputDir) 
         {
             // Get the DES names for every world
             var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
             {
-                settings.World = x;
-                return GetDESNames(settings).ToArray();
+                context.Settings.World = x;
+                return GetDESNames(context).ToArray();
             });
 
             // Read the big ray file
-            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
+            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context,
+                    onPreSerialize: data => data.FileType = PC_WorldFile.Type.BigRay);
 
             // Read the allfix file
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context,
+                    onPreSerialize: data => data.FileType = PC_WorldFile.Type.AllFix);
 
             // Export the sprite textures
-            ExportSpriteTextures(settings, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(settings));
+            ExportSpriteTextures(context, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(context));
 
             // Export the sprite textures
-            ExportSpriteTextures(settings, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
+            ExportSpriteTextures(context, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
 
             // Enumerate every world
             foreach (World world in EnumHelpers.GetValues<World>()) 
             {
                 // Set the world
-                settings.World = world;
+                context.Settings.World = world;
 
                 // Get the world file path
-                var worldPath = GetWorldFilePath(settings);
+                var worldPath = GetWorldFilePath(context.Settings);
 
                 if (!File.Exists(worldPath))
                     continue;
 
                 // Read the world file
-                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, settings, FileMode);
+                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, context,
+                    onPreSerialize: data => data.FileType = PC_WorldFile.Type.World);
 
                 // Export the sprite textures
-                ExportSpriteTextures(settings, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
+                ExportSpriteTextures(context, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
             }
         }
 
@@ -217,19 +215,19 @@ namespace R1Engine
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
         /// <param name="palette">Optional palette to use</param>
-        public void ExportSpriteTextures(GameSettings settings, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null) {
+        public void ExportSpriteTextures(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(settings)) {
+            foreach (var i in GetLevels(context.Settings)) {
                 // Set the level number
-                settings.Level = i;
+                context.Settings.Level = i;
 
                 // Load the level
-                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings, FileMode));
+                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.Settings), context));
             }
 
             // Enumerate each sprite group
@@ -569,19 +567,21 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The ETA</returns>
-        public async Task<PC_Eta[][][]> LoadSpritesAsync(GameSettings settings, IList<ARGBColor> palette, List<Common_Design> eventDesigns)
+        public async Task<PC_Eta[][][]> LoadSpritesAsync(Context context, IList<ARGBColor> palette, List<Common_Design> eventDesigns)
         {
             Controller.status = $"Loading allfix";
 
             // Read the fixed data
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(settings), settings, FileMode);
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context,
+                onPreSerialize: data => data.FileType = PC_WorldFile.Type.AllFix);
 
             await Controller.WaitIfNecessary();
 
             Controller.status = $"Loading world";
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(settings), settings, FileMode);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
+                onPreSerialize: data => data.FileType = PC_WorldFile.Type.World);
 
             await Controller.WaitIfNecessary();
 
@@ -589,7 +589,8 @@ namespace R1Engine
 
             // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
             // Read the big ray data
-            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(settings), settings, FileMode);
+            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context,
+                onPreSerialize: data => data.FileType = PC_WorldFile.Type.BigRay);
 
             await Controller.WaitIfNecessary();
 
@@ -626,7 +627,7 @@ namespace R1Engine
 
                     // Use BigRay palette if the last item
                     if (desIndex == des.Length - 1)
-                        p = GetBigRayPalette(settings) ?? palette;
+                        p = GetBigRayPalette(context) ?? palette;
 
                     // Get the texture
                     Texture2D tex = isGarbage ? null : GetSpriteTexture(s, p, processedImageData);
@@ -683,14 +684,14 @@ namespace R1Engine
         /// <summary>
         /// Loads the specified level
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The serialization context</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        public virtual async Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns) {
-            Controller.status = $"Loading map data for {settings.World} {settings.Level}";
+        public virtual async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns) {
+            Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
 
             // Read the level data
-            var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(settings), settings, FileMode);
+            var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
 
@@ -709,7 +710,7 @@ namespace R1Engine
             };
 
             // Load the sprites
-            var eta = await LoadSpritesAsync(settings, levelData.ColorPalettes.First(), eventDesigns);
+            var eta = await LoadSpritesAsync(context, levelData.ColorPalettes.First(), eventDesigns);
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
@@ -727,7 +728,7 @@ namespace R1Engine
                 int animSpeed = etaItem?.AnimationSpeed ?? 0;
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetPCEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
+                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetPCEventInfo(context.Settings.GameModeSelection, context.Settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
                     e.XPosition,
                     e.YPosition,
                     levelData.EventLinkingTable[index],
@@ -767,7 +768,7 @@ namespace R1Engine
                         var texOffset = levelData.TexturesOffsetTable[cell.TextureIndex];
 
                         // Get the texture
-                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TransparentTextures.FindItem(x => x.Offset == texOffset);
+                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.TextureOffset == texOffset) : levelData.TransparentTextures.FindItem(x => x.TextureOffset == texOffset);
 
                         // Get the index
                         textureIndex = levelData.NonTransparentTextures.Concat(levelData.TransparentTextures).FindItemIndex(x => x == texture);
@@ -849,14 +850,14 @@ namespace R1Engine
         /// <summary>
         /// Saves the specified level
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The serialization context</param>
         /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(GameSettings settings, Common_Lev commonLevelData) {
+        public void SaveLevel(Context context, Common_Lev commonLevelData) {
             // Get the level file path
-            var lvlPath = GetLevelFilePath(settings);
+            var lvlPath = GetLevelFilePath(context.Settings);
 
             // Get the level data
-            var lvlData = FileFactory.Read<PC_LevFile>(lvlPath, settings, FileMode);
+            var lvlData = context.GetMainFileObject<PC_LevFile>(lvlPath);
 
             // Update the tiles
             for (int y = 0; y < lvlData.Height; y++) {
@@ -873,11 +874,11 @@ namespace R1Engine
                         tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
                     else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount) {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
+                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].TextureOffset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
                     }
                     else {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].Offset);
+                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].TextureOffset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
                     }
                 }
@@ -985,7 +986,22 @@ namespace R1Engine
             lvlData.EventLinkingTable = eventLinkingTable.ToArray();
 
             // Save the file
-            FileFactory.Write(lvlPath, settings);
+            FileFactory.Write<PC_LevFile>(lvlPath, context);
+        }
+
+        public async virtual Task LoadFilesAsync(Context context) {
+            Dictionary<string, string> paths = new Dictionary<string, string>();
+            paths["allfix"] = GetAllfixFilePath(context.Settings);
+            paths["world"] = GetWorldFilePath(context.Settings);
+            paths["level"] = GetLevelFilePath(context.Settings);
+            paths["bigray"] = GetBigRayFilePath(context.Settings);
+            foreach (string pathKey in paths.Keys) {
+                await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);
+                LinearSerializedFile file = new LinearSerializedFile(context) {
+                    filePath = paths[pathKey]
+                };
+                context.AddFile(file);
+            }
         }
 
         #endregion

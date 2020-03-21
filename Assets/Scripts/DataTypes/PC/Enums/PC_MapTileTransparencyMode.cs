@@ -3,8 +3,7 @@
     /// <summary>
     /// The transparency mode for a <see cref="PC_MapTile"/>
     /// </summary>
-    public enum PC_MapTileTransparencyMode
-    {
+    public enum PC_MapTileTransparencyMode : byte {
         /// <summary>
         /// Indicates that the cell has no transparency
         /// </summary>

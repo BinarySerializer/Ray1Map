@@ -3,7 +3,7 @@
     /// <summary>
     /// Event command for PC
     /// </summary>
-    public class PC_EventCommand : IBinarySerializable
+    public class PC_EventCommand : R1Serializable
     {
         public ushort CodeCount { get; set; }
 
@@ -17,17 +17,13 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            // Get the xor key to use for the command
-            byte eveXor = (byte)(serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145);
+        public override void SerializeImpl(SerializerObject s) {
+            CodeCount = s.Serialize(CodeCount, name: "CodeCount");
+            LabelOffsetCount = s.Serialize(LabelOffsetCount, name: "LabelOffsetCount");
 
-            serializer.Serialize(nameof(CodeCount), eveXor);
-            serializer.Serialize(nameof(LabelOffsetCount), eveXor);
+            EventCode = s.SerializeArray<byte>(EventCode, CodeCount, name: "EventCode");
 
-            serializer.SerializeArray<byte>(nameof(EventCode), CodeCount, eveXor);
-
-            serializer.SerializeArray<ushort>(nameof(LabelOffsetTable), LabelOffsetCount, eveXor);
+            LabelOffsetTable = s.SerializeArray<ushort>(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");
         }
     }
 }

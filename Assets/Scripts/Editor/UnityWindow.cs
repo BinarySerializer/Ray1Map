@@ -30,6 +30,10 @@ public class UnityWindow : EditorWindow
             EditorGUI.LabelField(rect, new GUIContent(title), EditorStyles.toolbarButton);
         }
     }
+    protected Rect PrefixToggle(Rect rect, ref bool value) {
+        value = EditorGUI.Toggle(new Rect(rect.x, rect.y, rect.height, rect.height), value);
+        return new Rect(rect.x + rect.height, rect.y, rect.width - rect.height, rect.height);
+    }
     protected Rect BrowseButton(Rect rect, string name, GUIContent content, Action action)
     {
         GUIStyle butStyle = EditorStyles.miniButtonRight;

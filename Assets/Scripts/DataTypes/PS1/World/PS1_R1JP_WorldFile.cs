@@ -11,32 +11,32 @@ namespace R1Engine
         /// <summary>
         /// The pointer to the first block
         /// </summary>
-        public uint FirstBlockPointer => Pointers[0];
+        public Pointer FirstBlockPointer => BlockPointers[0];
 
         /// <summary>
         /// The pointer to the second block
         /// </summary>
-        public uint SecondBlockPointer => Pointers[1];
+        public Pointer SecondBlockPointer => BlockPointers[1];
 
         /// <summary>
         /// The pointer to the event texture block
         /// </summary>
-        public uint EventTexturesBlockPointer => Pointers[2];
+        public Pointer EventTexturesBlockPointer => BlockPointers[2];
 
         /// <summary>
         /// The pointer to the fourth block
         /// </summary>
-        public uint FourthBlockPointer => Pointers[3];
+        public Pointer FourthBlockPointer => BlockPointers[3];
 
         /// <summary>
         /// The pointer to the fifth block
         /// </summary>
-        public uint UnknownPaletteBlockPointer => Pointers[4];
+        public Pointer UnknownPaletteBlockPointer => BlockPointers[4];
 
         /// <summary>
         /// The pointer to the tiles block
         /// </summary>
-        public uint TilesBlockPointer => Pointers[5];
+        public Pointer TilesBlockPointer => BlockPointers[5];
 
         // TODO: This is a temp property until we serialize the actual data
         public byte[] FirstBlock { get; set; }
@@ -61,51 +61,46 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public override void Serialize(BinarySerializer serializer)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             // HEADER
 
-            base.Serialize(serializer);
+            base.SerializeImpl(s);
 
             // BLOCK 1
-
-            serializer.SerializeArray<byte>(nameof(FirstBlock), SecondBlockPointer - serializer.BaseStream.Position);
+            s.DoAt(FirstBlockPointer, () => {
+                FirstBlock = s.SerializeArray<byte>(FirstBlock, SecondBlockPointer - s.CurrentPointer, name: "FirstBlock");
+            });
 
             // BLOCK 2
-
-            serializer.SerializeArray<byte>(nameof(SecondBlock), EventTexturesBlockPointer - serializer.BaseStream.Position);
+            s.DoAt(SecondBlockPointer, () => {
+                SecondBlock = s.SerializeArray<byte>(SecondBlock, EventTexturesBlockPointer - s.CurrentPointer, name: "SecondBlock");
+            });
 
             // EVENT TEXTURES
-
-            serializer.SerializeArray<byte>(nameof(EventTexturesBlock), FourthBlockPointer - serializer.BaseStream.Position);
+            s.DoAt(EventTexturesBlockPointer, () => {
+                EventTexturesBlock = s.SerializeArray<byte>(EventTexturesBlock, FourthBlockPointer - s.CurrentPointer, name: "EventTexturesBlock");
+            });
 
             // BLOCK 4
-
-            serializer.SerializeArray<byte>(nameof(FourthBlock), UnknownPaletteBlockPointer - serializer.BaseStream.Position);
+            s.DoAt(FourthBlockPointer, () => {
+                FourthBlock = s.SerializeArray<byte>(FourthBlock, UnknownPaletteBlockPointer - s.CurrentPointer, name: "FourthBlock");
+            });
 
             // UNKNOWN PALETTE
-
-            serializer.SerializeArray<ARGB1555Color>(nameof(UnknownPalette), 256);
+            s.DoAt(UnknownPaletteBlockPointer, () => {
+                UnknownPalette = s.SerializeObjectArray<ARGB1555Color>(UnknownPalette, 256, name: "UnknownPalette");
+            });
 
             // TILES
-
-            // At this point the stream position should match the tiles block offset
-            if (serializer.BaseStream.Position != TilesBlockPointer)
-                Debug.LogError("Tiles block offset is incorrect");
-
-            if (serializer.Mode == SerializerMode.Read)
-            {
-                // Create the tiles array
-                Tiles = new ARGB1555Color[(FileSize - serializer.BaseStream.Position) / (PS1_Manager.CellSize * PS1_Manager.CellSize * 2)][];
-
-                // Read every tile
+            s.DoAt(TilesBlockPointer, () => {
+                // TODO: Find a better way to know the number of tiles
+                uint cellSize = PS1_Manager.CellSize * PS1_Manager.CellSize;
+                uint numTiles = (uint)(FileSize - s.CurrentPointer.FileOffset) / cellSize / 2;
+                // Create & serialize the tiles array
+                Tiles = new ARGB1555Color[numTiles][];
                 for (int i = 0; i < Tiles.Length; i++)
-                    Tiles[i] = serializer.ReadArray<ARGB1555Color>(PS1_Manager.CellSize * PS1_Manager.CellSize);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+                    Tiles[i] = s.SerializeObjectArray<ARGB1555Color>(Tiles[i], cellSize, name: "Tiles[" + i + "]");
+            });
         }
     }
 }

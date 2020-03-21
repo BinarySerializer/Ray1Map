@@ -3,7 +3,7 @@
     /// <summary>
     /// Event data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_Event : IBinarySerializable
+    public class PS1_R1_Event : R1Serializable
     {
         public byte[] Unknown1 { get; set; }
 
@@ -64,42 +64,41 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.SerializeArray<byte>(nameof(Unknown1), 28);
+        public override void SerializeImpl(SerializerObject s) {
+            Unknown1 = s.SerializeArray<byte>(Unknown1, 28, name: "Unknown1");
 
-            serializer.Serialize(nameof(XPosition));
-            serializer.Serialize(nameof(YPosition));
+            XPosition = s.Serialize(XPosition, name: "XPosition");
+            YPosition = s.Serialize(YPosition, name: "YPosition");
 
-            serializer.SerializeArray<byte>(nameof(Unknown2), 16);
-            serializer.Serialize(nameof(Unknown3));
-            serializer.Serialize(nameof(Unknown4));
-            serializer.Serialize(nameof(Unknown5));
-            serializer.SerializeArray<byte>(nameof(Unknown6), 28);
+            Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: "Unknown2");
+            Unknown3 = s.Serialize(Unknown3, name: "Unknown3");
+            Unknown4 = s.Serialize(Unknown4, name: "Unknown4");
+            Unknown5 = s.Serialize(Unknown5, name: "Unknown5");
+            Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: "Unknown6");
 
-            serializer.Serialize(nameof(OffsetBX));
-            serializer.Serialize(nameof(OffsetBY));
+            OffsetBX = s.Serialize(OffsetBX, name: "OffsetBX");
+            OffsetBY = s.Serialize(OffsetBY, name: "OffsetBY");
             
-            serializer.Serialize(nameof(Unknown7));
+            Unknown7 = s.Serialize(Unknown7, name: "Unknown7");
 
-            serializer.Serialize(nameof(Etat));
-            serializer.Serialize(nameof(SubEtat));
+            Etat = s.Serialize(Etat, name: "Etat");
+            SubEtat = s.Serialize(SubEtat, name: "SubEtat");
 
-            serializer.Serialize(nameof(Unknown8));
-            serializer.Serialize(nameof(Unknown9));
+            Unknown8 = s.Serialize(Unknown8, name: "Unknown8");
+            Unknown9 = s.Serialize(Unknown9, name: "Unknown9");
 
-            serializer.Serialize(nameof(OffsetHY));
-            serializer.Serialize(nameof(FollowSprite));
+            OffsetHY = s.Serialize(OffsetHY, name: "OffsetHY");
+            FollowSprite = s.Serialize(FollowSprite, name: "FollowSprite");
 
-            serializer.Serialize(nameof(Hitpoints));
+            Hitpoints = s.Serialize(Hitpoints, name: "Hitpoints");
 
-            serializer.Serialize(nameof(UnkGroup));
+            UnkGroup = s.Serialize(UnkGroup, name: "UnkGroup");
 
-            serializer.Serialize(nameof(Type));
+            Type = s.Serialize(Type, name: "Type");
 
-            serializer.Serialize(nameof(HitSprite));
+            HitSprite = s.Serialize(HitSprite, name: "HitSprite");
 
-            serializer.SerializeArray<byte>(nameof(Unknown10), 10);
+            Unknown10 = s.SerializeArray<byte>(Unknown10, 10, name: "Unknown10");
         }
     }
 }

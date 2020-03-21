@@ -6,7 +6,7 @@ namespace R1Engine
     /// <summary>
     /// PCX file data
     /// </summary>
-    public class PCX : IBinarySerializable
+    public class PCX : R1Serializable
     {
         public byte Identifier { get; set; }
 
@@ -95,29 +95,28 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             // Serialize the header
-            serializer.Serialize(nameof(Identifier));
-            serializer.Serialize(nameof(Version));
-            serializer.Serialize(nameof(Encoding));
-            serializer.Serialize(nameof(BitsPerPixel));
-            serializer.Serialize(nameof(XStart));
-            serializer.Serialize(nameof(YStart));
-            serializer.Serialize(nameof(XEnd));
-            serializer.Serialize(nameof(YEnd));
-            serializer.Serialize(nameof(HorRes));
-            serializer.Serialize(nameof(VerRes));
-            serializer.SerializeArray<byte>(nameof(EGAPalette), 48);
-            serializer.Serialize(nameof(Reserved1));
-            serializer.Serialize(nameof(BitPlaneCount));
-            serializer.Serialize(nameof(BytesPerLine));
-            serializer.Serialize(nameof(PaletteType));
-            serializer.Serialize(nameof(HorScreenSize));
-            serializer.Serialize(nameof(VerScreenSize));
-            serializer.SerializeArray<byte>(nameof(Reserved2), 54);
+            Identifier = s.Serialize(Identifier, name: "Identifier");
+            Version = s.Serialize(Version, name: "Version");
+            Encoding = s.Serialize(Encoding, name: "Encoding");
+            BitsPerPixel = s.Serialize(BitsPerPixel, name: "BitsPerPixel");
+            XStart = s.Serialize(XStart, name: "XStart");
+            YStart = s.Serialize(YStart, name: "YStart");
+            XEnd = s.Serialize(XEnd, name: "XEnd");
+            YEnd = s.Serialize(YEnd, name: "YEnd");
+            HorRes = s.Serialize(HorRes, name: "HorRes");
+            VerRes = s.Serialize(VerRes, name: "VerRes");
+            EGAPalette = s.SerializeArray<byte>(EGAPalette, 48, name: "EGAPalette");
+            Reserved1 = s.Serialize(Reserved1, name: "Reserved1");
+            BitPlaneCount = s.Serialize(BitPlaneCount, name: "BitPlaneCount");
+            BytesPerLine = s.Serialize(BytesPerLine, name: "BytesPerLine");
+            PaletteType = s.Serialize(PaletteType, name: "PaletteType");
+            HorScreenSize = s.Serialize(HorScreenSize, name: "HorScreenSize");
+            VerScreenSize = s.Serialize(VerScreenSize, name: "VerScreenSize");
+            Reserved2 = s.SerializeArray<byte>(Reserved2, 54, name: "Reserved2");
 
-            if (serializer.Mode == SerializerMode.Read)
+            if (s is BinaryDeserializer)
             {
                 // Calculate properties
                 var scanLineLength = BitPlaneCount * BytesPerLine;
@@ -138,16 +137,16 @@ namespace R1Engine
                     do
                     {
                         // Read the byte
-                        var b = serializer.Read<byte>();
+                        var b = s.Serialize<byte>(0, name: "b");
 
                         int repeatCount;
-                        byte runValue;
+                        byte runValue = 0;
 
                         // Check if it should be repeated
                         if ((b & 0xC0) == 0xC0)
                         {
                             repeatCount = b & 0x3F;
-                            runValue = serializer.Read<byte>();
+                            runValue = s.Serialize<byte>(runValue, name: "runValue");
                         }
                         else
                         {
@@ -169,7 +168,7 @@ namespace R1Engine
                     ScanLines[i] = buffer;
 
                     // Read padding
-                    serializer.ReadArray<byte>(linePaddingSize);
+                    s.SerializeArray<byte>(null,linePaddingSize, name: "padding");
                 }
             }
             else
@@ -178,10 +177,10 @@ namespace R1Engine
             }
 
             // Serialize the initial palette byte
-            serializer.Serialize(nameof(PaletteStart));
+            PaletteStart = s.Serialize(PaletteStart, name: "PaletteStart");
 
             // Serialize the palette
-            serializer.SerializeArray<byte>(nameof(VGAPalette), 256 * 3);
+            VGAPalette = s.SerializeArray<byte>(VGAPalette, 256 * 3, name: "VGAPalette");
         }
     }
 }

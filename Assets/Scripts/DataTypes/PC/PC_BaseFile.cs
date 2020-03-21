@@ -3,7 +3,7 @@
     /// <summary>
     /// Base file data for Rayman Designer (PC)
     /// </summary>
-    public abstract class PC_BaseFile : IBinarySerializable
+    public abstract class PC_BaseFile : R1Serializable
     {
         /// <summary>
         /// The primary kit header, always 5 bytes starting with KIT and then NULL padding
@@ -24,13 +24,12 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public virtual void Serialize(BinarySerializer serializer)
-        {
-            if (serializer.GameSettings.GameMode == GameMode.RayKit || serializer.GameSettings.GameMode == GameMode.RayEduPC)
+        public override void SerializeImpl(SerializerObject s) {
+            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
             {
-                serializer.SerializeArray<byte>(nameof(PrimaryKitHeader), 5);
-                serializer.SerializeArray<byte>(nameof(SecondaryKitHeader), 5);
-                serializer.Serialize(nameof(Unknown1));
+                PrimaryKitHeader = s.SerializeArray<byte>(PrimaryKitHeader, 5, name: "PrimaryKitHeader");
+                SecondaryKitHeader = s.SerializeArray<byte>(SecondaryKitHeader, 5, name: "SecondaryKitHeader");
+                Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
             }
         }
     }

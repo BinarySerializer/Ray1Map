@@ -3,7 +3,7 @@
     /// <summary>
     /// Map tile data for the Mapper
     /// </summary>
-    public class Mapper_MapTile : IBinarySerializable
+    public class Mapper_MapTile : R1Serializable
     {
         /// <summary>
         /// The tile texture index
@@ -19,14 +19,10 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(TileIndex));
+        public override void SerializeImpl(SerializerObject s) {
+            TileIndex = s.Serialize(TileIndex, name: "TileIndex");
 
-            if (serializer.Mode == SerializerMode.Read)
-                CollisionType = (TileCollisionType)serializer.Read<ushort>();
-            else
-                serializer.Write((ushort)CollisionType);
+            CollisionType = (TileCollisionType)s.Serialize<ushort>((ushort)CollisionType, name: "CollisionType");
         }
     }
 }

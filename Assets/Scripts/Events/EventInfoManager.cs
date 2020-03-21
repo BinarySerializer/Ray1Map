@@ -1,4 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -41,8 +42,8 @@ namespace R1Engine
             };
 
             // Get the Designer DES and ETA names
-            var kitDESNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x => new PC_RD_Manager().GetDESNames(new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], x)).ToArray());
-            var kitETANames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x => new PC_RD_Manager().GetETANames(new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], x)).ToArray());
+            var kitDESNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x => new PC_RD_Manager().GetDESNames(new Context(new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], x))).ToArray());
+            var kitETANames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x => new PC_RD_Manager().GetETANames(new Context(new GameSettings(GameModeSelection.RaymanDesignerPC, Settings.GameDirectories[GameModeSelection.RaymanDesignerPC], x))).ToArray());
 
             foreach (var mode in modes)
             {
@@ -98,8 +99,9 @@ namespace R1Engine
                             {
                                 EduVolume = Settings.EduVolume
                             };
+                            var context = new Context(s);
 
-                            var allfixDesCount = FileFactory.Read<PC_WorldFile>(manager.GetAllfixFilePath(s), s).DesItemCount;
+                            var allfixDesCount = FileFactory.Read<PC_WorldFile>(manager.GetAllfixFilePath(s), context).DesItemCount;
 
                             // Enumerate each PC world
                             foreach (World world in EnumHelpers.GetValues<World>())
@@ -116,7 +118,7 @@ namespace R1Engine
                                     var lvlFilePath = manager.GetLevelFilePath(s);
 
                                     // Read the level
-                                    var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, s);
+                                    var lvl = FileFactory.Read<PC_LevFile>(lvlFilePath, context);
 
                                     var eventIndex = 0;
                                     
@@ -174,7 +176,8 @@ namespace R1Engine
                                     var eventLoc = mapperManager.GetEventLocFiles(s.GameDirectory)["USA"].SelectMany(x => x.LocItems).ToArray();
 
                                     // Read the event manifest
-                                    var manifest = FileFactory.Read<PC_Mapper_EventManifestFile>(Path.Combine(s.GameDirectory, mapperManager.GetWorldName(world), "eve.mlt"), s);
+                                    string eveMLTPath = mapperManager.GetWorldName(world) + "/" + "eve.mlt";
+                                    var manifest = FileFactory.ReadMapper<PC_Mapper_EventManifestFile>(eveMLTPath, context);
 
                                     // Enumerate each item
                                     foreach (var e in manifest.Items)

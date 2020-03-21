@@ -16,7 +16,7 @@
         {
             GameModeSelection = gameModeSelection;
             GameMode = gameModeSelection.GetAttribute<GameModeAttribute>().GameMode;
-            GameDirectory = gameDirectory;
+            GameDirectory = Util.NormalizePath(gameDirectory, isFolder: true);
             World = world;
             Level = level;
         }

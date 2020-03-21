@@ -5,7 +5,7 @@ namespace R1Engine
     /// <summary>
     /// A standard ARGB color wrapper with serializing support for the encoding BGR-1555
     /// </summary>
-    public class ARGB1555Color : ARGBColor, IBinarySerializable
+    public class ARGB1555Color : ARGBColor
     {
         /// <summary>
         /// Default constructor
@@ -19,18 +19,17 @@ namespace R1Engine
         public ARGB1555Color(byte alpha, byte red, byte green, byte blue) : base(alpha, red, green, blue)
         { }
 
-
-        /// <summary>
-        /// Serializes the data
-        /// </summary>
-        /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            if (serializer.Mode == SerializerMode.Read)
-            {
-                // Read the color value
-                ushort color16 = serializer.Read<ushort>();
-
+        ushort Color555 {
+            get {
+                if (Alpha == 0) return 0;
+                ushort red16 = (ushort)((Red / 255f) * 31);
+                ushort green16 = (ushort)((Green / 255f) * 31);
+                ushort blue16 = (ushort)((Blue / 255f) * 31);
+                ushort col = (ushort)(red16 | (green16 << 5) | (blue16 << 10));
+                return col;
+            }
+            set {
+                ushort color16 = value;
                 // Extract the bits
                 Alpha = 255;
                 Red = (byte)((BitHelpers.ExtractBits(color16, 5, 0) / 31f) * 255);
@@ -41,10 +40,14 @@ namespace R1Engine
                 if (Red == 0 && Green == 0 && Blue == 0)
                     Alpha = 0;
             }
-            else
-            {
-                throw new NotImplementedException();
-            }
+        }
+
+        /// <summary>
+        /// Serializes the data
+        /// </summary>
+        /// <param name="serializer">The serializer</param>
+        public override void SerializeImpl(SerializerObject s) {
+            Color555 = s.Serialize<ushort>(Color555, name: "Color555");
         }
     }
 }

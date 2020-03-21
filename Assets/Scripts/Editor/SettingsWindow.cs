@@ -21,8 +21,13 @@ public class SettingsWindow : UnityWindow
 
 	public void OnGUI()
 	{
+        FileSystem.Mode fileMode = FileSystem.Mode.Normal;
+        if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
+            fileMode = FileSystem.Mode.Web;
+        }
+
         // Increase label width due to it being cut off otherwise
-		EditorGUIUtility.labelWidth = 180;
+        EditorGUIUtility.labelWidth = 180;
 
 		float yPos = 0f;
 
@@ -34,9 +39,13 @@ public class SettingsWindow : UnityWindow
 
 		EditorGUI.BeginChangeCheck();
 
-		// Mode
+        if (fileMode == FileSystem.Mode.Web) {
+            EditorGUI.HelpBox(GetNextRect(ref yPos, height: 40f), "Your build target is configured as WebGL. Ray1Map will attempt to load from the server.", MessageType.Warning);
+        }
 
-		DrawHeader(ref yPos, "Mode");
+        // Mode
+
+        DrawHeader(ref yPos, "Mode");
 
 		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.EnumPopup(GetNextRect(ref yPos), "Game", Settings.SelectedGameMode);
 
@@ -100,12 +109,17 @@ public class SettingsWindow : UnityWindow
         EditorGUI.EndDisabledGroup();
 
         // Directories
+        DrawHeader(ref yPos, "Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
 
-        DrawHeader(ref yPos, "Directories");
-
-        foreach (var mode in EnumHelpers.GetValues<GameModeSelection>())
-        {
-            Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetValue(mode, out var dir) ? dir : String.Empty);
+        var modes = EnumHelpers.GetValues<GameModeSelection>();
+        if (fileMode == FileSystem.Mode.Web) {
+            foreach (var mode in modes) {
+                Settings.GameDirectoriesWeb[mode] = EditorGUI.TextField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetValue(mode, out var dir) ? dir : String.Empty);
+            }
+        } else {
+            foreach (var mode in modes) {
+                Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetValue(mode, out var dir) ? dir : String.Empty);
+            }
         }
 
         // Miscellaneous
@@ -120,7 +134,16 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowEditorEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show editor events", Settings.ShowEditorEvents);
 
-		TotalyPos = yPos;
+        Rect rect = GetNextRect(ref yPos);
+        rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization Log"));
+        bool log = Settings.Log;
+        rect = PrefixToggle(rect, ref log);
+        Settings.Log = log;
+        if (Settings.Log) {
+            Settings.LogFile = FileField(rect, "Serialization Log File", Settings.LogFile, true, "txt", includeLabel: false);
+        }
+
+        TotalyPos = yPos;
 		GUI.EndScrollView();
 
 		if (EditorGUI.EndChangeCheck() || Dirty)

@@ -10,6 +10,7 @@ namespace R1Engine
     public class PC_WorldFile : PC_BaseFile
     {
         #region Public Properties
+        public Type FileType { get; set; }
 
         public ushort Unknown6 { get; set; }
 
@@ -47,31 +48,29 @@ namespace R1Engine
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public override void Serialize(BinarySerializer serializer)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             // Serialize PC Header
-            base.Serialize(serializer);
+            base.SerializeImpl(s);
 
-            if (serializer.FileName.Contains(".wld"))
-            {
+            if(FileType == Type.World) {
                 // Serialize unknown header
-                serializer.Serialize(nameof(Unknown6));
-                serializer.Serialize(nameof(Unknown2));
-                serializer.Serialize(nameof(Unknown4Count));
-                serializer.Serialize(nameof(Unknown3));
-                serializer.SerializeArray<byte>(nameof(Unknown4), serializer.GameSettings.GameMode == GameMode.RayPC || serializer.GameSettings.GameMode == GameMode.RayPocketPC ? Unknown4Count : Unknown4Count * 8);
+                Unknown6 = s.Serialize(Unknown6, name: "Unknown6");
+                Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
+                Unknown4Count = s.Serialize(Unknown4Count, name: "Unknown4Count");
+                Unknown3 = s.Serialize(Unknown3, name: "Unknown3");
+                Unknown4 = s.SerializeArray<byte>(Unknown4, s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? Unknown4Count : Unknown4Count * 8, name: "Unknown4");
             }
 
-            if (serializer.FileName.Contains(".wld"))
-            {
+            if (FileType == Type.World) {
                 SerializeSprites();
                 SerializeEta();
             }
-            else if (serializer.FileName.Contains("bray.dat") || serializer.FileName.Contains("bigray.dat"))
+            else if (FileType == Type.BigRay)
             {
                 DesItemCount = 1;
 
-                serializer.SerializeArray<PC_DesItem>(nameof(DesItems), DesItemCount);
+                DesItems = s.SerializeObjectArray<PC_DesItem>(DesItems, DesItemCount,
+                    onPreSerialize: data => data.FileType = FileType, name: "DesItems");
 
                 SerializeEta();
             }
@@ -81,34 +80,19 @@ namespace R1Engine
                 SerializeSprites();
             }
 
-            serializer.SerializeArray<byte>(nameof(Unknown5), serializer.BaseStream.Length - serializer.BaseStream.Position);
+            Unknown5 = s.SerializeArray<byte>(Unknown5, s.CurrentLength - s.CurrentPointer.FileOffset, name: "Unknown5");
 
             // Helper method for reading the eta
             void SerializeEta()
             {
-                if (serializer.Mode == SerializerMode.Read)
-                {
-                    // Read the ETA data into a 3-fold array
-                    Eta = new PC_Eta[serializer.Read<byte>()][][];
+                Eta = s.SerializeArraySize<PC_Eta[][], byte>(Eta, name: "Eta");
+                for (int i = 0; i < Eta.Length; i++) {
+                    Eta[i] = s.SerializeArraySize<PC_Eta[], byte>(Eta[i], name: "Eta[" + i + "]");
 
-                    for (int i = 0; i < Eta.Length; i++)
-                    {
-                        Eta[i] = new PC_Eta[serializer.Read<byte>()][];
-
-                        for (int j = 0; j < Eta[i].Length; j++)
-                        {
-                            Eta[i][j] = new PC_Eta[serializer.Read<byte>()];
-
-                            for (int k = 0; k < Eta[i][j].Length; k++)
-                            {
-                                Eta[i][j][k] = serializer.Read<PC_Eta>();
-                            }
-                        }
+                    for (int j = 0; j < Eta[i].Length; j++) {
+                        Eta[i][j] = s.SerializeArraySize<PC_Eta, byte>(Eta[i][j], name: "Eta[" + i + "][" + j + "]");
+                        Eta[i][j] = s.SerializeObjectArray<PC_Eta>(Eta[i][j], Eta[i][j].Length, name: "Eta[" + i + "][" + j + "]");
                     }
-                }
-                else
-                {
-                    throw new NotImplementedException();
                 }
             }
 
@@ -116,15 +100,22 @@ namespace R1Engine
             void SerializeSprites()
             {
                 // Serialize sprites
-                serializer.Serialize(nameof(DesItemCount));
+                DesItemCount = s.Serialize(DesItemCount, name: "DesItemCount");
 
-                if (serializer.FileName.Contains("allfix.dat") && serializer.Mode == SerializerMode.Read)
+                if (FileType == Type.AllFix && s is BinaryDeserializer)
                     DesItemCount--;
 
-                serializer.SerializeArray<PC_DesItem>(nameof(DesItems), DesItemCount);
+                DesItems = s.SerializeObjectArray<PC_DesItem>(DesItems, DesItemCount,
+                    onPreSerialize: data => data.FileType = FileType, name: "DesItems");
             }
         }
 
         #endregion
+
+        public enum Type {
+            World,
+            AllFix,
+            BigRay
+        }
     }
 }

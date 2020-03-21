@@ -3,7 +3,7 @@
     /// <summary>
     /// Animation frame data for PC
     /// </summary>
-    public class PC_AnimationFrame : IBinarySerializable
+    public class PC_AnimationFrame : R1Serializable
     {
         // TODO: Verify the values are correct
 
@@ -31,12 +31,11 @@
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public void Serialize(BinarySerializer serializer)
-        {
-            serializer.Serialize(nameof(XPosition));
-            serializer.Serialize(nameof(YPosition));
-            serializer.Serialize(nameof(Width));
-            serializer.Serialize(nameof(Height));
+        public override void SerializeImpl(SerializerObject s) {
+            XPosition = s.Serialize(XPosition, name: "XPosition");
+            YPosition = s.Serialize(YPosition, name: "YPosition");
+            Width = s.Serialize(Width, name: "Width");
+            Height = s.Serialize(Height, name: "Height");
         }
     }
 }

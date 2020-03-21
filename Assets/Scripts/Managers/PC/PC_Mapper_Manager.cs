@@ -1,4 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,27 +23,34 @@ namespace R1Engine
         /// <returns>The level file path</returns>
         public override string GetLevelFilePath(GameSettings settings)
         {
-            var custom = Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"MAP{settings.Level}");
+            var custom = settings.GameDirectory + GetWorldName(settings.World) + "/" + $"MAP{settings.Level}" + "/";
 
-            if (Directory.Exists(custom))
+            if(FileSystem.DirectoryExists(custom))
                 return custom;
 
-            return Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"MAP_{settings.Level}");
+            return settings.GameDirectory + GetWorldName(settings.World) + "/" + $"MAP_{settings.Level}" + "/";
         }
+
+        /// <summary>
+        /// Gets the folder path for the specified world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The world folder path</returns>
+        public string GetWorldFolderPath(GameSettings settings) => GetWorldName(settings.World) + "/";
 
         /// <summary>
         /// Gets the file path for the PCX tile map
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The PCX tile map file path</returns>
-        public string GetPCXFilePath(GameSettings settings) => Path.Combine(settings.GameDirectory, GetWorldName(settings.World), $"{GetShortWorldName(settings.World)}.PCX");
+        public string GetPCXFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"{GetShortWorldName(settings.World)}.PCX";
 
         /// <summary>
         /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateDirectories(Path.Combine(settings.GameDirectory, GetWorldName(settings.World)), "MAP???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).Where(x => x.Length < 7).Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3))).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(settings), "MAP???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).Where(x => x.Length < 7).Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3))).ToArray();
 
         #endregion
 
@@ -55,13 +63,13 @@ namespace R1Engine
         /// <returns>The localization files</returns>
         public Dictionary<string, PC_Mapper_EventLocFile[]> GetEventLocFiles(string basePath)
         {
-            var pcDataDir = Path.Combine(basePath, "PCMAP");
+            var pcDataDir = Path.Combine(basePath, GetDataPath());
 
             var output = new Dictionary<string, PC_Mapper_EventLocFile[]>();
 
             foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
             {
-                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_Mapper_EventLocFile>(locFile, new GameSettings(GameModeSelection.MapperPC, basePath))).ToArray());
+                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_Mapper_EventLocFile>(locFile, new Context(new GameSettings(GameModeSelection.MapperPC, basePath)))).ToArray());
             }
 
             return output;
@@ -70,18 +78,18 @@ namespace R1Engine
         /// <summary>
         /// Loads the specified level
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The serialization context</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
-        public override async Task<Common_Lev> LoadLevelAsync(GameSettings settings, List<Common_Design> eventDesigns)
+        public override async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns)
         {
-            Controller.status = $"Loading Mapper map data for {settings.World} {settings.Level}";
+            Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
             // Get the level folder path
-            var basePath = GetLevelFilePath(settings);
+            var basePath = GetLevelFilePath(context.Settings);
 
             // Read the map data
-            var mapData = FileFactory.Read<Mapper_Map>(Path.Combine(basePath, $"EVENT.MAP"), settings, FileMode);
+            var mapData = FileFactory.Read<Mapper_Map>(Path.Combine(basePath, $"EVENT.MAP"), context);
 
             await Controller.WaitIfNecessary();
 
@@ -103,23 +111,23 @@ namespace R1Engine
             Controller.status = $"Loading Mapper files";
 
             // Read the DES CMD manifest
-            var desCmdManifest = FileFactory.Read<Mapper_RayLev>(Path.Combine(basePath, $"RAY.LEV"), settings, FileMode).DESManifest;
+            var desCmdManifest = FileFactory.ReadMapper<Mapper_RayLev>(Path.Combine(basePath, $"RAY.LEV"), context).DESManifest;
 
             // Read the CMD files
             var cmd = desCmdManifest.Skip(1).ToDictionary(item => item.Key, 
-                item => FileFactory.Read<Mapper_EventCMD>(Path.Combine(basePath, item.Value), settings, FileMode));
+                item => FileFactory.ReadMapper<Mapper_EventCMD>(Path.Combine(basePath, item.Value), context));
 
             await Controller.WaitIfNecessary();
 
             // Get the palette from the PCX file
-            var vgaPalette = FileFactory.Read<PCX>(GetPCXFilePath(settings), settings).VGAPalette;
+            var vgaPalette = FileFactory.Read<PCX>(GetPCXFilePath(context.Settings), context).VGAPalette;
 
             var palette = new List<ARGBColor>();
             for (var i = 0; i < vgaPalette.Length; i += 3)
                 palette.Add(new ARGBColor(vgaPalette[i + 0], vgaPalette[i + 1], vgaPalette[i + 2]));
 
             // Load the sprites
-            var eta = await LoadSpritesAsync(settings, palette, eventDesigns);
+            var eta = await LoadSpritesAsync(context, palette, eventDesigns);
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
@@ -130,8 +138,8 @@ namespace R1Engine
             var eventCount = cmd.SelectMany(x => x.Value.Items).Count();
 
             // Get the Designer DES and ETA names
-            var kitDESNames = GetDESNames(settings).ToArray();
-            var kitETANames = GetETANames(settings).ToArray();
+            var kitDESNames = GetDESNames(context).ToArray();
+            var kitETANames = GetETANames(context).ToArray();
 
             // Handle each event
             foreach (var c in cmd)
@@ -152,7 +160,7 @@ namespace R1Engine
                         desIndex += 1;
 
                     // Find the matching event info item
-                    var eventInfo = EventInfoManager.GetMapperEventInfo(settings.GameModeSelection, settings.World, Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray(), e.Name);
+                    var eventInfo = EventInfoManager.GetMapperEventInfo(context.Settings.GameModeSelection, context.Settings.World, Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, e.EventCommands.Select(x => (byte)x).ToArray(), e.Name);
 
                     // Get animation index from the eta item
                     var etaItem = eventInfo.ETA == -1 ? null : eta[eventInfo.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == eventInfo.SubEtat);
@@ -182,7 +190,7 @@ namespace R1Engine
             Controller.status = $"Loading tile set";
 
             // Read the .pcx file and get the texture
-            var pcxtex = FileFactory.Read<PCX>(GetPCXFilePath(settings), settings).ToTexture();
+            var pcxtex = FileFactory.Read<PCX>(GetPCXFilePath(context.Settings), context).ToTexture();
 
             var tileSetWidth = pcxtex.width / CellSize;
             var tileSetHeight = pcxtex.height / CellSize;

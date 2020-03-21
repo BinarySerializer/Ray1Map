@@ -23,6 +23,7 @@ namespace R1Engine
 
         public static string status
         {
+            get => obj.loadingText.text;
             set => obj.loadingText.text = value;
         }
 

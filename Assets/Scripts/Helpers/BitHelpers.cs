@@ -16,5 +16,11 @@
         {
             return (((1 << count) - 1) & (value >> (offset)));
         }
+
+        public static int SetBits(int bits, int value, int count, int offset) {
+            int mask = ((1 << count) - 1) << offset;
+            bits = (bits & ~mask) | (value << offset);
+            return bits;
+        }
     }
 }
