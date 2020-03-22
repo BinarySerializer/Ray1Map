@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// World data for PC
@@ -9,6 +6,7 @@ namespace R1Engine
     public class PC_WorldFile : PC_BaseFile
     {
         #region Public Properties
+
         public Type FileType { get; set; }
 
         // Unknown values related to backgrounds (most likely parallax scrolling)
@@ -31,12 +29,12 @@ namespace R1Engine
         /// <summary>
         /// The DES items
         /// </summary>
-        public PC_DesItem[] DesItems { get; set; }
+        public PC_DES[] DesItems { get; set; }
 
         /// <summary>
-        /// The ETA data
+        /// The ETA items
         /// </summary>
-        public PC_Eta[][][] Eta { get; set; }
+        public PC_ETA[] Eta { get; set; }
 
         // Includes file name manifest
         public byte[] Unknown5 { get; set; }
@@ -72,7 +70,7 @@ namespace R1Engine
             {
                 DesItemCount = 1;
 
-                DesItems = s.SerializeObjectArray<PC_DesItem>(DesItems, DesItemCount,
+                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, DesItemCount,
                     onPreSerialize: data => data.FileType = FileType, name: "DesItems");
 
                 SerializeEta();
@@ -88,15 +86,8 @@ namespace R1Engine
             // Helper method for reading the eta
             void SerializeEta()
             {
-                Eta = s.SerializeArraySize<PC_Eta[][], byte>(Eta, name: "Eta");
-                for (int i = 0; i < Eta.Length; i++) {
-                    Eta[i] = s.SerializeArraySize<PC_Eta[], byte>(Eta[i], name: "Eta[" + i + "]");
-
-                    for (int j = 0; j < Eta[i].Length; j++) {
-                        Eta[i][j] = s.SerializeArraySize<PC_Eta, byte>(Eta[i][j], name: "Eta[" + i + "][" + j + "]");
-                        Eta[i][j] = s.SerializeObjectArray<PC_Eta>(Eta[i][j], Eta[i][j].Length, name: "Eta[" + i + "][" + j + "]");
-                    }
-                }
+                Eta = s.SerializeArraySize<PC_ETA, byte>(Eta, name: "Eta");
+                Eta = s.SerializeObjectArray<PC_ETA>(Eta, Eta.Length, name: "Eta");
             }
 
             // Helper method for reading the sprites
@@ -108,7 +99,7 @@ namespace R1Engine
                 if (FileType == Type.AllFix && s is BinaryDeserializer)
                     DesItemCount--;
 
-                DesItems = s.SerializeObjectArray<PC_DesItem>(DesItems, DesItemCount,
+                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, DesItemCount,
                     onPreSerialize: data => data.FileType = FileType, name: "DesItems");
             }
         }

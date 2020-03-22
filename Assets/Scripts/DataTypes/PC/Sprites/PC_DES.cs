@@ -1,11 +1,11 @@
-﻿namespace R1Engine
-{
-    using Type = PC_WorldFile.Type;
+﻿using Type = R1Engine.PC_WorldFile.Type;
 
+namespace R1Engine
+{
     /// <summary>
     /// DES item data for PC
     /// </summary>
-    public class PC_DesItem : R1Serializable {
+    public class PC_DES : R1Serializable {
         public Type FileType { get; set; }
 
         /// <summary>
@@ -25,7 +25,6 @@
         /// </summary>
         public byte[] ImageData { get; set; }
 
-        // TODO: In kit and edu this comes before the image data
         /// <summary>
         /// The checksum for <see cref="ImageData"/>
         /// </summary>

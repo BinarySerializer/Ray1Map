@@ -140,21 +140,22 @@ namespace R1Engine
         /// <param name="animationIndex">The animation index</param>
         public void ReverseSearchAnimation(PC_WorldFile wld, int eta, int animationIndex)
         {
-            foreach (var e in wld.Eta[eta].SelectMany(x => x).Where(x => x.AnimationIndex == animationIndex))
+            // TODO: Use new state indexing
+            foreach (var e in wld.Eta[eta].States.SelectMany(x => x).Where(x => x.AnimationIndex == animationIndex))
                 Debug.Log($"Etat: {e.Etat}, SubEtat: {e.SubEtat}, Speed: {e.AnimationSpeed}");
         }
 
         /// <summary>
         /// Gets the DES file names, in order, for the world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <returns>The DES file names</returns>
         public virtual IEnumerable<string> GetDESNames(Context context) => new string[0];
 
         /// <summary>
         /// Gets the ETA file names, in order, for the world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <returns>The ETA file names</returns>
         public virtual IEnumerable<string> GetETANames(Context context) => new string[0];
 
@@ -238,7 +239,7 @@ namespace R1Engine
         /// <summary>
         /// Exports all sprite textures to the specified output directory
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="outputDir">The output directory</param>
         public void ExportSpriteTextures(Context context, string outputDir) {
             // Get the DES names for every world
@@ -287,7 +288,7 @@ namespace R1Engine
         /// <summary>
         /// Exports all sprite textures from the world file to the specified output directory
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="worldFile">The world file</param>
         /// <param name="outputDir">The output directory</param>
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
@@ -341,7 +342,7 @@ namespace R1Engine
         /// <param name="desIndex">The DES index</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprite textures</returns>
-        public Texture2D[] GetSpriteTextures(GameSettings settings, List<PC_LevFile> levels, PC_DesItem desItem, PC_WorldFile worldFile, int desIndex, IList<ARGBColor> palette = null)
+        public Texture2D[] GetSpriteTextures(GameSettings settings, List<PC_LevFile> levels, PC_DES desItem, PC_WorldFile worldFile, int desIndex, IList<ARGBColor> palette = null)
         {
             // Create the output array
             var output = new Texture2D[desItem.ImageDescriptors.Length];
@@ -373,14 +374,15 @@ namespace R1Engine
                 foreach (var animDesc in desItem.AnimationDescriptors.Where(x => x.Layers.Any(y => y.ImageIndex == i)).Select(x => desItem.AnimationDescriptors.FindItemIndex(y => y == x)))
                 {
                     // Check all ETA's where it appears
-                    foreach (var eta in worldFile.Eta.SelectMany(x => x).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
+                    foreach (var eta in worldFile.Eta.SelectMany(x => x.States).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
                     {
+                        // TODO: Use new state indexing system
                         // Attempt to find the level where it appears
                         var lvlMatch = levels.FindLast(x => x.Events.Any(y =>
                             y.DES == desIndex &&
                             y.Etat == eta.Etat &&
                             y.SubEtat == eta.SubEtat &&
-                            y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
+                            y.ETA == worldFile.Eta.FindItemIndex(z => z.States.SelectMany(h => h).Contains(eta))));
 
                         if (lvlMatch != null)
                         {
@@ -428,7 +430,7 @@ namespace R1Engine
         /// <summary>
         /// Exports all animation frames to the specified directory
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="outputDir">The directory to export to</param>
         public void ExportAnimationFrames(Context context, string outputDir)
         {
@@ -475,7 +477,7 @@ namespace R1Engine
         /// <summary>
         /// Exports the animation frames
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="worldFile">The world file to export from</param>
         /// <param name="outputDir">The directory to export to</param>
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
@@ -526,7 +528,7 @@ namespace R1Engine
 
                     byte? speed = null;
 
-                    IEnumerable<PC_Eta> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].SelectMany(x => x).Where(x => x.AnimationIndex == j);
+                    IEnumerable<PC_EventState> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].States.SelectMany(x => x).Where(x => x.AnimationIndex == j);
 
                     // TODO: Redo this to use new ETA indexing system
                     // Attempt to find a perfect match
@@ -811,7 +813,7 @@ namespace R1Engine
         /// <summary>
         /// Exports all vignette textures to the specified output directory
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="outputDir">The output directory</param>
         public void ExportVignetteTextures(Context context, string outputDir)
         {
@@ -959,11 +961,10 @@ namespace R1Engine
         /// <summary>
         /// Loads the sprites for the level
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="palette">The palette to use</param>
         /// <param name="eventDesigns">The list of event designs to populate</param>
-        /// <returns>The ETA</returns>
-        public async Task<PC_Eta[][][]> LoadSpritesAsync(Context context, IList<ARGBColor> palette, List<Common_Design> eventDesigns)
+        public async Task LoadSpritesAsync(Context context, IList<ARGBColor> palette, List<Common_Design> eventDesigns)
         {
             Controller.status = $"Loading allfix";
 
@@ -992,7 +993,6 @@ namespace R1Engine
 
             // Get the DES and ETA
             var des = allfix.DesItems.Concat(worldData.DesItems).Concat(bigRayData.DesItems).ToArray();
-            var eta = allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta).ToArray();
 
             int desIndex = 0;
 
@@ -1072,9 +1072,6 @@ namespace R1Engine
                 eventDesigns.Add(finalDesign);
                 desIndex++;
             }
-
-            // Return the ETA
-            return eta;
         }
 
         /// <summary>
@@ -1106,7 +1103,7 @@ namespace R1Engine
             };
 
             // Load the sprites
-            var eta = await LoadSpritesAsync(context, levelData.ColorPalettes.First(), eventDesigns);
+            await LoadSpritesAsync(context, levelData.ColorPalettes.First(), eventDesigns);
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
@@ -1310,10 +1307,8 @@ namespace R1Engine
                 }
             }
 
-            int indexx = 0; //Only for debugging
-            foreach (var e in commonLevelData.Events) {
-                //Debug.Log(indexx + ":" + e.LinkIndex + " - " + e.name);
-                indexx++;
+            foreach (var e in commonLevelData.Events) 
+            {
                 // Create the event
                 var r1Event = new PC_Event
                 {
@@ -1375,7 +1370,7 @@ namespace R1Engine
             FileFactory.Write<PC_LevFile>(lvlPath, context);
         }
 
-        public async virtual Task LoadFilesAsync(Context context) {
+        public virtual async Task LoadFilesAsync(Context context) {
             Dictionary<string, string> paths = new Dictionary<string, string>();
             paths["allfix"] = GetAllfixFilePath(context.Settings);
             paths["world"] = GetWorldFilePath(context.Settings);
@@ -1408,7 +1403,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the animation info for an event
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="e">The event</param>
         /// <returns>The animation info</returns>
         public Common_AnimationInfo GetAnimationInfo(Context context, Common_Event e)
@@ -1427,7 +1422,7 @@ namespace R1Engine
 
             // Get animation index from the matching ETA item
             //var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-            var etaItem = eta.ElementAt(e.ETA).ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
+            var etaItem = eta.ElementAt(e.ETA).States.ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
 
             // Return the index
             return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);

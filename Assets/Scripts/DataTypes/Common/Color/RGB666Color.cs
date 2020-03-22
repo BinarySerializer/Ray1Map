@@ -3,7 +3,7 @@
 namespace R1Engine
 {
     /// <summary>
-    /// A standard ARGB color wrapper with serializing support for the encoding BGR-1555
+    /// A standard ARGB color wrapper with serializing support for the encoding RGB-666
     /// </summary>
     public class RGB666Color : ARGBColor
     {

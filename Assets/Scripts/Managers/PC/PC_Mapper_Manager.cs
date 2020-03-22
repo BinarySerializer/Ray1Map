@@ -153,7 +153,7 @@ namespace R1Engine
                 palette.Add(new ARGBColor(vgaPalette[i + 0], vgaPalette[i + 1], vgaPalette[i + 2]));
 
             // Load the sprites
-            var eta = await LoadSpritesAsync(context, palette, eventDesigns);
+            await LoadSpritesAsync(context, palette, eventDesigns);
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
