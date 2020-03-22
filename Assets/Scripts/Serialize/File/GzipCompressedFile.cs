@@ -53,8 +53,18 @@ namespace R1Engine.Serialize {
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
 			if (length == 0) {
 				Stream s = FileSystem.GetFileReadStream(AbsolutePath);
-				length = (uint)s.Length;
+				// Create a memory stream to write to so we can get the position
+				var memStream = new MemoryStream();
+
+				// Decompress to the memory stream
+				using (var gZipStream = new GZipStream(s, CompressionMode.Decompress))
+					gZipStream.CopyTo(memStream);
+
+				// Set the position to the beginning
+				memStream.Position = 0;
+				length = (uint)memStream.Length;
 				s.Close();
+				memStream.Close();
 			}
 			uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
 			if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset <= baseAddress + length) {
