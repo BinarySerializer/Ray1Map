@@ -193,13 +193,6 @@ namespace R1Engine
             if (Controller.obj?.levelController?.currentLevel == null)
                 return;
 
-            // Update Event's x and y here
-            if (transform.hasChanged)
-            {
-                transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
-                midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
-            }
-
             // Scroll through animation frames
             if (prefabRendereds.Length > 0 && CurrentAnimation != null)
             {
@@ -228,6 +221,11 @@ namespace R1Engine
                 var linkedEvent = Controller.obj.levelController.currentLevel.Events[LinkIndex];
                 lineRend.SetPosition(1, linkedEvent.midpoint);
             }*/
+        }
+
+        public void UpdateXAndY() {
+            transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
+            midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
         }
 
         // Change des and everything

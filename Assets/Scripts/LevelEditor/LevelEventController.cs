@@ -137,6 +137,13 @@ namespace R1Engine
 
                         eventInfoX.text = Mathf.Clamp(Mathf.RoundToInt((mousePos.x-selectedPosition.x) * 16),0,Controller.obj.levelController.currentLevel.Width*16).ToString();
                         eventInfoY.text = Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y-selectedPosition.y) * 16),0,Controller.obj.levelController.currentLevel.Height*16).ToString();
+
+                        uint.TryParse(eventInfoX.text, out var new_x);
+                        currentlySelected.XPosition = new_x;
+                        uint.TryParse(eventInfoY.text, out var new_y);
+                        currentlySelected.YPosition = new_y;
+
+                        currentlySelected.UpdateXAndY();
                     }
                 }
                 //Delete selected event
@@ -178,12 +185,14 @@ namespace R1Engine
             if (currentlySelected != null) {
                 uint.TryParse(eventInfoX.text, out var new_x);
                 currentlySelected.XPosition = new_x;
+                currentlySelected.UpdateXAndY();
             }
         }
         public void FieldYPosition() {
             if (currentlySelected != null) {
                 uint.TryParse(eventInfoY.text, out var new_y);
                 currentlySelected.YPosition = new_y;
+                currentlySelected.UpdateXAndY();
             }
         }
         public void FieldDes() {
