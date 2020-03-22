@@ -58,7 +58,7 @@
                 VideoBiosCheckSum = s.Serialize(VideoBiosCheckSum, name: "VideoBiosCheckSum");
                 BiosCheckSum = s.Serialize(BiosCheckSum, name: "BiosCheckSum");
                 s.BeginXOR(0x15);
-                Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: "Plan0NumPcx");
+                Plan0NumPcx = s.SerializeArray(Plan0NumPcx, s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: "Plan0NumPcx");
                 s.EndXOR();
             }
 
@@ -70,7 +70,7 @@
             {
                 DesItemCount = 1;
 
-                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, DesItemCount,
+                DesItems = s.SerializeObjectArray(DesItems, DesItemCount,
                     onPreSerialize: data => data.FileType = FileType, name: "DesItems");
 
                 SerializeEta();
@@ -81,13 +81,13 @@
                 SerializeSprites();
             }
 
-            Unknown5 = s.SerializeArray<byte>(Unknown5, s.CurrentLength - s.CurrentPointer.FileOffset, name: "Unknown5");
+            Unknown5 = s.SerializeArray(Unknown5, s.CurrentLength - s.CurrentPointer.FileOffset, name: "Unknown5");
 
             // Helper method for reading the eta
             void SerializeEta()
             {
                 Eta = s.SerializeArraySize<PC_ETA, byte>(Eta, name: "Eta");
-                Eta = s.SerializeObjectArray<PC_ETA>(Eta, Eta.Length, name: "Eta");
+                Eta = s.SerializeObjectArray(Eta, Eta.Length, name: "Eta");
             }
 
             // Helper method for reading the sprites
@@ -99,7 +99,7 @@
                 if (FileType == Type.AllFix && s is BinaryDeserializer)
                     DesItemCount--;
 
-                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, DesItemCount,
+                DesItems = s.SerializeObjectArray(DesItems, DesItemCount,
                     onPreSerialize: data => data.FileType = FileType, name: "DesItems");
             }
         }

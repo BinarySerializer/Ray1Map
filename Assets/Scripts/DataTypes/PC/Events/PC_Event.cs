@@ -73,54 +73,54 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            DES = s.Serialize<uint>(DES, name: "DES");
-            DES2 = s.Serialize<uint>(DES2, name: "DES2");
-            DES3 = s.Serialize<uint>(DES3, name: "DES3");
-            ETA = s.Serialize<uint>(ETA, name: "ETA");
+            DES = s.Serialize(DES, name: "DES");
+            DES2 = s.Serialize(DES2, name: "DES2");
+            DES3 = s.Serialize(DES3, name: "DES3");
+            ETA = s.Serialize(ETA, name: "ETA");
 
-            Unknown1 = s.Serialize<uint>(Unknown1, name: "Unknown1");
-            Unknown2 = s.Serialize<uint>(Unknown2, name: "Unknown2");
+            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
+            Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
 
-            Unknown3 = s.SerializeArray<byte>(Unknown3, 16, name: "Unknown3");
+            Unknown3 = s.SerializeArray(Unknown3, 16, name: "Unknown3");
 
-            XPosition = s.Serialize<uint>(XPosition, name: "XPosition");
-            YPosition = s.Serialize<uint>(YPosition, name: "YPosition");
+            XPosition = s.Serialize(XPosition, name: "XPosition");
+            YPosition = s.Serialize(YPosition, name: "YPosition");
 
             // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
             if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
-                Unknown13 = s.Serialize<uint>(Unknown13, name: "Unknown13");
+                Unknown13 = s.Serialize(Unknown13, name: "Unknown13");
 
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 20, name: "Unknown4");
-            Unknown5 = s.SerializeArray<byte>(Unknown5, 28, name: "Unknown5");
+            Unknown4 = s.SerializeArray(Unknown4, 20, name: "Unknown4");
+            Unknown5 = s.SerializeArray(Unknown5, 28, name: "Unknown5");
 
-            Type = s.Serialize<uint>(Type, name: "Type");
-            Unknown6 = s.Serialize<uint>(Unknown6, name: "Unknown6");
+            Type = s.Serialize(Type, name: "Type");
+            Unknown6 = s.Serialize(Unknown6, name: "Unknown6");
 
-            OffsetBX = s.Serialize<byte>(OffsetBX, name: "OffsetBX");
-            OffsetBY = s.Serialize<byte>(OffsetBY, name: "OffsetBY");
+            OffsetBX = s.Serialize(OffsetBX, name: "OffsetBX");
+            OffsetBY = s.Serialize(OffsetBY, name: "OffsetBY");
 
-            Unknown7 = s.Serialize<ushort>(Unknown7, name: "Unknown7");
+            Unknown7 = s.Serialize(Unknown7, name: "Unknown7");
 
-            SubEtat = s.Serialize<byte>(SubEtat, name: "SubEtat");
-            Etat = s.Serialize<byte>(Etat, name: "Etat");
+            SubEtat = s.Serialize(SubEtat, name: "SubEtat");
+            Etat = s.Serialize(Etat, name: "Etat");
 
-            Unknown8 = s.Serialize<ushort>(Unknown8, name: "Unknown8");
-            Unknown9 = s.Serialize<uint>(Unknown9, name: "Unknown9");
+            Unknown8 = s.Serialize(Unknown8, name: "Unknown8");
+            Unknown9 = s.Serialize(Unknown9, name: "Unknown9");
 
-            OffsetHY = s.Serialize<byte>(OffsetHY, name: "OffsetHY");
-            FollowSprite = s.Serialize<byte>(FollowSprite, name: "FollowSprite");
-            HitPoints = s.Serialize<ushort>(HitPoints, name: "HitPoints");
-            UnkGroup = s.Serialize<byte>(UnkGroup, name: "UnkGroup");
-            HitSprite = s.Serialize<byte>(HitSprite, name: "HitSprite");
+            OffsetHY = s.Serialize(OffsetHY, name: "OffsetHY");
+            FollowSprite = s.Serialize(FollowSprite, name: "FollowSprite");
+            HitPoints = s.Serialize(HitPoints, name: "HitPoints");
+            UnkGroup = s.Serialize(UnkGroup, name: "UnkGroup");
+            HitSprite = s.Serialize(HitSprite, name: "HitSprite");
 
-            Unknown10 = s.SerializeArray<byte>(Unknown10, 6, name: "Unknown10");
+            Unknown10 = s.SerializeArray(Unknown10, 6, name: "Unknown10");
 
-            Unknown11 = s.Serialize<byte>(Unknown11, name: "Unknown11");
+            Unknown11 = s.Serialize(Unknown11, name: "Unknown11");
 
             // NOTE: This is 32 when true and 0 when false
-            FollowEnabled = s.Serialize<byte>((byte)(FollowEnabled ? 32 : 0), name: "FollowEnabled") != 0;
+            FollowEnabled = s.Serialize((byte)(FollowEnabled ? 32 : 0), name: "FollowEnabled") != 0;
 
-            Unknown12 = s.Serialize<ushort>(Unknown12, name: "Unknown12");
+            Unknown12 = s.Serialize(Unknown12, name: "Unknown12");
         }
     }
 }

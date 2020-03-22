@@ -53,7 +53,7 @@ namespace R1Engine
                 s.SerializeArray(Unknown2, Unknown2.Length, name: "Unknown2");
             }
 
-            LocItems = s.SerializeObjectArray<PC_Mapper_EventLocItem>(LocItems, LocCount, name: "LocItems");
+            LocItems = s.SerializeObjectArray(LocItems, LocCount, name: "LocItems");
         }
     }
 }

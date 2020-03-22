@@ -22,7 +22,7 @@
         public override void SerializeImpl(SerializerObject s) {
             TileIndex = s.Serialize(TileIndex, name: "TileIndex");
 
-            CollisionType = (TileCollisionType)s.Serialize<ushort>((ushort)CollisionType, name: "CollisionType");
+            CollisionType = (TileCollisionType)s.Serialize((ushort)CollisionType, name: "CollisionType");
         }
     }
 }

@@ -78,10 +78,12 @@ namespace R1Engine
         public byte[] Unknown10 { get; set; }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
-        public override void SerializeImpl(SerializerObject s) {
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s) 
+        {
+            // Serialize pointers
             UnkPointer1 = s.SerializePointer(UnkPointer1, name: "UnkPointer1");
             UnkPointer2 = s.SerializePointer(UnkPointer2, name: "UnkPointer2");
             UnkPointer3 = s.Serialize(UnkPointer3, name: "UnkPointer3");
@@ -94,14 +96,16 @@ namespace R1Engine
             if (Unknown1 != 0)
                 Debug.Log($"PS1 event unk1 is {Unknown1}");
 
+            // Serialize position
             XPosition = s.Serialize(XPosition, name: "XPosition");
             YPosition = s.Serialize(YPosition, name: "YPosition");
 
-            Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: "Unknown2");
+            // Serialize unknown properties
+            Unknown2 = s.SerializeArray(Unknown2, 16, name: "Unknown2");
             Unknown3 = s.Serialize(Unknown3, name: "Unknown3");
             Unknown4 = s.Serialize(Unknown4, name: "Unknown4");
             Unknown5 = s.Serialize(Unknown5, name: "Unknown5");
-            Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: "Unknown6");
+            Unknown6 = s.SerializeArray(Unknown6, 28, name: "Unknown6");
 
             OffsetBX = s.Serialize(OffsetBX, name: "OffsetBX");
             OffsetBY = s.Serialize(OffsetBY, name: "OffsetBY");
@@ -125,7 +129,7 @@ namespace R1Engine
 
             HitSprite = s.Serialize(HitSprite, name: "HitSprite");
 
-            Unknown10 = s.SerializeArray<byte>(Unknown10, 10, name: "Unknown10");
+            Unknown10 = s.SerializeArray(Unknown10, 10, name: "Unknown10");
         }
     }
 }

@@ -37,10 +37,10 @@ namespace R1Engine
         public Color GetColor() => new Color((float)Red / Byte.MaxValue, (float)Green / Byte.MaxValue, (float)Blue / Byte.MaxValue, (float)Alpha / Byte.MaxValue);
 
         public override void SerializeImpl(SerializerObject s) {
-            Alpha = s.Serialize<byte>(Alpha, name: "Alpha");
-            Red = s.Serialize<byte>(Red, name: "Red");
-            Green = s.Serialize<byte>(Green, name: "Green");
-            Blue = s.Serialize<byte>(Blue, name: "Blue");
+            Alpha = s.Serialize(Alpha, name: "Alpha");
+            Red = s.Serialize(Red, name: "Red");
+            Green = s.Serialize(Green, name: "Green");
+            Blue = s.Serialize(Blue, name: "Blue");
         }
     }
 }

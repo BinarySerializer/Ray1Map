@@ -21,9 +21,9 @@
             CodeCount = s.Serialize(CodeCount, name: "CodeCount");
             LabelOffsetCount = s.Serialize(LabelOffsetCount, name: "LabelOffsetCount");
 
-            EventCode = s.SerializeArray<byte>(EventCode, CodeCount, name: "EventCode");
+            EventCode = s.SerializeArray(EventCode, CodeCount, name: "EventCode");
 
-            LabelOffsetTable = s.SerializeArray<ushort>(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");
+            LabelOffsetTable = s.SerializeArray(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");
         }
     }
 }

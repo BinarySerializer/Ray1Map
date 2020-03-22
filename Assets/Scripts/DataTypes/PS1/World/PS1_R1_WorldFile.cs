@@ -93,33 +93,33 @@ namespace R1Engine
 
             // BLOCK 1
             s.DoAt(FirstBlockPointer, () => {
-                FirstBlock = s.SerializeArray<byte>(FirstBlock, SecondBlockPointer - s.CurrentPointer, name: "FirstBlock");
+                FirstBlock = s.SerializeArray(FirstBlock, SecondBlockPointer - s.CurrentPointer, name: "FirstBlock");
             });
 
             // BLOCK 2
             s.DoAt(SecondBlockPointer, () => {
-                SecondBlock = s.SerializeArray<byte>(SecondBlock, ThirdBlockPointer - s.CurrentPointer, name: "SecondBlock");
+                SecondBlock = s.SerializeArray(SecondBlock, ThirdBlockPointer - s.CurrentPointer, name: "SecondBlock");
             });
 
             // BLOCK 3
             s.DoAt(ThirdBlockPointer, () => {
-                ThirdBlock = s.SerializeArray<byte>(ThirdBlock, EventPalette1BlockPointer - s.CurrentPointer, name: "ThirdBlock");
+                ThirdBlock = s.SerializeArray(ThirdBlock, EventPalette1BlockPointer - s.CurrentPointer, name: "ThirdBlock");
             });
 
             // EVENT PALETTE 1
             s.DoAt(EventPalette1BlockPointer, () => {
-                EventPalette1 = s.SerializeObjectArray<ARGB1555Color>(EventPalette1, 256, name: "EventPalette1");
+                EventPalette1 = s.SerializeObjectArray(EventPalette1, 256, name: "EventPalette1");
             });
 
             // EVENT PALETTE 2
             s.DoAt(EventPalette2BlockPointer, () => {
-                EventPalette2 = s.SerializeObjectArray<ARGB1555Color>(EventPalette2, 256, name: "EventPalette2");
+                EventPalette2 = s.SerializeObjectArray(EventPalette2, 256, name: "EventPalette2");
             });
 
             // TILES
             s.DoAt(TilesBlockPointer, () => {
                 // Read the tiles index table
-                TilesIndexTable = s.SerializeArray<byte>(TilesIndexTable, PaletteBlockPointer - TilesBlockPointer, name: "TilesIndexTable");
+                TilesIndexTable = s.SerializeArray(TilesIndexTable, PaletteBlockPointer - TilesBlockPointer, name: "TilesIndexTable");
             });
 
             // TILE PALETTES
@@ -130,14 +130,14 @@ namespace R1Engine
                     TileColorPalettes = new ARGB1555Color[numPalettes][];
                 }
                 for (int i = 0; i < TileColorPalettes.Length; i++) {
-                    TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: "TileColorPalettes[" + i + "]");
+                    TileColorPalettes[i] = s.SerializeObjectArray(TileColorPalettes[i], 256, name: "TileColorPalettes[" + i + "]");
                 }
             });
 
             // TILE PALETTE ASSIGN
             s.DoAt(PaletteIndexBlockPointer, () => {
                 // Read the palette index table
-                TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: "TilePaletteIndexTable");
+                TilePaletteIndexTable = s.SerializeArray(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: "TilePaletteIndexTable");
             });
         }
     }

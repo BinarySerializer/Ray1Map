@@ -19,7 +19,12 @@ namespace R1Engine {
 			this.Context = offset.Context;
 		}
 
-		public abstract void SerializeImpl(SerializerObject s);
+        /// <summary>
+        /// Handles the data serialization
+        /// </summary>
+        /// <param name="s">The serializer object</param>
+        public abstract void SerializeImpl(SerializerObject s);
+
 		public void Serialize(SerializerObject s) {
 			OnPreSerialize(s);
 			SerializeImpl(s);

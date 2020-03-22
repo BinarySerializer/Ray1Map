@@ -28,7 +28,7 @@ namespace R1Engine {
 			if (value < 0) { return "-" + SizeSuffix(-value); }
 
 			int i = 0;
-			decimal dValue = (decimal)value;
+			decimal dValue = value;
 			while (Math.Round(dValue, decimalPlaces) >= 1000) {
 				dValue /= 1024;
 				i++;

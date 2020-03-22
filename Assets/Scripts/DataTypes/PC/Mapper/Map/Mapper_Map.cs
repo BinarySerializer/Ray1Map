@@ -36,7 +36,7 @@
             Height = s.Serialize(Height, name: "Height");
 
             // Serialize tiles
-            Tiles = s.SerializeObjectArray<Mapper_MapTile>(Tiles, Width * Height, name: "Tiles");
+            Tiles = s.SerializeObjectArray(Tiles, Width * Height, name: "Tiles");
         }
 
         #endregion

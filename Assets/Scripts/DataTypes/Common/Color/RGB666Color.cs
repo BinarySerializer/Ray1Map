@@ -24,9 +24,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            Red = (byte)(s.Serialize<byte>((byte)(Red >> 2), name: "Red") << 2);
-            Green = (byte)(s.Serialize<byte>((byte)(Green >> 2), name: "Green") << 2);
-            Blue = (byte)(s.Serialize<byte>((byte)(Blue >> 2), name: "Blue") << 2);
+            Red = (byte)(s.Serialize((byte)(Red >> 2), name: "Red") << 2);
+            Green = (byte)(s.Serialize((byte)(Green >> 2), name: "Green") << 2);
+            Blue = (byte)(s.Serialize((byte)(Blue >> 2), name: "Blue") << 2);
         }
     }
 }

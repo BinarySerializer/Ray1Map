@@ -75,11 +75,11 @@
 
             // Serialize blocks
             for (int i = 0; i < ImageBlocks.Length; i++)
-                ImageBlocks[i] = s.SerializeObjectArray<ARGB1555Color>(ImageBlocks[i], BlockWidth * Height, name: "ImageBlocks[" + i + "]", onPreSerialize: x => x.IsBlackTransparent = false);
+                ImageBlocks[i] = s.SerializeObjectArray(ImageBlocks[i], BlockWidth * Height, name: "ImageBlocks[" + i + "]", onPreSerialize: x => x.IsBlackTransparent = false);
 
             // UNKNOWN
 
-            UnknownBlock = s.SerializeArray<byte>(UnknownBlock, FileSize - s.CurrentPointer.FileOffset, name: "UnknownBlock");
+            UnknownBlock = s.SerializeArray(UnknownBlock, FileSize - s.CurrentPointer.FileOffset, name: "UnknownBlock");
         }
     }
 }

@@ -51,8 +51,8 @@ namespace R1Engine
             if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
                 Debug.LogWarning("Frame table offset is wrong");
             
-            Layers = s.SerializeObjectArray<PC_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: "Layers");
-            Frames = s.SerializeObjectArray<PC_AnimationFrame>(Frames, FrameCount + 1, name: "Frames");
+            Layers = s.SerializeObjectArray(Layers, LayersPerFrame * FrameCount, name: "Layers");
+            Frames = s.SerializeObjectArray(Frames, FrameCount + 1, name: "Frames");
         }
     }
 }

@@ -185,7 +185,7 @@ namespace R1Engine
             if (instance == null) {
                 instance = new T();
                 instance.Init(current);
-                Context.Cache.Add<T>(instance);
+                Context.Cache.Add(instance);
                 if (Settings.Log) {
                     string logString = LogPrefix;
                     Context.Log.Log(logString + "(Object: " + typeof(T) + ") " + (name ?? "<no name>"));
@@ -259,7 +259,7 @@ namespace R1Engine
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = SerializeObject<T>(default, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = SerializeObject(default, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
@@ -287,7 +287,7 @@ namespace R1Engine
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = SerializePointer<T>(default, resolve: resolve, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = SerializePointer(default, resolve: resolve, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
@@ -295,7 +295,7 @@ namespace R1Engine
         public override T[] SerializeArraySize<T, U>(T[] obj, string name = null) {
             //U Size = (U)Convert.ChangeType((obj?.Length) ?? 0, typeof(U));
             U Size = default; // For performance reasons, don't supply this argument
-            Size = Serialize<U>(Size, name: name + ".Length");
+            Size = Serialize(Size, name: name + ".Length");
             if (obj == null) {
                 // Create the array, slow
                 int intSize = (int)Convert.ChangeType(Size, typeof(int));

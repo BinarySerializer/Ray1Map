@@ -80,7 +80,7 @@
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             // Serialize the header
-            Header = s.SerializeArray<byte>(Header, 4, name: "Header");
+            Header = s.SerializeArray(Header, 4, name: "Header");
             MapPropertiesPointer = s.Serialize(MapPropertiesPointer, name: "MapPropertiesPointer");
             MapPropertiesLength = s.Serialize(MapPropertiesLength, name: "MapPropertiesLength");
             MapDataPointer = s.Serialize(MapDataPointer, name: "MapDataPointer");
@@ -91,10 +91,10 @@
             EventSevDataLength = s.Serialize(EventSevDataLength, name: "EventSevDataLength");
 
             // Read the data blocks
-            MapProperties = s.SerializeArray<byte>(MapProperties, MapPropertiesLength, name: "MapProperties");
+            MapProperties = s.SerializeArray(MapProperties, MapPropertiesLength, name: "MapProperties");
             MapData = s.Serialize(MapData, name: "MapData");
-            EventMevData = s.SerializeArray<byte>(EventMevData, EventMevDataLength, name: "EventMevData");
-            EventSevData = s.SerializeArray<byte>(EventSevData, EventSevDataLength, name: "EventSevData");
+            EventMevData = s.SerializeArray(EventMevData, EventMevDataLength, name: "EventMevData");
+            EventSevData = s.SerializeArray(EventSevData, EventSevDataLength, name: "EventSevData");
         }
 
         #endregion

@@ -33,7 +33,7 @@
             Layer = s.Serialize(Layer, name: "Layer");
             Width = s.Serialize(Width, name: "Width");
             Height = s.Serialize(Height, name: "Height");
-            Unknown2 = s.SerializeArray<byte>(Unknown2, 13, name: "Unknown2");
+            Unknown2 = s.SerializeArray(Unknown2, 13, name: "Unknown2");
         }
     }
 }
