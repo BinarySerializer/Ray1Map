@@ -1,11 +1,28 @@
-﻿namespace R1Engine
+﻿using UnityEngine;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event data for Rayman 1 (PS1)
     /// </summary>
     public class PS1_R1_Event : R1Serializable
     {
-        public byte[] Unknown1 { get; set; }
+        public Pointer UnkPointer1 { get; set; }
+        
+        public Pointer UnkPointer2 { get; set; }
+        
+        public uint UnkPointer3 { get; set; }
+        
+        /// <summary>
+        /// Pointer to the event commands
+        /// </summary>
+        public Pointer UnkPointer4 { get; set; }
+        
+        public Pointer CommandsPointer { get; set; }
+        
+        public uint UnkPointer5 { get; set; }
+
+        public uint Unknown1 { get; set; }
 
         /// <summary>
         /// The x position
@@ -65,7 +82,17 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            Unknown1 = s.SerializeArray<byte>(Unknown1, 28, name: "Unknown1");
+            UnkPointer1 = s.SerializePointer(UnkPointer1, name: "UnkPointer1");
+            UnkPointer2 = s.SerializePointer(UnkPointer2, name: "UnkPointer2");
+            UnkPointer3 = s.Serialize(UnkPointer3, name: "UnkPointer3");
+            UnkPointer4 = s.SerializePointer(UnkPointer4, name: "UnkPointer4");
+            CommandsPointer = s.SerializePointer(CommandsPointer, name: "CommandsPointer");
+            UnkPointer5 = s.Serialize(UnkPointer5, name: "UnkPointer5");
+            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
+
+            // This appears to always be 0
+            if (Unknown1 != 0)
+                Debug.Log($"PS1 event unk1 is {Unknown1}");
 
             XPosition = s.Serialize(XPosition, name: "XPosition");
             YPosition = s.Serialize(YPosition, name: "YPosition");
