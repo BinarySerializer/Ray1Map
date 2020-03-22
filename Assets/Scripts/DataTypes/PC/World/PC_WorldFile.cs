@@ -46,7 +46,7 @@
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             // Serialize PC Header
             base.SerializeImpl(s);
