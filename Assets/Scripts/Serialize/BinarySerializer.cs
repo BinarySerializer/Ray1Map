@@ -22,6 +22,7 @@ namespace R1Engine
         protected Writer writer;
         protected BinaryFile currentFile;
         protected Dictionary<BinaryFile, Writer> writers = new Dictionary<BinaryFile, Writer>();
+        private string LogPrefix => Settings.Log ? ("(WRITE) " + CurrentPointer + ":" + new string(' ', (Depth + 1) * 2)) : null;
 
         public override Pointer CurrentPointer {
             get {
@@ -52,13 +53,13 @@ namespace R1Engine
         {
             if (value is byte[] ba)
                 writer.Write(ba);
-            
+
             else if (value is Array a)
                 foreach (var item in a)
                     Write(item);
-            /*else if (value.GetType().IsEnum)
-                writer.Write((byte)((int)value));*/
-            else if (value is bool bo)
+            else if (value.GetType().IsEnum) {
+                Write(Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType())));
+            } else if (value is bool bo)
                 writer.Write((byte)(bo ? 1 : 0));
 
             else if (value is sbyte sb)
@@ -141,24 +142,40 @@ namespace R1Engine
         }
 
         public override T Serialize<T>(T obj, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + obj.ToString());
+            }
             Write(obj);
             return obj;
         }
 
         public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + calculatedChecksum.ToString());
+            }
             Write(calculatedChecksum);
             return calculatedChecksum;
         }
 
         public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(Object: " + typeof(T) + ") " + (name ?? "<no name>"));
+            }
             Depth++;
             onPreSerialize?.Invoke(obj);
+            if (obj.Context == null || obj.Context != Context) {
+                // reinitialize object
+                obj.Init(CurrentPointer);
+            }
             obj.Serialize(this);
             Depth--;
             return obj;
         }
 
         public override Pointer SerializePointer(Pointer obj, Pointer anchor = null, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(Pointer): " + obj?.ToString());
+            }
             if (obj == null) {
                 Write((uint)0);
             } else {
@@ -168,6 +185,9 @@ namespace R1Engine
         }
 
         public override Pointer<T> SerializePointer<T>(Pointer<T> obj, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(Pointer<T>: " + typeof(T) + ") " + (name ?? "<no name>"));
+            }
             Depth++;
             if (obj == null || obj.pointer == null) {
                 Serialize<uint>(0, name: "Pointer");
@@ -184,9 +204,14 @@ namespace R1Engine
         }
 
         public override T[] SerializeArray<T>(T[] obj, decimal count, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
+            }
             // Use byte writing method if requested
-            if (typeof(T) == typeof(byte))
+            if (typeof(T) == typeof(byte)) {
                 writer.Write((byte[])(object)obj);
+                return obj;
+            }
 
             for (int i = 0; i < count; i++)
                 // Read the value
@@ -196,6 +221,9 @@ namespace R1Engine
         }
 
         public override T[] SerializeObjectArray<T>(T[] obj, decimal count, Action<T> onPreSerialize = null, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(Object[] " + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
+            }
             for (int i = 0; i < count; i++)
                 // Read the value
                 SerializeObject<T>(obj[i], onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
@@ -204,6 +232,9 @@ namespace R1Engine
         }
 
         public override Pointer[] SerializePointerArray(Pointer[] obj, decimal count, Pointer anchor = null, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(Pointer[" + count + "]) " + (name ?? "<no name>"));
+            }
             for (int i = 0; i < count; i++)
                 // Read the value
                 SerializePointer(obj[i], name: name == null ? null : name + "[" + i + "]");
@@ -212,6 +243,9 @@ namespace R1Engine
         }
 
         public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(Pointer<" + typeof(T) + ">[" + count + "]) " + (name ?? "<no name>"));
+            }
             for (int i = 0; i < count; i++)
                 // Read the value
                 SerializePointer<T>(obj[i], resolve: resolve, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");

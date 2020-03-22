@@ -28,7 +28,7 @@ namespace R1Engine
         }
 
         public override uint CurrentLength => (uint)reader.BaseStream.Length;
-        private string LogPrefix => Settings.Log ? (CurrentPointer + ":" + new string(' ', (Depth + 1) * 2)) : null;
+        private string LogPrefix => Settings.Log ? ("(READ) " + CurrentPointer + ":" + new string(' ', (Depth + 1) * 2)) : null;
 
         protected Reader reader;
         protected BinaryFile currentFile;
@@ -159,7 +159,6 @@ namespace R1Engine
 
         public override T Serialize<T>(T obj, string name = null) {
             string logString = LogPrefix;
-            Pointer pos = Settings.Log ? CurrentPointer : null;
             T t = (T)ReadAsObject<T>();
             if (Settings.Log) {
                 Context.Log.Log(logString + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + t.ToString());

@@ -52,7 +52,7 @@ namespace R1Engine
         /// <param name="filePath">The file path to write to</param>
         /// <param name="settings">The game settings</param>
         public static T Write<T>(string filePath, Context context, Action<T> onPreSerialize = null) where T : R1Serializable, new() {
-            return context.FilePointer<T>(filePath)?.Resolve(context.Deserializer, onPreSerialize: onPreSerialize).Value;
+            return context.FilePointer<T>(filePath)?.Resolve(context.Serializer, onPreSerialize: onPreSerialize).Value;
         }
 
         /// <summary>

@@ -72,8 +72,13 @@ namespace R1Engine
         }
 
         public void SaveLevelTEMP() {
-            Settings.GetGameManager.SaveLevel(serializeContext, currentLevel);
-            Debug.Log("Saved.");
+            try {
+                Settings.GetGameManager.SaveLevel(serializeContext, currentLevel);
+            } finally {
+                // Closes any open serializers and logs to the file
+                serializeContext.Close();
+                Debug.Log("Saved.");
+            }
         }
     }
 }
