@@ -41,6 +41,7 @@ namespace R1Engine.Serialize {
 		public override void EndWrite(Stream writeStream) {
 			base.EndWrite(writeStream);
 			if (writeStream != null) {
+				CreateBackupFile();
 				using (Stream s = FileSystem.GetFileWriteStream(AbsolutePath)) {
 					using (GZipStream compressionStream = new GZipStream(s, CompressionMode.Compress)) {
 						writeStream.CopyTo(compressionStream);

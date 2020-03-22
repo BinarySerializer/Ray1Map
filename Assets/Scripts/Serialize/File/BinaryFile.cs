@@ -38,5 +38,17 @@ namespace R1Engine.Serialize {
 		public BinaryFile(Context context) {
 			this.Context = context;
 		}
+
+		protected void CreateBackupFile() {
+			if (Settings.BackupFiles) {
+				if (!FileSystem.FileExists(AbsolutePath + ".BAK")) {
+					using (Stream s = FileSystem.GetFileReadStream(AbsolutePath)) {
+						using (Stream sb = FileSystem.GetFileWriteStream(AbsolutePath + ".BAK")) {
+							s.CopyTo(sb);
+						}
+					}
+				}
+			}
+		}
 	}
 }

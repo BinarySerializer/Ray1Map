@@ -63,6 +63,11 @@ namespace R1Engine {
         /// </summary>
         public static bool ShowEditorEvents { get; set; }
 
+        /// <summary>
+        /// Indicates if .BAK backup files should be created before writing
+        /// </summary>
+        public static bool BackupFiles { get; set; }
+
 
         private const string editorPrefsPrefix = "Ray1Map.";
         private const string settingsFile = "Settings.txt";
@@ -142,6 +147,7 @@ namespace R1Engine {
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);
             ShowEditorEvents = s.SerializeBool("ShowEditorEvents", ShowEditorEvents);
+            BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
 
             Log = s.SerializeBool("Log", Log);
             LogFile = s.SerializeString("LogFile", LogFile);

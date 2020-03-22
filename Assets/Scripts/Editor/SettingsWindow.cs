@@ -135,14 +135,17 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowEditorEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show editor events", Settings.ShowEditorEvents);
 
+        Settings.BackupFiles = EditorGUI.Toggle(GetNextRect(ref yPos), "Create .BAK backup files", Settings.BackupFiles);
+
         Rect rect = GetNextRect(ref yPos);
-        rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization Log"));
+        rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization log"));
         bool log = Settings.Log;
         rect = PrefixToggle(rect, ref log);
         Settings.Log = log;
         if (Settings.Log) {
-            Settings.LogFile = FileField(rect, "Serialization Log File", Settings.LogFile, true, "txt", includeLabel: false);
+            Settings.LogFile = FileField(rect, "Serialization log File", Settings.LogFile, true, "txt", includeLabel: false);
         }
+
         // Tools
 
         DrawHeader(ref yPos, "Tools");
