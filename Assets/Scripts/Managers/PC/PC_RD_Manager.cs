@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -21,7 +22,7 @@ namespace R1Engine
         {
             // TODO: This file is actually only used by the installer - find way to get the actual PCX from the vignette.dat file
             // Get the file path
-            var filePath = "DATA/" + "Kitfond.pcx";
+            var filePath = "DATA/KITFOND.PCX";
 
             if (!FileSystem.FileExists(context.BasePath + filePath))
                 return null;
@@ -126,6 +127,24 @@ namespace R1Engine
             }
         }
 
+        #endregion
+
+        #region Manager methods
+        public async override Task LoadFilesAsync(Context context) {
+            Dictionary<string, string> paths = new Dictionary<string, string>();
+            paths["allfix"] = GetAllfixFilePath(context.Settings);
+            paths["world"] = GetWorldFilePath(context.Settings);
+            paths["level"] = GetLevelFilePath(context.Settings);
+            paths["bigray"] = GetBigRayFilePath(context.Settings);
+            paths["kitfond"] = "DATA/KITFOND.PCX";
+            foreach (string pathKey in paths.Keys) {
+                await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);
+                LinearSerializedFile file = new LinearSerializedFile(context) {
+                    filePath = paths[pathKey]
+                };
+                context.AddFile(file);
+            }
+        }
         #endregion
     }
 }

@@ -203,15 +203,19 @@ namespace R1Engine
             // Scroll through animation frames
             if (prefabRendereds.Length > 0 && CurrentAnimation != null)
             {
+                int prevFrame = Mathf.FloorToInt(currentFrame);
                 // Scroll through the frames
                 if (Settings.AnimateSprites)
                     currentFrame += (60f / AnimSpeed) * Time.deltaTime;
                 if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     currentFrame = 0;
 
-                // Update child renderers with correct part and position
                 int floored = Mathf.FloorToInt(currentFrame);
-                UpdateParts(floored);
+
+                // Update child renderers with correct part and position, but only if current frame has updated
+                if (floored != prevFrame) {
+                    UpdateParts(floored);
+                }
             }
 
             //Change collider with show always/editor events

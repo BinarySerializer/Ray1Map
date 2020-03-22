@@ -157,9 +157,13 @@ public class SettingsWindow : UnityWindow
 
             if (!string.IsNullOrEmpty(selectedFolder)) {
                 Context context = new Context(Settings.GetGameSettings);
-                IGameManager manager = Settings.GetGameManager;
-                manager.LoadFilesAsync(context);
-                manager.ExportSpriteTextures(context, selectedFolder);
+                try {
+                    IGameManager manager = Settings.GetGameManager;
+                    manager.LoadFilesAsync(context);
+                    manager.ExportSpriteTextures(context, selectedFolder);
+                } finally {
+                    context.Close();
+                }
             }
         }
 
@@ -170,9 +174,13 @@ public class SettingsWindow : UnityWindow
 
             if (!string.IsNullOrEmpty(selectedFolder)) {
                 Context context = new Context(Settings.GetGameSettings);
-                IGameManager manager = Settings.GetGameManager;
-                manager.LoadFilesAsync(context);
-                manager.ExportVignetteTextures(context, selectedFolder);
+                try {
+                    IGameManager manager = Settings.GetGameManager;
+                    manager.LoadFilesAsync(context);
+                    manager.ExportVignetteTextures(context, selectedFolder);
+                } finally {
+                    context.Close();
+                }
             }
         }
 
@@ -183,9 +191,13 @@ public class SettingsWindow : UnityWindow
 
             if (!string.IsNullOrEmpty(selectedFolder)) {
                 Context context = new Context(Settings.GetGameSettings);
-                IGameManager manager = Settings.GetGameManager;
-                manager.LoadFilesAsync(context);
-                manager.ExportAnimationFrames(context, selectedFolder);
+                try {
+                    IGameManager manager = Settings.GetGameManager;
+                    manager.LoadFilesAsync(context);
+                    manager.ExportAnimationFrames(context, selectedFolder);
+                } finally {
+                    context.Close();
+                }
             }
         }
 
