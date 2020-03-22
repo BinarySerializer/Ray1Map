@@ -121,56 +121,58 @@ namespace R1Engine
         /// <param name="outputDir">The output directory</param>
         public void ExportVignetteTextures(Context context, string outputDir)
         {
-            // TODO: This only exports the some .xxx files and not yet the .r16 (raw-16) ones
-
             // TODO: Get file paths from methods
+            // TODO: Export all vignette files, not just FND
 
-            var baseDir = Path.Combine(outputDir, "FND");
+            // Get the base output directory
+            var baseOutputDir = Path.Combine(outputDir, "FND");
 
-            Directory.CreateDirectory(baseDir);
+            // Create it
+            Directory.CreateDirectory(baseOutputDir);
 
+            // Extract every file
             foreach (var filePath in Directory.GetFiles(context.BasePath + "RAY/IMA/FND/", "*.XXX", SearchOption.TopDirectoryOnly))
             {
-                // TODO: Replace all of this with a serializable file once the PS1 pointer system is finished
+                // Get the relative path
+                var relativePath = filePath.Substring(context.BasePath.Length);
 
-                byte[] file = File.ReadAllBytes(filePath);
-
-                var pointerCount = BitConverter.ToInt32(file, 0);
-                var pointer1 = BitConverter.ToInt32(file, 4);
-                var pointer2 = BitConverter.ToInt32(file, 8);
-                var fileSize = BitConverter.ToInt32(file, 12);
-
-                int length = (pointer2 - pointer1) / 2;
-                int height = BitConverter.ToInt16(file, 20);
-                int blockSize = height * 64;
-                int blockCount = length / blockSize;
-                int width = blockCount * 64;
-
-                var tex = new Texture2D(width, height);
-
-                for (int block = 0; block < blockCount; block++)
+                // Add the file to the context
+                context.AddFile(new LinearSerializedFile(context)
                 {
-                    for (int y = 0; y < height; y++)
+                    filePath = relativePath
+                });
+
+                // Read the file
+                var vig = FileFactory.Read<PS1_R1_VignetteFile>(relativePath, context);
+
+                // Create the texture
+                var tex = new Texture2D(vig.Width, vig.Height);
+
+                // Write each block
+                for (int blockIndex = 0; blockIndex < vig.ImageBlocks.Length; blockIndex++)
+                {
+                    // Get the block data
+                    var blockData = vig.ImageBlocks[blockIndex];
+
+                    // Write the block
+                    for (int y = 0; y < vig.Height; y++)
                     {
                         for (int x = 0; x < 64; x++)
                         {
-                            int x16 = (x * 2) + 24;
-                            int y16 = (y * 2);
+                            // Get the color
+                            var c = blockData[x + (y * 64)].GetColor();
 
-                            ushort color16 = BitConverter.ToUInt16(file, x16 + (y16 * 64) + ((block * blockSize) * 2));
-
-                            var red = ((BitHelpers.ExtractBits(color16, 5, 0) / 31f));
-                            var green = ((BitHelpers.ExtractBits(color16, 5, 5) / 31f));
-                            var blue = ((BitHelpers.ExtractBits(color16, 5, 10) / 31f));
-
-                            tex.SetPixel((x + (block * 64)), tex.height - y - 1, new Color(red, green, blue));
+                            // Set the pixel
+                            tex.SetPixel((x + (blockIndex * 64)), tex.height - y - 1, c);
                         }
                     }
                 }
 
+                // Apply the pixels
                 tex.Apply();
 
-                File.WriteAllBytes(Path.Combine(baseDir, $"{Path.GetFileNameWithoutExtension(filePath)}.png"), tex.EncodeToPNG());
+                // Write the texture
+                File.WriteAllBytes(Path.Combine(baseOutputDir, $"{Path.GetFileNameWithoutExtension(filePath)}.png"), tex.EncodeToPNG());
             }
         }
 
