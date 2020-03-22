@@ -19,6 +19,11 @@ namespace R1Engine
         public ARGB1555Color(byte alpha, byte red, byte green, byte blue) : base(alpha, red, green, blue)
         { }
 
+        /// <summary>
+        /// Indicates if fully black should be treated as transparent
+        /// </summary>
+        public bool IsBlackTransparent { get; set; } = true;
+
         ushort Color555 {
             get {
                 if (Alpha == 0) return 0;
@@ -37,7 +42,7 @@ namespace R1Engine
                 Blue = (byte)((BitHelpers.ExtractBits(color16, 5, 10) / 31f) * 255);
 
                 // Check if transparent
-                if (Red == 0 && Green == 0 && Blue == 0)
+                if (IsBlackTransparent && Red == 0 && Green == 0 && Blue == 0)
                     Alpha = 0;
             }
         }

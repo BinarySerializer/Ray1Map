@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace R1Engine
 {
@@ -42,14 +41,20 @@ namespace R1Engine
 
         public byte[] Unknown4 { get; set; }
 
-        public uint Unknown1 { get; set; }
+        /// <summary>
+        /// Pointer to the events
+        /// </summary>
+        public Pointer EventsPointer { get; set; }
 
         /// <summary>
         /// The amount of events in the file
         /// </summary>
         public uint EventCount { get; set; }
 
-        public uint Unknown2 { get; set; }
+        /// <summary>
+        /// Pointer to the event links
+        /// </summary>
+        public Pointer EventLinksPointer { get; set; }
 
         /// <summary>
         /// The amount of event links in the file
@@ -90,67 +95,68 @@ namespace R1Engine
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
-        public override void SerializeImpl(SerializerObject s) {
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s) 
+        {
             // HEADER
-
             base.SerializeImpl(s);
-
-            // At this point the stream position should match the background block offset
-            if (s.CurrentPointer != BackgroundBlockPointer)
-                Debug.LogError("Background block offset is incorrect");
 
             // BACKGROUND BLOCK
             s.DoAt(BackgroundBlockPointer, () => {
                 // Serialize the background layer information (always 12)
                 BackgroundLayerPositions = s.SerializeObjectArray<PS1_R1_BackgroundLayerPosition>(BackgroundLayerPositions, 12, name: "BackgroundLayerPositions");
+
                 Unknown3 = s.SerializeArray<byte>(Unknown3, 16, name: "Unknown3");
+
                 BackgroundLayerInfos = s.SerializeObjectArray<PS1_R1_BackgroundLayerInfo>(BackgroundLayerInfos, 12, name: "BackgroundLayerInfos");
+
                 // On PAL/NTSC this is 80 bytes. On NTSC-J it's more, which is why we just serialize the remaining bytes for now
                 Unknown4 = s.SerializeArray<byte>(Unknown4, EventBlockPointer - s.CurrentPointer, name: "Unknown4");
             });
 
             // EVENT BLOCK
-            s.DoAt(EventBlockPointer, () => {
+            s.DoAt(EventBlockPointer, () => 
+            {
                 // Serialize header
-                Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
+                EventsPointer = s.SerializePointer(EventsPointer, name: "EventsPointer");
                 EventCount = s.Serialize(EventCount, name: "EventCount");
-                Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
+                EventLinksPointer = s.SerializePointer(EventLinksPointer, name: "EventLinksPointer");
                 EventLinkCount = s.Serialize(EventLinkCount, name: "EventLinkCount");
 
                 if (EventCount != EventLinkCount)
                     Debug.LogError("Event counts don't match");
 
-                // Serialize every event
-                Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: "Events");
+                s.DoAt(EventsPointer, (() =>
+                {
+                    // Serialize every event
+                    Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: "Events");
+                }));
 
-                // Serialize the event linking table
-                EventLinkingTable = s.SerializeArray<byte>(EventLinkingTable, EventLinkCount, name: "EventLinkingTable");
+                s.DoAt(EventLinksPointer, (() =>
+                {
+                    // Serialize the event linking table
+                    EventLinkingTable = s.SerializeArray<byte>(EventLinkingTable, EventLinkCount, name: "EventLinkingTable");
+                }));
 
+                // TODO: Remove?
                 EventBlock = s.SerializeArray<byte>(EventBlock, MapBlockPointer - s.CurrentPointer, name: "EventBlock");
             });
 
             // MAP BLOCK
-            s.DoAt(MapBlockPointer, () => {
+            s.DoAt(MapBlockPointer, () => 
+            {
                 // Serialize map size
                 Width = s.Serialize(Width, name: "Width");
                 Height = s.Serialize(Height, name: "Height");
 
                 // Serialize tiles
                 Tiles = s.SerializeObjectArray<PS1_R1_MapTile>(Tiles, Width * Height, name: "Tiles");
-
-                // At this point the stream position should match the texture block offset
-                if (s.CurrentPointer != TextureBlockPointer)
-                    Debug.LogError("Texture block offset is incorrect");
             });
 
             // TEXTURE BLOCK
-            s.DoAt(TextureBlockPointer, () => {
+            s.DoAt(TextureBlockPointer, () => 
+            {
                 TextureBlock = s.SerializeArray<byte>(TextureBlock, FileSize - TextureBlockPointer.FileOffset, name: "TextureBlock");
-
-                // At this point the stream position should match the end offset
-                if (s.CurrentPointer.FileOffset != FileSize)
-                    Debug.LogError("End offset is incorrect");
             });
         }
     }
