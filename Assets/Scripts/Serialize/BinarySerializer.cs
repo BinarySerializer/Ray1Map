@@ -205,7 +205,13 @@ namespace R1Engine
 
         public override T[] SerializeArray<T>(T[] obj, decimal count, string name = null) {
             if (Settings.Log) {
-                Context.Log.Log(LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
+                if (typeof(T) == typeof(byte)) {
+                    string normalLog = LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>") + ": ";
+                    Context.Log.Log(normalLog
+                        + Util.ByteArrayToHexString((byte[])(object)obj, Align: 16, NewLinePrefix: new string(' ', normalLog.Length)));
+                } else {
+                    Context.Log.Log(LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
+                }
             }
             // Use byte writing method if requested
             if (typeof(T) == typeof(byte)) {
