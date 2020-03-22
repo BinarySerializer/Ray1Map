@@ -63,7 +63,7 @@ namespace R1Engine
         public byte BackgroundIndex { get; set; }
 
         /// <summary>
-        /// The DES for the background sprites
+        /// The DES for the background sprites when parallax scrolling is enabled
         /// </summary>
         public uint BackgroundSpritesDES { get; set; }
 
@@ -252,6 +252,7 @@ namespace R1Engine
                     // Begin calculating the rough texture checksum
                     s.BeginCalculateChecksum(new Checksum8Calculator());
 
+                    // TODO: Encrypted with xor 0xFD
                     // Create the collection of rough textures if necessary
                     if (RoughTextures == null) {
                         RoughTextures = new byte[RoughTextureCount][];
@@ -273,6 +274,7 @@ namespace R1Engine
                     // Begin calculating the unknown 3 checksum
                     s.BeginCalculateChecksum(new Checksum8Calculator());
 
+                    // TODO: Encrypted with xor 0xF3
                     // Serialize the items for the third unknown value
                     Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: "Unknown3");
 

@@ -17,6 +17,11 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
+        /// The loaded PC  info cache
+        /// </summary>
+        protected static Dictionary<string, GeneralPCEventInfoData[]> EventCache { get; } = new Dictionary<string, GeneralPCEventInfoData[]>();
+
+        /// <summary>
         /// The size of one cell
         /// </summary>
         public const int CellSize = 16;
@@ -95,6 +100,13 @@ namespace R1Engine
         public virtual string GetBigRayFilePath(GameSettings settings) => GetDataPath() + $"BIGRAY.DAT";
 
         /// <summary>
+        /// Gets the file path for the vignette file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The vignette file path</returns>
+        public abstract string GetVignetteFilePath(GameSettings settings);
+
+        /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -148,27 +160,93 @@ namespace R1Engine
 
         #endregion
 
-        #region Manager Methods
+        #region Texture Methods
+
+        protected virtual IList<ARGBColor> GetBigRayPalette(Context context) => null;
 
         /// <summary>
-        /// Gets the BigRay color palette, if available
+        /// Extracts all found .pcx from an xor encrypted file
         /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The color palette or null if not available</returns>
-        protected virtual IList<ARGBColor> GetBigRayPalette(Context context) => null;
+        /// <param name="filePath">The path of the file to extract from</param>
+        /// <param name="outputDir">The directory to output the files to</param>
+        public void ExtractEncryptedPCX(string filePath, string outputDir)
+        {
+            // Create the directory
+            Directory.CreateDirectory(outputDir);
+
+            // Read the file bytes
+            var originalBytes = File.ReadAllBytes(filePath);
+
+            // Enumerate every possible xor key
+            for (int i = 0; i < 255; i++)
+            {
+                // Create a buffer
+                var buffer = new byte[originalBytes.Length];
+
+                // Decrypt the bytes to the buffer
+                for (int j = 0; j < buffer.Length; j++)
+                    buffer[j] = (byte)(originalBytes[j] ^ i);
+
+                // Enumerate every byte
+                for (int j = 0; j < buffer.Length - 100; j++)
+                {
+                    // Check if a valid PCX header is found
+                    if (buffer[j + 0] != 0x0A || buffer[j + 1] != 0x05 || buffer[j + 2] != 0x01 ||
+                        buffer[j + 3] != 0x08 || buffer[j + 4] != 0x00 || buffer[j + 5] != 0x00 ||
+                        buffer[j + 6] != 0x00 || buffer[j + 7] != 0x00)
+                        continue;
+
+                    // Attempt to read the PCX file
+                    try
+                    {
+                        // Serialize the data
+                        using (var stream = new MemoryStream(buffer.Skip(j).ToArray())) {
+                            Context c = new Context(Settings.GetGameSettings);
+                            c.AddFile(new StreamFile("pcx", stream, c));
+                            var pcx = FileFactory.Read<PCX>("pcx", c);
+
+                            // Convert to a texture
+                            var tex = pcx.ToTexture();
+
+                            // Flip the texture
+                            var flippedTex = new Texture2D(tex.width, tex.height);
+
+                            for (int x = 0; x < tex.width; x++) {
+                                for (int y = 0; y < tex.height; y++) {
+                                    flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
+                                }
+                            }
+
+                            // Apply the pixels
+                            flippedTex.Apply();
+
+                            // Save the file
+                            File.WriteAllBytes(Path.Combine(outputDir, $"{i} - {j}.png"), flippedTex.EncodeToPNG());
+
+                            Debug.Log("Exported PCX");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Failed to create PCX: {ex.Message}");
+                    }
+                }
+            }
+
+        }
 
         /// <summary>
         /// Exports all sprite textures to the specified output directory
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(Context context, string outputDir) 
-        {
+        public void ExportSpriteTextures(Context context, string outputDir) {
             // Get the DES names for every world
             var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
             {
                 context.Settings.World = x;
-                return GetDESNames(context).ToArray();
+                var a = GetDESNames(context).ToArray();
+                return a.Any() ? a : null;
             });
 
             // Read the big ray file
@@ -186,7 +264,7 @@ namespace R1Engine
             ExportSpriteTextures(context, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
 
             // Enumerate every world
-            foreach (World world in EnumHelpers.GetValues<World>()) 
+            foreach (World world in EnumHelpers.GetValues<World>())
             {
                 // Set the world
                 context.Settings.World = world;
@@ -231,73 +309,14 @@ namespace R1Engine
             }
 
             // Enumerate each sprite group
-            for (int i = 0; i < worldFile.DesItems.Length; i++) {
-                bool foundForSpriteGroup = false;
-                var defaultPalette = levels.First();
-
-                Beginning:
-
-                // Get the sprite group
-                var desItem = worldFile.DesItems[i];
-
-                // Process the image data
-                var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
+            for (int i = 0; i < worldFile.DesItems.Length; i++)
+            {
+                int index = -1;
 
                 // Enumerate each image
-                for (int j = 0; j < desItem.ImageDescriptors.Length; j++) {
-                    // Get the image descriptor
-                    var imgDescriptor = desItem.ImageDescriptors[j];
-
-                    // Ignore garbage sprites
-                    if (imgDescriptor.InnerHeight == 0 || imgDescriptor.InnerWidth == 0)
-                        continue;
-
-                    // Default to the first level
-                    var lvl = defaultPalette;
-
-                    bool foundCorrectPalette = false;
-
-                    // Check all matching animation descriptor
-                    foreach (var animDesc in desItem.AnimationDescriptors.Where(x => x.Layers.Any(y => y.ImageIndex == j)).Select(x => desItem.AnimationDescriptors.FindItemIndex(y => y == x)))
-                    {
-                        // Check all ETA's where it appears
-                        foreach (var eta in worldFile.Eta.SelectMany(x => x).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
-                        {
-                            // Attempt to find the level where it appears
-                            var lvlMatch = levels.FindLast(x => x.Events.Any(y =>
-                                y.DES == desOffset + 1 + i &&
-                                y.Etat == eta.Etat &&
-                                y.SubEtat == eta.SubEtat &&
-                                y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
-
-                            if (lvlMatch != null)
-                            {
-                                lvl = lvlMatch;
-                                foundCorrectPalette = true;
-
-                                if (!foundForSpriteGroup)
-                                {
-                                    foundForSpriteGroup = true;
-                                    defaultPalette = lvlMatch;
-                                    goto Beginning;
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check background DES
-                    if (!foundCorrectPalette)
-                    {
-                        var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desOffset + 1 + i);
-
-                        if (lvlMatch != null)
-                            lvl = lvlMatch;
-                    }
-
-                    // Get the texture
-                    Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
+                foreach (var tex in GetSpriteTextures(context.Settings, levels, worldFile.DesItems[i], worldFile, desOffset + 1 + i, palette))
+                {
+                    index++;
 
                     // Skip if null
                     if (tex == null)
@@ -307,7 +326,359 @@ namespace R1Engine
                     var desName = desNames != null ? $" ({desNames[desOffset + i]})" : String.Empty;
 
                     // Write the texture
-                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString()}{desName} - {j}.png"), tex.EncodeToPNG());
+                    File.WriteAllBytes(Path.Combine(outputDir, $"{i.ToString()}{desName} - {index}.png"), tex.EncodeToPNG());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets all sprite textures for a DES item
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="levels">The levels in the world to check for the palette</param>
+        /// <param name="desItem">The DES item</param>
+        /// <param name="worldFile">The world data</param>
+        /// <param name="desIndex">The DES index</param>
+        /// <param name="palette">Optional palette to use</param>
+        /// <returns>The sprite textures</returns>
+        public Texture2D[] GetSpriteTextures(GameSettings settings, List<PC_LevFile> levels, PC_DesItem desItem, PC_WorldFile worldFile, int desIndex, IList<ARGBColor> palette = null)
+        {
+            // Create the output array
+            var output = new Texture2D[desItem.ImageDescriptors.Length];
+
+            bool foundForSpriteGroup = false;
+            var defaultPalette = levels.First();
+
+            Beginning:
+
+            // Process the image data
+            var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
+
+            // Enumerate each image
+            for (int i = 0; i < desItem.ImageDescriptors.Length; i++)
+            {
+                // Get the image descriptor
+                var imgDescriptor = desItem.ImageDescriptors[i];
+
+                // Ignore garbage sprites
+                if (imgDescriptor.InnerHeight == 0 || imgDescriptor.InnerWidth == 0)
+                    continue;
+
+                // Default to the first level
+                var lvl = defaultPalette;
+
+                bool foundCorrectPalette = false;
+
+                // Check all matching animation descriptor
+                foreach (var animDesc in desItem.AnimationDescriptors.Where(x => x.Layers.Any(y => y.ImageIndex == i)).Select(x => desItem.AnimationDescriptors.FindItemIndex(y => y == x)))
+                {
+                    // Check all ETA's where it appears
+                    foreach (var eta in worldFile.Eta.SelectMany(x => x).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
+                    {
+                        // Attempt to find the level where it appears
+                        var lvlMatch = levels.FindLast(x => x.Events.Any(y =>
+                            y.DES == desIndex &&
+                            y.Etat == eta.Etat &&
+                            y.SubEtat == eta.SubEtat &&
+                            y.ETA == worldFile.Eta.FindItemIndex(z => z.SelectMany(h => h).Contains(eta))));
+
+                        if (lvlMatch != null)
+                        {
+                            lvl = lvlMatch;
+                            foundCorrectPalette = true;
+
+                            if (!foundForSpriteGroup)
+                            {
+                                foundForSpriteGroup = true;
+                                defaultPalette = lvlMatch;
+                                goto Beginning;
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                // Check background DES
+                if (!foundCorrectPalette)
+                {
+                    var lvlMatch = levels.FindLast(x => x.BackgroundSpritesDES == desIndex);
+
+                    if (lvlMatch != null)
+                        lvl = lvlMatch;
+                }
+
+                // Hard-code palette for certain DES groups
+                if (settings.GameMode == GameMode.RayPC && settings.World == World.Music && desIndex == 16)
+                    lvl = levels[11];
+                else if (settings.GameMode == GameMode.RayPC && settings.World == World.Image && desIndex == 19)
+                    lvl = levels[10];
+
+                // Get the texture
+                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
+
+                // Set the texture
+                output[i] = tex;
+            }
+
+            // Return the output
+            return output;
+        }
+
+        /// <summary>
+        /// Exports all animation frames to the specified directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The directory to export to</param>
+        public void ExportAnimationFrames(Context context, string outputDir)
+        {
+            // Get the DES names for every world
+            var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
+            {
+                context.Settings.World = x;
+                var a = GetDESNames(context).ToArray();
+                return a.Any() ? a : null;
+            });
+
+            // Read the big ray file
+            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context, onPreSerialize: data => data.FileType = PC_WorldFile.Type.BigRay);
+
+            // Read the allfix file
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context, onPreSerialize: data => data.FileType = PC_WorldFile.Type.AllFix);
+
+            // Export the sprite textures
+            ExportAnimationFrames(context, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(context));
+
+            // Export the sprite textures
+            ExportAnimationFrames(context, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
+            
+            // Enumerate every world
+            foreach (World world in EnumHelpers.GetValues<World>())
+            {
+                // Set the world
+                context.Settings.World = world;
+
+                // Get the world file path
+                var worldPath = GetWorldFilePath(context.Settings);
+
+                if (!FileSystem.FileExists(context.BasePath + worldPath))
+                    continue;
+
+                // Read the world file
+                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, context);
+
+                // Export the sprite textures
+                ExportAnimationFrames(context, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
+            }
+        }
+
+        /// <summary>
+        /// Exports the animation frames
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="worldFile">The world file to export from</param>
+        /// <param name="outputDir">The directory to export to</param>
+        /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
+        /// <param name="desNames">The DES names, if available</param>
+        /// <param name="palette">Optional palette to use</param>
+        public void ExportAnimationFrames(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null)
+        {
+            // Create the directory
+            Directory.CreateDirectory(outputDir);
+
+            var levels = new List<PC_LevFile>();
+
+            // Load the levels to get the palettes
+            foreach (var i in GetLevels(context.Settings))
+            {
+                // Set the level number
+                context.Settings.Level = i;
+
+                // Load the level
+                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.Settings), context));
+            }
+
+            // Enumerate each sprite group
+            for (int i = 0; i < worldFile.DesItems.Length; i++)
+            {
+                // Get the DES item
+                var des = worldFile.DesItems[i];
+
+                // Get the DES index
+                var desIndex = desOffset + 1 + i;
+
+                // Get the textures
+                var textures = GetSpriteTextures(context.Settings, levels, des, worldFile, desIndex, palette);
+
+                // Get the DES name
+                var desName = desNames != null ? $" ({desNames[desIndex - 1]})" : String.Empty;
+
+                // Get the folder
+                var desFolderPath = Path.Combine(outputDir, $"{i}{desName}");
+
+                byte prevSpeed = 4;
+
+                // Enumerate the animations
+                for (var j = 0; j < des.AnimationDescriptors.Length; j++)
+                {
+                    // Get the animation descriptor
+                    var anim = des.AnimationDescriptors[j];
+
+                    byte? speed = null;
+
+                    IEnumerable<PC_Eta> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].SelectMany(x => x).Where(x => x.AnimationIndex == j);
+
+                    // TODO: Redo this to use new ETA indexing system
+                    // Attempt to find a perfect match
+                    for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
+                    {
+                        if (speed != null)
+                            break;
+
+                        foreach (var etaMatch in GetEtaMatches(etaIndex))
+                        {
+                            // Check if it's a perfect match
+                            if (levels.SelectMany(x => x.Events).Any(x => x.DES == desIndex &&
+                                                                          x.ETA == etaIndex &&
+                                                                          x.Etat == etaMatch.Etat &&
+                                                                          x.SubEtat == etaMatch.SubEtat))
+                            {
+                                speed = etaMatch.AnimationSpeed;
+                                break;
+                            }
+                        }
+                    }
+
+                    // If still null, find semi-perfect match
+                    if (speed == null)
+                    {
+                        // Attempt to find a semi-perfect match
+                        for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
+                        {
+                            if (speed != null)
+                                break;
+
+                            foreach (var etaMatch in GetEtaMatches(etaIndex))
+                            {
+                                // Check if it's a semi-perfect match
+                                if (levels.SelectMany(x => x.Events).Any(x => x.DES == desIndex && x.ETA == etaIndex))
+                                {
+                                    speed = etaMatch.AnimationSpeed;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // If still null, use previous eta
+                        if (speed == null)
+                            speed = prevSpeed;
+                    }
+
+                    // Set the previous eta
+                    prevSpeed = speed.Value;
+
+                    // Get the folder
+                    var animFolderPath = Path.Combine(desFolderPath, $"{j}-{speed}");
+
+                    // The layer index
+                    var layer = 0;
+
+                    var tempLayer = layer;
+
+                    int? frameWidth = null;
+                    int? frameHeight = null;
+
+                    for (var dummy = 0; dummy < anim.LayersPerFrame * anim.FrameCount; dummy++)
+                    {
+                        var l = anim.Layers[tempLayer];
+
+                        if (l.ImageIndex < textures.Length)
+                        {
+                            var s = textures[l.ImageIndex];
+
+                            if (s != null)
+                            {
+                                var w = s.width + l.XPosition;
+                                var h = s.height + l.YPosition;
+
+                                if (frameWidth == null || frameWidth < w)
+                                    frameWidth = w;
+
+                                if (frameHeight == null || frameHeight < h)
+                                    frameHeight = h;
+                            }
+                        }
+
+                        tempLayer++;
+                    }
+
+                    // Create each animation frame
+                    for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
+                    {
+                        Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
+                        {
+                            filterMode = FilterMode.Point
+                        };
+
+                        // Default to fully transparent
+                        for (int y = 0; y < tex.height; y++)
+                        {
+                            for (int x = 0; x < tex.width; x++)
+                            {
+                                tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                            }
+                        }
+
+                        bool hasLayers = false;
+
+                        // Write each layer
+                        for (var layerIndex = 0; layerIndex < anim.LayersPerFrame; layerIndex++)
+                        {
+                            var animationLayer = anim.Layers[layer];
+
+                            layer++;
+
+                            if (animationLayer.ImageIndex >= textures.Length)
+                                continue;
+
+                            // Get the sprite
+                            var sprite = textures[animationLayer.ImageIndex];
+
+                            if (sprite == null)
+                                continue;
+                            
+                            // Set every pixel
+                            for (int y = 0; y < sprite.height; y++)
+                            {
+                                for (int x = 0; x < sprite.width; x++)
+                                {
+                                    var c = sprite.GetPixel(x, sprite.height - y - 1);
+
+                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
+                                    var yPosition = -(y + animationLayer.YPosition + 1);
+
+                                    if (xPosition >= tex.width)
+                                        throw new Exception("Horizontal overflow!");
+
+                                    if (c.a != 0)
+                                        tex.SetPixel(xPosition, yPosition, c);
+                                }
+                            }
+
+                            hasLayers = true;
+                        }
+
+                        tex.Apply();
+
+                        if (!hasLayers)
+                            continue;
+
+                        // Create the directory
+                        Directory.CreateDirectory(animFolderPath);
+
+                        // Save the file
+                        File.WriteAllBytes(Path.Combine(animFolderPath, $"{frameIndex}.png"), tex.EncodeToPNG());
+                    }
                 }
             }
         }
@@ -331,9 +702,9 @@ namespace R1Engine
                 processedData[i] = (byte)(imageData[i] ^ 143);
 
                 // Continue to next if we don't need to do background clearing
-                if (!requiresBackgroundClearing) 
+                if (!requiresBackgroundClearing)
                     continue;
-                
+
                 int num6 = (flag < 255) ? (flag + 1) : 255;
 
                 if (processedData[i] == 161 || processedData[i] == 250)
@@ -426,6 +797,31 @@ namespace R1Engine
             return tex;
         }
 
+        #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Gets the BigRay color palette, if available
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The color palette or null if not available</returns>
+        protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
+
+        /// <summary>
+        /// Exports all vignette textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportVignetteTextures(Context context, string outputDir)
+        {
+            // Get the file path
+            var vigFilePath = GetVignetteFilePath(context.Settings);
+
+            // Extract the file
+            ExtractEncryptedPCX(vigFilePath, outputDir);
+        }
+
         /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
@@ -433,8 +829,8 @@ namespace R1Engine
         public void AutoApplyPalette(Common_Lev level)
         {
             // Get the palette changers
-            var paletteXChangers = level.Events.Where(x => x.EventInfoData.Type == 158 && x.EventInfoData.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.EventInfoData.SubEtat);
-            var paletteYChangers = level.Events.Where(x => x.EventInfoData.Type == 158 && x.EventInfoData.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.EventInfoData.SubEtat);
+            var paletteXChangers = level.Events.Where(x => x.Type == 158 && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteYChangers = level.Events.Where(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
             // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
@@ -722,18 +1118,8 @@ namespace R1Engine
 
                 await Controller.WaitIfNecessary();
 
-                //Get animation index from the eta item
-                var etaItem = eta[e.ETA].SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-                int animIndex = etaItem?.AnimationIndex ?? 0;
-                int animSpeed = etaItem?.AnimationSpeed ?? 0;
-
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(EventInfoManager.GetPCEventInfo(context.Settings.GameModeSelection, context.Settings.World, (int)e.Type, e.Etat, e.SubEtat, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode),
-                    e.XPosition,
-                    e.YPosition,
-                    levelData.EventLinkingTable[index],
-                    animIndex,
-                    animSpeed);
+                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode, levelData.EventLinkingTable[index]);
 
                 // Add the event
                 commonLev.Events.Add(ee);
@@ -926,15 +1312,15 @@ namespace R1Engine
 
             int indexx = 0; //Only for debugging
             foreach (var e in commonLevelData.Events) {
-                Debug.Log(indexx + ":" + e.LinkIndex + " - " + e.name);
+                //Debug.Log(indexx + ":" + e.LinkIndex + " - " + e.name);
                 indexx++;
                 // Create the event
                 var r1Event = new PC_Event
                 {
-                    DES = e.Des,
-                    DES2 = e.Des,
-                    DES3 = e.Des,
-                    ETA = (uint)e.EventInfoData.ETA,
+                    DES = (uint)e.DES,
+                    DES2 = (uint)e.DES,
+                    DES3 = (uint)e.DES,
+                    ETA = (uint)e.ETA,
                     Unknown1 = 0,
                     Unknown2 = 0,
                     Unknown3 = new byte[16],
@@ -943,23 +1329,23 @@ namespace R1Engine
                     Unknown13 = 0,
                     Unknown4 = new byte[20],
                     Unknown5 = new byte[28],
-                    Type = (uint)e.EventInfoData.Type,
+                    Type = (uint)e.Type,
                     Unknown6 = 0,
-                    OffsetBX = (byte)e.EventInfoData.OffsetBX,
-                    OffsetBY = (byte)e.EventInfoData.OffsetBY,
+                    OffsetBX = (byte)e.OffsetBX,
+                    OffsetBY = (byte)e.OffsetBY,
                     Unknown7 = 0,
-                    SubEtat = (byte)e.EventInfoData.SubEtat,
-                    Etat = (byte)e.EventInfoData.Etat,
+                    SubEtat = (byte)e.SubEtat,
+                    Etat = (byte)e.Etat,
                     Unknown8 = 0,
                     Unknown9 = 0,
-                    OffsetHY = (byte)e.EventInfoData.OffsetHY,
-                    FollowSprite = (byte)e.EventInfoData.FollowSprite,
-                    HitPoints = (byte)e.EventInfoData.HitPoints,
+                    OffsetHY = (byte)e.OffsetHY,
+                    FollowSprite = (byte)e.FollowSprite,
+                    HitPoints = (byte)e.HitPoints,
                     UnkGroup = 0,
-                    HitSprite = (byte)e.EventInfoData.HitSprite,
+                    HitSprite = (byte)e.HitSprite,
                     Unknown10 = new byte[6],
                     Unknown11 = 0,
-                    FollowEnabled = e.EventInfoData.FollowEnabled,
+                    FollowEnabled = e.FollowEnabled,
                     Unknown12 = 0
                 };
 
@@ -969,10 +1355,10 @@ namespace R1Engine
                 // Add the event commands
                 eventCommands.Add(new PC_EventCommand()
                 {
-                    CodeCount = (ushort)e.EventInfoData.Commands.Length,
-                    EventCode = e.EventInfoData.Commands,
-                    LabelOffsetCount = (ushort)e.EventInfoData.LabelOffsets.Length,
-                    LabelOffsetTable = e.EventInfoData.LabelOffsets
+                    CodeCount = (ushort)e.Commands.Length,
+                    EventCode = e.Commands,
+                    LabelOffsetCount = (ushort)e.LabelOffsets.Length,
+                    LabelOffsetTable = e.LabelOffsets
                 });
 
                 // Add the event links
@@ -1002,6 +1388,233 @@ namespace R1Engine
                 };
                 context.AddFile(file);
             }
+        }
+
+        /// <summary>
+        /// Gets the common editor event info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The common editor event info</returns>
+        public virtual Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
+        {
+            // Find match
+            var match = GetPCEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands);
+
+            // Return the editor info
+            return new Common_EditorEventInfo(match?.Name, match?.Flag);
+        }
+
+        /// <summary>
+        /// Gets the animation info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The animation info</returns>
+        public Common_AnimationInfo GetAnimationInfo(Context context, Common_Event e)
+        {
+            // Read the fixed data
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context);
+
+            // Read the world data
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+
+            // Read the big ray data
+            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context);
+
+            // Get the eta items
+            var eta = allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
+
+            // Get animation index from the matching ETA item
+            //var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
+            var etaItem = eta.ElementAt(e.ETA).ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
+
+            // Return the index
+            return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);
+        }
+
+        /// <summary>
+        /// Gets the available event names to add for the current world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The names of the available events to add</returns>
+        public virtual string[] GetEvents(GameSettings settings)
+        {
+            var w = settings.World.ToEventWorld();
+
+            return LoadPCEventInfo(settings.GameModeSelection)?.Where(x => x.World == EventWorld.All || x.World == w).Select(x => x.Name).ToArray() ?? new string[0];
+        }
+
+        /// <summary>
+        /// Adds a new event to the controller and returns it
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="eventController">The event controller to add to</param>
+        /// <param name="index">The event index from the available events</param>
+        /// <param name="xPos">The x position</param>
+        /// <param name="yPos">The y position</param>
+        /// <returns></returns>
+        public virtual Common_Event AddEvent(GameSettings settings, LevelEventController eventController, int index, uint xPos, uint yPos)
+        {
+            var w = settings.World.ToEventWorld();
+
+            // Get the event
+            var e = LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
+
+            // TODO: Before Designer is merged we need to find the "used" commands
+            var cmds = e.Commands.Any() ? e.Commands : e.LocalCommands;
+
+            // Add and return the event
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0);
+        }
+
+        /// <summary>
+        /// Loads the PC event info
+        /// </summary>
+        /// <param name="mode">The game mode to get the info for</param>
+        /// <returns>The loaded event info</returns>
+        public GeneralPCEventInfoData[] LoadPCEventInfo(GameModeSelection mode)
+        {
+            // Get the file name
+            string fileName;
+
+            switch (mode)
+            {
+                case GameModeSelection.RaymanPC:
+                    fileName = "RayPC.csv";
+                    break;
+
+                case GameModeSelection.RaymanDesignerPC:
+                case GameModeSelection.MapperPC:
+                    fileName = "RayKit.csv";
+                    break;
+
+                default:
+                    fileName = null;
+                    break;
+            }
+
+            // Return empty collection if no file was found
+            if (fileName == null)
+                return new GeneralPCEventInfoData[0];
+
+            // Load the file if not already loaded
+            if (!EventCache.ContainsKey(fileName))
+                EventCache.Add(fileName, LoadPCEventInfo(fileName));
+
+            // Return the loaded datas
+            return EventCache[fileName];
+        }
+
+        /// <summary>
+        /// Loads the PC event info from the specified file
+        /// </summary>
+        /// <param name="filePath">The file to load from</param>
+        /// <returns>The loaded info data</returns>
+        private static GeneralPCEventInfoData[] LoadPCEventInfo(string filePath)
+        {
+            // Open the file
+            using (var fileStream = File.OpenRead(filePath))
+            {
+                // Use a reader
+                using (var reader = new StreamReader(fileStream))
+                {
+                    // Create the output
+                    var output = new List<GeneralPCEventInfoData>();
+
+                    // Skip header
+                    reader.ReadLine();
+
+                    // Read every line
+                    while (!reader.EndOfStream)
+                    {
+                        // Read the line
+                        var line = reader.ReadLine()?.Split(',');
+
+                        // Make sure we read something
+                        if (line == null)
+                            break;
+
+                        // Keep track of the value index
+                        var index = 0;
+
+                        try
+                        {
+                            // Helper methods for parsing values
+                            string nextValue() => line[index++];
+                            bool nextBoolValue() => Boolean.Parse(line[index++]);
+                            int nextIntValue() => Int32.Parse(nextValue());
+                            T? nextEnumValue<T>() where T : struct => Enum.TryParse(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
+                            ushort[] next16ArrayValue() => nextValue().Split('_').Where(x => !String.IsNullOrWhiteSpace(x)).Select(UInt16.Parse).ToArray();
+                            byte[] next8ArrayValue() => nextValue().Split('_').Where(x => !String.IsNullOrWhiteSpace(x)).Select(Byte.Parse).ToArray();
+                            string[] nextStringArrayValue() => nextValue().Split('/').Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
+
+                            // Add the item to the output
+                            output.Add(new GeneralPCEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"Failed to parse event info. Index: {index}, items: {String.Join(" - ", line)} , exception: {ex.Message}");
+                            throw;
+                        }
+                    }
+
+                    // Return the output
+                    return output.ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the event info data which matches the specified values for a PC event
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="world"></param>
+        /// <param name="type"></param>
+        /// <param name="etat"></param>
+        /// <param name="subEtat"></param>
+        /// <param name="des"></param>
+        /// <param name="eta"></param>
+        /// <param name="offsetBx"></param>
+        /// <param name="offsetBy"></param>
+        /// <param name="offsetHy"></param>
+        /// <param name="followSprite"></param>
+        /// <param name="hitPoints"></param>
+        /// <param name="hitSprite"></param>
+        /// <param name="followEnabled"></param>
+        /// <param name="labelOffsets"></param>
+        /// <param name="commands"></param>
+        /// <returns>The item which matches the values</returns>
+        public GeneralPCEventInfoData GetPCEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
+        {
+            // Load the event info
+            var allInfo = LoadPCEventInfo(mode);
+
+            EventWorld eventWorld = world.ToEventWorld();
+
+            // Find a matching item
+            var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
+                                         x.Type == type &&
+                                         x.Etat == etat &&
+                                         x.SubEtat == subEtat &&
+                                         x.DES == des &&
+                                         x.ETA == eta &&
+                                         x.OffsetBX == offsetBx &&
+                                         x.OffsetBY == offsetBy &&
+                                         x.OffsetHY == offsetHy &&
+                                         x.FollowSprite == followSprite &&
+                                         x.HitPoints == hitPoints &&
+                                         x.HitSprite == hitSprite &&
+                                         x.FollowEnabled == followEnabled &&
+                                         x.LabelOffsets.SequenceEqual(labelOffsets) &&
+                                         x.Commands.SequenceEqual(commands));
+
+            // Create dummy item if not found
+            if (match == null && allInfo.Any())
+                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
+
+            // Return the item
+            return match;
         }
 
         #endregion

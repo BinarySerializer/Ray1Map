@@ -23,13 +23,13 @@ namespace R1Engine
         public MeshFilter backgroundTint;
 
 
-        public async Task LoadLevelAsync(IGameManager manager, GameSettings settings) 
+        public async Task LoadLevelAsync(IGameManager manager, Serialize.Context context) 
         {
             // Create the list
             eventDesigns = new List<Common_Design>();
 
             // Create the context
-            serializeContext = new Serialize.Context(settings);
+            serializeContext = context;
 
             // Make sure all the necessary files are downloaded
             await manager.LoadFilesAsync(serializeContext);

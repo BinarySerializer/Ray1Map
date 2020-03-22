@@ -12,15 +12,17 @@ namespace R1Engine
         #region Public Properties
         public Type FileType { get; set; }
 
-        public ushort Unknown6 { get; set; }
+        // Unknown values related to backgrounds (most likely parallax scrolling)
+        public ushort BG1 { get; set; }
+        public ushort BG2 { get; set; }
 
-        public ushort Unknown2 { get; set; }
+        // Some DOS related values?
+        public byte BiosCheckSum { get; set; }
+        public byte VideoBiosCheckSum { get; set; }
 
-        public ushort Unknown4Count { get; set; }
-
-        public byte Unknown3 { get; set; }
-
-        public byte[] Unknown4 { get; set; }
+        // Something related to the background PCX files
+        public byte Plan0NumPcxCount { get; set; }
+        public byte[] Plan0NumPcx { get; set; }
 
         /// <summary>
         /// The amount of DES items
@@ -53,12 +55,14 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             if(FileType == Type.World) {
-                // Serialize unknown header
-                Unknown6 = s.Serialize(Unknown6, name: "Unknown6");
-                Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
-                Unknown4Count = s.Serialize(Unknown4Count, name: "Unknown4Count");
-                Unknown3 = s.Serialize(Unknown3, name: "Unknown3");
-                Unknown4 = s.SerializeArray<byte>(Unknown4, s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? Unknown4Count : Unknown4Count * 8, name: "Unknown4");
+                BG1 = s.Serialize(BG1, name: "BG1");
+                BG2 = s.Serialize(BG2, name: "BG2");
+                Plan0NumPcxCount = s.Serialize(Plan0NumPcxCount, name: "Plan0NumPcxCount");
+                VideoBiosCheckSum = s.Serialize(VideoBiosCheckSum, name: "VideoBiosCheckSum");
+                BiosCheckSum = s.Serialize(BiosCheckSum, name: "BiosCheckSum");
+                s.BeginXOR(0x15);
+                Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: "Plan0NumPcx");
+                s.EndXOR();
             }
 
             if (FileType == Type.World) {

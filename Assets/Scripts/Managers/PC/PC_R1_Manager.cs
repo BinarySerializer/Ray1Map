@@ -32,6 +32,13 @@ namespace R1Engine
         public override string GetBigRayFilePath(GameSettings settings) => GetDataPath() + $"BRAY.DAT";
 
         /// <summary>
+        /// Gets the file path for the vignette file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The vignette file path</returns>
+        public override string GetVignetteFilePath(GameSettings settings) => Path.Combine(settings.GameDirectory, $"VIGNET.DAT");
+
+        /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>

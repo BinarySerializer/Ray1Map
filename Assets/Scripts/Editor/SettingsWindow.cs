@@ -1,4 +1,5 @@
 ﻿using R1Engine;
+using R1Engine.Serialize;
 using System;
 using System.IO;
 using System.Linq;
@@ -82,7 +83,7 @@ public class SettingsWindow : UnityWindow
         // Update previous values
         PrevLvlValues.UpdatePreviousValues();
 
-        EditorGUI.BeginDisabledGroup(Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPC);
+        EditorGUI.BeginDisabledGroup(Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPC && Settings.SelectedGameMode != GameModeSelection.RaymanQuizPC);
 
         try
 		{
@@ -141,6 +142,48 @@ public class SettingsWindow : UnityWindow
         Settings.Log = log;
         if (Settings.Log) {
             Settings.LogFile = FileField(rect, "Serialization Log File", Settings.LogFile, true, "txt", includeLabel: false);
+        }
+        // Tools
+
+        DrawHeader(ref yPos, "Tools");
+
+        if (GUI.Button(GetNextRect(ref yPos), "Extract Sprites"))
+        {
+            // Get the output directory
+            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+            if (!string.IsNullOrEmpty(selectedFolder)) {
+                Context context = new Context(Settings.GetGameSettings);
+                IGameManager manager = Settings.GetGameManager;
+                manager.LoadFilesAsync(context);
+                manager.ExportSpriteTextures(context, selectedFolder);
+            }
+        }
+
+        if (GUI.Button(GetNextRect(ref yPos), "Extract Vignette"))
+        {
+            // Get the output directory
+            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+            if (!string.IsNullOrEmpty(selectedFolder)) {
+                Context context = new Context(Settings.GetGameSettings);
+                IGameManager manager = Settings.GetGameManager;
+                manager.LoadFilesAsync(context);
+                manager.ExportVignetteTextures(context, selectedFolder);
+            }
+        }
+
+        if (GUI.Button(GetNextRect(ref yPos), "Extract Animation Frames"))
+        {
+            // Get the output directory
+            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+            if (!string.IsNullOrEmpty(selectedFolder)) {
+                Context context = new Context(Settings.GetGameSettings);
+                IGameManager manager = Settings.GetGameManager;
+                manager.LoadFilesAsync(context);
+                manager.ExportAnimationFrames(context, selectedFolder);
+            }
         }
 
         TotalyPos = yPos;

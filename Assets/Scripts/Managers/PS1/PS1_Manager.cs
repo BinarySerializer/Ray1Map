@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -112,6 +113,80 @@ namespace R1Engine
         #endregion
 
         #region Manager Methods
+
+        /// <summary>
+        /// Exports all vignette textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportVignetteTextures(Context context, string outputDir)
+        {
+            // TODO: This only exports the some .xxx files and not yet the .r16 (raw-16) ones
+
+            // TODO: Get file paths from methods
+
+            var baseDir = Path.Combine(outputDir, "FND");
+
+            Directory.CreateDirectory(baseDir);
+
+            foreach (var filePath in Directory.GetFiles(context.BasePath + "RAY/IMA/FND/", "*.XXX", SearchOption.TopDirectoryOnly))
+            {
+                // TODO: Replace all of this with a serializable file once the PS1 pointer system is finished
+
+                byte[] file = File.ReadAllBytes(filePath);
+
+                var pointerCount = BitConverter.ToInt32(file, 0);
+                var pointer1 = BitConverter.ToInt32(file, 4);
+                var pointer2 = BitConverter.ToInt32(file, 8);
+                var fileSize = BitConverter.ToInt32(file, 12);
+
+                int length = (pointer2 - pointer1) / 2;
+                int height = BitConverter.ToInt16(file, 20);
+                int blockSize = height * 64;
+                int blockCount = length / blockSize;
+                int width = blockCount * 64;
+
+                var tex = new Texture2D(width, height);
+
+                for (int block = 0; block < blockCount; block++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+                        for (int x = 0; x < 64; x++)
+                        {
+                            int x16 = (x * 2) + 24;
+                            int y16 = (y * 2);
+
+                            ushort color16 = BitConverter.ToUInt16(file, x16 + (y16 * 64) + ((block * blockSize) * 2));
+
+                            var red = ((BitHelpers.ExtractBits(color16, 5, 0) / 31f));
+                            var green = ((BitHelpers.ExtractBits(color16, 5, 5) / 31f));
+                            var blue = ((BitHelpers.ExtractBits(color16, 5, 10) / 31f));
+
+                            tex.SetPixel((x + (block * 64)), tex.height - y - 1, new Color(red, green, blue));
+                        }
+                    }
+                }
+
+                tex.Apply();
+
+                File.WriteAllBytes(Path.Combine(baseDir, $"{Path.GetFileNameWithoutExtension(filePath)}.png"), tex.EncodeToPNG());
+            }
+        }
+
+        /// <summary>
+        /// Exports all sprite textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportSpriteTextures(Context context, string outputDir) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Exports all animation frames to the specified directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The directory to export to</param>
+        public void ExportAnimationFrames(Context context, string outputDir) => throw new NotImplementedException();
 
         /// <summary>
         /// Reads the tile set for the specified world
@@ -249,6 +324,40 @@ namespace R1Engine
                 context.AddFile(file);
             }
         }
+
+        /// <summary>
+        /// Gets the common editor event info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The common editor event info</returns>
+        public Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e) => null;
+
+        /// <summary>
+        /// Gets the animation info for an event
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="e">The event</param>
+        /// <returns>The animation info</returns>
+        public Common_AnimationInfo GetAnimationInfo(Context context, Common_Event e) => new Common_AnimationInfo(-1, -1);
+
+        /// <summary>
+        /// Gets the available event names to add for the current world
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The names of the available events to add</returns>
+        public string[] GetEvents(GameSettings settings) => new string[0];
+
+        /// <summary>
+        /// Adds a new event to the controller and returns it
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="eventController">The event controller to add to</param>
+        /// <param name="index">The event index from the available events</param>
+        /// <param name="xPos">The x position</param>
+        /// <param name="yPos">The y position</param>
+        /// <returns></returns>
+        public Common_Event AddEvent(GameSettings settings, LevelEventController eventController, int index, uint xPos, uint yPos) => throw new NotImplementedException();
 
         #endregion
     }

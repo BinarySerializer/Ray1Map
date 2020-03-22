@@ -19,8 +19,15 @@ namespace R1Engine
         /// <returns>The color palette or null if not available</returns>
         protected override IList<ARGBColor> GetBigRayPalette(Context context)
         {
+            // TODO: This file is actually only used by the installer - find way to get the actual PCX from the vignette.dat file
+            // Get the file path
+            var filePath = "DATA/" + "Kitfond.pcx";
+
+            if (!FileSystem.FileExists(context.BasePath + filePath))
+                return null;
+
             // Read the PCX file
-            var pcx = FileFactory.Read<PCX>(context.Settings.GameDirectory + "DATA/" + "Kitfond.pcx", context);
+            var pcx = FileFactory.Read<PCX>(filePath, context);
 
             // Convert the bytes to a palette
             var palette = new List<ARGBColor>();
@@ -44,6 +51,13 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
         public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{((int)settings.World + 1):00}.WLD";
+
+        /// <summary>
+        /// Gets the file path for the vignette file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The vignette file path</returns>
+        public override string GetVignetteFilePath(GameSettings settings) => GetDataPath() + $"VIGNET.DAT";
 
         /// <summary>
         /// Indicates if the game has 3 palettes it swaps between

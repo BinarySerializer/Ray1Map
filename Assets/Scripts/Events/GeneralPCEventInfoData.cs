@@ -3,15 +3,14 @@ using System.Linq;
 
 namespace R1Engine
 {
-    // TODO: Make this class work for non-PC versions too
     /// <summary>
-    /// General event information
+    /// General event information for PC
     /// </summary>
-    public class GeneralEventInfoData : IEquatable<GeneralEventInfoData>
+    public class GeneralPCEventInfoData : IEquatable<GeneralPCEventInfoData>
     {
         #region Constructor
 
-        public GeneralEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
+        public GeneralPCEventInfoData(string name, string mapperId, EventWorld? world, int type, int etat, int subEtat, EventFlag? flag, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
         {
             Name = name;
             MapperID = mapperId;
@@ -53,7 +52,7 @@ namespace R1Engine
 
         public EventFlag? Flag { get; }
 
-        public int DES { get; }
+        public int DES { get; set; }
 
         public int ETA { get; }
 
@@ -88,7 +87,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="other">The other instance to compare to the current one</param>
         /// <returns>True if the other instance is equals to the current one, false if not</returns>
-        public bool Equals(GeneralEventInfoData other) => other != null &&
+        public bool Equals(GeneralPCEventInfoData other) => other != null &&
                                                           World == other.World &&
                                                           Type == other.Type &&
                                                           Etat == other.Etat &&
@@ -109,7 +108,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="obj">The object to compare</param>
         /// <returns></returns>
-        public override bool Equals(object obj) => obj is GeneralEventInfoData id && Equals(id);
+        public override bool Equals(object obj) => obj is GeneralPCEventInfoData id && Equals(id);
 
         /// <summary>
         /// Gets the object hash code
@@ -149,7 +148,7 @@ namespace R1Engine
         /// <param name="a">The first item</param>
         /// <param name="b">The second item</param>
         /// <returns>True if they are the same, false if not</returns>
-        public static bool operator ==(GeneralEventInfoData a, GeneralEventInfoData b)
+        public static bool operator ==(GeneralPCEventInfoData a, GeneralPCEventInfoData b)
         {
             if (a is null)
                 return b is null;
@@ -163,7 +162,7 @@ namespace R1Engine
         /// <param name="a">The first item</param>
         /// <param name="b">The second item</param>
         /// <returns>True if they are not the same, false if they are</returns>
-        public static bool operator !=(GeneralEventInfoData a, GeneralEventInfoData b)
+        public static bool operator !=(GeneralPCEventInfoData a, GeneralPCEventInfoData b)
         {
             return !(a == b);
         }

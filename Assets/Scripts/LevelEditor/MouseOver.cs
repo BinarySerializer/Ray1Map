@@ -22,11 +22,11 @@ namespace R1Engine
             var e = hit.collider?.GetComponentInParent<Common_Event>();
             // Mouse over event
             if (e != null) {
-                textCollision.text = $"{e.DisplayName(Settings.World)}";
-                textGraphic.text = $"Type: {e.EventInfoData?.Type}{Environment.NewLine}" +
+                textCollision.text = $"{e.DisplayName}";
+                textGraphic.text = $"Type: {e.Type}{Environment.NewLine}" +
                                    $"Pos: {e.XPosition}, {e.YPosition}{Environment.NewLine}" +
-                                   $"AnimSpeed: {e.Speed}{Environment.NewLine}" +
-                                   $"Offsets: {e.EventInfoData?.OffsetBX} x {e.EventInfoData?.OffsetBY} x {e.EventInfoData?.OffsetHY}";
+                                   $"AnimSpeed: {e.AnimSpeed}{Environment.NewLine}" +
+                                   $"Offsets: {e.OffsetBX} x {e.OffsetBY} x {e.OffsetHY}";
             }
             // Else Mouse over type
             else {

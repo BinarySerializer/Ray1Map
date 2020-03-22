@@ -29,7 +29,7 @@ namespace R1Engine {
 
         void Update() {
             if (Controller.obj.levelController.currentLevel != null) {
-                // Right click scrolling
+                // RMB scroling
                 if (GetMouseButton(1)) {
                     vel = 0.8f * Vector3.Lerp(vel, Vector3.ClampMagnitude(mousePosPrev - mousePosition, 50) * fov,
                         inertia <= 0 ? 1 : Time.deltaTime * 1f / inertia);

@@ -30,6 +30,10 @@ namespace R1Engine
         public static T Read<T>(string filePath, Context context, Action<T> onPreSerialize = null)
             where T : R1Serializable, new()
         {
+            // Try cached version, to avoid creating the deserializer unless necessary
+            T t = context.GetMainFileObject<T>(filePath);
+            if (t != null) return t;
+            // Use deserializer
             return context.Deserializer.SerializeFile<T>(filePath, onPreSerialize: onPreSerialize, name: filePath);
         }
 
