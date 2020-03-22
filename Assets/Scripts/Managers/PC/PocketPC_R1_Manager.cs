@@ -1,4 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -52,6 +53,21 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
         public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"ray{(int)settings.World + 1}.wld.gz";
+
+        #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Gets a binary file to add to the context
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="filePath">The file path</param>
+        /// <returns>The binary file</returns>
+        protected override BinaryFile GetFile(Context context, string filePath) => new GzipCompressedFile(context)
+        {
+            filePath = filePath
+        };
 
         #endregion
     }

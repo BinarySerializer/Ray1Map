@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace R1Engine
 {
@@ -13,12 +12,12 @@ namespace R1Engine
         /// <summary>
         /// The pointer to the event block
         /// </summary>
-        public Pointer EventBlockPointer { get; set; }
+        public uint EventBlockPointer { get; set; }
 
         /// <summary>
         /// The pointer to the texture block
         /// </summary>
-        public Pointer TextureBlockPointer { get; set; }
+        public uint TextureBlockPointer { get; set; }
 
         // TODO: Does this contain the level name + description for Kit?
         public byte[] Unknown6 { get; set; }
@@ -186,7 +185,7 @@ namespace R1Engine
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             // PC HEADER
             base.SerializeImpl(s);
@@ -194,8 +193,8 @@ namespace R1Engine
             // HEADER BLOCK
 
             // Serialize block pointer
-            EventBlockPointer = s.SerializePointer(EventBlockPointer, name: "EventBlockPointer");
-            TextureBlockPointer = s.SerializePointer(TextureBlockPointer, name: "TextureBlockPointer");
+            EventBlockPointer = s.Serialize(EventBlockPointer, name: "EventBlockPointer");
+            TextureBlockPointer = s.Serialize(TextureBlockPointer, name: "TextureBlockPointer");
 
             if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
                 Unknown6 = s.SerializeArray<byte>(Unknown6, 68, name: "Unknown6");
@@ -289,19 +288,19 @@ namespace R1Engine
                 else
                 {
                     // Read unknown values
-                    Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer.FileOffset - s.CurrentPointer.FileOffset, name: "Unknown7");
+                    Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer - s.CurrentPointer.FileOffset, name: "Unknown7");
                 }
             }
             else
             {
                 // Read unknown values
-                Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer.FileOffset - s.CurrentPointer.FileOffset, name: "Unknown7");
+                Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer - s.CurrentPointer.FileOffset, name: "Unknown7");
             }
 
             // TEXTURE BLOCK
 
             // At this point the stream position should match the texture block offset
-            if (s.CurrentPointer != TextureBlockPointer)
+            if (s.CurrentPointer.FileOffset != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
             if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
@@ -368,7 +367,7 @@ namespace R1Engine
             // EVENT BLOCK
 
             // At this point the stream position should match the event block offset (ignore the Pocket PC version here since it uses leftover pointers from PC version)
-            if (s.GameSettings.GameMode != GameMode.RayPocketPC && s.CurrentPointer != EventBlockPointer)
+            if (s.GameSettings.GameMode != GameMode.RayPocketPC && s.CurrentPointer.FileOffset != EventBlockPointer)
                 Debug.LogError("Event block offset is incorrect");
 
             if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)

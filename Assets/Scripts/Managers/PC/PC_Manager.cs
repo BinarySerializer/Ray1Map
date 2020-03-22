@@ -1370,20 +1370,33 @@ namespace R1Engine
             FileFactory.Write<PC_LevFile>(lvlPath, context);
         }
 
-        public virtual async Task LoadFilesAsync(Context context) {
-            Dictionary<string, string> paths = new Dictionary<string, string>();
-            paths["allfix"] = GetAllfixFilePath(context.Settings);
-            paths["world"] = GetWorldFilePath(context.Settings);
-            paths["level"] = GetLevelFilePath(context.Settings);
-            paths["bigray"] = GetBigRayFilePath(context.Settings);
+        public virtual async Task LoadFilesAsync(Context context) 
+        {
+            Dictionary<string, string> paths = new Dictionary<string, string>
+            {
+                ["allfix"] = GetAllfixFilePath(context.Settings),
+                ["world"] = GetWorldFilePath(context.Settings),
+                ["level"] = GetLevelFilePath(context.Settings),
+                ["bigray"] = GetBigRayFilePath(context.Settings)
+            };
+
             foreach (string pathKey in paths.Keys) {
                 await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);
-                LinearSerializedFile file = new LinearSerializedFile(context) {
-                    filePath = paths[pathKey]
-                };
-                context.AddFile(file);
+
+                context.AddFile(GetFile(context, paths[pathKey]));
             }
         }
+
+        /// <summary>
+        /// Gets a binary file to add to the context
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="filePath">The file path</param>
+        /// <returns>The binary file</returns>
+        protected virtual BinaryFile GetFile(Context context, string filePath) => new LinearSerializedFile(context)
+        {
+            filePath = filePath
+        };
 
         /// <summary>
         /// Gets the common editor event info for an event
