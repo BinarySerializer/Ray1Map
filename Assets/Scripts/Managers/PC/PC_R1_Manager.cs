@@ -36,7 +36,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The vignette file path</returns>
-        public override string GetVignetteFilePath(GameSettings settings) => Path.Combine(settings.GameDirectory, $"VIGNET.DAT");
+        public override string GetVignetteFilePath(GameSettings settings) => $"VIGNET.DAT";
 
         /// <summary>
         /// Gets the file path for the specified level

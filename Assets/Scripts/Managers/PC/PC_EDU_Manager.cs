@@ -30,14 +30,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The vignette file path</returns>
-        public override string GetVignetteFilePath(GameSettings settings) => Path.Combine(GetVolumePath(settings), $"VIGNET.DAT");
+        public override string GetVignetteFilePath(GameSettings settings) => GetVolumePath(settings) + $"VIGNET.DAT";
 
         /// <summary>
         /// Gets the volume data path
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The volume data path</returns>
-        public string GetVolumePath(GameSettings settings) => GetDataPath() + settings.EduVolume;
+        public string GetVolumePath(GameSettings settings) => GetDataPath() + settings.EduVolume + "/";
 
         /// <summary>
         /// Indicates if the game has 3 palettes it swaps between

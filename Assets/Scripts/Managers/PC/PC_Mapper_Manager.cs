@@ -12,23 +12,21 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman Mapper (PC)
     /// </summary>
-    public class PC_Mapper_Manager : PC_RD_Manager
-    {
+    public class PC_Mapper_Manager : PC_RD_Manager {
         #region Values and paths
 
         /// <summary>
-        /// Gets the file path for the specified level
+        /// Gets the folder path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings)
-        {
-            var custom = settings.GameDirectory + GetWorldName(settings.World) + "/" + $"MAP{settings.Level}" + "/";
-
-            if(FileSystem.DirectoryExists(custom))
+        public async Task<string> GetLevelFolderPath(Context context) {
+            var custom = GetWorldName(context.Settings.World) + "/" + $"MAP{context.Settings.Level}" + "/";
+            await FileSystem.CheckDirectory(context.BasePath + custom); // check this and await, since it's a request in WebGL
+            if (FileSystem.DirectoryExists(context.BasePath + custom))
                 return custom;
 
-            return settings.GameDirectory + GetWorldName(settings.World) + "/" + $"MAP_{settings.Level}" + "/";
+            return GetWorldName(context.Settings.World) + "/" + $"MAP_{context.Settings.Level}" + "/";
         }
 
         /// <summary>
@@ -50,7 +48,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(settings), "MAP???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).Where(x => x.Length < 7).Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3))).ToArray();
+        public override int[] GetLevels(GameSettings settings) {
+            return Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(settings), "MAP???", SearchOption.TopDirectoryOnly)
+                .Select(Path.GetFileName).Where(x => x.Length < 7)
+                .Select(x => Int32.Parse(x.Replace("_", String.Empty)
+                .Substring(3)
+                )).ToArray();
+        }
 
         #endregion
 
@@ -75,6 +79,14 @@ namespace R1Engine
             return output;
         }
 
+        public async Task LoadExtraFile(Context context, string path) {
+            await FileSystem.PrepareFile(context.BasePath + path);
+            LinearSerializedFile file = new LinearSerializedFile(context) {
+                filePath = path
+            };
+            context.AddFile(file);
+        }
+
         /// <summary>
         /// Loads the specified level
         /// </summary>
@@ -86,10 +98,19 @@ namespace R1Engine
             Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
             // Get the level folder path
-            var basePath = GetLevelFilePath(context.Settings);
+            var basePath = await GetLevelFolderPath(context);
+
+            // Load new files
+            Dictionary<string, string> paths = new Dictionary<string, string>();
+            paths["event.map"] = basePath + "EVENT.MAP";
+            paths["ray.lev"] = basePath + "RAY.LEV";
+            paths["pcx"] = GetPCXFilePath(context.Settings);
+            foreach (KeyValuePair<string, string> path in paths) {
+                await LoadExtraFile(context, path.Value);
+            }
 
             // Read the map data
-            var mapData = FileFactory.Read<Mapper_Map>(Path.Combine(basePath, $"EVENT.MAP"), context);
+            var mapData = FileFactory.Read<Mapper_Map>(paths["event.map"], context);
 
             await Controller.WaitIfNecessary();
 
@@ -111,16 +132,21 @@ namespace R1Engine
             Controller.status = $"Loading Mapper files";
 
             // Read the DES CMD manifest
-            var desCmdManifest = FileFactory.ReadMapper<Mapper_RayLev>(Path.Combine(basePath, $"RAY.LEV"), context).DESManifest;
+            var desCmdManifest = FileFactory.ReadMapper<Mapper_RayLev>(paths["ray.lev"], context).DESManifest;
 
             // Read the CMD files
-            var cmd = desCmdManifest.Skip(1).ToDictionary(item => item.Key, 
-                item => FileFactory.ReadMapper<Mapper_EventCMD>(Path.Combine(basePath, item.Value), context));
+            Dictionary<string, Mapper_EventCMD> cmd = new Dictionary<string, Mapper_EventCMD>();
+            foreach (KeyValuePair<string, string> item in desCmdManifest.Skip(1)) {
+                await Controller.WaitIfNecessary();
+                string path = basePath + item.Value;
+                await LoadExtraFile(context, path);
+                cmd.Add(item.Key, FileFactory.ReadMapper<Mapper_EventCMD>(path, context));
+            }
 
             await Controller.WaitIfNecessary();
 
             // Get the palette from the PCX file
-            var vgaPalette = FileFactory.Read<PCX>(GetPCXFilePath(context.Settings), context).VGAPalette;
+            var vgaPalette = FileFactory.Read<PCX>(paths["pcx"], context).VGAPalette;
 
             var palette = new List<ARGBColor>();
             for (var i = 0; i < vgaPalette.Length; i += 3)
@@ -176,7 +202,7 @@ namespace R1Engine
             Controller.status = $"Loading tile set";
 
             // Read the .pcx file and get the texture
-            var pcxtex = FileFactory.Read<PCX>(GetPCXFilePath(context.Settings), context).ToTexture();
+            var pcxtex = FileFactory.Read<PCX>(paths["pcx"], context).ToTexture();
 
             var tileSetWidth = pcxtex.width / CellSize;
             var tileSetHeight = pcxtex.height / CellSize;

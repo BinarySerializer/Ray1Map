@@ -816,7 +816,7 @@ namespace R1Engine
         public void ExportVignetteTextures(Context context, string outputDir)
         {
             // Get the file path
-            var vigFilePath = GetVignetteFilePath(context.Settings);
+            var vigFilePath = context.BasePath + GetVignetteFilePath(context.Settings);
 
             // Extract the file
             ExtractEncryptedPCX(vigFilePath, outputDir);
