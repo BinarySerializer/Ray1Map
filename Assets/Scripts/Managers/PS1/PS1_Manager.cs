@@ -319,7 +319,7 @@ namespace R1Engine
                 }
                 MemoryMappedFile file = new MemoryMappedFile(context, fileInfo[paths[pathKey]].BaseAddress) {
                     filePath = paths[pathKey],
-                    length = fileInfo[paths[pathKey]].Length
+                    Length = fileInfo[paths[pathKey]].Length
                 };
                 context.AddFile(file);
             }

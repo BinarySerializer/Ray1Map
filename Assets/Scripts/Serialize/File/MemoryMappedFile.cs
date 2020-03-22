@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 namespace R1Engine.Serialize {
 	public class MemoryMappedFile : BinaryFile {
-		public uint length = 0;
-
 		public MemoryMappedFile(Context context, uint baseAddress) : base(context) {
 			this.baseAddress = baseAddress;
 		}
@@ -30,19 +28,35 @@ namespace R1Engine.Serialize {
 			return writer;
 		}
 
-		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
-			if (length == 0) {
-				Stream s = FileSystem.GetFileReadStream(AbsolutePath);
-				length = (uint)s.Length;
-				s.Close();
+		private uint length = 0;
+		public uint Length {
+			get {
+				if (length == 0) {
+					Stream s = FileSystem.GetFileReadStream(AbsolutePath);
+					length = (uint)s.Length;
+					s.Close();
+				}
+				return length;
 			}
+			set {
+				length = value;
+			}
+		}
+
+		public Pointer GetPointerInThisFileOnly(uint serializedValue, Pointer anchor = null) {
 			uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
-			if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset < baseAddress + length) {
+			if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset < baseAddress + Length) {
 				return new Pointer(serializedValue, this, anchor: anchor);
 			}
+			return null;
+		}
+
+		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
+			Pointer ptr = GetPointerInThisFileOnly(serializedValue, anchor: anchor);
+			if (ptr != null) return ptr;
 			foreach (BinaryFile f in Context.MemoryMap.Files) {
-				if (f is MemoryMappedFile) {
-					Pointer p = f.GetPointer(serializedValue, anchor: anchor);
+				if (f is MemoryMappedFile && f != this) {
+					Pointer p = ((MemoryMappedFile)f).GetPointerInThisFileOnly(serializedValue, anchor: anchor);
 					if (p != null) return p;
 				}
 			}
