@@ -8,7 +8,6 @@ namespace R1Engine
     /// <summary>
     /// Event manifest data for Rayman Mapper (PC)
     /// </summary>
-    [Description("Rayman Mapper (PC) Event Manifest File")]
     public class PC_Mapper_EventManifestFile : MapperEngineSerializable
     {
         /// <summary>

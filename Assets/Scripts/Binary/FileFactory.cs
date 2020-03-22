@@ -54,17 +54,5 @@ namespace R1Engine
         public static T Write<T>(string filePath, Context context, Action<T> onPreSerialize = null) where T : R1Serializable, new() {
             return context.FilePointer<T>(filePath)?.Resolve(context.Serializer, onPreSerialize: onPreSerialize).Value;
         }
-
-        /// <summary>
-        /// The available serializable data types
-        /// </summary>
-        public static Type[] SerializableDataTypes { get; } =
-        {
-            typeof(PS1_R1_LevFile),
-            typeof(PC_LevFile),
-            typeof(PC_WorldFile),
-            typeof(PC_Mapper_EventLocFile),
-            typeof(PC_Mapper_EventManifestFile),
-        };
     }
 }

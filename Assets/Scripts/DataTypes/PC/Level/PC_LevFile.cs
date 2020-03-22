@@ -6,7 +6,6 @@ namespace R1Engine
     /// <summary>
     /// Level data for PC
     /// </summary>
-    [Description("Rayman PC Level File")]
     public class PC_LevFile : PC_BaseFile
     {
         #region Public Properties

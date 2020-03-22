@@ -7,7 +7,6 @@ namespace R1Engine
     /// <summary>
     /// Event localization data for Rayman Mapper (PC)
     /// </summary>
-    [Description("Rayman Mapper (PC) Event Localization File")]
     public class PC_Mapper_EventLocFile : PC_BaseFile
     {
         /// <summary>

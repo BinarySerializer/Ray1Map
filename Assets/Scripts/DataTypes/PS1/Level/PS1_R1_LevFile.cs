@@ -6,7 +6,6 @@ namespace R1Engine
     /// <summary>
     /// Level data for Rayman 1 (PS1)
     /// </summary>
-    [Description("Rayman 1 (PS1) Level File")]
     public class PS1_R1_LevFile : PS1_R1_BaseFile
     {
         /// <summary>

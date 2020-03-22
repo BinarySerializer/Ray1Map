@@ -6,7 +6,6 @@ namespace R1Engine
     /// <summary>
     /// World data for PC
     /// </summary>
-    [Description("Rayman PC World File")]
     public class PC_WorldFile : PC_BaseFile
     {
         #region Public Properties
