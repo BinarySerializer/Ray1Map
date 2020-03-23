@@ -43,28 +43,6 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         void Export(int exportIndex, string outputDir, GameSettings settings);
 
-
-        ///// <summary>
-        ///// Exports all vignette textures to the specified output directory
-        ///// </summary>
-        ///// <param name="context">The context</param>
-        ///// <param name="outputDir">The output directory</param>
-        //void ExportVignetteTextures(Context context, string outputDir);
-
-        ///// <summary>
-        ///// Exports all sprite textures to the specified output directory
-        ///// </summary>
-        ///// <param name="context">The context</param>
-        ///// <param name="outputDir">The output directory</param>
-        //void ExportSpriteTextures(Context context, string outputDir);
-
-        ///// <summary>
-        ///// Exports all animation frames to the specified directory
-        ///// </summary>
-        ///// <param name="context">The context</param>
-        ///// <param name="outputDir">The directory to export to</param>
-        //void ExportAnimationFrames(Context context, string outputDir);
-
         /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
