@@ -44,7 +44,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + "/" + GetDataPath(), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + "/" + GetDataPath(), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count<string>()).ToArray<int>();
 
         /// <summary>
         /// Gets the DES file names, in order, for the world
@@ -53,7 +53,7 @@ namespace R1Engine
         /// <returns>The DES file names</returns>
         public override IEnumerable<string> GetDESNames(Context context)
         {
-            return EnumerateWLDManifest(context).Where(str => str.Contains("DES"));
+            return EnumerateWLDManifest(context).Where<string>(str => str.Contains("DES"));
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace R1Engine
         /// <returns>The ETA file names</returns>
         public override IEnumerable<string> GetETANames(Context context)
         {
-            return EnumerateWLDManifest(context).Where(str => str.Contains("ETA"));
+            return EnumerateWLDManifest(context).Where<string>(str => str.Contains("ETA"));
         }
 
         /// <summary>

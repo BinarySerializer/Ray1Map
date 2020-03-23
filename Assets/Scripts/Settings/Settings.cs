@@ -258,9 +258,9 @@ namespace R1Engine {
                 }
             }
             string modeString = s.SerializeString("GameMode", SelectedGameMode.ToString());
-            SelectedGameMode = Enum.TryParse(modeString, out GameModeSelection gameMode) ? gameMode : SelectedGameMode;
+            SelectedGameMode = Enum.TryParse<GameModeSelection>(modeString, out GameModeSelection gameMode) ? gameMode : SelectedGameMode;
             string worldString = s.SerializeString("World", World.ToString());
-            World = Enum.TryParse(worldString, out World world) ? world : World;
+            World = Enum.TryParse<World>(worldString, out World world) ? world : World;
 
             EduVolume = s.SerializeString("EduVolume", EduVolume);
             Level = s.SerializeInt("SelectedLevelFile", Level);

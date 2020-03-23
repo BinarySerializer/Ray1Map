@@ -114,12 +114,12 @@ namespace R1Engine
                     redo = false;
 
                 // If buffer is empty, read a new line
-                if (!LineBuffer.Any())
+                if (!LineBuffer.Any<string>())
                     // Split it up and trim
-                    LineBuffer = GetNewLine().Split(',').Select(x => x.Trim()).Where(x => !String.IsNullOrWhiteSpace(x)).ToList();
+                    LineBuffer = GetNewLine().Split(',').Select<string, string>(x => x.Trim()).Where<string>(x => !String.IsNullOrWhiteSpace(x)).ToList<string>();
 
                 // Get the value
-                value = LineBuffer.First();
+                value = LineBuffer.First<string>();
 
                 // Remove the retrieved value
                 LineBuffer.RemoveAt(0);

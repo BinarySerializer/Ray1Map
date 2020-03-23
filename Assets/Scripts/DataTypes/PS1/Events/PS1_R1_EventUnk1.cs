@@ -15,7 +15,7 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            Unknown = s.SerializeArray(Unknown, 0x14, name: "Unknown");
+            Unknown = s.SerializeArray<byte>(Unknown, 0x14, name: "Unknown");
         }
     }
 }

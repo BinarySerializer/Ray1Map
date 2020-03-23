@@ -232,7 +232,7 @@ namespace R1Engine {
 					long curPos = caches.Keys[i];
 					if (curPos == position + cache.Length) {
 						int currentLength = cache.Length;
-						Array.Resize(ref cache, cache.Length + curCache.Length);
+						Array.Resize<byte>(ref cache, cache.Length + curCache.Length);
 						Array.Copy(curCache, 0, cache, currentLength, curCache.Length);
 						caches.Remove(curPos);
 						checkIfCanAddCache = true;
@@ -248,7 +248,7 @@ namespace R1Engine {
 					long curPos = caches.Keys[i];
 					if (position == curPos + curCache.Length) {
 						int currentLength = curCache.Length;
-						Array.Resize(ref curCache, cache.Length + curCache.Length);
+						Array.Resize<byte>(ref curCache, cache.Length + curCache.Length);
 						Array.Copy(cache, 0, curCache, currentLength, cache.Length);
 						cache = curCache;
 						position = curPos;
@@ -308,8 +308,8 @@ namespace R1Engine {
 				// Need to request from web
 				SortedList<int, int> downloadRanges = new SortedList<int, int>(); // range start relative to Position, range length
 				if (filledRanges.Count > 0) {
-					downloadRanges.Add(0, filledRanges.First().Key);
-					KeyValuePair<int, int> lastFilledRange = filledRanges.Last();
+					downloadRanges.Add(0, filledRanges.First<KeyValuePair<int, int>>().Key);
+					KeyValuePair<int, int> lastFilledRange = filledRanges.Last<KeyValuePair<int, int>>();
 					if (lastFilledRange.Key + lastFilledRange.Value < count) {
 						downloadRanges.Add(lastFilledRange.Key + lastFilledRange.Value, count);
 					}
@@ -327,18 +327,18 @@ namespace R1Engine {
 					//UnityEngine.Debug.Log("Download range: " + range.Key + " - " + range.Value);
 					if (range.Value > cacheLen) cacheLen = range.Value;
 					long rangePos = Position + range.Key;
-					IEnumerable<KeyValuePair<long, byte[]>> biggerCache = caches.Where(c => (c.Key >= rangePos + range.Value));
-					IEnumerable<KeyValuePair<long, byte[]>> smallerCache = caches.Where(c => (c.Key + c.Value.Length <= rangePos));
+					IEnumerable<KeyValuePair<long, byte[]>> biggerCache = caches.Where<KeyValuePair<long, byte[]>>(c => (c.Key >= rangePos + range.Value));
+					IEnumerable<KeyValuePair<long, byte[]>> smallerCache = caches.Where<KeyValuePair<long, byte[]>>(c => (c.Key + c.Value.Length <= rangePos));
 					long newDataLength = Math.Min(cacheLen, Length - rangePos);
 					long startPosition = rangePos;
 					long addLengthBefore = 0;
-					if (biggerCache.Count() > 0) {
-						newDataLength = Math.Min(cacheLen, biggerCache.First().Key - rangePos);
+					if (biggerCache.Count<KeyValuePair<long, byte[]>>() > 0) {
+						newDataLength = Math.Min(cacheLen, biggerCache.First<KeyValuePair<long, byte[]>>().Key - rangePos);
 					}
 					long addLengthAfter = newDataLength - range.Value;
 					if (newDataLength < cacheLen && rangePos > 0) {
-						if (smallerCache.Count() > 0) {
-							addLengthBefore = Math.Min(cacheLen, rangePos - (smallerCache.Last().Key + smallerCache.Last().Value.Length));
+						if (smallerCache.Count<KeyValuePair<long, byte[]>>() > 0) {
+							addLengthBefore = Math.Min(cacheLen, rangePos - (smallerCache.Last<KeyValuePair<long, byte[]>>().Key + smallerCache.Last<KeyValuePair<long, byte[]>>().Value.Length));
 						} else {
 							addLengthBefore = Math.Min(cacheLen, rangePos);
 						}
@@ -349,7 +349,7 @@ namespace R1Engine {
 					byte[] newData = new byte[newDataLength];
 					await HttpRead(newData, 0, (int)newDataLength, startPosition);
 					int dataRead = lastRequestRead;
-					Array.Resize(ref newData, dataRead);
+					Array.Resize<byte>(ref newData, dataRead);
 					int numReadLocal = (int)Math.Min(range.Value, dataRead - addLengthBefore);
 					//Array.Copy(newData, addLengthBefore, buffer, offset + range.Key, numReadLocal);
 					AddCache(startPosition, newData);
@@ -369,7 +369,7 @@ namespace R1Engine {
 			HttpRequestsCount++;
 			UnityWebRequest www = UnityWebRequest.Get(Url);
 			string state = Controller.status;
-			int totalSize = caches.Sum(c => c.Value.Length);
+			int totalSize = caches.Sum<KeyValuePair<long, byte[]>>(c => c.Value.Length);
 			Controller.status = state + "\nDownloading part of bigfile: " + Url.Replace(FileSystem.serverAddress, "") + " (New size: " + Util.SizeSuffix(totalSize + count,0) + "/" + Util.SizeSuffix(Length, 0) + ")";
 			UnityEngine.Debug.Log("Requesting range: " + string.Format("bytes={0}-{1}", startPosition, startPosition + count - 1) + " - " + Url);
 			www.SetRequestHeader("Range", string.Format("bytes={0}-{1}", startPosition, startPosition + count - 1));

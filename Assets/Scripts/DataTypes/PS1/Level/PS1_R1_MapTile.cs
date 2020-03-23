@@ -36,7 +36,7 @@ namespace R1Engine
                 value = (ushort)BitHelpers.SetBits(value, TileMapX, 9, 0);
                 value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 7, 9);
             }
-            value = s.Serialize(value, name: "value");
+            value = s.Serialize<ushort>(value, name: "value");
             if (s.GameSettings.GameMode == GameMode.RayPS1) {
                 TileMapX = BitHelpers.ExtractBits(value, 4, 0);
                 TileMapY = BitHelpers.ExtractBits(value, 6, 4);

@@ -35,11 +35,11 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            TextureIndex = s.Serialize(TextureIndex, name: "TextureIndex");
-            CollisionType = s.Serialize(CollisionType, name: "CollisionType");
-            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
-            TransparencyMode = s.Serialize(TransparencyMode, name: "TransparencyMode");
-            Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
+            TextureIndex = s.Serialize<ushort>(TextureIndex, name: "TextureIndex");
+            CollisionType = s.Serialize<TileCollisionType>(CollisionType, name: "CollisionType");
+            Unknown1 = s.Serialize<byte>(Unknown1, name: "Unknown1");
+            TransparencyMode = s.Serialize<PC_MapTileTransparencyMode>(TransparencyMode, name: "TransparencyMode");
+            Unknown2 = s.Serialize<byte>(Unknown2, name: "Unknown2");
         }
     }
 }

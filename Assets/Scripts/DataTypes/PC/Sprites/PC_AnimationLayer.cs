@@ -30,10 +30,10 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            IsFlipped = s.Serialize(IsFlipped, name: "IsFlipped");
-            XPosition = s.Serialize(XPosition, name: "XPosition");
-            YPosition = s.Serialize(YPosition, name: "YPosition");
-            ImageIndex = s.Serialize(ImageIndex, name: "ImageIndex");
+            IsFlipped = s.Serialize<bool>(IsFlipped, name: "IsFlipped");
+            XPosition = s.Serialize<byte>(XPosition, name: "XPosition");
+            YPosition = s.Serialize<byte>(YPosition, name: "YPosition");
+            ImageIndex = s.Serialize<byte>(ImageIndex, name: "ImageIndex");
         }
     }
 }

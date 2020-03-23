@@ -34,7 +34,7 @@ namespace R1Engine
             T t = context.GetMainFileObject<T>(filePath);
             if (t != null) return t;
             // Use deserializer
-            return context.Deserializer.SerializeFile(filePath, onPreSerialize: onPreSerialize, name: filePath);
+            return context.Deserializer.SerializeFile<T>(filePath, onPreSerialize: onPreSerialize, name: filePath);
         }
 
         // TODO: Improve this system

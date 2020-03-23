@@ -15,9 +15,9 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            ColorIndexes = s.SerializeArray(ColorIndexes, PC_Manager.CellSize * PC_Manager.CellSize, name: "ColorIndexes");
-            Alpha = s.SerializeArray(Alpha, PC_Manager.CellSize * PC_Manager.CellSize, name: "Alpha");
-            Unknown1 = s.SerializeArray(Unknown1, 32, name: "Unknown1");
+            ColorIndexes = s.SerializeArray<byte>(ColorIndexes, PC_Manager.CellSize * PC_Manager.CellSize, name: "ColorIndexes");
+            Alpha = s.SerializeArray<byte>(Alpha, PC_Manager.CellSize * PC_Manager.CellSize, name: "Alpha");
+            Unknown1 = s.SerializeArray<byte>(Unknown1, 32, name: "Unknown1");
         }
     }
 }

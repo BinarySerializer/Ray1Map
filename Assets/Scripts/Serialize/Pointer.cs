@@ -122,7 +122,7 @@ namespace R1Engine {
             if (pointer != null) {
                 Value = pointer.Context.Cache.FromOffset<T>(pointer);
                 s.DoAt(pointer, () => {
-                    Value = s.SerializeObject(Value, onPreSerialize: onPreSerialize, name: "Value");
+                    Value = s.SerializeObject<T>(Value, onPreSerialize: onPreSerialize, name: "Value");
                 });
             }
             return this;

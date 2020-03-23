@@ -276,7 +276,7 @@ namespace R1Engine
                     for (int i = 0; i < len; i++)
                     {
                         // Instantiate prefab
-                        SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
+                        SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = -len + i;
                         // Set as child of events gameobject
                         newRenderer.gameObject.transform.parent = gameObject.transform;

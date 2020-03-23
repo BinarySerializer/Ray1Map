@@ -192,10 +192,10 @@ namespace R1Engine
             if (obj == null || obj.pointer == null) {
                 Serialize<uint>(0, name: "Pointer");
             } else {
-                Serialize(obj.pointer.SerializedOffset, name: "Pointer");
+                Serialize<uint>(obj.pointer.SerializedOffset, name: "Pointer");
                 if (resolve && obj.Value != null) {
                     DoAt(obj.pointer, () => {
-                        SerializeObject(obj.Value, onPreSerialize: onPreSerialize, name: "Value");
+                        SerializeObject<T>(obj.Value, onPreSerialize: onPreSerialize, name: "Value");
                     });
                 }
             }
@@ -221,7 +221,7 @@ namespace R1Engine
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                Serialize(obj[i], name: name == null ? null : name + "[" + i + "]");
+                Serialize<T>(obj[i], name: name == null ? null : name + "[" + i + "]");
 
             return obj;
         }
@@ -232,7 +232,7 @@ namespace R1Engine
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializeObject(obj[i], onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                SerializeObject<T>(obj[i], onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
 
             return obj;
         }
@@ -254,7 +254,7 @@ namespace R1Engine
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializePointer(obj[i], resolve: resolve, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                SerializePointer<T>(obj[i], resolve: resolve, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
 
             return obj;
         }
@@ -262,7 +262,7 @@ namespace R1Engine
         public override T[] SerializeArraySize<T, U>(T[] obj, string name = null) {
             U Size = (U)Convert.ChangeType((obj?.Length) ?? 0, typeof(U));
             //U Size = (U)(object)((obj?.Length) ?? 0);
-            Size = Serialize(Size, name: name +".Length");
+            Size = Serialize<U>(Size, name: name +".Length");
             return obj;
 
             /*if (Eta == null) {

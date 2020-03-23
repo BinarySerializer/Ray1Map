@@ -117,10 +117,10 @@ namespace R1Engine {
             if (encoding == null)
                 encoding = Settings.StringEncoding;
 			byte[] bytes = ReadBytes(size);
-			int firstIndexOf = Array.IndexOf(bytes, (byte)0x0);
+			int firstIndexOf = Array.IndexOf<byte>(bytes, (byte)0x0);
 			if (firstIndexOf >= 0 && firstIndexOf < bytes.Length) {
 				if(firstIndexOf == 0) return "";
-				Array.Resize(ref bytes, firstIndexOf);
+				Array.Resize<byte>(ref bytes, firstIndexOf);
 			}
 			return encoding.GetString(bytes);
 			//return System.Text.Encoding.UTF8.GetString(ReadBytes(size)).TrimEnd('\0');

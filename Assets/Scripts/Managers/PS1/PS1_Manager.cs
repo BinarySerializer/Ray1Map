@@ -100,7 +100,7 @@ namespace R1Engine
         {
             var worldPath = settings.GameDirectory + GetWorldFolderPath(settings);
 
-            return Enumerable.Range(1, Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count(x => Path.GetFileNameWithoutExtension(x)?.Length == 5)).ToArray();
+            return Enumerable.Range(1, Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count<string>(x => Path.GetFileNameWithoutExtension(x)?.Length == 5)).ToArray<int>();
         }
 
         /// <summary>

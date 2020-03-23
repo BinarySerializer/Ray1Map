@@ -22,7 +22,7 @@ namespace R1Engine
             if (!loaded && lvlCtrl.currentLevel != null) {
                 loaded = true;
                 foreach (var e in FindObjectOfType<LevelMainController>().currentLevel.Events) {
-                    Instantiate(listItemRes, list).GetComponent<EventListItem>().ev = e;
+                    Instantiate<GameObject>(listItemRes, list).GetComponent<EventListItem>().ev = e;
                 }
             }
         }

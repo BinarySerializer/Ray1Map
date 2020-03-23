@@ -71,53 +71,53 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            DES = s.Serialize(DES, name: "DES");
-            DES2 = s.Serialize(DES2, name: "DES2");
-            DES3 = s.Serialize(DES3, name: "DES3");
-            ETA = s.Serialize(ETA, name: "ETA");
+            DES = s.Serialize<uint>(DES, name: "DES");
+            DES2 = s.Serialize<uint>(DES2, name: "DES2");
+            DES3 = s.Serialize<uint>(DES3, name: "DES3");
+            ETA = s.Serialize<uint>(ETA, name: "ETA");
 
-            Unk1 = s.SerializeArray(Unk1, 6, name: "Unk1");
+            Unk1 = s.SerializeArray<uint>(Unk1, 6, name: "Unk1");
 
-            XPosition = s.Serialize(XPosition, name: "XPosition");
-            YPosition = s.Serialize(YPosition, name: "YPosition");
+            XPosition = s.Serialize<uint>(XPosition, name: "XPosition");
+            YPosition = s.Serialize<uint>(YPosition, name: "YPosition");
 
-            Unk2 = s.Serialize(Unk3, name: "Unk2");
+            Unk2 = s.Serialize<uint>(Unk3, name: "Unk2");
 
                 // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
             if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
-                Unk3 = s.Serialize(Unk3, name: "Unk3");
+                Unk3 = s.Serialize<uint>(Unk3, name: "Unk3");
 
-            Unk4 = s.SerializeArray(Unk4, 22, name: "Unk4");
+            Unk4 = s.SerializeArray<ushort>(Unk4, 22, name: "Unk4");
 
-            Type = s.Serialize(Type, name: "Type");
-            Unk5 = s.SerializeArray(Unk5, 5, name: "Unk5");
-            Unk6 = s.Serialize(Unk6, name: "Unk6");
+            Type = s.Serialize<ushort>(Type, name: "Type");
+            Unk5 = s.SerializeArray<byte>(Unk5, 5, name: "Unk5");
+            Unk6 = s.Serialize<byte>(Unk6, name: "Unk6");
 
-            OffsetBX = s.Serialize(OffsetBX, name: "OffsetBX");
-            OffsetBY = s.Serialize(OffsetBY, name: "OffsetBY");
+            OffsetBX = s.Serialize<byte>(OffsetBX, name: "OffsetBX");
+            OffsetBY = s.Serialize<byte>(OffsetBY, name: "OffsetBY");
 
-            Unk7 = s.Serialize(Unk7, name: "Unk7");
+            Unk7 = s.Serialize<ushort>(Unk7, name: "Unk7");
 
-            SubEtat = s.Serialize(SubEtat, name: "SubEtat");
-            Etat = s.Serialize(Etat, name: "Etat");
+            SubEtat = s.Serialize<byte>(SubEtat, name: "SubEtat");
+            Etat = s.Serialize<byte>(Etat, name: "Etat");
 
-            Unk8 = s.Serialize(Unk8, name: "Unk8");
-            Unk9 = s.Serialize(Unk9, name: "Unk9");
+            Unk8 = s.Serialize<ushort>(Unk8, name: "Unk8");
+            Unk9 = s.Serialize<uint>(Unk9, name: "Unk9");
 
-            OffsetHY = s.Serialize(OffsetHY, name: "OffsetHY");
-            FollowSprite = s.Serialize(FollowSprite, name: "FollowSprite");
-            HitPoints = s.Serialize(HitPoints, name: "HitPoints");
-            UnkGroup = s.Serialize(UnkGroup, name: "UnkGroup");
-            HitSprite = s.Serialize(HitSprite, name: "HitSprite");
+            OffsetHY = s.Serialize<byte>(OffsetHY, name: "OffsetHY");
+            FollowSprite = s.Serialize<byte>(FollowSprite, name: "FollowSprite");
+            HitPoints = s.Serialize<ushort>(HitPoints, name: "HitPoints");
+            UnkGroup = s.Serialize<byte>(UnkGroup, name: "UnkGroup");
+            HitSprite = s.Serialize<byte>(HitSprite, name: "HitSprite");
 
-            Unk10 = s.SerializeArray(Unk10, 6, name: "Unk10");
+            Unk10 = s.SerializeArray<byte>(Unk10, 6, name: "Unk10");
 
-            Unk11 = s.Serialize(Unk11, name: "Unk11");
+            Unk11 = s.Serialize<byte>(Unk11, name: "Unk11");
 
             // NOTE: This is 32 when true and 0 when false
-            FollowEnabled = s.Serialize((byte)(FollowEnabled ? 32 : 0), name: "FollowEnabled") != 0;
+            FollowEnabled = s.Serialize<byte>((byte)(FollowEnabled ? 32 : 0), name: "FollowEnabled") != 0;
 
-            Unk12 = s.Serialize(Unk12, name: "Unk12");
+            Unk12 = s.Serialize<ushort>(Unk12, name: "Unk12");
         }
     }
 }

@@ -68,27 +68,27 @@ namespace R1Engine
 
             // BLOCK 1
             s.DoAt(FirstBlockPointer, () => {
-                FirstBlock = s.SerializeArray(FirstBlock, SecondBlockPointer - s.CurrentPointer, name: "FirstBlock");
+                FirstBlock = s.SerializeArray<byte>(FirstBlock, SecondBlockPointer - s.CurrentPointer, name: "FirstBlock");
             });
 
             // BLOCK 2
             s.DoAt(SecondBlockPointer, () => {
-                SecondBlock = s.SerializeArray(SecondBlock, EventTexturesBlockPointer - s.CurrentPointer, name: "SecondBlock");
+                SecondBlock = s.SerializeArray<byte>(SecondBlock, EventTexturesBlockPointer - s.CurrentPointer, name: "SecondBlock");
             });
 
             // EVENT TEXTURES
             s.DoAt(EventTexturesBlockPointer, () => {
-                EventTexturesBlock = s.SerializeArray(EventTexturesBlock, FourthBlockPointer - s.CurrentPointer, name: "EventTexturesBlock");
+                EventTexturesBlock = s.SerializeArray<byte>(EventTexturesBlock, FourthBlockPointer - s.CurrentPointer, name: "EventTexturesBlock");
             });
 
             // BLOCK 4
             s.DoAt(FourthBlockPointer, () => {
-                FourthBlock = s.SerializeArray(FourthBlock, UnknownPaletteBlockPointer - s.CurrentPointer, name: "FourthBlock");
+                FourthBlock = s.SerializeArray<byte>(FourthBlock, UnknownPaletteBlockPointer - s.CurrentPointer, name: "FourthBlock");
             });
 
             // UNKNOWN PALETTE
             s.DoAt(UnknownPaletteBlockPointer, () => {
-                UnknownPalette = s.SerializeObjectArray(UnknownPalette, 256, name: "UnknownPalette");
+                UnknownPalette = s.SerializeObjectArray<ARGB1555Color>(UnknownPalette, 256, name: "UnknownPalette");
             });
 
             // TILES
@@ -99,7 +99,7 @@ namespace R1Engine
                 // Create & serialize the tiles array
                 Tiles = new ARGB1555Color[numTiles][];
                 for (int i = 0; i < Tiles.Length; i++)
-                    Tiles[i] = s.SerializeObjectArray(Tiles[i], cellSize, name: "Tiles[" + i + "]");
+                    Tiles[i] = s.SerializeObjectArray<ARGB1555Color>(Tiles[i], cellSize, name: "Tiles[" + i + "]");
             });
         }
     }

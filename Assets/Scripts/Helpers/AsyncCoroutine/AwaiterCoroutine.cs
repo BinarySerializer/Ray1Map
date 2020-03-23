@@ -47,7 +47,7 @@ namespace Asyncoroutine
             Instruction = instruction;
             Coroutine = new Enumerator(this);
 
-            AwaiterCoroutineer.Instance.StartAwaiterCoroutine(this);
+            AwaiterCoroutineer.Instance.StartAwaiterCoroutine<TInstruction>(this);
         }
 
         public TInstruction GetResult()

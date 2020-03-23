@@ -24,8 +24,8 @@ namespace R1Engine
             // Serialize pointers
             UnkPointer1 = s.SerializePointer(UnkPointer1, name: "UnkPointer1");
             UnkPointer2 = s.SerializePointer(UnkPointer2, name: "UnkPointer2");
-            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
-            Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
+            Unknown1 = s.Serialize<ushort>(Unknown1, name: "Unknown1");
+            Unknown2 = s.Serialize<ushort>(Unknown2, name: "Unknown2");
         }
     }
 }

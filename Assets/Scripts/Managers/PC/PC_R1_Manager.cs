@@ -15,7 +15,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), "RAY??.LEV", SearchOption.TopDirectoryOnly).Count()).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), "RAY??.LEV", SearchOption.TopDirectoryOnly).Count<string>()).ToArray<int>();
 
         /// <summary>
         /// Gets the folder path for the specified world

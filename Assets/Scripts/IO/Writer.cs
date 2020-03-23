@@ -73,7 +73,7 @@ namespace R1Engine {
                 encoding = Settings.StringEncoding;
             byte[] data = encoding.GetBytes(value + '\0');
             if (data.Length != size) {
-                Array.Resize(ref data, size);
+                Array.Resize<byte>(ref data, size);
             }
             base.Write(data);
         }

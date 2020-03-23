@@ -35,7 +35,7 @@ public static class Func
     {
         for (int i = 0; i < source.Length; i++)
         {
-            if (source.Skip(i).Take(pattern.Length).SequenceEqual(pattern))
+            if (source.Skip<byte>(i).Take<byte>(pattern.Length).SequenceEqual<byte>(pattern))
             {
                 yield return i;
             }

@@ -49,14 +49,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + "/" + GetVolumePath(settings), $"{GetShortWorldName(settings.World)}??.lev", SearchOption.TopDirectoryOnly).Select(x => Int32.Parse(Path.GetFileNameWithoutExtension(x).Substring(3))).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + "/" + GetVolumePath(settings), $"{GetShortWorldName(settings.World)}??.lev", SearchOption.TopDirectoryOnly).Select<string, int>(x => Int32.Parse(Path.GetFileNameWithoutExtension(x).Substring(3))).ToArray<int>();
 
         /// <summary>
         /// Gets the available educational volumes
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The available educational volumes</returns>
-        public override string[] GetEduVolumes(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToArray();
+        public override string[] GetEduVolumes(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select<string, string>(Path.GetFileName).ToArray<string>();
 
         #endregion
     }

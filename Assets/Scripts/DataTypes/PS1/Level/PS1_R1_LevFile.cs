@@ -101,14 +101,14 @@ namespace R1Engine
             // BACKGROUND BLOCK
             s.DoAt(BackgroundBlockPointer, () => {
                 // Serialize the background layer information (always 12)
-                BackgroundLayerPositions = s.SerializeObjectArray(BackgroundLayerPositions, 12, name: "BackgroundLayerPositions");
+                BackgroundLayerPositions = s.SerializeObjectArray<PS1_R1_BackgroundLayerPosition>(BackgroundLayerPositions, 12, name: "BackgroundLayerPositions");
 
-                Unknown3 = s.SerializeArray(Unknown3, 16, name: "Unknown3");
+                Unknown3 = s.SerializeArray<byte>(Unknown3, 16, name: "Unknown3");
 
-                BackgroundLayerInfos = s.SerializeObjectArray(BackgroundLayerInfos, 12, name: "BackgroundLayerInfos");
+                BackgroundLayerInfos = s.SerializeObjectArray<PS1_R1_BackgroundLayerInfo>(BackgroundLayerInfos, 12, name: "BackgroundLayerInfos");
 
                 // On PAL/NTSC this is 80 bytes. On NTSC-J it's more, which is why we just serialize the remaining bytes for now
-                Unknown4 = s.SerializeArray(Unknown4, EventBlockPointer - s.CurrentPointer, name: "Unknown4");
+                Unknown4 = s.SerializeArray<byte>(Unknown4, EventBlockPointer - s.CurrentPointer, name: "Unknown4");
             });
 
             // EVENT BLOCK
@@ -116,9 +116,9 @@ namespace R1Engine
             {
                 // Serialize header
                 EventsPointer = s.SerializePointer(EventsPointer, name: "EventsPointer");
-                EventCount = s.Serialize(EventCount, name: "EventCount");
+                EventCount = s.Serialize<uint>(EventCount, name: "EventCount");
                 EventLinksPointer = s.SerializePointer(EventLinksPointer, name: "EventLinksPointer");
-                EventLinkCount = s.Serialize(EventLinkCount, name: "EventLinkCount");
+                EventLinkCount = s.Serialize<uint>(EventLinkCount, name: "EventLinkCount");
 
                 if (EventCount != EventLinkCount)
                     Debug.LogError("Event counts don't match");
@@ -126,13 +126,13 @@ namespace R1Engine
                 s.DoAt(EventsPointer, (() =>
                 {
                     // Serialize every event
-                    Events = s.SerializeObjectArray(Events, EventCount, name: "Events");
+                    Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: "Events");
                 }));
 
                 s.DoAt(EventLinksPointer, (() =>
                 {
                     // Serialize the event linking table
-                    EventLinkingTable = s.SerializeArray(EventLinkingTable, EventLinkCount, name: "EventLinkingTable");
+                    EventLinkingTable = s.SerializeArray<byte>(EventLinkingTable, EventLinkCount, name: "EventLinkingTable");
                 }));
             });
 
@@ -140,17 +140,17 @@ namespace R1Engine
             s.DoAt(MapBlockPointer, () => 
             {
                 // Serialize map size
-                Width = s.Serialize(Width, name: "Width");
-                Height = s.Serialize(Height, name: "Height");
+                Width = s.Serialize<ushort>(Width, name: "Width");
+                Height = s.Serialize<ushort>(Height, name: "Height");
 
                 // Serialize tiles
-                Tiles = s.SerializeObjectArray(Tiles, Width * Height, name: "Tiles");
+                Tiles = s.SerializeObjectArray<PS1_R1_MapTile>(Tiles, Width * Height, name: "Tiles");
             });
 
             // TEXTURE BLOCK
             s.DoAt(TextureBlockPointer, () => 
             {
-                TextureBlock = s.SerializeArray(TextureBlock, FileSize - TextureBlockPointer.FileOffset, name: "TextureBlock");
+                TextureBlock = s.SerializeArray<byte>(TextureBlock, FileSize - TextureBlockPointer.FileOffset, name: "TextureBlock");
             });
         }
     }

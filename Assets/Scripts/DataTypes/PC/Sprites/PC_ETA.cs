@@ -17,7 +17,7 @@
             for (int i = 0; i < States.Length; i++)
             {
                 States[i] = s.SerializeArraySize<PC_EventState, byte>(States[i], name: "States[" + i + "]");
-                States[i] = s.SerializeObjectArray(States[i], States[i].Length, name: "States[" + i + "]");
+                States[i] = s.SerializeObjectArray<PC_EventState>(States[i], States[i].Length, name: "States[" + i + "]");
             }
         }
     }

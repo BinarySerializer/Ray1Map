@@ -17,12 +17,12 @@ namespace R1Engine
         public override byte[] ReadJson(JsonReader reader, Type objectType, byte[] existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
-            return reader.Value.ToString().Split(' ').Where(x => !String.IsNullOrWhiteSpace(x)).Select(x => Byte.Parse(x, NumberStyles.HexNumber)).ToArray();
+            return reader.Value.ToString().Split(' ').Where<string>(x => !String.IsNullOrWhiteSpace(x)).Select<string, byte>(x => Byte.Parse(x, NumberStyles.HexNumber)).ToArray<byte>();
         }
 
         public override void WriteJson(JsonWriter writer, byte[] value, JsonSerializer serializer)
         {
-            writer.WriteValue(String.Join(" ", value.Select(p => p.ToString("X2"))));
+            writer.WriteValue(String.Join(" ", value.Select<byte, string>(p => p.ToString("X2"))));
         }
     }
 }

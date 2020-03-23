@@ -50,14 +50,14 @@
         /// </summary>
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
-            RightSpeed = s.Serialize(RightSpeed, name: "RightSpeed");
-            LeftSpeed = s.Serialize(LeftSpeed, name: "LeftSpeed");
-            AnimationIndex = s.Serialize(AnimationIndex, name: "AnimationIndex");
-            Etat = s.Serialize(Etat, name: "Etat");
-            SubEtat = s.Serialize(SubEtat, name: "SubEtat");
-            AnimationSpeed = s.Serialize(AnimationSpeed, name: "AnimationSpeed");
-            SoundIndex = s.Serialize(SoundIndex, name: "SoundIndex");
-            InteractionType = s.Serialize(InteractionType, name: "InteractionType");
+            RightSpeed = s.Serialize<sbyte>(RightSpeed, name: "RightSpeed");
+            LeftSpeed = s.Serialize<sbyte>(LeftSpeed, name: "LeftSpeed");
+            AnimationIndex = s.Serialize<byte>(AnimationIndex, name: "AnimationIndex");
+            Etat = s.Serialize<byte>(Etat, name: "Etat");
+            SubEtat = s.Serialize<byte>(SubEtat, name: "SubEtat");
+            AnimationSpeed = s.Serialize<byte>(AnimationSpeed, name: "AnimationSpeed");
+            SoundIndex = s.Serialize<byte>(SoundIndex, name: "SoundIndex");
+            InteractionType = s.Serialize<byte>(InteractionType, name: "InteractionType");
         }
     }
 }

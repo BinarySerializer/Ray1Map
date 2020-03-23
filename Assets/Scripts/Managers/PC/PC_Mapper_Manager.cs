@@ -50,10 +50,10 @@ namespace R1Engine
         /// <returns>The levels</returns>
         public override int[] GetLevels(GameSettings settings) {
             return Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(settings), "MAP???", SearchOption.TopDirectoryOnly)
-                .Select(Path.GetFileName).Where(x => x.Length < 7)
-                .Select(x => Int32.Parse(x.Replace("_", String.Empty)
+                .Select<string, string>(Path.GetFileName).Where<string>(x => x.Length < 7)
+                .Select<string, int>(x => Int32.Parse(x.Replace("_", String.Empty)
                 .Substring(3)
-                )).ToArray();
+                )).ToArray<int>();
         }
 
         #endregion
@@ -73,7 +73,7 @@ namespace R1Engine
 
             foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
             {
-                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select(locFile => FileFactory.Read<PC_Mapper_EventLocFile>(locFile, new Context(new GameSettings(GameModeSelection.MapperPC, basePath)))).ToArray());
+                output.Add(Path.GetFileName(langDir), Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly).Select<string, PC_Mapper_EventLocFile>(locFile => FileFactory.Read<PC_Mapper_EventLocFile>(locFile, new Context(new GameSettings(GameModeSelection.MapperPC, basePath)))).ToArray<PC_Mapper_EventLocFile>());
             }
 
             return output;
@@ -135,7 +135,7 @@ namespace R1Engine
 
             // Read the CMD files
             Dictionary<string, Mapper_EventCMD> cmd = new Dictionary<string, Mapper_EventCMD>();
-            foreach (KeyValuePair<string, string> item in desCmdManifest.Skip(1)) {
+            foreach (KeyValuePair<string, string> item in desCmdManifest.Skip<KeyValuePair<string, string>>(1)) {
                 await Controller.WaitIfNecessary();
                 string path = basePath + item.Value;
                 await LoadExtraFile(context, path);
@@ -160,11 +160,11 @@ namespace R1Engine
             var index = 0;
 
             // Get the event count
-            var eventCount = cmd.SelectMany(x => x.Value.Items).Count();
+            var eventCount = cmd.SelectMany<KeyValuePair<string, Mapper_EventCMD>, PC_Mapper_EventCMDItem>(x => x.Value.Items).Count<PC_Mapper_EventCMDItem>();
 
             // Get the Designer DES and ETA names
-            var kitDESNames = GetDESNames(context).ToArray();
-            var kitETANames = GetETANames(context).ToArray();
+            var kitDESNames = GetDESNames(context).ToArray<string>();
+            var kitETANames = GetETANames(context).ToArray<string>();
 
             // Handle each event
             foreach (var c in cmd)
@@ -176,15 +176,15 @@ namespace R1Engine
                     await Controller.WaitIfNecessary();
 
                     // Get the DES index
-                    var desIndex = kitDESNames.FindItemIndex(x => x == c.Key);
+                    var desIndex = kitDESNames.FindItemIndex<string>(x => x == c.Key);
 
                     // Get the ETA index
-                    var etaIndex = kitETANames.FindItemIndex(x => x == e.ETAFile);
+                    var etaIndex = kitETANames.FindItemIndex<string>(x => x == e.ETAFile);
 
                     if (desIndex != -1)
                         desIndex += 1;
 
-                    var ee = Controller.obj.levelEventController.AddEvent(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], e.EventCommands.Select(x => (byte)x).ToArray(),
+                    var ee = Controller.obj.levelEventController.AddEvent(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], e.EventCommands.Select<int, byte>(x => (byte)x).ToArray<byte>(),
 
                         // TODO: Update this
                         index);
@@ -293,7 +293,7 @@ namespace R1Engine
         {
             var w = settings.World.ToEventWorld();
 
-            return LoadPCEventInfo(settings.GameModeSelection)?.Where(x => x.MapperID != null).Where(x => x.World == EventWorld.All || x.World == w).Select(x => x.Name).ToArray() ?? new string[0];
+            return LoadPCEventInfo(settings.GameModeSelection)?.Where<GeneralPCEventInfoData>(x => x.MapperID != null).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).Select<GeneralPCEventInfoData, string>(x => x.Name).ToArray<string>() ?? new string[0];
         }
 
         /// <summary>
@@ -310,7 +310,7 @@ namespace R1Engine
             var w = settings.World.ToEventWorld();
 
             // Get the event
-            var e = LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
+            var e = LoadPCEventInfo(settings.GameModeSelection).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).ElementAt<GeneralPCEventInfoData>(index);
 
             // Add and return the event
             return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.LocalCommands, 0);
@@ -343,24 +343,24 @@ namespace R1Engine
             EventWorld eventWorld = world.ToEventWorld();
 
             // Find a matching item
-            var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
-                                  x.Type == type &&
-                                  x.Etat == etat &&
-                                  x.SubEtat == subEtat &&
-                                  x.DES == des &&
-                                  x.ETA == eta &&
-                                  x.OffsetBX == offsetBx &&
-                                  x.OffsetBY == offsetBy &&
-                                  x.OffsetHY == offsetHy &&
-                                  x.FollowSprite == followSprite &&
-                                  x.HitPoints == hitPoints &&
-                                  x.HitSprite == hitSprite &&
-                                  x.FollowEnabled == followEnabled &&
-                                  //x.MapperID == mapperID &&
-                                  x.LocalCommands.SequenceEqual(localCommands));
+            var match = allInfo.FindItem<GeneralPCEventInfoData>(x => (x.World == eventWorld || x.World == EventWorld.All) &&
+                                                                      x.Type == type &&
+                                                                      x.Etat == etat &&
+                                                                      x.SubEtat == subEtat &&
+                                                                      x.DES == des &&
+                                                                      x.ETA == eta &&
+                                                                      x.OffsetBX == offsetBx &&
+                                                                      x.OffsetBY == offsetBy &&
+                                                                      x.OffsetHY == offsetHy &&
+                                                                      x.FollowSprite == followSprite &&
+                                                                      x.HitPoints == hitPoints &&
+                                                                      x.HitSprite == hitSprite &&
+                                                                      x.FollowEnabled == followEnabled &&
+                                                                      //x.MapperID == mapperID &&
+                                                                      x.LocalCommands.SequenceEqual<byte>(localCommands));
 
             // Create dummy item if not found
-            if (match == null && allInfo.Any())
+            if (match == null && allInfo.Any<GeneralPCEventInfoData>())
                 Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
 
             // Return the item

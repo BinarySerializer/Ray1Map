@@ -84,7 +84,7 @@ namespace R1Engine
                     eventManifestItem.DesignerGroup = -1;
 
                 // Set the if commands if any were read
-                if (parser.PreviousIfCommands.Any()) {
+                if (parser.PreviousIfCommands.Any<string>()) {
                     // Set the commands
                     eventManifestItem.IfCommand = parser.PreviousIfCommands.ToArray();
 

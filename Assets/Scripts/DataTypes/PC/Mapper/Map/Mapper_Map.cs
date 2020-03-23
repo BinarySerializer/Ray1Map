@@ -32,11 +32,11 @@
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             // Serialize map size
-            Width = s.Serialize(Width, name: "Width");
-            Height = s.Serialize(Height, name: "Height");
+            Width = s.Serialize<ushort>(Width, name: "Width");
+            Height = s.Serialize<ushort>(Height, name: "Height");
 
             // Serialize tiles
-            Tiles = s.SerializeObjectArray(Tiles, Width * Height, name: "Tiles");
+            Tiles = s.SerializeObjectArray<Mapper_MapTile>(Tiles, Width * Height, name: "Tiles");
         }
 
         #endregion

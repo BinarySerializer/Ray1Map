@@ -24,10 +24,10 @@ namespace R1Engine
             var memberInfo = value.GetType().GetMember(value.ToString());
 
             // Get the attribute
-            var attributes = memberInfo.First().GetCustomAttributes<T>(false);
+            var attributes = memberInfo.First<MemberInfo>().GetCustomAttributes<T>(false);
 
             // Return the first attribute
-            return attributes.FirstOrDefault();
+            return attributes.FirstOrDefault<T>();
         }
     }
 }

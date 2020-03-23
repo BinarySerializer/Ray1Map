@@ -54,7 +54,7 @@ namespace R1Engine.Serialize {
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
 			//Pointer ptr = GetPointerInThisFileOnly(serializedValue, anchor: anchor);
 			//if (ptr != null) return ptr;
-			List<MemoryMappedFile> files = Context.MemoryMap.Files.Where(f => f is MemoryMappedFile).Select(f => f as MemoryMappedFile).ToList();
+			List<MemoryMappedFile> files = Context.MemoryMap.Files.Where<BinaryFile>(f => f is MemoryMappedFile).Select<BinaryFile, MemoryMappedFile>(f => f as MemoryMappedFile).ToList<MemoryMappedFile>();
 			files.Sort((a, b) => b.baseAddress.CompareTo(a.baseAddress));
 			foreach (MemoryMappedFile f in files) {
 				Pointer p = f.GetPointerInThisFileOnly(serializedValue, anchor: anchor);

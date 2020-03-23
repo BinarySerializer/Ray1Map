@@ -18,12 +18,12 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            CodeCount = s.Serialize(CodeCount, name: "CodeCount");
-            LabelOffsetCount = s.Serialize(LabelOffsetCount, name: "LabelOffsetCount");
+            CodeCount = s.Serialize<ushort>(CodeCount, name: "CodeCount");
+            LabelOffsetCount = s.Serialize<ushort>(LabelOffsetCount, name: "LabelOffsetCount");
 
-            EventCode = s.SerializeArray(EventCode, CodeCount, name: "EventCode");
+            EventCode = s.SerializeArray<byte>(EventCode, CodeCount, name: "EventCode");
 
-            LabelOffsetTable = s.SerializeArray(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");
+            LabelOffsetTable = s.SerializeArray<ushort>(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");
         }
     }
 }

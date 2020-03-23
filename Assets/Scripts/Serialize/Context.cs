@@ -36,7 +36,7 @@ namespace R1Engine.Serialize {
 
 		public BinaryFile GetFile(string relativePath) {
 			string path = Util.NormalizePath(relativePath, false);
-			return MemoryMap.Files.FirstOrDefault(f => f.filePath.ToLower() == path.ToLower());
+			return MemoryMap.Files.FirstOrDefault<BinaryFile>(f => f.filePath.ToLower() == path.ToLower());
 		}
 		public void AddFile(BinaryFile file) {
 			MemoryMap.Files.Add(file);

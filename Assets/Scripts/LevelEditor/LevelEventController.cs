@@ -75,7 +75,7 @@ namespace R1Engine
             }
 
             // TODO: Have some flag for if current game mode supports editing
-            if (eventDropdown.options.Any())
+            if (eventDropdown.options.Any<Dropdown.OptionData>())
                 // Default to the first string
                 eventDropdown.captionText.text = eventDropdown.options[0].text;
         }
@@ -330,7 +330,7 @@ namespace R1Engine
         // Add events to the list via the managers
         public Common_Event AddEvent(int type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands, int link) {
             // Instantiate prefab
-            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
+            Common_Event newEvent = Instantiate<GameObject>(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
 
             newEvent.Type = type;
             newEvent.Etat = etat;

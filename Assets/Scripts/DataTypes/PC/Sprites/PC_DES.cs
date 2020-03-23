@@ -58,35 +58,35 @@ namespace R1Engine
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             if (FileType == Type.World)
-                RequiresBackgroundClearing = s.Serialize(RequiresBackgroundClearing, name: "RequiresBackgroundClearing");
+                RequiresBackgroundClearing = s.Serialize<bool>(RequiresBackgroundClearing, name: "RequiresBackgroundClearing");
             else
                 RequiresBackgroundClearing = true;
 
             if (FileType == Type.AllFix)
-                Unknown1 = s.SerializeArray(Unknown1, 12, name: "Unknown1");
+                Unknown1 = s.SerializeArray<byte>(Unknown1, 12, name: "Unknown1");
 
-            ImageDataLength = s.Serialize(ImageDataLength, name: "ImageDataLength");
+            ImageDataLength = s.Serialize<uint>(ImageDataLength, name: "ImageDataLength");
 
             if (FileType == Type.World && (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC))
             {
-                ImageDataChecksum = s.Serialize(ImageDataChecksum, name: "ImageDataChecksum");
-                ImageData = s.SerializeArray(ImageData, ImageDataLength, name: "ImageData");
+                ImageDataChecksum = s.Serialize<byte>(ImageDataChecksum, name: "ImageDataChecksum");
+                ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: "ImageData");
             }
             else
             {
-                ImageData = s.SerializeArray(ImageData, ImageDataLength, name: "ImageData");
+                ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: "ImageData");
 
                 if (FileType != Type.BigRay)
-                    ImageDataChecksum = s.Serialize(ImageDataChecksum, name: "ImageDataChecksum");
+                    ImageDataChecksum = s.Serialize<byte>(ImageDataChecksum, name: "ImageDataChecksum");
             }
 
             if (FileType == Type.AllFix)
-                Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
+                Unknown2 = s.Serialize<uint>(Unknown2, name: "Unknown2");
 
-            ImageDescriptorCount = s.Serialize(ImageDescriptorCount, name: "ImageDescriptorCount");
-            ImageDescriptors = s.SerializeObjectArray(ImageDescriptors, ImageDescriptorCount, name: "ImageDescriptors");
-            AnimationDescriptorCount = s.Serialize(AnimationDescriptorCount, name: "AnimationDescriptorCount");
-            AnimationDescriptors = s.SerializeObjectArray(AnimationDescriptors, AnimationDescriptorCount, name: "AnimationDescriptors");
+            ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: "ImageDescriptorCount");
+            ImageDescriptors = s.SerializeObjectArray<PC_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: "ImageDescriptors");
+            AnimationDescriptorCount = s.Serialize<byte>(AnimationDescriptorCount, name: "AnimationDescriptorCount");
+            AnimationDescriptors = s.SerializeObjectArray<PC_AnimationDescriptor>(AnimationDescriptors, AnimationDescriptorCount, name: "AnimationDescriptors");
         }
     }
 }

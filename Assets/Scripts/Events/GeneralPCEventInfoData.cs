@@ -100,8 +100,8 @@ namespace R1Engine
                                                           HitPoints == other.HitPoints &&
                                                           HitSprite == other.HitSprite &&
                                                           FollowEnabled == other.FollowEnabled &&
-                                                          LabelOffsets.SequenceEqual(other.LabelOffsets) &&
-                                                          Commands.SequenceEqual(other.Commands);
+                                                          LabelOffsets.SequenceEqual<ushort>(other.LabelOffsets) &&
+                                                          Commands.SequenceEqual<byte>(other.Commands);
 
         /// <summary>
         /// True if the specified object equals the current instance

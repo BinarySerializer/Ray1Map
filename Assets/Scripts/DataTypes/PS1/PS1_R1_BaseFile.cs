@@ -26,11 +26,11 @@
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             Pointer BaseAddress = s.CurrentPointer;
-            PointerCount = s.Serialize(PointerCount, name: "PointerCount");
+            PointerCount = s.Serialize<uint>(PointerCount, name: "PointerCount");
 
             // Serialize the block pointers. These aren't memory pointers but file pointers, so subtract the base address
             BlockPointers = s.SerializePointerArray(BlockPointers, PointerCount, anchor: BaseAddress, name: "Pointers");
-            FileSize = s.Serialize(FileSize, name: "FileSize");
+            FileSize = s.Serialize<uint>(FileSize, name: "FileSize");
         }
     }
 }
