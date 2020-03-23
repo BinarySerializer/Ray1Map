@@ -221,6 +221,17 @@ namespace R1Engine
         /// <param name="level">The level to auto-apply the palette to</param>
         public void AutoApplyPalette(Common_Lev level) { }
 
+        public async Task LoadExtraFile(Context context, string path) {
+            await FileSystem.PrepareFile(context.BasePath + path);
+
+            Dictionary<string, PS1FileInfo> fileInfo = PS1FileInfo.fileInfoUS;
+            PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress) {
+                filePath = path,
+                Length = fileInfo[path].Length
+            };
+            context.AddFile(file);
+        }
+
         /// <summary>
         /// Loads the specified level
         /// </summary>
@@ -228,9 +239,15 @@ namespace R1Engine
         /// <param name="eventDesigns">The list of event designs to populate</param>
         /// <returns>The level</returns>
         public async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns) {
+            Controller.status = $"Loading world file";
+            await LoadExtraFile(context, GetWorldFilePath(context.Settings));
+            Common_Tileset tileSet = ReadTileSet(context);
+            await Controller.WaitIfNecessary();
+
             Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
 
             // Read the level
+            await LoadExtraFile(context, GetLevelFilePath(context.Settings));
             var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
@@ -248,15 +265,9 @@ namespace R1Engine
                 // Create the tile array
                 TileSet = new Common_Tileset[4]
             };
+            c.TileSet[0] = tileSet;
 
             // TODO: Load events
-
-            await Controller.WaitIfNecessary();
-
-            Controller.status = $"Loading tile set";
-
-            Common_Tileset tileSet = ReadTileSet(context);
-            c.TileSet[0] = tileSet;
 
             await Controller.WaitIfNecessary();
 
@@ -328,9 +339,9 @@ namespace R1Engine
         public async Task LoadFilesAsync(Context context) {
             Dictionary<string, string> paths = new Dictionary<string, string>();
             paths["allfix"] = GetAllfixFilePath(context.Settings);
-            paths["world"] = GetWorldFilePath(context.Settings);
+            /*paths["world"] = GetWorldFilePath(context.Settings);
             paths["level"] = GetLevelFilePath(context.Settings);
-            paths["bigray"] = GetBigRayFilePath(context.Settings);
+            paths["bigray"] = GetBigRayFilePath(context.Settings);*/
             Dictionary<string, PS1FileInfo> fileInfo = PS1FileInfo.fileInfoUS;
             foreach (string pathKey in paths.Keys) {
                 await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);

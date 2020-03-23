@@ -52,13 +52,13 @@ namespace R1Engine.Serialize {
 		}
 
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
-			Pointer ptr = GetPointerInThisFileOnly(serializedValue, anchor: anchor);
-			if (ptr != null) return ptr;
-			foreach (BinaryFile f in Context.MemoryMap.Files) {
-				if (f is MemoryMappedFile && f != this) {
-					Pointer p = ((MemoryMappedFile)f).GetPointerInThisFileOnly(serializedValue, anchor: anchor);
-					if (p != null) return p;
-				}
+			//Pointer ptr = GetPointerInThisFileOnly(serializedValue, anchor: anchor);
+			//if (ptr != null) return ptr;
+			List<MemoryMappedFile> files = Context.MemoryMap.Files.Where(f => f is MemoryMappedFile).Select(f => f as MemoryMappedFile).ToList();
+			files.Sort((a, b) => b.baseAddress.CompareTo(a.baseAddress));
+			foreach (MemoryMappedFile f in files) {
+				Pointer p = f.GetPointerInThisFileOnly(serializedValue, anchor: anchor);
+				if (p != null) return p;
 			}
 			return null;
 		}
