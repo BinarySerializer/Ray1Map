@@ -13,11 +13,11 @@ namespace R1Engine
         
         public Pointer UnkPointer3 { get; set; }
         
+        public Pointer UnkPointer4 { get; set; }
+
         /// <summary>
         /// Pointer to the event commands
         /// </summary>
-        public Pointer UnkPointer4 { get; set; }
-        
         public Pointer CommandsPointer { get; set; }
         
         public Pointer UnkPointer5 { get; set; }
@@ -82,6 +82,7 @@ namespace R1Engine
         public ushort Unknown11 { get; set; }
 
         public PS1_R1_EventUnk1[] UnkPointer1Array { get; set; }
+
         public PS1_R1_EventUnk2[] UnkPointer2Array { get; set; }
 
         /// <summary>
