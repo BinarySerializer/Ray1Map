@@ -804,13 +804,6 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
-        /// Gets the BigRay color palette, if available
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The color palette or null if not available</returns>
-        protected virtual IList<ARGBColor> GetBigRayPalette(GameSettings settings) => null;
-
-        /// <summary>
         /// Exports all vignette textures to the specified output directory
         /// </summary>
         /// <param name="context">The context</param>
