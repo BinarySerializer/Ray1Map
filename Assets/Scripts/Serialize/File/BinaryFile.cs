@@ -25,6 +25,9 @@ namespace R1Engine.Serialize {
 			Pointer ptr = new Pointer(serializedValue, this, anchor: anchor);
 			return ptr;
 		}
+		public virtual bool AllowInvalidPointer(uint serializedValue, Pointer anchor = null) {
+			return false;
+		}
 		public virtual Pointer GetPreDefinedPointer(uint offset) {
 			if (predefinedPointers.ContainsKey(offset)) {
 				return predefinedPointers[offset];

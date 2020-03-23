@@ -209,7 +209,7 @@ namespace R1Engine
                 ptr = ptr.SetAnchor(anchor);
             }
             if(ptr == null) ptr = currentFile.GetPointer(value, anchor: anchor);
-            if (ptr == null && value != 0) {
+            if (ptr == null && value != 0 && !currentFile.AllowInvalidPointer(value, anchor: anchor)) {
                 if (Settings.Log) {
                     Context.Log.Log(logString + "(Pointer) " + (name ?? "<no name>") + ": InvalidPointerException - " + string.Format("{0:X8}", value));
                 }

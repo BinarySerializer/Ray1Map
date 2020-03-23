@@ -319,7 +319,7 @@ namespace R1Engine
                 if (!fileInfo.ContainsKey(paths[pathKey])) {
                     throw new Exception("File base address wasn't defined for path " + paths[pathKey]);
                 }
-                MemoryMappedFile file = new MemoryMappedFile(context, fileInfo[paths[pathKey]].BaseAddress) {
+                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[paths[pathKey]].BaseAddress) {
                     filePath = paths[pathKey],
                     Length = fileInfo[paths[pathKey]].Length
                 };

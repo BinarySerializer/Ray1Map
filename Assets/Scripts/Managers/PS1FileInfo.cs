@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace R1Engine {
 	public class PS1FileInfo {
-		public uint BaseAddress;
-		public uint UnknownAddress;
+		public uint BaseAddress; // Retail units have access to memory ranges between 0x80000000 and 0x801FFFFF
+		public uint DevBaseAddress; // Dev units have access to memory ranges between 0x80000000 and 0x807FFFFF
 		public uint Unknown0;
 		public uint Length;
 		public uint Unknown1;
 		public uint Unknown2;
 		public uint Unknown3;
 		public uint Unknown4;
-		public PS1FileInfo(uint baseAddress, uint unknownAddress, uint unknown0, uint length, uint unknown1, uint unknown2, uint unknown3, uint unknown4) {
+		public PS1FileInfo(uint baseAddress, uint devBaseAddress, uint unknown0, uint length, uint unknown1, uint unknown2, uint unknown3, uint unknown4) {
 			BaseAddress = baseAddress;
-			UnknownAddress = unknownAddress;
+			DevBaseAddress = devBaseAddress;
 			Unknown0 = unknown0;
 			Length = length;
 			Unknown1 = unknown1;

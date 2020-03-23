@@ -11,7 +11,7 @@ namespace R1Engine
         
         public Pointer UnkPointer2 { get; set; }
         
-        public uint UnkPointer3 { get; set; }
+        public Pointer UnkPointer3 { get; set; }
         
         /// <summary>
         /// Pointer to the event commands
@@ -20,7 +20,7 @@ namespace R1Engine
         
         public Pointer CommandsPointer { get; set; }
         
-        public uint UnkPointer5 { get; set; }
+        public Pointer UnkPointer5 { get; set; }
 
         public uint Unknown1 { get; set; }
 
@@ -36,7 +36,7 @@ namespace R1Engine
 
         public byte[] Unknown2 { get; set; }
 
-        public ushort Unknown3 { get; set; }
+        public ushort UnkPointer1Count { get; set; }
 
         public ushort Unknown4 { get; set; }
 
@@ -77,6 +77,13 @@ namespace R1Engine
 
         public byte[] Unknown10 { get; set; }
 
+        public ushort UnkPointer2Count { get; set; }
+
+        public ushort Unknown11 { get; set; }
+
+        public PS1_R1_EventUnk1[] UnkPointer1Array { get; set; }
+        public PS1_R1_EventUnk2[] UnkPointer2Array { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -86,10 +93,10 @@ namespace R1Engine
             // Serialize pointers
             UnkPointer1 = s.SerializePointer(UnkPointer1, name: "UnkPointer1");
             UnkPointer2 = s.SerializePointer(UnkPointer2, name: "UnkPointer2");
-            UnkPointer3 = s.Serialize(UnkPointer3, name: "UnkPointer3");
+            UnkPointer3 = s.SerializePointer(UnkPointer3, name: "UnkPointer3");
             UnkPointer4 = s.SerializePointer(UnkPointer4, name: "UnkPointer4");
             CommandsPointer = s.SerializePointer(CommandsPointer, name: "CommandsPointer");
-            UnkPointer5 = s.Serialize(UnkPointer5, name: "UnkPointer5");
+            UnkPointer5 = s.SerializePointer(UnkPointer5, name: "UnkPointer5");
             Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
 
             // This appears to always be 0
@@ -102,7 +109,7 @@ namespace R1Engine
 
             // Serialize unknown properties
             Unknown2 = s.SerializeArray(Unknown2, 16, name: "Unknown2");
-            Unknown3 = s.Serialize(Unknown3, name: "Unknown3");
+            UnkPointer1Count = s.Serialize(UnkPointer1Count, name: "UnkPointer1Count");
             Unknown4 = s.Serialize(Unknown4, name: "Unknown4");
             Unknown5 = s.Serialize(Unknown5, name: "Unknown5");
             Unknown6 = s.SerializeArray(Unknown6, 28, name: "Unknown6");
@@ -129,7 +136,18 @@ namespace R1Engine
 
             HitSprite = s.Serialize(HitSprite, name: "HitSprite");
 
-            Unknown10 = s.SerializeArray(Unknown10, 10, name: "Unknown10");
+            Unknown10 = s.SerializeArray(Unknown10, 6, name: "Unknown10");
+
+            UnkPointer2Count = s.Serialize(UnkPointer2Count, name: "UnkPointer2Count");
+
+            Unknown11 = s.Serialize(Unknown11, name: "Unknown11");
+
+            s.DoAt(UnkPointer1, () => {
+                UnkPointer1Array = s.SerializeObjectArray(UnkPointer1Array, UnkPointer1Count, name: "UnkPointer1Array");
+            });
+            s.DoAt(UnkPointer2, () => {
+                UnkPointer2Array = s.SerializeObjectArray(UnkPointer2Array, UnkPointer2Count, name: "UnkPointer2Array");
+            });
         }
     }
 }

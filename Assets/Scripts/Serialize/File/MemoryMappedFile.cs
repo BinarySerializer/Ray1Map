@@ -43,7 +43,7 @@ namespace R1Engine.Serialize {
 			}
 		}
 
-		public Pointer GetPointerInThisFileOnly(uint serializedValue, Pointer anchor = null) {
+		public virtual Pointer GetPointerInThisFileOnly(uint serializedValue, Pointer anchor = null) {
 			uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
 			if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset < baseAddress + Length) {
 				return new Pointer(serializedValue, this, anchor: anchor);
