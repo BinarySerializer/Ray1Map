@@ -18,7 +18,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the folder path for the specified level
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <returns>The level file path</returns>
         public async Task<string> GetLevelFolderPath(Context context) {
             var custom = GetWorldName(context.Settings.World) + "/" + $"MAP{context.Settings.Level}" + "/";
@@ -81,10 +81,7 @@ namespace R1Engine
 
         public async Task LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);
-            LinearSerializedFile file = new LinearSerializedFile(context) {
-                filePath = path
-            };
-            context.AddFile(file);
+            context.AddFile(GetFile(context, path));
         }
 
         /// <summary>
@@ -101,10 +98,12 @@ namespace R1Engine
             var basePath = await GetLevelFolderPath(context);
 
             // Load new files
-            Dictionary<string, string> paths = new Dictionary<string, string>();
-            paths["event.map"] = basePath + "EVENT.MAP";
-            paths["ray.lev"] = basePath + "RAY.LEV";
-            paths["pcx"] = GetPCXFilePath(context.Settings);
+            Dictionary<string, string> paths = new Dictionary<string, string>
+            {
+                ["event.map"] = basePath + "EVENT.MAP",
+                ["ray.lev"] = basePath + "RAY.LEV",
+                ["pcx"] = GetPCXFilePath(context.Settings)
+            };
             foreach (KeyValuePair<string, string> path in paths) {
                 await LoadExtraFile(context, path.Value);
             }

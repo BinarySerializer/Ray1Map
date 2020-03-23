@@ -150,56 +150,31 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader(ref yPos, "Tools");
 
-        if (GUI.Button(GetNextRect(ref yPos), "Extract Sprites"))
+        // Only update if previous values don't match
+        if (!PrevExportValues.ComparePreviousValues())
         {
-            // Get the output directory
-            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+            Debug.Log("Updated export options");
+            CurrentExportOptions = Settings.GetGameManager.GetExportOptions(Settings.GetGameSettings);
+        }
 
-            if (!string.IsNullOrEmpty(selectedFolder)) {
-                Context context = new Context(Settings.GetGameSettings);
-                try {
-                    IGameManager manager = Settings.GetGameManager;
-                    manager.LoadFilesAsync(context);
-                    manager.ExportSpriteTextures(context, selectedFolder);
-                } finally {
-                    context.Close();
-                }
+        // Add every export option
+        for (var i = 0; i < CurrentExportOptions.Length; i++)
+        {
+            // Get the option
+            var exportOption = CurrentExportOptions[i];
+
+            if (GUI.Button(GetNextRect(ref yPos), exportOption))
+            {
+                // Get the output directory
+                string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+                if (!string.IsNullOrEmpty(selectedFolder))
+                    Settings.GetGameManager.Export(i, selectedFolder, Settings.GetGameSettings);
             }
         }
 
-        if (GUI.Button(GetNextRect(ref yPos), "Extract Vignette"))
-        {
-            // Get the output directory
-            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
-
-            if (!string.IsNullOrEmpty(selectedFolder)) {
-                Context context = new Context(Settings.GetGameSettings);
-                try {
-                    IGameManager manager = Settings.GetGameManager;
-                    manager.LoadFilesAsync(context);
-                    manager.ExportVignetteTextures(context, selectedFolder);
-                } finally {
-                    context.Close();
-                }
-            }
-        }
-
-        if (GUI.Button(GetNextRect(ref yPos), "Extract Animation Frames"))
-        {
-            // Get the output directory
-            string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
-
-            if (!string.IsNullOrEmpty(selectedFolder)) {
-                Context context = new Context(Settings.GetGameSettings);
-                try {
-                    IGameManager manager = Settings.GetGameManager;
-                    manager.LoadFilesAsync(context);
-                    manager.ExportAnimationFrames(context, selectedFolder);
-                } finally {
-                    context.Close();
-                }
-            }
-        }
+        // Update previous values
+        PrevExportValues.UpdatePreviousValues();
 
         TotalyPos = yPos;
 		GUI.EndScrollView();
@@ -215,9 +190,13 @@ public class SettingsWindow : UnityWindow
 
     private PrevValues PrevVolumeValues { get; } = new PrevValues();
 
+    private PrevValues PrevExportValues { get; } = new PrevValues();
+
     private int[] CurrentLevels { get; set; } = new int[0];
 
 	private string[] CurrentEduVolumes { get; set; } = new string[0];
+
+    private string[] CurrentExportOptions { get; set; } = new string[0];
 
     private float TotalyPos { get; set; }
 

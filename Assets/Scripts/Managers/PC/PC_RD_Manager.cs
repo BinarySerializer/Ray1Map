@@ -14,32 +14,6 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
-        /// Gets the BigRay color palette, if available
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The color palette or null if not available</returns>
-        protected override IList<ARGBColor> GetBigRayPalette(Context context)
-        {
-            // TODO: This file is actually only used by the installer - find way to get the actual PCX from the vignette.dat file
-            // Get the file path
-            var filePath = "DATA/KITFOND.PCX";
-
-            if (!FileSystem.FileExists(context.BasePath + filePath))
-                return null;
-
-            // Read the PCX file
-            var pcx = FileFactory.Read<PCX>(filePath, context);
-
-            // Convert the bytes to a palette
-            var palette = new List<ARGBColor>();
-            for (var i = 0; i < pcx.VGAPalette.Length; i += 3)
-                palette.Add(new ARGBColor(pcx.VGAPalette[i + 0], pcx.VGAPalette[i + 1], pcx.VGAPalette[i + 2]));
-
-            // Return the palette
-            return palette;
-        }
-
-        /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -75,7 +49,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the DES file names, in order, for the world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <returns>The DES file names</returns>
         public override IEnumerable<string> GetDESNames(Context context)
         {
@@ -85,7 +59,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the ETA file names, in order, for the world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <returns>The ETA file names</returns>
         public override IEnumerable<string> GetETANames(Context context)
         {
@@ -95,7 +69,7 @@ namespace R1Engine
         /// <summary>
         /// Enumerates the strings in a .wld manifest
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <returns>The found strings</returns>
         protected IEnumerable<string> EnumerateWLDManifest(Context context)
         {
@@ -127,24 +101,6 @@ namespace R1Engine
             }
         }
 
-        #endregion
-
-        #region Manager methods
-        public async override Task LoadFilesAsync(Context context) {
-            Dictionary<string, string> paths = new Dictionary<string, string>();
-            paths["allfix"] = GetAllfixFilePath(context.Settings);
-            paths["world"] = GetWorldFilePath(context.Settings);
-            paths["level"] = GetLevelFilePath(context.Settings);
-            paths["bigray"] = GetBigRayFilePath(context.Settings);
-            paths["kitfond"] = "DATA/KITFOND.PCX";
-            foreach (string pathKey in paths.Keys) {
-                await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);
-                LinearSerializedFile file = new LinearSerializedFile(context) {
-                    filePath = paths[pathKey]
-                };
-                context.AddFile(file);
-            }
-        }
         #endregion
     }
 }

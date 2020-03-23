@@ -115,14 +115,46 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
+        /// Gets the available game export options
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game export options</returns>
+        public string[] GetExportOptions(GameSettings settings)
+        {
+            return new string[]
+            {
+                "Export Vignette",
+            };
+        }
+
+        /// <summary>
+        /// Exports the specified content
+        /// </summary>
+        /// <param name="exportIndex">The export index</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <param name="settings">The game settings</param>
+        public void Export(int exportIndex, string outputDir, GameSettings settings)
+        {
+            switch (exportIndex)
+            {
+                case 0:
+                    ExportVignetteTextures(settings, outputDir);
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Exports all vignette textures to the specified output directory
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportVignetteTextures(Context context, string outputDir)
+        public void ExportVignetteTextures(GameSettings settings, string outputDir)
         {
             // TODO: Get file paths from methods
             // TODO: Export all vignette files, not just FND
+
+            // Create the context
+            var context = new Context(settings);
 
             // Get the base output directory
             var baseOutputDir = Path.Combine(outputDir, "FND");
@@ -175,20 +207,6 @@ namespace R1Engine
                 File.WriteAllBytes(Path.Combine(baseOutputDir, $"{Path.GetFileNameWithoutExtension(filePath)}.png"), tex.EncodeToPNG());
             }
         }
-
-        /// <summary>
-        /// Exports all sprite textures to the specified output directory
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(Context context, string outputDir) => throw new NotImplementedException();
-
-        /// <summary>
-        /// Exports all animation frames to the specified directory
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="outputDir">The directory to export to</param>
-        public void ExportAnimationFrames(Context context, string outputDir) => throw new NotImplementedException();
 
         /// <summary>
         /// Reads the tile set for the specified world

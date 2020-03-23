@@ -27,27 +27,43 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The available educational volumes</returns>
         string[] GetEduVolumes(GameSettings settings);
-
+        
         /// <summary>
-        /// Exports all vignette textures to the specified output directory
+        /// Gets the available game export options
         /// </summary>
         /// <param name="settings">The game settings</param>
+        /// <returns>The game export options</returns>
+        string[] GetExportOptions(GameSettings settings);
+
+        /// <summary>
+        /// Exports the specified content
+        /// </summary>
+        /// <param name="exportIndex">The export index</param>
         /// <param name="outputDir">The output directory</param>
-        void ExportVignetteTextures(Context context, string outputDir);
-
-        /// <summary>
-        /// Exports all sprite textures to the specified output directory
-        /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <param name="outputDir">The output directory</param>
-        void ExportSpriteTextures(Context context, string outputDir);
+        void Export(int exportIndex, string outputDir, GameSettings settings);
 
-        /// <summary>
-        /// Exports all animation frames to the specified directory
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="outputDir">The directory to export to</param>
-        void ExportAnimationFrames(Context context, string outputDir);
+
+        ///// <summary>
+        ///// Exports all vignette textures to the specified output directory
+        ///// </summary>
+        ///// <param name="context">The context</param>
+        ///// <param name="outputDir">The output directory</param>
+        //void ExportVignetteTextures(Context context, string outputDir);
+
+        ///// <summary>
+        ///// Exports all sprite textures to the specified output directory
+        ///// </summary>
+        ///// <param name="context">The context</param>
+        ///// <param name="outputDir">The output directory</param>
+        //void ExportSpriteTextures(Context context, string outputDir);
+
+        ///// <summary>
+        ///// Exports all animation frames to the specified directory
+        ///// </summary>
+        ///// <param name="context">The context</param>
+        ///// <param name="outputDir">The directory to export to</param>
+        //void ExportAnimationFrames(Context context, string outputDir);
 
         /// <summary>
         /// Auto applies the palette to the tiles in the level
@@ -87,7 +103,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the animation info for an event
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="context">The context</param>
         /// <param name="e">The event</param>
         /// <returns>The animation info</returns>
         Common_AnimationInfo GetAnimationInfo(Context context, Common_Event e);

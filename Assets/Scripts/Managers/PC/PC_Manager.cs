@@ -163,8 +163,6 @@ namespace R1Engine
 
         #region Texture Methods
 
-        protected virtual IList<ARGBColor> GetBigRayPalette(Context context) => null;
-
         /// <summary>
         /// Extracts all found .pcx from an xor encrypted file
         /// </summary>
@@ -239,30 +237,55 @@ namespace R1Engine
         /// <summary>
         /// Exports all sprite textures to the specified output directory
         /// </summary>
-        /// <param name="context">The context</param>
+        /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportSpriteTextures(Context context, string outputDir) {
+        /// <param name="exportAnimFrames">Indicates if the textures should be exported as animation frames</param>
+        public void ExportSpriteTextures(GameSettings settings, string outputDir, bool exportAnimFrames) 
+        {
+            // Create the context
+            var context = new Context(settings);
+
+            // Add all files
+            AddAllFiles(context);
+
             // Get the DES names for every world
-            var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
+            var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, world =>
             {
-                context.Settings.World = x;
+                // Set the world
+                context.Settings.World = world;
+
+                // Get the world file path
+                var worldPath = GetWorldFilePath(context.Settings);
+
+                if (!FileSystem.FileExists(context.BasePath + worldPath))
+                    return null;
+
                 var a = GetDESNames(context).ToArray();
+
                 return a.Any() ? a : null;
             });
 
-            // Read the big ray file
-            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context,
-                    onPreSerialize: data => data.FileType = PC_WorldFile.Type.BigRay);
+            // Helper method for exporting textures
+            PC_WorldFile ExportTextures(string filePath, PC_WorldFile.Type type, string name, int desOffset, string[] desFileNames)
+            {
+                // Read the file
+                var file = FileFactory.Read<PC_WorldFile>(filePath, context,
+                    onPreSerialize: data => data.FileType = type);
 
-            // Read the allfix file
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context,
-                    onPreSerialize: data => data.FileType = PC_WorldFile.Type.AllFix);
+                // Export the sprite textures
+                if (exportAnimFrames)
+                    ExportAnimationFrames(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
+                else
+                    ExportSpriteTextures(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
 
-            // Export the sprite textures
-            ExportSpriteTextures(context, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(context));
+                return file;
+            }
 
-            // Export the sprite textures
-            ExportSpriteTextures(context, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
+            // Export big ray
+            ExportTextures(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, null);
+
+            // Export allfix
+            var allfix = ExportTextures(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, desNames.Values.FirstOrDefault());
 
             // Enumerate every world
             foreach (World world in EnumHelpers.GetValues<World>())
@@ -273,15 +296,11 @@ namespace R1Engine
                 // Get the world file path
                 var worldPath = GetWorldFilePath(context.Settings);
 
-                if (!File.Exists(worldPath))
+                if (!FileSystem.FileExists(context.BasePath + worldPath))
                     continue;
 
-                // Read the world file
-                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, context,
-                    onPreSerialize: data => data.FileType = PC_WorldFile.Type.World);
-
-                // Export the sprite textures
-                ExportSpriteTextures(context, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
+                // Export big ray
+                ExportTextures(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
             }
         }
 
@@ -305,8 +324,11 @@ namespace R1Engine
                 // Set the level number
                 context.Settings.Level = i;
 
+                // Get the level file path
+                var lvlPath = GetLevelFilePath(context.Settings);
+
                 // Load the level
-                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.Settings), context));
+                levels.Add(FileFactory.Read<PC_LevFile>(lvlPath, context));
             }
 
             // Enumerate each sprite group
@@ -428,53 +450,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Exports all animation frames to the specified directory
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="outputDir">The directory to export to</param>
-        public void ExportAnimationFrames(Context context, string outputDir)
-        {
-            // Get the DES names for every world
-            var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, x =>
-            {
-                context.Settings.World = x;
-                var a = GetDESNames(context).ToArray();
-                return a.Any() ? a : null;
-            });
-
-            // Read the big ray file
-            var brayFile = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context, onPreSerialize: data => data.FileType = PC_WorldFile.Type.BigRay);
-
-            // Read the allfix file
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context, onPreSerialize: data => data.FileType = PC_WorldFile.Type.AllFix);
-
-            // Export the sprite textures
-            ExportAnimationFrames(context, brayFile, Path.Combine(outputDir, "Bigray"), 0, null, GetBigRayPalette(context));
-
-            // Export the sprite textures
-            ExportAnimationFrames(context, allfix, Path.Combine(outputDir, "Allfix"), 0, desNames.Values.FirstOrDefault());
-            
-            // Enumerate every world
-            foreach (World world in EnumHelpers.GetValues<World>())
-            {
-                // Set the world
-                context.Settings.World = world;
-
-                // Get the world file path
-                var worldPath = GetWorldFilePath(context.Settings);
-
-                if (!FileSystem.FileExists(context.BasePath + worldPath))
-                    continue;
-
-                // Read the world file
-                var worldFile = FileFactory.Read<PC_WorldFile>(worldPath, context);
-
-                // Export the sprite textures
-                ExportAnimationFrames(context, worldFile, Path.Combine(outputDir, world.ToString()), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
-            }
-        }
-
-        /// <summary>
         /// Exports the animation frames
         /// </summary>
         /// <param name="context">The context</param>
@@ -483,7 +458,7 @@ namespace R1Engine
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
         /// <param name="palette">Optional palette to use</param>
-        public void ExportAnimationFrames(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null)
+        public void ExportAnimationFrames(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -496,8 +471,11 @@ namespace R1Engine
                 // Set the level number
                 context.Settings.Level = i;
 
+                // Get the level file path
+                var lvlPath = GetLevelFilePath(context.Settings);
+
                 // Load the level
-                levels.Add(FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.Settings), context));
+                levels.Add(FileFactory.Read<PC_LevFile>(lvlPath, context));
             }
 
             // Enumerate each sprite group
@@ -510,7 +488,7 @@ namespace R1Engine
                 var desIndex = desOffset + 1 + i;
 
                 // Get the textures
-                var textures = GetSpriteTextures(context.Settings, levels, des, worldFile, desIndex, palette);
+                var textures = GetSpriteTextures(context.Settings, levels, des, worldFile, desIndex);
 
                 // Get the DES name
                 var desName = desNames != null ? $" ({desNames[desIndex - 1]})" : String.Empty;
@@ -804,17 +782,44 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
-        /// Exports all vignette textures to the specified output directory
+        /// Gets the available game export options
         /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="outputDir">The output directory</param>
-        public void ExportVignetteTextures(Context context, string outputDir)
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game export options</returns>
+        public string[] GetExportOptions(GameSettings settings)
         {
-            // Get the file path
-            var vigFilePath = context.BasePath + GetVignetteFilePath(context.Settings);
+            return new string[]
+            {
+                "Export Sprites",
+                "Export Animation Frames",
+                "Export Vignette",
+            };
+        }
 
-            // Extract the file
-            ExtractEncryptedPCX(vigFilePath, outputDir);
+        /// <summary>
+        /// Exports the specified content
+        /// </summary>
+        /// <param name="exportIndex">The export index</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <param name="settings">The game settings</param>
+        public void Export(int exportIndex, string outputDir, GameSettings settings)
+        {
+            switch (exportIndex)
+            {
+                case 0:
+                    ExportSpriteTextures(settings, outputDir, false);
+                    break;
+
+                case 1:
+                    ExportSpriteTextures(settings, outputDir, true);
+                    break;
+
+                case 2:
+                    // Extract the file
+                    ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), outputDir);
+
+                    break;
+            }
         }
 
         /// <summary>
@@ -1011,15 +1016,8 @@ namespace R1Engine
                     // Ignore garbage sprites
                     var isGarbage = s.InnerHeight == 0 || s.InnerWidth == 0;
 
-                    // Get the palette to use
-                    var p = palette;
-
-                    // Use BigRay palette if the last item
-                    if (desIndex == des.Length - 1)
-                        p = GetBigRayPalette(context) ?? palette;
-
                     // Get the texture
-                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, p, processedImageData);
+                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, palette, processedImageData);
 
                     // Add it to the array
                     finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
@@ -1377,6 +1375,39 @@ namespace R1Engine
                 await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);
 
                 context.AddFile(GetFile(context, paths[pathKey]));
+            }
+        }
+
+        /// <summary>
+        /// Adds all files to the context, to be used for export operations
+        /// </summary>
+        /// <param name="context">The context to add to</param>
+        public virtual void AddAllFiles(Context context)
+        {
+            // Add big ray file
+            context.AddFile(GetFile(context, GetBigRayFilePath(context.Settings)));
+            
+            // Add allfix file
+            context.AddFile(GetFile(context, GetAllfixFilePath(context.Settings)));
+
+            // Add for every world
+            foreach (World world in EnumHelpers.GetValues<World>())
+            {
+                // Set the world
+                context.Settings.World = world;
+
+                // Add world file
+                context.AddFile(GetFile(context, GetWorldFilePath(context.Settings)));
+
+                // Add every level
+                foreach (var lvl in GetLevels(context.Settings))
+                {
+                    // Set the level
+                    context.Settings.Level = lvl;
+
+                    // Add level file
+                    context.AddFile(GetFile(context, GetLevelFilePath(context.Settings)));
+                }
             }
         }
 
