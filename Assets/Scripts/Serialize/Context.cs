@@ -48,7 +48,10 @@ namespace R1Engine.Serialize {
 		}
 		public Pointer FilePointer(string relativePath) {
 			BinaryFile f = GetFile(relativePath);
-			if (f == null) return null;
+			if (f == null) {
+				throw new Exception("File with path " + relativePath + " is not loaded in this Context!");
+			}
+			//if (f == null) return null;
 			return f.StartPointer;
 		}
 
