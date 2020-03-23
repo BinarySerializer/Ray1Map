@@ -21,47 +21,168 @@ namespace R1Engine {
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        /// Occurs when a <see cref="SelectedGameMode"/> changes
+        /// </summary>
+        public static event EventHandler OnSelectedGameModeChanged;
+
+        /// <summary>
+        /// Occurs when a <see cref="World"/> changes
+        /// </summary>
+        public static event EventHandler OnWorldChanged;
+
+        /// <summary>
+        /// Occurs when a <see cref="Level"/> changes
+        /// </summary>
+        public static event EventHandler OnLevelChanged;
+
+        /// <summary>
+        /// Occurs when a <see cref="EduVolume"/> changes
+        /// </summary>
+        public static event EventHandler OnEduVolumeChanged;
+
+        /// <summary>
+        /// Occurs when a <see cref="UseHDCollisionSheet"/> changes
+        /// </summary>
+        public static event EventHandler OnUseHDCollisionSheetChanged;
+
+        /// <summary>
+        /// Occurs when a <see cref="AnimateSprites"/> changes
+        /// </summary>
+        public static event EventHandler OnAnimateSpritesChanged;
+
+        /// <summary>
+        /// Occurs when a <see cref="ShowAlwaysEvents"/> changes
+        /// </summary>
+        public static event EventHandler OnShowAlwaysEventsChanged;
+
+        /// <summary>
+        /// Occurs when a <see cref="ShowEditorEvents"/> changes
+        /// </summary>
+        public static event EventHandler OnShowEditorEventsChanged;
+
+        #endregion
+
+        #region Private Fields
+
+        private static GameModeSelection _selectedGameMode;
+        private static World _world;
+        private static int _level;
+        private static string _eduVolume;
+        private static bool _useHdCollisionSheet;
+        private static bool _animateSprites;
+        private static bool _showAlwaysEvents;
+        private static bool _showEditorEvents;
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>
         /// The selected game mode
         /// </summary>
-        public static GameModeSelection SelectedGameMode { get; set; }
+        public static GameModeSelection SelectedGameMode
+        {
+            get => _selectedGameMode;
+            set
+            {
+                _selectedGameMode = value;
+                OnSelectedGameModeChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// The selected game world
         /// </summary>
-        public static World World { get; set; }
+        public static World World
+        {
+            get => _world;
+            set
+            {
+                _world = value;
+                OnWorldChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// The selected level index, starting from 1
         /// </summary>
-        public static int Level { get; set; }
+        public static int Level
+        {
+            get => _level;
+            set 
+            { 
+                _level = value;
+                OnLevelChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// The selected educational game volume
         /// </summary>
-        public static string EduVolume { get; set; }
+        public static string EduVolume
+        {
+            get => _eduVolume;
+            set
+            {
+                _eduVolume = value;
+                OnEduVolumeChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// True for the HD collision sheet to be used, false for the original Rayman Designer one to be used
         /// </summary>
-        public static bool UseHDCollisionSheet { get; set; }
+        public static bool UseHDCollisionSheet
+        {
+            get => _useHdCollisionSheet;
+            set
+            {
+                _useHdCollisionSheet = value;
+                OnUseHDCollisionSheetChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// Indicates if sprites should be animated in the editor
         /// </summary>
-        public static bool AnimateSprites { get; set; }
+        public static bool AnimateSprites
+        {
+            get => _animateSprites;
+            set
+            {
+                _animateSprites = value;
+                OnAnimateSpritesChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// Indicates if always events should be shown
         /// </summary>
-        public static bool ShowAlwaysEvents { get; set; }
+        public static bool ShowAlwaysEvents
+        {
+            get => _showAlwaysEvents;
+            set
+            {
+                _showAlwaysEvents = value;
+                OnShowAlwaysEventsChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// Indicates if editor events should be shown
         /// </summary>
-        public static bool ShowEditorEvents { get; set; }
+        public static bool ShowEditorEvents
+        {
+            get => _showEditorEvents;
+            set
+            {
+                _showEditorEvents = value;
+                OnShowEditorEventsChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// Indicates if .BAK backup files should be created before writing
@@ -82,7 +203,6 @@ namespace R1Engine {
         /// Serialization log file
         /// </summary>
         public static string LogFile { get; set; }
-        /// <summary>
         
         /// Whether to log to the serialization log file
         /// </summary>
@@ -124,6 +244,7 @@ namespace R1Engine {
         #endregion
 
         #region Public Methods
+
         private static void SerializeSettings(ISerializer s) {
             GameModeSelection[] modes = EnumHelpers.GetValues<GameModeSelection>();
             foreach (GameModeSelection mode in modes) {
@@ -186,9 +307,11 @@ namespace R1Engine {
                 SerializeSettings(s);
             }
         }
+        
         #endregion
 
         #region Subclasses (Settings serialization)
+        
         private interface ISerializer {
             string SerializeString(string key, string value);
             bool SerializeBool(string key, bool value);
