@@ -42,7 +42,7 @@ namespace R1Engine
         [GameMode(GameMode.RayPocketPC, "Rayman Ultimate (Pocket PC)", typeof(PocketPC_R1_Manager))]
         RaymanPocketPC,
 
-        //[GameMode(GameMode.RayPocketPC, "Rayman Classic (Mobile)", typeof(PocketPC_R1_Manager))]
-        //RaymanClassicMobile,
+        [GameMode(GameMode.RayPocketPC, "Rayman Classic (Mobile)", typeof(Mobile_R1_Manager))]
+        RaymanClassicMobile,
     }
 }
