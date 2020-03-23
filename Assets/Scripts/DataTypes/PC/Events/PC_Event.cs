@@ -13,39 +13,37 @@
 
         public uint ETA { get; set; }
 
-        public uint Unknown1 { get; set; }
-
-        public uint Unknown2 { get; set; }
-
-        public byte[] Unknown3 { get; set; }
+        public uint[] Unk1 { get; set; }
 
         public uint XPosition { get; set; }
 
         public uint YPosition { get; set; }
 
-        public uint Unknown13 { get; set; }
+        public uint Unk2 { get; set; }
 
-        public byte[] Unknown4 { get; set; }
+        public uint Unk3 { get; set; }
 
-        public byte[] Unknown5 { get; set; }
+        public ushort[] Unk4 { get; set; }
 
-        public uint Type { get; set; }
+        public ushort Type { get; set; }
 
-        public uint Unknown6 { get; set; }
+        public byte[] Unk5 { get; set; }
+
+        public byte Unk6 { get; set; }
 
         public byte OffsetBX { get; set; }
 
         public byte OffsetBY { get; set; }
 
-        public ushort Unknown7 { get; set; }
+        public ushort Unk7 { get; set; }
 
         public byte SubEtat { get; set; }
 
         public byte Etat { get; set; }
 
-        public ushort Unknown8 { get; set; }
+        public ushort Unk8 { get; set; }
 
-        public uint Unknown9 { get; set; }
+        public uint Unk9 { get; set; }
 
         public byte OffsetHY { get; set; }
 
@@ -57,16 +55,16 @@
 
         public byte HitSprite { get; set; }
 
-        public byte[] Unknown10 { get; set; }
+        public byte[] Unk10 { get; set; }
 
-        public byte Unknown11 { get; set; }
+        public byte Unk11 { get; set; }
 
         /// <summary>
         /// Indicates if the event has collision
         /// </summary>
         public bool FollowEnabled { get; set; }
 
-        public ushort Unknown12 { get; set; }
+        public ushort Unk12 { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -78,34 +76,33 @@
             DES3 = s.Serialize(DES3, name: "DES3");
             ETA = s.Serialize(ETA, name: "ETA");
 
-            Unknown1 = s.Serialize(Unknown1, name: "Unknown1");
-            Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
-
-            Unknown3 = s.SerializeArray(Unknown3, 16, name: "Unknown3");
+            Unk1 = s.SerializeArray(Unk1, 6, name: "Unk1");
 
             XPosition = s.Serialize(XPosition, name: "XPosition");
             YPosition = s.Serialize(YPosition, name: "YPosition");
 
-            // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
-                Unknown13 = s.Serialize(Unknown13, name: "Unknown13");
+            Unk2 = s.Serialize(Unk3, name: "Unk2");
 
-            Unknown4 = s.SerializeArray(Unknown4, 20, name: "Unknown4");
-            Unknown5 = s.SerializeArray(Unknown5, 28, name: "Unknown5");
+                // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
+            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
+                Unk3 = s.Serialize(Unk3, name: "Unk3");
+
+            Unk4 = s.SerializeArray(Unk4, 22, name: "Unk4");
 
             Type = s.Serialize(Type, name: "Type");
-            Unknown6 = s.Serialize(Unknown6, name: "Unknown6");
+            Unk5 = s.SerializeArray(Unk5, 5, name: "Unk5");
+            Unk6 = s.Serialize(Unk6, name: "Unk6");
 
             OffsetBX = s.Serialize(OffsetBX, name: "OffsetBX");
             OffsetBY = s.Serialize(OffsetBY, name: "OffsetBY");
 
-            Unknown7 = s.Serialize(Unknown7, name: "Unknown7");
+            Unk7 = s.Serialize(Unk7, name: "Unk7");
 
             SubEtat = s.Serialize(SubEtat, name: "SubEtat");
             Etat = s.Serialize(Etat, name: "Etat");
 
-            Unknown8 = s.Serialize(Unknown8, name: "Unknown8");
-            Unknown9 = s.Serialize(Unknown9, name: "Unknown9");
+            Unk8 = s.Serialize(Unk8, name: "Unk8");
+            Unk9 = s.Serialize(Unk9, name: "Unk9");
 
             OffsetHY = s.Serialize(OffsetHY, name: "OffsetHY");
             FollowSprite = s.Serialize(FollowSprite, name: "FollowSprite");
@@ -113,14 +110,14 @@
             UnkGroup = s.Serialize(UnkGroup, name: "UnkGroup");
             HitSprite = s.Serialize(HitSprite, name: "HitSprite");
 
-            Unknown10 = s.SerializeArray(Unknown10, 6, name: "Unknown10");
+            Unk10 = s.SerializeArray(Unk10, 6, name: "Unk10");
 
-            Unknown11 = s.Serialize(Unknown11, name: "Unknown11");
+            Unk11 = s.Serialize(Unk11, name: "Unk11");
 
             // NOTE: This is 32 when true and 0 when false
             FollowEnabled = s.Serialize((byte)(FollowEnabled ? 32 : 0), name: "FollowEnabled") != 0;
 
-            Unknown12 = s.Serialize(Unknown12, name: "Unknown12");
+            Unk12 = s.Serialize(Unk12, name: "Unk12");
         }
     }
 }

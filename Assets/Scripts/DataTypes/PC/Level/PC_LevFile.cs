@@ -51,19 +51,19 @@ namespace R1Engine
         public byte[] Unknown7 { get; set; }
 
         /// <summary>
-        /// Unknown byte, different for each level
-        /// </summary>
-        public byte Unknown2 { get; set; }
-
-        /// <summary>
         /// The index of the background image
         /// </summary>
         public byte BackgroundIndex { get; set; }
 
         /// <summary>
+        /// The index of the parallax background image
+        /// </summary>
+        public byte ParallaxBackgroundIndex { get; set; }
+
+        /// <summary>
         /// The DES for the background sprites when parallax scrolling is enabled
         /// </summary>
-        public uint BackgroundSpritesDES { get; set; }
+        public int BackgroundSpritesDES { get; set; }
 
         /// <summary>
         /// The length of <see cref="RoughTextures"/>
@@ -232,11 +232,9 @@ namespace R1Engine
 
             if (s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC)
             {
-                // Serialize unknown byte
-                Unknown2 = s.Serialize(Unknown2, name: "Unknown2");
-
                 // Serialize the background data
                 BackgroundIndex = s.Serialize(BackgroundIndex, name: "BackgroundIndex");
+                ParallaxBackgroundIndex = s.Serialize(ParallaxBackgroundIndex, name: "ParallaxBackgroundIndex");
                 BackgroundSpritesDES = s.Serialize(BackgroundSpritesDES, name: "BackgroundSpritesDES");
 
                 if (s.GameSettings.GameMode == GameMode.RayPC)
