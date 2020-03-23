@@ -1,5 +1,4 @@
 ﻿using R1Engine;
-using R1Engine.Serialize;
 using System;
 using System.IO;
 using System.Linq;
@@ -148,33 +147,40 @@ public class SettingsWindow : UnityWindow
 
         // Tools
 
-        DrawHeader(ref yPos, "Tools");
+        DrawHeader(ref yPos, "Game Tools");
 
         // Only update if previous values don't match
-        if (!PrevExportValues.ComparePreviousValues())
+        if (!PrevGameActionValues.ComparePreviousValues())
         {
-            Debug.Log("Updated export options");
-            CurrentExportOptions = Settings.GetGameManager.GetExportOptions(Settings.GetGameSettings);
+            Debug.Log("Updated game actions");
+            CurrentGameActions = Settings.GetGameManager.GetGameActions(Settings.GetGameSettings);
         }
 
         // Add every export option
-        for (var i = 0; i < CurrentExportOptions.Length; i++)
+        for (var i = 0; i < CurrentGameActions.Length; i++)
         {
             // Get the option
-            var exportOption = CurrentExportOptions[i];
+            var action = CurrentGameActions[i];
 
-            if (GUI.Button(GetNextRect(ref yPos), exportOption))
+            if (GUI.Button(GetNextRect(ref yPos), action.DisplayName))
             {
-                // Get the output directory
-                string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+                // Get the directories
+                string inputDir = action.RequiresInputDir ? EditorUtility.OpenFolderPanel("Select input directory", null, "") : null;
 
-                if (!string.IsNullOrEmpty(selectedFolder))
-                    Settings.GetGameManager.Export(i, selectedFolder, Settings.GetGameSettings);
+                if (string.IsNullOrEmpty(inputDir) && action.RequiresInputDir)
+                    return;
+
+                string outputDir = action.RequiresOutputDir ? EditorUtility.OpenFolderPanel("Select output directory", null, "") : null;
+
+                if (string.IsNullOrEmpty(outputDir) && action.RequiresOutputDir)
+                    return;
+
+                Settings.GetGameManager.RunAction(i, inputDir, outputDir, Settings.GetGameSettings);
             }
         }
 
         // Update previous values
-        PrevExportValues.UpdatePreviousValues();
+        PrevGameActionValues.UpdatePreviousValues();
 
         TotalyPos = yPos;
 		GUI.EndScrollView();
@@ -190,13 +196,13 @@ public class SettingsWindow : UnityWindow
 
     private PrevValues PrevVolumeValues { get; } = new PrevValues();
 
-    private PrevValues PrevExportValues { get; } = new PrevValues();
+    private PrevValues PrevGameActionValues { get; } = new PrevValues();
 
     private int[] CurrentLevels { get; set; } = new int[0];
 
 	private string[] CurrentEduVolumes { get; set; } = new string[0];
 
-    private string[] CurrentExportOptions { get; set; } = new string[0];
+    private GameAction[] CurrentGameActions { get; set; } = new GameAction[0];
 
     private float TotalyPos { get; set; }
 

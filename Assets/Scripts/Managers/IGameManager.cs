@@ -27,21 +27,22 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The available educational volumes</returns>
         string[] GetEduVolumes(GameSettings settings);
-        
-        /// <summary>
-        /// Gets the available game export options
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The game export options</returns>
-        string[] GetExportOptions(GameSettings settings);
 
         /// <summary>
-        /// Exports the specified content
+        /// Gets the available game actions
         /// </summary>
-        /// <param name="exportIndex">The export index</param>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game actions</returns>
+        GameAction[] GetGameActions(GameSettings settings);
+
+        /// <summary>
+        /// Runs the specified game action
+        /// </summary>
+        /// <param name="actionIndex">The action index</param>
+        /// <param name="inputDir">The input directory</param>
         /// <param name="outputDir">The output directory</param>
         /// <param name="settings">The game settings</param>
-        void Export(int exportIndex, string outputDir, GameSettings settings);
+        void RunAction(int actionIndex, string inputDir, string outputDir, GameSettings settings);
 
         /// <summary>
         /// Auto applies the palette to the tiles in the level

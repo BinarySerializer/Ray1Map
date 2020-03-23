@@ -782,29 +782,30 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
-        /// Gets the available game export options
+        /// Gets the available game actions
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The game export options</returns>
-        public string[] GetExportOptions(GameSettings settings)
+        /// <returns>The game actions</returns>
+        public virtual GameAction[] GetGameActions(GameSettings settings)
         {
-            return new string[]
+            return new GameAction[]
             {
-                "Export Sprites",
-                "Export Animation Frames",
-                "Export Vignette",
+                new GameAction("Export Sprites", false, true),
+                new GameAction("Export Animation Frames", false, true),
+                new GameAction("Export Vignette", false, true),
             };
         }
 
         /// <summary>
-        /// Exports the specified content
+        /// Runs the specified game action
         /// </summary>
-        /// <param name="exportIndex">The export index</param>
+        /// <param name="actionIndex">The action index</param>
+        /// <param name="inputDir">The input directory</param>
         /// <param name="outputDir">The output directory</param>
         /// <param name="settings">The game settings</param>
-        public void Export(int exportIndex, string outputDir, GameSettings settings)
+        public virtual void RunAction(int actionIndex, string inputDir, string outputDir, GameSettings settings)
         {
-            switch (exportIndex)
+            switch (actionIndex)
             {
                 case 0:
                     ExportSpriteTextures(settings, outputDir, false);
@@ -815,9 +816,7 @@ namespace R1Engine
                     break;
 
                 case 2:
-                    // Extract the file
                     ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), outputDir);
-
                     break;
             }
         }
