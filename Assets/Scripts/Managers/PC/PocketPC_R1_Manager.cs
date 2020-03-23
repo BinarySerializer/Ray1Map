@@ -54,6 +54,31 @@ namespace R1Engine
         /// <returns>The world file path</returns>
         public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"ray{(int)settings.World + 1}.wld.gz";
 
+        /// <summary>
+        /// Gets the short name for the world
+        /// </summary>
+        /// <returns>The short world name</returns>
+        public override string GetShortWorldName(World world)
+        {
+            switch (world)
+            {
+                case World.Jungle:
+                    return "JUN";
+                case World.Music:
+                    return "MUS";
+                case World.Mountain:
+                    return "MON";
+                case World.Image:
+                    return "IMG";
+                case World.Cave:
+                    return "CAV";
+                case World.Cake:
+                    return "CAK";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(world), world, null);
+            }
+        }
+
         #endregion
 
         #region Manager Methods

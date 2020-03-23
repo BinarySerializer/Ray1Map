@@ -59,7 +59,7 @@ namespace R1Engine
         /// Gets the short name for the world
         /// </summary>
         /// <returns>The short world name</returns>
-        public string GetShortWorldName(World world) {
+        public virtual string GetShortWorldName(World world) {
             switch (world) {
                 case World.Jungle:
                     return "JUN";
