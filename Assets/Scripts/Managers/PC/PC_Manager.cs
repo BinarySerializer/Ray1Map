@@ -141,7 +141,7 @@ namespace R1Engine
         public void ReverseSearchAnimation(PC_WorldFile wld, int eta, int animationIndex)
         {
             // TODO: Use new state indexing
-            foreach (var e in wld.Eta[eta].States.SelectMany(x => x).Where(x => x.AnimationIndex == animationIndex))
+            foreach (var e in wld.Eta[eta].States.SelectMany<PC_EventState[], PC_EventState>(x => x).Where<PC_EventState>(x => x.AnimationIndex == animationIndex))
                 Debug.Log($"Etat: {e.Etat}, SubEtat: {e.SubEtat}, Speed: {e.AnimationSpeed}");
         }
 
@@ -199,7 +199,7 @@ namespace R1Engine
                     try
                     {
                         // Serialize the data
-                        using (var stream = new MemoryStream(buffer.Skip(j).ToArray())) {
+                        using (var stream = new MemoryStream(buffer.Skip<byte>(j).ToArray<byte>())) {
                             Context c = new Context(Settings.GetGameSettings);
                             c.AddFile(new StreamFile("pcx", stream, c));
                             var pcx = FileFactory.Read<PCX>("pcx", c);
@@ -249,7 +249,7 @@ namespace R1Engine
             AddAllFiles(context);
 
             // Get the DES names for every world
-            var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, world =>
+            var desNames = EnumHelpers.GetValues<World>().ToDictionary<World, World, string[]>(x => x, world =>
             {
                 // Set the world
                 context.Settings.World = world;
@@ -260,9 +260,9 @@ namespace R1Engine
                 if (!FileSystem.FileExists(context.BasePath + worldPath))
                     return null;
 
-                var a = GetDESNames(context).ToArray();
+                var a = GetDESNames(context).ToArray<string>();
 
-                return a.Any() ? a : null;
+                return a.Any<string>() ? a : null;
             });
 
             // Helper method for exporting textures
@@ -285,7 +285,7 @@ namespace R1Engine
             ExportTextures(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, null);
 
             // Export allfix
-            var allfix = ExportTextures(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, desNames.Values.FirstOrDefault());
+            var allfix = ExportTextures(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, desNames.Values.FirstOrDefault<string[]>());
 
             // Enumerate every world
             foreach (World world in EnumHelpers.GetValues<World>())
@@ -370,7 +370,7 @@ namespace R1Engine
             var output = new Texture2D[desItem.ImageDescriptors.Length];
 
             bool foundForSpriteGroup = false;
-            var defaultPalette = levels.First();
+            var defaultPalette = levels.First<PC_LevFile>();
 
             Beginning:
 
@@ -393,18 +393,18 @@ namespace R1Engine
                 bool foundCorrectPalette = false;
 
                 // Check all matching animation descriptor
-                foreach (var animDesc in desItem.AnimationDescriptors.Where(x => x.Layers.Any(y => y.ImageIndex == i)).Select(x => desItem.AnimationDescriptors.FindItemIndex(y => y == x)))
+                foreach (var animDesc in desItem.AnimationDescriptors.Where<PC_AnimationDescriptor>(x => x.Layers.Any<PC_AnimationLayer>(y => y.ImageIndex == i)).Select<PC_AnimationDescriptor, int>(x => desItem.AnimationDescriptors.FindItemIndex<PC_AnimationDescriptor>(y => y == x)))
                 {
                     // Check all ETA's where it appears
-                    foreach (var eta in worldFile.Eta.SelectMany(x => x.States).SelectMany(x => x).Where(x => x.AnimationIndex == animDesc))
+                    foreach (var eta in worldFile.Eta.SelectMany<PC_ETA, PC_EventState[]>(x => x.States).SelectMany<PC_EventState[], PC_EventState>(x => x).Where<PC_EventState>(x => x.AnimationIndex == animDesc))
                     {
                         // TODO: Use new state indexing system
                         // Attempt to find the level where it appears
-                        var lvlMatch = levels.FindLast(x => x.Events.Any(y =>
+                        var lvlMatch = levels.FindLast(x => x.Events.Any<PC_Event>(y =>
                             y.DES == desIndex &&
                             y.Etat == eta.Etat &&
                             y.SubEtat == eta.SubEtat &&
-                            y.ETA == worldFile.Eta.FindItemIndex(z => z.States.SelectMany(h => h).Contains(eta))));
+                            y.ETA == worldFile.Eta.FindItemIndex<PC_ETA>(z => z.States.SelectMany<PC_EventState[], PC_EventState>(h => h).Contains<PC_EventState>(eta))));
 
                         if (lvlMatch != null)
                         {
@@ -439,7 +439,7 @@ namespace R1Engine
                     lvl = levels[10];
 
                 // Get the texture
-                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
+                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First<RGB666Color[]>(), processedImageData);
 
                 // Set the texture
                 output[i] = tex;
@@ -506,7 +506,7 @@ namespace R1Engine
 
                     byte? speed = null;
 
-                    IEnumerable<PC_EventState> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].States.SelectMany(x => x).Where(x => x.AnimationIndex == j);
+                    IEnumerable<PC_EventState> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].States.SelectMany<PC_EventState[], PC_EventState>(x => x).Where<PC_EventState>(x => x.AnimationIndex == j);
 
                     // TODO: Redo this to use new ETA indexing system
                     // Attempt to find a perfect match
@@ -518,10 +518,10 @@ namespace R1Engine
                         foreach (var etaMatch in GetEtaMatches(etaIndex))
                         {
                             // Check if it's a perfect match
-                            if (levels.SelectMany(x => x.Events).Any(x => x.DES == desIndex &&
-                                                                          x.ETA == etaIndex &&
-                                                                          x.Etat == etaMatch.Etat &&
-                                                                          x.SubEtat == etaMatch.SubEtat))
+                            if (levels.SelectMany<PC_LevFile, PC_Event>(x => x.Events).Any<PC_Event>(x => x.DES == desIndex &&
+                                                                                                          x.ETA == etaIndex &&
+                                                                                                          x.Etat == etaMatch.Etat &&
+                                                                                                          x.SubEtat == etaMatch.SubEtat))
                             {
                                 speed = etaMatch.AnimationSpeed;
                                 break;
@@ -541,7 +541,7 @@ namespace R1Engine
                             foreach (var etaMatch in GetEtaMatches(etaIndex))
                             {
                                 // Check if it's a semi-perfect match
-                                if (levels.SelectMany(x => x.Events).Any(x => x.DES == desIndex && x.ETA == etaIndex))
+                                if (levels.SelectMany<PC_LevFile, PC_Event>(x => x.Events).Any<PC_Event>(x => x.DES == desIndex && x.ETA == etaIndex))
                                 {
                                     speed = etaMatch.AnimationSpeed;
                                     break;
@@ -828,20 +828,20 @@ namespace R1Engine
         public void AutoApplyPalette(Common_Lev level)
         {
             // Get the palette changers
-            var paletteXChangers = level.Events.Where(x => x.Type == 158 && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
-            var paletteYChangers = level.Events.Where(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteXChangers = level.Events.Where<Common_Event>(x => x.Type == 158 && x.SubEtat < 6).ToDictionary<Common_Event, uint, PC_PaletteChangerMode>(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteYChangers = level.Events.Where<Common_Event>(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary<Common_Event, uint, PC_PaletteChangerMode>(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
             // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
-            bool isPaletteHorizontal = paletteXChangers.Any();
+            bool isPaletteHorizontal = paletteXChangers.Any<KeyValuePair<uint, PC_PaletteChangerMode>>();
 
             // Keep track of the default palette
             int defaultPalette = 1;
 
             // Get the default palette
-            if (isPaletteHorizontal && paletteXChangers.Any())
+            if (isPaletteHorizontal && paletteXChangers.Any<KeyValuePair<uint, PC_PaletteChangerMode>>())
             {
-                switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
+                switch (paletteXChangers.OrderBy<KeyValuePair<uint, PC_PaletteChangerMode>, uint>(x => x.Key).First<KeyValuePair<uint, PC_PaletteChangerMode>>().Value)
                 {
                     case PC_PaletteChangerMode.Left1toRight2:
                     case PC_PaletteChangerMode.Left1toRight3:
@@ -857,9 +857,9 @@ namespace R1Engine
                         break;
                 }
             }
-            else if (!isPaletteHorizontal && paletteYChangers.Any())
+            else if (!isPaletteHorizontal && paletteYChangers.Any<KeyValuePair<uint, PC_PaletteChangerMode>>())
             {
-                switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
+                switch (paletteYChangers.OrderByDescending<KeyValuePair<uint, PC_PaletteChangerMode>, uint>(x => x.Key).First<KeyValuePair<uint, PC_PaletteChangerMode>>().Value)
                 {
                     case PC_PaletteChangerMode.Top1tobottom2:
                     case PC_PaletteChangerMode.Top1tobottom3:
@@ -989,7 +989,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get the DES and ETA
-            var des = allfix.DesItems.Concat(worldData.DesItems).Concat(bigRayData.DesItems).ToArray();
+            var des = allfix.DesItems.Concat<PC_DES>(worldData.DesItems).Concat<PC_DES>(bigRayData.DesItems).ToArray<PC_DES>();
 
             int desIndex = 0;
 
@@ -1093,7 +1093,7 @@ namespace R1Engine
             };
 
             // Load the sprites
-            await LoadSpritesAsync(context, levelData.ColorPalettes.First(), eventDesigns);
+            await LoadSpritesAsync(context, levelData.ColorPalettes.First<RGB666Color[]>(), eventDesigns);
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
@@ -1141,10 +1141,10 @@ namespace R1Engine
                         var texOffset = levelData.TexturesOffsetTable[cell.TextureIndex];
 
                         // Get the texture
-                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.TextureOffset == texOffset) : levelData.TransparentTextures.FindItem(x => x.TextureOffset == texOffset);
+                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem<PC_TileTexture>(x => x.TextureOffset == texOffset) : levelData.TransparentTextures.FindItem<PC_TransparentTileTexture>(x => x.TextureOffset == texOffset);
 
                         // Get the index
-                        textureIndex = levelData.NonTransparentTextures.Concat(levelData.TransparentTextures).FindItemIndex(x => x == texture);
+                        textureIndex = levelData.NonTransparentTextures.Concat<PC_TileTexture>(levelData.TransparentTextures).FindItemIndex<PC_TileTexture>(x => x == texture);
                     }
 
                     // Set the common tile
@@ -1181,7 +1181,7 @@ namespace R1Engine
             int index = 0;
 
             // Enumerate every texture
-            foreach (var texture in levData.NonTransparentTextures.Concat(levData.TransparentTextures)) {
+            foreach (var texture in levData.NonTransparentTextures.Concat<PC_TileTexture>(levData.TransparentTextures)) {
                 // Enumerate every palette
                 for (int i = 0; i < levData.ColorPalettes.Length; i++) {
                     // Create the texture to use for the tile
@@ -1247,11 +1247,11 @@ namespace R1Engine
                         tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
                     else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount) {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].TextureOffset);
+                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex<uint>(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].TextureOffset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
                     }
                     else {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].TextureOffset);
+                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex<uint>(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].TextureOffset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
                     }
                 }
@@ -1279,7 +1279,7 @@ namespace R1Engine
 
                     // Find all the events with the same linkId and store their indexes
                     List<int> indexesOfSameId = new List<int>();
-                    foreach (Common_Event e in commonLevelData.Events.Where(e => e.LinkID == currentId))
+                    foreach (Common_Event e in commonLevelData.Events.Where<Common_Event>(e => e.LinkID == currentId))
                     {
                         indexesOfSameId.Add(commonLevelData.Events.IndexOf(e));
                         alreadyChained.Add(commonLevelData.Events.IndexOf(e));
@@ -1452,11 +1452,11 @@ namespace R1Engine
             var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context);
 
             // Get the eta items
-            var eta = allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
+            var eta = allfix.Eta.Concat<PC_ETA>(worldData.Eta).Concat<PC_ETA>(bigRayData.Eta);
 
             // Get animation index from the matching ETA item
             //var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-            var etaItem = eta.ElementAt(e.ETA).States.ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
+            var etaItem = eta.ElementAt<PC_ETA>(e.ETA).States.ElementAtOrDefault<PC_EventState[]>(e.Etat)?.ElementAtOrDefault<PC_EventState>(e.SubEtat);
 
             // Return the index
             return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);
@@ -1471,7 +1471,7 @@ namespace R1Engine
         {
             var w = settings.World.ToEventWorld();
 
-            return LoadPCEventInfo(settings.GameModeSelection)?.Where(x => x.World == EventWorld.All || x.World == w).Select(x => x.Name).ToArray() ?? new string[0];
+            return LoadPCEventInfo(settings.GameModeSelection)?.Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).Select<GeneralPCEventInfoData, string>(x => x.Name).ToArray<string>() ?? new string[0];
         }
 
         /// <summary>
@@ -1488,10 +1488,10 @@ namespace R1Engine
             var w = settings.World.ToEventWorld();
 
             // Get the event
-            var e = LoadPCEventInfo(settings.GameModeSelection).Where(x => x.World == EventWorld.All || x.World == w).ElementAt(index);
+            var e = LoadPCEventInfo(settings.GameModeSelection).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).ElementAt<GeneralPCEventInfoData>(index);
 
             // TODO: Before Designer is merged we need to find the "used" commands
-            var cmds = e.Commands.Any() ? e.Commands : e.LocalCommands;
+            var cmds = e.Commands.Any<byte>() ? e.Commands : e.LocalCommands;
 
             // Add and return the event
             return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0);
@@ -1573,10 +1573,10 @@ namespace R1Engine
                             string nextValue() => line[index++];
                             bool nextBoolValue() => Boolean.Parse(line[index++]);
                             int nextIntValue() => Int32.Parse(nextValue());
-                            T? nextEnumValue<T>() where T : struct => Enum.TryParse(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
-                            ushort[] next16ArrayValue() => nextValue().Split('_').Where(x => !String.IsNullOrWhiteSpace(x)).Select(UInt16.Parse).ToArray();
-                            byte[] next8ArrayValue() => nextValue().Split('_').Where(x => !String.IsNullOrWhiteSpace(x)).Select(Byte.Parse).ToArray();
-                            string[] nextStringArrayValue() => nextValue().Split('/').Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
+                            T? nextEnumValue<T>() where T : struct => Enum.TryParse<T>(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
+                            ushort[] next16ArrayValue() => nextValue().Split('_').Where<string>(x => !String.IsNullOrWhiteSpace(x)).Select<string, ushort>(UInt16.Parse).ToArray<ushort>();
+                            byte[] next8ArrayValue() => nextValue().Split('_').Where<string>(x => !String.IsNullOrWhiteSpace(x)).Select<string, byte>(Byte.Parse).ToArray<byte>();
+                            string[] nextStringArrayValue() => nextValue().Split('/').Where<string>(x => !String.IsNullOrWhiteSpace(x)).ToArray<string>();
 
                             // Add the item to the output
                             output.Add(new GeneralPCEventInfoData(nextValue(), nextValue(), nextEnumValue<EventWorld>(), nextIntValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
@@ -1622,24 +1622,24 @@ namespace R1Engine
             EventWorld eventWorld = world.ToEventWorld();
 
             // Find a matching item
-            var match = allInfo.FindItem(x => (x.World == eventWorld || x.World == EventWorld.All) &&
-                                         x.Type == type &&
-                                         x.Etat == etat &&
-                                         x.SubEtat == subEtat &&
-                                         x.DES == des &&
-                                         x.ETA == eta &&
-                                         x.OffsetBX == offsetBx &&
-                                         x.OffsetBY == offsetBy &&
-                                         x.OffsetHY == offsetHy &&
-                                         x.FollowSprite == followSprite &&
-                                         x.HitPoints == hitPoints &&
-                                         x.HitSprite == hitSprite &&
-                                         x.FollowEnabled == followEnabled &&
-                                         x.LabelOffsets.SequenceEqual(labelOffsets) &&
-                                         x.Commands.SequenceEqual(commands));
+            var match = allInfo.FindItem<GeneralPCEventInfoData>(x => (x.World == eventWorld || x.World == EventWorld.All) &&
+                                                                      x.Type == type &&
+                                                                      x.Etat == etat &&
+                                                                      x.SubEtat == subEtat &&
+                                                                      x.DES == des &&
+                                                                      x.ETA == eta &&
+                                                                      x.OffsetBX == offsetBx &&
+                                                                      x.OffsetBY == offsetBy &&
+                                                                      x.OffsetHY == offsetHy &&
+                                                                      x.FollowSprite == followSprite &&
+                                                                      x.HitPoints == hitPoints &&
+                                                                      x.HitSprite == hitSprite &&
+                                                                      x.FollowEnabled == followEnabled &&
+                                                                      x.LabelOffsets.SequenceEqual<ushort>(labelOffsets) &&
+                                                                      x.Commands.SequenceEqual<byte>(commands));
 
             // Create dummy item if not found
-            if (match == null && allInfo.Any())
+            if (match == null && allInfo.Any<GeneralPCEventInfoData>())
                 Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
 
             // Return the item

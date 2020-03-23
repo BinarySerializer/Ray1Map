@@ -34,7 +34,7 @@ namespace R1Engine
             var baseOptions = base.GetGameActions(settings);
 
             // Append and return
-            return baseOptions.Append(new GameAction("Decrypt Files", true, false)).ToArray();
+            return baseOptions.Append<GameAction>(new GameAction("Decrypt Files", true, false)).ToArray<GameAction>();
         }
 
         /// <summary>
