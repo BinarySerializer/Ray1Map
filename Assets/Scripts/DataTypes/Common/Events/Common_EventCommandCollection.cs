@@ -22,6 +22,13 @@ namespace R1Engine
         /// <returns>The command</returns>
         public static Common_EventCommandCollection FromBytes(byte[] bytes)
         {
+            // Make sure there are bytes
+            if (!bytes.Any())
+                return new Common_EventCommandCollection()
+                {
+                    Commands = new Common_EventCommand[0]
+                };
+
             // Create a new context
             var context = new Context(Settings.GetGameSettings);
 
