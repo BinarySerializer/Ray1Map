@@ -34,7 +34,7 @@ namespace R1Engine
             T t = context.GetMainFileObject<T>(filePath);
             if (t != null) return t;
             // Use deserializer
-            return context.Deserializer.SerializeFile<T>(filePath, onPreSerialize: onPreSerialize, name: filePath);
+            return context.Deserializer.SerializeFile<T>(filePath, null, onPreSerialize: onPreSerialize, name: filePath);
         }
 
         // TODO: Improve this system
@@ -54,5 +54,9 @@ namespace R1Engine
         public static T Write<T>(string filePath, Context context, Action<T> onPreSerialize = null) where T : R1Serializable, new() {
             return context.FilePointer<T>(filePath)?.Resolve(context.Serializer, onPreSerialize: onPreSerialize).Value;
         }
-    }
+
+        public static T Write<T>(string filePath, T obj, Context context, Action<T> onPreSerialize = null) where T : R1Serializable, new() {
+            return context.Serializer.SerializeFile<T>(filePath, obj, onPreSerialize: onPreSerialize, name: filePath);
+        }
+        }
 }

@@ -71,8 +71,13 @@ namespace R1Engine
         public abstract string SerializeNullTerminatedString(string obj, Encoding encoding = null);
         public abstract T[] SerializeArraySize<T, U>(T[] obj, string name = null) where U : struct;
 
-        public virtual T SerializeFile<T>(string relativePath, Action<T> onPreSerialize = null, string name = null) where T : R1Serializable, new() {
-            return Context.FilePointer<T>(relativePath)?.Resolve(this, onPreSerialize: onPreSerialize).Value;
+        public virtual T SerializeFile<T>(string relativePath, T obj, Action<T> onPreSerialize = null, string name = null) where T : R1Serializable, new() {
+            T t = obj;
+            DoAt(Context.FilePointer(relativePath), () => {
+                t = SerializeObject<T>(obj, onPreSerialize: onPreSerialize, name: name);
+            });
+            return t;
+            //return Context.FilePointer<T>(relativePath)?.Resolve(this, onPreSerialize: onPreSerialize).Value;
         }
 
         /// <summary>

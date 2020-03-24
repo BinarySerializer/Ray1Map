@@ -1384,8 +1384,7 @@ namespace R1Engine
         /// <returns>The common editor event info</returns>
         public virtual Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
         {
-            // TODO: Convert these to command bytes!
-            var cmds = new byte[0];
+            var cmds = e.CommandCollection.ToBytes();
 
             // Find match
             var match = GetPCEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);

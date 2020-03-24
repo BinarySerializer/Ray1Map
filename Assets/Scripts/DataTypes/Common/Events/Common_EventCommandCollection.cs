@@ -40,7 +40,7 @@ namespace R1Engine
                     context.AddFile(new StreamFile(key, memStream, context));
 
                     // Deserialize the bytes
-                    return context.Deserializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
+                    return FileFactory.Read<Common_EventCommandCollection>(key, context);
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace R1Engine
 
                     // TODO: Pass in this instance
                     // Serialize the command
-                    context.Serializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
+                    FileFactory.Write<Common_EventCommandCollection>(key, this, context);
 
                     // Return the bytes
                     return memStream.ToArray();
