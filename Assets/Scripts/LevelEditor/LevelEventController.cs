@@ -132,7 +132,7 @@ namespace R1Engine
                         eventInfoHitSprite.text = currentlySelected.HitSprite.ToString();
                         eventInfoFollow.text = currentlySelected.FollowEnabled?"TRUE":"FALSE";
                         eventInfoType.text = currentlySelected.Type.ToString();
-                        //Recor selected position
+                        //Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
                     }
