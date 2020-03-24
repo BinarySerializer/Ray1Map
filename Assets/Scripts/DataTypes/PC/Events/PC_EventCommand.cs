@@ -39,7 +39,10 @@
                 // Serialize the commands
                 Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: "Commands");
             else
-                Commands = new Common_EventCommandCollection();
+                Commands = new Common_EventCommandCollection()
+                {
+                    Commands = new Common_EventCommand[0]
+                };
 
             // Serialize the label offsets
             LabelOffsetTable = s.SerializeArray<ushort>(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");
