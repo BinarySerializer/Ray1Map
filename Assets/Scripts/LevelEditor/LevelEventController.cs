@@ -1,4 +1,5 @@
 ﻿using R1Engine.Serialize;
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -78,6 +79,18 @@ namespace R1Engine
             if (eventDropdown.options.Any<Dropdown.OptionData>())
                 // Default to the first string
                 eventDropdown.captionText.text = eventDropdown.options[0].text;
+        }
+
+        private void Start() {
+            //Assign visibility refresh for the settings booleans
+            Settings.OnShowAlwaysEventsChanged += ChangeEventsVisibility;
+            Settings.OnShowEditorEventsChanged += ChangeEventsVisibility;
+        }
+
+        public void ChangeEventsVisibility(object o, EventArgs e) {
+            foreach(var eve in Controller.obj.levelController.currentLevel.Events) {
+                eve.RefreshVisuals();
+            }
         }
 
         private void Update() {
