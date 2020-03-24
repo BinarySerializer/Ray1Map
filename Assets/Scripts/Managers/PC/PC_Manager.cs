@@ -187,29 +187,30 @@ namespace R1Engine
                     {
                         // Serialize the data
                         using (var stream = new MemoryStream(buffer.Skip<byte>(j).ToArray<byte>())) {
-                            Context c = new Context(Settings.GetGameSettings);
-                            c.AddFile(new StreamFile("pcx", stream, c));
-                            var pcx = FileFactory.Read<PCX>("pcx", c);
+                            using (Context c = new Context(Settings.GetGameSettings)) {
+                                c.AddFile(new StreamFile("pcx", stream, c));
+                                var pcx = FileFactory.Read<PCX>("pcx", c);
 
-                            // Convert to a texture
-                            var tex = pcx.ToTexture();
+                                // Convert to a texture
+                                var tex = pcx.ToTexture();
 
-                            // Flip the texture
-                            var flippedTex = new Texture2D(tex.width, tex.height);
+                                // Flip the texture
+                                var flippedTex = new Texture2D(tex.width, tex.height);
 
-                            for (int x = 0; x < tex.width; x++) {
-                                for (int y = 0; y < tex.height; y++) {
-                                    flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
+                                for (int x = 0; x < tex.width; x++) {
+                                    for (int y = 0; y < tex.height; y++) {
+                                        flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
+                                    }
                                 }
+
+                                // Apply the pixels
+                                flippedTex.Apply();
+
+                                // Save the file
+                                File.WriteAllBytes(Path.Combine(outputDir, $"{i} - {j}.png"), flippedTex.EncodeToPNG());
+
+                                Debug.Log("Exported PCX");
                             }
-
-                            // Apply the pixels
-                            flippedTex.Apply();
-
-                            // Save the file
-                            File.WriteAllBytes(Path.Combine(outputDir, $"{i} - {j}.png"), flippedTex.EncodeToPNG());
-
-                            Debug.Log("Exported PCX");
                         }
                     }
                     catch (Exception ex)
@@ -230,64 +231,61 @@ namespace R1Engine
         public void ExportSpriteTextures(GameSettings settings, string outputDir, bool exportAnimFrames) 
         {
             // Create the context
-            var context = new Context(settings);
+            using (Context context = new Context(settings)) {
+                // Add all files
+                AddAllFiles(context);
 
-            // Add all files
-            AddAllFiles(context);
+                // Get the DES names for every world
+                var desNames = EnumHelpers.GetValues<World>().ToDictionary<World, World, string[]>(x => x, world => {
+                    // Set the world
+                    context.Settings.World = world;
 
-            // Get the DES names for every world
-            var desNames = EnumHelpers.GetValues<World>().ToDictionary<World, World, string[]>(x => x, world =>
-            {
-                // Set the world
-                context.Settings.World = world;
+                    // Get the world file path
+                    var worldPath = GetWorldFilePath(context.Settings);
 
-                // Get the world file path
-                var worldPath = GetWorldFilePath(context.Settings);
+                    if (!FileSystem.FileExists(context.BasePath + worldPath))
+                        return null;
 
-                if (!FileSystem.FileExists(context.BasePath + worldPath))
-                    return null;
+                    var a = GetDESNames(context).ToArray<string>();
 
-                var a = GetDESNames(context).ToArray<string>();
+                    return a.Any<string>() ? a : null;
+                });
 
-                return a.Any<string>() ? a : null;
-            });
+                // Helper method for exporting textures
+                PC_WorldFile ExportTextures(string filePath, PC_WorldFile.Type type, string name, int desOffset, string[] desFileNames) {
+                    // Read the file
+                    var file = FileFactory.Read<PC_WorldFile>(filePath, context,
+                        onPreSerialize: data => data.FileType = type);
 
-            // Helper method for exporting textures
-            PC_WorldFile ExportTextures(string filePath, PC_WorldFile.Type type, string name, int desOffset, string[] desFileNames)
-            {
-                // Read the file
-                var file = FileFactory.Read<PC_WorldFile>(filePath, context,
-                    onPreSerialize: data => data.FileType = type);
+                    // Export the sprite textures
+                    if (exportAnimFrames)
+                        ExportAnimationFrames(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
+                    else
+                        ExportSpriteTextures(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
 
-                // Export the sprite textures
-                if (exportAnimFrames)
-                    ExportAnimationFrames(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
-                else
-                    ExportSpriteTextures(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
-
-                return file;
-            }
-
-            // Export big ray
-            ExportTextures(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, null);
-
-            // Export allfix
-            var allfix = ExportTextures(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, desNames.Values.FirstOrDefault<string[]>());
-
-            // Enumerate every world
-            foreach (World world in EnumHelpers.GetValues<World>())
-            {
-                // Set the world
-                context.Settings.World = world;
-
-                // Get the world file path
-                var worldPath = GetWorldFilePath(context.Settings);
-
-                if (!FileSystem.FileExists(context.BasePath + worldPath))
-                    continue;
+                    return file;
+                }
 
                 // Export big ray
-                ExportTextures(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
+                ExportTextures(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, null);
+
+                // Export allfix
+                var allfix = ExportTextures(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, desNames.Values.FirstOrDefault<string[]>());
+
+                // Enumerate every world
+                foreach (World world in EnumHelpers.GetValues<World>()) {
+                    // Set the world
+                    context.Settings.World = world;
+
+                    // Get the world file path
+                    var worldPath = GetWorldFilePath(context.Settings);
+
+                    if (!FileSystem.FileExists(context.BasePath + worldPath))
+                        continue;
+
+                    // Export big ray
+                    ExportTextures(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
+                }
             }
         }
 

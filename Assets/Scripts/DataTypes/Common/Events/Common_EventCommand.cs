@@ -29,7 +29,7 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            Command = s.Serialize(Command, name: "Command");
+            Command = s.Serialize<EventCommand>(Command, name: "Command");
 
             if (Arguments == null)
             {
@@ -63,33 +63,33 @@ namespace R1Engine
                     case EventCommand.GO_SKIPTRUE:
                     case EventCommand.GO_SKIPFALSE:
                     case EventCommand.INVALID_CMD:
-                        Arguments = s.SerializeArray(Arguments, 1, name: "Arguments");
+                        Arguments = s.SerializeArray<byte>(Arguments, 1, name: "Arguments");
                         break;
 
                     case EventCommand.GO_DOLOOP:
                     case EventCommand.GO_RETURN:
-                        Arguments = s.SerializeArray(Arguments, 0, name: "Arguments");
+                        Arguments = s.SerializeArray<byte>(Arguments, 0, name: "Arguments");
                         break;
 
                     case EventCommand.GO_TEST:
                         var tempList = new List<byte>();
 
-                        tempList.Add(s.Serialize((byte)0, name: "Arguments [0]"));
+                        tempList.Add(s.Serialize<byte>((byte)0, name: "Arguments [0]"));
 
                         if (tempList[0] <= 4)
-                            tempList.Add(s.Serialize((byte)0, name: "Arguments [1]"));
+                            tempList.Add(s.Serialize<byte>((byte)0, name: "Arguments [1]"));
 
                         Arguments = tempList.ToArray();
 
                         break;
 
                     case EventCommand.GO_SPEED:
-                        Arguments = s.SerializeArray(Arguments, 3, name: "Arguments");
+                        Arguments = s.SerializeArray<byte>(Arguments, 3, name: "Arguments");
                         break;
 
                     case EventCommand.GO_X:
                     case EventCommand.GO_Y:
-                        Arguments = s.SerializeArray(Arguments, 2, name: "Arguments");
+                        Arguments = s.SerializeArray<byte>(Arguments, 2, name: "Arguments");
                         break;
 
                     default:
@@ -98,7 +98,7 @@ namespace R1Engine
             }
             else
             {
-                s.SerializeArray(Arguments, Arguments.Length, name: "Arguments");
+                s.SerializeArray<byte>(Arguments, Arguments.Length, name: "Arguments");
             }
         }
     }

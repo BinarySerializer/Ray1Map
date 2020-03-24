@@ -155,57 +155,53 @@ namespace R1Engine
             // TODO: Export all vignette files, not just FND
 
             // Create the context
-            var context = new Context(settings);
+            using (var context = new Context(settings)) {
 
-            // Get the base output directory
-            var baseOutputDir = Path.Combine(outputDir, "FND");
+                // Get the base output directory
+                var baseOutputDir = Path.Combine(outputDir, "FND");
 
-            // Create it
-            Directory.CreateDirectory(baseOutputDir);
+                // Create it
+                Directory.CreateDirectory(baseOutputDir);
 
-            // Extract every file
-            foreach (var filePath in Directory.GetFiles(context.BasePath + "RAY/IMA/FND/", "*.XXX", SearchOption.TopDirectoryOnly))
-            {
-                // Get the relative path
-                var relativePath = filePath.Substring(context.BasePath.Length);
+                // Extract every file
+                foreach (var filePath in Directory.GetFiles(context.BasePath + "RAY/IMA/FND/", "*.XXX", SearchOption.TopDirectoryOnly)) {
+                    // Get the relative path
+                    var relativePath = filePath.Substring(context.BasePath.Length);
 
-                // Add the file to the context
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    filePath = relativePath
-                });
+                    // Add the file to the context
+                    context.AddFile(new LinearSerializedFile(context) {
+                        filePath = relativePath
+                    });
 
-                // Read the file
-                var vig = FileFactory.Read<PS1_R1_VignetteFile>(relativePath, context);
+                    // Read the file
+                    var vig = FileFactory.Read<PS1_R1_VignetteFile>(relativePath, context);
 
-                // Create the texture
-                var tex = new Texture2D(vig.Width, vig.Height);
+                    // Create the texture
+                    var tex = new Texture2D(vig.Width, vig.Height);
 
-                // Write each block
-                for (int blockIndex = 0; blockIndex < vig.ImageBlocks.Length; blockIndex++)
-                {
-                    // Get the block data
-                    var blockData = vig.ImageBlocks[blockIndex];
+                    // Write each block
+                    for (int blockIndex = 0; blockIndex < vig.ImageBlocks.Length; blockIndex++) {
+                        // Get the block data
+                        var blockData = vig.ImageBlocks[blockIndex];
 
-                    // Write the block
-                    for (int y = 0; y < vig.Height; y++)
-                    {
-                        for (int x = 0; x < 64; x++)
-                        {
-                            // Get the color
-                            var c = blockData[x + (y * 64)].GetColor();
+                        // Write the block
+                        for (int y = 0; y < vig.Height; y++) {
+                            for (int x = 0; x < 64; x++) {
+                                // Get the color
+                                var c = blockData[x + (y * 64)].GetColor();
 
-                            // Set the pixel
-                            tex.SetPixel((x + (blockIndex * 64)), tex.height - y - 1, c);
+                                // Set the pixel
+                                tex.SetPixel((x + (blockIndex * 64)), tex.height - y - 1, c);
+                            }
                         }
                     }
+
+                    // Apply the pixels
+                    tex.Apply();
+
+                    // Write the texture
+                    File.WriteAllBytes(Path.Combine(baseOutputDir, $"{Path.GetFileNameWithoutExtension(filePath)}.png"), tex.EncodeToPNG());
                 }
-
-                // Apply the pixels
-                tex.Apply();
-
-                // Write the texture
-                File.WriteAllBytes(Path.Combine(baseOutputDir, $"{Path.GetFileNameWithoutExtension(filePath)}.png"), tex.EncodeToPNG());
             }
         }
 

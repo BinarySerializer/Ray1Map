@@ -34,7 +34,7 @@ namespace R1Engine
             // Make sure all the necessary files are downloaded
             await manager.LoadFilesAsync(serializeContext);
 
-            try {
+            using (serializeContext) {
                 // Load the level
                 currentLevel = await manager.LoadLevelAsync(serializeContext, eventDesigns);
 
@@ -65,20 +65,14 @@ namespace R1Engine
 
                 mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
                 backgroundTint.sharedMesh = mo;
-            } finally {
-                // Closes any open serializers and logs to the file
-                serializeContext.Close();
             }
         }
 
         public void SaveLevelTEMP() {
-            try {
+            using (serializeContext) {
                 Settings.GetGameManager.SaveLevel(serializeContext, currentLevel);
-            } finally {
-                // Closes any open serializers and logs to the file
-                serializeContext.Close();
-                Debug.Log("Saved.");
             }
+            Debug.Log("Saved.");
         }
     }
 }

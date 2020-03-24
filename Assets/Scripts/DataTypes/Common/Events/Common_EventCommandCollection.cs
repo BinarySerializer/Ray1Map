@@ -30,19 +30,18 @@ namespace R1Engine
                 };
 
             // Create a new context
-            var context = new Context(Settings.GetGameSettings);
+            using (var context = new Context(Settings.GetGameSettings)) {
+                // Create a memory stream
+                using (var memStream = new MemoryStream(bytes)) {
+                    // Stream key
+                    const string key = "PC_EventCommand";
 
-            // Create a memory stream
-            using (var memStream = new MemoryStream(bytes))
-            {
-                // Stream key
-                const string key = "PC_EventCommand";
+                    // Add the stream
+                    context.AddFile(new StreamFile(key, memStream, context));
 
-                // Add the stream
-                context.AddFile(new StreamFile(key, memStream, context));
-
-                // Deserialize the bytes
-                return context.Deserializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
+                    // Deserialize the bytes
+                    return context.Deserializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
+                }
             }
         }
 
@@ -52,24 +51,22 @@ namespace R1Engine
         /// <returns>The command bytes</returns>
         public byte[] ToBytes()
         {
-            // Create a new context
-            var context = new Context(Settings.GetGameSettings);
+            using (var context = new Context(Settings.GetGameSettings)) {
+                // Create a memory stream
+                using (var memStream = new MemoryStream()) {
+                    // Stream key
+                    const string key = "PC_EventCommand";
 
-            // Create a memory stream
-            using (var memStream = new MemoryStream())
-            {
-                // Stream key
-                const string key = "PC_EventCommand";
+                    // Add the stream
+                    context.AddFile(new StreamFile(key, memStream, context));
 
-                // Add the stream
-                context.AddFile(new StreamFile(key, memStream, context));
+                    // TODO: Pass in this instance
+                    // Serialize the command
+                    context.Serializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
 
-                // TODO: Pass in this instance
-                // Serialize the command
-                context.Serializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
-
-                // Return the bytes
-                return memStream.ToArray();
+                    // Return the bytes
+                    return memStream.ToArray();
+                }
             }
         }
 

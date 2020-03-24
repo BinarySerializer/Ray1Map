@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine.Serialize {
-	public class Context {
+	public class Context : IDisposable {
 		public MemoryMap MemoryMap { get; } = new MemoryMap();
 
 		public GameSettings Settings { get; }
@@ -98,6 +98,10 @@ namespace R1Engine.Serialize {
 			serializer?.Dispose();
 			serializer = null;
 			Log.WriteLog();
+		}
+
+		public void Dispose() {
+			Close();
 		}
 	}
 }
