@@ -42,16 +42,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7508105759772431801}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ae63d1c3c31f40418e8d7e19b27a149, type: 3}
+  m_Script: {fileID: 11500000, guid: b262e15ab1f3ec0479485c6e46123cef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  XPosition: 0
-  YPosition: 0
   LinkIndex: 0
-  Des: 0
-  Speed: 0
-  AnimationIndex: 0
-  Commands: []
+  LinkID: 0
   currentFrame: 0
   prefabSpritepart: {fileID: 1118894001621329459, guid: 5bbcc489a4969e548950ae9aeb64bb4f,
     type: 3}
