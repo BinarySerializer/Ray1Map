@@ -172,6 +172,10 @@ namespace R1Engine
         public BoxCollider2D boxCollider;
         // Reference to line renderer
         public LineRenderer lineRend;
+        // Reference to offset crosses
+        public Transform offsetCrossBX;
+        public Transform offsetCrossBY;
+        public Transform offsetCrossHY;
         // Midpoint of this event when taking all the spriteparts into account
         [HideInInspector]
         public Vector2 midpoint;
@@ -228,6 +232,17 @@ namespace R1Engine
 
             // Collider
             ChangeColliderSize();
+
+            //Offset points
+            ChangeOffsetPoints();
+        }
+
+        private void ChangeOffsetPoints() {
+            if (CurrentAnimation != null) {
+                offsetCrossBX.localPosition = new Vector2(OffsetBX / 16, 0);
+                offsetCrossBY.localPosition = new Vector2(OffsetBX / 16, -(OffsetBY / 16));
+                offsetCrossHY.localPosition = new Vector2(OffsetBX / 16, -((OffsetHY / 16) + (CurrentAnimation.DefaultFrameYPosition / 16f)));
+            }
         }
 
         // Try to load a new animation and change to it
