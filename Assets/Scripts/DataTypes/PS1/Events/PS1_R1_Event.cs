@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -20,7 +22,10 @@ namespace R1Engine
         /// </summary>
         public Pointer CommandsPointer { get; set; }
         
-        public Pointer UnkPointer5 { get; set; }
+        /// <summary>
+        /// The pointer to the command label offsets
+        /// </summary>
+        public Pointer LabelOffsetsPointer { get; set; }
 
         public uint Unknown1 { get; set; }
 
@@ -86,6 +91,16 @@ namespace R1Engine
         public PS1_R1_EventUnk2[] UnkPointer2Array { get; set; }
 
         /// <summary>
+        /// The event commands
+        /// </summary>
+        public Common_EventCommand[] Commands { get; set; }
+
+        /// <summary>
+        /// The command label offsets
+        /// </summary>
+        public ushort[] LabelOffsets { get; set; }
+
+        /// <summary>
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>
@@ -97,8 +112,71 @@ namespace R1Engine
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: "UnkPointer3");
             UnkPointer4 = s.SerializePointer(UnkPointer4, name: "UnkPointer4");
             CommandsPointer = s.SerializePointer(CommandsPointer, name: "CommandsPointer");
-            UnkPointer5 = s.SerializePointer(UnkPointer5, name: "UnkPointer5");
+            LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: "UnkPointer5");
             Unknown1 = s.Serialize<uint>(Unknown1, name: "Unknown1");
+            
+            // Serialize the commands
+            if (CommandsPointer != null)
+            {
+                s.DoAt(CommandsPointer, () =>
+                {
+                    if (Commands == null)
+                    {
+                        // Create a temporary list
+                        var cmd = new List<Common_EventCommand>();
+
+                        int index = 0;
+                        
+                        // Loop until we reach the invalid command
+                        while (cmd.LastOrDefault()?.Command != EventCommand.INVALID_CMD)
+                        {
+                            cmd.Add(s.SerializeObject((Common_EventCommand)null, name: $"Commands [{index}]"));
+                            index++;
+                        }
+
+                        // Set the commands
+                        Commands = cmd.ToArray();
+                    }
+                    else
+                    {
+                        // Serialize the commands
+                        s.SerializeObjectArray(Commands, Commands.Length, name: "Commands");
+                    }
+                });
+            }
+
+            // Serialize the label offsets
+            if (LabelOffsetsPointer != null)
+            {
+                s.DoAt(LabelOffsetsPointer, () =>
+                {
+                    if (LabelOffsets == null)
+                    {
+                        // Create a temporary list
+                        var l = new List<ushort>();
+
+                        int index = 0;
+
+                        // Loop until we reach null
+                        while (l.LastOrDefault() != 0)
+                        {
+                            l.Add(s.Serialize((ushort)0, name: $"LabelOffsets [{index}]"));
+                            index++;
+                        }
+
+                        // Set the label offsets
+                        LabelOffsets = l.ToArray();
+                    }
+                    else
+                    {
+                        // Serialize the label offsets
+                        s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: "LabelOffsets");
+
+                        // Null terminate it
+                        s.Serialize((byte)0, name: "LabelOffsets NULL");
+                    }
+                });
+            }
 
             // This appears to always be 0
             if (Unknown1 != 0)

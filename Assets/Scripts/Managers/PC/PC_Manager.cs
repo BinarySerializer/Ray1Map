@@ -1106,7 +1106,7 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].EventCode, levelData.EventLinkingTable[index]);
+                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].Commands, levelData.EventLinkingTable[index]);
 
                 // Add the event
                 commonLev.Events.Add(ee);
@@ -1338,8 +1338,8 @@ namespace R1Engine
                 // Add the event commands
                 eventCommands.Add(new PC_EventCommand()
                 {
-                    CodeCount = (ushort)e.Commands.Length,
-                    EventCode = e.Commands,
+                    CommandLength = (ushort)e.Commands.Length,
+                    Commands = e.Commands,
                     LabelOffsetCount = (ushort)e.LabelOffsets.Length,
                     LabelOffsetTable = e.LabelOffsets
                 });
