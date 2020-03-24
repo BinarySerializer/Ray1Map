@@ -1254,39 +1254,7 @@ namespace R1Engine
             var eventLinkingTable = new List<ushort>();
 
             // Set events
-            // First correct their linkIndexes based on their linkID
-            int currentId = 1;
-            List<int> alreadyChained = new List<int>();
-            foreach (Common_Event ee in commonLevelData.Events)
-            {
-                // No link
-                if (ee.LinkID == 0) {
-                    ee.LinkIndex = commonLevelData.Events.IndexOf(ee);
-                }
-                else {
-                    // Skip if already chained
-                    if (alreadyChained.Contains(commonLevelData.Events.IndexOf(ee)))
-                        continue;
-
-                    // Find all the events with the same linkId and store their indexes
-                    List<int> indexesOfSameId = new List<int>();
-                    foreach (Common_Event e in commonLevelData.Events.Where<Common_Event>(e => e.LinkID == currentId))
-                    {
-                        indexesOfSameId.Add(commonLevelData.Events.IndexOf(e));
-                        alreadyChained.Add(commonLevelData.Events.IndexOf(e));
-                    }
-                    // Loop through and chain them
-                    for (int j = 0; j < indexesOfSameId.Count; j++) {
-                        int next = j + 1;
-                        if (next == indexesOfSameId.Count)
-                            next = 0;
-
-                        commonLevelData.Events[indexesOfSameId[j]].LinkIndex = indexesOfSameId[next];
-                    }
-
-                    currentId++;
-                }
-            }
+            Controller.obj.levelEventController.CalculateLinkIndexes();
 
             foreach (var e in commonLevelData.Events) 
             {

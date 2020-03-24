@@ -1,5 +1,5 @@
-﻿using R1Engine.Serialize;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -336,6 +336,41 @@ namespace R1Engine
                     foreach (var e in Controller.obj.levelController.currentLevel.Events) {
                         e.lineRend.enabled = t;
                     }
+                }
+            }
+        }
+
+        // Converts linkID to linkIndex
+        public void CalculateLinkIndexes() {
+
+            int currentId = 1;
+            List<int> alreadyChained = new List<int>();
+            foreach (Common_Event ee in Controller.obj.levelController.currentLevel.Events) {
+                // No link
+                if (ee.LinkID == 0) {
+                    ee.LinkIndex = Controller.obj.levelController.currentLevel.Events.IndexOf(ee);
+                }
+                else {
+                    // Skip if already chained
+                    if (alreadyChained.Contains(Controller.obj.levelController.currentLevel.Events.IndexOf(ee)))
+                        continue;
+
+                    // Find all the events with the same linkId and store their indexes
+                    List<int> indexesOfSameId = new List<int>();
+                    foreach (Common_Event e in Controller.obj.levelController.currentLevel.Events.Where<Common_Event>(e => e.LinkID == currentId)) {
+                        indexesOfSameId.Add(Controller.obj.levelController.currentLevel.Events.IndexOf(e));
+                        alreadyChained.Add(Controller.obj.levelController.currentLevel.Events.IndexOf(e));
+                    }
+                    // Loop through and chain them
+                    for (int j = 0; j < indexesOfSameId.Count; j++) {
+                        int next = j + 1;
+                        if (next == indexesOfSameId.Count)
+                            next = 0;
+
+                        Controller.obj.levelController.currentLevel.Events[indexesOfSameId[j]].LinkIndex = indexesOfSameId[next];
+                    }
+
+                    currentId++;
                 }
             }
         }

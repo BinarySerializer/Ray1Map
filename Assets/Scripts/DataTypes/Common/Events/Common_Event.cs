@@ -279,28 +279,10 @@ namespace R1Engine
         // Change collider size
         private void ChangeColliderSize() {
             if (CurrentAnimation != null) {
-                //Set box collider size to be the combination of all parts
-                int leftX = 0, topY = 0, rightX = 0, bottomY = 0;
-                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
-                    var frame = CurrentAnimation.Frames[0, i];
-                    //Skips sprites out of bounds
-                    if (CurrentAnimation.Frames[0, i].SpriteIndex < Controller.obj.levelController.eventDesigns[DES - 1].Sprites.Count) {
-                        var sprite = Controller.obj.levelController.eventDesigns[DES - 1].Sprites[CurrentAnimation.Frames[0, i].SpriteIndex];
-                        if (sprite != null) {
-                            if (frame.X < leftX || i == 0)
-                                leftX = frame.X;
-                            if (frame.X + sprite.texture.width > rightX || i == 0)
-                                rightX = frame.X + sprite.texture.width;
-                            if (frame.Y < topY || i == 0)
-                                topY = frame.Y;
-                            if (frame.Y + sprite.texture.height > bottomY || i == 0)
-                                bottomY = frame.Y + sprite.texture.height;
-                        }
-                    }
-                }
-
-                boxCollider.size = new Vector2((rightX - leftX) / 16f, (bottomY - topY) / 16f);
-                boxCollider.offset = new Vector2(leftX / 16f + ((rightX - leftX) / 16f) / 2f, -topY / 16f - ((bottomY - topY) / 16f) / 2f);
+                var w = CurrentAnimation.DefaultFrameWidth / 16f;
+                var h = CurrentAnimation.DefaultFrameHeight / 16f;
+                boxCollider.size = new Vector2(w,h);
+                boxCollider.offset = new Vector2((CurrentAnimation.DefaultFrameXPosition/16f)+w/2f,-((CurrentAnimation.DefaultFrameYPosition/16f)+h/2f));
             }
         }
 
