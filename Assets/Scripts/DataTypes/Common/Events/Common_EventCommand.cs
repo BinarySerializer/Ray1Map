@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace R1Engine
 {
-    // TODO: Use this for PC - but not event sheet
     /// <summary>
     /// A common event command
     /// </summary>

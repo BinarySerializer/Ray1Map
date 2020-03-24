@@ -133,19 +133,6 @@ namespace R1Engine
         public virtual string[] GetEduVolumes(GameSettings settings) => new string[0];
 
         /// <summary>
-        /// Reverse searches an animation
-        /// </summary>
-        /// <param name="wld">The world file</param>
-        /// <param name="eta">The ETA index</param>
-        /// <param name="animationIndex">The animation index</param>
-        public void ReverseSearchAnimation(PC_WorldFile wld, int eta, int animationIndex)
-        {
-            // TODO: Use new state indexing
-            foreach (var e in wld.Eta[eta].States.SelectMany<PC_EventState[], PC_EventState>(x => x).Where<PC_EventState>(x => x.AnimationIndex == animationIndex))
-                Debug.Log($"Etat: {e.Etat}, SubEtat: {e.SubEtat}, Speed: {e.AnimationSpeed}");
-        }
-
-        /// <summary>
         /// Gets the DES file names, in order, for the world
         /// </summary>
         /// <param name="context">The context</param>
@@ -1493,12 +1480,11 @@ namespace R1Engine
             // Get the event
             var e = LoadPCEventInfo(settings.GameModeSelection).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).ElementAt<GeneralPCEventInfoData>(index);
 
-            // TODO: Convert these to command objects!
             // TODO: Before Designer is merged we need to find the "used" commands
-            var cmds = e.Commands.Any<byte>() ? e.Commands : e.LocalCommands;
+            var cmds = Common_EventCommandCollection.FromBytes(e.Commands.Any<byte>() ? e.Commands : e.LocalCommands);
 
             // Add and return the event
-            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, new Common_EventCommandCollection(), 0);
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0);
         }
 
         /// <summary>

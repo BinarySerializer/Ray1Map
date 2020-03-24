@@ -184,10 +184,7 @@ namespace R1Engine
                     if (desIndex != -1)
                         desIndex += 1;
 
-                    // TODO: Convert these to command objects!
-                    var cmds = e.EventCommands.Select<int, byte>(x => (byte)x).ToArray<byte>();
-
-                    var ee = Controller.obj.levelEventController.AddEvent(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], new Common_EventCommandCollection(), 
+                    var ee = Controller.obj.levelEventController.AddEvent(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1, (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray()), 
 
                         // TODO: Update this
                         index);
@@ -318,11 +315,8 @@ namespace R1Engine
             // Get the event
             var e = LoadPCEventInfo(settings.GameModeSelection).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).ElementAt<GeneralPCEventInfoData>(index);
 
-            // TODO: Convert these to command objects!
-            var cmds = e.LocalCommands;
-
             // Add and return the event
-            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, new Common_EventCommandCollection(), 0);
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, Common_EventCommandCollection.FromBytes(e.LocalCommands), 0);
         }
 
         /// <summary>

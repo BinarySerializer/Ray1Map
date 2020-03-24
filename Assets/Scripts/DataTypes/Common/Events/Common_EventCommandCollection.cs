@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -12,6 +14,57 @@ namespace R1Engine
         /// The commands
         /// </summary>
         public Common_EventCommand[] Commands { get; set; }
+
+        /// <summary>
+        /// Gets a command from the raw bytes
+        /// </summary>
+        /// <param name="bytes">The command bytes</param>
+        /// <returns>The command</returns>
+        public static Common_EventCommandCollection FromBytes(byte[] bytes)
+        {
+            // Create a new context
+            var context = new Context(Settings.GetGameSettings);
+
+            // Create a memory stream
+            using (var memStream = new MemoryStream(bytes))
+            {
+                // Stream key
+                const string key = "PC_EventCommand";
+
+                // Add the stream
+                context.AddFile(new StreamFile(key, memStream, context));
+
+                // Deserialize the bytes
+                return context.Deserializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
+            }
+        }
+
+        /// <summary>
+        /// Gets the byte representation of the command
+        /// </summary>
+        /// <returns>The command bytes</returns>
+        public byte[] ToBytes()
+        {
+            // Create a new context
+            var context = new Context(Settings.GetGameSettings);
+
+            // Create a memory stream
+            using (var memStream = new MemoryStream())
+            {
+                // Stream key
+                const string key = "PC_EventCommand";
+
+                // Add the stream
+                context.AddFile(new StreamFile(key, memStream, context));
+
+                // TODO: Pass in this instance
+                // Serialize the command
+                context.Serializer.SerializeFile<Common_EventCommandCollection>(key, name: "PC_EventCommand");
+
+                // Return the bytes
+                return memStream.ToArray();
+            }
+        }
 
         /// <summary>
         /// Handles the data serialization
