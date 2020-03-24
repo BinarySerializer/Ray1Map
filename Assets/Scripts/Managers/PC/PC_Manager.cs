@@ -1338,7 +1338,7 @@ namespace R1Engine
                 // Add the event commands
                 eventCommands.Add(new PC_EventCommand()
                 {
-                    CommandLength = (ushort)e.Commands.Length,
+                    CommandLength = (ushort)e.Commands.Commands.Select(x => x.Length).Sum(),
                     Commands = e.Commands,
                     LabelOffsetCount = (ushort)e.LabelOffsets.Length,
                     LabelOffsetTable = e.LabelOffsets
@@ -1427,8 +1427,11 @@ namespace R1Engine
         /// <returns>The common editor event info</returns>
         public virtual Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
         {
+            // TODO: Convert these to command bytes!
+            var cmds = new byte[0];
+
             // Find match
-            var match = GetPCEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands);
+            var match = GetPCEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
 
             // Return the editor info
             return new Common_EditorEventInfo(match?.Name, match?.Flag);
@@ -1490,11 +1493,12 @@ namespace R1Engine
             // Get the event
             var e = LoadPCEventInfo(settings.GameModeSelection).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).ElementAt<GeneralPCEventInfoData>(index);
 
+            // TODO: Convert these to command objects!
             // TODO: Before Designer is merged we need to find the "used" commands
             var cmds = e.Commands.Any<byte>() ? e.Commands : e.LocalCommands;
 
             // Add and return the event
-            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0);
+            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, new Common_EventCommandCollection(), 0);
         }
 
         /// <summary>

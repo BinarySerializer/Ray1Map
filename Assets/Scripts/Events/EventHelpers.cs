@@ -7,6 +7,7 @@ namespace R1Engine
     /// </summary>
     public static class EventHelpers
     {
+        // TODO: Remove?
         /// <summary>
         /// Parses a command
         /// </summary>

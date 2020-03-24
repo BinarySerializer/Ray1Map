@@ -103,12 +103,7 @@ namespace R1Engine
         /// <summary>
         /// The event commands
         /// </summary>
-        public byte[] Commands { get; set; }
-
-        /// <summary>
-        /// The parsed event commands
-        /// </summary>
-        public string[] ParsedCommands { get; set; }
+        public Common_EventCommandCollection Commands { get; set; }
 
         #endregion
 
@@ -126,8 +121,6 @@ namespace R1Engine
             // Set the flag
             Flag = eventInfo?.Flag;
 
-            RefreshCommands();
-
             RefreshVisuals();
         }
         public void RefreshName() {
@@ -136,10 +129,6 @@ namespace R1Engine
 
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
-        }
-        public void RefreshCommands() {
-            // Refresh parsed commands
-            ParsedCommands = EventHelpers.ParseCommands(Commands, LabelOffsets);
         }
         public void RefreshVisuals() {
             // Get the animation info

@@ -18,7 +18,7 @@
         /// <summary>
         /// The commands
         /// </summary>
-        public byte[] Commands { get; set; }
+        public Common_EventCommandCollection Commands { get; set; }
 
         /// <summary>
         /// The label offsets
@@ -35,8 +35,11 @@
             CommandLength = s.Serialize<ushort>(CommandLength, name: "CommandLength");
             LabelOffsetCount = s.Serialize<ushort>(LabelOffsetCount, name: "LabelOffsetCount");
 
-            // Serialize the commands
-            Commands = s.SerializeArray<byte>(Commands, CommandLength, name: "Commands");
+            if (CommandLength > 0)
+                // Serialize the commands
+                Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: "Commands");
+            else
+                Commands = new Common_EventCommandCollection();
 
             // Serialize the label offsets
             LabelOffsetTable = s.SerializeArray<ushort>(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");

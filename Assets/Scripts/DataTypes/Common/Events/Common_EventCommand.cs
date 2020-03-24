@@ -20,6 +20,11 @@ namespace R1Engine
         public byte[] Arguments { get; set; }
 
         /// <summary>
+        /// The length of the command in bytes
+        /// </summary>
+        public int Length => Arguments.Length + 1;
+
+        /// <summary>
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>

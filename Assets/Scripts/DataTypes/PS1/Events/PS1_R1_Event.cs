@@ -93,7 +93,7 @@ namespace R1Engine
         /// <summary>
         /// The event commands
         /// </summary>
-        public Common_EventCommand[] Commands { get; set; }
+        public Common_EventCommandCollection Commands { get; set; }
 
         /// <summary>
         /// The command label offsets
@@ -120,28 +120,7 @@ namespace R1Engine
             {
                 s.DoAt(CommandsPointer, () =>
                 {
-                    if (Commands == null)
-                    {
-                        // Create a temporary list
-                        var cmd = new List<Common_EventCommand>();
-
-                        int index = 0;
-                        
-                        // Loop until we reach the invalid command
-                        while (cmd.LastOrDefault()?.Command != EventCommand.INVALID_CMD)
-                        {
-                            cmd.Add(s.SerializeObject((Common_EventCommand)null, name: $"Commands [{index}]"));
-                            index++;
-                        }
-
-                        // Set the commands
-                        Commands = cmd.ToArray();
-                    }
-                    else
-                    {
-                        // Serialize the commands
-                        s.SerializeObjectArray(Commands, Commands.Length, name: "Commands");
-                    }
+                    Commands = s.SerializeObject(Commands, name: "Commands");
                 });
             }
 
