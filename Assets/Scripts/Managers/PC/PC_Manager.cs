@@ -1297,7 +1297,7 @@ namespace R1Engine
                 // Add the event commands
                 eventCommands.Add(new PC_EventCommand()
                 {
-                    CommandLength = (ushort)e.Commands.Commands.Select(x => x.Length).Sum(),
+                    CommandLength = (ushort)(e.Commands?.Commands?.Select(x => x.Length).Sum() ?? 0),
                     Commands = e.Commands,
                     LabelOffsetCount = (ushort)e.LabelOffsets.Length,
                     LabelOffsetTable = e.LabelOffsets
