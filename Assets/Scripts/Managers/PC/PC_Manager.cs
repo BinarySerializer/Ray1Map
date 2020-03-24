@@ -1016,6 +1016,10 @@ namespace R1Engine
                     var animation = new Common_Animation
                     {
                         Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
+                        DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
+                        DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
+                        DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
+                        DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
                     };
                     // The layer index
                     var layer = 0;

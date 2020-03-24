@@ -5,11 +5,9 @@
     /// </summary>
     public class PC_AnimationFrame : R1Serializable
     {
-        // TODO: Verify the values are correct
-
         /// <summary>
         /// The frame x position
-        /// </summary>
+        /// </summary>i
         public byte XPosition { get; set; }
 
         /// <summary>
