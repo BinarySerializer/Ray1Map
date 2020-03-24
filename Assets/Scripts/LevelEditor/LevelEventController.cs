@@ -141,7 +141,8 @@ namespace R1Engine
                         currentlySelected.ChangeOffsetVisibility(true);
                     }
                     else {
-                        currentlySelected.ChangeOffsetVisibility(false);
+                        if (currentlySelected!=null)
+                            currentlySelected.ChangeOffsetVisibility(false);
                         selectedLineRend.enabled = false;
                         currentlySelected = null;
                         //Clear info window
