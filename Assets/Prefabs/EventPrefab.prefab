@@ -152,7 +152,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 255
   m_Sprite: {fileID: 21300000, guid: b155734aa39e54146a3a26e639070f74, type: 3}
-  m_Color: {r: 1, g: 0.015715763, b: 0, a: 0.6862745}
+  m_Color: {r: 1, g: 0.8496767, b: 0, a: 0.6862745}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -233,7 +233,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 255
   m_Sprite: {fileID: 21300000, guid: b155734aa39e54146a3a26e639070f74, type: 3}
-  m_Color: {r: 1, g: 0.015715763, b: 0, a: 0.6862745}
+  m_Color: {r: 1, g: 0.8509804, b: 0, a: 0.6862745}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -300,6 +300,7 @@ MonoBehaviour:
   prefabRendereds: []
   boxCollider: {fileID: 8388059050577267216}
   lineRend: {fileID: 8273637944863852906}
+  offsetOrigin: {fileID: 7845656510151612301}
   offsetCrossBX: {fileID: 3102864165816558869}
   offsetCrossBY: {fileID: 8908933947906200852}
   offsetCrossHY: {fileID: 547317133392056369}
@@ -498,7 +499,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 255
   m_Sprite: {fileID: 21300000, guid: b155734aa39e54146a3a26e639070f74, type: 3}
-  m_Color: {r: 1, g: 0.015715763, b: 0, a: 0.6862745}
+  m_Color: {r: 1, g: 0.8509804, b: 0, a: 0.6862745}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -122,6 +122,7 @@ namespace R1Engine
             Flag = eventInfo?.Flag;
 
             RefreshVisuals();
+            ChangeOffsetVisibility(false);
         }
         public void RefreshName() {
             // Get the event info data
@@ -173,6 +174,7 @@ namespace R1Engine
         // Reference to line renderer
         public LineRenderer lineRend;
         // Reference to offset crosses
+        public Transform offsetOrigin;
         public Transform offsetCrossBX;
         public Transform offsetCrossBY;
         public Transform offsetCrossHY;
@@ -234,15 +236,22 @@ namespace R1Engine
             ChangeColliderSize();
 
             //Offset points
-            ChangeOffsetPoints();
+            UpdateOffsetPoints();
         }
 
-        private void ChangeOffsetPoints() {
+        public void UpdateOffsetPoints() {
             if (CurrentAnimation != null) {
                 offsetCrossBX.localPosition = new Vector2(OffsetBX / 16, 0);
                 offsetCrossBY.localPosition = new Vector2(OffsetBX / 16, -(OffsetBY / 16));
                 offsetCrossHY.localPosition = new Vector2(OffsetBX / 16, -((OffsetHY / 16) + (CurrentAnimation.DefaultFrameYPosition / 16f)));
             }
+        }
+
+        public void ChangeOffsetVisibility(bool visible) {
+            offsetOrigin.gameObject.SetActive(visible);
+            offsetCrossBX.gameObject.SetActive(visible);
+            offsetCrossBY.gameObject.SetActive(visible);
+            offsetCrossHY.gameObject.SetActive(visible);
         }
 
         // Try to load a new animation and change to it

@@ -115,6 +115,8 @@ namespace R1Engine
                     RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
                     var e = hit.collider?.GetComponentInParent<Common_Event>();
                     if (e != null) {
+                        if (currentlySelected != null)
+                            currentlySelected.ChangeOffsetVisibility(false);
                         currentlySelected = e;
                         //Change event info if event is selected
                         eventInfoName.text = currentlySelected.name;
@@ -135,8 +137,11 @@ namespace R1Engine
                         //Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
+                        //Update offset visibility
+                        currentlySelected.ChangeOffsetVisibility(true);
                     }
                     else {
+                        currentlySelected.ChangeOffsetVisibility(false);
                         selectedLineRend.enabled = false;
                         currentlySelected = null;
                         //Clear info window
@@ -162,6 +167,7 @@ namespace R1Engine
                 //Delete selected event
                 if (Input.GetKeyDown(KeyCode.Delete)) {
                     if (currentlySelected != null) {
+                        currentlySelected.ChangeOffsetVisibility(false);
                         currentlySelected.Delete();
                         currentlySelected = null;
 
@@ -250,6 +256,7 @@ namespace R1Engine
                 currentlySelected.OffsetBX = new_offbx;
 
                 currentlySelected.RefreshName();
+                currentlySelected.UpdateOffsetPoints();
             }
         }
         public void FieldOffsetBy() {
@@ -258,6 +265,7 @@ namespace R1Engine
                 currentlySelected.OffsetBY = new_offby;
 
                 currentlySelected.RefreshName();
+                currentlySelected.UpdateOffsetPoints();
             }
         }
         public void FieldOffsetHy() {
@@ -266,6 +274,7 @@ namespace R1Engine
                 currentlySelected.OffsetHY = new_offhy;
 
                 currentlySelected.RefreshName();
+                currentlySelected.UpdateOffsetPoints();
             }
         }
         public void FieldFollowSprite() {
