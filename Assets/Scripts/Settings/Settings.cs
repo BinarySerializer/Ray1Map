@@ -88,6 +88,9 @@ namespace R1Engine {
             get => _selectedGameMode;
             set
             {
+                if (_selectedGameMode == value)
+                    return;
+
                 _selectedGameMode = value;
                 OnSelectedGameModeChanged?.Invoke(null, EventArgs.Empty);
             }
@@ -101,6 +104,9 @@ namespace R1Engine {
             get => _world;
             set
             {
+                if (_world == value)
+                    return;
+
                 _world = value;
                 OnWorldChanged?.Invoke(null, EventArgs.Empty);
             }
@@ -113,7 +119,10 @@ namespace R1Engine {
         {
             get => _level;
             set 
-            { 
+            {
+                if (_level == value)
+                    return;
+
                 _level = value;
                 OnLevelChanged?.Invoke(null, EventArgs.Empty);
             }
@@ -127,6 +136,9 @@ namespace R1Engine {
             get => _eduVolume;
             set
             {
+                if (_eduVolume == value)
+                    return;
+
                 _eduVolume = value;
                 OnEduVolumeChanged?.Invoke(null, EventArgs.Empty);
             }
@@ -140,6 +152,9 @@ namespace R1Engine {
             get => _useHdCollisionSheet;
             set
             {
+                if (_useHdCollisionSheet == value)
+                    return;
+
                 _useHdCollisionSheet = value;
                 OnUseHDCollisionSheetChanged?.Invoke(null, EventArgs.Empty);
             }
@@ -153,6 +168,9 @@ namespace R1Engine {
             get => _animateSprites;
             set
             {
+                if (_animateSprites == value)
+                    return;
+
                 _animateSprites = value;
                 OnAnimateSpritesChanged?.Invoke(null, EventArgs.Empty);
             }
@@ -166,6 +184,9 @@ namespace R1Engine {
             get => _showAlwaysEvents;
             set
             {
+                if (_showAlwaysEvents == value)
+                    return;
+
                 _showAlwaysEvents = value;
                 OnShowAlwaysEventsChanged?.Invoke(null, EventArgs.Empty);
             }
@@ -179,6 +200,9 @@ namespace R1Engine {
             get => _showEditorEvents;
             set
             {
+                if (_showEditorEvents == value)
+                    return;
+
                 _showEditorEvents = value;
                 OnShowEditorEventsChanged?.Invoke(null, EventArgs.Empty);
             }
