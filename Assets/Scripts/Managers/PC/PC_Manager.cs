@@ -1268,7 +1268,7 @@ namespace R1Engine
                     Unk1 = new uint[6],
                     Unk3 = 0,
                     Unk4 = new ushort[22],
-                    Unk5 = new byte[4],
+                    Unk5 = new byte[5],
                     Unk6 = 0,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
@@ -1297,8 +1297,8 @@ namespace R1Engine
                 // Add the event commands
                 eventCommands.Add(new PC_EventCommand()
                 {
-                    CommandLength = (ushort)(e.Commands.Commands.Select(x => x.Length).Sum()),
-                    Commands = e.Commands,
+                    CommandLength = (ushort)(e.CommandCollection.Commands.Select(x => x.Length).Sum()),
+                    Commands = e.CommandCollection,
                     LabelOffsetCount = (ushort)e.LabelOffsets.Length,
                     LabelOffsetTable = e.LabelOffsets
                 });

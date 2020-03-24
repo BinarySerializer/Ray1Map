@@ -103,7 +103,7 @@ namespace R1Engine
         /// <summary>
         /// The event commands
         /// </summary>
-        public Common_EventCommandCollection Commands { get; set; }
+        public Common_EventCommandCollection CommandCollection { get; set; }
 
         #endregion
 

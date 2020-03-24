@@ -400,7 +400,7 @@ namespace R1Engine
             newEvent.FollowEnabled = followEnabled;
             
             newEvent.LabelOffsets = labelOffsets;
-            newEvent.Commands = commands;
+            newEvent.CommandCollection = commands;
 
             newEvent.LinkIndex = link;
 
