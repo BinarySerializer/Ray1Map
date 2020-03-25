@@ -10,7 +10,7 @@ namespace R1Engine
     public class PS1_R1_WorldFile : PS1_R1_BaseFile
     {
         /// <summary>
-        /// The pointer to the first block. This block is always 0 bytes.
+        /// The pointer to the first block
         /// </summary>
         public Pointer FirstBlockPointer => BlockPointers[0];
 
@@ -20,7 +20,7 @@ namespace R1Engine
         public Pointer SecondBlockPointer => BlockPointers[1];
 
         /// <summary>
-        /// The pointer to the third block. This block is always 0 bytes.
+        /// The pointer to the third block
         /// </summary>
         public Pointer ThirdBlockPointer => BlockPointers[2];
 
@@ -49,13 +49,10 @@ namespace R1Engine
         /// </summary>
         public Pointer PaletteIndexBlockPointer => BlockPointers[7];
 
-        // Empty
         public byte[] FirstBlock { get; set; }
 
-        // TODO: This is a temp property until we serialize the actual data
         public byte[] SecondBlock { get; set; }
 
-        // Empty
         public byte[] ThirdBlock { get; set; }
 
         /// <summary>

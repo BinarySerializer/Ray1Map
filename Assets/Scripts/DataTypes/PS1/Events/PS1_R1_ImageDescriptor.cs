@@ -1,5 +1,6 @@
 ﻿namespace R1Engine
 {
+    // TODO: Merge with PC_ImageDescriptor
     /// <summary>
     /// Image descriptor data for Rayman 1 (PS1)
     /// </summary>
@@ -8,6 +9,7 @@
         // Always 0
         public uint Unknown0 { get; set; }
 
+        // Index?
         public byte Unknown1 { get; set; }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿namespace R1Engine
 {
+    // TODO: Merge with PS1_R1_ImageDescriptor
     /// <summary>
     /// Image descriptor data for PC
     /// </summary>
