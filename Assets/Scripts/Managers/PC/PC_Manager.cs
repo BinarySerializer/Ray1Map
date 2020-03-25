@@ -386,7 +386,7 @@ namespace R1Engine
                 foreach (var animDesc in desItem.AnimationDescriptors.Where<PC_AnimationDescriptor>(x => x.Layers.Any<PC_AnimationLayer>(y => y.ImageIndex == i)).Select<PC_AnimationDescriptor, int>(x => desItem.AnimationDescriptors.FindItemIndex<PC_AnimationDescriptor>(y => y == x)))
                 {
                     // Check all ETA's where it appears
-                    foreach (var eta in worldFile.Eta.SelectMany<PC_ETA, PC_EventState[]>(x => x.States).SelectMany<PC_EventState[], PC_EventState>(x => x).Where<PC_EventState>(x => x.AnimationIndex == animDesc))
+                    foreach (var eta in worldFile.Eta.SelectMany<PC_ETA, Common_EventState[]>(x => x.States).SelectMany<Common_EventState[], Common_EventState>(x => x).Where<Common_EventState>(x => x.AnimationIndex == animDesc))
                     {
                         // TODO: Use new state indexing system
                         // Attempt to find the level where it appears
@@ -394,7 +394,7 @@ namespace R1Engine
                             y.DES == desIndex &&
                             y.Etat == eta.Etat &&
                             y.SubEtat == eta.SubEtat &&
-                            y.ETA == worldFile.Eta.FindItemIndex<PC_ETA>(z => z.States.SelectMany<PC_EventState[], PC_EventState>(h => h).Contains<PC_EventState>(eta))));
+                            y.ETA == worldFile.Eta.FindItemIndex<PC_ETA>(z => z.States.SelectMany<Common_EventState[], Common_EventState>(h => h).Contains<Common_EventState>(eta))));
 
                         if (lvlMatch != null)
                         {
@@ -496,7 +496,7 @@ namespace R1Engine
 
                     byte? speed = null;
 
-                    IEnumerable<PC_EventState> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].States.SelectMany<PC_EventState[], PC_EventState>(x => x).Where<PC_EventState>(x => x.AnimationIndex == j);
+                    IEnumerable<Common_EventState> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].States.SelectMany<Common_EventState[], Common_EventState>(x => x).Where<Common_EventState>(x => x.AnimationIndex == j);
 
                     // TODO: Redo this to use new ETA indexing system
                     // Attempt to find a perfect match
@@ -1420,7 +1420,7 @@ namespace R1Engine
 
             // Get animation index from the matching ETA item
             //var etaItem = eta.ElementAt(e.ETA).SelectMany(x => x).FindItem(x => x.Etat == e.Etat && x.SubEtat == e.SubEtat);
-            var etaItem = eta.ElementAt<PC_ETA>(e.ETA).States.ElementAtOrDefault<PC_EventState[]>(e.Etat)?.ElementAtOrDefault<PC_EventState>(e.SubEtat);
+            var etaItem = eta.ElementAt<PC_ETA>(e.ETA).States.ElementAtOrDefault<Common_EventState[]>(e.Etat)?.ElementAtOrDefault<Common_EventState>(e.SubEtat);
 
             // Return the index
             return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);

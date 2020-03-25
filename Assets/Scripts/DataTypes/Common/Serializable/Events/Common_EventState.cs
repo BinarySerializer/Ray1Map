@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Event state (etat) data for PC
+    /// Common event state (etat) data
     /// </summary>
-    public class PC_EventState : R1Serializable
+    public class Common_EventState : R1Serializable
     {
         /// <summary>
         /// The right speed
