@@ -40,10 +40,15 @@ namespace R1Engine
 
         public bool areLinksVisible = false;
 
+        public Color linkColorActive;
+        public Color linkColorDeactive;
+
+        //Keeping track of used linkIds
+        public int currentId = 1;
+
         public void InitializeEvents() {
-            // Convert linkindex of each event to linkid
+            // Convert linkIndex of each event to linkId
             var eventList = Controller.obj.levelController.currentLevel.Events;
-            int currentId = 1;
             for (int i=0; i < eventList.Count; i++) {
                 // No link
                 if (eventList[i].LinkIndex == i) {
@@ -55,8 +60,14 @@ namespace R1Engine
                         // Link found, loop through everyone on the link chain
                         int nextEvent = eventList[i].LinkIndex;
                         eventList[i].LinkID = currentId;
+                        eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
                         while (nextEvent != i) {
                             eventList[nextEvent].LinkID = currentId;
+
+                            //Stack the link cubes
+                            eventList[nextEvent].linkCube.position = eventList[i].linkCube.position;
+                            eventList[nextEvent].linkCubeLockPosition = eventList[nextEvent].linkCube.position;
+
                             nextEvent = eventList[nextEvent].LinkIndex;
                         }
                         currentId++;
@@ -90,15 +101,20 @@ namespace R1Engine
         public void ChangeEventsVisibility(object o, EventArgs e) {
             foreach(var eve in Controller.obj.levelController.currentLevel.Events) {
                 eve.RefreshVisuals();
+                if (editor.currentMode == Editor.EditMode.Links)
+                    eve.ChangeLinksVisibility(true);
             }
         }
 
         private void Update() {
-            //Only do this if in event mode
-            if (editor.currentMode == Editor.EditMode.Events) {
+            //Only do this if in event/link mode
+            bool modeEvents = editor.currentMode == Editor.EditMode.Events;
+            bool modeLinks = editor.currentMode == Editor.EditMode.Links;
+
+            if ( modeEvents || modeLinks ) {
                 selectedLineRend.enabled = true;
                 //Add events with mmb
-                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject()) {
+                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents) {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     var mox = mousepo.x * 16;
                     var moy = mousepo.y * 16;
@@ -139,6 +155,11 @@ namespace R1Engine
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
                         //Update offset visibility
                         currentlySelected.ChangeOffsetVisibility(true);
+                        //Change the link
+                        if (modeLinks) {
+                            currentlySelected.LinkID = 0;
+                            currentlySelected.ChangeLinksVisibility(true);
+                        }
                     }
                     else {
                         if (currentlySelected!=null)
@@ -152,21 +173,40 @@ namespace R1Engine
                 //Drag and move the event
                 if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) {
                     if (currentlySelected != null) {
-                        var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        //Move event if in event mode
+                        if (modeEvents) {
+                            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                        eventInfoX.text = Mathf.Clamp(Mathf.RoundToInt((mousePos.x-selectedPosition.x) * 16),0,Controller.obj.levelController.currentLevel.Width*16).ToString();
-                        eventInfoY.text = Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y-selectedPosition.y) * 16),0,Controller.obj.levelController.currentLevel.Height*16).ToString();
+                            eventInfoX.text = Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16), 0, Controller.obj.levelController.currentLevel.Width * 16).ToString();
+                            eventInfoY.text = Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), 0, Controller.obj.levelController.currentLevel.Height * 16).ToString();
 
-                        uint.TryParse(eventInfoX.text, out var new_x);
-                        currentlySelected.XPosition = new_x;
-                        uint.TryParse(eventInfoY.text, out var new_y);
-                        currentlySelected.YPosition = new_y;
+                            uint.TryParse(eventInfoX.text, out var new_x);
+                            currentlySelected.XPosition = new_x;
+                            uint.TryParse(eventInfoY.text, out var new_y);
+                            currentlySelected.YPosition = new_y;
 
-                        currentlySelected.UpdateXAndY();
+                            currentlySelected.UpdateXAndY();
+                        }
+                        //Else move links
+                        if (modeLinks) {
+                            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                            currentlySelected.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
+                        }
                     }
                 }
+                //Confirm links with mmb
+                if (Input.GetMouseButtonDown(2) && modeLinks && currentlySelected.LinkID==0) {
+                    foreach (var ee in Controller.obj.levelController.currentLevel.Events) {
+                        if (ee.linkCube.position==currentlySelected.linkCube.position) {
+                            ee.LinkID = currentId;
+                            ee.ChangeLinksVisibility(true);
+                            ee.linkCubeLockPosition = ee.linkCube.position;
+                        }
+                    }
+                    currentId++;
+                }
                 //Delete selected event
-                if (Input.GetKeyDown(KeyCode.Delete)) {
+                if (Input.GetKeyDown(KeyCode.Delete) && modeEvents) {
                     if (currentlySelected != null) {
                         currentlySelected.ChangeOffsetVisibility(false);
                         currentlySelected.Delete();
@@ -344,16 +384,15 @@ namespace R1Engine
                 if (areLinksVisible != t) {
                     areLinksVisible = t;
                     foreach (var e in Controller.obj.levelController.currentLevel.Events) {
-                        e.lineRend.enabled = t;
+                        e.ChangeLinksVisibility(t);
                     }
                 }
             }
         }
 
-        // Converts linkID to linkIndex
+        // Converts linkID to linkIndex when saving
         public void CalculateLinkIndexes() {
 
-            int currentId = 1;
             List<int> alreadyChained = new List<int>();
             foreach (Common_Event ee in Controller.obj.levelController.currentLevel.Events) {
                 // No link
@@ -367,7 +406,8 @@ namespace R1Engine
 
                     // Find all the events with the same linkId and store their indexes
                     List<int> indexesOfSameId = new List<int>();
-                    foreach (Common_Event e in Controller.obj.levelController.currentLevel.Events.Where<Common_Event>(e => e.LinkID == currentId)) {
+                    int cur = ee.LinkID;
+                    foreach (Common_Event e in Controller.obj.levelController.currentLevel.Events.Where<Common_Event>(e => e.LinkID == cur)) {
                         indexesOfSameId.Add(Controller.obj.levelController.currentLevel.Events.IndexOf(e));
                         alreadyChained.Add(Controller.obj.levelController.currentLevel.Events.IndexOf(e));
                     }
@@ -379,8 +419,6 @@ namespace R1Engine
 
                         Controller.obj.levelController.currentLevel.Events[indexesOfSameId[j]].LinkIndex = indexesOfSameId[next];
                     }
-
-                    currentId++;
                 }
             }
         }

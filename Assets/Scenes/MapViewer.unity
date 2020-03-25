@@ -1243,6 +1243,8 @@ MonoBehaviour:
   eventInfoFollow: {fileID: 986159459}
   eventInfoType: {fileID: 1069006348}
   areLinksVisible: 0
+  linkColorActive: {r: 1, g: 0.8117647, b: 0, a: 0.78431374}
+  linkColorDeactive: {r: 0.43529412, g: 0, b: 0.06833768, a: 0.5882353}
 --- !u!120 &172781305
 LineRenderer:
   m_ObjectHideFlags: 0

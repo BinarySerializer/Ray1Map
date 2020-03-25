@@ -123,6 +123,7 @@ namespace R1Engine
 
             RefreshVisuals();
             ChangeOffsetVisibility(false);
+            ChangeLinksVisibility(false);
         }
         public void RefreshName() {
             // Get the event info data
@@ -173,6 +174,9 @@ namespace R1Engine
         public BoxCollider2D boxCollider;
         // Reference to line renderer
         public LineRenderer lineRend;
+        // Reference to link cube
+        public Transform linkCube;
+        public Vector2 linkCubeLockPosition;
         // Reference to offset crosses
         public Transform offsetOrigin;
         public Transform offsetCrossBX;
@@ -181,6 +185,11 @@ namespace R1Engine
         // Midpoint of this event when taking all the spriteparts into account
         [HideInInspector]
         public Vector2 midpoint;
+
+        private void Start() {
+            //Snap link cube position
+            linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
+        }
 
         void Update()
         {
@@ -209,18 +218,22 @@ namespace R1Engine
             //Change collider with show always/editor events
             boxCollider.enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
 
-            //Link lines
-            /*
-            if (LinkIndex != Controller.obj.levelController.currentLevel.Events.IndexOf(this)) {
-                lineRend.SetPosition(0, midpoint);
-                var linkedEvent = Controller.obj.levelController.currentLevel.Events[LinkIndex];
-                lineRend.SetPosition(1, linkedEvent.midpoint);
-            }*/
+            //New midpoint
+            midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
+            //Link line to cube
+            lineRend.SetPosition(0, midpoint);
+            lineRend.SetPosition(1, linkCube.position);
         }
 
         public void UpdateXAndY() {
             transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
-            midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
+            //Don't move link cube if it's part of a link
+            if (LinkID != 0) {
+                linkCube.position = linkCubeLockPosition;
+            }
+            else {
+                linkCubeLockPosition = linkCube.position;
+            }
         }
 
         // Change des and everything
@@ -252,6 +265,30 @@ namespace R1Engine
             offsetCrossBX.gameObject.SetActive(visible);
             offsetCrossBY.gameObject.SetActive(visible);
             offsetCrossHY.gameObject.SetActive(visible);
+        }
+
+        public void ChangeLinksVisibility(bool visible) {
+            if (visible) {
+                if (Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) {
+                    visible = false;
+                }
+                else if (Flag == EventFlag.Editor && !Settings.ShowEditorEvents) {
+                    visible = false;
+                }
+                //Change link colours
+                if (LinkID == 0) {
+                    lineRend.startColor = Controller.obj.levelEventController.linkColorDeactive;
+                    lineRend.endColor = Controller.obj.levelEventController.linkColorDeactive;
+                    linkCube.GetComponent<SpriteRenderer>().color = Controller.obj.levelEventController.linkColorDeactive;
+                }
+                else {
+                    lineRend.startColor = Controller.obj.levelEventController.linkColorActive;
+                    lineRend.endColor = Controller.obj.levelEventController.linkColorActive;
+                    linkCube.GetComponent<SpriteRenderer>().color = Controller.obj.levelEventController.linkColorActive;
+                }
+            }
+            lineRend.enabled = visible;
+            linkCube.gameObject.SetActive(visible);
         }
 
         // Try to load a new animation and change to it
