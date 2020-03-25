@@ -3,9 +3,9 @@
 namespace R1Engine
 {
     /// <summary>
-    /// Event data for Rayman 1 (PS1)
+    /// Image descriptor data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_EventUnk1 : R1Serializable
+    public class PS1_R1_ImageDescriptor : R1Serializable
     {
         public byte[] Unknown { get; set; }
         

@@ -11,9 +11,15 @@ namespace R1Engine
     {
         #region Event Properties
 
-        // DES?
-        public Pointer UnkPointer1 { get; set; }
-        public Pointer UnkPointer2 { get; set; }
+        /// <summary>
+        /// The pointer to the image descriptors
+        /// </summary>
+        public Pointer ImageDescriptorsPointer { get; set; }
+
+        /// <summary>
+        /// The pointer to the animation descriptors
+        /// </summary>
+        public Pointer AnimDescriptorsPointer { get; set; }
 
         // Never valid
         public Pointer UnkPointer3 { get; set; }
@@ -48,7 +54,10 @@ namespace R1Engine
 
         public byte[] Unknown2 { get; set; }
 
-        public ushort UnkPointer1Count { get; set; }
+        /// <summary>
+        /// The amount of image descriptors
+        /// </summary>
+        public ushort ImageDescriptorCount { get; set; }
 
         public ushort Unknown4 { get; set; }
 
@@ -89,7 +98,10 @@ namespace R1Engine
 
         public byte[] Unknown10 { get; set; }
 
-        public ushort UnkPointer2Count { get; set; }
+        /// <summary>
+        /// The amount of animation descriptors
+        /// </summary>
+        public ushort AnimDescriptorCount { get; set; }
 
         public ushort Unknown11 { get; set; }
 
@@ -97,9 +109,15 @@ namespace R1Engine
 
         #region Parsed From Pointers
 
-        public PS1_R1_EventUnk1[] UnkPointer1Array { get; set; }
+        /// <summary>
+        /// The image descriptors
+        /// </summary>
+        public PS1_R1_ImageDescriptor[] ImageDescriptors { get; set; }
 
-        public PS1_R1_EventUnk2[] UnkPointer2Array { get; set; }
+        /// <summary>
+        /// The animation descriptors
+        /// </summary>
+        public PS1_R1_AnimationDescriptor[] AnimDescriptors { get; set; }
 
         /// <summary>
         /// The event commands
@@ -132,8 +150,8 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize pointers
-            UnkPointer1 = s.SerializePointer(UnkPointer1, name: "UnkPointer1");
-            UnkPointer2 = s.SerializePointer(UnkPointer2, name: "UnkPointer2");
+            ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: "UnkPointer1");
+            AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: "UnkPointer2");
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: "UnkPointer3");
             ETAPointer = s.SerializePointer(ETAPointer, name: "UnkPointer4");
             CommandsPointer = s.SerializePointer(CommandsPointer, name: "CommandsPointer");
@@ -152,7 +170,7 @@ namespace R1Engine
 
             // Serialize unknown properties
             Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: "Unknown2");
-            UnkPointer1Count = s.Serialize<ushort>(UnkPointer1Count, name: "UnkPointer1Count");
+            ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: "UnkPointer1Count");
             Unknown4 = s.Serialize<ushort>(Unknown4, name: "Unknown4");
             Unknown5 = s.Serialize<ushort>(Unknown5, name: "Unknown5");
             Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: "Unknown6");
@@ -181,9 +199,19 @@ namespace R1Engine
 
             Unknown10 = s.SerializeArray<byte>(Unknown10, 6, name: "Unknown10");
 
-            UnkPointer2Count = s.Serialize<ushort>(UnkPointer2Count, name: "UnkPointer2Count");
+            AnimDescriptorCount = s.Serialize<ushort>(AnimDescriptorCount, name: "UnkPointer2Count");
 
             Unknown11 = s.Serialize<ushort>(Unknown11, name: "Unknown11");
+
+            // Serialize the image descriptors
+            s.DoAt(ImageDescriptorsPointer, () => {
+                ImageDescriptors = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: "ImageDescriptors");
+            });
+
+            // Serialize the animation descriptors
+            s.DoAt(AnimDescriptorsPointer, () => {
+                AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: "AnimDescriptors");
+            });
 
             // Serialize the commands
             if (CommandsPointer != null)
@@ -237,14 +265,6 @@ namespace R1Engine
                 {
                     EventState = s.SerializeObject(EventState, name: "EventState");
                 });
-            });
-
-            // Serialize unknown pointer arrays
-            s.DoAt(UnkPointer1, () => {
-                UnkPointer1Array = s.SerializeObjectArray<PS1_R1_EventUnk1>(UnkPointer1Array, UnkPointer1Count, name: "UnkPointer1Array");
-            });
-            s.DoAt(UnkPointer2, () => {
-                UnkPointer2Array = s.SerializeObjectArray<PS1_R1_EventUnk2>(UnkPointer2Array, UnkPointer2Count, name: "UnkPointer2Array");
             });
         }
 
