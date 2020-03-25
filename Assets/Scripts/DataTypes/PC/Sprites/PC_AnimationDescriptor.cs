@@ -29,12 +29,12 @@ namespace R1Engine
         /// <summary>
         /// The animation layers
         /// </summary>
-        public PC_AnimationLayer[] Layers { get; set; }
+        public Common_AnimationLayer[] Layers { get; set; }
 
         /// <summary>
         /// The animation frames
         /// </summary>
-        public PC_AnimationFrame[] Frames { get; set; }
+        public Common_AnimationFrame[] Frames { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -51,8 +51,8 @@ namespace R1Engine
             if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
                 Debug.LogWarning("Frame table offset is wrong");
             
-            Layers = s.SerializeObjectArray<PC_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: "Layers");
-            Frames = s.SerializeObjectArray<PC_AnimationFrame>(Frames, FrameCount + 1, name: "Frames");
+            Layers = s.SerializeObjectArray<Common_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: "Layers");
+            Frames = s.SerializeObjectArray<Common_AnimationFrame>(Frames, FrameCount + 1, name: "Frames");
         }
     }
 }

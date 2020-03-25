@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Animation layer data for PC
+    /// Common animation layer data
     /// </summary>
-    public class PC_AnimationLayer : R1Serializable
+    public class Common_AnimationLayer : R1Serializable
     {
         /// <summary>
         /// Indicates if the layer is flipped horizontally
@@ -28,7 +28,7 @@
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             IsFlipped = s.Serialize<bool>(IsFlipped, name: "IsFlipped");
             XPosition = s.Serialize<byte>(XPosition, name: "XPosition");

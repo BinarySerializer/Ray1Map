@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Animation frame data for PC
+    /// Common animation frame data
     /// </summary>
-    public class PC_AnimationFrame : R1Serializable
+    public class Common_AnimationFrame : R1Serializable
     {
         /// <summary>
         /// The frame x position
@@ -28,7 +28,7 @@
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             XPosition = s.Serialize<byte>(XPosition, name: "XPosition");
             YPosition = s.Serialize<byte>(YPosition, name: "YPosition");

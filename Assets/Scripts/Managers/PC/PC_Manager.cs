@@ -383,7 +383,7 @@ namespace R1Engine
                 bool foundCorrectPalette = false;
 
                 // Check all matching animation descriptor
-                foreach (var animDesc in desItem.AnimationDescriptors.Where<PC_AnimationDescriptor>(x => x.Layers.Any<PC_AnimationLayer>(y => y.ImageIndex == i)).Select<PC_AnimationDescriptor, int>(x => desItem.AnimationDescriptors.FindItemIndex<PC_AnimationDescriptor>(y => y == x)))
+                foreach (var animDesc in desItem.AnimationDescriptors.Where<PC_AnimationDescriptor>(x => x.Layers.Any<Common_AnimationLayer>(y => y.ImageIndex == i)).Select<PC_AnimationDescriptor, int>(x => desItem.AnimationDescriptors.FindItemIndex<PC_AnimationDescriptor>(y => y == x)))
                 {
                     // Check all ETA's where it appears
                     foreach (var eta in worldFile.Eta.SelectMany<PC_ETA, Common_EventState[]>(x => x.States).SelectMany<Common_EventState[], Common_EventState>(x => x).Where<Common_EventState>(x => x.AnimationIndex == animDesc))
