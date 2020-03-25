@@ -39,6 +39,12 @@ namespace R1Engine
         /// </summary>
         public override bool Has3Palettes => false;
 
+        // TODO: Add names
+        /// <summary>
+        /// The available map names, if any
+        /// </summary>
+        public override Dictionary<World, Dictionary<int, string>> MapNames => null;
+
         /// <summary>
         /// Gets the levels for the specified world
         /// </summary>

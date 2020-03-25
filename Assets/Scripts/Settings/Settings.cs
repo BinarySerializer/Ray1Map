@@ -238,9 +238,9 @@ namespace R1Engine {
         public static string CurrentDirectory {
             get {
                 if (FileSystem.mode == FileSystem.Mode.Web) {
-                    return GameDirectoriesWeb.TryGetValue(SelectedGameMode, out var dir) ? dir : String.Empty;
+                    return GameDirectoriesWeb.TryGetItem(SelectedGameMode, String.Empty);
                 } else {
-                    return GameDirectories.TryGetValue(SelectedGameMode, out var dir) ? dir : String.Empty;
+                    return GameDirectories.TryGetItem(SelectedGameMode, String.Empty);
                 }
             }
         }

@@ -43,6 +43,12 @@ namespace R1Engine
         /// <returns>The PCX tile map file path</returns>
         public string GetPCXFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"{GetShortWorldName(settings.World)}.PCX";
 
+        // TODO: Get names from .ini files
+        /// <summary>
+        /// The available map names, if any
+        /// </summary>
+        public override Dictionary<World, Dictionary<int, string>> MapNames => null;
+
         /// <summary>
         /// Gets the levels for the specified world
         /// </summary>

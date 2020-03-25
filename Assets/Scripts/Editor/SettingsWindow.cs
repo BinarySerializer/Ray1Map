@@ -1,5 +1,6 @@
 ﻿using R1Engine;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -61,7 +62,10 @@ public class SettingsWindow : UnityWindow
 			if (!PrevLvlValues.ComparePreviousValues())
             {
                 Debug.Log("Updated levels");
-                CurrentLevels = Settings.GetGameManager.GetLevels(Settings.GetGameSettings);
+
+                var manager = Settings.GetGameManager;
+
+                CurrentLevels = manager.GetLevels(Settings.GetGameSettings).Select(x => new KeyValuePair<int, string>(x, manager.MapNames?.TryGetItem(Settings.World)?.TryGetItem(x))).ToArray();
             }
         }
         catch (Exception ex)
@@ -69,15 +73,24 @@ public class SettingsWindow : UnityWindow
             Debug.LogWarning(ex.Message);
         }
 
-		var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new int[0];
+		var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<int, string>[0];
 
-		if (!levels.Contains(Settings.Level))
-			Settings.Level = levels.FirstOrDefault();
+		if (levels.All(x => x.Key != Settings.Level))
+			Settings.Level = levels.FirstOrDefault().Key;
 
-		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", levels.FindItemIndex(x => x == Settings.Level), levels.Select(x => x.ToString()).ToArray());
+        // Helper method for getting the level name
+        string GetLvlName(int lvlNum, string lvlName)
+        {
+            if (lvlName != null)
+                return $"{lvlNum:00} - {lvlName}";
+            else
+                return $"{lvlNum}";
+        }
+
+		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", levels.FindItemIndex(x => x.Key == Settings.Level), levels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
 
         if (levels.Length > lvlIndex && lvlIndex != -1)
-            Settings.Level = levels[lvlIndex];
+            Settings.Level = levels[lvlIndex].Key;
 
         // Update previous values
         PrevLvlValues.UpdatePreviousValues();
@@ -114,11 +127,11 @@ public class SettingsWindow : UnityWindow
         var modes = EnumHelpers.GetValues<GameModeSelection>();
         if (fileMode == FileSystem.Mode.Web) {
             foreach (var mode in modes) {
-                Settings.GameDirectoriesWeb[mode] = EditorGUI.TextField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetValue(mode, out var dir) ? dir : String.Empty);
+                Settings.GameDirectoriesWeb[mode] = EditorGUI.TextField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
             }
         } else {
             foreach (var mode in modes) {
-                Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetValue(mode, out var dir) ? dir : String.Empty);
+                Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
             }
         }
 
@@ -198,7 +211,7 @@ public class SettingsWindow : UnityWindow
 
     private PrevValues PrevGameActionValues { get; } = new PrevValues();
 
-    private int[] CurrentLevels { get; set; } = new int[0];
+    private KeyValuePair<int, string>[] CurrentLevels { get; set; } = new KeyValuePair<int, string>[0];
 
 	private string[] CurrentEduVolumes { get; set; } = new string[0];
 

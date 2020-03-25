@@ -92,6 +92,11 @@ namespace R1Engine
         public bool Has3Palettes => false;
 
         /// <summary>
+        /// The available map names, if any
+        /// </summary>
+        public Dictionary<World, Dictionary<int, string>> MapNames => RayMapNames.Ray1MapNames;
+
+        /// <summary>
         /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>

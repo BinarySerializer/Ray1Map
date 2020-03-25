@@ -119,6 +119,11 @@ namespace R1Engine
         public abstract bool Has3Palettes { get; }
 
         /// <summary>
+        /// The available map names, if any
+        /// </summary>
+        public abstract Dictionary<World, Dictionary<int, string>> MapNames { get; }
+
+        /// <summary>
         /// Gets the level count for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -284,7 +289,7 @@ namespace R1Engine
                         continue;
 
                     // Export big ray
-                    ExportTextures(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, desNames.TryGetValue(world, out var d) ? d : null);
+                    ExportTextures(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, desNames.TryGetItem(world));
                 }
             }
         }
