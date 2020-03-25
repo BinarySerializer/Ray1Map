@@ -103,7 +103,9 @@ namespace R1Engine
         /// </summary>
         public ushort AnimDescriptorCount { get; set; }
 
-        public ushort Unknown11 { get; set; }
+        public bool FollowEnabled { get; set; }
+
+        public byte Unknown11 { get; set; }
 
         #endregion
 
@@ -201,7 +203,8 @@ namespace R1Engine
 
             AnimDescriptorCount = s.Serialize<ushort>(AnimDescriptorCount, name: "UnkPointer2Count");
 
-            Unknown11 = s.Serialize<ushort>(Unknown11, name: "Unknown11");
+            FollowEnabled = s.Serialize<bool>(FollowEnabled, name: "FollowEnabled");
+            Unknown11 = s.Serialize<byte>(Unknown11, name: "Unknown11");
 
             // Serialize the image descriptors
             s.DoAt(ImageDescriptorsPointer, () => {
