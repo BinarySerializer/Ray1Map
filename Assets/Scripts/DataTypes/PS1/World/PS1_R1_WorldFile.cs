@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// World data for Rayman 1 (PS1)
     /// </summary>
     public class PS1_R1_WorldFile : PS1_R1_BaseFile
     {
+        #region File Pointers
+
         /// <summary>
         /// The pointer to the first block
         /// </summary>
-        public Pointer FirstBlockPointer => BlockPointers[0];
+        public Pointer DataBlockPointer => BlockPointers[0];
 
         /// <summary>
         /// The pointer to the second block
@@ -20,9 +18,9 @@ namespace R1Engine
         public Pointer SecondBlockPointer => BlockPointers[1];
 
         /// <summary>
-        /// The pointer to the third block
+        /// The pointer to the texture block
         /// </summary>
-        public Pointer ThirdBlockPointer => BlockPointers[2];
+        public Pointer TextureBlockPointer => BlockPointers[2];
 
         /// <summary>
         /// The pointer to the event palette 1 block
@@ -49,11 +47,21 @@ namespace R1Engine
         /// </summary>
         public Pointer PaletteIndexBlockPointer => BlockPointers[7];
 
-        public byte[] FirstBlock { get; set; }
+        #endregion
+
+        #region Block Data
+
+        /// <summary>
+        /// The data block
+        /// </summary>
+        public byte[] DataBlock { get; set; }
 
         public byte[] SecondBlock { get; set; }
 
-        public byte[] ThirdBlock { get; set; }
+        /// <summary>
+        /// The texture block
+        /// </summary>
+        public byte[] TextureBlock { get; set; }
 
         /// <summary>
         /// The event palette
@@ -80,27 +88,32 @@ namespace R1Engine
         /// </summary>
         public byte[] TilePaletteIndexTable { get; set; }
 
+        #endregion
+
+        #region Public Methods
+
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
-        public override void SerializeImpl(SerializerObject s) {
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s)
+        {
             // HEADER
             base.SerializeImpl(s);
 
-            // BLOCK 1
-            s.DoAt(FirstBlockPointer, () => {
-                FirstBlock = s.SerializeArray<byte>(FirstBlock, SecondBlockPointer - s.CurrentPointer, name: "FirstBlock");
+            // DATA BLOCK
+            s.DoAt(DataBlockPointer, () => {
+                DataBlock = s.SerializeArray<byte>(DataBlock, SecondBlockPointer - s.CurrentPointer, name: "DataBlock");
             });
 
             // BLOCK 2
             s.DoAt(SecondBlockPointer, () => {
-                SecondBlock = s.SerializeArray<byte>(SecondBlock, ThirdBlockPointer - s.CurrentPointer, name: "SecondBlock");
+                SecondBlock = s.SerializeArray<byte>(SecondBlock, TextureBlockPointer - s.CurrentPointer, name: "SecondBlock");
             });
 
-            // BLOCK 3
-            s.DoAt(ThirdBlockPointer, () => {
-                ThirdBlock = s.SerializeArray<byte>(ThirdBlock, EventPalette1BlockPointer - s.CurrentPointer, name: "ThirdBlock");
+            // TEXTURE BLOCK
+            s.DoAt(TextureBlockPointer, () => {
+                TextureBlock = s.SerializeArray<byte>(TextureBlock, EventPalette1BlockPointer - s.CurrentPointer, name: "TextureBlock");
             });
 
             // EVENT PALETTE 1
@@ -123,10 +136,12 @@ namespace R1Engine
             s.DoAt(PaletteBlockPointer, () => {
                 // TODO: Find a better way to know the number of palettes
                 uint numPalettes = (uint)(PaletteIndexBlockPointer - PaletteBlockPointer) / (256 * 2);
-                if (TileColorPalettes == null) {
+                if (TileColorPalettes == null)
+                {
                     TileColorPalettes = new ARGB1555Color[numPalettes][];
                 }
-                for (int i = 0; i < TileColorPalettes.Length; i++) {
+                for (int i = 0; i < TileColorPalettes.Length; i++)
+                {
                     TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: "TileColorPalettes[" + i + "]");
                 }
             });
@@ -137,5 +152,7 @@ namespace R1Engine
                 TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: "TilePaletteIndexTable");
             });
         }
+
+        #endregion
     }
 }
