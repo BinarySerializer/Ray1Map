@@ -176,6 +176,7 @@ namespace R1Engine
         public LineRenderer lineRend;
         // Reference to link cube
         public Transform linkCube;
+        [HideInInspector]
         public Vector2 linkCubeLockPosition;
         // Reference to offset crosses
         public Transform offsetOrigin;

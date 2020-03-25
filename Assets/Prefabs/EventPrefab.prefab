@@ -371,7 +371,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7508105759772431801}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b262e15ab1f3ec0479485c6e46123cef, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d57ab8207747d143a6d0dcb94c095d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   LinkIndex: 0
@@ -383,6 +383,7 @@ MonoBehaviour:
   boxCollider: {fileID: 8388059050577267216}
   lineRend: {fileID: 8273637944863852906}
   linkCube: {fileID: 3871773287192486119}
+  linkCubeLockPosition: {x: 0, y: 0}
   offsetOrigin: {fileID: 7845656510151612301}
   offsetCrossBX: {fileID: 3102864165816558869}
   offsetCrossBY: {fileID: 8908933947906200852}
