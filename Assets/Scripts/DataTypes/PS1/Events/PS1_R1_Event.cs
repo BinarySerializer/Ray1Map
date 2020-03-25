@@ -9,24 +9,31 @@ namespace R1Engine
     /// </summary>
     public class PS1_R1_Event : R1Serializable
     {
+        #region Event Properties
+
+        // DES?
         public Pointer UnkPointer1 { get; set; }
-        
         public Pointer UnkPointer2 { get; set; }
-        
+
+        // Never valid
         public Pointer UnkPointer3 { get; set; }
-        
-        public Pointer UnkPointer4 { get; set; }
+
+        /// <summary>
+        /// Pointer to ETA information
+        /// </summary>
+        public Pointer ETAPointer { get; set; }
 
         /// <summary>
         /// Pointer to the event commands
         /// </summary>
         public Pointer CommandsPointer { get; set; }
-        
+
         /// <summary>
         /// The pointer to the command label offsets
         /// </summary>
         public Pointer LabelOffsetsPointer { get; set; }
 
+        // Always 0
         public uint Unknown1 { get; set; }
 
         /// <summary>
@@ -69,7 +76,7 @@ namespace R1Engine
         public byte FollowSprite { get; set; }
 
         public ushort Hitpoints { get; set; }
-        
+
         public byte UnkGroup { get; set; }
 
         /// <summary>
@@ -86,6 +93,10 @@ namespace R1Engine
 
         public ushort Unknown11 { get; set; }
 
+        #endregion
+
+        #region Parsed From Pointers
+
         public PS1_R1_EventUnk1[] UnkPointer1Array { get; set; }
 
         public PS1_R1_EventUnk2[] UnkPointer2Array { get; set; }
@@ -101,25 +112,83 @@ namespace R1Engine
         public ushort[] LabelOffsets { get; set; }
 
         /// <summary>
+        /// The SubEtat collection pointer for the ETA
+        /// </summary>
+        public Pointer ETASubEtatPointer { get; set; }
+
+        /// <summary>
+        /// The event ETA state
+        /// </summary>
+        public Common_EventState EventState { get; set; }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s) 
+        public override void SerializeImpl(SerializerObject s)
         {
             // Serialize pointers
             UnkPointer1 = s.SerializePointer(UnkPointer1, name: "UnkPointer1");
             UnkPointer2 = s.SerializePointer(UnkPointer2, name: "UnkPointer2");
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: "UnkPointer3");
-            UnkPointer4 = s.SerializePointer(UnkPointer4, name: "UnkPointer4");
+            ETAPointer = s.SerializePointer(ETAPointer, name: "UnkPointer4");
             CommandsPointer = s.SerializePointer(CommandsPointer, name: "CommandsPointer");
             LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: "UnkPointer5");
             Unknown1 = s.Serialize<uint>(Unknown1, name: "Unknown1");
-            
+
+            // Debug checks
+            if (Unknown1 != 0)
+                Debug.Log($"PS1 event unk1 is {Unknown1}");
+            if (UnkPointer3 != null)
+                Debug.Log($"PS1 event UnkPointer3 is {UnkPointer3}");
+
+            // Serialize position
+            XPosition = s.Serialize<ushort>(XPosition, name: "XPosition");
+            YPosition = s.Serialize<ushort>(YPosition, name: "YPosition");
+
+            // Serialize unknown properties
+            Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: "Unknown2");
+            UnkPointer1Count = s.Serialize<ushort>(UnkPointer1Count, name: "UnkPointer1Count");
+            Unknown4 = s.Serialize<ushort>(Unknown4, name: "Unknown4");
+            Unknown5 = s.Serialize<ushort>(Unknown5, name: "Unknown5");
+            Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: "Unknown6");
+
+            OffsetBX = s.Serialize<byte>(OffsetBX, name: "OffsetBX");
+            OffsetBY = s.Serialize<byte>(OffsetBY, name: "OffsetBY");
+
+            Unknown7 = s.Serialize<ushort>(Unknown7, name: "Unknown7");
+
+            Etat = s.Serialize<ushort>(Etat, name: "Etat");
+            SubEtat = s.Serialize<ushort>(SubEtat, name: "SubEtat");
+
+            Unknown8 = s.Serialize<ushort>(Unknown8, name: "Unknown8");
+            Unknown9 = s.Serialize<ushort>(Unknown9, name: "Unknown9");
+
+            OffsetHY = s.Serialize<byte>(OffsetHY, name: "OffsetHY");
+            FollowSprite = s.Serialize<byte>(FollowSprite, name: "FollowSprite");
+
+            Hitpoints = s.Serialize<ushort>(Hitpoints, name: "Hitpoints");
+
+            UnkGroup = s.Serialize<byte>(UnkGroup, name: "UnkGroup");
+
+            Type = s.Serialize<byte>(Type, name: "Type");
+
+            HitSprite = s.Serialize<ushort>(HitSprite, name: "HitSprite");
+
+            Unknown10 = s.SerializeArray<byte>(Unknown10, 6, name: "Unknown10");
+
+            UnkPointer2Count = s.Serialize<ushort>(UnkPointer2Count, name: "UnkPointer2Count");
+
+            Unknown11 = s.Serialize<ushort>(Unknown11, name: "Unknown11");
+
             // Serialize the commands
             if (CommandsPointer != null)
             {
-                s.DoAt(CommandsPointer, () =>
-                {
+                s.DoAt(CommandsPointer, () => {
                     Commands = s.SerializeObject(Commands, name: "Commands");
                 });
             }
@@ -157,49 +226,20 @@ namespace R1Engine
                 });
             }
 
-            // This appears to always be 0
-            if (Unknown1 != 0)
-                Debug.Log($"PS1 event unk1 is {Unknown1}");
+            // Serialize ETA
+            s.DoAt(ETAPointer + (Etat * 4), () =>
+            {
+                // Get the Etat pointer
+                ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: "ETAEtatPointer");
 
-            // Serialize position
-            XPosition = s.Serialize<ushort>(XPosition, name: "XPosition");
-            YPosition = s.Serialize<ushort>(YPosition, name: "YPosition");
+                // Serialize event state
+                s.DoAt(ETASubEtatPointer + (SubEtat * 8), () =>
+                {
+                    EventState = s.SerializeObject(EventState, name: "EventState");
+                });
+            });
 
-            // Serialize unknown properties
-            Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: "Unknown2");
-            UnkPointer1Count = s.Serialize<ushort>(UnkPointer1Count, name: "UnkPointer1Count");
-            Unknown4 = s.Serialize<ushort>(Unknown4, name: "Unknown4");
-            Unknown5 = s.Serialize<ushort>(Unknown5, name: "Unknown5");
-            Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: "Unknown6");
-
-            OffsetBX = s.Serialize<byte>(OffsetBX, name: "OffsetBX");
-            OffsetBY = s.Serialize<byte>(OffsetBY, name: "OffsetBY");
-            
-            Unknown7 = s.Serialize<ushort>(Unknown7, name: "Unknown7");
-
-            Etat = s.Serialize<ushort>(Etat, name: "Etat");
-            SubEtat = s.Serialize<ushort>(SubEtat, name: "SubEtat");
-
-            Unknown8 = s.Serialize<ushort>(Unknown8, name: "Unknown8");
-            Unknown9 = s.Serialize<ushort>(Unknown9, name: "Unknown9");
-
-            OffsetHY = s.Serialize<byte>(OffsetHY, name: "OffsetHY");
-            FollowSprite = s.Serialize<byte>(FollowSprite, name: "FollowSprite");
-
-            Hitpoints = s.Serialize<ushort>(Hitpoints, name: "Hitpoints");
-
-            UnkGroup = s.Serialize<byte>(UnkGroup, name: "UnkGroup");
-
-            Type = s.Serialize<byte>(Type, name: "Type");
-
-            HitSprite = s.Serialize<ushort>(HitSprite, name: "HitSprite");
-
-            Unknown10 = s.SerializeArray<byte>(Unknown10, 6, name: "Unknown10");
-
-            UnkPointer2Count = s.Serialize<ushort>(UnkPointer2Count, name: "UnkPointer2Count");
-
-            Unknown11 = s.Serialize<ushort>(Unknown11, name: "Unknown11");
-
+            // Serialize unknown pointer arrays
             s.DoAt(UnkPointer1, () => {
                 UnkPointer1Array = s.SerializeObjectArray<PS1_R1_EventUnk1>(UnkPointer1Array, UnkPointer1Count, name: "UnkPointer1Array");
             });
@@ -207,5 +247,7 @@ namespace R1Engine
                 UnkPointer2Array = s.SerializeObjectArray<PS1_R1_EventUnk2>(UnkPointer2Array, UnkPointer2Count, name: "UnkPointer2Array");
             });
         }
+
+        #endregion
     }
 }
