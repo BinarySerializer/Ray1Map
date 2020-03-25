@@ -39,6 +39,11 @@
         public byte[] Unknown4 { get; set; }
 
         /// <summary>
+        /// The sprite offset
+        /// </summary>
+        public uint SpriteOffset { get; set; }
+
+        /// <summary>
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>
@@ -52,7 +57,8 @@
             InnerHeight = s.Serialize<byte>(InnerHeight, name: "InnerHeight");
             Unknown2 = s.Serialize<byte>(Unknown2, name: "Unknown2");
             Unknown3 = s.Serialize<byte>(Unknown3, name: "Unknown3");
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 9, name: "Unknown4");
+            Unknown4 = s.SerializeArray<byte>(Unknown4, 5, name: "Unknown4");
+            SpriteOffset = s.Serialize<uint>(SpriteOffset, name: "SpriteOffset");
         }
     }
 }

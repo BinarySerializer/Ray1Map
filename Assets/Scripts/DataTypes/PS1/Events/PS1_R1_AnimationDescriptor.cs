@@ -1,5 +1,6 @@
 ﻿namespace R1Engine
 {
+    // TODO: Merge with PC_AnimationDescriptor
     /// <summary>
     /// Animation descriptor data for Rayman 1 (PS1)
     /// </summary>
@@ -18,12 +19,16 @@
         /// <summary>
         /// The number of layers to use per frame
         /// </summary>
-        public ushort LayersPerFrame { get; set; }
+        public byte LayersPerFrame { get; set; }
+
+        public byte Unknown1 { get; set; }
 
         /// <summary>
         /// The number of frames in the animation
         /// </summary>
-        public ushort FrameCount { get; set; }
+        public byte FrameCount { get; set; }
+
+        public byte Unknown2 { get; set; }
 
         /// <summary>
         /// The animation layers
@@ -46,8 +51,10 @@
             AnimFramesPointer = s.SerializePointer(AnimFramesPointer, name: "AnimFramesPointer");
             
             // Serialize data
-            LayersPerFrame = s.Serialize<ushort>(LayersPerFrame, name: "LayersPerFrame");
-            FrameCount = s.Serialize<ushort>(FrameCount, name: "FrameCount");
+            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: "LayersPerFrame");
+            Unknown1 = s.Serialize<byte>(Unknown1, name: "Unknown1");
+            FrameCount = s.Serialize<byte>(FrameCount, name: "FrameCount");
+            Unknown2 = s.Serialize<byte>(Unknown2, name: "Unknown2");
 
             // Serialize data from pointers
             s.DoAt(AnimLayersPointer, () =>

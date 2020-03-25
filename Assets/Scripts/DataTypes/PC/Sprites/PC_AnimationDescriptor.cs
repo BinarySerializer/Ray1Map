@@ -2,6 +2,7 @@
 
 namespace R1Engine
 {
+    // TODO: Merge with PS1_R1_AnimationDescriptor
     /// <summary>
     /// Animation descriptor data for PC
     /// </summary>
