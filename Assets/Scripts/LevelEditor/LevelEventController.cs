@@ -196,12 +196,21 @@ namespace R1Engine
                 }
                 //Confirm links with mmb
                 if (Input.GetMouseButtonDown(2) && modeLinks && currentlySelected.LinkID==0) {
+                    bool alone = true;
                     foreach (var ee in Controller.obj.levelController.currentLevel.Events) {
                         if (ee.linkCube.position==currentlySelected.linkCube.position) {
-                            ee.LinkID = currentId;
-                            ee.ChangeLinksVisibility(true);
-                            ee.linkCubeLockPosition = ee.linkCube.position;
+                            if (ee != currentlySelected) {
+                                ee.LinkID = currentId;
+                                ee.ChangeLinksVisibility(true);
+                                ee.linkCubeLockPosition = ee.linkCube.position;
+                                alone = false;
+                            }
                         }
+                    }
+                    if (!alone) {
+                        currentlySelected.LinkID = currentId;
+                        currentlySelected.ChangeLinksVisibility(true);
+                        currentlySelected.linkCubeLockPosition = currentlySelected.linkCube.position;
                     }
                     currentId++;
                 }
