@@ -35,6 +35,7 @@
 
         public byte OffsetBY { get; set; }
 
+        // TODO: This is actually two bytes - with one of them being 255 when the letters in EDU games should be lower-case (they default to upper-case)
         public ushort Unk7 { get; set; }
 
         public byte SubEtat { get; set; }

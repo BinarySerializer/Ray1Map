@@ -283,8 +283,7 @@ namespace R1Engine
         /// <returns>The common editor event info</returns>
         public override Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
         {
-            // TODO: Convert these to command bytes!
-            var cmd = new byte[0];
+            var cmd = e.CommandCollection.ToBytes();
 
             // Find match
             var match = GetMapperEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, cmd);
