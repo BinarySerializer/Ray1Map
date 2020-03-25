@@ -229,7 +229,7 @@ namespace R1Engine
             // Serialize ETA
             s.DoAt(ETAPointer + (Etat * 4), () =>
             {
-                // Get the Etat pointer
+                // Get the state-array pointer
                 ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: "ETAEtatPointer");
 
                 // Serialize event state

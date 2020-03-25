@@ -1553,7 +1553,7 @@ namespace R1Engine
                     }
 
                     // Return the output
-                    return output.ToArray();
+                    return output.OrderBy(x => x.Name).ThenBy(x => x.Type).ToArray();
                 }
             }
         }
