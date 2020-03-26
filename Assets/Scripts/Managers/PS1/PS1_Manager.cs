@@ -258,23 +258,85 @@ namespace R1Engine
 
                 PS1_VRAM vram = FillVRAM(allfixFile, worldFile, levelTextureBlock);
 
+                int desIndex = 0;
+
+                // TODO: Change this super-hacky code - generalize more with PC - cache DES instead of recreating
                 foreach (PS1_R1_Event e in events.Events)
                 {
+                    Controller.status = $"Loading DES {desIndex}";
+
+                    await Controller.WaitIfNecessary();
+
+                    Common_Design finalDesign = new Common_Design
+                    {
+                        Sprites = new List<Sprite>(),
+                        Animations = new List<Common_Animation>()
+                    };
+
                     foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
                     {
+                        Texture2D tex = null;
+
                         if (i.Offset.file.filePath == worldFileName)
                         {
-                            Texture2D tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
+                            tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
                         }
                         else if (i.Offset.file.filePath == allfixFileName)
                         {
-                            Texture2D tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
+                            tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
                         }
                         else if (i.Offset.file.filePath == GetLevelFilePath(context.Settings))
                         {
-                            Texture2D tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
+                            tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
                         }
+
+                        // Add it to the array
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                     }
+
+                    // Animations
+                    foreach (var a in e.AnimDescriptors)
+                    {
+                        // Create the animation
+                        var animation = new Common_Animation
+                        {
+                            Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
+                            DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
+                            DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
+                            DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
+                            DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
+                        };
+                        // The layer index
+                        var layer = 0;
+                        // Create each frame
+                        for (int i = 0; i < a.FrameCount; i++)
+                        {
+                            // Create each layer
+                            for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
+                            {
+                                var animationLayer = a.Layers[layer];
+                                layer++;
+
+                                // Create the animation part
+                                var part = new Common_AnimationPart
+                                {
+                                    SpriteIndex = animationLayer.ImageIndex,
+                                    X = animationLayer.XPosition,
+                                    Y = animationLayer.YPosition,
+                                    Flipped = animationLayer.IsFlipped
+                                };
+
+                                // Add the texture
+                                animation.Frames[i, layerIndex] = part;
+                            }
+                        }
+                        // Add the animation to list
+                        finalDesign.Animations.Add(animation);
+                    }
+
+                    // Add to the designs
+                    eventDesigns.Add(finalDesign);
+                    desIndex++;
                 }
                 /*ExportTexturePage("Allfix_1", allfixFile.Palette1, allfixFile.TextureBlock);
                 ExportTexturePage("Allfix_2", allfixFile.Palette2, allfixFile.TextureBlock);
@@ -305,7 +367,26 @@ namespace R1Engine
             };
             c.TileSet[0] = tileSet;
 
-            // TODO: Load events
+            // Add the events
+            c.Events = new List<Common_Event>();
+
+            var index = 0;
+            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
+
+            foreach (var e in levelData.EventData.Events)
+            {
+                Controller.status = $"Loading event {index}/{levelData.EventData.Events.Length}";
+
+                await Controller.WaitIfNecessary();
+
+                // Instantiate event prefab using LevelEventController
+                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, index, index, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, levelData.EventData.EventLinkingTable[index]);
+
+                // Add the event
+                c.Events.Add(ee);
+
+                index++;
+            }
 
             await Controller.WaitIfNecessary();
 
@@ -555,7 +636,14 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="e">The event</param>
         /// <returns>The animation info</returns>
-        public Common_AnimationInfo GetAnimationInfo(Context context, Common_Event e) => new Common_AnimationInfo(-1, -1);
+        public Common_AnimationInfo GetAnimationInfo(Context context, Common_Event e)
+        {
+            // TODO: Change this super-hacky code
+            var etaItem = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).EventData.Events[e.ETA].EventState;
+
+            // Return the index
+            return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);
+        }
 
         /// <summary>
         /// Gets the available event names to add for the current world
