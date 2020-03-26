@@ -27,11 +27,11 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize map size
-            Width = s.Serialize<ushort>(Width, name: "Width");
-            Height = s.Serialize<ushort>(Height, name: "Height");
+            Width = s.Serialize<ushort>(Width, name: nameof(Width));
+            Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
             // Serialize tiles
-            Tiles = s.SerializeObjectArray<PS1_R1_MapTile>(Tiles, Width * Height, name: "Tiles");
+            Tiles = s.SerializeObjectArray<PS1_R1_MapTile>(Tiles, Width * Height, name: nameof(Tiles));
         }
     }
 }

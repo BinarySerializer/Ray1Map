@@ -43,7 +43,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            Color1555 = s.Serialize<ushort>(Color1555, name: "Color1555");
+            Color1555 = s.Serialize<ushort>(Color1555, name: nameof(Color1555));
         }
     }
 }

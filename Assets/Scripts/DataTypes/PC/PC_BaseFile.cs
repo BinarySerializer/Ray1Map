@@ -27,9 +27,9 @@
         public override void SerializeImpl(SerializerObject s) {
             if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
             {
-                PrimaryKitHeader = s.SerializeArray<byte>(PrimaryKitHeader, 5, name: "PrimaryKitHeader");
-                SecondaryKitHeader = s.SerializeArray<byte>(SecondaryKitHeader, 5, name: "SecondaryKitHeader");
-                Unknown1 = s.Serialize<ushort>(Unknown1, name: "Unknown1");
+                PrimaryKitHeader = s.SerializeArray<byte>(PrimaryKitHeader, 5, name: nameof(PrimaryKitHeader));
+                SecondaryKitHeader = s.SerializeArray<byte>(SecondaryKitHeader, 5, name: nameof(SecondaryKitHeader));
+                Unknown1 = s.Serialize<ushort>(Unknown1, name: nameof(Unknown1));
             }
         }
     }

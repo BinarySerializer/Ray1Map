@@ -52,13 +52,13 @@
             base.SerializeImpl(s);
 
             if(FileType == Type.World) {
-                BG1 = s.Serialize<ushort>(BG1, name: "BG1");
-                BG2 = s.Serialize<ushort>(BG2, name: "BG2");
-                Plan0NumPcxCount = s.Serialize<byte>(Plan0NumPcxCount, name: "Plan0NumPcxCount");
-                VideoBiosCheckSum = s.Serialize<byte>(VideoBiosCheckSum, name: "VideoBiosCheckSum");
-                BiosCheckSum = s.Serialize<byte>(BiosCheckSum, name: "BiosCheckSum");
+                BG1 = s.Serialize<ushort>(BG1, name: nameof(BG1));
+                BG2 = s.Serialize<ushort>(BG2, name: nameof(BG2));
+                Plan0NumPcxCount = s.Serialize<byte>(Plan0NumPcxCount, name: nameof(Plan0NumPcxCount));
+                VideoBiosCheckSum = s.Serialize<byte>(VideoBiosCheckSum, name: nameof(VideoBiosCheckSum));
+                BiosCheckSum = s.Serialize<byte>(BiosCheckSum, name: nameof(BiosCheckSum));
                 s.BeginXOR(0x15);
-                Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: "Plan0NumPcx");
+                Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: nameof(Plan0NumPcx));
                 s.EndXOR();
             }
 
@@ -71,7 +71,7 @@
                 DesItemCount = 1;
 
                 DesItems = s.SerializeObjectArray<PC_DES>(DesItems, DesItemCount,
-                    onPreSerialize: data => data.FileType = FileType, name: "DesItems");
+                    onPreSerialize: data => data.FileType = FileType, name: nameof(DesItems));
 
                 SerializeEta();
             }
@@ -81,26 +81,26 @@
                 SerializeSprites();
             }
 
-            Unknown5 = s.SerializeArray<byte>(Unknown5, s.CurrentLength - s.CurrentPointer.FileOffset, name: "Unknown5");
+            Unknown5 = s.SerializeArray<byte>(Unknown5, s.CurrentLength - s.CurrentPointer.FileOffset, name: nameof(Unknown5));
 
             // Helper method for reading the eta
             void SerializeEta()
             {
-                Eta = s.SerializeArraySize<PC_ETA, byte>(Eta, name: "Eta");
-                Eta = s.SerializeObjectArray<PC_ETA>(Eta, Eta.Length, name: "Eta");
+                Eta = s.SerializeArraySize<PC_ETA, byte>(Eta, name: nameof(Eta));
+                Eta = s.SerializeObjectArray<PC_ETA>(Eta, Eta.Length, name: nameof(Eta));
             }
 
             // Helper method for reading the sprites
             void SerializeSprites()
             {
                 // Serialize sprites
-                DesItemCount = s.Serialize<ushort>(DesItemCount, name: "DesItemCount");
+                DesItemCount = s.Serialize<ushort>(DesItemCount, name: nameof(DesItemCount));
 
                 if (FileType == Type.AllFix && s is BinaryDeserializer)
                     DesItemCount--;
 
                 DesItems = s.SerializeObjectArray<PC_DES>(DesItems, DesItemCount,
-                    onPreSerialize: data => data.FileType = FileType, name: "DesItems");
+                    onPreSerialize: data => data.FileType = FileType, name: nameof(DesItems));
             }
         }
 

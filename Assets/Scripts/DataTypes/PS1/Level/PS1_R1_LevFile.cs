@@ -56,22 +56,22 @@
 
             // BACKGROUND BLOCK
             s.DoAt(BackgroundBlockPointer, () => {
-                BackgroundData = s.SerializeObject(BackgroundData, name: "BackgroundData");
+                BackgroundData = s.SerializeObject(BackgroundData, name: nameof(BackgroundData));
             });
 
             // EVENT BLOCK
             s.DoAt(EventBlockPointer, () => {
-                EventData = s.SerializeObject(EventData, name: "EventData");
+                EventData = s.SerializeObject(EventData, name: nameof(EventData));
             });
 
             // MAP BLOCK
             s.DoAt(MapBlockPointer, () => {
-                MapData = s.SerializeObject(MapData, name: "MapData");
+                MapData = s.SerializeObject(MapData, name: nameof(MapData));
             });
 
             // TEXTURE BLOCK
             s.DoAt(TextureBlockPointer, () => {
-                TextureBlock = s.SerializeArray<byte>(TextureBlock, FileSize - TextureBlockPointer.FileOffset, name: "TextureBlock");
+                TextureBlock = s.SerializeArray<byte>(TextureBlock, FileSize - TextureBlockPointer.FileOffset, name: nameof(TextureBlock));
             });
         }
     }

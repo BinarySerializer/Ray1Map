@@ -30,10 +30,10 @@
         /// </summary>
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
-            XPosition = s.Serialize<byte>(XPosition, name: "XPosition");
-            YPosition = s.Serialize<byte>(YPosition, name: "YPosition");
-            Width = s.Serialize<byte>(Width, name: "Width");
-            Height = s.Serialize<byte>(Height, name: "Height");
+            XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
+            Width = s.Serialize<byte>(Width, name: nameof(Width));
+            Height = s.Serialize<byte>(Height, name: nameof(Height));
         }
     }
 }

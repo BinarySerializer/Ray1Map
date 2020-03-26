@@ -12,12 +12,12 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            States = s.SerializeArraySize<Common_EventState[], byte>(States, name: "States");
+            States = s.SerializeArraySize<Common_EventState[], byte>(States, name: nameof(States));
 
             for (int i = 0; i < States.Length; i++)
             {
-                States[i] = s.SerializeArraySize<Common_EventState, byte>(States[i], name: "States[" + i + "]");
-                States[i] = s.SerializeObjectArray<Common_EventState>(States[i], States[i].Length, name: "States[" + i + "]");
+                States[i] = s.SerializeArraySize<Common_EventState, byte>(States[i], name: nameof(States) + "[" + i + "]");
+                States[i] = s.SerializeObjectArray<Common_EventState>(States[i], States[i].Length, name: nameof(States) + "[" + i + "]");
             }
         }
     }

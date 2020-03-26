@@ -103,33 +103,33 @@
 
             // DATA BLOCK
             s.DoAt(DataBlockPointer, () => {
-                DataBlock = s.SerializeArray<byte>(DataBlock, SecondBlockPointer - s.CurrentPointer, name: "DataBlock");
+                DataBlock = s.SerializeArray<byte>(DataBlock, SecondBlockPointer - s.CurrentPointer, name: nameof(DataBlock));
             });
 
             // BLOCK 2
             s.DoAt(SecondBlockPointer, () => {
-                SecondBlock = s.SerializeArray<byte>(SecondBlock, TextureBlockPointer - s.CurrentPointer, name: "SecondBlock");
+                SecondBlock = s.SerializeArray<byte>(SecondBlock, TextureBlockPointer - s.CurrentPointer, name: nameof(SecondBlock));
             });
 
             // TEXTURE BLOCK
             s.DoAt(TextureBlockPointer, () => {
-                TextureBlock = s.SerializeArray<byte>(TextureBlock, EventPalette1BlockPointer - s.CurrentPointer, name: "TextureBlock");
+                TextureBlock = s.SerializeArray<byte>(TextureBlock, EventPalette1BlockPointer - s.CurrentPointer, name: nameof(TextureBlock));
             });
 
             // EVENT PALETTE 1
             s.DoAt(EventPalette1BlockPointer, () => {
-                EventPalette1 = s.SerializeObjectArray<ARGB1555Color>(EventPalette1, 256, name: "EventPalette1");
+                EventPalette1 = s.SerializeObjectArray<ARGB1555Color>(EventPalette1, 256, name: nameof(EventPalette1));
             });
 
             // EVENT PALETTE 2
             s.DoAt(EventPalette2BlockPointer, () => {
-                EventPalette2 = s.SerializeObjectArray<ARGB1555Color>(EventPalette2, 256, name: "EventPalette2");
+                EventPalette2 = s.SerializeObjectArray<ARGB1555Color>(EventPalette2, 256, name: nameof(EventPalette2));
             });
 
             // TILES
             s.DoAt(TilesBlockPointer, () => {
                 // Read the tiles index table
-                TilesIndexTable = s.SerializeArray<byte>(TilesIndexTable, PaletteBlockPointer - TilesBlockPointer, name: "TilesIndexTable");
+                TilesIndexTable = s.SerializeArray<byte>(TilesIndexTable, PaletteBlockPointer - TilesBlockPointer, name: nameof(TilesIndexTable));
             });
 
             // TILE PALETTES
@@ -142,14 +142,14 @@
                 }
                 for (int i = 0; i < TileColorPalettes.Length; i++)
                 {
-                    TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: "TileColorPalettes[" + i + "]");
+                    TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: nameof(TileColorPalettes) + "[" + i + "]");
                 }
             });
 
             // TILE PALETTE ASSIGN
             s.DoAt(PaletteIndexBlockPointer, () => {
                 // Read the palette index table
-                TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: "TilePaletteIndexTable");
+                TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: nameof(TilePaletteIndexTable));
             });
         }
 

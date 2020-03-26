@@ -29,11 +29,11 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            Unknown1 = s.Serialize<uint>(Unknown1, name: "Unknown1");
-            Layer = s.Serialize<byte>(Layer, name: "Layer");
-            Width = s.Serialize<byte>(Width, name: "Width");
-            Height = s.Serialize<byte>(Height, name: "Height");
-            Unknown2 = s.SerializeArray<byte>(Unknown2, 13, name: "Unknown2");
+            Unknown1 = s.Serialize<uint>(Unknown1, name: nameof(Unknown1));
+            Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
+            Width = s.Serialize<byte>(Width, name: nameof(Width));
+            Height = s.Serialize<byte>(Height, name: nameof(Height));
+            Unknown2 = s.SerializeArray<byte>(Unknown2, 13, name: nameof(Unknown2));
         }
     }
 }

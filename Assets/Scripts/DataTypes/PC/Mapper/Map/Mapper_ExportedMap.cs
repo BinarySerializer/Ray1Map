@@ -80,21 +80,21 @@
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             // Serialize the header
-            Header = s.SerializeArray<byte>(Header, 4, name: "Header");
-            MapPropertiesPointer = s.Serialize<uint>(MapPropertiesPointer, name: "MapPropertiesPointer");
-            MapPropertiesLength = s.Serialize<uint>(MapPropertiesLength, name: "MapPropertiesLength");
-            MapDataPointer = s.Serialize<uint>(MapDataPointer, name: "MapDataPointer");
-            MapDataLength = s.Serialize<uint>(MapDataLength, name: "MapDataLength");
-            EventMevDataPointer = s.Serialize<uint>(EventMevDataPointer, name: "EventMevDataPointer");
-            EventMevDataLength = s.Serialize<uint>(EventMevDataLength, name: "EventMevDataLength");
-            EventSevDataPointer = s.Serialize<uint>(EventSevDataPointer, name: "EventSevDataPointer");
-            EventSevDataLength = s.Serialize<uint>(EventSevDataLength, name: "EventSevDataLength");
+            Header = s.SerializeArray<byte>(Header, 4, name: nameof(Header));
+            MapPropertiesPointer = s.Serialize<uint>(MapPropertiesPointer, name: nameof(MapPropertiesPointer));
+            MapPropertiesLength = s.Serialize<uint>(MapPropertiesLength, name: nameof(MapPropertiesLength));
+            MapDataPointer = s.Serialize<uint>(MapDataPointer, name: nameof(MapDataPointer));
+            MapDataLength = s.Serialize<uint>(MapDataLength, name: nameof(MapDataLength));
+            EventMevDataPointer = s.Serialize<uint>(EventMevDataPointer, name: nameof(EventMevDataPointer));
+            EventMevDataLength = s.Serialize<uint>(EventMevDataLength, name: nameof(EventMevDataLength));
+            EventSevDataPointer = s.Serialize<uint>(EventSevDataPointer, name: nameof(EventSevDataPointer));
+            EventSevDataLength = s.Serialize<uint>(EventSevDataLength, name: nameof(EventSevDataLength));
 
             // Read the data blocks
-            MapProperties = s.SerializeArray<byte>(MapProperties, MapPropertiesLength, name: "MapProperties");
-            MapData = s.Serialize<Mapper_Map>(MapData, name: "MapData");
-            EventMevData = s.SerializeArray<byte>(EventMevData, EventMevDataLength, name: "EventMevData");
-            EventSevData = s.SerializeArray<byte>(EventSevData, EventSevDataLength, name: "EventSevData");
+            MapProperties = s.SerializeArray<byte>(MapProperties, MapPropertiesLength, name: nameof(MapProperties));
+            MapData = s.Serialize<Mapper_Map>(MapData, name: nameof(MapData));
+            EventMevData = s.SerializeArray<byte>(EventMevData, EventMevDataLength, name: nameof(EventMevData));
+            EventSevData = s.SerializeArray<byte>(EventSevData, EventSevDataLength, name: nameof(EventSevData));
         }
 
         #endregion

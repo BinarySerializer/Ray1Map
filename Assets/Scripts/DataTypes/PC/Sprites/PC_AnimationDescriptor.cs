@@ -42,18 +42,18 @@ namespace R1Engine
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: "LayersPerFrame");
-            Unknown1 = s.Serialize<byte>(Unknown1, name: "Unknown1");
-            FrameCount = s.Serialize<byte>(FrameCount, name: "FrameCount");
-            Unknown2 = s.Serialize<byte>(Unknown2, name: "Unknown2");
-            Unknown3 = s.Serialize<uint>(Unknown3, name: "Unknown3");
-            FrameTableOffset = s.Serialize<ushort>(FrameTableOffset, name: "FrameTableOffset");
+            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: nameof(LayersPerFrame));
+            Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
+            FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
+            Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
+            Unknown3 = s.Serialize<uint>(Unknown3, name: nameof(Unknown3));
+            FrameTableOffset = s.Serialize<ushort>(FrameTableOffset, name: nameof(FrameTableOffset));
             
             if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
                 Debug.LogWarning("Frame table offset is wrong");
             
-            Layers = s.SerializeObjectArray<Common_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: "Layers");
-            Frames = s.SerializeObjectArray<Common_AnimationFrame>(Frames, FrameCount + 1, name: "Frames");
+            Layers = s.SerializeObjectArray<Common_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: nameof(Layers));
+            Frames = s.SerializeObjectArray<Common_AnimationFrame>(Frames, FrameCount + 1, name: nameof(Frames));
         }
     }
 }

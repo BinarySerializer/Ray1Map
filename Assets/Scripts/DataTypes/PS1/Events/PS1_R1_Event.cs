@@ -152,13 +152,13 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize pointers
-            ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: "UnkPointer1");
-            AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: "UnkPointer2");
-            UnkPointer3 = s.SerializePointer(UnkPointer3, name: "UnkPointer3");
-            ETAPointer = s.SerializePointer(ETAPointer, name: "UnkPointer4");
-            CommandsPointer = s.SerializePointer(CommandsPointer, name: "CommandsPointer");
-            LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: "UnkPointer5");
-            Unknown1 = s.Serialize<uint>(Unknown1, name: "Unknown1");
+            ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
+            AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
+            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
+            ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
+            CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
+            LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: nameof(LabelOffsetsPointer));
+            Unknown1 = s.Serialize<uint>(Unknown1, name: nameof(Unknown1));
 
             // Debug checks
             if (Unknown1 != 0)
@@ -167,60 +167,60 @@ namespace R1Engine
                 Debug.Log($"PS1 event UnkPointer3 is {UnkPointer3}");
 
             // Serialize position
-            XPosition = s.Serialize<ushort>(XPosition, name: "XPosition");
-            YPosition = s.Serialize<ushort>(YPosition, name: "YPosition");
+            XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
 
             // Serialize unknown properties
-            Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: "Unknown2");
-            ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: "UnkPointer1Count");
-            Unknown4 = s.Serialize<ushort>(Unknown4, name: "Unknown4");
-            Unknown5 = s.Serialize<ushort>(Unknown5, name: "Unknown5");
-            Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: "Unknown6");
+            Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: nameof(Unknown2));
+            ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
+            Unknown4 = s.Serialize<ushort>(Unknown4, name: nameof(Unknown4));
+            Unknown5 = s.Serialize<ushort>(Unknown5, name: nameof(Unknown5));
+            Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: nameof(Unknown6));
 
-            OffsetBX = s.Serialize<byte>(OffsetBX, name: "OffsetBX");
-            OffsetBY = s.Serialize<byte>(OffsetBY, name: "OffsetBY");
+            OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
+            OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
 
-            Unknown7 = s.Serialize<ushort>(Unknown7, name: "Unknown7");
+            Unknown7 = s.Serialize<ushort>(Unknown7, name: nameof(Unknown7));
 
-            Etat = s.Serialize<ushort>(Etat, name: "Etat");
-            SubEtat = s.Serialize<ushort>(SubEtat, name: "SubEtat");
+            Etat = s.Serialize<ushort>(Etat, name: nameof(Etat));
+            SubEtat = s.Serialize<ushort>(SubEtat, name: nameof(SubEtat));
 
-            Unknown8 = s.Serialize<ushort>(Unknown8, name: "Unknown8");
-            Unknown9 = s.Serialize<ushort>(Unknown9, name: "Unknown9");
+            Unknown8 = s.Serialize<ushort>(Unknown8, name: nameof(Unknown8));
+            Unknown9 = s.Serialize<ushort>(Unknown9, name: nameof(Unknown9));
 
-            OffsetHY = s.Serialize<byte>(OffsetHY, name: "OffsetHY");
-            FollowSprite = s.Serialize<byte>(FollowSprite, name: "FollowSprite");
+            OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
+            FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
 
-            Hitpoints = s.Serialize<ushort>(Hitpoints, name: "Hitpoints");
+            Hitpoints = s.Serialize<ushort>(Hitpoints, name: nameof(Hitpoints));
 
-            UnkGroup = s.Serialize<byte>(UnkGroup, name: "UnkGroup");
+            UnkGroup = s.Serialize<byte>(UnkGroup, name: nameof(UnkGroup));
 
-            Type = s.Serialize<byte>(Type, name: "Type");
+            Type = s.Serialize<byte>(Type, name: nameof(Type));
 
-            HitSprite = s.Serialize<ushort>(HitSprite, name: "HitSprite");
+            HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
 
-            Unknown10 = s.SerializeArray<byte>(Unknown10, 6, name: "Unknown10");
+            Unknown10 = s.SerializeArray<byte>(Unknown10, 6, name: nameof(Unknown10));
 
-            AnimDescriptorCount = s.Serialize<ushort>(AnimDescriptorCount, name: "UnkPointer2Count");
+            AnimDescriptorCount = s.Serialize<ushort>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
-            FollowEnabled = s.Serialize<bool>(FollowEnabled, name: "FollowEnabled");
-            Unknown11 = s.Serialize<byte>(Unknown11, name: "Unknown11");
+            FollowEnabled = s.Serialize<bool>(FollowEnabled, name: nameof(FollowEnabled));
+            Unknown11 = s.Serialize<byte>(Unknown11, name: nameof(Unknown11));
 
             // Serialize the image descriptors
             s.DoAt(ImageDescriptorsPointer, () => {
-                ImageDescriptors = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: "ImageDescriptors");
+                ImageDescriptors = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
             });
 
             // Serialize the animation descriptors
             s.DoAt(AnimDescriptorsPointer, () => {
-                AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: "AnimDescriptors");
+                AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors));
             });
 
             // Serialize the commands
             if (CommandsPointer != null)
             {
                 s.DoAt(CommandsPointer, () => {
-                    Commands = s.SerializeObject(Commands, name: "Commands");
+                    Commands = s.SerializeObject(Commands, name: nameof(Commands));
                 });
             }
 
@@ -249,10 +249,10 @@ namespace R1Engine
                     else
                     {
                         // Serialize the label offsets
-                        s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: "LabelOffsets");
+                        s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
 
                         // Null terminate it
-                        s.Serialize((byte)0, name: "LabelOffsets NULL");
+                        s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");
                     }
                 });
             }
@@ -261,12 +261,12 @@ namespace R1Engine
             s.DoAt(ETAPointer + (Etat * 4), () =>
             {
                 // Get the state-array pointer
-                ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: "ETAEtatPointer");
+                ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: nameof(ETASubEtatPointer));
 
                 // Serialize event state
                 s.DoAt(ETASubEtatPointer + (SubEtat * 8), () =>
                 {
-                    EventState = s.SerializeObject(EventState, name: "EventState");
+                    EventState = s.SerializeObject(EventState, name: nameof(EventState));
                 });
             });
         }

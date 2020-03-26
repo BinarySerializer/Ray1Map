@@ -22,8 +22,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            XPosition = s.Serialize<ushort>(XPosition, name: "XPosition");
-            YPosition = s.Serialize<ushort>(YPosition, name: "YPosition");
+            XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
         }
     }
 }

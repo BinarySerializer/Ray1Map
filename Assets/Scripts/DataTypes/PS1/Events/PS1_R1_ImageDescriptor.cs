@@ -49,19 +49,19 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            Unknown0 = s.Serialize<uint>(Unknown0, name: "Unknown0");
-            Unknown1 = s.Serialize<byte>(Unknown1, name: "Unknown1");
-            OuterWidth = s.Serialize<byte>(OuterWidth, name: "OuterWidth");
-            OuterHeight = s.Serialize<byte>(OuterHeight, name: "OuterHeight");
-            InnerWidth = s.Serialize<byte>(InnerWidth, name: "InnerWidth");
-            InnerHeight = s.Serialize<byte>(InnerHeight, name: "InnerHeight");
-            Unknown2 = s.Serialize<byte>(Unknown2, name: "Unknown2");
-            Unknown3 = s.Serialize<byte>(Unknown3, name: "Unknown3");
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 3, name: "Unknown4");
-            TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: "PageCoordinates");
-            ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: "ImageOffsetInPageX");
-            ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: "ImageOffsetInPageY");
-            Unknown6 = s.Serialize<ushort>(Unknown6, name: "Unknown6");
+            Unknown0 = s.Serialize<uint>(Unknown0, name: nameof(Unknown0));
+            Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
+            OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
+            OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
+            InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
+            InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
+            Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
+            Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
+            Unknown4 = s.SerializeArray<byte>(Unknown4, 3, name: nameof(Unknown4));
+            TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
+            ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: nameof(ImageOffsetInPageX));
+            ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: nameof(ImageOffsetInPageY));
+            Unknown6 = s.Serialize<ushort>(Unknown6, name: nameof(Unknown6));
         }
     }
 }

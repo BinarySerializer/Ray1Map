@@ -31,7 +31,7 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s) {
             base.SerializeImpl(s);
 
-            LocCount = s.Serialize<uint>(LocCount, name: "LocCount");
+            LocCount = s.Serialize<uint>(LocCount, name: nameof(LocCount));
 
             if (s is BinaryDeserializer)
             {
@@ -50,10 +50,10 @@ namespace R1Engine
             }
             else
             {
-                s.SerializeArray<ushort>(Unknown2, Unknown2.Length, name: "Unknown2");
+                s.SerializeArray<ushort>(Unknown2, Unknown2.Length, name: nameof(Unknown2));
             }
 
-            LocItems = s.SerializeObjectArray<PC_Mapper_EventLocItem>(LocItems, LocCount, name: "LocItems");
+            LocItems = s.SerializeObjectArray<PC_Mapper_EventLocItem>(LocItems, LocCount, name: nameof(LocItems));
         }
     }
 }

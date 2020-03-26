@@ -193,15 +193,15 @@ namespace R1Engine
             // HEADER BLOCK
 
             // Serialize block pointer
-            EventBlockPointer = s.Serialize<uint>(EventBlockPointer, name: "EventBlockPointer");
-            TextureBlockPointer = s.Serialize<uint>(TextureBlockPointer, name: "TextureBlockPointer");
+            EventBlockPointer = s.Serialize<uint>(EventBlockPointer, name: nameof(EventBlockPointer));
+            TextureBlockPointer = s.Serialize<uint>(TextureBlockPointer, name: nameof(TextureBlockPointer));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
-                Unknown6 = s.SerializeArray<byte>(Unknown6, 68, name: "Unknown6");
+                Unknown6 = s.SerializeArray<byte>(Unknown6, 68, name: nameof(Unknown6));
 
             // Serialize map size
-            Width = s.Serialize<ushort>(Width, name: "Width");
-            Height = s.Serialize<ushort>(Height, name: "Height");
+            Width = s.Serialize<ushort>(Width, name: nameof(Width));
+            Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
             // Create the palettes if necessary
             if (ColorPalettes == null) {
@@ -219,31 +219,31 @@ namespace R1Engine
             // Serialize each palette
             for (var paletteIndex = 0; paletteIndex < ColorPalettes.Length; paletteIndex++) {
                 var palette = ColorPalettes[paletteIndex];
-                ColorPalettes[paletteIndex] = s.SerializeObjectArray<RGB666Color>(palette, palette.Length, name: "ColorPalettes[" + paletteIndex + "]");
+                ColorPalettes[paletteIndex] = s.SerializeObjectArray<RGB666Color>(palette, palette.Length, name: nameof(ColorPalettes) + "[" + paletteIndex + "]");
             }
 
             // Serialize unknown byte
-            LastPlan1Palette = s.Serialize<byte>(LastPlan1Palette, name: "LastPlan1Palette");
+            LastPlan1Palette = s.Serialize<byte>(LastPlan1Palette, name: nameof(LastPlan1Palette));
 
             // MAP BLOCK
 
             // Serialize the map cells
-            Tiles = s.SerializeObjectArray<PC_MapTile>(Tiles, Height * Width, name: "Tiles");
+            Tiles = s.SerializeObjectArray<PC_MapTile>(Tiles, Height * Width, name: nameof(Tiles));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
             {
                 // Serialize the background data
-                BackgroundIndex = s.Serialize<byte>(BackgroundIndex, name: "BackgroundIndex");
-                ParallaxBackgroundIndex = s.Serialize<byte>(ParallaxBackgroundIndex, name: "ParallaxBackgroundIndex");
-                BackgroundSpritesDES = s.Serialize<int>(BackgroundSpritesDES, name: "BackgroundSpritesDES");
+                BackgroundIndex = s.Serialize<byte>(BackgroundIndex, name: nameof(BackgroundIndex));
+                ParallaxBackgroundIndex = s.Serialize<byte>(ParallaxBackgroundIndex, name: nameof(ParallaxBackgroundIndex));
+                BackgroundSpritesDES = s.Serialize<int>(BackgroundSpritesDES, name: nameof(BackgroundSpritesDES));
 
                 if (s.GameSettings.EngineVersion == EngineVersion.RayPC)
                 {
                     // Serialize the rough textures count
-                    RoughTextureCount = s.Serialize<uint>(RoughTextureCount, name: "RoughTextureCount");
+                    RoughTextureCount = s.Serialize<uint>(RoughTextureCount, name: nameof(RoughTextureCount));
 
                     // Serialize the length of the third unknown value
-                    Unknown3Count = s.Serialize<uint>(Unknown3Count, name: "Unknown3Count");
+                    Unknown3Count = s.Serialize<uint>(Unknown3Count, name: nameof(Unknown3Count));
 
                     // Begin calculating the rough texture checksum
                     s.BeginCalculateChecksum(new Checksum8Calculator());
@@ -262,37 +262,37 @@ namespace R1Engine
                     var c1 = s.EndCalculateChecksum<byte>();
 
                     // Read & verify the checksum for the rough textures
-                    RoughTexturesChecksum = s.SerializeChecksum<byte>(c1, name: "RoughTexturesChecksum");
+                    RoughTexturesChecksum = s.SerializeChecksum<byte>(c1, name: nameof(RoughTexturesChecksum));
 
                     // Read the index table for the rough textures
-                    RoughTexturesIndexTable = s.SerializeArray<uint>(RoughTexturesIndexTable, 1200, name: "RoughTexturesIndexTable");
+                    RoughTexturesIndexTable = s.SerializeArray<uint>(RoughTexturesIndexTable, 1200, name: nameof(RoughTexturesIndexTable));
 
                     // Begin calculating the unknown 3 checksum
                     s.BeginCalculateChecksum(new Checksum8Calculator());
 
                     // TODO: Encrypted with xor 0xF3
                     // Serialize the items for the third unknown value
-                    Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: "Unknown3");
+                    Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: nameof(Unknown3));
 
                     // Get the checksum
                     var c2 = s.EndCalculateChecksum<byte>();
 
                     // Serialize the checksum for the third unknown value
-                    Unknown3Checksum = s.SerializeChecksum<byte>(c2, name: "Unknown3Checksum");
+                    Unknown3Checksum = s.SerializeChecksum<byte>(c2, name: nameof(Unknown3Checksum));
 
                     // Read the offset table for the third unknown value
-                    Unknown3OffsetTable = s.SerializeArray<uint>(Unknown3OffsetTable, 1200, name: "Unknown3OffsetTable");
+                    Unknown3OffsetTable = s.SerializeArray<uint>(Unknown3OffsetTable, 1200, name: nameof(Unknown3OffsetTable));
                 }
                 else
                 {
                     // Read unknown values
-                    Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer - s.CurrentPointer.FileOffset, name: "Unknown7");
+                    Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer - s.CurrentPointer.FileOffset, name: nameof(Unknown7));
                 }
             }
             else
             {
                 // Read unknown values
-                Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer - s.CurrentPointer.FileOffset, name: "Unknown7");
+                Unknown7 = s.SerializeArray<byte>(Unknown7, TextureBlockPointer - s.CurrentPointer.FileOffset, name: nameof(Unknown7));
             }
 
             // TEXTURE BLOCK
@@ -303,19 +303,19 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 // TODO: Verify checksum
-                TextureBlockChecksum = s.Serialize<byte>(TextureBlockChecksum, name: "TextureBlockChecksum");
+                TextureBlockChecksum = s.Serialize<byte>(TextureBlockChecksum, name: nameof(TextureBlockChecksum));
 
             // Get the xor key to use for the texture block
             byte texXor = (byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 255);
             s.BeginXOR(texXor);
 
             // Read the offset table for the textures
-            TexturesOffsetTable = s.SerializeArray<uint>(TexturesOffsetTable, 1200, name: "TexturesOffsetTable");
+            TexturesOffsetTable = s.SerializeArray<uint>(TexturesOffsetTable, 1200, name: nameof(TexturesOffsetTable));
 
             // Read the textures count
-            TexturesCount = s.Serialize<uint>(TexturesCount, name: "TexturesCount");
-            NonTransparentTexturesCount = s.Serialize<uint>(NonTransparentTexturesCount, name: "NonTransparentTexturesCount");
-            TexturesDataTableCount = s.Serialize<uint>(TexturesDataTableCount, name: "TexturesDataTableCount");
+            TexturesCount = s.Serialize<uint>(TexturesCount, name: nameof(TexturesCount));
+            NonTransparentTexturesCount = s.Serialize<uint>(NonTransparentTexturesCount, name: nameof(NonTransparentTexturesCount));
+            TexturesDataTableCount = s.Serialize<uint>(TexturesDataTableCount, name: nameof(TexturesDataTableCount));
             s.EndXOR();
 
             // Get the current offset to use for the texture offsets
@@ -335,7 +335,7 @@ namespace R1Engine
             {
                 // Serialize the texture
                 uint texOffset = s.CurrentPointer.FileOffset - textureBaseOffset;
-                NonTransparentTextures[i] = s.SerializeObject<PC_TileTexture>(NonTransparentTextures[i], onPreSerialize: t => t.TextureOffset = texOffset, name: "NonTransparentTextures[" + i + "]");
+                NonTransparentTextures[i] = s.SerializeObject<PC_TileTexture>(NonTransparentTextures[i], onPreSerialize: t => t.TextureOffset = texOffset, name: nameof(NonTransparentTextures) + "[" + i + "]");
             }
 
             if (TransparentTextures == null) {
@@ -347,11 +347,11 @@ namespace R1Engine
             for (int i = 0; i < TransparentTextures.Length; i++)
             {
                 uint texOffset = s.CurrentPointer.FileOffset - textureBaseOffset;
-                TransparentTextures[i] = s.SerializeObject<PC_TransparentTileTexture>(TransparentTextures[i], onPreSerialize: t => t.TextureOffset = texOffset, name: "TransparentTextures[" + i + "]");
+                TransparentTextures[i] = s.SerializeObject<PC_TransparentTileTexture>(TransparentTextures[i], onPreSerialize: t => t.TextureOffset = texOffset, name: nameof(TransparentTextures) + "[" + i + "]");
             }
 
             // Serialize the fourth unknown value
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 32, name: "Unknown4");
+            Unknown4 = s.SerializeArray<byte>(Unknown4, 32, name: nameof(Unknown4));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
             {
@@ -359,7 +359,7 @@ namespace R1Engine
                 var c = s.EndCalculateChecksum<byte>();
 
                 // Serialize the checksum for the textures
-                TexturesChecksum = s.SerializeChecksum<byte>(c, name: "TexturesChecksum");
+                TexturesChecksum = s.SerializeChecksum<byte>(c, name: nameof(TexturesChecksum));
             }
 
             // EVENT BLOCK
@@ -370,27 +370,27 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 // TODO: Verify checksum
-                EventBlockChecksum = s.Serialize<byte>(EventBlockChecksum, name: "EventBlockChecksum");
+                EventBlockChecksum = s.Serialize<byte>(EventBlockChecksum, name: nameof(EventBlockChecksum));
 
             // Set the xor key to use for the event block
             s.BeginXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 145));
 
             // Serialize the event count
-            EventCount = s.Serialize<ushort>(EventCount, name: "EventCount");
+            EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
 
             // Serialize the event linking table
-            EventLinkingTable = s.SerializeArray<ushort>(EventLinkingTable, EventCount, name: "EventLinkingTable");
+            EventLinkingTable = s.SerializeArray<ushort>(EventLinkingTable, EventCount, name: nameof(EventLinkingTable));
 
             // Serialize the events
-            Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: "Events");
+            Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
 
             // Serialize the event commands
-            EventCommands = s.SerializeObjectArray<PC_EventCommand>(EventCommands, EventCount, name: "EventCommands");
+            EventCommands = s.SerializeObjectArray<PC_EventCommand>(EventCommands, EventCount, name: nameof(EventCommands));
 
             s.EndXOR();
 
             // Serialize remaining data (appears in some Kit levels)
-            Unknown8 = s.SerializeArray<byte>(Unknown8, s.CurrentLength - s.CurrentPointer.FileOffset, name: "Unknown8");
+            Unknown8 = s.SerializeArray<byte>(Unknown8, s.CurrentLength - s.CurrentPointer.FileOffset, name: nameof(Unknown8));
         }
 
         #endregion

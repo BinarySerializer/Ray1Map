@@ -32,12 +32,12 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize the lengths
-            CommandLength = s.Serialize<ushort>(CommandLength, name: "CommandLength");
-            LabelOffsetCount = s.Serialize<ushort>(LabelOffsetCount, name: "LabelOffsetCount");
+            CommandLength = s.Serialize<ushort>(CommandLength, name: nameof(CommandLength));
+            LabelOffsetCount = s.Serialize<ushort>(LabelOffsetCount, name: nameof(LabelOffsetCount));
 
             if (CommandLength > 0)
                 // Serialize the commands
-                Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: "Commands");
+                Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: nameof(Commands));
             else
                 Commands = new Common_EventCommandCollection()
                 {
@@ -45,7 +45,7 @@
                 };
 
             // Serialize the label offsets
-            LabelOffsetTable = s.SerializeArray<ushort>(LabelOffsetTable, LabelOffsetCount, name: "LabelOffsetTable");
+            LabelOffsetTable = s.SerializeArray<ushort>(LabelOffsetTable, LabelOffsetCount, name: nameof(LabelOffsetTable));
         }
     }
 }

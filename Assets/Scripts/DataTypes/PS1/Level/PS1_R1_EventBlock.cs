@@ -44,10 +44,10 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize header
-            EventsPointer = s.SerializePointer(EventsPointer, name: "EventsPointer");
-            EventCount = s.Serialize<uint>(EventCount, name: "EventCount");
-            EventLinksPointer = s.SerializePointer(EventLinksPointer, name: "EventLinksPointer");
-            EventLinkCount = s.Serialize<uint>(EventLinkCount, name: "EventLinkCount");
+            EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
+            EventCount = s.Serialize<uint>(EventCount, name: nameof(EventCount));
+            EventLinksPointer = s.SerializePointer(EventLinksPointer, name: nameof(EventLinksPointer));
+            EventLinkCount = s.Serialize<uint>(EventLinkCount, name: nameof(EventLinkCount));
 
             if (EventCount != EventLinkCount)
                 Debug.LogError("Event counts don't match");
@@ -55,13 +55,13 @@ namespace R1Engine
             s.DoAt(EventsPointer, (() =>
             {
                 // Serialize every event
-                Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: "Events");
+                Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: nameof(Events));
             }));
 
             s.DoAt(EventLinksPointer, (() =>
             {
                 // Serialize the event linking table
-                EventLinkingTable = s.SerializeArray<byte>(EventLinkingTable, EventLinkCount, name: "EventLinkingTable");
+                EventLinkingTable = s.SerializeArray<byte>(EventLinkingTable, EventLinkCount, name: nameof(EventLinkingTable));
             }));
         }
     }

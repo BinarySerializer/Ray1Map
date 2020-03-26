@@ -20,9 +20,9 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            TileIndex = s.Serialize<ushort>(TileIndex, name: "TileIndex");
+            TileIndex = s.Serialize<ushort>(TileIndex, name: nameof(TileIndex));
 
-            CollisionType = (TileCollisionType)s.Serialize<ushort>((ushort)CollisionType, name: "CollisionType");
+            CollisionType = (TileCollisionType)s.Serialize<ushort>((ushort)CollisionType, name: nameof(CollisionType));
         }
     }
 }

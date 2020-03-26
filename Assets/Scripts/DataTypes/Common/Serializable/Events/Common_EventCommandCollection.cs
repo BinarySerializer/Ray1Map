@@ -96,7 +96,7 @@ namespace R1Engine
             else
             {
                 // Serialize the commands
-                s.SerializeObjectArray(Commands, Commands.Length, name: "Commands");
+                s.SerializeObjectArray(Commands, Commands.Length, name: nameof(Commands));
             }
         }
     }

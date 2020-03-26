@@ -47,23 +47,23 @@
         public override void SerializeImpl(SerializerObject s) 
         {
             // Serialize pointers
-            AnimLayersPointer = s.SerializePointer(AnimLayersPointer, name: "AnimLayersPointer");
-            AnimFramesPointer = s.SerializePointer(AnimFramesPointer, name: "AnimFramesPointer");
+            AnimLayersPointer = s.SerializePointer(AnimLayersPointer, name: nameof(AnimLayersPointer));
+            AnimFramesPointer = s.SerializePointer(AnimFramesPointer, name: nameof(AnimFramesPointer));
             
             // Serialize data
-            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: "LayersPerFrame");
-            Unknown1 = s.Serialize<byte>(Unknown1, name: "Unknown1");
-            FrameCount = s.Serialize<byte>(FrameCount, name: "FrameCount");
-            Unknown2 = s.Serialize<byte>(Unknown2, name: "Unknown2");
+            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: nameof(LayersPerFrame));
+            Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
+            FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
+            Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
 
             // Serialize data from pointers
             s.DoAt(AnimLayersPointer, () =>
             {
-                Layers = s.SerializeObjectArray(Layers, LayersPerFrame * FrameCount, name: "Layers");
+                Layers = s.SerializeObjectArray(Layers, LayersPerFrame * FrameCount, name: nameof(Layers));
             });
             s.DoAt(AnimFramesPointer, () =>
             {
-                Frames = s.SerializeObjectArray(Frames, FrameCount + 1, name: "Frames");
+                Frames = s.SerializeObjectArray(Frames, FrameCount + 1, name: nameof(Frames));
             });
         }
     }

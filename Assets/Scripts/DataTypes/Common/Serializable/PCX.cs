@@ -97,24 +97,24 @@ namespace R1Engine
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             // Serialize the header
-            Identifier = s.Serialize<byte>(Identifier, name: "Identifier");
-            Version = s.Serialize<byte>(Version, name: "Version");
-            Encoding = s.Serialize<byte>(Encoding, name: "Encoding");
-            BitsPerPixel = s.Serialize<byte>(BitsPerPixel, name: "BitsPerPixel");
-            XStart = s.Serialize<ushort>(XStart, name: "XStart");
-            YStart = s.Serialize<ushort>(YStart, name: "YStart");
-            XEnd = s.Serialize<ushort>(XEnd, name: "XEnd");
-            YEnd = s.Serialize<ushort>(YEnd, name: "YEnd");
-            HorRes = s.Serialize<ushort>(HorRes, name: "HorRes");
-            VerRes = s.Serialize<ushort>(VerRes, name: "VerRes");
-            EGAPalette = s.SerializeArray<byte>(EGAPalette, 48, name: "EGAPalette");
-            Reserved1 = s.Serialize<byte>(Reserved1, name: "Reserved1");
-            BitPlaneCount = s.Serialize<byte>(BitPlaneCount, name: "BitPlaneCount");
-            BytesPerLine = s.Serialize<ushort>(BytesPerLine, name: "BytesPerLine");
-            PaletteType = s.Serialize<ushort>(PaletteType, name: "PaletteType");
-            HorScreenSize = s.Serialize<ushort>(HorScreenSize, name: "HorScreenSize");
-            VerScreenSize = s.Serialize<ushort>(VerScreenSize, name: "VerScreenSize");
-            Reserved2 = s.SerializeArray<byte>(Reserved2, 54, name: "Reserved2");
+            Identifier = s.Serialize<byte>(Identifier, name: nameof(Identifier));
+            Version = s.Serialize<byte>(Version, name: nameof(Version));
+            Encoding = s.Serialize<byte>(Encoding, name: nameof(Encoding));
+            BitsPerPixel = s.Serialize<byte>(BitsPerPixel, name: nameof(BitsPerPixel));
+            XStart = s.Serialize<ushort>(XStart, name: nameof(XStart));
+            YStart = s.Serialize<ushort>(YStart, name: nameof(YStart));
+            XEnd = s.Serialize<ushort>(XEnd, name: nameof(XEnd));
+            YEnd = s.Serialize<ushort>(YEnd, name: nameof(YEnd));
+            HorRes = s.Serialize<ushort>(HorRes, name: nameof(HorRes));
+            VerRes = s.Serialize<ushort>(VerRes, name: nameof(VerRes));
+            EGAPalette = s.SerializeArray<byte>(EGAPalette, 48, name: nameof(EGAPalette));
+            Reserved1 = s.Serialize<byte>(Reserved1, name: nameof(Reserved1));
+            BitPlaneCount = s.Serialize<byte>(BitPlaneCount, name: nameof(BitPlaneCount));
+            BytesPerLine = s.Serialize<ushort>(BytesPerLine, name: nameof(BytesPerLine));
+            PaletteType = s.Serialize<ushort>(PaletteType, name: nameof(PaletteType));
+            HorScreenSize = s.Serialize<ushort>(HorScreenSize, name: nameof(HorScreenSize));
+            VerScreenSize = s.Serialize<ushort>(VerScreenSize, name: nameof(VerScreenSize));
+            Reserved2 = s.SerializeArray<byte>(Reserved2, 54, name: nameof(Reserved2));
 
             if (s is BinaryDeserializer)
             {
@@ -146,7 +146,7 @@ namespace R1Engine
                         if ((b & 0xC0) == 0xC0)
                         {
                             repeatCount = b & 0x3F;
-                            runValue = s.Serialize<byte>(runValue, name: "runValue");
+                            runValue = s.Serialize<byte>(runValue, name: nameof(runValue));
                         }
                         else
                         {
@@ -177,10 +177,10 @@ namespace R1Engine
             }
 
             // Serialize the initial palette byte
-            PaletteStart = s.Serialize<byte>(PaletteStart, name: "PaletteStart");
+            PaletteStart = s.Serialize<byte>(PaletteStart, name: nameof(PaletteStart));
 
             // Serialize the palette
-            VGAPalette = s.SerializeArray<byte>(VGAPalette, 256 * 3, name: "VGAPalette");
+            VGAPalette = s.SerializeArray<byte>(VGAPalette, 256 * 3, name: nameof(VGAPalette));
         }
     }
 }

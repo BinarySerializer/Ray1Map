@@ -50,16 +50,16 @@
             // HEADER
 
             Pointers = s.SerializeArraySize<uint, uint>(Pointers);
-            Pointers = s.SerializeArray<uint>(Pointers, Pointers.Length, name: "Pointers");
-            FileSize = s.Serialize<uint>(FileSize, name: "FileSize");
+            Pointers = s.SerializeArray<uint>(Pointers, Pointers.Length, name: nameof(Pointers));
+            FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 
             // IMAGE BLOCK
 
             // Serialize header values
-            Unknown1 = s.Serialize<ushort>(Unknown1, name: "Unknown1");
-            Width = s.Serialize<ushort>(Width, name: "Width");
-            Height = s.Serialize<ushort>(Height, name: "Height");
-            Unknown2 = s.Serialize<ushort>(Unknown2, name: "Unknown2");
+            Unknown1 = s.Serialize<ushort>(Unknown1, name: nameof(Unknown1));
+            Width = s.Serialize<ushort>(Width, name: nameof(Width));
+            Height = s.Serialize<ushort>(Height, name: nameof(Height));
+            Unknown2 = s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
 
             // Create block array
             if (ImageBlocks == null)
@@ -75,11 +75,11 @@
 
             // Serialize blocks
             for (int i = 0; i < ImageBlocks.Length; i++)
-                ImageBlocks[i] = s.SerializeObjectArray<RGB555Color>(ImageBlocks[i], BlockWidth * Height, name: "ImageBlocks[" + i + "]", onPreSerialize: x => x.IsBlackTransparent = false);
+                ImageBlocks[i] = s.SerializeObjectArray<RGB555Color>(ImageBlocks[i], BlockWidth * Height, name: nameof(ImageBlocks) + "[" + i + "]", onPreSerialize: x => x.IsBlackTransparent = false);
 
             // UNKNOWN
 
-            UnknownBlock = s.SerializeArray<byte>(UnknownBlock, FileSize - s.CurrentPointer.FileOffset, name: "UnknownBlock");
+            UnknownBlock = s.SerializeArray<byte>(UnknownBlock, FileSize - s.CurrentPointer.FileOffset, name: nameof(UnknownBlock));
         }
     }
 }

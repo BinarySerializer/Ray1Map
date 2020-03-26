@@ -26,13 +26,13 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize the background layer information (always 12)
-            BackgroundLayerPositions = s.SerializeObjectArray<PS1_R1_BackgroundLayerPosition>(BackgroundLayerPositions, 12, name: "BackgroundLayerPositions");
+            BackgroundLayerPositions = s.SerializeObjectArray<PS1_R1_BackgroundLayerPosition>(BackgroundLayerPositions, 12, name: nameof(BackgroundLayerPositions));
 
-            Unknown3 = s.SerializeArray<byte>(Unknown3, 16, name: "Unknown3");
+            Unknown3 = s.SerializeArray<byte>(Unknown3, 16, name: nameof(Unknown3));
 
-            BackgroundLayerInfos = s.SerializeObjectArray<PS1_R1_BackgroundLayerInfo>(BackgroundLayerInfos, 12, name: "BackgroundLayerInfos");
+            BackgroundLayerInfos = s.SerializeObjectArray<PS1_R1_BackgroundLayerInfo>(BackgroundLayerInfos, 12, name: nameof(BackgroundLayerInfos));
 
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 80, name: "Unknown4");
+            Unknown4 = s.SerializeArray<byte>(Unknown4, 80, name: nameof(Unknown4));
 
             // TODO: NTSC-J has more values here!
         }
