@@ -1,17 +1,18 @@
-﻿using R1Engine.Serialize;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using R1Engine.Serialize;
 
-namespace R1Engine {
+namespace R1Engine
+{
 	/// <summary>
 	/// Base type for structs in R1
 	/// </summary>
-	public abstract class R1Serializable {
+	public abstract class R1Serializable 
+    {
+        [JsonIgnore]
 		protected bool isFirstLoad = true;
+		[JsonIgnore]
 		public Context Context { get; protected set; }
+		[JsonIgnore]
 		public Pointer Offset { get; protected set; }
 
 		public void Init(Pointer offset) {
@@ -35,6 +36,7 @@ namespace R1Engine {
 		protected virtual void OnPreSerialize(SerializerObject s) { }
 		protected virtual void OnPostSerialize(SerializerObject s) { }
 
+		[JsonIgnore]
 		public virtual uint Size { get; protected set; }
 
 		/// <summary>
