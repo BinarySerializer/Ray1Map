@@ -580,21 +580,21 @@ namespace R1Engine
             byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
             Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
             byte[] unknown = new byte[128 * 8];
-            vram.AddData(unknown, 128, 8);
-            vram.AddData(cageSprites, 128, 256 * 2 - 8);
-            vram.AddData(allFixSprites, 256, allFixSprites.Length / 256);
+            vram.AddData(unknown, 128);
+            vram.AddData(cageSprites, 128);
+            vram.AddData(allFixSprites, 256);
 
-            vram.AddData(world.TextureBlock, 256, world.TextureBlock.Length / 256);
-            vram.AddData(levelTextureBlock, 256, levelTextureBlock.Length / 256);
+            vram.AddData(world.TextureBlock, 256);
+            vram.AddData(levelTextureBlock, 256);
 
-            Texture2D vramTex = new Texture2D(7 * 128, 2 * 256);
+            /*Texture2D vramTex = new Texture2D(7 * 128, 2 * 256);
             for (int x = 0; x < 7 * 128; x++) {
                 for (int y = 0; y < 2 * 256; y++) {
                     byte val = vram.GetPixel(5, y / 256, x, y % 256);
                     vramTex.SetPixel(x, y, new Color(val / 255f, val / 255f, val / 255f));
                 }
             }
-            vramTex.Apply();
+            vramTex.Apply();*/
 
             return vram;
         }

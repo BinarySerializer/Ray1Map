@@ -14,7 +14,7 @@ namespace R1Engine {
 		public int currentYPage = 0;
 		public int nextYInPage = 0;
 
-		public void AddData(byte[] data, int width, int height) {
+		public void AddData(byte[] data, int width) {
 			if (data == null) return;
 			/*if (pages[currentYPage] == null || pages[currentYPage].Length == 0) {
 				pages[currentYPage] = new Page[currentXPage + (width / page_width)];
@@ -22,50 +22,52 @@ namespace R1Engine {
 			if (pages[currentYPage].Length < currentXPage + (width / page_width)) {
 				Array.Resize(ref pages[currentYPage], currentXPage + (width / page_width));
 			}*/
-			int xInPage = 0, yInPage = 0;
-			int curPageX = currentXPage, curPageY = currentYPage, curStartPageX = currentXPage;
-			for (int x = 0; x < width; x++) {
-				for (int y = 0; y < height; y++) {
-					curPageX = currentXPage + (x / page_width);
-					curStartPageX = currentXPage;
-					curPageY = currentYPage + ((nextYInPage + y) / page_height);
-					xInPage = x % page_width;
-					yInPage = (nextYInPage + y) % page_height;
-					while (curPageY > 1) {
-						// Wrap
-						curPageY -= 2;
-						curPageX += (width / page_width);
-						curStartPageX += (width / page_width);
+			int height = data.Length / width + ((data.Length % width != 0) ? 1 : 0);
+			if (height > 0 && width > 0) {
+				int xInPage = 0, yInPage = 0;
+				int curPageX = currentXPage, curPageY = currentYPage, curStartPageX = currentXPage;
+				for (int x = 0; x < width; x++) {
+					for (int y = 0; y < height; y++) {
+						curPageX = currentXPage + (x / page_width);
+						curStartPageX = currentXPage;
+						curPageY = currentYPage + ((nextYInPage + y) / page_height);
+						xInPage = x % page_width;
+						yInPage = (nextYInPage + y) % page_height;
+						while (curPageY > 1) {
+							// Wrap
+							curPageY -= 2;
+							curPageX += (width / page_width);
+							curStartPageX += (width / page_width);
+						}
+						if (pages[curPageY] == null || pages[curPageY].Length == 0) {
+							pages[curPageY] = new Page[curPageX];
+						}
+						if (pages[curPageY].Length < curPageX + 1) {
+							Array.Resize(ref pages[curPageY], curPageX + 1);
+						}
+						if (pages[curPageY][curPageX] == null) {
+							//UnityEngine.Debug.Log("Created page " + curPageX + "," + curPageY);
+							pages[curPageY][curPageX] = new Page();
+						}
+						pages[curPageY][curPageX].SetByte(xInPage, yInPage, data[y * width + x]);
 					}
-					if (pages[curPageY] == null || pages[curPageY].Length == 0) {
-						pages[curPageY] = new Page[curPageX];
+				}
+				currentXPage = curStartPageX;
+				currentYPage = curPageY;
+
+
+				nextYInPage = yInPage + 1;
+				if (nextYInPage >= page_height) {
+					// Change page
+					nextYInPage -= page_height;
+					currentYPage++;
+					if (currentYPage > 1) {
+						//  Wrap
+						currentXPage += (width / page_width);
+						currentYPage -= 2;
 					}
-					if (pages[curPageY].Length < curPageX + 1) {
-						Array.Resize(ref pages[curPageY], curPageX + 1);
-					}
-					if (pages[curPageY][curPageX] == null) {
-						//UnityEngine.Debug.Log("Created page " + curPageX + "," + curPageY);
-						pages[curPageY][curPageX] = new Page();
-					}
-					pages[curPageY][curPageX].SetByte(xInPage, yInPage, data[y * width + x]);
 				}
 			}
-			currentXPage = curStartPageX;
-			currentYPage = curPageY;
-
-
-			nextYInPage = yInPage + 1;
-			if (nextYInPage >= page_height) {
-				// Change page
-				nextYInPage -= page_height;
-				currentYPage++;
-				if (currentYPage > 1) {
-					//  Wrap
-					currentXPage += (width / page_width);
-					currentYPage -= 2;
-				}
-			}
-
 			//UnityEngine.Debug.Log(currentXPage + " - " + currentYPage + " - " + curPageX + " - " + ((width / page_width) - 1));
 			/*if (data != null) {
 				if (pages.Count == 0) {
