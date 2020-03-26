@@ -131,5 +131,54 @@ namespace R1Engine
                 [4] = "Mr Dark's Dare 4 - Boss",
             },
         };
+
+        /// <summary>
+        /// The Rayman Designer map names
+        /// </summary>
+        public static Dictionary<World, Dictionary<int, string>> RayKitMapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
+        {
+            [World.Jungle] = new Dictionary<int, string>()
+            {
+                [1] = "The Sky's the Limit",
+                [2] = "Fruity Fun",
+                [3] = "Junglemania",
+                [4] = "Ring a Ling",
+            },
+            [World.Music] = new Dictionary<int, string>()
+            {
+                [1] = "Gone with the Wind",
+                [2] = "Scale the Scales",
+                [3] = "Music Lessons",
+                [4] = "Melodic Maracas",
+            },
+            [World.Mountain] = new Dictionary<int, string>()
+            {
+                [1] = "Treetop Adventure",
+                [2] = "Tough Climb",
+                [3] = "Tip-Top Tempest",
+                [4] = "The Diabolical Pursuit",
+            },
+            [World.Image] = new Dictionary<int, string>()
+            {
+                [1] = "The Five Doors",
+                [2] = "Pencil Pentathalon",
+                [3] = "Eraser Mania",
+                [4] = "Tic Tack Toe",
+            },
+            [World.Cave] = new Dictionary<int, string>()
+            {
+                [1] = "Peaks and Rocks",
+                [2] = "Dark Journey",
+                [3] = "Dreaded Caves",
+                [4] = "Dire Darkness",
+            },
+            [World.Cake] = new Dictionary<int, string>()
+            {
+                [1] = "Chocolate Trap",
+                [2] = "Crazy Candy",
+                [3] = "Bonbon-a-rama",
+                [4] = "Whipped Cream Challenge",
+            },
+        };
     }
 }

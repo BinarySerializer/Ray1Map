@@ -7,7 +7,7 @@ namespace R1Engine
     /// The available game modes
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum GameMode
+    public enum EngineVersion
     {
         /// <summary>
         /// Rayman 1 (PS1)

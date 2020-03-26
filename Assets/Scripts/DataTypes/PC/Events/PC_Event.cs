@@ -85,7 +85,7 @@
             Unk2 = s.Serialize<uint>(Unk3, name: "Unk2");
 
             // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 Unk3 = s.Serialize<uint>(Unk3, name: "Unk3");
 
             Unk4 = s.SerializeArray<ushort>(Unk4, 22, name: "Unk4");

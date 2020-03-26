@@ -28,20 +28,20 @@ namespace R1Engine
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
             ushort value = 0;
-            if (s.GameSettings.GameMode == GameMode.RayPS1) {
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1) {
                 value = (ushort)BitHelpers.SetBits(value, TileMapX, 4, 0);
                 value = (ushort)BitHelpers.SetBits(value, TileMapY, 6, 4);
                 value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 6, 10);
-            } else if (s.GameSettings.GameMode == GameMode.RayPS1JP) {
+            } else if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JP) {
                 value = (ushort)BitHelpers.SetBits(value, TileMapX, 9, 0);
                 value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 7, 9);
             }
             value = s.Serialize<ushort>(value, name: "value");
-            if (s.GameSettings.GameMode == GameMode.RayPS1) {
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1) {
                 TileMapX = BitHelpers.ExtractBits(value, 4, 0);
                 TileMapY = BitHelpers.ExtractBits(value, 6, 4);
                 CollisionType = (TileCollisionType)(BitHelpers.ExtractBits(value, 6, 10));
-            } else if (s.GameSettings.GameMode == GameMode.RayPS1JP) {
+            } else if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JP) {
                 TileMapY = 0;
                 TileMapX = BitHelpers.ExtractBits(value, 9, 0);
                 CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 7, 9);

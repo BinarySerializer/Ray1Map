@@ -14,8 +14,12 @@
         /// <param name="level">The game level, starting at 1</param>
         public GameSettings(GameModeSelection gameModeSelection, string gameDirectory, World world = World.Jungle, int level = 1)
         {
+            // Get the attribute data
+            var atr = gameModeSelection.GetAttribute<GameModeAttribute>();
+
             GameModeSelection = gameModeSelection;
-            GameMode = gameModeSelection.GetAttribute<GameModeAttribute>().GameMode;
+            Game = atr.Game;
+            EngineVersion = atr.EngineVersion;
             GameDirectory = Util.NormalizePath(gameDirectory, isFolder: true);
             World = world;
             Level = level;
@@ -27,9 +31,14 @@
         public GameModeSelection GameModeSelection { get; }
 
         /// <summary>
-        /// The game mode
+        /// The engine version
         /// </summary>
-        public GameMode GameMode { get; }
+        public EngineVersion EngineVersion { get; }
+
+        /// <summary>
+        /// The game
+        /// </summary>
+        public Game Game { get; }
 
         /// <summary>
         /// The game directory

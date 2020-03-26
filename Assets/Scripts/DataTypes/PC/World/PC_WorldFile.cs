@@ -58,7 +58,7 @@
                 VideoBiosCheckSum = s.Serialize<byte>(VideoBiosCheckSum, name: "VideoBiosCheckSum");
                 BiosCheckSum = s.Serialize<byte>(BiosCheckSum, name: "BiosCheckSum");
                 s.BeginXOR(0x15);
-                Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: "Plan0NumPcx");
+                Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: "Plan0NumPcx");
                 s.EndXOR();
             }
 

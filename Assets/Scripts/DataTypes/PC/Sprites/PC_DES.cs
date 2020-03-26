@@ -67,7 +67,7 @@ namespace R1Engine
 
             ImageDataLength = s.Serialize<uint>(ImageDataLength, name: "ImageDataLength");
 
-            if (FileType == Type.World && (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC))
+            if (FileType == Type.World && (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC))
             {
                 ImageDataChecksum = s.Serialize<byte>(ImageDataChecksum, name: "ImageDataChecksum");
                 ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: "ImageData");

@@ -196,7 +196,7 @@ namespace R1Engine
             EventBlockPointer = s.Serialize<uint>(EventBlockPointer, name: "EventBlockPointer");
             TextureBlockPointer = s.Serialize<uint>(TextureBlockPointer, name: "TextureBlockPointer");
 
-            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 Unknown6 = s.SerializeArray<byte>(Unknown6, 68, name: "Unknown6");
 
             // Serialize map size
@@ -205,7 +205,7 @@ namespace R1Engine
 
             // Create the palettes if necessary
             if (ColorPalettes == null) {
-                ColorPalettes = s.GameSettings.GameMode == GameMode.RayKit ? new RGB666Color[][]
+                ColorPalettes = s.GameSettings.EngineVersion == EngineVersion.RayKit ? new RGB666Color[][]
                 {
                     new RGB666Color[256],
                 } : new RGB666Color[][]
@@ -230,14 +230,14 @@ namespace R1Engine
             // Serialize the map cells
             Tiles = s.SerializeObjectArray<PC_MapTile>(Tiles, Height * Width, name: "Tiles");
 
-            if (s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
             {
                 // Serialize the background data
                 BackgroundIndex = s.Serialize<byte>(BackgroundIndex, name: "BackgroundIndex");
                 ParallaxBackgroundIndex = s.Serialize<byte>(ParallaxBackgroundIndex, name: "ParallaxBackgroundIndex");
                 BackgroundSpritesDES = s.Serialize<int>(BackgroundSpritesDES, name: "BackgroundSpritesDES");
 
-                if (s.GameSettings.GameMode == GameMode.RayPC)
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPC)
                 {
                     // Serialize the rough textures count
                     RoughTextureCount = s.Serialize<uint>(RoughTextureCount, name: "RoughTextureCount");
@@ -301,12 +301,12 @@ namespace R1Engine
             if (s.CurrentPointer.FileOffset != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 // TODO: Verify checksum
                 TextureBlockChecksum = s.Serialize<byte>(TextureBlockChecksum, name: "TextureBlockChecksum");
 
             // Get the xor key to use for the texture block
-            byte texXor = (byte)(s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 255);
+            byte texXor = (byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 255);
             s.BeginXOR(texXor);
 
             // Read the offset table for the textures
@@ -322,7 +322,7 @@ namespace R1Engine
             var textureBaseOffset = s.CurrentPointer.FileOffset;
 
             // Begin calculating the texture checksum
-            if (s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
                 s.BeginCalculateChecksum(new Checksum8Calculator());
 
             if (NonTransparentTextures == null) {
@@ -353,7 +353,7 @@ namespace R1Engine
             // Serialize the fourth unknown value
             Unknown4 = s.SerializeArray<byte>(Unknown4, 32, name: "Unknown4");
 
-            if (s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
             {
                 // Get the checksum
                 var c = s.EndCalculateChecksum<byte>();
@@ -365,15 +365,15 @@ namespace R1Engine
             // EVENT BLOCK
 
             // At this point the stream position should match the event block offset (ignore the Pocket PC version here since it uses leftover pointers from PC version)
-            if (s.GameSettings.GameMode != GameMode.RayPocketPC && s.CurrentPointer.FileOffset != EventBlockPointer)
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPocketPC && s.CurrentPointer.FileOffset != EventBlockPointer)
                 Debug.LogError("Event block offset is incorrect");
 
-            if (s.GameSettings.GameMode == GameMode.RayKit || s.GameSettings.GameMode == GameMode.RayEduPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 // TODO: Verify checksum
                 EventBlockChecksum = s.Serialize<byte>(EventBlockChecksum, name: "EventBlockChecksum");
 
             // Set the xor key to use for the event block
-            s.BeginXOR((byte)(s.GameSettings.GameMode == GameMode.RayPC || s.GameSettings.GameMode == GameMode.RayPocketPC ? 0 : 145));
+            s.BeginXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 145));
 
             // Serialize the event count
             EventCount = s.Serialize<ushort>(EventCount, name: "EventCount");

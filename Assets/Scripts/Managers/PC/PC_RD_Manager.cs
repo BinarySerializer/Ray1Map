@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -39,11 +38,10 @@ namespace R1Engine
         /// </summary>
         public override bool Has3Palettes => false;
 
-        // TODO: Add names
         /// <summary>
         /// The available map names, if any
         /// </summary>
-        public override Dictionary<World, Dictionary<int, string>> MapNames => null;
+        public override Dictionary<World, Dictionary<int, string>> MapNames => R1Engine.MapNames.RayKitMapNames;
 
         /// <summary>
         /// Gets the levels for the specified world

@@ -423,9 +423,9 @@ namespace R1Engine
                 }
 
                 // Hard-code palette for certain DES groups
-                if (settings.GameMode == GameMode.RayPC && settings.World == World.Music && desIndex == 16)
+                if (settings.EngineVersion == EngineVersion.RayPC && settings.World == World.Music && desIndex == 16)
                     lvl = levels[11];
-                else if (settings.GameMode == GameMode.RayPC && settings.World == World.Image && desIndex == 19)
+                else if (settings.EngineVersion == EngineVersion.RayPC && settings.World == World.Image && desIndex == 19)
                     lvl = levels[10];
 
                 // Get the texture
