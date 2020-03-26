@@ -61,7 +61,7 @@ namespace R1Engine
         /// <summary>
         /// The available map names, if any
         /// </summary>
-        public override Dictionary<World, Dictionary<int, string>> MapNames => RayMapNames.Ray1MapNames;
+        public override Dictionary<World, Dictionary<int, string>> MapNames => R1Engine.MapNames.Ray1MapNames;
 
         #endregion
     }

@@ -37,7 +37,7 @@
         /// <summary>
         /// The image blocks, each one 64 pixels wide
         /// </summary>
-        public ARGB1555Color[][] ImageBlocks { get; set; }
+        public RGB555Color[][] ImageBlocks { get; set; }
 
         public byte[] UnknownBlock { get; set; }
 
@@ -70,12 +70,12 @@
                 // Get the size of each block
                 var blockSize = Height * BlockWidth;
 
-                ImageBlocks = new ARGB1555Color[length / blockSize][];
+                ImageBlocks = new RGB555Color[length / blockSize][];
             }
 
             // Serialize blocks
             for (int i = 0; i < ImageBlocks.Length; i++)
-                ImageBlocks[i] = s.SerializeObjectArray<ARGB1555Color>(ImageBlocks[i], BlockWidth * Height, name: "ImageBlocks[" + i + "]", onPreSerialize: x => x.IsBlackTransparent = false);
+                ImageBlocks[i] = s.SerializeObjectArray<RGB555Color>(ImageBlocks[i], BlockWidth * Height, name: "ImageBlocks[" + i + "]", onPreSerialize: x => x.IsBlackTransparent = false);
 
             // UNKNOWN
 

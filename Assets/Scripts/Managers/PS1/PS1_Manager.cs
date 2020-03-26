@@ -94,7 +94,7 @@ namespace R1Engine
         /// <summary>
         /// The available map names, if any
         /// </summary>
-        public Dictionary<World, Dictionary<int, string>> MapNames => RayMapNames.Ray1MapNames;
+        public Dictionary<World, Dictionary<int, string>> MapNames => R1Engine.MapNames.Ray1MapNames;
 
         /// <summary>
         /// Gets the levels for the specified world
@@ -242,15 +242,47 @@ namespace R1Engine
         /// <returns>The level</returns>
         public async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns) {
             Controller.status = $"Loading world file";
+            await Controller.WaitIfNecessary();
+
+            // Read the allfix file
+            var allfixFileName = GetAllfixFilePath(context.Settings);
+            var allfixFile = FileFactory.Read<PS1_R1_AllfixFile>(allfixFileName, context);
+
+            // Read the world file
             await LoadExtraFile(context, GetWorldFilePath(context.Settings));
             Common_Tileset tileSet = ReadTileSet(context);
-            await Controller.WaitIfNecessary();
+            var worldFileName = GetWorldFilePath(context.Settings);
+            var worldFile = FileFactory.Read<PS1_R1_WorldFile>(worldFileName, context);
 
             Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
 
             // Read the level
             await LoadExtraFile(context, GetLevelFilePath(context.Settings));
             var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
+
+            PS1_VRAM vram = FillVRAM(allfixFile, worldFile, levelData);
+
+            foreach (PS1_R1_Event e in levelData.Events) {
+                foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors) {
+                    if (i.Offset.file.filePath == worldFileName) {
+                        Texture2D tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
+                    } else if (i.Offset.file.filePath == allfixFileName) {
+                        Texture2D tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
+                    } else if (i.Offset.file.filePath == GetLevelFilePath(context.Settings)) {
+                        Texture2D tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
+                    }
+                }
+            }
+            /*ExportTexturePage("Allfix_1", allfixFile.Palette1, allfixFile.TextureBlock);
+            ExportTexturePage("Allfix_2", allfixFile.Palette2, allfixFile.TextureBlock);
+            ExportTexturePage("Allfix_3", allfixFile.Palette3, allfixFile.TextureBlock);
+            ExportTexturePage("Allfix_4", allfixFile.Palette4, allfixFile.TextureBlock);
+            ExportTexturePage("Allfix_5", allfixFile.Palette5, allfixFile.TextureBlock);
+            ExportTexturePage("Allfix_6", allfixFile.Palette6, allfixFile.TextureBlock);
+            ExportTexturePage("World_1", worldFile.EventPalette1, worldFile.TextureBlock);
+            ExportTexturePage("World_2", worldFile.EventPalette2, worldFile.TextureBlock);
+            ExportTexturePage("Level_1", worldFile.EventPalette1, levelData.TextureBlock);
+            ExportTexturePage("Level_2", worldFile.EventPalette2, levelData.TextureBlock);*/
 
             await Controller.WaitIfNecessary();
 
@@ -356,6 +388,118 @@ namespace R1Engine
                 };
                 context.AddFile(file);
             }
+        }
+
+
+
+        /// <summary>
+        /// Gets the texture for a sprite
+        /// </summary>
+        /// <param name="s">The image descriptor</param>
+        /// <param name="palette">The palette to use</param>
+        /// <param name="processedImageData">The processed image data to use</param>
+        /// <returns>The sprite texture</returns>
+        public Texture2D GetSpriteTexture(string name, PS1_R1_ImageDescriptor s, IList<ARGBColor> palette, PS1_VRAM vram) {
+            // Get the image properties
+            var width = s.OuterWidth;
+            var height = s.OuterHeight;
+            var texturePageInfo = s.TexturePageInfo;
+
+            // see http://hitmen.c02.at/files/docs/psx/psx.pdf page 37
+            int pageX = BitHelpers.ExtractBits(texturePageInfo, 4, 0);
+            int pageY = BitHelpers.ExtractBits(texturePageInfo, 1, 4);
+            int abr   = BitHelpers.ExtractBits(texturePageInfo, 2, 5);
+            int tp    = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
+            //UnityEngine.Debug.Log(string.Format("{0:X4}", texturePageInfo));
+            if (pageX < 5) return null;
+            // Create the texture
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
+                filterMode = FilterMode.Point
+            };
+
+            // Default to fully transparent
+            for (int y = 0; y < tex.height; y++) {
+                for (int x = 0; x < tex.width; x++) {
+                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                }
+            }
+
+            //try {
+                // Set every pixel
+
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        var pixel = vram.GetPixel(pageX, pageY, s.ImageOffsetInPageX + x, s.ImageOffsetInPageY + y);
+
+                        // Get the color from the palette
+                        var color = palette[pixel];
+
+                        // Set the pixel
+                        tex.SetPixel(x, height - 1 - y, color.GetColor());
+                    }
+                }
+            /*} catch (Exception ex) {
+                Debug.LogWarning($"Couldn't load sprite for DES: " + s.Offset + $" {ex.Message}");
+
+                return null;
+            }*/
+
+            // Apply the changes
+            tex.Apply();
+
+
+            // Return the texture
+            return tex;
+        }
+
+        public PS1_VRAM FillVRAM(PS1_R1_AllfixFile allFix, PS1_R1_WorldFile world, PS1_R1_LevFile level) {
+            PS1_VRAM vram = new PS1_VRAM();
+
+            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
+            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
+            vram.skippedPagesX = 5;
+
+            // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
+            // storing the first bit of sprites we load as 1x2
+            byte[] cageSprites = new byte[128 * 256 * 2];
+            Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
+            byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
+            Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
+
+            vram.AddData(cageSprites, 128, 256 * 2);
+            vram.AddData(allFixSprites, 256, allFixSprites.Length / 256);
+
+            vram.AddData(world.TextureBlock, 256, world.TextureBlock.Length / 256);
+            vram.AddData(level.TextureBlock, 256, level.TextureBlock.Length / 256);
+
+            return vram;
+        }
+
+
+        public void ExportTexturePage(string name, IList<ARGBColor> palette, byte[] processedImageData) {
+            // Get the image properties
+            var width = 256;
+            var height = processedImageData.Length / 256 + (processedImageData.Length % 256 == 0 ? 0 : 1);
+
+            // Create the texture
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
+                filterMode = FilterMode.Point
+            };
+
+            // Default to fully transparent
+            for (int y = 0; y < tex.height; y++) {
+                for (int x = 0; x < tex.width; x++) {
+                    var pixelOffset = y * width + x;
+                    if (pixelOffset >= processedImageData.Length) continue;
+                    var palIndex = processedImageData[pixelOffset];
+                    var color = palette[palIndex];
+                    tex.SetPixel(x, height - 1 - y, color.GetColor());
+                }
+            }
+            tex.Apply();
+
+
+            Util.ByteArrayToFile("D:/BART/RIPPING/R1/test/Page_" + name + ".png", tex.EncodeToPNG());
         }
 
         /// <summary>

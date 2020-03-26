@@ -38,10 +38,10 @@
 
         public byte[] Unknown4 { get; set; }
 
-        /// <summary>
-        /// The sprite offset
-        /// </summary>
-        public uint SpriteOffset { get; set; }
+        public ushort TexturePageInfo { get; set; }
+        public byte ImageOffsetInPageX { get; set; }
+        public byte ImageOffsetInPageY { get; set; }
+        public ushort Unknown6 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -57,8 +57,11 @@
             InnerHeight = s.Serialize<byte>(InnerHeight, name: "InnerHeight");
             Unknown2 = s.Serialize<byte>(Unknown2, name: "Unknown2");
             Unknown3 = s.Serialize<byte>(Unknown3, name: "Unknown3");
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 5, name: "Unknown4");
-            SpriteOffset = s.Serialize<uint>(SpriteOffset, name: "SpriteOffset");
+            Unknown4 = s.SerializeArray<byte>(Unknown4, 3, name: "Unknown4");
+            TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: "PageCoordinates");
+            ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: "ImageOffsetInPageX");
+            ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: "ImageOffsetInPageY");
+            Unknown6 = s.Serialize<ushort>(Unknown6, name: "Unknown6");
         }
     }
 }

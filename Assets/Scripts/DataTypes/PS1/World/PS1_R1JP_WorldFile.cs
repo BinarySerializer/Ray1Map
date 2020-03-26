@@ -50,12 +50,12 @@ namespace R1Engine
         // TODO: This is a temp property until we serialize the actual data
         public byte[] FourthBlock { get; set; }
 
-        public ARGB1555Color[] UnknownPalette { get; set; }
+        public RGB555Color[] UnknownPalette { get; set; }
 
         /// <summary>
         /// The tiles
         /// </summary>
-        public ARGB1555Color[][] Tiles { get; set; }
+        public RGB555Color[][] Tiles { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -88,7 +88,7 @@ namespace R1Engine
 
             // UNKNOWN PALETTE
             s.DoAt(UnknownPaletteBlockPointer, () => {
-                UnknownPalette = s.SerializeObjectArray<ARGB1555Color>(UnknownPalette, 256, name: "UnknownPalette");
+                UnknownPalette = s.SerializeObjectArray<RGB555Color>(UnknownPalette, 256, name: "UnknownPalette");
             });
 
             // TILES
@@ -97,9 +97,9 @@ namespace R1Engine
                 uint cellSize = PS1_Manager.CellSize * PS1_Manager.CellSize;
                 uint numTiles = (FileSize - s.CurrentPointer.FileOffset) / cellSize / 2;
                 // Create & serialize the tiles array
-                Tiles = new ARGB1555Color[numTiles][];
+                Tiles = new RGB555Color[numTiles][];
                 for (int i = 0; i < Tiles.Length; i++)
-                    Tiles[i] = s.SerializeObjectArray<ARGB1555Color>(Tiles[i], cellSize, name: "Tiles[" + i + "]");
+                    Tiles[i] = s.SerializeObjectArray<RGB555Color>(Tiles[i], cellSize, name: "Tiles[" + i + "]");
             });
         }
     }

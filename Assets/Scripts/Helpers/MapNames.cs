@@ -5,7 +5,7 @@ namespace R1Engine
     /// <summary>
     /// The map names
     /// </summary>
-    public static class RayMapNames
+    public static class MapNames
     {
         /// <summary>
         /// The Rayman 1 map names
