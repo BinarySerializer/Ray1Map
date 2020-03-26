@@ -20,12 +20,13 @@ namespace R1Engine
         /// </summary>
         public const int CellSize = 16;
 
+        // TODO: All of these have to be moved to the sub-managers - not every version has the level packed into a single file
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"{GetWorldName(settings.World)}{settings.Level:00}.XXX";
+        public virtual string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"{GetWorldName(settings.World)}{settings.Level:00}.XXX";
 
         /// <summary>
         /// Gets the file path for the allfix file
@@ -242,7 +243,7 @@ namespace R1Engine
         /// <returns>The common level</returns>
         public async Task<Common_Lev> LoadCommonLevelAsync(Context context, List<Common_Design> eventDesigns,
             
-            // TODO: Replace these two with blocks like below - we can never reference the xxx files themselves since JP and demos pack them differently!
+            // TODO: Replace these two with blocks like below - we can never reference the xxx files themselves since JP and demos pack them differently
             PS1_R1_AllfixFile allfixFile, PS1_R1_WorldFile worldFile, 
             
             PS1_R1_MapBlock map, PS1_R1_EventBlock events, byte[] levelTextureBlock)
