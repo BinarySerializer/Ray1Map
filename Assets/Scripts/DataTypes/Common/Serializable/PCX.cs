@@ -63,7 +63,8 @@ namespace R1Engine
             // Create the texture
             var tex = new Texture2D(ImageWidth, ImageHeight, TextureFormat.RGBA32, false)
             {
-                filterMode = FilterMode.Point
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
             };
 
             // Set every pixel

@@ -582,7 +582,8 @@ namespace R1Engine
                     {
                         Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
                         {
-                            filterMode = FilterMode.Point
+                            filterMode = FilterMode.Point,
+                            wrapMode = TextureWrapMode.Clamp
                         };
 
                         // Default to fully transparent
@@ -711,7 +712,8 @@ namespace R1Engine
             // Create the texture
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
             {
-                filterMode = FilterMode.Point
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
             };
 
             // Default to fully transparent
@@ -1178,7 +1180,8 @@ namespace R1Engine
                 for (int i = 0; i < levData.ColorPalettes.Length; i++) {
                     // Create the texture to use for the tile
                     var tileTexture = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false) {
-                        filterMode = FilterMode.Point
+                        filterMode = FilterMode.Point,
+                        wrapMode = TextureWrapMode.Clamp
                     };
 
                     // Write each pixel to the texture

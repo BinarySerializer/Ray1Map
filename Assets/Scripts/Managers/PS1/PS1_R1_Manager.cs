@@ -46,7 +46,8 @@ namespace R1Engine
             End:
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
             {
-                filterMode = FilterMode.Point
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
             };
             tex.SetPixels(pixels);
             tex.Apply();

@@ -35,7 +35,8 @@ namespace R1Engine
                 // Create the texture
                 Texture2D texJP = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false)
                 {
-                    filterMode = FilterMode.Point
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
                 };
 
                 // Set every pixel

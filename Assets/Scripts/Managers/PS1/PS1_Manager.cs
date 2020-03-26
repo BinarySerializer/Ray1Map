@@ -509,7 +509,8 @@ namespace R1Engine
             if (pageX < 5) return null;
             // Create the texture
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                filterMode = FilterMode.Point
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
             };
 
             // Default to fully transparent
@@ -606,7 +607,8 @@ namespace R1Engine
 
             // Create the texture
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                filterMode = FilterMode.Point
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
             };
 
             // Default to fully transparent
