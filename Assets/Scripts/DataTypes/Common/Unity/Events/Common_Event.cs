@@ -295,18 +295,16 @@ namespace R1Engine
         // Try to load a new animation and change to it
         private void ChangeAnimation(int newAnim) {
 
-            var desIndex = DES - 1;
-
-            if (desIndex < 0)
+            if (DES < 0)
             {
                 Debug.LogWarning($"DES index is below 0");
                 return;
             }
 
-            if (Controller.obj.levelController.eventDesigns.Count > desIndex && Controller.obj.levelController.eventDesigns[desIndex].Animations.Count > newAnim)
+            if (Controller.obj.levelController.eventDesigns.Count > DES && Controller.obj.levelController.eventDesigns[DES].Animations.Count > newAnim)
             {
 
-                CurrentAnimation = Controller.obj.levelController.eventDesigns[desIndex].Animations[newAnim];
+                CurrentAnimation = Controller.obj.levelController.eventDesigns[DES].Animations[newAnim];
 
                 if (CurrentAnimation != null)
                 {
@@ -353,11 +351,11 @@ namespace R1Engine
             if (CurrentAnimation != null) {
                 for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                     //Skips sprites out of bounds
-                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[DES - 1].Sprites.Count) {
+                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[DES].Sprites.Count) {
                         prefabRendereds[i].sprite = null;
                     }
                     else {
-                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[DES - 1].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[DES].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                     }
                     prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 

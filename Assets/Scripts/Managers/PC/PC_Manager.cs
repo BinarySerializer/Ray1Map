@@ -978,6 +978,9 @@ namespace R1Engine
 
             int desIndex = 0;
 
+            //Add dummy DES to index 0
+            eventDesigns.Add(new Common_Design());
+
             // Read every DES item
             foreach (var d in des)
             {
