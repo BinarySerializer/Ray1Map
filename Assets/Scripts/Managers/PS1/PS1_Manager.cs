@@ -497,9 +497,6 @@ namespace R1Engine
                 }
             }
             tex.Apply();
-
-
-            Util.ByteArrayToFile("D:/BART/RIPPING/R1/test/Page_" + name + ".png", tex.EncodeToPNG());
         }
 
         /// <summary>
