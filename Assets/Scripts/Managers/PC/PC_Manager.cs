@@ -621,13 +621,13 @@ namespace R1Engine
                                     var c = sprite.GetPixel(x, sprite.height - y - 1);
 
                                     var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
-                                    var yPosition = -(y + animationLayer.YPosition + 1);
+                                    var yPosition = (y + animationLayer.YPosition);
 
                                     if (xPosition >= tex.width)
                                         throw new Exception("Horizontal overflow!");
 
                                     if (c.a != 0)
-                                        tex.SetPixel(xPosition, yPosition, c);
+                                        tex.SetPixel(xPosition, sprite.height - 1 - yPosition, c);
                                 }
                             }
 
@@ -746,7 +746,7 @@ namespace R1Engine
                         var color = palette[pixel];
 
                         // Set the pixel
-                        tex.SetPixel(x, -(y + 1), color.GetColor());
+                        tex.SetPixel(x, height - 1 - y, color.GetColor());
                     }
                 }
             }
