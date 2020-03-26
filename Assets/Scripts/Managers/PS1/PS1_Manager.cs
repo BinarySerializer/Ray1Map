@@ -455,8 +455,8 @@ namespace R1Engine
             } else if (tp == 0) {
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
-                        int actualX = x / 2;
-                        var pixel = vram.GetPixel(pageX, pageY, s.ImageOffsetInPageX + actualX, s.ImageOffsetInPageY + y);
+                        int actualX = (s.ImageOffsetInPageX + x) / 2;
+                        var pixel = vram.GetPixel(pageX, pageY, actualX, s.ImageOffsetInPageY + y);
                         if (x % 2 == 0) {
                             pixel = (byte)BitHelpers.ExtractBits(pixel, 4, 0);
                         } else {
