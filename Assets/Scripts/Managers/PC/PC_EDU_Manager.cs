@@ -59,11 +59,6 @@ namespace R1Engine
         /// <returns>The available educational volumes</returns>
         public override string[] GetEduVolumes(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToArray();
 
-        /// <summary>
-        /// The available map names, if any
-        /// </summary>
-        public override Dictionary<World, Dictionary<int, string>> MapNames => null;
-
         #endregion
     }
 }

@@ -39,11 +39,6 @@ namespace R1Engine
         public override bool Has3Palettes => false;
 
         /// <summary>
-        /// The available map names, if any
-        /// </summary>
-        public override Dictionary<World, Dictionary<int, string>> MapNames => R1Engine.MapNames.RayKitMapNames;
-
-        /// <summary>
         /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>

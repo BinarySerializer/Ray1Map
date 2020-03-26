@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 
 namespace R1Engine
@@ -57,11 +56,6 @@ namespace R1Engine
         /// Indicates if the game has 3 palettes it swaps between
         /// </summary>
         public override bool Has3Palettes => true;
-
-        /// <summary>
-        /// The available map names, if any
-        /// </summary>
-        public override Dictionary<World, Dictionary<int, string>> MapNames => R1Engine.MapNames.Ray1MapNames;
 
         #endregion
     }

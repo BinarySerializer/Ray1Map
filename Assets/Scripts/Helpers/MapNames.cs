@@ -8,9 +8,34 @@ namespace R1Engine
     public static class MapNames
     {
         /// <summary>
+        /// Gets the map names for the specified game
+        /// </summary>
+        /// <param name="game">The game</param>
+        /// <returns>The map names</returns>
+        public static Dictionary<World, Dictionary<int, string>> GetMapNames(Game game)
+        {
+            switch (game)
+            {
+                case Game.Rayman1:
+                    return Rayman1MapNames;
+
+                case Game.RaymanDesigner:
+                    return RaymanDesignerMapNames;
+
+                case Game.RaymanMapper:
+                case Game.RaymanByHisFans:
+                case Game.Rayman60Levels:
+                case Game.RaymanEducational:
+                case Game.RaymanQuiz:
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
         /// The Rayman 1 map names
         /// </summary>
-        public static Dictionary<World, Dictionary<int, string>> Ray1MapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
+        private static Dictionary<World, Dictionary<int, string>> Rayman1MapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
         {
             [World.Jungle] = new Dictionary<int, string>()
             {
@@ -135,7 +160,7 @@ namespace R1Engine
         /// <summary>
         /// The Rayman Designer map names
         /// </summary>
-        public static Dictionary<World, Dictionary<int, string>> RayKitMapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
+        private static Dictionary<World, Dictionary<int, string>> RaymanDesignerMapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
         {
             [World.Jungle] = new Dictionary<int, string>()
             {

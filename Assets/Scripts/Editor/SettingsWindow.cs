@@ -64,8 +64,9 @@ public class SettingsWindow : UnityWindow
                 Debug.Log("Updated levels");
 
                 var manager = Settings.GetGameManager;
+                var settings = Settings.GetGameSettings;
 
-                CurrentLevels = manager.GetLevels(Settings.GetGameSettings).Select(x => new KeyValuePair<int, string>(x, manager.MapNames?.TryGetItem(Settings.World)?.TryGetItem(x))).ToArray();
+                CurrentLevels = manager.GetLevels(settings).Select(x => new KeyValuePair<int, string>(x, MapNames.GetMapNames(settings.Game)?.TryGetItem(Settings.World)?.TryGetItem(x))).ToArray();
             }
         }
         catch (Exception ex)

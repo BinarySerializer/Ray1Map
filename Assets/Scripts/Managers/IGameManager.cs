@@ -15,11 +15,6 @@ namespace R1Engine
         bool Has3Palettes { get; }
 
         /// <summary>
-        /// The available map names, if any
-        /// </summary>
-        Dictionary<World, Dictionary<int, string>> MapNames { get; }
-
-        /// <summary>
         /// Gets the levels for the specified world
         /// </summary>
         /// <param name="settings">The game settings</param>
