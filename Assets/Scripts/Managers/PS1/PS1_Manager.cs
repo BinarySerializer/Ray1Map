@@ -230,54 +230,62 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level
+        /// Loads the common level data from the specified blocks
         /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <param name="eventDesigns">The list of event designs to populate</param>
-        /// <returns>The level</returns>
-        public async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns) {
-            Controller.status = $"Loading world file";
-            await Controller.WaitIfNecessary();
-
-            // Read the allfix file
-            var allfixFileName = GetAllfixFilePath(context.Settings);
-            var allfixFile = FileFactory.Read<PS1_R1_AllfixFile>(allfixFileName, context);
-
-            // Read the world file
-            await LoadExtraFile(context, GetWorldFilePath(context.Settings));
+        /// <param name="context">The context</param>
+        /// <param name="eventDesigns">The event designs</param>
+        /// <param name="allfixFile">The allfix file</param>
+        /// <param name="worldFile">The world file</param>
+        /// <param name="map">The map data</param>
+        /// <param name="events">The event data</param>
+        /// <param name="levelTextureBlock">The level texture data</param>
+        /// <returns>The common level</returns>
+        public async Task<Common_Lev> LoadCommonLevelAsync(Context context, List<Common_Design> eventDesigns,
+            
+            // TODO: Replace these two with blocks like below - we can never reference the xxx files themselves since JP and demos pack them differently!
+            PS1_R1_AllfixFile allfixFile, PS1_R1_WorldFile worldFile, 
+            
+            PS1_R1_MapBlock map, PS1_R1_EventBlock events, byte[] levelTextureBlock)
+        {
             Common_Tileset tileSet = ReadTileSet(context);
-            var worldFileName = GetWorldFilePath(context.Settings);
-            var worldFile = FileFactory.Read<PS1_R1_WorldFile>(worldFileName, context);
 
-            Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
+            // Temp fix so JP doesn't crash
+            if (worldFile != null)
+            {
+                var allfixFileName = GetAllfixFilePath(context.Settings);
+                var worldFileName = GetWorldFilePath(context.Settings);
 
-            // Read the level
-            await LoadExtraFile(context, GetLevelFilePath(context.Settings));
-            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
+                PS1_VRAM vram = FillVRAM(allfixFile, worldFile, levelTextureBlock);
 
-            PS1_VRAM vram = FillVRAM(allfixFile, worldFile, levelData);
-
-            foreach (PS1_R1_Event e in levelData.Events) {
-                foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors) {
-                    if (i.Offset.file.filePath == worldFileName) {
-                        Texture2D tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
-                    } else if (i.Offset.file.filePath == allfixFileName) {
-                        Texture2D tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
-                    } else if (i.Offset.file.filePath == GetLevelFilePath(context.Settings)) {
-                        Texture2D tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
+                foreach (PS1_R1_Event e in events.Events)
+                {
+                    foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
+                    {
+                        if (i.Offset.file.filePath == worldFileName)
+                        {
+                            Texture2D tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
+                        }
+                        else if (i.Offset.file.filePath == allfixFileName)
+                        {
+                            Texture2D tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
+                        }
+                        else if (i.Offset.file.filePath == GetLevelFilePath(context.Settings))
+                        {
+                            Texture2D tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
+                        }
                     }
                 }
+                /*ExportTexturePage("Allfix_1", allfixFile.Palette1, allfixFile.TextureBlock);
+                ExportTexturePage("Allfix_2", allfixFile.Palette2, allfixFile.TextureBlock);
+                ExportTexturePage("Allfix_3", allfixFile.Palette3, allfixFile.TextureBlock);
+                ExportTexturePage("Allfix_4", allfixFile.Palette4, allfixFile.TextureBlock);
+                ExportTexturePage("Allfix_5", allfixFile.Palette5, allfixFile.TextureBlock);
+                ExportTexturePage("Allfix_6", allfixFile.Palette6, allfixFile.TextureBlock);
+                ExportTexturePage("World_1", worldFile.EventPalette1, worldFile.TextureBlock);
+                ExportTexturePage("World_2", worldFile.EventPalette2, worldFile.TextureBlock);
+                ExportTexturePage("Level_1", worldFile.EventPalette1, levelData.TextureBlock);
+                ExportTexturePage("Level_2", worldFile.EventPalette2, levelData.TextureBlock);*/
             }
-            /*ExportTexturePage("Allfix_1", allfixFile.Palette1, allfixFile.TextureBlock);
-            ExportTexturePage("Allfix_2", allfixFile.Palette2, allfixFile.TextureBlock);
-            ExportTexturePage("Allfix_3", allfixFile.Palette3, allfixFile.TextureBlock);
-            ExportTexturePage("Allfix_4", allfixFile.Palette4, allfixFile.TextureBlock);
-            ExportTexturePage("Allfix_5", allfixFile.Palette5, allfixFile.TextureBlock);
-            ExportTexturePage("Allfix_6", allfixFile.Palette6, allfixFile.TextureBlock);
-            ExportTexturePage("World_1", worldFile.EventPalette1, worldFile.TextureBlock);
-            ExportTexturePage("World_2", worldFile.EventPalette2, worldFile.TextureBlock);
-            ExportTexturePage("Level_1", worldFile.EventPalette1, levelData.TextureBlock);
-            ExportTexturePage("Level_2", worldFile.EventPalette2, levelData.TextureBlock);*/
 
             await Controller.WaitIfNecessary();
 
@@ -285,8 +293,8 @@ namespace R1Engine
             Common_Lev c = new Common_Lev
             {
                 // Set the dimensions
-                Width = levelData.Width,
-                Height = levelData.Height,
+                Width = map.Width,
+                Height = map.Height,
 
                 // Create the events list
                 Events = new List<Common_Event>(),
@@ -301,22 +309,22 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Set the tiles
-            c.Tiles = new Common_Tile[levelData.Width * levelData.Height];
+            c.Tiles = new Common_Tile[map.Width * map.Height];
 
             int tileIndex = 0;
-            for (int y = 0; y < (levelData.Height); y++)
+            for (int y = 0; y < (map.Height); y++)
             {
-                for (int x = 0; x < (levelData.Width); x++)
+                for (int x = 0; x < (map.Width); x++)
                 {
-                    var graphicX = levelData.Tiles[tileIndex].TileMapX;
-                    var graphicY = levelData.Tiles[tileIndex].TileMapY;
+                    var graphicX = map.Tiles[tileIndex].TileMapX;
+                    var graphicY = map.Tiles[tileIndex].TileMapY;
 
                     Common_Tile newTile = new Common_Tile
                     {
                         PaletteIndex = 1,
                         XPosition = x,
                         YPosition = y,
-                        CollisionType = levelData.Tiles[tileIndex].CollisionType,
+                        CollisionType = map.Tiles[tileIndex].CollisionType,
                         TileSetGraphicIndex = (CellSize * graphicY) + graphicX
                     };
 
@@ -330,12 +338,22 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Loads the specified level
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        /// <param name="eventDesigns">The list of event designs to populate</param>
+        /// <returns>The level</returns>
+        public abstract Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns);
+
+        /// <summary>
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="commonLevelData">The common level data</param>
         public void SaveLevel(Context context, Common_Lev commonLevelData)
         {
+            // TODO: This currently only works for NTSC
+
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
 
@@ -343,13 +361,13 @@ namespace R1Engine
             var lvlData = context.GetMainFileObject<PS1_R1_LevFile>(lvlPath);
 
             // Update the tiles
-            for (int y = 0; y < lvlData.Height; y++)
+            for (int y = 0; y < lvlData.MapData.Height; y++)
             {
-                for (int x = 0; x < lvlData.Width; x++)
+                for (int x = 0; x < lvlData.MapData.Width; x++)
                 {
                     // Get the tiles
-                    var tile = lvlData.Tiles[y * lvlData.Width + x];
-                    var commonTile = commonLevelData.Tiles[y * lvlData.Width + x];
+                    var tile = lvlData.MapData.Tiles[y * lvlData.MapData.Width + x];
+                    var commonTile = commonLevelData.Tiles[y * lvlData.MapData.Width + x];
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
@@ -447,7 +465,7 @@ namespace R1Engine
             return tex;
         }
 
-        public PS1_VRAM FillVRAM(PS1_R1_AllfixFile allFix, PS1_R1_WorldFile world, PS1_R1_LevFile level) {
+        public PS1_VRAM FillVRAM(PS1_R1_AllfixFile allFix, PS1_R1_WorldFile world, byte[] levelTextureBlock) {
             PS1_VRAM vram = new PS1_VRAM();
 
             // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
@@ -465,7 +483,7 @@ namespace R1Engine
             vram.AddData(allFixSprites, 256, allFixSprites.Length / 256);
 
             vram.AddData(world.TextureBlock, 256, world.TextureBlock.Length / 256);
-            vram.AddData(level.TextureBlock, 256, level.TextureBlock.Length / 256);
+            vram.AddData(levelTextureBlock, 256, levelTextureBlock.Length / 256);
 
             return vram;
         }

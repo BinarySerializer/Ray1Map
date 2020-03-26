@@ -1,5 +1,6 @@
-﻿using R1Engine.Serialize;
-using System.IO;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using R1Engine.Serialize;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -68,6 +69,37 @@ namespace R1Engine
             }
 
             return new Common_Tileset(tiles);
+        }
+
+        /// <summary>
+        /// Loads the specified level
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        /// <param name="eventDesigns">The list of event designs to populate</param>
+        /// <returns>The level</returns>
+        public override async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns)
+        {
+            // Read the allfix file
+            var allfix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+
+            Controller.status = $"Loading world file";
+
+            await Controller.WaitIfNecessary();
+
+            // Read the world file
+            await LoadExtraFile(context, GetWorldFilePath(context.Settings));
+
+            var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
+
+            Controller.status = $"Loading map data";
+
+            // Read the level data
+            await LoadExtraFile(context, GetLevelFilePath(context.Settings));
+
+            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
+
+            // Load and return the common level
+            return await LoadCommonLevelAsync(context, eventDesigns, allfix, world, levelData.MapData, levelData.EventData, levelData.TextureBlock);
         }
     }
 }
