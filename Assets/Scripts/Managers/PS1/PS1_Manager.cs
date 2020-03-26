@@ -439,8 +439,8 @@ namespace R1Engine
             }
 
             //try {
-                // Set every pixel
-
+            // Set every pixel
+            if (tp == 1) {
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
                         var pixel = vram.GetPixel(pageX, pageY, s.ImageOffsetInPageX + x, s.ImageOffsetInPageY + y);
@@ -452,6 +452,25 @@ namespace R1Engine
                         tex.SetPixel(x, height - 1 - y, color.GetColor());
                     }
                 }
+            } else if (tp == 0) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        int actualX = x / 2;
+                        var pixel = vram.GetPixel(pageX, pageY, s.ImageOffsetInPageX + actualX, s.ImageOffsetInPageY + y);
+                        if (x % 2 == 0) {
+                            pixel = (byte)BitHelpers.ExtractBits(pixel, 4, 0);
+                        } else {
+                            pixel = (byte)BitHelpers.ExtractBits(pixel, 4, 4);
+                        }
+
+                        // Get the color from the palette
+                        var color = palette[pixel];
+
+                        // Set the pixel
+                        tex.SetPixel(x, height - 1 - y, color.GetColor());
+                    }
+                }
+            }
             /*} catch (Exception ex) {
                 Debug.LogWarning($"Couldn't load sprite for DES: " + s.Offset + $" {ex.Message}");
 
@@ -460,7 +479,6 @@ namespace R1Engine
 
             // Apply the changes
             tex.Apply();
-
 
             // Return the texture
             return tex;
@@ -475,16 +493,26 @@ namespace R1Engine
 
             // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
             // storing the first bit of sprites we load as 1x2
-            byte[] cageSprites = new byte[128 * 256 * 2];
+            byte[] cageSprites = new byte[128 * (256 * 2 - 8)];
             Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
             byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
             Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
-
-            vram.AddData(cageSprites, 128, 256 * 2);
+            byte[] unknown = new byte[128 * 8];
+            vram.AddData(unknown, 128, 8);
+            vram.AddData(cageSprites, 128, 256 * 2 - 8);
             vram.AddData(allFixSprites, 256, allFixSprites.Length / 256);
 
             vram.AddData(world.TextureBlock, 256, world.TextureBlock.Length / 256);
             vram.AddData(levelTextureBlock, 256, levelTextureBlock.Length / 256);
+
+            Texture2D vramTex = new Texture2D(7 * 128, 2 * 256);
+            for (int x = 0; x < 7 * 128; x++) {
+                for (int y = 0; y < 2 * 256; y++) {
+                    byte val = vram.GetPixel(5, y / 256, x, y % 256);
+                    vramTex.SetPixel(x, y, new Color(val / 255f, val / 255f, val / 255f));
+                }
+            }
+            vramTex.Apply();
 
             return vram;
         }

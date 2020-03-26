@@ -83,7 +83,7 @@ namespace R1Engine {
 			try {
 				if (x >= pages[y].Length) return null;
 				return pages[y][x];
-			} catch (Exception ex) {
+			} catch (Exception) {
 				UnityEngine.Debug.LogError(x + " - " + y);
 				throw;
 			}
@@ -93,7 +93,7 @@ namespace R1Engine {
 			//UnityEngine.Debug.Log(pageX + " - " + pageY + " - " + x + " - " + y);
 			pageX -= skippedPagesX; // We're not loading backgrounds for now
 			Page page = GetPage(pageX, pageY);
-			while (x > page_width) {
+			while (x >= page_width) {
 				pageX++;
 				x -= page_width;
 				page = GetPage(pageX, pageY);
