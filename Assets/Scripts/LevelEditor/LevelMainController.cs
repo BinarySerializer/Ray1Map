@@ -7,13 +7,16 @@ namespace R1Engine
 {
     public class LevelMainController : MonoBehaviour {
 
+        /// <summary>
+        /// The editor manager
+        /// </summary>
+        public BaseEditorManager EditorManager;
+
         // The current level we are operating with
-        public Common_Lev currentLevel;
+        public Common_Lev currentLevel => EditorManager?.Level;
 
         // The context, to reuse when writing
         private Serialize.Context serializeContext;
-
-        public List<Common_Design> eventDesigns;
 
         // References to specific level controller gameObjects in inspector
         public LevelTilemapController controllerTilemap;
@@ -25,9 +28,6 @@ namespace R1Engine
 
         public async Task LoadLevelAsync(IGameManager manager, Serialize.Context context) 
         {
-            // Create the list
-            eventDesigns = new List<Common_Design>();
-
             // Create the context
             serializeContext = context;
 
@@ -36,7 +36,7 @@ namespace R1Engine
 
             using (serializeContext) {
                 // Load the level
-                currentLevel = await manager.LoadLevelAsync(serializeContext, eventDesigns);
+                EditorManager = await manager.LoadAsync(serializeContext);
 
                 await Controller.WaitIfNecessary();
 

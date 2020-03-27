@@ -21,12 +21,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level
+        /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="eventDesigns">The list of event designs to populate</param>
-        /// <returns>The level</returns>
-        public override async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns)
+        /// <returns>The editor manager</returns>
+        public override Task<BaseEditorManager> LoadAsync(Context context)
         {
             throw new NotImplementedException();
         }

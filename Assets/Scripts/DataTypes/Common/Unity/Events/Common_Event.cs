@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -60,7 +61,6 @@ namespace R1Engine
         /// </summary>
         public int DES { get; set; }
 
-        // TODO: PC only?
         /// <summary>
         /// The event ETA index
         /// </summary>
@@ -107,6 +107,15 @@ namespace R1Engine
 
         #endregion
 
+        #region Shortcuts
+
+        /// <summary>
+        /// The editor manager
+        /// </summary>
+        public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
+
+        #endregion
+
         #region Event Methods
 
         /// <summary>
@@ -115,7 +124,7 @@ namespace R1Engine
         public void RefreshEditorInfo()
         {
             // Get the event info data
-            var eventInfo = Settings.GetGameManager.GetEditorEventInfo(Settings.GetGameSettings, this);
+            var eventInfo = EditorManager.GetEditorEventInfo(this);
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
             // Set the flag
@@ -127,14 +136,15 @@ namespace R1Engine
         }
         public void RefreshName() {
             // Get the event info data
-            var eventInfo = Settings.GetGameManager.GetEditorEventInfo(Settings.GetGameSettings, this);
+            var eventInfo = EditorManager.GetEditorEventInfo(this);
 
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
         }
-        public void RefreshVisuals() {
+        public void RefreshVisuals() 
+        {
             // Get the animation info
-            var animInfo = Settings.GetGameManager.GetAnimationInfo(Controller.MainContext, this);
+            var animInfo = EditorManager.GetEventState(this);
 
             if (animInfo.AnimationIndex != -1)
                 AnimationIndex = animInfo.AnimationIndex;
@@ -293,46 +303,49 @@ namespace R1Engine
         }
 
         // Try to load a new animation and change to it
-        private void ChangeAnimation(int newAnim) {
-
+        private void ChangeAnimation(int newAnim) 
+        {
+            // Make sure we have a non-negative DES index
             if (DES < 0)
             {
                 Debug.LogWarning($"DES index is below 0");
                 return;
             }
 
-            if (Controller.obj.levelController.eventDesigns.Count > DES && Controller.obj.levelController.eventDesigns[DES].Animations.Count > newAnim)
+            // Get the current animation
+            CurrentAnimation = EditorManager?.GetCommonDesign(this, DES)?.Animations.ElementAtOrDefault(newAnim);
+
+            // Make sure the animation is not null
+            if (CurrentAnimation == null) 
+                return;
+            
+            // Get the frame length
+            var len = CurrentAnimation.Frames.GetLength(1);
+            
+            // Clear old array
+            if (prefabRendereds != null)
             {
+                foreach (SpriteRenderer t in prefabRendereds)
+                    Destroy(t.gameObject);
 
-                CurrentAnimation = Controller.obj.levelController.eventDesigns[DES].Animations[newAnim];
+                Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
+            }
 
-                if (CurrentAnimation != null)
-                {
-                    var len = CurrentAnimation.Frames.GetLength(1);
-                    // Clear old array
-                    if (prefabRendereds != null)
-                    {
-                        for (int i = 0; i < prefabRendereds.Length; i++)
-                        {
-                            Destroy(prefabRendereds[i].gameObject);
-                        }
-                        Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
-                    }
+            // Create array
+            prefabRendereds = new SpriteRenderer[len];
 
-                    // Create array
-                    prefabRendereds = new SpriteRenderer[len];
-                    // Populate it with empty ones
-                    for (int i = 0; i < len; i++)
-                    {
-                        // Instantiate prefab
-                        SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
-                        newRenderer.sortingOrder = -len + i;
-                        // Set as child of events gameobject
-                        newRenderer.gameObject.transform.parent = gameObject.transform;
-                        // Add to list
-                        prefabRendereds[i] = newRenderer;
-                    }
-                }
+            // Populate it with empty ones
+            for (int i = 0; i < len; i++)
+            {
+                // Instantiate prefab
+                SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
+                newRenderer.sortingOrder = -len + i;
+
+                // Set as child of events gameobject
+                newRenderer.gameObject.transform.parent = gameObject.transform;
+
+                // Add to list
+                prefabRendereds[i] = newRenderer;
             }
         }
 
@@ -347,24 +360,31 @@ namespace R1Engine
         }
 
         // Update all child sprite parts
-        private void UpdateParts(int frame) {
-            if (CurrentAnimation != null) {
-                for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
-                    //Skips sprites out of bounds
-                    if (CurrentAnimation.Frames[frame, i].SpriteIndex >= Controller.obj.levelController.eventDesigns[DES].Sprites.Count) {
-                        prefabRendereds[i].sprite = null;
-                    }
-                    else {
-                        prefabRendereds[i].sprite = Controller.obj.levelController.eventDesigns[DES].Sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
-                    }
-                    prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
+        private void UpdateParts(int frame)
+        {
+            // Make sure the current animation is not null
+            if (CurrentAnimation == null) 
+                return;
 
-                    var extraX = prefabRendereds[i].sprite==null ? 0 : prefabRendereds[i].sprite.texture.width;
-                    prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
+            // Get the sprites
+            var sprites = EditorManager.GetCommonDesign(this, DES).Sprites;
 
-                    //Change visibility if always/editor
-                    prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
+            for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) 
+            {
+                // Skips sprites out of bounds
+                if (CurrentAnimation.Frames[frame, i].SpriteIndex >= sprites.Count) {
+                    prefabRendereds[i].sprite = null;
                 }
+                else {
+                    prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                }
+                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
+
+                var extraX = prefabRendereds[i].sprite==null ? 0 : prefabRendereds[i].sprite.texture.width;
+                prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
+
+                // Change visibility if always/editor
+                prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
             }
         }
 

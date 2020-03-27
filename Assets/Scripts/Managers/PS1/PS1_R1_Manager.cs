@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using R1Engine.Serialize;
 using System.Threading.Tasks;
-using R1Engine.Serialize;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -73,12 +72,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level
+        /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="eventDesigns">The list of event designs to populate</param>
-        /// <returns>The level</returns>
-        public override async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns)
+        /// <returns>The editor manager</returns>
+        public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
             // Read the allfix file
             var allfix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
@@ -99,8 +97,8 @@ namespace R1Engine
 
             var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
-            // Load and return the common level
-            return await LoadCommonLevelAsync(context, eventDesigns, allfix, world, levelData.MapData, levelData.EventData, levelData.TextureBlock);
+            // Load the level
+            return await LoadAsync(context, allfix, world, levelData.MapData, levelData.EventData, levelData.TextureBlock);
         }
     }
 }

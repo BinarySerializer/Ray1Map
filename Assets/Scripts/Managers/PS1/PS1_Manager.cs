@@ -231,17 +231,16 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the common level data from the specified blocks
+        /// Loads the specified level for the editor from the specified blocks
         /// </summary>
         /// <param name="context">The context</param>
-        /// <param name="eventDesigns">The event designs</param>
         /// <param name="allfixFile">The allfix file</param>
         /// <param name="worldFile">The world file</param>
         /// <param name="map">The map data</param>
         /// <param name="events">The event data</param>
         /// <param name="levelTextureBlock">The level texture data</param>
-        /// <returns>The common level</returns>
-        public async Task<Common_Lev> LoadCommonLevelAsync(Context context, List<Common_Design> eventDesigns,
+        /// <returns>The editor manager</returns>
+        public async Task<BaseEditorManager> LoadAsync(Context context,
             
             // TODO: Replace these two with blocks like below - we can never reference the xxx files themselves since JP and demos pack them differently
             PS1_R1_AllfixFile allfixFile, PS1_R1_WorldFile worldFile, 
@@ -249,6 +248,9 @@ namespace R1Engine
             PS1_R1_MapBlock map, PS1_R1_EventBlock events, byte[] levelTextureBlock)
         {
             Common_Tileset tileSet = ReadTileSet(context);
+
+            var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
+            var commonEvents = new List<Common_Event>();
 
             // Temp fix so JP doesn't crash
             if (worldFile != null)
@@ -258,85 +260,101 @@ namespace R1Engine
 
                 PS1_VRAM vram = FillVRAM(allfixFile, worldFile, levelTextureBlock);
 
-                int desIndex = 0;
+                var index = 0;
 
-                // TODO: Change this super-hacky code - generalize more with PC - cache DES instead of recreating
                 foreach (PS1_R1_Event e in events.Events)
                 {
-                    Controller.status = $"Loading DES {desIndex}";
+                    Controller.status = $"Loading DES {index}/{events.Events.Length}";
 
                     await Controller.WaitIfNecessary();
 
-                    Common_Design finalDesign = new Common_Design
+                    // Attempt to find existing DES
+                    var desIndex = eventDesigns.FindIndex(x => x.Key == e.ImageDescriptorsPointer);
+
+                    // Add if not found
+                    if (desIndex == -1)
                     {
-                        Sprites = new List<Sprite>(),
-                        Animations = new List<Common_Animation>()
-                    };
-
-                    foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
-                    {
-                        Texture2D tex = null;
-
-                        if (i.Offset.file.filePath == worldFileName)
+                        Common_Design finalDesign = new Common_Design
                         {
-                            tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
-                        }
-                        else if (i.Offset.file.filePath == allfixFileName)
-                        {
-                            tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
-                        }
-                        else if (i.Offset.file.filePath == GetLevelFilePath(context.Settings))
-                        {
-                            tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
-                        }
-
-                        // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                    }
-
-                    // Animations
-                    foreach (var a in e.AnimDescriptors)
-                    {
-                        // Create the animation
-                        var animation = new Common_Animation
-                        {
-                            Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
-                            DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
-                            DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
-                            DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
-                            DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
+                            Sprites = new List<Sprite>(),
+                            Animations = new List<Common_Animation>()
                         };
-                        // The layer index
-                        var layer = 0;
-                        // Create each frame
-                        for (int i = 0; i < a.FrameCount; i++)
+
+                        foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
                         {
-                            // Create each layer
-                            for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
+                            Texture2D tex = null;
+
+                            if (i.Offset.file.filePath == worldFileName)
                             {
-                                var animationLayer = a.Layers[layer];
-                                layer++;
-
-                                // Create the animation part
-                                var part = new Common_AnimationPart
-                                {
-                                    SpriteIndex = animationLayer.ImageIndex,
-                                    X = animationLayer.XPosition,
-                                    Y = animationLayer.YPosition,
-                                    Flipped = animationLayer.IsFlipped
-                                };
-
-                                // Add the texture
-                                animation.Frames[i, layerIndex] = part;
+                                tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
                             }
+                            else if (i.Offset.file.filePath == allfixFileName)
+                            {
+                                tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
+                            }
+                            else if (i.Offset.file.filePath == GetLevelFilePath(context.Settings))
+                            {
+                                tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
+                            }
+
+                            // Add it to the array
+                            finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                         }
-                        // Add the animation to list
-                        finalDesign.Animations.Add(animation);
+
+                        // Animations
+                        foreach (var a in e.AnimDescriptors)
+                        {
+                            // Create the animation
+                            var animation = new Common_Animation
+                            {
+                                Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
+                                DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
+                                DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
+                                DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
+                                DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
+                            };
+                            // The layer index
+                            var layer = 0;
+                            // Create each frame
+                            for (int i = 0; i < a.FrameCount; i++)
+                            {
+                                // Create each layer
+                                for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
+                                {
+                                    var animationLayer = a.Layers[layer];
+                                    layer++;
+
+                                    // Create the animation part
+                                    var part = new Common_AnimationPart
+                                    {
+                                        SpriteIndex = animationLayer.ImageIndex,
+                                        X = animationLayer.XPosition,
+                                        Y = animationLayer.YPosition,
+                                        Flipped = animationLayer.IsFlipped
+                                    };
+
+                                    // Add the texture
+                                    animation.Frames[i, layerIndex] = part;
+                                }
+                            }
+                            // Add the animation to list
+                            finalDesign.Animations.Add(animation);
+                        }
+
+                        // Add to the designs
+                        eventDesigns.Add(new KeyValuePair<Pointer, Common_Design>(e.ImageDescriptorsPointer, finalDesign));
+
+                        // Set the index
+                        desIndex = eventDesigns.Count - 1;
                     }
 
-                    // Add to the designs
-                    eventDesigns.Add(finalDesign);
-                    desIndex++;
+                    // Instantiate event prefab using LevelEventController
+                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, index, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, events.EventLinkingTable[index]);
+
+                    // Add the event
+                    commonEvents.Add(ee);
+
+                    index++;
                 }
                 /*ExportTexturePage("Allfix_1", allfixFile.Palette1, allfixFile.TextureBlock);
                 ExportTexturePage("Allfix_2", allfixFile.Palette2, allfixFile.TextureBlock);
@@ -368,25 +386,7 @@ namespace R1Engine
             c.TileSet[0] = tileSet;
 
             // Add the events
-            c.Events = new List<Common_Event>();
-
-            var index = 0;
-            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
-
-            foreach (var e in levelData.EventData.Events)
-            {
-                Controller.status = $"Loading event {index}/{levelData.EventData.Events.Length}";
-
-                await Controller.WaitIfNecessary();
-
-                // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, index, index, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, levelData.EventData.EventLinkingTable[index]);
-
-                // Add the event
-                c.Events.Add(ee);
-
-                index++;
-            }
+            c.Events = commonEvents;
 
             await Controller.WaitIfNecessary();
 
@@ -416,16 +416,16 @@ namespace R1Engine
                 }
             }
 
-            return c;
+            // Return an editor manager
+            return new PS1EditorManager(c, context, this, eventDesigns.Select(x => x.Value).ToArray());
         }
 
         /// <summary>
-        /// Loads the specified level
+        /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="eventDesigns">The list of event designs to populate</param>
-        /// <returns>The level</returns>
-        public abstract Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns);
+        /// <returns>The editor manager</returns>
+        public abstract Task<BaseEditorManager> LoadAsync(Context context);
 
         /// <summary>
         /// Saves the specified level
@@ -623,47 +623,6 @@ namespace R1Engine
             }
             tex.Apply();
         }
-
-        /// <summary>
-        /// Gets the common editor event info for an event
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="e">The event</param>
-        /// <returns>The common editor event info</returns>
-        public Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e) => null;
-
-        /// <summary>
-        /// Gets the animation info for an event
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="e">The event</param>
-        /// <returns>The animation info</returns>
-        public Common_AnimationInfo GetAnimationInfo(Context context, Common_Event e)
-        {
-            // TODO: Change this super-hacky code
-            var etaItem = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).EventData.Events[e.ETA].EventState;
-
-            // Return the index
-            return new Common_AnimationInfo(etaItem?.AnimationIndex ?? -1, etaItem?.AnimationSpeed ?? -1);
-        }
-
-        /// <summary>
-        /// Gets the available event names to add for the current world
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The names of the available events to add</returns>
-        public string[] GetEvents(GameSettings settings) => new string[0];
-
-        /// <summary>
-        /// Adds a new event to the controller and returns it
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="eventController">The event controller to add to</param>
-        /// <param name="index">The event index from the available events</param>
-        /// <param name="xPos">The x position</param>
-        /// <param name="yPos">The y position</param>
-        /// <returns></returns>
-        public Common_Event AddEvent(GameSettings settings, LevelEventController eventController, int index, uint xPos, uint yPos) => throw new NotImplementedException();
 
         #endregion
     }

@@ -92,12 +92,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level
+        /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="eventDesigns">The list of event designs to populate</param>
-        /// <returns>The level</returns>
-        public override async Task<Common_Lev> LoadLevelAsync(Context context, List<Common_Design> eventDesigns)
+        /// <returns>The editor manager</returns>
+        public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
             Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
@@ -159,7 +158,7 @@ namespace R1Engine
                 palette.Add(new ARGBColor(vgaPalette[i + 0], vgaPalette[i + 1], vgaPalette[i + 2]));
 
             // Load the sprites
-            await LoadSpritesAsync(context, palette, eventDesigns);
+            var eventDesigns = await LoadSpritesAsync(context, palette);
 
             // Add the events
             commonLev.Events = new List<Common_Event>();
@@ -271,109 +270,8 @@ namespace R1Engine
                 }
             }
 
-            // Return the common level data
-            return commonLev;
-        }
-
-        /// <summary>
-        /// Gets the common editor event info for an event
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="e">The event</param>
-        /// <returns>The common editor event info</returns>
-        public override Common_EditorEventInfo GetEditorEventInfo(GameSettings settings, Common_Event e)
-        {
-            var cmd = e.CommandCollection.ToBytes();
-
-            // Find match
-            var match = GetMapperEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, cmd);
-
-            // Return the editor info
-            return new Common_EditorEventInfo(match?.Name, match?.Flag);
-        }
-
-        // TODO: Until Designer is merged we need to only add supported events
-        /// <summary>
-        /// Gets the available event names to add for the current world
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The names of the available events to add</returns>
-        public override string[] GetEvents(GameSettings settings)
-        {
-            var w = settings.World.ToEventWorld();
-
-            return LoadPCEventInfo(settings.GameModeSelection)?.Where<GeneralPCEventInfoData>(x => x.MapperID != null).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).Select<GeneralPCEventInfoData, string>(x => x.Name).ToArray<string>() ?? new string[0];
-        }
-
-        /// <summary>
-        /// Adds a new event to the controller and returns it
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="eventController">The event controller to add to</param>
-        /// <param name="index">The event index from the available events</param>
-        /// <param name="xPos">The x position</param>
-        /// <param name="yPos">The y position</param>
-        /// <returns></returns>
-        public override Common_Event AddEvent(GameSettings settings, LevelEventController eventController, int index, uint xPos, uint yPos)
-        {
-            var w = settings.World.ToEventWorld();
-
-            // Get the event
-            var e = LoadPCEventInfo(settings.GameModeSelection).Where<GeneralPCEventInfoData>(x => x.World == EventWorld.All || x.World == w).ElementAt<GeneralPCEventInfoData>(index);
-
-            // Add and return the event
-            return eventController.AddEvent((EventType)e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, Common_EventCommandCollection.FromBytes(e.LocalCommands), 0);
-        }
-
-        /// <summary>
-        /// Gets the event info data which matches the specified values for a Mapper event
-        /// </summary>
-        /// <param name="mode"></param>
-        /// <param name="world"></param>
-        /// <param name="type"></param>
-        /// <param name="etat"></param>
-        /// <param name="subEtat"></param>
-        /// <param name="des"></param>
-        /// <param name="eta"></param>
-        /// <param name="offsetBx"></param>
-        /// <param name="offsetBy"></param>
-        /// <param name="offsetHy"></param>
-        /// <param name="followSprite"></param>
-        /// <param name="hitPoints"></param>
-        /// <param name="hitSprite"></param>
-        /// <param name="followEnabled"></param>
-        /// <param name="localCommands"></param>
-        /// <returns>The item which matches the values</returns>
-        public GeneralPCEventInfoData GetMapperEventInfo(GameModeSelection mode, World world, int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, byte[] localCommands)
-        {
-            // Load the event info
-            var allInfo = LoadPCEventInfo(mode);
-
-            EventWorld eventWorld = world.ToEventWorld();
-
-            // Find a matching item
-            var match = allInfo.FindItem<GeneralPCEventInfoData>(x => (x.World == eventWorld || x.World == EventWorld.All) &&
-                                                                      x.Type == type &&
-                                                                      x.Etat == etat &&
-                                                                      x.SubEtat == subEtat &&
-                                                                      x.DES == des &&
-                                                                      x.ETA == eta &&
-                                                                      x.OffsetBX == offsetBx &&
-                                                                      x.OffsetBY == offsetBy &&
-                                                                      x.OffsetHY == offsetHy &&
-                                                                      x.FollowSprite == followSprite &&
-                                                                      x.HitPoints == hitPoints &&
-                                                                      x.HitSprite == hitSprite &&
-                                                                      x.FollowEnabled == followEnabled &&
-                                                                      //x.MapperID == mapperID &&
-                                                                      x.LocalCommands.SequenceEqual<byte>(localCommands));
-
-            // Create dummy item if not found
-            if (match == null && allInfo.Any<GeneralPCEventInfoData>())
-                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
-
-            // Return the item
-            return match;
+            // Return an editor manager
+            return new MapperEditorManager(commonLev, context, this, eventDesigns);
         }
 
         #endregion

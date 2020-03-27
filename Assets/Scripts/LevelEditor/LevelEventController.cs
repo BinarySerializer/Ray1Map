@@ -49,7 +49,11 @@ namespace R1Engine
         public void InitializeEvents() {
             // Convert linkIndex of each event to linkId
             var eventList = Controller.obj.levelController.currentLevel.Events;
-            for (int i=0; i < eventList.Count; i++) {
+            for (int i=0; i < eventList.Count; i++) 
+            {
+                // Refresh
+                eventList[i].RefreshEditorInfo();
+
                 // No link
                 if (eventList[i].LinkIndex == i) {
                     eventList[i].LinkID = 0;
@@ -76,7 +80,7 @@ namespace R1Engine
             }
 
             // Fill the dropdown menu
-            var events = Settings.GetGameManager.GetEvents(Settings.GetGameSettings);
+            var events = Controller.obj.levelController.EditorManager.GetEvents();
             
             foreach (var e in events) {
                 Dropdown.OptionData dat = new Dropdown.OptionData
@@ -121,7 +125,10 @@ namespace R1Engine
                     //Don't add if clicked outside of the level bounds
                     if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Width*16 && -moy < Controller.obj.levelController.currentLevel.Height*16) {
 
-                        var eve = Settings.GetGameManager.AddEvent(Settings.GetGameSettings, this, eventDropdown.value, (uint)mox, (uint)-moy);
+                        var eve = Controller.obj.levelController.EditorManager.AddEvent(this, eventDropdown.value, (uint)mox, (uint)-moy);
+
+                        // Refresh the event
+                        eve.RefreshEditorInfo();
 
                         Controller.obj.levelController.currentLevel.Events.Add(eve);
                     }
@@ -463,9 +470,6 @@ namespace R1Engine
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
-
-            // Refresh
-            newEvent.RefreshEditorInfo();
 
             // Add to list
             return newEvent;
