@@ -37,6 +37,7 @@ namespace R1Engine
         public InputField eventInfoHitSprite;
         public Toggle eventInfoFollow;
         public Dropdown eventInfoType;
+        public InputField eventInfoAnimIndex;
 
         public bool areLinksVisible = false;
 
@@ -171,6 +172,7 @@ namespace R1Engine
                         eventInfoHitSprite.text = currentlySelected.HitSprite.ToString();
                         eventInfoFollow.isOn = currentlySelected.FollowEnabled;
                         eventInfoType.value = (int)currentlySelected.Type;
+                        eventInfoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
                         //Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
@@ -386,6 +388,15 @@ namespace R1Engine
                 currentlySelected.RefreshName();
             }
         }
+        public void FieldAnimIndex() {
+            if (currentlySelected != null) {
+                int.TryParse(eventInfoAnimIndex.text, out var new_anim);
+                currentlySelected.AnimationIndex = new_anim;
+
+                //currentlySelected.RefreshName();
+                //currentlySelected.RefreshVisuals();
+            }
+        }
 
         //--------------------
 
@@ -405,6 +416,7 @@ namespace R1Engine
             eventInfoHitSprite.text = "";
             eventInfoFollow.isOn = false;
             eventInfoType.value = 0;
+            eventInfoAnimIndex.text = "";
         }
 
         // Show/Hide links
