@@ -273,17 +273,26 @@
         // DESIGNER (added manually)
 
         // Unknown events here
+        Unk1,
+        Unk2,
+        Unk3,
+        Unk4,
+        Unk5,
 
         MS_compteur = 266,
         MS_wiz_comptage = 267,
 
         // Unknown events here
+        Unk6,
+        Unk7,
+        Unk8,
 
         MS_champ_fixe = 271,
         MS_pap = 272,
         MS_nougat = 273,
 
         // Unknown event here
+        Unk10,
 
         MS_scintillement = 275,
         MS_porte = 276,

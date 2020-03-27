@@ -237,7 +237,7 @@ namespace R1Engine
         }
 
         public void UpdateXAndY() {
-            transform.position = new Vector3(Mathf.Clamp(XPosition / 16f, 0, Controller.obj.levelController.currentLevel.Width), Mathf.Clamp(-(YPosition / 16f), -Controller.obj.levelController.currentLevel.Height, 0), transform.position.z);
+            transform.position = new Vector3(XPosition / 16f, -(YPosition / 16f), transform.position.z);
             //Don't move link cube if it's part of a link
             if (LinkID != 0) {
                 linkCube.position = linkCubeLockPosition;

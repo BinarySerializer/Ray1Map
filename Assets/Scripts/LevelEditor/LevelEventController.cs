@@ -35,8 +35,8 @@ namespace R1Engine
         public InputField eventInfoFollowSprite;
         public InputField eventInfoHitPoints;
         public InputField eventInfoHitSprite;
-        public InputField eventInfoFollow;
-        public InputField eventInfoType;
+        public Toggle eventInfoFollow;
+        public Dropdown eventInfoType;
 
         public bool areLinksVisible = false;
 
@@ -53,6 +53,12 @@ namespace R1Engine
             {
                 // Refresh
                 eventList[i].RefreshEditorInfo();
+
+                // If X and Y are insane, clamp them
+                var border = 10;
+                eventList[i].XPosition = (uint)Mathf.Clamp(eventList[i].XPosition, -border, (Controller.obj.levelController.currentLevel.Width*16)+border);
+                eventList[i].YPosition = (uint)Mathf.Clamp(eventList[i].YPosition, -border, (Controller.obj.levelController.currentLevel.Height*16)+border);
+                eventList[i].UpdateXAndY();
 
                 // No link
                 if (eventList[i].LinkIndex == i) {
@@ -100,6 +106,14 @@ namespace R1Engine
             //Assign visibility refresh for the settings booleans
             Settings.OnShowAlwaysEventsChanged += ChangeEventsVisibility;
             Settings.OnShowEditorEventsChanged += ChangeEventsVisibility;
+            //Fill eventinfo dropdown with the event types
+            var all = Enum.GetValues(typeof(EventType));
+            foreach(var e in all) {
+                Dropdown.OptionData dat = new Dropdown.OptionData {
+                    text = e.ToString()
+                };
+                eventInfoType.options.Add(dat);
+            }
         }
 
         public void ChangeEventsVisibility(object o, EventArgs e) {
@@ -155,8 +169,8 @@ namespace R1Engine
                         eventInfoFollowSprite.text = currentlySelected.FollowSprite.ToString();
                         eventInfoHitPoints.text = currentlySelected.HitPoints.ToString();
                         eventInfoHitSprite.text = currentlySelected.HitSprite.ToString();
-                        eventInfoFollow.text = currentlySelected.FollowEnabled?"TRUE":"FALSE";
-                        eventInfoType.text = currentlySelected.Type.ToString();
+                        eventInfoFollow.isOn = currentlySelected.FollowEnabled;
+                        eventInfoType.value = (int)currentlySelected.Type;
                         //Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
@@ -184,8 +198,8 @@ namespace R1Engine
                         if (modeEvents) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                            eventInfoX.text = Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16), 0, Controller.obj.levelController.currentLevel.Width * 16).ToString();
-                            eventInfoY.text = Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), 0, Controller.obj.levelController.currentLevel.Height * 16).ToString();
+                            eventInfoX.text = Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16).ToString();
+                            eventInfoY.text = Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16).ToString();
 
                             uint.TryParse(eventInfoX.text, out var new_x);
                             currentlySelected.XPosition = new_x;
@@ -360,15 +374,14 @@ namespace R1Engine
         }
         public void FieldFollowEnabled() {
             if (currentlySelected != null) {
-                currentlySelected.FollowEnabled = eventInfoFollow.text == "TRUE";
+                currentlySelected.FollowEnabled = eventInfoFollow.isOn;
 
                 currentlySelected.RefreshName();
             }
         }
         public void FieldType() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoType.text, out var new_type);
-                currentlySelected.Type = (EventType)new_type;
+                currentlySelected.Type = (EventType)eventInfoType.value;
 
                 currentlySelected.RefreshName();
             }
@@ -390,8 +403,8 @@ namespace R1Engine
             eventInfoFollowSprite.text = "";
             eventInfoHitPoints.text = "";
             eventInfoHitSprite.text = "";
-            eventInfoFollow.text = "";
-            eventInfoType.text = "";
+            eventInfoFollow.isOn = false;
+            eventInfoType.value = 0;
         }
 
         // Show/Hide links
@@ -450,7 +463,7 @@ namespace R1Engine
 
             newEvent.XPosition = xpos;
             newEvent.YPosition = ypos;
-            
+
             newEvent.DES = des;
             newEvent.ETA = eta;
             
