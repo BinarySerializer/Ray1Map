@@ -1,7 +1,4 @@
-﻿using System;
-using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// World data for Rayman 1 (PS1 - Japan)
@@ -44,8 +41,7 @@ namespace R1Engine
         // TODO: This is a temp property until we serialize the actual data
         public byte[] SecondBlock { get; set; }
 
-        // TODO: This is a temp property until we serialize the actual data
-        public byte[] EventTexturesBlock { get; set; }
+        public byte[] TextureBlock { get; set; }
 
         // TODO: This is a temp property until we serialize the actual data
         public byte[] FourthBlock { get; set; }
@@ -53,9 +49,9 @@ namespace R1Engine
         public RGB555Color[] UnknownPalette { get; set; }
 
         /// <summary>
-        /// The tiles
+        /// The tile set
         /// </summary>
-        public RGB555Color[][] Tiles { get; set; }
+        public PS1_R1JP_TileSet TileSet { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -78,7 +74,7 @@ namespace R1Engine
 
             // EVENT TEXTURES
             s.DoAt(EventTexturesBlockPointer, () => {
-                EventTexturesBlock = s.SerializeArray<byte>(EventTexturesBlock, FourthBlockPointer - s.CurrentPointer, name: nameof(EventTexturesBlock));
+                TextureBlock = s.SerializeArray<byte>(TextureBlock, FourthBlockPointer - s.CurrentPointer, name: nameof(TextureBlock));
             });
 
             // BLOCK 4
@@ -93,13 +89,11 @@ namespace R1Engine
 
             // TILES
             s.DoAt(TilesBlockPointer, () => {
-                // TODO: Find a better way to know the number of tiles
-                uint cellSize = PS1_Manager.CellSize * PS1_Manager.CellSize;
-                uint numTiles = (FileSize - s.CurrentPointer.FileOffset) / cellSize / 2;
-                // Create & serialize the tiles array
-                Tiles = new RGB555Color[numTiles][];
-                for (int i = 0; i < Tiles.Length; i++)
-                    Tiles[i] = s.SerializeObjectArray<RGB555Color>(Tiles[i], cellSize, name: nameof(Tiles) + "[" + i + "]");
+                // Get the tile count
+                int tileCount = TileSet?.TilesArrayLength ?? (int)((FileSize - s.CurrentPointer.FileOffset) / 2);
+
+                // Serialize the tiles
+                TileSet = s.SerializeObject(TileSet, x => x.TilesArrayLength = tileCount, name: nameof(TileSet));
             });
         }
     }

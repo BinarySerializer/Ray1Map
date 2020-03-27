@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using R1Engine.Serialize;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -11,11 +12,16 @@ namespace R1Engine
     public class PS1_R1JP_Manager : PS1_Manager
     {
         /// <summary>
-        /// Reads the tile set for the specified world
+        /// The width of the tile set in tiles
         /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <returns>The tile set</returns>
-        public override Common_Tileset ReadTileSet(Context context)
+        public override int TileSetWidth => 1;
+
+        /// <summary>
+        /// Gets the tile set to use
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The tile set to use</returns>
+        public virtual PS1_R1JP_TileSet GetTileSet(Context context)
         {
             // Get the file name
             var filename = GetWorldFilePath(context.Settings);
@@ -23,13 +29,25 @@ namespace R1Engine
             // Read the file
             var worldJPFile = FileFactory.Read<PS1_R1JP_WorldFile>(filename, context);
 
-            // Create the tile array
-            var tilesJP = new Tile[worldJPFile.Tiles.Length];
+            // Return the tile set
+            return worldJPFile.TileSet;
+        }
 
-            int tileIndexJP = 0;
+        /// <summary>
+        /// Reads the tile set for the specified world
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        /// <returns>The tile set</returns>
+        public override Common_Tileset ReadTileSet(Context context)
+        {
+            // Get the tile set
+            var tileSet = GetTileSet(context).Tiles;
+
+            // Create the tile array
+            var tilesJP = new Tile[tileSet.Length];
 
             // Create each tile
-            foreach (var tileJP in worldJPFile.Tiles)
+            for (var index = 0; index < tileSet.Length / (CellSize * CellSize); index++)
             {
                 // Create the texture
                 Texture2D texJP = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false)
@@ -38,12 +56,18 @@ namespace R1Engine
                     wrapMode = TextureWrapMode.Clamp
                 };
 
+                // Get the tile x and y
+                var tileY = (int)Math.Floor(index / (double)TileSetWidth);
+                var tileX = (index - (TileSetWidth * tileY));
+
+                var tileOffset = (tileY * TileSetWidth * CellSize * CellSize) + (tileX * CellSize);
+
                 // Set every pixel
                 for (int y = 0; y < CellSize; y++)
                 {
                     for (int x = 0; x < CellSize; x++)
                     {
-                        texJP.SetPixel(x, y, tileJP[y * CellSize + x].GetColor());
+                        texJP.SetPixel(x, y, tileSet[(tileOffset + (y * CellSize * TileSetWidth + x))].GetColor());
                     }
                 }
 
@@ -52,10 +76,10 @@ namespace R1Engine
 
                 // Create a tile
                 Tile t = ScriptableObject.CreateInstance<Tile>();
-                t.sprite = Sprite.Create(texJP, new Rect(0, 0, CellSize, CellSize), new Vector2(0.5f, 0.5f), CellSize, 20);
+                t.sprite = Sprite.Create(texJP, new Rect(0, 0, CellSize, CellSize), new Vector2(0.5f, 0.5f), CellSize,
+                    20);
 
-                tilesJP[tileIndexJP] = t;
-                tileIndexJP++;
+                tilesJP[index] = t;
             }
 
             // Return the tileset

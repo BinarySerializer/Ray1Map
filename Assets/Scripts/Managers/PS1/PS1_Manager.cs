@@ -20,6 +20,11 @@ namespace R1Engine
         /// </summary>
         public const int CellSize = 16;
 
+        /// <summary>
+        /// The width of the tile set in tiles
+        /// </summary>
+        public abstract int TileSetWidth { get; }
+
         // TODO: All of these have to be moved to the sub-managers - not every version has the level packed into a single file
         /// <summary>
         /// Gets the file path for the specified level
@@ -53,7 +58,7 @@ namespace R1Engine
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public string GetWorldName(World world)
+        public virtual string GetWorldName(World world)
         {
             switch (world)
             {
@@ -97,7 +102,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public int[] GetLevels(GameSettings settings)
+        public virtual int[] GetLevels(GameSettings settings)
         {
             var worldPath = settings.GameDirectory + GetWorldFolderPath(settings);
 
@@ -407,7 +412,7 @@ namespace R1Engine
                         XPosition = x,
                         YPosition = y,
                         CollisionType = map.Tiles[tileIndex].CollisionType,
-                        TileSetGraphicIndex = (CellSize * graphicY) + graphicX
+                        TileSetGraphicIndex = (TileSetWidth * graphicY) + graphicX
                     };
 
                     c.Tiles[tileIndex] = newTile;
@@ -453,7 +458,7 @@ namespace R1Engine
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
-                    tile.TileMapY = (int)Math.Floor(commonTile.TileSetGraphicIndex / 16d);
+                    tile.TileMapY = (int)Math.Floor(commonTile.TileSetGraphicIndex / (double)TileSetWidth);
                     tile.TileMapX = commonTile.TileSetGraphicIndex - (CellSize * tile.TileMapY);
                 }
             }

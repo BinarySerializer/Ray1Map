@@ -11,6 +11,11 @@ namespace R1Engine
     public class PS1_R1_Manager : PS1_Manager
     {
         /// <summary>
+        /// The width of the tile set in tiles
+        /// </summary>
+        public override int TileSetWidth => 16;
+
+        /// <summary>
         /// Reads the tile set for the specified world
         /// </summary>
         /// <param name="context">The serialization context</param>

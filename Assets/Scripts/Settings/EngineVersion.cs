@@ -14,13 +14,16 @@ namespace R1Engine
         /// </summary>
         RayPS1,
 
-        // NOTE: Already works with level files, but world file is different - uses raw 1555 for tiles
         /// <summary>
-        /// Rayman 1 (PS1 - Japanese)
+        /// Rayman 1 (PS1 - JP)
         /// </summary>
         RayPS1JP,
 
-        // NOTE: More or less same format as PS1, but split into multiple files. DTA is the event block.
+        /// <summary>
+        /// Rayman 1 (PS1 - JP Demos)
+        /// </summary>
+        RayPS1JPDemo,
+
         /// <summary>
         /// Rayman 1 (Saturn)
         /// </summary>
