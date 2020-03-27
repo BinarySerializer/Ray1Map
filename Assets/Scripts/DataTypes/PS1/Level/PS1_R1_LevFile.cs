@@ -59,10 +59,14 @@
                 BackgroundData = s.SerializeObject(BackgroundData, name: nameof(BackgroundData));
             });
 
-            // EVENT BLOCK
-            s.DoAt(EventBlockPointer, () => {
-                EventData = s.SerializeObject(EventData, name: nameof(EventData));
-            });
+            // TODO: Remove this once JP supports pointers
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JP)
+            {
+                // EVENT BLOCK
+                s.DoAt(EventBlockPointer, () => {
+                    EventData = s.SerializeObject(EventData, name: nameof(EventData));
+                });
+            }
 
             // MAP BLOCK
             s.DoAt(MapBlockPointer, () => {
