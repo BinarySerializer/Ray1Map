@@ -9,14 +9,20 @@ namespace R1Engine
     [JsonConverter(typeof(StringEnumConverter))]
     public enum GameModeSelection
     {
-        [GameMode(EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1)", typeof(PS1_R1_Manager))]
-        RaymanPS1,
+        [GameMode(EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1 - US)", typeof(PS1_R1_Manager))]
+        RaymanPS1US,
+
+        //[GameMode(EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1 - EU)", typeof(PS1_R1_Manager))]
+        //RaymanPS1EU,
 
         [GameMode(EngineVersion.RayPS1JP, Game.Rayman1, "Rayman 1 (PS1 - JP)", typeof(PS1_R1JP_Manager))]
         RaymanPS1Japan,
 
-        [GameMode(EngineVersion.RayPS1JPDemo, Game.Rayman1, "Rayman 1 (PS1 - JP Demo Vol3)", typeof(PS1_R1JPDemoVol3_Manager))]
+        [GameMode(EngineVersion.RayPS1JPDemo, Game.Rayman1DemoPrototype, "Rayman 1 (PS1 - JP Demo Vol3)", typeof(PS1_R1JPDemoVol3_Manager))]
         RaymanPS1DemoVol3Japan,
+
+        //[GameMode(EngineVersion.RayPS1JPDemo, Game.Rayman1DemoPrototype, "Rayman 1 (PS1 - JP Demo Vol6)", typeof(PS1_R1JPDemoVol3_Manager))]
+        //RaymanPS1DemoVol6Japan,
 
         [GameMode(EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC)", typeof(PC_R1_Manager))]
         RaymanPC,

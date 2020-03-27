@@ -6,6 +6,7 @@
     public enum Game
     {
         Rayman1,
+        Rayman1DemoPrototype,
         RaymanDesigner,
         RaymanMapper,
         RaymanByHisFans,
