@@ -392,6 +392,7 @@ namespace R1Engine
             if (currentlySelected != null) {
                 int.TryParse(eventInfoAnimIndex.text, out var new_anim);
                 currentlySelected.AnimationIndex = new_anim;
+                currentlySelected.ChangeAnimation(new_anim);
 
                 //currentlySelected.RefreshName();
                 //currentlySelected.RefreshVisuals();

@@ -303,7 +303,7 @@ namespace R1Engine
         }
 
         // Try to load a new animation and change to it
-        private void ChangeAnimation(int newAnim) 
+        public void ChangeAnimation(int newAnim) 
         {
             // Make sure we have a non-negative DES index
             if (DES < 0)
