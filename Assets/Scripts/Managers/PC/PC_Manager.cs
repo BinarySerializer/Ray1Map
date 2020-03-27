@@ -815,8 +815,8 @@ namespace R1Engine
         public void AutoApplyPalette(Common_Lev level)
         {
             // Get the palette changers
-            var paletteXChangers = level.Events.Where<Common_Event>(x => x.Type == 158 && x.SubEtat < 6).ToDictionary<Common_Event, uint, PC_PaletteChangerMode>(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
-            var paletteYChangers = level.Events.Where<Common_Event>(x => x.Type == 158 && x.SubEtat >= 6).ToDictionary<Common_Event, uint, PC_PaletteChangerMode>(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteXChangers = level.Events.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteYChangers = level.Events.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
             // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
@@ -1100,7 +1100,7 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].Commands, levelData.EventLinkingTable[index]);
+                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].Commands, levelData.EventLinkingTable[index]);
 
                 // Add the event
                 commonLev.Events.Add(ee);
@@ -1301,7 +1301,7 @@ namespace R1Engine
                     Unk6 = 0,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
-                    Type = (ushort)e.Type,
+                    Type = e.Type,
                     OffsetBX = (byte)e.OffsetBX,
                     OffsetBY = (byte)e.OffsetBY,
                     Unk7 = 0,
@@ -1418,7 +1418,7 @@ namespace R1Engine
             var cmds = e.CommandCollection.ToBytes();
 
             // Find match
-            var match = GetPCEventInfo(settings.GameModeSelection, settings.World, e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
+            var match = GetPCEventInfo(settings.GameModeSelection, settings.World, (int)e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
 
             // Return the editor info
             return new Common_EditorEventInfo(match?.Name, match?.Flag);
@@ -1484,7 +1484,7 @@ namespace R1Engine
             var cmds = Common_EventCommandCollection.FromBytes(e.Commands.Any<byte>() ? e.Commands : e.LocalCommands);
 
             // Add and return the event
-            return eventController.AddEvent(e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0);
+            return eventController.AddEvent((EventType)e.Type, e.Etat, e.SubEtat, xPos, yPos, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds, 0);
         }
 
         /// <summary>

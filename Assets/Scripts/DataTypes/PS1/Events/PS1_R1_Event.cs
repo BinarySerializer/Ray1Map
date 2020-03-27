@@ -91,7 +91,7 @@ namespace R1Engine
         /// <summary>
         /// The event type
         /// </summary>
-        public byte Type { get; set; }
+        public EventType Type { get; set; }
 
         // NOTE: Maybe a byte?
         public ushort HitSprite { get; set; }
@@ -195,7 +195,7 @@ namespace R1Engine
 
             UnkGroup = s.Serialize<byte>(UnkGroup, name: nameof(UnkGroup));
 
-            Type = s.Serialize<byte>(Type, name: nameof(Type));
+            Type = (EventType)s.Serialize<byte>((byte)Type, name: nameof(Type));
 
             HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
 

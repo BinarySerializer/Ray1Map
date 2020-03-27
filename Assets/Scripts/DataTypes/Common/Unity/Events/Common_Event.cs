@@ -33,7 +33,7 @@ namespace R1Engine
         /// <summary>
         /// The event type
         /// </summary>
-        public int Type { get; set; }
+        public EventType Type { get; set; }
 
         /// <summary>
         /// The event state

@@ -25,7 +25,7 @@
 
         public ushort[] Unk4 { get; set; }
 
-        public ushort Type { get; set; }
+        public EventType Type { get; set; }
 
         public byte[] Unk5 { get; set; }
 
@@ -90,7 +90,7 @@
 
             Unk4 = s.SerializeArray<ushort>(Unk4, 22, name: nameof(Unk4));
 
-            Type = s.Serialize<ushort>(Type, name: nameof(Type));
+            Type = s.Serialize<EventType>(Type, name: nameof(Type));
             Unk5 = s.SerializeArray<byte>(Unk5, 5, name: nameof(Unk5));
             Unk6 = s.Serialize<byte>(Unk6, name: nameof(Unk6));
 

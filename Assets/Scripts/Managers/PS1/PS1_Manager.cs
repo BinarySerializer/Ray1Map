@@ -380,7 +380,7 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent((int)e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, index, index, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, levelData.EventData.EventLinkingTable[index]);
+                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, index, index, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, levelData.EventData.EventLinkingTable[index]);
 
                 // Add the event
                 c.Events.Add(ee);
