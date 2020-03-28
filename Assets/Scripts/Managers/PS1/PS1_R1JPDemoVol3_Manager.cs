@@ -62,7 +62,7 @@ namespace R1Engine
             var tilesetCount = (int)((new FileInfo(context.BasePath + filename).Length) / 2);
 
             // Read the file
-            var tileSetFile = FileFactory.Read<PS1_R1JP_TileSet>(filename, context, x => x.TilesArrayLength = tilesetCount);
+            var tileSetFile = FileFactory.Read<PS1_R1_RawTileSet>(filename, context, x => x.TilesArrayLength = tilesetCount);
 
             // Return the tile set
             return tileSetFile.Tiles;

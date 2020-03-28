@@ -51,7 +51,7 @@
         /// <summary>
         /// The tile set
         /// </summary>
-        public PS1_R1JP_TileSet TileSet { get; set; }
+        public PS1_R1_RawTileSet TileSet { get; set; }
 
         /// <summary>
         /// Serializes the data

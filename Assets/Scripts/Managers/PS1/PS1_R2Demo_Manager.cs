@@ -61,7 +61,7 @@ namespace R1Engine
             var tileSetPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.RAW";
             var palettePath = $"JUNGLE/{GetMapName(context.Settings.Level)}.PAL";
 
-            // TODO: Serialize these as actual files - for the tiles use PS1_R1JP_TileSet (rename the class though) and for palettes we should make a generic palette class where the generic is the color type
+            // TODO: Serialize these as actual files - for the tiles use PS1_R1_RawTileSet and for palettes we should make a generic palette class where the generic is the color type
             var tileSet = File.ReadAllBytes(context.BasePath + tileSetPath);
             var palette = File.ReadAllBytes(context.BasePath + palettePath);
 

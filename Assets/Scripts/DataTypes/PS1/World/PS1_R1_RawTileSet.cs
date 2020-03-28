@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Tile set data for Rayman 1 (PS1 - Japan)
+    /// Raw tile set data for Rayman 1 (PS1 - Japan)
     /// </summary>
-    public class PS1_R1JP_TileSet : R1Serializable
+    public class PS1_R1_RawTileSet : R1Serializable
     {
         /// <summary>
         /// The amount of tile color array
