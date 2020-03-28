@@ -15,7 +15,7 @@
         /// <summary>
         /// The background layer info items
         /// </summary>
-        public PS1_R1_BackgroundLayerInfo[] BackgroundLayerInfos { get; set; }
+        public PS1_R1_ImageDescriptor[] BackgroundLayerInfos { get; set; }
 
         public byte[] Unknown4 { get; set; }
 
@@ -30,7 +30,7 @@
 
             Unknown3 = s.SerializeArray<byte>(Unknown3, 16, name: nameof(Unknown3));
 
-            BackgroundLayerInfos = s.SerializeObjectArray<PS1_R1_BackgroundLayerInfo>(BackgroundLayerInfos, 12, name: nameof(BackgroundLayerInfos));
+            BackgroundLayerInfos = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(BackgroundLayerInfos, 12, name: nameof(BackgroundLayerInfos));
 
             Unknown4 = s.SerializeArray<byte>(Unknown4, 80, name: nameof(Unknown4));
 
