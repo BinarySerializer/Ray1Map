@@ -24,7 +24,7 @@ namespace R1Engine
         /// </summary>
         public bool IsBlackTransparent { get; set; } = true;
 
-        ushort Color555 {
+        public ushort Color555 {
             get {
                 if (Alpha == 0) return 0;
                 ushort red16 = (ushort)((Red / 255f) * 31);

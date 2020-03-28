@@ -12,6 +12,7 @@
         RaymanByHisFans,
         Rayman60Levels,
         RaymanEducational,
-        RaymanQuiz
+        RaymanQuiz,
+        Rayman2,
     }
 }

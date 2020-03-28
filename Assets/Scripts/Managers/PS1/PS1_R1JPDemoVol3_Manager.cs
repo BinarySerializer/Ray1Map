@@ -10,7 +10,7 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman 1 (PS1 - Japan Demo Vol3)
     /// </summary>
-    public class PS1_R1JPDemoVol3_Manager : PS1_R1JP_Manager
+    public class PS1_R1JPDemoVol3_Manager : PS1_Manager
     {
         /// <summary>
         /// The width of the tile set in tiles
@@ -54,7 +54,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override PS1_R1JP_TileSet GetTileSet(Context context)
+        public override IList<ARGBColor> GetTileSet(Context context)
         {
             // Get the file name
             var filename = GetTileSetFilePath(context.Settings);
@@ -65,7 +65,7 @@ namespace R1Engine
             var tileSetFile = FileFactory.Read<PS1_R1JP_TileSet>(filename, context, x => x.TilesArrayLength = tilesetCount);
 
             // Return the tile set
-            return tileSetFile;
+            return tileSetFile.Tiles;
         }
 
         /// <summary>

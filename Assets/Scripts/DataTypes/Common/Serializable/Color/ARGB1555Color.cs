@@ -19,7 +19,7 @@ namespace R1Engine
         public ARGB1555Color(byte alpha, byte red, byte green, byte blue) : base(alpha, red, green, blue)
         { }
 
-        ushort Color1555 {
+        public ushort Color1555 {
             get {
                 ushort alpha16 = (ushort)(Alpha / 255f);
                 ushort red16 = (ushort)((Red / 255f) * 31);

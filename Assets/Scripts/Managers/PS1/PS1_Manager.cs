@@ -211,11 +211,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Reads the tile set for the specified world
+        /// Gets the tile set to use
         /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <returns>The tile set</returns>
-        public abstract Common_Tileset ReadTileSet(Context context);
+        /// <param name="context">The context</param>
+        /// <returns>The tile set to use</returns>
+        public abstract IList<ARGBColor> GetTileSet(Context context);
 
         /// <summary>
         /// Auto applies the palette to the tiles in the level
@@ -253,7 +253,7 @@ namespace R1Engine
             
             PS1_R1_MapBlock map, PS1_R1_EventBlock events, byte[] levelTextureBlock)
         {
-            Common_Tileset tileSet = ReadTileSet(context);
+            Common_Tileset tileSet = new Common_Tileset(GetTileSet(context), TileSetWidth, CellSize);
 
             var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
             var commonEvents = new List<Common_Event>();
