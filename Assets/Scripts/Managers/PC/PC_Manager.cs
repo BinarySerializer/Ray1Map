@@ -250,7 +250,7 @@ namespace R1Engine
                 PC_WorldFile ExportTextures(string filePath, PC_WorldFile.Type type, string name, int desOffset, string[] desFileNames) {
                     // Read the file
                     var file = FileFactory.Read<PC_WorldFile>(filePath, context,
-                        onPreSerialize: data => data.FileType = type);
+                        onPreSerialize: (s, data) => data.FileType = type);
 
                     // Export the sprite textures
                     if (exportAnimFrames)
@@ -952,7 +952,7 @@ namespace R1Engine
 
             // Read the fixed data
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context,
-                onPreSerialize: data => data.FileType = PC_WorldFile.Type.AllFix);
+                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.AllFix);
 
             await Controller.WaitIfNecessary();
 
@@ -960,7 +960,7 @@ namespace R1Engine
 
             // Read the world data
             var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
-                onPreSerialize: data => data.FileType = PC_WorldFile.Type.World);
+                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
 
             await Controller.WaitIfNecessary();
 
@@ -969,7 +969,7 @@ namespace R1Engine
             // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
             // Read the big ray data
             var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context,
-                onPreSerialize: data => data.FileType = PC_WorldFile.Type.BigRay);
+                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.BigRay);
 
             await Controller.WaitIfNecessary();
 

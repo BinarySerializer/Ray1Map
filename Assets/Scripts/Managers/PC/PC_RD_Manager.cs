@@ -82,7 +82,7 @@ namespace R1Engine
             // TODO: Find better way to parse this
             // Read the world file and get the last data group
             var wld = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
-                data => data.FileType = PC_WorldFile.Type.World).Unknown5;
+                (s, data) => data.FileType = PC_WorldFile.Type.World).Unknown5;
 
             // Get the DES file names
             for (int i = 1; i < wld.Length; i += 13)

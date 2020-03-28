@@ -27,14 +27,14 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="mode">The file mode to use when reading</param>
         /// <returns>The file data</returns>
-        public static T Read<T>(string filePath, Context context, Action<T> onPreSerialize = null)
+        public static T Read<T>(string filePath, Context context, Action<SerializerObject, T> onPreSerialize = null)
             where T : R1Serializable, new()
         {
             // Try cached version, to avoid creating the deserializer unless necessary
-            T t = context.GetMainFileObject<T>(filePath);
-            if (t != null) return t;
+            T mainObj = context.GetMainFileObject<T>(filePath);
+            if (mainObj != null) return mainObj;
             // Use deserializer
-            return context.Deserializer.SerializeFile<T>(filePath, null, onPreSerialize: onPreSerialize, name: filePath);
+            return context.Deserializer.SerializeFile<T>(filePath, null, onPreSerialize: (t) => onPreSerialize?.Invoke(context.Deserializer, t), name: filePath);
         }
 
         // TODO: Improve this system
@@ -51,12 +51,12 @@ namespace R1Engine
         /// </summary>
         /// <param name="filePath">The file path to write to</param>
         /// <param name="settings">The game settings</param>
-        public static T Write<T>(string filePath, Context context, Action<T> onPreSerialize = null) where T : R1Serializable, new() {
-            return context.FilePointer<T>(filePath)?.Resolve(context.Serializer, onPreSerialize: onPreSerialize).Value;
+        public static T Write<T>(string filePath, Context context, Action<SerializerObject, T> onPreSerialize = null) where T : R1Serializable, new() {
+            return context.FilePointer<T>(filePath)?.Resolve(context.Serializer, onPreSerialize: (t) => onPreSerialize?.Invoke(context.Serializer, t)).Value;
         }
 
-        public static T Write<T>(string filePath, T obj, Context context, Action<T> onPreSerialize = null) where T : R1Serializable, new() {
-            return context.Serializer.SerializeFile<T>(filePath, obj, onPreSerialize: onPreSerialize, name: filePath);
+        public static T Write<T>(string filePath, T obj, Context context, Action<SerializerObject, T> onPreSerialize = null) where T : R1Serializable, new() {
+            return context.Serializer.SerializeFile<T>(filePath, obj, onPreSerialize: (t) => onPreSerialize?.Invoke(context.Serializer, t), name: filePath);
         }
         }
 }

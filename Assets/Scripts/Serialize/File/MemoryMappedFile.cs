@@ -32,9 +32,9 @@ namespace R1Engine.Serialize {
 		public uint Length {
 			get {
 				if (length == 0) {
-					Stream s = FileSystem.GetFileReadStream(AbsolutePath);
-					length = (uint)s.Length;
-					s.Close();
+					using (Stream s = FileSystem.GetFileReadStream(AbsolutePath)) {
+						length = (uint)s.Length;
+					}
 				}
 				return length;
 			}
