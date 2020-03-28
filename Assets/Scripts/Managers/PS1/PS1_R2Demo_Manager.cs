@@ -18,11 +18,11 @@ namespace R1Engine
         public override int TileSetWidth => 16;
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, 4).ToArray();
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Enumerable.Range(1, w == World.Jungle ? 4 : 0).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the name for the specified map

@@ -15,11 +15,11 @@ namespace R1Engine
         bool Has3Palettes { get; }
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        int[] GetLevels(GameSettings settings);
+        KeyValuePair<World, int[]>[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available educational volumes

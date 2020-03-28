@@ -32,29 +32,27 @@ namespace R1Engine
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(GameSettings settings) => GetWorldName(settings.World) + "/";
+        public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the file path for the PCX tile map
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The PCX tile map file path</returns>
-        public string GetPCXFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"{GetShortWorldName(settings.World)}.PCX";
+        public string GetPCXFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetShortWorldName(settings.World)}.PCX";
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) {
-            return Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(settings), "MAP???", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(w), "MAP???", SearchOption.TopDirectoryOnly)
                 .Select(Path.GetFileName)
                 .Where(x => x.Length < 7)
                 .Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3)))
-                .ToArray();
-        }
+                .ToArray())).ToArray();
 
         #endregion
 

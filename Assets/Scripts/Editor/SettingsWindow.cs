@@ -48,25 +48,31 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader(ref yPos, "Mode");
 
-		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.EnumPopup(GetNextRect(ref yPos), "Game", Settings.SelectedGameMode);
+		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.Popup(GetNextRect(ref yPos), "Game", (int)Settings.SelectedGameMode, GameModeNames);
 
 		// Map
 
 		DrawHeader(ref yPos, "Map");
 
-        Settings.World = (World)EditorGUI.EnumPopup(GetNextRect(ref yPos), "World", Settings.World);
+        Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames));
 
         try
         {
 			// Only update if previous values don't match
-			if (!PrevLvlValues.ComparePreviousValues())
+			if (!PrevLvlValues.ComparePreviousValues(true))
             {
                 Debug.Log("Updated levels");
 
                 var manager = Settings.GetGameManager;
                 var settings = Settings.GetGameSettings;
 
-                CurrentLevels = manager.GetLevels(settings).OrderBy(x => x).Select(x => new KeyValuePair<int, string>(x, MapNames.GetMapNames(settings.Game)?.TryGetItem(Settings.World)?.TryGetItem(x))).ToArray();
+                CurrentLevels = manager.GetLevels(settings)
+                    .Select(x => new KeyValuePair<World, KeyValuePair<int, string>[]>(x.Key, x.Value.OrderBy(i => i)
+                        .Select(i => new KeyValuePair<int, string>(i, MapNames.GetMapNames(settings.Game)?.TryGetItem(Settings.World)?.TryGetItem(i)))
+                        .ToArray()))
+                    .ToArray();
+                AvailableWorlds = CurrentLevels.Where(x => x.Value.Any()).Select(x => x.Key).ToArray();
+                AvailableWorldNames = AvailableWorlds.Select(x => x.ToString()).ToArray();
             }
         }
         catch (Exception ex)
@@ -74,10 +80,12 @@ public class SettingsWindow : UnityWindow
             Debug.LogWarning(ex.Message);
         }
 
-		var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<int, string>[0];
+		var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<World, KeyValuePair<int, string>[]>[0];
 
-		if (levels.All(x => x.Key != Settings.Level))
-			Settings.Level = levels.FirstOrDefault().Key;
+        var currentLevels = levels.FindItem(x => x.Key == Settings.World).Value ?? new KeyValuePair<int, string>[0];
+
+        if (currentLevels.All(x => x.Key != Settings.Level))
+			Settings.Level = currentLevels.FirstOrDefault().Key;
 
         // Helper method for getting the level name
         string GetLvlName(int lvlNum, string lvlName)
@@ -88,10 +96,10 @@ public class SettingsWindow : UnityWindow
                 return $"{lvlNum}";
         }
 
-		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", levels.FindItemIndex(x => x.Key == Settings.Level), levels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
+		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
 
         if (levels.Length > lvlIndex && lvlIndex != -1)
-            Settings.Level = levels[lvlIndex].Key;
+            Settings.Level = currentLevels[lvlIndex].Key;
 
         // Update previous values
         PrevLvlValues.UpdatePreviousValues();
@@ -212,7 +220,13 @@ public class SettingsWindow : UnityWindow
 
     private PrevValues PrevGameActionValues { get; } = new PrevValues();
 
-    private KeyValuePair<int, string>[] CurrentLevels { get; set; } = new KeyValuePair<int, string>[0];
+    private string[] GameModeNames { get; } = EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray();
+
+    private World[] AvailableWorlds { get; set; } = new World[0];
+
+    private string[] AvailableWorldNames { get; set; } = new string[0];
+
+    private KeyValuePair<World, KeyValuePair<int, string>[]>[] CurrentLevels { get; set; } = new KeyValuePair<World, KeyValuePair<int, string>[]>[0];
 
 	private string[] CurrentEduVolumes { get; set; } = new string[0];
 
@@ -238,9 +252,9 @@ public class SettingsWindow : UnityWindow
         /// Compares previous values and returns true if they're the same
         /// </summary>
         /// <returns>True if they're the same, otherwise false</returns>
-        public bool ComparePreviousValues()
+        public bool ComparePreviousValues(bool ignoreWorld = false)
         {
-            return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World && PrevEduVolume == Settings.EduVolume;
+            return PrevDir == Settings.CurrentDirectory && (ignoreWorld || PrevWorld == Settings.World) && PrevEduVolume == Settings.EduVolume;
         }
 
         /// <summary>

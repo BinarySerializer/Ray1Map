@@ -114,11 +114,11 @@ namespace R1Engine
         public abstract bool Has3Palettes { get; }
 
         /// <summary>
-        /// Gets the level count for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The level count</returns>
-        public abstract int[] GetLevels(GameSettings settings);
+        /// <returns>The levels</returns>
+        public abstract KeyValuePair<World, int[]>[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available educational volumes
@@ -300,7 +300,7 @@ namespace R1Engine
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(context.Settings)) {
+            foreach (var i in GetLevels(context.Settings).FindItem(x => x.Key == context.Settings.World).Value) {
                 // Set the level number
                 context.Settings.Level = i;
 
@@ -446,7 +446,7 @@ namespace R1Engine
             var levels = new List<PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(context.Settings))
+            foreach (var i in GetLevels(context.Settings).FindItem(x => x.Key == context.Settings.World).Value)
             {
                 // Set the level number
                 context.Settings.Level = i;
@@ -1385,7 +1385,7 @@ namespace R1Engine
                 context.AddFile(GetFile(context, GetWorldFilePath(context.Settings)));
 
                 // Add every level
-                foreach (var lvl in GetLevels(context.Settings))
+                foreach (var lvl in GetLevels(context.Settings).FindItem(x => x.Key == world).Value)
                 {
                     // Set the level
                     context.Settings.Level = lvl;

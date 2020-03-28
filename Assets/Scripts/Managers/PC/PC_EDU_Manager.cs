@@ -46,14 +46,14 @@ namespace R1Engine
         public override bool Has3Palettes => true;
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray();
+            .ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes

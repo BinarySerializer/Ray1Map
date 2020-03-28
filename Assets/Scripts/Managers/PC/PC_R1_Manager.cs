@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -12,21 +13,21 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray();
+            .ToArray())).ToArray();
 
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(GameSettings settings) => GetDataPath() + GetWorldName(settings.World) + "/";
+        public string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the file path for the big ray file
@@ -47,7 +48,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"RAY{settings.Level}.LEV";
+        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"RAY{settings.Level}.LEV";
 
         /// <summary>
         /// Gets the file path for the specified world file

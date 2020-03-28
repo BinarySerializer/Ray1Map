@@ -40,14 +40,14 @@ namespace R1Engine
         public override string GetWorldName(World world) => base.GetWorldName(world).Substring(1);
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory, $"_{GetWorldName(settings.World)}_*.MAP", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory, $"_{GetWorldName(w)}_*.MAP", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(4)))
-            .ToArray();
+            .ToArray())).ToArray();
 
         /// <summary>
         /// Gets the tile set to use

@@ -31,7 +31,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public virtual string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"{GetWorldName(settings.World)}{settings.Level:00}.XXX";
+        public virtual string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}{settings.Level:00}.XXX";
 
         /// <summary>
         /// Gets the file path for the allfix file
@@ -52,7 +52,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public virtual string GetWorldFilePath(GameSettings settings) => GetWorldFolderPath(settings) + $"{GetWorldName(settings.World)}.XXX";
+        public virtual string GetWorldFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}.XXX";
 
         /// <summary>
         /// Gets the name for the world
@@ -82,9 +82,9 @@ namespace R1Engine
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(GameSettings settings) => GetDataPath() + GetWorldName(settings.World) + "/";
+        public string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the base path for the game data
@@ -98,15 +98,15 @@ namespace R1Engine
         public bool Has3Palettes => false;
 
         /// <summary>
-        /// Gets the levels for the specified world
+        /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public virtual int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), $"*.XXX", SearchOption.TopDirectoryOnly)
+        public virtual KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"*.XXX", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Where(x => x.Length == 5)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray();
+            .ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes
