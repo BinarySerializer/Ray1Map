@@ -98,7 +98,7 @@ public class SettingsWindow : UnityWindow
 
 		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
 
-        if (levels.Length > lvlIndex && lvlIndex != -1)
+        if (currentLevels.Length > lvlIndex && lvlIndex != -1)
             Settings.Level = currentLevels[lvlIndex].Key;
 
         // Update previous values
