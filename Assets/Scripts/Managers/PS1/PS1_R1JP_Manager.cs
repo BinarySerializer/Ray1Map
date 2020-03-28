@@ -1,5 +1,8 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using R1Engine.Serialize;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace R1Engine
@@ -21,6 +24,19 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override IList<ARGBColor> GetTileSet(Context context)
         {
+            // TODO: Clean this up
+            var levelTileSetFileName = GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}{context.Settings.Level:00}.BLC";
+
+            if (FileSystem.FileExists(context.BasePath + levelTileSetFileName))
+            {
+                // TODO: Use FileFactory
+                var f = File.ReadAllBytes(context.BasePath + levelTileSetFileName);
+                return Enumerable.Range(0, f.Length / 2).Select(x => new RGB555Color()
+                {
+                    Color555 = BitConverter.ToUInt16(f, x * 2)
+                }).ToArray();
+            }
+
             // Get the file name
             var filename = GetWorldFilePath(context.Settings);
 
