@@ -59,7 +59,7 @@ public class SettingsWindow : UnityWindow
         try
         {
 			// Only update if previous values don't match
-			if (!PrevLvlValues.ComparePreviousValues(true))
+			if (!PrevLvlValues.ComparePreviousValues())
             {
                 Debug.Log("Updated levels");
 
@@ -252,9 +252,9 @@ public class SettingsWindow : UnityWindow
         /// Compares previous values and returns true if they're the same
         /// </summary>
         /// <returns>True if they're the same, otherwise false</returns>
-        public bool ComparePreviousValues(bool ignoreWorld = false)
+        public bool ComparePreviousValues()
         {
-            return PrevDir == Settings.CurrentDirectory && (ignoreWorld || PrevWorld == Settings.World) && PrevEduVolume == Settings.EduVolume;
+            return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World && PrevEduVolume == Settings.EduVolume;
         }
 
         /// <summary>
