@@ -25,34 +25,10 @@ namespace R1Engine
         /// </summary>
         public abstract int TileSetWidth { get; }
 
-        // TODO: All of these have to be moved to the sub-managers - not every version has the level packed into a single file
         /// <summary>
-        /// Gets the file path for the specified level
+        /// The file info to use
         /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The level file path</returns>
-        public virtual string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}{settings.Level:00}.XXX";
-
-        /// <summary>
-        /// Gets the file path for the allfix file
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The allfix file path</returns>
-        public virtual string GetAllfixFilePath(GameSettings settings) => GetDataPath() + $"RAY.XXX";
-
-        /// <summary>
-        /// Gets the file path for the big ray file
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The big ray file path</returns>
-        public virtual string GetBigRayFilePath(GameSettings settings) => GetDataPath() + $"INI.XXX";
-
-        /// <summary>
-        /// Gets the file path for the specified world file
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The world file path</returns>
-        public virtual string GetWorldFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}.XXX";
+        protected abstract Dictionary<string, PS1FileInfo> FileInfo { get; }
 
         /// <summary>
         /// Gets the name for the world
@@ -80,19 +56,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the folder path for the specified world
-        /// </summary>
-        /// <param name="world">The world</param>
-        /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
-
-        /// <summary>
-        /// Gets the base path for the game data
-        /// </summary>
-        /// <returns>The data path</returns>
-        public string GetDataPath() => "RAY/";
-
-        /// <summary>
         /// Indicates if the game has 3 palettes it swaps between
         /// </summary>
         public bool Has3Palettes => false;
@@ -102,11 +65,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public virtual KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"*.XXX", SearchOption.TopDirectoryOnly)
-            .Select(FileSystem.GetFileNameWithoutExtensions)
-            .Where(x => x.Length == 5)
-            .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).ToArray();
+        public abstract KeyValuePair<World, int[]>[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available educational volumes
@@ -234,8 +193,6 @@ namespace R1Engine
             context.AddFile(file);
         }
 
-        protected virtual Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
-
         /// <summary>
         /// Loads the specified level for the editor from the specified blocks
         /// </summary>
@@ -258,11 +215,11 @@ namespace R1Engine
             var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
             var commonEvents = new List<Common_Event>();
 
-            // Temp fix so JP doesn't crash
-            if (worldFile != null)
+            // TODO: Clean up
+            if (this is PS1_BaseXXX_Manager xxx && worldFile != null)
             {
-                var allfixFileName = GetAllfixFilePath(context.Settings);
-                var worldFileName = GetWorldFilePath(context.Settings);
+                var allfixFileName = xxx.GetAllfixFilePath(context.Settings);
+                var worldFileName = xxx.GetWorldFilePath(context.Settings);
 
                 PS1_VRAM vram = FillVRAM(allfixFile, worldFile, levelTextureBlock);
 
@@ -298,7 +255,7 @@ namespace R1Engine
                             {
                                 tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
                             }
-                            else if (i.Offset.file.filePath == GetLevelFilePath(context.Settings))
+                            else if (i.Offset.file.filePath == xxx.GetLevelFilePath(context.Settings))
                             {
                                 tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
                             }
@@ -430,10 +387,13 @@ namespace R1Engine
         /// <param name="commonLevelData">The common level data</param>
         public void SaveLevel(Context context, Common_Lev commonLevelData)
         {
+            if (!(this is PS1_BaseXXX_Manager xxx))
+                return;
+
             // TODO: This currently only works for NTSC
 
             // Get the level file path
-            var lvlPath = GetLevelFilePath(context.Settings);
+            var lvlPath = xxx.GetLevelFilePath(context.Settings);
 
             // Get the level data
             var lvlData = context.GetMainFileObject<PS1_R1_LevFile>(lvlPath);
@@ -465,8 +425,6 @@ namespace R1Engine
             // PS1 loads files in order. We can't really load anything here
             await Task.CompletedTask;
         }
-
-
 
         /// <summary>
         /// Gets the texture for a sprite
@@ -579,7 +537,6 @@ namespace R1Engine
 
             return vram;
         }
-
 
         public void ExportTexturePage(string name, IList<ARGBColor> palette, byte[] processedImageData) {
             // Get the image properties

@@ -1,21 +1,22 @@
 ﻿using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
     /// <summary>
     /// The game manager for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_Manager : PS1_Manager
+    public class PS1_R1_Manager : PS1_BaseXXX_Manager
     {
         /// <summary>
         /// The width of the tile set in tiles
         /// </summary>
         public override int TileSetWidth => 16;
 
+        /// <summary>
+        /// The file info to use
+        /// </summary>
         protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
 
         /// <summary>

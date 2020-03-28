@@ -38,8 +38,11 @@ namespace R1Engine
         /// </summary>
         public override Common_EventState GetEventState(Common_Event e)
         {
+            if (!(Manager is PS1_BaseXXX_Manager xxx))
+                return null;
+
             // TODO: Change this - we don't want the ETA index to be an event index, instead we want it to be taken from some list...? But how to get it to dynamically update based on Etat and SubEtat?
-            return FileFactory.Read<PS1_R1_LevFile>(Manager.GetLevelFilePath(Settings), Context).EventData.Events[e.ETA].EventState;
+            return FileFactory.Read<PS1_R1_LevFile>(xxx.GetLevelFilePath(Settings), Context).EventData.Events[e.ETA].EventState;
         }
 
         /// <summary>

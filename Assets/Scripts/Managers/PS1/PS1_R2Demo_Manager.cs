@@ -17,6 +17,12 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
+        // TODO: Fix this
+        /// <summary>
+        /// The file info to use
+        /// </summary>
+        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
+
         /// <summary>
         /// Gets the levels for each world
         /// </summary>

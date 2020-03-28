@@ -10,12 +10,18 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman 1 (PS1 - Japan)
     /// </summary>
-    public class PS1_R1JP_Manager : PS1_Manager
+    public class PS1_R1JP_Manager : PS1_BaseXXX_Manager
     {
         /// <summary>
         /// The width of the tile set in tiles
         /// </summary>
         public override int TileSetWidth => 1;
+
+        // TODO: Fix this
+        /// <summary>
+        /// The file info to use
+        /// </summary>
+        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
 
         /// <summary>
         /// Gets the tile set to use

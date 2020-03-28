@@ -17,6 +17,9 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 40;
 
+        /// <summary>
+        /// The file info to use
+        /// </summary>
         protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoDemoVol3;
 
         /// <summary>
