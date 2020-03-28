@@ -102,12 +102,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public virtual int[] GetLevels(GameSettings settings)
-        {
-            var worldPath = settings.GameDirectory + GetWorldFolderPath(settings);
-
-            return Enumerable.Range(1, Directory.EnumerateFiles(worldPath, "*.XXX", SearchOption.TopDirectoryOnly).Count<string>(x => Path.GetFileNameWithoutExtension(x)?.Length == 5)).ToArray<int>();
-        }
+        public virtual int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), $"*.XXX", SearchOption.TopDirectoryOnly)
+            .Select(FileSystem.GetFileNameWithoutExtensions)
+            .Where(x => x.Length == 5)
+            .Select(x => Int32.Parse(x.Substring(3)))
+            .ToArray();
 
         /// <summary>
         /// Gets the available educational volumes

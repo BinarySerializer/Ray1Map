@@ -50,7 +50,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + "/" + GetVolumePath(settings), $"{GetShortWorldName(settings.World)}??.lev", SearchOption.TopDirectoryOnly).Select(x => Int32.Parse(Path.GetFileNameWithoutExtension(x).Substring(3))).ToArray();
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly)
+            .Select(FileSystem.GetFileNameWithoutExtensions)
+            .Select(x => Int32.Parse(x.Substring(3)))
+            .ToArray();
 
         /// <summary>
         /// Gets the available educational volumes

@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -43,7 +44,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + "/" + GetDataPath(), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly).Count<string>()).ToArray<int>();
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + GetDataPath(), $"{GetShortWorldName(settings.World)}??.LEV", SearchOption.TopDirectoryOnly)
+            .Select(FileSystem.GetFileNameWithoutExtensions)
+            .Select(x => Int32.Parse(x.Substring(3)))
+            .ToArray();
 
         /// <summary>
         /// Gets the DES file names, in order, for the world

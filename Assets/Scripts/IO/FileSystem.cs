@@ -159,5 +159,10 @@ namespace R1Engine {
 				await Controller.WaitIfNecessary();
 			}
 		}
+
+		public static string GetFileNameWithoutExtensions(string path)
+        {
+			return Path.GetFileName(path)?.Split('.').FirstOrDefault();
+        }
 	}
 }

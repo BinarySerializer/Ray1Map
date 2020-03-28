@@ -44,10 +44,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings)
-        {
-            return Directory.EnumerateFiles(settings.GameDirectory, $"_{GetWorldName(settings.World)}_*.MAP", SearchOption.TopDirectoryOnly).Select(x => Int32.Parse(Path.GetFileName(x).Substring(4, 2))).ToArray();
-        }
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory, $"_{GetWorldName(settings.World)}_*.MAP", SearchOption.TopDirectoryOnly)
+            .Select(FileSystem.GetFileNameWithoutExtensions)
+            .Select(x => Int32.Parse(x.Substring(4)))
+            .ToArray();
 
         /// <summary>
         /// Gets the tile set to use

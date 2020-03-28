@@ -50,10 +50,10 @@ namespace R1Engine
         /// <returns>The levels</returns>
         public override int[] GetLevels(GameSettings settings) {
             return Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(settings), "MAP???", SearchOption.TopDirectoryOnly)
-                .Select<string, string>(Path.GetFileName).Where<string>(x => x.Length < 7)
-                .Select<string, int>(x => Int32.Parse(x.Replace("_", String.Empty)
-                .Substring(3)
-                )).ToArray<int>();
+                .Select(Path.GetFileName)
+                .Where(x => x.Length < 7)
+                .Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3)))
+                .ToArray();
         }
 
         #endregion

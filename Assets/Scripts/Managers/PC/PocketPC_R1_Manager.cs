@@ -17,7 +17,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override int[] GetLevels(GameSettings settings) => Enumerable.Range(1, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), $"{GetShortWorldName(settings.World)}??.lev.gz", SearchOption.TopDirectoryOnly).Count<string>()).ToArray<int>();
+        public override int[] GetLevels(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(settings), $"{GetShortWorldName(settings.World)}??.lev.gz", SearchOption.TopDirectoryOnly)
+            .Select(FileSystem.GetFileNameWithoutExtensions)
+            .Select(x => Int32.Parse(x.Substring(3)))
+            .ToArray();
 
         /// <summary>
         /// Gets the file path for the big ray file
