@@ -281,8 +281,7 @@ namespace R1Engine
             partParent.localScale = new Vector2(Flipped ? -1 : 1, 1);
 
             // Flip x position
-            if (Flipped)
-                partParent.position = new Vector3(partParent.position.x + (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f, partParent.position.y);
+            partParent.position = new Vector3(partParent.position.x + (Flipped ? (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f : 0), partParent.position.y);
         }
 
         public void UpdateOffsetPoints() {
