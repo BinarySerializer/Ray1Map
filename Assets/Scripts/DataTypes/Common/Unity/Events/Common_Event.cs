@@ -146,11 +146,11 @@ namespace R1Engine
             // Get the animation info
             var animInfo = EditorManager.GetEventState(this);
 
-            if (animInfo.AnimationIndex != -1)
+            if (animInfo != null)
+            {
                 AnimationIndex = animInfo.AnimationIndex;
-
-            if (animInfo.AnimationSpeed != -1)
                 AnimSpeed = animInfo.AnimationSpeed;
+            }
 
             ChangeAppearance();
         }
