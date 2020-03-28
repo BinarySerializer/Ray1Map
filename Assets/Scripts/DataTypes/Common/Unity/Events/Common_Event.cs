@@ -2,13 +2,11 @@
 using System.Linq;
 using UnityEngine;
 
-namespace R1Engine
-{
+namespace R1Engine {
     /// <summary>
     /// Common event data
     /// </summary>
-    public class Common_Event : MonoBehaviour
-    {
+    public class Common_Event : MonoBehaviour {
         #region Event Data
 
         /// <summary>
@@ -121,8 +119,7 @@ namespace R1Engine
         /// <summary>
         /// Refreshes the editor event info
         /// </summary>
-        public void RefreshEditorInfo()
-        {
+        public void RefreshEditorInfo() {
             // Get the event info data
             var eventInfo = EditorManager.GetEditorEventInfo(this);
             // Set the name
@@ -141,18 +138,18 @@ namespace R1Engine
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
         }
-        public void RefreshVisuals() 
-        {
+        public void RefreshVisuals() {
             // Get the animation info
             var animInfo = EditorManager.GetEventState(this);
 
-            if (animInfo != null)
-            {
+            if (animInfo != null) {
                 AnimationIndex = animInfo.AnimationIndex;
                 AnimSpeed = animInfo.AnimationSpeed;
             }
 
             ChangeAppearance();
+
+            ChangeFlip();
         }
 
         #endregion
@@ -209,15 +206,13 @@ namespace R1Engine
             linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
         }
 
-        void Update()
-        {
+        void Update() {
 
             if (Controller.obj?.levelController?.currentLevel == null)
                 return;
 
             // Scroll through animation frames
-            if (prefabRendereds.Length > 0 && CurrentAnimation != null)
-            {
+            if (prefabRendereds.Length > 0 && CurrentAnimation != null) {
                 int prevFrame = Mathf.FloorToInt(currentFrame);
                 // Scroll through the frames
                 if (Settings.AnimateSprites)
@@ -256,13 +251,6 @@ namespace R1Engine
 
         // Change des and everything
         private void ChangeAppearance() {
-            //HARDCODED FLIPPING - Add more reasons to flip here if needed
-            if (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1) {
-                Flipped = true;
-            }
-            else {
-                Flipped = false;
-            }
 
             // Change to new animation
             ChangeAnimation(AnimationIndex);
@@ -276,12 +264,20 @@ namespace R1Engine
 
             //Offset points
             UpdateOffsetPoints();
+        }
 
-            // Flip part parent
+        public void ChangeFlip() {
+            //HARDCODED FLIPPING - Add more reasons to flip here if needed
+            if (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1) {
+                Flipped = true;
+            }
+            else {
+                Flipped = false;
+            }
+            //Flip part parent
             partParent.localScale = new Vector2(Flipped ? -1 : 1, 1);
-
-            // Flip x position
-            partParent.position = new Vector3(partParent.position.x + (Flipped ? (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f : 0), partParent.position.y);
+            //Set the parent position
+            partParent.localPosition = new Vector3((Flipped ? (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f : 0), 0);
         }
 
         public void UpdateOffsetPoints() {
@@ -324,11 +320,9 @@ namespace R1Engine
         }
 
         // Try to load a new animation and change to it
-        public void ChangeAnimation(int newAnim) 
-        {
+        public void ChangeAnimation(int newAnim) {
             // Make sure we have a non-negative DES index
-            if (DES < 0)
-            {
+            if (DES < 0) {
                 Debug.LogWarning($"DES index is below 0");
                 return;
             }
@@ -337,15 +331,14 @@ namespace R1Engine
             CurrentAnimation = EditorManager?.GetCommonDesign(this, DES)?.Animations.ElementAtOrDefault(newAnim);
 
             // Make sure the animation is not null
-            if (CurrentAnimation == null) 
+            if (CurrentAnimation == null)
                 return;
-            
+
             // Get the frame length
             var len = CurrentAnimation.Frames.GetLength(1);
-            
+
             // Clear old array
-            if (prefabRendereds != null)
-            {
+            if (prefabRendereds != null) {
                 foreach (SpriteRenderer t in prefabRendereds)
                     Destroy(t.gameObject);
 
@@ -356,8 +349,7 @@ namespace R1Engine
             prefabRendereds = new SpriteRenderer[len];
 
             // Populate it with empty ones
-            for (int i = 0; i < len; i++)
-            {
+            for (int i = 0; i < len; i++) {
                 // Instantiate prefab
                 SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
                 newRenderer.sortingOrder = -len + i;
@@ -375,23 +367,21 @@ namespace R1Engine
             if (CurrentAnimation != null) {
                 var w = CurrentAnimation.DefaultFrameWidth / 16f;
                 var h = CurrentAnimation.DefaultFrameHeight / 16f;
-                boxCollider.size = new Vector2(w,h);
-                boxCollider.offset = new Vector2((CurrentAnimation.DefaultFrameXPosition/16f)+w/2f,-((CurrentAnimation.DefaultFrameYPosition/16f)+h/2f));
+                boxCollider.size = new Vector2(w, h);
+                boxCollider.offset = new Vector2((CurrentAnimation.DefaultFrameXPosition / 16f) + w / 2f, -((CurrentAnimation.DefaultFrameYPosition / 16f) + h / 2f));
             }
         }
 
         // Update all child sprite parts
-        private void UpdateParts(int frame)
-        {
+        private void UpdateParts(int frame) {
             // Make sure the current animation is not null
-            if (CurrentAnimation == null) 
+            if (CurrentAnimation == null)
                 return;
 
             // Get the sprites
             var sprites = EditorManager.GetCommonDesign(this, DES).Sprites;
 
-            for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) 
-            {
+            for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                 // Skips sprites out of bounds
                 if (CurrentAnimation.Frames[frame, i].SpriteIndex >= sprites.Count) {
                     prefabRendereds[i].sprite = null;
@@ -402,10 +392,10 @@ namespace R1Engine
                 prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 
 
-                int w = prefabRendereds[i].sprite==null ? 0 : prefabRendereds[i].sprite.texture.width;
-                int xx = CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? w : 0) ;
+                int w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
+                int xx = CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? w : 0);
                 int yy = -CurrentAnimation.Frames[frame, i].Y;
-                prefabRendereds[i].transform.localPosition = new Vector3(xx/16f, yy/16f, 0);
+                prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, 0);
 
                 // Change visibility if always/editor
                 prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
