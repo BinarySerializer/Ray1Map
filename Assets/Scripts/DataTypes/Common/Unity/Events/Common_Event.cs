@@ -168,6 +168,11 @@ namespace R1Engine
         public int LinkID;
 
         /// <summary>
+        /// Is the appearance supposed to be flipped?
+        /// </summary>
+        public bool Flipped;
+
+        /// <summary>
         /// The current animation of this event
         /// </summary>
         public Common_Animation CurrentAnimation;
@@ -193,6 +198,8 @@ namespace R1Engine
         public Transform offsetCrossBX;
         public Transform offsetCrossBY;
         public Transform offsetCrossHY;
+        // Part parent
+        public Transform partParent;
         // Midpoint of this event when taking all the spriteparts into account
         [HideInInspector]
         public Vector2 midpoint;
@@ -249,6 +256,14 @@ namespace R1Engine
 
         // Change des and everything
         private void ChangeAppearance() {
+            //HARDCODED FLIPPING - Add more reasons to flip here if needed
+            if (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1) {
+                Flipped = true;
+            }
+            else {
+                Flipped = false;
+            }
+
             // Change to new animation
             ChangeAnimation(AnimationIndex);
 
@@ -261,6 +276,9 @@ namespace R1Engine
 
             //Offset points
             UpdateOffsetPoints();
+
+            //Flip part parent
+            partParent.localScale = new Vector2(Flipped ? -1 : 1, 1);
         }
 
         public void UpdateOffsetPoints() {
@@ -342,7 +360,7 @@ namespace R1Engine
                 newRenderer.sortingOrder = -len + i;
 
                 // Set as child of events gameobject
-                newRenderer.gameObject.transform.parent = gameObject.transform;
+                newRenderer.gameObject.transform.parent = partParent;
 
                 // Add to list
                 prefabRendereds[i] = newRenderer;
@@ -380,8 +398,11 @@ namespace R1Engine
                 }
                 prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
 
-                var extraX = prefabRendereds[i].sprite==null ? 0 : prefabRendereds[i].sprite.texture.width;
-                prefabRendereds[i].transform.localPosition = new Vector3((CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? extraX : 0)) / 16f, -(CurrentAnimation.Frames[frame, i].Y / 16f), 0);
+
+                int w = prefabRendereds[i].sprite==null ? 0 : prefabRendereds[i].sprite.texture.width;
+                int xx = CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? w : 0) ;
+                int yy = -CurrentAnimation.Frames[frame, i].Y;
+                prefabRendereds[i].transform.localPosition = new Vector3(xx/16f, yy/16f, 0);
 
                 // Change visibility if always/editor
                 prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);

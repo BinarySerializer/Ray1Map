@@ -364,6 +364,7 @@ namespace R1Engine
                 currentlySelected.HitPoints = new_hp;
 
                 currentlySelected.RefreshName();
+                currentlySelected.RefreshVisuals();
             }
         }
         public void FieldHitSprite() {
