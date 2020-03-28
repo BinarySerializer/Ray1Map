@@ -1,4 +1,5 @@
 ﻿using R1Engine.Serialize;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -14,6 +15,8 @@ namespace R1Engine
         /// The width of the tile set in tiles
         /// </summary>
         public override int TileSetWidth => 16;
+
+        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
 
         /// <summary>
         /// Reads the tile set for the specified world
@@ -84,6 +87,7 @@ namespace R1Engine
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
             // Read the allfix file
+            await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
             var allfix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             Controller.status = $"Loading world file";
@@ -92,18 +96,16 @@ namespace R1Engine
 
             // Read the world file
             await LoadExtraFile(context, GetWorldFilePath(context.Settings));
-
             var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             Controller.status = $"Loading map data";
 
             // Read the level data
             await LoadExtraFile(context, GetLevelFilePath(context.Settings));
-
-            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
+            var level = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the level
-            return await LoadAsync(context, allfix, world, levelData.MapData, levelData.EventData, levelData.TextureBlock);
+            return await LoadAsync(context, allfix, world, level.MapData, level.EventData, level.TextureBlock);
         }
     }
 }

@@ -94,6 +94,7 @@ namespace R1Engine
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
             // Read the allfix file
+            await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
             var allfix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             Controller.status = $"Loading world file";
@@ -102,18 +103,16 @@ namespace R1Engine
 
             // Read the world file
             await LoadExtraFile(context, GetWorldFilePath(context.Settings));
-
             var world = FileFactory.Read<PS1_R1JP_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             Controller.status = $"Loading map data";
 
             // Read the level data
             await LoadExtraFile(context, GetLevelFilePath(context.Settings));
-
-            var levelData = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
+            var level = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the level
-            return await LoadAsync(context, allfix, null, levelData.MapData, levelData.EventData, levelData.TextureBlock);
+            return await LoadAsync(context, allfix, null, level.MapData, level.EventData, level.TextureBlock);
         }
     }
 }

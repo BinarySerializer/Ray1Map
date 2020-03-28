@@ -25,6 +25,10 @@ namespace R1Engine {
 			Unknown4 = unknown4;
 		}
 
+		public PS1FileInfo(uint baseAddress) {
+			BaseAddress = baseAddress;
+		}
+
 		public static Dictionary<string, PS1FileInfo> fileInfoUS = new Dictionary<string, PS1FileInfo>() {
 			{ "RAY/IMA/VIG/VIG_PR1.R16", new PS1FileInfo(0x80780000, 0x806FB800, 0x684301, 0x1652E, 0x5F474956, 0x2E315250, 0x3B363152, 0x31) },
 			{ "RAY/IMA/VIG/VIG_PR2.R16", new PS1FileInfo(0x80780000, 0x80723800, 0x384401, 0x1247E, 0x5F474956, 0x2E325250, 0x3B363152, 0x31) },
@@ -190,6 +194,41 @@ namespace R1Engine {
 			{ "RAY/RAY.XXX", new PS1FileInfo(0x80010000, 0x803F7000, 0x20800, 0x7A06C, 0x2E594152, 0x3B585858, 0x31, 0) },
 			{ "RAY/LET2.IMG", new PS1FileInfo(0x80780000, 0x803C5000, 0x560700, 0xA700, 0x3254454C, 0x474D492E, 0x313B, 0) },
 			{ "RAY/INI.XXX", new PS1FileInfo(0x800D0000, 0x80589800, 0x700, 0x1BF78, 0x2E494E49, 0x3B585858, 0x31, 0) },
+		};
+
+		public static Dictionary<string, PS1FileInfo> fileInfoDemoVol3 = new Dictionary<string, PS1FileInfo>() {
+			{ "TRACK.DAT", new PS1FileInfo(0x80010000) },
+			{ "LETTRE.PAL", new PS1FileInfo(0x80146A00) },
+			{ "VIG_02P.R16", new PS1FileInfo(0x80430000) },
+			{ "VIG_0P.R16", new PS1FileInfo(0x80430000) },
+			{ "VIG_1P.R16", new PS1FileInfo(0x80430000) },
+			{ "VIG_7P.R16", new PS1FileInfo(0x80430000) },
+			{ "WORLD.R16", new PS1FileInfo(0x80110000) },
+			{ "RAY.FXS", new PS1FileInfo(0x80010000) },
+			{ "RAY.WL1", new PS1FileInfo(0x80030000) },
+			{ "RAY.LV1", new PS1FileInfo(0x800B0000) },
+			{ "_UN_01.MAP", new PS1FileInfo(0x800E0000) },
+			{ "_UN_02.MAP", new PS1FileInfo(0x0) },
+			{ "_UN_03.MAP", new PS1FileInfo(0x0) },
+			{ "_UN_04.MAP", new PS1FileInfo(0x0) },
+			{ "_UN_05.MAP", new PS1FileInfo(0x0) },
+			{ "_UN_06.MAP", new PS1FileInfo(0x0) },
+			{ "RAY8_1.PAL", new PS1FileInfo(0x80146C00) },
+			{ "RAY4_1.PAL", new PS1FileInfo(0x80146E00) },
+			{ "_UN_01.R16", new PS1FileInfo(0x80430000) },
+			{ "RAY.WL2", new PS1FileInfo(0x80030000) },
+			{ "RAY.LV2", new PS1FileInfo(0x800B0000) },
+			{ "_ON_01.MAP", new PS1FileInfo(0x800E0000) },
+			{ "_ON_02.MAP", new PS1FileInfo(0x0) },
+			{ "_ON_03.MAP", new PS1FileInfo(0x0) },
+			{ "_ON_04.MAP", new PS1FileInfo(0x0) },
+			{ "_ON_05.MAP", new PS1FileInfo(0x0) },
+			{ "_ON_06.MAP", new PS1FileInfo(0x0) },
+			{ "RAY8_2.PAL", new PS1FileInfo(0x80146C00) },
+			{ "RAY4_2.PAL", new PS1FileInfo(0x80146E00) },
+			{ "_ON_01.R16", new PS1FileInfo(0x80430000) },
+			{ "JUN_F02.R16", new PS1FileInfo(0x80110000) },
+			{ "MON_F2W.R16", new PS1FileInfo(0x80110000) },
 		};
 	}
 }

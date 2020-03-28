@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using R1Engine.Serialize;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -15,6 +16,8 @@ namespace R1Engine
         /// The width of the tile set in tiles
         /// </summary>
         public override int TileSetWidth => 40;
+
+        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoDemoVol3;
 
         /// <summary>
         /// Gets the file path for the level tile set file
@@ -88,15 +91,8 @@ namespace R1Engine
             var mapPath = GetMapFilePath(context.Settings);
             var tileSetPath = GetTileSetFilePath(context.Settings);
 
-            // TODO: Temporary solution until memory mapping is supported
-            context.AddFile(new LinearSerializedFile(context)
-            {
-                filePath = mapPath,
-            });
-            context.AddFile(new LinearSerializedFile(context)
-            {
-                filePath = tileSetPath,
-            });
+            await LoadExtraFile(context, mapPath);
+            await LoadExtraFile(context, tileSetPath);
 
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);

@@ -224,16 +224,18 @@ namespace R1Engine
         /// <param name="level">The level to auto-apply the palette to</param>
         public void AutoApplyPalette(Common_Lev level) { }
 
-        public async Task LoadExtraFile(Context context, string path) {
+        public virtual async Task LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
-            Dictionary<string, PS1FileInfo> fileInfo = PS1FileInfo.fileInfoUS;
+            Dictionary<string, PS1FileInfo> fileInfo = FileInfo;
             PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress) {
                 filePath = path,
                 Length = fileInfo[path].Length
             };
             context.AddFile(file);
         }
+
+        protected virtual Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
 
         /// <summary>
         /// Loads the specified level for the editor from the specified blocks
@@ -361,16 +363,6 @@ namespace R1Engine
 
                     index++;
                 }
-                /*ExportTexturePage("Allfix_1", allfixFile.Palette1, allfixFile.TextureBlock);
-                ExportTexturePage("Allfix_2", allfixFile.Palette2, allfixFile.TextureBlock);
-                ExportTexturePage("Allfix_3", allfixFile.Palette3, allfixFile.TextureBlock);
-                ExportTexturePage("Allfix_4", allfixFile.Palette4, allfixFile.TextureBlock);
-                ExportTexturePage("Allfix_5", allfixFile.Palette5, allfixFile.TextureBlock);
-                ExportTexturePage("Allfix_6", allfixFile.Palette6, allfixFile.TextureBlock);
-                ExportTexturePage("World_1", worldFile.EventPalette1, worldFile.TextureBlock);
-                ExportTexturePage("World_2", worldFile.EventPalette2, worldFile.TextureBlock);
-                ExportTexturePage("Level_1", worldFile.EventPalette1, levelData.TextureBlock);
-                ExportTexturePage("Level_2", worldFile.EventPalette2, levelData.TextureBlock);*/
             }
 
             await Controller.WaitIfNecessary();
@@ -470,24 +462,9 @@ namespace R1Engine
             FileFactory.Write<PS1_R1_LevFile>(lvlPath, context);
         }
 
-        public async Task LoadFilesAsync(Context context) {
-            Dictionary<string, string> paths = new Dictionary<string, string>();
-            paths["allfix"] = GetAllfixFilePath(context.Settings);
-            /*paths["world"] = GetWorldFilePath(context.Settings);
-            paths["level"] = GetLevelFilePath(context.Settings);
-            paths["bigray"] = GetBigRayFilePath(context.Settings);*/
-            Dictionary<string, PS1FileInfo> fileInfo = PS1FileInfo.fileInfoUS;
-            foreach (string pathKey in paths.Keys) {
-                await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);
-                if (!fileInfo.ContainsKey(paths[pathKey])) {
-                    throw new Exception("File base address wasn't defined for path " + paths[pathKey]);
-                }
-                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[paths[pathKey]].BaseAddress) {
-                    filePath = paths[pathKey],
-                    Length = fileInfo[paths[pathKey]].Length
-                };
-                context.AddFile(file);
-            }
+        public virtual async Task LoadFilesAsync(Context context) {
+            // PS1 loads files in order. We can't really load anything here
+            await Task.CompletedTask;
         }
 
 
