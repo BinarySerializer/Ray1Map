@@ -65,9 +65,9 @@ namespace R1Engine
             var tileSet = File.ReadAllBytes(context.BasePath + tileSetPath);
             var palette = File.ReadAllBytes(context.BasePath + palettePath);
 
-            return tileSet.Select(x => new RGB555Color()
+            return tileSet.Select(x => new ARGB1555Color()
             {
-                Color555 = BitConverter.ToUInt16(palette, x * 2)
+                Color1555 = BitConverter.ToUInt16(palette, x * 2)
             }).ToArray();
         }
 
