@@ -277,8 +277,12 @@ namespace R1Engine
             //Offset points
             UpdateOffsetPoints();
 
-            //Flip part parent
+            // Flip part parent
             partParent.localScale = new Vector2(Flipped ? -1 : 1, 1);
+
+            // Flip x position
+            if (Flipped)
+                partParent.position = new Vector3(partParent.position.x + (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f, partParent.position.y);
         }
 
         public void UpdateOffsetPoints() {
