@@ -222,9 +222,9 @@ public class SettingsWindow : UnityWindow
 
     private string[] GameModeNames { get; } = EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray();
 
-    private World[] AvailableWorlds { get; set; } = new World[0];
+    private World[] AvailableWorlds { get; set; } = EnumHelpers.GetValues<World>();
 
-    private string[] AvailableWorldNames { get; set; } = new string[0];
+    private string[] AvailableWorldNames { get; set; } = EnumHelpers.GetValues<World>().Select(x => x.ToString()).ToArray();
 
     private KeyValuePair<World, KeyValuePair<int, string>[]>[] CurrentLevels { get; set; } = new KeyValuePair<World, KeyValuePair<int, string>[]>[0];
 
