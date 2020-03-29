@@ -41,6 +41,29 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets the maximum allowed DES value
+        /// </summary>
+        public override int GetMaxDES => Designs.Length - 1;
+
+        /// <summary>
+        /// Gets the maximum allowed ETA value
+        /// </summary>
+        public override int GetMaxETA => ETA.Length - 1;
+
+        /// <summary>
+        /// Gets the maximum allowed Etat value
+        /// </summary>
+        /// <param name="eta">The ETA value</param>
+        public override int GetMaxEtat(int eta) => ETA[eta].States.Length - 1;
+
+        /// <summary>
+        /// Gets the maximum allowed SubEtat value
+        /// </summary>
+        /// <param name="eta">The ETA value</param>
+        /// <param name="etat">The etat value</param>
+        public override int GetMaxSubEtat(int eta, int etat) => ETA[eta].States[etat].Length - 1;
+
+        /// <summary>
         /// The manager
         /// </summary>
         public PC_Manager Manager { get; }

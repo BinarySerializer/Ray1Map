@@ -19,6 +19,29 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets the maximum allowed DES value
+        /// </summary>
+        public abstract int GetMaxDES { get; }
+
+        /// <summary>
+        /// Gets the maximum allowed ETA value
+        /// </summary>
+        public abstract int GetMaxETA { get; }
+
+        /// <summary>
+        /// Gets the maximum allowed Etat value
+        /// </summary>
+        /// <param name="eta">The ETA value</param>
+        public abstract int GetMaxEtat(int eta);
+
+        /// <summary>
+        /// Gets the maximum allowed SubEtat value
+        /// </summary>
+        /// <param name="eta">The ETA value</param>
+        /// <param name="etat">The etat value</param>
+        public abstract int GetMaxSubEtat(int eta, int etat);
+
+        /// <summary>
         /// The common level
         /// </summary>
         public Common_Lev Level { get; }
