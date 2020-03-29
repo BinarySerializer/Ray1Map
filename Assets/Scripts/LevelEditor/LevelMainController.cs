@@ -87,13 +87,21 @@ namespace R1Engine
             if (destPath == null)
                 return;
 
-            //Hide unused links and palette swappers etc
-            foreach (var e in currentLevel.Events) {
-                if (e.Type == EventType.TYPE_PALETTE_SWAPPER) {
-                    e.gameObject.SetActive(false);
-                }
+            // TODO: Allow this to be configured
+            // Set settings
+            Settings.ShowAlwaysEvents = false;
+            Settings.ShowEditorEvents = false;
+
+            // Hide unused links and show gendoors
+            foreach (var e in currentLevel.Events) 
+            {
+                if (e.Type == EventType.TYPE_GENERATING_DOOR)
+                    e.gameObject.SetActive(true);
+
                 e.ChangeLinksVisibility(true);
-                if (e.LinkID == 0) {
+
+                if (e.LinkID == 0) 
+                {
                     e.lineRend.enabled = false;
                     e.linkCube.gameObject.SetActive(false);
                 }
