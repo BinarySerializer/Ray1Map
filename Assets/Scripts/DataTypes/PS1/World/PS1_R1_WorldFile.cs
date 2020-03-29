@@ -74,9 +74,9 @@
         public ARGB1555Color[] EventPalette2 { get; set; }
 
         /// <summary>
-        /// The tiles palette index table
+        /// The tiles
         /// </summary>
-        public byte[] TilesIndexTable { get; set; }
+        public byte[] Tiles { get; set; }
 
         /// <summary>
         /// The tile color palettes
@@ -129,7 +129,7 @@
             // TILES
             s.DoAt(TilesBlockPointer, () => {
                 // Read the tiles index table
-                TilesIndexTable = s.SerializeArray<byte>(TilesIndexTable, PaletteBlockPointer - TilesBlockPointer, name: nameof(TilesIndexTable));
+                Tiles = s.SerializeArray<byte>(Tiles, PaletteBlockPointer - TilesBlockPointer, name: nameof(Tiles));
             });
 
             // TILE PALETTES

@@ -51,7 +51,7 @@
         /// <summary>
         /// The tile set
         /// </summary>
-        public PS1_R1_RawTileSet TileSet { get; set; }
+        public ObjectArray<RGB555Color> Tiles { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -90,10 +90,10 @@
             // TILES
             s.DoAt(TilesBlockPointer, () => {
                 // Get the tile count
-                int tileCount = TileSet?.TilesArrayLength ?? (int)((FileSize - s.CurrentPointer.FileOffset) / 2);
+                uint tileCount = Tiles?.Length ?? ((FileSize - s.CurrentPointer.FileOffset) / 2);
 
                 // Serialize the tiles
-                TileSet = s.SerializeObject(TileSet, x => x.TilesArrayLength = tileCount, name: nameof(TileSet));
+                Tiles = s.SerializeObject<ObjectArray<RGB555Color>>(Tiles, x => x.Length = tileCount);
             });
         }
     }

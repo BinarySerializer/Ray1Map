@@ -63,10 +63,10 @@ namespace R1Engine
             var filename = GetTileSetFilePath(context.Settings);
 
             // Read the file
-            var tileSetFile = FileFactory.Read<PS1_R1_RawTileSet>(filename, context, (s, x) => x.TilesArrayLength = (int)(s.CurrentLength / 2));
+            var tileSet = FileFactory.Read<ObjectArray<RGB555Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             // Return the tile set
-            return tileSetFile.Tiles;
+            return tileSet.Value;
         }
 
         /// <summary>
