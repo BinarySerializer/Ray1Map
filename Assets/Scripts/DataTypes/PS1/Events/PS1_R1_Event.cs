@@ -303,9 +303,10 @@ namespace R1Engine
                     }
                     if (EtatPointers[NumEtats - 1] != null) {
                         // TODO: Parse this last array
-                        if (Etat == NumEtats - 1) {
-                            NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
-                        }
+                        NumSubEtats[NumEtats - 1] = 20;
+                        //if (Etat == NumEtats - 1) {
+                        //    NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
+                        //}
                     }
                 }
                 if (EventStates == null) {
