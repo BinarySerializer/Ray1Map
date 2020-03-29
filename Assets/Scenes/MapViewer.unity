@@ -2890,7 +2890,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textGraphic: {fileID: 284904158}
   textCollision: {fileID: 500820506}
-  cam: {fileID: 534669904}
   tilemapController: {fileID: 172781303}
 --- !u!1 &363487549
 GameObject:
@@ -16576,8 +16575,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
-    height: 1
+    width: 0
+    height: 0
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60

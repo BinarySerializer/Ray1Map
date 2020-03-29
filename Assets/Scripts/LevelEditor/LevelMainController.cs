@@ -97,6 +97,7 @@ namespace R1Engine
             //Set camera pos
             renderCamera.transform.position = new Vector3((currentLevel.Width) / 2f, -(currentLevel.Height) / 2f, renderCamera.transform.position.z);
             renderCamera.orthographicSize = (currentLevel.Height / 2f);
+            renderCamera.rect = new Rect(0, 0, 1, 1);
             renderCamera.Render();
 
             //Save to picture
@@ -111,6 +112,7 @@ namespace R1Engine
 
             Destroy(tex);
             RenderTexture.active = null;
+            renderCamera.rect = new Rect(0, 0, 0, 0);
 
             Debug.Log("Level saved as PNG");
         }
