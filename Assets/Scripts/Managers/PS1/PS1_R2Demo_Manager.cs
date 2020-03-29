@@ -17,11 +17,10 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
-        // TODO: Fix this
         /// <summary>
         /// The file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
+        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoR2PS1;
 
         /// <summary>
         /// Gets the levels for each world
@@ -61,20 +60,35 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override IList<ARGBColor> GetTileSet(Context context)
-        {
-            // TODO: Move these to methods to avoid hard-coding
+        public override IList<ARGBColor> GetTileSet(Context context) {
             var tileSetPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.RAW";
             var palettePath = $"JUNGLE/{GetMapName(context.Settings.Level)}.PAL";
+            var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
+            var palette = FileFactory.Read<ObjectArray<ARGB1555Color>>(palettePath, context, (s, x) => x.Length = s.CurrentLength / 2);
 
-            // TODO: Serialize these as actual files - for the tiles use PS1_R1_RawTileSet and for palettes we should make a generic palette class where the generic is the color type
-            var tileSet = File.ReadAllBytes(context.BasePath + tileSetPath);
-            var palette = File.ReadAllBytes(context.BasePath + palettePath);
+            return tileSet.Value.Select(ind => palette.Value[ind]).ToArray();
+        }
 
-            return tileSet.Select(x => new ARGB1555Color()
-            {
-                Color1555 = BitConverter.ToUInt16(palette, x * 2)
-            }).ToArray();
+        public async Task<uint> LoadFile(Context context, string path, uint baseAddress) {
+            await FileSystem.PrepareFile(context.BasePath + path);
+
+            Dictionary<string, PS1FileInfo> fileInfo = FileInfo;
+            if (baseAddress != 0) {
+                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress) {
+                    filePath = path,
+                    Length = fileInfo[path].Size
+                };
+                context.AddFile(file);
+
+                return fileInfo[path].Size;
+            } else {
+                LinearSerializedFile file = new LinearSerializedFile(context) {
+                    filePath = path,
+                    length = fileInfo.ContainsKey(path) ? fileInfo[path].Size : 0
+                };
+                context.AddFile(file);
+                return 0;
+            }
         }
 
         /// <summary>
@@ -84,15 +98,36 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
-            // TODO: Move this to method to avoid hard-coding
+            uint baseAddress = 0x80018000;
+
+            // TODO: Move these to methods to avoid hard-coding
+            var fixDTAPath = $"RAY.DTA";
+            var fixGRPPath = $"RAY.GRP";
+            var sprPLSPath = $"SPR.PLS";
+            var levelDTAPath = $"JUNGLE/{GetWorldName(context.Settings.World)}01.DTA";
+            var levelSPRPath = $"JUNGLE/{GetWorldName(context.Settings.World)}01.SPR"; // SPRites?
+            var levelGRPPath = $"JUNGLE/{GetWorldName(context.Settings.World)}01.GRP"; // GRaPhics/graphismes
+            // TODO: Load submaps based on levelDTA file
+            var tileSetPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.RAW";
+            var palettePath = $"JUNGLE/{GetMapName(context.Settings.Level)}.PAL";
             var mapPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.MPU";
 
-            // TODO: Use memory mapped file
-            LinearSerializedFile file = new LinearSerializedFile(context)
-            {
-                filePath = mapPath,
-            };
-            context.AddFile(file);
+
+            baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
+            baseAddress -= 0x5E; // FIX.DTA header size
+            Pointer fixDTAHeader = new Pointer(baseAddress, context.FilePointer(fixDTAPath).file);
+            context.Deserializer.DoAt(fixDTAHeader, () => {
+                // TODO: Read header here (0x5E bytes). Should be done now because these bytes will be overwritten
+
+            });
+            await LoadFile(context, fixGRPPath, 0);
+            await LoadFile(context, sprPLSPath, 0);
+            baseAddress += await LoadFile(context, levelSPRPath, baseAddress);
+            baseAddress += await LoadFile(context, levelDTAPath, baseAddress);
+            await LoadFile(context, levelGRPPath, 0);
+            await LoadFile(context, tileSetPath, 0);
+            await LoadFile(context, palettePath, 0);
+            await LoadFile(context, mapPath, 0); // TODO: Load all maps for this level
 
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);

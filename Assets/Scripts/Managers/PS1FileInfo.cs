@@ -9,7 +9,7 @@ namespace R1Engine {
 		public uint BaseAddress; // Retail units have access to memory ranges between 0x80000000 and 0x801FFFFF
 		public uint DevBaseAddress; // Dev units have access to memory ranges between 0x80000000 and 0x807FFFFF
 		public uint Unknown0;
-		public uint Length;
+		public uint Size;
 		public uint Unknown1;
 		public uint Unknown2;
 		public uint Unknown3;
@@ -18,15 +18,16 @@ namespace R1Engine {
 			BaseAddress = baseAddress;
 			DevBaseAddress = devBaseAddress;
 			Unknown0 = unknown0;
-			Length = length;
+			Size = length;
 			Unknown1 = unknown1;
 			Unknown2 = unknown2;
 			Unknown3 = unknown3;
 			Unknown4 = unknown4;
 		}
 
-		public PS1FileInfo(uint baseAddress) {
+		public PS1FileInfo(uint baseAddress = 0, uint size = 0) {
 			BaseAddress = baseAddress;
+			Size = size;
 		}
 
 		public static Dictionary<string, PS1FileInfo> fileInfoUS = new Dictionary<string, PS1FileInfo>() {
@@ -198,37 +199,62 @@ namespace R1Engine {
 
 		public static Dictionary<string, PS1FileInfo> fileInfoDemoVol3 = new Dictionary<string, PS1FileInfo>() {
 			{ "TRACK.DAT", new PS1FileInfo(0x80010000) },
-			{ "LETTRE.PAL", new PS1FileInfo(0x80146A00) },
-			{ "VIG_02P.R16", new PS1FileInfo(0x80430000) },
-			{ "VIG_0P.R16", new PS1FileInfo(0x80430000) },
-			{ "VIG_1P.R16", new PS1FileInfo(0x80430000) },
-			{ "VIG_7P.R16", new PS1FileInfo(0x80430000) },
-			{ "WORLD.R16", new PS1FileInfo(0x80110000) },
-			{ "RAY.FXS", new PS1FileInfo(0x80010000) },
-			{ "RAY.WL1", new PS1FileInfo(0x80030000) },
-			{ "RAY.LV1", new PS1FileInfo(0x800B0000) },
-			{ "_UN_01.MAP", new PS1FileInfo(0x800E0000) },
-			{ "_UN_02.MAP", new PS1FileInfo(0x0) },
-			{ "_UN_03.MAP", new PS1FileInfo(0x0) },
-			{ "_UN_04.MAP", new PS1FileInfo(0x0) },
-			{ "_UN_05.MAP", new PS1FileInfo(0x0) },
-			{ "_UN_06.MAP", new PS1FileInfo(0x0) },
-			{ "RAY8_1.PAL", new PS1FileInfo(0x80146C00) },
-			{ "RAY4_1.PAL", new PS1FileInfo(0x80146E00) },
-			{ "_UN_01.R16", new PS1FileInfo(0x80430000) },
-			{ "RAY.WL2", new PS1FileInfo(0x80030000) },
-			{ "RAY.LV2", new PS1FileInfo(0x800B0000) },
-			{ "_ON_01.MAP", new PS1FileInfo(0x800E0000) },
-			{ "_ON_02.MAP", new PS1FileInfo(0x0) },
-			{ "_ON_03.MAP", new PS1FileInfo(0x0) },
-			{ "_ON_04.MAP", new PS1FileInfo(0x0) },
-			{ "_ON_05.MAP", new PS1FileInfo(0x0) },
-			{ "_ON_06.MAP", new PS1FileInfo(0x0) },
-			{ "RAY8_2.PAL", new PS1FileInfo(0x80146C00) },
-			{ "RAY4_2.PAL", new PS1FileInfo(0x80146E00) },
-			{ "_ON_01.R16", new PS1FileInfo(0x80430000) },
-			{ "JUN_F02.R16", new PS1FileInfo(0x80110000) },
-			{ "MON_F2W.R16", new PS1FileInfo(0x80110000) },
+			{ "LETTRE.PAL", new PS1FileInfo(baseAddress: 0x80146A00) },
+			{ "VIG_02P.R16", new PS1FileInfo(baseAddress: 0x80430000) },
+			{ "VIG_0P.R16", new PS1FileInfo(baseAddress: 0x80430000) },
+			{ "VIG_1P.R16", new PS1FileInfo(baseAddress: 0x80430000) },
+			{ "VIG_7P.R16", new PS1FileInfo(baseAddress: 0x80430000) },
+			{ "WORLD.R16", new PS1FileInfo(baseAddress: 0x80110000) },
+			{ "RAY.FXS", new PS1FileInfo(baseAddress: 0x80010000) },
+			{ "RAY.WL1", new PS1FileInfo(baseAddress: 0x80030000) },
+			{ "RAY.LV1", new PS1FileInfo(baseAddress: 0x800B0000) },
+			{ "_UN_01.MAP", new PS1FileInfo(baseAddress: 0x800E0000) },
+			{ "_UN_02.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_UN_03.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_UN_04.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_UN_05.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_UN_06.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "RAY8_1.PAL", new PS1FileInfo(baseAddress: 0x80146C00) },
+			{ "RAY4_1.PAL", new PS1FileInfo(baseAddress: 0x80146E00) },
+			{ "_UN_01.R16", new PS1FileInfo(baseAddress: 0x80430000) },
+			{ "RAY.WL2", new PS1FileInfo(baseAddress: 0x80030000) },
+			{ "RAY.LV2", new PS1FileInfo(baseAddress: 0x800B0000) },
+			{ "_ON_01.MAP", new PS1FileInfo(baseAddress: 0x800E0000) },
+			{ "_ON_02.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_ON_03.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_ON_04.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_ON_05.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "_ON_06.MAP", new PS1FileInfo(baseAddress: 0x0) },
+			{ "RAY8_2.PAL", new PS1FileInfo(baseAddress: 0x80146C00) },
+			{ "RAY4_2.PAL", new PS1FileInfo(baseAddress: 0x80146E00) },
+			{ "_ON_01.R16", new PS1FileInfo(baseAddress: 0x80430000) },
+			{ "JUN_F02.R16", new PS1FileInfo(baseAddress: 0x80110000) },
+			{ "MON_F2W.R16", new PS1FileInfo(baseAddress: 0x80110000) },
+		};
+
+		public static Dictionary<string, PS1FileInfo> fileInfoR2PS1 = new Dictionary<string, PS1FileInfo>() {
+			{ "LOGO_UBI.TIM", new PS1FileInfo(size: 0x25818) },
+			{ "../VIDEO/15FPS.STR", new PS1FileInfo(size: 0x3BD8E0) },
+			{ "RAY.INF", new PS1FileInfo(size: 0xA5) },
+			{ "RAY.DTA", new PS1FileInfo(size: 0x459E6) },
+			{ "RAY.GRP", new PS1FileInfo(size: 0x15100) },
+			{ "SPR.PLS", new PS1FileInfo(size: 0x1000) },
+			{ "JUNGLE/JUN01.DTA", new PS1FileInfo(size: 0x25CC8) },
+			{ "JUNGLE/JUN01.SPR", new PS1FileInfo(size: 0x10B0) },
+			{ "JUNGLE/JUN01.GRP", new PS1FileInfo(size: 0x53B00) },
+			{ "JUNGLE/PL1.RAW", new PS1FileInfo(size: 0x19000) },
+			{ "JUNGLE/PL2.RAW", new PS1FileInfo(size: 0x15000) },
+			{ "JUNGLE/FD1.RAW", new PS1FileInfo(size: 0x10000) },
+			{ "JUNGLE/NEWFND16.TIM", new PS1FileInfo(size: 0x1F414) },
+			{ "JUNGLE/JUN!01.PLT", new PS1FileInfo(size: 0x22D) },
+			{ "JUNGLE/FD1.PAL", new PS1FileInfo(size: 0x200) },
+			{ "JUNGLE/FD2.PAL", new PS1FileInfo(size: 0x200) },
+			{ "JUNGLE/PL1.MPU", new PS1FileInfo(size: 0x81E8) },
+			{ "JUNGLE/PL2.MPU", new PS1FileInfo(size: 0x2C9E) },
+			{ "JUNGLE/FD1.MPU", new PS1FileInfo(size: 0x3F4) },
+			{ "JUNGLE/FD2.MPU", new PS1FileInfo(size: 0x164) },
+			{ "RAY.BBX", new PS1FileInfo(size: 0x41520) },
+			{ "JUNGLE/JUN.BBX", new PS1FileInfo(size: 0) }
 		};
 	}
 }

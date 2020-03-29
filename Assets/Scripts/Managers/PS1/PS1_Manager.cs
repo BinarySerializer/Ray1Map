@@ -188,7 +188,7 @@ namespace R1Engine
             Dictionary<string, PS1FileInfo> fileInfo = FileInfo;
             PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress) {
                 filePath = path,
-                Length = fileInfo[path].Length
+                Length = fileInfo[path].Size
             };
             context.AddFile(file);
         }
