@@ -156,11 +156,6 @@ namespace R1Engine
         /// </summary>
         public Pointer ETASubEtatPointer { get; set; }
 
-        /// <summary>
-        /// TODO: Remove. The event ETA state
-        /// </summary>
-        public Common_EventState EventState { get; set; }
-
         #endregion
 
         #region Public Methods
@@ -322,10 +317,6 @@ namespace R1Engine
                     });
                 }
             });
-            // TODO: Remove
-            if (EventStates != null && EventStates[Etat] != null && EventStates[Etat].Length > SubEtat) {
-                EventState = EventStates[Etat][SubEtat];
-            }
             /*s.DoAt(ETAPointer + (Etat * 4), () =>
             {
                 // Get the state-array pointer

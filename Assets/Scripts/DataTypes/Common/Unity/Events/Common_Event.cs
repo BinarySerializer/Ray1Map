@@ -146,6 +146,10 @@ namespace R1Engine {
                 AnimationIndex = animInfo.AnimationIndex;
                 AnimSpeed = animInfo.AnimationSpeed;
             }
+            else
+            {
+                Debug.LogWarning($"No matching event state found for event of type {Type}");
+            }
 
             ChangeAppearance();
 

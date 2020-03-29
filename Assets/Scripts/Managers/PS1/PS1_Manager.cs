@@ -213,6 +213,7 @@ namespace R1Engine
             Common_Tileset tileSet = new Common_Tileset(GetTileSet(context), TileSetWidth, CellSize);
 
             var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
+            var eventETA = new List<KeyValuePair<Pointer, Common_EventState[][]>>();
             var commonEvents = new List<Common_Event>();
 
             // TODO: Clean up
@@ -311,8 +312,21 @@ namespace R1Engine
                         desIndex = eventDesigns.Count - 1;
                     }
 
+                    // Attempt to find existing ETA
+                    var etaIndex = eventETA.FindIndex(x => x.Key == e.ETAPointer);
+
+                    // Add if not found
+                    if (etaIndex == -1)
+                    {
+                        // Add to the ETA
+                        eventETA.Add(new KeyValuePair<Pointer, Common_EventState[][]>(e.ETAPointer, e.EventStates));
+
+                        // Set the index
+                        etaIndex = eventETA.Count - 1;
+                    }
+
                     // Instantiate event prefab using LevelEventController
-                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, index, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, events.EventLinkingTable[index]);
+                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, etaIndex, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, events.EventLinkingTable[index]);
 
                     // Add the event
                     commonEvents.Add(ee);
@@ -370,7 +384,7 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return new PS1EditorManager(c, context, this, eventDesigns.Select(x => x.Value).ToArray());
+            return new PS1EditorManager(c, context, this, eventDesigns.Select(x => x.Value).ToArray(), eventETA.Select(x => x.Value).ToArray());
         }
 
         /// <summary>

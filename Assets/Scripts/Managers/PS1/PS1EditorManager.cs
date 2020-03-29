@@ -16,11 +16,13 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="manager">The manager</param>
         /// <param name="designs">The common design</param>
-        public PS1EditorManager(Common_Lev level, Context context, PS1_Manager manager, Common_Design[] designs) : base(level, context)
+        /// <param name="eta">The available event states</param>
+        public PS1EditorManager(Common_Lev level, Context context, PS1_Manager manager, Common_Design[] designs, Common_EventState[][][] eta) : base(level, context)
         {
             // Set properties
             Manager = manager;
             Designs = designs;
+            ETA = eta;
         }
 
         /// <summary>
@@ -34,18 +36,16 @@ namespace R1Engine
         public Common_Design[] Designs { get; }
 
         /// <summary>
+        /// The available event states
+        /// </summary>
+        public Common_EventState[][][] ETA { get; }
+
+        /// <summary>
         /// Updates the state
         /// </summary>
         public override Common_EventState GetEventState(Common_Event e)
         {
-            if (!(Manager is PS1_BaseXXX_Manager xxx))
-                return null;
-
-            // TODO: Change this - we don't want the ETA index to be an event index, instead we want it to be taken from some list...? But how to get it to dynamically update based on Etat and SubEtat?
-
-            // TODO: We can change this by referencing the array of states & substates somewhere in the event object.
-            // This can be the global array for the PC version, but for PS1 we'll need to do it per event as this is how the game sees it.
-            return FileFactory.Read<PS1_R1_LevFile>(xxx.GetLevelFilePath(Settings), Context).EventData.Events[e.ETA].EventState;
+            return ETA[e.ETA].ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
         }
 
         /// <summary>
