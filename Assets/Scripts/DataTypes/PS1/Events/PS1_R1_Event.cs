@@ -282,7 +282,7 @@ namespace R1Engine
             // Get number of ETAs, hack
             if (s is BinaryDeserializer) {
                 s.DoAt(ETAPointer, () => {
-                    Pointer p = s.SerializePointer(null, name: "FirstSubEtat");
+                    Pointer p = s.SerializePointer(null, name: "FirstEtat");
                     if (p.file != ETAPointer.file
                     || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
                     || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0
