@@ -132,12 +132,32 @@ namespace R1Engine
         public ushort[] LabelOffsets { get; set; }
 
         /// <summary>
-        /// The SubEtat collection pointer for the ETA
+        /// The number of Etats
+        /// </summary>
+        public uint NumEtats { get; set; }
+
+        /// <summary>
+        /// The numbers of SubEtats
+        /// </summary>
+        public uint[] NumSubEtats { get; set; }
+
+        /// <summary>
+        /// Pointers to the ETA descriptors
+        /// </summary>
+        public Pointer[] EtatPointers { get; set; }
+
+        /// <summary>
+        /// Collection of states and substates for the event
+        /// </summary>
+        public Common_EventState[][] EventStates { get; set; }
+
+        /// <summary>
+        /// TODO: Remove. The SubEtat collection pointer for the ETA
         /// </summary>
         public Pointer ETASubEtatPointer { get; set; }
 
         /// <summary>
-        /// The event ETA state
+        /// TODO: Remove. The event ETA state
         /// </summary>
         public Common_EventState EventState { get; set; }
 
@@ -258,7 +278,55 @@ namespace R1Engine
             }
 
             // Serialize ETA
-            s.DoAt(ETAPointer + (Etat * 4), () =>
+
+            // Get number of ETAs, hack
+            if (s is BinaryDeserializer) {
+                s.DoAt(ETAPointer, () => {
+                    Pointer p = s.SerializePointer(null, name: "FirstSubEtat");
+                    if (p.file != ETAPointer.file
+                    || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
+                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0
+                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4 <= Etat) {
+                        Debug.LogWarning("Number of ETAs wasn't correctly determined");
+                    }
+                    NumEtats = (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4;
+                });
+            }
+            s.DoAt(ETAPointer, () => {
+                EtatPointers = s.SerializePointerArray(EtatPointers, NumEtats, name: nameof(EtatPointers));
+                if (NumSubEtats == null) {
+                    // Get number of subetats, hack
+                    NumSubEtats = new uint[NumEtats];
+                    for (int i = 0; i < EtatPointers.Length - 1; i++) {
+                        if (EtatPointers[i] != null) {
+                            if (EtatPointers[i + 1] != null) {
+                                NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / 8;
+                            } else {
+                                Debug.LogWarning("An Etat Pointer was null - Number of SubEtats couldn't be determined");
+                            }
+                        }
+                    }
+                    if (EtatPointers[NumEtats - 1] != null) {
+                        // TODO: Parse this last array
+                        if (Etat == NumEtats - 1) {
+                            NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
+                        }
+                    }
+                }
+                if (EventStates == null) {
+                    EventStates = new Common_EventState[NumEtats][];
+                }
+                for (int i = 0; i < EtatPointers.Length; i++) {
+                    s.DoAt(EtatPointers[i], () => {
+                        EventStates[i] = s.SerializeObjectArray<Common_EventState>(EventStates[i], NumSubEtats[i], name: nameof(EventStates) + "[" + i + "]");
+                    });
+                }
+            });
+            // TODO: Remove
+            if (EventStates != null && EventStates[Etat] != null && EventStates[Etat].Length > SubEtat) {
+                EventState = EventStates[Etat][SubEtat];
+            }
+            /*s.DoAt(ETAPointer + (Etat * 4), () =>
             {
                 // Get the state-array pointer
                 ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: nameof(ETASubEtatPointer));
@@ -268,7 +336,7 @@ namespace R1Engine
                 {
                     EventState = s.SerializeObject(EventState, name: nameof(EventState));
                 });
-            });
+            });*/
         }
 
         #endregion
