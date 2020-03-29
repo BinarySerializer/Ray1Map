@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 namespace R1Engine
@@ -80,8 +80,15 @@ namespace R1Engine
         }
 
         public void ConvertLevelToPNG() {
+
+            // Get the path to save to
+            var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.World} {Settings.Level:00}.png", ".png");
+
+            if (destPath == null)
+                return;
+
             //Hide unused links and palette swappers etc
-            foreach(var e in currentLevel.Events) {
+            foreach (var e in currentLevel.Events) {
                 if (e.Type == EventType.TYPE_PALETTE_SWAPPER) {
                     e.gameObject.SetActive(false);
                 }
@@ -108,7 +115,7 @@ namespace R1Engine
             tex.Apply();
 
             var bytes = tex.EncodeToPNG();
-            File.WriteAllBytes($"E:/RayExports/{ Settings.World}{ Settings.Level:00}.png", bytes);
+            File.WriteAllBytes(destPath, bytes);
 
             Destroy(tex);
             RenderTexture.active = null;
