@@ -216,7 +216,7 @@ namespace R1Engine
 
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 
-            Type = s.Serialize<EventType>(Type, name: nameof(Type));
+            Type = (EventType)s.Serialize<byte>((byte)Type, name: nameof(Type));
 
             HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
 
