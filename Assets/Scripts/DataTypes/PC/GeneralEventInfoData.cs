@@ -19,7 +19,6 @@ namespace R1Engine
         /// Default constructor
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="mapperId"></param>
         /// <param name="type"></param>
         /// <param name="typeName"></param>
         /// <param name="etat"></param>
@@ -41,10 +40,9 @@ namespace R1Engine
         /// <param name="labelOffsets"></param>
         /// <param name="commands"></param>
         /// <param name="localCommands"></param>
-        public GeneralEventInfoData(string name, string mapperId, int type, string typeName, int etat, int subEtat, EventFlag? flag, IDictionary<World, int?> desR1, IDictionary<World, int?> etaR1, IDictionary<World, string> desKit, IDictionary<World, string> etaKit, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, int layer, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
+        public GeneralEventInfoData(string name, int type, string typeName, int etat, int subEtat, EventFlag? flag, IDictionary<World, int?> desR1, IDictionary<World, int?> etaR1, IDictionary<World, string> desKit, IDictionary<World, string> etaKit, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, int layer, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
         {
             Name = name;
-            MapperID = mapperId;
             Type = type;
             TypeName = typeName;
             Etat = etat;
@@ -74,8 +72,6 @@ namespace R1Engine
 
         public string Name { get; }
 
-        public string MapperID { get; }
-        
         public int Type { get; }
 
         public string TypeName { get; }
@@ -126,8 +122,9 @@ namespace R1Engine
         /// Reads the event info data from a .csv file
         /// </summary>
         /// <param name="fileStream">The file stream to read from</param>
+        /// <param name="sort">Indicates if the items should be sorted</param>
         /// <returns>The read data</returns>
-        public static IList<GeneralEventInfoData> ReadCSV(Stream fileStream)
+        public static IList<GeneralEventInfoData> ReadCSV(Stream fileStream, bool sort = true)
         {
             // Use a reader
             using (var reader = new StreamReader(fileStream))
@@ -174,7 +171,7 @@ namespace R1Engine
                         }
 
                         // Add the item to the output
-                        output.Add(new GeneralEventInfoData(nextValue(), nextValue(), nextIntValue(), nextValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), toDictionary(next32NullableArrayValue()), toDictionary(next32NullableArrayValue()), toDictionary(nextStringArrayValue()), toDictionary(nextStringArrayValue()), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextIntValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
+                        output.Add(new GeneralEventInfoData(nextValue(), nextIntValue(), nextValue(), nextIntValue(), nextIntValue(), nextEnumValue<EventFlag>(), toDictionary(next32NullableArrayValue()), toDictionary(next32NullableArrayValue()), toDictionary(nextStringArrayValue()), toDictionary(nextStringArrayValue()), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextIntValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
                     }
                     catch (Exception ex)
                     {
@@ -184,7 +181,7 @@ namespace R1Engine
                 }
 
                 // Return the output
-                return output.OrderBy(x => x.Name).ThenBy(x => x.Type).ToArray();
+                return sort ? output.OrderBy(x => x.Name).ThenBy(x => x.Type).ToArray() : output.ToArray();
             }
         }
 
@@ -193,7 +190,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="fileStream">The file stream to write to</param>
         /// <param name="eventInfoDatas">The data to write</param>
-        public static void WriteCSV(Stream fileStream, IEnumerable<GeneralEventInfoData> eventInfoDatas)
+        /// <param name="sort">Indicates if the items should be sorted</param>
+        public static void WriteCSV(Stream fileStream, IEnumerable<GeneralEventInfoData> eventInfoDatas, bool sort = true)
         {
             using (var writer = new StreamWriter(fileStream))
             {
@@ -204,32 +202,30 @@ namespace R1Engine
                     {
                         var toWrite = value?.ToString();
 
+                        const char separator = '-';
+
                         if (value is IDictionary dict)
                         {
-                            toWrite = dict.Values.Cast<object>().Aggregate(String.Empty, (current, o) =>
-                            {
-                                const string separator = "-";
-
-                                return current + $"{separator}{o}";
-                            });
+                            toWrite = dict.Values.Cast<object>().Aggregate(String.Empty, (current, o) => current + $"{separator}{o}");
 
                             if (toWrite.Length > 1)
                                 toWrite = toWrite.Remove(0, 1);
+
+                            if (toWrite.All(x => x == separator))
+                                toWrite = String.Empty;
                         }
                         else if (value is IEnumerable enu && !(enu is string))
                         {
-                            toWrite = enu.Cast<object>().Aggregate(String.Empty, (current, o) =>
-                            {
-                                const string separator = "-";
-
-                                return current + $"{separator}{o}";
-                            });
+                            toWrite = enu.Cast<object>().Aggregate(String.Empty, (current, o) => current + $"{separator}{o}");
 
                             if (toWrite.Length > 1)
                                 toWrite = toWrite.Remove(0, 1);
+
+                            if (toWrite.All(x => x == separator))
+                                toWrite = String.Empty;
                         }
 
-                        toWrite = toWrite?.Replace(",", " -");
+                        toWrite = toWrite?.Replace(",", " _");
 
                         writer.Write($"{toWrite},");
                     }
@@ -242,12 +238,15 @@ namespace R1Engine
                 }
 
                 // Write header
-                WriteLine("Name", "MapperID", "Type", "TypeName", "Etat", "SubEtat", "Flag", "DesR1", "EtaR1", "DesKit", "EtaKit", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "Layer", "ConnectedEvents", "LabelOffsets", "Commands", "LocalCommands");
+                WriteLine("Name", "Type", "TypeName", "Etat", "SubEtat", "Flag", "DesR1", "EtaR1", "DesKit", "EtaKit", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "Layer", "ConnectedEvents", "LabelOffsets", "Commands", "LocalCommands");
+
+                // Get the enumerable
+                var collection = sort ? eventInfoDatas.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat) : eventInfoDatas;
 
                 // Write every item on a new line
-                foreach (var e in eventInfoDatas.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat))
+                foreach (var e in collection)
                 {
-                    WriteLine(e.Name, e.MapperID, e.Type, e.TypeName, e.Etat, e.SubEtat, e.Flag, e.DesR1, e.EtaR1, e.DesKit, e.EtaKit, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.Layer, e.ConnectedEvents, e.LabelOffsets, e.Commands, e.LocalCommands);
+                    WriteLine(e.Name, e.Type, e.TypeName, e.Etat, e.SubEtat, e.Flag, e.DesR1, e.EtaR1, e.DesKit, e.EtaKit, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.Layer, e.ConnectedEvents, e.LabelOffsets, e.Commands, e.LocalCommands);
                 }
             }
         }
