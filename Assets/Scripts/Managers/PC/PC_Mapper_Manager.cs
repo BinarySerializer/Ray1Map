@@ -188,7 +188,7 @@ namespace R1Engine
                     if (desIndex != -1)
                         desIndex += 1;
 
-                    var ee = Controller.obj.levelEventController.AddEvent((EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1), (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray()), 
+                    var ee = Controller.obj.levelEventController.AddEvent((EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1), (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, e.Layer, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray()), 
 
                         // TODO: Update this
                         index);

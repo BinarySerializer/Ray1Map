@@ -467,7 +467,7 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(EventType type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, Common_EventCommandCollection commands, int link) {
+        public Common_Event AddEvent(EventType type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int layer, int hitSprite, bool followEnabled, ushort[] labelOffsets, Common_EventCommandCollection commands, int link) {
             // Instantiate prefab
             Common_Event newEvent = Instantiate<GameObject>(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
 
@@ -487,6 +487,7 @@ namespace R1Engine
             
             newEvent.FollowSprite = followSprite;
             newEvent.HitPoints = hitpoints;
+            newEvent.Layer = layer;
             newEvent.HitSprite = hitSprite;
             newEvent.FollowEnabled = followEnabled;
             

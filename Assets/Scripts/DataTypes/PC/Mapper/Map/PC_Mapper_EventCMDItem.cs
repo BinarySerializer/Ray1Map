@@ -17,7 +17,7 @@
 
         public int YPosition { get; set; }
 
-        public int Unk1 { get; set; }
+        public int Layer { get; set; }
         
         public int LinkID { get; set; }
 

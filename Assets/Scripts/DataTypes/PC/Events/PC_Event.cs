@@ -74,10 +74,16 @@
 
         public byte OffsetHY { get; set; }
 
+        /// <summary>
+        /// The sprite index which uses the event collision
+        /// </summary>
         public byte FollowSprite { get; set; }
 
         public ushort HitPoints { get; set; }
 
+        /// <summary>
+        /// The layer the event sprite gets drawn to, between 1 and 7
+        /// </summary>
         public byte Layer { get; set; }
 
         public byte HitSprite { get; set; }
@@ -104,6 +110,10 @@
         /// Flags & (1 << 8) = execute commands
         /// </summary>
         public byte Flags { get; set; }
+
+        /// <summary>
+        /// Indicates if the event has collision
+        /// </summary>
         public bool FollowEnabled {
             get { return BitHelpers.ExtractBits(Flags, 1, 5) == 1; }
             set { BitHelpers.SetBits(value ? 1 : 0, Flags, 1, 5); }

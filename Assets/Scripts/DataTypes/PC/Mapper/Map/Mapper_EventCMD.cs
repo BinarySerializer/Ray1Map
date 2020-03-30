@@ -57,7 +57,7 @@ namespace R1Engine
                 eventManifestItem.YPosition = Int32.Parse(parser.NextValue());
 
                 if (eventManifestItem.Name != "always") {
-                    eventManifestItem.Unk1 = Int32.Parse(parser.NextValue());
+                    eventManifestItem.Layer = Int32.Parse(parser.NextValue());
                     eventManifestItem.LinkID = Int32.Parse(parser.NextValue());
                 }
 

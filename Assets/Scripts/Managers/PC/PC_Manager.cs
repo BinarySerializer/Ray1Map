@@ -1098,7 +1098,7 @@ namespace R1Engine
             foreach (PC_Event e in levelData.Events) 
             {
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].Commands, levelData.EventLinkingTable[index]);
+                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.Layer, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].Commands, levelData.EventLinkingTable[index]);
 
                 // Add the event
                 commonLev.Events.Add(ee);
@@ -1302,7 +1302,7 @@ namespace R1Engine
                     OffsetHY = (byte)e.OffsetHY,
                     FollowSprite = (byte)e.FollowSprite,
                     HitPoints = (byte)e.HitPoints,
-                    Layer = 0,
+                    Layer = (byte)e.Layer,
                     HitSprite = (byte)e.HitSprite,
                     Unk_122 = 0,
                     Unk_123 = 0,

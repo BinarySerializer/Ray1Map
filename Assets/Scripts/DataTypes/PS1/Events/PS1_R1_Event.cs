@@ -82,11 +82,17 @@ namespace R1Engine
 
         public byte OffsetHY { get; set; }
 
+        /// <summary>
+        /// The sprite index which uses the offset collision
+        /// </summary>
         public byte FollowSprite { get; set; }
 
         public ushort Hitpoints { get; set; }
 
-        public byte UnkGroup { get; set; }
+        /// <summary>
+        /// The layer the event sprite gets drawn to, between 1 and 7
+        /// </summary>
+        public byte Layer { get; set; }
 
         /// <summary>
         /// The event type
@@ -208,7 +214,7 @@ namespace R1Engine
 
             Hitpoints = s.Serialize<ushort>(Hitpoints, name: nameof(Hitpoints));
 
-            UnkGroup = s.Serialize<byte>(UnkGroup, name: nameof(UnkGroup));
+            Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 
             Type = (EventType)s.Serialize<byte>((byte)Type, name: nameof(Type));
 

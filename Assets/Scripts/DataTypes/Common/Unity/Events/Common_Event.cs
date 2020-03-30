@@ -86,6 +86,13 @@ namespace R1Engine {
         /// </summary>
         public int HitPoints { get; set; }
 
+        // TODO: Use this for z sorting
+        // TODO: Allow this to be edited in the editor?
+        /// <summary>
+        /// The event layer, used for z sorting
+        /// </summary>
+        public int Layer { get; set; }
+
         public int HitSprite { get; set; }
 
         /// <summary>

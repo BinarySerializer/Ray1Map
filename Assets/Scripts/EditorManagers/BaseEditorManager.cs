@@ -110,7 +110,7 @@ namespace R1Engine
             var cmds = Common_EventCommandCollection.FromBytes(UsesLocalCommands ? e.LocalCommands : e.Commands);
 
             // Add and return the event
-            return eventController.AddEvent((EventType)e.Type, e.Etat, e.SubEtat, xPos, yPos, GetDesIndex(e) ?? -1, GetEtaIndex(e) ?? -1, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, UsesLocalCommands ? new ushort[0] : e.LabelOffsets, cmds, 0);
+            return eventController.AddEvent((EventType)e.Type, e.Etat, e.SubEtat, xPos, yPos, GetDesIndex(e) ?? -1, GetEtaIndex(e) ?? -1, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.Layer, e.HitSprite, e.FollowEnabled, UsesLocalCommands ? new ushort[0] : e.LabelOffsets, cmds, 0);
         }
 
         /// <summary>
