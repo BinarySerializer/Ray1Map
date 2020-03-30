@@ -17,8 +17,8 @@ namespace R1Engine
         /// <param name="designs">The common design</param>
         public PC_RD_EditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) : base(level, context, manager, designs)
         {
-            DESFileIndex = manager.GetDESNames(context).ToArray();
-            ETAFileIndex = manager.GetETANames(context).ToArray();
+            DESFileIndex = manager.GetDESNames(context).Select(x => x.Remove(x.Length - 4)).ToArray();
+            ETAFileIndex = manager.GetETANames(context).Select(x => x.Remove(x.Length - 4)).ToArray();
         }
 
         /// <summary>
