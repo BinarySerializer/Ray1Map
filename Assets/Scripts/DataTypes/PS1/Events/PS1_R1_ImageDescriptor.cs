@@ -36,8 +36,9 @@
 
         public byte Unknown3 { get; set; }
 
-        public byte[] Unknown4 { get; set; }
+        public byte Unknown4 { get; set; }
 
+        public ushort PaletteInfo { get; set; }
         public ushort TexturePageInfo { get; set; }
         public byte ImageOffsetInPageX { get; set; }
         public byte ImageOffsetInPageY { get; set; }
@@ -57,7 +58,8 @@
             InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
             Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
             Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 3, name: nameof(Unknown4));
+            Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
+            PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
             TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
             ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: nameof(ImageOffsetInPageX));
             ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: nameof(ImageOffsetInPageY));

@@ -40,7 +40,7 @@ namespace R1Engine {
 							curStartPageX += (width / page_width);
 						}
 						if (pages[curPageY] == null || pages[curPageY].Length == 0) {
-							pages[curPageY] = new Page[curPageX];
+							pages[curPageY] = new Page[curPageX+1];
 						}
 						if (pages[curPageY].Length < curPageX + 1) {
 							Array.Resize(ref pages[curPageY], curPageX + 1);
@@ -81,6 +81,43 @@ namespace R1Engine {
 			}*/
 		}
 
+		public void AddDataAt(int startXPage, int startYPage, int startX, int startY, byte[] data, int width) {
+			if (data == null) return;
+			int height = (startX + data.Length) / width + (((startX + data.Length) % width != 0) ? 1 : 0);
+			startXPage -= skippedPagesX;
+			if (height > 0 && width > 0) {
+				int xInPage = startX, yInPage = 0;
+				int curPageX = startXPage, curPageY = startYPage, curStartPageX = startXPage;
+				for (int x = 0; x < width; x++) {
+					for (int y = 0; y < height; y++) {
+						curPageX = startXPage + ((startX + x) / page_width);
+						curStartPageX = startXPage;
+						curPageY = startYPage + ((startY + y) / page_height);
+						xInPage = (startX + x) % page_width;
+						yInPage = (startY + y) % page_height;
+						while (curPageY > 1) {
+							// Wrap
+							curPageY -= 2;
+							curPageX += (width / page_width);
+							curStartPageX += (width / page_width);
+						}
+						if (pages[curPageY] == null || pages[curPageY].Length == 0) {
+							pages[curPageY] = new Page[curPageX+1];
+						}
+						if (pages[curPageY].Length < curPageX + 1) {
+							Array.Resize(ref pages[curPageY], curPageX + 1);
+						}
+						if (pages[curPageY][curPageX] == null) {
+							//UnityEngine.Debug.Log("Created page " + curPageX + "," + curPageY);
+							pages[curPageY][curPageX] = new Page();
+						}
+						pages[curPageY][curPageX].SetByte(xInPage, yInPage, data[y * width + x]);
+						//UnityEngine.Debug.Log(curPageX + "," + curPageY + " - " + xInPage + "," + yInPage);
+					}
+				}
+			}
+		}
+
 		private Page GetPage(int x, int y) {
 			try {
 				if (x >= pages[y].Length) return null;
@@ -91,18 +128,28 @@ namespace R1Engine {
 			}
 		}
 
-		public byte GetPixel(int pageX, int pageY, int x, int y) {
+		public byte GetPixel8(int pageX, int pageY, int x, int y) {
 			//UnityEngine.Debug.Log(pageX + " - " + pageY + " - " + x + " - " + y);
 			pageX -= skippedPagesX; // We're not loading backgrounds for now
-			Page page = GetPage(pageX, pageY);
+			int initialX = x;
 			while (x >= page_width) {
 				pageX++;
 				x -= page_width;
-				page = GetPage(pageX, pageY);
 			}
+			if (y > page_height) {
+				pageY++;
+				y -= page_height;
+			}
+			Page page = GetPage(pageX, pageY);
 			//UnityEngine.Debug.Log(pageX + " - " + pageY + " - " + x + " - " + y);
 			if (page == null) return 0;
 			return page.GetByte(x, y);
+		}
+		public ARGB1555Color GetColor1555(int pageX, int pageY, int x, int y) {
+			byte b0 = GetPixel8(pageX, pageY, x * 2, y);
+			byte b1 = GetPixel8(pageX, pageY, (x * 2) + 1, y);
+			ushort col = (ushort)(b0 | (b1 << 8));
+			return new ARGB1555Color() { Color1555 = col };
 		}
 
 		public class Page {

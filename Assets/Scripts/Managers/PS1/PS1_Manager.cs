@@ -250,15 +250,15 @@ namespace R1Engine
 
                             if (i.Offset.file.filePath == worldFileName)
                             {
-                                tex = GetSpriteTexture("world", i, worldFile.EventPalette1, vram);
+                                tex = GetSpriteTexture("world", i,  vram);
                             }
                             else if (i.Offset.file.filePath == allfixFileName)
                             {
-                                tex = GetSpriteTexture("allfix", i, allfixFile.Palette2, vram);
+                                tex = GetSpriteTexture("allfix", i, vram);
                             }
                             else if (i.Offset.file.filePath == xxx.GetLevelFilePath(context.Settings))
                             {
-                                tex = GetSpriteTexture("level", i, worldFile.EventPalette1, vram);
+                                tex = GetSpriteTexture("level", i, vram);
                             }
 
                             // Add it to the array
@@ -447,11 +447,12 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="processedImageData">The processed image data to use</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(string name, PS1_R1_ImageDescriptor s, IList<ARGBColor> palette, PS1_VRAM vram) {
+        public Texture2D GetSpriteTexture(string name, PS1_R1_ImageDescriptor s, PS1_VRAM vram) {
             // Get the image properties
             var width = s.OuterWidth;
             var height = s.OuterHeight;
             var texturePageInfo = s.TexturePageInfo;
+            var paletteInfo = s.PaletteInfo;
 
             // see http://hitmen.c02.at/files/docs/psx/psx.pdf page 37
             int pageX = BitHelpers.ExtractBits(texturePageInfo, 4, 0);
@@ -460,6 +461,18 @@ namespace R1Engine
             int tp    = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
             //UnityEngine.Debug.Log(string.Format("{0:X4}", texturePageInfo));
             if (pageX < 5) return null;
+
+            // Get palette coordinates
+            int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
+            int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
+
+            ARGB1555Color[] palette;
+            if (tp == 0) {
+                palette = new ARGB1555Color[16];
+            } else {
+                palette = new ARGB1555Color[256];
+            }
+
             // Create the texture
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
                 filterMode = FilterMode.Point,
@@ -478,31 +491,40 @@ namespace R1Engine
             if (tp == 1) {
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
-                        var pixel = vram.GetPixel(pageX, pageY, s.ImageOffsetInPageX + x, s.ImageOffsetInPageY + y);
+                        var paletteIndex = vram.GetPixel8(pageX, pageY, s.ImageOffsetInPageX + x, s.ImageOffsetInPageY + y);
 
                         // Get the color from the palette
-                        var color = palette[pixel];
+                        if (palette[paletteIndex] == null) {
+                            palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
+                        }
+                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
+                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);
+                        var color = palette[paletteIndex];*/
 
                         // Set the pixel
-                        tex.SetPixel(x, height - 1 - y, color.GetColor());
+                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
                     }
                 }
             } else if (tp == 0) {
                 for (int y = 0; y < height; y++) {
                     for (int x = 0; x < width; x++) {
                         int actualX = (s.ImageOffsetInPageX + x) / 2;
-                        var pixel = vram.GetPixel(pageX, pageY, actualX, s.ImageOffsetInPageY + y);
+                        var paletteIndex = vram.GetPixel8(pageX, pageY, actualX, s.ImageOffsetInPageY + y);
                         if (x % 2 == 0) {
-                            pixel = (byte)BitHelpers.ExtractBits(pixel, 4, 0);
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
                         } else {
-                            pixel = (byte)BitHelpers.ExtractBits(pixel, 4, 4);
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 4);
                         }
 
                         // Get the color from the palette
-                        var color = palette[pixel];
+                        if (palette[paletteIndex] == null) {
+                            palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
+                        }
+                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
+                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);*/
 
                         // Set the pixel
-                        tex.SetPixel(x, height - 1 - y, color.GetColor());
+                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
                     }
                 }
             }
@@ -539,6 +561,22 @@ namespace R1Engine
 
             vram.AddData(world.TextureBlock, 256);
             vram.AddData(levelTextureBlock, 256);
+
+            // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
+            int paletteY = 234;
+            /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
+            vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            paletteY += 13 - world.TileColorPalettes.Length;
+            for (int i = 0; i < world.TileColorPalettes.Length; i++) {
+                vram.AddDataAt(12, 1, 0, paletteY++, world.TileColorPalettes[i].SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            }
+
 
             /*Texture2D vramTex = new Texture2D(7 * 128, 2 * 256);
             for (int x = 0; x < 7 * 128; x++) {
