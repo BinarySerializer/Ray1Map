@@ -30,19 +30,19 @@ namespace R1Engine
         [GameMode(EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC)", typeof(PC_R1_Manager))]
         RaymanPC,
 
-        [GameMode(EngineVersion.RayKit, Game.RaymanDesigner, "Rayman Gold (PC - Demo)", typeof(PC_RD_Manager))]
+        [GameMode(EngineVersion.RayKitPC, Game.RaymanDesigner, "Rayman Gold (PC - Demo)", typeof(PC_RD_Manager))]
         RaymanGoldPCDemo,
 
-        [GameMode(EngineVersion.RayKit, Game.RaymanDesigner, "Rayman Designer (PC)", typeof(PC_RD_Manager))]
+        [GameMode(EngineVersion.RayKitPC, Game.RaymanDesigner, "Rayman Designer (PC)", typeof(PC_RD_Manager))]
         RaymanDesignerPC,
 
-        [GameMode(EngineVersion.RayKit, Game.RaymanMapper, "Rayman Mapper (PC)", typeof(PC_Mapper_Manager))]
+        [GameMode(EngineVersion.RayKitPC, Game.RaymanMapper, "Rayman Mapper (PC)", typeof(PC_Mapper_Manager))]
         MapperPC,
 
-        [GameMode(EngineVersion.RayKit, Game.RaymanByHisFans, "Rayman by his Fans (PC)", typeof(PC_RD_Manager))]
+        [GameMode(EngineVersion.RayKitPC, Game.RaymanByHisFans, "Rayman by his Fans (PC)", typeof(PC_RD_Manager))]
         RaymanByHisFansPC,
 
-        [GameMode(EngineVersion.RayKit, Game.Rayman60Levels, "Rayman 60 Levels (PC)", typeof(PC_RD_Manager))]
+        [GameMode(EngineVersion.RayKitPC, Game.Rayman60Levels, "Rayman 60 Levels (PC)", typeof(PC_RD_Manager))]
         Rayman60LevelsPC,
 
         [GameMode(EngineVersion.RayEduPC, Game.RaymanEducational, "Rayman Educational (PC)", typeof(PC_EDU_Manager))]

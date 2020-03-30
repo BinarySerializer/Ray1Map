@@ -105,5 +105,19 @@ namespace R1Engine
         }
 
         #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Gets an editor manager from the specified objects
+        /// </summary>
+        /// <param name="level">The common level</param>
+        /// <param name="context">The context</param>
+        /// <param name="manager">The manager</param>
+        /// <param name="designs">The common design</param>
+        /// <returns>The editor manager</returns>
+        public override PC_EditorManager GetEditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) => new PC_RD_EditorManager(level, context, manager, designs);
+
+        #endregion
     }
 }

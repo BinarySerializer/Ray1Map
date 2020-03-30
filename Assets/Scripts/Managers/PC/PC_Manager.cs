@@ -1154,8 +1154,18 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return new PCEditorManager(commonLev, context, this, eventDesigns);
+            return GetEditorManager(commonLev, context, this, eventDesigns);
         }
+
+        /// <summary>
+        /// Gets an editor manager from the specified objects
+        /// </summary>
+        /// <param name="level">The common level</param>
+        /// <param name="context">The context</param>
+        /// <param name="manager">The manager</param>
+        /// <param name="designs">The common design</param>
+        /// <returns>The editor manager</returns>
+        public abstract PC_EditorManager GetEditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs);
 
         /// <summary>
         /// Reads 3 tile-sets, one for each palette

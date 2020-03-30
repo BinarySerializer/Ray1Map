@@ -37,7 +37,7 @@ namespace R1Engine
         /// <summary>
         /// Rayman Designer + spin-offs (PC)
         /// </summary>
-        RayKit,
+        RayKitPC,
 
         /// <summary>
         /// Educational Rayman games (PC)

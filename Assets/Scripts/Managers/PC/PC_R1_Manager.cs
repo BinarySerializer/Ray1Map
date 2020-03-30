@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -61,6 +62,20 @@ namespace R1Engine
         /// Indicates if the game has 3 palettes it swaps between
         /// </summary>
         public override bool Has3Palettes => true;
+
+        #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Gets an editor manager from the specified objects
+        /// </summary>
+        /// <param name="level">The common level</param>
+        /// <param name="context">The context</param>
+        /// <param name="manager">The manager</param>
+        /// <param name="designs">The common design</param>
+        /// <returns>The editor manager</returns>
+        public override PC_EditorManager GetEditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) => new PC_R1_EditorManager(level, context, manager, designs);
 
         #endregion
     }

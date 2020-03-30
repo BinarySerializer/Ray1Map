@@ -196,7 +196,7 @@ namespace R1Engine
             EventBlockPointer = s.Serialize<uint>(EventBlockPointer, name: nameof(EventBlockPointer));
             TextureBlockPointer = s.Serialize<uint>(TextureBlockPointer, name: nameof(TextureBlockPointer));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 Unknown6 = s.SerializeArray<byte>(Unknown6, 68, name: nameof(Unknown6));
 
             // Serialize map size
@@ -205,7 +205,7 @@ namespace R1Engine
 
             // Create the palettes if necessary
             if (ColorPalettes == null) {
-                ColorPalettes = s.GameSettings.EngineVersion == EngineVersion.RayKit ? new RGB666Color[][]
+                ColorPalettes = s.GameSettings.EngineVersion == EngineVersion.RayKitPC ? new RGB666Color[][]
                 {
                     new RGB666Color[256],
                 } : new RGB666Color[][]
@@ -301,7 +301,7 @@ namespace R1Engine
             if (s.CurrentPointer.FileOffset != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 // TODO: Verify checksum
                 TextureBlockChecksum = s.Serialize<byte>(TextureBlockChecksum, name: nameof(TextureBlockChecksum));
 
@@ -368,7 +368,7 @@ namespace R1Engine
             if (s.GameSettings.EngineVersion != EngineVersion.RayPocketPC && s.CurrentPointer.FileOffset != EventBlockPointer)
                 Debug.LogError("Event block offset is incorrect");
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKit || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 // TODO: Verify checksum
                 EventBlockChecksum = s.Serialize<byte>(EventBlockChecksum, name: nameof(EventBlockChecksum));
 

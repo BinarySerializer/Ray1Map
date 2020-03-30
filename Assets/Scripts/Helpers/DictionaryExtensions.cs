@@ -16,7 +16,7 @@ namespace R1Engine
         /// <param name="key">The key</param>
         /// <param name="defaultValue">The default value</param>
         /// <returns>The value</returns>
-        public static TValue TryGetItem<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default)
+        public static TValue TryGetItem<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default)
         {
             return dictionary.TryGetValue(key, out TValue value) ? value : defaultValue;
         }

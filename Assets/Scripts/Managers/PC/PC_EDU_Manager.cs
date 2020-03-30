@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -61,6 +62,20 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The available educational volumes</returns>
         public override string[] GetEduVolumes(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToArray();
+
+        #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Gets an editor manager from the specified objects
+        /// </summary>
+        /// <param name="level">The common level</param>
+        /// <param name="context">The context</param>
+        /// <param name="manager">The manager</param>
+        /// <param name="designs">The common design</param>
+        /// <returns>The editor manager</returns>
+        public override PC_EditorManager GetEditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) => new PC_EDU_EditorManager(level, context, manager, designs);
 
         #endregion
     }

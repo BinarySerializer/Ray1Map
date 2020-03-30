@@ -1,6 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
 using System.Linq;
-using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -24,6 +23,11 @@ namespace R1Engine
             Designs = designs;
             ETA = eta;
         }
+
+        /// <summary>
+        /// Indicates if the local commands should be used
+        /// </summary>
+        protected override bool UsesLocalCommands => false;
 
         /// <summary>
         /// Gets the maximum allowed DES value
@@ -84,37 +88,33 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the common editor event info for an event
+        /// Gets the DES index for the specified event data item
         /// </summary>
-        /// <param name="e">The event</param>
-        /// <returns>The common editor event info</returns>
-        public override Common_EditorEventInfo GetEditorEventInfo(Common_Event e)
+        /// <param name="eventInfoData">The event info data item</param>
+        /// <returns>The DES index</returns>
+        public override int? GetDesIndex(GeneralEventInfoData eventInfoData)
         {
-            // TODO: Implement
             return null;
         }
 
         /// <summary>
-        /// Gets the available event names to add for the current world
+        /// Gets the ETA index for the specified event data item
         /// </summary>
-        /// <returns>The names of the available events to add</returns>
-        public override string[] GetEvents()
+        /// <param name="eventInfoData">The event info data item</param>
+        /// <returns>The ETA index</returns>
+        public override int? GetEtaIndex(GeneralEventInfoData eventInfoData)
         {
-            // TODO: Implement
-            return new string[0];
+            return null;
         }
 
         /// <summary>
-        /// Adds a new event to the controller and returns it
+        /// Checks if the event is available in the current world
         /// </summary>
-        /// <param name="eventController">The event controller to add to</param>
-        /// <param name="index">The event index from the available events</param>
-        /// <param name="xPos">The x position</param>
-        /// <param name="yPos">The y position</param>
-        /// <returns></returns>
-        public override Common_Event AddEvent(LevelEventController eventController, int index, uint xPos, uint yPos)
+        /// <param name="eventInfoData">The event info data item</param>
+        /// <returns>True if it's available, otherwise false</returns>
+        public override bool IsAvailableInWorld(GeneralEventInfoData eventInfoData)
         {
-            throw new NotImplementedException();
+            return false;
         }
     }
 }
