@@ -9,7 +9,7 @@ using UnityEngine;
 namespace R1Engine
 {
     /// <summary>
-    /// General event information for PC
+    /// General event information
     /// </summary>
     public class GeneralEventInfoData
     {
