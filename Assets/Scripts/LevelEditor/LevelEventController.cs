@@ -21,23 +21,24 @@ namespace R1Engine
         public Dropdown eventDropdown;
 
         // Event info things for the ui
-        public GameObject eventInfoWindow;
-        public Text eventInfoName;
-        public InputField eventInfoX;
-        public InputField eventInfoY;
-        public InputField eventInfoDes;
-        public InputField eventInfoEta;
-        public InputField eventInfoEtat;
-        public InputField eventInfoSubEtat;
-        public InputField eventInfoOffsetBx;
-        public InputField eventInfoOffsetBy;
-        public InputField eventInfoOffsetHy;
-        public InputField eventInfoFollowSprite;
-        public InputField eventInfoHitPoints;
-        public InputField eventInfoHitSprite;
-        public Toggle eventInfoFollow;
-        public Dropdown eventInfoType;
-        public InputField eventInfoAnimIndex;
+        public GameObject infoWindow;
+        public Text infoName;
+        public InputField infoX;
+        public InputField infoY;
+        public Dropdown infoDes;
+        public Dropdown infoEta;
+        public Dropdown infoEtat;
+        public Dropdown infoSubEtat;
+        public InputField infoOffsetBx;
+        public InputField infoOffsetBy;
+        public InputField infoOffsetHy;
+        public InputField infoFollowSprite;
+        public InputField infoHitPoints;
+        public InputField infoHitSprite;
+        public InputField infoAnimIndex;
+        public InputField infoLayer;
+        public Toggle infoFollow;
+        public Dropdown infoType;
 
         public bool areLinksVisible = false;
 
@@ -88,14 +89,27 @@ namespace R1Engine
             }
 
             // Fill the dropdown menu
-            var events = Controller.obj.levelController.EditorManager.GetEvents();
-            
+            var events = Controller.obj.levelController.EditorManager.GetEvents();           
             foreach (var e in events) {
                 Dropdown.OptionData dat = new Dropdown.OptionData
                 {
                     text = e
                 };
                 eventDropdown.options.Add(dat);
+            }
+
+            //Fill Des and Eta dropdowns with their max values
+            for (int i = 0; i < Controller.obj.levelController.EditorManager.GetMaxDES; i++) {
+                Dropdown.OptionData dat = new Dropdown.OptionData {
+                    text = i.ToString()
+                };
+                infoDes.options.Add(dat);
+            }
+            for (int i = 0; i < Controller.obj.levelController.EditorManager.GetMaxETA; i++) {
+                Dropdown.OptionData dat = new Dropdown.OptionData {
+                    text = i.ToString()
+                };
+                infoEta.options.Add(dat);
             }
 
             // TODO: Have some flag for if current game mode supports editing
@@ -114,15 +128,17 @@ namespace R1Engine
                 Dropdown.OptionData dat = new Dropdown.OptionData {
                     text = e.ToString()
                 };
-                eventInfoType.options.Add(dat);
+                infoType.options.Add(dat);
             }
         }
 
         public void ChangeEventsVisibility(object o, EventArgs e) {
-            foreach(var eve in Controller.obj.levelController.currentLevel.Events) {
-                eve.RefreshVisuals();
-                if (editor.currentMode == Editor.EditMode.Links)
-                    eve.ChangeLinksVisibility(true);
+            if (Controller.obj.levelController.currentLevel != null) {
+                foreach (var eve in Controller.obj.levelController.currentLevel.Events) {
+                    eve.RefreshVisuals();
+                    if (editor.currentMode == Editor.EditMode.Links)
+                        eve.ChangeLinksVisibility(true);
+                }
             }
         }
 
@@ -156,24 +172,28 @@ namespace R1Engine
                     if (e != null) {
                         if (currentlySelected != null)
                             currentlySelected.ChangeOffsetVisibility(false);
-                        currentlySelected = e;
-                        //Change event info if event is selected
-                        eventInfoName.text = currentlySelected.name;
-                        eventInfoX.text = currentlySelected.XPosition.ToString();
-                        eventInfoY.text = currentlySelected.YPosition.ToString();
-                        eventInfoDes.text = currentlySelected.DES.ToString();
-                        eventInfoEta.text = currentlySelected.ETA.ToString();
-                        eventInfoEtat.text = currentlySelected.Etat.ToString();
-                        eventInfoSubEtat.text = currentlySelected.SubEtat.ToString();
-                        eventInfoOffsetBx.text = currentlySelected.OffsetBX.ToString();
-                        eventInfoOffsetBy.text = currentlySelected.OffsetBY.ToString();
-                        eventInfoOffsetHy.text = currentlySelected.OffsetHY.ToString();
-                        eventInfoFollowSprite.text = currentlySelected.FollowSprite.ToString();
-                        eventInfoHitPoints.text = currentlySelected.HitPoints.ToString();
-                        eventInfoHitSprite.text = currentlySelected.HitSprite.ToString();
-                        eventInfoFollow.isOn = currentlySelected.FollowEnabled;
-                        eventInfoType.value = (int)currentlySelected.Type;
-                        eventInfoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
+                        if (e != currentlySelected) {
+                            currentlySelected = e;
+                            //Change event info if event is selected
+                            infoName.text = currentlySelected.name;
+                            infoX.text = currentlySelected.XPosition.ToString();
+                            infoY.text = currentlySelected.YPosition.ToString();
+                            infoDes.value = currentlySelected.DES;
+                            infoEta.value = currentlySelected.ETA;
+                            UpdateInfoEtat();
+                            infoEtat.value = currentlySelected.Etat;
+                            infoSubEtat.value = currentlySelected.SubEtat;
+                            infoOffsetBx.text = currentlySelected.OffsetBX.ToString();
+                            infoOffsetBy.text = currentlySelected.OffsetBY.ToString();
+                            infoOffsetHy.text = currentlySelected.OffsetHY.ToString();
+                            infoFollowSprite.text = currentlySelected.FollowSprite.ToString();
+                            infoHitPoints.text = currentlySelected.HitPoints.ToString();
+                            infoHitSprite.text = currentlySelected.HitSprite.ToString();
+                            infoFollow.isOn = currentlySelected.FollowEnabled;
+                            infoType.value = (int)currentlySelected.Type;
+                            infoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
+                            infoLayer.text = currentlySelected.Layer.ToString();
+                        }
                         //Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
@@ -201,12 +221,12 @@ namespace R1Engine
                         if (modeEvents) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                            eventInfoX.text = Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16).ToString();
-                            eventInfoY.text = Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16).ToString();
+                            infoX.text = Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16).ToString();
+                            infoY.text = Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16).ToString();
 
-                            uint.TryParse(eventInfoX.text, out var new_x);
+                            uint.TryParse(infoX.text, out var new_x);
                             currentlySelected.XPosition = new_x;
-                            uint.TryParse(eventInfoY.text, out var new_y);
+                            uint.TryParse(infoY.text, out var new_y);
                             currentlySelected.YPosition = new_y;
 
                             currentlySelected.UpdateXAndY();
@@ -272,26 +292,51 @@ namespace R1Engine
             }
         }
 
+        private void UpdateInfoEtat() {
+            //Clear old options
+            infoEtat.options.Clear();
+            //Populate new options
+            var max = Controller.obj.levelController.EditorManager.GetMaxEtat(currentlySelected.ETA);
+            for (int i = 0; i <= max; i++) {
+                Dropdown.OptionData dat = new Dropdown.OptionData {
+                    text = i.ToString()
+                };
+                infoEtat.options.Add(dat);
+            }
+            UpdateInfoSubEtat();
+        }
+        private void UpdateInfoSubEtat() {
+            //Clear old options
+            infoSubEtat.options.Clear();
+            //Populate new options
+            var max = Controller.obj.levelController.EditorManager.GetMaxSubEtat(currentlySelected.ETA, currentlySelected.Etat);
+            for (int i = 0; i <= max; i++) {
+                Dropdown.OptionData dat = new Dropdown.OptionData {
+                    text = i.ToString()
+                };
+                infoSubEtat.options.Add(dat);
+            }
+        }
+
         //-----OnChanged methods for each field-----
 
         public void FieldXPosition() {
             if (currentlySelected != null) {
-                uint.TryParse(eventInfoX.text, out var new_x);
+                uint.TryParse(infoX.text, out var new_x);
                 currentlySelected.XPosition = new_x;
                 currentlySelected.UpdateXAndY();
             }
         }
         public void FieldYPosition() {
             if (currentlySelected != null) {
-                uint.TryParse(eventInfoY.text, out var new_y);
+                uint.TryParse(infoY.text, out var new_y);
                 currentlySelected.YPosition = new_y;
                 currentlySelected.UpdateXAndY();
             }
         }
         public void FieldDes() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoDes.text, out var new_des);
-                currentlySelected.DES = new_des;
+                currentlySelected.DES = infoDes.value;
 
                 currentlySelected.RefreshName();
                 currentlySelected.RefreshVisuals();
@@ -299,8 +344,7 @@ namespace R1Engine
         }
         public void FieldEta() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoEta.text, out var new_eta);
-                currentlySelected.ETA = new_eta;
+                currentlySelected.ETA = infoEta.value;
 
                 currentlySelected.RefreshName();
                 currentlySelected.RefreshVisuals();
@@ -308,25 +352,27 @@ namespace R1Engine
         }
         public void FieldEtat() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoEtat.text, out var new_etat);
-                currentlySelected.Etat = new_etat;
+                currentlySelected.Etat = infoEtat.value;
 
                 currentlySelected.RefreshName();
                 currentlySelected.RefreshVisuals();
+
+                UpdateInfoEtat();
             }
         }
         public void FieldSubEtat() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoSubEtat.text, out var new_subetat);
-                currentlySelected.SubEtat = new_subetat;
+                currentlySelected.SubEtat = infoSubEtat.value;
 
                 currentlySelected.RefreshName();
                 currentlySelected.RefreshVisuals();
+
+                UpdateInfoSubEtat();
             }
         }
         public void FieldOffsetBx() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoOffsetBx.text, out var new_offbx);
+                int.TryParse(infoOffsetBx.text, out var new_offbx);
                 currentlySelected.OffsetBX = new_offbx;
 
                 currentlySelected.RefreshName();
@@ -335,7 +381,7 @@ namespace R1Engine
         }
         public void FieldOffsetBy() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoOffsetBy.text, out var new_offby);
+                int.TryParse(infoOffsetBy.text, out var new_offby);
                 currentlySelected.OffsetBY = new_offby;
 
                 currentlySelected.RefreshName();
@@ -344,7 +390,7 @@ namespace R1Engine
         }
         public void FieldOffsetHy() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoOffsetHy.text, out var new_offhy);
+                int.TryParse(infoOffsetHy.text, out var new_offhy);
                 currentlySelected.OffsetHY = new_offhy;
 
                 currentlySelected.RefreshName();
@@ -353,7 +399,7 @@ namespace R1Engine
         }
         public void FieldFollowSprite() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoFollowSprite.text, out var new_fsprite);
+                int.TryParse(infoFollowSprite.text, out var new_fsprite);
                 currentlySelected.FollowSprite = new_fsprite;
 
                 currentlySelected.RefreshName();
@@ -361,7 +407,7 @@ namespace R1Engine
         }
         public void FieldHitPoints() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoHitPoints.text, out var new_hp);
+                int.TryParse(infoHitPoints.text, out var new_hp);
                 currentlySelected.HitPoints = new_hp;
 
                 currentlySelected.RefreshName();
@@ -370,7 +416,7 @@ namespace R1Engine
         }
         public void FieldHitSprite() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoHitSprite.text, out var new_hsprite);
+                int.TryParse(infoHitSprite.text, out var new_hsprite);
                 currentlySelected.HitSprite = new_hsprite;
 
                 currentlySelected.RefreshName();
@@ -378,14 +424,14 @@ namespace R1Engine
         }
         public void FieldFollowEnabled() {
             if (currentlySelected != null) {
-                currentlySelected.FollowEnabled = eventInfoFollow.isOn;
+                currentlySelected.FollowEnabled = infoFollow.isOn;
 
                 currentlySelected.RefreshName();
             }
         }
         public void FieldType() {
             if (currentlySelected != null) {
-                currentlySelected.Type = (EventType)eventInfoType.value;
+                currentlySelected.Type = (EventType)infoType.value;
 
                 currentlySelected.RefreshFlag();
                 currentlySelected.RefreshName();
@@ -393,34 +439,31 @@ namespace R1Engine
         }
         public void FieldAnimIndex() {
             if (currentlySelected != null) {
-                int.TryParse(eventInfoAnimIndex.text, out var new_anim);
+                int.TryParse(infoAnimIndex.text, out var new_anim);
                 currentlySelected.AnimationIndex = new_anim;
                 currentlySelected.ChangeAnimation(new_anim);
-
-                //currentlySelected.RefreshName();
-                //currentlySelected.RefreshVisuals();
             }
         }
 
         //--------------------
 
         private void ClearInfoWindow() {
-            eventInfoName.text = "";
-            eventInfoX.text = "";
-            eventInfoY.text = "";
-            eventInfoDes.text = "";
-            eventInfoEta.text = "";
-            eventInfoEtat.text = "";
-            eventInfoSubEtat.text = "";
-            eventInfoOffsetBx.text = "";
-            eventInfoOffsetBy.text = "";
-            eventInfoOffsetHy.text = "";
-            eventInfoFollowSprite.text = "";
-            eventInfoHitPoints.text = "";
-            eventInfoHitSprite.text = "";
-            eventInfoFollow.isOn = false;
-            eventInfoType.value = 0;
-            eventInfoAnimIndex.text = "";
+            infoName.text = "";
+            infoX.text = "";
+            infoY.text = "";
+            infoDes.value = 0;
+            infoEta.value = 0;
+            infoEtat.value = 0;
+            infoSubEtat.value = 0;
+            infoOffsetBx.text = "";
+            infoOffsetBy.text = "";
+            infoOffsetHy.text = "";
+            infoFollowSprite.text = "";
+            infoHitPoints.text = "";
+            infoHitSprite.text = "";
+            infoFollow.isOn = false;
+            infoType.value = 0;
+            infoAnimIndex.text = "";
         }
 
         // Show/Hide links
