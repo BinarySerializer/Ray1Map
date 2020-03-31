@@ -1,5 +1,6 @@
 ﻿namespace R1Engine
 {
+    // TODO: Remove class and only use string?
     /// <summary>
     /// Common event info for the editor
     /// </summary>
@@ -9,21 +10,14 @@
         /// Default constructor
         /// </summary>
         /// <param name="displayName">The display name</param>
-        /// <param name="flag">The flag, if available</param>
-        public Common_EditorEventInfo(string displayName, EventFlag? flag)
+        public Common_EditorEventInfo(string displayName)
         {
             DisplayName = displayName;
-            Flag = flag;
         }
 
         /// <summary>
         /// The display name
         /// </summary>
         public string DisplayName { get; }
-        
-        /// <summary>
-        /// The flag, if available
-        /// </summary>
-        public EventFlag? Flag { get; }
     }
 }

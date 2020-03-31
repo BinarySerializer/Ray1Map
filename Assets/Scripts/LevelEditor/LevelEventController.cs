@@ -53,6 +53,7 @@ namespace R1Engine
             for (int i=0; i < eventList.Count; i++) 
             {
                 // Refresh
+                eventList[i].RefreshFlag();
                 eventList[i].RefreshEditorInfo();
 
                 // If X and Y are insane, clamp them
@@ -386,6 +387,7 @@ namespace R1Engine
             if (currentlySelected != null) {
                 currentlySelected.Type = (EventType)eventInfoType.value;
 
+                currentlySelected.RefreshFlag();
                 currentlySelected.RefreshName();
             }
         }

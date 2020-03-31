@@ -181,7 +181,7 @@ namespace R1Engine
             var match = GetGeneralEventInfo((int)e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
 
             // Return the editor info
-            return new Common_EditorEventInfo(match?.Name, match?.Flag);
+            return new Common_EditorEventInfo(match?.Name);
         }
 
         /// <summary>

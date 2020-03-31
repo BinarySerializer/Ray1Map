@@ -17,7 +17,7 @@ namespace R1Engine {
         /// <summary>
         /// The event flag
         /// </summary>
-        public EventFlag? Flag { get; set; }
+        public EventFlag Flag { get; set; }
 
         /// <summary>
         /// The animation index to use
@@ -131,13 +131,12 @@ namespace R1Engine {
             var eventInfo = EditorManager.GetEditorEventInfo(this);
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
-            // Set the flag
-            Flag = eventInfo?.Flag;
 
             RefreshVisuals();
             ChangeOffsetVisibility(false);
             ChangeLinksVisibility(false);
         }
+        
         public void RefreshName() {
             // Get the event info data
             var eventInfo = EditorManager.GetEditorEventInfo(this);
@@ -145,6 +144,12 @@ namespace R1Engine {
             // Set the name
             DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
         }
+
+        public void RefreshFlag()
+        {
+            Flag = Type.GetAttribute<EventTypeInfoAttribute>()?.Flag ?? EventFlag.Normal;
+        }
+
         public void RefreshVisuals() {
             // Get the animation info
             var animInfo = EditorManager.GetEventState(this);
