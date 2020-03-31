@@ -44,12 +44,34 @@
 
         public ushort SubEtat { get; set; }
 
-        public byte[] Unk4 { get; set; }
+        public ushort Unknown8 { get; set; }
+
+        public ushort Unknown9 { get; set; }
+
+        public byte OffsetHY { get; set; }
+
+        public byte Unk4 { get; set; }
+
+        /// <summary>
+        /// The sprite index which uses the offset collision
+        /// </summary>
+        public byte FollowSprite { get; set; }
+
+        public ushort Hitpoints { get; set; }
+
+        /// <summary>
+        /// The layer the event sprite gets drawn to, between 1 and 7
+        /// </summary>
+        public byte Layer { get; set; }
 
         public EventType EventType { get; set; }
 
-        // Last byte might be anim desc count
+        public ushort HitSprite { get; set; }
+
         public byte[] Unk5 { get; set; }
+
+        // Anim desc count?
+        public byte Unk6 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -77,12 +99,23 @@
             Unknown7 = s.Serialize(Unknown7, name: nameof(Unknown7));
             Etat = s.Serialize(Etat, name: nameof(Etat));
             SubEtat = s.Serialize(SubEtat, name: nameof(SubEtat));
-            
-            Unk4 = s.SerializeArray(Unk4, 10, name: nameof(Unk4));
-            
+
+            Unknown8 = s.Serialize<ushort>(Unknown8, name: nameof(Unknown8));
+            Unknown9 = s.Serialize<ushort>(Unknown9, name: nameof(Unknown9));
+
+            OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
+
+            Unk4 = s.Serialize(Unk4, name: nameof(Unk4));
+            FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
+
+            Hitpoints = s.Serialize<ushort>(Hitpoints, name: nameof(Hitpoints));
+            Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
+
             EventType = (EventType)s.Serialize((byte)EventType, name: nameof(EventType));
-            
-            Unk5 = s.SerializeArray(Unk5, 13, name: nameof(Unk5));
+            HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
+
+            Unk5 = s.SerializeArray(Unk5, 10, name: nameof(Unk5));
+            Unk6 = s.Serialize(Unk6, name: nameof(Unk6));
         }
     }
 }
