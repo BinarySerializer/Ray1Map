@@ -38,9 +38,9 @@
         public Pointer TilesBlockPointer => BlockPointers[5];
 
         /// <summary>
-        /// The pointer to the palette block
+        /// The pointer to the tile palette block
         /// </summary>
-        public Pointer PaletteBlockPointer => BlockPointers[6];
+        public Pointer TilePaletteBlockPointer => BlockPointers[6];
 
         /// <summary>
         /// The pointer to the palette index block
@@ -86,7 +86,7 @@
         /// <summary>
         /// The tile color palettes
         /// </summary>
-        public ARGB1555Color[][] TileColorPalettes { get; set; }
+        public ARGB1555Color[][] TilePalettes { get; set; }
 
         /// <summary>
         /// The tile palette index table
@@ -136,20 +136,20 @@
                 // TILES
                 s.DoAt(TilesBlockPointer, () => {
                     // Read the tiles which use a palette
-                    PalettedTiles = s.SerializeArray<byte>(PalettedTiles, PaletteBlockPointer - TilesBlockPointer, name: nameof(PalettedTiles));
+                    PalettedTiles = s.SerializeArray<byte>(PalettedTiles, TilePaletteBlockPointer - TilesBlockPointer, name: nameof(PalettedTiles));
                 });
 
                 // TILE PALETTES
-                s.DoAt(PaletteBlockPointer, () => {
+                s.DoAt(TilePaletteBlockPointer, () => {
                     // TODO: Find a better way to know the number of palettes
-                    uint numPalettes = (uint)(PaletteIndexBlockPointer - PaletteBlockPointer) / (256 * 2);
-                    if (TileColorPalettes == null)
+                    uint numPalettes = (uint)(PaletteIndexBlockPointer - TilePaletteBlockPointer) / (256 * 2);
+                    if (TilePalettes == null)
                     {
-                        TileColorPalettes = new ARGB1555Color[numPalettes][];
+                        TilePalettes = new ARGB1555Color[numPalettes][];
                     }
-                    for (int i = 0; i < TileColorPalettes.Length; i++)
+                    for (int i = 0; i < TilePalettes.Length; i++)
                     {
-                        TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: nameof(TileColorPalettes) + "[" + i + "]");
+                        TilePalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TilePalettes[i], 256, name: nameof(TilePalettes) + "[" + i + "]");
                     }
                 });
 

@@ -570,9 +570,9 @@ namespace R1Engine
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
 
-            paletteY += 13 - world.TileColorPalettes.Length;
+            paletteY += 13 - world.TilePalettes.Length;
 
-            foreach (var p in world.TileColorPalettes)
+            foreach (var p in world.TilePalettes)
                 vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
 
             /*Texture2D vramTex = new Texture2D(7 * 128, 2 * 256);
