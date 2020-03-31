@@ -34,10 +34,22 @@
 
         public byte[] Unk2 { get; set; }
 
+        public byte OffsetBX { get; set; }
+
+        public byte OffsetBY { get; set; }
+
+        public ushort Unknown7 { get; set; }
+
+        public ushort Etat { get; set; }
+
+        public ushort SubEtat { get; set; }
+
+        public byte[] Unk4 { get; set; }
+
         public EventType EventType { get; set; }
 
         // Last byte might be anim desc count
-        public byte[] Unk3 { get; set; }
+        public byte[] Unk5 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -54,11 +66,23 @@
 
             // Serialize values
             Unk1 = s.SerializeArray(Unk1, 46, name: nameof(Unk1));
+
             XPosition = s.Serialize(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize(YPosition, name: nameof(YPosition));
-            Unk2 = s.SerializeArray(Unk2, 60, name: nameof(Unk2));
+            
+            Unk2 = s.SerializeArray(Unk2, 42, name: nameof(Unk2));
+            
+            OffsetBX = s.Serialize(OffsetBX, name: nameof(OffsetBX));
+            OffsetBY = s.Serialize(OffsetBY, name: nameof(OffsetBY));
+            Unknown7 = s.Serialize(Unknown7, name: nameof(Unknown7));
+            Etat = s.Serialize(Etat, name: nameof(Etat));
+            SubEtat = s.Serialize(SubEtat, name: nameof(SubEtat));
+            
+            Unk4 = s.SerializeArray(Unk4, 10, name: nameof(Unk4));
+            
             EventType = (EventType)s.Serialize((byte)EventType, name: nameof(EventType));
-            Unk3 = s.SerializeArray(Unk3, 13, name: nameof(Unk3));
+            
+            Unk5 = s.SerializeArray(Unk5, 13, name: nameof(Unk5));
         }
     }
 }

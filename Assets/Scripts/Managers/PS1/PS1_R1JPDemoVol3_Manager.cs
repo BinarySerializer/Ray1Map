@@ -135,7 +135,10 @@ namespace R1Engine
             foreach (var e in lvl.Events)
             {
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(e.EventType, index, 0, e.XPosition, e.YPosition, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, null, null, lvl.EventLinkTable[index]);
+                var ee = Controller.obj.levelEventController.AddEvent(e.EventType, e.Etat, e.SubEtat, e.XPosition, e.YPosition, 0, 0, e.OffsetBX, e.OffsetBY, 0, 
+                    // TODO: Temp value so we can find which event it is in the file
+                    index, 
+                    0, 0, 0, false, null, null, lvl.EventLinkTable[index]);
 
                 // Add the event
                 editorManager.Level.Events.Add(ee);
