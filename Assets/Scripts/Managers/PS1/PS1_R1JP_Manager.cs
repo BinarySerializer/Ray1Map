@@ -47,10 +47,10 @@ namespace R1Engine
             var filename = GetWorldFilePath(context.Settings);
 
             // Read the file
-            var worldJPFile = FileFactory.Read<PS1_R1JP_WorldFile>(filename, context);
+            var worldJPFile = FileFactory.Read<PS1_R1_WorldFile>(filename, context);
 
             // Return the tile set
-            return worldJPFile.Tiles.Value;
+            return worldJPFile.RawTiles.Value;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace R1Engine
 
             // Read the world file
             await LoadExtraFile(context, GetWorldFilePath(context.Settings));
-            var world = FileFactory.Read<PS1_R1JP_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             Controller.status = $"Loading map data";
 

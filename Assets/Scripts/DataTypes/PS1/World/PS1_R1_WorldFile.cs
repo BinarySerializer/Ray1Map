@@ -74,9 +74,14 @@
         public ARGB1555Color[] EventPalette2 { get; set; }
 
         /// <summary>
-        /// The tiles
+        /// The raw tiles (JP)
         /// </summary>
-        public byte[] Tiles { get; set; }
+        public ObjectArray<RGB555Color> RawTiles { get; set; }
+
+        /// <summary>
+        /// The paletted tiles (EU/US)
+        /// </summary>
+        public byte[] PalettedTiles { get; set; }
 
         /// <summary>
         /// The tile color palettes
@@ -126,31 +131,46 @@
                 EventPalette2 = s.SerializeObjectArray<ARGB1555Color>(EventPalette2, 256, name: nameof(EventPalette2));
             });
 
-            // TILES
-            s.DoAt(TilesBlockPointer, () => {
-                // Read the tiles index table
-                Tiles = s.SerializeArray<byte>(Tiles, PaletteBlockPointer - TilesBlockPointer, name: nameof(Tiles));
-            });
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1)
+            {
+                // TILES
+                s.DoAt(TilesBlockPointer, () => {
+                    // Read the tiles which use a palette
+                    PalettedTiles = s.SerializeArray<byte>(PalettedTiles, PaletteBlockPointer - TilesBlockPointer, name: nameof(PalettedTiles));
+                });
 
-            // TILE PALETTES
-            s.DoAt(PaletteBlockPointer, () => {
-                // TODO: Find a better way to know the number of palettes
-                uint numPalettes = (uint)(PaletteIndexBlockPointer - PaletteBlockPointer) / (256 * 2);
-                if (TileColorPalettes == null)
-                {
-                    TileColorPalettes = new ARGB1555Color[numPalettes][];
-                }
-                for (int i = 0; i < TileColorPalettes.Length; i++)
-                {
-                    TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: nameof(TileColorPalettes) + "[" + i + "]");
-                }
-            });
+                // TILE PALETTES
+                s.DoAt(PaletteBlockPointer, () => {
+                    // TODO: Find a better way to know the number of palettes
+                    uint numPalettes = (uint)(PaletteIndexBlockPointer - PaletteBlockPointer) / (256 * 2);
+                    if (TileColorPalettes == null)
+                    {
+                        TileColorPalettes = new ARGB1555Color[numPalettes][];
+                    }
+                    for (int i = 0; i < TileColorPalettes.Length; i++)
+                    {
+                        TileColorPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TileColorPalettes[i], 256, name: nameof(TileColorPalettes) + "[" + i + "]");
+                    }
+                });
 
-            // TILE PALETTE ASSIGN
-            s.DoAt(PaletteIndexBlockPointer, () => {
-                // Read the palette index table
-                TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: nameof(TilePaletteIndexTable));
-            });
+                // TILE PALETTE ASSIGN
+                s.DoAt(PaletteIndexBlockPointer, () => {
+                    // Read the palette index table
+                    TilePaletteIndexTable = s.SerializeArray<byte>(TilePaletteIndexTable, FileSize - PaletteIndexBlockPointer.FileOffset, name: nameof(TilePaletteIndexTable));
+                });
+            }
+            else if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JP)
+            {
+                // TILES
+                s.DoAt(TilesBlockPointer, () => {
+                    // Get the tile count
+                    uint tileCount = RawTiles?.Length ?? ((FileSize - s.CurrentPointer.FileOffset) / 2);
+
+                    // Serialize the tiles
+                    RawTiles = s.SerializeObject<ObjectArray<RGB555Color>>(RawTiles, x => x.Length = tileCount);
+                });
+            }
+
         }
 
         #endregion

@@ -34,7 +34,7 @@ namespace R1Engine
 
             int tileCount = worldFile.TilePaletteIndexTable.Length;
             int width = TileSetWidth * CellSize;
-            int height = (worldFile.Tiles.Length) / width;
+            int height = (worldFile.PalettedTiles.Length) / width;
 
             var pixels = new ARGB1555Color[width * height];
 
@@ -55,7 +55,7 @@ namespace R1Engine
                 else
                 {
                     byte tileIndex1 = worldFile.TilePaletteIndexTable[tile];
-                    byte tileIndex2 = worldFile.Tiles[pixel];
+                    byte tileIndex2 = worldFile.PalettedTiles[pixel];
                     pixels[pixel] = worldFile.TileColorPalettes[tileIndex1][tileIndex2];
                 }
             }
