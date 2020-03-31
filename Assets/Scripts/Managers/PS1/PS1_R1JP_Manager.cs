@@ -17,11 +17,10 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 1;
 
-        // TODO: Fix this
         /// <summary>
         /// The file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
+        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoJP;
 
         /// <summary>
         /// Gets the tile set to use
