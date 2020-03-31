@@ -18,6 +18,12 @@
 
         public byte[] Unk1 { get; set; }
 
+        public ushort XPosition { get; set; }
+
+        public ushort YPosition { get; set; }
+
+        public byte[] Unk2 { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -32,7 +38,10 @@
             UnknownPointer5 = s.SerializePointer(UnknownPointer5, name: nameof(UnknownPointer5));
 
             // Serialize values
-            Unk1 = s.SerializeArray(Unk1, 124, name: nameof(Unk1));
+            Unk1 = s.SerializeArray(Unk1, 46, name: nameof(Unk1));
+            XPosition = s.Serialize(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize(YPosition, name: nameof(YPosition));
+            Unk2 = s.SerializeArray(Unk2, 74, name: nameof(Unk2));
         }
     }
 }
