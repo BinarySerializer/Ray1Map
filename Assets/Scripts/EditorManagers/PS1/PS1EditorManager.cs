@@ -43,14 +43,14 @@ namespace R1Engine
         /// Gets the maximum allowed Etat value
         /// </summary>
         /// <param name="eta">The ETA value</param>
-        public override int GetMaxEtat(int eta) => ETA[eta].Length - 1;
+        public override int GetMaxEtat(int eta) => ETA.ElementAtOrDefault(eta)?.Length - 1 ?? 0;
 
         /// <summary>
         /// Gets the maximum allowed SubEtat value
         /// </summary>
         /// <param name="eta">The ETA value</param>
         /// <param name="etat">The etat value</param>
-        public override int GetMaxSubEtat(int eta, int etat) => ETA[eta][etat].Length - 1;
+        public override int GetMaxSubEtat(int eta, int etat) => ETA.ElementAtOrDefault(eta)?.ElementAtOrDefault(etat)?.Length - 1 ?? 0;
 
         /// <summary>
         /// The manager
