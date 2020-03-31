@@ -217,15 +217,14 @@ namespace R1Engine
             var commonEvents = new List<Common_Event>();
 
             // TODO: Clean up
-            if (this is PS1_BaseXXX_Manager xxx && worldFile != null)
+            if (worldFile != null)
             {
-                var allfixFileName = xxx.GetAllfixFilePath(context.Settings);
-                var worldFileName = xxx.GetWorldFilePath(context.Settings);
-
+                // Get the v-ram
                 PS1_VRAM vram = FillVRAM(allfixFile, worldFile, levelTextureBlock);
 
                 var index = 0;
 
+                // Add every event
                 foreach (PS1_R1_Event e in events.Events)
                 {
                     Controller.status = $"Loading DES {index}/{events.Events.Length}";
@@ -244,22 +243,10 @@ namespace R1Engine
                             Animations = new List<Common_Animation>()
                         };
 
+                        // Get every sprite
                         foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
                         {
-                            Texture2D tex = null;
-
-                            if (i.Offset.file.filePath == worldFileName)
-                            {
-                                tex = GetSpriteTexture("world", i,  vram);
-                            }
-                            else if (i.Offset.file.filePath == allfixFileName)
-                            {
-                                tex = GetSpriteTexture("allfix", i, vram);
-                            }
-                            else if (i.Offset.file.filePath == xxx.GetLevelFilePath(context.Settings))
-                            {
-                                tex = GetSpriteTexture("level", i, vram);
-                            }
+                            Texture2D tex = GetSpriteTexture(i, vram);
 
                             // Add it to the array
                             finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
@@ -277,8 +264,10 @@ namespace R1Engine
                                 DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
                                 DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
                             };
+
                             // The layer index
                             var layer = 0;
+
                             // Create each frame
                             for (int i = 0; i < a.FrameCount; i++)
                             {
@@ -361,9 +350,9 @@ namespace R1Engine
             c.Tiles = new Common_Tile[map.Width * map.Height];
 
             int tileIndex = 0;
-            for (int y = 0; y < (map.Height); y++)
+            for (int y = 0; y < map.Height; y++)
             {
-                for (int x = 0; x < (map.Width); x++)
+                for (int x = 0; x < map.Width; x++)
                 {
                     var graphicX = map.Tiles[tileIndex].TileMapX;
                     var graphicY = map.Tiles[tileIndex].TileMapY;
@@ -435,6 +424,10 @@ namespace R1Engine
             FileFactory.Write<PS1_R1_LevFile>(lvlPath, context);
         }
 
+        /// <summary>
+        /// Preloads all the necessary files into the context
+        /// </summary>
+        /// <param name="context">The serialization context</param>
         public virtual async Task LoadFilesAsync(Context context) {
             // PS1 loads files in order. We can't really load anything here
             await Task.CompletedTask;
@@ -444,10 +437,10 @@ namespace R1Engine
         /// Gets the texture for a sprite
         /// </summary>
         /// <param name="s">The image descriptor</param>
-        /// <param name="palette">The palette to use</param>
-        /// <param name="processedImageData">The processed image data to use</param>
+        /// <param name="vram">The loaded v-ram</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(string name, PS1_R1_ImageDescriptor s, PS1_VRAM vram) {
+        public Texture2D GetSpriteTexture(PS1_R1_ImageDescriptor s, PS1_VRAM vram) 
+        {
             // Get the image properties
             var width = s.OuterWidth;
             var height = s.OuterHeight;
@@ -459,19 +452,16 @@ namespace R1Engine
             int pageY = BitHelpers.ExtractBits(texturePageInfo, 1, 4);
             int abr   = BitHelpers.ExtractBits(texturePageInfo, 2, 5);
             int tp    = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
-            //UnityEngine.Debug.Log(string.Format("{0:X4}", texturePageInfo));
-            if (pageX < 5) return null;
+
+            if (pageX < 5) 
+                return null;
 
             // Get palette coordinates
             int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
             int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
 
-            ARGB1555Color[] palette;
-            if (tp == 0) {
-                palette = new ARGB1555Color[16];
-            } else {
-                palette = new ARGB1555Color[256];
-            }
+            // Get the palette size
+            var palette = tp == 0 ? new ARGB1555Color[16] : new ARGB1555Color[256];
 
             // Create the texture
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
@@ -510,16 +500,16 @@ namespace R1Engine
                     for (int x = 0; x < width; x++) {
                         int actualX = (s.ImageOffsetInPageX + x) / 2;
                         var paletteIndex = vram.GetPixel8(pageX, pageY, actualX, s.ImageOffsetInPageY + y);
-                        if (x % 2 == 0) {
+                        if (x % 2 == 0)
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
-                        } else {
+                        else
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 4);
-                        }
+
 
                         // Get the color from the palette
-                        if (palette[paletteIndex] == null) {
+                        if (palette[paletteIndex] == null)
                             palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
-                        }
+
                         /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
                         var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);*/
 
@@ -541,6 +531,13 @@ namespace R1Engine
             return tex;
         }
 
+        /// <summary>
+        /// Fills the PS1 v-ram and returns it
+        /// </summary>
+        /// <param name="allFix">The allfix file</param>
+        /// <param name="world">The world file</param>
+        /// <param name="levelTextureBlock">The level texture block</param>
+        /// <returns>The filled v-ram</returns>
         public PS1_VRAM FillVRAM(PS1_R1_AllfixFile allFix, PS1_R1_WorldFile world, byte[] levelTextureBlock) {
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -572,11 +569,11 @@ namespace R1Engine
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            paletteY += 13 - world.TileColorPalettes.Length;
-            for (int i = 0; i < world.TileColorPalettes.Length; i++) {
-                vram.AddDataAt(12, 1, 0, paletteY++, world.TileColorPalettes[i].SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            }
 
+            paletteY += 13 - world.TileColorPalettes.Length;
+
+            foreach (var p in world.TileColorPalettes)
+                vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
 
             /*Texture2D vramTex = new Texture2D(7 * 128, 2 * 256);
             for (int x = 0; x < 7 * 128; x++) {
@@ -588,30 +585,6 @@ namespace R1Engine
             vramTex.Apply();*/
 
             return vram;
-        }
-
-        public void ExportTexturePage(string name, IList<ARGBColor> palette, byte[] processedImageData) {
-            // Get the image properties
-            var width = 256;
-            var height = processedImageData.Length / 256 + (processedImageData.Length % 256 == 0 ? 0 : 1);
-
-            // Create the texture
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-
-            // Default to fully transparent
-            for (int y = 0; y < tex.height; y++) {
-                for (int x = 0; x < tex.width; x++) {
-                    var pixelOffset = y * width + x;
-                    if (pixelOffset >= processedImageData.Length) continue;
-                    var palIndex = processedImageData[pixelOffset];
-                    var color = palette[palIndex];
-                    tex.SetPixel(x, height - 1 - y, color.GetColor());
-                }
-            }
-            tex.Apply();
         }
 
         #endregion
