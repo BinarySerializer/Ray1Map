@@ -59,6 +59,8 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
+            Controller.status = $"Loading allfix";
+
             // Read the allfix file
             await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
             var allfix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
@@ -78,7 +80,7 @@ namespace R1Engine
             var level = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the level
-            return await LoadAsync(context, allfix, null, level.MapData, level.EventData, level.TextureBlock);
+            return await LoadAsync(context, allfix, world, level.MapData, level.EventData, level.TextureBlock);
         }
     }
 }
