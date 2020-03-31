@@ -72,7 +72,7 @@ namespace R1Engine
         /// </summary>
         public override Common_EventState GetEventState(Common_Event e)
         {
-            return ETA[e.ETA].ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
+            return ETA.ElementAtOrDefault(e.ETA)?.ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
         }
 
         /// <summary>

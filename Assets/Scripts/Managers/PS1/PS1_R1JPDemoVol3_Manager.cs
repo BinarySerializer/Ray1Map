@@ -128,7 +128,22 @@ namespace R1Engine
             var lvl = FileFactory.Read<PS1_R1JPDemoVol3_LevFile>(levelPath, context);
 
             // Load the level
-            return await LoadAsync(context, null, null, map, null, null);
+            var editorManager = await LoadAsync(context, null, null, map, null, null);
+
+            var index = 0;
+            // Hack add events
+            foreach (var e in lvl.Events)
+            {
+                // Instantiate event prefab using LevelEventController
+                var ee = Controller.obj.levelEventController.AddEvent(e.EventType, index, 0, e.XPosition, e.YPosition, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, null, null, lvl.EventLinkTable[index]);
+
+                // Add the event
+                editorManager.Level.Events.Add(ee);
+
+                index++;
+            }
+
+            return editorManager;
         }
     }
 }

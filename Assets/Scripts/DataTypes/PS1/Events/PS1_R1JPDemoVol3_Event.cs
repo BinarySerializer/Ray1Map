@@ -32,8 +32,12 @@
 
         public ushort YPosition { get; set; }
 
-        // Last byte might be anim desc count
         public byte[] Unk2 { get; set; }
+
+        public EventType EventType { get; set; }
+
+        // Last byte might be anim desc count
+        public byte[] Unk3 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -52,7 +56,9 @@
             Unk1 = s.SerializeArray(Unk1, 46, name: nameof(Unk1));
             XPosition = s.Serialize(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize(YPosition, name: nameof(YPosition));
-            Unk2 = s.SerializeArray(Unk2, 74, name: nameof(Unk2));
+            Unk2 = s.SerializeArray(Unk2, 60, name: nameof(Unk2));
+            EventType = (EventType)s.Serialize((byte)EventType, name: nameof(EventType));
+            Unk3 = s.SerializeArray(Unk3, 13, name: nameof(Unk3));
         }
     }
 }
