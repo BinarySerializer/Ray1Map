@@ -92,11 +92,31 @@ namespace R1Engine
             var mapPath = GetMapFilePath(context.Settings);
             var tileSetPath = GetTileSetFilePath(context.Settings);
 
+            //await LoadExtraFile(context, "RAY.WL2");
             await LoadExtraFile(context, mapPath);
             await LoadExtraFile(context, tileSetPath);
+            //await LoadExtraFile(context, "RAY.LV2");
 
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
+
+            //context.Deserializer.DoAt(new Pointer(0x800B0000 + 164, context.FilePointer("RAY.LV2").file), () => {
+            //    var eventLinkCount = context.Deserializer.Serialize<uint>(0);
+            //    var eventLinkTablePointer = context.Deserializer.SerializePointer(null);
+
+            //    context.Deserializer.DoAt(eventLinkTablePointer, () =>
+            //    {
+            //        var eventLinkTable = context.Deserializer.SerializeArray<byte>(null, eventLinkCount);
+            //    });
+
+            //    var eventCount = context.Deserializer.Serialize<uint>(0);
+            //    var eventPointer = context.Deserializer.SerializePointer(null);
+
+            //    context.Deserializer.DoAt(eventPointer, () =>
+            //    {
+
+            //    });
+            //});
 
             // Load the level
             return await LoadAsync(context, null, null, map, null, null);
