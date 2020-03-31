@@ -23,6 +23,26 @@ namespace R1Engine
         protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoDemoVol3;
 
         /// <summary>
+        /// Gets the file path for the allfix file
+        /// </summary>
+        /// <returns>The allfix file path</returns>
+        public virtual string GetAllfixFilePath() => $"RAY.FXS";
+
+        /// <summary>
+        /// Gets the file path for the world file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The world file path</returns>
+        public virtual string GetWorldFilePath(GameSettings settings) => $"RAY.WL{(settings.World == World.Jungle ? 1 : 2)}";
+
+        /// <summary>
+        /// Gets the file path for the level file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The level file path</returns>
+        public virtual string GetLevelFilePath(GameSettings settings) => $"RAY.LV{(settings.World == World.Jungle ? 1 : 2)}";
+        
+        /// <summary>
         /// Gets the file path for the level tile set file
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -89,34 +109,23 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
+            // Get the file paths
+            var allfixPath = GetAllfixFilePath();
+            var worldPath = GetWorldFilePath(context.Settings);
+            var levelPath = GetLevelFilePath(context.Settings);
             var mapPath = GetMapFilePath(context.Settings);
             var tileSetPath = GetTileSetFilePath(context.Settings);
-
-            //await LoadExtraFile(context, "RAY.WL2");
+            
+            // Load the files
+            await LoadExtraFile(context, allfixPath);
+            await LoadExtraFile(context, worldPath);
+            await LoadExtraFile(context, levelPath);
             await LoadExtraFile(context, mapPath);
             await LoadExtraFile(context, tileSetPath);
-            //await LoadExtraFile(context, "RAY.LV2");
 
-            // Read the map block
+            // Read the files
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
-
-            //context.Deserializer.DoAt(new Pointer(0x800B0000 + 164, context.FilePointer("RAY.LV2").file), () => {
-            //    var eventLinkCount = context.Deserializer.Serialize<uint>(0);
-            //    var eventLinkTablePointer = context.Deserializer.SerializePointer(null);
-
-            //    context.Deserializer.DoAt(eventLinkTablePointer, () =>
-            //    {
-            //        var eventLinkTable = context.Deserializer.SerializeArray<byte>(null, eventLinkCount);
-            //    });
-
-            //    var eventCount = context.Deserializer.Serialize<uint>(0);
-            //    var eventPointer = context.Deserializer.SerializePointer(null);
-
-            //    context.Deserializer.DoAt(eventPointer, () =>
-            //    {
-
-            //    });
-            //});
+            var lvl = FileFactory.Read<PS1_R1JPDemoVol3_LevFile>(levelPath, context);
 
             // Load the level
             return await LoadAsync(context, null, null, map, null, null);
