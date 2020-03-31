@@ -56,7 +56,7 @@ namespace R1Engine
                 {
                     byte tileIndex1 = worldFile.TilePaletteIndexTable[tile];
                     byte tileIndex2 = worldFile.PalettedTiles[pixel];
-                    pixels[pixel] = worldFile.TileColorPalettes[tileIndex1][tileIndex2];
+                    pixels[pixel] = worldFile.TilePalettes[tileIndex1][tileIndex2];
                 }
             }
 
