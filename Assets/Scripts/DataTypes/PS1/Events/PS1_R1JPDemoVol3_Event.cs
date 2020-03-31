@@ -34,6 +34,10 @@
 
         public byte[] Unk2 { get; set; }
 
+        public ushort ImageDescriptorCount { get; set; }
+
+        public byte[] Unk3 { get; set; }
+
         public byte OffsetBX { get; set; }
 
         public byte OffsetBY { get; set; }
@@ -70,8 +74,18 @@
 
         public byte[] Unk5 { get; set; }
 
-        // Anim desc count?
-        public byte Unk6 { get; set; }
+        // ushort?
+        public byte AnimDescriptorCount { get; set; }
+
+        /// <summary>
+        /// The image descriptors
+        /// </summary>
+        public PS1_R1_ImageDescriptor[] ImageDescriptors { get; set; }
+
+        /// <summary>
+        /// The animation descriptors
+        /// </summary>
+        public PS1_R1_AnimationDescriptor[] AnimDescriptors { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -92,7 +106,11 @@
             XPosition = s.Serialize(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize(YPosition, name: nameof(YPosition));
             
-            Unk2 = s.SerializeArray(Unk2, 42, name: nameof(Unk2));
+            Unk2 = s.SerializeArray(Unk2, 12, name: nameof(Unk2));
+
+            ImageDescriptorCount = s.Serialize(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
+
+            Unk3 = s.SerializeArray(Unk3, 28, name: nameof(Unk3));
             
             OffsetBX = s.Serialize(OffsetBX, name: nameof(OffsetBX));
             OffsetBY = s.Serialize(OffsetBY, name: nameof(OffsetBY));
@@ -115,7 +133,17 @@
             HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
 
             Unk5 = s.SerializeArray(Unk5, 10, name: nameof(Unk5));
-            Unk6 = s.Serialize(Unk6, name: nameof(Unk6));
+            AnimDescriptorCount = s.Serialize(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
+
+            // NOTE: The img desc class needs to be modified for this version
+            s.DoAt(ImageDescriptorsPointer, () => {
+                ImageDescriptors = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
+            });
+
+            s.DoAt(AnimDescriptorsPointer, () => {
+                AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors));
+            });
+
         }
     }
 }
