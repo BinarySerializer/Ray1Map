@@ -323,125 +323,155 @@ namespace R1Engine
         public void FieldXPosition() {
             if (currentlySelected != null) {
                 uint.TryParse(infoX.text, out var new_x);
-                currentlySelected.XPosition = new_x;
-                currentlySelected.UpdateXAndY();
+                if (new_x != currentlySelected.XPosition) {
+                    currentlySelected.XPosition = new_x;
+                    currentlySelected.UpdateXAndY();
+                }
             }
         }
         public void FieldYPosition() {
             if (currentlySelected != null) {
                 uint.TryParse(infoY.text, out var new_y);
-                currentlySelected.YPosition = new_y;
-                currentlySelected.UpdateXAndY();
+                if (new_y != currentlySelected.YPosition) {
+                    currentlySelected.YPosition = new_y;
+                    currentlySelected.UpdateXAndY();
+                }
             }
         }
         public void FieldDes() {
             if (currentlySelected != null) {
-                currentlySelected.DES = infoDes.value;
+                if (infoDes.value != currentlySelected.DES) {
+                    currentlySelected.DES = infoDes.value;
 
-                currentlySelected.RefreshName();
-                currentlySelected.RefreshVisuals();
+                    currentlySelected.RefreshName();
+                    currentlySelected.RefreshVisuals();
+                }
             }
         }
         public void FieldEta() {
             if (currentlySelected != null) {
-                currentlySelected.ETA = infoEta.value;
+                if (infoEta.value != currentlySelected.ETA) {
+                    currentlySelected.ETA = infoEta.value;
 
-                currentlySelected.RefreshName();
-                currentlySelected.RefreshVisuals();
+                    currentlySelected.RefreshName();
+                    currentlySelected.RefreshVisuals();
+                }
             }
         }
         public void FieldEtat() {
             if (currentlySelected != null) {
-                currentlySelected.Etat = infoEtat.value;
+                if (infoEtat.value != currentlySelected.Etat) {
+                    currentlySelected.Etat = infoEtat.value;
 
-                currentlySelected.RefreshName();
-                currentlySelected.RefreshVisuals();
+                    currentlySelected.RefreshName();
+                    currentlySelected.RefreshVisuals();
 
-                UpdateInfoEtat();
+                    UpdateInfoEtat();
+                }
             }
         }
         public void FieldSubEtat() {
             if (currentlySelected != null) {
-                currentlySelected.SubEtat = infoSubEtat.value;
+                if (infoSubEtat.value != currentlySelected.SubEtat) {
+                    currentlySelected.SubEtat = infoSubEtat.value;
 
-                currentlySelected.RefreshName();
-                currentlySelected.RefreshVisuals();
+                    currentlySelected.RefreshName();
+                    currentlySelected.RefreshVisuals();
 
-                UpdateInfoSubEtat();
+                    UpdateInfoSubEtat();
+                }
             }
         }
         public void FieldOffsetBx() {
             if (currentlySelected != null) {
                 int.TryParse(infoOffsetBx.text, out var new_offbx);
-                currentlySelected.OffsetBX = new_offbx;
+                if (new_offbx != currentlySelected.OffsetBX) {
+                    currentlySelected.OffsetBX = new_offbx;
 
-                currentlySelected.RefreshName();
-                currentlySelected.UpdateOffsetPoints();
+                    currentlySelected.RefreshName();
+                    currentlySelected.UpdateOffsetPoints();
+                }
             }
         }
         public void FieldOffsetBy() {
             if (currentlySelected != null) {
                 int.TryParse(infoOffsetBy.text, out var new_offby);
-                currentlySelected.OffsetBY = new_offby;
+                if (new_offby != currentlySelected.OffsetBY) {
+                    currentlySelected.OffsetBY = new_offby;
 
-                currentlySelected.RefreshName();
-                currentlySelected.UpdateOffsetPoints();
+                    currentlySelected.RefreshName();
+                    currentlySelected.UpdateOffsetPoints();
+                }
             }
         }
         public void FieldOffsetHy() {
             if (currentlySelected != null) {
                 int.TryParse(infoOffsetHy.text, out var new_offhy);
-                currentlySelected.OffsetHY = new_offhy;
+                if (new_offhy != currentlySelected.OffsetHY) {
+                    currentlySelected.OffsetHY = new_offhy;
 
-                currentlySelected.RefreshName();
-                currentlySelected.UpdateOffsetPoints();
+                    currentlySelected.RefreshName();
+                    currentlySelected.UpdateOffsetPoints();
+                }
             }
         }
         public void FieldFollowSprite() {
             if (currentlySelected != null) {
                 int.TryParse(infoFollowSprite.text, out var new_fsprite);
-                currentlySelected.FollowSprite = new_fsprite;
+                if (new_fsprite != currentlySelected.FollowSprite) {
+                    currentlySelected.FollowSprite = new_fsprite;
 
-                currentlySelected.RefreshName();
+                    currentlySelected.RefreshName();
+                }
             }
         }
         public void FieldHitPoints() {
             if (currentlySelected != null) {
                 int.TryParse(infoHitPoints.text, out var new_hp);
-                currentlySelected.HitPoints = new_hp;
+                if (new_hp != currentlySelected.HitPoints) {
+                    currentlySelected.HitPoints = new_hp;
 
-                currentlySelected.RefreshName();
-                currentlySelected.ChangeFlip();
+                    currentlySelected.RefreshName();
+                    currentlySelected.ChangeFlip();
+                }
             }
         }
         public void FieldHitSprite() {
             if (currentlySelected != null) {
                 int.TryParse(infoHitSprite.text, out var new_hsprite);
-                currentlySelected.HitSprite = new_hsprite;
+                if (new_hsprite != currentlySelected.HitSprite) {
+                    currentlySelected.HitSprite = new_hsprite;
 
-                currentlySelected.RefreshName();
+                    currentlySelected.RefreshName();
+                }
             }
         }
         public void FieldFollowEnabled() {
             if (currentlySelected != null) {
-                currentlySelected.FollowEnabled = infoFollow.isOn;
+                if (infoFollow.isOn != currentlySelected.FollowEnabled) {
+                    currentlySelected.FollowEnabled = infoFollow.isOn;
 
-                currentlySelected.RefreshName();
+                    currentlySelected.RefreshName();
+                }
             }
         }
         public void FieldType() {
             if (currentlySelected != null) {
-                currentlySelected.Type = (EventType)infoType.value;
+                if ((EventType)infoType.value != currentlySelected.Type) {
+                    currentlySelected.Type = (EventType)infoType.value;
 
-                currentlySelected.RefreshFlag();
-                currentlySelected.RefreshName();
+                    currentlySelected.RefreshFlag();
+                    currentlySelected.RefreshName();
+                }
             }
         }
         public void FieldAnimIndex() {
             if (currentlySelected != null) {
                 int.TryParse(infoAnimIndex.text, out var new_anim);
-                currentlySelected.AnimationIndex = new_anim;
-                currentlySelected.ChangeAnimation(new_anim);
+                if (new_anim != currentlySelected.AnimationIndex) {
+                    currentlySelected.AnimationIndex = new_anim;
+                    currentlySelected.ChangeAnimation(new_anim);
+                }
             }
         }
 
