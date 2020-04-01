@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -82,19 +83,21 @@ namespace R1Engine
         public void ConvertLevelToPNG() {
 
             // Get the path to save to
-            var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.World} {Settings.Level:00}.png", ".png");
+            var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.World} {Settings.Level:00}.png", "png");
 
             if (destPath == null)
                 return;
 
-            // TODO: Allow this to be configured
+            // TODO: Allow this to be configured | THIS whole aprt should be refactored, the foreach after is bad
             // Set settings
-            Settings.ShowAlwaysEvents = false;
-            Settings.ShowEditorEvents = false;
+            //Settings.ShowAlwaysEvents = false;
+            //Settings.ShowEditorEvents = false;
 
             // Hide unused links and show gendoors
             foreach (var e in currentLevel.Events) 
             {
+                if (e.Flag==EventFlag.Always || e.Flag == EventFlag.Editor)
+                    e.gameObject.SetActive(false);
                 if (e.Type == EventType.TYPE_GENERATING_DOOR)
                     e.gameObject.SetActive(true);
 
@@ -104,6 +107,28 @@ namespace R1Engine
                 {
                     e.lineRend.enabled = false;
                     e.linkCube.gameObject.SetActive(false);
+                }
+                else {
+                    //Hide link if not linked to gendoor
+                    bool gendoorFound = false;
+                    if (e.Type == EventType.TYPE_GENERATING_DOOR)
+                        gendoorFound = true;
+                    var allofSame = new List<Common_Event>();
+                    allofSame.Add(e);
+                    foreach (var f in currentLevel.Events) {
+                        if (f.LinkID == e.LinkID) {
+                            allofSame.Add(f);
+                            if (f.Type == EventType.TYPE_GENERATING_DOOR)
+                                gendoorFound = true;
+                        }
+                    }
+                    Debug.Log(gendoorFound);
+                    if (!gendoorFound) {
+                        foreach(var a in allofSame) {
+                            a.lineRend.enabled = false;
+                            a.linkCube.gameObject.SetActive(false);
+                        }
+                    }
                 }
             }
 
