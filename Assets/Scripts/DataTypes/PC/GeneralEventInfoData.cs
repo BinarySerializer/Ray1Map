@@ -34,12 +34,11 @@ namespace R1Engine
         /// <param name="hitPoints"></param>
         /// <param name="hitSprite"></param>
         /// <param name="followEnabled"></param>
-        /// <param name="layer"></param>
         /// <param name="connectedEvents"></param>
         /// <param name="labelOffsets"></param>
         /// <param name="commands"></param>
         /// <param name="localCommands"></param>
-        public GeneralEventInfoData(string name, int type, string typeName, int etat, int subEtat, IDictionary<World, int?> desR1, IDictionary<World, int?> etaR1, IDictionary<World, string> desKit, IDictionary<World, string> etaKit, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, int layer, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
+        public GeneralEventInfoData(string name, int type, string typeName, int etat, int subEtat, IDictionary<World, int?> desR1, IDictionary<World, int?> etaR1, IDictionary<World, string> desKit, IDictionary<World, string> etaKit, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
         {
             Name = name;
             Type = type;
@@ -57,7 +56,6 @@ namespace R1Engine
             HitPoints = hitPoints;
             HitSprite = hitSprite;
             FollowEnabled = followEnabled;
-            Layer = layer;
             ConnectedEvents = connectedEvents;
             LabelOffsets = labelOffsets;
             Commands = commands;
@@ -99,8 +97,6 @@ namespace R1Engine
         public int HitSprite { get; }
 
         public bool FollowEnabled { get; }
-
-        public int Layer { get; }
 
         public string[] ConnectedEvents { get; }
 
@@ -167,7 +163,7 @@ namespace R1Engine
                         }
 
                         // Add the item to the output
-                        output.Add(new GeneralEventInfoData(nextValue(), nextIntValue(), nextValue(), nextIntValue(), nextIntValue(), toDictionary(next32NullableArrayValue()), toDictionary(next32NullableArrayValue()), toDictionary(nextStringArrayValue()), toDictionary(nextStringArrayValue()), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextIntValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
+                        output.Add(new GeneralEventInfoData(nextValue(), nextIntValue(), nextValue(), nextIntValue(), nextIntValue(), toDictionary(next32NullableArrayValue()), toDictionary(next32NullableArrayValue()), toDictionary(nextStringArrayValue()), toDictionary(nextStringArrayValue()), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
                     }
                     catch (Exception ex)
                     {
@@ -234,7 +230,7 @@ namespace R1Engine
                 }
 
                 // Write header
-                WriteLine("Name", "Type", "TypeName", "Etat", "SubEtat", "DesR1", "EtaR1", "DesKit", "EtaKit", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "Layer", "ConnectedEvents", "LabelOffsets", "Commands", "LocalCommands");
+                WriteLine("Name", "Type", "TypeName", "Etat", "SubEtat", "DesR1", "EtaR1", "DesKit", "EtaKit", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "ConnectedEvents", "LabelOffsets", "Commands", "LocalCommands");
 
                 // Get the enumerable
                 var collection = sort ? eventInfoDatas.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat) : eventInfoDatas;
@@ -242,7 +238,7 @@ namespace R1Engine
                 // Write every item on a new line
                 foreach (var e in collection)
                 {
-                    WriteLine(e.Name, e.Type, e.TypeName, e.Etat, e.SubEtat, e.DesR1, e.EtaR1, e.DesKit, e.EtaKit, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.Layer, e.ConnectedEvents, e.LabelOffsets, e.Commands, e.LocalCommands);
+                    WriteLine(e.Name, e.Type, e.TypeName, e.Etat, e.SubEtat, e.DesR1, e.EtaR1, e.DesKit, e.EtaKit, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.ConnectedEvents, e.LabelOffsets, e.Commands, e.LocalCommands);
                 }
             }
         }
