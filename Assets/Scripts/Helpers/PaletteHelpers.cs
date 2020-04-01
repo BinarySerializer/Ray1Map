@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -31,6 +32,31 @@ namespace R1Engine
                         writer.WriteLine($"{color.Red,-3} {color.Green,-3} {color.Blue,-3}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Exports a palette to a file
+        /// </summary>
+        /// <param name="outputPath">The path to export to</param>
+        /// <param name="palette">The palette</param>
+        public static void ExportPalette(string outputPath, ARGBColor[] palette)
+        {
+            var tex = new Texture2D(palette.Length * 16, 16);
+
+            for (int i = 0; i < palette.Length; i++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
+                    for (int x = 0; x < 16; x++)
+                    {
+                        tex.SetPixel(i * 16 + x, y, palette[i].GetColor());
+                    }
+                }
+            }
+
+            tex.Apply();
+
+            File.WriteAllBytes(outputPath, tex.EncodeToPNG());
         }
     }
 }
