@@ -666,8 +666,6 @@ namespace R1Engine
                 if (!requiresBackgroundClearing)
                     continue;
 
-                int num6 = (flag < 255) ? (flag + 1) : 255;
-
                 if (processedData[i] == 161 || processedData[i] == 250)
                 {
                     flag = processedData[i];
@@ -675,6 +673,8 @@ namespace R1Engine
                 }
                 else if (flag != -1)
                 {
+                    int num6 = (flag < 255) ? (flag + 1) : 255;
+
                     if (processedData[i] == num6)
                     {
                         processedData[i] = 0;
@@ -935,6 +935,60 @@ namespace R1Engine
                     level.Tiles[cellY * level.Width + cellX].PaletteIndex = currentPalette;
                 }
             }
+        }
+
+        /// <summary>
+        /// Imports raw image data into a DES
+        /// </summary>
+        /// <param name="des">The DES item</param>
+        /// <param name="rawImageData">The raw image data, categorized by image descriptor</param>
+        public void ImportRawImageData(PC_DES des, IEnumerable<KeyValuePair<int, byte[]>> rawImageData)
+        {
+            // TODO: Clean this up
+
+            // Import every image data
+            foreach (var data in rawImageData)
+            {
+                // Get the descriptor
+                var imgDesc = des.ImageDescriptors[data.Key];
+
+                // Add every byte and encrypt it
+                for (int i = 0; i < data.Value.Length; i++)
+                    des.ImageData[imgDesc.ImageOffset + i] = (byte)(data.Value[i] ^ 143);
+            }
+
+            // TODO: Move the reverse image processing to its own method
+            int flag = -1;
+
+            // Process every byte
+            for (int i = des.ImageData.Length - 1; i >= 0; i--)
+            {
+                // Get the decrypted value
+                var val = des.ImageData[i] ^ 143;
+
+                // Check if it should be transparent
+                if (val == 0)
+                {
+                    if (flag == -1)
+                        flag = 161;
+                    else
+                        flag++;
+
+                    if (flag > 255)
+                        flag = 255;
+
+                    des.ImageData[i] = (byte)(flag ^ 143);
+                }
+                else
+                {
+                    flag = -1;
+                }
+            }
+
+            // TODO: Checksum should be handled automatically when writing
+            var check = new Checksum8Calculator();
+            check.AddBytes(des.ImageData);
+            des.ImageDataChecksum = check.ChecksumValue;
         }
 
         /// <summary>
