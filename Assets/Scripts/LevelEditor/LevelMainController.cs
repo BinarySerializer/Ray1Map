@@ -83,7 +83,7 @@ namespace R1Engine
         public void ConvertLevelToPNG() {
 
             // Get the path to save to
-            var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.World} {Settings.Level:00}.png", "png");
+            var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00}.png", "png");
 
             if (destPath == null)
                 return;
