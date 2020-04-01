@@ -48,6 +48,8 @@ namespace R1Engine
         //Keeping track of used linkIds
         public int currentId = 1;
 
+        public int lastUsedLayer = 0;
+
         public void InitializeEvents() {
             // Convert linkIndex of each event to linkId
             var eventList = Controller.obj.levelController.currentLevel.Events;
@@ -494,6 +496,7 @@ namespace R1Engine
             infoFollow.isOn = false;
             infoType.value = 0;
             infoAnimIndex.text = "";
+            infoLayer.text = "";
         }
 
         // Show/Hide links
@@ -544,7 +547,7 @@ namespace R1Engine
         // Add events to the list via the managers
         public Common_Event AddEvent(EventType type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int layer, int hitSprite, bool followEnabled, ushort[] labelOffsets, Common_EventCommandCollection commands, int link) {
             // Instantiate prefab
-            Common_Event newEvent = Instantiate<GameObject>(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), 5f), Quaternion.identity).GetComponent<Common_Event>();
+            Common_Event newEvent = Instantiate<GameObject>(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), layer), Quaternion.identity).GetComponent<Common_Event>();
 
             newEvent.Type = type;
             newEvent.Etat = etat;
@@ -570,6 +573,9 @@ namespace R1Engine
             newEvent.CommandCollection = commands;
 
             newEvent.LinkIndex = link;
+
+            newEvent.UniqueLayer = lastUsedLayer;
+            lastUsedLayer++;
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;

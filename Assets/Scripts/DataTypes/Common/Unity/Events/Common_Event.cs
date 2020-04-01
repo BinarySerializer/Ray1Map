@@ -91,7 +91,8 @@ namespace R1Engine {
         /// <summary>
         /// The event layer, used for z sorting
         /// </summary>
-        public int Layer { get; set; }
+        public int Layer { get; set; } // <-TODO: probably unused
+        public int UniqueLayer { get; set; }
 
         public int HitSprite { get; set; }
 
@@ -212,7 +213,7 @@ namespace R1Engine {
         public Transform offsetCrossBY;
         public Transform offsetCrossHY;
         // Part parent
-        public Transform partParent;
+        //public Transform partParent;
         // Midpoint of this event when taking all the spriteparts into account
         [HideInInspector]
         public Vector2 midpoint;
@@ -255,7 +256,7 @@ namespace R1Engine {
         }
 
         public void UpdateXAndY() {
-            transform.position = new Vector3(XPosition / 16f, -(YPosition / 16f), transform.position.z);
+            transform.position = new Vector3(XPosition / 16f, -(YPosition / 16f), 0);
             //Don't move link cube if it's part of a link
             if (LinkID != 0) {
                 linkCube.position = linkCubeLockPosition;
@@ -291,9 +292,9 @@ namespace R1Engine {
                 Flipped = false;
             }
             //Flip part parent
-            partParent.localScale = new Vector2(Flipped ? -1 : 1, 1);
+            //partParent.localScale = new Vector2(Flipped ? -1 : 1, 1);
             //Set the parent position
-            partParent.localPosition = new Vector3((Flipped ? (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f : 0), 0);
+            //partParent.localPosition = new Vector3((Flipped ? (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f : 0), 0);
         }
 
         public void UpdateOffsetPoints() {
@@ -367,11 +368,11 @@ namespace R1Engine {
             // Populate it with empty ones
             for (int i = 0; i < len; i++) {
                 // Instantiate prefab
-                SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, 5f), Quaternion.identity).GetComponent<SpriteRenderer>();
-                newRenderer.sortingOrder = -len + i;
+                SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, len-i), Quaternion.identity).GetComponent<SpriteRenderer>();
+                newRenderer.sortingOrder = UniqueLayer;
 
                 // Set as child of events gameobject
-                newRenderer.gameObject.transform.parent = partParent;
+                newRenderer.gameObject.transform.parent = transform;
 
                 // Add to list
                 prefabRendereds[i] = newRenderer;
@@ -405,13 +406,12 @@ namespace R1Engine {
                 else {
                     prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                 }
-                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped;
+                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Flipped;
 
-
-                int w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
-                int xx = CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? w : 0);
-                int yy = -CurrentAnimation.Frames[frame, i].Y;
-                prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, 0);
+                var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
+                var xx = CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? w : 0);
+                var yy = -CurrentAnimation.Frames[frame, i].Y;
+                prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, prefabRendereds[i].transform.localPosition.z);
 
                 // Change visibility if always/editor
                 prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
