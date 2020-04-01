@@ -140,14 +140,13 @@ namespace R1Engine
             for (int i = 0; i < 6; i++)
             {
                 // Hack to get correct colors
-                var p = palette.Skip(i * 8 + i % 2 + 1).ToList();
+                var p = palette.Skip(i * 8 + 1).ToList();
                 
                 p.Insert(0, new ARGBColor(0, 0, 0));
 
                 if (i % 2 != 0)
                 {
-                    //p[7] = palette[i * 8 - 1];
-                    p[8] = palette[i * 8 - 1];
+                    p[8] = palette[i * 8];
                 }
                     
                 // Sprites
