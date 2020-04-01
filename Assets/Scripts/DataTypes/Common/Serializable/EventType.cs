@@ -118,7 +118,10 @@ namespace R1Engine
         TYPE_SCROLL,
         
         TYPE_SPIDER,
+
+        [EventTypeInfo(EventFlag.Always)]
         TYPE_DARD,
+
         TYPE_SWING_PLAT,
         TYPE_BIG_BOING_PLAT,
         TYPE_STONEBOMB3,
@@ -475,7 +478,9 @@ namespace R1Engine
         Unk4,
         Unk5,
 
+        [EventTypeInfo(EventFlag.Editor)]
         MS_compteur = 266,
+
         MS_wiz_comptage = 267,
 
         // Unknown events here
@@ -493,7 +498,11 @@ namespace R1Engine
         MS_scintillement = 275,
         MS_porte = 276,
         MS_poing_plate_forme = 277,
+
+        [EventTypeInfo(EventFlag.Editor)]
         MS_super_gendoor = 278,
+
+        [EventTypeInfo(EventFlag.Editor)]
         MS_super_kildoor = 279
     }
 
