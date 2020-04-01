@@ -101,18 +101,23 @@ namespace R1Engine
             }
 
             //Fill Des and Eta dropdowns with their max values
-            for (int i = 0; i < Controller.obj.levelController.EditorManager.GetMaxDES; i++) {
+            for (int i = 0; i <= Controller.obj.levelController.EditorManager.GetMaxDES; i++) {
                 Dropdown.OptionData dat = new Dropdown.OptionData {
                     text = i.ToString()
                 };
                 infoDes.options.Add(dat);
             }
-            for (int i = 0; i < Controller.obj.levelController.EditorManager.GetMaxETA; i++) {
+            for (int i = 0; i <= Controller.obj.levelController.EditorManager.GetMaxETA; i++) {
                 Dropdown.OptionData dat = new Dropdown.OptionData {
                     text = i.ToString()
                 };
                 infoEta.options.Add(dat);
             }
+
+            infoDes.value = 1;
+            infoEta.value = 1;
+            infoDes.value = 0;
+            infoEta.value = 0;
 
             // TODO: Have some flag for if current game mode supports editing
             if (eventDropdown.options.Any<Dropdown.OptionData>())
@@ -357,6 +362,8 @@ namespace R1Engine
 
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();
+
+                    UpdateInfoEtat();
                 }
             }
         }
@@ -368,7 +375,7 @@ namespace R1Engine
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();
 
-                    UpdateInfoEtat();
+                    UpdateInfoSubEtat();
                 }
             }
         }
@@ -378,9 +385,7 @@ namespace R1Engine
                     currentlySelected.SubEtat = infoSubEtat.value;
 
                     currentlySelected.RefreshName();
-                    currentlySelected.RefreshVisuals();
-
-                    UpdateInfoSubEtat();
+                    currentlySelected.RefreshVisuals();                  
                 }
             }
         }
