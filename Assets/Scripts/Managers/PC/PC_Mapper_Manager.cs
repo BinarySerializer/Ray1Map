@@ -96,6 +96,9 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
+            // Get the DES names
+            DESNames = GetDESNames(context).ToArray();
+
             Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
             // Get the level folder path

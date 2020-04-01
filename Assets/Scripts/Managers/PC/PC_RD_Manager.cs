@@ -3,6 +3,8 @@ using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -56,7 +58,7 @@ namespace R1Engine
         /// <returns>The DES file names</returns>
         public override IEnumerable<string> GetDESNames(Context context)
         {
-            return EnumerateWLDManifest(context).Where<string>(str => str.Contains("DES"));
+            return EnumerateWLDManifest(context).Where(str => str.Contains("DES"));
         }
 
         /// <summary>
@@ -66,7 +68,7 @@ namespace R1Engine
         /// <returns>The ETA file names</returns>
         public override IEnumerable<string> GetETANames(Context context)
         {
-            return EnumerateWLDManifest(context).Where<string>(str => str.Contains("ETA"));
+            return EnumerateWLDManifest(context).Where(str => str.Contains("ETA"));
         }
 
         /// <summary>
@@ -104,9 +106,107 @@ namespace R1Engine
             }
         }
 
+        // Temp value for getting the des names while loading a level - find better solution?
+        public IList<string> DESNames { get; set; }
+
         #endregion
 
         #region Manager Methods
+
+        /// <summary>
+        /// Gets a common design
+        /// </summary>
+        /// <param name="des">The DES</param>
+        /// <param name="palette">The palette to use</param>
+        /// <param name="desIndex">The DES index</param>
+        /// <returns>The common design</returns>
+        public override Common_Design GetCommonDesign(PC_DES des, IList<ARGBColor> palette, int desIndex)
+        {
+            // Check if the DES is the colored tings
+            if (DESNames.ElementAtOrDefault(desIndex)?.Contains("WIZCOMPT") != true)
+                return base.GetCommonDesign(des, palette, desIndex);
+
+            // Create the common design
+            Common_Design commonDesign = new Common_Design
+            {
+                Sprites = new List<Sprite>(),
+                Animations = new List<Common_Animation>()
+            };
+
+            // Process the image data
+            var processedImageData = ProcessImageData(des.ImageData, des.RequiresBackgroundClearing);
+
+            // Add sprites for each color
+            for (int i = 0; i < 6; i++)
+            {
+                // Hack to get correct colors
+                var p = palette.Skip(i * 8 + i % 2 + 1).ToList();
+                
+                p.Insert(0, new ARGBColor(0, 0, 0));
+
+                if (i % 2 != 0)
+                {
+                    //p[7] = palette[i * 8 - 1];
+                    p[8] = palette[i * 8 - 1];
+                }
+                    
+                // Sprites
+                foreach (var s in des.ImageDescriptors)
+                {
+                    // Get the texture
+                    Texture2D tex = GetSpriteTexture(s, p, processedImageData);
+
+                    // Add it to the array
+                    commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                }
+            }
+
+            // Add animations for each color
+            for (int i = 0; i < 6; i++)
+            {
+                // Animations
+                foreach (var a in des.AnimationDescriptors)
+                {
+                    // Create a clone animation
+                    var ca = new PC_AnimationDescriptor
+                    {
+                        LayersPerFrame = a.LayersPerFrame,
+                        Unknown1 = a.Unknown1,
+                        FrameCount = a.FrameCount,
+                        Unknown2 = a.Unknown2,
+                        Unknown3 = a.Unknown3,
+                        FrameTableOffset = a.FrameTableOffset,
+                        Layers = a.Layers.Select(x => new Common_AnimationLayer
+                        {
+                            IsFlipped = x.IsFlipped,
+                            XPosition = x.XPosition,
+                            YPosition = x.YPosition,
+                            ImageIndex = (byte)(x.ImageIndex + (des.ImageDescriptors.Length * i))
+                        }).ToArray(),
+                        Frames = a.Frames
+                    };
+
+                    // Add the animation to list
+                    commonDesign.Animations.Add(GetCommonAnimation(ca));
+                }
+            }
+
+            return commonDesign;
+        }
+
+        /// <summary>
+        /// Loads the specified level for the editor
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        /// <returns>The editor manager</returns>
+        public override Task<BaseEditorManager> LoadAsync(Context context)
+        {
+            // Get the DES names
+            DESNames = GetDESNames(context).ToArray();
+
+            // Load the level
+            return base.LoadAsync(context);
+        }
 
         /// <summary>
         /// Gets an editor manager from the specified objects

@@ -419,7 +419,7 @@ namespace R1Engine
                     lvl = levels[10];
 
                 // Get the texture
-                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First<RGB666Color[]>(), processedImageData);
+                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
 
                 // Set the texture
                 output[i] = tex;
@@ -699,6 +699,10 @@ namespace R1Engine
         /// <returns>The sprite texture</returns>
         public Texture2D GetSpriteTexture(PC_ImageDescriptor s, IList<ARGBColor> palette, byte[] processedImageData)
         {
+            // Ignore garbage sprites
+            if (s.InnerHeight == 0 || s.InnerWidth == 0)
+                return null;
+
             // Get the image properties
             var width = s.OuterWidth;
             var height = s.OuterHeight;
@@ -757,6 +761,89 @@ namespace R1Engine
 
             // Return the texture
             return tex;
+        }
+
+        /// <summary>
+        /// Gets a common animation
+        /// </summary>
+        /// <param name="animationDescriptor">The animation descriptor</param>
+        /// <returns>The common animation</returns>
+        public virtual Common_Animation GetCommonAnimation(PC_AnimationDescriptor animationDescriptor)
+        {
+            // Create the animation
+            var animation = new Common_Animation
+            {
+                Frames = new Common_AnimationPart[animationDescriptor.FrameCount, animationDescriptor.LayersPerFrame],
+                DefaultFrameXPosition = animationDescriptor.Frames.FirstOrDefault()?.XPosition ?? -1,
+                DefaultFrameYPosition = animationDescriptor.Frames.FirstOrDefault()?.YPosition ?? -1,
+                DefaultFrameWidth = animationDescriptor.Frames.FirstOrDefault()?.Width ?? -1,
+                DefaultFrameHeight = animationDescriptor.Frames.FirstOrDefault()?.Height ?? -1,
+            };
+
+            // The layer index
+            var layer = 0;
+
+            // Create each frame
+            for (int i = 0; i < animationDescriptor.FrameCount; i++)
+            {
+                // Create each layer
+                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
+                {
+                    var animationLayer = animationDescriptor.Layers[layer];
+                    layer++;
+
+                    // Create the animation part
+                    var part = new Common_AnimationPart
+                    {
+                        SpriteIndex = animationLayer.ImageIndex,
+                        X = animationLayer.XPosition,
+                        Y = animationLayer.YPosition,
+                        Flipped = animationLayer.IsFlipped
+                    };
+
+                    // Add the texture
+                    animation.Frames[i, layerIndex] = part;
+                }
+            }
+
+            return animation;
+        }
+
+        /// <summary>
+        /// Gets a common design
+        /// </summary>
+        /// <param name="des">The DES</param>
+        /// <param name="palette">The palette to use</param>
+        /// <param name="desIndex">The DES index</param>
+        /// <returns>The common design</returns>
+        public virtual Common_Design GetCommonDesign(PC_DES des, IList<ARGBColor> palette, int desIndex)
+        {
+            // Create the common design
+            Common_Design commonDesign = new Common_Design
+            {
+                Sprites = new List<Sprite>(),
+                Animations = new List<Common_Animation>()
+            };
+
+            // Process the image data
+            var processedImageData = ProcessImageData(des.ImageData, des.RequiresBackgroundClearing);
+
+            // Sprites
+            foreach (var s in des.ImageDescriptors)
+            {
+                // Get the texture
+                Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
+
+                // Add it to the array
+                commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+            }
+
+            // Animations
+            foreach (var a in des.AnimationDescriptors)
+                // Add the animation to list
+                commonDesign.Animations.Add(GetCommonAnimation(a));
+
+            return commonDesign;
         }
 
         #endregion
@@ -1032,80 +1119,19 @@ namespace R1Engine
 
             int desIndex = 0;
 
-            //Add dummy DES to index 0
+            // Add dummy DES to index 0
             eventDesigns.Add(new Common_Design());
 
             // Read every DES item
-            foreach (var d in des)
+            foreach (PC_DES d in des)
             {
                 Controller.status = $"Loading DES {desIndex}/{des.Length}";
 
                 await Controller.WaitIfNecessary();
 
-                Common_Design finalDesign = new Common_Design
-                {
-                    Sprites = new List<Sprite>(),
-                    Animations = new List<Common_Animation>()
-                };
-
-                // Process the image data
-                var processedImageData = ProcessImageData(d.ImageData, d.RequiresBackgroundClearing);
-
-                // Sprites
-                foreach (var s in d.ImageDescriptors)
-                {
-                    // Ignore garbage sprites
-                    var isGarbage = s.InnerHeight == 0 || s.InnerWidth == 0;
-
-                    // Get the texture
-                    Texture2D tex = isGarbage ? null : GetSpriteTexture(s, palette, processedImageData);
-
-                    // Add it to the array
-                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                }
-
-                // Animations
-                foreach (var a in d.AnimationDescriptors)
-                {
-                    // Create the animation
-                    var animation = new Common_Animation
-                    {
-                        Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
-                        DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
-                        DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
-                        DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
-                        DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
-                    };
-                    // The layer index
-                    var layer = 0;
-                    // Create each frame
-                    for (int i = 0; i < a.FrameCount; i++)
-                    {
-                        // Create each layer
-                        for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
-                        {
-                            var animationLayer = a.Layers[layer];
-                            layer++;
-
-                            // Create the animation part
-                            var part = new Common_AnimationPart
-                            {
-                                SpriteIndex = animationLayer.ImageIndex,
-                                X = animationLayer.XPosition,
-                                Y = animationLayer.YPosition,
-                                Flipped = animationLayer.IsFlipped
-                            };
-
-                            // Add the texture
-                            animation.Frames[i, layerIndex] = part;
-                        }
-                    }
-                    // Add the animation to list
-                    finalDesign.Animations.Add(animation);
-                }
-
                 // Add to the designs
-                eventDesigns.Add(finalDesign);
+                eventDesigns.Add(GetCommonDesign(d, palette, desIndex));
+
                 desIndex++;
             }
 
