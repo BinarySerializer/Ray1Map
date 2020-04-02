@@ -145,7 +145,7 @@ namespace R1Engine
             //Save to picture
             RenderTexture.active = renderTex;
 
-            tex = new Texture2D(renderTex.width, renderTex.height, TextureFormat.RGBA32, false);
+            tex = new Texture2D(renderTex.width, renderTex.height, TextureFormat.RGB24, false);
             tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
             tex.Apply();
 
