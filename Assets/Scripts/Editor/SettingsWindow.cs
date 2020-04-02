@@ -158,6 +158,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.BackupFiles = EditorGUI.Toggle(GetNextRect(ref yPos), "Create .BAK backup files", Settings.BackupFiles);
 
+        Settings.ScreenshotEnumeration = EditorGUI.Toggle(GetNextRect(ref yPos), "Screenshot enumeration", Settings.ScreenshotEnumeration);
+
         Rect rect = GetNextRect(ref yPos);
         rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization log"));
         bool log = Settings.Log;

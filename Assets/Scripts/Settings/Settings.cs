@@ -208,6 +208,8 @@ namespace R1Engine {
             }
         }
 
+        public static bool ScreenshotEnumeration { get; set; }
+
         /// <summary>
         /// Indicates if .BAK backup files should be created before writing
         /// </summary>
@@ -292,6 +294,7 @@ namespace R1Engine {
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);
             ShowEditorEvents = s.SerializeBool("ShowEditorEvents", ShowEditorEvents);
+            ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
 
             Log = s.SerializeBool("Log", Log);

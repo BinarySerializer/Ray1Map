@@ -70,8 +70,8 @@ namespace R1Engine
                 mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
                 backgroundTint.sharedMesh = mo;
 
-                // FOR AUTOMATION:
-                ConvertLevelToPNG();
+                if (Settings.ScreenshotEnumeration)
+                    ConvertLevelToPNG();
             }
         }
 
@@ -158,8 +158,8 @@ namespace R1Engine
 
             Debug.Log("Level saved as PNG");
 
-            //For automation, go to the dummy scene to clear this place
-            SceneManager.LoadScene("Dummy");
+            if (Settings.ScreenshotEnumeration)
+                SceneManager.LoadScene("Dummy");
         }
     }
 }
