@@ -165,8 +165,6 @@ namespace R1Engine {
             }
 
             ChangeAppearance();
-
-            ChangeFlip();
         }
 
         #endregion
@@ -283,20 +281,6 @@ namespace R1Engine {
             UpdateOffsetPoints();
         }
 
-        public void ChangeFlip() {
-            //HARDCODED FLIPPING - Add more reasons to flip here if needed
-            if (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1) {
-                Flipped = true;
-            }
-            else {
-                Flipped = false;
-            }
-            //Flip part parent
-            //partParent.localScale = new Vector2(Flipped ? -1 : 1, 1);
-            //Set the parent position
-            //partParent.localPosition = new Vector3((Flipped ? (CurrentAnimation.DefaultFrameXPosition * 2 + CurrentAnimation.DefaultFrameWidth) / 16f : 0), 0);
-        }
-
         public void UpdateOffsetPoints() {
             if (CurrentAnimation != null) {
                 offsetCrossBX.localPosition = new Vector2(OffsetBX / 16, 0);
@@ -406,6 +390,8 @@ namespace R1Engine {
                 else {
                     prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                 }
+                //Hardcoded flipping
+                Flipped = (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1);
                 prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Flipped;
 
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
