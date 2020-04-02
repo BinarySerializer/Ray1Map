@@ -435,8 +435,8 @@ namespace R1Engine
                 if (new_hp != currentlySelected.HitPoints) {
                     currentlySelected.HitPoints = new_hp;
 
+                    currentlySelected.RefreshVisuals();
                     currentlySelected.RefreshName();
-                    currentlySelected.ChangeFlip();
                 }
             }
         }
