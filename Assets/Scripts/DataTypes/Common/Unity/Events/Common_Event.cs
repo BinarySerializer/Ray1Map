@@ -409,7 +409,10 @@ namespace R1Engine {
                 prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Flipped;
 
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
-                var xx = CurrentAnimation.Frames[frame, i].X + (prefabRendereds[i].flipX ? w : 0);
+                var xx = prefabRendereds[i].flipX
+                    ? w - CurrentAnimation.Frames[frame, i].X - 1 +
+                      (CurrentAnimation.DefaultFrameXPosition + CurrentAnimation.DefaultFrameWidth * 2)
+                    : CurrentAnimation.Frames[frame, i].X;
                 var yy = -CurrentAnimation.Frames[frame, i].Y;
                 prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, prefabRendereds[i].transform.localPosition.z);
 
