@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace R1Engine
 {
@@ -70,6 +71,8 @@ namespace R1Engine
                 mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
                 backgroundTint.sharedMesh = mo;
 
+                // FOR AUTOMATION:
+                ConvertLevelToPNG();
             }
         }
 
@@ -122,7 +125,6 @@ namespace R1Engine
                                 gendoorFound = true;
                         }
                     }
-                    Debug.Log(gendoorFound);
                     if (!gendoorFound) {
                         foreach(var a in allofSame) {
                             a.lineRend.enabled = false;
@@ -155,6 +157,9 @@ namespace R1Engine
             renderCamera.rect = new Rect(0, 0, 0, 0);
 
             Debug.Log("Level saved as PNG");
+
+            //For automation, go to the dummy scene to clear this place
+            SceneManager.LoadScene("Dummy");
         }
     }
 }

@@ -576,7 +576,7 @@ namespace R1Engine
 
             newEvent.LinkIndex = link;
 
-            newEvent.UniqueLayer = lastUsedLayer;
+            newEvent.UniqueLayer = -lastUsedLayer;
             lastUsedLayer++;
 
             // Set as child of events gameobject

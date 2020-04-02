@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scenes/Dummy.unity
+    guid: 3d879023d0b18b249b35a54a39662ce0
   m_configObjects: {}
