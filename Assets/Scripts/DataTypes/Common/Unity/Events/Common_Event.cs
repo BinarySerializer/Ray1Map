@@ -182,7 +182,7 @@ namespace R1Engine {
         /// <summary>
         /// Is the appearance supposed to be flipped?
         /// </summary>
-        public bool Flipped;
+        public bool Mirrored;
 
         /// <summary>
         /// The current animation of this event
@@ -391,14 +391,14 @@ namespace R1Engine {
                     prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                 }
                 //Hardcoded flipping
-                Flipped = (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1);
-                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Flipped;
+                Mirrored = (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1);
+                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Mirrored;
 
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
-                var xx = prefabRendereds[i].flipX
-                    ? w - CurrentAnimation.Frames[frame, i].X - 1 +
+                var xx = (Mirrored
+                    ? w - CurrentAnimation.Frames[frame, i].X - 6 +
                       (CurrentAnimation.DefaultFrameXPosition + CurrentAnimation.DefaultFrameWidth * 2)
-                    : CurrentAnimation.Frames[frame, i].X;
+                    : CurrentAnimation.Frames[frame, i].X) + (CurrentAnimation.Frames[frame, i].Flipped ? w : 0);
                 var yy = -CurrentAnimation.Frames[frame, i].Y;
                 prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, prefabRendereds[i].transform.localPosition.z);
 
