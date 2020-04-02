@@ -8,11 +8,18 @@ namespace R1Engine {
 	public class PS1_VRAM {
 		const int page_height = 256;
 		const int page_width = 128; // for 8-bit CLUT.
-		public int skippedPagesX = 0;
 		public Page[][] pages = new Page[2][]; // y, x
 		public int currentXPage = 0;
 		public int currentYPage = 0;
 		public int nextYInPage = 0;
+		public List<ReservedBlock> reservedBlocks = new List<ReservedBlock>();
+
+		public void ReserveBlock(int x, int y, int width, int height) {
+			reservedBlocks.Add(new ReservedBlock() { x = x, y = y, width = width, height = height });
+		}
+		private bool AnyBlockReserved(int x, int y) {
+			return reservedBlocks.Any(b => (x >= b.x && x < b.x + b.width) && (y >= b.y && y < b.y + b.height));
+		}
 
 		public void AddData(byte[] data, int width) {
 			if (data == null) return;
@@ -23,21 +30,39 @@ namespace R1Engine {
 				Array.Resize(ref pages[currentYPage], currentXPage + (width / page_width));
 			}*/
 			int height = data.Length / width + ((data.Length % width != 0) ? 1 : 0);
+			//int xInPageMod = 0;
+			int yInPageMod = 0;
+			int curPageXMod = 0;
 			if (height > 0 && width > 0) {
 				int xInPage = 0, yInPage = 0;
 				int curPageX = currentXPage, curPageY = currentYPage, curStartPageX = currentXPage;
-				for (int x = 0; x < width; x++) {
-					for (int y = 0; y < height; y++) {
-						curPageX = currentXPage + (x / page_width);
-						curStartPageX = currentXPage;
-						curPageY = currentYPage + ((nextYInPage + y) / page_height);
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						curStartPageX = currentXPage + curPageXMod;
+						curPageX = curStartPageX + (x / page_width);
+						curPageY = currentYPage + ((nextYInPage + yInPageMod + y) / page_height);
 						xInPage = x % page_width;
-						yInPage = (nextYInPage + y) % page_height;
+						yInPage = (nextYInPage + yInPageMod + y) % page_height;
 						while (curPageY > 1) {
 							// Wrap
 							curPageY -= 2;
 							curPageX += (width / page_width);
 							curStartPageX += (width / page_width);
+						}
+						int totalX = curPageX * page_width + xInPage;
+						int totalY = curPageY * page_height + yInPage;
+						while (AnyBlockReserved(totalX, totalY)) {
+							//UnityEngine.Debug.Log("reserved " + totalX + " - " + totalY + " - " + curPageX + " - " + curPageY + " - " + x + " - " + y);
+							// wrap
+							curPageX += (width / page_width);
+							curStartPageX += (width / page_width);
+
+							yInPageMod += (page_height - yInPage) + (curPageY == 0 ? page_height : 0);
+							curPageY = 0;
+							yInPage = (nextYInPage + yInPageMod + y) % page_height;
+
+							totalX = curPageX * page_width + xInPage;
+							totalY = curPageY * page_height + yInPage;
 						}
 						if (pages[curPageY] == null || pages[curPageY].Length == 0) {
 							pages[curPageY] = new Page[curPageX+1];
@@ -84,7 +109,6 @@ namespace R1Engine {
 		public void AddDataAt(int startXPage, int startYPage, int startX, int startY, byte[] data, int width) {
 			if (data == null) return;
 			int height = (startX + data.Length) / width + (((startX + data.Length) % width != 0) ? 1 : 0);
-			startXPage -= skippedPagesX;
 			if (height > 0 && width > 0) {
 				int xInPage = startX, yInPage = 0;
 				int curPageX = startXPage, curPageY = startYPage, curStartPageX = startXPage;
@@ -130,7 +154,7 @@ namespace R1Engine {
 
 		public byte GetPixel8(int pageX, int pageY, int x, int y) {
 			//UnityEngine.Debug.Log(pageX + " - " + pageY + " - " + x + " - " + y);
-			pageX -= skippedPagesX; // We're not loading backgrounds for now
+			//pageX -= skippedPagesX; // We're not loading backgrounds for now
 			int initialX = x;
 			while (x >= page_width) {
 				pageX++;
@@ -193,6 +217,13 @@ namespace R1Engine {
 				}
 				return data;
 			}*/
+		}
+
+		public struct ReservedBlock {
+			public int x;
+			public int y;
+			public int width;
+			public int height;
 		}
 	}
 }

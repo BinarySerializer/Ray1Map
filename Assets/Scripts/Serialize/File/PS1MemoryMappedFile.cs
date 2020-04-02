@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace R1Engine.Serialize {
 	public class PS1MemoryMappedFile : MemoryMappedFile {
-		public PS1MemoryMappedFile(Context context, uint baseAddress) : base(context, baseAddress) {
+		public InvalidPointerMode invalidPointerMode;
+		public PS1MemoryMappedFile(Context context, uint baseAddress,
+			InvalidPointerMode invalidPointerMode) : base(context, baseAddress) {
+			this.invalidPointerMode = invalidPointerMode;
 		}
 
 		private bool CheckIfDevPointer(uint serializedValue, Pointer anchor = null) {
@@ -20,7 +23,18 @@ namespace R1Engine.Serialize {
 			return false;
 		}
 		public override bool AllowInvalidPointer(uint serializedValue, Pointer anchor = null) {
-			return CheckIfDevPointer(serializedValue, anchor: anchor);
+			switch (invalidPointerMode) {
+				case InvalidPointerMode.DevPointerXOR:
+					return CheckIfDevPointer(serializedValue, anchor: anchor);
+				case InvalidPointerMode.Allow:
+				default:
+					return true;
+			}
+		}
+
+		public enum InvalidPointerMode {
+			DevPointerXOR,
+			Allow
 		}
 	}
 }

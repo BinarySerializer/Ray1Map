@@ -74,7 +74,7 @@ namespace R1Engine
 
             Dictionary<string, PS1FileInfo> fileInfo = FileInfo;
             if (baseAddress != 0) {
-                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress) {
+                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode) {
                     filePath = path,
                     Length = fileInfo[path].Size
                 };

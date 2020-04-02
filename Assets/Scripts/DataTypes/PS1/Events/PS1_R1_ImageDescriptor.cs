@@ -51,15 +51,26 @@
         public override void SerializeImpl(SerializerObject s) 
         {
             Unknown0 = s.Serialize<uint>(Unknown0, name: nameof(Unknown0));
-            Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
-            OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
-            OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
-            InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
-            InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
-            Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
-            Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
-            Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
-            PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
+            if (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanPS1Japan) {
+                Unknown1 = (byte)s.Serialize<ushort>(Unknown1, name: nameof(Unknown1));
+                Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
+                OuterWidth = (byte)s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
+                OuterHeight = (byte)s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
+                Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
+                Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
+                Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
+                PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
+            } else {
+                Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
+                OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
+                OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
+                InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
+                InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
+                Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
+                Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
+                Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
+                PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
+            }
             TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
             ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: nameof(ImageOffsetInPageX));
             ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: nameof(ImageOffsetInPageY));

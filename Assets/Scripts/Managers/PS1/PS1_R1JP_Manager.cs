@@ -22,6 +22,8 @@ namespace R1Engine
         /// </summary>
         protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoJP;
 
+        protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
+
         /// <summary>
         /// Gets the tile set to use
         /// </summary>
@@ -34,12 +36,8 @@ namespace R1Engine
 
             if (FileSystem.FileExists(context.BasePath + levelTileSetFileName))
             {
-                // TODO: Use FileFactory
-                var f = File.ReadAllBytes(context.BasePath + levelTileSetFileName);
-                return Enumerable.Range(0, f.Length / 2).Select(x => new RGB555Color()
-                {
-                    Color555 = BitConverter.ToUInt16(f, x * 2)
-                }).ToArray();
+                ObjectArray<ARGB1555Color> cols = FileFactory.Read<ObjectArray<ARGB1555Color>>(levelTileSetFileName, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+                return cols.Value;
             }
 
             // Get the file name

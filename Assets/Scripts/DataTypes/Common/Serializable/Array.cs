@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace R1Engine {
 	public class Array<T> : R1Serializable {
 		public uint Length = 0;
-		public byte[] Value;
+		public T[] Value;
 		public override void SerializeImpl(SerializerObject s) {
-			Value = s.SerializeArray<byte>(Value, Length, name: "Value");
+			Value = s.SerializeArray<T>(Value, Length, name: "Value");
 		}
 	}
 }

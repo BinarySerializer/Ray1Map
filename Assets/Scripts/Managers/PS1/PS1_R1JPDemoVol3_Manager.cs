@@ -83,7 +83,7 @@ namespace R1Engine
             var filename = GetTileSetFilePath(context.Settings);
 
             // Read the file
-            var tileSet = FileFactory.Read<ObjectArray<RGB555Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
+            var tileSet = FileFactory.Read<ObjectArray<ARGB1555Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             // Return the tile set
             return tileSet.Value;
