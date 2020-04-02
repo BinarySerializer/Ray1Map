@@ -76,7 +76,7 @@
         /// <summary>
         /// The raw tiles (JP)
         /// </summary>
-        public ObjectArray<ARGB1555Color> RawTiles { get; set; }
+        public ARGB1555Color[] RawTiles { get; set; }
 
         /// <summary>
         /// The paletted tiles (EU/US)
@@ -164,10 +164,10 @@
                 // TILES
                 s.DoAt(TilesBlockPointer, () => {
                     // Get the tile count
-                    uint tileCount = RawTiles?.Length ?? ((FileSize - s.CurrentPointer.FileOffset) / 2);
+                    int tileCount = RawTiles?.Length ?? (int)((FileSize - s.CurrentPointer.FileOffset) / 2);
 
                     // Serialize the tiles
-                    RawTiles = s.SerializeObject<ObjectArray<ARGB1555Color>>(RawTiles, x => x.Length = tileCount);
+                    RawTiles = s.SerializeObjectArray<ARGB1555Color>(RawTiles, tileCount, name: nameof(RawTiles));
                 });
             }
 

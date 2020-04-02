@@ -47,7 +47,7 @@ namespace R1Engine
             var worldJPFile = FileFactory.Read<PS1_R1_WorldFile>(filename, context);
 
             // Return the tile set
-            return worldJPFile.RawTiles.Value;
+            return worldJPFile.RawTiles;
         }
 
         /// <summary>
