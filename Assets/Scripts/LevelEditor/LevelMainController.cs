@@ -1,7 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -86,10 +85,11 @@ namespace R1Engine
         public void ConvertLevelToPNG() {
 
             // Get the path to save to
-            var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00}.png", "png");
+            //var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00}.png", "png");
 
-            if (destPath == null)
-                return;
+            var destPath = $@"Screenshots\{Settings.GetGameSettings.GameModeSelection}\{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00}.png";
+
+            Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
             // TODO: Allow this to be configured | THIS whole aprt should be refactored, the foreach after is bad
             // Set settings
