@@ -58,5 +58,23 @@ namespace R1Engine
 
             File.WriteAllBytes(outputPath, tex.EncodeToPNG());
         }
+
+        /// <summary>
+        /// Exports the v-ram as an image
+        /// </summary>
+        /// <param name="outputPath">The path to export to</param>
+        /// <param name="vram">The v-ram</param>
+        public static void ExportVram(string outputPath, PS1_VRAM vram)
+        {
+            Texture2D vramTex = new Texture2D(16 * 128, 2 * 256);
+            for (int x = 0; x < 16 * 128; x++) {
+                for (int y = 0; y < 2 * 256; y++) {
+                    byte val = vram.GetPixel8(0, y / 256, x, y % 256);
+                    vramTex.SetPixel(x, y, new Color(val / 255f, val / 255f, val / 255f));
+                }
+            }
+            vramTex.Apply();
+            Util.ByteArrayToFile(outputPath, vramTex.EncodeToPNG());
+        }
     }
 }

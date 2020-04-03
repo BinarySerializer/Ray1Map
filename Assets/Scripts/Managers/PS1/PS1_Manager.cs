@@ -179,6 +179,13 @@ namespace R1Engine
         public abstract IList<ARGBColor> GetTileSet(Context context);
 
         /// <summary>
+        /// Fills the PS1 v-ram and returns it
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The filled v-ram</returns>
+        public abstract PS1_VRAM FillVRAM(Context context);
+
+        /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>
@@ -199,18 +206,10 @@ namespace R1Engine
         /// Loads the specified level for the editor from the specified blocks
         /// </summary>
         /// <param name="context">The context</param>
-        /// <param name="allfixFile">The allfix file</param>
-        /// <param name="worldFile">The world file</param>
         /// <param name="map">The map data</param>
         /// <param name="events">The event data</param>
-        /// <param name="levelTextureBlock">The level texture data</param>
         /// <returns>The editor manager</returns>
-        public async Task<BaseEditorManager> LoadAsync(Context context,
-            
-            // TODO: Replace these two with blocks like below - we can never reference the xxx files themselves since JP and demos pack them differently
-            PS1_R1_AllfixFile allfixFile, PS1_R1_WorldFile worldFile, 
-            
-            PS1_R1_MapBlock map, PS1_R1_EventBlock events, byte[] levelTextureBlock)
+        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_EventBlock events)
         {
             Common_Tileset tileSet = new Common_Tileset(GetTileSet(context), TileSetWidth, CellSize);
 
@@ -218,11 +217,11 @@ namespace R1Engine
             var eventETA = new List<KeyValuePair<Pointer, Common_EventState[][]>>();
             var commonEvents = new List<Common_Event>();
 
-            // TODO: Clean up
-            if (worldFile != null)
+            // TODO: Temp fix so all versions work
+            if (events != null)
             {
                 // Get the v-ram
-                PS1_VRAM vram = FillVRAM(context, allfixFile, worldFile, levelTextureBlock);
+                PS1_VRAM vram = FillVRAM(context);
 
                 var index = 0;
 
@@ -533,101 +532,6 @@ namespace R1Engine
 
             // Return the texture
             return tex;
-        }
-
-        /// <summary>
-        /// Fills the PS1 v-ram and returns it
-        /// </summary>
-        /// <param name="allFix">The allfix file</param>
-        /// <param name="world">The world file</param>
-        /// <param name="levelTextureBlock">The level texture block</param>
-        /// <returns>The filled v-ram</returns>
-        public PS1_VRAM FillVRAM(Context context, PS1_R1_AllfixFile allFix, PS1_R1_WorldFile world, byte[] levelTextureBlock) {
-            PS1_VRAM vram = new PS1_VRAM();
-
-            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
-            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
-            vram.currentXPage = 5;
-
-            if (context.Settings.GameModeSelection == GameModeSelection.RaymanPS1Japan) {
-                // Reserve spot for tiles in vram
-                IList<ARGBColor> tiles = GetTileSet(context);
-                int tilesetHeight = tiles.Count / 256;
-                int tilesetWidth = 4 * 128;
-                int tilesetPage = (16 - 4); // Max pages - tileset width
-                while (tilesetHeight > 0) {
-                    int thisPageHeight = Math.Min(tilesetHeight, 2 * 256);
-                    vram.ReserveBlock(tilesetPage * 128, (2 * 256) - thisPageHeight, tilesetWidth, thisPageHeight);
-                    tilesetHeight -= thisPageHeight;
-                    tilesetPage -= 4;
-                }
-
-                // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
-                // storing the first bit of sprites we load as 1x2
-                byte[] cageSprites = new byte[(128 * 3) * (256 * 2)];
-                Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
-                byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
-                Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
-                vram.AddData(cageSprites, (128 * 3));
-                vram.AddData(allFixSprites, 256);
-
-                vram.AddData(world.TextureBlock, 256);
-                vram.AddData(levelTextureBlock, 256);
-
-                int paletteY = 224; // 480 - 1 page height
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-
-                paletteY += 26;
-                vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-
-            } else {
-                // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
-                // storing the first bit of sprites we load as 1x2
-                byte[] cageSprites = new byte[128 * (256 * 2 - 8)];
-                Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
-                byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
-                Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
-                byte[] unknown = new byte[128 * 8];
-                vram.AddData(unknown, 128);
-                vram.AddData(cageSprites, 128);
-                vram.AddData(allFixSprites, 256);
-
-                vram.AddData(world.TextureBlock, 256);
-                vram.AddData(levelTextureBlock, 256);
-
-                // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
-                int paletteY = 234;
-                /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
-                vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-
-                paletteY += 13 - world.TilePalettes.Length;
-
-                foreach (var p in world.TilePalettes)
-                    vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            }
-
-            // Uncomment below to create a VRAM texture
-            /*Texture2D vramTex = new Texture2D(16 * 128, 2 * 256);
-            for (int x = 0; x < 16 * 128; x++) {
-                for (int y = 0; y < 2 * 256; y++) {
-                    byte val = vram.GetPixel8(0, y / 256, x, y % 256);
-                    vramTex.SetPixel(x, y, new Color(val / 255f, val / 255f, val / 255f));
-                }
-            }
-            vramTex.Apply();
-            Util.ByteArrayToFile(testpath, vramTex.EncodeToPNG());*/
-
-            return vram;
         }
 
         #endregion

@@ -72,6 +72,16 @@ namespace R1Engine
             return tileSet.Value.Select(ind => palette.Value[ind]).ToArray();
         }
 
+        /// <summary>
+        /// Fills the PS1 v-ram and returns it
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The filled v-ram</returns>
+        public override PS1_VRAM FillVRAM(Context context)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<uint> LoadFile(Context context, string path, uint baseAddress) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
@@ -139,7 +149,7 @@ namespace R1Engine
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
 
             // Load the level
-            return await LoadAsync(context, null, null, map, null, null);
+            return await LoadAsync(context, map, null);
         }
     }
 }

@@ -91,6 +91,16 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Fills the PS1 v-ram and returns it
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The filled v-ram</returns>
+        public override PS1_VRAM FillVRAM(Context context)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Gets the available game actions
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -129,7 +139,7 @@ namespace R1Engine
             var lvl = FileFactory.Read<PS1_R1JPDemoVol3_LevFile>(levelPath, context);
 
             // Load the level
-            var editorManager = await LoadAsync(context, null, null, map, null, null);
+            var editorManager = await LoadAsync(context, map, null);
 
             // Super hacky event testing
             var index = 0;

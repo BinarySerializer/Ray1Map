@@ -1,5 +1,7 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using R1Engine.Serialize;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace R1Engine
@@ -64,6 +66,57 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Fills the PS1 v-ram and returns it
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The filled v-ram</returns>
+        public override PS1_VRAM FillVRAM(Context context)
+        {
+            // Read the files
+            var allFix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+            var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var levelTextureBlock = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock;
+
+            PS1_VRAM vram = new PS1_VRAM();
+
+            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
+            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
+            vram.currentXPage = 5;
+
+            // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
+            // storing the first bit of sprites we load as 1x2
+            byte[] cageSprites = new byte[128 * (256 * 2 - 8)];
+            Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
+            byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
+            Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
+            byte[] unknown = new byte[128 * 8];
+            vram.AddData(unknown, 128);
+            vram.AddData(cageSprites, 128);
+            vram.AddData(allFixSprites, 256);
+
+            vram.AddData(world.TextureBlock, 256);
+            vram.AddData(levelTextureBlock, 256);
+
+            // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
+            int paletteY = 234;
+            /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
+            vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+
+            paletteY += 13 - world.TilePalettes.Length;
+
+            foreach (var p in world.TilePalettes)
+                vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+
+            return vram;
+        }
+
+        /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
@@ -72,7 +125,7 @@ namespace R1Engine
         {
             // Read the allfix file
             await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
-            var allfix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+            FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             Controller.status = $"Loading world file";
 
@@ -80,7 +133,7 @@ namespace R1Engine
 
             // Read the world file
             await LoadExtraFile(context, GetWorldFilePath(context.Settings));
-            var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
+            FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             Controller.status = $"Loading map data";
 
@@ -89,7 +142,7 @@ namespace R1Engine
             var level = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the level
-            return await LoadAsync(context, allfix, world, level.MapData, level.EventData, level.TextureBlock);
+            return await LoadAsync(context, level.MapData, level.EventData);
         }
     }
 }
