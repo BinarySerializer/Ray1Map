@@ -193,6 +193,8 @@ namespace R1Engine {
         [HideInInspector]
         public float currentFrame = 0;
 
+        // Default sprite
+        public SpriteRenderer defautRenderer;
         // Reference to spritepart prefab
         public GameObject prefabSpritepart;
         // Reference to the created renderers
@@ -227,19 +229,21 @@ namespace R1Engine {
                 return;
 
             // Scroll through animation frames
-            if (prefabRendereds.Length > 0 && CurrentAnimation != null) {
-                int prevFrame = Mathf.FloorToInt(currentFrame);
-                // Scroll through the frames
-                if (Settings.AnimateSprites)
-                    currentFrame += (60f / AnimSpeed) * Time.deltaTime;
-                if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
-                    currentFrame = 0;
+            if (CurrentAnimation != null && prefabRendereds != null) {
+                if (prefabRendereds.Length > 0) {
+                    int prevFrame = Mathf.FloorToInt(currentFrame);
+                    // Scroll through the frames
+                    if (Settings.AnimateSprites)
+                        currentFrame += (60f / AnimSpeed) * Time.deltaTime;
+                    if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
+                        currentFrame = 0;
 
-                int floored = Mathf.FloorToInt(currentFrame);
+                    int floored = Mathf.FloorToInt(currentFrame);
 
-                // Update child renderers with correct part and position, but only if current frame has updated
-                if (floored != prevFrame) {
-                    UpdateParts(floored);
+                    // Update child renderers with correct part and position, but only if current frame has updated
+                    if (floored != prevFrame) {
+                        UpdateParts(floored);
+                    }
                 }
             }
 
@@ -331,20 +335,22 @@ namespace R1Engine {
             // Get the current animation
             CurrentAnimation = EditorManager?.GetCommonDesign(this, DES)?.Animations.ElementAtOrDefault(newAnim);
 
-            // Make sure the animation is not null
-            if (CurrentAnimation == null)
+            // If animation is null, use default
+            if (CurrentAnimation == null) {
+                defautRenderer.enabled = true;
+                ClearChildren();
                 return;
+            }
+            else {
+                defautRenderer.enabled = false;
+            }
+
 
             // Get the frame length
             var len = CurrentAnimation.Frames.GetLength(1);
 
             // Clear old array
-            if (prefabRendereds != null) {
-                foreach (SpriteRenderer t in prefabRendereds)
-                    Destroy(t.gameObject);
-
-                Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
-            }
+            ClearChildren();
 
             // Create array
             prefabRendereds = new SpriteRenderer[len];
@@ -363,6 +369,17 @@ namespace R1Engine {
             }
         }
 
+        private void ClearChildren() {
+            // Clear old array
+            if (prefabRendereds != null) {
+                foreach (SpriteRenderer t in prefabRendereds)
+                    Destroy(t.gameObject);
+
+                Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
+                prefabRendereds = null;
+            }
+        }
+
         // Change collider size
         private void ChangeColliderSize() {
             if (CurrentAnimation != null) {
@@ -370,6 +387,10 @@ namespace R1Engine {
                 var h = CurrentAnimation.DefaultFrameHeight / 16f;
                 boxCollider.size = new Vector2(w, h);
                 boxCollider.offset = new Vector2((CurrentAnimation.DefaultFrameXPosition / 16f) + w / 2f, -((CurrentAnimation.DefaultFrameYPosition / 16f) + h / 2f));
+            }
+            else {
+                boxCollider.size = new Vector2(3, 3);
+                boxCollider.offset = new Vector2(0,0);
             }
         }
 
@@ -411,12 +432,7 @@ namespace R1Engine {
             // Remove this from the event list
             Controller.obj.levelController.currentLevel.Events.Remove(this);
             // Remove all children
-            if (prefabRendereds != null) {
-                for (int i = 0; i < prefabRendereds.Length; i++) {
-                    Destroy(prefabRendereds[i].gameObject);
-                }
-                Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
-            }
+            ClearChildren();
             // Remove self
             Destroy(gameObject);
         }
