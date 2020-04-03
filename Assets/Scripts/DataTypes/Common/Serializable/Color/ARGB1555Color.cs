@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// A standard ARGB color wrapper with serializing support for the encoding BGR-555
@@ -19,6 +17,9 @@ namespace R1Engine
         public ARGB1555Color(byte alpha, byte red, byte green, byte blue) : base(alpha, red, green, blue)
         { }
 
+        /// <summary>
+        /// The color as a raw 16-bit value
+        /// </summary>
         public ushort Color1555 {
             get {
                 ushort alpha16 = (ushort)(Alpha / 255f);
@@ -39,9 +40,9 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             Color1555 = s.Serialize<ushort>(Color1555, name: nameof(Color1555));
         }
