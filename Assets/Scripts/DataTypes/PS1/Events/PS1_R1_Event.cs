@@ -72,8 +72,8 @@ namespace R1Engine
 
         public ushort Unknown7 { get; set; }
 
+        // TODO: These are probably bytes!
         public ushort Etat { get; set; }
-
         public ushort SubEtat { get; set; }
 
         public ushort Unknown8 { get; set; }
@@ -156,11 +156,6 @@ namespace R1Engine
         /// Collection of states and substates for the event
         /// </summary>
         public Common_EventState[][] EventStates { get; set; }
-
-        /// <summary>
-        /// TODO: Remove. The SubEtat collection pointer for the ETA
-        /// </summary>
-        public Pointer ETASubEtatPointer { get; set; }
 
         #endregion
 

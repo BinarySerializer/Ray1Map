@@ -11,7 +11,7 @@
 
         // Index?
         public byte Unknown1 { get; set; }
-
+        
         /// <summary>
         /// The outer image width (including the margins)
         /// </summary>
@@ -51,7 +51,7 @@
         public override void SerializeImpl(SerializerObject s) 
         {
             Unknown0 = s.Serialize<uint>(Unknown0, name: nameof(Unknown0));
-            if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP) {
+            if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemo) {
                 Unknown1 = (byte)s.Serialize<ushort>(Unknown1, name: nameof(Unknown1));
                 Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
                 OuterWidth = (byte)s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));

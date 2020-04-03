@@ -4,6 +4,7 @@ using System.Linq;
 using R1Engine.Serialize;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -130,12 +131,98 @@ namespace R1Engine
             // Load the level
             var editorManager = await LoadAsync(context, null, null, map, null, null);
 
+            // Super hacky event testing
             var index = 0;
-            // Hack add events
-            foreach (var e in lvl.Events)
+            var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
+            // Add every event
+            foreach (PS1_R1JPDemoVol3_Event e in lvl.Events)
             {
+                Controller.status = $"Loading DES {index}/{lvl.Events.Length}";
+
+                await Controller.WaitIfNecessary();
+
+                // Attempt to find existing DES
+                var desIndex = eventDesigns.FindIndex(x => x.Key == e.ImageDescriptorsPointer);
+
+                // Add if not found
+                if (desIndex == -1)
+                {
+                    Common_Design finalDesign = new Common_Design
+                    {
+                        Sprites = new List<Sprite>(),
+                        Animations = new List<Common_Animation>()
+                    };
+
+                    // Get every sprite
+                    foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
+                    {
+                        Texture2D tex = new Texture2D(i.OuterWidth, i.OuterHeight);
+
+                        for (int y = 0; y < tex.height; y++)
+                        {
+                            for (int x = 0; x < tex.width; x++)
+                            {
+                                tex.SetPixel(x, y, Color.blue);
+                            }
+                        }
+
+                        tex.Apply();
+
+                        // Add it to the array
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    }
+
+                    // Animations
+                    foreach (var a in e.AnimDescriptors)
+                    {
+                        // Create the animation
+                        var animation = new Common_Animation
+                        {
+                            Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
+                            DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
+                            DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
+                            DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
+                            DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
+                        };
+
+                        // The layer index
+                        var layer = 0;
+
+                        // Create each frame
+                        for (int i = 0; i < a.FrameCount; i++)
+                        {
+                            // Create each layer
+                            for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
+                            {
+                                var animationLayer = a.Layers[layer];
+                                layer++;
+
+                                // Create the animation part
+                                var part = new Common_AnimationPart
+                                {
+                                    SpriteIndex = animationLayer.ImageIndex,
+                                    X = animationLayer.XPosition,
+                                    Y = animationLayer.YPosition,
+                                    Flipped = animationLayer.IsFlipped
+                                };
+
+                                // Add the texture
+                                animation.Frames[i, layerIndex] = part;
+                            }
+                        }
+                        // Add the animation to list
+                        finalDesign.Animations.Add(animation);
+                    }
+
+                    // Add to the designs
+                    eventDesigns.Add(new KeyValuePair<Pointer, Common_Design>(e.ImageDescriptorsPointer, finalDesign));
+                    
+                    // Set the index
+                    desIndex = eventDesigns.Count - 1;
+                }
+
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(e.EventType, e.Etat, e.SubEtat, e.XPosition, e.YPosition, 0, 0, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, false, null, null, lvl.EventLinkTable[index]);
+                var ee = Controller.obj.levelEventController.AddEvent(e.EventType, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, 0, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, false, null, null, lvl.EventLinkTable[index]);
 
                 // Add the event
                 editorManager.Level.Events.Add(ee);
@@ -143,7 +230,7 @@ namespace R1Engine
                 index++;
             }
 
-            return editorManager;
+            return new PS1EditorManager(editorManager.Level, editorManager.Context, this, eventDesigns.Select(x => x.Value).ToArray(), new Common_EventState[0][][]);
         }
     }
 }
