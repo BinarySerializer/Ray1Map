@@ -135,7 +135,6 @@
             Unk5 = s.SerializeArray(Unk5, 10, name: nameof(Unk5));
             AnimDescriptorCount = s.Serialize(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
-            // NOTE: The img desc class needs to be modified for this version
             s.DoAt(ImageDescriptorsPointer, () => {
                 ImageDescriptors = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
             });

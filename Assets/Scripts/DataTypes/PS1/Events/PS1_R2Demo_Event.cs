@@ -10,6 +10,7 @@
 
         public Pointer UnkPointer2 { get; set; }
 
+        // ETA?
         public Pointer UnkPointer3 { get; set; }
 
         public byte[] Unk1 { get; set; }
@@ -45,7 +46,19 @@
             //{
             //    s.DoAt(UnkPointer3, () =>
             //    {
-            //        s.SerializeArray(new byte[0], 100, name: "UnkPointer3Data");
+            //        var p31 = s.SerializePointer(null, name: "UnkPointer3-1");
+            //        var p32 = s.SerializePointer(null, name: "UnkPointer3-2");
+
+            //        s.SerializeArray(new byte[0], 100, name: "UnkPointer3RestData");
+
+            //        s.DoAt(p31, () =>
+            //        {
+            //            s.SerializeArray(new byte[0], 100, name: "UnkPointer3-1Data");
+            //        });
+            //        s.DoAt(p32, () =>
+            //        {
+            //            s.SerializeArray(new byte[0], 100, name: "UnkPointer3-2Data");
+            //        });
             //    });
             //}
         }
