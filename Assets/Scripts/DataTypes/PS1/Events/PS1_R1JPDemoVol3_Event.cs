@@ -18,8 +18,7 @@
 
         public Pointer UnknownPointer1 { get; set; }
 
-        // ETA?
-        public Pointer UnknownPointer2 { get; set; }
+        public Pointer ETAPointer { get; set; }
 
         /// <summary>
         /// Pointer to the event commands
@@ -44,9 +43,13 @@
 
         public ushort Unknown7 { get; set; }
 
-        public ushort Etat { get; set; }
+        public byte Etat { get; set; }
 
-        public ushort SubEtat { get; set; }
+        public byte Unk6 { get; set; }
+
+        public byte SubEtat { get; set; }
+        
+        public byte Unk7 { get; set; }
 
         public ushort Unknown8 { get; set; }
 
@@ -97,43 +100,45 @@
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
             AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
             UnknownPointer1 = s.SerializePointer(UnknownPointer1, name: nameof(UnknownPointer1));
-            UnknownPointer2 = s.SerializePointer(UnknownPointer2, name: nameof(UnknownPointer2));
+            ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
             CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
 
             // Serialize values
-            Unk1 = s.SerializeArray(Unk1, 46, name: nameof(Unk1));
+            Unk1 = s.SerializeArray<byte>(Unk1, 46, name: nameof(Unk1));
 
-            XPosition = s.Serialize(XPosition, name: nameof(XPosition));
-            YPosition = s.Serialize(YPosition, name: nameof(YPosition));
+            XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
             
-            Unk2 = s.SerializeArray(Unk2, 12, name: nameof(Unk2));
+            Unk2 = s.SerializeArray<byte>(Unk2, 12, name: nameof(Unk2));
 
-            ImageDescriptorCount = s.Serialize(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
+            ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
-            Unk3 = s.SerializeArray(Unk3, 28, name: nameof(Unk3));
+            Unk3 = s.SerializeArray<byte>(Unk3, 28, name: nameof(Unk3));
             
-            OffsetBX = s.Serialize(OffsetBX, name: nameof(OffsetBX));
-            OffsetBY = s.Serialize(OffsetBY, name: nameof(OffsetBY));
-            Unknown7 = s.Serialize(Unknown7, name: nameof(Unknown7));
-            Etat = s.Serialize(Etat, name: nameof(Etat));
-            SubEtat = s.Serialize(SubEtat, name: nameof(SubEtat));
+            OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
+            OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
+            Unknown7 = s.Serialize<ushort>(Unknown7, name: nameof(Unknown7));
+            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
+            Unk6 = s.Serialize<byte>(Unk6, name: nameof(Unk6));
+            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
+            Unk7 = s.Serialize<byte>(Unk7, name: nameof(Unk7));
 
             Unknown8 = s.Serialize<ushort>(Unknown8, name: nameof(Unknown8));
             Unknown9 = s.Serialize<ushort>(Unknown9, name: nameof(Unknown9));
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
-            Unk4 = s.Serialize(Unk4, name: nameof(Unk4));
+            Unk4 = s.Serialize<byte>(Unk4, name: nameof(Unk4));
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
 
             Hitpoints = s.Serialize<ushort>(Hitpoints, name: nameof(Hitpoints));
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 
-            EventType = (EventType)s.Serialize((byte)EventType, name: nameof(EventType));
+            EventType = (EventType)s.Serialize<byte>((byte)EventType, name: nameof(EventType));
             HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
 
-            Unk5 = s.SerializeArray(Unk5, 10, name: nameof(Unk5));
-            AnimDescriptorCount = s.Serialize(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
+            Unk5 = s.SerializeArray<byte>(Unk5, 10, name: nameof(Unk5));
+            AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
             s.DoAt(ImageDescriptorsPointer, () => {
                 ImageDescriptors = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
@@ -142,7 +147,6 @@
             s.DoAt(AnimDescriptorsPointer, () => {
                 AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors));
             });
-
         }
     }
 }
