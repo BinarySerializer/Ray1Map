@@ -27,7 +27,7 @@ namespace R1Engine {
         /// <summary>
         /// Animation speed
         /// </summary>
-        public int AnimSpeed { get; set; } = 5;
+        public int AnimSpeed { get; set; }
 
         /// <summary>
         /// The event type

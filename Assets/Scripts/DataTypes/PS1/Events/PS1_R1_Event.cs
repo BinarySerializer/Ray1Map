@@ -115,12 +115,14 @@ namespace R1Engine
         /// <summary>
         /// The amount of animation descriptors
         /// </summary>
-        public ushort AnimDescriptorCount { get; set; }
+        public byte AnimDescriptorCount { get; set; }
+        
+        public byte Unknown13 { get; set; }
 
         // TODO: Is this value not used for the vol3 demo?
         public bool FollowEnabled { get; set; }
 
-        public byte Unknown13 { get; set; }
+        public byte Unknown14 { get; set; }
 
         #endregion
 
@@ -239,15 +241,13 @@ namespace R1Engine
 
             Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 10 : 6, name: nameof(Unknown12));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
-                AnimDescriptorCount = (byte)s.Serialize<byte>((byte)AnimDescriptorCount, name: nameof(AnimDescriptorCount));
-            else
-                AnimDescriptorCount = s.Serialize<ushort>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
+            AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
             if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
             {
-                FollowEnabled = s.Serialize<bool>(FollowEnabled, name: nameof(FollowEnabled));
                 Unknown13 = s.Serialize<byte>(Unknown13, name: nameof(Unknown13));
+                FollowEnabled = s.Serialize<bool>(FollowEnabled, name: nameof(FollowEnabled));
+                Unknown14 = s.Serialize<byte>(Unknown14, name: nameof(Unknown14));
             }
 
             // Serialize the image descriptors
