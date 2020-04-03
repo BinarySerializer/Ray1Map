@@ -21,7 +21,7 @@ namespace R1Engine
         /// </summary>
         public Pointer AnimDescriptorsPointer { get; set; }
 
-        // Never valid
+        // Never valid, except for vol3 demo
         public Pointer UnkPointer3 { get; set; }
 
         /// <summary>
@@ -41,6 +41,8 @@ namespace R1Engine
 
         // Always 0
         public uint Unknown1 { get; set; }
+
+        public byte[] UnkDemo1 { get; set; }
 
         /// <summary>
         /// The x position
@@ -72,15 +74,21 @@ namespace R1Engine
 
         public ushort Unknown7 { get; set; }
 
-        // TODO: These are probably bytes!
-        public ushort Etat { get; set; }
-        public ushort SubEtat { get; set; }
+        public byte Etat { get; set; }
 
-        public ushort Unknown8 { get; set; }
+        public byte Unknown8 { get; set; }
+        
+        public byte SubEtat { get; set; }
 
-        public ushort Unknown9 { get; set; }
+        public byte Unknown9 { get; set; }
+
+        public ushort Unknown10 { get; set; }
+
+        public ushort Unknown11 { get; set; }
 
         public byte OffsetHY { get; set; }
+
+        public byte UnkDemo2 { get; set; }
 
         /// <summary>
         /// The sprite index which uses the offset collision
@@ -102,16 +110,17 @@ namespace R1Engine
         // NOTE: Maybe a byte?
         public ushort HitSprite { get; set; }
 
-        public byte[] Unknown10 { get; set; }
+        public byte[] Unknown12 { get; set; }
 
         /// <summary>
         /// The amount of animation descriptors
         /// </summary>
         public ushort AnimDescriptorCount { get; set; }
 
+        // TODO: Is this value not used for the vol3 demo?
         public bool FollowEnabled { get; set; }
 
-        public byte Unknown11 { get; set; }
+        public byte Unknown13 { get; set; }
 
         #endregion
 
@@ -173,24 +182,31 @@ namespace R1Engine
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
             ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
             CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
-            LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: nameof(LabelOffsetsPointer));
-            Unknown1 = s.Serialize<uint>(Unknown1, name: nameof(Unknown1));
 
-            // Debug checks
-            if (Unknown1 != 0)
-                Debug.Log($"PS1 event unk1 is {Unknown1}");
-            if (UnkPointer3 != null)
-                Debug.Log($"PS1 event UnkPointer3 is {UnkPointer3}");
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            {
+                UnkDemo1 = s.SerializeArray<byte>(UnkDemo1, 46, name: nameof(UnkDemo1));
+            }
+            else
+            {
+                LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: nameof(LabelOffsetsPointer));
+                Unknown1 = s.Serialize<uint>(Unknown1, name: nameof(Unknown1));
+            }
 
             // Serialize position
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
 
             // Serialize unknown properties
-            Unknown2 = s.SerializeArray<byte>(Unknown2, 16, name: nameof(Unknown2));
+            Unknown2 = s.SerializeArray<byte>(Unknown2, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 12 : 16, name: nameof(Unknown2));
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
-            Unknown4 = s.Serialize<ushort>(Unknown4, name: nameof(Unknown4));
-            Unknown5 = s.Serialize<ushort>(Unknown5, name: nameof(Unknown5));
+
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
+            {
+                Unknown4 = s.Serialize<ushort>(Unknown4, name: nameof(Unknown4));
+                Unknown5 = s.Serialize<ushort>(Unknown5, name: nameof(Unknown5));
+            }
+
             Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: nameof(Unknown6));
 
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
@@ -198,13 +214,19 @@ namespace R1Engine
 
             Unknown7 = s.Serialize<ushort>(Unknown7, name: nameof(Unknown7));
 
-            Etat = s.Serialize<ushort>(Etat, name: nameof(Etat));
-            SubEtat = s.Serialize<ushort>(SubEtat, name: nameof(SubEtat));
+            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
+            Unknown8 = s.Serialize<byte>(Unknown8, name: nameof(Unknown8));
+            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
+            Unknown9 = s.Serialize<byte>(Unknown9, name: nameof(Unknown9));
 
-            Unknown8 = s.Serialize<ushort>(Unknown8, name: nameof(Unknown8));
-            Unknown9 = s.Serialize<ushort>(Unknown9, name: nameof(Unknown9));
+            Unknown10 = s.Serialize<ushort>(Unknown10, name: nameof(Unknown10));
+            Unknown11 = s.Serialize<ushort>(Unknown11, name: nameof(Unknown11));
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+                UnkDemo2 = s.Serialize<byte>(UnkDemo2, name: nameof(UnkDemo2));
+
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
 
             Hitpoints = s.Serialize<ushort>(Hitpoints, name: nameof(Hitpoints));
@@ -215,12 +237,18 @@ namespace R1Engine
 
             HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
 
-            Unknown10 = s.SerializeArray<byte>(Unknown10, 6, name: nameof(Unknown10));
+            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 10 : 6, name: nameof(Unknown12));
 
-            AnimDescriptorCount = s.Serialize<ushort>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+                AnimDescriptorCount = (byte)s.Serialize<byte>((byte)AnimDescriptorCount, name: nameof(AnimDescriptorCount));
+            else
+                AnimDescriptorCount = s.Serialize<ushort>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
-            FollowEnabled = s.Serialize<bool>(FollowEnabled, name: nameof(FollowEnabled));
-            Unknown11 = s.Serialize<byte>(Unknown11, name: nameof(Unknown11));
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
+            {
+                FollowEnabled = s.Serialize<bool>(FollowEnabled, name: nameof(FollowEnabled));
+                Unknown13 = s.Serialize<byte>(Unknown13, name: nameof(Unknown13));
+            }
 
             // Serialize the image descriptors
             s.DoAt(ImageDescriptorsPointer, () => {
@@ -232,104 +260,118 @@ namespace R1Engine
                 AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors));
             });
 
-            // Serialize the commands
-            if (CommandsPointer != null)
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
             {
-                s.DoAt(CommandsPointer, () => {
-                    Commands = s.SerializeObject(Commands, name: nameof(Commands));
-                });
-            }
-
-            // Serialize the label offsets
-            if (LabelOffsetsPointer != null)
-            {
-                s.DoAt(LabelOffsetsPointer, () =>
+                // Serialize the commands
+                if (CommandsPointer != null)
                 {
-                    if (LabelOffsets == null)
-                    {
-                        // Create a temporary list
-                        var l = new List<ushort>();
-
-                        int index = 0;
-
-                        // Loop until we reach null
-                        while (l.LastOrDefault() != 0)
-                        {
-                            l.Add(s.Serialize((ushort)0, name: $"LabelOffsets [{index}]"));
-                            index++;
-                        }
-
-                        // Set the label offsets
-                        LabelOffsets = l.ToArray();
-                    }
-                    else
-                    {
-                        // Serialize the label offsets
-                        s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
-
-                        // Null terminate it
-                        s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");
-                    }
-                });
-            }
-
-            // Serialize ETA
-
-            // Get number of ETAs, hack
-            if (s is BinaryDeserializer) {
-                s.DoAt(ETAPointer, () => {
-                    Pointer p = s.SerializePointer(null, name: "FirstEtat");
-                    if (p.file != ETAPointer.file
-                    || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
-                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0
-                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4 <= Etat) {
-                        Debug.LogWarning("Number of ETAs wasn't correctly determined");
-                    }
-                    NumEtats = (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4;
-                });
-            }
-            s.DoAt(ETAPointer, () => {
-                EtatPointers = s.SerializePointerArray(EtatPointers, NumEtats, name: nameof(EtatPointers));
-                if (NumSubEtats == null) {
-                    // Get number of subetats, hack
-                    NumSubEtats = new uint[NumEtats];
-                    for (int i = 0; i < EtatPointers.Length - 1; i++) {
-                        if (EtatPointers[i] != null) {
-                            if (EtatPointers[i + 1] != null) {
-                                NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / 8;
-                            } else {
-                                Debug.LogWarning("An Etat Pointer was null - Number of SubEtats couldn't be determined");
-                            }
-                        }
-                    }
-                    if (EtatPointers[NumEtats - 1] != null) {
-                        // TODO: Parse this last array
-                        NumSubEtats[NumEtats - 1] = 20;
-                        //if (Etat == NumEtats - 1) {
-                        //    NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
-                        //}
-                    }
-                }
-                if (EventStates == null) {
-                    EventStates = new Common_EventState[NumEtats][];
-                }
-                for (int i = 0; i < EtatPointers.Length; i++) {
-                    s.DoAt(EtatPointers[i], () => {
-                        EventStates[i] = s.SerializeObjectArray<Common_EventState>(EventStates[i], NumSubEtats[i], name: nameof(EventStates) + "[" + i + "]");
+                    s.DoAt(CommandsPointer, () => {
+                        Commands = s.SerializeObject(Commands, name: nameof(Commands));
                     });
                 }
-            });
-            /*s.DoAt(ETAPointer + (Etat * 4), () =>
-            {
-                // Get the state-array pointer
-                ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: nameof(ETASubEtatPointer));
 
-                // Serialize event state
-                s.DoAt(ETASubEtatPointer + (SubEtat * 8), () =>
+                // Serialize the label offsets
+                if (LabelOffsetsPointer != null)
                 {
-                    EventState = s.SerializeObject(EventState, name: nameof(EventState));
+                    s.DoAt(LabelOffsetsPointer, () =>
+                    {
+                        if (LabelOffsets == null)
+                        {
+                            // Create a temporary list
+                            var l = new List<ushort>();
+
+                            int index = 0;
+
+                            // Loop until we reach null
+                            while (l.LastOrDefault() != 0)
+                            {
+                                l.Add(s.Serialize((ushort)0, name: $"LabelOffsets [{index}]"));
+                                index++;
+                            }
+
+                            // Set the label offsets
+                            LabelOffsets = l.ToArray();
+                        }
+                        else
+                        {
+                            // Serialize the label offsets
+                            s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
+
+                            // Null terminate it
+                            s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");
+                        }
+                    });
+                }
+
+                // Serialize ETA
+
+                // Get number of ETAs, hack
+                if (s is BinaryDeserializer)
+                {
+                    s.DoAt(ETAPointer, () => {
+                        Pointer p = s.SerializePointer(null, name: "FirstEtat");
+                        if (p.file != ETAPointer.file
+                        || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
+                        || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0
+                        || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4 <= Etat)
+                        {
+                            Debug.LogWarning("Number of ETAs wasn't correctly determined");
+                        }
+                        NumEtats = (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4;
+                    });
+                }
+                s.DoAt(ETAPointer, () => {
+                    EtatPointers = s.SerializePointerArray(EtatPointers, NumEtats, name: nameof(EtatPointers));
+                    if (NumSubEtats == null)
+                    {
+                        // Get number of subetats, hack
+                        NumSubEtats = new uint[NumEtats];
+                        for (int i = 0; i < EtatPointers.Length - 1; i++)
+                        {
+                            if (EtatPointers[i] != null)
+                            {
+                                if (EtatPointers[i + 1] != null)
+                                {
+                                    NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / 8;
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("An Etat Pointer was null - Number of SubEtats couldn't be determined");
+                                }
+                            }
+                        }
+                        if (EtatPointers[NumEtats - 1] != null)
+                        {
+                            // TODO: Parse this last array
+                            NumSubEtats[NumEtats - 1] = 20;
+                            //if (Etat == NumEtats - 1) {
+                            //    NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
+                            //}
+                        }
+                    }
+                    if (EventStates == null)
+                    {
+                        EventStates = new Common_EventState[NumEtats][];
+                    }
+                    for (int i = 0; i < EtatPointers.Length; i++)
+                    {
+                        s.DoAt(EtatPointers[i], () => {
+                            EventStates[i] = s.SerializeObjectArray<Common_EventState>(EventStates[i], NumSubEtats[i], name: nameof(EventStates) + "[" + i + "]");
+                        });
+                    }
                 });
-            });*/
+                /*s.DoAt(ETAPointer + (Etat * 4), () =>
+                {
+                    // Get the state-array pointer
+                    ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: nameof(ETASubEtatPointer));
+
+                    // Serialize event state
+                    s.DoAt(ETASubEtatPointer + (SubEtat * 8), () =>
+                    {
+                        EventState = s.SerializeObject(EventState, name: nameof(EventState));
+                    });
+                });*/
+            }
         }
 
         #endregion

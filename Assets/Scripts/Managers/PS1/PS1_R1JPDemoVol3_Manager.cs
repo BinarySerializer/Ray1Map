@@ -145,7 +145,7 @@ namespace R1Engine
             var index = 0;
             var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
             // Add every event
-            foreach (PS1_R1JPDemoVol3_Event e in lvl.Events)
+            foreach (PS1_R1_Event e in lvl.Events)
             {
                 Controller.status = $"Loading DES {index}/{lvl.Events.Length}";
 
@@ -232,7 +232,7 @@ namespace R1Engine
                 }
 
                 // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(e.EventType, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, 0, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, false, null, null, lvl.EventLinkTable[index]);
+                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, 0, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, e.FollowEnabled, null, null, lvl.EventLinkTable[index]);
 
                 // Add the event
                 editorManager.Level.Events.Add(ee);
