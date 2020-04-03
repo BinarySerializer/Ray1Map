@@ -22,6 +22,9 @@ namespace R1Engine
         /// </summary>
         protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoR2PS1;
 
+        // TODO: Is this needed?
+        protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
+
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
@@ -128,6 +131,9 @@ namespace R1Engine
             await LoadFile(context, tileSetPath, 0);
             await LoadFile(context, palettePath, 0);
             await LoadFile(context, mapPath, 0); // TODO: Load all maps for this level
+
+            // Read the level data
+            var lvlData = FileFactory.Read<PS1_R2Demo_LevDataFile>(levelDTAPath, context);
 
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
