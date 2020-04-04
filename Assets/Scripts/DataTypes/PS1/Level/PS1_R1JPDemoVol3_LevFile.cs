@@ -6,12 +6,12 @@
     public class PS1_R1JPDemoVol3_LevFile : R1Serializable
     {
         // All pointers lead to allfix
-        public Pointer UnknownPointer1 { get; set; }
-        public Pointer UnknownPointer2 { get; set; }
-        public uint Unk1 { get; set; }
-        public Pointer UnknownPointer3 { get; set; }
+        public Pointer FontImageDescriptorsPointer { get; set; }
+        public Pointer FontImageBufferPointer { get; set; }
+        public uint NumFontImageDescriptors { get; set; }
+        public Pointer UnknownImageDesciptorsPointer { get; set; } // 0x100 image descriptors
         public Pointer UnknownPointer4 { get; set; }
-        public Pointer UnknownPointer5 { get; set; }
+        public Pointer UnknownImageBufferPointer { get; set; } // UnknownImageDescriptors describes this
         public Pointer UnknownPointer6 { get; set; }
         public byte[] Unk2 { get; set; }
 
@@ -32,14 +32,14 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize header
-            UnknownPointer1 = s.SerializePointer(UnknownPointer1, name: nameof(UnknownPointer1));
-            UnknownPointer2 = s.SerializePointer(UnknownPointer2, name: nameof(UnknownPointer2));
-            Unk1 = s.Serialize(Unk1, name: nameof(Unk1));
-            UnknownPointer3 = s.SerializePointer(UnknownPointer3, name: nameof(UnknownPointer3));
+            FontImageDescriptorsPointer = s.SerializePointer(FontImageDescriptorsPointer, name: nameof(FontImageDescriptorsPointer));
+            FontImageBufferPointer = s.SerializePointer(FontImageBufferPointer, name: nameof(FontImageBufferPointer));
+            NumFontImageDescriptors = s.Serialize(NumFontImageDescriptors, name: nameof(NumFontImageDescriptors));
+            UnknownImageDesciptorsPointer = s.SerializePointer(UnknownImageDesciptorsPointer, name: nameof(UnknownImageDesciptorsPointer));
             UnknownPointer4 = s.SerializePointer(UnknownPointer4, name: nameof(UnknownPointer4));
-            UnknownPointer5 = s.SerializePointer(UnknownPointer5, name: nameof(UnknownPointer5));
+            UnknownImageBufferPointer = s.SerializePointer(UnknownImageBufferPointer, name: nameof(UnknownImageBufferPointer));
             UnknownPointer6 = s.SerializePointer(UnknownPointer6, name: nameof(UnknownPointer6));
-            Unk2 = s.SerializeArray(Unk2, 128, name: nameof(Unk1));
+            Unk2 = s.SerializeArray(Unk2, 128, name: nameof(Unk2));
 
             // Serialize event information
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));

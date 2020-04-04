@@ -22,7 +22,7 @@ namespace R1Engine
         public Pointer AnimDescriptorsPointer { get; set; }
 
         // Never valid, except for vol3 demo
-        public Pointer UnkPointer3 { get; set; }
+        public Pointer ImageBufferPointer { get; set; }
 
         /// <summary>
         /// Pointer to ETA information
@@ -168,6 +168,11 @@ namespace R1Engine
         /// </summary>
         public Common_EventState[][] EventStates { get; set; }
 
+        /// <summary>
+        /// Image buffer
+        /// </summary>
+        public byte[] ImageBuffer { get; set; }
+
         #endregion
 
         #region Public Methods
@@ -181,7 +186,7 @@ namespace R1Engine
             // Serialize pointers
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
             AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
-            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
+            ImageBufferPointer = s.SerializePointer(ImageBufferPointer, name: nameof(ImageBufferPointer));
             ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
             CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
 
@@ -259,6 +264,27 @@ namespace R1Engine
             s.DoAt(AnimDescriptorsPointer, () => {
                 AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors));
             });
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo) {
+                if (ImageBuffer == null && ImageBufferPointer != null && ImageDescriptors != null) {
+                    // Determine length of image buffer
+                    uint length = 0;
+                    foreach (PS1_R1_ImageDescriptor img in ImageDescriptors) {
+                        if (img.ImageType != 2 && img.ImageType != 3) continue;
+                        uint curLength = img.OffsetInBuffer;
+                        if (img.ImageType == 2) {
+                            curLength += (uint)(img.OuterWidth / 2) * img.OuterHeight;
+                        } else if (img.ImageType == 3) {
+                            curLength += (uint)img.OuterWidth * img.OuterHeight;
+                        }
+                        if (curLength > length) length = curLength;
+                    }
+                    ImageBuffer = new byte[length];
+                }
+                s.DoAt(ImageBufferPointer, () => {
+                    ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageBuffer.Length, name: nameof(ImageBuffer));
+                });
+            }
 
             if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
             {

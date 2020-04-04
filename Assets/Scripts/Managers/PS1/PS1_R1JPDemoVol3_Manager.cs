@@ -29,6 +29,8 @@ namespace R1Engine
         /// <returns>The allfix file path</returns>
         public virtual string GetAllfixFilePath() => $"RAY.FXS";
 
+        public string GetPalettePath(int i, int j) => $"RAY{i}_{j}.PAL";
+
         /// <summary>
         /// Gets the file path for the world file
         /// </summary>
@@ -97,7 +99,98 @@ namespace R1Engine
         /// <returns>The filled v-ram</returns>
         public override PS1_VRAM FillVRAM(Context context)
         {
+            var allFix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(), context);
+            var world  = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var lvl    = FileFactory.Read<PS1_R1JPDemoVol3_LevFile>(GetLevelFilePath(context.Settings), context);
+            var pal41  = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(4, 1), context, (s, x) => x.Length = 256);
+            var pal42  = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(4, 2), context, (s, x) => x.Length = 256);
+            var pal81  = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(8, 1), context, (s, x) => x.Length = 256);
+            var pal82  = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(8, 2), context, (s, x) => x.Length = 256);
             throw new NotImplementedException();
+        }
+
+
+        /// <summary>
+        /// Gets the texture for a sprite
+        /// </summary>
+        /// <param name="img">The image descriptor</param>
+        /// <param name="vram">The loaded v-ram</param>
+        /// <returns>The sprite texture</returns>
+        public Texture2D GetSpriteTexture(Context context, PS1_R1_ImageDescriptor img, byte[] buffer) {
+            if (img.ImageType != 2 && img.ImageType != 3) return null;
+
+            // Get the image properties
+            var width = img.OuterWidth;
+            var height = img.OuterHeight;
+            var offset = img.OffsetInBuffer;
+            
+            var texturePageInfo = img.TexturePageInfo;
+            var paletteInfo = img.PaletteInfo;
+
+            // see http://hitmen.c02.at/files/docs/psx/psx.pdf page 37
+            int pageX = BitHelpers.ExtractBits(texturePageInfo, 4, 0);
+            int pageY = BitHelpers.ExtractBits(texturePageInfo, 1, 4);
+            int abr = BitHelpers.ExtractBits(texturePageInfo, 2, 5);
+            int tp = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
+
+
+            var pal41 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(4, 1), context, (s, x) => x.Length = 256);
+            var pal42 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(4, 2), context, (s, x) => x.Length = 256);
+            var pal81 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(8, 1), context, (s, x) => x.Length = 256);
+            var pal82 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(8, 2), context, (s, x) => x.Length = 256);
+
+
+            // Get palette coordinates
+            /*int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
+            int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
+
+            Debug.Log(paletteX + " - " + paletteY + " - " + pageX + " - " + pageY + " - " + tp + " - " + img.ImageType);*/
+
+            // TODO: Select correct palette
+            var palette = img.ImageType == 3 ? pal81.Value : pal41.Value;
+
+            // Create the texture
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                
+            };
+
+            // Default to fully transparent
+            //tex.SetPixels(new Color[width * height]);
+
+            //try {
+            // Set every pixel
+            if (img.ImageType == 3) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        var paletteIndex = buffer[offset + width * y + x];
+
+                        // Set the pixel
+                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
+                    }
+                }
+            } else if (img.ImageType == 2) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        int actualX = (img.ImageOffsetInPageX + x) / 2;
+                        var paletteIndex = buffer[offset + (width * y + x) / 2];
+                        if (x % 2 == 0)
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
+                        else
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 4);
+
+                        // Set the pixel
+                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
+                    }
+                }
+            }
+
+            // Apply the changes
+            tex.Apply();
+
+            // Return the texture
+            return tex;
         }
 
         /// <summary>
@@ -126,13 +219,22 @@ namespace R1Engine
             var levelPath = GetLevelFilePath(context.Settings);
             var mapPath = GetMapFilePath(context.Settings);
             var tileSetPath = GetTileSetFilePath(context.Settings);
-            
+            var pal41Path = GetPalettePath(4, 1);
+            var pal42Path = GetPalettePath(4, 2);
+            var pal81Path = GetPalettePath(8, 1);
+            var pal82Path = GetPalettePath(8, 2);
+
             // Load the files
             await LoadExtraFile(context, allfixPath);
             await LoadExtraFile(context, worldPath);
             await LoadExtraFile(context, levelPath);
             await LoadExtraFile(context, mapPath);
             await LoadExtraFile(context, tileSetPath);
+            await LoadExtraFile(context, pal41Path);
+            await LoadExtraFile(context, pal42Path);
+            await LoadExtraFile(context, pal81Path);
+            await LoadExtraFile(context, pal82Path);
+
 
             // Read the files
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
@@ -166,7 +268,7 @@ namespace R1Engine
                     // Get every sprite
                     foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
                     {
-                        Texture2D tex = new Texture2D(i.OuterWidth, i.OuterHeight);
+                        /*Texture2D tex = new Texture2D(i.OuterWidth, i.OuterHeight);
 
                         for (int y = 0; y < tex.height; y++)
                         {
@@ -176,7 +278,8 @@ namespace R1Engine
                             }
                         }
 
-                        tex.Apply();
+                        tex.Apply();*/
+                        Texture2D tex = GetSpriteTexture(context, i, e.ImageBuffer);
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));

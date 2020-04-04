@@ -6,11 +6,15 @@
     /// </summary>
     public class PS1_R1_ImageDescriptor : R1Serializable
     {
-        // Always 0
-        public uint Unknown0 { get; set; }
+        /// <summary>
+        /// Offset in image buffer in event. In final versions: always 0 except for backgrounds.
+        /// </summary>
+        public uint OffsetInBuffer { get; set; }
 
-        // Index?
-        public byte Unknown1 { get; set; }
+        /// <summary>
+        /// Index of the image?
+        /// </summary>
+        public ushort Index { get; set; }
         
         /// <summary>
         /// The outer image width (including the margins)
@@ -32,6 +36,14 @@
         /// </summary>
         public byte InnerHeight { get; set; }
 
+        /// <summary>
+        /// Image type (JP versions).
+        /// 3: 8-bit
+        /// 2: 4-bit
+        /// 1: Null?
+        /// </summary>
+        public ushort ImageType { get; set; }
+
         public byte Unknown2 { get; set; }
 
         public byte Unknown3 { get; set; }
@@ -50,10 +62,10 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            Unknown0 = s.Serialize<uint>(Unknown0, name: nameof(Unknown0));
+            OffsetInBuffer = s.Serialize<uint>(OffsetInBuffer, name: nameof(OffsetInBuffer));
             if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemo) {
-                Unknown1 = (byte)s.Serialize<ushort>(Unknown1, name: nameof(Unknown1));
-                Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
+                Index = s.Serialize<ushort>(Index, name: nameof(Index));
+                ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
                 OuterWidth = (byte)s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
                 OuterHeight = (byte)s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
                 Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
@@ -61,7 +73,7 @@
                 Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
                 PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
             } else {
-                Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
+                Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
                 OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
                 OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
                 InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
