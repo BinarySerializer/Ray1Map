@@ -119,7 +119,7 @@ namespace R1Engine
             // Get the image properties
             var width = s.OuterWidth;
             var height = s.OuterHeight;
-            var offset = s.OffsetInBuffer;
+            var offset = s.ImageBufferOffset;
 
             var pal4 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = 256);
             var pal8 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = 256);

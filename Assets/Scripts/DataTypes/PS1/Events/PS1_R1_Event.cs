@@ -271,7 +271,7 @@ namespace R1Engine
                     uint length = 0;
                     foreach (PS1_R1_ImageDescriptor img in ImageDescriptors) {
                         if (img.ImageType != 2 && img.ImageType != 3) continue;
-                        uint curLength = img.OffsetInBuffer;
+                        uint curLength = img.ImageBufferOffset;
                         if (img.ImageType == 2) {
                             curLength += (uint)(img.OuterWidth / 2) * img.OuterHeight;
                         } else if (img.ImageType == 3) {

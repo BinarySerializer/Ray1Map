@@ -7,12 +7,12 @@
     public class PS1_R1_ImageDescriptor : R1Serializable
     {
         /// <summary>
-        /// Offset in image buffer in event. In final versions: always 0 except for backgrounds.
+        /// The image buffer offset. In final PS1 versions this is always 0 except for backgrounds.
         /// </summary>
-        public uint OffsetInBuffer { get; set; }
+        public uint ImageBufferOffset { get; set; }
 
         /// <summary>
-        /// Index of the image?
+        /// Index of the image? Doesn't always match.
         /// </summary>
         public ushort Index { get; set; }
         
@@ -62,7 +62,7 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            OffsetInBuffer = s.Serialize<uint>(OffsetInBuffer, name: nameof(OffsetInBuffer));
+            ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset, name: nameof(ImageBufferOffset));
             if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemo) {
                 Index = s.Serialize<ushort>(Index, name: nameof(Index));
                 ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));

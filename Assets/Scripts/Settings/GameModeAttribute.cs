@@ -11,17 +11,24 @@ namespace R1Engine
         /// <summary>
         /// Default constructor
         /// </summary>
+        /// <param name="majorEngineVersion">The major engine version</param>
         /// <param name="engineVersion">The engine version</param>
         /// <param name="game">The game</param>
         /// <param name="displayName">The display name</param>
         /// <param name="managerType">The manager type</param>
-        public GameModeAttribute(EngineVersion engineVersion, Game game, string displayName, Type managerType)
+        public GameModeAttribute(MajorEngineVersion majorEngineVersion, EngineVersion engineVersion, Game game, string displayName, Type managerType)
         {
-            DisplayName = displayName;
-            ManagerType = managerType;
+            MajorEngineVersion = majorEngineVersion;
             EngineVersion = engineVersion;
             Game = game;
+            DisplayName = displayName;
+            ManagerType = managerType;
         }
+
+        /// <summary>
+        /// The major engine version
+        /// </summary>
+        public MajorEngineVersion MajorEngineVersion { get; }
 
         /// <summary>
         /// The engine version

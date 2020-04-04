@@ -20,6 +20,7 @@
             GameModeSelection = gameModeSelection;
             Game = atr.Game;
             EngineVersion = atr.EngineVersion;
+            MajorEngineVersion = atr.MajorEngineVersion;
             GameDirectory = Util.NormalizePath(gameDirectory, isFolder: true);
             World = world;
             Level = level;
@@ -29,6 +30,11 @@
         /// The game mode selection
         /// </summary>
         public GameModeSelection GameModeSelection { get; }
+
+        /// <summary>
+        /// The major engine version
+        /// </summary>
+        public MajorEngineVersion MajorEngineVersion { get; }
 
         /// <summary>
         /// The engine version
