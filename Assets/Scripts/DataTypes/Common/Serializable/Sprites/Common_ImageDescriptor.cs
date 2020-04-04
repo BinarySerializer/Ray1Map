@@ -43,10 +43,9 @@
         /// </summary>
         public ushort ImageType { get; set; }
 
+        // Some of these are hitbox related
         public byte Unknown2 { get; set; }
-
         public byte Unknown3 { get; set; }
-
         public byte Unknown4 { get; set; }
 
         public ushort PaletteInfo { get; set; }
