@@ -27,6 +27,9 @@ namespace R1Engine
         //[GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1JPDemo, Game.Rayman1DemoPrototype, "Rayman 1 (PS1 - JP Demo Vol6)", typeof(PS1_R1JPDemoVol3_Manager))]
         //RaymanPS1DemoVol6Japan,
 
+        [GameMode(MajorEngineVersion.PS1, EngineVersion.RaySaturn, Game.Rayman1, "Rayman 1 (Saturn - US)", typeof(Satun_R1_Manager))]
+        RaymanSaturnUS,
+
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC)", typeof(PC_R1_Manager))]
         RaymanPC,
 
