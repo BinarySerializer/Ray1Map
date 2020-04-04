@@ -95,7 +95,9 @@ namespace R1Engine
         /// </summary>
         public byte FollowSprite { get; set; }
 
-        public ushort Hitpoints { get; set; }
+        public byte Hitpoints { get; set; }
+
+        public byte Unknown15 { get; set; }
 
         /// <summary>
         /// The layer the event sprite gets drawn to, between 1 and 7
@@ -107,8 +109,7 @@ namespace R1Engine
         /// </summary>
         public EventType Type { get; set; }
 
-        // NOTE: Maybe a byte?
-        public ushort HitSprite { get; set; }
+        public byte HitSprite { get; set; }
 
         public byte[] Unknown12 { get; set; }
 
@@ -236,15 +237,17 @@ namespace R1Engine
 
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
 
-            Hitpoints = s.Serialize<ushort>(Hitpoints, name: nameof(Hitpoints));
+            Hitpoints = s.Serialize<byte>(Hitpoints, name: nameof(Hitpoints));
+
+            Unknown15 = s.Serialize<byte>(Unknown15, name: nameof(Unknown15));
 
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 
             Type = (EventType)s.Serialize<byte>((byte)Type, name: nameof(Type));
 
-            HitSprite = s.Serialize<ushort>(HitSprite, name: nameof(HitSprite));
+            HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
 
-            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 10 : 6, name: nameof(Unknown12));
+            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 11 : 7, name: nameof(Unknown12));
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
