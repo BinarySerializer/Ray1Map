@@ -697,7 +697,7 @@ namespace R1Engine
         /// <param name="palette">The palette to use</param>
         /// <param name="processedImageData">The processed image data to use</param>
         /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(PC_ImageDescriptor s, IList<ARGBColor> palette, byte[] processedImageData)
+        public Texture2D GetSpriteTexture(Common_ImageDescriptor s, IList<ARGBColor> palette, byte[] processedImageData)
         {
             // Ignore garbage sprites
             if (s.InnerHeight == 0 || s.InnerWidth == 0)
@@ -706,7 +706,7 @@ namespace R1Engine
             // Get the image properties
             var width = s.OuterWidth;
             var height = s.OuterHeight;
-            var offset = s.ImageOffset;
+            var offset = s.ImageBufferOffset;
 
             // Create the texture
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
@@ -1041,7 +1041,7 @@ namespace R1Engine
 
                 // Add every byte and encrypt it
                 for (int i = 0; i < data.Value.Length; i++)
-                    des.ImageData[imgDesc.ImageOffset + i] = (byte)(data.Value[i] ^ 143);
+                    des.ImageData[imgDesc.ImageBufferOffset + i] = (byte)(data.Value[i] ^ 143);
             }
 
             // TODO: Move the reverse image processing to its own method

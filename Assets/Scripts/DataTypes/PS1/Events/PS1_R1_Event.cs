@@ -131,7 +131,7 @@ namespace R1Engine
         /// <summary>
         /// The image descriptors
         /// </summary>
-        public PS1_R1_ImageDescriptor[] ImageDescriptors { get; set; }
+        public Common_ImageDescriptor[] ImageDescriptors { get; set; }
 
         /// <summary>
         /// The animation descriptors
@@ -257,7 +257,7 @@ namespace R1Engine
 
             // Serialize the image descriptors
             s.DoAt(ImageDescriptorsPointer, () => {
-                ImageDescriptors = s.SerializeObjectArray<PS1_R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
+                ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
             });
 
             // Serialize the animation descriptors
@@ -269,7 +269,7 @@ namespace R1Engine
                 if (ImageBuffer == null && ImageBufferPointer != null && ImageDescriptors != null) {
                     // Determine length of image buffer
                     uint length = 0;
-                    foreach (PS1_R1_ImageDescriptor img in ImageDescriptors) {
+                    foreach (Common_ImageDescriptor img in ImageDescriptors) {
                         if (img.ImageType != 2 && img.ImageType != 3) continue;
                         uint curLength = img.ImageBufferOffset;
                         if (img.ImageType == 2) {

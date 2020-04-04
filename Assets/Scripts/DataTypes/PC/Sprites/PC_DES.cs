@@ -40,7 +40,7 @@ namespace R1Engine
         /// <summary>
         /// The image descriptors
         /// </summary>
-        public PC_ImageDescriptor[] ImageDescriptors { get; set; }
+        public Common_ImageDescriptor[] ImageDescriptors { get; set; }
 
         /// <summary>
         /// The amount of animation descriptors
@@ -84,7 +84,7 @@ namespace R1Engine
                 Unknown2 = s.Serialize<uint>(Unknown2, name: nameof(Unknown2));
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
-            ImageDescriptors = s.SerializeObjectArray<PC_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
+            ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
             AnimationDescriptorCount = s.Serialize<byte>(AnimationDescriptorCount, name: nameof(AnimationDescriptorCount));
             AnimationDescriptors = s.SerializeObjectArray<PC_AnimationDescriptor>(AnimationDescriptors, AnimationDescriptorCount, name: nameof(AnimationDescriptors));
         }

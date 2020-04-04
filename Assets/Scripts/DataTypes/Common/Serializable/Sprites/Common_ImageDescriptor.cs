@@ -1,10 +1,9 @@
 ﻿namespace R1Engine
 {
-    // TODO: Merge with PC_ImageDescriptor
     /// <summary>
-    /// Image descriptor data for Rayman 1 (PS1)
+    /// Common image descriptor data
     /// </summary>
-    public class PS1_R1_ImageDescriptor : R1Serializable
+    public class Common_ImageDescriptor : R1Serializable
     {
         /// <summary>
         /// The image buffer offset. In final PS1 versions this is always 0 except for backgrounds.
@@ -63,16 +62,39 @@
         public override void SerializeImpl(SerializerObject s) 
         {
             ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset, name: nameof(ImageBufferOffset));
-            if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemo) {
-                Index = s.Serialize<ushort>(Index, name: nameof(Index));
-                ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
-                OuterWidth = (byte)s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
-                OuterHeight = (byte)s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
-                Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
+
+            if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PS1)
+            {
+                if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemo)
+                {
+                    Index = s.Serialize<ushort>(Index, name: nameof(Index));
+                    ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
+                    OuterWidth = (byte)s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
+                    OuterHeight = (byte)s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
+                    Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
+                }
+                else
+                {
+                    Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
+                    OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
+                    OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
+                    InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
+                    InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
+                    Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
+                }
+
                 Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
                 Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
+
                 PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
-            } else {
+
+                TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
+                ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: nameof(ImageOffsetInPageX));
+                ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: nameof(ImageOffsetInPageY));
+                Unknown6 = s.Serialize<ushort>(Unknown6, name: nameof(Unknown6));
+            }
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PC)
+            {
                 Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
                 OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
                 OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
@@ -81,12 +103,7 @@
                 Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
                 Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
                 Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
-                PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
             }
-            TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
-            ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: nameof(ImageOffsetInPageX));
-            ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: nameof(ImageOffsetInPageY));
-            Unknown6 = s.Serialize<ushort>(Unknown6, name: nameof(Unknown6));
         }
     }
 }

@@ -193,7 +193,7 @@ namespace R1Engine
         /// <param name="vram">The filled v-ram</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, PS1_R1_ImageDescriptor s)
+        public virtual Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, Common_ImageDescriptor s)
         {
             // Get the image properties
             var width = s.OuterWidth;
@@ -359,7 +359,7 @@ namespace R1Engine
                         };
 
                         // Get every sprite
-                        foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
+                        foreach (Common_ImageDescriptor i in e.ImageDescriptors)
                         {
                             Texture2D tex = GetSpriteTexture(context, e, vram, i);
 
