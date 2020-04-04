@@ -149,7 +149,7 @@ namespace R1Engine
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
 
             // Load the level
-            return await LoadAsync(context, map, null);
+            return await LoadAsync(context, map, null, null);
         }
     }
 }

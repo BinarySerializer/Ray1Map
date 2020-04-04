@@ -186,6 +186,119 @@ namespace R1Engine
         public abstract PS1_VRAM FillVRAM(Context context);
 
         /// <summary>
+        /// Gets the sprite texture for an event
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="e">The event</param>
+        /// <param name="vram">The filled v-ram</param>
+        /// <param name="s">The image descriptor to use</param>
+        /// <returns>The texture</returns>
+        public virtual Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, PS1_R1_ImageDescriptor s)
+        {
+            // Get the image properties
+            var width = s.OuterWidth;
+            var height = s.OuterHeight;
+            var texturePageInfo = s.TexturePageInfo;
+            var paletteInfo = s.PaletteInfo;
+
+            // see http://hitmen.c02.at/files/docs/psx/psx.pdf page 37
+            int pageX = BitHelpers.ExtractBits(texturePageInfo, 4, 0);
+            int pageY = BitHelpers.ExtractBits(texturePageInfo, 1, 4);
+            int abr = BitHelpers.ExtractBits(texturePageInfo, 2, 5);
+            int tp = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
+
+            if (pageX < 5)
+                return null;
+
+            // Get palette coordinates
+            int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
+            int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
+
+            //Debug.Log(paletteX + " - " + paletteY + " - " + pageX + " - " + pageY + " - " + tp);
+
+            // Get the palette size
+            var palette = tp == 0 ? new ARGB1555Color[16] : new ARGB1555Color[256];
+
+            // Create the texture
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            // Default to fully transparent
+            for (int y = 0; y < tex.height; y++)
+            {
+                for (int x = 0; x < tex.width; x++)
+                {
+                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                }
+            }
+
+            //try {
+            // Set every pixel
+            if (tp == 1)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        var paletteIndex = vram.GetPixel8(pageX, pageY, s.ImageOffsetInPageX + x, s.ImageOffsetInPageY + y);
+
+                        // Get the color from the palette
+                        if (palette[paletteIndex] == null)
+                        {
+                            palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
+                        }
+                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
+                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);
+                        var color = palette[paletteIndex];*/
+
+                        // Set the pixel
+                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
+                    }
+                }
+            }
+            else if (tp == 0)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int actualX = (s.ImageOffsetInPageX + x) / 2;
+                        var paletteIndex = vram.GetPixel8(pageX, pageY, actualX, s.ImageOffsetInPageY + y);
+                        if (x % 2 == 0)
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
+                        else
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 4);
+
+
+                        // Get the color from the palette
+                        if (palette[paletteIndex] == null)
+                            palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
+
+                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
+                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);*/
+
+                        // Set the pixel
+                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
+                    }
+                }
+            }
+            /*} catch (Exception ex) {
+                Debug.LogWarning($"Couldn't load sprite for DES: " + s.Offset + $" {ex.Message}");
+
+                return null;
+            }*/
+
+            // Apply the changes
+            tex.Apply();
+
+            // Return the texture
+            return tex;
+        }
+
+        /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>
@@ -207,9 +320,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <param name="map">The map data</param>
-        /// <param name="events">The event data</param>
+        /// <param name="events">The events</param>
+        /// <param name="eventLinkingTable">The event linking table</param>
         /// <returns>The editor manager</returns>
-        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_EventBlock events)
+        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_Event[] events, ushort[] eventLinkingTable)
         {
             Common_Tileset tileSet = new Common_Tileset(GetTileSet(context), TileSetWidth, CellSize);
 
@@ -226,9 +340,9 @@ namespace R1Engine
                 var index = 0;
 
                 // Add every event
-                foreach (PS1_R1_Event e in events.Events)
+                foreach (PS1_R1_Event e in events)
                 {
-                    Controller.status = $"Loading DES {index}/{events.Events.Length}";
+                    Controller.status = $"Loading DES {index}/{events.Length}";
 
                     await Controller.WaitIfNecessary();
 
@@ -247,7 +361,7 @@ namespace R1Engine
                         // Get every sprite
                         foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
                         {
-                            Texture2D tex = GetSpriteTexture(i, vram);
+                            Texture2D tex = GetSpriteTexture(context, e, vram, i);
 
                             // Add it to the array
                             finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
@@ -316,7 +430,7 @@ namespace R1Engine
                     }
 
                     // Instantiate event prefab using LevelEventController
-                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, etaIndex, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, events.EventLinkingTable[index]);
+                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, etaIndex, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, eventLinkingTable[index]);
 
                     // Add the event
                     commonEvents.Add(ee);
@@ -432,106 +546,6 @@ namespace R1Engine
         public virtual async Task LoadFilesAsync(Context context) {
             // PS1 loads files in order. We can't really load anything here
             await Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Gets the texture for a sprite
-        /// </summary>
-        /// <param name="s">The image descriptor</param>
-        /// <param name="vram">The loaded v-ram</param>
-        /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(PS1_R1_ImageDescriptor s, PS1_VRAM vram) 
-        {
-            // Get the image properties
-            var width = s.OuterWidth;
-            var height = s.OuterHeight;
-            var texturePageInfo = s.TexturePageInfo;
-            var paletteInfo = s.PaletteInfo;
-
-            // see http://hitmen.c02.at/files/docs/psx/psx.pdf page 37
-            int pageX = BitHelpers.ExtractBits(texturePageInfo, 4, 0);
-            int pageY = BitHelpers.ExtractBits(texturePageInfo, 1, 4);
-            int abr   = BitHelpers.ExtractBits(texturePageInfo, 2, 5);
-            int tp    = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
-
-            if (pageX < 5) 
-                return null;
-
-            // Get palette coordinates
-            int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
-            int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
-
-            //Debug.Log(paletteX + " - " + paletteY + " - " + pageX + " - " + pageY + " - " + tp);
-
-            // Get the palette size
-            var palette = tp == 0 ? new ARGB1555Color[16] : new ARGB1555Color[256];
-
-            // Create the texture
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-
-            // Default to fully transparent
-            for (int y = 0; y < tex.height; y++) {
-                for (int x = 0; x < tex.width; x++) {
-                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                }
-            }
-
-            //try {
-            // Set every pixel
-            if (tp == 1) {
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        var paletteIndex = vram.GetPixel8(pageX, pageY, s.ImageOffsetInPageX + x, s.ImageOffsetInPageY + y);
-
-                        // Get the color from the palette
-                        if (palette[paletteIndex] == null) {
-                            palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
-                        }
-                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
-                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);
-                        var color = palette[paletteIndex];*/
-
-                        // Set the pixel
-                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
-                    }
-                }
-            } else if (tp == 0) {
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        int actualX = (s.ImageOffsetInPageX + x) / 2;
-                        var paletteIndex = vram.GetPixel8(pageX, pageY, actualX, s.ImageOffsetInPageY + y);
-                        if (x % 2 == 0)
-                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
-                        else
-                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 4);
-
-
-                        // Get the color from the palette
-                        if (palette[paletteIndex] == null)
-                            palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
-
-                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
-                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);*/
-
-                        // Set the pixel
-                        tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
-                    }
-                }
-            }
-            /*} catch (Exception ex) {
-                Debug.LogWarning($"Couldn't load sprite for DES: " + s.Offset + $" {ex.Message}");
-
-                return null;
-            }*/
-
-            // Apply the changes
-            tex.Apply();
-
-            // Return the texture
-            return tex;
         }
 
         #endregion

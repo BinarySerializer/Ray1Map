@@ -150,7 +150,7 @@ namespace R1Engine
                 await LoadExtraFile(context, levelTileSetFileName);
 
             // Load the level
-            return await LoadAsync(context, level.MapData, level.EventData);
+            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray());
         }
     }
 }

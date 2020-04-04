@@ -142,7 +142,7 @@ namespace R1Engine
             var level = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the level
-            return await LoadAsync(context, level.MapData, level.EventData);
+            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray());
         }
     }
 }

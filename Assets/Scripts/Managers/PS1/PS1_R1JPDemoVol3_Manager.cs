@@ -99,74 +99,65 @@ namespace R1Engine
         /// <returns>The filled v-ram</returns>
         public override PS1_VRAM FillVRAM(Context context)
         {
-            throw new NotImplementedException();
+            // We don't need to emulate the v-ram for this version
+            return null;
         }
 
-
         /// <summary>
-        /// Gets the texture for a sprite
+        /// Gets the sprite texture for an event
         /// </summary>
-        /// <param name="img">The image descriptor</param>
-        /// <param name="vram">The loaded v-ram</param>
-        /// <returns>The sprite texture</returns>
-        public Texture2D GetSpriteTexture(Context context, PS1_R1_ImageDescriptor img, byte[] buffer) {
-            if (img.ImageType != 2 && img.ImageType != 3) return null;
+        /// <param name="context">The context</param>
+        /// <param name="e">The event</param>
+        /// <param name="vram">The filled v-ram</param>
+        /// <param name="s">The image descriptor to use</param>
+        /// <returns>The texture</returns>
+        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, PS1_R1_ImageDescriptor s)
+        {
+            if (s.ImageType != 2 && s.ImageType != 3) 
+                return null;
 
             // Get the image properties
-            var width = img.OuterWidth;
-            var height = img.OuterHeight;
-            var offset = img.OffsetInBuffer;
-            
-            var texturePageInfo = img.TexturePageInfo;
-            var paletteInfo = img.PaletteInfo;
+            var width = s.OuterWidth;
+            var height = s.OuterHeight;
+            var offset = s.OffsetInBuffer;
 
-            // see http://hitmen.c02.at/files/docs/psx/psx.pdf page 37
-            int pageX = BitHelpers.ExtractBits(texturePageInfo, 4, 0);
-            int pageY = BitHelpers.ExtractBits(texturePageInfo, 1, 4);
-            int abr = BitHelpers.ExtractBits(texturePageInfo, 2, 5);
-            int tp = BitHelpers.ExtractBits(texturePageInfo, 2, 7); // 0: 4-bit, 1: 8-bit, 2: 15-bit direct
-
-
-            var pal4 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 4), context, (s, x) => x.Length = 256);
-            var pal8 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 8), context, (s, x) => x.Length = 256);
-
-
-            // Get palette coordinates
-            /*int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
-            int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
-
-            Debug.Log(paletteX + " - " + paletteY + " - " + pageX + " - " + pageY + " - " + tp + " - " + img.ImageType);*/
+            var pal4 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = 256);
+            var pal8 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = 256);
 
             // Select correct palette
-            var palette = img.ImageType == 3 ? pal8.Value : pal4.Value;
-            var paletteOffset = 16 * img.Unknown2;
+            var palette = s.ImageType == 3 ? pal8.Value : pal4.Value;
+            var paletteOffset = 16 * s.Unknown2;
 
             // Create the texture
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp,
-                
+
             };
 
-            // Default to fully transparent
-            //tex.SetPixels(new Color[width * height]);
-
-            //try {
             // Set every pixel
-            if (img.ImageType == 3) {
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        var paletteIndex = buffer[offset + width * y + x];
+            if (s.ImageType == 3)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        var paletteIndex = e.ImageBuffer[offset + width * y + x];
 
                         // Set the pixel
                         tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
                     }
                 }
-            } else if (img.ImageType == 2) {
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        int actualX = (img.ImageOffsetInPageX + x) / 2;
-                        var paletteIndex = buffer[offset + (width * y + x) / 2];
+            }
+            else if (s.ImageType == 2)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int actualX = (s.ImageOffsetInPageX + x) / 2;
+                        var paletteIndex = e.ImageBuffer[offset + (width * y + x) / 2];
                         if (x % 2 == 0)
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
                         else
@@ -223,115 +214,12 @@ namespace R1Engine
             await LoadExtraFile(context, pal4Path);
             await LoadExtraFile(context, pal8Path);
 
-
             // Read the files
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
             var lvl = FileFactory.Read<PS1_R1JPDemoVol3_LevFile>(levelPath, context);
 
             // Load the level
-            var editorManager = await LoadAsync(context, map, null);
-
-            // Super hacky event testing
-            var index = 0;
-            var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
-            // Add every event
-            foreach (PS1_R1_Event e in lvl.Events)
-            {
-                Controller.status = $"Loading DES {index}/{lvl.Events.Length}";
-
-                await Controller.WaitIfNecessary();
-
-                // Attempt to find existing DES
-                var desIndex = eventDesigns.FindIndex(x => x.Key == e.ImageDescriptorsPointer);
-
-                // Add if not found
-                if (desIndex == -1)
-                {
-                    Common_Design finalDesign = new Common_Design
-                    {
-                        Sprites = new List<Sprite>(),
-                        Animations = new List<Common_Animation>()
-                    };
-
-                    // Get every sprite
-                    foreach (PS1_R1_ImageDescriptor i in e.ImageDescriptors)
-                    {
-                        /*Texture2D tex = new Texture2D(i.OuterWidth, i.OuterHeight);
-
-                        for (int y = 0; y < tex.height; y++)
-                        {
-                            for (int x = 0; x < tex.width; x++)
-                            {
-                                tex.SetPixel(x, y, Color.blue);
-                            }
-                        }
-
-                        tex.Apply();*/
-                        Texture2D tex = GetSpriteTexture(context, i, e.ImageBuffer);
-
-                        // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                    }
-
-                    // Animations
-                    foreach (var a in e.AnimDescriptors)
-                    {
-                        // Create the animation
-                        var animation = new Common_Animation
-                        {
-                            Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
-                            DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
-                            DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
-                            DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
-                            DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
-                        };
-
-                        // The layer index
-                        var layer = 0;
-
-                        // Create each frame
-                        for (int i = 0; i < a.FrameCount; i++)
-                        {
-                            // Create each layer
-                            for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
-                            {
-                                var animationLayer = a.Layers[layer];
-                                layer++;
-
-                                // Create the animation part
-                                var part = new Common_AnimationPart
-                                {
-                                    SpriteIndex = animationLayer.ImageIndex,
-                                    X = animationLayer.XPosition,
-                                    Y = animationLayer.YPosition,
-                                    Flipped = animationLayer.IsFlipped
-                                };
-
-                                // Add the texture
-                                animation.Frames[i, layerIndex] = part;
-                            }
-                        }
-                        // Add the animation to list
-                        finalDesign.Animations.Add(animation);
-                    }
-
-                    // Add to the designs
-                    eventDesigns.Add(new KeyValuePair<Pointer, Common_Design>(e.ImageDescriptorsPointer, finalDesign));
-                    
-                    // Set the index
-                    desIndex = eventDesigns.Count - 1;
-                }
-
-                // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, 0, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, e.FollowEnabled, null, null, lvl.EventLinkTable[index]);
-
-                // Add the event
-                editorManager.Level.Events.Add(ee);
-
-                index++;
-            }
-
-            return new PS1EditorManager(editorManager.Level, editorManager.Context, this, eventDesigns.Select(x => x.Value).ToArray(), new Common_EventState[0][][]);
+            return await LoadAsync(context, map, lvl.Events, lvl.EventLinkTable.Select(x => (ushort)x).ToArray());
         }
     }
 }
