@@ -27,7 +27,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="hitpointsValue">The hitpoints value</param>
         /// <returns>The index</returns>
-        public override int GetColoredTingColorIndex(int hitpointsValue)
+        public override int GetColoredEventColorIndex(int hitpointsValue)
         {
             switch (hitpointsValue)
             {

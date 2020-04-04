@@ -13,6 +13,29 @@ namespace R1Engine
     /// </summary>
     public class PC_RD_Manager : PC_Manager
     {
+        #region Static Properties
+
+        /// <summary>
+        /// The events which are multi-colored
+        /// </summary>
+        public static EventType[] MultiColoredEvents => new[]
+        {
+            EventType.MS_compteur,
+            EventType.MS_wiz_comptage,
+            EventType.MS_pap,
+        };
+
+        /// <summary>
+        /// The DES which are multi-colored
+        /// </summary>
+        public static string[] MultiColoredDES => new[]
+        {
+            "WIZCOMPT",
+            "PCH",
+        };
+
+        #endregion
+
         #region Values and paths
 
         /// <summary>
@@ -122,8 +145,8 @@ namespace R1Engine
         /// <returns>The common design</returns>
         public override Common_Design GetCommonDesign(PC_DES des, IList<ARGBColor> palette, int desIndex)
         {
-            // Check if the DES is the colored tings
-            if (DESNames.ElementAtOrDefault(desIndex)?.Contains("WIZCOMPT") != true)
+            // Check if the DES is multi-colored
+            if (!MultiColoredDES.Contains(DESNames.ElementAtOrDefault(desIndex)?.Substring(0, DESNames[desIndex].Length - 4)))
                 return base.GetCommonDesign(des, palette, desIndex);
 
             // Create the common design

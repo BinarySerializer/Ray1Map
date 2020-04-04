@@ -37,11 +37,11 @@ namespace R1Engine
         public string[] ETAFileIndex { get; }
 
         /// <summary>
-        /// Gets the color index for a colored ting
+        /// Gets the color index for a colored event
         /// </summary>
         /// <param name="hitpointsValue">The hitpoints value</param>
         /// <returns>The index</returns>
-        public virtual int GetColoredTingColorIndex(int hitpointsValue)
+        public virtual int GetColoredEventColorIndex(int hitpointsValue)
         {
             switch (hitpointsValue)
             {
@@ -74,15 +74,15 @@ namespace R1Engine
             // Get the state
             var s = base.GetEventState(e);
 
-            // If the type is a colored gendoor ting, handle it differently
-            if (e.Type != EventType.MS_compteur && e.Type != EventType.MS_wiz_comptage)
+            // If the type is a colored event, handle it differently
+            if (!PC_RD_Manager.MultiColoredEvents.Contains(e.Type))
                 return s;
 
             return new Common_EventState
             {
                 RightSpeed = s.RightSpeed,
                 LeftSpeed = s.LeftSpeed,
-                AnimationIndex = (byte)(s.AnimationIndex + ((Designs[e.DES].Animations.Count / 6) * GetColoredTingColorIndex(e.HitPoints))),
+                AnimationIndex = (byte)(s.AnimationIndex + ((Designs[e.DES].Animations.Count / 6) * GetColoredEventColorIndex(e.HitPoints))),
                 Etat = s.Etat,
                 SubEtat = s.SubEtat,
                 AnimationSpeed = s.AnimationSpeed,
