@@ -40,6 +40,12 @@
                 TileMapY = BitHelpers.ExtractBits(value, 6, 10);
                 CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 8, 16);
             }
+            else if (s.GameSettings.EngineVersion == EngineVersion.RaySaturn)
+            {
+                TileMapX = s.Serialize((ushort)TileMapX, name: nameof(TileMapX));
+                TileMapY = 0;
+                CollisionType = (TileCollisionType)s.Serialize((ushort)CollisionType, name: nameof(CollisionType));
+            }
             else
             {
                 ushort value = 0;
