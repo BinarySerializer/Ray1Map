@@ -158,7 +158,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public override PS1_VRAM FillVRAM(Context context) => throw new NotImplementedException();
+        public override PS1_VRAM FillVRAM(Context context) => null; //throw new NotImplementedException();
+
+        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, Common_ImageDescriptor s) {
+            Texture2D tex = new Texture2D(s.OuterWidth, s.OuterHeight);
+            tex.SetPixels(Enumerable.Repeat(Color.blue, tex.width * tex.height).ToArray());
+            return tex;
+        }
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -201,7 +207,7 @@ namespace R1Engine
             var eventBlock = FileFactory.Read<PS1_R1_EventBlock>(levelFilePath, context);
 
             // Load the level
-            return await LoadAsync(context, map, null, null);
+            return await LoadAsync(context, map, eventBlock.Events, eventBlock.EventLinkingTable.Select(b => (ushort)b).ToArray());
         }
     }
 }

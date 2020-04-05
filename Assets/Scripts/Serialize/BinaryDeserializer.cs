@@ -56,8 +56,13 @@ namespace R1Engine
                 case TypeCode.Boolean:
                     var b = reader.ReadByte();
 
-                    if (b != 0 && b != 1)
+                    if (b != 0 && b != 1) {
                         Debug.LogWarning("Binary boolean was not correctly formatted");
+
+                        if (Settings.Log) {
+                            Context.Log.Log(LogPrefix + "(" + typeof(T) + "): Binary boolean was not correctly formatted (" + b + ")");
+                        }
+                    }
 
                     return b == 1;
 
