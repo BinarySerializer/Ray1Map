@@ -17,7 +17,7 @@ namespace R1Engine.Serialize {
 		public override Reader CreateReader() {
 			Stream s = FileSystem.GetFileReadStream(AbsolutePath);
 			length = (uint)s.Length;
-			Reader reader = new Reader(s, isLittleEndian: true);
+			Reader reader = new Reader(s, isLittleEndian: Endianness == Endian.Little);
 			return reader;
 		}
 
@@ -25,7 +25,7 @@ namespace R1Engine.Serialize {
 			CreateBackupFile();
 			Stream s = FileSystem.GetFileWriteStream(AbsolutePath);
 			length = (uint)s.Length;
-			Writer writer = new Writer(s, isLittleEndian: true);
+			Writer writer = new Writer(s, isLittleEndian: Endianness == Endian.Little);
 			return writer;
 		}
 

@@ -27,14 +27,14 @@ namespace R1Engine.Serialize {
 			s.Close();
 
 			length = (uint)memStream.Length;
-			Reader reader = new Reader(memStream, isLittleEndian: true);
+			Reader reader = new Reader(memStream, isLittleEndian: Endianness == Endian.Little);
 			return reader;
 		}
 
 		public override Writer CreateWriter() {
 			Stream memStream = new MemoryStream();
 			memStream.SetLength(length);
-			Writer writer = new Writer(memStream, isLittleEndian: true);
+			Writer writer = new Writer(memStream, isLittleEndian: Endianness == Endian.Little);
 			return writer;
 		}
 

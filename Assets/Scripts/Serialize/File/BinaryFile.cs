@@ -53,5 +53,11 @@ namespace R1Engine.Serialize {
 				}
 			}
 		}
+
+		public Endian Endianness { get; set; } = Endian.Little;
+		public enum Endian {
+			Little,
+			Big
+		}
 	}
 }
