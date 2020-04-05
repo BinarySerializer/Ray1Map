@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -21,7 +20,7 @@ namespace R1Engine
         /// <returns>The texture</returns>
         public Texture2D ToTexture(int width, int blockWidth = 8, int blockHeight = 8, bool swizzled = true)
         {
-            int height = (PixelsPaletted != null ? PixelsPaletted.Length : Pixels.Length) / width;
+            int height = (PixelsPaletted?.Length ?? Pixels.Length) / width;
 
             // Create the texture
             var tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
@@ -74,11 +73,11 @@ namespace R1Engine
                                         byte numPalette = PLT.Value[pltIndex];
                                         uint palIndex = 256 * (uint)numPalette + index;
                                         Color col = PAL.Value[palIndex].GetColor(); // 555? huh?
-                                        tex.SetPixel(Bx + bx, height - 1 - (By + by), new Color(col.r, col.g, col.b, 1f));
+                                        tex.SetPixel(Bx + bx, (By + by), new Color(col.r, col.g, col.b, 1f));
                                         //tex.SetPixel(Bx + bx, height - 1 - (By + by), new Color(index / 255f, index / 255f, index / 255f, 1f));
                                     }
                                 } else {
-                                    tex.SetPixel(Bx + bx, height - 1 - (By + by), Pixels[curPixel].GetColor());
+                                    tex.SetPixel(Bx + bx, (By + by), Pixels[curPixel].GetColor());
                                 }
                                 curPixel++;
                             }

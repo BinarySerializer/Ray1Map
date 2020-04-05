@@ -36,11 +36,11 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the tile set to use
+        /// Gets the tile set colors to use
         /// </summary>
         /// <param name="context">The context</param>
-        /// <returns>The tile set to use</returns>
-        public override IList<ARGBColor> GetTileSet(Context context)
+        /// <returns>The tile set colors to use</returns>
+        public IList<ARGBColor> GetTileSetColors(Context context)
         {
             var levelTileSetFileName = GetSpecialTileSetPathIfExists(context);
 
@@ -61,6 +61,13 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets the tile set to use
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The tile set to use</returns>
+        public override Common_Tileset GetTileSet(Context context) => new Common_Tileset(GetTileSetColors(context), TileSetWidth, CellSize);
+
+        /// <summary>
         /// Fills the PS1 v-ram and returns it
         /// </summary>
         /// <param name="context">The context</param>
@@ -79,7 +86,7 @@ namespace R1Engine
             vram.currentXPage = 5;
 
             // Reserve spot for tiles in vram
-            IList<ARGBColor> tiles = GetTileSet(context);
+            IList<ARGBColor> tiles = GetTileSetColors(context);
             int tilesetHeight = tiles.Count / 256;
             const int tilesetWidth = 4 * 128;
             int tilesetPage = (16 - 4); // Max pages - tileset width

@@ -1,7 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -63,13 +62,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override IList<ARGBColor> GetTileSet(Context context) {
+        public override Common_Tileset GetTileSet(Context context) {
             var tileSetPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.RAW";
             var palettePath = $"JUNGLE/{GetMapName(context.Settings.Level)}.PAL";
             var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
             var palette = FileFactory.Read<ObjectArray<ARGB1555Color>>(palettePath, context, (s, x) => x.Length = s.CurrentLength / 2);
 
-            return tileSet.Value.Select(ind => palette.Value[ind]).ToArray();
+            return new Common_Tileset(tileSet.Value.Select(ind => palette.Value[ind]).ToArray(), TileSetWidth, CellSize);
         }
 
         /// <summary>

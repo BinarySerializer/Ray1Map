@@ -176,7 +176,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public abstract IList<ARGBColor> GetTileSet(Context context);
+        public abstract Common_Tileset GetTileSet(Context context);
 
         /// <summary>
         /// Fills the PS1 v-ram and returns it
@@ -325,7 +325,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_Event[] events, ushort[] eventLinkingTable)
         {
-            Common_Tileset tileSet = new Common_Tileset(GetTileSet(context), TileSetWidth, CellSize);
+            Common_Tileset tileSet = GetTileSet(context);
 
             var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
             var eventETA = new List<KeyValuePair<Pointer, Common_EventState[][]>>();

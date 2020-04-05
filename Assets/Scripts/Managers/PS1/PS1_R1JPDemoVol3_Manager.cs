@@ -80,7 +80,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override IList<ARGBColor> GetTileSet(Context context)
+        public override Common_Tileset GetTileSet(Context context)
         {
             // Get the file name
             var filename = GetTileSetFilePath(context.Settings);
@@ -89,7 +89,7 @@ namespace R1Engine
             var tileSet = FileFactory.Read<ObjectArray<ARGB1555Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             // Return the tile set
-            return tileSet.Value;
+            return new Common_Tileset(tileSet.Value, TileSetWidth, CellSize);
         }
 
         /// <summary>
@@ -189,36 +189,6 @@ namespace R1Engine
             };
         }
 
-        private void TestExtractBit(Context context, string file, int width,
-            bool swizzled = true, int blockWidth = 8, int blockHeight = 8,
-            string palFile = null,
-            string pltFile = null) {
-            context.AddFile(new LinearSerializedFile(context) {
-                filePath = file,
-                Endianness = BinaryFile.Endian.Big
-            });
-            Array<byte> plt = null;
-            ObjectArray<ARGB1555Color> pal = null;
-            if (palFile != null) {
-                context.AddFile(new LinearSerializedFile(context) {
-                    filePath = palFile,
-                    Endianness = BinaryFile.Endian.Big
-                });
-                pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(palFile, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
-            }
-            if (pltFile != null) {
-                context.AddFile(new LinearSerializedFile(context) {
-                    filePath = pltFile,
-                    Endianness = BinaryFile.Endian.Big
-                });
-                plt = FileFactory.Read<Array<byte>>(pltFile, context, onPreSerialize: (s,x) => x.Length = s.CurrentLength);
-            }
-            BIT bit = FileFactory.Read<BIT>(file, context, onPreSerialize: (s,b) => { b.PAL = pal; b.PLT = plt; });
-
-            Util.ByteArrayToFile(context.BasePath + file + ".png",
-                bit.ToTexture(width, swizzled: swizzled, blockWidth: blockWidth, blockHeight: blockHeight).EncodeToPNG());
-        }
-
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -226,13 +196,6 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
-            /*TestExtractBit(context, "BIT/RAYMAN.BIT", 320);
-            TestExtractBit(context, "BIT/MON_F2W.BIT", 384);
-            TestExtractBit(context, "BIT/MON2_SP.BIT", 7 * 8, swizzled: false, blockHeight: 1);
-            TestExtractBit(context, "BIT/MON_01.BIT", 256, palFile: "BIT/MON.PAL", pltFile: "BIT/MON_01.PLT");
-            TestExtractBit(context, "BIT/MON_01A.BIT", 256);
-            TestExtractBit(context, "BIT/MON_01B.BIT", 256);*/
-
             // Get the file paths
             var allfixPath = GetAllfixFilePath();
             var worldPath = GetWorldFilePath(context.Settings);

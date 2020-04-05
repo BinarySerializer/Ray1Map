@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -54,6 +55,35 @@ namespace R1Engine
                 t.sprite = Sprite.Create(tex, new Rect(0, 0, cellSize, cellSize), new Vector2(0.5f, 0.5f), cellSize, 20);
 
                 Tiles[index] = t;
+            }
+        }
+
+        /// <summary>
+        /// Creates a tile set from a tile-set texture
+        /// </summary>
+        /// <param name="tileSet">The tile-set texture</param>
+        /// <param name="cellSize">The tile size</param>
+        public Common_Tileset(Texture2D tileSet, int cellSize)
+        {
+            // Create the tile array
+            Tiles = new Tile[(tileSet.width / cellSize) * (tileSet.height / cellSize)];
+
+            // Keep track of the index
+            var index = 0;
+
+            // Extract every tile
+            for (int y = 0; y < tileSet.height; y += cellSize)
+            {
+                for (int x = 0; x < tileSet.width; x += cellSize)
+                {
+                    // Create a tile
+                    Tile t = ScriptableObject.CreateInstance<Tile>();
+                    t.sprite = Sprite.Create(tileSet, new Rect(x, y, cellSize, cellSize), new Vector2(0.5f, 0.5f), cellSize, 20);
+
+                    Tiles[index] = t;
+
+                    index++;
+                }
             }
         }
 

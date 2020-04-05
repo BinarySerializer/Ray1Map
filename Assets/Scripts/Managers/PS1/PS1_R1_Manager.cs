@@ -26,7 +26,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override IList<ARGBColor> GetTileSet(Context context)
+        public override Common_Tileset GetTileSet(Context context)
         {
             // Get the file name
             var filename = GetWorldFilePath(context.Settings);
@@ -62,7 +62,7 @@ namespace R1Engine
                 }
             }
 
-            return pixels;
+            return new Common_Tileset(pixels, TileSetWidth, CellSize);
         }
 
         /// <summary>

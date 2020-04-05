@@ -42,9 +42,20 @@
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.RaySaturn)
             {
-                TileMapX = s.Serialize((ushort)TileMapX, name: nameof(TileMapX));
-                TileMapY = 0;
-                CollisionType = (TileCollisionType)s.Serialize((ushort)CollisionType, name: nameof(CollisionType));
+                ushort value = 0;
+
+                value = (ushort)BitHelpers.SetBits(value, TileMapX, 4, 0);
+                value = (ushort)BitHelpers.SetBits(value, TileMapY, 12, 4);
+
+                value = s.Serialize<ushort>(value, name: nameof(value));
+
+                TileMapX = BitHelpers.ExtractBits(value, 4, 0);
+                TileMapY = BitHelpers.ExtractBits(value, 12, 4);
+
+                CollisionType = (TileCollisionType)s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
+
+                // TODO: Serialize this? Is it part of collision type? This appears in other PS1 versions too and is skipped there. It appears to always be 0 though.
+                s.Serialize<byte>(0);
             }
             else
             {
