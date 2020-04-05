@@ -18,11 +18,10 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
-        // TODO: Fix
         /// <summary>
         /// The file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoR2PS1;
+        protected override Dictionary<string, PS1FileInfo> FileInfo => null;
 
         /// <summary>
         /// Gets the folder path for the specified world
@@ -30,6 +29,26 @@ namespace R1Engine
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
         public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
+
+        /// <summary>
+        /// Gets the allfix file path
+        /// </summary>
+        /// <returns>The allfix file path</returns>
+        public string GetAllfixFilePath() => "RAY.DTA";
+
+        /// <summary>
+        /// Gets the world data file path
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The world data file path</returns>
+        public string GetWorldFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}.DTA";
+
+        /// <summary>
+        /// Gets the level data file path
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The level data file path</returns>
+        public string GetLevelFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}{context.Settings.Level:00}.DTA";
 
         /// <summary>
         /// Gets the map file path
@@ -69,20 +88,31 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(5)))
             .ToArray())).ToArray();
 
-        public override async Task LoadExtraFile(Context context, string path)
+        public async Task<uint> LoadFile(Context context, string path, uint baseAddress = 0, BinaryFile.Endian endian = BinaryFile.Endian.Big)
         {
             await FileSystem.PrepareFile(context.BasePath + path);
 
-            Dictionary<string, PS1FileInfo> fileInfo = FileInfo;
-
-            // TODO: This should be memory mapped!
-            var file = new LinearSerializedFile(context)
+            if (baseAddress != 0)
             {
-                filePath = path,
-                Endianness = BinaryFile.Endian.Big
-            };
+                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode)
+                {
+                    filePath = path,
+                    Endianness = endian
+                };
+                context.AddFile(file);
 
-            context.AddFile(file);
+                return file.Length;
+            }
+            else
+            {
+                LinearSerializedFile file = new LinearSerializedFile(context)
+                {
+                    filePath = path,
+                    Endianness = endian
+                };
+                context.AddFile(file);
+                return 0;
+            }
         }
 
         /// <summary>
@@ -104,7 +134,6 @@ namespace R1Engine
             // Get the tile-set texture
             var tex = tileSet.ToTexture(CellSize * TileSetWidth);
 
-            // TODO: Is this needed?
             // Add transparency
             for (int y = 0; y < tex.height; y++)
             {
@@ -116,6 +145,7 @@ namespace R1Engine
                         tex.SetPixel(x, y, new Color(color.r, color.g, color.b, 0f));
                 }
             }
+
             tex.Apply();
 
             return new Common_Tileset(tex, CellSize);
@@ -136,19 +166,37 @@ namespace R1Engine
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
             // Get the paths
+            var allfixFilePath = GetAllfixFilePath();
+            var worldFilePath = GetWorldFilePath(context);
+            var levelFilePath = GetLevelFilePath(context);
             var tileSetPaletteFilePath = GetTileSetPaletteFilePath(context);
             var tileSetPaletteIndexTableFilePath = GetTileSetPaletteIndexTableFilePath(context);
             var tileSetFilePath = GetTileSetFilePath(context);
             var mapFilePath = GetMapFilePath(context);
 
-            // Load the files
-            await LoadExtraFile(context, tileSetPaletteFilePath);
-            await LoadExtraFile(context, tileSetPaletteIndexTableFilePath);
-            await LoadExtraFile(context, tileSetFilePath);
-            await LoadExtraFile(context, mapFilePath);
+            uint baseAddress = 0x00200000;
+
+            // Load the memory mapped files
+            baseAddress += await LoadFile(context, allfixFilePath, baseAddress);
+
+            if (FileSystem.FileExists(context.BasePath + worldFilePath))
+                baseAddress += await LoadFile(context, worldFilePath, baseAddress);
+
+            baseAddress += await LoadFile(context, levelFilePath, baseAddress, BinaryFile.Endian.Little);
+
+            // Load the linear files
+            await LoadFile(context, tileSetPaletteFilePath);
+            await LoadFile(context, tileSetPaletteIndexTableFilePath);
+            await LoadFile(context, tileSetFilePath);
+            await LoadFile(context, mapFilePath);
+
+            // NOTE: Big ray data is always loaded at 0x00280000
 
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapFilePath, context);
+
+            // Read the event block
+            var eventBlock = FileFactory.Read<PS1_R1_EventBlock>(levelFilePath, context);
 
             // Load the level
             return await LoadAsync(context, map, null, null);
