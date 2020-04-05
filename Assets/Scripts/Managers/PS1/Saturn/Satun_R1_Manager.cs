@@ -90,7 +90,7 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(5)))
             .ToArray())).ToArray();
 
-        public async Task<uint> LoadFile(Context context, string path, uint baseAddress = 0, BinaryFile.Endian endian = BinaryFile.Endian.Big)
+        public async Task<uint> LoadFile(Context context, string path, uint baseAddress = 0)
         {
             await FileSystem.PrepareFile(context.BasePath + path);
 
@@ -99,7 +99,7 @@ namespace R1Engine
                 PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode)
                 {
                     filePath = path,
-                    Endianness = endian
+                    Endianness = BinaryFile.Endian.Big
                 };
                 context.AddFile(file);
 
@@ -110,7 +110,7 @@ namespace R1Engine
                 LinearSerializedFile file = new LinearSerializedFile(context)
                 {
                     filePath = path,
-                    Endianness = endian
+                    Endianness = BinaryFile.Endian.Big
                 };
                 context.AddFile(file);
                 return 0;
@@ -161,8 +161,14 @@ namespace R1Engine
         public override PS1_VRAM FillVRAM(Context context) => null; //throw new NotImplementedException();
 
         public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, Common_ImageDescriptor s) {
-            Texture2D tex = new Texture2D(s.OuterWidth, s.OuterHeight);
+            Texture2D tex = new Texture2D(s.OuterWidth, s.OuterHeight, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
             tex.SetPixels(Enumerable.Repeat(Color.blue, tex.width * tex.height).ToArray());
+            tex.Apply();
+
             return tex;
         }
 

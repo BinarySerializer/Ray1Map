@@ -121,6 +121,7 @@ namespace R1Engine
         public byte Unknown13 { get; set; }
 
         // TODO: Is this value not used for the vol3 demo?
+        // TODO: This is a flag
         public bool FollowEnabled { get; set; }
 
         public byte Unknown14 { get; set; }
