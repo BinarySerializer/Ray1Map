@@ -182,7 +182,7 @@ namespace R1Engine
             if (FileSystem.FileExists(context.BasePath + worldFilePath))
                 baseAddress += await LoadFile(context, worldFilePath, baseAddress);
 
-            baseAddress += await LoadFile(context, levelFilePath, baseAddress, BinaryFile.Endian.Little);
+            baseAddress += await LoadFile(context, levelFilePath, baseAddress);
 
             // Load the linear files
             await LoadFile(context, tileSetPaletteFilePath);

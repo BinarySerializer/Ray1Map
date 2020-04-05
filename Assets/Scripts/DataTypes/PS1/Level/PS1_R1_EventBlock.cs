@@ -15,7 +15,7 @@ namespace R1Engine
         /// <summary>
         /// The amount of events in the file
         /// </summary>
-        public uint EventCount { get; set; }
+        public byte EventCount { get; set; }
 
         /// <summary>
         /// Pointer to the event links
@@ -25,7 +25,7 @@ namespace R1Engine
         /// <summary>
         /// The amount of event links in the file
         /// </summary>
-        public uint EventLinkCount { get; set; }
+        public byte EventLinkCount { get; set; }
 
         /// <summary>
         /// The events
@@ -45,9 +45,11 @@ namespace R1Engine
         {
             // Serialize header
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
-            EventCount = s.Serialize<uint>(EventCount, name: nameof(EventCount));
+            EventCount = s.Serialize<byte>(EventCount, name: nameof(EventCount));
+            s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
             EventLinksPointer = s.SerializePointer(EventLinksPointer, name: nameof(EventLinksPointer));
-            EventLinkCount = s.Serialize<uint>(EventLinkCount, name: nameof(EventLinkCount));
+            EventLinkCount = s.Serialize<byte>(EventLinkCount, name: nameof(EventLinkCount));
+            s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
 
             if (EventCount != EventLinkCount)
                 Debug.LogError("Event counts don't match");
