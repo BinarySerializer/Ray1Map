@@ -69,7 +69,7 @@ namespace R1Engine
                                 if (By + by >= height) continue;
                                 if (PixelsPaletted != null) {
                                     byte index = PixelsPaletted[curPixel];
-                                    int pltIndex = (y * yStep) + blockSwizzlePattern[b].y;
+                                    int pltIndex = ((y * yStep)) * blockHeight + x;
                                     if (pltIndex < PLT.Value.Length) {
                                         byte numPalette = PLT.Value[pltIndex];
                                         uint palIndex = 256 * (uint)numPalette + index;
