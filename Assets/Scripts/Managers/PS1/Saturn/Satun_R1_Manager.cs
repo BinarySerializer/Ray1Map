@@ -18,6 +18,8 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
+        protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
+
         /// <summary>
         /// The file info to use
         /// </summary>
