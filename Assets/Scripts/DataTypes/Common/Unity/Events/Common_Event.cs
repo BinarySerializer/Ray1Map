@@ -157,7 +157,11 @@ namespace R1Engine {
 
             if (animInfo != null) {
                 AnimationIndex = animInfo.AnimationIndex;
-                AnimSpeed = animInfo.AnimationSpeed;
+
+                if (Settings.GetGameSettings.EngineVersion == EngineVersion.RaySaturn)
+                    AnimSpeed = animInfo.AnimationSpeed >> 4;
+                else
+                    AnimSpeed = animInfo.AnimationSpeed;
             }
             else
             {
