@@ -19,16 +19,14 @@
         /// <summary>
         /// The number of layers to use per frame
         /// </summary>
-        public ushort LayersPerFrame { get; set; }
-
-        public byte Unk1 { get; set; }
+        public ushort LayersPerFrameSerialized { get; set; }
+        public byte LayersPerFrame => (byte)(LayersPerFrameSerialized & 0xFF);
 
         /// <summary>
         /// The number of frames in the animation
         /// </summary>
-        public ushort FrameCount { get; set; }
-
-        public byte Unk2 { get; set; }
+        public ushort FrameCountSerialized { get; set; }
+        public byte FrameCount => (byte)(FrameCountSerialized & 0xFF);
 
         /// <summary>
         /// The animation layers
@@ -51,18 +49,8 @@
             AnimFramesPointer = s.SerializePointer(AnimFramesPointer, name: nameof(AnimFramesPointer));
             
             // Serialize data
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
-            {
-                LayersPerFrame = s.Serialize<byte>((byte)LayersPerFrame, name: nameof(LayersPerFrame));
-                Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
-                FrameCount = s.Serialize<byte>((byte)FrameCount, name: nameof(FrameCount));
-                Unk2 = s.Serialize<byte>(Unk2, name: nameof(Unk2));
-            }
-            else
-            {
-                LayersPerFrame = s.Serialize<ushort>(LayersPerFrame, name: nameof(LayersPerFrame));
-                FrameCount = s.Serialize<ushort>(FrameCount, name: nameof(FrameCount));
-            }
+            LayersPerFrameSerialized = s.Serialize<ushort>(LayersPerFrameSerialized, name: nameof(LayersPerFrameSerialized));
+            FrameCountSerialized = s.Serialize<ushort>(FrameCountSerialized, name: nameof(FrameCountSerialized));
 
             // Serialize data from pointers
             s.DoAt(AnimLayersPointer, () =>
