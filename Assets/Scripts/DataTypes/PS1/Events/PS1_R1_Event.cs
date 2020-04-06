@@ -192,7 +192,7 @@ namespace R1Engine
             ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
             CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
             {
                 UnkDemo1 = s.SerializeArray<byte>(UnkDemo1, 46, name: nameof(UnkDemo1));
             }
@@ -205,12 +205,12 @@ namespace R1Engine
             // Serialize position
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
-
+            
             // Serialize unknown properties
-            Unknown2 = s.SerializeArray<byte>(Unknown2, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 12 : 16, name: nameof(Unknown2));
+            Unknown2 = s.SerializeArray<byte>(Unknown2, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 12 : 16, name: nameof(Unknown2));
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
             {
                 Unknown4 = s.Serialize<ushort>(Unknown4, name: nameof(Unknown4));
                 Unknown5 = s.Serialize<ushort>(Unknown5, name: nameof(Unknown5));
@@ -233,7 +233,7 @@ namespace R1Engine
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 UnkDemo2 = s.Serialize<byte>(UnkDemo2, name: nameof(UnkDemo2));
 
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
@@ -248,11 +248,11 @@ namespace R1Engine
 
             HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
 
-            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 11 : 7, name: nameof(Unknown12));
+            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 11 : 7, name: nameof(Unknown12));
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
             {
                 Unknown13 = s.Serialize<byte>(Unknown13, name: nameof(Unknown13));
                 FollowEnabled = s.Serialize<bool>(FollowEnabled, name: nameof(FollowEnabled));
@@ -269,7 +269,7 @@ namespace R1Engine
                 AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors));
             });
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo) {
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3) {
                 if (ImageBuffer == null && ImageBufferPointer != null && ImageDescriptors != null) {
                     // Determine length of image buffer
                     uint length = 0;
@@ -290,7 +290,7 @@ namespace R1Engine
                 });
             }
 
-            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
             {
                 // Serialize the commands
                 if (CommandsPointer != null)
@@ -363,7 +363,7 @@ namespace R1Engine
                         {
                             if (EtatPointers[i + 1] != null)
                             {
-                                NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 14u : 8);
+                                NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 14u : 8);
                             }
                             else
                             {
@@ -376,7 +376,7 @@ namespace R1Engine
                         // TODO: Parse this last array
                         NumSubEtats[NumEtats - 1] = 
                             // Temp fix so we don't read past the end of the stream - this however causes certain events to get the wrong state!
-                            s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo ? 8u 
+                            s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RaySaturn ? 8u 
                                 : 20u;
 
                         //if (Etat == NumEtats - 1) {

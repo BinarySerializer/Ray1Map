@@ -26,7 +26,7 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
             {
                 int value = 0;
 

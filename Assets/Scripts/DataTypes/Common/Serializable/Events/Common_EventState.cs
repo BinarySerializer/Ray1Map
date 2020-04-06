@@ -65,28 +65,28 @@
         public override void SerializeImpl(SerializerObject s) {
             RightSpeed = s.Serialize<sbyte>(RightSpeed, name: nameof(RightSpeed));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 UnkDemo1 = s.Serialize<byte>(UnkDemo1, name: nameof(UnkDemo1));
 
             LeftSpeed = s.Serialize<sbyte>(LeftSpeed, name: nameof(LeftSpeed));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 UnkDemo2 = s.Serialize<byte>(UnkDemo2, name: nameof(UnkDemo2));
 
             AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 UnkDemo3 = s.Serialize<byte>(UnkDemo3, name: nameof(UnkDemo3));
 
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
 
             AnimationSpeed = s.Serialize<byte>(AnimationSpeed, name: nameof(AnimationSpeed));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemo)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
             {
                 UnkDemo5 = s.Serialize<byte>(UnkDemo5, name: nameof(UnkDemo5));
                 UnkDemo6 = s.Serialize<byte>(UnkDemo6, name: nameof(UnkDemo6));
