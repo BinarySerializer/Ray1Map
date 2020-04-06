@@ -80,6 +80,10 @@ namespace R1Engine
         /// <returns>The tile-set file path</returns>
         public string GetTileSetFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}_01.BIT";
 
+        public string GetFixImageFilePath() => "RAY.IMG";
+        public string GetWorldImageFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}.IMG";
+        public string GetLevelImageFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}{context.Settings.Level:00}.IMG";
+
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
@@ -93,7 +97,9 @@ namespace R1Engine
         public async Task<uint> LoadFile(Context context, string path, uint baseAddress = 0)
         {
             await FileSystem.PrepareFile(context.BasePath + path);
-
+            if (!FileSystem.FileExists(context.BasePath + path)) {
+                return 0;
+            }
             if (baseAddress != 0)
             {
                 PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode)
@@ -158,15 +164,85 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public override PS1_VRAM FillVRAM(Context context) => null; //throw new NotImplementedException();
+        public override void FillVRAM(Context context) {
+            string worldPath = GetWorldImageFilePath(context);
+            var fixImg = FileFactory.Read<Array<byte>>(GetFixImageFilePath(), context, (y, x) => x.Length = y.CurrentLength);
+            var worldImg = context.FileExists(worldPath) ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
+            var levelImg = FileFactory.Read<Array<byte>>(GetLevelImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength);
+            
+            ImageBuffer buf = new ImageBuffer();
+            if (fixImg != null) buf.AddData(fixImg.Value);
+            if (worldImg != null) buf.AddData(worldImg.Value);
+            if (levelImg != null) buf.AddData(levelImg.Value);
+            context.StoreObject("vram", buf);
 
-        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, Common_ImageDescriptor s) {
-            Texture2D tex = new Texture2D(s.OuterWidth, s.OuterHeight, TextureFormat.RGBA32, false)
-            {
+            context.AddFile(new LinearSerializedFile(context) {
+                filePath = "VIGNET/VRAM_A.BIT",
+                Endianness = BinaryFile.Endian.Big
+            });
+            var vramA = FileFactory.Read<BIT>("VIGNET/VRAM_A.BIT", context);
+            Util.ByteArrayToFile(context.BasePath + "VIGNET/VRAM_A.BIT" + ".png", vramA.ToTexture(320).EncodeToPNG());
+        }
+
+        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor img) {
+            if (img.ImageType != 2 && img.ImageType != 3) return null;
+            if (img.Unknown2 == 0) return null;
+            ImageBuffer buf = context.GetStoredObject<ImageBuffer>("vram");
+
+            // Get the image properties
+            var width = img.OuterWidth;
+            var height = img.OuterHeight;
+            var offset = img.ImageBufferOffset;
+
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
-            tex.SetPixels(Enumerable.Repeat(Color.blue, tex.width * tex.height).ToArray());
+            //Debug.Log(string.Format("{0:X8}", img.ImageBufferOffset) + " - " + tex.width + " - " + tex.height);
+            //var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>("0.PAL", context, (s, x) => x.Length = s.CurrentLength / 2);
+            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetTileSetPaletteFilePath(context), context, (s, x) => x.Length = s.CurrentLength / 2);
+            var palette = pal.Value;
+            var paletteOffset = img.PaletteInfo % palette.Length; // TODO: Load palettes from "0", don't do modulo
+
+            // Set every pixel
+            if (img.ImageType == 3) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        var paletteIndex = buf.GetPixel8((uint)(offset + width * y + x));
+
+                        // Set the pixel
+                        var color = palette[paletteOffset + paletteIndex].GetColor();
+                        if (color.r == 0 && color.g == 0 && color.b == 0) {
+                            color = new Color(color.r, color.g, color.b, 0f);
+                        } else {
+                            color = new Color(color.r, color.g, color.b, 1f);
+                        }
+                        tex.SetPixel(x, height - 1 - y, color);
+                    }
+                }
+            } else if (img.ImageType == 2) {
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        var paletteIndex = buf.GetPixel8((uint)(offset + (width * y + x) / 2));
+                        if (x % 2 == 0)
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 4);
+                        else
+                            paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
+
+                        // Set the pixel
+                        var color = palette[paletteOffset + paletteIndex].GetColor();
+                        if (color.r == 0 && color.g == 0 && color.b == 0) {
+                            color = new Color(color.r, color.g, color.b, 0f);
+                        } else {
+                            color = new Color(color.r, color.g, color.b, 1f);
+                        }
+                        tex.SetPixel(x, height - 1 - y, color);
+                    }
+                }
+            }
+
+
+            //tex.SetPixels(Enumerable.Repeat(Color.blue, tex.width * tex.height).ToArray());
             tex.Apply();
 
             return tex;
@@ -203,6 +279,11 @@ namespace R1Engine
             await LoadFile(context, tileSetPaletteIndexTableFilePath);
             await LoadFile(context, tileSetFilePath);
             await LoadFile(context, mapFilePath);
+
+            await LoadFile(context, "0.PAL"); // TODO: read the palettes from the '0' executable file
+            await LoadFile(context, GetFixImageFilePath());
+            await LoadFile(context, GetWorldImageFilePath(context));
+            await LoadFile(context, GetLevelImageFilePath(context));
 
             // NOTE: Big ray data is always loaded at 0x00280000
 

@@ -76,7 +76,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public override PS1_VRAM FillVRAM(Context context)
+        public override void FillVRAM(Context context)
         {
             throw new NotImplementedException();
         }

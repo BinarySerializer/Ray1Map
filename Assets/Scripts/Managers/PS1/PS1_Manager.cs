@@ -183,7 +183,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public abstract PS1_VRAM FillVRAM(Context context);
+        public abstract void FillVRAM(Context context);
 
         /// <summary>
         /// Gets the sprite texture for an event
@@ -193,8 +193,10 @@ namespace R1Engine
         /// <param name="vram">The filled v-ram</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, Common_ImageDescriptor s)
+        public virtual Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor s)
         {
+            PS1_VRAM vram = context.GetStoredObject<PS1_VRAM>("vram");
+
             // Get the image properties
             var width = s.OuterWidth;
             var height = s.OuterHeight;
@@ -335,7 +337,7 @@ namespace R1Engine
             if (events != null)
             {
                 // Get the v-ram
-                PS1_VRAM vram = FillVRAM(context);
+                FillVRAM(context);
 
                 var index = 0;
 
@@ -361,7 +363,7 @@ namespace R1Engine
                         // Get every sprite
                         foreach (Common_ImageDescriptor i in e.ImageDescriptors)
                         {
-                            Texture2D tex = GetSpriteTexture(context, e, vram, i);
+                            Texture2D tex = GetSpriteTexture(context, e, i);
 
                             // Add it to the array
                             finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));

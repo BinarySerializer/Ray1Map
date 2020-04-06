@@ -19,16 +19,12 @@
         /// <summary>
         /// The number of layers to use per frame
         /// </summary>
-        public byte LayersPerFrame { get; set; }
-
-        public byte Unknown1 { get; set; }
+        public ushort LayersPerFrame { get; set; }
 
         /// <summary>
         /// The number of frames in the animation
         /// </summary>
-        public byte FrameCount { get; set; }
-
-        public byte Unknown2 { get; set; }
+        public ushort FrameCount { get; set; }
 
         /// <summary>
         /// The animation layers
@@ -51,10 +47,8 @@
             AnimFramesPointer = s.SerializePointer(AnimFramesPointer, name: nameof(AnimFramesPointer));
             
             // Serialize data
-            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: nameof(LayersPerFrame));
-            Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
-            FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
-            Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
+            LayersPerFrame = s.Serialize<ushort>(LayersPerFrame, name: nameof(LayersPerFrame));
+            FrameCount = s.Serialize<ushort>(FrameCount, name: nameof(FrameCount));
 
             // Serialize data from pointers
             s.DoAt(AnimLayersPointer, () =>

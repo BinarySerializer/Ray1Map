@@ -72,7 +72,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public override PS1_VRAM FillVRAM(Context context)
+        public override void FillVRAM(Context context)
         {
             // Read the files
             var allFix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
@@ -120,7 +120,7 @@ namespace R1Engine
             vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
 
-            return vram;
+            context.StoreObject("vram", vram);
         }
 
         /// <summary>

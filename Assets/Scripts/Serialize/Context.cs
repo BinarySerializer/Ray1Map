@@ -17,6 +17,8 @@ namespace R1Engine.Serialize {
 
 		public string BasePath { get; }
 
+		protected Dictionary<string, object> ObjectStorage { get; } = new Dictionary<string, object>();
+
 		/// <summary>
 		/// Creates an empty serialization context
 		/// </summary>
@@ -36,7 +38,7 @@ namespace R1Engine.Serialize {
 
 		public BinaryFile GetFile(string relativePath) {
 			string path = Util.NormalizePath(relativePath, false);
-			return MemoryMap.Files.FirstOrDefault<BinaryFile>(f => f.filePath.ToLower() == path.ToLower());
+			return MemoryMap.Files.FirstOrDefault<BinaryFile>(f => f.filePath.ToLower() == path.ToLower() || f.alias?.ToLower() == relativePath.ToLower());
 		}
 		public void AddFile(BinaryFile file) {
 			MemoryMap.Files.Add(file);
@@ -54,6 +56,10 @@ namespace R1Engine.Serialize {
 			//if (f == null) return null;
 			return f.StartPointer;
 		}
+		public bool FileExists(string relativePath) {
+			BinaryFile f = GetFile(relativePath);
+			return f != null;
+		}
 
 		public T GetMainFileObject<T>(string relativePath) where T : R1Serializable {
 			return GetMainFileObject<T>(GetFile(relativePath));
@@ -62,6 +68,15 @@ namespace R1Engine.Serialize {
 			if (file == null) return default;
 			Pointer ptr = file.StartPointer;
 			return Cache.FromOffset<T>(ptr);
+		}
+
+		public T GetStoredObject<T>(string id) {
+			if (ObjectStorage.ContainsKey(id)) return (T)ObjectStorage[id];
+			return default;
+		}
+
+		public void StoreObject<T>(string id, T obj) {
+			ObjectStorage[id] = obj;
 		}
 
 		private BinaryDeserializer deserializer;

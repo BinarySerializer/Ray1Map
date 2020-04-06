@@ -18,12 +18,12 @@
         /// <summary>
         /// The outer image width (including the margins)
         /// </summary>
-        public byte OuterWidth { get; set; }
+        public ushort OuterWidth { get; set; }
 
         /// <summary>
         /// The outer image height (including the margins)
         /// </summary>
-        public byte OuterHeight { get; set; }
+        public ushort OuterHeight { get; set; }
 
         /// <summary>
         /// The inner image width
@@ -68,8 +68,8 @@
                 {
                     Index = s.Serialize<ushort>(Index, name: nameof(Index));
                     ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
-                    OuterWidth = (byte)s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
-                    OuterHeight = (byte)s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
+                    OuterWidth = s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
+                    OuterHeight = s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
                     Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
                 }
                 else if (s.GameSettings.EngineVersion == EngineVersion.RaySaturn)
@@ -79,27 +79,27 @@
                     // ?
                     ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
 
-                    OuterWidth = (byte)s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
-                    OuterHeight = (byte)s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
+                    OuterWidth = s.Serialize<ushort>(OuterWidth, name: nameof(OuterWidth));
+                    OuterHeight = s.Serialize<ushort>(OuterHeight, name: nameof(OuterHeight));
 
                     // Unsure below here...
+                    PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
+
                     Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
                 }
                 else
                 {
                     Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
-                    OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
-                    OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
+                    OuterWidth = s.Serialize<byte>((byte)OuterWidth, name: nameof(OuterWidth));
+                    OuterHeight = s.Serialize<byte>((byte)OuterHeight, name: nameof(OuterHeight));
                     InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
                     InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
                     Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
                 }
 
-                Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
-                Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
-
-                if (s.GameSettings.EngineVersion != EngineVersion.RaySaturn)
-                {
+                if (s.GameSettings.EngineVersion != EngineVersion.RaySaturn) {
+                    Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
+                    Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
                     PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
 
                     TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
@@ -111,8 +111,8 @@
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PC)
             {
                 Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
-                OuterWidth = s.Serialize<byte>(OuterWidth, name: nameof(OuterWidth));
-                OuterHeight = s.Serialize<byte>(OuterHeight, name: nameof(OuterHeight));
+                OuterWidth = s.Serialize<byte>((byte)OuterWidth, name: nameof(OuterWidth));
+                OuterHeight = s.Serialize<byte>((byte)OuterHeight, name: nameof(OuterHeight));
                 InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
                 InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
                 Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));

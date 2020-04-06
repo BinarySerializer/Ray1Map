@@ -97,10 +97,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public override PS1_VRAM FillVRAM(Context context)
+        public override void FillVRAM(Context context)
         {
             // We don't need to emulate the v-ram for this version
-            return null;
+            return;// null;
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace R1Engine
         /// <param name="vram">The filled v-ram</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, PS1_VRAM vram, Common_ImageDescriptor s)
+        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor s)
         {
             if (s.ImageType != 2 && s.ImageType != 3) 
                 return null;

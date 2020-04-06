@@ -16,6 +16,11 @@ namespace R1Engine.Serialize {
 		/// The file path relative to the main directory in the context
 		/// </summary>
 		public string filePath;
+
+		/// <summary>
+		/// Files can also be identified with an alias.
+		/// </summary>
+		public string alias;
 		public string AbsolutePath => Context.BasePath + filePath;
 
 		public abstract Reader CreateReader();
