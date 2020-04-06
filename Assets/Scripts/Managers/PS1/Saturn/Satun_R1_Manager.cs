@@ -192,10 +192,18 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
             //Debug.Log(string.Format("{0:X8}", img.ImageBufferOffset) + " - " + tex.width + " - " + tex.height);
-            //var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>("0.PAL", context, (s, x) => x.Length = s.CurrentLength / 2);
-            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetTileSetPaletteFilePath(context), context, (s, x) => x.Length = s.CurrentLength / 2);
+            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>("0.PAL", context, (s, x) => x.Length = s.CurrentLength / 2);
+            //var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetTileSetPaletteFilePath(context), context, (s, x) => x.Length = s.CurrentLength / 2);
             var palette = pal.Value;
-            var paletteOffset = img.PaletteInfo % palette.Length; // TODO: Load palettes from "0", don't do modulo
+            var paletteOffset = img.PaletteInfo;
+
+            
+            //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
+            if (img.ImageType == 3) {
+                paletteOffset = 20 * 256;
+            } else {
+                paletteOffset = (ushort)(19 * 256 + ((img.Unknown2 >> 4) - 1) * 16);
+            }
 
             // Set every pixel
             if (img.ImageType == 3) {
@@ -205,11 +213,6 @@ namespace R1Engine
 
                         // Set the pixel
                         var color = palette[paletteOffset + paletteIndex].GetColor();
-                        if (color.r == 0 && color.g == 0 && color.b == 0) {
-                            color = new Color(color.r, color.g, color.b, 0f);
-                        } else {
-                            color = new Color(color.r, color.g, color.b, 1f);
-                        }
                         tex.SetPixel(x, height - 1 - y, color);
                     }
                 }
@@ -224,11 +227,6 @@ namespace R1Engine
 
                         // Set the pixel
                         var color = palette[paletteOffset + paletteIndex].GetColor();
-                        if (color.r == 0 && color.g == 0 && color.b == 0) {
-                            color = new Color(color.r, color.g, color.b, 0f);
-                        } else {
-                            color = new Color(color.r, color.g, color.b, 1f);
-                        }
                         tex.SetPixel(x, height - 1 - y, color);
                     }
                 }
@@ -276,6 +274,8 @@ namespace R1Engine
             if (FileSystem.FileExists(context.BasePath + levelFilePath))
             {
                 await LoadFile(context, "0.PAL"); // TODO: read the palettes from the '0' executable file
+                var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>("0.PAL", context, (s, x) => x.Length = s.CurrentLength / 2);
+                PaletteHelpers.ExportPalette(context.BasePath + "0.png", pal.Value, scale: 1, optionalWrap: 256);
                 await LoadFile(context, GetFixImageFilePath());
                 await LoadFile(context, GetWorldImageFilePath(context));
                 await LoadFile(context, GetLevelImageFilePath(context));
