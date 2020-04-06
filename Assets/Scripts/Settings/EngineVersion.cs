@@ -45,6 +45,11 @@ namespace R1Engine
         RayEduPC,
 
         /// <summary>
+        /// Educational Rayman games (PC)
+        /// </summary>
+        RayEduPS1,
+
+        /// <summary>
         /// Rayman Ultimate (Pocket PC)
         /// </summary>
         RayPocketPC,

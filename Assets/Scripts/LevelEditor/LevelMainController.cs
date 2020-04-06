@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -80,6 +83,62 @@ namespace R1Engine
                 Settings.GetGameManager.SaveLevel(serializeContext, currentLevel);
             }
             Debug.Log("Saved.");
+        }
+
+        public void ExportTileset() 
+        {
+            var tileSetIndex = 0;
+
+            // Export every tile set
+            foreach (var tileSet in currentLevel.TileSet.Where(x => x?.Tiles?.Any(y => y != null) == true))
+            {
+                // Get values
+                var tileCount = tileSet.Tiles.Length;
+                const int tileSetWidth = 16;
+                var tileSetHeight = (int)Math.Ceiling(tileCount / (double)tileSetWidth);
+                var tileSize = tileSet.Tiles.First().sprite.texture.width;
+
+                // Create the texture
+                var tileTex = new Texture2D(tileSetWidth * tileSize, tileSetHeight * tileSize, TextureFormat.RGBA32, false)
+                {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+
+                // Default to fully transparent
+                tileTex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tileTex.width * tileTex.height).ToArray());
+
+                // Add every tile to it
+                for (int i = 0; i < tileCount; i++)
+                {
+                    // Get the tile texture
+                    var tile = tileSet.Tiles[i].sprite.texture;
+
+                    // Get the texture offsets
+                    var offsetY = (int)Math.Floor(i / (double)tileSetWidth) * tileSize;
+                    var offsetX = (i - (offsetY)) * tileSize;
+
+                    // Set the pixels
+                    for (int y = 0; y < tile.height; y++)
+                    {
+                        for (int x = 0; x < tile.width; x++)
+                        {
+                            tileTex.SetPixel(x + offsetX, tileTex.height - (y + offsetY) - 1, tile.GetPixel(x, y));
+                        }
+                    }
+                }
+
+                tileTex.Apply();
+
+                var destPath = $@"Tilemaps\{Settings.GetGameSettings.GameModeSelection}\{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00} ({tileSetIndex}).png";
+
+                Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+
+                // Save the tile map
+                File.WriteAllBytes(destPath, tileTex.EncodeToPNG());
+
+                tileSetIndex++;
+            }
         }
 
         public void ConvertLevelToPNG() {
