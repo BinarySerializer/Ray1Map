@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
+    // All names starting with "TYPE_" come from the GBA version. All names starting with "MS_" come from Designer. The rest are manually added.
+
     /// <summary>
     /// The available event types
     /// </summary>
@@ -462,37 +462,46 @@ namespace R1Engine
         TYPE_CB_BALL,
         TYPE_BONBON_PLAT,
 
-        // TODO: Tag below with event flags
+        // TODO: Tag unk events with event flags
         // EDU
 
         TYPE_EDU_LETTRE,
         TYPE_EDU_CHIFFRE,
         TYPE_EDU_DIRECTION,
 
-        // DESIGNER (added manually)
-
-        // Unknown events here
+        // EDU ?
         Unk1,
+
+        // EDU ?
         Unk2,
-        Unk3,
-        Unk4,
+
+        [EventTypeInfo(EventFlag.Editor)]
+        EDUVoiceLine,
+
+        EDUGlow,
+
+        // EDU ?
         Unk5,
 
         [EventTypeInfo(EventFlag.Editor)]
         MS_compteur = 266,
 
+        // TODO: This is different in the EDU games!
         MS_wiz_comptage = 267,
 
-        // Unknown events here
-        Unk6,
-        Unk7,
+        [EventTypeInfo(EventFlag.Editor)]
+        EDULogicOperator,
+
+        EDUMagician,
+
+        // EDU ?
         Unk8,
 
         MS_champ_fixe = 271,
         MS_pap = 272,
         MS_nougat = 273,
 
-        // Unknown event here
+        // KIT ?
         Unk10,
 
         MS_scintillement = 275,
@@ -504,25 +513,5 @@ namespace R1Engine
 
         [EventTypeInfo(EventFlag.Editor)]
         MS_super_kildoor = 279
-    }
-
-    /// <summary>
-    /// Attribute for event types
-    /// </summary>
-    public sealed class EventTypeInfoAttribute : Attribute
-    {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        /// <param name="flag">The event flag</param>
-        public EventTypeInfoAttribute(EventFlag flag)
-        {
-            Flag = flag;
-        }
-
-        /// <summary>
-        /// The event flag
-        /// </summary>
-        public EventFlag Flag { get; }
     }
 }
