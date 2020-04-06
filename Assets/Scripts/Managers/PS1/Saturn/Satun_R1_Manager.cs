@@ -267,27 +267,33 @@ namespace R1Engine
 
             baseAddress += await LoadFile(context, levelFilePath, baseAddress);
 
-            // Load the linear files
+            // Load the files
             await LoadFile(context, tileSetPaletteFilePath);
             await LoadFile(context, tileSetPaletteIndexTableFilePath);
             await LoadFile(context, tileSetFilePath);
             await LoadFile(context, mapFilePath);
 
-            await LoadFile(context, "0.PAL"); // TODO: read the palettes from the '0' executable file
-            await LoadFile(context, GetFixImageFilePath());
-            await LoadFile(context, GetWorldImageFilePath(context));
-            await LoadFile(context, GetLevelImageFilePath(context));
+            if (FileSystem.FileExists(context.BasePath + levelFilePath))
+            {
+                await LoadFile(context, "0.PAL"); // TODO: read the palettes from the '0' executable file
+                await LoadFile(context, GetFixImageFilePath());
+                await LoadFile(context, GetWorldImageFilePath(context));
+                await LoadFile(context, GetLevelImageFilePath(context));
+            }
 
             // NOTE: Big ray data is always loaded at 0x00280000
 
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapFilePath, context);
 
-            // Read the event block
-            var eventBlock = FileFactory.Read<PS1_R1_EventBlock>(levelFilePath, context);
+            PS1_R1_EventBlock eventBlock = null;
+
+            if (FileSystem.FileExists(context.BasePath + levelFilePath))
+                // Read the event block
+                eventBlock = FileFactory.Read<PS1_R1_EventBlock>(levelFilePath, context);
 
             // Load the level
-            return await LoadAsync(context, map, eventBlock.Events, eventBlock.EventLinkingTable.Select(b => (ushort)b).ToArray());
+            return await LoadAsync(context, map, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(b => (ushort)b).ToArray());
         }
     }
 }
