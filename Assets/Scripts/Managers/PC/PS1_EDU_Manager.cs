@@ -29,6 +29,20 @@ namespace R1Engine
         public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings) + $"RAY{((int)settings.World + 1):00}.NEW";
 
         /// <summary>
+        /// Gets the file path for the allfix file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The allfix file path</returns>
+        public override string GetAllfixFilePath(GameSettings settings) => GetVolumePath(settings) + $"ALLFIX.NEW";
+
+        /// <summary>
+        /// Gets the file path for the big ray file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The big ray file path</returns>
+        public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings) + $"BIGRAY.DAT";
+
+        /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>

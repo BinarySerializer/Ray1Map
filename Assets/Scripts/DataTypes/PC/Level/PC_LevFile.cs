@@ -260,6 +260,8 @@ namespace R1Engine
                 Tiles are stored in a tileset, 512x256 (where each tile is 16px). It starts around offset 31744 (should be right after the commands).
 
                 After the tileset are the map tiles, 6 bytes each until end of file
+
+                Also worth mentioning, allfix and world files have been modified. Any .NEW files is modified from PC.
                  
                  */
 
