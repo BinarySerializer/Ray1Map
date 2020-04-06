@@ -18,7 +18,7 @@ namespace R1Engine
         public ushort Height { get; set; }
 
         /// <summary>
-        /// The common tile-set where the first one is the collision and the other 3 the tile-sets for each palette
+        /// The common tile-sets
         /// </summary>
         public Common_Tileset[] TileSet { get; set; }
 
