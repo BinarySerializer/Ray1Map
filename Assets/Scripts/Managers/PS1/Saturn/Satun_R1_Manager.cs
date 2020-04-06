@@ -175,13 +175,6 @@ namespace R1Engine
             if (worldImg != null) buf.AddData(worldImg.Value);
             if (levelImg != null) buf.AddData(levelImg.Value);
             context.StoreObject("vram", buf);
-
-            context.AddFile(new LinearSerializedFile(context) {
-                filePath = "VIGNET/VRAM_A.BIT",
-                Endianness = BinaryFile.Endian.Big
-            });
-            var vramA = FileFactory.Read<BIT>("VIGNET/VRAM_A.BIT", context);
-            Util.ByteArrayToFile(context.BasePath + "VIGNET/VRAM_A.BIT" + ".png", vramA.ToTexture(320).EncodeToPNG());
         }
 
         public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor img) {
