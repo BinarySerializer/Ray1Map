@@ -104,7 +104,7 @@ public class SettingsWindow : UnityWindow
         // Update previous values
         PrevLvlValues.UpdatePreviousValues();
 
-        EditorGUI.BeginDisabledGroup(Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPC && Settings.SelectedGameMode != GameModeSelection.RaymanQuizPC);
+        EditorGUI.BeginDisabledGroup(Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPC && Settings.SelectedGameMode != GameModeSelection.RaymanQuizPC && Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPS1);
 
         try
 		{

@@ -57,6 +57,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayEduPC, Game.RaymanEducational, "Rayman Educational (PC)", typeof(PC_EDU_Manager))]
         RaymanEducationalPC,
 
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayEduPS1, Game.RaymanEducational, "Rayman Educational (PS1)", typeof(PS1_EDU_Manager))]
+        RaymanEducationalPS1,
+
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayEduPC, Game.RaymanQuiz, "Rayman Quiz (PC)", typeof(PC_EDU_Manager))]
         RaymanQuizPC,
 
