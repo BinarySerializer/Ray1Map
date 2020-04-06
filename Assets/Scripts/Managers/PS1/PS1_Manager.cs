@@ -432,7 +432,7 @@ namespace R1Engine
                     }
 
                     // Instantiate event prefab using LevelEventController
-                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, etaIndex, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, e.FollowEnabled, e.LabelOffsets, e.Commands, eventLinkingTable[index]);
+                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, etaIndex, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, e.GetFollowEnabled(context.Settings), e.LabelOffsets, e.Commands, eventLinkingTable[index]);
 
                     // Add the event
                     commonEvents.Add(ee);

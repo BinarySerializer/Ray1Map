@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -121,17 +120,21 @@ namespace R1Engine
         
         public byte Unknown13 { get; set; }
 
-        // TODO: The order is flipped on Saturn, so it's index 7!
-        // TODO: Is this value not used for the vol3 demo?
-        /// <summary>
-        /// Indicates if the event has collision
-        /// </summary>
-        public bool FollowEnabled
+        public bool GetFollowEnabled(GameSettings settings)
         {
-            get => BitHelpers.ExtractBits(Flags, 1, 0) == 1;
-            set => BitHelpers.SetBits(Flags, value ? 1 : 0, 1, 0);
+            var offset = settings.EngineVersion == EngineVersion.RaySaturn ? 7 : 0;
+
+            return BitHelpers.ExtractBits(Flags, 1, offset) == 1;
         }
 
+        public void SetFollowEnabled(GameSettings settings, bool value)
+        {
+            var offset = settings.EngineVersion == EngineVersion.RaySaturn ? 7 : 0;
+
+            BitHelpers.SetBits(Flags, value ? 1 : 0, 1, offset);
+        }
+
+        // TODO: Is this value not used for the vol3 demo?
         public byte Flags { get; set; }
 
         public byte Unknown14 { get; set; }
