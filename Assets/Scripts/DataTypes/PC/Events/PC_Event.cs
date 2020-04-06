@@ -115,8 +115,8 @@
         /// Indicates if the event has collision
         /// </summary>
         public bool FollowEnabled {
-            get { return BitHelpers.ExtractBits(Flags, 1, 5) == 1; }
-            set { BitHelpers.SetBits(Flags, value ? 1 : 0, 1, 5); }
+            get => BitHelpers.ExtractBits(Flags, 1, 5) == 1;
+            set => BitHelpers.SetBits(Flags, value ? 1 : 0, 1, 5);
         }
 
         public ushort Unk_130 { get; set; }
