@@ -82,6 +82,10 @@ namespace R1Engine
             Debug.Log("Saved.");
         }
 
+        public void ExportTileset() {
+            //NICE
+        }
+
         public void ConvertLevelToPNG() {
 
             // Get the path to save to
