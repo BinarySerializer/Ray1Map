@@ -25,6 +25,11 @@ namespace R1Engine
         RayPS1JPDemoVol3,
 
         /// <summary>
+        /// Rayman 1 (PS1 - JP Demo vol. 6)
+        /// </summary>
+        RayPS1JPDemoVol6,
+
+        /// <summary>
         /// Rayman 1 (Saturn)
         /// </summary>
         RaySaturn,
