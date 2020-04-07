@@ -116,7 +116,7 @@
         /// </summary>
         public bool FollowEnabled {
             get => BitHelpers.ExtractBits(Flags, 1, 5) == 1;
-            set => BitHelpers.SetBits(Flags, value ? 1 : 0, 1, 5);
+            set => Flags = (byte)BitHelpers.SetBits(Flags, value ? 1 : 0, 1, 5);
         }
 
         public ushort Unk_130 { get; set; }
