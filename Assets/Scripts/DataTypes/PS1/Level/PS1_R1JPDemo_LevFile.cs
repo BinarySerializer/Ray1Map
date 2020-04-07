@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Level data for Rayman 1 (PS1 - Japan Demo Vol3)
+    /// Level data for Rayman 1 (PS1 - Japan Demo)
     /// </summary>
-    public class PS1_R1JPDemoVol3_LevFile : R1Serializable
+    public class PS1_R1JPDemo_LevFile : R1Serializable
     {
         // All pointers lead to allfix
         public Pointer FontImageDescriptorsPointer { get; set; }
@@ -34,19 +34,19 @@
             // Serialize header
             FontImageDescriptorsPointer = s.SerializePointer(FontImageDescriptorsPointer, name: nameof(FontImageDescriptorsPointer));
             FontImageBufferPointer = s.SerializePointer(FontImageBufferPointer, name: nameof(FontImageBufferPointer));
-            NumFontImageDescriptors = s.Serialize(NumFontImageDescriptors, name: nameof(NumFontImageDescriptors));
+            NumFontImageDescriptors = s.Serialize<uint>(NumFontImageDescriptors, name: nameof(NumFontImageDescriptors));
             UnknownImageDesciptorsPointer = s.SerializePointer(UnknownImageDesciptorsPointer, name: nameof(UnknownImageDesciptorsPointer));
             UnknownPointer4 = s.SerializePointer(UnknownPointer4, name: nameof(UnknownPointer4));
             UnknownImageBufferPointer = s.SerializePointer(UnknownImageBufferPointer, name: nameof(UnknownImageBufferPointer));
             UnknownPointer6 = s.SerializePointer(UnknownPointer6, name: nameof(UnknownPointer6));
-            Unk2 = s.SerializeArray(Unk2, 128, name: nameof(Unk2));
+            Unk2 = s.SerializeArray<byte>(Unk2, 128, name: nameof(Unk2));
 
             // Serialize event information
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
             UnknownEventTablePointer = s.SerializePointer(UnknownEventTablePointer, name: nameof(UnknownEventTablePointer));
-            EventCount = s.Serialize(EventCount, name: nameof(EventCount));
+            EventCount = s.Serialize<uint>(EventCount, name: nameof(EventCount));
             EventLinkTablePointer = s.SerializePointer(EventLinkTablePointer, name: nameof(EventLinkTablePointer));
-            EvenLinkCount = s.Serialize(EvenLinkCount, name: nameof(EvenLinkCount));
+            EvenLinkCount = s.Serialize<uint>(EvenLinkCount, name: nameof(EvenLinkCount));
 
             // Serialize data from pointers
             s.DoAt(EventsPointer, () =>

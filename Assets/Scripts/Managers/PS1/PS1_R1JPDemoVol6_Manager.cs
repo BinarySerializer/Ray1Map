@@ -32,6 +32,13 @@ namespace R1Engine
         public string GetTileSetFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}_OPT.R16";
 
         /// <summary>
+        /// Gets the file path for the level file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The level file path</returns>
+        public string GetLevelFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}{settings.Level:00}.DTA";
+
+        /// <summary>
         /// Gets the file path for the level map file
         /// </summary>
         /// <param name="settings">The game settings</param>

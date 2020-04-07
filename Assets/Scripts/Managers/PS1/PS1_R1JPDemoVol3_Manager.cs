@@ -216,7 +216,7 @@ namespace R1Engine
 
             // Read the files
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
-            var lvl = FileFactory.Read<PS1_R1JPDemoVol3_LevFile>(levelPath, context);
+            var lvl = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
 
             // Load the level
             return await LoadAsync(context, map, lvl.Events, lvl.EventLinkTable.Select(x => (ushort)x).ToArray());
