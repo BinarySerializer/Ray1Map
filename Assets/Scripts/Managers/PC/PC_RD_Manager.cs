@@ -129,9 +129,6 @@ namespace R1Engine
             }
         }
 
-        // Temp value for getting the des names while loading a level - find better solution?
-        public IList<string> DESNames { get; set; }
-
         #endregion
 
         #region Manager Methods
@@ -139,15 +136,19 @@ namespace R1Engine
         /// <summary>
         /// Gets a common design
         /// </summary>
+        /// <param name="context">The context</param>
         /// <param name="des">The DES</param>
         /// <param name="palette">The palette to use</param>
         /// <param name="desIndex">The DES index</param>
         /// <returns>The common design</returns>
-        public override Common_Design GetCommonDesign(PC_DES des, IList<ARGBColor> palette, int desIndex)
+        public override Common_Design GetCommonDesign(Context context, PC_DES des, IList<ARGBColor> palette, int desIndex)
         {
+            // Get the DES names
+            var desNames = context.GetStoredObject<string[]>("DES");
+
             // Check if the DES is multi-colored
-            if (!MultiColoredDES.Contains(DESNames.ElementAtOrDefault(desIndex)?.Substring(0, DESNames[desIndex].Length - 4)))
-                return base.GetCommonDesign(des, palette, desIndex);
+            if (!MultiColoredDES.Contains(desNames.ElementAtOrDefault(desIndex)?.Substring(0, desNames[desIndex].Length - 4)))
+                return base.GetCommonDesign(context, des, palette, desIndex);
 
             // Create the common design
             Common_Design commonDesign = new Common_Design
@@ -224,7 +225,7 @@ namespace R1Engine
         public override Task<BaseEditorManager> LoadAsync(Context context)
         {
             // Get the DES names
-            DESNames = GetDESNames(context).ToArray();
+            context.StoreObject("DES", GetDESNames(context).ToArray());
 
             // Load the level
             return base.LoadAsync(context);

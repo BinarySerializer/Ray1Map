@@ -812,11 +812,12 @@ namespace R1Engine
         /// <summary>
         /// Gets a common design
         /// </summary>
+        /// <param name="context">The context</param>
         /// <param name="des">The DES</param>
         /// <param name="palette">The palette to use</param>
         /// <param name="desIndex">The DES index</param>
         /// <returns>The common design</returns>
-        public virtual Common_Design GetCommonDesign(PC_DES des, IList<ARGBColor> palette, int desIndex)
+        public virtual Common_Design GetCommonDesign(Context context, PC_DES des, IList<ARGBColor> palette, int desIndex)
         {
             // Create the common design
             Common_Design commonDesign = new Common_Design
@@ -1130,7 +1131,7 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
 
                 // Add to the designs
-                eventDesigns.Add(GetCommonDesign(d, palette, desIndex));
+                eventDesigns.Add(GetCommonDesign(context, d, palette, desIndex));
 
                 desIndex++;
             }

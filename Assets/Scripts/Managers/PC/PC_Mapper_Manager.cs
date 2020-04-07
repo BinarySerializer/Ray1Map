@@ -97,7 +97,7 @@ namespace R1Engine
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
             // Get the DES names
-            DESNames = GetDESNames(context).ToArray();
+            context.StoreObject("DES", GetDESNames(context).ToArray());
 
             Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
