@@ -153,15 +153,19 @@ namespace R1Engine {
 
         public void RefreshVisuals() {
             // Get the animation info
-            var animInfo = EditorManager.GetEventState(this);
+            var state = EditorManager.GetEventState(this);
 
-            if (animInfo != null) {
-                AnimationIndex = animInfo.AnimationIndex;
+            if (state != null) {
+                var settings = Settings.GetGameSettings;
 
-                if (Settings.GetGameSettings.EngineVersion == EngineVersion.RaySaturn)
-                    AnimSpeed = animInfo.AnimationSpeed >> 4;
+                AnimationIndex = state.AnimationIndex;
+
+                if (settings.EngineVersion == EngineVersion.RaySaturn)
+                    AnimSpeed = state.AnimationSpeed >> 4;
                 else
-                    AnimSpeed = animInfo.AnimationSpeed;
+                    AnimSpeed = state.AnimationSpeed;
+
+                // TODO: Set currentSoundEffect
             }
             else
             {
@@ -221,6 +225,8 @@ namespace R1Engine {
         // Midpoint of this event when taking all the spriteparts into account
         [HideInInspector]
         public Vector2 midpoint;
+
+        public AudioClip currentSoundEffect;
 
         private void Start() {
             //Snap link cube position

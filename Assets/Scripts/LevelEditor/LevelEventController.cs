@@ -42,7 +42,6 @@ namespace R1Engine
 
         // The Audio Emitter
         public AudioSource audioSource;
-        public AudioClip currentSoundEffect;
 
         public bool areLinksVisible = false;
 
@@ -551,9 +550,15 @@ namespace R1Engine
         }
 
         // Play one sound effect
-        public void PlaySoundEffect() {
-            if (currentSoundEffect!=null)
-                audioSource.PlayOneShot(currentSoundEffect);
+        public void PlaySoundEffect()
+        {
+            if (currentlySelected?.currentSoundEffect == null)
+            {
+                Debug.LogWarning("No sound");
+                return;
+            }
+
+            audioSource.PlayOneShot(currentlySelected.currentSoundEffect);
         }
 
         // Add events to the list via the managers
