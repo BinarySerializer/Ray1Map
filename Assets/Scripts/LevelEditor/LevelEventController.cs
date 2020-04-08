@@ -40,6 +40,10 @@ namespace R1Engine
         public Toggle infoFollow;
         public Dropdown infoType;
 
+        // The Audio Emitter
+        public AudioSource audioSource;
+        public AudioClip currentSoundEffect;
+
         public bool areLinksVisible = false;
 
         public Color linkColorActive;
@@ -544,6 +548,12 @@ namespace R1Engine
                     }
                 }
             }
+        }
+
+        // Play one sound effect
+        public void PlaySoundEffect() {
+            if (currentSoundEffect!=null)
+                audioSource.PlayOneShot(currentSoundEffect);
         }
 
         // Add events to the list via the managers
