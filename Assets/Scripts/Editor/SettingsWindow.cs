@@ -199,7 +199,8 @@ public class SettingsWindow : UnityWindow
                 if (string.IsNullOrEmpty(outputDir) && action.RequiresOutputDir)
                     return;
 
-                Settings.GetGameManager.RunAction(i, inputDir, outputDir, Settings.GetGameSettings);
+                // Run the action
+                action.GameActionFunc(inputDir, outputDir);
             }
         }
 

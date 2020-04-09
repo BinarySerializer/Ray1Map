@@ -36,15 +36,6 @@ namespace R1Engine
         GameAction[] GetGameActions(GameSettings settings);
 
         /// <summary>
-        /// Runs the specified game action
-        /// </summary>
-        /// <param name="actionIndex">The action index</param>
-        /// <param name="inputDir">The input directory</param>
-        /// <param name="outputDir">The output directory</param>
-        /// <param name="settings">The game settings</param>
-        void RunAction(int actionIndex, string inputDir, string outputDir, GameSettings settings);
-
-        /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>

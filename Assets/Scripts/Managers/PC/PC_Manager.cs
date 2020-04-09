@@ -860,35 +860,10 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                new GameAction("Export Sprites", false, true),
-                new GameAction("Export Animation Frames", false, true),
-                new GameAction("Export Vignette", false, true),
+                new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTextures(settings, output, false)),
+                new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTextures(settings, output, false)),
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), output)),
             };
-        }
-
-        /// <summary>
-        /// Runs the specified game action
-        /// </summary>
-        /// <param name="actionIndex">The action index</param>
-        /// <param name="inputDir">The input directory</param>
-        /// <param name="outputDir">The output directory</param>
-        /// <param name="settings">The game settings</param>
-        public virtual void RunAction(int actionIndex, string inputDir, string outputDir, GameSettings settings)
-        {
-            switch (actionIndex)
-            {
-                case 0:
-                    ExportSpriteTextures(settings, outputDir, false);
-                    break;
-
-                case 1:
-                    ExportSpriteTextures(settings, outputDir, true);
-                    break;
-
-                case 2:
-                    ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), outputDir);
-                    break;
-            }
         }
 
         /// <summary>

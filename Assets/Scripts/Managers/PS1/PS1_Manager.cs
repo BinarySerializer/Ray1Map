@@ -90,25 +90,8 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                new GameAction("Export Vignette", false, true),
+                new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteTextures(settings, output)),
             };
-        }
-
-        /// <summary>
-        /// Runs the specified game action
-        /// </summary>
-        /// <param name="actionIndex">The action index</param>
-        /// <param name="inputDir">The input directory</param>
-        /// <param name="outputDir">The output directory</param>
-        /// <param name="settings">The game settings</param>
-        public virtual void RunAction(int actionIndex, string inputDir, string outputDir, GameSettings settings)
-        {
-            switch (actionIndex)
-            {
-                case 0:
-                    ExportVignetteTextures(settings, outputDir);
-                    break;
-            }
         }
 
         /// <summary>

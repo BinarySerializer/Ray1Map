@@ -29,39 +29,8 @@ namespace R1Engine
         /// <returns>The game actions</returns>
         public override GameAction[] GetGameActions(GameSettings settings)
         {
-            // Get the base options
-            var baseOptions = base.GetGameActions(settings);
-
-            // Append and return
-            return baseOptions.Append<GameAction>(new GameAction("Decrypt Files", true, false)).ToArray<GameAction>();
-        }
-
-        /// <summary>
-        /// Runs the specified game action
-        /// </summary>
-        /// <param name="actionIndex">The action index</param>
-        /// <param name="inputDir">The input directory</param>
-        /// <param name="outputDir">The output directory</param>
-        /// <param name="settings">The game settings</param>
-        public override void RunAction(int actionIndex, string inputDir, string outputDir, GameSettings settings)
-        {
-            // Get original count
-            var origCount = base.GetGameActions(settings).Length;
-
-            // Use original export
-            if (actionIndex < origCount)
-            {
-                base.RunAction(actionIndex, inputDir, outputDir, settings);
-                return;
-            }
-
-            // Use new export
-            switch (actionIndex - origCount)
-            {
-                case 0:
-                    DecryptFiles(inputDir);
-                    break;
-            }
+            // Append action
+            return base.GetGameActions(settings).Append(new GameAction("Decrypt Files", true, false, (input, output) => DecryptFiles(input))).ToArray();
         }
 
         /// <summary>
