@@ -11,6 +11,7 @@ namespace R1Engine
         // Prefabs
         public GameObject eventParent;
         public GameObject prefabEvent;
+        public GameObject prefabCommandLine;
 
         public Editor editor;
 
@@ -21,7 +22,6 @@ namespace R1Engine
         public Dropdown eventDropdown;
 
         // Event info things for the ui
-        public GameObject infoWindow;
         public Text infoName;
         public InputField infoX;
         public InputField infoY;
@@ -40,8 +40,12 @@ namespace R1Engine
         public Toggle infoFollow;
         public Dropdown infoType;
 
-        // The Audio Emitter
-        public AudioSource audioSource;
+        //Command ui stuff
+        public List<CommandLine> commandLines;
+        public Transform commandListParent;
+
+        //Ui tabs for showing/hiding them
+        public UiTab[] tabs;
 
         public bool areLinksVisible = false;
 
@@ -137,6 +141,8 @@ namespace R1Engine
                 };
                 infoType.options.Add(dat);
             }
+            //Create empty list for commandlines
+            commandLines = new List<CommandLine>();
         }
 
         public void ChangeEventsVisibility(object o, EventArgs e) {
@@ -200,6 +206,15 @@ namespace R1Engine
                             infoType.value = (int)currentlySelected.Type;
                             infoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
                             infoLayer.text = currentlySelected.Layer.ToString();
+                            //Clear old commands
+                            ClearCommands();
+                            //Fill out the commands
+                            foreach (var c in currentlySelected.CommandCollection.Commands) {
+                                CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
+                                cmd.command = c;
+                                cmd.gameObject.transform.parent = commandListParent.transform;
+                                commandLines.Add(cmd);
+                            }
                         }
                         //Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -505,6 +520,15 @@ namespace R1Engine
             infoType.value = 0;
             infoAnimIndex.text = "";
             infoLayer.text = "";
+
+            ClearCommands();
+        }
+
+        private void ClearCommands() {
+            foreach(var c in commandLines) {
+                Destroy(c.gameObject);
+            }
+            commandLines.Clear();
         }
 
         // Show/Hide links
@@ -552,16 +576,9 @@ namespace R1Engine
             }
         }
 
-        // Play one sound effect
-        public void PlaySoundEffect()
-        {
-            if (currentlySelected?.currentSoundEffect == null)
-            {
-                Debug.LogWarning("No sound");
-                return;
-            }
-
-            audioSource.PlayOneShot(currentlySelected.currentSoundEffect);
+        public void TabClicked(int tabIndex) {
+            tabs[tabIndex].open.SetActive(!tabs[tabIndex].open.activeSelf);
+            tabs[tabIndex].closed.SetActive(!tabs[tabIndex].closed.activeSelf);
         }
 
         // Add events to the list via the managers
@@ -603,5 +620,11 @@ namespace R1Engine
             // Add to list
             return newEvent;
         }
+    }
+
+    [Serializable]
+    public class UiTab {
+        public GameObject open;
+        public GameObject closed;
     }
 }

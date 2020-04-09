@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using static UnityEngine.Input;
 
 namespace R1Engine {
@@ -37,7 +38,8 @@ namespace R1Engine {
                 }
 
                 // Mouse wheel zooming
-                fov = Mathf.Clamp(fov - 0.25f * mouseScrollDelta.y * fov, 3.75f, 50);
+                if (!EventSystem.current.IsPointerOverGameObject())
+                    fov = Mathf.Clamp(fov - 0.25f * mouseScrollDelta.y * fov, 3.75f, 50);
 
 
                 // WASD scrolling
