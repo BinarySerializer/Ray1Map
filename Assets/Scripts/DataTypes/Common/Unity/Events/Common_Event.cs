@@ -188,9 +188,9 @@ namespace R1Engine {
         public int LinkID;
 
         /// <summary>
-        /// Is the appearance supposed to be flipped?
+        /// Indicates if the entire event sprite is supposed to be mirrored
         /// </summary>
-        public bool Mirrored;
+        public bool Mirrored => (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1) || CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
 
         /// <summary>
         /// The current animation of this event
@@ -436,8 +436,7 @@ namespace R1Engine {
                 else {
                     prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
                 }
-                //Hardcoded flipping
-                Mirrored = (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1);
+
                 prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Mirrored;
 
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
