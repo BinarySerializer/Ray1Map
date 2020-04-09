@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -548,6 +549,75 @@ namespace R1Engine
         public virtual async Task LoadFilesAsync(Context context) {
             // PS1 loads files in order. We can't really load anything here
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Exports every sprite from the game
+        /// </summary>
+        /// <param name="baseGameSettings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <returns>The task</returns>
+        public async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        {
+            // Keep track of the hash for every DES
+            var hashList = new List<string>();
+
+            // Enumerate every world
+            foreach (var world in GetLevels(baseGameSettings))
+            {
+                baseGameSettings.World = world.Key;
+
+                // Enumerate every level
+                foreach (var lvl in world.Value)
+                {
+                    baseGameSettings.Level = lvl;
+
+                    var dir = Path.Combine(outputDir, world.Key.ToString());
+
+                    Directory.CreateDirectory(dir);
+
+                    // Create the context
+                    var context = new Context(baseGameSettings);
+
+                    // Load the editor manager
+                    var editorManager = (PS1EditorManager)(await LoadAsync(context));
+
+                    var desIndex = 0;
+
+                    // Enumerate every design
+                    foreach (var des in editorManager.Designs)
+                    {
+                        // Get the raw data
+                        var rawData = des.Sprites.Where(x => x != null).SelectMany(x => x.texture.GetRawTextureData()).ToArray();
+
+                        // Check the hash
+                        using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                        {
+                            // Get the hash
+                            var hash = Convert.ToBase64String(sha1.ComputeHash(rawData));
+
+                            // Check if it's been used before
+                            if (hashList.Contains(hash))
+                                continue;
+
+                            hashList.Add(hash);
+                        }
+
+                        var spriteIndex = 0;
+
+                        // Enumerate every sprite
+                        foreach (var sprite in des.Sprites.Where(x => x != null).Select(x => x.texture))
+                        {
+                            // Export it
+                            File.WriteAllBytes(Path.Combine(dir, $"{lvl} - {desIndex} - {spriteIndex}.png"), sprite.EncodeToPNG());
+
+                            spriteIndex++;
+                        }
+
+                        desIndex++;
+                    }
+                }
+            }
         }
 
         #endregion
