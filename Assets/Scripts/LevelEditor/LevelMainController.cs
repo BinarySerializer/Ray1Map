@@ -217,6 +217,10 @@ namespace R1Engine
 
             Debug.Log("Level saved as PNG");
 
+            //Unsub events
+            Settings.OnShowAlwaysEventsChanged -= controllerEvents.ChangeEventsVisibility;
+            Settings.OnShowEditorEventsChanged -= controllerEvents.ChangeEventsVisibility;
+
             if (Settings.ScreenshotEnumeration)
                 SceneManager.LoadScene("Dummy");
         }
