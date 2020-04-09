@@ -270,7 +270,7 @@ namespace R1Engine
                             //Clear old commands
                             ClearCommands();
                             //Fill out the commands
-                            foreach (var c in currentlySelected.CommandCollection.Commands) {
+                            foreach (var c in currentlySelected.CommandCollection?.Commands ?? new Common_EventCommand[0]) {
                                 CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
                                 cmd.command = c;
                                 cmd.transform.SetParent(commandListParent, false);
