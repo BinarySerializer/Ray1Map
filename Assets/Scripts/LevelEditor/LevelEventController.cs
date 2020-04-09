@@ -58,8 +58,69 @@ namespace R1Engine
         public int lastUsedLayer = 0;
 
         public void InitializeEvents() {
-            // Convert linkIndex of each event to linkId
             var eventList = Controller.obj.levelController.currentLevel.Events;
+
+            // Hard-code event animations for the different Rayman types
+            Common_Design rayDes = null;
+
+            var rayEvent = eventList.Find(x => x.Type == EventType.TYPE_RAY_POS);
+
+            if (rayEvent != null)
+                rayDes = Controller.obj.levelController.EditorManager.GetCommonDesign(rayEvent, rayEvent.DES);
+
+            if (rayDes != null)
+            {
+                var miniRay = eventList.Find(x => x.Type == EventType.TYPE_DEMI_RAYMAN);
+
+                if (miniRay != null)
+                {
+                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(miniRay, miniRay.DES);
+
+                    if (des != null)
+                    {
+                        des.Animations = rayDes.Animations.Select(anim =>
+                        {
+                            var newAnim = new Common_Animation
+                            {
+                                DefaultFrameXPosition = anim.DefaultFrameXPosition / 2,
+                                DefaultFrameYPosition = anim.DefaultFrameYPosition / 2,
+                                DefaultFrameWidth = anim.DefaultFrameWidth / 2,
+                                DefaultFrameHeight = anim.DefaultFrameHeight / 2,
+                                Frames = new Common_AnimationPart[anim.Frames.GetLength(0),
+                                    anim.Frames.GetLength(1)]
+                            };
+
+                            for (int x = 0; x < anim.Frames.GetLength(0); x++)
+                            {
+                                for (int y = 0; y < anim.Frames.GetLength(1); y++)
+                                {
+                                    newAnim.Frames[x, y] = new Common_AnimationPart
+                                    {
+                                        SpriteIndex = anim.Frames[x, y].SpriteIndex,
+                                        X = anim.Frames[x, y].X / 2,
+                                        Y = anim.Frames[x, y].Y / 2,
+                                        Flipped = anim.Frames[x, y].Flipped
+                                    };
+                                }
+                            }
+
+                            return newAnim;
+                        }).ToList();
+                    }
+                }
+
+                var badRay = eventList.Find(x => x.Type == EventType.TYPE_BLACK_RAY);
+
+                if (badRay != null)
+                {
+                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(badRay, badRay.DES);
+
+                    if (des != null)
+                        des.Animations = rayDes.Animations;
+                }
+            }
+
+            // Convert linkIndex of each event to linkId
             for (int i=0; i < eventList.Count; i++) 
             {
                 // Refresh
