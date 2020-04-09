@@ -273,7 +273,7 @@ namespace R1Engine
                             foreach (var c in currentlySelected.CommandCollection.Commands) {
                                 CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
                                 cmd.command = c;
-                                cmd.gameObject.transform.parent = commandListParent.transform;
+                                cmd.transform.SetParent(commandListParent, false);
                                 commandLines.Add(cmd);
                             }
                         }
