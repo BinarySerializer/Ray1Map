@@ -20,7 +20,7 @@ public class SettingsWindow : UnityWindow
 		titleContent.text = "Settings";
 	}
 
-	public void OnGUI()
+	public async void OnGUI()
 	{
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
@@ -200,7 +200,7 @@ public class SettingsWindow : UnityWindow
                     return;
 
                 // Run the action
-                action.GameActionFunc(inputDir, outputDir);
+                await action.GameActionFunc(inputDir, outputDir);
             }
         }
 
