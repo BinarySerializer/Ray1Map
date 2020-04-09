@@ -220,6 +220,7 @@ namespace R1Engine {
         public Transform offsetCrossBX;
         public Transform offsetCrossBY;
         public Transform offsetCrossHY;
+        public Transform followSpriteLine;
         // Part parent
         //public Transform partParent;
         // Midpoint of this event when taking all the spriteparts into account
@@ -253,6 +254,7 @@ namespace R1Engine {
                     // Update child renderers with correct part and position, but only if current frame has updated
                     if (floored != prevFrame) {
                         UpdateParts(floored);
+                        UpdateFollowSpriteLine();
                     }
                 }
             }
@@ -293,13 +295,24 @@ namespace R1Engine {
 
             //Offset points
             UpdateOffsetPoints();
+            //FollowSprite line
+            UpdateFollowSpriteLine();
         }
 
         public void UpdateOffsetPoints() {
             if (CurrentAnimation != null) {
-                offsetCrossBX.localPosition = new Vector2(OffsetBX / 16, 0);
-                offsetCrossBY.localPosition = new Vector2(OffsetBX / 16, -(OffsetBY / 16));
-                offsetCrossHY.localPosition = new Vector2(OffsetBX / 16, -((OffsetHY / 16) + (CurrentAnimation.DefaultFrameYPosition / 16f)));
+                offsetCrossBX.localPosition = new Vector2(OffsetBX / 16f, 0f);
+                offsetCrossBY.localPosition = new Vector2(OffsetBX / 16f, -(OffsetBY / 16f));
+                offsetCrossHY.localPosition = new Vector2(OffsetBX / 16f, -((OffsetHY / 16f) + (CurrentAnimation.DefaultFrameYPosition / 16f)));
+            }
+        }
+
+        public void UpdateFollowSpriteLine() {
+            if (CurrentAnimation != null && FollowSprite < CurrentAnimation.Frames.GetLength(1)) {
+                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame, FollowSprite].X/16f, -CurrentAnimation.Frames[(int)currentFrame, FollowSprite].Y/16f - (OffsetHY / 16f));
+
+                var w = (prefabRendereds[FollowSprite].sprite == null) ? 0 : prefabRendereds[FollowSprite].sprite.texture.width;
+                followSpriteLine.localScale = new Vector2(w, 1f);
             }
         }
 
@@ -308,6 +321,8 @@ namespace R1Engine {
             offsetCrossBX.gameObject.SetActive(visible);
             offsetCrossBY.gameObject.SetActive(visible);
             offsetCrossHY.gameObject.SetActive(visible);
+            followSpriteLine.gameObject.SetActive(visible);
+            followSpriteLine.gameObject.SetActive(visible && FollowEnabled);
         }
 
         public void ChangeLinksVisibility(bool visible) {

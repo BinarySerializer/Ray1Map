@@ -419,6 +419,7 @@ namespace R1Engine
 
                     currentlySelected.RefreshName();
                     currentlySelected.UpdateOffsetPoints();
+                    currentlySelected.UpdateFollowSpriteLine();
                 }
             }
         }
@@ -429,6 +430,7 @@ namespace R1Engine
                     currentlySelected.FollowSprite = new_fsprite;
 
                     currentlySelected.RefreshName();
+                    currentlySelected.UpdateFollowSpriteLine();
                 }
             }
         }
@@ -459,6 +461,7 @@ namespace R1Engine
                     currentlySelected.FollowEnabled = infoFollow.isOn;
 
                     currentlySelected.RefreshName();
+                    currentlySelected.ChangeOffsetVisibility(true);
                 }
             }
         }
