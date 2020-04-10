@@ -142,12 +142,23 @@ namespace R1Engine
             }
         }
 
+        public void SetTypeAtPos(int x, int y, TileCollisionType typeIndex) {
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)typeIndex]);
+
+            foreach (var tile in Controller.obj.levelController.currentLevel.Tiles) {
+                if (tile.XPosition == x && tile.YPosition == y) {
+                    tile.CollisionType = typeIndex;
+                    break;
+                }
+            }
+        }
+
+        /*
         public void SetTileAtPos(int x, int y, int gIndex, int layer) {
             Common_Tile found = GetTileAtPos(x, y);
             if (found != null) {
-                // If on PC and trying to assign 0 (empty), change to -1 instead
                 found.TileSetGraphicIndex = gIndex;
-
                 found.PaletteIndex = layer;
                 //First clear the cell on all tilemaps
                 ClearUnityTilemapAt(x, y);
@@ -159,8 +170,8 @@ namespace R1Engine
                     Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[layer].Tiles[gIndex]);
                 }
             }
-        }
-
+        }*/
+        /*
         public void SetTypeAtPos(int x, int y, int tIndex) {
             Common_Tile found = GetTileAtPos(x, y);
             if (found != null) {
@@ -174,7 +185,7 @@ namespace R1Engine
                     Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[tIndex]);
                 }
             }
-        }
+        }*/
 
         public void ClearUnityTilemapAt(int x, int y) {
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);

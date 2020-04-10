@@ -18,7 +18,15 @@ namespace R1Engine {
         public LevelMainController lvlController;
         public LevelEventController lvlEventController;
         public SelectSquare tileSelectSquare;
+        //Reference to UI buttons
+        public Button[] modeButtons;
+        //Reference to everything that should be visible in each mode
+        public GameObject[] modeContents;
+        //Reference to layer buttons
+        public GameObject layerTypes;
+        public GameObject layerEvents;
 
+        //Current tile under the mouse
         public Common_Tile mouseTile;
 
         bool selecting;
@@ -33,14 +41,9 @@ namespace R1Engine {
         //Current edit mode
         [HideInInspector]
         public EditMode currentMode;
-
-        //Reference to UI buttons
-        public Button[] modeButtons;
-        //Reference to everything that should be visible in each mode
-        public GameObject[] modeContents;
-        //Reference to layer buttons
-        public GameObject layerTypes;
-        public GameObject layerEvents;
+        //Current type
+        [HideInInspector]
+        public TileCollisionType currentType;
 
         //Selected tiles
         public Common_Tile[,] selection;
@@ -83,6 +86,10 @@ namespace R1Engine {
                 layerEvents.SetActive(false);
                 lvlEventController.ToggleLinks(false);
             }
+        }
+
+        public void SetCurrentType(int type) {
+            currentType = (TileCollisionType)type;
         }
 
         /*
@@ -220,7 +227,26 @@ namespace R1Engine {
                         }
                     }
                     else if (currentMode == EditMode.Collisions) {
-
+                        //If dragging and selecting mouse up; clear types
+                        if (selecting && !GetMouseButton(0)) {
+                            dragging = false;
+                            //"Paste" the selection
+                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
+                                    lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
+                                }
+                            }
+                        }
+                        //Fill with selected type
+                        if (!selecting && GetMouseButtonUp(0)) {
+                            dragging = false;
+                            //"Paste" the selection
+                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
+                                    lvlController.controllerTilemap.SetTypeAtPos(x, y, currentType);
+                                }
+                            }
+                        }
                     }
                 }
             }

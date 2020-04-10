@@ -16,6 +16,7 @@
         Damage = 8,
         Bounce = 9,
         Water = 10,
+        Exit = 11,
         Climb = 12,
         WaterNoSplash = 13,
         Passthrough = 14,
