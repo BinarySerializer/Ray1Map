@@ -7,7 +7,7 @@ namespace R1Engine {
     /// Common event data
     /// </summary>
     public class Common_Event : MonoBehaviour {
-        #region Event Data
+        #region Public Properties
 
         /// <summary>
         /// The event display name
@@ -29,87 +29,12 @@ namespace R1Engine {
         /// </summary>
         public int AnimSpeed { get; set; }
 
-        /// <summary>
-        /// The event type
-        /// </summary>
-        public EventType Type { get; set; }
-
-        /// <summary>
-        /// The event state
-        /// </summary>
-        public int Etat { get; set; }
-
-        /// <summary>
-        /// The event sub-state
-        /// </summary>
-        public int SubEtat { get; set; }
-
-        /// <summary>
-        /// The x position
-        /// </summary>
-        public uint XPosition { get; set; }
-
-        /// <summary>
-        /// The x position
-        /// </summary>
-        public uint YPosition { get; set; }
-
-        /// <summary>
-        /// The event design index
-        /// </summary>
-        public int DES { get; set; }
-
-        /// <summary>
-        /// The event ETA index
-        /// </summary>
-        public int ETA { get; set; }
-
-        /// <summary>
-        /// The event offset BX
-        /// </summary>
-        public int OffsetBX { get; set; }
-
-        /// <summary>
-        /// The event offset BY
-        /// </summary>
-        public int OffsetBY { get; set; }
-
-        /// <summary>
-        /// The event offset HY
-        /// </summary>
-        public int OffsetHY { get; set; }
-
-        public int FollowSprite { get; set; }
-
-        /// <summary>
-        /// The event hit-points
-        /// </summary>
-        public int HitPoints { get; set; }
-
-        // TODO: Use this for z sorting
-        // TODO: Allow this to be edited in the editor?
-        /// <summary>
-        /// The event layer, used for z sorting
-        /// </summary>
-        public int Layer { get; set; } // <-TODO: probably unused
         public int UniqueLayer { get; set; }
 
-        public int HitSprite { get; set; }
-
         /// <summary>
-        /// Indicates if the event has collision
+        /// The event data
         /// </summary>
-        public bool FollowEnabled { get; set; }
-
-        /// <summary>
-        /// The label offsets
-        /// </summary>
-        public ushort[] LabelOffsets { get; set; }
-
-        /// <summary>
-        /// The event commands
-        /// </summary>
-        public Common_EventCommandCollection CommandCollection { get; set; }
+        public Common_EventData Data { get; set; }
 
         #endregion
 
@@ -129,9 +54,9 @@ namespace R1Engine {
         /// </summary>
         public void RefreshEditorInfo() {
             // Get the event info data
-            var eventInfo = EditorManager.GetEditorEventInfo(this);
+            var eventInfo = EditorManager.GetEditorEventInfo(Data);
             // Set the name
-            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
+            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Data.Type}";
 
             RefreshVisuals();
             ChangeOffsetVisibility(false);
@@ -140,20 +65,20 @@ namespace R1Engine {
         
         public void RefreshName() {
             // Get the event info data
-            var eventInfo = EditorManager.GetEditorEventInfo(this);
+            var eventInfo = EditorManager.GetEditorEventInfo(Data);
 
             // Set the name
-            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Type}";
+            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Data.Type}";
         }
 
         public void RefreshFlag()
         {
-            Flag = Type.GetAttribute<EventTypeInfoAttribute>()?.Flag ?? EventFlag.Normal;
+            Flag = Data.Type.GetAttribute<EventTypeInfoAttribute>()?.Flag ?? EventFlag.Normal;
         }
 
         public void RefreshVisuals() {
             // Get the animation info
-            var state = EditorManager.GetEventState(this);
+            var state = EditorManager.GetEventState(Data);
 
             if (state != null) {
                 var settings = Settings.GetGameSettings;
@@ -169,18 +94,13 @@ namespace R1Engine {
             }
             else
             {
-                Debug.LogWarning($"No matching event state found for event of type {Type}");
+                Debug.LogWarning($"No matching event state found for event of type {Data.Type}");
             }
 
             ChangeAppearance();
         }
 
         #endregion
-
-        /// <summary>
-        /// The link index
-        /// </summary>
-        public int LinkIndex;
 
         /// <summary>
         /// The link ID used by the editor
@@ -190,7 +110,7 @@ namespace R1Engine {
         /// <summary>
         /// Indicates if the entire event sprite is supposed to be mirrored
         /// </summary>
-        public bool Mirrored => (Type == EventType.TYPE_PUNAISE3 && HitPoints == 1) || CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
+        public bool Mirrored => (Data.Type == EventType.TYPE_PUNAISE3 && Data.HitPoints == 1) || Data.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
 
         /// <summary>
         /// The current animation of this event
@@ -270,7 +190,7 @@ namespace R1Engine {
         }
 
         public void UpdateXAndY() {
-            transform.position = new Vector3(XPosition / 16f, -(YPosition / 16f), 0);
+            transform.position = new Vector3(Data.XPosition / 16f, -(Data.YPosition / 16f), 0);
             //Don't move link cube if it's part of a link
             if (LinkID != 0) {
                 linkCube.position = linkCubeLockPosition;
@@ -301,17 +221,17 @@ namespace R1Engine {
 
         public void UpdateOffsetPoints() {
             if (CurrentAnimation != null) {
-                offsetCrossBX.localPosition = new Vector2(OffsetBX / 16f, 0f);
-                offsetCrossBY.localPosition = new Vector2(OffsetBX / 16f, -(OffsetBY / 16f));
-                offsetCrossHY.localPosition = new Vector2(OffsetBX / 16f, -((OffsetHY / 16f) + (CurrentAnimation.DefaultFrameYPosition / 16f)));
+                offsetCrossBX.localPosition = new Vector2(Data.OffsetBX / 16f, 0f);
+                offsetCrossBY.localPosition = new Vector2(Data.OffsetBX / 16f, -(Data.OffsetBY / 16f));
+                offsetCrossHY.localPosition = new Vector2(Data.OffsetBX / 16f, -((Data.OffsetHY / 16f) + (CurrentAnimation.DefaultFrameYPosition / 16f)));
             }
         }
 
         public void UpdateFollowSpriteLine() {
-            if (CurrentAnimation != null && FollowSprite < CurrentAnimation.Frames.GetLength(1)) {
-                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame, FollowSprite].X/16f, -CurrentAnimation.Frames[(int)currentFrame, FollowSprite].Y/16f - (OffsetHY / 16f));
+            if (CurrentAnimation != null && Data.FollowSprite < CurrentAnimation.Frames.GetLength(1)) {
+                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame, Data.FollowSprite].X/16f, -CurrentAnimation.Frames[(int)currentFrame, Data.FollowSprite].Y/16f - (Data.OffsetHY / 16f));
 
-                var w = (prefabRendereds[FollowSprite].sprite == null) ? 0 : prefabRendereds[FollowSprite].sprite.texture.width;
+                var w = (prefabRendereds[Data.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
             }
         }
@@ -322,7 +242,7 @@ namespace R1Engine {
             offsetCrossBY.gameObject.SetActive(visible);
             offsetCrossHY.gameObject.SetActive(visible);
             followSpriteLine.gameObject.SetActive(visible);
-            followSpriteLine.gameObject.SetActive(visible && FollowEnabled);
+            followSpriteLine.gameObject.SetActive(visible && Data.FollowEnabled);
         }
 
         public void ChangeLinksVisibility(bool visible) {
@@ -352,13 +272,13 @@ namespace R1Engine {
         // Try to load a new animation and change to it
         public void ChangeAnimation(int newAnim) {
             // Make sure we have a non-negative DES index
-            if (DES < 0) {
+            if (Data.DES < 0) {
                 Debug.LogWarning($"DES index is below 0");
                 return;
             }
 
             // Get the current animation
-            CurrentAnimation = EditorManager?.GetCommonDesign(this, DES)?.Animations.ElementAtOrDefault(newAnim);
+            CurrentAnimation = EditorManager?.GetCommonDesign(Data, Data.DES)?.Animations.ElementAtOrDefault(newAnim);
 
             // If animation is null, use default
             if (CurrentAnimation == null) {
@@ -426,7 +346,7 @@ namespace R1Engine {
                 return;
 
             // Get the sprites
-            var sprites = EditorManager.GetCommonDesign(this, DES).Sprites;
+            var sprites = EditorManager.GetCommonDesign(Data, Data.DES).Sprites;
 
             for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                 // Skips sprites out of bounds
@@ -454,7 +374,9 @@ namespace R1Engine {
         // Delete this event properly
         public void Delete() {
             // Remove this from the event list
-            Controller.obj.levelController.currentLevel.Events.Remove(this);
+            Controller.obj.levelController.Events.Remove(this);
+            // Remove the data
+            Controller.obj.levelController.currentLevel.EventData.Remove(Data);
             // Remove all children
             ClearChildren();
             // Remove self

@@ -128,7 +128,7 @@ namespace R1Engine
                 Height = mapData.Height,
 
                 // Create the events list
-                Events = new List<Common_Event>(),
+                EventData = new List<Common_EventData>(),
 
                 // Create the tile arrays
                 TileSet = new Common_Tileset[4],
@@ -142,7 +142,7 @@ namespace R1Engine
 
             // Read the CMD files
             Dictionary<string, Mapper_EventCMD> cmd = new Dictionary<string, Mapper_EventCMD>();
-            foreach (KeyValuePair<string, string> item in desCmdManifest.Skip<KeyValuePair<string, string>>(1)) {
+            foreach (KeyValuePair<string, string> item in desCmdManifest.Skip(1)) {
                 await Controller.WaitIfNecessary();
                 string path = basePath + item.Value;
                 await LoadExtraFile(context, path);
@@ -161,17 +161,14 @@ namespace R1Engine
             // Load the sprites
             var eventDesigns = await LoadSpritesAsync(context, palette);
 
-            // Add the events
-            commonLev.Events = new List<Common_Event>();
-
             var index = 0;
 
             // Get the event count
-            var eventCount = cmd.SelectMany<KeyValuePair<string, Mapper_EventCMD>, PC_Mapper_EventCMDItem>(x => x.Value.Items).Count<PC_Mapper_EventCMDItem>();
+            var eventCount = cmd.SelectMany(x => x.Value.Items).Count();
 
             // Get the Designer DES and ETA names
-            var kitDESNames = GetDESNames(context).ToArray<string>();
-            var kitETANames = GetETANames(context).ToArray<string>();
+            var kitDESNames = GetDESNames(context).ToArray();
+            var kitETANames = GetETANames(context).ToArray();
 
             // Handle each event
             foreach (var c in cmd)
@@ -191,13 +188,29 @@ namespace R1Engine
                     if (desIndex != -1)
                         desIndex += 1;
 
-                    var ee = Controller.obj.levelEventController.AddEvent((EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1), (int)e.Etat, Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1, (uint)e.XPosition, (uint)e.YPosition, desIndex, etaIndex, (int)e.Offset_BX, (int)e.Offset_BY, (int)e.Offset_HY, (int)e.Follow_sprite, (int)e.Hitpoints, e.Layer, (int)e.Hit_sprite, e.Follow_enabled > 0, new ushort[0], Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray()), 
-
-                        // TODO: Update this
-                        index);
-
                     // Add the event
-                    commonLev.Events.Add(ee);
+                    commonLev.EventData.Add(new Common_EventData
+                    {
+                        Type = (EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1),
+                        Etat = (int)e.Etat,
+                        SubEtat = Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1,
+                        XPosition = (uint)e.XPosition,
+                        YPosition = (uint)e.YPosition,
+                        DES = desIndex,
+                        ETA = etaIndex,
+                        OffsetBX = (int)e.Offset_BX,
+                        OffsetBY = (int)e.Offset_BY,
+                        OffsetHY = (int)e.Offset_HY,
+                        FollowSprite = (int)e.Follow_sprite,
+                        HitPoints = (int)e.Hitpoints,
+                        Layer = e.Layer,
+                        HitSprite = (int)e.Hit_sprite,
+                        FollowEnabled = e.Follow_enabled > 0,
+                        LabelOffsets = new ushort[0],
+                        CommandCollection = Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray()),
+                        // TODO: Update this
+                        LinkIndex = index
+                    });
 
                     index++;
                 }

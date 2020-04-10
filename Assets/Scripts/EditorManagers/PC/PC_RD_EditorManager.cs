@@ -69,7 +69,7 @@ namespace R1Engine
         /// <summary>
         /// Updates the state
         /// </summary>
-        public override Common_EventState GetEventState(Common_Event e)
+        public override Common_EventState GetEventState(Common_EventData e)
         {
             // Get the state
             var s = base.GetEventState(e);

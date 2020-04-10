@@ -77,7 +77,7 @@ namespace R1Engine
         /// <summary>
         /// Updates the state
         /// </summary>
-        public abstract Common_EventState GetEventState(Common_Event e);
+        public abstract Common_EventState GetEventState(Common_EventData e);
 
         /// <summary>
         /// Gets the common design for the event based on the DES index
@@ -85,7 +85,7 @@ namespace R1Engine
         /// <param name="e">The event to get the design for</param>
         /// <param name="desIndex">The DES index</param>
         /// <returns>The common design</returns>
-        public abstract Common_Design GetCommonDesign(Common_Event e, int desIndex);
+        public abstract Common_Design GetCommonDesign(Common_EventData e, int desIndex);
 
         /// <summary>
         /// Gets the available event names to add for the current world
@@ -96,12 +96,11 @@ namespace R1Engine
         /// <summary>
         /// Adds a new event to the controller and returns it
         /// </summary>
-        /// <param name="eventController">The event controller to add to</param>
         /// <param name="index">The event index from the available events</param>
         /// <param name="xPos">The x position</param>
         /// <param name="yPos">The y position</param>
-        /// <returns></returns>
-        public Common_Event AddEvent(LevelEventController eventController, int index, uint xPos, uint yPos)
+        /// <returns>The event</returns>
+        public Common_EventData AddEvent(int index, uint xPos, uint yPos)
         {
             // Get the event
             var e = EventInfoData[index];
@@ -109,8 +108,28 @@ namespace R1Engine
             // Get the commands from the bytes
             var cmds = Common_EventCommandCollection.FromBytes(UsesLocalCommands ? e.LocalCommands : e.Commands);
 
-            // Add and return the event
-            return eventController.AddEvent((EventType)e.Type, e.Etat, e.SubEtat, xPos, yPos, GetDesIndex(e) ?? -1, GetEtaIndex(e) ?? -1, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, 0, e.HitSprite, e.FollowEnabled, UsesLocalCommands ? new ushort[0] : e.LabelOffsets, cmds, 0);
+            // Return the event
+            return new Common_EventData
+            {
+                Type = (EventType)e.Type,
+                Etat = e.Etat,
+                SubEtat = e.SubEtat,
+                XPosition = xPos,
+                YPosition = yPos,
+                DES = GetDesIndex(e) ?? -1,
+                ETA = GetEtaIndex(e) ?? -1,
+                OffsetBX = e.OffsetBX,
+                OffsetBY = e.OffsetBY,
+                OffsetHY = e.OffsetHY,
+                FollowSprite = e.FollowSprite,
+                HitPoints = e.HitPoints,
+                Layer = 0,
+                HitSprite = e.HitSprite,
+                FollowEnabled = e.FollowEnabled,
+                LabelOffsets = UsesLocalCommands ? new ushort[0] : e.LabelOffsets,
+                CommandCollection = cmds,
+                LinkIndex = 0
+            };
         }
 
         /// <summary>
@@ -172,7 +191,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="e">The event</param>
         /// <returns>The common editor event info</returns>
-        public Common_EditorEventInfo GetEditorEventInfo(Common_Event e)
+        public Common_EditorEventInfo GetEditorEventInfo(Common_EventData e)
         {
             // Get the command bytes
             var cmds = e.CommandCollection?.ToBytes();

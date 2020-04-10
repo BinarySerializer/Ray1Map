@@ -873,8 +873,8 @@ namespace R1Engine
         public void AutoApplyPalette(Common_Lev level)
         {
             // Get the palette changers
-            var paletteXChangers = level.Events.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
-            var paletteYChangers = level.Events.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteXChangers = level.EventData.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteYChangers = level.EventData.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
             // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
@@ -1136,7 +1136,7 @@ namespace R1Engine
                 Height = levelData.Height,
 
                 // Create the events list
-                Events = new List<Common_Event>(),
+                EventData = new List<Common_EventData>(),
 
                 // Create the tile arrays
                 TileSet = new Common_Tileset[3],
@@ -1146,18 +1146,32 @@ namespace R1Engine
             // Load the sprites
             var eventDesigns = await LoadSpritesAsync(context, levelData.ColorPalettes.First());
 
-            // Add the events
-            commonLev.Events = new List<Common_Event>();
-
             var index = 0;
 
-            foreach (PC_Event e in levelData.Events) 
+            foreach (PC_Event e in levelData.Events)
             {
-                // Instantiate event prefab using LevelEventController
-                var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, (int)e.DES, (int)e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.Layer, e.HitSprite, e.FollowEnabled, levelData.EventCommands[index].LabelOffsetTable, levelData.EventCommands[index].Commands, levelData.EventLinkingTable[index]);
-
                 // Add the event
-                commonLev.Events.Add(ee);
+                commonLev.EventData.Add(new Common_EventData
+                {
+                    Type = e.Type,
+                    Etat = e.Etat,
+                    SubEtat = e.SubEtat,
+                    XPosition = e.XPosition,
+                    YPosition = e.YPosition,
+                    DES = (int)e.DES,
+                    ETA = (int)e.ETA,
+                    OffsetBX = e.OffsetBX,
+                    OffsetBY = e.OffsetBY,
+                    OffsetHY = e.OffsetHY,
+                    FollowSprite = e.FollowSprite,
+                    HitPoints = e.HitPoints,
+                    Layer = e.Layer,
+                    HitSprite = e.HitSprite,
+                    FollowEnabled = e.FollowEnabled,
+                    LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
+                    CommandCollection = levelData.EventCommands[index].Commands,
+                    LinkIndex = levelData.EventLinkingTable[index]
+                });
 
                 index++;
             }
@@ -1326,7 +1340,7 @@ namespace R1Engine
             // Set events
             Controller.obj.levelEventController.CalculateLinkIndexes();
 
-            foreach (var e in commonLevelData.Events) 
+            foreach (var e in commonLevelData.EventData) 
             {
                 // Create the event
                 var r1Event = new PC_Event

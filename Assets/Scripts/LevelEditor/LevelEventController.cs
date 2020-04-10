@@ -58,23 +58,23 @@ namespace R1Engine
         public int lastUsedLayer = 0;
 
         public void InitializeEvents() {
-            var eventList = Controller.obj.levelController.currentLevel.Events;
+            var eventList = Controller.obj.levelController.Events;
 
             // Hard-code event animations for the different Rayman types
             Common_Design rayDes = null;
 
-            var rayEvent = eventList.Find(x => x.Type == EventType.TYPE_RAY_POS);
+            var rayEvent = eventList.Find(x => x.Data.Type == EventType.TYPE_RAY_POS);
 
             if (rayEvent != null)
-                rayDes = Controller.obj.levelController.EditorManager.GetCommonDesign(rayEvent, rayEvent.DES);
+                rayDes = Controller.obj.levelController.EditorManager.GetCommonDesign(rayEvent.Data, rayEvent.Data.DES);
 
             if (rayDes != null)
             {
-                var miniRay = eventList.Find(x => x.Type == EventType.TYPE_DEMI_RAYMAN);
+                var miniRay = eventList.Find(x => x.Data.Type == EventType.TYPE_DEMI_RAYMAN);
 
                 if (miniRay != null)
                 {
-                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(miniRay, miniRay.DES);
+                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(miniRay.Data, miniRay.Data.DES);
 
                     if (des != null)
                     {
@@ -109,11 +109,11 @@ namespace R1Engine
                     }
                 }
 
-                var badRay = eventList.Find(x => x.Type == EventType.TYPE_BLACK_RAY);
+                var badRay = eventList.Find(x => x.Data.Type == EventType.TYPE_BLACK_RAY);
 
                 if (badRay != null)
                 {
-                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(badRay, badRay.DES);
+                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(badRay.Data, badRay.Data.DES);
 
                     if (des != null)
                         des.Animations = rayDes.Animations;
@@ -129,19 +129,19 @@ namespace R1Engine
 
                 // If X and Y are insane, clamp them
                 var border = 10;
-                eventList[i].XPosition = (uint)Mathf.Clamp(eventList[i].XPosition, -border, (Controller.obj.levelController.currentLevel.Width*16)+border);
-                eventList[i].YPosition = (uint)Mathf.Clamp(eventList[i].YPosition, -border, (Controller.obj.levelController.currentLevel.Height*16)+border);
+                eventList[i].Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Width*16)+border);
+                eventList[i].Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Height*16)+border);
                 eventList[i].UpdateXAndY();
 
                 // No link
-                if (eventList[i].LinkIndex == i) {
+                if (eventList[i].Data.LinkIndex == i) {
                     eventList[i].LinkID = 0;
                 }
                 else {
                     //Ignore already assigned ones
                     if (eventList[i].LinkID == 0) {
                         // Link found, loop through everyone on the link chain
-                        int nextEvent = eventList[i].LinkIndex;
+                        int nextEvent = eventList[i].Data.LinkIndex;
                         eventList[i].LinkID = currentId;
                         eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
                         while (nextEvent != i) {
@@ -151,7 +151,7 @@ namespace R1Engine
                             eventList[nextEvent].linkCube.position = eventList[i].linkCube.position;
                             eventList[nextEvent].linkCubeLockPosition = eventList[nextEvent].linkCube.position;
 
-                            nextEvent = eventList[nextEvent].LinkIndex;
+                            nextEvent = eventList[nextEvent].Data.LinkIndex;
                         }
                         currentId++;
                     }
@@ -208,7 +208,7 @@ namespace R1Engine
 
         public void ChangeEventsVisibility(object o, EventArgs e) {
             if (Controller.obj.levelController.currentLevel != null) {
-                foreach (var eve in Controller.obj.levelController.currentLevel.Events) {
+                foreach (var eve in Controller.obj.levelController.Events) {
                     eve.RefreshVisuals();
                     if (editor.currentMode == Editor.EditMode.Links)
                         eve.ChangeLinksVisibility(true);
@@ -231,12 +231,15 @@ namespace R1Engine
                     //Don't add if clicked outside of the level bounds
                     if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Width*16 && -moy < Controller.obj.levelController.currentLevel.Height*16) {
 
-                        var eve = Controller.obj.levelController.EditorManager.AddEvent(this, eventDropdown.value, (uint)mox, (uint)-moy);
+                        var eventData = Controller.obj.levelController.EditorManager.AddEvent(eventDropdown.value, (uint)mox, (uint)-moy);
+
+                        Controller.obj.levelController.currentLevel.EventData.Add(eventData);
+                        var eve = AddEvent(eventData);
 
                         // Refresh the event
                         eve.RefreshEditorInfo();
 
-                        Controller.obj.levelController.currentLevel.Events.Add(eve);
+                        Controller.obj.levelController.Events.Add(eve);
                     }
                 }
                 //Detect event under mouse when clicked
@@ -250,27 +253,27 @@ namespace R1Engine
                             currentlySelected = e;
                             //Change event info if event is selected
                             infoName.text = currentlySelected.name;
-                            infoX.text = currentlySelected.XPosition.ToString();
-                            infoY.text = currentlySelected.YPosition.ToString();
-                            infoDes.value = currentlySelected.DES;
-                            infoEta.value = currentlySelected.ETA;
+                            infoX.text = currentlySelected.Data.XPosition.ToString();
+                            infoY.text = currentlySelected.Data.YPosition.ToString();
+                            infoDes.value = currentlySelected.Data.DES;
+                            infoEta.value = currentlySelected.Data.ETA;
                             UpdateInfoEtat();
-                            infoEtat.value = currentlySelected.Etat;
-                            infoSubEtat.value = currentlySelected.SubEtat;
-                            infoOffsetBx.text = currentlySelected.OffsetBX.ToString();
-                            infoOffsetBy.text = currentlySelected.OffsetBY.ToString();
-                            infoOffsetHy.text = currentlySelected.OffsetHY.ToString();
-                            infoFollowSprite.text = currentlySelected.FollowSprite.ToString();
-                            infoHitPoints.text = currentlySelected.HitPoints.ToString();
-                            infoHitSprite.text = currentlySelected.HitSprite.ToString();
-                            infoFollow.isOn = currentlySelected.FollowEnabled;
-                            infoType.value = (int)currentlySelected.Type;
+                            infoEtat.value = currentlySelected.Data.Etat;
+                            infoSubEtat.value = currentlySelected.Data.SubEtat;
+                            infoOffsetBx.text = currentlySelected.Data.OffsetBX.ToString();
+                            infoOffsetBy.text = currentlySelected.Data.OffsetBY.ToString();
+                            infoOffsetHy.text = currentlySelected.Data.OffsetHY.ToString();
+                            infoFollowSprite.text = currentlySelected.Data.FollowSprite.ToString();
+                            infoHitPoints.text = currentlySelected.Data.HitPoints.ToString();
+                            infoHitSprite.text = currentlySelected.Data.HitSprite.ToString();
+                            infoFollow.isOn = currentlySelected.Data.FollowEnabled;
+                            infoType.value = (int)currentlySelected.Data.Type;
                             infoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
-                            infoLayer.text = currentlySelected.Layer.ToString();
+                            infoLayer.text = currentlySelected.Data.Layer.ToString();
                             //Clear old commands
                             ClearCommands();
                             //Fill out the commands
-                            foreach (var c in currentlySelected.CommandCollection?.Commands ?? new Common_EventCommand[0]) {
+                            foreach (var c in currentlySelected.Data.CommandCollection?.Commands ?? new Common_EventCommand[0]) {
                                 CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
                                 cmd.command = c;
                                 cmd.transform.SetParent(commandListParent, false);
@@ -308,9 +311,9 @@ namespace R1Engine
                             infoY.text = Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16).ToString();
 
                             uint.TryParse(infoX.text, out var new_x);
-                            currentlySelected.XPosition = new_x;
+                            currentlySelected.Data.XPosition = new_x;
                             uint.TryParse(infoY.text, out var new_y);
-                            currentlySelected.YPosition = new_y;
+                            currentlySelected.Data.YPosition = new_y;
 
                             currentlySelected.UpdateXAndY();
                         }
@@ -324,7 +327,7 @@ namespace R1Engine
                 //Confirm links with mmb
                 if (Input.GetMouseButtonDown(2) && modeLinks && currentlySelected.LinkID==0) {
                     bool alone = true;
-                    foreach (var ee in Controller.obj.levelController.currentLevel.Events) {
+                    foreach (var ee in Controller.obj.levelController.Events) {
                         if (ee.linkCube.position==currentlySelected.linkCube.position) {
                             if (ee != currentlySelected) {
                                 ee.LinkID = currentId;
@@ -379,7 +382,7 @@ namespace R1Engine
             //Clear old options
             infoEtat.options.Clear();
             //Populate new options
-            var max = Controller.obj.levelController.EditorManager.GetMaxEtat(currentlySelected.ETA);
+            var max = Controller.obj.levelController.EditorManager.GetMaxEtat(currentlySelected.Data.ETA);
             for (int i = 0; i <= max; i++) {
                 Dropdown.OptionData dat = new Dropdown.OptionData {
                     text = i.ToString()
@@ -392,7 +395,7 @@ namespace R1Engine
             //Clear old options
             infoSubEtat.options.Clear();
             //Populate new options
-            var max = Controller.obj.levelController.EditorManager.GetMaxSubEtat(currentlySelected.ETA, currentlySelected.Etat);
+            var max = Controller.obj.levelController.EditorManager.GetMaxSubEtat(currentlySelected.Data.ETA, currentlySelected.Data.Etat);
             for (int i = 0; i <= max; i++) {
                 Dropdown.OptionData dat = new Dropdown.OptionData {
                     text = i.ToString()
@@ -406,8 +409,8 @@ namespace R1Engine
         public void FieldXPosition() {
             if (currentlySelected != null) {
                 uint.TryParse(infoX.text, out var new_x);
-                if (new_x != currentlySelected.XPosition) {
-                    currentlySelected.XPosition = new_x;
+                if (new_x != currentlySelected.Data.XPosition) {
+                    currentlySelected.Data.XPosition = new_x;
                     currentlySelected.UpdateXAndY();
                 }
             }
@@ -415,16 +418,16 @@ namespace R1Engine
         public void FieldYPosition() {
             if (currentlySelected != null) {
                 uint.TryParse(infoY.text, out var new_y);
-                if (new_y != currentlySelected.YPosition) {
-                    currentlySelected.YPosition = new_y;
+                if (new_y != currentlySelected.Data.YPosition) {
+                    currentlySelected.Data.YPosition = new_y;
                     currentlySelected.UpdateXAndY();
                 }
             }
         }
         public void FieldDes() {
             if (currentlySelected != null) {
-                if (infoDes.value != currentlySelected.DES) {
-                    currentlySelected.DES = infoDes.value;
+                if (infoDes.value != currentlySelected.Data.DES) {
+                    currentlySelected.Data.DES = infoDes.value;
 
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();
@@ -433,8 +436,8 @@ namespace R1Engine
         }
         public void FieldEta() {
             if (currentlySelected != null) {
-                if (infoEta.value != currentlySelected.ETA) {
-                    currentlySelected.ETA = infoEta.value;
+                if (infoEta.value != currentlySelected.Data.ETA) {
+                    currentlySelected.Data.ETA = infoEta.value;
 
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();
@@ -445,8 +448,8 @@ namespace R1Engine
         }
         public void FieldEtat() {
             if (currentlySelected != null) {
-                if (infoEtat.value != currentlySelected.Etat) {
-                    currentlySelected.Etat = infoEtat.value;
+                if (infoEtat.value != currentlySelected.Data.Etat) {
+                    currentlySelected.Data.Etat = infoEtat.value;
 
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();
@@ -457,8 +460,8 @@ namespace R1Engine
         }
         public void FieldSubEtat() {
             if (currentlySelected != null) {
-                if (infoSubEtat.value != currentlySelected.SubEtat) {
-                    currentlySelected.SubEtat = infoSubEtat.value;
+                if (infoSubEtat.value != currentlySelected.Data.SubEtat) {
+                    currentlySelected.Data.SubEtat = infoSubEtat.value;
 
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();                  
@@ -468,8 +471,8 @@ namespace R1Engine
         public void FieldOffsetBx() {
             if (currentlySelected != null) {
                 int.TryParse(infoOffsetBx.text, out var new_offbx);
-                if (new_offbx != currentlySelected.OffsetBX) {
-                    currentlySelected.OffsetBX = new_offbx;
+                if (new_offbx != currentlySelected.Data.OffsetBX) {
+                    currentlySelected.Data.OffsetBX = new_offbx;
 
                     currentlySelected.RefreshName();
                     currentlySelected.UpdateOffsetPoints();
@@ -479,8 +482,8 @@ namespace R1Engine
         public void FieldOffsetBy() {
             if (currentlySelected != null) {
                 int.TryParse(infoOffsetBy.text, out var new_offby);
-                if (new_offby != currentlySelected.OffsetBY) {
-                    currentlySelected.OffsetBY = new_offby;
+                if (new_offby != currentlySelected.Data.OffsetBY) {
+                    currentlySelected.Data.OffsetBY = new_offby;
 
                     currentlySelected.RefreshName();
                     currentlySelected.UpdateOffsetPoints();
@@ -490,8 +493,8 @@ namespace R1Engine
         public void FieldOffsetHy() {
             if (currentlySelected != null) {
                 int.TryParse(infoOffsetHy.text, out var new_offhy);
-                if (new_offhy != currentlySelected.OffsetHY) {
-                    currentlySelected.OffsetHY = new_offhy;
+                if (new_offhy != currentlySelected.Data.OffsetHY) {
+                    currentlySelected.Data.OffsetHY = new_offhy;
 
                     currentlySelected.RefreshName();
                     currentlySelected.UpdateOffsetPoints();
@@ -502,8 +505,8 @@ namespace R1Engine
         public void FieldFollowSprite() {
             if (currentlySelected != null) {
                 int.TryParse(infoFollowSprite.text, out var new_fsprite);
-                if (new_fsprite != currentlySelected.FollowSprite) {
-                    currentlySelected.FollowSprite = new_fsprite;
+                if (new_fsprite != currentlySelected.Data.FollowSprite) {
+                    currentlySelected.Data.FollowSprite = new_fsprite;
 
                     currentlySelected.RefreshName();
                     currentlySelected.UpdateFollowSpriteLine();
@@ -513,8 +516,8 @@ namespace R1Engine
         public void FieldHitPoints() {
             if (currentlySelected != null) {
                 int.TryParse(infoHitPoints.text, out var new_hp);
-                if (new_hp != currentlySelected.HitPoints) {
-                    currentlySelected.HitPoints = new_hp;
+                if (new_hp != currentlySelected.Data.HitPoints) {
+                    currentlySelected.Data.HitPoints = new_hp;
 
                     currentlySelected.RefreshVisuals();
                     currentlySelected.RefreshName();
@@ -524,8 +527,8 @@ namespace R1Engine
         public void FieldHitSprite() {
             if (currentlySelected != null) {
                 int.TryParse(infoHitSprite.text, out var new_hsprite);
-                if (new_hsprite != currentlySelected.HitSprite) {
-                    currentlySelected.HitSprite = new_hsprite;
+                if (new_hsprite != currentlySelected.Data.HitSprite) {
+                    currentlySelected.Data.HitSprite = new_hsprite;
 
                     currentlySelected.RefreshName();
                 }
@@ -533,8 +536,8 @@ namespace R1Engine
         }
         public void FieldFollowEnabled() {
             if (currentlySelected != null) {
-                if (infoFollow.isOn != currentlySelected.FollowEnabled) {
-                    currentlySelected.FollowEnabled = infoFollow.isOn;
+                if (infoFollow.isOn != currentlySelected.Data.FollowEnabled) {
+                    currentlySelected.Data.FollowEnabled = infoFollow.isOn;
 
                     currentlySelected.RefreshName();
                     currentlySelected.ChangeOffsetVisibility(true);
@@ -543,8 +546,8 @@ namespace R1Engine
         }
         public void FieldType() {
             if (currentlySelected != null) {
-                if ((EventType)infoType.value != currentlySelected.Type) {
-                    currentlySelected.Type = (EventType)infoType.value;
+                if ((EventType)infoType.value != currentlySelected.Data.Type) {
+                    currentlySelected.Data.Type = (EventType)infoType.value;
 
                     currentlySelected.RefreshFlag();
                     currentlySelected.RefreshName();
@@ -597,7 +600,7 @@ namespace R1Engine
             if (Controller.obj.levelController.currentLevel != null) {
                 if (areLinksVisible != t) {
                     areLinksVisible = t;
-                    foreach (var e in Controller.obj.levelController.currentLevel.Events) {
+                    foreach (var e in Controller.obj.levelController.Events) {
                         e.ChangeLinksVisibility(t);
                     }
                 }
@@ -608,22 +611,22 @@ namespace R1Engine
         public void CalculateLinkIndexes() {
 
             List<int> alreadyChained = new List<int>();
-            foreach (Common_Event ee in Controller.obj.levelController.currentLevel.Events) {
+            foreach (Common_Event ee in Controller.obj.levelController.Events) {
                 // No link
                 if (ee.LinkID == 0) {
-                    ee.LinkIndex = Controller.obj.levelController.currentLevel.Events.IndexOf(ee);
+                    ee.Data.LinkIndex = Controller.obj.levelController.Events.IndexOf(ee);
                 }
                 else {
                     // Skip if already chained
-                    if (alreadyChained.Contains(Controller.obj.levelController.currentLevel.Events.IndexOf(ee)))
+                    if (alreadyChained.Contains(Controller.obj.levelController.Events.IndexOf(ee)))
                         continue;
 
                     // Find all the events with the same linkId and store their indexes
                     List<int> indexesOfSameId = new List<int>();
                     int cur = ee.LinkID;
-                    foreach (Common_Event e in Controller.obj.levelController.currentLevel.Events.Where<Common_Event>(e => e.LinkID == cur)) {
-                        indexesOfSameId.Add(Controller.obj.levelController.currentLevel.Events.IndexOf(e));
-                        alreadyChained.Add(Controller.obj.levelController.currentLevel.Events.IndexOf(e));
+                    foreach (Common_Event e in Controller.obj.levelController.Events.Where<Common_Event>(e => e.LinkID == cur)) {
+                        indexesOfSameId.Add(Controller.obj.levelController.Events.IndexOf(e));
+                        alreadyChained.Add(Controller.obj.levelController.Events.IndexOf(e));
                     }
                     // Loop through and chain them
                     for (int j = 0; j < indexesOfSameId.Count; j++) {
@@ -631,7 +634,7 @@ namespace R1Engine
                         if (next == indexesOfSameId.Count)
                             next = 0;
 
-                        Controller.obj.levelController.currentLevel.Events[indexesOfSameId[j]].LinkIndex = indexesOfSameId[next];
+                        Controller.obj.levelController.Events[indexesOfSameId[j]].Data.LinkIndex = indexesOfSameId[next];
                     }
                 }
             }
@@ -643,34 +646,12 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(EventType type, int etat, int subEtat, uint xpos, uint ypos, int des, int eta, int offsetBX, int offsetBY, int offsetHY, int followSprite, int hitpoints, int layer, int hitSprite, bool followEnabled, ushort[] labelOffsets, Common_EventCommandCollection commands, int link) {
+        public Common_Event AddEvent(Common_EventData eventData)
+        {
             // Instantiate prefab
-            Common_Event newEvent = Instantiate<GameObject>(prefabEvent, new Vector3(xpos / 16f, -(ypos / 16f), layer), Quaternion.identity).GetComponent<Common_Event>();
+            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.XPosition / 16f, -(eventData .YPosition / 16f), eventData.Layer), Quaternion.identity).GetComponent<Common_Event>();
 
-            newEvent.Type = type;
-            newEvent.Etat = etat;
-            newEvent.SubEtat = subEtat;
-
-            newEvent.XPosition = xpos;
-            newEvent.YPosition = ypos;
-
-            newEvent.DES = des;
-            newEvent.ETA = eta;
-            
-            newEvent.OffsetBX = offsetBX;
-            newEvent.OffsetBY = offsetBY;
-            newEvent.OffsetHY = offsetHY;
-            
-            newEvent.FollowSprite = followSprite;
-            newEvent.HitPoints = hitpoints;
-            newEvent.Layer = layer;
-            newEvent.HitSprite = hitSprite;
-            newEvent.FollowEnabled = followEnabled;
-            
-            newEvent.LabelOffsets = labelOffsets;
-            newEvent.CommandCollection = commands;
-
-            newEvent.LinkIndex = link;
+            newEvent.Data = eventData;
 
             newEvent.UniqueLayer = -lastUsedLayer;
             lastUsedLayer++;

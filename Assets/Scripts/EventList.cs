@@ -21,7 +21,7 @@ namespace R1Engine
         void Update() {
             if (!loaded && lvlCtrl.currentLevel != null) {
                 loaded = true;
-                foreach (var e in FindObjectOfType<LevelMainController>().currentLevel.Events) {
+                foreach (var e in FindObjectOfType<LevelMainController>().Events) {
                     Instantiate<GameObject>(listItemRes, list).GetComponent<EventListItem>().ev = e;
                 }
             }

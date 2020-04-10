@@ -23,10 +23,10 @@ namespace R1Engine
             // Mouse over event
             if (e != null) {
                 textCollision.text = $"{e.DisplayName}";
-                textGraphic.text = $"Type: {e.Type}{Environment.NewLine}" +
-                                   $"Pos: {e.XPosition}, {e.YPosition}{Environment.NewLine}" +
+                textGraphic.text = $"Type: {e.Data.Type}{Environment.NewLine}" +
+                                   $"Pos: {e.Data.XPosition}, {e.Data.YPosition}{Environment.NewLine}" +
                                    $"AnimSpeed: {e.AnimSpeed}{Environment.NewLine}" +
-                                   $"Offsets: {e.OffsetBX} x {e.OffsetBY} x {e.OffsetHY}";
+                                   $"Offsets: {e.Data.OffsetBX} x {e.Data.OffsetBY} x {e.Data.OffsetHY}";
             }
             // Else Mouse over type
             else {

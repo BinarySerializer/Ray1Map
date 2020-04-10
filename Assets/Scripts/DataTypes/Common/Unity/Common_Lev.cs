@@ -28,8 +28,8 @@ namespace R1Engine
         public Common_Tile[] Tiles { get; set; }
 
         /// <summary>
-        /// The events
+        /// The event data for every event
         /// </summary>
-        public List<Common_Event> Events { get; set; }
+        public List<Common_EventData> EventData { get; set; }
     }
 }

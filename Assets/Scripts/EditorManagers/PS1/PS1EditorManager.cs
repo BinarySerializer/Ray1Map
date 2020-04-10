@@ -70,7 +70,7 @@ namespace R1Engine
         /// <summary>
         /// Updates the state
         /// </summary>
-        public override Common_EventState GetEventState(Common_Event e)
+        public override Common_EventState GetEventState(Common_EventData e)
         {
             return ETA.ElementAtOrDefault(e.ETA)?.ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
         }
@@ -81,7 +81,7 @@ namespace R1Engine
         /// <param name="e">The event to get the design for</param>
         /// <param name="desIndex">The DES index</param>
         /// <returns>The common design</returns>
-        public override Common_Design GetCommonDesign(Common_Event e, int desIndex)
+        public override Common_Design GetCommonDesign(Common_EventData e, int desIndex)
         {
             // Return the common design
             return Designs.ElementAtOrDefault(desIndex);

@@ -90,6 +90,7 @@ namespace R1Engine
         {
             return new GameAction[]
             {
+                new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteTextures(settings, output)),
             };
         }
@@ -315,7 +316,7 @@ namespace R1Engine
 
             var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
             var eventETA = new List<KeyValuePair<Pointer, Common_EventState[][]>>();
-            var commonEvents = new List<Common_Event>();
+            var commonEvents = new List<Common_EventData>();
 
             // TODO: Temp fix so all versions work
             if (events != null)
@@ -415,11 +416,28 @@ namespace R1Engine
                         etaIndex = eventETA.Count - 1;
                     }
 
-                    // Instantiate event prefab using LevelEventController
-                    var ee = Controller.obj.levelEventController.AddEvent(e.Type, e.Etat, e.SubEtat, e.XPosition, e.YPosition, desIndex, etaIndex, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.Hitpoints, e.Layer, e.HitSprite, e.GetFollowEnabled(context.Settings), e.LabelOffsets, e.Commands, eventLinkingTable[index]);
-
                     // Add the event
-                    commonEvents.Add(ee);
+                    commonEvents.Add(new Common_EventData
+                    {
+                        Type = e.Type,
+                        Etat = e.Etat,
+                        SubEtat = e.SubEtat,
+                        XPosition = e.XPosition,
+                        YPosition = e.YPosition,
+                        DES = desIndex,
+                        ETA = etaIndex,
+                        OffsetBX = e.OffsetBX,
+                        OffsetBY = e.OffsetBY,
+                        OffsetHY = e.OffsetHY,
+                        FollowSprite = e.FollowSprite,
+                        HitPoints = e.Hitpoints,
+                        Layer = e.Layer,
+                        HitSprite = e.HitSprite,
+                        FollowEnabled = e.GetFollowEnabled(context.Settings),
+                        LabelOffsets = e.LabelOffsets,
+                        CommandCollection = e.Commands,
+                        LinkIndex = eventLinkingTable[index]
+                    });
 
                     index++;
                 }
@@ -435,7 +453,7 @@ namespace R1Engine
                 Height = map.Height,
 
                 // Create the events list
-                Events = new List<Common_Event>(),
+                EventData = new List<Common_EventData>(),
 
                 // Create the tile array
                 TileSet = new Common_Tileset[4]
@@ -443,7 +461,7 @@ namespace R1Engine
             c.TileSet[0] = tileSet;
 
             // Add the events
-            c.Events = commonEvents;
+            c.EventData = commonEvents;
 
             await Controller.WaitIfNecessary();
 

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -15,6 +14,11 @@ namespace R1Engine
         /// The editor manager
         /// </summary>
         public BaseEditorManager EditorManager;
+
+        /// <summary>
+        /// The events
+        /// </summary>
+        public List<Common_Event> Events { get; set; }
 
         // The current level we are operating with
         public Common_Lev currentLevel => EditorManager?.Level;
@@ -55,6 +59,9 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
 
                 Controller.status = $"Initializing events";
+
+                // Add events
+                Events = currentLevel.EventData.Select(x => controllerEvents.AddEvent(x)).ToList();
 
                 // Init event things
                 controllerEvents.InitializeEvents();
@@ -150,17 +157,24 @@ namespace R1Engine
 
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
-            // TODO: Allow this to be configured | THIS whole aprt should be refactored, the foreach after is bad
+            // TODO: Allow this to be configured | THIS whole part should be refactored, the foreach after is bad
             // Set settings
             //Settings.ShowAlwaysEvents = false;
             //Settings.ShowEditorEvents = false;
 
             // Hide unused links and show gendoors
-            foreach (var e in currentLevel.Events) 
+            foreach (var e in Events) 
             {
-                if (e.Flag==EventFlag.Always || e.Flag == EventFlag.Editor)
+                if (e.Flag==EventFlag.Always || 
+                    e.Flag == EventFlag.Editor)
                     e.gameObject.SetActive(false);
-                if (e.Type == EventType.TYPE_GENERATING_DOOR || e.Type == EventType.TYPE_DESTROYING_DOOR || e.Type==EventType.MS_scintillement || e.Type==EventType.MS_super_gendoor || e.Type == EventType.MS_super_kildoor || e.Type==EventType.MS_compteur)
+
+                if (e.Data.Type == EventType.TYPE_GENERATING_DOOR || 
+                    e.Data.Type == EventType.TYPE_DESTROYING_DOOR || 
+                    e.Data.Type==EventType.MS_scintillement || 
+                    e.Data.Type==EventType.MS_super_gendoor ||
+                    e.Data.Type == EventType.MS_super_kildoor || 
+                    e.Data.Type==EventType.MS_compteur)
                     e.gameObject.SetActive(true);
 
                 e.ChangeLinksVisibility(true);
@@ -172,17 +186,24 @@ namespace R1Engine
                 }
                 else {
                     //Hide link if not linked to gendoor
-                    bool gendoorFound = false;
-                    if (e.Type == EventType.TYPE_GENERATING_DOOR || e.Type == EventType.TYPE_DESTROYING_DOOR || e.Type == EventType.MS_scintillement || e.Type == EventType.MS_super_gendoor || e.Type == EventType.MS_super_kildoor || e.Type == EventType.MS_compteur)
-                        gendoorFound = true;
-                    var allofSame = new List<Common_Event>();
-                    allofSame.Add(e);
-                    foreach (var f in currentLevel.Events) {
-                        if (f.LinkID == e.LinkID) {
-                            allofSame.Add(f);
-                            if (f.Type == EventType.TYPE_GENERATING_DOOR || f.Type == EventType.TYPE_DESTROYING_DOOR || f.Type == EventType.MS_scintillement || f.Type == EventType.MS_super_gendoor || f.Type == EventType.MS_super_kildoor || f.Type == EventType.MS_compteur)
-                                gendoorFound = true;
-                        }
+                    bool gendoorFound = e.Data.Type == EventType.TYPE_GENERATING_DOOR || 
+                                        e.Data.Type == EventType.TYPE_DESTROYING_DOOR || 
+                                        e.Data.Type == EventType.MS_scintillement || 
+                                        e.Data.Type == EventType.MS_super_gendoor || 
+                                        e.Data.Type == EventType.MS_super_kildoor ||
+                                        e.Data.Type == EventType.MS_compteur;
+                    var allofSame = new List<Common_Event> {
+                        e
+                    };
+                    foreach (Common_Event f in Events.Where(f => f.LinkID == e.LinkID)) {
+                        allofSame.Add(f);
+                        if (f.Data.Type == EventType.TYPE_GENERATING_DOOR || 
+                            f.Data.Type == EventType.TYPE_DESTROYING_DOOR || 
+                            f.Data.Type == EventType.MS_scintillement || 
+                            f.Data.Type == EventType.MS_super_gendoor || 
+                            f.Data.Type == EventType.MS_super_kildoor || 
+                            f.Data.Type == EventType.MS_compteur)
+                            gendoorFound = true;
                     }
                     if (!gendoorFound) {
                         foreach(var a in allofSame) {
