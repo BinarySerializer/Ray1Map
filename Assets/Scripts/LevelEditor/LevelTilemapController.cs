@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -105,14 +106,6 @@ namespace R1Engine
             }
         }
 
-        /// <summary>
-        /// Returns the tile under the mouse.
-        /// </summary>
-        /// <returns></returns>
-        public Common_Tile GetMouseTile() {
-            var worldMouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            return GetTileAtPos(Mathf.FloorToInt(worldMouse.x), Mathf.FloorToInt(worldMouse.y + 1));
-        }
         // Converts mouse position to worldspace and then tile positions (1 = 16)
         public Vector3 MouseToTileCoords(Vector3 mousePos) {
             var worldMouse = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 10));
@@ -134,23 +127,46 @@ namespace R1Engine
             }
         }
 
-        // Set common tile to given position
         public void SetTileAtPos(int x, int y, Common_Tile t) {
-            Common_Tile found = GetTileAtPos(x, y);
-            if (found != null) {
-                found.PaletteIndex = t.PaletteIndex;
-                found.TileSetGraphicIndex = t.TileSetGraphicIndex;
-                // Assign correct unity tile to the tilemap
-                Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[1].Tiles[t.TileSetGraphicIndex]);
+            ClearUnityTilemapAt(x, y);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)t.CollisionType]);
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[1].Tiles[t.TileSetGraphicIndex]);
+
+            foreach (var tile in Controller.obj.levelController.currentLevel.Tiles) {
+                if (tile.XPosition == x && tile.YPosition == y) {
+                    tile.CollisionType = t.CollisionType;
+                    tile.PaletteIndex = t.PaletteIndex;
+                    tile.TileSetGraphicIndex = t.TileSetGraphicIndex;
+                    break;
+                }
             }
         }
 
-        // Set type to position
+        public void SetTileAtPos(int x, int y, int gIndex, int layer) {
+            Common_Tile found = GetTileAtPos(x, y);
+            if (found != null) {
+                // If on PC and trying to assign 0 (empty), change to -1 instead
+                found.TileSetGraphicIndex = gIndex;
+
+                found.PaletteIndex = layer;
+                //First clear the cell on all tilemaps
+                ClearUnityTilemapAt(x, y);
+                // If on PC and trying to change the tile to 0 (black square), assing a null tile instead
+                if (gIndex == 0) {
+                    Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), null);
+                }
+                else {
+                    Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[layer].Tiles[gIndex]);
+                }
+            }
+        }
+
         public void SetTypeAtPos(int x, int y, int tIndex) {
             Common_Tile found = GetTileAtPos(x, y);
             if (found != null) {
                 found.CollisionType = (TileCollisionType)tIndex;
-                // Assign correct type
+
+                // Index 0 is collision types tilemap
                 if (Settings.UseHDCollisionSheet) {
                     Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTilesHD[tIndex]);
                 }
@@ -158,6 +174,11 @@ namespace R1Engine
                     Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[tIndex]);
                 }
             }
+        }
+
+        public void ClearUnityTilemapAt(int x, int y) {
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
         }
     }
 }

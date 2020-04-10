@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System;
 using static UnityEngine.Input;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 namespace R1Engine {
     public class Editor : MonoBehaviour {
@@ -20,7 +21,7 @@ namespace R1Engine {
 
         public Common_Tile mouseTile;
 
-
+        bool selecting;
         bool dragging;
         [HideInInspector]
         public bool scrolling;
@@ -40,6 +41,9 @@ namespace R1Engine {
         //Reference to layer buttons
         public GameObject layerTypes;
         public GameObject layerEvents;
+
+        //Selected tiles
+        public Common_Tile[,] selection;
 
         public void SetEditMode(int mode) {
             // Set
@@ -117,79 +121,109 @@ namespace R1Engine {
         }
 
         void Update() {
-            /*
-            // Get the tile under the mouse
-            mouseTile = lvlController.controllerTilemap.GetMouseTile();
+            //Tile editing
+            if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
+                // Get the tile under the mouse
+                Vector3 mousePositionTile = lvlController.controllerTilemap.MouseToTileCoords(mousePosition);
+                mouseTile = lvlController.controllerTilemap.GetTileAtPos((int)mousePositionTile.x, -(int)mousePositionTile.y);
 
+                // =============== SELECTION SQUARE ===============
 
+                // Escape clears selection info
+                if (GetKeyDown(KeyCode.Escape))
+                    tileSelectSquare.Clear();
 
-            // =============== SELECTION SQUARE ===============
-
-            // Escape clears selection info
-            if (GetKeyDown(KeyCode.Escape))
-                tileSelectSquare.Clear();
-
-
-            // Left click begins drag and assigns the starting corner of the selection square
-            if (GetMouseButtonDown(0) && mousePosition.y < Screen.height - 100 && mousePosition.x > 250) {
-                tileSelectSquare.SetStartCorner(mouseTile.XPosition, mouseTile.YPosition);
-                dragging = true;
-            }
-
-            if (dragging) {
-                // During drag, set the end corner
-                if (GetMouseButton(0)) {
-                    tileSelectSquare.SetEndCorner(mouseTile.XPosition, mouseTile.YPosition);
+                // Left click begins drag and assigns the starting corner of the selection square
+                if (!dragging && mouseTile != null) {
+                    if (GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
+                        tileSelectSquare.SetStartCorner(mousePositionTile.x, -mousePositionTile.y);
+                        dragging = true;
+                        selecting = !GetKey(KeyCode.LeftControl);
+                    }
                 }
 
-                tileSelectSquare.color = colorSelect;
+                if (dragging) {
+                    // During drag, set the end corner
+                    var endX = Mathf.Clamp(mousePositionTile.x, 0, lvlController.currentLevel.Width - 1);
+                    var endY = Mathf.Clamp(-mousePositionTile.y, 0, lvlController.currentLevel.Height - 1);
+                    if (selecting) {
+                        tileSelectSquare.color = colorSelect;
+                        tileSelectSquare.SetEndCorner(endX, endY);
+                    } else {
+                        tileSelectSquare.color = colorNew;
+                        tileSelectSquare.SetEndCorner(endX, endY);
+                    }
 
-                // Auto scroll if dragging near the screen margin and not manually moving the camera
-                if (!GetMouseButton(1)) {
-                    float scr = Camera.main.orthographicSize * cam.friction * autoScrollSpeed * Time.deltaTime;
-                    bool inMarginLeft = mousePosition.x < autoScrollMargin;
-                    bool inMarginRight = mousePosition.x > Screen.width - autoScrollMargin;
-                    bool inMarginTop = mousePosition.y < autoScrollMargin;
-                    bool inMarginBottom = mousePosition.y > Screen.height - autoScrollMargin;
-                    bool inMargin = inMarginLeft || inMarginRight || inMarginTop || inMarginBottom;
+                    // Auto scroll if dragging near the screen margin and not manually moving the camera
+                    if (GetMouseButton(1)) {
+                        float scr = Camera.main.orthographicSize * cam.friction * autoScrollSpeed * Time.deltaTime;
+                        bool inMarginLeft = mousePosition.x < autoScrollMargin;
+                        bool inMarginRight = mousePosition.x > Screen.width - autoScrollMargin;
+                        bool inMarginTop = mousePosition.y < autoScrollMargin;
+                        bool inMarginBottom = mousePosition.y > Screen.height - autoScrollMargin;
+                        bool inMargin = inMarginLeft || inMarginRight || inMarginTop || inMarginBottom;
 
-                    if (inMarginLeft) cam.vel.x -= scr;
-                    if (inMarginRight) cam.vel.x += scr;
-                    if (inMarginTop) cam.vel.y -= scr;
-                    if (inMarginBottom) cam.vel.y += scr;
+                        if (inMarginLeft) cam.vel.x -= scr;
+                        if (inMarginRight) cam.vel.x += scr;
+                        if (inMarginTop) cam.vel.y -= scr;
+                        if (inMarginBottom) cam.vel.y += scr;
 
-                    if (inMargin)
-                        scrolling = true;
+                        if (inMargin)
+                            scrolling = true;
+                    }
                 }
-            }
-            else
-                scrolling = false;
+                else {
+                    scrolling = false;
+                }
 
-            // Reset camera friction from the drag's override if moved manually
-            if (GetMouseButtonDown(1))
-                cam.friction = cam.fricStart;
+                // Reset camera friction from the drag's override if moved manually
+                if (GetMouseButtonDown(1))
+                    cam.friction = cam.fricStart;
 
-            // On mouse up, if dragging, stop drag and finalise the end corner
-            if (dragging && !GetMouseButton(0)) {
-                tileSelectSquare.SetEndCorner(mouseTile.XPosition, mouseTile.YPosition);
-                dragging = false;
-            }
-
-            switch (mode) {
-
-                // =============== Tiles EDITING ===============
-                case EditMode.Tiles:
-
-                    // Press Delete to clear selected tiles
-                    if (GetKeyDown(KeyCode.Delete))
-                        for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++)
-                            for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
-                                lvlController.controllerTilemap.SetTileAtPos(x, y, 0, 0);
-                                lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
+                if (dragging) {
+                    if (currentMode == EditMode.Tiles) {
+                        // If dragging and selecting mouse up, record the selection
+                        if (selecting && !GetMouseButton(0)) {
+                            dragging = false;
+                            //Create array for selected area
+                            selection = new Common_Tile[(int)(tileSelectSquare.XEnd - tileSelectSquare.XStart) + 1, (int)(tileSelectSquare.YEnd - tileSelectSquare.YStart) + 1];
+                            int xi = 0;
+                            int yi = 0;
+                            //Save the selected area
+                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
+                                    selection[xi, yi] = lvlController.controllerTilemap.GetTileAtPos(x, y);
+                                    xi++;
+                                }
+                                xi = 0;
+                                yi++;
                             }
-                    break;
+                        }
+                        // If dragging and painting mouse up, set the selection
+                        if (!selecting && GetMouseButtonUp(0)) {
+                            dragging = false;
+                            int xi = 0;
+                            int yi = 0;
+                            //"Paste" the selection
+                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
+                                    lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
+                                    xi++;
+                                    if (xi >= selection.GetLength(0))
+                                        xi = 0;
+                                }
+                                xi = 0;
+                                yi++;
+                                if (yi >= selection.GetLength(1))
+                                    yi = 0;
+                            }
+                        }
+                    }
+                    else if (currentMode == EditMode.Collisions) {
 
-            }*/
+                    }
+                }
+            }
         }
     }
 }

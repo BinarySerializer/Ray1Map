@@ -31,7 +31,7 @@ namespace R1Engine {
         void Update() {
             if (Controller.obj.levelController.currentLevel != null) {
                 // RMB scroling
-                if (GetMouseButton(1)) {
+                if (GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {
                     vel = 0.8f * Vector3.Lerp(vel, Vector3.ClampMagnitude(mousePosPrev - mousePosition, 50) * fov,
                         inertia <= 0 ? 1 : Time.deltaTime * 1f / inertia);
                     friction = fricStart;

@@ -19,15 +19,19 @@ namespace R1Engine {
         public void SetStartCorner(float x, float y) {
             xs = x; ys = y;
             HasSelection = true;
+            UpdateVisual();
         }
         public void SetEndCorner(float x, float y) {
             xe = x; ye = y;
             HasSelection = true;
+            UpdateVisual();
         }
         public void Clear() {
             //xs = 0; ys = 0; xe = 0; ye = 0;
             HasSelection = false;
         }
+
+        private RectTransform rectTransform;
 
         /// <summary>
         /// Gets the tiles contained within the selection square.
@@ -48,13 +52,19 @@ namespace R1Engine {
             tileController = FindObjectOfType<LevelMainController>();
         }
 
-        void Update() {
+        private void Start() {
+            rectTransform = GetComponent<RectTransform>();
+        }
+
+        private void Update() {
             if (HasSelection)
                 transform.localScale = Vector3.one;
             else {
                 transform.localScale = Vector3.zero; return;
             }
+        }
 
+        public void UpdateVisual() {
             main.pixelsPerUnitMultiplier = 8f / Camera.main.orthographicSize;
             main.color = new Color(color.r, color.g, color.b, 0.8f);
             overlay.color = new Color(color.r, color.g, color.b, 0.075f);
@@ -73,8 +83,7 @@ namespace R1Engine {
             }
 
             transform.position = new Vector3(XStart, -YStart, 2);
-            GetComponent<RectTransform>().sizeDelta = Vector2.one
-                + (new Vector2(XEnd, YEnd) - new Vector2(transform.position.x, -transform.position.y));
+            rectTransform.sizeDelta = Vector2.one + (new Vector2(XEnd, YEnd) - new Vector2(transform.position.x, -transform.position.y));
         }
     }
 }
