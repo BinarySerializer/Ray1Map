@@ -571,7 +571,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExportVignetteTextures(GameSettings settings, string outputDir)
+        public virtual void ExportVignetteTextures(GameSettings settings, string outputDir)
         {
             // Create the context
             using (var context = new Context(settings))
