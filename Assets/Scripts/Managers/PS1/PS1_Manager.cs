@@ -96,67 +96,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Exports all vignette textures to the specified output directory
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="outputDir">The output directory</param>
-        public void ExportVignetteTextures(GameSettings settings, string outputDir)
-        {
-            // TODO: Get file paths from methods
-            // TODO: Export all vignette files, not just FND
-
-            // Create the context
-            using (var context = new Context(settings)) {
-
-                // Get the base output directory
-                var baseOutputDir = Path.Combine(outputDir, "FND");
-
-                // Create it
-                Directory.CreateDirectory(baseOutputDir);
-
-                // Extract every file
-                foreach (var filePath in Directory.GetFiles(context.BasePath + "RAY/IMA/FND/", "*.XXX", SearchOption.TopDirectoryOnly)) {
-                    // Get the relative path
-                    var relativePath = filePath.Substring(context.BasePath.Length);
-
-                    // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context) {
-                        filePath = relativePath
-                    });
-
-                    // Read the file
-                    var vig = FileFactory.Read<PS1_R1_VignetteFile>(relativePath, context);
-
-                    // Create the texture
-                    var tex = new Texture2D(vig.Width, vig.Height);
-
-                    // Write each block
-                    for (int blockIndex = 0; blockIndex < vig.ImageBlocks.Length; blockIndex++) {
-                        // Get the block data
-                        var blockData = vig.ImageBlocks[blockIndex];
-
-                        // Write the block
-                        for (int y = 0; y < vig.Height; y++) {
-                            for (int x = 0; x < 64; x++) {
-                                // Get the color
-                                var c = blockData[x + (y * 64)].GetColor();
-
-                                // Set the pixel
-                                tex.SetPixel((x + (blockIndex * 64)), tex.height - y - 1, c);
-                            }
-                        }
-                    }
-
-                    // Apply the pixels
-                    tex.Apply();
-
-                    // Write the texture
-                    File.WriteAllBytes(Path.Combine(baseOutputDir, $"{Path.GetFileNameWithoutExtension(filePath)}.png"), tex.EncodeToPNG());
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the tile set to use
         /// </summary>
         /// <param name="context">The context</param>
@@ -619,6 +558,201 @@ namespace R1Engine
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the vignette file info
+        /// </summary>
+        /// <returns>The vignette file info</returns>
+        protected abstract PS1VignetteFileInfo[] GetVignetteInfo();
+
+        /// <summary>
+        /// Exports all vignette textures to the specified output directory
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExportVignetteTextures(GameSettings settings, string outputDir)
+        {
+            // Create the context
+            using (var context = new Context(settings))
+            {
+                // Enumerate every file
+                foreach (var fileInfo in GetVignetteInfo().Where(x => File.Exists(settings.GameDirectory + x.FilePath)))
+                {
+                    // Add the file to the context
+                    context.AddFile(new LinearSerializedFile(context)
+                    {
+                        filePath = fileInfo.FilePath
+                    });
+
+                    // Get the textures
+                    var textures = new List<Texture2D>();
+
+                    if (fileInfo.FileType == VignetteFileType.Raw16)
+                    {
+                        // Read the raw data
+                        var rawData = FileFactory.Read<ObjectArray<ARGB1555Color>>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+
+                        // Create the texture
+                        textures.Add(new Texture2D(fileInfo.Width, (int)(rawData.Length / fileInfo.Width)));
+
+                        // Set the pixels
+                        for (int y = 0; y < textures.First().height; y++)
+                        {
+                            for (int x = 0; x < textures.First().width; x++)
+                            {
+                                var c = rawData.Value[y * textures.First().width + x];
+                                c.Alpha = Byte.MaxValue;
+                                textures.First().SetPixel(x, textures.First().height - y - 1, c.GetColor());
+                            }
+                        }
+                    }
+                    else if (fileInfo.FileType == VignetteFileType.MultiXXX)
+                    {
+                        // Read the data
+                        var multiData = FileFactory.Read<PS1_R1_MultiVignetteFile>(fileInfo.FilePath, context);
+
+                        // Get the textures
+                        for (int i = 0; i < multiData.ImageBlocks.Length; i++)
+                        {
+                            // Create the texture
+                            var tex = new Texture2D(fileInfo.Widths[i], (int)(multiData.ImageBlocks[i].Length / fileInfo.Widths[i]));
+
+                            // Set the pixels
+                            for (int y = 0; y < tex.height; y++)
+                            {
+                                for (int x = 0; x < tex.width; x++)
+                                {
+                                    var c = multiData.ImageBlocks[i].Value[y * tex.width + x];
+                                    c.Alpha = Byte.MaxValue;
+                                    tex.SetPixel(x, tex.height - y - 1, c.GetColor());
+                                }
+                            }
+
+                            // Add the texture
+                            textures.Add(tex);
+                        }
+                    }
+                    else
+                    {
+                        PS1_R1_VignetteBlockGroup imageBlock;
+
+                        // Get the block
+                        if (fileInfo.FileType == VignetteFileType.BlockedXXX)
+                            imageBlock = FileFactory.Read<PS1_R1_BackgroundVignetteFile>(fileInfo.FilePath, context).ImageBlock;
+                        else
+                            imageBlock = FileFactory.Read<PS1_R1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2));
+
+                        // Create the texture
+                        textures.Add(new Texture2D(imageBlock.Width, imageBlock.Height));
+
+                        // Get the block width
+                        var blockWdith = imageBlock.GetBlockWidth(context.Settings.EngineVersion);
+
+                        // Write each block
+                        for (int blockIndex = 0; blockIndex < imageBlock.ImageBlocks.Length; blockIndex++)
+                        {
+                            // Get the block data
+                            var blockData = imageBlock.ImageBlocks[blockIndex];
+
+                            // Write the block
+                            for (int y = 0; y < imageBlock.Height; y++)
+                            {
+                                for (int x = 0; x < blockWdith; x++)
+                                {
+                                    // Get the color
+                                    var c = blockData[x + (y * blockWdith)];
+
+                                    c.Alpha = Byte.MaxValue;
+
+                                    // Set the pixel
+                                    textures.First().SetPixel((x + (blockIndex * blockWdith)), textures.First().height - y - 1, c.GetColor());
+                                }
+                            }
+                        }
+                    }
+
+                    // Apply the pixels
+                    textures.ForEach(x => x.Apply());
+
+                    // Write the textures
+                    if (textures.Count == 1)
+                    {
+                        // Get the output file path
+                        var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(fileInfo.FilePath, ".png"));
+
+                        // Create the directory
+                        Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+
+                        // Write the texture
+                        File.WriteAllBytes(outputPath, textures.First().EncodeToPNG());
+                    }
+                    else
+                    {
+                        var index = 0;
+
+                        foreach (var tex in textures)
+                        {
+                            // Get the output file path
+                            var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(fileInfo.FilePath, $" - {index}.png"));
+
+                            // Create the directory
+                            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+
+                            // Write the texture
+                            File.WriteAllBytes(outputPath, tex.EncodeToPNG());
+
+                            index++;
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Value Types
+
+        protected class PS1VignetteFileInfo
+        {
+            public PS1VignetteFileInfo(string filePath, int width = 0)
+            {
+                FilePath = filePath;
+                Width = width;
+
+                if (width != 0)
+                    FileType = VignetteFileType.Raw16;
+                else if (filePath.EndsWith(".XXX", StringComparison.InvariantCultureIgnoreCase))
+                    FileType = VignetteFileType.BlockedXXX;
+                else
+                    FileType = VignetteFileType.Blocked;
+            }
+
+            public PS1VignetteFileInfo(string filePath, params int[] widths)
+            {
+                FilePath = filePath;
+                Widths = widths;
+                FileType = VignetteFileType.MultiXXX;
+            }
+
+            public VignetteFileType FileType { get; }
+
+            public string FilePath { get; }
+
+            public int Width { get; }
+
+            public int[] Widths { get; }
+        }
+
+        /// <summary>
+        /// The available vignette file types
+        /// </summary>
+        protected enum VignetteFileType
+        {
+            Raw16,
+            Blocked,
+            BlockedXXX,
+            MultiXXX
         }
 
         #endregion

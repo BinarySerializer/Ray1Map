@@ -177,19 +177,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the available game actions
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The game actions</returns>
-        public override GameAction[] GetGameActions(GameSettings settings)
-        {
-            return new GameAction[]
-            {
-
-            };
-        }
-
-        /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
@@ -221,5 +208,20 @@ namespace R1Engine
             // Load the level
             return await LoadAsync(context, map, lvl.Events, lvl.EventLinkTable.Select(x => (ushort)x).ToArray());
         }
+
+        /// <summary>
+        /// Gets the vignette file info
+        /// </summary>
+        /// <returns>The vignette file info</returns>
+        protected override PS1VignetteFileInfo[] GetVignetteInfo() => new PS1VignetteFileInfo[]
+        {
+            new PS1VignetteFileInfo("JUN_F02.R16"), 
+            new PS1VignetteFileInfo("MON_F2W.R16"), 
+            new PS1VignetteFileInfo("VIG_0P.R16", 260), 
+            new PS1VignetteFileInfo("VIG_1P.R16", 320), 
+            new PS1VignetteFileInfo("VIG_02P.R16", 257), 
+            new PS1VignetteFileInfo("VIG_7P.R16", 320), 
+            new PS1VignetteFileInfo("WORLD.R16", 320), 
+        };
     }
 }

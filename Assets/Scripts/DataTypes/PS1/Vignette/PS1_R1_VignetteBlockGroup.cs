@@ -1,24 +1,14 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Vignette file data for Rayman 1 (PS1)
+    /// Vignette block group data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_VignetteFile : R1Serializable
+    public class PS1_R1_VignetteBlockGroup : R1Serializable
     {
         /// <summary>
-        /// The width of an image block
+        /// The size of the block group, in pixels
         /// </summary>
-        public const int BlockWidth = 64;
-
-        /// <summary>
-        /// The file pointers
-        /// </summary>
-        public uint[] Pointers { get; set; }
-
-        /// <summary>
-        /// The file size
-        /// </summary>
-        public uint FileSize { get; set; }
+        public int BlockGroupSize { get; set; }
 
         public ushort Unknown1 { get; set; }
 
@@ -39,7 +29,12 @@
         /// </summary>
         public ARGB1555Color[][] ImageBlocks { get; set; }
 
-        public byte[] UnknownBlock { get; set; }
+        /// <summary>
+        /// Gets the block width based on engine version
+        /// </summary>
+        /// <param name="engineVersion">The engine version</param>
+        /// <returns>The block width</returns>
+        public int GetBlockWidth(EngineVersion engineVersion) => engineVersion == EngineVersion.RayPS1JPDemoVol3 ? 32 : 64;
 
         /// <summary>
         /// Serializes the data
@@ -47,39 +42,27 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            // HEADER
-
-            Pointers = s.SerializeArraySize<uint, uint>(Pointers);
-            Pointers = s.SerializeArray<uint>(Pointers, Pointers.Length, name: nameof(Pointers));
-            FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
-
-            // IMAGE BLOCK
-
             // Serialize header values
             Unknown1 = s.Serialize<ushort>(Unknown1, name: nameof(Unknown1));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
             Unknown2 = s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
 
+            // Get the block width
+            var blockWidth = GetBlockWidth(s.GameSettings.EngineVersion);
+
             // Create block array
             if (ImageBlocks == null)
             {
-                // Calculate the length
-                int length = (int)(Pointers[1] - Pointers[0]) / 2;
-
                 // Get the size of each block
-                var blockSize = Height * BlockWidth;
+                var blockSize = Height * blockWidth;
 
-                ImageBlocks = new ARGB1555Color[length / blockSize][];
+                ImageBlocks = new ARGB1555Color[BlockGroupSize / blockSize][];
             }
 
             // Serialize blocks
             for (int i = 0; i < ImageBlocks.Length; i++)
-                ImageBlocks[i] = s.SerializeObjectArray<ARGB1555Color>(ImageBlocks[i], BlockWidth * Height, name: nameof(ImageBlocks) + "[" + i + "]");
-
-            // UNKNOWN
-
-            UnknownBlock = s.SerializeArray<byte>(UnknownBlock, FileSize - s.CurrentPointer.FileOffset, name: nameof(UnknownBlock));
+                ImageBlocks[i] = s.SerializeObjectArray<ARGB1555Color>(ImageBlocks[i], blockWidth * Height, name: nameof(ImageBlocks) + "[" + i + "]");
         }
     }
 }

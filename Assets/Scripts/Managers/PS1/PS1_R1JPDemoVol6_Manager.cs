@@ -95,19 +95,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets the available game actions
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The game actions</returns>
-        public override GameAction[] GetGameActions(GameSettings settings)
-        {
-            return new GameAction[]
-            {
-
-            };
-        }
-
-        /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
@@ -135,5 +122,17 @@ namespace R1Engine
             // Load the level
             return await LoadAsync(context, map, null, null);
         }
+
+        /// <summary>
+        /// Gets the vignette file info
+        /// </summary>
+        /// <returns>The vignette file info</returns>
+        protected override PS1VignetteFileInfo[] GetVignetteInfo() => new PS1VignetteFileInfo[]
+        {
+            new PS1VignetteFileInfo("JUN_F01.R16"),
+            new PS1VignetteFileInfo("LOGO_UBI.R16", 640),
+            new PS1VignetteFileInfo("PRES01A.R16", 640),
+            new PS1VignetteFileInfo("PRES01B.R16", 640),
+        };
     }
 }

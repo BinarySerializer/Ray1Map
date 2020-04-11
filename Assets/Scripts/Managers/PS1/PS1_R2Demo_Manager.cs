@@ -150,5 +150,15 @@ namespace R1Engine
             // Load the level
             return await LoadAsync(context, map, null, null);
         }
+
+        /// <summary>
+        /// Gets the vignette file info
+        /// </summary>
+        /// <returns>The vignette file info</returns>
+        protected override PS1VignetteFileInfo[] GetVignetteInfo() => new PS1VignetteFileInfo[]
+        {
+            new PS1VignetteFileInfo("LOGO_UBI.TIM", 320),
+            new PS1VignetteFileInfo("JUNGLE/NEWFND16.TIM", 320),
+        };
     }
 }

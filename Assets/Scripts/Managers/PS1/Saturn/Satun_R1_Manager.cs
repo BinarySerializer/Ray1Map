@@ -295,5 +295,13 @@ namespace R1Engine
             // Load the level
             return await LoadAsync(context, map, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(b => (ushort)b).ToArray());
         }
+
+        /// <summary>
+        /// Gets the vignette file info
+        /// </summary>
+        /// <returns>The vignette file info</returns>
+        protected override PS1VignetteFileInfo[] GetVignetteInfo() => throw new InvalidOperationException("Saturn does not use PS1 vignette files!");
+
+
     }
 }

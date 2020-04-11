@@ -164,5 +164,10 @@ namespace R1Engine {
         {
 			return Path.GetFileName(path)?.Split('.').FirstOrDefault();
         }
+
+		public static string ChangeFilePathExtension(string path, string newExtension)
+        {
+			return path?.Split('.').FirstOrDefault() + newExtension;
+        }
 	}
 }
