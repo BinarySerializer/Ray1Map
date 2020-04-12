@@ -18,11 +18,10 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 40;
 
-        // TODO: Fix
         /// <summary>
         /// The file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => null;
+        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoDemoVol6;
 
         /// <summary>
         /// Gets the file path for the level tile set file
