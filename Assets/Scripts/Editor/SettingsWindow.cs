@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using R1Engine.Serialize;
 using UnityEditor;
 using UnityEngine;
 
@@ -207,6 +209,23 @@ public class SettingsWindow : UnityWindow
         // Update previous values
         PrevGameActionValues.UpdatePreviousValues();
 
+        // Randomizer
+
+        DrawHeader(ref yPos, "Randomizer");
+
+        if (GUI.Button(GetNextRect(ref yPos), "Run Batch Randomizer"))
+            await BatchRandomizeAsync();
+
+        RandomizerSeed = EditorGUI.IntField(GetNextRect(ref yPos), "Seed", RandomizerSeed);
+
+        RandomizePos = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event positions", RandomizePos);
+        RandomizeDes = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event DES", RandomizeDes);
+        RandomizeEta = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event ETA", RandomizeEta);
+        RandomizeCmdOrder = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event cmd order", RandomizeCmdOrder);
+        RandomizeFollow = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event follow", RandomizeFollow);
+        RandomizeStates = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event states", RandomizeStates);
+        RandomizeType = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event type", RandomizeType);
+
         TotalyPos = yPos;
 		GUI.EndScrollView();
 
@@ -216,6 +235,83 @@ public class SettingsWindow : UnityWindow
 			Dirty = false;
 		}
 	}
+
+    #region Randomizer
+
+    private async Task BatchRandomizeAsync()
+    {
+        // Get the settings
+        var settings = Settings.GetGameSettings;
+
+        // Get the manager
+        var manager = Settings.GetGameManager;
+
+        // Get the flag
+        var flag = RandomizerFlags.None;
+
+        if (RandomizePos)
+            flag |= RandomizerFlags.Pos;
+
+        if (RandomizeDes)
+            flag |= RandomizerFlags.Des;
+
+        if (RandomizeEta)
+            flag |= RandomizerFlags.Eta;
+
+        if (RandomizeCmdOrder)
+            flag |= RandomizerFlags.CommandOrder;
+
+        if (RandomizeFollow)
+            flag |= RandomizerFlags.Follow;
+
+        if (RandomizeStates)
+            flag |= RandomizerFlags.States;
+
+        if (RandomizeType)
+            flag |= RandomizerFlags.Type;
+
+        // Enumerate every world
+        foreach (var world in manager.GetLevels(settings))
+        {
+            // Set the world
+            settings.World = world.Key;
+
+            // Enumerate every level
+            foreach (var lvl in world.Value)
+            {
+                // Set the level
+                settings.Level = lvl;
+
+                // Create the context
+                var context = new Context(settings);
+
+                // Load the files
+                await manager.LoadFilesAsync(context);
+
+                // Load the level
+                var editorManager = await manager.LoadAsync(context);
+
+                // Randomize
+                Randomizer.Randomize(editorManager, flag, (int)world.Key + lvl + RandomizerSeed);
+
+                // Save the level
+                manager.SaveLevel(context, editorManager.Level);
+            }
+            return;
+        }
+    }
+
+    private int RandomizerSeed { get; set; }
+
+    private bool RandomizePos { get; set; }
+    private bool RandomizeDes { get; set; }
+    private bool RandomizeEta { get; set; }
+    private bool RandomizeCmdOrder { get; set; }
+    private bool RandomizeFollow { get; set; }
+    private bool RandomizeStates { get; set; }
+    private bool RandomizeType { get; set; }
+
+    #endregion
 
     private PrevValues PrevLvlValues { get; } = new PrevValues();
 

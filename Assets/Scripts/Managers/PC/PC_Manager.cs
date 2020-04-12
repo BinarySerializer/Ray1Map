@@ -1337,9 +1337,6 @@ namespace R1Engine
             var eventCommands = new List<PC_EventCommand>();
             var eventLinkingTable = new List<ushort>();
 
-            // Set events
-            Controller.obj.levelEventController.CalculateLinkIndexes();
-
             foreach (var e in commonLevelData.EventData) 
             {
                 // Create the event

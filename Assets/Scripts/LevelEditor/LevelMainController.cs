@@ -86,6 +86,9 @@ namespace R1Engine
         }
 
         public void SaveLevelTEMP() {
+            // Set events
+            Controller.obj.levelEventController.CalculateLinkIndexes();
+
             using (serializeContext) {
                 Settings.GetGameManager.SaveLevel(serializeContext, currentLevel);
             }

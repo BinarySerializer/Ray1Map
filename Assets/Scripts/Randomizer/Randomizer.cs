@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -12,14 +13,25 @@ namespace R1Engine
         /// </summary>
         /// <param name="editorManager">The level editor manager</param>
         /// <param name="flags">The flags</param>
-        public static void Randomize(BaseEditorManager editorManager, RandomizerFlags flags)
+        /// <param name="seed">An optional seed to use</param>
+        public static void Randomize(BaseEditorManager editorManager, RandomizerFlags flags, int? seed)
         {
-            var random = new Random(146);
+            var random = seed != null ? new Random(seed.Value) : new Random();
             var maxX = editorManager.Level.Width * 16;
             var maxY = editorManager.Level.Height * 16;
 
             // Enumerate every event
-            foreach (var eventData in editorManager.Level.EventData)
+            foreach (Common_EventData eventData in editorManager.Level.EventData
+                .Select(eventData => new
+                {
+                    eventData, 
+                    eventFlag = eventData.Type.GetAttribute<EventTypeInfoAttribute>()?.Flag
+                })
+                .Where(x => x.eventFlag == null || x.eventFlag == EventFlag.Normal)
+                .Where(x => x.eventData.Type != EventType.TYPE_RAY_POS && 
+                            x.eventData.Type != EventType.TYPE_PANCARTE &&
+                            x.eventData.Type != EventType.TYPE_SIGNPOST)
+                .Select(x => x.eventData))
             {
                 if (flags.HasFlag(RandomizerFlags.Pos))
                 {
