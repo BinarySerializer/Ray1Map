@@ -297,7 +297,6 @@ public class SettingsWindow : UnityWindow
                 // Save the level
                 manager.SaveLevel(context, editorManager.Level);
             }
-            return;
         }
     }
 
