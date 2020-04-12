@@ -64,7 +64,7 @@
 
             if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PS1)
             {
-                if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
+                if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
                 {
                     Index = s.Serialize<ushort>(Index, name: nameof(Index));
                     ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));

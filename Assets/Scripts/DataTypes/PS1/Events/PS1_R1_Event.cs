@@ -134,7 +134,7 @@ namespace R1Engine
             BitHelpers.SetBits(Flags, value ? 1 : 0, 1, offset);
         }
 
-        // TODO: Is this value not used for the vol3 demo?
+        // TODO: Is this value not used for the vol3 & vol6 demos? How is follow enabled determined?
         public byte Flags { get; set; }
 
         public byte Unknown14 { get; set; }
@@ -205,7 +205,7 @@ namespace R1Engine
             ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
             CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
             {
                 UnkDemo1 = s.SerializeArray<byte>(UnkDemo1, 46, name: nameof(UnkDemo1));
             }
@@ -220,7 +220,7 @@ namespace R1Engine
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
             
             // Serialize unknown properties
-            Unknown2 = s.SerializeArray<byte>(Unknown2, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 12 : 16, name: nameof(Unknown2));
+            Unknown2 = s.SerializeArray<byte>(Unknown2, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 12 : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 10 : 16, name: nameof(Unknown2));
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
             if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
@@ -246,7 +246,7 @@ namespace R1Engine
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
                 UnkDemo2 = s.Serialize<byte>(UnkDemo2, name: nameof(UnkDemo2));
 
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
@@ -261,15 +261,19 @@ namespace R1Engine
 
             HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
 
-            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 11 : 7, name: nameof(Unknown12));
+            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 11 : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 8 : 7, name: nameof(Unknown12));
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
             if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
             {
                 Unknown13 = s.Serialize<byte>(Unknown13, name: nameof(Unknown13));
-                Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
-                Unknown14 = s.Serialize<byte>(Unknown14, name: nameof(Unknown14));
+
+                if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol6)
+                {
+                    Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+                    Unknown14 = s.Serialize<byte>(Unknown14, name: nameof(Unknown14));
+                }
             }
 
             // Serialize the image descriptors
@@ -303,7 +307,8 @@ namespace R1Engine
                 });
             }
 
-            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
+            // TODO: Serialize commands in the demos. They appear to be formatted differently as the invalid command is 0x42 rather then 0x21 - is everything doubled? Why are there no labels? Does it use local labels instead?
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3 && s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol6)
             {
                 // Serialize the commands
                 if (CommandsPointer != null)
@@ -349,79 +354,84 @@ namespace R1Engine
 
             // Serialize ETA
 
-            // Get number of ETAs, hack
-            if (s is BinaryDeserializer)
+            // TODO: The ETA hack doesn't work on vol6 as it doesn't have them in the same structure as other versions (?). The length of a state is also 12 so the Common_EventState class needs to be updated!
+            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol6)
             {
-                s.DoAt(ETAPointer, () => {
-                    Pointer p = s.SerializePointer(null, name: "FirstEtat");
-                    if (p.file != ETAPointer.file
-                    || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
-                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0
-                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4 <= Etat)
-                    {
-                        Debug.LogWarning("Number of ETAs wasn't correctly determined");
-                    }
-                    NumEtats = (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4;
-                });
-            }
-            s.DoAt(ETAPointer, () => {
-                EtatPointers = s.SerializePointerArray(EtatPointers, NumEtats, name: nameof(EtatPointers));
-                if (NumSubEtats == null)
+                // Get number of ETAs, hack
+                if (s is BinaryDeserializer)
                 {
-                    // Get number of subetats, hack
-                    NumSubEtats = new uint[NumEtats];
-                    for (int i = 0; i < EtatPointers.Length - 1; i++)
-                    {
-                        if (EtatPointers[i] != null)
+                    s.DoAt(ETAPointer, () => {
+                        Pointer p = s.SerializePointer(null, name: "FirstEtat");
+                        if (p.file != ETAPointer.file
+                        || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
+                        || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0
+                        || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4 <= Etat)
                         {
-                            if (EtatPointers[i + 1] != null)
-                            {
-                                NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 14u : 8);
-                            }
-                            else
-                            {
-                                Debug.LogWarning("An Etat Pointer was null - Number of SubEtats couldn't be determined");
-                            }
+                            Debug.LogWarning("Number of ETAs wasn't correctly determined");
                         }
-                    }
-                    if (EtatPointers[NumEtats - 1] != null)
-                    {
-                        // TODO: Parse this last array
-                        NumSubEtats[NumEtats - 1] = 
-                            // Temp fix so we don't read past the end of the stream - this however causes certain events to get the wrong state!
-                            s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RaySaturn ? 8u 
-                                : 20u;
-
-                        //if (Etat == NumEtats - 1) {
-                        //    NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
-                        //}
-                    }
-                }
-                if (EventStates == null)
-                {
-                    EventStates = new Common_EventState[NumEtats][];
-                }
-                for (int i = 0; i < EtatPointers.Length; i++)
-                {
-                    s.DoAt(EtatPointers[i], () => {
-                        EventStates[i] = s.SerializeObjectArray<Common_EventState>(EventStates[i], NumSubEtats[i], name: nameof(EventStates) + "[" + i + "]");
+                        NumEtats = (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4;
                     });
                 }
-            });
-            /*s.DoAt(ETAPointer + (Etat * 4), () =>
-            {
-                // Get the state-array pointer
-                ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: nameof(ETASubEtatPointer));
+                s.DoAt(ETAPointer, () => {
+                    EtatPointers = s.SerializePointerArray(EtatPointers, NumEtats, name: nameof(EtatPointers));
+                    if (NumSubEtats == null)
+                    {
+                        // Get number of subetats, hack
+                        NumSubEtats = new uint[NumEtats];
+                        for (int i = 0; i < EtatPointers.Length - 1; i++)
+                        {
+                            if (EtatPointers[i] != null)
+                            {
+                                if (EtatPointers[i + 1] != null)
+                                {
+                                    NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 14u : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 12u : 8);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("An Etat Pointer was null - Number of SubEtats couldn't be determined");
+                                }
+                            }
+                        }
+                        if (EtatPointers[NumEtats - 1] != null)
+                        {
+                            // TODO: Parse this last array
+                            NumSubEtats[NumEtats - 1] =
+                                // Temp fix so we don't read past the end of the stream - this however causes certain events to get the wrong state!
+                                s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RaySaturn || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 8u
+                                    : 20u;
 
-                // Serialize event state
-                s.DoAt(ETASubEtatPointer + (SubEtat * 8), () =>
-                {
-                    EventState = s.SerializeObject(EventState, name: nameof(EventState));
+                            //if (Etat == NumEtats - 1) {
+                            //    NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
+                            //}
+                        }
+                    }
+                    if (EventStates == null)
+                    {
+                        EventStates = new Common_EventState[NumEtats][];
+                    }
+                    for (int i = 0; i < EtatPointers.Length; i++)
+                    {
+                        s.DoAt(EtatPointers[i], () => {
+                            EventStates[i] = s.SerializeObjectArray<Common_EventState>(EventStates[i], NumSubEtats[i], name: nameof(EventStates) + "[" + i + "]");
+                        });
+                    }
                 });
-            });*/
 
-            if (EventStates.ElementAtOrDefault(Etat)?.ElementAtOrDefault(SubEtat) == null)
-                Debug.LogWarning($"Matching event state not found for event {Type} at {XPosition}x{YPosition} with E{Etat},SE{SubEtat}");
+                /*s.DoAt(ETAPointer + (Etat * 4), () =>
+                {
+                    // Get the state-array pointer
+                    ETASubEtatPointer = s.SerializePointer(ETASubEtatPointer, name: nameof(ETASubEtatPointer));
+
+                    // Serialize event state
+                    s.DoAt(ETASubEtatPointer + (SubEtat * 8), () =>
+                    {
+                        EventState = s.SerializeObject(EventState, name: nameof(EventState));
+                    });
+                });*/
+
+                if (EventStates?.ElementAtOrDefault(Etat)?.ElementAtOrDefault(SubEtat) == null)
+                    Debug.LogWarning($"Matching event state not found for event {Type} at {XPosition}x{YPosition} with E{Etat},SE{SubEtat}");
+            }
         }
 
         #endregion

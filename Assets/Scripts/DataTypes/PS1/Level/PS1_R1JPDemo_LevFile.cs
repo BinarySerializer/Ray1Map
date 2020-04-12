@@ -43,7 +43,9 @@
 
             // Serialize event information
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
-            UnknownEventTablePointer = s.SerializePointer(UnknownEventTablePointer, name: nameof(UnknownEventTablePointer));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
+                UnknownEventTablePointer = s.SerializePointer(UnknownEventTablePointer, name: nameof(UnknownEventTablePointer));
             EventCount = s.Serialize<uint>(EventCount, name: nameof(EventCount));
             EventLinkTablePointer = s.SerializePointer(EventLinkTablePointer, name: nameof(EventLinkTablePointer));
             EvenLinkCount = s.Serialize<uint>(EvenLinkCount, name: nameof(EvenLinkCount));
@@ -53,10 +55,15 @@
             {
                 Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: nameof(Events));
             });
-            s.DoAt(UnknownEventTablePointer, () =>
+
+            if (UnknownEventTablePointer != null)
             {
-                UnknownEventTable = s.SerializeObjectArray<PS1_R1JPDemoVol3_UnknownEventTableItem>(UnknownEventTable, EventCount, name: nameof(UnknownEventTable));
-            });
+                s.DoAt(UnknownEventTablePointer, () =>
+                {
+                    UnknownEventTable = s.SerializeObjectArray<PS1_R1JPDemoVol3_UnknownEventTableItem>(UnknownEventTable, EventCount, name: nameof(UnknownEventTable));
+                });
+            }
+            
             s.DoAt(EventLinkTablePointer, () =>
             {
                 EventLinkTable = s.SerializeArray<byte>(EventLinkTable, EvenLinkCount, name: nameof(EventLinkTable));
