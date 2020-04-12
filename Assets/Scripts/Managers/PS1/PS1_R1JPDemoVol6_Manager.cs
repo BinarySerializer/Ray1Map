@@ -23,6 +23,21 @@ namespace R1Engine
         /// </summary>
         protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoDemoVol6;
 
+        protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
+
+        /// <summary>
+        /// Gets the file path for the allfix file
+        /// </summary>
+        /// <returns>The allfix file path</returns>
+        public virtual string GetAllfixFilePath() => $"RAY.DTA";
+
+        /// <summary>
+        /// Gets the file path for the world file
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The world file path</returns>
+        public virtual string GetWorldFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}.DTA";
+
         /// <summary>
         /// Gets the file path for the level tile set file
         /// </summary>
@@ -101,22 +116,22 @@ namespace R1Engine
         public override async Task<BaseEditorManager> LoadAsync(Context context)
         {
             // Get the file paths
+            var allfixPath = GetAllfixFilePath();
+            var worldPath = GetWorldFilePath(context.Settings);
+            var levelPath = GetLevelFilePath(context.Settings);
             var mapPath = GetMapFilePath(context.Settings);
             var tileSetPath = GetTileSetFilePath(context.Settings);
 
-            // TODO: Replace with memory mapped files
             // Load the files
-            context.AddFile(new LinearSerializedFile(context)
-            {
-                filePath = mapPath
-            });
-            context.AddFile(new LinearSerializedFile(context)
-            {
-                filePath = tileSetPath
-            });
+            await LoadExtraFile(context, allfixPath);
+            await LoadExtraFile(context, worldPath);
+            await LoadExtraFile(context, levelPath);
+            await LoadExtraFile(context, mapPath);
+            await LoadExtraFile(context, tileSetPath);
 
             // Read the files
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
+            var level = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
 
             // Load the level
             return await LoadAsync(context, map, null, null);
