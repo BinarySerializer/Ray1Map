@@ -207,7 +207,7 @@ namespace R1Engine
                         HitSprite = (int)e.Hit_sprite,
                         FollowEnabled = e.Follow_enabled > 0,
                         LabelOffsets = new ushort[0],
-                        CommandCollection = Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray()),
+                        CommandCollection = Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray(), context.Settings),
                         // TODO: Update this
                         LinkIndex = index
                     });

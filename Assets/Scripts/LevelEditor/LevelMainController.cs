@@ -137,7 +137,7 @@ namespace R1Engine
 
                 tileTex.Apply();
 
-                var destPath = $@"Tilemaps\{Settings.GetGameSettings.GameModeSelection}\{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00} ({tileSetIndex}).png";
+                var destPath = $@"Tilemaps\{Controller.CurrentSettings.GameModeSelection}\{Controller.CurrentSettings.GameModeSelection} - {Controller.CurrentSettings.World} {Controller.CurrentSettings.Level:00} ({tileSetIndex}).png";
 
                 Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
@@ -153,7 +153,7 @@ namespace R1Engine
             // Get the path to save to
             //var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00}.png", "png");
 
-            var destPath = $@"Screenshots\{Settings.GetGameSettings.GameModeSelection}\{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00}.png";
+            var destPath = $@"Screenshots\{Controller.CurrentSettings.GameModeSelection}\{Controller.CurrentSettings.GameModeSelection} - {Controller.CurrentSettings.World} {Controller.CurrentSettings.Level:00}.png";
 
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 

@@ -23,6 +23,8 @@ namespace R1Engine
         private Stopwatch stopwatch;
         public static Context MainContext { get; private set; }
 
+        public static GameSettings CurrentSettings => MainContext?.Settings;
+
         public static string status
         {
             get => obj.loadingText.text;
@@ -65,7 +67,7 @@ namespace R1Engine
             status = "Starting...";
 
             // Create the context
-            MainContext = new Serialize.Context(Settings.GetGameSettings);
+            MainContext = new Context(Settings.GetGameSettings);
             await levelController.LoadLevelAsync(Settings.GetGameManager, MainContext);
 
             status = String.Empty;

@@ -81,11 +81,9 @@ namespace R1Engine {
             var state = EditorManager.GetEventState(Data);
 
             if (state != null) {
-                var settings = Settings.GetGameSettings;
-
                 AnimationIndex = state.AnimationIndex;
 
-                if (settings.EngineVersion == EngineVersion.RaySaturn)
+                if (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn)
                     AnimSpeed = state.AnimationSpeed >> 4;
                 else
                     AnimSpeed = state.AnimationSpeed;

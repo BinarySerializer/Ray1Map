@@ -106,7 +106,7 @@ namespace R1Engine
             var e = EventInfoData[index];
 
             // Get the commands from the bytes
-            var cmds = Common_EventCommandCollection.FromBytes(UsesLocalCommands ? e.LocalCommands : e.Commands);
+            var cmds = Common_EventCommandCollection.FromBytes(UsesLocalCommands ? e.LocalCommands : e.Commands, Settings);
 
             // Return the event
             return new Common_EventData
@@ -194,7 +194,7 @@ namespace R1Engine
         public Common_EditorEventInfo GetEditorEventInfo(Common_EventData e)
         {
             // Get the command bytes
-            var cmds = e.CommandCollection?.ToBytes();
+            var cmds = e.CommandCollection?.ToBytes(Settings);
 
             // Find match
             var match = GetGeneralEventInfo((int)e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);

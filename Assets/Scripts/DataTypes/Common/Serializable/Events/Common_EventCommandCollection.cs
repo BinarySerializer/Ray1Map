@@ -19,8 +19,9 @@ namespace R1Engine
         /// Gets a command from the raw bytes
         /// </summary>
         /// <param name="bytes">The command bytes</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The command</returns>
-        public static Common_EventCommandCollection FromBytes(byte[] bytes)
+        public static Common_EventCommandCollection FromBytes(byte[] bytes, GameSettings settings)
         {
             // Make sure there are bytes
             if (!bytes.Any())
@@ -30,7 +31,7 @@ namespace R1Engine
                 };
 
             // Create a new context
-            using (var context = new Context(Settings.GetGameSettings)) {
+            using (var context = new Context(settings)) {
                 // Create a memory stream
                 using (var memStream = new MemoryStream(bytes)) {
                     // Stream key
@@ -48,10 +49,11 @@ namespace R1Engine
         /// <summary>
         /// Gets the byte representation of the command
         /// </summary>
+        /// <param name="settings">The game settings</param>
         /// <returns>The command bytes</returns>
-        public byte[] ToBytes()
+        public byte[] ToBytes(GameSettings settings)
         {
-            using (var context = new Context(Settings.GetGameSettings)) {
+            using (var context = new Context(settings)) {
                 // Create a memory stream
                 using (var memStream = new MemoryStream()) {
                     // Stream key
