@@ -206,7 +206,55 @@ namespace R1Engine {
 
             // Update parts for the first time
             currentFrame = 0;
-            UpdateParts(0);
+
+            // Hack to get the correct pin frame
+            if (Data.Type == EventType.TYPE_PUNAISE4)
+            {
+                switch (Data.HitPoints)
+                {
+                    case 1:
+                        currentFrame = 0;
+                        break;
+
+                    case 7:
+                        currentFrame = 1;
+                        break;
+
+                    case 11:
+                        currentFrame = 2;
+                        break;
+
+                    case 17:
+                        currentFrame = 3;
+                        break;
+
+                    case 22:
+                        currentFrame = 4;
+                        break;
+
+                    case 27:
+                        currentFrame = 5;
+                        break;
+
+                    case 32:
+                        currentFrame = 6;
+                        break;
+
+                    case 37:
+                        currentFrame = 7;
+                        break;
+
+                    case 42:
+                        currentFrame = 8;
+                        break;
+
+                    case 47:
+                        currentFrame = 9;
+                        break;
+                }
+            }
+
+            UpdateParts((int)currentFrame);
 
             // Collider
             ChangeColliderSize();
