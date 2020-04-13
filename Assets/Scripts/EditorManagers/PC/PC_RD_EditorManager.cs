@@ -37,36 +37,6 @@ namespace R1Engine
         public string[] ETAFileIndex { get; }
 
         /// <summary>
-        /// Gets the color index for a colored event
-        /// </summary>
-        /// <param name="hitpointsValue">The hitpoints value</param>
-        /// <returns>The index</returns>
-        public virtual int GetColoredEventColorIndex(int hitpointsValue)
-        {
-            switch (hitpointsValue)
-            {
-                default:
-                case 0:
-                    return 0;
-
-                case 257:
-                    return 1;
-
-                case 514:
-                    return 2;
-
-                case 771:
-                    return 3;
-
-                case 1028:
-                    return 4;
-
-                case 1285:
-                    return 5;
-            }
-        }
-
-        /// <summary>
         /// Updates the state
         /// </summary>
         public override Common_EventState GetEventState(Common_EventData e)
@@ -82,7 +52,7 @@ namespace R1Engine
             {
                 RightSpeed = s.RightSpeed,
                 LeftSpeed = s.LeftSpeed,
-                AnimationIndex = (byte)(s.AnimationIndex + ((Designs[e.DES].Animations.Count / 6) * GetColoredEventColorIndex(e.HitPoints))),
+                AnimationIndex = (byte)(s.AnimationIndex + ((Designs[e.DES].Animations.Count / 6) * e.HitPoints)),
                 Etat = s.Etat,
                 SubEtat = s.SubEtat,
                 AnimationSpeed = s.AnimationSpeed,

@@ -79,7 +79,12 @@
         /// </summary>
         public byte FollowSprite { get; set; }
 
-        public ushort HitPoints { get; set; }
+        /// <summary>
+        /// Indicates if the event is multi-colored (only used for Designer)
+        /// </summary>
+        public bool IsMultiColored { get; set; }
+
+        public byte HitPoints { get; set; }
 
         /// <summary>
         /// The layer the event sprite gets drawn to, between 1 and 7
@@ -187,7 +192,8 @@
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
-            HitPoints = s.Serialize<ushort>(HitPoints, name: nameof(HitPoints));
+            IsMultiColored = s.Serialize<bool>(IsMultiColored, name: nameof(IsMultiColored));
+            HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
             HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
 

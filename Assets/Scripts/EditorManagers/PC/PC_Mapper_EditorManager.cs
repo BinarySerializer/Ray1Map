@@ -21,35 +21,5 @@ namespace R1Engine
         /// Indicates if the local commands should be used
         /// </summary>
         protected override bool UsesLocalCommands => true;
-
-        /// <summary>
-        /// Gets the color index for a colored ting
-        /// </summary>
-        /// <param name="hitpointsValue">The hitpoints value</param>
-        /// <returns>The index</returns>
-        public override int GetColoredEventColorIndex(int hitpointsValue)
-        {
-            switch (hitpointsValue)
-            {
-                default:
-                case 0:
-                    return 0;
-
-                case 1:
-                    return 1;
-
-                case 2:
-                    return 2;
-
-                case 3:
-                    return 3;
-
-                case 4:
-                    return 4;
-
-                case 5:
-                    return 5;
-            }
-        }
     }
 }
