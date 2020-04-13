@@ -161,11 +161,16 @@ namespace R1Engine {
             if (CurrentAnimation != null && prefabRendereds != null) {
                 if (prefabRendereds.Length > 0) {
                     int prevFrame = Mathf.FloorToInt(currentFrame);
-                    // Scroll through the frames
-                    if (Settings.AnimateSprites)
+
+                    // Increment frame if animating
+                    if (Settings.AnimateSprites && AnimSpeed > 0)
                         currentFrame += (60f / AnimSpeed) * Time.deltaTime;
+
+                    // Loop back to first frame
                     if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
+                    {
                         currentFrame = 0;
+                    }
 
                     int floored = Mathf.FloorToInt(currentFrame);
 
@@ -204,9 +209,6 @@ namespace R1Engine {
             // Change to new animation
             ChangeAnimation(AnimationIndex);
 
-            // Update parts for the first time
-            currentFrame = 0;
-
             // TODO: Is there a flag for these events to determine if they should do this?
             // Hard-code frames for special events
             if (Data.Type == EventType.TYPE_PUNAISE4 ||
@@ -214,6 +216,10 @@ namespace R1Engine {
             {
                 currentFrame = Data.HitPoints;
                 AnimSpeed = 0;
+            }
+            else
+            {
+                currentFrame = 0;
             }
 
             UpdateParts((int)currentFrame);
