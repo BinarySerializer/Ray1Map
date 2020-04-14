@@ -106,7 +106,7 @@ namespace R1Engine
                 var tileCount = tileSet.Tiles.Length;
                 const int tileSetWidth = 16;
                 var tileSetHeight = (int)Math.Ceiling(tileCount / (double)tileSetWidth);
-                var tileSize = tileSet.Tiles.First().sprite.texture.width;
+                var tileSize = (int)tileSet.Tiles.First().sprite.rect.width;
 
                 // Create the texture
                 var tileTex = new Texture2D(tileSetWidth * tileSize, tileSetHeight * tileSize, TextureFormat.RGBA32, false)
@@ -122,18 +122,18 @@ namespace R1Engine
                 for (int i = 0; i < tileCount; i++)
                 {
                     // Get the tile texture
-                    var tile = tileSet.Tiles[i].sprite.texture;
+                    var tile = tileSet.Tiles[i].sprite;
 
                     // Get the texture offsets
                     var offsetY = (int)Math.Floor(i / (double)tileSetWidth) * tileSize;
                     var offsetX = (i - (offsetY)) * tileSize;
 
                     // Set the pixels
-                    for (int y = 0; y < tile.height; y++)
+                    for (int y = 0; y < tile.rect.height; y++)
                     {
-                        for (int x = 0; x < tile.width; x++)
+                        for (int x = 0; x < tile.rect.width; x++)
                         {
-                            tileTex.SetPixel(x + offsetX, tileTex.height - (y + offsetY) - 1, tile.GetPixel(x, y));
+                            tileTex.SetPixel(x + offsetX, tileTex.height - (y + offsetY) - 1, tile.texture.GetPixel((int)tile.rect.x + x, (int)tile.rect.y + y));
                         }
                     }
                 }
