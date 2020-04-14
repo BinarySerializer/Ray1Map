@@ -456,23 +456,23 @@
         TYPE_PUNAISE5,
         TYPE_VAGUE_DEVANT,
         TYPE_VAGUE_DERRIERE,
+
         TYPE_PLANCHES,
         TYPE_SLOPEY_PLAT,
+
+        // This type appears between TYPE_VAGUE_DERRIERE and TYPE_CB_BRIK
+        UnknownType,
+
         TYPE_CB_BRIK,
         TYPE_CB_BALL,
         TYPE_BONBON_PLAT,
 
-        // TODO: Tag unk events with event flags
         // EDU
 
         TYPE_EDU_LETTRE,
         TYPE_EDU_CHIFFRE,
         TYPE_EDU_DIRECTION,
 
-        // EDU ?
-        Unk1,
-
-        // EDU ?
         EDU_ArtworkObject,
 
         [EventTypeInfo(EventFlag.Editor)]
@@ -494,14 +494,12 @@
 
         EDU_Magician,
 
-        // EDU ?
         EDU_Betilla,
 
         MS_champ_fixe = 271,
         MS_pap = 272,
         MS_nougat = 273,
 
-        // KIT ?
         Unk10,
 
         MS_scintillement = 275,
