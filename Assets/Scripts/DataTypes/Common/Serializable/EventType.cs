@@ -473,15 +473,15 @@
         Unk1,
 
         // EDU ?
-        Unk2,
+        EDU_ArtworkObject,
 
         [EventTypeInfo(EventFlag.Editor)]
-        EDUVoiceLine,
+        EDU_VoiceLine,
 
-        EDUGlow,
+        EDU_Glow,
 
-        // EDU ?
-        Unk5,
+        [EventTypeInfo(EventFlag.Editor)]
+        EDU_MOT,
 
         [EventTypeInfo(EventFlag.Editor)]
         MS_compteur = 266,
@@ -490,12 +490,12 @@
         MS_wiz_comptage = 267,
 
         [EventTypeInfo(EventFlag.Editor)]
-        EDULogicOperator,
+        EDU_LogicOperator,
 
-        EDUMagician,
+        EDU_Magician,
 
         // EDU ?
-        Unk8,
+        EDU_Betilla,
 
         MS_champ_fixe = 271,
         MS_pap = 272,
