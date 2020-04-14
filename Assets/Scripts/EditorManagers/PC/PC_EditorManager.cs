@@ -22,13 +22,13 @@ namespace R1Engine
             Designs = designs;
 
             // Read the fixed data
-            var allfix = FileFactory.Read<PC_WorldFile>(manager.GetAllfixFilePath(Settings), Context);
+            var allfix = FileFactory.Read<PC_WorldFile>(manager.GetAllfixFilePath(Settings), Context, (s, x) => x.FileType = PC_WorldFile.Type.AllFix);
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(manager.GetWorldFilePath(Settings), Context);
+            var worldData = FileFactory.Read<PC_WorldFile>(manager.GetWorldFilePath(Settings), Context, (s, x) => x.FileType = PC_WorldFile.Type.World);
 
             // Read the big ray data
-            var bigRayData = FileFactory.Read<PC_WorldFile>(manager.GetBigRayFilePath(Settings), Context);
+            var bigRayData = FileFactory.Read<PC_WorldFile>(manager.GetBigRayFilePath(Settings), Context, (s, x) => x.FileType = PC_WorldFile.Type.BigRay);
 
             // Get the eta items
             ETA = allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta).ToArray();

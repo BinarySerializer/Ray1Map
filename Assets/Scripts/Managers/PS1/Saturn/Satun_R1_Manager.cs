@@ -243,8 +243,9 @@ namespace R1Engine
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
+        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override async Task<BaseEditorManager> LoadAsync(Context context)
+        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Get the paths
             var allfixFilePath = GetAllfixFilePath();
@@ -293,7 +294,7 @@ namespace R1Engine
                 eventBlock = FileFactory.Read<PS1_R1_EventBlock>(levelFilePath, context);
 
             // Load the level
-            return await LoadAsync(context, map, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(b => (ushort)b).ToArray());
+            return await LoadAsync(context, map, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(b => (ushort)b).ToArray(), loadTextures);
         }
 
         /// <summary>

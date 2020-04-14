@@ -289,7 +289,7 @@ public class SettingsWindow : UnityWindow
                 await manager.LoadFilesAsync(context);
 
                 // Load the level
-                var editorManager = await manager.LoadAsync(context);
+                var editorManager = await manager.LoadAsync(context, false);
 
                 // Randomize
                 Randomizer.Randomize(editorManager, flag, (int)world.Key + lvl + RandomizerSeed);

@@ -47,7 +47,7 @@ namespace R1Engine
 
             using (serializeContext) {
                 // Load the level
-                EditorManager = await manager.LoadAsync(serializeContext);
+                EditorManager = await manager.LoadAsync(serializeContext, true);
 
                 await Controller.WaitIfNecessary();
 

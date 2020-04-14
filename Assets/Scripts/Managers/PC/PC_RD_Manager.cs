@@ -221,14 +221,15 @@ namespace R1Engine
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
+        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override Task<BaseEditorManager> LoadAsync(Context context)
+        public override Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Get the DES names
             context.StoreObject("DES", GetDESNames(context).ToArray());
 
             // Load the level
-            return base.LoadAsync(context);
+            return base.LoadAsync(context, loadTextures);
         }
 
         /// <summary>

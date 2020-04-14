@@ -93,8 +93,9 @@ namespace R1Engine
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
+        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override async Task<BaseEditorManager> LoadAsync(Context context)
+        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Get the DES names
             context.StoreObject("DES", GetDESNames(context).ToArray());
@@ -159,7 +160,7 @@ namespace R1Engine
                 palette.Add(new ARGBColor(vgaPalette[i + 0], vgaPalette[i + 1], vgaPalette[i + 2]));
 
             // Load the sprites
-            var eventDesigns = await LoadSpritesAsync(context, palette);
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, palette) : new Common_Design[0];
 
             var index = 0;
 

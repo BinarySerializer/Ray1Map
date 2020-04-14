@@ -1119,8 +1119,9 @@ namespace R1Engine
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
+        /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public virtual async Task<BaseEditorManager> LoadAsync(Context context) 
+        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
 
@@ -1144,7 +1145,7 @@ namespace R1Engine
             };
 
             // Load the sprites
-            var eventDesigns = await LoadSpritesAsync(context, levelData.ColorPalettes.First());
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.ColorPalettes.First()) : new Common_Design[0];
 
             var index = 0;
 
