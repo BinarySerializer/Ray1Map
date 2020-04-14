@@ -1,9 +1,11 @@
-﻿namespace R1Engine 
+﻿using System;
+
+namespace R1Engine 
 {
     /// <summary>
     /// A map tile
     /// </summary>
-    public class Common_Tile
+    public class Common_Tile : ICloneable
     {
         /// <summary>
         /// The palette index, between 1 and 3
@@ -29,5 +31,23 @@
         /// The collision type
         /// </summary>
         public TileCollisionType CollisionType { get; set; }
+
+        /// <summary>
+        /// Creates a clone of the object
+        /// </summary>
+        /// <returns>The object clone</returns>
+        public Common_Tile CloneTile()
+        {
+            return (Common_Tile)Clone();
+        }
+
+        /// <summary>
+        /// Creates a clone of the object
+        /// </summary>
+        /// <returns>The object clone</returns>
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
     }
 }

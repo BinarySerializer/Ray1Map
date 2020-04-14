@@ -1,4 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace R1Engine
         public Common_Lev currentLevel => EditorManager?.Level;
 
         // The context, to reuse when writing
-        private Serialize.Context serializeContext;
+        private Context serializeContext;
 
         // References to specific level controller gameObjects in inspector
         public LevelTilemapController controllerTilemap;
@@ -37,7 +38,12 @@ namespace R1Engine
         public Camera renderCamera;
         public Texture2D tex;
 
-        public async Task LoadLevelAsync(IGameManager manager, Serialize.Context context) 
+        /// <summary>
+        /// The editor history
+        /// </summary>
+        public EditorHistory<Ray1MapEditorHistoryItem> History { get; set; }
+
+        public async Task LoadLevelAsync(IGameManager manager, Context context) 
         {
             // Create the context
             serializeContext = context;
@@ -79,6 +85,14 @@ namespace R1Engine
 
                 mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
                 backgroundTint.sharedMesh = mo;
+
+                // Set up history
+                History = new EditorHistory<Ray1MapEditorHistoryItem>(x =>
+                {
+                    // Set tiles
+                    foreach (var item in x.ModifiedTiles)
+                        controllerTilemap.SetTileAtPos(item.XPosition, item.YPosition, item);
+                });
 
                 if (Settings.ScreenshotEnumeration)
                     ConvertLevelToPNG();

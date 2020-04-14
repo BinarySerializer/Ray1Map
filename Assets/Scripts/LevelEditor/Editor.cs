@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 using static UnityEngine.Input;
 using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
@@ -48,6 +49,9 @@ namespace R1Engine {
 
         //Selected tiles
         public Common_Tile[,] selection;
+
+        private readonly List<Common_Tile> TempPrevTileHistory = new List<Common_Tile>();
+        private readonly List<Common_Tile> TempTileHistory = new List<Common_Tile>();
 
         public void SetEditMode(int mode) {
             // Set
@@ -115,6 +119,7 @@ namespace R1Engine {
         }
 
         void Update() {
+
             //Tile editing
             if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
                 // Get the tile under the mouse
@@ -239,7 +244,13 @@ namespace R1Engine {
                                 //"Paste" the selection
                                 for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
                                     for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
-                                        lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
+
+                                        var t = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+                                        TempPrevTileHistory.Add(t.CloneTile());
+
+                                        var tile = lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi], t);
+                                        TempTileHistory.Add(tile.CloneTile());
+
                                         xi++;
                                         if (xi >= selection.GetLength(0))
                                             xi = 0;
@@ -300,13 +311,42 @@ namespace R1Engine {
                             for (int x = mx; x <= mx+selection.GetLength(0)-1; x++) {
                                 
                                 if (x>=0 && y>=0 && x<w && y<h)
-                                    lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
+                                {
+                                    var t = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+                                    TempPrevTileHistory.Add(t.CloneTile());
+
+                                    var tile = lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi], t);
+                                    TempTileHistory.Add(tile.CloneTile());
+                                }
+
                                 xi++;
                             }
                             xi = 0;
                             yi++;
                         }
                     }
+                }
+
+                // Check if the editor actions should be undone/redone
+                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z))
+                {
+                    if (Input.GetKey(KeyCode.LeftShift))
+                        // Redo
+                        Controller.obj.levelController.History.Redo();
+                    else
+                        // Undo
+                        Controller.obj.levelController.History.Undo();
+                }
+
+                // Add to history if any tiles were added
+                if (TempTileHistory.Any())
+                {
+                    // Add to history
+                    Controller.obj.levelController.History.AddToHistory(new EditorHistoryEntry<Ray1MapEditorHistoryItem>(new Ray1MapEditorHistoryItem(TempPrevTileHistory.ToArray()), new Ray1MapEditorHistoryItem(TempTileHistory.ToArray())));
+
+                    // Clear temp lists
+                    TempTileHistory.Clear();
+                    TempPrevTileHistory.Clear();
                 }
             }
         }

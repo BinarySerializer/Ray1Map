@@ -127,31 +127,31 @@ namespace R1Engine
             }
         }
 
-        public void SetTileAtPos(int x, int y, Common_Tile t) {
+        public Common_Tile SetTileAtPos(int x, int y, Common_Tile newTileInfo, Common_Tile tile = null) {
             ClearUnityTilemapAt(x, y);
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)t.CollisionType]);
-            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[1].Tiles[t.TileSetGraphicIndex]);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)newTileInfo.CollisionType]);
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[1].Tiles[newTileInfo.TileSetGraphicIndex]);
 
-            foreach (var tile in Controller.obj.levelController.currentLevel.Tiles) {
-                if (tile.XPosition == x && tile.YPosition == y) {
-                    tile.CollisionType = t.CollisionType;
-                    tile.PaletteIndex = t.PaletteIndex;
-                    tile.TileSetGraphicIndex = t.TileSetGraphicIndex;
-                    break;
-                }
-            }
+            // Get the tile if null
+            if (tile == null)
+                tile = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+
+            tile.CollisionType = newTileInfo.CollisionType;
+            tile.PaletteIndex = newTileInfo.PaletteIndex;
+            tile.TileSetGraphicIndex = newTileInfo.TileSetGraphicIndex;
+
+            return tile;
         }
 
-        public void SetTypeAtPos(int x, int y, TileCollisionType typeIndex) {
+        public Common_Tile SetTypeAtPos(int x, int y, TileCollisionType typeIndex) {
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)typeIndex]);
 
-            foreach (var tile in Controller.obj.levelController.currentLevel.Tiles) {
-                if (tile.XPosition == x && tile.YPosition == y) {
-                    tile.CollisionType = typeIndex;
-                    break;
-                }
-            }
+            // Get the tile
+            var tile = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+            tile.CollisionType = typeIndex;
+
+            return tile;
         }
 
         /*
