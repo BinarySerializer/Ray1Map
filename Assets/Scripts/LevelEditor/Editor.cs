@@ -279,8 +279,13 @@ namespace R1Engine {
                             dragging = false;
                             //"Paste" the selection
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
-                                    lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
+                                {
+                                    var t = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+                                    TempPrevTileHistory.Add(t.CloneTile());
+
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, 0, t);
+                                    TempTileHistory.Add(tile.CloneTile());
                                 }
                             }
                         }
@@ -289,8 +294,13 @@ namespace R1Engine {
                             dragging = false;
                             //"Paste" the selection
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
-                                    lvlController.controllerTilemap.SetTypeAtPos(x, y, currentType);
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
+                                {
+                                    var t = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+                                    TempPrevTileHistory.Add(t.CloneTile());
+
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, currentType, t);
+                                    TempTileHistory.Add(tile.CloneTile());
                                 }
                             }
                         }

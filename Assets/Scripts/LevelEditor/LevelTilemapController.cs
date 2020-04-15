@@ -143,12 +143,13 @@ namespace R1Engine
             return tile;
         }
 
-        public Common_Tile SetTypeAtPos(int x, int y, TileCollisionType typeIndex) {
+        public Common_Tile SetTypeAtPos(int x, int y, TileCollisionType typeIndex, Common_Tile tile = null) {
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)typeIndex]);
 
-            // Get the tile
-            var tile = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+            // Get the tile if null
+            if (tile == null)
+                tile = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
             tile.CollisionType = typeIndex;
 
             return tile;
