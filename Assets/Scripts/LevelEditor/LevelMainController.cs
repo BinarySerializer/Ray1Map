@@ -9,6 +9,12 @@ using UnityEngine.SceneManagement;
 
 namespace R1Engine
 {
+    [Serializable]
+    public class UiTab {
+        public GameObject open;
+        public GameObject closed;
+    }
+
     public class LevelMainController : MonoBehaviour {
 
         /// <summary>
@@ -36,7 +42,10 @@ namespace R1Engine
 
         // Render camera things
         public Camera renderCamera;
-        public Texture2D tex;
+        private Texture2D tex;
+
+        //Ui tabs for showing/hiding them
+        public UiTab[] tabs;
 
         /// <summary>
         /// The editor history
@@ -261,6 +270,11 @@ namespace R1Engine
 
             if (Settings.ScreenshotEnumeration)
                 SceneManager.LoadScene("Dummy");
+        }
+
+        public void TabClicked(int tabIndex) {
+            tabs[tabIndex].open.SetActive(!tabs[tabIndex].open.activeSelf);
+            tabs[tabIndex].closed.SetActive(!tabs[tabIndex].closed.activeSelf);
         }
     }
 }

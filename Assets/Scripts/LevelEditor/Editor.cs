@@ -18,6 +18,7 @@ namespace R1Engine {
         //References
         public LevelMainController lvlController;
         public LevelEventController lvlEventController;
+        public LevelTilemapController lvlTilemapController;
         public SelectSquare tileSelectSquare;
         public Tilemap previewTilemap;
         //Reference to UI buttons
@@ -77,6 +78,12 @@ namespace R1Engine {
 
             tileSelectSquare.gameObject.SetActive(currentMode == EditMode.Tiles || currentMode == EditMode.Collisions);
             previewTilemap.gameObject.SetActive(currentMode == EditMode.Tiles);
+
+            if (currentMode != EditMode.Tiles) {
+                if (lvlTilemapController.focusedOnTemplate) {
+                    lvlTilemapController.ShowHideTemplate();
+                }
+            }
         }
 
         public void SetCurrentType(int type) {
@@ -118,6 +125,13 @@ namespace R1Engine {
             SetEditMode(2);
         }
 
+        public void ClearSelection() {
+            selection = null;
+            tileSelectSquare.Clear();
+            if (currentMode == EditMode.Tiles)
+                previewTilemap.ClearAllTiles();
+        }
+
         void Update() {
 
             //Tile editing
@@ -130,10 +144,7 @@ namespace R1Engine {
 
                 // Escape clears selection info
                 if (GetKeyDown(KeyCode.Escape)) {
-                    selection = null;
-                    tileSelectSquare.Clear();
-                    if (currentMode == EditMode.Tiles)
-                        previewTilemap.ClearAllTiles();                   
+                    ClearSelection();
                 }                
 
                 // Left click begins drag and assigns the starting corner of the selection square
@@ -239,26 +250,28 @@ namespace R1Engine {
                         if (!selecting && GetMouseButtonUp(0)) {
                             dragging = false;
                             if (selection != null) {
-                                int xi = 0;
-                                int yi = 0;
-                                //"Paste" the selection
-                                for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                    for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
+                                if (!lvlTilemapController.focusedOnTemplate) {
+                                    int xi = 0;
+                                    int yi = 0;
+                                    //"Paste" the selection
+                                    for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
+                                        for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
 
-                                        var t = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
-                                        TempPrevTileHistory.Add(t.CloneTile());
+                                            var t = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+                                            TempPrevTileHistory.Add(t.CloneTile());
 
-                                        var tile = lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi], t);
-                                        TempTileHistory.Add(tile.CloneTile());
+                                            var tile = lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi], t);
+                                            TempTileHistory.Add(tile.CloneTile());
 
-                                        xi++;
-                                        if (xi >= selection.GetLength(0))
-                                            xi = 0;
+                                            xi++;
+                                            if (xi >= selection.GetLength(0))
+                                                xi = 0;
+                                        }
+                                        xi = 0;
+                                        yi++;
+                                        if (yi >= selection.GetLength(1))
+                                            yi = 0;
                                     }
-                                    xi = 0;
-                                    yi++;
-                                    if (yi >= selection.GetLength(1))
-                                        yi = 0;
                                 }
                                 //Cut the preview back to the original size since it's been expanded
                                 if (currentMode == EditMode.Tiles) {
@@ -309,7 +322,7 @@ namespace R1Engine {
 
                 //Stamp selection with ctrl+v
                 if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.V) && !dragging) {
-                    if (selection != null) {
+                    if (selection != null && !lvlTilemapController.focusedOnTemplate) {
                         int xi = 0;
                         int yi = 0;
                         int w = Controller.obj.levelController.currentLevel.Width;

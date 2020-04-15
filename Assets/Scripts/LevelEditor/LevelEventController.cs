@@ -44,9 +44,6 @@ namespace R1Engine
         public List<CommandLine> commandLines;
         public Transform commandListParent;
 
-        //Ui tabs for showing/hiding them
-        public UiTab[] tabs;
-
         public bool areLinksVisible = false;
 
         public Color linkColorActive;
@@ -640,11 +637,6 @@ namespace R1Engine
             }
         }
 
-        public void TabClicked(int tabIndex) {
-            tabs[tabIndex].open.SetActive(!tabs[tabIndex].open.activeSelf);
-            tabs[tabIndex].closed.SetActive(!tabs[tabIndex].closed.activeSelf);
-        }
-
         // Add events to the list via the managers
         public Common_Event AddEvent(Common_EventData eventData)
         {
@@ -662,11 +654,5 @@ namespace R1Engine
             // Add to list
             return newEvent;
         }
-    }
-
-    [Serializable]
-    public class UiTab {
-        public GameObject open;
-        public GameObject closed;
     }
 }

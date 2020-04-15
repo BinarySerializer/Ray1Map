@@ -13,6 +13,10 @@ namespace R1Engine
         /// </summary>
         public Tilemap[] Tilemaps;
 
+        public Tilemap tilemapFull;
+        public bool focusedOnTemplate=false;
+        public Editor editor;
+
         /// <summary>
         /// The events
         /// </summary>
@@ -104,6 +108,29 @@ namespace R1Engine
                 int p = (palette == 0 ? t.PaletteIndex : palette) - 1;
                 Tilemaps[1].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), lvl.TileSet[p].Tiles[t.TileSetGraphicIndex]);
             }
+            //Refresh the full tilemap
+            int xx = 0;
+            int yy = 0;
+            foreach(Tile t in lvl.TileSet[0].Tiles) {
+                tilemapFull.SetTile(new Vector3Int(xx, yy, 0), t);
+                xx++;
+                if (xx == 16) {
+                    xx = 0;
+                    yy++;
+                }
+            }
+        }
+
+
+        public void ShowHideTemplate() {
+            focusedOnTemplate = !focusedOnTemplate;
+
+            Tilemaps[1].gameObject.SetActive(!focusedOnTemplate);
+            tilemapFull.gameObject.SetActive(focusedOnTemplate);
+
+            if (focusedOnTemplate) {
+                editor.ClearSelection();
+            }
         }
 
         // Converts mouse position to worldspace and then tile positions (1 = 16)
@@ -118,9 +145,19 @@ namespace R1Engine
                 return null;
             }
             else {
-                foreach (var t in Controller.obj.levelController.currentLevel.Tiles) {
-                    if (t.XPosition == x && t.YPosition == y) {
-                        return t;
+                if (focusedOnTemplate) {
+                    Common_Tile t = new Common_Tile();
+                    t.CollisionType = 0;
+                    t.PaletteIndex = 0;
+                    t.TileSetGraphicIndex = (y * 16) + x;
+
+                    return t;
+                }
+                else {
+                    foreach (var t in Controller.obj.levelController.currentLevel.Tiles) {
+                        if (t.XPosition == x && t.YPosition == y) {
+                            return t;
+                        }
                     }
                 }
                 return null;
@@ -128,7 +165,8 @@ namespace R1Engine
         }
 
         public Common_Tile SetTileAtPos(int x, int y, Common_Tile newTileInfo, Common_Tile tile = null) {
-            ClearUnityTilemapAt(x, y);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)newTileInfo.CollisionType]);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[1].Tiles[newTileInfo.TileSetGraphicIndex]);
 
@@ -153,44 +191,6 @@ namespace R1Engine
             tile.CollisionType = typeIndex;
 
             return tile;
-        }
-
-        /*
-        public void SetTileAtPos(int x, int y, int gIndex, int layer) {
-            Common_Tile found = GetTileAtPos(x, y);
-            if (found != null) {
-                found.TileSetGraphicIndex = gIndex;
-                found.PaletteIndex = layer;
-                //First clear the cell on all tilemaps
-                ClearUnityTilemapAt(x, y);
-                // If on PC and trying to change the tile to 0 (black square), assing a null tile instead
-                if (gIndex == 0) {
-                    Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), null);
-                }
-                else {
-                    Tilemaps[layer].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[layer].Tiles[gIndex]);
-                }
-            }
-        }*/
-        /*
-        public void SetTypeAtPos(int x, int y, int tIndex) {
-            Common_Tile found = GetTileAtPos(x, y);
-            if (found != null) {
-                found.CollisionType = (TileCollisionType)tIndex;
-
-                // Index 0 is collision types tilemap
-                if (Settings.UseHDCollisionSheet) {
-                    Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTilesHD[tIndex]);
-                }
-                else {
-                    Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[tIndex]);
-                }
-            }
-        }*/
-
-        public void ClearUnityTilemapAt(int x, int y) {
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
-            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
         }
     }
 }
