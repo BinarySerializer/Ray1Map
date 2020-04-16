@@ -236,8 +236,16 @@ namespace R1Engine
                 // Add all files
                 AddAllFiles(context);
 
+                // Get the event info
+                IList<GeneralEventInfoData> eventInfo;
+
+                // TODO: Generalize this with helper method
+                // Load the event info data
+                using (var csvFile = File.OpenRead("Events.csv"))
+                    eventInfo = GeneralEventInfoData.ReadCSV(csvFile);
+
                 // Get the DES names for every world
-                var desNames = EnumHelpers.GetValues<World>().ToDictionary<World, World, string[]>(x => x, world => {
+                var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, world => {
                     // Set the world
                     context.Settings.World = world;
 
@@ -247,20 +255,42 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.BasePath + worldPath))
                         return null;
 
-                    var a = GetDESNames(context).ToArray<string>();
+                    var a = GetDESNames(context).ToArray();
 
-                    return a.Any<string>() ? a : null;
+                    return a.Any() ? a : null;
                 });
 
+                // Get the ETA names for every world
+                var etaNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, world => {
+                    // Set the world
+                    context.Settings.World = world;
+
+                    // Get the world file path
+                    var worldPath = GetWorldFilePath(context.Settings);
+
+                    if (!FileSystem.FileExists(context.BasePath + worldPath))
+                        return null;
+
+                    var a = GetETANames(context).ToArray();
+
+                    return a.Any() ? a : null;
+                });
+
+                // Keep track of Rayman's anim
+                PC_AnimationDescriptor[] rayAnim = null;
+
                 // Helper method for exporting textures
-                PC_WorldFile ExportTextures(string filePath, PC_WorldFile.Type type, string name, int desOffset, string[] desFileNames) {
+                PC_WorldFile ExportTextures(string filePath, PC_WorldFile.Type type, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames) {
                     // Read the file
-                    var file = FileFactory.Read<PC_WorldFile>(filePath, context,
-                        onPreSerialize: (s, data) => data.FileType = type);
+                    var file = FileFactory.Read<PC_WorldFile>(filePath, context, onPreSerialize: (s, data) => data.FileType = type);
+
+                    if (rayAnim == null && type == PC_WorldFile.Type.AllFix)
+                        // Rayman is always the first DES
+                        rayAnim = file.DesItems.First().AnimationDescriptors;
 
                     // Export the sprite textures
                     if (exportAnimFrames)
-                        ExportAnimationFrames(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
+                        ExportAnimationFrames(context, file, Path.Combine(outputDir, name), desOffset, baseEta.Concat(file.Eta).ToArray(), desFileNames, etaFileNames, eventInfo, rayAnim);
                     else
                         ExportSpriteTextures(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
 
@@ -268,10 +298,10 @@ namespace R1Engine
                 }
 
                 // Export big ray
-                ExportTextures(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, null);
+                ExportTextures(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, new PC_ETA[0], null, null);
 
                 // Export allfix
-                var allfix = ExportTextures(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, desNames.Values.FirstOrDefault<string[]>());
+                var allfix = ExportTextures(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, new PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
 
                 // Enumerate every world
                 foreach (World world in EnumHelpers.GetValues<World>()) {
@@ -284,8 +314,8 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.BasePath + worldPath))
                         continue;
 
-                    // Export big ray
-                    ExportTextures(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, desNames.TryGetItem(world));
+                    // Export world
+                    ExportTextures(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
                 }
             }
         }
@@ -442,9 +472,12 @@ namespace R1Engine
         /// <param name="worldFile">The world file to export from</param>
         /// <param name="outputDir">The directory to export to</param>
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
+        /// <param name="etaOffset">The amount of eta states in the allfix to use as the ETA offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
-        /// <param name="palette">Optional palette to use</param>
-        public void ExportAnimationFrames(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames)
+        /// <param name="etaNames">The ETA names, if available</param>
+        /// <param name="eventInfo">The event info</param>
+        /// <param name="rayAnim">Rayman's animation</param>
+        public void ExportAnimationFrames(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_AnimationDescriptor[] rayAnim)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -464,6 +497,36 @@ namespace R1Engine
                 levels.Add(FileFactory.Read<PC_LevFile>(lvlPath, context));
             }
 
+            // Get special DES
+            int? smallRayDES = null;
+            int? darkRayDES = null;
+
+            // Get the small Rayman DES if allfix
+            if (worldFile.FileType == PC_WorldFile.Type.AllFix)
+            {
+                var ei = eventInfo.FindItem(x => x.Type == (int)EventType.TYPE_DEMI_RAYMAN);
+
+                if (context.Settings.EngineVersion == EngineVersion.RayPC)
+                    smallRayDES = ei.DesR1[World.Jungle];
+                else if (context.Settings.EngineVersion == EngineVersion.RayKitPC)
+                    smallRayDES = desNames.FindItemIndex(x => ei.DesKit[World.Jungle] == x.Substring(0, x.Length - 4)) + 1;
+                else
+                    throw new NotImplementedException();
+            }
+
+            // Get the Dark Rayman DES if Cake
+            if (worldFile.FileType == PC_WorldFile.Type.World && context.Settings.World == World.Cake)
+            {
+                var ei = eventInfo.FindItem(x => x.Type == (int)EventType.TYPE_BLACK_RAY);
+
+                if (context.Settings.EngineVersion == EngineVersion.RayPC)
+                    darkRayDES = ei.DesR1[World.Cake];
+                else if (context.Settings.EngineVersion == EngineVersion.RayKitPC)
+                    darkRayDES = desNames.FindItemIndex(x => ei.DesKit[World.Cake] == x.Substring(0, x.Length - 4)) + 1;
+                else
+                    throw new NotImplementedException();
+            }
+
             // Enumerate each sprite group
             for (int i = 0; i < worldFile.DesItems.Length; i++)
             {
@@ -473,78 +536,70 @@ namespace R1Engine
                 // Get the DES index
                 var desIndex = desOffset + 1 + i;
 
-                // Get the textures
-                var textures = GetSpriteTextures(context.Settings, levels, des, worldFile, desIndex);
-
                 // Get the DES name
                 var desName = desNames != null ? $" ({desNames[desIndex - 1]})" : String.Empty;
+
+                // Find matching ETA for this DES
+                List<Common_EventState> matchingStates = new List<Common_EventState>();
+
+                if (worldFile.FileType != PC_WorldFile.Type.BigRay)
+                {
+                    // Search level events
+                    foreach (var lvlEvent in levels.SelectMany(x => x.Events).Where(x => x.DES == desIndex))
+                        matchingStates.AddRange(eta[lvlEvent.ETA].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
+
+                    // Search event info
+                    foreach (var ei in eventInfo)
+                    {
+                        PC_ETA matchingEta = null;
+
+                        if (context.Settings.EngineVersion == EngineVersion.RayPC)
+                        {
+                            if (ei.DesR1.TryGetValue(context.Settings.World, out int? desR1) && desR1 == desIndex)
+                                matchingEta = eta[ei.EtaR1[context.Settings.World].Value];
+                        }
+                        else if (context.Settings.EngineVersion == EngineVersion.RayKitPC)
+                        {
+                            if (ei.DesKit.TryGetValue(context.Settings.World, out string desKit) && desKit == desName.Substring(0, desName.Length - 4))
+                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaKit[context.Settings.World])];
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                        }
+
+                        if (matchingEta != null)
+                            matchingStates.AddRange(matchingEta.States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
+                    }
+
+                    // Hard-code for clock event
+                    if (desIndex == 7)
+                        matchingStates.AddRange(eta[3].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
+                }
+
+                // Get the textures
+                var textures = GetSpriteTextures(context.Settings, levels, des, worldFile, desIndex);
 
                 // Get the folder
                 var desFolderPath = Path.Combine(outputDir, $"{i}{desName}");
 
-                byte prevSpeed = 4;
+                // Get the animations
+                var spriteAnim = des.AnimationDescriptors;
+
+                // Use Rayman's animation if a special DES
+                if (desIndex == darkRayDES || desIndex == smallRayDES)
+                    spriteAnim = rayAnim;
 
                 // Enumerate the animations
-                for (var j = 0; j < des.AnimationDescriptors.Length; j++)
+                for (var j = 0; j < spriteAnim.Length; j++)
                 {
                     // Get the animation descriptor
-                    var anim = des.AnimationDescriptors[j];
+                    var anim = spriteAnim[j];
 
-                    byte? speed = null;
-
-                    IEnumerable<Common_EventState> GetEtaMatches(int etaIndex) => worldFile.Eta[etaIndex].States.SelectMany<Common_EventState[], Common_EventState>(x => x).Where<Common_EventState>(x => x.AnimationIndex == j);
-
-                    // TODO: Redo this to use new ETA indexing system
-                    // Attempt to find a perfect match
-                    for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
-                    {
-                        if (speed != null)
-                            break;
-
-                        foreach (var etaMatch in GetEtaMatches(etaIndex))
-                        {
-                            // Check if it's a perfect match
-                            if (levels.SelectMany<PC_LevFile, PC_Event>(x => x.Events).Any<PC_Event>(x => x.DES == desIndex &&
-                                                                                                          x.ETA == etaIndex &&
-                                                                                                          x.Etat == etaMatch.Etat &&
-                                                                                                          x.SubEtat == etaMatch.SubEtat))
-                            {
-                                speed = etaMatch.AnimationSpeed;
-                                break;
-                            }
-                        }
-                    }
-
-                    // If still null, find semi-perfect match
-                    if (speed == null)
-                    {
-                        // Attempt to find a semi-perfect match
-                        for (int etaIndex = 0; etaIndex < worldFile.Eta.Length; etaIndex++)
-                        {
-                            if (speed != null)
-                                break;
-
-                            foreach (var etaMatch in GetEtaMatches(etaIndex))
-                            {
-                                // Check if it's a semi-perfect match
-                                if (levels.SelectMany<PC_LevFile, PC_Event>(x => x.Events).Any<PC_Event>(x => x.DES == desIndex && x.ETA == etaIndex))
-                                {
-                                    speed = etaMatch.AnimationSpeed;
-                                    break;
-                                }
-                            }
-                        }
-
-                        // If still null, use previous eta
-                        if (speed == null)
-                            speed = prevSpeed;
-                    }
-
-                    // Set the previous eta
-                    prevSpeed = speed.Value;
+                    var matches = matchingStates.Where(x => x.AnimationIndex == j).ToArray();
 
                     // Get the folder
-                    var animFolderPath = Path.Combine(desFolderPath, $"{j}-{speed}");
+                    var animFolderPath = Path.Combine(desFolderPath, $"{j}-{(worldFile.FileType != PC_WorldFile.Type.BigRay ? String.Join("-", matches.Select(x => x.AnimationSpeed).Distinct()) : "1")}");
 
                     // The layer index
                     var layer = 0;
@@ -564,8 +619,8 @@ namespace R1Engine
 
                             if (s != null)
                             {
-                                var w = s.width + l.XPosition;
-                                var h = s.height + l.YPosition;
+                                var w = s.width + (desIndex == smallRayDES ? l.XPosition / 2 : l.XPosition);
+                                var h = s.height + (desIndex == smallRayDES ? l.YPosition / 2 : l.YPosition);
 
                                 if (frameWidth == null || frameWidth < w)
                                     frameWidth = w;
@@ -588,13 +643,7 @@ namespace R1Engine
                         };
 
                         // Default to fully transparent
-                        for (int y = 0; y < tex.height; y++)
-                        {
-                            for (int x = 0; x < tex.width; x++)
-                            {
-                                tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                            }
-                        }
+                        tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
 
                         bool hasLayers = false;
 
@@ -620,15 +669,15 @@ namespace R1Engine
                                 for (int x = 0; x < sprite.width; x++)
                                 {
                                     var c = sprite.GetPixel(x, sprite.height - y - 1);
-
-                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
-                                    var yPosition = (y + animationLayer.YPosition);
+                                    
+                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + (desIndex == smallRayDES ? animationLayer.XPosition / 2 : animationLayer.XPosition);
+                                    var yPosition = (y + (desIndex == smallRayDES ? animationLayer.YPosition / 2 : animationLayer.YPosition));
 
                                     if (xPosition >= tex.width)
                                         throw new Exception("Horizontal overflow!");
 
                                     if (c.a != 0)
-                                        tex.SetPixel(xPosition, sprite.height - 1 - yPosition, c);
+                                        tex.SetPixel(xPosition, tex.height - 1 - yPosition, c);
                                 }
                             }
 
@@ -867,7 +916,7 @@ namespace R1Engine
             return new GameAction[]
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTextures(settings, output, false)),
-                new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTextures(settings, output, false)),
+                new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTextures(settings, output, true)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), output)),
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
             };
