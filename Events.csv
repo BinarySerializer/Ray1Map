@@ -313,7 +313,7 @@ Snow (Wind right),141,TYPE_NEIGE,0,26,1-1-1-1-1-1,0-0-0-0-0-0,,,5,5,0,0,1,254,Fa
 Snow (Wind fast left),141,TYPE_NEIGE,0,27,1-1-1-1-1-1,0-0-0-0-0-0,,,5,5,0,0,1,254,False,,,,
 Snow (Wind fast right),141,TYPE_NEIGE,0,28,1-1-1-1-1-1,0-0-0-0-0-0,,,5,5,0,0,1,254,False,,,,
 Snow (No wind),141,TYPE_NEIGE,0,29,1-1-1-1-1-1,0-0-0-0-0-0,,,5,5,0,0,1,254,False,,,,
-"Snow (Snow up, then down)",141,TYPE_NEIGE,0,30,1-1-1-1-1-1,0-0-0-0-0-0,,,5,5,0,0,1,254,False,,,,
+Snow (Snow up then down),141,TYPE_NEIGE,0,30,1-1-1-1-1-1,0-0-0-0-0-0,,,5,5,0,0,1,254,False,,,,
 Snow (Start),141,TYPE_NEIGE,0,32,1-1-1-1-1-1,0-0-0-0-0-0,,,5,5,0,0,1,254,False,,,,
 Oneup,142,TYPE_ONEUP,5,19,4-4-4-4-4-4,2-2-2-2-2-2,PNG-PNG-PNG-PNG-PNG-PNG,PNG-PNG-PNG-PNG-PNG-PNG,80,64,32,0,200,0,False,,,2-254-33-255,2-254-33-255
 Item collected,143,TYPE_NOVA2,5,20,4-4-4--4-4,2-2-2--2-2,PNG-PNG-PNG--PNG-PNG,PNG-PNG-PNG--PNG-PNG,80,64,48,0,0,0,False,,,2-254-33-255,2-254-33-255
