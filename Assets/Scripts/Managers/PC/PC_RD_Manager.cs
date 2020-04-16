@@ -129,6 +129,24 @@ namespace R1Engine
             }
         }
 
+        /// <summary>
+        /// Gets the archive files which can be extracted
+        /// </summary>
+        public override ArchiveFile[] GetArchiveFiles(GameSettings settings)
+        {
+            return new ArchiveFile[]
+            {
+                new ArchiveFile($"PCMAP/COMMON.DAT"),
+                new ArchiveFile($"PCMAP/SNDD8B.DAT"),
+                new ArchiveFile($"PCMAP/SNDH8B.DAT"),
+                new ArchiveFile($"PCMAP/VIGNET.DAT", ".pcx"),
+            }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new ArchiveFile[]
+            {
+                new ArchiveFile($"PCMAP/{x}/SNDSMP.DAT"),
+                new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
+            })).ToArray();
+        }
+
         #endregion
 
         #region Manager Methods

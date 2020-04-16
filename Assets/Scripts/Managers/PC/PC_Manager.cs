@@ -141,6 +141,12 @@ namespace R1Engine
         /// <returns>The ETA file names</returns>
         public virtual IEnumerable<string> GetETANames(Context context) => new string[0];
 
+        /// <summary>
+        /// Gets the archive files which can be extracted
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        public abstract ArchiveFile[] GetArchiveFiles(GameSettings settings);
+
         #endregion
 
         #region Texture Methods
@@ -863,7 +869,48 @@ namespace R1Engine
                 new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTextures(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTextures(settings, output, false)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), output)),
+                new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
             };
+        }
+
+        /// <summary>
+        /// Extracts all file archives
+        /// </summary>
+        /// <param name="outputPath">The output path to extract to</param>
+        public void ExtractArchives(string outputPath)
+        {
+            // Create a new context
+            var context = new Context(Settings.GetGameSettings);
+
+            // Extract every archive file
+            foreach (var archiveFile in GetArchiveFiles(context.Settings).Where(x => File.Exists(context.BasePath + x.FilePath)))
+            {
+                // Add the file to the context
+                context.AddFile(new LinearSerializedFile(context)
+                {
+                    filePath = archiveFile.FilePath
+                });
+
+                // Get the file data
+                var fileData = FileFactory.Read<PC_EncryptedFileArchive>(archiveFile.FilePath, context);
+
+                // Get the output directory
+                var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
+
+                // Create the directory
+                Directory.CreateDirectory(output);
+
+                // Extract every file
+                for (var i = 0; i < fileData.DecodedFiles.Length; i++)
+                {
+                    // Get the data
+                    var file = fileData.DecodedFiles[i];
+                    var entry = fileData.Entries[i];
+
+                    // Write the bytes
+                    File.WriteAllBytes(Path.Combine(output, entry.FileNameString + archiveFile.FileExtension), file);
+                }
+            }
         }
 
         /// <summary>
@@ -1467,6 +1514,37 @@ namespace R1Engine
         {
             filePath = filePath
         };
+
+        #endregion
+
+        #region Classes
+
+        /// <summary>
+        /// Archive file info
+        /// </summary>
+        public class ArchiveFile
+        {
+            /// <summary>
+            /// Default constructor
+            /// </summary>
+            /// <param name="filePath">The file path</param>
+            /// <param name="fileExtension">The file extension</param>
+            public ArchiveFile(string filePath, string fileExtension = ".dat")
+            {
+                FilePath = filePath;
+                FileExtension = fileExtension;
+            }
+
+            /// <summary>
+            /// The file path
+            /// </summary>
+            public string FilePath { get; }
+
+            /// <summary>
+            /// The file extension
+            /// </summary>
+            public string FileExtension { get; }
+        }
 
         #endregion
     }

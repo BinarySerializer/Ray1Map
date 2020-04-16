@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Text;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event data for PC

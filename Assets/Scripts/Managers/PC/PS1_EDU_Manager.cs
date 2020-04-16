@@ -52,6 +52,19 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();
 
+        /// <summary>
+        /// Gets the archive files which can be extracted
+        /// </summary>
+        public override ArchiveFile[] GetArchiveFiles(GameSettings settings)
+        {
+            return GetEduVolumes(settings).SelectMany(x => new ArchiveFile[]
+            {
+                new ArchiveFile($"PCMAP/{x}/COMMON.DAT"),
+                new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
+                new ArchiveFile($"PCMAP/{x}/VIGNET.DAT", ".pcx"),
+            }).ToArray();
+        }
+
         #endregion
     }
 }

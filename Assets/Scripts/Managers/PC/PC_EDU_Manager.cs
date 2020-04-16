@@ -63,6 +63,24 @@ namespace R1Engine
         /// <returns>The available educational volumes</returns>
         public override string[] GetEduVolumes(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToArray();
 
+        /// <summary>
+        /// Gets the archive files which can be extracted
+        /// </summary>
+        public override ArchiveFile[] GetArchiveFiles(GameSettings settings)
+        {
+            return new ArchiveFile[]
+            {
+                new ArchiveFile($"PCMAP/COMMON.DAT"),
+                new ArchiveFile($"PCMAP/SNDD8B.DAT"),
+                new ArchiveFile($"PCMAP/SNDH8B.DAT"),
+            }.Concat(GetEduVolumes(settings).SelectMany(x => new ArchiveFile[]
+            {
+                new ArchiveFile($"PCMAP/{x}/sndsmp.dat"),
+                new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
+                new ArchiveFile($"PCMAP/{x}/VIGNET.DAT", ".pcx"),
+            })).ToArray();
+        }
+
         #endregion
 
         #region Manager Methods

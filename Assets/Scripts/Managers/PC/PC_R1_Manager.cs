@@ -63,6 +63,11 @@ namespace R1Engine
         /// </summary>
         public override bool Has3Palettes => true;
 
+        /// <summary>
+        /// Gets the archive files which can be extracted
+        /// </summary>
+        public override ArchiveFile[] GetArchiveFiles(GameSettings settings) => new ArchiveFile[0];
+
         #endregion
 
         #region Manager Methods
