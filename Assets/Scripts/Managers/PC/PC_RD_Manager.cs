@@ -163,10 +163,10 @@ namespace R1Engine
         /// Gets additional sound archives
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public override KeyValuePair<string, ArchiveFile>[] GetAdditionalSoundArchives(GameSettings settings) => 
+        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => 
             Directory.GetDirectories(settings.GameDirectory + "PCMAP").
                 Select(Path.GetFileName).
-                Select(x => new KeyValuePair<string, ArchiveFile>($"SMP ({x})", new ArchiveFile($"PCMAP/{x}/SNDSMP.DAT"))).ToArray();
+                Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile($"PCMAP/{x}/SNDSMP.DAT"))).ToArray();
 
         #endregion
 

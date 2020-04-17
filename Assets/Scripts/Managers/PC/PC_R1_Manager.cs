@@ -72,9 +72,9 @@ namespace R1Engine
         /// Gets additional sound archives
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public override KeyValuePair<string, ArchiveFile>[] GetAdditionalSoundArchives(GameSettings settings) => new KeyValuePair<string, ArchiveFile>[]
+        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => new AdditionalSoundArchive[]
         {
-            new KeyValuePair<string, ArchiveFile>("VIG", new ArchiveFile("SNDVIG.DAT")),
+            new AdditionalSoundArchive("VIG", new ArchiveFile("SNDVIG.DAT"), 16),
         };
 
         #endregion

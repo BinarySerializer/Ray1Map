@@ -163,7 +163,7 @@ namespace R1Engine
         /// Gets additional sound archives
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public abstract KeyValuePair<string, ArchiveFile>[] GetAdditionalSoundArchives(GameSettings settings);
+        public abstract AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings);
 
         #endregion
 
@@ -1029,9 +1029,6 @@ namespace R1Engine
             string soundFile = GetSoundFilePath();
             string soundManifestFile = GetSoundManifestFilePath();
 
-            // Get the archive files
-            var archiveFiles = GetArchiveFiles(context.Settings);
-
             // Extract the archives
             var soundArchiveFileData = ExtractArchive(context, new ArchiveFile(soundFile));
             var soundManifestArchiveFileData = ExtractArchive(context, new ArchiveFile(soundManifestFile)).ToArray();
@@ -1100,20 +1097,21 @@ namespace R1Engine
             }
 
             // Handle the additional archives
-            foreach (var archivePair in GetAdditionalSoundArchives(context.Settings))
+            foreach (var archiveData in GetAdditionalSoundArchives(context.Settings))
             {
                 // Extract the archive
-                var archive = ExtractArchive(context, archivePair.Value);
+                var archive = ExtractArchive(context, archiveData.ArchiveFile);
 
                 // Create and return the group
                 yield return new SoundGroup()
                 {
-                    GroupName = archivePair.Key,
+                    GroupName = archiveData.Name,
                     Entries = archive.Select(x => new SoundGroup.SoundGroupEntry()
                     {
                         FileName = x.FileName,
                         RawSoundData = x.Data
-                    }).ToArray()
+                    }).ToArray(),
+                    BitsPerSample = archiveData.BitsPerSample
                 };
             }
         }
@@ -1177,9 +1175,7 @@ namespace R1Engine
                             FormatType = 1,
                             ChannelCount = 1,
                             SampleRate = 11025,
-                            ByteRate = 88200,
-                            BlockAlign = 8,
-                            BitsPerSample = 8,
+                            BitsPerSample = (ushort)soundGroup.BitsPerSample,
                             DataChunkHeader = new byte[]
                             {
                                 0x64, 0x61, 0x74, 0x61
@@ -1187,6 +1183,9 @@ namespace R1Engine
                             DataSize = (uint)soundGroupEntry.RawSoundData.Length,
                             Data = soundGroupEntry.RawSoundData
                         };
+
+                        wav.ByteRate = (wav.SampleRate * wav.BitsPerSample * wav.ChannelCount) / 8;
+                        wav.BlockAlign = (ushort)((wav.BitsPerSample * wav.ChannelCount) / 8);
 
                         // Get the output path
                         var outputFilePath = Path.Combine(groupOutputDir, soundGroupEntry.FileName + ".wav");
@@ -1920,6 +1919,11 @@ namespace R1Engine
             public SoundGroupEntry[] Entries { get; set; }
 
             /// <summary>
+            /// The bits per sample
+            /// </summary>
+            public int BitsPerSample { get; set; } = 8;
+
+            /// <summary>
             /// Sound group entry data
             /// </summary>
             public class SoundGroupEntry
@@ -1934,6 +1938,40 @@ namespace R1Engine
                 /// </summary>
                 public byte[] RawSoundData { get; set; }
             }
+        }
+
+        /// <summary>
+        /// Additional sound archive data
+        /// </summary>
+        public class AdditionalSoundArchive
+        {
+            /// <summary>
+            /// Default constructor
+            /// </summary>
+            /// <param name="name">The name</param>
+            /// <param name="archiveFile">The archive file</param>
+            /// <param name="bitsPerSample">The bits per sample</param>
+            public AdditionalSoundArchive(string name, ArchiveFile archiveFile, int bitsPerSample = 8)
+            {
+                Name = name;
+                ArchiveFile = archiveFile;
+                BitsPerSample = bitsPerSample;
+            }
+
+            /// <summary>
+            /// The name
+            /// </summary>
+            public string Name { get; }
+
+            /// <summary>
+            /// The archive file
+            /// </summary>
+            public ArchiveFile ArchiveFile { get; }
+
+            /// <summary>
+            /// The bits per sample
+            /// </summary>
+            public int BitsPerSample { get; }
         }
 
         #endregion
