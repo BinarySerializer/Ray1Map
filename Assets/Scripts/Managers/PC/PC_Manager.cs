@@ -993,33 +993,36 @@ namespace R1Engine
 
         #endregion
 
-        public class ArchiveData
+        #region Manager Methods
+
+        // TODO: Override this in R1 manager as those archive files have no header tables and hard-code the offsets and such
+        /// <summary>
+        /// Extracts the data from an archive file
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="file">The archive file</param>
+        /// <returns>The archive data</returns>
+        public virtual IEnumerable<ArchiveData> ExtractArchive(Context context, ArchiveFile file)
         {
-            public ArchiveData(string fileName, byte[] data)
+            // Add the file to the context
+            context.AddFile(new LinearSerializedFile(context)
             {
-                FileName = fileName;
-                Data = data;
-            }
+                filePath = file.FilePath
+            });
 
-            public string FileName { get; }
+            // Read the archive
+            var data = FileFactory.Read<PC_EncryptedFileArchive>(file.FilePath, context);
 
-            public byte[] Data { get; }
+            // Return the data
+            for (int i = 0; i < data.DecodedFiles.Length; i++)
+                yield return new ArchiveData(data.Entries[i].FileNameString, data.DecodedFiles[i]);
         }
 
-        public class SoundGroup
-        {
-            public string GroupName { get; set; }
-
-            public SoundGroupEntry[] Entries { get; set; }
-
-            public class SoundGroupEntry
-            {
-                public string FileName { get; set; }
-
-                public byte[] RawSoundData { get; set; }
-            }
-        }
-
+        /// <summary>
+        /// Gets the sound groups
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The available sound groups</returns>
         public IEnumerable<SoundGroup> GetSoundGroups(Context context)
         {
             // Get common sound files
@@ -1110,31 +1113,6 @@ namespace R1Engine
                     }).ToArray()
                 };
             }
-        }
-
-        #region Manager Methods
-
-        // TODO: Override this in R1 manager as those archive files have no header tables! - alternatively in the archive data class when serializing handle it there, but seems hacky
-        /// <summary>
-        /// Extracts the data from an archive file
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="file">The archive file</param>
-        /// <returns>The archive data</returns>
-        public virtual IEnumerable<ArchiveData> ExtractArchive(Context context, ArchiveFile file)
-        {
-            // Add the file to the context
-            context.AddFile(new LinearSerializedFile(context)
-            {
-                filePath = file.FilePath
-            });
-
-            // Read the archive
-            var data = FileFactory.Read<PC_EncryptedFileArchive>(file.FilePath, context);
-
-            // Return the data
-            for (int i = 0; i < data.DecodedFiles.Length; i++)
-                yield return new ArchiveData(data.Entries[i].FileNameString, data.DecodedFiles[i]);
         }
 
         /// <summary>
@@ -1894,6 +1872,65 @@ namespace R1Engine
             /// The file extension
             /// </summary>
             public string FileExtension { get; }
+        }
+
+        /// <summary>
+        /// Archive data
+        /// </summary>
+        public class ArchiveData
+        {
+            /// <summary>
+            /// Default constructor
+            /// </summary>
+            /// <param name="fileName">The file name</param>
+            /// <param name="data">The data</param>
+            public ArchiveData(string fileName, byte[] data)
+            {
+                FileName = fileName;
+                Data = data;
+            }
+
+            /// <summary>
+            /// The file name
+            /// </summary>
+            public string FileName { get; }
+
+            /// <summary>
+            /// The data
+            /// </summary>
+            public byte[] Data { get; }
+        }
+
+        /// <summary>
+        /// Sound group data
+        /// </summary>
+        public class SoundGroup
+        {
+            /// <summary>
+            /// The group name
+            /// </summary>
+            public string GroupName { get; set; }
+
+            /// <summary>
+            /// The entries
+            /// </summary>
+            public SoundGroupEntry[] Entries { get; set; }
+
+            /// <summary>
+            /// Sound group entry data
+            /// </summary>
+            public class SoundGroupEntry
+            {
+                /// <summary>
+                /// The file name
+                /// </summary>
+                public string FileName { get; set; }
+
+                /// <summary>
+                /// The raw sound data
+                /// </summary>
+                public byte[] RawSoundData { get; set; }
+            }
         }
 
         #endregion
