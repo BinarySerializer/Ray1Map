@@ -1033,8 +1033,8 @@ namespace R1Engine
             var archiveFiles = GetArchiveFiles(context.Settings);
 
             // Extract the archives
-            var soundArchiveFileData = ExtractArchive(context, archiveFiles.FindItem(x => x.FilePath == soundFile));
-            var soundManifestArchiveFileData = ExtractArchive(context, archiveFiles.FindItem(x => x.FilePath == soundManifestFile)).ToArray();
+            var soundArchiveFileData = ExtractArchive(context, new ArchiveFile(soundFile));
+            var soundManifestArchiveFileData = ExtractArchive(context, new ArchiveFile(soundManifestFile)).ToArray();
 
             var index = 0;
 
@@ -1047,50 +1047,53 @@ namespace R1Engine
                 // Get the manifest data
                 using (var manfiestStream = new MemoryStream(manifestArchiveData.Data))
                 {
-                    // Create a key
-                    var key = $"manifest{index}";
-
-                    // Add to context
-                    context.AddFile(new StreamFile(key, manfiestStream, context));
-
-                    // Serialize the manifest data
-                    var manfiestData = FileFactory.Read<PC_SoundManifest>(key, context, (o, file) => file.Length = o.CurrentLength / (4 * 4));
-
-                    // Get the group name
-                    var groupName = manifestArchiveData.FileName;
-
-                    // Create the group
-                    var group = new SoundGroup()
+                    using (var manifestContext = new Context(context.Settings))
                     {
-                        GroupName = groupName
-                    };
+                        // Create a key
+                        var key = $"manifest{index}";
 
-                    var groupEntries = new List<SoundGroup.SoundGroupEntry>();
+                        // Add to context
+                        manifestContext.AddFile(new StreamFile(key, manfiestStream, manifestContext));
 
-                    // Handle every sound file entry
-                    for (int j = 0; j < manfiestData.SoundFileEntries.Length; j++)
-                    {
-                        // Get the entry
-                        var entry = manfiestData.SoundFileEntries[j];
+                        // Serialize the manifest data
+                        var manfiestData = FileFactory.Read<PC_SoundManifest>(key, manifestContext, (o, file) => file.Length = o.CurrentLength / (4 * 4));
 
-                        // Make sure it contains any data
-                        if (entry.FileSize == 0)
-                            continue;
+                        // Get the group name
+                        var groupName = manifestArchiveData.FileName;
 
-                        // Get the bytes
-                        var soundEntryBytes = soundArchiveData.Data.Skip((int)entry.FileOffset).Take((int)entry.FileSize).ToArray();
-
-                        groupEntries.Add(new SoundGroup.SoundGroupEntry()
+                        // Create the group
+                        var group = new SoundGroup()
                         {
-                            FileName = $"{groupName}_{j}",
-                            RawSoundData = soundEntryBytes
-                        });
+                            GroupName = groupName
+                        };
+
+                        var groupEntries = new List<SoundGroup.SoundGroupEntry>();
+
+                        // Handle every sound file entry
+                        for (int j = 0; j < manfiestData.SoundFileEntries.Length; j++)
+                        {
+                            // Get the entry
+                            var entry = manfiestData.SoundFileEntries[j];
+
+                            // Make sure it contains any data
+                            if (entry.FileSize == 0)
+                                continue;
+
+                            // Get the bytes
+                            var soundEntryBytes = soundArchiveData.Data.Skip((int)entry.FileOffset).Take((int)entry.FileSize).ToArray();
+
+                            groupEntries.Add(new SoundGroup.SoundGroupEntry()
+                            {
+                                FileName = $"{groupName}_{j}",
+                                RawSoundData = soundEntryBytes
+                            });
+                        }
+
+                        group.Entries = groupEntries.ToArray();
+
+                        // Return the group
+                        yield return group;
                     }
-
-                    group.Entries = groupEntries.ToArray();
-
-                    // Return the group
-                    yield return group;
                 }
 
                 index++;
