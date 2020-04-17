@@ -152,6 +152,76 @@ namespace R1Engine
         #region Texture Methods
 
         /// <summary>
+        /// Extracts a the vignette files
+        /// </summary>
+        /// <param name="settings">The settings</param>
+        /// <param name="filePath">The vignette file path</param>
+        /// <param name="outputDir">The output directory</param>
+        public void ExtractVignette(GameSettings settings, string filePath, string outputDir)
+        {
+            var archiveVig = GetArchiveFiles(settings).FindItem(x => x.FilePath == filePath);
+
+            if (archiveVig == null)
+            {
+                ExtractEncryptedPCX(settings.GameDirectory + filePath, outputDir);
+                return;
+            }
+
+            // Create a new context
+            var context = new Context(Settings.GetGameSettings);
+
+            // Add the file to the context
+            context.AddFile(new LinearSerializedFile(context)
+            {
+                filePath = archiveVig.FilePath
+            });
+
+            // Get the file data
+            var fileData = FileFactory.Read<PC_EncryptedFileArchive>(archiveVig.FilePath, context);
+
+            // Extract every .pcx file
+            for (var i = 0; i < fileData.DecodedFiles.Length; i++)
+            {
+                // Get the data
+                var file = fileData.DecodedFiles[i];
+                var entry = fileData.Entries[i];
+
+                // Create the key
+                var key = $"PCX{i}";
+
+                // Use a memory stream
+                using (var stream = new MemoryStream(file))
+                {
+                    // Add to context
+                    context.AddFile(new StreamFile(key, stream, context));
+
+                    // Serialize the data
+                    var pcx = FileFactory.Read<PCX>(key, context);
+
+                    // Convert to a texture
+                    var tex = pcx.ToTexture();
+
+                    // Flip the texture
+                    var flippedTex = new Texture2D(tex.width, tex.height);
+
+                    for (int x = 0; x < tex.width; x++)
+                    {
+                        for (int y = 0; y < tex.height; y++)
+                        {
+                            flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
+                        }
+                    }
+
+                    // Apply the pixels
+                    flippedTex.Apply();
+
+                    // Write the bytes
+                    File.WriteAllBytes(Path.Combine(outputDir, $"{i}. {entry.FileNameString}.png"), flippedTex.EncodeToPNG());
+                }
+            }
+        }
+
+        /// <summary>
         /// Extracts all found .pcx from an xor encrypted file
         /// </summary>
         /// <param name="filePath">The path of the file to extract from</param>
@@ -873,7 +943,7 @@ namespace R1Engine
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
-                new GameAction("Export Vignette", false, true, (input, output) => ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), output)),
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output))
             };
         }
