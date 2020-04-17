@@ -168,55 +168,56 @@ namespace R1Engine
             }
 
             // Create a new context
-            var context = new Context(Settings.GetGameSettings);
-
-            // Add the file to the context
-            context.AddFile(new LinearSerializedFile(context)
+            using (var context = new Context(Settings.GetGameSettings))
             {
-                filePath = archiveVig.FilePath
-            });
-
-            // Get the file data
-            var fileData = FileFactory.Read<PC_EncryptedFileArchive>(archiveVig.FilePath, context);
-
-            // Extract every .pcx file
-            for (var i = 0; i < fileData.DecodedFiles.Length; i++)
-            {
-                // Get the data
-                var file = fileData.DecodedFiles[i];
-                var entry = fileData.Entries[i];
-
-                // Create the key
-                var key = $"PCX{i}";
-
-                // Use a memory stream
-                using (var stream = new MemoryStream(file))
+                // Add the file to the context
+                context.AddFile(new LinearSerializedFile(context)
                 {
-                    // Add to context
-                    context.AddFile(new StreamFile(key, stream, context));
+                    filePath = archiveVig.FilePath
+                });
 
-                    // Serialize the data
-                    var pcx = FileFactory.Read<PCX>(key, context);
+                // Get the file data
+                var fileData = FileFactory.Read<PC_EncryptedFileArchive>(archiveVig.FilePath, context);
 
-                    // Convert to a texture
-                    var tex = pcx.ToTexture();
+                // Extract every .pcx file
+                for (var i = 0; i < fileData.DecodedFiles.Length; i++)
+                {
+                    // Get the data
+                    var file = fileData.DecodedFiles[i];
+                    var entry = fileData.Entries[i];
 
-                    // Flip the texture
-                    var flippedTex = new Texture2D(tex.width, tex.height);
+                    // Create the key
+                    var key = $"PCX{i}";
 
-                    for (int x = 0; x < tex.width; x++)
+                    // Use a memory stream
+                    using (var stream = new MemoryStream(file))
                     {
-                        for (int y = 0; y < tex.height; y++)
+                        // Add to context
+                        context.AddFile(new StreamFile(key, stream, context));
+
+                        // Serialize the data
+                        var pcx = FileFactory.Read<PCX>(key, context);
+
+                        // Convert to a texture
+                        var tex = pcx.ToTexture();
+
+                        // Flip the texture
+                        var flippedTex = new Texture2D(tex.width, tex.height);
+
+                        for (int x = 0; x < tex.width; x++)
                         {
-                            flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
+                            for (int y = 0; y < tex.height; y++)
+                            {
+                                flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
+                            }
                         }
+
+                        // Apply the pixels
+                        flippedTex.Apply();
+
+                        // Write the bytes
+                        File.WriteAllBytes(Path.Combine(outputDir, $"{i}. {entry.FileNameString}.png"), flippedTex.EncodeToPNG());
                     }
-
-                    // Apply the pixels
-                    flippedTex.Apply();
-
-                    // Write the bytes
-                    File.WriteAllBytes(Path.Combine(outputDir, $"{i}. {entry.FileNameString}.png"), flippedTex.EncodeToPNG());
                 }
             }
         }
@@ -350,7 +351,7 @@ namespace R1Engine
                 PC_AnimationDescriptor[] rayAnim = null;
 
                 // Helper method for exporting textures
-                async Task<PC_WorldFile> ExportTexturesAsync(string filePath, PC_WorldFile.Type type, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames) {
+                async Task<PC_WorldFile> ExportTexturesAsync(string filePath, PC_WorldFile.Type type, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<ARGBColor> palette = null) {
                     // Read the file
                     var file = FileFactory.Read<PC_WorldFile>(filePath, context, onPreSerialize: (s, data) => data.FileType = type);
 
@@ -360,15 +361,15 @@ namespace R1Engine
 
                     // Export the sprite textures
                     if (exportAnimFrames)
-                        await ExportAnimationFramesAsync(context, file, Path.Combine(outputDir, name), desOffset, baseEta.Concat(file.Eta).ToArray(), desFileNames, etaFileNames, eventInfo, rayAnim);
+                        await ExportAnimationFramesAsync(context, file, Path.Combine(outputDir, name), desOffset, baseEta.Concat(file.Eta).ToArray(), desFileNames, etaFileNames, eventInfo, rayAnim, palette);
                     else
-                        ExportSpriteTextures(context, file, Path.Combine(outputDir, name), desOffset, desFileNames);
+                        ExportSpriteTextures(context, file, Path.Combine(outputDir, name), desOffset, desFileNames, palette);
 
                     return file;
                 }
 
                 // Export big ray
-                await ExportTexturesAsync(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, new PC_ETA[0], null, null);
+                await ExportTexturesAsync(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, new PC_ETA[0], null, null, GetBigRayPalette(context));
 
                 // Export allfix
                 var allfix = await ExportTexturesAsync(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, new PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
@@ -387,6 +388,61 @@ namespace R1Engine
                     // Export world
                     await ExportTexturesAsync(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets the big ray palette if available
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The big ray palette</returns>
+        public IList<ARGBColor> GetBigRayPalette(Context context)
+        {
+            // Attempt to get the vignette archive file
+            var vig = GetArchiveFiles(context.Settings).FindItem(x => x.FilePath == GetVignetteFilePath(context.Settings));
+
+            if (vig == null) 
+                return null;
+
+            // Add the file to the context
+            context.AddFile(new LinearSerializedFile(context)
+            {
+                filePath = vig.FilePath
+            });
+
+            // Get the file data
+            var vigData = FileFactory.Read<PC_EncryptedFileArchive>(vig.FilePath, context);
+
+            // Get the title vignette
+            var titleVigIndex = vigData.Entries.FindItemIndex(x => x.FileNameString.StartsWith("FND0"));
+
+            if (titleVigIndex == -1) 
+                return null;
+
+            // Create the key
+            const string key = "PCX";
+
+            // Use a memory stream
+            using (var stream = new MemoryStream(vigData.DecodedFiles[titleVigIndex]))
+            {
+                // Add to context
+                context.AddFile(new StreamFile(key, stream, context));
+
+                // Serialize the data
+                var pcx = FileFactory.Read<PCX>(key, context);
+
+                // Get the palette
+                var bigRayPalette = new List<ARGBColor>();
+
+                for (int i = 0; i < pcx.VGAPalette.Length; i += 3)
+                {
+                    bigRayPalette.Add(new ARGBColor(
+                        red: pcx.VGAPalette[i + 0],
+                        green: pcx.VGAPalette[i + 1],
+                        blue: pcx.VGAPalette[i + 2]));
+                }
+
+                return bigRayPalette;
             }
         }
 
@@ -492,7 +548,8 @@ namespace R1Engine
         /// <param name="etaNames">The ETA names, if available</param>
         /// <param name="eventInfo">The event info</param>
         /// <param name="rayAnim">Rayman's animation</param>
-        public async Task ExportAnimationFramesAsync(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_AnimationDescriptor[] rayAnim)
+        /// <param name="palette">Optional palette to use</param>
+        public async Task ExportAnimationFramesAsync(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_AnimationDescriptor[] rayAnim, IList<ARGBColor> palette = null)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -589,7 +646,7 @@ namespace R1Engine
                 }
 
                 // Get the textures
-                var textures = GetSpriteTextures(levels, des, desIndex);
+                var textures = GetSpriteTextures(levels, des, desIndex, palette);
 
                 // Get the folder
                 var desFolderPath = Path.Combine(outputDir, $"{i}{desName}");
@@ -1210,6 +1267,9 @@ namespace R1Engine
             var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context,
                 onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.BigRay);
 
+            // Get the big ray palette
+            var bigRayPalette = GetBigRayPalette(context);
+
             await Controller.WaitIfNecessary();
 
             // Get the DES and ETA
@@ -1227,8 +1287,11 @@ namespace R1Engine
 
                 await Controller.WaitIfNecessary();
 
+                // Use big ray palette for last one
+                var p = desIndex == des.Length - 1 && bigRayPalette != null ? bigRayPalette : palette;
+
                 // Add to the designs
-                eventDesigns.Add(GetCommonDesign(context, d, palette, desIndex));
+                eventDesigns.Add(GetCommonDesign(context, d, p, desIndex));
 
                 desIndex++;
             }
