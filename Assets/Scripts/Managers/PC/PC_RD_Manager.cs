@@ -60,6 +60,18 @@ namespace R1Engine
         public override string GetVignetteFilePath(GameSettings settings) => GetDataPath() + $"VIGNET.DAT";
 
         /// <summary>
+        /// Gets the file path for the primary sound file
+        /// </summary>
+        /// <returns>The primary sound file path</returns>
+        public override string GetSoundFilePath() => GetDataPath() + $"SNDD8B.DAT";
+
+        /// <summary>
+        /// Gets the file path for the primary sound manifest file
+        /// </summary>
+        /// <returns>The primary sound manifest file path</returns>
+        public override string GetSoundManifestFilePath() => GetDataPath() + $"SNDH8B.DAT";
+
+        /// <summary>
         /// Indicates if the game has 3 palettes it swaps between
         /// </summary>
         public override bool Has3Palettes => false;
@@ -146,6 +158,15 @@ namespace R1Engine
                 new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
             })).ToArray();
         }
+
+        /// <summary>
+        /// Gets additional sound archives
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        public override KeyValuePair<string, ArchiveFile>[] GetAdditionalSoundArchives(GameSettings settings) => 
+            Directory.GetDirectories(settings.GameDirectory + "PCMAP").
+                Select(Path.GetFileName).
+                Select(x => new KeyValuePair<string, ArchiveFile>($"SMP ({x})", new ArchiveFile($"PCMAP/{x}/SNDSMP.DAT"))).ToArray();
 
         #endregion
 

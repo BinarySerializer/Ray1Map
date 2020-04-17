@@ -35,6 +35,18 @@ namespace R1Engine
         public override string GetVignetteFilePath(GameSettings settings) => GetVolumePath(settings) + $"VIGNET.DAT";
 
         /// <summary>
+        /// Gets the file path for the primary sound file
+        /// </summary>
+        /// <returns>The primary sound file path</returns>
+        public override string GetSoundFilePath() => GetDataPath() + $"SNDD8B.DAT";
+
+        /// <summary>
+        /// Gets the file path for the primary sound manifest file
+        /// </summary>
+        /// <returns>The primary sound manifest file path</returns>
+        public override string GetSoundManifestFilePath() => GetDataPath() + $"SNDH8B.DAT";
+
+        /// <summary>
         /// Gets the volume data path
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -80,6 +92,12 @@ namespace R1Engine
                 new ArchiveFile($"PCMAP/{x}/VIGNET.DAT", ".pcx"),
             })).ToArray();
         }
+
+        /// <summary>
+        /// Gets additional sound archives
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        public override KeyValuePair<string, ArchiveFile>[] GetAdditionalSoundArchives(GameSettings settings) => GetEduVolumes(settings).Select(x => new KeyValuePair<string, ArchiveFile>($"SMP ({x})", new ArchiveFile($"PCMAP/{x}/sndsmp.dat"))).ToArray();
 
         #endregion
 

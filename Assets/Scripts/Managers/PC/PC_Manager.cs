@@ -102,6 +102,18 @@ namespace R1Engine
         public abstract string GetVignetteFilePath(GameSettings settings);
 
         /// <summary>
+        /// Gets the file path for the primary sound file
+        /// </summary>
+        /// <returns>The primary sound file path</returns>
+        public virtual string GetSoundFilePath() => $"SNDD8B.DAT";
+
+        /// <summary>
+        /// Gets the file path for the primary sound manifest file
+        /// </summary>
+        /// <returns>The primary sound manifest file path</returns>
+        public virtual string GetSoundManifestFilePath() => $"SNDH8B.DAT";
+
+        /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -147,6 +159,12 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         public abstract ArchiveFile[] GetArchiveFiles(GameSettings settings);
 
+        /// <summary>
+        /// Gets additional sound archives
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        public abstract KeyValuePair<string, ArchiveFile>[] GetAdditionalSoundArchives(GameSettings settings);
+
         #endregion
 
         #region Texture Methods
@@ -170,27 +188,19 @@ namespace R1Engine
             // Create a new context
             using (var context = new Context(Settings.GetGameSettings))
             {
-                // Add the file to the context
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    filePath = archiveVig.FilePath
-                });
+                // Read the archive
+                var archive = ExtractArchive(context, archiveVig);
 
-                // Get the file data
-                var fileData = FileFactory.Read<PC_EncryptedFileArchive>(archiveVig.FilePath, context);
+                var index = 0;
 
                 // Extract every .pcx file
-                for (var i = 0; i < fileData.DecodedFiles.Length; i++)
+                foreach (var file in archive)
                 {
-                    // Get the data
-                    var file = fileData.DecodedFiles[i];
-                    var entry = fileData.Entries[i];
-
                     // Create the key
-                    var key = $"PCX{i}";
+                    var key = $"PCX{index}";
 
                     // Use a memory stream
-                    using (var stream = new MemoryStream(file))
+                    using (var stream = new MemoryStream(file.Data))
                     {
                         // Add to context
                         context.AddFile(new StreamFile(key, stream, context));
@@ -216,8 +226,10 @@ namespace R1Engine
                         flippedTex.Apply();
 
                         // Write the bytes
-                        File.WriteAllBytes(Path.Combine(outputDir, $"{i}. {entry.FileNameString}.png"), flippedTex.EncodeToPNG());
+                        File.WriteAllBytes(Path.Combine(outputDir, $"{index}. {file.FileName}.png"), flippedTex.EncodeToPNG());
                     }
+
+                    index++;
                 }
             }
         }
@@ -404,26 +416,20 @@ namespace R1Engine
             if (vig == null) 
                 return null;
 
-            // Add the file to the context
-            context.AddFile(new LinearSerializedFile(context)
-            {
-                filePath = vig.FilePath
-            });
+            // Extract the archive
+            var vigData = ExtractArchive(context, vig);
 
-            // Get the file data
-            var vigData = FileFactory.Read<PC_EncryptedFileArchive>(vig.FilePath, context);
+            // Get the splash screen vignette
+            var splashVig = vigData.FindItem(x => x.FileName.StartsWith("FND0"));
 
-            // Get the title vignette
-            var titleVigIndex = vigData.Entries.FindItemIndex(x => x.FileNameString.StartsWith("FND0"));
-
-            if (titleVigIndex == -1) 
+            if (splashVig == null) 
                 return null;
 
             // Create the key
             const string key = "PCX";
 
             // Use a memory stream
-            using (var stream = new MemoryStream(vigData.DecodedFiles[titleVigIndex]))
+            using (var stream = new MemoryStream(splashVig.Data))
             {
                 // Add to context
                 context.AddFile(new StreamFile(key, stream, context));
@@ -987,7 +993,149 @@ namespace R1Engine
 
         #endregion
 
+        public class ArchiveData
+        {
+            public ArchiveData(string fileName, byte[] data)
+            {
+                FileName = fileName;
+                Data = data;
+            }
+
+            public string FileName { get; }
+
+            public byte[] Data { get; }
+        }
+
+        public class SoundGroup
+        {
+            public string GroupName { get; set; }
+
+            public SoundGroupEntry[] Entries { get; set; }
+
+            public class SoundGroupEntry
+            {
+                public string FileName { get; set; }
+
+                public byte[] RawSoundData { get; set; }
+            }
+        }
+
+        public IEnumerable<SoundGroup> GetSoundGroups(Context context)
+        {
+            // Get common sound files
+            string soundFile = GetSoundFilePath();
+            string soundManifestFile = GetSoundManifestFilePath();
+
+            // Get the archive files
+            var archiveFiles = GetArchiveFiles(context.Settings);
+
+            // Extract the archives
+            var soundArchiveFileData = ExtractArchive(context, archiveFiles.FindItem(x => x.FilePath == soundFile));
+            var soundManifestArchiveFileData = ExtractArchive(context, archiveFiles.FindItem(x => x.FilePath == soundManifestFile)).ToArray();
+
+            var index = 0;
+
+            // Handle every sound group
+            foreach (var soundArchiveData in soundArchiveFileData)
+            {
+                // Get the sound manifest data
+                var manifestArchiveData = soundManifestArchiveFileData[index];
+
+                // Get the manifest data
+                using (var manfiestStream = new MemoryStream(manifestArchiveData.Data))
+                {
+                    // Create a key
+                    var key = $"manifest{index}";
+
+                    // Add to context
+                    context.AddFile(new StreamFile(key, manfiestStream, context));
+
+                    // Serialize the manifest data
+                    var manfiestData = FileFactory.Read<PC_SoundManifest>(key, context, (o, file) => file.Length = o.CurrentLength / (4 * 4));
+
+                    // Get the group name
+                    var groupName = manifestArchiveData.FileName;
+
+                    // Create the group
+                    var group = new SoundGroup()
+                    {
+                        GroupName = groupName
+                    };
+
+                    var groupEntries = new List<SoundGroup.SoundGroupEntry>();
+
+                    // Handle every sound file entry
+                    for (int j = 0; j < manfiestData.SoundFileEntries.Length; j++)
+                    {
+                        // Get the entry
+                        var entry = manfiestData.SoundFileEntries[j];
+
+                        // Make sure it contains any data
+                        if (entry.FileSize == 0)
+                            continue;
+
+                        // Get the bytes
+                        var soundEntryBytes = soundArchiveData.Data.Skip((int)entry.FileOffset).Take((int)entry.FileSize).ToArray();
+
+                        groupEntries.Add(new SoundGroup.SoundGroupEntry()
+                        {
+                            FileName = $"{groupName}_{j}",
+                            RawSoundData = soundEntryBytes
+                        });
+                    }
+
+                    group.Entries = groupEntries.ToArray();
+
+                    // Return the group
+                    yield return group;
+                }
+
+                index++;
+            }
+
+            // Handle the additional archives
+            foreach (var archivePair in GetAdditionalSoundArchives(context.Settings))
+            {
+                // Extract the archive
+                var archive = ExtractArchive(context, archivePair.Value);
+
+                // Create and return the group
+                yield return new SoundGroup()
+                {
+                    GroupName = archivePair.Key,
+                    Entries = archive.Select(x => new SoundGroup.SoundGroupEntry()
+                    {
+                        FileName = x.FileName,
+                        RawSoundData = x.Data
+                    }).ToArray()
+                };
+            }
+        }
+
         #region Manager Methods
+
+        // TODO: Override this in R1 manager as those archive files have no header tables! - alternatively in the archive data class when serializing handle it there, but seems hacky
+        /// <summary>
+        /// Extracts the data from an archive file
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="file">The archive file</param>
+        /// <returns>The archive data</returns>
+        public virtual IEnumerable<ArchiveData> ExtractArchive(Context context, ArchiveFile file)
+        {
+            // Add the file to the context
+            context.AddFile(new LinearSerializedFile(context)
+            {
+                filePath = file.FilePath
+            });
+
+            // Read the archive
+            var data = FileFactory.Read<PC_EncryptedFileArchive>(file.FilePath, context);
+
+            // Return the data
+            for (int i = 0; i < data.DecodedFiles.Length; i++)
+                yield return new ArchiveData(data.Entries[i].FileNameString, data.DecodedFiles[i]);
+        }
 
         /// <summary>
         /// Gets the available game actions
@@ -1001,6 +1149,7 @@ namespace R1Engine
                 new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
+                new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
                 new GameAction("Export Sound", false, true, (input, output) => ExtractSound(settings, output)),
             };
         }
@@ -1012,125 +1161,69 @@ namespace R1Engine
         /// <param name="outputPath">The output path</param>
         public void ExtractSound(GameSettings settings, string outputPath)
         {
-            // TODO: Move these to methods
-            const string soundFile = "PCMAP/SNDD8B.DAT";
-            const string soundManifestFile = "PCMAP/SNDH8B.DAT";
-
-            // Find matching archive files
-            var archiveFiles = GetArchiveFiles(settings);
-            var soundArchive = archiveFiles.FindItem(x => x.FilePath == soundFile);
-            var soundManifestArchive = archiveFiles.FindItem(x => x.FilePath == soundManifestFile);
-
-            // Make sure we got valid files
-            if (soundArchive == null || soundManifestArchive == null)
-                return;
-
             // Create a new context
             using (var context = new Context(Settings.GetGameSettings))
             {
-                // Add the files to the context
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    filePath = soundArchive.FilePath
-                });
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    filePath = soundManifestArchive.FilePath
-                });
-
-                // Get the file data
-                var soundArchiveFileData = FileFactory.Read<PC_EncryptedFileArchive>(soundArchive.FilePath, context);
-                var soundManifestArchiveFileData = FileFactory.Read<PC_EncryptedFileArchive>(soundManifestArchive.FilePath, context);
-
                 // Handle every sound group
-                for (int i = 0; i < soundManifestArchiveFileData.DecodedFiles.Length; i++)
+                foreach (var soundGroup in GetSoundGroups(context))
                 {
-                    // Get the group name
-                    var groupName = soundManifestArchiveFileData.Entries[i].FileNameString;
-
                     // Get the output directory
-                    var groupOutputDir = Path.Combine(outputPath, groupName);
+                    var groupOutputDir = Path.Combine(outputPath, soundGroup.GroupName);
 
                     // Create the directory
                     Directory.CreateDirectory(groupOutputDir);
 
-                    // Get the manifest data
-                    using (var manfiestStream = new MemoryStream(soundManifestArchiveFileData.DecodedFiles[i]))
+                    // Handle every sound file entry
+                    foreach (var soundGroupEntry in soundGroup.Entries)
                     {
-                        // Create a key
-                        var key = $"manifest{i}";
-
-                        // Add to context
-                        context.AddFile(new StreamFile(key, manfiestStream, context));
-
-                        // Serialize the manifest data
-                        var manfiestData = FileFactory.Read<PC_SoundManifest>(key, context, (o, file) => file.Length = o.CurrentLength / (4 * 4));
-
-                        // Get the sound data
-                        var soundData = soundArchiveFileData.DecodedFiles[soundArchiveFileData.Entries.FindItemIndex(x => x.FileNameString == groupName)];
-                        
-                        // Handle every sound file entry
-                        for (int j = 0; j < manfiestData.SoundFileEntries.Length; j++)
+                        // Create WAV data
+                        var wav = new WAV
                         {
-                            // Get the entry
-                            var entry = manfiestData.SoundFileEntries[j];
-
-                            // Make sure it contains any data
-                            if (entry.FileSize == 0)
-                                continue;
-
-                            // Get the bytes
-                            var soundEntryBytes = soundData.Skip((int)entry.FileOffset).Take((int)entry.FileSize).ToArray();
-
-                            // Create WAV data
-                            var wav = new WAV
+                            Magic = new byte[]
                             {
-                                Magic = new byte[]
-                                {
-                                    0x52, 0x49, 0x46, 0x46
-                                },
-                                FileSize = (44 - 8) + (uint)soundEntryBytes.Length,
-                                FileTypeHeader = new byte[]
-                                {
-                                    0x57, 0x41, 0x56, 0x45
-                                },
-                                FormatChunkMarker = new byte[]
-                                {
-                                    0x66, 0x6D, 0x74, 0x20
-                                },
-                                FormatDataLength = 0x10,
-                                FormatType = 1,
-                                ChannelCount = 1,
-                                SampleRate = 11025,
-                                ByteRate = 88200,
-                                BlockAlign = 8,
-                                BitsPerSample = 8,
-                                DataChunkHeader = new byte[]
-                                {
-                                    0x64, 0x61, 0x74, 0x61
-                                },
-                                DataSize = (uint)soundEntryBytes.Length,
-                                Data = soundEntryBytes
-                            };
-
-                            // Get the output path
-                            var outputFilePath = Path.Combine(groupOutputDir, $"{groupName}_{j}.wav");
-
-                            // Create and open the output file
-                            using (var outputStream = File.Create(outputFilePath))
+                                0x52, 0x49, 0x46, 0x46
+                            },
+                            FileSize = (44 - 8) + (uint)soundGroupEntry.RawSoundData.Length,
+                            FileTypeHeader = new byte[]
                             {
-                                // Create a context
-                                using (var wavContext = new Context(settings))
-                                {
-                                    // Create a key
-                                    var wavKey = $"wav{i}-{j}";
+                                0x57, 0x41, 0x56, 0x45
+                            },
+                            FormatChunkMarker = new byte[]
+                            {
+                                0x66, 0x6D, 0x74, 0x20
+                            },
+                            FormatDataLength = 0x10,
+                            FormatType = 1,
+                            ChannelCount = 1,
+                            SampleRate = 11025,
+                            ByteRate = 88200,
+                            BlockAlign = 8,
+                            BitsPerSample = 8,
+                            DataChunkHeader = new byte[]
+                            {
+                                0x64, 0x61, 0x74, 0x61
+                            },
+                            DataSize = (uint)soundGroupEntry.RawSoundData.Length,
+                            Data = soundGroupEntry.RawSoundData
+                        };
 
-                                    // Add the file to the context
-                                    wavContext.AddFile(new StreamFile(wavKey, outputStream, wavContext));
+                        // Get the output path
+                        var outputFilePath = Path.Combine(groupOutputDir, soundGroupEntry.FileName + ".wav");
 
-                                    // Write the data
-                                    FileFactory.Write<WAV>(wavKey, wav, wavContext);
-                                }
+                        // Create and open the output file
+                        using (var outputStream = File.Create(outputFilePath))
+                        {
+                            // Create a context
+                            using (var wavContext = new Context(settings))
+                            {
+                                // Create a key
+                                const string wavKey = "wav";
+
+                                // Add the file to the context
+                                wavContext.AddFile(new StreamFile(wavKey, outputStream, wavContext));
+
+                                // Write the data
+                                FileFactory.Write<WAV>(wavKey, wav, wavContext);
                             }
                         }
                     }
@@ -1150,15 +1243,6 @@ namespace R1Engine
                 // Extract every archive file
                 foreach (var archiveFile in GetArchiveFiles(context.Settings).Where(x => File.Exists(context.BasePath + x.FilePath)))
                 {
-                    // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context)
-                    {
-                        filePath = archiveFile.FilePath
-                    });
-
-                    // Get the file data
-                    var fileData = FileFactory.Read<PC_EncryptedFileArchive>(archiveFile.FilePath, context);
-
                     // Get the output directory
                     var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
 
@@ -1166,15 +1250,9 @@ namespace R1Engine
                     Directory.CreateDirectory(output);
 
                     // Extract every file
-                    for (var i = 0; i < fileData.DecodedFiles.Length; i++)
-                    {
-                        // Get the data
-                        var file = fileData.DecodedFiles[i];
-                        var entry = fileData.Entries[i];
-
+                    foreach (var fileData in ExtractArchive(context, archiveFile))
                         // Write the bytes
-                        File.WriteAllBytes(Path.Combine(output, entry.FileNameString + archiveFile.FileExtension), file);
-                    }
+                        File.WriteAllBytes(Path.Combine(output, fileData.FileName + archiveFile.FileExtension), fileData.Data);
                 }
             }
         }
