@@ -26,6 +26,7 @@ namespace R1Engine
                 textGraphic.text = $"Type: {e.Data.Type}{Environment.NewLine}" +
                                    $"Pos: {e.Data.XPosition}, {e.Data.YPosition}{Environment.NewLine}" +
                                    $"AnimSpeed: {e.AnimSpeed}{Environment.NewLine}" +
+                                   $"Sound: {e.SoundIndex}{Environment.NewLine}" +
                                    $"Offsets: {e.Data.OffsetBX} x {e.Data.OffsetBY} x {e.Data.OffsetHY}";
             }
             // Else Mouse over type

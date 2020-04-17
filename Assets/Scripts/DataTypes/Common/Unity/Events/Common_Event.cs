@@ -23,6 +23,8 @@ namespace R1Engine {
         /// The animation index to use
         /// </summary>
         public int AnimationIndex { get; set; }
+        
+        public int SoundIndex { get; set; }
 
         /// <summary>
         /// Animation speed
