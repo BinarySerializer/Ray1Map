@@ -247,6 +247,8 @@ namespace R1Engine
             // Read the file bytes
             var originalBytes = File.ReadAllBytes(filePath);
 
+            var foundPCX = new Dictionary<string, byte[]>();
+
             // Enumerate every possible xor key
             for (int i = 0; i < 255; i++)
             {
@@ -290,10 +292,8 @@ namespace R1Engine
                                 // Apply the pixels
                                 flippedTex.Apply();
 
-                                // Save the file
-                                File.WriteAllBytes(Path.Combine(outputDir, $"{i} - {j}.png"), flippedTex.EncodeToPNG());
-
-                                Debug.Log("Exported PCX");
+                                // Add the file
+                                foundPCX.Add($"{i}-{j}", flippedTex.EncodeToPNG());
                             }
                         }
                     }
@@ -304,6 +304,20 @@ namespace R1Engine
                 }
             }
 
+            var index = 0;
+
+            // Save all the files
+            foreach (var pcx in foundPCX.Select(x => new
+            {
+                XORKey = x.Key.Split('-')[0],
+                FileOffset = x.Key.Split('-')[1],
+                Data = x.Value
+            }).OrderBy(x => x.FileOffset))
+            {
+                File.WriteAllBytes(Path.Combine(outputDir, $"{index}. [{pcx.XORKey}] ({pcx.FileOffset}).png"), pcx.Data);
+
+                index++;
+            }
         }
 
         /// <summary>
@@ -995,7 +1009,6 @@ namespace R1Engine
 
         #region Manager Methods
 
-        // TODO: Override this in R1 manager as those archive files have no header tables and hard-code the offsets and such
         /// <summary>
         /// Extracts the data from an archive file
         /// </summary>
