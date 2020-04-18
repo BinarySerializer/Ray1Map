@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Event data for PC
@@ -83,6 +81,7 @@ namespace R1Engine
 
         public byte HitPoints { get; set; }
 
+        // TODO: This is a flag - other flags are used in EDU
         /// <summary>
         /// Indicates if the event is multi-colored (only used for Designer)
         /// </summary>
