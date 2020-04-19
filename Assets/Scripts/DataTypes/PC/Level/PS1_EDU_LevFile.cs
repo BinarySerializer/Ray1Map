@@ -31,6 +31,31 @@ namespace R1Engine
         /// </summary>
         public byte LastPlan1Palette { get; set; }
 
+        public byte[] Unk2 { get; set; }
+
+        /// <summary>
+        /// The amount of events
+        /// </summary>
+        public ushort EventCount { get; set; }
+
+        public uint Unk3 { get; set; }
+
+        /// <summary>
+        /// The events
+        /// </summary>
+        public PC_Event[] Events { get; set; }
+
+        // Always 0xCD
+        public byte[] UnkEventPadding1 { get; set; }
+
+        /// <summary>
+        /// The event link table
+        /// </summary>
+        public ushort[] EventLinkTable { get; set; }
+
+        // Always 0xCD
+        public byte[] UnkEventPadding2 { get; set; }
+
         #endregion
 
         #region Public Methods
@@ -71,28 +96,43 @@ namespace R1Engine
             // Serialize unknown byte
             LastPlan1Palette = s.Serialize<byte>(LastPlan1Palette, name: nameof(LastPlan1Palette));
 
-            /*
+            // Serialize unknown bytes
+            Unk2 = s.SerializeArray<byte>(Unk2, 4800, name: nameof(Unk2));
 
-            In Jun01 the structure is as follows:
+            // Serialize events
+            EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
 
-            unk[4804]          - ???
-            ushort             - eventCount
-            uint               - ???
-            event[eventCount]  - events (136 bytes each)
-            unk[624]           - unknown (always 0xCD)
-            ushort[eventCount] - eventLinkTable
-            unk[4]             - unknown (always 0xCD)
-            commands           - eventCommands
+            Unk3 = s.Serialize<uint>(Unk3, name: nameof(Unk3));
 
-            Commands do not have any length specified like on PC oddly enough. When label offsets are used they're separated using 0xCD twice.
+            Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
 
-            Tiles are stored in a tileset, 512x256 (where each tile is 16px). It starts around offset 31744 (should be right after the commands).
+            // Hack to get padding length
+            int getPaddingLength()
+            {
+                var paddingLength = 0;
 
-            After the tileset are the map tiles, 6 bytes each until end of file
+                s.DoAt(s.CurrentPointer, () =>
+                {
+                    while (s.Serialize<byte>(0) == 0xCD)
+                        paddingLength++;
+                });
 
-            Also worth mentioning, allfix and world files have been modified. Any .NEW files is modified from PC.
+                return paddingLength;
+            }
 
-             */
+            var eventPaddingLength = UnkEventPadding1?.Length ?? getPaddingLength();
+            UnkEventPadding1 = s.SerializeArray<byte>(UnkEventPadding1, eventPaddingLength, name: nameof(UnkEventPadding1));
+
+            EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, EventCount, name: nameof(EventLinkTable));
+
+            eventPaddingLength = UnkEventPadding2?.Length ?? getPaddingLength();
+            UnkEventPadding2 = s.SerializeArray<byte>(UnkEventPadding2, eventPaddingLength, name: nameof(UnkEventPadding2));
+
+            // After this comes the commands. They do not have any length specified like on PC. When label offsets are used they're separated using 0xCD twice.
+
+            // After this comes the tiles. They are stored in a tileset, 512x256 (where each tile is 16px).
+
+            // After this comes the map tiles, 6 bytes each until end of file
 
             throw new NotImplementedException();
         }

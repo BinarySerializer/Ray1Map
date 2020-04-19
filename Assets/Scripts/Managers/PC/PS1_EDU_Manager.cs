@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using R1Engine.Serialize;
 
 namespace R1Engine
 {
-    // TODO: Use PS1_EDU_LevFile instead of PC_LevFile
     /// <summary>
     /// The game manager for Rayman Educational (PS1)
     /// </summary>
@@ -64,6 +64,24 @@ namespace R1Engine
                 new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
                 new ArchiveFile($"PCMAP/{x}/VIGNET.DAT", ".pcx"),
             }).ToArray();
+        }
+
+        #endregion
+
+        #region Manager Methods
+
+        /// <summary>
+        /// Loads the specified level for the editor
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        /// <param name="loadTextures">Indicates if textures should be loaded</param>
+        /// <returns>The editor manager</returns>
+        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        {
+            // Load the level
+            var levelData = FileFactory.Read<PS1_EDU_LevFile>(GetLevelFilePath(context.Settings), context);
+
+            throw new NotImplementedException();
         }
 
         #endregion
