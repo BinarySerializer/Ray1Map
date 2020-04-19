@@ -96,7 +96,7 @@ namespace R1Engine
                 case TypeCode.Double:
                     return reader.ReadDouble();
                 case TypeCode.String:
-                    return SerializeString(null);
+                    return reader.ReadNullDelimitedString();
 
                 case TypeCode.Decimal:
                 case TypeCode.Char:
@@ -122,13 +122,18 @@ namespace R1Engine
         /// </summary>
         /// <param name="encoding">The encoding to use, or null for the default one</param>
         /// <returns>The string</returns>
-        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null)
-        {
+        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null, string name = null) {
+            string logString = LogPrefix;
+            string t;
             if (length.HasValue) {
-                return reader.ReadString(length.Value, encoding: encoding);
+                t = reader.ReadString(length.Value, encoding: encoding);
             } else {
-                return reader.ReadNullDelimitedString(encoding: encoding);
+                t = reader.ReadNullDelimitedString(encoding: encoding);
             }
+            if (Settings.Log) {
+                Context.Log.Log(logString + "(string) " + (name ?? "<no name>") + ": " + t);
+            }
+            return t;
         }
 
         /// <summary>

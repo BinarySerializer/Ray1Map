@@ -92,6 +92,9 @@ namespace R1Engine
             else if (value is double dou)
                 writer.Write(dou);
 
+            else if (value is string s)
+                writer.WriteNullDelimitedString(s);
+
             else if (value is null)
                 throw new ArgumentNullException(nameof(value));
 
@@ -104,7 +107,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="value">The value to write</param>
         /// <param name="encoding">The encoding to use, or null for the default one</param>
-        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null) {
+        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null, string name = null) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + "(string) " + (name ?? "<no name>") + ": " + obj);
+            }
             if (length.HasValue) {
                 writer.WriteString(obj, length.Value, encoding: encoding);
             } else {
