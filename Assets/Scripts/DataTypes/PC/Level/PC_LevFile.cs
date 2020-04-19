@@ -19,7 +19,6 @@ namespace R1Engine
         /// </summary>
         public uint TextureBlockPointer { get; set; }
 
-        // TODO: Does this contain the level name + description for Kit?
         public byte[] UnknownKitHeader { get; set; }
 
         /// <summary>
@@ -176,7 +175,28 @@ namespace R1Engine
         /// </summary>
         public PC_EventCommand[] EventCommands { get; set; }
 
-        public byte[] Unknown8 { get; set; }
+        /// <summary>
+        /// The checksum for the encrypted footer
+        /// </summary>
+        public byte KitFooterBlockChecksum { get; set; }
+
+        /// <summary>
+        /// The KIT level name
+        /// </summary>
+        public string LevelName { get; set; }
+
+        /// <summary>
+        /// The KIT level author
+        /// </summary>
+        public string LevelAuthor { get; set; }
+
+        /// <summary>
+        /// The KIT level description
+        /// </summary>
+        public string LevelDescription { get; set; }
+
+        // TODO: Serialize this (ends with some booleans for level properties)
+        public byte[] UnkKitProperties { get; set; }
 
         #endregion
 
@@ -389,8 +409,21 @@ namespace R1Engine
 
             s.EndXOR();
 
-            // Serialize remaining data (appears in some Kit levels)
-            Unknown8 = s.SerializeArray<byte>(Unknown8, s.CurrentLength - s.CurrentPointer.FileOffset, name: nameof(Unknown8));
+            // FOOTER BLOCK
+
+            if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanByHisFansPC || s.GameSettings.GameModeSelection == GameModeSelection.Rayman60LevelsPC)
+            {
+                // TODO: Verify checksum
+                KitFooterBlockChecksum = s.Serialize<byte>(KitFooterBlockChecksum, name: nameof(KitFooterBlockChecksum));
+
+                s.BeginXOR(150);
+
+                LevelName = s.SerializeString(LevelName, 25, name: nameof(LevelName));
+                LevelAuthor = s.SerializeString(LevelAuthor, 25, name: nameof(LevelAuthor));
+                LevelDescription = s.SerializeString(LevelDescription, 113, name: nameof(LevelDescription));
+
+                UnkKitProperties = s.SerializeArray<byte>(UnkKitProperties, 133, name: nameof(UnkKitProperties));
+            }
         }
 
         #endregion
