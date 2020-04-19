@@ -75,9 +75,9 @@ namespace R1Engine
         public GameSettings Settings => Context.Settings;
 
         /// <summary>
-        /// Updates the state
+        /// Gets the event states
         /// </summary>
-        public abstract Common_EventState GetEventState(Common_EventData e);
+        public abstract Common_EventState[] GetEventStates(Common_EventData e);
 
         /// <summary>
         /// Gets the common design for the event based on the DES index

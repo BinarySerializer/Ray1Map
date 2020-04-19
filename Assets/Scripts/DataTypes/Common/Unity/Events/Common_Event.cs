@@ -19,24 +19,37 @@ namespace R1Engine {
         /// </summary>
         public EventFlag Flag { get; set; }
 
-        /// <summary>
-        /// The animation index to use
-        /// </summary>
-        public int AnimationIndex { get; set; }
-        
-        public int SoundIndex { get; set; }
-
-        /// <summary>
-        /// Animation speed
-        /// </summary>
-        public int AnimSpeed { get; set; }
-
         public int UniqueLayer { get; set; }
 
         /// <summary>
         /// The event data
         /// </summary>
         public Common_EventData Data { get; set; }
+
+        /// <summary>
+        /// The current animation speed
+        /// </summary>
+        public int AnimSpeed { get; set; }
+
+        /// <summary>
+        /// The current animation index
+        /// </summary>
+        public int AnimationIndex { get; set; }
+
+        /// <summary>
+        /// The current state
+        /// </summary>
+        public Common_EventState CurrentState => States.ElementAtOrDefault(StateIndex);
+
+        /// <summary>
+        /// The states
+        /// </summary>
+        public Common_EventState[] States { get; set; }
+
+        /// <summary>
+        /// The index of the current state
+        /// </summary>
+        public int StateIndex { get; set; }
 
         #endregion
 
@@ -50,6 +63,21 @@ namespace R1Engine {
         #endregion
 
         #region Event Methods
+
+        public void UpdateCurrentState(int index)
+        {
+            // Set the index
+            StateIndex = index;
+
+            // Set the animation speed
+            AnimSpeed = (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn ? CurrentState?.AnimationSpeed >> 4 : CurrentState?.AnimationSpeed) ?? 0;
+
+            // Set the animation index
+            AnimationIndex = CurrentState?.AnimationIndex ?? 0;
+
+            // Update the graphics
+            ChangeAppearance();
+        }
 
         /// <summary>
         /// Refreshes the editor event info
@@ -79,25 +107,11 @@ namespace R1Engine {
         }
 
         public void RefreshVisuals() {
-            // Get the animation info
-            var state = EditorManager.GetEventState(Data);
+            // Get the states
+            States = EditorManager.GetEventStates(Data);
 
-            if (state != null) {
-                AnimationIndex = state.AnimationIndex;
-
-                if (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn)
-                    AnimSpeed = state.AnimationSpeed >> 4;
-                else
-                    AnimSpeed = state.AnimationSpeed;
-
-                // TODO: Set currentSoundEffect
-            }
-            else
-            {
-                Debug.LogWarning($"No matching event state found for event of type {Data.Type}");
-            }
-
-            ChangeAppearance();
+            // Update the state
+            UpdateCurrentState(0);
         }
 
         #endregion
@@ -172,6 +186,16 @@ namespace R1Engine {
                     if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
                     {
                         currentFrame = 0;
+
+                        // Get the new state
+                        var newStateIndex = StateIndex + 1;
+
+                        // Make sure it's within the collection
+                        if (newStateIndex >= States.Length)
+                            newStateIndex = 0;
+
+                        // Update the state
+                        UpdateCurrentState(newStateIndex);
                     }
 
                     int floored = Mathf.FloorToInt(currentFrame);
@@ -209,7 +233,7 @@ namespace R1Engine {
         private void ChangeAppearance() {
 
             // Change to new animation
-            ChangeAnimation(AnimationIndex);
+            ChangeAnimation(CurrentState?.AnimationIndex ?? 0);
 
             // TODO: Is there a flag for these events to determine if they should do this?
             // Hard-code frames for special events

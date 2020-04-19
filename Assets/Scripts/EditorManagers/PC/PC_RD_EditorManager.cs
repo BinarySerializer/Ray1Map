@@ -38,28 +38,28 @@ namespace R1Engine
         public string[] ETAFileIndex { get; }
 
         /// <summary>
-        /// Updates the state
+        /// Gets the event states
         /// </summary>
-        public override Common_EventState GetEventState(Common_EventData e)
+        public override Common_EventState[] GetEventStates(Common_EventData e)
         {
-            // Get the state
-            var s = base.GetEventState(e);
+            // Get the states
+            var states = base.GetEventStates(e);
 
             // If the type is a colored event, handle it differently
             if (!PC_RD_Manager.MultiColoredEvents.Contains(e.Type))
-                return s;
+                return states;
 
-            return new Common_EventState
+            return states.Select(s => new Common_EventState
             {
                 RightSpeed = s.RightSpeed,
                 LeftSpeed = s.LeftSpeed,
                 AnimationIndex = (byte)(s.AnimationIndex + ((Designs[e.DES].Animations.Count / 6) * e.HitPoints)),
-                Etat = s.Etat,
-                SubEtat = s.SubEtat,
+                LinkedEtat = s.LinkedEtat,
+                LinkedSubEtat = s.LinkedSubEtat,
                 AnimationSpeed = s.AnimationSpeed,
                 SoundIndex = s.SoundIndex,
                 InteractionType = s.InteractionType
-            };
+            }).ToArray();
         }
 
         /// <summary>

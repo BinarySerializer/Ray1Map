@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System.Collections.Generic;
+using R1Engine.Serialize;
 using System.Linq;
 
 namespace R1Engine
@@ -68,11 +69,31 @@ namespace R1Engine
         public Common_EventState[][][] ETA { get; }
 
         /// <summary>
-        /// Updates the state
+        /// Gets the event states
         /// </summary>
-        public override Common_EventState GetEventState(Common_EventData e)
+        public override Common_EventState[] GetEventStates(Common_EventData e)
         {
-            return ETA.ElementAtOrDefault(e.ETA)?.ElementAtOrDefault(e.Etat)?.ElementAtOrDefault(e.SubEtat);
+            var etat = e.Etat;
+            var subEtat = e.SubEtat;
+            Common_EventState state;
+            var states = new List<Common_EventState>();
+
+            // Helper method for adding a state
+            Common_EventState Add(Common_EventState s)
+            {
+                states.Add(s);
+                return s;
+            }
+
+            // Get all linked states
+            while ((state = Add(ETA[e.ETA].ElementAtOrDefault(etat)?.ElementAtOrDefault(subEtat))) != null && ((state.LinkedEtat != e.Etat || state.LinkedSubEtat != e.SubEtat) && (state.LinkedEtat != etat || state.LinkedSubEtat != subEtat)))
+            {
+                // Set the state values for the next state
+                etat = state.LinkedEtat;
+                subEtat = state.LinkedSubEtat;
+            }
+
+            return states.ToArray();
         }
 
         /// <summary>

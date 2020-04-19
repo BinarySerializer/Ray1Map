@@ -27,14 +27,14 @@
         public byte UnkDemo3 { get; set; }
 
         /// <summary>
-        /// The etat value
+        /// The etat value of the linked state
         /// </summary>
-        public byte Etat { get; set; }
+        public byte LinkedEtat { get; set; }
         
         /// <summary>
-        /// The sub-etat value
+        /// The sub-etat value of the linked state
         /// </summary>
-        public byte SubEtat { get; set; }
+        public byte LinkedSubEtat { get; set; }
 
         public byte UnkDemo4 { get; set; }
 
@@ -78,8 +78,8 @@
             if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 UnkDemo3 = s.Serialize<byte>(UnkDemo3, name: nameof(UnkDemo3));
 
-            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
-            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
+            LinkedEtat = s.Serialize<byte>(LinkedEtat, name: nameof(LinkedEtat));
+            LinkedSubEtat = s.Serialize<byte>(LinkedSubEtat, name: nameof(LinkedSubEtat));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
