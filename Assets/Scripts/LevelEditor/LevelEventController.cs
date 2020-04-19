@@ -54,7 +54,29 @@ namespace R1Engine
 
         public int lastUsedLayer = 0;
 
-        public void InitializeEvents() {
+        public void InitializeEvents() 
+        {
+            // Initialize Rayman's animation as they're shared for small and dark Rayman
+            InitializeRayAnim();
+
+            InitializeEventLinks();
+
+            // Fill the dropdown menu
+            eventDropdown.options = Controller.obj.levelController.EditorManager.GetEvents().Select(x => new Dropdown.OptionData
+            {
+                text = x
+            }).ToList();
+
+            // Fill Des and Eta dropdowns with their max values
+            infoDes.options = Enumerable.Range(0, Controller.obj.levelController.EditorManager.GetMaxDES + 1).Select(x => new Dropdown.OptionData(x.ToString())).ToList();
+            infoEta.options = Enumerable.Range(0, Controller.obj.levelController.EditorManager.GetMaxETA + 1).Select(x => new Dropdown.OptionData(x.ToString())).ToList();
+
+            // Default to the first event
+            eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;
+        }
+
+        public void InitializeRayAnim()
+        {
             var eventList = Controller.obj.levelController.Events;
 
             // Hard-code event animations for the different Rayman types
@@ -116,75 +138,53 @@ namespace R1Engine
                         des.Animations = rayDes.Animations;
                 }
             }
+        }
+
+        public void InitializeEventLinks()
+        {
+            var eventList = Controller.obj.levelController.Events;
 
             // Convert linkIndex of each event to linkId
-            for (int i=0; i < eventList.Count; i++) 
+            for (int i = 0; i < eventList.Count; i++)
             {
                 // Refresh
                 eventList[i].RefreshFlag();
                 eventList[i].RefreshEditorInfo();
 
                 // If X and Y are insane, clamp them
-                var border = 10;
-                eventList[i].Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Width*16)+border);
-                eventList[i].Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Height*16)+border);
+                const int border = 10;
+                eventList[i].Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Width * 16) + border);
+                eventList[i].Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Height * 16) + border);
                 eventList[i].UpdateXAndY();
 
                 // No link
-                if (eventList[i].Data.LinkIndex == i) {
+                if (eventList[i].Data.LinkIndex == i)
+                {
                     eventList[i].LinkID = 0;
                 }
-                else {
-                    //Ignore already assigned ones
-                    if (eventList[i].LinkID == 0) {
-                        // Link found, loop through everyone on the link chain
-                        int nextEvent = eventList[i].Data.LinkIndex;
-                        eventList[i].LinkID = currentId;
-                        eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
-                        while (nextEvent != i) {
-                            eventList[nextEvent].LinkID = currentId;
+                else
+                {
+                    // Ignore already assigned ones
+                    if (eventList[i].LinkID != 0) 
+                        continue;
+                    
+                    // Link found, loop through everyone on the link chain
+                    int nextEvent = eventList[i].Data.LinkIndex;
+                    eventList[i].LinkID = currentId;
+                    eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
+                    while (nextEvent != i)
+                    {
+                        eventList[nextEvent].LinkID = currentId;
 
-                            //Stack the link cubes
-                            eventList[nextEvent].linkCube.position = eventList[i].linkCube.position;
-                            eventList[nextEvent].linkCubeLockPosition = eventList[nextEvent].linkCube.position;
+                        // Stack the link cubes
+                        eventList[nextEvent].linkCube.position = eventList[i].linkCube.position;
+                        eventList[nextEvent].linkCubeLockPosition = eventList[nextEvent].linkCube.position;
 
-                            nextEvent = eventList[nextEvent].Data.LinkIndex;
-                        }
-                        currentId++;
+                        nextEvent = eventList[nextEvent].Data.LinkIndex;
                     }
+                    currentId++;
                 }
             }
-
-            // Fill the dropdown menu
-            var events = Controller.obj.levelController.EditorManager.GetEvents();           
-            foreach (var e in events) {
-                Dropdown.OptionData dat = new Dropdown.OptionData
-                {
-                    text = e
-                };
-                eventDropdown.options.Add(dat);
-            }
-
-            //Fill Des and Eta dropdowns with their max values
-            infoDes.options.Clear();
-            for (int i = 0; i <= Controller.obj.levelController.EditorManager.GetMaxDES; i++) {
-                Dropdown.OptionData dat = new Dropdown.OptionData {
-                    text = i.ToString()
-                };
-                infoDes.options.Add(dat);
-            }
-            infoEta.options.Clear();
-            for (int i = 0; i <= Controller.obj.levelController.EditorManager.GetMaxETA; i++) {
-                Dropdown.OptionData dat = new Dropdown.OptionData {
-                    text = i.ToString()
-                };
-                infoEta.options.Add(dat);
-            }
-
-            // TODO: Have some flag for if current game mode supports editing
-            if (eventDropdown.options.Any<Dropdown.OptionData>())
-                // Default to the first string
-                eventDropdown.captionText.text = eventDropdown.options[0].text;
         }
 
         private void Start() {

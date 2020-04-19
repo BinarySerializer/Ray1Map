@@ -34,8 +34,15 @@
         
         GO_LABEL = 11,
         GO_GOTO = 12,
-        
+
+        /// <summary>
+        /// Saves the current position and starts executing from {arg1} until GO_RETURN
+        /// </summary>
         GO_GOSUB = 13,
+
+        /// <summary>
+        /// Returns from a GOSUB command execution
+        /// </summary>
         GO_RETURN = 14,
         
         GO_BRANCHTRUE = 15,
@@ -60,10 +67,30 @@
         /// Same as RESERVED_GO_SKIP
         /// </summary>
         RESERVED_GO_GOTO = 24,
+
+        /// <summary>
+        /// Saves the current position and starts executing from LabelOffsets[{arg1}] until GO_RETURN
+        /// </summary>
         RESERVED_GO_GOSUB = 25,
+
+        /// <summary>
+        /// Skips to LabelOffsets[{arg1}] if true
+        /// </summary>
         RESERVED_GO_GOTOT = 26,
+
+        /// <summary>
+        /// Skips to LabelOffsets[{arg1}] if false
+        /// </summary>
         RESERVED_GO_GOTOF = 27,
+
+        /// <summary>
+        /// Same as RESERVED_GO_GOTOT
+        /// </summary>
         RESERVED_GO_SKIPT = 28,
+
+        /// <summary>
+        /// Same as RESERVED_GO_GOTOF
+        /// </summary>
         RESERVED_GO_SKIPF = 29,
 
         GO_NOP = 30,
