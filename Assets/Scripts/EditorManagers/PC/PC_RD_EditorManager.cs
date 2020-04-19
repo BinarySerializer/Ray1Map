@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using R1Engine.Serialize;
 
 namespace R1Engine
@@ -88,7 +89,7 @@ namespace R1Engine
         /// <returns>True if it's available, otherwise false</returns>
         public override bool IsAvailableInWorld(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.DesKit.ContainsKey(Settings.World) && eventInfoData.DesKit[Settings.World] != null;
+            return eventInfoData.DesKit.ContainsKey(Settings.World) && !String.IsNullOrWhiteSpace(eventInfoData.DesKit[Settings.World]);
         }
     }
 }
