@@ -105,8 +105,34 @@ namespace R1Engine
             // Get the event
             var e = EventInfoData[index];
 
-            // Get the commands from the bytes
-            var cmds = Common_EventCommandCollection.FromBytes(UsesLocalCommands ? e.LocalCommands : e.Commands, Settings);
+            // Get the commands and label offsets
+            Common_EventCommandCollection cmds;
+            ushort[] labelOffsets;
+
+            // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
+            if (UsesLocalCommands)
+            {
+                cmds = e.LocalCommands.Any() 
+                    ? Common_EventCommandCollection.FromBytes(e.LocalCommands, Settings) 
+                    : EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(Common_EventCommandCollection.FromBytes(e.Commands, Settings), e.LabelOffsets), e.Commands);
+
+                // Local commands don't use label offsets
+                labelOffsets = new ushort[0];
+            }
+            else
+            {
+                if (e.Commands.Any())
+                {
+                    cmds = Common_EventCommandCollection.FromBytes(e.Commands, Settings);
+                    labelOffsets = e.LabelOffsets;
+                }
+                else
+                {
+                    var cmdData = EventCommandCompiler.Compile(Common_EventCommandCollection.FromBytes(e.LocalCommands, Settings), e.LocalCommands);
+                    cmds = cmdData.Events;
+                    labelOffsets = cmdData.LabelOffsets;
+                }
+            }
 
             // Return the event
             return new Common_EventData
@@ -126,7 +152,7 @@ namespace R1Engine
                 Layer = 0,
                 HitSprite = e.HitSprite,
                 FollowEnabled = e.FollowEnabled,
-                LabelOffsets = UsesLocalCommands ? new ushort[0] : e.LabelOffsets,
+                LabelOffsets = labelOffsets,
                 CommandCollection = cmds,
                 LinkIndex = 0
             };
