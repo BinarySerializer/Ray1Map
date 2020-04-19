@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace R1Engine
 {
@@ -23,8 +21,6 @@ namespace R1Engine
 
         // TODO: Does this contain the level name + description for Kit?
         public byte[] UnknownKitHeader { get; set; }
-
-        public byte[] UnknownPS1EduHeader { get; set; }
 
         /// <summary>
         /// The width of the map, in cells
@@ -196,19 +192,12 @@ namespace R1Engine
 
             // HEADER BLOCK
 
-            if (s.GameSettings.EngineVersion != EngineVersion.RayEduPS1)
-            {
-                // Serialize block pointer
-                EventBlockPointer = s.Serialize<uint>(EventBlockPointer, name: nameof(EventBlockPointer));
-                TextureBlockPointer = s.Serialize<uint>(TextureBlockPointer, name: nameof(TextureBlockPointer));
-            }
+            // Serialize block pointer
+            EventBlockPointer = s.Serialize<uint>(EventBlockPointer, name: nameof(EventBlockPointer));
+            TextureBlockPointer = s.Serialize<uint>(TextureBlockPointer, name: nameof(TextureBlockPointer));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
                 UnknownKitHeader = s.SerializeArray<byte>(UnknownKitHeader, 68, name: nameof(UnknownKitHeader));
-
-            // Same as Kit header?
-            if (s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
-                UnknownPS1EduHeader = s.SerializeArray<byte>(UnknownPS1EduHeader, 64, name: nameof(UnknownPS1EduHeader));
 
             // Serialize map size
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
@@ -237,36 +226,6 @@ namespace R1Engine
             LastPlan1Palette = s.Serialize<byte>(LastPlan1Palette, name: nameof(LastPlan1Palette));
 
             // MAP BLOCK
-
-            if (s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
-            {
-                // From here on the file differs a lot...
-
-                /*
-                 
-                In Jun01 the structure is as follows:
-
-                unk[4804]          - ???
-                ushort             - eventCount
-                uint               - ???
-                event[eventCount]  - events (136 bytes each)
-                unk[624]           - unknown (always 0xCD)
-                ushort[eventCount] - eventLinkTable
-                unk[4]             - unknown (always 0xCD)
-                commands           - eventCommands
-
-                Commands do not have any length specified like on PC oddly enough. When label offsets are used they're separated using 0xCD twice.
-
-                Tiles are stored in a tileset, 512x256 (where each tile is 16px). It starts around offset 31744 (should be right after the commands).
-
-                After the tileset are the map tiles, 6 bytes each until end of file
-
-                Also worth mentioning, allfix and world files have been modified. Any .NEW files is modified from PC.
-                 
-                 */
-
-                throw new NotImplementedException();
-            }
 
             // Serialize the map cells
             Tiles = s.SerializeObjectArray<PC_MapTile>(Tiles, Height * Width, name: nameof(Tiles));
