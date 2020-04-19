@@ -68,12 +68,12 @@ namespace R1Engine {
             base.Write(data);
         }
 
-        public void WriteString(string value, int size, Encoding encoding = null) {
+        public void WriteString(string value, decimal size, Encoding encoding = null) {
             if (encoding == null)
                 encoding = Settings.StringEncoding;
             byte[] data = encoding.GetBytes(value + '\0');
             if (data.Length != size) {
-                Array.Resize<byte>(ref data, size);
+                Array.Resize<byte>(ref data, (int)size);
             }
             base.Write(data);
         }

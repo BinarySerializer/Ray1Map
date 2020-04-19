@@ -113,10 +113,10 @@ namespace R1Engine {
             return "";
         }
 
-        public string ReadString(int size, Encoding encoding = null) {
+        public string ReadString(decimal size, Encoding encoding = null) {
             if (encoding == null)
                 encoding = Settings.StringEncoding;
-			byte[] bytes = ReadBytes(size);
+			byte[] bytes = ReadBytes((int)size);
 			int firstIndexOf = Array.IndexOf<byte>(bytes, (byte)0x0);
 			if (firstIndexOf >= 0 && firstIndexOf < bytes.Length) {
 				if(firstIndexOf == 0) return "";

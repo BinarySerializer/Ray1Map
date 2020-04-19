@@ -25,9 +25,9 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            LocKey = s.SerializeNullTerminatedString(LocKey);
-            Name = s.SerializeNullTerminatedString(Name);
-            Description = s.SerializeNullTerminatedString(Description);
+            LocKey = s.SerializeString(LocKey);
+            Name = s.SerializeString(Name);
+            Description = s.SerializeString(Description);
         }
     }
 }

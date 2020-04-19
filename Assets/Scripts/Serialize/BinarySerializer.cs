@@ -104,8 +104,12 @@ namespace R1Engine
         /// </summary>
         /// <param name="value">The value to write</param>
         /// <param name="encoding">The encoding to use, or null for the default one</param>
-        public override string SerializeNullTerminatedString(string obj, Encoding encoding = null) {
-            writer.WriteNullDelimitedString(obj, encoding: encoding);
+        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null) {
+            if (length.HasValue) {
+                writer.WriteString(obj, length.Value, encoding: encoding);
+            } else {
+                writer.WriteNullDelimitedString(obj, encoding: encoding);
+            }
             return obj;
         }
 

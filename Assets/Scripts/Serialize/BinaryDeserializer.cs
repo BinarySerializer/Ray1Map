@@ -96,7 +96,7 @@ namespace R1Engine
                 case TypeCode.Double:
                     return reader.ReadDouble();
                 case TypeCode.String:
-                    return SerializeNullTerminatedString(null);
+                    return SerializeString(null);
 
                 case TypeCode.Decimal:
                 case TypeCode.Char:
@@ -118,13 +118,17 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Reads a null-terminated string from the stream
+        /// Reads a string
         /// </summary>
         /// <param name="encoding">The encoding to use, or null for the default one</param>
         /// <returns>The string</returns>
-        public override string SerializeNullTerminatedString(string obj, Encoding encoding = null)
+        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null)
         {
-            return reader.ReadNullDelimitedString(encoding: encoding);
+            if (length.HasValue) {
+                return reader.ReadString(length.Value, encoding: encoding);
+            } else {
+                return reader.ReadNullDelimitedString(encoding: encoding);
+            }
         }
 
         /// <summary>
