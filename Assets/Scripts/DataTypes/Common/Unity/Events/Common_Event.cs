@@ -39,33 +39,7 @@ namespace R1Engine {
         /// <summary>
         /// The current state
         /// </summary>
-        public Common_EventState State
-        {
-            get
-            {
-                // TODO: Handle this hack for multi-colored events better
-
-                // Get the state
-                var state = EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Etat)
-                    ?.ElementAtOrDefault(Data.SubEtat);
-
-                // If the type is a colored event, handle it differently
-                if (!PC_RD_Manager.MultiColoredEvents.Contains(Data.Type) || state == null)
-                    return state;
-
-                return new Common_EventState
-                {
-                    RightSpeed = state.RightSpeed,
-                    LeftSpeed = state.LeftSpeed,
-                    AnimationIndex = (byte)(state.AnimationIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.HitPoints)),
-                    LinkedEtat = state.LinkedEtat,
-                    LinkedSubEtat = state.LinkedSubEtat,
-                    AnimationSpeed = state.AnimationSpeed,
-                    SoundIndex = state.SoundIndex,
-                    InteractionType = state.InteractionType
-                };
-            }
-        }
+        public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Etat)?.ElementAtOrDefault(Data.SubEtat);
 
         #endregion
 
@@ -113,6 +87,10 @@ namespace R1Engine {
 
             // Set the animation index
             AnimationIndex = State?.AnimationIndex ?? 0;
+
+            // Hack for multi-colored events
+            if (PC_RD_Manager.MultiColoredEvents.Contains(Data.Type))
+                AnimationIndex = (byte)(AnimationIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.HitPoints));
 
             // Update the graphics
             ChangeAppearance();
@@ -228,7 +206,7 @@ namespace R1Engine {
         // Change des and everything
         private void ChangeAppearance() {
             // Change to new animation
-            ChangeAnimation(State?.AnimationIndex ?? 0);
+            ChangeAnimation(AnimationIndex);
 
             // TODO: Is there a flag for these events to determine if they should do this?
             // Hard-code frames for special events
