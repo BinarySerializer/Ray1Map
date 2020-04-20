@@ -1481,7 +1481,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get the DES and ETA
-            var des = allfix.DesItems.Concat(worldData.DesItems).ToArray();
+            var des = allfix.DesItems.Concat(worldData.DesItems).Concat(bigRayData.DesItems).ToArray();
 
             int desIndex = 0;
 
@@ -1540,8 +1540,6 @@ namespace R1Engine
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.ColorPalettes.First()) : new Common_Design[0];
 
-            // TODO: Add dummy 0 to des every time we get the names!!
-            // TODO: Always use these methods to get the names and then get from cached context there!!
             // Get file names if available
             var desNames = GetDESNames(context, false);
             var etaNames = GetETANames(context, false);
