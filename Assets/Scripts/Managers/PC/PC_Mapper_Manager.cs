@@ -161,44 +161,79 @@ namespace R1Engine
 
             var index = 0;
 
+            // Get the events
+            var events = cmd.SelectMany(x => x.Value.Items.Select(y => new
+            {
+                DESFileName = x.Key,
+                EventData = y
+            })).ToArray();
+
             // Get the event count
-            var eventCount = cmd.SelectMany(x => x.Value.Items).Count();
+            var eventCount = events.Length;
+
+            // Create a linking table
+            var linkTable = new ushort[eventCount];
+
+            // Handle each even link group
+            foreach (var linkedEvents in events.Select((x, i) => new
+            {
+                Index = i,
+                Data = x,
+                LinkID = x.EventData.Name == "always" ? -1 : x.EventData.LinkID
+            }).GroupBy(x => x.LinkID))
+            {
+                // Get the group
+                var group = linkedEvents.ToArray();
+
+                // Handle every event
+                for (int i = 0; i < group.Length; i++)
+                {
+                    // Get the item
+                    var item = group[i];
+
+                    if (item.Data.EventData.Name == "always")
+                        linkTable[item.Index] = (ushort)item.Index;
+                    else if (group.Length == i + 1)
+                        linkTable[item.Index] = (ushort)group[0].Index;
+                    else
+                        linkTable[item.Index] = (ushort)group[i + 1].Index;
+                }
+            }
 
             // Handle each event
-            foreach (var c in cmd)
+            foreach (var eventData in events)
             {
-                foreach (var e in c.Value.Items)
+                Controller.status = $"Loading event {index}/{eventCount}";
+
+                await Controller.WaitIfNecessary();
+
+                // Get the data
+                var e = eventData.EventData;
+
+                // Add the event
+                commonLev.EventData.Add(new Common_EventData
                 {
-                    Controller.status = $"Loading event {index}/{eventCount}";
+                    Type = (EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1),
+                    Etat = (int)e.Etat,
+                    SubEtat = Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1,
+                    XPosition = (uint)e.XPosition,
+                    YPosition = (uint)e.YPosition,
+                    DESKey = eventData.DESFileName.Remove(eventData.DESFileName.Length - 4),
+                    ETAKey = e.ETAFile.Remove(e.ETAFile.Length - 4),
+                    OffsetBX = (int)e.Offset_BX,
+                    OffsetBY = (int)e.Offset_BY,
+                    OffsetHY = (int)e.Offset_HY,
+                    FollowSprite = (int)e.Follow_sprite,
+                    HitPoints = (int)e.Hitpoints,
+                    Layer = e.Layer,
+                    HitSprite = (int)e.Hit_sprite,
+                    FollowEnabled = e.Follow_enabled > 0,
+                    LabelOffsets = new ushort[0],
+                    CommandCollection = Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray(), context.Settings),
+                    LinkIndex = linkTable[index]
+                });
 
-                    await Controller.WaitIfNecessary();
-
-                    // Add the event
-                    commonLev.EventData.Add(new Common_EventData
-                    {
-                        Type = (EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1),
-                        Etat = (int)e.Etat,
-                        SubEtat = Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1,
-                        XPosition = (uint)e.XPosition,
-                        YPosition = (uint)e.YPosition,
-                        DESKey = c.Key.Remove(c.Key.Length - 4),
-                        ETAKey = e.ETAFile.Remove(e.ETAFile.Length - 4),
-                        OffsetBX = (int)e.Offset_BX,
-                        OffsetBY = (int)e.Offset_BY,
-                        OffsetHY = (int)e.Offset_HY,
-                        FollowSprite = (int)e.Follow_sprite,
-                        HitPoints = (int)e.Hitpoints,
-                        Layer = e.Layer,
-                        HitSprite = (int)e.Hit_sprite,
-                        FollowEnabled = e.Follow_enabled > 0,
-                        LabelOffsets = new ushort[0],
-                        CommandCollection = Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray(), context.Settings),
-                        // TODO: Update this
-                        LinkIndex = index
-                    });
-
-                    index++;
-                }
+                index++;
             }
 
             await Controller.WaitIfNecessary();
