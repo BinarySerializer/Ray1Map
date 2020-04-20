@@ -37,9 +37,19 @@ namespace R1Engine {
         public int AnimationIndex { get; set; }
 
         /// <summary>
+        /// The current Etat value for the visuals
+        /// </summary>
+        public int CurrentEtat { get; set; }
+
+        /// <summary>
+        /// The current SubEtat value for the visuals
+        /// </summary>
+        public int CurrentSubEtat { get; set; }
+
+        /// <summary>
         /// The current state
         /// </summary>
-        public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Etat)?.ElementAtOrDefault(Data.SubEtat);
+        public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(CurrentEtat)?.ElementAtOrDefault(CurrentSubEtat);
 
         #endregion
 
@@ -81,7 +91,14 @@ namespace R1Engine {
             Flag = Data.Type.GetAttribute<EventTypeInfoAttribute>()?.Flag ?? EventFlag.Normal;
         }
 
-        public void RefreshVisuals() {
+        public void RefreshVisuals(bool refreshState = true) {
+            if (refreshState)
+            {
+                // Set the state
+                CurrentEtat = Data.Etat;
+                CurrentSubEtat = Data.SubEtat;
+            }
+
             // Set the animation speed
             AnimSpeed = (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn ? State?.AnimationSpeed >> 4 : State?.AnimationSpeed) ?? 0;
 
@@ -169,7 +186,58 @@ namespace R1Engine {
                     {
                         currentFrame = 0;
 
-                        // TODO: Update state
+                        // Get the current state
+                        var state = State;
+
+                        switch (Settings.StateSwitchingMode)
+                        {
+                            default:
+                            case StateSwitchingMode.None:
+
+                                // Make sure it's not the initial state
+                                if (!(CurrentEtat == Data.Etat && CurrentSubEtat == Data.SubEtat))
+                                {
+                                    // Update the visuals and reset the state
+                                    RefreshVisuals();
+                                }
+
+                                break;
+
+                            case StateSwitchingMode.Loop:
+
+                                // Check if we've reached the end of the linking chain...
+                                if (CurrentEtat == state.LinkedEtat && CurrentSubEtat == state.LinkedSubEtat)
+                                {
+                                    // Make sure it's not the initial state
+                                    if (!(CurrentEtat == Data.Etat && CurrentSubEtat == Data.SubEtat))
+                                    {
+                                        // Update the visuals and reset the state
+                                        RefreshVisuals();
+                                    }
+                                }
+                                else
+                                {
+                                    // Update state values to the linked one
+                                    CurrentEtat = state.LinkedEtat;
+                                    CurrentSubEtat = state.LinkedSubEtat;
+
+                                    // Update the visuals
+                                    RefreshVisuals(false);
+                                }
+
+                                break;
+                            
+                            case StateSwitchingMode.Original:
+
+                                // Update state values to the linked one
+                                CurrentEtat = state.LinkedEtat;
+                                CurrentSubEtat = state.LinkedSubEtat;
+
+                                // Update the visuals
+                                RefreshVisuals(false);
+
+                                break;
+                        }
                     }
 
                     int floored = Mathf.FloorToInt(currentFrame);

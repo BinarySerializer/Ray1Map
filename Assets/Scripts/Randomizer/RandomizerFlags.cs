@@ -5,7 +5,7 @@ namespace R1Engine
     [Flags]
     public enum RandomizerFlags
     {
-        None = 1 << 0,
+        None = 0,
 
         Pos = 1 << 1,
         Des = 1 << 2,

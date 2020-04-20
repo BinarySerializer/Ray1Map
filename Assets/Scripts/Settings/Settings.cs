@@ -215,6 +215,8 @@ namespace R1Engine {
         /// </summary>
         public static bool BackupFiles { get; set; }
 
+        public static StateSwitchingMode StateSwitchingMode { get; set; }
+
 
         private const string editorPrefsPrefix = "Ray1Map.";
         private const string settingsFile = "Settings.txt";
@@ -293,6 +295,10 @@ namespace R1Engine {
             UseHDCollisionSheet = s.SerializeBool("UseHDCollisionSheet", UseHDCollisionSheet);
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);
+
+            string stateModeString = s.SerializeString("StateSwitchingMode", StateSwitchingMode.ToString());
+            StateSwitchingMode = Enum.TryParse(stateModeString, out StateSwitchingMode stateMode) ? stateMode : StateSwitchingMode;
+            
             ShowEditorEvents = s.SerializeBool("ShowEditorEvents", ShowEditorEvents);
             ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);

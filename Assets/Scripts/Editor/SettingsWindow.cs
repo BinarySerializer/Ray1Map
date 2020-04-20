@@ -150,6 +150,8 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader(ref yPos, "Miscellaneous");
 
+        Settings.StateSwitchingMode = (StateSwitchingMode)EditorGUI.EnumPopup(GetNextRect(ref yPos), "State switching", Settings.StateSwitchingMode);
+
         Settings.UseHDCollisionSheet = EditorGUI.Toggle(GetNextRect(ref yPos), "Use HD collision sheet", Settings.UseHDCollisionSheet);
 
         Settings.AnimateSprites = EditorGUI.Toggle(GetNextRect(ref yPos), "Animate sprites", Settings.AnimateSprites);
@@ -218,13 +220,7 @@ public class SettingsWindow : UnityWindow
 
         RandomizerSeed = EditorGUI.IntField(GetNextRect(ref yPos), "Seed", RandomizerSeed);
 
-        RandomizePos = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event positions", RandomizePos);
-        RandomizeDes = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event DES", RandomizeDes);
-        RandomizeEta = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event ETA", RandomizeEta);
-        RandomizeCmdOrder = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event cmd order", RandomizeCmdOrder);
-        RandomizeFollow = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event follow", RandomizeFollow);
-        RandomizeStates = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event states", RandomizeStates);
-        RandomizeType = EditorGUI.Toggle(GetNextRect(ref yPos), "Randomize event type", RandomizeType);
+        RandomizerFlags = (RandomizerFlags)EditorGUI.EnumFlagsField(GetNextRect(ref yPos), "Flags", RandomizerFlags);
 
         TotalyPos = yPos;
 		GUI.EndScrollView();
@@ -246,29 +242,8 @@ public class SettingsWindow : UnityWindow
         // Get the manager
         var manager = Settings.GetGameManager;
 
-        // Get the flag
-        var flag = RandomizerFlags.None;
-
-        if (RandomizePos)
-            flag |= RandomizerFlags.Pos;
-
-        if (RandomizeDes)
-            flag |= RandomizerFlags.Des;
-
-        if (RandomizeEta)
-            flag |= RandomizerFlags.Eta;
-
-        if (RandomizeCmdOrder)
-            flag |= RandomizerFlags.CommandOrder;
-
-        if (RandomizeFollow)
-            flag |= RandomizerFlags.Follow;
-
-        if (RandomizeStates)
-            flag |= RandomizerFlags.States;
-
-        if (RandomizeType)
-            flag |= RandomizerFlags.Type;
+        // Get the flags
+        var flag = RandomizerFlags;
 
         // Enumerate every world
         foreach (var world in manager.GetLevels(settings))
@@ -302,13 +277,7 @@ public class SettingsWindow : UnityWindow
 
     private int RandomizerSeed { get; set; }
 
-    private bool RandomizePos { get; set; }
-    private bool RandomizeDes { get; set; }
-    private bool RandomizeEta { get; set; }
-    private bool RandomizeCmdOrder { get; set; }
-    private bool RandomizeFollow { get; set; }
-    private bool RandomizeStates { get; set; }
-    private bool RandomizeType { get; set; }
+    private RandomizerFlags RandomizerFlags { get; set; }
 
     #endregion
 
