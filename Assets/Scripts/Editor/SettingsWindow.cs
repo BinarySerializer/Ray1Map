@@ -1,10 +1,10 @@
 ﻿using R1Engine;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using R1Engine.Serialize;
 using UnityEditor;
 using UnityEngine;
 

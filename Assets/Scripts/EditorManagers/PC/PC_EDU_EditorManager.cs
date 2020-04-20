@@ -1,11 +1,13 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using System.Collections.Generic;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
     /// <summary>
     /// The editor manager for Rayman EDU (PC)
     /// </summary>
-    public class PC_EDU_EditorManager : PC_EditorManager
+    public class PC_EDU_EditorManager : PC_R1_EditorManager
     {
         /// <summary>
         /// Default constructor
@@ -14,7 +16,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="manager">The manager</param>
         /// <param name="designs">The common design</param>
-        public PC_EDU_EditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) : base(level, context, manager, designs)
+        public PC_EDU_EditorManager(Common_Lev level, Context context, PC_Manager manager, IEnumerable<Common_Design> designs) : base(level, context, manager, designs)
         { }
 
         /// <summary>
@@ -23,23 +25,23 @@ namespace R1Engine
         protected override bool UsesLocalCommands => false;
 
         /// <summary>
-        /// Gets the DES index for the specified event data item
+        /// Gets the DES key for the specified event data item
         /// </summary>
         /// <param name="eventInfoData">The event info data item</param>
-        /// <returns>The DES index</returns>
-        public override int? GetDesIndex(GeneralEventInfoData eventInfoData)
+        /// <returns>The DES key</returns>
+        public override string GetDesKey(GeneralEventInfoData eventInfoData)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Gets the ETA index for the specified event data item
+        /// Gets the ETA key for the specified event data item
         /// </summary>
         /// <param name="eventInfoData">The event info data item</param>
-        /// <returns>The ETA index</returns>
-        public override int? GetEtaIndex(GeneralEventInfoData eventInfoData)
+        /// <returns>The ETA key</returns>
+        public override string GetEtaKey(GeneralEventInfoData eventInfoData)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         /// <summary>

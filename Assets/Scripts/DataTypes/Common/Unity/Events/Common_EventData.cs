@@ -31,14 +31,14 @@
         public uint YPosition { get; set; }
 
         /// <summary>
-        /// The event design index
+        /// The event design key
         /// </summary>
-        public int DES { get; set; }
+        public string DESKey { get; set; }
 
         /// <summary>
-        /// The event ETA index
+        /// The event ETA key
         /// </summary>
-        public int ETA { get; set; }
+        public string ETAKey { get; set; }
 
         /// <summary>
         /// The event offset BX

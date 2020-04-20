@@ -68,8 +68,8 @@ namespace R1Engine
             }).ToList();
 
             // Fill Des and Eta dropdowns with their max values
-            infoDes.options = Enumerable.Range(0, Controller.obj.levelController.EditorManager.GetMaxDES + 1).Select(x => new Dropdown.OptionData(x.ToString())).ToList();
-            infoEta.options = Enumerable.Range(0, Controller.obj.levelController.EditorManager.GetMaxETA + 1).Select(x => new Dropdown.OptionData(x.ToString())).ToList();
+            infoDes.options = Controller.obj.levelController.EditorManager.DES.Select(x => new Dropdown.OptionData(x.Key)).ToList();
+            infoEta.options = Controller.obj.levelController.EditorManager.ETA.Select(x => new Dropdown.OptionData(x.Key)).ToList();
 
             // Default to the first event
             eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;
@@ -85,7 +85,7 @@ namespace R1Engine
             var rayEvent = eventList.Find(x => x.Data.Type == EventType.TYPE_RAY_POS);
 
             if (rayEvent != null)
-                rayDes = Controller.obj.levelController.EditorManager.GetCommonDesign(rayEvent.Data, rayEvent.Data.DES);
+                rayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(rayEvent.Data.DESKey);
 
             if (rayDes != null)
             {
@@ -93,7 +93,7 @@ namespace R1Engine
 
                 if (miniRay != null)
                 {
-                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(miniRay.Data, miniRay.Data.DES);
+                    var des = Controller.obj.levelController.EditorManager.DES.TryGetItem(miniRay.Data.DESKey);
 
                     if (des != null)
                     {
@@ -132,7 +132,7 @@ namespace R1Engine
 
                 if (badRay != null)
                 {
-                    var des = Controller.obj.levelController.EditorManager.GetCommonDesign(badRay.Data, badRay.Data.DES);
+                    var des = Controller.obj.levelController.EditorManager.DES.TryGetItem(badRay.Data.DESKey);
 
                     if (des != null)
                         des.Animations = rayDes.Animations;
@@ -252,8 +252,8 @@ namespace R1Engine
                             infoName.text = currentlySelected.name;
                             infoX.text = currentlySelected.Data.XPosition.ToString();
                             infoY.text = currentlySelected.Data.YPosition.ToString();
-                            infoDes.value = currentlySelected.Data.DES;
-                            infoEta.value = currentlySelected.Data.ETA;
+                            infoDes.value = infoDes.options.FindIndex(x => x.text == currentlySelected.Data.DESKey);
+                            infoEta.value = infoEta.options.FindIndex(x => x.text == currentlySelected.Data.ETAKey);
                             UpdateInfoEtat();
                             infoEtat.value = currentlySelected.Data.Etat;
                             infoSubEtat.value = currentlySelected.Data.SubEtat;
@@ -379,8 +379,8 @@ namespace R1Engine
             //Clear old options
             infoEtat.options.Clear();
             //Populate new options
-            var max = Controller.obj.levelController.EditorManager.GetMaxEtat(currentlySelected.Data.ETA);
-            for (int i = 0; i <= max; i++) {
+            var max = Controller.obj.levelController.EditorManager.ETA.TryGetItem(currentlySelected.Data.ETAKey)?.Length ?? 0;
+            for (int i = 0; i < max; i++) {
                 Dropdown.OptionData dat = new Dropdown.OptionData {
                     text = i.ToString()
                 };
@@ -392,8 +392,8 @@ namespace R1Engine
             //Clear old options
             infoSubEtat.options.Clear();
             //Populate new options
-            var max = Controller.obj.levelController.EditorManager.GetMaxSubEtat(currentlySelected.Data.ETA, currentlySelected.Data.Etat);
-            for (int i = 0; i <= max; i++) {
+            var max = Controller.obj.levelController.EditorManager.ETA.TryGetItem(currentlySelected.Data.ETAKey)?.ElementAtOrDefault(currentlySelected.Data.Etat)?.Length ?? 0;
+            for (int i = 0; i < max; i++) {
                 Dropdown.OptionData dat = new Dropdown.OptionData {
                     text = i.ToString()
                 };
@@ -423,8 +423,8 @@ namespace R1Engine
         }
         public void FieldDes() {
             if (currentlySelected != null) {
-                if (infoDes.value != currentlySelected.Data.DES) {
-                    currentlySelected.Data.DES = infoDes.value;
+                if (infoDes.options[infoDes.value].text != currentlySelected.Data.DESKey) {
+                    currentlySelected.Data.DESKey = infoDes.options[infoDes.value].text;
 
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();
@@ -433,8 +433,8 @@ namespace R1Engine
         }
         public void FieldEta() {
             if (currentlySelected != null) {
-                if (infoEta.value != currentlySelected.Data.ETA) {
-                    currentlySelected.Data.ETA = infoEta.value;
+                if (infoEta.options[infoEta.value].text != currentlySelected.Data.ETAKey) {
+                    currentlySelected.Data.ETAKey = infoEta.options[infoEta.value].text;
 
                     currentlySelected.RefreshName();
                     currentlySelected.RefreshVisuals();

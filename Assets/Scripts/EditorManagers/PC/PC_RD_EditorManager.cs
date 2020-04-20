@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using R1Engine.Serialize;
 
@@ -7,7 +9,7 @@ namespace R1Engine
     /// <summary>
     /// The editor manager for Rayman Designer (PC)
     /// </summary>
-    public class PC_RD_EditorManager : PC_EditorManager
+    public class PC_RD_EditorManager : BaseEditorManager
     {
         /// <summary>
         /// Default constructor
@@ -16,10 +18,18 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="manager">The manager</param>
         /// <param name="designs">The common design</param>
-        public PC_RD_EditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) : base(level, context, manager, designs)
+        public PC_RD_EditorManager(Common_Lev level, Context context, PC_RD_Manager manager, IEnumerable<Common_Design> designs) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(designs.Select((x, i) => new
         {
-            DESFileIndex = manager.GetDESNames(context).Select(x => x.Remove(x.Length - 4)).ToArray();
-            ETAFileIndex = manager.GetETANames(context).Select(x => x.Remove(x.Length - 4)).ToArray();
+            FileName = manager.GetDESFileName(context, i, false),
+            Item = x
+        }).ToDictionary(x => x.FileName, x => x.Item)), new ReadOnlyDictionary<string, Common_EventState[][]>(manager.GetCurrentEventStates(context).Select((x, i) => new
+        {
+            FileName = manager.GetETAFileName(context, i, false),
+            Item = x
+        }).ToDictionary(x => x.FileName, x => x.Item.States)))
+        {
+            DESFileIndex = manager.GetDESNames(context, false);
+            ETAFileIndex = manager.GetETANames(context, false);
         }
 
         /// <summary>
@@ -38,48 +48,23 @@ namespace R1Engine
         public string[] ETAFileIndex { get; }
 
         /// <summary>
-        /// Gets the event states
+        /// Gets the DES key for the specified event data item
         /// </summary>
-        public override Common_EventState[] GetEventStates(Common_EventData e)
+        /// <param name="eventInfoData">The event info data item</param>
+        /// <returns>The DES key</returns>
+        public override string GetDesKey(GeneralEventInfoData eventInfoData)
         {
-            // Get the states
-            var states = base.GetEventStates(e);
-
-            // If the type is a colored event, handle it differently
-            if (!PC_RD_Manager.MultiColoredEvents.Contains(e.Type))
-                return states;
-
-            return states.Select(s => new Common_EventState
-            {
-                RightSpeed = s.RightSpeed,
-                LeftSpeed = s.LeftSpeed,
-                AnimationIndex = (byte)(s.AnimationIndex + ((Designs[e.DES].Animations.Count / 6) * e.HitPoints)),
-                LinkedEtat = s.LinkedEtat,
-                LinkedSubEtat = s.LinkedSubEtat,
-                AnimationSpeed = s.AnimationSpeed,
-                SoundIndex = s.SoundIndex,
-                InteractionType = s.InteractionType
-            }).ToArray();
+            return eventInfoData.DesKit[Settings.World];
         }
 
         /// <summary>
-        /// Gets the DES index for the specified event data item
+        /// Gets the ETA key for the specified event data item
         /// </summary>
         /// <param name="eventInfoData">The event info data item</param>
-        /// <returns>The DES index</returns>
-        public override int? GetDesIndex(GeneralEventInfoData eventInfoData)
+        /// <returns>The ETA key</returns>
+        public override string GetEtaKey(GeneralEventInfoData eventInfoData)
         {
-            return DESFileIndex.FindItemIndex(x => x == eventInfoData.DesKit[Settings.World]) + 1;
-        }
-
-        /// <summary>
-        /// Gets the ETA index for the specified event data item
-        /// </summary>
-        /// <param name="eventInfoData">The event info data item</param>
-        /// <returns>The ETA index</returns>
-        public override int? GetEtaIndex(GeneralEventInfoData eventInfoData)
-        {
-            return ETAFileIndex.FindItemIndex(x => x == eventInfoData.EtaKit[Settings.World]);
+            return eventInfoData.EtaKit[Settings.World];
         }
 
         /// <summary>

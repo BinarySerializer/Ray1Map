@@ -1,9 +1,8 @@
-﻿using System;
-using R1Engine.Serialize;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -90,10 +89,28 @@ namespace R1Engine
         /// Gets the DES file names, in order, for the world
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="includeExtension">Indicates if the file extension should be included</param>
         /// <returns>The DES file names</returns>
-        public override IEnumerable<string> GetDESNames(Context context)
+        public override string[] GetDESNames(Context context, bool includeExtension)
         {
-            return EnumerateWLDManifest(context).Where(str => str.Contains("DES"));
+            // Attempt to get names from cache
+            var names = context.GetStoredObject<string[]>("DES");
+
+            // If not found, retrieve them
+            if (names == null)
+            {
+                // Get the names and include a dummy item for DES 0
+                names = new string[]
+                {
+                    "DES_0.DES"
+                }.Concat(EnumerateWLDManifest(context).Where(str => str.Contains("DES"))).ToArray();
+
+                // Cache the names
+                context.StoreObject("DES", names);
+            }
+
+            // Return the names
+            return includeExtension ? names : names.Select(x => x.Remove(x.Length - 4)).ToArray();
         }
 
         /// <summary>
@@ -101,9 +118,24 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The ETA file names</returns>
-        public override IEnumerable<string> GetETANames(Context context)
+        /// <param name="includeExtension">Indicates if the file extension should be included</param>
+        public override string[] GetETANames(Context context, bool includeExtension)
         {
-            return EnumerateWLDManifest(context).Where(str => str.Contains("ETA"));
+            // Attempt to get names from cache
+            var names = context.GetStoredObject<string[]>("ETA");
+
+            // If not found, retrieve them
+            if (names == null)
+            {
+                // Get the names
+                names = EnumerateWLDManifest(context).Where(str => str.Contains("ETA")).ToArray();
+
+                // Cache the names
+                context.StoreObject("ETA", names);
+            }
+
+            // Return the names
+            return includeExtension ? names : names.Select(x => x.Remove(x.Length - 4)).ToArray();
         }
 
         /// <summary>
@@ -139,6 +171,38 @@ namespace R1Engine
                 // Return it
                 yield return str;
             }
+        }
+
+        /// <summary>
+        /// Gets the DES file name for the current index in the current context
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="desIndex">The DES index</param>
+        /// <param name="includeExtension">Indicates if the file extension should be included</param>
+        /// <returns>The file name</returns>
+        public string GetDESFileName(Context context, int desIndex, bool includeExtension)
+        {
+            // Get the file names
+            var desNames = GetDESNames(context, includeExtension);
+
+            // Return the name
+            return desNames.ElementAtOrDefault(desIndex) ?? $"DES_{desIndex}";
+        }
+
+        /// <summary>
+        /// Gets the ETA file name for the current index in the current context
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="etaIndex">The ETA index</param>
+        /// <param name="includeExtension">Indicates if the file extension should be included</param>
+        /// <returns>The file name</returns>
+        public string GetETAFileName(Context context, int etaIndex, bool includeExtension)
+        {
+            // Get the file names
+            var etaNames = GetETANames(context, includeExtension);
+
+            // Return the name
+            return etaNames.ElementAtOrDefault(etaIndex) ?? $"ETA_{etaIndex}";
         }
 
         /// <summary>
@@ -182,11 +246,8 @@ namespace R1Engine
         /// <returns>The common design</returns>
         public override Common_Design GetCommonDesign(Context context, PC_DES des, IList<ARGBColor> palette, int desIndex)
         {
-            // Get the DES names
-            var desNames = context.GetStoredObject<string[]>("DES");
-
             // Check if the DES is multi-colored
-            if (!MultiColoredDES.Contains(desNames.ElementAtOrDefault(desIndex)?.Substring(0, desNames[desIndex].Length - 4)))
+            if (!MultiColoredDES.Contains(GetDESFileName(context, desIndex + 1, false)))
                 return base.GetCommonDesign(context, des, palette, desIndex);
 
             // Create the common design
@@ -257,29 +318,13 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Loads the specified level for the editor
-        /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public override Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
-        {
-            // Get the DES names
-            context.StoreObject("DES", GetDESNames(context).ToArray());
-
-            // Load the level
-            return base.LoadAsync(context, loadTextures);
-        }
-
-        /// <summary>
         /// Gets an editor manager from the specified objects
         /// </summary>
         /// <param name="level">The common level</param>
         /// <param name="context">The context</param>
-        /// <param name="manager">The manager</param>
         /// <param name="designs">The common design</param>
         /// <returns>The editor manager</returns>
-        public override PC_EditorManager GetEditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) => new PC_RD_EditorManager(level, context, manager, designs);
+        public override BaseEditorManager GetEditorManager(Common_Lev level, Context context, Common_Design[] designs) => new PC_RD_EditorManager(level, context, this, designs);
 
         #endregion
     }

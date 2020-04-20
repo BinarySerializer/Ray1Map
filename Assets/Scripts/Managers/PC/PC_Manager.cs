@@ -143,15 +143,17 @@ namespace R1Engine
         /// Gets the DES file names, in order, for the world
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="includeExtension">Indicates if the file extension should be included</param>
         /// <returns>The DES file names</returns>
-        public virtual IEnumerable<string> GetDESNames(Context context) => new string[0];
+        public virtual string[] GetDESNames(Context context, bool includeExtension) => new string[0];
 
         /// <summary>
         /// Gets the ETA file names, in order, for the world
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The ETA file names</returns>
-        public virtual IEnumerable<string> GetETANames(Context context) => new string[0];
+        /// <param name="includeExtension">Indicates if the file extension should be included</param>
+        public virtual string[] GetETANames(Context context, bool includeExtension) => new string[0];
 
         /// <summary>
         /// Gets the archive files which can be extracted
@@ -352,7 +354,8 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.BasePath + worldPath))
                         return null;
 
-                    var a = GetDESNames(context).ToArray();
+                    // TODO: Update this to not skip and to not include extensions
+                    var a = GetDESNames(context, true).Skip(1).ToArray();
 
                     return a.Any() ? a : null;
                 });
@@ -368,7 +371,7 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.BasePath + worldPath))
                         return null;
 
-                    var a = GetETANames(context).ToArray();
+                    var a = GetETANames(context, true);
 
                     return a.Any() ? a : null;
                 });
@@ -1478,7 +1481,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Get the DES and ETA
-            var des = allfix.DesItems.Concat(worldData.DesItems).Concat(bigRayData.DesItems).ToArray();
+            var des = allfix.DesItems.Concat(worldData.DesItems).ToArray();
 
             int desIndex = 0;
 
@@ -1537,10 +1540,20 @@ namespace R1Engine
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.ColorPalettes.First()) : new Common_Design[0];
 
+            // TODO: Add dummy 0 to des every time we get the names!!
+            // TODO: Always use these methods to get the names and then get from cached context there!!
+            // Get file names if available
+            var desNames = GetDESNames(context, false);
+            var etaNames = GetETANames(context, false);
+
             var index = 0;
 
             foreach (PC_Event e in levelData.Events)
             {
+                // Get the file keys
+                var desKey = desNames.Any() ? desNames[e.DES] : e.DES.ToString();
+                var etaKey = etaNames.Any() ? etaNames[e.ETA] : e.ETA.ToString();
+
                 // Add the event
                 commonLev.EventData.Add(new Common_EventData
                 {
@@ -1549,8 +1562,8 @@ namespace R1Engine
                     SubEtat = e.SubEtat,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
-                    DES = (int)e.DES,
-                    ETA = (int)e.ETA,
+                    DESKey = desKey,
+                    ETAKey = etaKey,
                     OffsetBX = e.OffsetBX,
                     OffsetBY = e.OffsetBY,
                     OffsetHY = e.OffsetHY,
@@ -1615,7 +1628,7 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return GetEditorManager(commonLev, context, this, eventDesigns);
+            return GetEditorManager(commonLev, context, eventDesigns);
         }
 
         /// <summary>
@@ -1623,10 +1636,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="level">The common level</param>
         /// <param name="context">The context</param>
-        /// <param name="manager">The manager</param>
         /// <param name="designs">The common design</param>
         /// <returns>The editor manager</returns>
-        public abstract PC_EditorManager GetEditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs);
+        public abstract BaseEditorManager GetEditorManager(Common_Lev level, Context context, Common_Design[] designs);
 
         /// <summary>
         /// Reads 3 tile-sets, one for each palette
@@ -1728,15 +1740,23 @@ namespace R1Engine
             var eventCommands = new List<PC_EventCommand>();
             var eventLinkingTable = new List<ushort>();
 
+            // Get file names if available
+            var desNames = GetDESNames(context, false);
+            var etaNames = GetETANames(context, false);
+
             foreach (var e in commonLevelData.EventData) 
             {
+                // Get the file indexes
+                var desIndex = desNames.Any() ? (uint)desNames.FindItemIndex(x => x == e.DESKey) : UInt32.Parse(e.DESKey);
+                var etaIndex = etaNames.Any() ? (uint)etaNames.FindItemIndex(x => x == e.ETAKey) : UInt32.Parse(e.ETAKey);
+
                 // Create the event
                 var r1Event = new PC_Event
                 {
-                    DES = (uint)e.DES,
-                    DES2 = (uint)e.DES,
-                    DES3 = (uint)e.DES,
-                    ETA = (uint)e.ETA,
+                    DES = desIndex,
+                    DES2 = desIndex,
+                    DES3 = desIndex,
+                    ETA = etaIndex,
                     Unk_16 = 0,
                     Unk_20 = 0,
                     Unk_24 = 0,
@@ -1857,6 +1877,26 @@ namespace R1Engine
         {
             filePath = filePath
         };
+
+        /// <summary>
+        /// Gets the event states for the current context
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The event states</returns>
+        public IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
+        {
+            // Read the fixed data
+            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context, (s, x) => x.FileType = PC_WorldFile.Type.AllFix);
+
+            // Read the world data
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context, (s, x) => x.FileType = PC_WorldFile.Type.World);
+
+            // Read the big ray data
+            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context, (s, x) => x.FileType = PC_WorldFile.Type.BigRay);
+
+            // Get the eta items
+            return allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
+        }
 
         #endregion
 

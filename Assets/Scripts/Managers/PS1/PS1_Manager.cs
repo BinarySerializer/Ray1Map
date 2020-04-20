@@ -254,8 +254,8 @@ namespace R1Engine
         {
             Common_Tileset tileSet = GetTileSet(context);
 
-            var eventDesigns = new List<KeyValuePair<Pointer, Common_Design>>();
-            var eventETA = new List<KeyValuePair<Pointer, Common_EventState[][]>>();
+            var eventDesigns = new Dictionary<Pointer, Common_Design>();
+            var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
             var commonEvents = new List<Common_EventData>();
 
             // TODO: Temp fix so all versions work
@@ -274,11 +274,8 @@ namespace R1Engine
 
                     await Controller.WaitIfNecessary();
 
-                    // Attempt to find existing DES
-                    var desIndex = eventDesigns.FindIndex(x => x.Key == e.ImageDescriptorsPointer);
-
                     // Add if not found
-                    if (desIndex == -1)
+                    if (!eventDesigns.ContainsKey(e.ImageDescriptorsPointer))
                     {
                         Common_Design finalDesign = new Common_Design
                         {
@@ -338,24 +335,13 @@ namespace R1Engine
                         }
 
                         // Add to the designs
-                        eventDesigns.Add(new KeyValuePair<Pointer, Common_Design>(e.ImageDescriptorsPointer, finalDesign));
-
-                        // Set the index
-                        desIndex = eventDesigns.Count - 1;
+                        eventDesigns.Add(e.ImageDescriptorsPointer, finalDesign);
                     }
-
-                    // Attempt to find existing ETA
-                    var etaIndex = eventETA.FindIndex(x => x.Key == e.ETAPointer);
 
                     // Add if not found
-                    if (etaIndex == -1)
-                    {
+                    if (!eventETA.ContainsKey(e.ETAPointer))
                         // Add to the ETA
-                        eventETA.Add(new KeyValuePair<Pointer, Common_EventState[][]>(e.ETAPointer, e.EventStates));
-
-                        // Set the index
-                        etaIndex = eventETA.Count - 1;
-                    }
+                        eventETA.Add(e.ETAPointer, e.EventStates);
 
                     // Add the event
                     commonEvents.Add(new Common_EventData
@@ -365,8 +351,8 @@ namespace R1Engine
                         SubEtat = e.SubEtat,
                         XPosition = e.XPosition,
                         YPosition = e.YPosition,
-                        DES = desIndex,
-                        ETA = etaIndex,
+                        DESKey = e.ImageDescriptorsPointer.ToString(),
+                        ETAKey = e.ETAPointer.ToString(),
                         OffsetBX = e.OffsetBX,
                         OffsetBY = e.OffsetBY,
                         OffsetHY = e.OffsetHY,
@@ -433,7 +419,7 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return new PS1EditorManager(c, context, this, eventDesigns.Select(x => x.Value).ToArray(), eventETA.Select(x => x.Value).ToArray());
+            return new PS1EditorManager(c, context, eventDesigns, eventETA);
         }
 
         /// <summary>
@@ -523,12 +509,12 @@ namespace R1Engine
                     var context = new Context(baseGameSettings);
 
                     // Load the editor manager
-                    var editorManager = (PS1EditorManager)(await LoadAsync(context, true));
+                    var editorManager = await LoadAsync(context, true);
 
                     var desIndex = 0;
-
+                    
                     // Enumerate every design
-                    foreach (var des in editorManager.Designs)
+                    foreach (var des in editorManager.DES.Values)
                     {
                         // Get the raw data
                         var rawData = des.Sprites.Where(x => x != null).SelectMany(x => x.texture.GetRawTextureData()).ToArray();

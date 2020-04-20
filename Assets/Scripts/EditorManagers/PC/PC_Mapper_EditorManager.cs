@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System.Collections.Generic;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -14,7 +15,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="manager">The manager</param>
         /// <param name="designs">The common design</param>
-        public PC_Mapper_EditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) : base(level, context, manager, designs)
+        public PC_Mapper_EditorManager(Common_Lev level, Context context, PC_RD_Manager manager, IEnumerable<Common_Design> designs) : base(level, context, manager, designs)
         { }
 
         /// <summary>

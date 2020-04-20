@@ -40,10 +40,10 @@ namespace R1Engine
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Des))
-                    eventData.DES = random.Next(0, editorManager.GetMaxDES);
+                    eventData.DESKey = editorManager.DES.ElementAt(random.Next(0, editorManager.DES.Count - 1)).Key;
 
                 if (flags.HasFlag(RandomizerFlags.Eta))
-                    eventData.ETA = random.Next(0, editorManager.GetMaxETA);
+                    eventData.ETAKey = editorManager.ETA.ElementAt(random.Next(0, editorManager.ETA.Count - 1)).Key;
 
                 if (flags.HasFlag(RandomizerFlags.CommandOrder))
                 {
@@ -67,8 +67,8 @@ namespace R1Engine
 
                 if (flags.HasFlag(RandomizerFlags.States))
                 {
-                    eventData.Etat = random.Next(0, editorManager.GetMaxEtat(eventData.ETA));
-                    eventData.SubEtat = random.Next(0, editorManager.GetMaxSubEtat(eventData.ETA, eventData.Etat));
+                    eventData.Etat = random.Next(0, editorManager.ETA[eventData.ETAKey].Length - 1);
+                    eventData.SubEtat = random.Next(0, editorManager.ETA[eventData.ETAKey][eventData.Etat].Length - 1);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Type))

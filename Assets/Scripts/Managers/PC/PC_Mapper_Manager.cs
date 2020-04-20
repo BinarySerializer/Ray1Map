@@ -97,9 +97,6 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            // Get the DES names
-            context.StoreObject("DES", GetDESNames(context).ToArray());
-
             Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
             // Get the level folder path
@@ -167,10 +164,6 @@ namespace R1Engine
             // Get the event count
             var eventCount = cmd.SelectMany(x => x.Value.Items).Count();
 
-            // Get the Designer DES and ETA names
-            var kitDESNames = GetDESNames(context).ToArray();
-            var kitETANames = GetETANames(context).ToArray();
-
             // Handle each event
             foreach (var c in cmd)
             {
@@ -180,15 +173,6 @@ namespace R1Engine
 
                     await Controller.WaitIfNecessary();
 
-                    // Get the DES index
-                    var desIndex = kitDESNames.FindItemIndex<string>(x => x == c.Key);
-
-                    // Get the ETA index
-                    var etaIndex = kitETANames.FindItemIndex<string>(x => x == e.ETAFile);
-
-                    if (desIndex != -1)
-                        desIndex += 1;
-
                     // Add the event
                     commonLev.EventData.Add(new Common_EventData
                     {
@@ -197,8 +181,8 @@ namespace R1Engine
                         SubEtat = Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1,
                         XPosition = (uint)e.XPosition,
                         YPosition = (uint)e.YPosition,
-                        DES = desIndex,
-                        ETA = etaIndex,
+                        DESKey = c.Key.Remove(c.Key.Length - 4),
+                        ETAKey = e.ETAFile.Remove(e.ETAFile.Length - 4),
                         OffsetBX = (int)e.Offset_BX,
                         OffsetBY = (int)e.Offset_BY,
                         OffsetHY = (int)e.Offset_HY,
@@ -286,7 +270,7 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return GetEditorManager(commonLev, context, this, eventDesigns);
+            return GetEditorManager(commonLev, context, eventDesigns);
         }
 
         #endregion
@@ -298,10 +282,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="level">The common level</param>
         /// <param name="context">The context</param>
-        /// <param name="manager">The manager</param>
         /// <param name="designs">The common design</param>
         /// <returns>The editor manager</returns>
-        public override PC_EditorManager GetEditorManager(Common_Lev level, Context context, PC_Manager manager, Common_Design[] designs) => new PC_Mapper_EditorManager(level, context, manager, designs);
+        public override BaseEditorManager GetEditorManager(Common_Lev level, Context context, Common_Design[] designs) => new PC_Mapper_EditorManager(level, context, this, designs);
 
         #endregion
     }

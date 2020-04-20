@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using R1Engine.Serialize;
 using UnityEngine;
@@ -15,11 +16,15 @@ namespace R1Engine
         /// </summary>
         /// <param name="level">The common level</param>
         /// <param name="context">The context</param>
-        protected BaseEditorManager(Common_Lev level, Context context)
+        /// <param name="des">The event designs</param>
+        /// <param name="eta">The event states</param>
+        protected BaseEditorManager(Common_Lev level, Context context, IReadOnlyDictionary<string, Common_Design> des, IReadOnlyDictionary<string, Common_EventState[][]> eta)
         {
             // Set properties
             Level = level;
             Context = context;
+            DES = des;
+            ETA = eta;
 
             // Load the event info data
             using (var csvFile = File.OpenRead("Events.csv"))
@@ -37,27 +42,14 @@ namespace R1Engine
         protected abstract bool UsesLocalCommands { get; }
 
         /// <summary>
-        /// Gets the maximum allowed DES value
+        /// The event designs
         /// </summary>
-        public abstract int GetMaxDES { get; }
+        public IReadOnlyDictionary<string, Common_Design> DES { get; }
 
         /// <summary>
-        /// Gets the maximum allowed ETA value
+        /// The event states
         /// </summary>
-        public abstract int GetMaxETA { get; }
-
-        /// <summary>
-        /// Gets the maximum allowed Etat value
-        /// </summary>
-        /// <param name="eta">The ETA value</param>
-        public abstract int GetMaxEtat(int eta);
-
-        /// <summary>
-        /// Gets the maximum allowed SubEtat value
-        /// </summary>
-        /// <param name="eta">The ETA value</param>
-        /// <param name="etat">The etat value</param>
-        public abstract int GetMaxSubEtat(int eta, int etat);
+        public IReadOnlyDictionary<string, Common_EventState[][]> ETA { get; }
 
         /// <summary>
         /// The common level
@@ -73,19 +65,6 @@ namespace R1Engine
         /// The game settings
         /// </summary>
         public GameSettings Settings => Context.Settings;
-
-        /// <summary>
-        /// Gets the event states
-        /// </summary>
-        public abstract Common_EventState[] GetEventStates(Common_EventData e);
-
-        /// <summary>
-        /// Gets the common design for the event based on the DES index
-        /// </summary>
-        /// <param name="e">The event to get the design for</param>
-        /// <param name="desIndex">The DES index</param>
-        /// <returns>The common design</returns>
-        public abstract Common_Design GetCommonDesign(Common_EventData e, int desIndex);
 
         /// <summary>
         /// Gets the available event names to add for the current world
@@ -142,8 +121,8 @@ namespace R1Engine
                 SubEtat = e.SubEtat,
                 XPosition = xPos,
                 YPosition = yPos,
-                DES = GetDesIndex(e) ?? -1,
-                ETA = GetEtaIndex(e) ?? -1,
+                DESKey = GetDesKey(e),
+                ETAKey = GetEtaKey(e),
                 OffsetBX = e.OffsetBX,
                 OffsetBY = e.OffsetBY,
                 OffsetHY = e.OffsetHY,
@@ -164,8 +143,8 @@ namespace R1Engine
         /// <param name="type"></param>
         /// <param name="etat"></param>
         /// <param name="subEtat"></param>
-        /// <param name="des"></param>
-        /// <param name="eta"></param>
+        /// <param name="desKey"></param>
+        /// <param name="etaKey"></param>
         /// <param name="offsetBx"></param>
         /// <param name="offsetBy"></param>
         /// <param name="offsetHy"></param>
@@ -176,7 +155,7 @@ namespace R1Engine
         /// <param name="labelOffsets"></param>
         /// <param name="commands"></param>
         /// <returns></returns>
-        public GeneralEventInfoData GetGeneralEventInfo(int type, int etat, int subEtat, int des, int eta, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
+        public GeneralEventInfoData GetGeneralEventInfo(int type, int etat, int subEtat, string desKey, string etaKey, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
         {
             // Helper method for comparing the commands
             bool compareCommands(GeneralEventInfoData e)
@@ -193,8 +172,8 @@ namespace R1Engine
                                                     x.Type == type &&
                                                     x.Etat == etat &&
                                                     x.SubEtat == subEtat &&
-                                                    GetDesIndex(x) == des &&
-                                                    GetEtaIndex(x) == eta &&
+                                                    GetDesKey(x) == desKey &&
+                                                    GetEtaKey(x) == etaKey &&
                                                     x.OffsetBX == offsetBx &&
                                                     x.OffsetBY == offsetBy &&
                                                     x.OffsetHY == offsetHy &&
@@ -223,26 +202,25 @@ namespace R1Engine
             var cmds = e.CommandCollection?.ToBytes(Settings);
 
             // Find match
-            var match = GetGeneralEventInfo((int)e.Type, e.Etat, e.SubEtat, e.DES, e.ETA, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
+            var match = GetGeneralEventInfo((int)e.Type, e.Etat, e.SubEtat, e.DESKey, e.ETAKey, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
 
             // Return the editor info
             return new Common_EditorEventInfo(match?.Name);
         }
 
         /// <summary>
-        /// Gets the DES index for the specified event data item
+        /// Gets the DES key for the specified event data item
         /// </summary>
         /// <param name="eventInfoData">The event info data item</param>
-        /// <returns>The DES index</returns>
-        public abstract int? GetDesIndex(GeneralEventInfoData eventInfoData);
+        /// <returns>The DES key</returns>
+        public abstract string GetDesKey(GeneralEventInfoData eventInfoData);
 
         /// <summary>
-        /// Gets the ETA index for the specified event data item
+        /// Gets the ETA key for the specified event data item
         /// </summary>
         /// <param name="eventInfoData">The event info data item</param>
-        /// <returns>The ETA index</returns>
-        public abstract int? GetEtaIndex(GeneralEventInfoData eventInfoData);
-
+        /// <returns>The ETA key</returns>
+        public abstract string GetEtaKey(GeneralEventInfoData eventInfoData);
         /// <summary>
         /// Checks if the event is available in the current world
         /// </summary>

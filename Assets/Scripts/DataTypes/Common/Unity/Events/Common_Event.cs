@@ -39,17 +39,33 @@ namespace R1Engine {
         /// <summary>
         /// The current state
         /// </summary>
-        public Common_EventState CurrentState => States.ElementAtOrDefault(StateIndex);
+        public Common_EventState State
+        {
+            get
+            {
+                // TODO: Handle this hack for multi-colored events better
 
-        /// <summary>
-        /// The states
-        /// </summary>
-        public Common_EventState[] States { get; set; }
+                // Get the state
+                var state = EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Etat)
+                    ?.ElementAtOrDefault(Data.SubEtat);
 
-        /// <summary>
-        /// The index of the current state
-        /// </summary>
-        public int StateIndex { get; set; }
+                // If the type is a colored event, handle it differently
+                if (!PC_RD_Manager.MultiColoredEvents.Contains(Data.Type) || state == null)
+                    return state;
+
+                return new Common_EventState
+                {
+                    RightSpeed = state.RightSpeed,
+                    LeftSpeed = state.LeftSpeed,
+                    AnimationIndex = (byte)(state.AnimationIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.HitPoints)),
+                    LinkedEtat = state.LinkedEtat,
+                    LinkedSubEtat = state.LinkedSubEtat,
+                    AnimationSpeed = state.AnimationSpeed,
+                    SoundIndex = state.SoundIndex,
+                    InteractionType = state.InteractionType
+                };
+            }
+        }
 
         #endregion
 
@@ -63,21 +79,6 @@ namespace R1Engine {
         #endregion
 
         #region Event Methods
-
-        public void UpdateCurrentState(int index)
-        {
-            // Set the index
-            StateIndex = index;
-
-            // Set the animation speed
-            AnimSpeed = (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn ? CurrentState?.AnimationSpeed >> 4 : CurrentState?.AnimationSpeed) ?? 0;
-
-            // Set the animation index
-            AnimationIndex = CurrentState?.AnimationIndex ?? 0;
-
-            // Update the graphics
-            ChangeAppearance();
-        }
 
         /// <summary>
         /// Refreshes the editor event info
@@ -107,11 +108,14 @@ namespace R1Engine {
         }
 
         public void RefreshVisuals() {
-            // Get the states
-            States = EditorManager.GetEventStates(Data);
+            // Set the animation speed
+            AnimSpeed = (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn ? State?.AnimationSpeed >> 4 : State?.AnimationSpeed) ?? 0;
 
-            // Update the state
-            UpdateCurrentState(0);
+            // Set the animation index
+            AnimationIndex = State?.AnimationIndex ?? 0;
+
+            // Update the graphics
+            ChangeAppearance();
         }
 
         #endregion
@@ -187,15 +191,7 @@ namespace R1Engine {
                     {
                         currentFrame = 0;
 
-                        // Get the new state
-                        var newStateIndex = StateIndex + 1;
-
-                        // Make sure it's within the collection
-                        if (newStateIndex >= States.Length)
-                            newStateIndex = 0;
-
-                        // Update the state
-                        UpdateCurrentState(newStateIndex);
+                        // TODO: Update state
                     }
 
                     int floored = Mathf.FloorToInt(currentFrame);
@@ -231,9 +227,8 @@ namespace R1Engine {
 
         // Change des and everything
         private void ChangeAppearance() {
-
             // Change to new animation
-            ChangeAnimation(CurrentState?.AnimationIndex ?? 0);
+            ChangeAnimation(State?.AnimationIndex ?? 0);
 
             // TODO: Is there a flag for these events to determine if they should do this?
             // Hard-code frames for special events
@@ -311,14 +306,8 @@ namespace R1Engine {
 
         // Try to load a new animation and change to it
         public void ChangeAnimation(int newAnim) {
-            // Make sure we have a non-negative DES index
-            if (Data.DES < 0) {
-                Debug.LogWarning($"DES index is below 0");
-                return;
-            }
-
             // Get the current animation
-            CurrentAnimation = EditorManager?.GetCommonDesign(Data, Data.DES)?.Animations.ElementAtOrDefault(newAnim);
+            CurrentAnimation = EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(newAnim);
 
             // If animation is null, use default
             if (CurrentAnimation == null) {
@@ -329,7 +318,6 @@ namespace R1Engine {
             else {
                 defautRenderer.enabled = false;
             }
-
 
             // Get the frame length
             var len = CurrentAnimation.Frames.GetLength(1);
@@ -386,7 +374,7 @@ namespace R1Engine {
                 return;
 
             // Get the sprites
-            var sprites = EditorManager.GetCommonDesign(Data, Data.DES).Sprites;
+            var sprites = EditorManager.DES[Data.DESKey].Sprites;
 
             for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
                 // Skips sprites out of bounds
