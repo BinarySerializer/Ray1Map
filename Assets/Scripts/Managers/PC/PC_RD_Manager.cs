@@ -93,8 +93,11 @@ namespace R1Engine
         /// <returns>The DES file names</returns>
         public override string[] GetDESNames(Context context, bool includeExtension)
         {
+            // Get the key
+            var key = $"DES{context.Settings.World}";
+
             // Attempt to get names from cache
-            var names = context.GetStoredObject<string[]>("DES");
+            var names = context.GetStoredObject<string[]>(key);
 
             // If not found, retrieve them
             if (names == null)
@@ -106,7 +109,7 @@ namespace R1Engine
                 }.Concat(EnumerateWLDManifest(context).Where(str => str.Contains("DES"))).ToArray();
 
                 // Cache the names
-                context.StoreObject("DES", names);
+                context.StoreObject(key, names);
             }
 
             // Return the names
@@ -121,8 +124,11 @@ namespace R1Engine
         /// <param name="includeExtension">Indicates if the file extension should be included</param>
         public override string[] GetETANames(Context context, bool includeExtension)
         {
+            // Get the key
+            var key = $"ETA{context.Settings.World}";
+
             // Attempt to get names from cache
-            var names = context.GetStoredObject<string[]>("ETA");
+            var names = context.GetStoredObject<string[]>(key);
 
             // If not found, retrieve them
             if (names == null)
@@ -131,7 +137,7 @@ namespace R1Engine
                 names = EnumerateWLDManifest(context).Where(str => str.Contains("ETA")).ToArray();
 
                 // Cache the names
-                context.StoreObject("ETA", names);
+                context.StoreObject(key, names);
             }
 
             // Return the names
