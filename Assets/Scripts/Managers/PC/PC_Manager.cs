@@ -415,7 +415,7 @@ namespace R1Engine
                         continue;
 
                     // Export world
-                    await ExportTexturesAsync(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItemCount, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
+                    await ExportTexturesAsync(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItems.Length, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
                 }
             }
         }
