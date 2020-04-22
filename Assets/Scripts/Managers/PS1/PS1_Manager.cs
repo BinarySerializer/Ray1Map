@@ -275,7 +275,7 @@ namespace R1Engine
                     await Controller.WaitIfNecessary();
 
                     // Add if not found
-                    if (!eventDesigns.ContainsKey(e.ImageDescriptorsPointer))
+                    if (e.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(e.ImageDescriptorsPointer))
                     {
                         Common_Design finalDesign = new Common_Design
                         {
@@ -339,7 +339,7 @@ namespace R1Engine
                     }
 
                     // Add if not found
-                    if (!eventETA.ContainsKey(e.ETAPointer))
+                    if (e.ETAPointer != null && !eventETA.ContainsKey(e.ETAPointer))
                         // Add to the ETA
                         eventETA.Add(e.ETAPointer, e.EventStates);
 
@@ -351,8 +351,8 @@ namespace R1Engine
                         SubEtat = e.SubEtat,
                         XPosition = e.XPosition,
                         YPosition = e.YPosition,
-                        DESKey = e.ImageDescriptorsPointer.ToString(),
-                        ETAKey = e.ETAPointer.ToString(),
+                        DESKey = e.ImageDescriptorsPointer?.ToString() ?? String.Empty,
+                        ETAKey = e.ETAPointer?.ToString() ?? String.Empty,
                         OffsetBX = e.OffsetBX,
                         OffsetBY = e.OffsetBY,
                         OffsetHY = e.OffsetHY,

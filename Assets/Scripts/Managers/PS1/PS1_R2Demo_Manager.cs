@@ -77,9 +77,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
         public override void FillVRAM(Context context)
-        {
-            throw new NotImplementedException();
-        }
+        { }
 
         public async Task<uint> LoadFile(Context context, string path, uint baseAddress) {
             await FileSystem.PrepareFile(context.BasePath + path);
@@ -149,7 +147,11 @@ namespace R1Engine
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
 
             // Load the level
-            return await LoadAsync(context, map, null, null, loadTextures);
+            return await LoadAsync(context, map, lvlData.Events.Select(x => new PS1_R1_Event()
+            {
+                XPosition = BitConverter.ToUInt16(x.Unk1, 4),
+                YPosition = BitConverter.ToUInt16(x.Unk1, 6),
+            }).ToArray(), lvlData.EventLinkTable, loadTextures);
         }
 
         /// <summary>
