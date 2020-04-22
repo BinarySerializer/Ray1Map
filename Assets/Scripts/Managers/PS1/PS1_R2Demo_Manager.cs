@@ -146,11 +146,20 @@ namespace R1Engine
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
 
+            var pointers1 = lvlData.Events.Select(x => x.UnkPointer1).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
+            var pointers2 = lvlData.Events.Select(x => x.UnkPointer2).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
+            var pointers3 = lvlData.Events.Select(x => x.UnkPointer3).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
+
             // Load the level
             return await LoadAsync(context, map, lvlData.Events.Select(x => new PS1_R1_Event()
             {
-                XPosition = BitConverter.ToUInt16(x.Unk1, 4),
-                YPosition = BitConverter.ToUInt16(x.Unk1, 6),
+                XPosition = x.XPosition,
+                YPosition = x.YPosition,
+
+                // Debug values
+                OffsetBX = (byte)pointers1.FindItemIndex(y => y == x.UnkPointer1),
+                OffsetBY = (byte)pointers2.FindItemIndex(y => y == x.UnkPointer2),
+                OffsetHY = (byte)pointers3.FindItemIndex(y => y == x.UnkPointer3),
             }).ToArray(), lvlData.EventLinkTable, loadTextures);
         }
 

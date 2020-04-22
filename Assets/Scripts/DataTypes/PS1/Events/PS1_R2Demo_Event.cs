@@ -8,12 +8,21 @@
     {
         public Pointer UnkPointer1 { get; set; }
 
+        // Leads to 16-byte long structures
         public Pointer UnkPointer2 { get; set; }
 
-        // ETA?
+        // Leads to 12-byte long structures. Usually it's {Pointer1, Pointer2, ushort1, ushort2}
+        // Pointer1 leads to more pointers
         public Pointer UnkPointer3 { get; set; }
 
-        public byte[] Unk1 { get; set; }
+        // Always 0
+        public uint Unk1 { get; set; }
+
+        public ushort XPosition { get; set; }
+        
+        public ushort YPosition { get; set; }
+
+        public byte[] Unk2 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -26,41 +35,11 @@
             UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
 
-            Unk1 = s.SerializeArray(Unk1, 96, name: nameof(Unk1));
+            Unk1 = s.Serialize<uint>(Unk1, name: nameof(Unk1));
+            XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
 
-            //if (UnkPointer1 != null)
-            //{
-            //    s.DoAt(UnkPointer1, () =>
-            //    {
-            //        s.SerializeArray(new byte[0], 100, name: "UnkPointer1Data");
-            //    });
-            //}
-            //if (UnkPointer2 != null)
-            //{
-            //    s.DoAt(UnkPointer2, () =>
-            //    {
-            //        s.SerializeArray(new byte[0], 100, name: "UnkPointer2Data");
-            //    });
-            //}
-            //if (UnkPointer3 != null)
-            //{
-            //    s.DoAt(UnkPointer3, () =>
-            //    {
-            //        var p31 = s.SerializePointer(null, name: "UnkPointer3-1");
-            //        var p32 = s.SerializePointer(null, name: "UnkPointer3-2");
-
-            //        s.SerializeArray(new byte[0], 100, name: "UnkPointer3RestData");
-
-            //        s.DoAt(p31, () =>
-            //        {
-            //            s.SerializeArray(new byte[0], 100, name: "UnkPointer3-1Data");
-            //        });
-            //        s.DoAt(p32, () =>
-            //        {
-            //            s.SerializeArray(new byte[0], 100, name: "UnkPointer3-2Data");
-            //        });
-            //    });
-            //}
+            Unk2 = s.SerializeArray(Unk2, 88, name: nameof(Unk2));
         }
     }
 }
