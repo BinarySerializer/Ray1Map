@@ -22,7 +22,7 @@
         /// </summary>
         public ushort EventCount { get; set; }
 
-        public ushort EventCount2 { get; set; }
+        public ushort AlwaysEventsCount { get; set; }
         public ushort UShort_36 { get; set; }
         public ushort UShort_38 { get; set; }
         public ushort UShort_3A { get; set; }
@@ -62,7 +62,7 @@
 
             EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
 
-            EventCount2 = s.Serialize<ushort>(EventCount2, name: nameof(EventCount2));
+            AlwaysEventsCount = s.Serialize<ushort>(AlwaysEventsCount, name: nameof(AlwaysEventsCount));
             UShort_36 = s.Serialize<ushort>(UShort_36, name: nameof(UShort_36));
             UShort_38 = s.Serialize<ushort>(UShort_38, name: nameof(UShort_38));
             UShort_3A = s.Serialize<ushort>(UShort_3A, name: nameof(UShort_3A));
@@ -86,7 +86,7 @@
                 Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events));
             });
             s.DoAt(AlwaysEventsPointer, () => {
-                AlwaysEvents = s.SerializeObjectArray<PS1_R2Demo_Event>(AlwaysEvents, EventCount2, name: nameof(AlwaysEvents));
+                AlwaysEvents = s.SerializeObjectArray<PS1_R2Demo_Event>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents));
             });
         }
     }
