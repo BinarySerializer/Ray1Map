@@ -13,7 +13,7 @@
         /// </summary>
         public Pointer EventsPointer { get; set; }
 
-        public Pointer UnkPointer1 { get; set; }
+        public Pointer EventsPointer2 { get; set; }
         public Pointer ImageDescriptorsPointer { get; set; }
         public byte[] Unk3 { get; set; }
 
@@ -22,7 +22,7 @@
         /// </summary>
         public ushort EventCount { get; set; }
 
-        public ushort UShort_34 { get; set; }
+        public ushort EventCount2 { get; set; }
         public ushort UShort_36 { get; set; }
         public ushort UShort_38 { get; set; }
         public ushort UShort_3A { get; set; }
@@ -42,6 +42,7 @@
         public ushort[] EventLinkTable { get; set; }
         
         public PS1_R2Demo_Event[] Events { get; set; }
+        public PS1_R2Demo_Event[] Events2 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -54,14 +55,14 @@
 
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
 
-            UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
+            EventsPointer2 = s.SerializePointer(EventsPointer2, name: nameof(EventsPointer2));
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
 
             Unk3 = s.SerializeArray<byte>(Unk3, 30, name: nameof(Unk3));
 
             EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
 
-            UShort_34 = s.Serialize<ushort>(UShort_34, name: nameof(UShort_34));
+            EventCount2 = s.Serialize<ushort>(EventCount2, name: nameof(EventCount2));
             UShort_36 = s.Serialize<ushort>(UShort_36, name: nameof(UShort_36));
             UShort_38 = s.Serialize<ushort>(UShort_38, name: nameof(UShort_38));
             UShort_3A = s.Serialize<ushort>(UShort_3A, name: nameof(UShort_3A));
@@ -83,6 +84,9 @@
             s.DoAt(EventsPointer, () =>
             {
                 Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events));
+            });
+            s.DoAt(EventsPointer2, () => {
+                Events2 = s.SerializeObjectArray<PS1_R2Demo_Event>(Events2, EventCount2, name: nameof(Events2));
             });
         }
     }
