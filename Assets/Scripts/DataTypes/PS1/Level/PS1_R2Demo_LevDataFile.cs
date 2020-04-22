@@ -14,8 +14,7 @@
         public Pointer EventsPointer { get; set; }
 
         public Pointer UnkPointer1 { get; set; }
-        public Pointer UnkPointer2 { get; set; }
-
+        public Pointer ImageDescriptorsPointer { get; set; }
         public byte[] Unk3 { get; set; }
 
         /// <summary>
@@ -23,7 +22,17 @@
         /// </summary>
         public ushort EventCount { get; set; }
 
-        public byte[] Unk4 { get; set; }
+        public ushort UShort_34 { get; set; }
+        public ushort UShort_36 { get; set; }
+        public ushort UShort_38 { get; set; }
+        public ushort UShort_3A { get; set; }
+        public ushort NumImageDescriptors { get; set; }
+        public ushort UShort_3E { get; set; }
+        public ushort UShort_40 { get; set; }
+        public ushort UShort_42 { get; set; }
+        public ushort UShort_44 { get; set; }
+        public ushort UShort_46 { get; set; }
+        public uint UInt_48 { get; set; }
 
         public Pointer UnkPointer3 { get; set; }
         public Pointer UnkPointer4 { get; set; }
@@ -46,13 +55,23 @@
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
 
             UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
-            UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
+            ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
 
             Unk3 = s.SerializeArray<byte>(Unk3, 30, name: nameof(Unk3));
 
             EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
-            
-            Unk4 = s.SerializeArray<byte>(Unk4, 24, name: nameof(Unk4));
+
+            UShort_34 = s.Serialize<ushort>(UShort_34, name: nameof(UShort_34));
+            UShort_36 = s.Serialize<ushort>(UShort_36, name: nameof(UShort_36));
+            UShort_38 = s.Serialize<ushort>(UShort_38, name: nameof(UShort_38));
+            UShort_3A = s.Serialize<ushort>(UShort_3A, name: nameof(UShort_3A));
+            NumImageDescriptors = s.Serialize<ushort>(NumImageDescriptors, name: nameof(NumImageDescriptors));
+            UShort_3E = s.Serialize<ushort>(UShort_3E, name: nameof(UShort_3E));
+            UShort_40 = s.Serialize<ushort>(UShort_40, name: nameof(UShort_40));
+            UShort_42 = s.Serialize<ushort>(UShort_42, name: nameof(UShort_42));
+            UShort_44 = s.Serialize<ushort>(UShort_44, name: nameof(UShort_44));
+            UShort_46 = s.Serialize<ushort>(UShort_46, name: nameof(UShort_46));
+            UInt_48 = s.Serialize<uint>(UInt_48, name: nameof(UInt_48));
             
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
             UnkPointer4 = s.SerializePointer(UnkPointer4, name: nameof(UnkPointer4));
@@ -63,9 +82,6 @@
 
             s.DoAt(EventsPointer, () =>
             {
-                // TODO: Are these part of the first event?
-                var dummy = s.SerializeArray(new byte[0], 12);
-
                 Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events));
             });
         }
