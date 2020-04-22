@@ -10,7 +10,9 @@
         public ushort UShort_06 { get; set; }
         public ushort UShort_08 { get; set; }
         public ushort UShort_0A { get; set; }
-
+        
+        // 12 (0xC)
+        
         public Pointer UnkPointer1 { get; set; }
 
         // Leads to 16-byte long structures
@@ -22,12 +24,18 @@
 
         // Always 0 in file - gets set to a pointer during runtime
         public uint RuntimePointer1 { get; set; }
+        
+        // 28 (0x1C)
 
         public ushort XPosition { get; set; }
         
         public ushort YPosition { get; set; }
 
+        // 32 (0x20)
+
         public byte[] Unk1 { get; set; }
+
+        // 56 (0x38)
 
         // Dev pointer in file - gets set to a pointer during runtime
         public uint RuntimePointer2 { get; set; }
@@ -35,14 +43,30 @@
         // Always 0 in file - gets set to a pointer during runtime
         public uint RuntimePointer3 { get; set; }
 
+        // 64 (0x40)
+
+        // Unknown value - probably runtime only?
+        public ushort RuntimeUnk1 { get; set; }
+
+        // Runtime only? Is 0 when object is no longer active.
+        public ushort RuntimeUnk2 { get; set; }
+
+        // 68 (0x44)
+
         public byte[] Unk2 { get; set; }
+
+        // 72 (0x48)
 
         // Some runtime offset for the current sprite animation - setting to 0 places sprite in its origin point during runtime
         public ushort RuntimeOffset1 { get; set; }
         public ushort RuntimeOffset2 { get; set; }
 
+        // 76 (0x4C)
+
         // Always 0 in file
         public byte[] RuntimeBytes1 { get; set; }
+
+        // 84 (0x54)
 
         /// <summary>
         /// The current animation frame during runtime
@@ -55,7 +79,14 @@
         // The layer to appear on - only effects visual so not the map's z-index?
         public byte Layer { get; set; }
 
+        // 90 (0x5A)
+
         public byte[] Unk3 { get; set; }
+
+        // Flags?
+        public uint Unk4 { get; set; }
+
+        public byte[] Unk5 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -85,7 +116,10 @@
             RuntimePointer2 = s.Serialize<uint>(RuntimePointer2, name: nameof(RuntimePointer2));
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
 
-            Unk2 = s.SerializeArray(Unk2, 8, name: nameof(Unk2));
+            RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
+            RuntimeUnk2 = s.Serialize<ushort>(RuntimeUnk2, name: nameof(RuntimeUnk2));
+
+            Unk2 = s.SerializeArray(Unk2, 4, name: nameof(Unk2));
 
             RuntimeOffset1 = s.Serialize<ushort>(RuntimeOffset1, name: nameof(RuntimeOffset1));
             RuntimeOffset2 = s.Serialize<ushort>(RuntimeOffset2, name: nameof(RuntimeOffset2));
@@ -96,7 +130,11 @@
 
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 
-            Unk3 = s.SerializeArray(Unk3, 18, name: nameof(Unk3));
+            Unk3 = s.SerializeArray(Unk3, 10, name: nameof(Unk3));
+
+            Unk4 = s.Serialize<uint>(Unk4, name: nameof(Unk4));
+
+            Unk5 = s.SerializeArray(Unk5, 4, name: nameof(Unk5));
 
             /*s.DoAt(UnkPointer3, () => {
                 Pointer ptr = s.SerializePointer(null, name: "test");

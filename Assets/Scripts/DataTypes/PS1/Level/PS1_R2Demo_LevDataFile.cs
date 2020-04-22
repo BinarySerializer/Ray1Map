@@ -13,7 +13,7 @@
         /// </summary>
         public Pointer EventsPointer { get; set; }
 
-        public Pointer EventsPointer2 { get; set; }
+        public Pointer AlwaysEventsPointer { get; set; }
         public Pointer ImageDescriptorsPointer { get; set; }
         public byte[] Unk3 { get; set; }
 
@@ -42,7 +42,7 @@
         public ushort[] EventLinkTable { get; set; }
         
         public PS1_R2Demo_Event[] Events { get; set; }
-        public PS1_R2Demo_Event[] Events2 { get; set; }
+        public PS1_R2Demo_Event[] AlwaysEvents { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -55,7 +55,7 @@
 
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
 
-            EventsPointer2 = s.SerializePointer(EventsPointer2, name: nameof(EventsPointer2));
+            AlwaysEventsPointer = s.SerializePointer(AlwaysEventsPointer, name: nameof(AlwaysEventsPointer));
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
 
             Unk3 = s.SerializeArray<byte>(Unk3, 30, name: nameof(Unk3));
@@ -85,8 +85,8 @@
             {
                 Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events));
             });
-            s.DoAt(EventsPointer2, () => {
-                Events2 = s.SerializeObjectArray<PS1_R2Demo_Event>(Events2, EventCount2, name: nameof(Events2));
+            s.DoAt(AlwaysEventsPointer, () => {
+                AlwaysEvents = s.SerializeObjectArray<PS1_R2Demo_Event>(AlwaysEvents, EventCount2, name: nameof(AlwaysEvents));
             });
         }
     }
