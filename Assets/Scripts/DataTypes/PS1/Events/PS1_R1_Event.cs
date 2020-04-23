@@ -72,7 +72,9 @@ namespace R1Engine
 
         public byte OffsetBY { get; set; }
 
-        public ushort Unknown7 { get; set; }
+        public byte RuntimeCurrentAnimIndex { get; set; }
+
+        public byte RuntimeCurrentAnimFrame { get; set; }
 
         public byte Etat { get; set; }
 
@@ -234,7 +236,8 @@ namespace R1Engine
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
             OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
 
-            Unknown7 = s.Serialize<ushort>(Unknown7, name: nameof(Unknown7));
+            RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
+            RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
             Unknown8 = s.Serialize<byte>(Unknown8, name: nameof(Unknown8));

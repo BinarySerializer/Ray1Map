@@ -33,6 +33,8 @@
 
         // 32 (0x20)
 
+        // Between 40-44 is where x and y pos is stored during runtime
+        // 56-60 is for the current state or animation
         public byte[] Unk1 { get; set; }
 
         // 56 (0x38)
@@ -64,6 +66,7 @@
         // 76 (0x4C)
 
         // Always 0 in file
+        // Second byte in here determines horizontal speed and fourth byte the vertical speed
         public byte[] RuntimeBytes1 { get; set; }
 
         // 84 (0x54)
@@ -83,8 +86,15 @@
 
         public byte[] Unk3 { get; set; }
 
-        // Flags?
-        public uint Unk4 { get; set; }
+        public bool RuntimeIsOnBackgroundLayer { get; set; }
+
+        public byte[] Unk4 { get; set; }
+
+        // Runtime only?
+        public bool IsFlippedHorizontally { get; set; }
+
+        // Runtime only? What does it really do?
+        public bool IsFaded { get; set; }
 
         public byte[] Unk5 { get; set; }
 
@@ -132,9 +142,14 @@
 
             Unk3 = s.SerializeArray(Unk3, 10, name: nameof(Unk3));
 
-            Unk4 = s.Serialize<uint>(Unk4, name: nameof(Unk4));
+            RuntimeIsOnBackgroundLayer = s.Serialize<bool>(RuntimeIsOnBackgroundLayer, name: nameof(RuntimeIsOnBackgroundLayer));
 
-            Unk5 = s.SerializeArray(Unk5, 4, name: nameof(Unk5));
+            Unk4 = s.SerializeArray(Unk4, 3, name: nameof(Unk4));
+
+            IsFlippedHorizontally = s.Serialize<bool>(IsFlippedHorizontally, name: nameof(IsFlippedHorizontally));
+            IsFaded = s.Serialize<bool>(IsFaded, name: nameof(IsFaded));
+
+            Unk5 = s.SerializeArray(Unk5, 2, name: nameof(Unk5));
 
             /*s.DoAt(UnkPointer3, () => {
                 Pointer ptr = s.SerializePointer(null, name: "test");
