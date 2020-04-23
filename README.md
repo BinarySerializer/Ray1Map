@@ -19,6 +19,7 @@ Ray1Map is a Rayman 1 map viewer/editor. The goal of the project is to support m
 * Rayman 1 (Saturn - US) - Map & object viewing (palettes are currently not correct)
 * Rayman 1 (Saturn - EU) - Map & object viewing (palettes are currently not correct)
 * Rayman 1 (Saturn - JP) - Map & object viewing (palettes are currently not correct)
+* Rayman 1 (Saturn - Prototype) - Map & object viewing (palettes are currently not correct)
 
 * Rayman 1 (PC) - Map & object viewing/saving
 * Rayman Gold (PC - Demo) - Map & object viewing
