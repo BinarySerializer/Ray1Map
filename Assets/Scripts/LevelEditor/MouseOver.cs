@@ -28,6 +28,9 @@ namespace R1Engine
                                    $"AnimSpeed: {e.AnimSpeed}{Environment.NewLine}" +
                                    $"Sound: {e.State?.SoundIndex}{Environment.NewLine}" +
                                    $"Offsets: {e.Data.OffsetBX} x {e.Data.OffsetBY} x {e.Data.OffsetHY}";
+
+                // Set debug text
+                Controller.obj.tempDebugText.text = e.Data.DebugText;
             }
             // Else Mouse over type
             else {

@@ -88,5 +88,10 @@
         /// The link table index
         /// </summary>
         public int LinkIndex { get; set; }
+
+        /// <summary>
+        /// Optional debug text
+        /// </summary>
+        public string DebugText { get; set; }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -146,21 +148,55 @@ namespace R1Engine
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
 
+            // Temporary to see which pointers match
             var pointers1 = lvlData.Events.Select(x => x.UnkPointer1).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
             var pointers2 = lvlData.Events.Select(x => x.UnkPointer2).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
             var pointers3 = lvlData.Events.Select(x => x.UnkPointer3).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
 
             // Load the level
-            return await LoadAsync(context, map, lvlData.Events.Select(x => new PS1_R1_Event()
-            {
-                XPosition = x.XPosition,
-                YPosition = x.YPosition,
+            var level = await LoadAsync(context, map, null, null, loadTextures);
 
-                // Debug values
-                OffsetBX = (byte)pointers1.FindItemIndex(y => y == x.UnkPointer1),
-                OffsetBY = (byte)pointers2.FindItemIndex(y => y == x.UnkPointer2),
-                OffsetHY = (byte)pointers3.FindItemIndex(y => y == x.UnkPointer3),
-            }).ToArray(), lvlData.EventLinkTable, loadTextures);
+            var index = 0;
+
+            // Add every event
+            foreach (var e in lvlData.Events)
+            {
+                // Add the event
+                level.Level.EventData.Add(new Common_EventData
+                {
+                    //Type = e.Type,
+                    //Etat = e.Etat,
+                    //SubEtat = e.SubEtat,
+                    XPosition = e.XPosition,
+                    YPosition = e.YPosition,
+                    DESKey = String.Empty,
+                    ETAKey = String.Empty,
+                    //OffsetBX = e.OffsetBX,
+                    //OffsetBY = e.OffsetBY,
+                    //OffsetHY = e.OffsetHY,
+                    //FollowSprite = e.FollowSprite,
+                    //HitPoints = e.Hitpoints,
+                    Layer = e.Layer,
+                    //HitSprite = e.HitSprite,
+                    //FollowEnabled = e.GetFollowEnabled(context.Settings),
+                    //LabelOffsets = e.LabelOffsets,
+                    //CommandCollection = e.Commands,
+                    LinkIndex = lvlData.EventLinkTable[index],
+                    DebugText = $"Unk1: {String.Join("-", e.Unk1)}{Environment.NewLine}" +
+                                $"Unk2: {String.Join("-", e.Unk2)}{Environment.NewLine}" +
+                                $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
+                                $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
+                                $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
+                                $"PointerGroup1: {pointers1.FindItemIndex(y => y == e.UnkPointer1)}{Environment.NewLine}" +
+                                $"PointerGroup2: {pointers2.FindItemIndex(y => y == e.UnkPointer2)}{Environment.NewLine}" +
+                                $"PointerGroup3: {pointers3.FindItemIndex(y => y == e.UnkPointer3)}{Environment.NewLine}"
+                });
+
+                index++;
+            }
+            
+            // Return the level
+            return level;
         }
 
         /// <summary>
