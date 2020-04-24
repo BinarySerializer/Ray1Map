@@ -24,8 +24,8 @@
         // Pointer1 leads to more pointers
         public Pointer UnkPointer3 { get; set; }
 
-        // Always 0 in file - gets set to a pointer during runtime
-        public uint RuntimePointer1 { get; set; }
+        // Always 0 in file - gets set to a pointer to a function during runtime which gets called whenever the event is initialized
+        public uint p_stHandlers { get; set; }
         
         // 28 (0x1C)
 
@@ -128,7 +128,7 @@
             UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
 
-            RuntimePointer1 = s.Serialize<uint>(RuntimePointer1, name: nameof(RuntimePointer1));
+            p_stHandlers = s.Serialize<uint>(p_stHandlers, name: nameof(p_stHandlers));
 
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
