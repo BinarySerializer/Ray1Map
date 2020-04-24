@@ -1,5 +1,7 @@
 ﻿namespace R1Engine
 {
+    // Value on decimal 100 is a uint flag?
+
     /// <summary>
     /// Event data for Rayman 2 (PS1 - Demo)
     /// </summary>
@@ -50,11 +52,14 @@
         // Unknown value - probably runtime only?
         public ushort RuntimeUnk1 { get; set; }
 
-        // Runtime only? Is 0 when object is no longer active.
-        public ushort Unk_42 { get; set; }
+        /// <summary>
+        /// The event type
+        /// </summary>
+        public ushort EventType { get; set; }
 
         // 68 (0x44)
 
+        // This is 2 ushorts. First one gets copied to 0x28, second one to 0x2C as integers
         public byte[] Unk2 { get; set; }
 
         // 72 (0x48)
@@ -64,6 +69,8 @@
         public ushort RuntimeOffset2 { get; set; }
 
         // 76 (0x4C)
+
+        // 0x4C and 0x4E are ushorts
 
         // Always 0 in file
         // Second byte in here determines horizontal speed and fourth byte the vertical speed
@@ -132,7 +139,7 @@
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
 
             RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
-            Unk_42 = s.Serialize<ushort>(Unk_42, name: nameof(Unk_42));
+            EventType = s.Serialize<ushort>(EventType, name: nameof(EventType));
 
             Unk2 = s.SerializeArray(Unk2, 4, name: nameof(Unk2));
 
@@ -180,4 +187,54 @@
             }
         }
     }
+
+    /*
+     
+    Event types for non-always events
+
+    0
+    2
+    3 - 1up
+    4 - Big power
+    6
+    9 - Floating mine
+    11 - Fist reflector
+    18 - Water lily
+    19 - Flying ring
+    24 - Teleport
+    27
+    34 - Enemy
+    36 - Trap cube
+    38 - Trampoline
+    48 - Scared platform
+    49 - Rayman position
+    52 - Hp potion
+    56
+    81 - Cannon
+    91
+    95 - Destructable ground
+    96
+    97 - Ting
+    98 - Dino
+    102
+    104
+
+    Event types for always events
+
+    4
+    5
+    8
+    10
+    13
+    51
+    76
+    81
+    82
+    83
+    92
+    99
+    100
+    103
+
+     */
 }

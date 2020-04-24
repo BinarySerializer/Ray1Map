@@ -187,7 +187,7 @@ namespace R1Engine
                                 $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
                                 $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
                                 $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
-                                $"Unk_42: {String.Join("-", e.Unk_42)}{Environment.NewLine}" +
+                                $"EventType: {String.Join("-", e.EventType)}{Environment.NewLine}" +
                                 $"PointerGroup1: {pointers1.FindItemIndex(y => y == e.UnkPointer1)}{Environment.NewLine}" +
                                 $"PointerGroup2: {pointers2.FindItemIndex(y => y == e.UnkPointer2)}{Environment.NewLine}" +
                                 $"PointerGroup3: {pointers3.FindItemIndex(y => y == e.UnkPointer3)}{Environment.NewLine}" +
