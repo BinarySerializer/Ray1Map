@@ -29,19 +29,26 @@
         
         // 28 (0x1C)
 
+        /// <summary>
+        /// The event x position on the map
+        /// </summary>
         public ushort XPosition { get; set; }
-        
+
+        /// <summary>
+        /// The event y position on the map
+        /// </summary>
         public ushort YPosition { get; set; }
 
         // 32 (0x20)
 
+        // First two bytes are single byte values related to UnkPointer3 - they get copied to 0x55 and 0x56
         // Between 40-44 is where x and y pos is stored during runtime
         // 56-60 is for the current state or animation
         public byte[] Unk1 { get; set; }
 
         // 56 (0x38)
 
-        // Dev pointer in file - gets set to a pointer during runtime
+        // Dev pointer in file - gets set to a pointer during runtime (*(int *)((uint)Unk1[0] * 4 + **(int **)(UnkPointer3)) + (uint)Unk1[1] * 0x10)
         public uint RuntimePointer2 { get; set; }
 
         // Always 0 in file - gets set to a pointer during runtime
@@ -59,8 +66,9 @@
 
         // 68 (0x44)
 
-        // This is 2 ushorts. First one gets copied to 0x28, second one to 0x2C as integers
-        public byte[] Unk2 { get; set; }
+        // These values always match the position. They get copied to Position2 during runtime which is in Unk1. According to source code it's 0x28 and 0x2C (as ints), but that doesn't match files.
+        public ushort XPosition3 { get; set; }
+        public ushort YPosition3 { get; set; }
 
         // 72 (0x48)
 
@@ -74,6 +82,7 @@
 
         // Always 0 in file
         // Second byte in here determines horizontal speed and fourth byte the vertical speed
+        // Last 2 bytes have values in files
         public byte[] RuntimeBytes1 { get; set; }
 
         // 84 (0x54)
@@ -83,24 +92,43 @@
         /// </summary>
         public byte RuntimeCurrentAnimFrame { get; set; }
 
-        // Always 0 in file - probably animation related
+        // First 3 bytes always match first 3 bytes of Unk1!
+        // Probably not runtime related - might have to do with animations/state?
         public byte[] RuntimeBytes2 { get; set; }
 
-        // The layer to appear on - only effects visual so not the map's z-index?
+        // The layer to appear on (0-7)
         public byte Layer { get; set; }
 
         // 90 (0x5A)
 
         public byte[] Unk3 { get; set; }
 
+        /*
+         
+           *(undefined *)(eventOffset + 0x52) = *(undefined *)(eventOffset + 0x25);
+           uVar3 = *(uint *)(eventOffset + 100);
+           *(uint *)(eventOffset + 100) = uVar3 & 0x9fffffff;
+           *(uint *)(eventOffset + 0x68) =
+           *(uint *)(eventOffset + 0x68) & 0xffffff03 | *(uint *)(eventOffset + 0x24) >> 0xf & 0xfc;
+           *(uint *)(eventOffset + 100) = uVar3 & 0x8fffffff | 0x4000000;
+           *(undefined *)(eventOffset + 0x65) = 0;
+           *(char *)(eventOffset + 100) = *(char *)(eventOffset + 0x24);
+           if (1 < (byte)(*(char *)(eventOffset + 0x24) - 1U)) {
+                *(undefined *)(eventOffset + 100) = 1;
+           }
+             
+             */
+        // Indicates if it's on the background map during runtime - always 0 in files
         public bool RuntimeIsOnBackgroundLayer { get; set; }
 
         public byte[] Unk4 { get; set; }
 
-        // Runtime only?
+        /// <summary>
+        /// Indicates if the event sprite should be flipped horizontally
+        /// </summary>
         public bool IsFlippedHorizontally { get; set; }
 
-        // Runtime only? What does it really do?
+        // Runtime only? What does it really do? - always 0 in files
         public bool IsFaded { get; set; }
 
         public byte[] Unk5 { get; set; }
@@ -141,7 +169,8 @@
             RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
             EventType = s.Serialize<ushort>(EventType, name: nameof(EventType));
 
-            Unk2 = s.SerializeArray(Unk2, 4, name: nameof(Unk2));
+            XPosition3 = s.Serialize<ushort>(XPosition3, name: nameof(XPosition3));
+            YPosition3 = s.Serialize<ushort>(YPosition3, name: nameof(YPosition3));
 
             RuntimeOffset1 = s.Serialize<ushort>(RuntimeOffset1, name: nameof(RuntimeOffset1));
             RuntimeOffset2 = s.Serialize<ushort>(RuntimeOffset2, name: nameof(RuntimeOffset2));
