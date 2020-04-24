@@ -20,6 +20,8 @@ namespace R1Engine
         // The loading string
         public Text loadingText;
 
+        public Text tempDebugText;
+
         private Stopwatch stopwatch;
         public static Context MainContext { get; private set; }
 
