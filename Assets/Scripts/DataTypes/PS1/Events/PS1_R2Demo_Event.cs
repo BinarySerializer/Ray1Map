@@ -98,6 +98,11 @@
 
         public byte[] Unk5 { get; set; }
 
+
+        public byte[] UnkPointer2Values { get; set; }
+        public byte[] UnkPointer3Values { get; set; }
+
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -157,6 +162,22 @@
                     s.SerializePointer(null, name: "test2"); // pointer to 16 byte long structs
                 });
             });*/
+
+            if (UnkPointer2 != null)
+            {
+                s.DoAt(UnkPointer2, () =>
+                {
+                    UnkPointer2Values = s.SerializeArray<byte>(UnkPointer2Values, 16, name: nameof(UnkPointer2Values));
+                });
+            }
+
+            if (UnkPointer3 != null)
+            {
+                s.DoAt(UnkPointer3, () =>
+                {
+                    UnkPointer3Values = s.SerializeArray<byte>(UnkPointer3Values, 12, name: nameof(UnkPointer3Values));
+                });
+            }
         }
     }
 }
