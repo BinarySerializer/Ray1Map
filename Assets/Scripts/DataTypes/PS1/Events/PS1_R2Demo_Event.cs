@@ -51,7 +51,7 @@
         public ushort RuntimeUnk1 { get; set; }
 
         // Runtime only? Is 0 when object is no longer active.
-        public ushort RuntimeUnk2 { get; set; }
+        public ushort Unk_42 { get; set; }
 
         // 68 (0x44)
 
@@ -132,7 +132,7 @@
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
 
             RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
-            RuntimeUnk2 = s.Serialize<ushort>(RuntimeUnk2, name: nameof(RuntimeUnk2));
+            Unk_42 = s.Serialize<ushort>(Unk_42, name: nameof(Unk_42));
 
             Unk2 = s.SerializeArray(Unk2, 4, name: nameof(Unk2));
 
