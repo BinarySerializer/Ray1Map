@@ -194,7 +194,7 @@ namespace R1Engine
                                 $"PointerGroup1: {pointers1.FindItemIndex(y => y == e.BehaviorPointer)}{Environment.NewLine}" +
                                 $"PointerGroup2: {pointers2.FindItemIndex(y => y == e.CollisionDataPointer)}{Environment.NewLine}" +
                                 $"PointerGroup3: {pointers3.FindItemIndex(y => y == e.AnimGroupPointer)}{Environment.NewLine}" +
-                                $"Pointer2Values: {String.Join("-", e.UnkPointer2Values ?? new byte[0])}{Environment.NewLine}" +
+                                $"Pointer2Values: {String.Join("-", e.CollisionDataValues ?? new byte[0])}{Environment.NewLine}" +
                                 $"AnimCount: {e.AnimGroup?.AnimationDescriptorCount}{Environment.NewLine}" +
                                 $"CurrentAnimIndex: {e.CurrentState?.AnimationIndex}{Environment.NewLine}" +
                                 $"CurrentAnimSpeed: {e.CurrentState?.AnimationSpeed}{Environment.NewLine}"
