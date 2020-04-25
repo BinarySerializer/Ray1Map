@@ -260,6 +260,7 @@
     // TODO: Move to separate file and merge with normal anim desc class
     public class PS1_R2Demo_AnimationDecriptor : R1Serializable
     {
+        // Leads to an array of pointers (size might match Unk1) which all lead to 4-byte struct arrays (of different sizes) which seem to be anim frames
         public Pointer UnkPointer1 { get; set; }
 
         public Pointer UnkPointer2 { get; set; }
