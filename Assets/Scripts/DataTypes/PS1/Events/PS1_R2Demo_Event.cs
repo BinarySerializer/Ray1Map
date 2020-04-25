@@ -15,10 +15,11 @@
         
         // 12 (0xC)
         
-        public Pointer UnkPointer1 { get; set; }
+        // Commands? This sets the object behavior.
+        public Pointer BehaviorPointer { get; set; }
 
-        // Leads to 16-byte long structures
-        public Pointer UnkPointer2 { get; set; }
+        // Leads to 16-byte long structures for collision data
+        public Pointer CollisionDataPointer { get; set; }
 
         public Pointer AnimGroupPointer { get; set; }
 
@@ -138,7 +139,7 @@
 
         // Values parsed from pointers
 
-        public byte[] UnkPointer2Values { get; set; }
+        public byte[] CollisionDataValues { get; set; }
 
         public PS1_R2Demo_EventAnimGroup AnimGroup { get; set; }
         // TODO: Parse all available states
@@ -159,8 +160,8 @@
             UShort_0A = s.Serialize<ushort>(UShort_0A, name: nameof(UShort_0A));
 
             // Serialize pointers
-            UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
-            UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
+            BehaviorPointer = s.SerializePointer(BehaviorPointer, name: nameof(BehaviorPointer));
+            CollisionDataPointer = s.SerializePointer(CollisionDataPointer, name: nameof(CollisionDataPointer));
             AnimGroupPointer = s.SerializePointer(AnimGroupPointer, name: nameof(AnimGroupPointer));
 
             p_stHandlers = s.Serialize<uint>(p_stHandlers, name: nameof(p_stHandlers));
@@ -214,11 +215,11 @@
                 });
             });*/
 
-            if (UnkPointer2 != null)
+            if (CollisionDataPointer != null)
             {
-                s.DoAt(UnkPointer2, () =>
+                s.DoAt(CollisionDataPointer, () =>
                 {
-                    UnkPointer2Values = s.SerializeArray<byte>(UnkPointer2Values, 16, name: nameof(UnkPointer2Values));
+                    CollisionDataValues = s.SerializeArray<byte>(CollisionDataValues, 16, name: nameof(CollisionDataValues));
                 });
             }
 
@@ -298,6 +299,8 @@
 
         // These two are some counts for the anim data (layers and frames)
         public ushort Unk1 { get; set; }
+
+        // Frame count
         public ushort Unk2 { get; set; }
 
         /// <summary>
