@@ -39,7 +39,12 @@
 
         // 32 (0x20)
 
-        // First two bytes are single byte values related to UnkPointer3 - they get copied to 0x55 and 0x56
+        public byte Etat { get; set; }
+        public byte SubEtat { get; set; }
+        public byte UnkStateRelatedValue { get; set; }
+
+        // 24 (0x22)
+
         // Between 40-44 is where x and y pos is stored during runtime
         // 56-60 is for the current state or animation
         public byte[] Unk1 { get; set; }
@@ -90,9 +95,10 @@
         /// </summary>
         public byte RuntimeCurrentAnimFrame { get; set; }
 
-        // First 3 bytes always match first 3 bytes of Unk1!
-        // Probably not runtime related - might have to do with animations/state?
-        public byte[] RuntimeBytes2 { get; set; }
+        public byte RuntimeEtat { get; set; }
+        public byte RuntimeSubEtat { get; set; }
+        public byte RuntimeUnkStateRelatedValue { get; set; }
+        public byte Unk_58 { get; set; }
 
         // The layer to appear on (0-7)
         public byte Layer { get; set; }
@@ -162,7 +168,11 @@
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
 
-            Unk1 = s.SerializeArray(Unk1, 24, name: nameof(Unk1));
+            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
+            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
+            UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
+
+            Unk1 = s.SerializeArray(Unk1, 21, name: nameof(Unk1));
 
             RuntimePointer2 = s.Serialize<uint>(RuntimePointer2, name: nameof(RuntimePointer2));
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
@@ -178,7 +188,11 @@
 
             RuntimeBytes1 = s.SerializeArray(RuntimeBytes1, 8, name: nameof(RuntimeBytes1));
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
-            RuntimeBytes2 = s.SerializeArray(RuntimeBytes2, 4, name: nameof(RuntimeBytes2));
+
+            RuntimeEtat = s.Serialize<byte>(RuntimeEtat, name: nameof(RuntimeEtat));
+            RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
+            RuntimeUnkStateRelatedValue = s.Serialize<byte>(RuntimeUnkStateRelatedValue, name: nameof(RuntimeUnkStateRelatedValue));
+            Unk_58 = s.Serialize<byte>(Unk_58, name: nameof(Unk_58));
 
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 

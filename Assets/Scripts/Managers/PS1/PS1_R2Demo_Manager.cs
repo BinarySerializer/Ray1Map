@@ -184,12 +184,13 @@ namespace R1Engine
                     LinkIndex = lvlData.EventLinkTable[index],
                     DebugText = $"Unk1: {String.Join("-", e.Unk1)}{Environment.NewLine}" +
                                 $"Pos: ({e.XPosition},{e.YPosition}){Environment.NewLine}" +
-                                $"Pos3: ({e.XPosition3},{e.YPosition3}){Environment.NewLine}" +
+                                $"EventType: {String.Join("-", e.EventType)}{Environment.NewLine}" +
+                                $"Etat: {e.Etat}{Environment.NewLine}" +
+                                $"SubEtat: {e.SubEtat}{Environment.NewLine}" +
+                                $"UnkStateRelatedValue: {e.UnkStateRelatedValue}{Environment.NewLine}" +
                                 $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
                                 $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
                                 $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
-                                $"EventType: {String.Join("-", e.EventType)}{Environment.NewLine}" +
-                                $"RuntimeBytes2: {String.Join("-", e.RuntimeBytes2)}{Environment.NewLine}" +
                                 $"PointerGroup1: {pointers1.FindItemIndex(y => y == e.UnkPointer1)}{Environment.NewLine}" +
                                 $"PointerGroup2: {pointers2.FindItemIndex(y => y == e.UnkPointer2)}{Environment.NewLine}" +
                                 $"PointerGroup3: {pointers3.FindItemIndex(y => y == e.AnimGroupPointer)}{Environment.NewLine}" +
