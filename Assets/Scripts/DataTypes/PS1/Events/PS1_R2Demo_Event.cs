@@ -83,6 +83,7 @@
 
         // 0x4C and 0x4E are ushorts
 
+        // This below here seems to almost exact match the event state object - perhaps the current event state gets copied to here during runtime?
         // Always 0 in file
         // Second byte in here determines horizontal speed and fourth byte the vertical speed
         // Last 2 bytes have values in files
@@ -143,6 +144,8 @@
         public byte[] UnkPointer2Values { get; set; }
 
         public PS1_R2Demo_EventAnimGroup AnimGroup { get; set; }
+        // TODO: Parse all available states
+        public PS1_R2Demo_EventState CurrentState { get; set; }
 
 
         /// <summary>
@@ -227,6 +230,20 @@
                 s.DoAt(AnimGroupPointer, () =>
                 {
                     AnimGroup = s.SerializeObject<PS1_R2Demo_EventAnimGroup>(AnimGroup, name: nameof(AnimGroup));
+
+                    // TODO: Serialize all states
+                    if (AnimGroup?.EtaPointer != null)
+                    {
+                        s.DoAt(AnimGroup.EtaPointer + (Etat * 4), () =>
+                        {
+                            var currentEtatPointer = s.SerializePointer(null, name: "currentEtatPointer");
+
+                            s.DoAt(currentEtatPointer + (16 * SubEtat), () =>
+                            {
+                                CurrentState = s.SerializeObject<PS1_R2Demo_EventState>(CurrentState, name: nameof(CurrentState));
+                            });
+                        });
+                    }
                 });
             }
         }
@@ -301,6 +318,42 @@
         }
     }
 
+    // TODO: Move to separate file and merge with normal event state class
+    public class PS1_R2Demo_EventState : R1Serializable
+    {
+        // Right speed and left speed
+        public byte[] Unk0 { get; set; }
+
+        public byte AnimationIndex { get; set; }
+
+        public byte[] Unk1 { get; set; }
+
+        public byte LinkedEtat { get; set; }
+        public byte LinkedSubEtat { get; set; }
+
+        public byte Unk2 { get; set; }
+
+        public byte AnimationSpeed { get; set; }
+
+        public byte[] Unk3 { get; set; }
+
+        /// <summary>
+        /// Handles the data serialization
+        /// </summary>
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s)
+        {
+            Unk0 = s.SerializeArray<byte>(Unk0, 4, name: nameof(Unk0));
+            AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
+            Unk1 = s.SerializeArray<byte>(Unk1, 5, name: nameof(Unk1));
+            LinkedEtat = s.Serialize<byte>(LinkedEtat, name: nameof(LinkedEtat));
+            LinkedSubEtat = s.Serialize<byte>(LinkedSubEtat, name: nameof(LinkedSubEtat));
+            Unk2 = s.Serialize<byte>(Unk2, name: nameof(Unk2));
+            AnimationSpeed = s.Serialize<byte>(AnimationSpeed, name: nameof(AnimationSpeed));
+            Unk3 = s.SerializeArray<byte>(Unk3, 2, name: nameof(Unk3));
+        }
+    }
+
     // TODO: Create enum
     /*
      
@@ -322,7 +375,7 @@
     38 - Trampoline
     48 - 
     49 - Rayman position
-    52 - Hp potion
+    52 - Hp potion?
     56
     81 - Cannon
     91
