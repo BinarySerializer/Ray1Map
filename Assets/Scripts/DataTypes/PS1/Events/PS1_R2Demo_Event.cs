@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    // Value on decimal 100 is a uint flag?
+    // TODO: Clean up this class
 
     /// <summary>
     /// Event data for Rayman 2 (PS1 - Demo)
@@ -46,13 +46,12 @@
         // 24 (0x22)
 
         // Between 40-44 is where x and y pos is stored during runtime
-        // 56-60 is for the current state or animation
         public byte[] Unk1 { get; set; }
 
         // 56 (0x38)
 
-        // Dev pointer in file - gets set to a pointer during runtime (*(int *)((uint)Unk1[0] * 4 + **(int **)(UnkPointer3)) + (uint)Unk1[1] * 0x10)
-        public uint RuntimePointer2 { get; set; }
+        // Dev pointer in file - gets set to a pointer to the current event state during runtime
+        public uint RuntimeCurrentStatePointer { get; set; }
 
         // Always 0 in file - gets set to a pointer during runtime
         public uint RuntimePointer3 { get; set; }
@@ -83,10 +82,8 @@
 
         // 0x4C and 0x4E are ushorts
 
-        // This below here seems to almost exact match the event state object - perhaps the current event state gets copied to here during runtime?
-        // Always 0 in file
         // Second byte in here determines horizontal speed and fourth byte the vertical speed
-        // Last 2 bytes have values in files
+        // Always 0 in files except last 2 bytes
         public byte[] RuntimeBytes1 { get; set; }
 
         // 84 (0x54)
@@ -177,7 +174,7 @@
 
             Unk1 = s.SerializeArray(Unk1, 21, name: nameof(Unk1));
 
-            RuntimePointer2 = s.Serialize<uint>(RuntimePointer2, name: nameof(RuntimePointer2));
+            RuntimeCurrentStatePointer = s.Serialize<uint>(RuntimeCurrentStatePointer, name: nameof(RuntimeCurrentStatePointer));
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
 
             RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
