@@ -20,9 +20,7 @@
         // Leads to 16-byte long structures
         public Pointer UnkPointer2 { get; set; }
 
-        // Leads to 12-byte long structures. Usually it's {Pointer1, Pointer2, ushort1, ushort2}
-        // Pointer1 leads to more pointers
-        public Pointer UnkPointer3 { get; set; }
+        public Pointer AnimGroupPointer { get; set; }
 
         // Always 0 in file - gets set to a pointer to a function during runtime which gets called whenever the event is initialized
         public uint p_stHandlers { get; set; }
@@ -134,8 +132,11 @@
         public byte[] Unk5 { get; set; }
 
 
+        // Values parsed from pointers
+
         public byte[] UnkPointer2Values { get; set; }
-        public byte[] UnkPointer3Values { get; set; }
+
+        public PS1_R2Demo_EventAnimGroup AnimGroup { get; set; }
 
 
         /// <summary>
@@ -154,7 +155,7 @@
             // Serialize pointers
             UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
             UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
-            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
+            AnimGroupPointer = s.SerializePointer(AnimGroupPointer, name: nameof(AnimGroupPointer));
 
             p_stHandlers = s.Serialize<uint>(p_stHandlers, name: nameof(p_stHandlers));
 
@@ -207,16 +208,85 @@
                 });
             }
 
-            if (UnkPointer3 != null)
+            if (AnimGroupPointer != null)
             {
-                s.DoAt(UnkPointer3, () =>
+                s.DoAt(AnimGroupPointer, () =>
                 {
-                    UnkPointer3Values = s.SerializeArray<byte>(UnkPointer3Values, 12, name: nameof(UnkPointer3Values));
+                    AnimGroup = s.SerializeObject<PS1_R2Demo_EventAnimGroup>(AnimGroup, name: nameof(AnimGroup));
                 });
             }
         }
     }
 
+    // TODO: Move to separate file
+    public class PS1_R2Demo_EventAnimGroup : R1Serializable
+    {
+        // Leads to the ETA pointer array which leads to each event state (16 bytes each)
+        public Pointer EtaPointer { get; set; }
+
+        public Pointer AnimationDescriptorsPointer { get; set; }
+
+        public ushort AnimationDescriptorCount { get; set; }
+
+        // Usually 0
+        public ushort Unknown { get; set; }
+
+
+        public PS1_R2Demo_AnimationDecriptor[] AnimationDecriptors { get; set; }
+
+
+        /// <summary>
+        /// Handles the data serialization
+        /// </summary>
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s)
+        {
+            EtaPointer = s.SerializePointer(EtaPointer, name: nameof(EtaPointer));
+            AnimationDescriptorsPointer = s.SerializePointer(AnimationDescriptorsPointer, name: nameof(AnimationDescriptorsPointer));
+
+            AnimationDescriptorCount = s.Serialize<ushort>(AnimationDescriptorCount, name: nameof(AnimationDescriptorCount));
+            Unknown = s.Serialize<ushort>(Unknown, name: nameof(Unknown));
+
+            if (AnimationDescriptorsPointer != null)
+            {
+                s.DoAt(AnimationDescriptorsPointer, () =>
+                {
+                    AnimationDecriptors = s.SerializeObjectArray<PS1_R2Demo_AnimationDecriptor>(AnimationDecriptors, AnimationDescriptorCount, name: nameof(AnimationDecriptors));
+                });
+            }
+        }
+    }
+
+    // TODO: Move to separate file and merge with normal anim desc class
+    public class PS1_R2Demo_AnimationDecriptor : R1Serializable
+    {
+        public Pointer UnkPointer1 { get; set; }
+
+        public Pointer UnkPointer2 { get; set; }
+
+        // Usually null
+        public Pointer UnkPointer3 { get; set; }
+
+        // These two are some counts for the anim data (layers and frames)
+        public ushort Unk1 { get; set; }
+        public ushort Unk2 { get; set; }
+
+        /// <summary>
+        /// Handles the data serialization
+        /// </summary>
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s)
+        {
+            UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
+            UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
+            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
+
+            Unk1 = s.Serialize<ushort>(Unk1, name: nameof(Unk1));
+            Unk2 = s.Serialize<ushort>(Unk2, name: nameof(Unk2));
+        }
+    }
+
+    // TODO: Create enum
     /*
      
     Event types for non-always events
@@ -232,10 +302,10 @@
     19 - Flying ring
     24 - Teleport
     27
-    34 - Enemy
+    34 - Scared platform
     36 - Trap cube
     38 - Trampoline
-    48 - Scared platform
+    48 - 
     49 - Rayman position
     52 - Hp potion
     56

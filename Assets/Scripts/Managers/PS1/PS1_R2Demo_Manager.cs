@@ -151,7 +151,7 @@ namespace R1Engine
             // Temporary to see which pointers match
             var pointers1 = lvlData.Events.Select(x => x.UnkPointer1).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
             var pointers2 = lvlData.Events.Select(x => x.UnkPointer2).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
-            var pointers3 = lvlData.Events.Select(x => x.UnkPointer3).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
+            var pointers3 = lvlData.Events.Select(x => x.AnimGroupPointer).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
 
             // Load the level
             var level = await LoadAsync(context, map, null, null, loadTextures);
@@ -192,9 +192,9 @@ namespace R1Engine
                                 $"RuntimeBytes2: {String.Join("-", e.RuntimeBytes2)}{Environment.NewLine}" +
                                 $"PointerGroup1: {pointers1.FindItemIndex(y => y == e.UnkPointer1)}{Environment.NewLine}" +
                                 $"PointerGroup2: {pointers2.FindItemIndex(y => y == e.UnkPointer2)}{Environment.NewLine}" +
-                                $"PointerGroup3: {pointers3.FindItemIndex(y => y == e.UnkPointer3)}{Environment.NewLine}" +
+                                $"PointerGroup3: {pointers3.FindItemIndex(y => y == e.AnimGroupPointer)}{Environment.NewLine}" +
                                 $"Pointer2Values: {String.Join("-", e.UnkPointer2Values ?? new byte[0])}{Environment.NewLine}" +
-                                $"Pointer3Values: {String.Join("-", e.UnkPointer3Values?.Skip(8) ?? new byte[0])}{Environment.NewLine}"
+                                $"AnimCount: {e.AnimGroup?.AnimationDescriptorCount}{Environment.NewLine}"
                 });
 
                 index++;
