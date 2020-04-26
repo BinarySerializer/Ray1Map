@@ -25,6 +25,7 @@
         /// </summary>
         public ushort OuterHeight { get; set; }
 
+        // These are most likely the hitbox sizes for hitsprite and followsprite
         /// <summary>
         /// The inner image width
         /// </summary>
@@ -43,7 +44,7 @@
         /// </summary>
         public ushort ImageType { get; set; }
 
-        // Some of these are hitbox related
+        // Some of these are hitbox related - one is probably a flag for if the sprite is a dummy sprite (garbage pixels)
         public byte Unknown2 { get; set; }
         public byte Unknown3 { get; set; }
         public byte Unknown4 { get; set; }

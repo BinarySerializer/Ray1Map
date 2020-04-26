@@ -1,7 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -203,11 +202,6 @@ namespace R1Engine
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
 
-            // Temporary to see which pointers match
-            var pointers1 = lvlData.Events.Select(x => x.BehaviorPointer).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
-            var pointers2 = lvlData.Events.Select(x => x.CollisionDataPointer).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
-            var pointers3 = lvlData.Events.Select(x => x.AnimGroupPointer).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
-
             // Test export
             /*if (loadTextures) {
                 // Get the v-ram
@@ -224,26 +218,57 @@ namespace R1Engine
 
             }*/
 
+            var globalDESKey = lvlData.FixImageDescriptorsPointer;
 
+            // Get the tile set
+            Common_Tileset tileSet = GetTileSet(context);
 
-            // Load the level
-            var level = await LoadAsync(context, map, null, null, loadTextures);
+            var animGroups = new List<PS1_R2Demo_EventAnimGroup>();
+            var commonEvents = new List<Common_EventData>();
+
+            if (loadTextures)
+                // Get the v-ram
+                FillVRAM(context);
+
+            var animBaseIndex = 0;
 
             var index = 0;
 
+            var events = lvlData.Events.ToArray();
+
             // Add every event
-            foreach (var e in lvlData.Events)
+            foreach (var e in events)
             {
+                Controller.status = $"Loading event {index}/{events.Length}";
+
+                await Controller.WaitIfNecessary();
+
+                // Add if not found
+                if (!animGroups.Contains(e.AnimGroup) && e.AnimGroup != null)
+                {
+                    // Add to the list
+                    animGroups.Add(e.AnimGroup);
+
+                    if (e.AnimGroup?.EventStates != null)
+                    {
+                        // TODO: Clean up this hack
+                        foreach (var ee in e.AnimGroup.EventStates.SelectMany(x => x))
+                            ee.AnimationIndex = (byte)(animBaseIndex + ee.AnimationIndex);
+                    }
+
+                    animBaseIndex += (int)e.AnimGroup?.AnimationDescriptorCount;
+                }
+
                 // Add the event
-                level.Level.EventData.Add(new Common_EventData
+                commonEvents.Add(new Common_EventData
                 {
                     //Type = e.Type,
-                    //Etat = e.Etat,
-                    //SubEtat = e.SubEtat,
+                    Etat = e.Etat,
+                    SubEtat = e.SubEtat,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
-                    DESKey = String.Empty,
-                    ETAKey = String.Empty,
+                    DESKey = globalDESKey.ToString(),
+                    ETAKey = e.AnimGroup?.ETAPointer?.ToString() ?? "NULL",
                     //OffsetBX = e.OffsetBX,
                     //OffsetBY = e.OffsetBY,
                     //OffsetHY = e.OffsetHY,
@@ -263,21 +288,128 @@ namespace R1Engine
                                 $"UnkStateRelatedValue: {e.UnkStateRelatedValue}{Environment.NewLine}" +
                                 $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
                                 $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
-                                $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
-                                $"PointerGroup1: {pointers1.FindItemIndex(y => y == e.BehaviorPointer)}{Environment.NewLine}" +
-                                $"PointerGroup2: {pointers2.FindItemIndex(y => y == e.CollisionDataPointer)}{Environment.NewLine}" +
-                                $"PointerGroup3: {pointers3.FindItemIndex(y => y == e.AnimGroupPointer)}{Environment.NewLine}" +
-                                $"Pointer2Values: {String.Join("-", e.CollisionDataValues ?? new byte[0])}{Environment.NewLine}" +
-                                $"AnimCount: {e.AnimGroup?.AnimationDescriptorCount}{Environment.NewLine}" +
-                                $"CurrentAnimIndex: {e.CurrentState?.AnimationIndex}{Environment.NewLine}" +
-                                $"CurrentAnimSpeed: {e.CurrentState?.AnimationSpeed}{Environment.NewLine}"
+                                $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}"
                 });
 
                 index++;
             }
-            
-            // Return the level
-            return level;
+
+            // Create the global design
+            Common_Design globalDesign = new Common_Design
+            {
+                Sprites = new List<Sprite>(),
+                Animations = new List<Common_Animation>()
+            };
+
+            // Add every sprite
+            foreach (var img in lvlData.FixImageDescriptors.Concat(FileFactory.Read<ObjectArray<Common_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC).Value))
+            {
+                Texture2D tex = GetSpriteTexture(context, null, img);
+
+                // Add it to the array
+                globalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+            }
+
+            // Add every animations
+            foreach (var a in animGroups.SelectMany(x => x?.AnimationDecriptors ?? new PS1_R2Demo_AnimationDecriptor[0]))
+            {
+                // Create the animation
+                var animation = new Common_Animation
+                {
+                    Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
+
+                    // TODO: Set these values correctly
+                    DefaultFrameXPosition = 20,
+                    DefaultFrameYPosition = 20,
+                    DefaultFrameWidth = 20,
+                    DefaultFrameHeight = 20,
+                };
+
+                // The layer index
+                var layer = 0;
+
+                // Create each frame
+                for (int i = 0; i < a.FrameCount; i++)
+                {
+                    // Create each layer
+                    for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
+                    {
+                        var animationLayer = a.Layers[layer];
+                        layer++;
+
+                        // Create the animation part
+                        var part = new Common_AnimationPart
+                        {
+                            SpriteIndex = animationLayer.ImageIndex,
+                            X = animationLayer.XPosition,
+                            Y = animationLayer.YPosition,
+                        };
+
+                        // Add the texture
+                        animation.Frames[i, layerIndex] = part;
+                    }
+                }
+
+                // Add the animation to list
+                globalDesign.Animations.Add(animation);
+            }
+
+            await Controller.WaitIfNecessary();
+
+            // Convert levelData to common level format
+            Common_Lev c = new Common_Lev
+            {
+                // Set the dimensions
+                Width = map.Width,
+                Height = map.Height,
+
+                // Create the events list
+                EventData = new List<Common_EventData>(),
+
+                // Create the tile array
+                TileSet = new Common_Tileset[4]
+            };
+            c.TileSet[0] = tileSet;
+
+            // Add the events
+            c.EventData = commonEvents;
+
+            await Controller.WaitIfNecessary();
+
+            // Set the tiles
+            c.Tiles = new Common_Tile[map.Width * map.Height];
+
+            int tileIndex = 0;
+            for (int y = 0; y < map.Height; y++)
+            {
+                for (int x = 0; x < map.Width; x++)
+                {
+                    var graphicX = map.Tiles[tileIndex].TileMapX;
+                    var graphicY = map.Tiles[tileIndex].TileMapY;
+
+                    Common_Tile newTile = new Common_Tile
+                    {
+                        PaletteIndex = 1,
+                        XPosition = x,
+                        YPosition = y,
+                        CollisionType = map.Tiles[tileIndex].CollisionType,
+                        TileSetGraphicIndex = (TileSetWidth * graphicY) + graphicX
+                    };
+
+                    c.Tiles[tileIndex] = newTile;
+
+                    tileIndex++;
+                }
+            }
+
+            // Return an editor manager
+            return new PS1EditorManager(c, context, new Dictionary<Pointer, Common_Design>()
+            {
+                {
+                    globalDESKey,
+                    globalDesign
+                }
+            }, animGroups.Where(x => x != null).ToDictionary(x => x.ETAPointer, x => x.EventStates));
         }
 
         /// <summary>

@@ -15,6 +15,11 @@ namespace R1Engine
         RayPS1,
 
         /// <summary>
+        /// Rayman 2 (PS1 - Demo)
+        /// </summary>
+        Ray2PS1,
+
+        /// <summary>
         /// Rayman 1 (PS1 - JP)
         /// </summary>
         RayPS1JP,

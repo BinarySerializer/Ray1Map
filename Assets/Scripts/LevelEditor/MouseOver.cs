@@ -30,7 +30,8 @@ namespace R1Engine
                                    $"Offsets: {e.Data.OffsetBX} x {e.Data.OffsetBY} x {e.Data.OffsetHY}";
 
                 // Set debug text
-                Controller.obj.tempDebugText.text = e.Data.DebugText;
+                Controller.obj.tempDebugText.text = $"{e.Data.DebugText}{Environment.NewLine}" +
+                                                    $"Frames: {e.CurrentAnimation.Frames.GetLength(0)}";
             }
             // Else Mouse over type
             else {

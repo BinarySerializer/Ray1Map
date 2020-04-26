@@ -60,7 +60,7 @@
             else
             {
                 ushort value = 0;
-                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1)
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1 || s.GameSettings.EngineVersion == EngineVersion.Ray2PS1)
                 {
                     value = (ushort)BitHelpers.SetBits(value, TileMapX, 4, 0);
                     value = (ushort)BitHelpers.SetBits(value, TileMapY, 6, 4);
@@ -72,7 +72,7 @@
                     value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 7, 9);
                 }
                 value = s.Serialize<ushort>(value, name: nameof(value));
-                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1)
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1 || s.GameSettings.EngineVersion == EngineVersion.Ray2PS1)
                 {
                     TileMapX = BitHelpers.ExtractBits(value, 4, 0);
                     TileMapY = BitHelpers.ExtractBits(value, 6, 4);

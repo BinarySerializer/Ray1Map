@@ -72,7 +72,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayPocketPC, Game.Rayman1, "Rayman Classic (Mobile)", typeof(Mobile_R1_Manager))]
         RaymanClassicMobile,
 
-        [GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1, Game.Rayman2, "Rayman 2 (PS1 - Demo)", typeof(PS1_R2Demo_Manager))]
+        [GameMode(MajorEngineVersion.PS1, EngineVersion.Ray2PS1, Game.Rayman2, "Rayman 2 (PS1 - Demo)", typeof(PS1_R2Demo_Manager))]
         Rayman2PS1Demo,
     }
 }
