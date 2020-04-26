@@ -232,19 +232,19 @@
     11 - Fist reflector
     18 - Water lily
     19 - Flying ring
-    24 - Teleport
-    27
+    24 - Teleporter
+    27 - Exit sign
     34 - Scared platform
     36 - Trap cube
     38 - Trampoline
     48 - 
     49 - Rayman position
-    52 - Hp potion?
-    56
+    52 - Hp potion
+    56 - Rotating cube
     81 - Cannon
     91
     95 - Destructable ground
-    96
+    96 - Smack BX-003
     97 - Ting
     98 - Dino
     102
@@ -252,20 +252,20 @@
 
     Event types for always events
 
-    4
-    5
-    8
-    10
+    4 - Small power
+    5 - Flash
+    8 - Hit effect
+    10 - Explosion
     13
-    51
+    51 - Bolts
     76
     81
     82
-    83
-    92
+    83 - Cannonball
+    92 - Moving gunshot
     99
-    100
-    103
+    100 - Weird ball
+    103 - Gunshot explosion
 
      */
 }

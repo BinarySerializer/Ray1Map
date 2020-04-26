@@ -181,6 +181,9 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
+            await Controller.WaitIfNecessary();
+            Controller.status = $"Loading files";
+
             uint baseAddress = 0x80018000;
 
             // TODO: Move these to methods to avoid hard-coding
@@ -201,12 +204,12 @@ namespace R1Engine
 
 
             baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
-            baseAddress -= 0x5E; // FIX.DTA header size
+            baseAddress -= 94; // FIX.DTA header size
             Pointer fixDTAHeader = new Pointer(baseAddress, context.FilePointer(fixDTAPath).file);
-            context.Deserializer.DoAt(fixDTAHeader, () => {
-                // TODO: Read header here (0x5E bytes). Should be done now because these bytes will be overwritten
 
-            });
+            PS1_R2Demo_AllfixFooter footer = null;
+
+            context.Deserializer.DoAt(fixDTAHeader, () => footer = context.Deserializer.SerializeObject<PS1_R2Demo_AllfixFooter>(null, name: "AllfixFooter"));
             await LoadFile(context, fixGRPPath, 0);
             await LoadFile(context, sprPLSPath, 0);
             baseAddress += await LoadFile(context, levelSPRPath, baseAddress);
@@ -215,27 +218,17 @@ namespace R1Engine
             await LoadFile(context, tileSetPath, 0);
             await LoadFile(context, mapPath, 0); // TODO: Load all maps for this level
 
+            await Controller.WaitIfNecessary();
+            Controller.status = $"Loading level data";
+
             // Read the level data
             var lvlData = FileFactory.Read<PS1_R2Demo_LevDataFile>(levelDTAPath, context);
 
             // Read the map block
             var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
 
-            // Test export
-            /*if (loadTextures) {
-                // Get the v-ram
-                FillVRAM(context);
-                for (int i = 0; i < lvlData.FixImageDescriptors.Length; i++) {
-                    Texture2D t = GetSpriteTexture(context, null, lvlData.FixImageDescriptors[i]);
-                    Util.ByteArrayToFile(context.Settings.GameDirectory + "textures/fix_" + i + ".png", t.EncodeToPNG());
-                }
-                ObjectArray<Common_ImageDescriptor> test_img = FileFactory.Read<ObjectArray<Common_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC);
-                for (int i = 0; i < test_img.Length; i++) {
-                    Texture2D t = GetSpriteTexture(context, null, test_img.Value[i]);
-                    Util.ByteArrayToFile(context.Settings.GameDirectory + "textures/level_" + i + ".png", t.EncodeToPNG());
-                }
-
-            }*/
+            await Controller.WaitIfNecessary();
+            Controller.status = $"Loading sprite data";
 
             var globalDESKey = lvlData.FixImageDescriptorsPointer;
 
@@ -255,55 +248,54 @@ namespace R1Engine
             // Get the animations
             var anim = events.Where(x => x.AnimGroup?.AnimationDecriptors != null).
                 SelectMany(x => x.AnimGroup.AnimationDecriptors).
+                // Add Rayman's animations
+                Concat(footer.RaymanAnimGroup.AnimationDecriptors).
                 Where(x => x != null).
                 Distinct().
                 ToArray();
 
+            // Get the ETA
+            foreach (var animGroup in events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup))
+            {
+                if (animGroup?.ETAPointer == null || eventETA.ContainsKey(animGroup.ETAPointer))
+                    continue;
+
+                // Add the ETA
+                eventETA.Add(animGroup.ETAPointer, animGroup.EventStates);
+
+                // TODO: Find a better way of doing this
+                // Change animation index to target global array
+                if (animGroup.AnimationDecriptors != null)
+                {
+                    foreach (var state in animGroup.EventStates.SelectMany(x => x))
+                    {
+                        var a = animGroup.AnimationDecriptors.ElementAtOrDefault(state.AnimationIndex);
+
+                        if (a == null)
+                        {
+                            Debug.LogWarning($"Animation descriptor not found of index {state.AnimationIndex} with length {animGroup.AnimationDecriptors.Length}");
+
+                            state.AnimationIndex = 0;
+                        }
+                        else
+                        {
+                            state.AnimationIndex = (byte)(anim.FindItemIndex(x => x == a));
+                        }
+                    }
+                }
+            }
+
+            Controller.status = $"Loading events";
+
             Debug.Log($"Loading {anim.Length} animations");
+
+            await Controller.WaitIfNecessary();
 
             var index = 0;
 
             // Add every event
             foreach (var e in events)
             {
-                Controller.status = $"Loading event {index}/{events.Length}";
-
-                await Controller.WaitIfNecessary();
-
-                // Add ETA if not found
-                if (e.AnimGroup?.ETAPointer != null && !eventETA.ContainsKey(e.AnimGroup?.ETAPointer))
-                {
-                    // Add the ETA
-                    eventETA.Add(e.AnimGroup.ETAPointer, e.AnimGroup.EventStates);
-
-                    if (e.AnimGroup.AnimationDecriptors != null)
-                    {
-                        // TODO: Clean up this hack
-                        // Correct animation index
-                        foreach (var state in e.AnimGroup.EventStates.SelectMany(x => x))
-                        {
-                            var a = e.AnimGroup.AnimationDecriptors.ElementAtOrDefault(state.AnimationIndex);
-
-                            if (a == null)
-                            {
-                                Debug.LogWarning($"Animation descriptor not found of index {state.AnimationIndex} with length {e.AnimGroup.AnimationDecriptors.Length}");
-                                state.AnimationIndex = 0;
-                            }
-                            else
-                            {
-                                state.AnimationIndex = (byte)(anim.FindItemIndex(x => x == a));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"The animation descriptors are null for type {e.EventType}!");
-                    }
-                }
-
-                if (e.AnimGroup?.ETAPointer == null)
-                    Debug.LogWarning($"ETA pointer is null for type {e.EventType}!");
-
                 // Add the event
                 commonEvents.Add(new Common_EventData
                 {
@@ -356,6 +348,9 @@ namespace R1Engine
                 globalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
             }
 
+            await Controller.WaitIfNecessary();
+            Controller.status = $"Loading animations";
+
             // Add every animations
             foreach (var a in anim)
             {
@@ -400,6 +395,7 @@ namespace R1Engine
             }
 
             await Controller.WaitIfNecessary();
+            Controller.status = $"Loading tiles";
 
             // Convert levelData to common level format
             Common_Lev c = new Common_Lev
