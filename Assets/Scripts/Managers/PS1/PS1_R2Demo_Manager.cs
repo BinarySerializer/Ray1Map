@@ -237,6 +237,7 @@ namespace R1Engine
             var anim = events.Where(x => x.AnimGroup?.AnimationDecriptors != null).
                 SelectMany(x => x.AnimGroup.AnimationDecriptors).
                 Where(x => x != null).
+                Distinct().
                 ToArray();
 
             var index = 0;
