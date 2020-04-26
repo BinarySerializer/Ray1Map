@@ -231,7 +231,7 @@ namespace R1Engine
                 FillVRAM(context);
 
             // Get the events
-            var events = lvlData.Events.ToArray();
+            var events = lvlData.Events.Concat(lvlData.AlwaysEvents).ToArray();
 
             // Get the animations
             var anim = events.Where(x => x.AnimGroup?.AnimationDecriptors != null).
@@ -305,7 +305,7 @@ namespace R1Engine
                     //FollowEnabled = e.GetFollowEnabled(context.Settings),
                     //LabelOffsets = e.LabelOffsets,
                     //CommandCollection = e.Commands,
-                    LinkIndex = lvlData.EventLinkTable[index],
+                    LinkIndex = lvlData.EventLinkTable.Length > index ? lvlData.EventLinkTable[index] : index,
                     DebugText = $"Unk1: {String.Join("-", e.Unk1)}{Environment.NewLine}" +
                                 $"Pos: ({e.XPosition},{e.YPosition}){Environment.NewLine}" +
                                 $"EventType: {String.Join("-", e.EventType)}{Environment.NewLine}" +

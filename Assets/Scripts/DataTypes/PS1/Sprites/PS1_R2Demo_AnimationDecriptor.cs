@@ -59,6 +59,7 @@
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
             Unk2 = s.Serialize<byte>(Unk2, name: nameof(Unk2));
 
+            // TODO: Serialize the 4-byte frame data
             // Serialize layers
             s.DoAt(LayersPointer + (4 * FrameCount), () => Layers = s.SerializeObjectArray<Common_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: nameof(Layers)));
 
