@@ -25,7 +25,7 @@ namespace R1Engine
         public string GetLevelDataPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.DTA";
 
         public string GetSubMapTilesetPath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.RAW";
-        public string GetSubMapPalettePath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.PAL";
+        public string GetSubMapPalettePath(GameSettings s, int level) => $"JUNGLE/{GetMapName(level)}.PAL";
         public string GetSubMapPath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.MPU";
 
 
@@ -77,7 +77,7 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Common_Tileset GetTileSet(Context context) {
             var tileSetPath = GetSubMapTilesetPath(context.Settings);
-            var palettePath = GetSubMapPalettePath(context.Settings);
+            var palettePath = GetSubMapPalettePath(context.Settings, context.Settings.Level);
             var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
             var palette = FileFactory.Read<ObjectArray<ARGB1555Color>>(palettePath, context, (s, x) => x.Length = s.CurrentLength / 2);
 
@@ -94,6 +94,11 @@ namespace R1Engine
             var fixGraphics = FileFactory.Read<Array<byte>>(FixGraphicsPath, context, onPreSerialize: (s,a) => a.Length = s.CurrentLength);
             var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
             var palettes = FileFactory.Read<ObjectArray<ARGB1555Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
+
+            var tilePalettes = new ObjectArray<ARGB1555Color>[4];
+            for (int i = 0; i < 4; i++) {
+                tilePalettes[i] = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetSubMapPalettePath(context.Settings, i+1), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
+            }
             
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -116,6 +121,17 @@ namespace R1Engine
 
             // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
             int paletteY = 240;
+            vram.AddDataAt(0, 0, 0, paletteY, palettes.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+
+            paletteY = 248;
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[0].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[1].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[1].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[1].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[1].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[2].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[3].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, tilePalettes[3].Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
             /*vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
@@ -176,8 +192,12 @@ namespace R1Engine
             var levelGRPPath = GetLevelGraphicsPath(context.Settings); // GRaPhics/graphismes
             // TODO: Load submaps based on levelDTA file
             var tileSetPath = GetSubMapTilesetPath(context.Settings);
-            var palettePath = GetSubMapPalettePath(context.Settings);
+            //var palettePath = GetSubMapPalettePath(context.Settings);
             var mapPath = GetSubMapPath(context.Settings);
+
+            for (int i = 0; i < 4; i++) {
+                await LoadFile(context, GetSubMapPalettePath(context.Settings, i+1), 0);
+            }
 
 
             baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
@@ -193,7 +213,6 @@ namespace R1Engine
             baseAddress += await LoadFile(context, levelDTAPath, baseAddress);
             await LoadFile(context, levelGRPPath, 0);
             await LoadFile(context, tileSetPath, 0);
-            await LoadFile(context, palettePath, 0);
             await LoadFile(context, mapPath, 0); // TODO: Load all maps for this level
 
             // Read the level data
