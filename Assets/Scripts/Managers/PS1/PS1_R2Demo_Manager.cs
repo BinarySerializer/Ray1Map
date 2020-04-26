@@ -223,18 +223,23 @@ namespace R1Engine
             // Get the tile set
             Common_Tileset tileSet = GetTileSet(context);
 
-            var animGroups = new List<PS1_R2Demo_EventAnimGroup>();
+            var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
             var commonEvents = new List<Common_EventData>();
 
             if (loadTextures)
                 // Get the v-ram
                 FillVRAM(context);
 
-            var animBaseIndex = 0;
+            // Get the events
+            var events = lvlData.Events.ToArray();
+
+            // Get the animations
+            var anim = events.Where(x => x.AnimGroup?.AnimationDecriptors != null).
+                SelectMany(x => x.AnimGroup.AnimationDecriptors).
+                Where(x => x != null).
+                ToArray();
 
             var index = 0;
-
-            var events = lvlData.Events.ToArray();
 
             // Add every event
             foreach (var e in events)
@@ -243,20 +248,19 @@ namespace R1Engine
 
                 await Controller.WaitIfNecessary();
 
-                // Add if not found
-                if (!animGroups.Contains(e.AnimGroup) && e.AnimGroup != null)
+                // Add ETA if not found
+                if (e.AnimGroup?.ETAPointer != null && !eventETA.ContainsKey(e.AnimGroup?.ETAPointer))
                 {
-                    // Add to the list
-                    animGroups.Add(e.AnimGroup);
+                    // Add the ETA
+                    eventETA.Add(e.AnimGroup.ETAPointer, e.AnimGroup.EventStates);
 
-                    if (e.AnimGroup?.EventStates != null)
+                    if (e.AnimGroup.AnimationDecriptors != null)
                     {
                         // TODO: Clean up this hack
-                        foreach (var ee in e.AnimGroup.EventStates.SelectMany(x => x))
-                            ee.AnimationIndex = (byte)(animBaseIndex + ee.AnimationIndex);
+                        // Correct animation index
+                        foreach (var state in e.AnimGroup.EventStates.SelectMany(x => x))
+                            state.AnimationIndex = (byte)(anim.FindItemIndex(x => x == e.AnimGroup.AnimationDecriptors.ElementAtOrDefault(state.AnimationIndex)));
                     }
-
-                    animBaseIndex += (int)e.AnimGroup?.AnimationDescriptorCount;
                 }
 
                 // Add the event
@@ -288,7 +292,8 @@ namespace R1Engine
                                 $"UnkStateRelatedValue: {e.UnkStateRelatedValue}{Environment.NewLine}" +
                                 $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
                                 $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
-                                $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}"
+                                $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
+                                $"Animations: {e.AnimGroup?.AnimationDescriptorCount ?? -1}{Environment.NewLine}"
                 });
 
                 index++;
@@ -311,7 +316,7 @@ namespace R1Engine
             }
 
             // Add every animations
-            foreach (var a in animGroups.SelectMany(x => x?.AnimationDecriptors ?? new PS1_R2Demo_AnimationDecriptor[0]))
+            foreach (var a in anim)
             {
                 // Create the animation
                 var animation = new Common_Animation
@@ -409,7 +414,7 @@ namespace R1Engine
                     globalDESKey,
                     globalDesign
                 }
-            }, animGroups.Where(x => x != null).ToDictionary(x => x.ETAPointer, x => x.EventStates));
+            }, eventETA);
         }
 
         /// <summary>

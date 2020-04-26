@@ -31,11 +31,11 @@ namespace R1Engine
 
                 // Set debug text
                 Controller.obj.tempDebugText.text = $"{e.Data.DebugText}{Environment.NewLine}" +
-                                                    $"Frames: {e.CurrentAnimation.Frames.GetLength(0)}";
+                                                    $"Frames: {e.CurrentAnimation?.Frames?.GetLength(0)}";
             }
             // Else Mouse over type
             else {
-
+                Controller.obj.tempDebugText.text = String.Empty;
                 Common_Tile t = tilemapController.GetTileAtPos((int)mousePositionTile.x, -(int)mousePositionTile.y);
 
                 if (t != null) {
