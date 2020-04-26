@@ -240,6 +240,8 @@ namespace R1Engine
                 Distinct().
                 ToArray();
 
+            Debug.Log($"Loading {anim.Length} animations");
+
             var index = 0;
 
             // Add every event
@@ -262,7 +264,14 @@ namespace R1Engine
                         foreach (var state in e.AnimGroup.EventStates.SelectMany(x => x))
                             state.AnimationIndex = (byte)(anim.FindItemIndex(x => x == e.AnimGroup.AnimationDecriptors.ElementAtOrDefault(state.AnimationIndex)));
                     }
+                    else
+                    {
+                        Debug.LogWarning($"The animation descriptors are null for type {e.EventType}!");
+                    }
                 }
+
+                if (e.AnimGroup?.ETAPointer == null)
+                    Debug.LogWarning($"ETA pointer is null for type {e.EventType}!");
 
                 // Add the event
                 commonEvents.Add(new Common_EventData
