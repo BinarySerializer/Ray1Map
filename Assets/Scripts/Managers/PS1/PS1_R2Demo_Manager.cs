@@ -262,7 +262,19 @@ namespace R1Engine
                         // TODO: Clean up this hack
                         // Correct animation index
                         foreach (var state in e.AnimGroup.EventStates.SelectMany(x => x))
-                            state.AnimationIndex = (byte)(anim.FindItemIndex(x => x == e.AnimGroup.AnimationDecriptors.ElementAtOrDefault(state.AnimationIndex)));
+                        {
+                            var a = e.AnimGroup.AnimationDecriptors.ElementAtOrDefault(state.AnimationIndex);
+
+                            if (a == null)
+                            {
+                                Debug.LogWarning($"Animation descriptor not found of index {state.AnimationIndex} with length {e.AnimGroup.AnimationDecriptors.Length}");
+                                state.AnimationIndex = 0;
+                            }
+                            else
+                            {
+                                state.AnimationIndex = (byte)(anim.FindItemIndex(x => x == a));
+                            }
+                        }
                     }
                     else
                     {
