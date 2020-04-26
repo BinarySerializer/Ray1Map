@@ -60,11 +60,25 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset, name: nameof(ImageBufferOffset));
+            if (s.GameSettings.Game != Game.Rayman2) {
+                ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset, name: nameof(ImageBufferOffset));
+            }
 
             if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PS1)
             {
-                if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
+                if (s.Context.Settings.Game == Game.Rayman2) {
+                    OuterWidth = s.Serialize<byte>((byte)OuterWidth, name: nameof(OuterWidth));
+                    OuterHeight = s.Serialize<byte>((byte)OuterHeight, name: nameof(OuterHeight));
+                    InnerWidth = s.Serialize<byte>(InnerWidth, name: nameof(InnerWidth));
+                    InnerHeight = s.Serialize<byte>(InnerHeight, name: nameof(InnerHeight));
+                    Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
+                    Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
+                    ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: nameof(ImageOffsetInPageX));
+                    ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: nameof(ImageOffsetInPageY));
+                    PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
+                    TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
+                }
+                else if (s.Context.Settings.EngineVersion == EngineVersion.RayPS1JP || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.Context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
                 {
                     Index = s.Serialize<ushort>(Index, name: nameof(Index));
                     ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
@@ -97,7 +111,8 @@
                     Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
                 }
 
-                if (s.GameSettings.EngineVersion != EngineVersion.RaySaturn) {
+                if (s.GameSettings.EngineVersion != EngineVersion.RaySaturn
+                    && s.GameSettings.Game != Game.Rayman2) {
                     Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
                     Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
                     PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));

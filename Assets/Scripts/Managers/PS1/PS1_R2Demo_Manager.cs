@@ -18,6 +18,18 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
+        public string FixDataPath => $"RAY.DTA";
+        public string FixGraphicsPath => "RAY.GRP";
+        public string SpritePalettesPath => "SPR.PLS";
+        public string GetLevelGraphicsPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.GRP";
+        public string GetLevelImageDescriptorsPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.SPR";
+        public string GetLevelDataPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.DTA";
+
+        public string GetSubMapTilesetPath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.RAW";
+        public string GetSubMapPalettePath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.PAL";
+        public string GetSubMapPath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.MPU";
+
+
         /// <summary>
         /// The file info to use
         /// </summary>
@@ -65,8 +77,8 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
         public override Common_Tileset GetTileSet(Context context) {
-            var tileSetPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.RAW";
-            var palettePath = $"JUNGLE/{GetMapName(context.Settings.Level)}.PAL";
+            var tileSetPath = GetSubMapTilesetPath(context.Settings);
+            var palettePath = GetSubMapPalettePath(context.Settings);
             var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
             var palette = FileFactory.Read<ObjectArray<ARGB1555Color>>(palettePath, context, (s, x) => x.Length = s.CurrentLength / 2);
 
@@ -78,8 +90,51 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public override void FillVRAM(Context context)
-        { }
+        public override void FillVRAM(Context context) {
+            // Read the files
+            var fixGraphics = FileFactory.Read<Array<byte>>(FixGraphicsPath, context, onPreSerialize: (s,a) => a.Length = s.CurrentLength);
+            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var palettes = FileFactory.Read<ObjectArray<ARGB1555Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
+            
+            PS1_VRAM vram = new PS1_VRAM();
+
+            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
+            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
+            vram.currentXPage = 5;
+
+            // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
+            // storing the first bit of sprites we load as 1x2
+            byte[] cageSprites = new byte[128 * (256 * 2)];
+            Array.Copy(fixGraphics.Value, 0, cageSprites, 0, cageSprites.Length);
+            byte[] allFixSprites = new byte[fixGraphics.Value.Length - cageSprites.Length];
+            Array.Copy(fixGraphics.Value, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
+            /*byte[] unknown = new byte[128 * 8];
+            vram.AddData(unknown, 128);*/
+            vram.AddData(cageSprites, 128);
+            vram.AddData(allFixSprites, 256);
+
+            vram.AddData(lvlGraphics.Value, 256);
+
+            // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
+            int paletteY = 240;
+            /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
+            /*vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+
+            paletteY += 13 - world.TilePalettes.Length;
+
+            foreach (var p in world.TilePalettes)
+                vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
+            vram.AddDataAt(0, 0, 0, paletteY, palettes.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512); 
+
+            context.StoreObject("vram", vram);
+            //PaletteHelpers.ExportVram(context.Settings.GameDirectory + "vram.png", vram);
+        }
 
         public async Task<uint> LoadFile(Context context, string path, uint baseAddress) {
             await FileSystem.PrepareFile(context.BasePath + path);
@@ -114,16 +169,16 @@ namespace R1Engine
             uint baseAddress = 0x80018000;
 
             // TODO: Move these to methods to avoid hard-coding
-            var fixDTAPath = $"RAY.DTA";
-            var fixGRPPath = $"RAY.GRP";
-            var sprPLSPath = $"SPR.PLS";
-            var levelDTAPath = $"JUNGLE/{GetWorldName(context.Settings.World)}01.DTA";
-            var levelSPRPath = $"JUNGLE/{GetWorldName(context.Settings.World)}01.SPR"; // SPRites?
-            var levelGRPPath = $"JUNGLE/{GetWorldName(context.Settings.World)}01.GRP"; // GRaPhics/graphismes
+            var fixDTAPath = FixDataPath;
+            var fixGRPPath = FixGraphicsPath;
+            var sprPLSPath = SpritePalettesPath;
+            var levelDTAPath = GetLevelDataPath(context.Settings);
+            var levelSPRPath = GetLevelImageDescriptorsPath(context.Settings); // SPRites?
+            var levelGRPPath = GetLevelGraphicsPath(context.Settings); // GRaPhics/graphismes
             // TODO: Load submaps based on levelDTA file
-            var tileSetPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.RAW";
-            var palettePath = $"JUNGLE/{GetMapName(context.Settings.Level)}.PAL";
-            var mapPath = $"JUNGLE/{GetMapName(context.Settings.Level)}.MPU";
+            var tileSetPath = GetSubMapTilesetPath(context.Settings);
+            var palettePath = GetSubMapPalettePath(context.Settings);
+            var mapPath = GetSubMapPath(context.Settings);
 
 
             baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
@@ -152,6 +207,24 @@ namespace R1Engine
             var pointers1 = lvlData.Events.Select(x => x.BehaviorPointer).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
             var pointers2 = lvlData.Events.Select(x => x.CollisionDataPointer).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
             var pointers3 = lvlData.Events.Select(x => x.AnimGroupPointer).Distinct().OrderBy(x => x?.AbsoluteOffset).ToArray();
+
+            // Test export
+            /*if (loadTextures) {
+                // Get the v-ram
+                FillVRAM(context);
+                for (int i = 0; i < lvlData.FixImageDescriptors.Length; i++) {
+                    Texture2D t = GetSpriteTexture(context, null, lvlData.FixImageDescriptors[i]);
+                    Util.ByteArrayToFile(context.Settings.GameDirectory + "textures/fix_" + i + ".png", t.EncodeToPNG());
+                }
+                ObjectArray<Common_ImageDescriptor> test_img = FileFactory.Read<ObjectArray<Common_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC);
+                for (int i = 0; i < test_img.Length; i++) {
+                    Texture2D t = GetSpriteTexture(context, null, test_img.Value[i]);
+                    Util.ByteArrayToFile(context.Settings.GameDirectory + "textures/level_" + i + ".png", t.EncodeToPNG());
+                }
+
+            }*/
+
+
 
             // Load the level
             var level = await LoadAsync(context, map, null, null, loadTextures);

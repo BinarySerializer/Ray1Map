@@ -77,7 +77,7 @@ namespace R1Engine
             for (int x = 0; x < 16 * 128; x++) {
                 for (int y = 0; y < 2 * 256; y++) {
                     byte val = vram.GetPixel8(0, y / 256, x, y % 256);
-                    vramTex.SetPixel(x, y, new Color(val / 255f, val / 255f, val / 255f));
+                    vramTex.SetPixel(x, (2 * 256) - 1 - y, new Color(val / 255f, val / 255f, val / 255f));
                 }
             }
             vramTex.Apply();

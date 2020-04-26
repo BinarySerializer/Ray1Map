@@ -14,7 +14,7 @@
         public Pointer EventsPointer { get; set; }
 
         public Pointer AlwaysEventsPointer { get; set; }
-        public Pointer ImageDescriptorsPointer { get; set; }
+        public Pointer FixImageDescriptorsPointer { get; set; }
         public byte[] Unk3 { get; set; }
 
         /// <summary>
@@ -26,7 +26,7 @@
         public ushort UShort_36 { get; set; }
         public ushort UShort_38 { get; set; }
         public ushort UShort_3A { get; set; }
-        public ushort NumImageDescriptors { get; set; }
+        public ushort NumFixImageDescriptors { get; set; }
         public ushort UShort_3E { get; set; }
         public ushort UShort_40 { get; set; }
         public ushort UShort_42 { get; set; }
@@ -43,6 +43,7 @@
         
         public PS1_R2Demo_Event[] Events { get; set; }
         public PS1_R2Demo_Event[] AlwaysEvents { get; set; }
+        public Common_ImageDescriptor[] FixImageDescriptors { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -56,7 +57,7 @@
             EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
 
             AlwaysEventsPointer = s.SerializePointer(AlwaysEventsPointer, name: nameof(AlwaysEventsPointer));
-            ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
+            FixImageDescriptorsPointer = s.SerializePointer(FixImageDescriptorsPointer, name: nameof(FixImageDescriptorsPointer));
 
             Unk3 = s.SerializeArray<byte>(Unk3, 30, name: nameof(Unk3));
 
@@ -66,7 +67,7 @@
             UShort_36 = s.Serialize<ushort>(UShort_36, name: nameof(UShort_36));
             UShort_38 = s.Serialize<ushort>(UShort_38, name: nameof(UShort_38));
             UShort_3A = s.Serialize<ushort>(UShort_3A, name: nameof(UShort_3A));
-            NumImageDescriptors = s.Serialize<ushort>(NumImageDescriptors, name: nameof(NumImageDescriptors));
+            NumFixImageDescriptors = s.Serialize<ushort>(NumFixImageDescriptors, name: nameof(NumFixImageDescriptors));
             UShort_3E = s.Serialize<ushort>(UShort_3E, name: nameof(UShort_3E));
             UShort_40 = s.Serialize<ushort>(UShort_40, name: nameof(UShort_40));
             UShort_42 = s.Serialize<ushort>(UShort_42, name: nameof(UShort_42));
@@ -81,6 +82,9 @@
 
             EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, EventCount, name: nameof(EventLinkTable));
 
+            s.DoAt(FixImageDescriptorsPointer, () => {
+                FixImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(FixImageDescriptors, NumFixImageDescriptors, name: nameof(FixImageDescriptors));
+            });
             s.DoAt(EventsPointer, () =>
             {
                 Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events));
