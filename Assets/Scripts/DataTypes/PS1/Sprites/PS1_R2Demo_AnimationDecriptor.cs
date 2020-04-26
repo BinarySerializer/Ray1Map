@@ -1,19 +1,20 @@
 ﻿namespace R1Engine
 {
+    // TODO: Merge with normal anim desc class?
     /// <summary>
     /// Animation descriptor for Rayman 2 (PS1 - Demo)
     /// </summary>
     public class PS1_R2Demo_AnimationDecriptor : R1Serializable
     {
         /// <summary>
-        /// Pointer to the frames pointers
-        /// </summary>
-        public Pointer FramesPointer { get; set; }
-
-        /// <summary>
         /// Pointer to the animation layers
         /// </summary>
         public Pointer LayersPointer { get; set; }
+
+        /// <summary>
+        /// Pointer to the animation frames
+        /// </summary>
+        public Pointer FramesPointer { get; set; }
 
         // Unknown - usually null
         public Pointer UnkPointer3 { get; set; }
@@ -33,17 +34,14 @@
 
 
         /// <summary>
-        /// The frame pointers
-        /// </summary>
-        public Pointer[] FramePointers { get; set; }
-
-        // Unknown frame data
-        public byte[][] FrameData { get; set; }
-
-        /// <summary>
         /// The animation layers
         /// </summary>
-        public PS1_R2Demo_AnimationLayer[] Layers { get; set; }
+        public Common_AnimationLayer[] Layers { get; set; }
+
+        /// <summary>
+        /// The animation frames
+        /// </summary>
+        public Common_AnimationFrame[] Frames { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -52,8 +50,8 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize pointers
-            FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
             LayersPointer = s.SerializePointer(LayersPointer, name: nameof(LayersPointer));
+            FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
             UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
 
             // Serialize values
@@ -61,19 +59,11 @@
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
             Unk2 = s.Serialize<byte>(Unk2, name: nameof(Unk2));
 
-            // Serialize frame pointers
-            s.DoAt(FramesPointer, () => FramePointers = s.SerializePointerArray(FramePointers, FrameCount, name: nameof(FramePointers)));
-
-            // Create frame data array
-            if (FrameData == null)
-                FrameData = new byte[FrameCount][];
-
-            // Serialize frame data
-            for (int i = 0; i < FrameData.Length; i++)
-                s.DoAt(FramePointers[i], () => FrameData[i] = s.SerializeArray<byte>(FrameData[i], LayersPerFrame * 4, name: $"{nameof(FrameData)} [{i}]"));
-
             // Serialize layers
-            s.DoAt(LayersPointer, () => Layers = s.SerializeObjectArray<PS1_R2Demo_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: nameof(Layers)));
+            s.DoAt(LayersPointer + (4 * FrameCount), () => Layers = s.SerializeObjectArray<Common_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: nameof(Layers)));
+
+            // Serialize frames
+            s.DoAt(FramesPointer, () => Frames = s.SerializeObjectArray(Frames, FrameCount, name: nameof(Frames)));
         }
     }
 }

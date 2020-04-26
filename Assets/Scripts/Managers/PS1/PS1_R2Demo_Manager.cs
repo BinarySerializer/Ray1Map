@@ -344,12 +344,10 @@ namespace R1Engine
                 var animation = new Common_Animation
                 {
                     Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
-
-                    // TODO: Set these values correctly
-                    DefaultFrameXPosition = 20,
-                    DefaultFrameYPosition = 20,
-                    DefaultFrameWidth = 20,
-                    DefaultFrameHeight = 20,
+                    DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
+                    DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
+                    DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
+                    DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
                 };
 
                 // The layer index
@@ -370,6 +368,7 @@ namespace R1Engine
                             SpriteIndex = animationLayer.ImageIndex,
                             X = animationLayer.XPosition,
                             Y = animationLayer.YPosition,
+                            Flipped = animationLayer.IsFlipped
                         };
 
                         // Add the texture

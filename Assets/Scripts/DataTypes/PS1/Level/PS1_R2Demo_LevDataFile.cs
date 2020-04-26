@@ -82,16 +82,10 @@
 
             EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, EventCount, name: nameof(EventLinkTable));
 
-            s.DoAt(FixImageDescriptorsPointer, () => {
-                FixImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(FixImageDescriptors, NumFixImageDescriptors, name: nameof(FixImageDescriptors));
-            });
-            s.DoAt(EventsPointer, () =>
-            {
-                Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events));
-            });
-            s.DoAt(AlwaysEventsPointer, () => {
-                AlwaysEvents = s.SerializeObjectArray<PS1_R2Demo_Event>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents));
-            });
+            s.DoAt(FixImageDescriptorsPointer, () => FixImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(FixImageDescriptors, NumFixImageDescriptors, name: nameof(FixImageDescriptors)));
+
+            s.DoAt(EventsPointer, () => Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events)));
+            s.DoAt(AlwaysEventsPointer, () => AlwaysEvents = s.SerializeObjectArray<PS1_R2Demo_Event>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents)));
         }
     }
 }
