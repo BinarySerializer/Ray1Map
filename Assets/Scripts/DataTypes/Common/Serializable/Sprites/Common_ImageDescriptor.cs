@@ -11,7 +11,7 @@
         public uint ImageBufferOffset { get; set; }
 
         /// <summary>
-        /// Index of the image? Doesn't always match.
+        /// Index of the image? Doesn't always match. Is 0 for dummy sprites.
         /// </summary>
         public ushort Index { get; set; }
         

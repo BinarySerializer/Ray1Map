@@ -116,6 +116,10 @@ namespace R1Engine
             if (s.ImageType != 2 && s.ImageType != 3) 
                 return null;
 
+            // Ignore dummy sprites
+            if (s.Index == 0)
+                return null;
+
             // Get the image properties
             var width = s.OuterWidth;
             var height = s.OuterHeight;
