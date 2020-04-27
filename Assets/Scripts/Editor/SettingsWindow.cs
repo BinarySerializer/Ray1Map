@@ -160,6 +160,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowEditorEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show editor events", Settings.ShowEditorEvents);
 
+        Settings.ShowDebugInfo = EditorGUI.Toggle(GetNextRect(ref yPos), "Show debug info", Settings.ShowDebugInfo);
+
         Settings.BackupFiles = EditorGUI.Toggle(GetNextRect(ref yPos), "Create .BAK backup files", Settings.BackupFiles);
 
         Settings.ScreenshotEnumeration = EditorGUI.Toggle(GetNextRect(ref yPos), "Screenshot enumeration", Settings.ScreenshotEnumeration);

@@ -323,16 +323,28 @@ namespace R1Engine
                     //LabelOffsets = e.LabelOffsets,
                     //CommandCollection = e.Commands,
                     LinkIndex = lvlData.EventLinkTable.Length > index ? lvlData.EventLinkTable[index] : index,
-                    DebugText = $"Unk1: {String.Join("-", e.Unk1)}{Environment.NewLine}" +
-                                $"Pos: ({e.XPosition},{e.YPosition}){Environment.NewLine}" +
-                                $"EventType: {String.Join("-", e.EventType)}{Environment.NewLine}" +
-                                $"Etat: {e.Etat}{Environment.NewLine}" +
-                                $"SubEtat: {e.SubEtat}{Environment.NewLine}" +
+                    DebugText = $"UShort_00: {e.UShort_00}{Environment.NewLine}" +
+                                $"UShort_02: {e.UShort_02}{Environment.NewLine}" +
+                                $"UShort_04: {e.UShort_04}{Environment.NewLine}" +
+                                $"UShort_06: {e.UShort_06}{Environment.NewLine}" +
+                                $"UShort_08: {e.UShort_08}{Environment.NewLine}" +
+                                $"UShort_0A: {e.UShort_0A}{Environment.NewLine}" +
                                 $"UnkStateRelatedValue: {e.UnkStateRelatedValue}{Environment.NewLine}" +
+                                $"Unk_22: {e.Unk_22}{Environment.NewLine}" +
+                                $"MapLayer: {e.MapLayer}{Environment.NewLine}" +
+                                $"Unk1: {String.Join("-", e.Unk1)}{Environment.NewLine}" +
+                                $"RuntimeUnk1: {e.RuntimeUnk1}{Environment.NewLine}" +
+                                $"EventType: {e.EventType}{Environment.NewLine}" +
+                                $"RuntimeOffset1: {e.RuntimeOffset1}{Environment.NewLine}" +
+                                $"RuntimeOffset2: {e.RuntimeOffset2}{Environment.NewLine}" +
+                                $"RuntimeBytes1: {String.Join("-", e.RuntimeBytes1)}{Environment.NewLine}" +
+                                $"Unk_58: {e.Unk_58}{Environment.NewLine}" +
                                 $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
                                 $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
+                                $"IsFlippedHorizontally: {e.IsFlippedHorizontally}{Environment.NewLine}" +
+                                $"IsFaded: {e.IsFaded}{Environment.NewLine}" +
                                 $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
-                                $"Animations: {e.AnimGroup?.AnimationDescriptorCount ?? -1}{Environment.NewLine}"
+                                $"CollisionDataValues: {String.Join("-", e.CollisionDataValues ?? new byte[0])}{Environment.NewLine}"
                 });
 
                 index++;

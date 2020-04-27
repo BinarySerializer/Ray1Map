@@ -25,13 +25,20 @@ namespace R1Engine
                 textCollision.text = $"{e.DisplayName}";
                 textGraphic.text = $"Type: {e.Data.Type}{Environment.NewLine}" +
                                    $"Pos: {e.Data.XPosition}, {e.Data.YPosition}{Environment.NewLine}" +
-                                   $"AnimSpeed: {e.AnimSpeed}{Environment.NewLine}" +
-                                   $"Sound: {e.State?.SoundIndex}{Environment.NewLine}" +
                                    $"Offsets: {e.Data.OffsetBX} x {e.Data.OffsetBY} x {e.Data.OffsetHY}";
 
                 // Set debug text
-                Controller.obj.tempDebugText.text = $"{e.Data.DebugText}{Environment.NewLine}" +
-                                                    $"Frames: {e.CurrentAnimation?.Frames?.GetLength(0)}";
+                Controller.obj.tempDebugText.text = Settings.ShowDebugInfo 
+                    ? $"{e.Data.DebugText}{Environment.NewLine}" +
+                      $"CurrentFrame: {(int)e.currentFrame}{Environment.NewLine}" +
+                      $"Frames: {e.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
+                      $"AnimationIndex: {e.AnimationIndex}{Environment.NewLine}" +
+                      $"AnimationSpeed: {e.AnimSpeed}{Environment.NewLine}" +
+                      $"Sound: {e.State?.SoundIndex}{Environment.NewLine}" +
+                      $"Flag: {e.Flag}{Environment.NewLine}" +
+                      $"Etat: {e.CurrentEtat}{Environment.NewLine}" +
+                      $"SubEtat: {e.CurrentSubEtat}{Environment.NewLine}"
+                    : String.Empty;
             }
             // Else Mouse over type
             else {

@@ -48,6 +48,13 @@
 
         // 24 (0x22)
 
+        public byte Unk_22 { get; set; }
+
+        // 1 = foreground, 2 = background
+        public byte MapLayer { get; set; }
+
+        // 26 (0x24)
+
         // Between 40-44 is where x and y pos is stored during runtime
         public byte[] Unk1 { get; set; }
 
@@ -123,16 +130,20 @@
            }
              
              */
+
+        // TODO: Is this correct?
         // Indicates if it's on the background map during runtime - always 0 in files
         public bool RuntimeIsOnBackgroundLayer { get; set; }
 
         public byte[] Unk4 { get; set; }
 
+        // TODO: Is this correct?
         /// <summary>
         /// Indicates if the event sprite should be flipped horizontally
         /// </summary>
         public bool IsFlippedHorizontally { get; set; }
 
+        // TODO: Is this correct?
         // Runtime only? What does it really do? - always 0 in files
         public bool IsFaded { get; set; }
 
@@ -180,8 +191,11 @@
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
+            Unk_22 = s.Serialize<byte>(Unk_22, name: nameof(Unk_22));
+            MapLayer = s.Serialize<byte>(MapLayer, name: nameof(MapLayer));
 
-            Unk1 = s.SerializeArray(Unk1, 21, name: nameof(Unk1));
+            Unk1 = s.SerializeArray(Unk1, 19, name: nameof(Unk1));
+
 
             RuntimeCurrentStatePointer = s.Serialize<uint>(RuntimeCurrentStatePointer, name: nameof(RuntimeCurrentStatePointer));
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));

@@ -217,6 +217,11 @@ namespace R1Engine {
 
         public static StateSwitchingMode StateSwitchingMode { get; set; }
 
+        /// <summary>
+        /// Indicates if debug info should be shown on event mouse hovering
+        /// </summary>
+        public static bool ShowDebugInfo { get; set; }
+
 
         private const string editorPrefsPrefix = "Ray1Map.";
         private const string settingsFile = "Settings.txt";
@@ -302,6 +307,7 @@ namespace R1Engine {
             ShowEditorEvents = s.SerializeBool("ShowEditorEvents", ShowEditorEvents);
             ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
+            ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo);
 
             Log = s.SerializeBool("Log", Log);
             LogFile = s.SerializeString("LogFile", LogFile);
