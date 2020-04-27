@@ -307,7 +307,7 @@ namespace R1Engine
                         FrameTableOffset = a.FrameTableOffset,
                         Layers = a.Layers.Select(x => new Common_AnimationLayer
                         {
-                            IsFlipped = x.IsFlipped,
+                            IsFlippedHorizontally = x.IsFlippedHorizontally,
                             XPosition = x.XPosition,
                             YPosition = x.YPosition,
                             ImageIndex = (byte)(x.ImageIndex + (des.ImageDescriptors.Length * i))

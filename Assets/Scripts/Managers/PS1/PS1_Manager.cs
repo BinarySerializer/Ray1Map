@@ -323,7 +323,7 @@ namespace R1Engine
                                         SpriteIndex = animationLayer.ImageIndex,
                                         X = animationLayer.XPosition,
                                         Y = animationLayer.YPosition,
-                                        Flipped = animationLayer.IsFlipped
+                                        Flipped = animationLayer.IsFlippedHorizontally
                                     };
 
                                     // Add the texture

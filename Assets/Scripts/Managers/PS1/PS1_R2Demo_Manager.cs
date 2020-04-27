@@ -34,7 +34,6 @@ namespace R1Engine
         /// </summary>
         protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoR2PS1;
 
-        // TODO: Is this needed?
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
         /// <summary>
@@ -198,10 +197,8 @@ namespace R1Engine
             //var palettePath = GetSubMapPalettePath(context.Settings);
             var mapPath = GetSubMapPath(context.Settings);
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++)
                 await LoadFile(context, GetSubMapPalettePath(context.Settings, i+1), 0);
-            }
-
 
             baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
             baseAddress -= 94; // FIX.DTA header size
@@ -263,7 +260,7 @@ namespace R1Engine
                 // Add the ETA
                 eventETA.Add(animGroup.ETAPointer, animGroup.EventStates);
 
-                // TODO: Find a better way of doing this
+                // TODO: Find a better way of doing this - we don't want to edit the state like this, especially since the anim index is a byte - might be better creating one DES for each animation group
                 // Change animation index to target global array
                 if (animGroup.AnimationDecriptors != null)
                 {
@@ -275,7 +272,8 @@ namespace R1Engine
                         {
                             Debug.LogWarning($"Animation descriptor not found of index {state.AnimationIndex} with length {animGroup.AnimationDecriptors.Length}");
 
-                            state.AnimationIndex = 0;
+                            // For now we default to 255 as that's an invalid index
+                            state.AnimationIndex = 255;
                         }
                         else
                         {
@@ -364,17 +362,16 @@ namespace R1Engine
                     DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
                 };
 
-                // The layer index
-                var layer = 0;
-
                 // Create each frame
-                for (int i = 0; i < a.FrameCount; i++)
+                for (int i = 0; i < a.Layers.Length; i++)
                 {
+                    // Get the layers for the frame
+                    var layers = a.Layers[i];
+
                     // Create each layer
-                    for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
+                    for (var j = 0; j < layers.Length; j++)
                     {
-                        var animationLayer = a.Layers[layer];
-                        layer++;
+                        var animationLayer = layers[j];
 
                         // Create the animation part
                         var part = new Common_AnimationPart
@@ -382,11 +379,11 @@ namespace R1Engine
                             SpriteIndex = animationLayer.ImageIndex,
                             X = animationLayer.XPosition,
                             Y = animationLayer.YPosition,
-                            Flipped = animationLayer.IsFlipped
+                            Flipped = animationLayer.IsFlippedHorizontally
                         };
 
                         // Add the texture
-                        animation.Frames[i, layerIndex] = part;
+                        animation.Frames[i, j] = part;
                     }
                 }
 

@@ -5,6 +5,8 @@
     /// </summary>
     public class PS1_R2Demo_LevDataFile : R1Serializable
     {
+        #region Level Data
+
         public int Unk1 { get; set; }
         public int Unk2 { get; set; }
 
@@ -13,8 +15,16 @@
         /// </summary>
         public Pointer EventsPointer { get; set; }
 
+        /// <summary>
+        /// Pointer to the always events
+        /// </summary>
         public Pointer AlwaysEventsPointer { get; set; }
+
+        /// <summary>
+        /// Pointer to the allfix image descriptors
+        /// </summary>
         public Pointer FixImageDescriptorsPointer { get; set; }
+        
         public byte[] Unk3 { get; set; }
 
         /// <summary>
@@ -22,11 +32,20 @@
         /// </summary>
         public ushort EventCount { get; set; }
 
+        /// <summary>
+        /// The always event count
+        /// </summary>
         public ushort AlwaysEventsCount { get; set; }
+
         public ushort UShort_36 { get; set; }
         public ushort UShort_38 { get; set; }
         public ushort UShort_3A { get; set; }
+
+        /// <summary>
+        /// The number of allfix image descriptors
+        /// </summary>
         public ushort NumFixImageDescriptors { get; set; }
+
         public ushort UShort_3E { get; set; }
         public ushort UShort_40 { get; set; }
         public ushort UShort_42 { get; set; }
@@ -39,11 +58,33 @@
         public Pointer UnkPointer5 { get; set; }
         public Pointer UnkPointer6 { get; set; }
 
+        /// <summary>
+        /// The event link table. This does not include the always events.
+        /// </summary>
         public ushort[] EventLinkTable { get; set; }
-        
+
+        #endregion
+
+        #region Pointer Data
+
+        /// <summary>
+        /// The events
+        /// </summary>
         public PS1_R2Demo_Event[] Events { get; set; }
+        
+        /// <summary>
+        /// The always events. These do not have map positions.
+        /// </summary>
         public PS1_R2Demo_Event[] AlwaysEvents { get; set; }
+
+        /// <summary>
+        /// The allfix image descriptors
+        /// </summary>
         public Common_ImageDescriptor[] FixImageDescriptors { get; set; }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Handles the data serialization
@@ -87,5 +128,7 @@
             s.DoAt(EventsPointer, () => Events = s.SerializeObjectArray<PS1_R2Demo_Event>(Events, EventCount, name: nameof(Events)));
             s.DoAt(AlwaysEventsPointer, () => AlwaysEvents = s.SerializeObjectArray<PS1_R2Demo_Event>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents)));
         }
+
+        #endregion
     }
 }

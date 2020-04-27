@@ -6,6 +6,8 @@
     /// Event data for Rayman 2 (PS1 - Demo)
     /// </summary>
     public class PS1_R2Demo_Event : R1Serializable {
+        #region Event Data
+
         public ushort UShort_00 { get; set; }
         public ushort UShort_02 { get; set; }
         public ushort UShort_04 { get; set; }
@@ -136,9 +138,11 @@
 
         public byte[] Unk5 { get; set; }
 
+        #endregion
 
-        // Values parsed from pointers
+        #region Pointer Data
 
+        // TODO: Parse this
         public byte[] CollisionDataValues { get; set; }
 
         /// <summary>
@@ -146,6 +150,9 @@
         /// </summary>
         public PS1_R2Demo_EventAnimGroup AnimGroup { get; set; }
 
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Handles the data serialization
@@ -216,6 +223,8 @@
             if (AnimGroupPointer != null)
                 s.DoAt(AnimGroupPointer, () => AnimGroup = s.SerializeObject<PS1_R2Demo_EventAnimGroup>(AnimGroup, name: nameof(AnimGroup)));
         }
+
+        #endregion
     }
 
     // TODO: Create enum

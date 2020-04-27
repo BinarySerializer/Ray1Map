@@ -773,7 +773,7 @@ namespace R1Engine
                                 {
                                     var c = sprite.GetPixel(x, sprite.height - y - 1);
                                     
-                                    var xPosition = (animationLayer.IsFlipped ? (sprite.width - 1 - x) : x) + (desIndex == smallRayDES ? animationLayer.XPosition / 2 : animationLayer.XPosition);
+                                    var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + (desIndex == smallRayDES ? animationLayer.XPosition / 2 : animationLayer.XPosition);
                                     var yPosition = (y + (desIndex == smallRayDES ? animationLayer.YPosition / 2 : animationLayer.YPosition));
 
                                     if (xPosition >= tex.width)
@@ -959,7 +959,7 @@ namespace R1Engine
                         SpriteIndex = animationLayer.ImageIndex,
                         X = animationLayer.XPosition,
                         Y = animationLayer.YPosition,
-                        Flipped = animationLayer.IsFlipped
+                        Flipped = animationLayer.IsFlippedHorizontally
                     };
 
                     // Add the texture

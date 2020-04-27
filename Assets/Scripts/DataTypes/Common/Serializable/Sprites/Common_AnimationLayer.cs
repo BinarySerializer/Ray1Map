@@ -8,7 +8,7 @@
         /// <summary>
         /// Indicates if the layer is flipped horizontally
         /// </summary>
-        public bool IsFlipped { get; set; }
+        public bool IsFlippedHorizontally { get; set; }
 
         /// <summary>
         /// The x position
@@ -32,18 +32,23 @@
         public override void SerializeImpl(SerializerObject s) {
             if (s.GameSettings.EngineVersion == EngineVersion.Ray2PS1)
             {
-                // TODO: Clean up - allow writing
-                var value = s.Serialize<ushort>(ImageIndex, name: nameof(ImageIndex));
+                ushort value = 0;
+
+                value = (ushort)BitHelpers.SetBits(value, ImageIndex, 12, 0);
+                // TODO: There are most likely other flags here too, such as for flipping vertically (check the cannon target indicator sprite!)
+                value = (ushort)BitHelpers.SetBits(value, IsFlippedHorizontally ? 1 : 0, 4, 12);
+
+                value = s.Serialize<ushort>(value, name: nameof(value));
 
                 ImageIndex = (ushort)(BitHelpers.ExtractBits(value, 12, 0));
-                IsFlipped = BitHelpers.ExtractBits(value, 4, 12) != 0;
+                IsFlippedHorizontally = BitHelpers.ExtractBits(value, 4, 12) != 0;
 
                 XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
             }
             else
             {
-                IsFlipped = s.Serialize<bool>(IsFlipped, name: nameof(IsFlipped));
+                IsFlippedHorizontally = s.Serialize<bool>(IsFlippedHorizontally, name: nameof(IsFlippedHorizontally));
                 XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
