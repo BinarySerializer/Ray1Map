@@ -56,6 +56,8 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
+            // TODO: Scale events here
+
             // Initialize Rayman's animation as they're shared for small and dark Rayman
             InitializeRayAnim();
 

@@ -17,6 +17,11 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
+        /// <summary>
+        /// The amount of available maps for the demo level
+        /// </summary>
+        public const int MapCount = 4;
+
         public string FixDataPath => $"RAY.DTA";
         public string FixGraphicsPath => "RAY.GRP";
         public string SpritePalettesPath => "SPR.PLS";
@@ -24,9 +29,9 @@ namespace R1Engine
         public string GetLevelImageDescriptorsPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.SPR";
         public string GetLevelDataPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.DTA";
 
-        public string GetSubMapTilesetPath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.RAW";
-        public string GetSubMapPalettePath(GameSettings s, int level) => $"JUNGLE/{GetMapName(level)}.PAL";
-        public string GetSubMapPath(GameSettings s) => $"JUNGLE/{GetMapName(s.Level)}.MPU";
+        public string GetSubMapTilesetPath(int level) => $"JUNGLE/{GetMapName(level)}.RAW";
+        public string GetSubMapPalettePath(int level) => $"JUNGLE/{GetMapName(level)}.PAL";
+        public string GetSubMapPath(int level) => $"JUNGLE/{GetMapName(level)}.MPU";
 
 
         /// <summary>
@@ -41,7 +46,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Enumerable.Range(1, w == World.Jungle ? 4 : 0).ToArray())).ToArray();
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Enumerable.Range(0, w == World.Jungle ? MapCount : 0).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the name for the specified map
@@ -52,16 +57,16 @@ namespace R1Engine
         {
             switch (map)
             {
-                case 1:
+                case 0:
                     return "PL1";
 
-                case 2:
+                case 1:
                     return "PL2";
 
-                case 3:
+                case 2:
                     return "FD1";
 
-                case 4:
+                case 3:
                     return "FD2";
 
                 default:
@@ -73,15 +78,23 @@ namespace R1Engine
         /// Gets the tile set to use
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="map">The map</param>
         /// <returns>The tile set to use</returns>
-        public override Common_Tileset GetTileSet(Context context) {
-            var tileSetPath = GetSubMapTilesetPath(context.Settings);
-            var palettePath = GetSubMapPalettePath(context.Settings, context.Settings.Level);
+        public Common_Tileset GetTileSet(Context context, int map) {
+            var tileSetPath = GetSubMapTilesetPath(map);
+            var palettePath = GetSubMapPalettePath(map);
             var tileSet = FileFactory.Read<Array<byte>>(tileSetPath, context, (s, x) => x.Length = s.CurrentLength);
             var palette = FileFactory.Read<ObjectArray<ARGB1555Color>>(palettePath, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             return new Common_Tileset(tileSet.Value.Select(ind => palette.Value[ind]).ToArray(), TileSetWidth, CellSize);
         }
+
+        /// <summary>
+        /// Gets the tile set to use
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The tile set to use</returns>
+        public override Common_Tileset GetTileSet(Context context) => throw new NotImplementedException();
 
         /// <summary>
         /// Fills the PS1 v-ram and returns it
@@ -95,9 +108,8 @@ namespace R1Engine
             var palettes = FileFactory.Read<ObjectArray<ARGB1555Color>>(SpritePalettesPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
 
             var tilePalettes = new ObjectArray<ARGB1555Color>[4];
-            for (int i = 0; i < 4; i++) {
-                tilePalettes[i] = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetSubMapPalettePath(context.Settings, i+1), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
-            }
+            for (int i = 0; i < MapCount; i++)
+                tilePalettes[i] = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetSubMapPalettePath(i), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 2);
             
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -192,13 +204,6 @@ namespace R1Engine
             var levelDTAPath = GetLevelDataPath(context.Settings);
             var levelSPRPath = GetLevelImageDescriptorsPath(context.Settings); // SPRites?
             var levelGRPPath = GetLevelGraphicsPath(context.Settings); // GRaPhics/graphismes
-            // TODO: Load submaps based on levelDTA file
-            var tileSetPath = GetSubMapTilesetPath(context.Settings);
-            //var palettePath = GetSubMapPalettePath(context.Settings);
-            var mapPath = GetSubMapPath(context.Settings);
-
-            for (int i = 0; i < 4; i++)
-                await LoadFile(context, GetSubMapPalettePath(context.Settings, i+1), 0);
 
             baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
             baseAddress -= 94; // FIX.DTA header size
@@ -212,8 +217,14 @@ namespace R1Engine
             baseAddress += await LoadFile(context, levelSPRPath, baseAddress);
             baseAddress += await LoadFile(context, levelDTAPath, baseAddress);
             await LoadFile(context, levelGRPPath, 0);
-            await LoadFile(context, tileSetPath, 0);
-            await LoadFile(context, mapPath, 0); // TODO: Load all maps for this level
+
+            // Load every map
+            for (int i = 0; i < 4; i++)
+            {
+                await LoadFile(context, GetSubMapPalettePath(i), 0);
+                await LoadFile(context, GetSubMapTilesetPath(i), 0);
+                await LoadFile(context, GetSubMapPath(i), 0);
+            }
 
             await Controller.WaitIfNecessary();
             Controller.status = $"Loading level data";
@@ -221,16 +232,13 @@ namespace R1Engine
             // Read the level data
             var lvlData = FileFactory.Read<PS1_R2Demo_LevDataFile>(levelDTAPath, context);
 
-            // Read the map block
-            var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
+            // Read the map blocks
+            var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<PS1_R1_MapBlock>(GetSubMapPath(x), context)).ToArray();
 
             await Controller.WaitIfNecessary();
             Controller.status = $"Loading sprite data";
 
             var globalDESKey = lvlData.FixImageDescriptorsPointer;
-
-            // Get the tile set
-            Common_Tileset tileSet = GetTileSet(context);
 
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
             var commonEvents = new List<Common_EventData>();
@@ -398,53 +406,62 @@ namespace R1Engine
             Common_Lev c = new Common_Lev
             {
                 // Create the maps
-                Maps = new Common_LevelMap[]
+                Maps = maps.Select((x, i) => new Common_LevelMap()
                 {
-                    new Common_LevelMap()
-                    {
-                        // Set the dimensions
-                        Width = map.Width,
-                        Height = map.Height,
+                    // Set the dimensions
+                    Width = x.Width,
+                    Height = x.Height,
 
-                        // Create the tile array
-                        TileSet = new Common_Tileset[1]
-                    }
-                },
+                    // TODO: Correct this - scale backgrounds too
+                    ScaleFactor = i == 1 ? 0.5f : 1,
+
+                    // Create the tile array
+                    TileSet = new Common_Tileset[1]
+                }).ToArray(),
 
                 // Create the events list
                 EventData = new List<Common_EventData>(),
 
+                DefaultMap = context.Settings.Level
             };
-            c.Maps[0].TileSet[0] = tileSet;
 
             // Add the events
             c.EventData = commonEvents;
 
             await Controller.WaitIfNecessary();
 
-            // Set the tiles
-            c.Maps[0].Tiles = new Common_Tile[map.Width * map.Height];
-
-            int tileIndex = 0;
-            for (int y = 0; y < map.Height; y++)
+            // Load maps
+            for (int i = 0; i < MapCount; i++)
             {
-                for (int x = 0; x < map.Width; x++)
+                // Get the tile set
+                Common_Tileset tileSet = GetTileSet(context, i);
+
+                c.Maps[i].TileSet[0] = tileSet;
+
+                // Set the tiles
+                c.Maps[i].Tiles = new Common_Tile[maps[i].Width * maps[i].Height];
+
+                int tileIndex = 0;
+                for (int y = 0; y < maps[i].Height; y++)
                 {
-                    var graphicX = map.Tiles[tileIndex].TileMapX;
-                    var graphicY = map.Tiles[tileIndex].TileMapY;
-
-                    Common_Tile newTile = new Common_Tile
+                    for (int x = 0; x < maps[i].Width; x++)
                     {
-                        PaletteIndex = 1,
-                        XPosition = x,
-                        YPosition = y,
-                        CollisionType = map.Tiles[tileIndex].CollisionType,
-                        TileSetGraphicIndex = (TileSetWidth * graphicY) + graphicX
-                    };
+                        var graphicX = maps[i].Tiles[tileIndex].TileMapX;
+                        var graphicY = maps[i].Tiles[tileIndex].TileMapY;
 
-                    c.Maps[0].Tiles[tileIndex] = newTile;
+                        Common_Tile newTile = new Common_Tile
+                        {
+                            PaletteIndex = 1,
+                            XPosition = x,
+                            YPosition = y,
+                            CollisionType = maps[i].Tiles[tileIndex].CollisionType,
+                            TileSetGraphicIndex = (TileSetWidth * graphicY) + graphicX
+                        };
 
-                    tileIndex++;
+                        c.Maps[i].Tiles[tileIndex] = newTile;
+
+                        tileIndex++;
+                    }
                 }
             }
 

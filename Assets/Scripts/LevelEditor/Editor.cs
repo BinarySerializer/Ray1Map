@@ -48,7 +48,7 @@ namespace R1Engine
         public TileCollisionType currentType;
 
         // Current map index
-        public int currentMap = 0;
+        public int currentMap => lvlController.EditorManager.Level.DefaultMap;
 
         //Selected tiles
         public Common_Tile[,] selection;

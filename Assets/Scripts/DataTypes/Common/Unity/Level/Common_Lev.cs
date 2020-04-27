@@ -7,6 +7,9 @@ namespace R1Engine
     /// </summary>
     public class Common_Lev
     {
+        // TODO: Replace this with toggle in editor
+        public int DefaultMap { get; set; }
+
         /// <summary>
         /// The level maps
         /// </summary>
@@ -16,36 +19,5 @@ namespace R1Engine
         /// The event data for every event
         /// </summary>
         public List<Common_EventData> EventData { get; set; }
-    }
-
-    /// <summary>
-    /// Common level map data
-    /// </summary>
-    public class Common_LevelMap
-    {
-        /// <summary>
-        /// The event scale factor
-        /// </summary>
-        public int ScaleFactor { get; set; } = 1;
-
-        /// <summary>
-        /// The level width
-        /// </summary>
-        public ushort Width { get; set; }
-
-        /// <summary>
-        /// The level height
-        /// </summary>
-        public ushort Height { get; set; }
-
-        /// <summary>
-        /// The common tile-sets
-        /// </summary>
-        public Common_Tileset[] TileSet { get; set; }
-
-        /// <summary>
-        /// The tiles
-        /// </summary>
-        public Common_Tile[] Tiles { get; set; }
     }
 }
