@@ -266,8 +266,8 @@ public class SettingsWindow : UnityWindow
                 // Load the level
                 var editorManager = await manager.LoadAsync(context, false);
 
-                // Randomize
-                Randomizer.Randomize(editorManager, flag, (int)world.Key + lvl + RandomizerSeed);
+                // Randomize (only first map for now)
+                Randomizer.Randomize(editorManager, flag, (int)world.Key + lvl + RandomizerSeed, 0);
 
                 // Save the level
                 manager.SaveLevel(context, editorManager.Level);

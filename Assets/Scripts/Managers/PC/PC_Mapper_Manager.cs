@@ -121,16 +121,24 @@ namespace R1Engine
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
             {
-                // Set the dimensions
-                Width = mapData.Width,
-                Height = mapData.Height,
+                // Create the map
+                Maps = new Common_LevelMap[]
+                {
+                    new Common_LevelMap()
+                    {
+                        // Set the dimensions
+                        Width = mapData.Width,
+                        Height = mapData.Height,
+
+                        // Create the tile arrays
+                        TileSet = new Common_Tileset[1],
+                        Tiles = new Common_Tile[mapData.Width * mapData.Height],
+                    }
+                },
 
                 // Create the events list
                 EventData = new List<Common_EventData>(),
 
-                // Create the tile arrays
-                TileSet = new Common_Tileset[4],
-                Tiles = new Common_Tile[mapData.Width * mapData.Height],
             };
 
             Controller.status = $"Loading Mapper files";
@@ -279,10 +287,10 @@ namespace R1Engine
             }
 
             // Set the tile-set
-            commonLev.TileSet[0] = new Common_Tileset(tiles);
+            commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
 
             // Set the tiles
-            commonLev.Tiles = new Common_Tile[mapData.Width * mapData.Height];
+            commonLev.Maps[0].Tiles = new Common_Tile[mapData.Width * mapData.Height];
 
             int tileIndex = 0;
             for (int ty = 0; ty < (mapData.Height); ty++)
@@ -298,7 +306,7 @@ namespace R1Engine
                         TileSetGraphicIndex = mapData.Tiles[tileIndex].TileIndex
                     };
 
-                    commonLev.Tiles[tileIndex] = newTile;
+                    commonLev.Maps[0].Tiles[tileIndex] = newTile;
 
                     tileIndex++;
                 }

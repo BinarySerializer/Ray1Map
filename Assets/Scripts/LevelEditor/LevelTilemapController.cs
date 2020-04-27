@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
@@ -50,7 +48,7 @@ namespace R1Engine
 
         public void InitializeTilemaps() {
             // Fill out types first
-            foreach(Common_Tile t in Controller.obj.levelController.currentLevel.Tiles) 
+            foreach(Common_Tile t in Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles) 
             {
                 var collisionTypeIndex = (int)t.CollisionType;
 
@@ -103,15 +101,15 @@ namespace R1Engine
                 Settings.GetGameManager.AutoApplyPalette(lvl);
 
             //Refresh tiles
-            foreach (Common_Tile t in lvl.Tiles)
+            foreach (Common_Tile t in lvl.Maps[editor.currentMap].Tiles)
             {
                 int p = (palette == 0 ? t.PaletteIndex : palette) - 1;
-                Tilemaps[1].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), lvl.TileSet[p].Tiles[t.TileSetGraphicIndex]);
+                Tilemaps[1].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), lvl.Maps[editor.currentMap].TileSet[p].Tiles[t.TileSetGraphicIndex]);
             }
             //Refresh the full tilemap
             int xx = 0;
             int yy = 0;
-            foreach(Tile t in lvl.TileSet[0].Tiles) {
+            foreach(Tile t in lvl.Maps[editor.currentMap].TileSet[0].Tiles) {
                 tilemapFull.SetTile(new Vector3Int(xx, yy, 0), t);
                 xx++;
                 if (xx == 16) {
@@ -154,7 +152,7 @@ namespace R1Engine
                     return t;
                 }
                 else {
-                    foreach (var t in Controller.obj.levelController.currentLevel.Tiles) {
+                    foreach (var t in Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles) {
                         if (t.XPosition == x && t.YPosition == y) {
                             return t;
                         }
@@ -168,11 +166,11 @@ namespace R1Engine
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)newTileInfo.CollisionType]);
-            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.TileSet[1].Tiles[newTileInfo.TileSetGraphicIndex]);
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.Maps[editor.currentMap].TileSet[0].Tiles[newTileInfo.TileSetGraphicIndex]);
 
             // Get the tile if null
             if (tile == null)
-                tile = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+                tile = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
 
             tile.CollisionType = newTileInfo.CollisionType;
             tile.PaletteIndex = newTileInfo.PaletteIndex;
@@ -187,7 +185,7 @@ namespace R1Engine
 
             // Get the tile if null
             if (tile == null)
-                tile = Controller.obj.levelController.currentLevel.Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+                tile = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
             tile.CollisionType = typeIndex;
 
             return tile;

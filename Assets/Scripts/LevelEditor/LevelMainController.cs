@@ -29,6 +29,7 @@ namespace R1Engine
 
         // The current level we are operating with
         public Common_Lev currentLevel => EditorManager?.Level;
+        public Editor editor => controllerEvents.editor;
 
         // The context, to reuse when writing
         private Context serializeContext;
@@ -87,8 +88,8 @@ namespace R1Engine
                 var mo = new Mesh {
                     vertices = new Vector3[]
                     {
-                    new Vector3(0, 0), new Vector3(currentLevel.Width, 0), new Vector3(currentLevel.Width, -currentLevel.Height),
-                    new Vector3(0, -currentLevel.Height)
+                    new Vector3(0, 0), new Vector3(currentLevel.Maps[editor.currentMap].Width, 0), new Vector3(currentLevel.Maps[editor.currentMap].Width, -currentLevel.Maps[editor.currentMap].Height),
+                    new Vector3(0, -currentLevel.Maps[editor.currentMap].Height)
                     }
                 };
 
@@ -123,7 +124,7 @@ namespace R1Engine
             var tileSetIndex = 0;
 
             // Export every tile set
-            foreach (var tileSet in currentLevel.TileSet.Where(x => x?.Tiles?.Any(y => y != null) == true))
+            foreach (var tileSet in currentLevel.Maps[editor.currentMap].TileSet.Where(x => x?.Tiles?.Any(y => y != null) == true))
             {
                 // Get values
                 var tileCount = tileSet.Tiles.Length;
@@ -240,11 +241,11 @@ namespace R1Engine
                 }
             }
 
-            RenderTexture renderTex = new RenderTexture(currentLevel.Width*16, currentLevel.Height*16, 24);
+            RenderTexture renderTex = new RenderTexture(currentLevel.Maps[editor.currentMap].Width*16, currentLevel.Maps[editor.currentMap].Height*16, 24);
             renderCamera.targetTexture = renderTex;
             //Set camera pos
-            renderCamera.transform.position = new Vector3((currentLevel.Width) / 2f, -(currentLevel.Height) / 2f, renderCamera.transform.position.z);
-            renderCamera.orthographicSize = (currentLevel.Height / 2f);
+            renderCamera.transform.position = new Vector3((currentLevel.Maps[editor.currentMap].Width) / 2f, -(currentLevel.Maps[editor.currentMap].Height) / 2f, renderCamera.transform.position.z);
+            renderCamera.orthographicSize = (currentLevel.Maps[editor.currentMap].Height / 2f);
             renderCamera.rect = new Rect(0, 0, 1, 1);
             renderCamera.Render();
 

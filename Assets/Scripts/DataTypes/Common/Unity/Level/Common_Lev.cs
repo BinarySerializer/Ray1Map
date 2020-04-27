@@ -8,6 +8,27 @@ namespace R1Engine
     public class Common_Lev
     {
         /// <summary>
+        /// The level maps
+        /// </summary>
+        public Common_LevelMap[] Maps { get; set; }
+
+        /// <summary>
+        /// The event data for every event
+        /// </summary>
+        public List<Common_EventData> EventData { get; set; }
+    }
+
+    /// <summary>
+    /// Common level map data
+    /// </summary>
+    public class Common_LevelMap
+    {
+        /// <summary>
+        /// The event scale factor
+        /// </summary>
+        public int ScaleFactor { get; set; } = 1;
+
+        /// <summary>
         /// The level width
         /// </summary>
         public ushort Width { get; set; }
@@ -26,10 +47,5 @@ namespace R1Engine
         /// The tiles
         /// </summary>
         public Common_Tile[] Tiles { get; set; }
-
-        /// <summary>
-        /// The event data for every event
-        /// </summary>
-        public List<Common_EventData> EventData { get; set; }
     }
 }

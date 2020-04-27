@@ -1311,8 +1311,8 @@ namespace R1Engine
             // Keep track of the current palette
             int currentPalette = defaultPalette;
 
-            // Enumerate each cell
-            for (int cellY = 0; cellY < level.Height; cellY++)
+            // Enumerate each cell (PC only has 1 map per level)
+            for (int cellY = 0; cellY < level.Maps[0].Height; cellY++)
             {
                 // Reset the palette on each row if we have a horizontal changer
                 if (isPaletteHorizontal)
@@ -1348,7 +1348,7 @@ namespace R1Engine
                     }
                 }
 
-                for (int cellX = 0; cellX < level.Width; cellX++)
+                for (int cellX = 0; cellX < level.Maps[0].Width; cellX++)
                 {
                     // Check the x position for palette changing
                     if (isPaletteHorizontal)
@@ -1382,7 +1382,7 @@ namespace R1Engine
                     }
 
                     // Set the common tile
-                    level.Tiles[cellY * level.Width + cellX].PaletteIndex = currentPalette;
+                    level.Maps[0].Tiles[cellY * level.Maps[0].Width + cellX].PaletteIndex = currentPalette;
                 }
             }
         }
@@ -1524,17 +1524,25 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Convert levelData to common level format
-            Common_Lev commonLev = new Common_Lev {
-                // Set the dimensions
-                Width = levelData.Width,
-                Height = levelData.Height,
+            Common_Lev commonLev = new Common_Lev 
+            {
+                // Create the map
+                Maps = new Common_LevelMap[]
+                {
+                    new Common_LevelMap()
+                    {
+                        // Set the dimensions
+                        Width = levelData.Width,
+                        Height = levelData.Height,
+
+                        // Create the tile arrays
+                        TileSet = new Common_Tileset[3],
+                        Tiles = new Common_Tile[levelData.Width * levelData.Height]
+                    }
+                },
 
                 // Create the events list
                 EventData = new List<Common_EventData>(),
-
-                // Create the tile arrays
-                TileSet = new Common_Tileset[3],
-                Tiles = new Common_Tile[levelData.Width * levelData.Height]
             };
 
             // Load the sprites
@@ -1586,9 +1594,9 @@ namespace R1Engine
             var tileSets = ReadTileSets(levelData);
 
             // Set the tile sets
-            commonLev.TileSet[0] = tileSets[0];
-            commonLev.TileSet[1] = tileSets[1];
-            commonLev.TileSet[2] = tileSets[2];
+            commonLev.Maps[0].TileSet[0] = tileSets[0];
+            commonLev.Maps[0].TileSet[1] = tileSets[1];
+            commonLev.Maps[0].TileSet[2] = tileSets[2];
 
             // Enumerate each cell
             for (int cellY = 0; cellY < levelData.Height; cellY++) 
@@ -1614,7 +1622,7 @@ namespace R1Engine
                     }
 
                     // Set the common tile
-                    commonLev.Tiles[cellY * levelData.Width + cellX] = new Common_Tile() 
+                    commonLev.Maps[0].Tiles[cellY * levelData.Width + cellX] = new Common_Tile() 
                     {
                         TileSetGraphicIndex = textureIndex,
                         CollisionType = cell.CollisionType,
@@ -1713,7 +1721,7 @@ namespace R1Engine
                 for (int x = 0; x < lvlData.Width; x++) {
                     // Get the tiles
                     var tile = lvlData.Tiles[y * lvlData.Width + x];
-                    var commonTile = commonLevelData.Tiles[y * lvlData.Width + x];
+                    var commonTile = commonLevelData.Maps[0].Tiles[y * lvlData.Width + x];
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;

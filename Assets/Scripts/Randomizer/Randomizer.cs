@@ -14,11 +14,12 @@ namespace R1Engine
         /// <param name="editorManager">The level editor manager</param>
         /// <param name="flags">The flags</param>
         /// <param name="seed">An optional seed to use</param>
-        public static void Randomize(BaseEditorManager editorManager, RandomizerFlags flags, int? seed)
+        /// <param name="map">The map index</param>
+        public static void Randomize(BaseEditorManager editorManager, RandomizerFlags flags, int? seed, int map)
         {
             var random = seed != null ? new Random(seed.Value) : new Random();
-            var maxX = editorManager.Level.Width * 16;
-            var maxY = editorManager.Level.Height * 16;
+            var maxX = editorManager.Level.Maps[map].Width * 16;
+            var maxY = editorManager.Level.Maps[map].Height * 16;
 
             // Enumerate every event
             foreach (Common_EventData eventData in editorManager.Level.EventData

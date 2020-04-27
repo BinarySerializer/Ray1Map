@@ -32,4 +32,18 @@
         Cliff = 25,
         Slippery = 30
     }
+
+    /*
+    
+    Rayman 2 collision (incomplete):
+
+    Reactionary = 1,
+    Reactionary = 2,
+    Reactionary = 3,
+    Reactionary = 4,
+    Solid = 22,
+    Passthrough = 23,
+    Hill_Slight_Left_1 = 25, (?)
+    Hill_Slight_Right_1 = 30, (?)
+     */
 }

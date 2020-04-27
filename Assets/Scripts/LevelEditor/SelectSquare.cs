@@ -41,7 +41,7 @@ namespace R1Engine {
             var r = new List<Common_Tile>();
             for (int y = (int)YStart; y <= YEnd; y++)
                 for (int x = (int)XStart; x <= XEnd; x++)
-                    r.Add(lvl.Tiles[x + y * lvl.Width]);
+                    r.Add(lvl.Maps[tileController.editor.currentMap].Tiles[x + y * lvl.Maps[tileController.editor.currentMap].Width]);
             return r.ToArray();
         }
 

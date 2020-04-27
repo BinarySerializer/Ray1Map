@@ -375,17 +375,25 @@ namespace R1Engine
             // Convert levelData to common level format
             Common_Lev c = new Common_Lev
             {
-                // Set the dimensions
-                Width = map.Width,
-                Height = map.Height,
+                // Create the map
+                Maps = new Common_LevelMap[]
+                {
+                    new Common_LevelMap()
+                    {
+                        // Set the dimensions
+                        Width = map.Width,
+                        Height = map.Height,
+
+                        // Create the tile array
+                        TileSet = new Common_Tileset[1]
+                    }
+                },
 
                 // Create the events list
                 EventData = new List<Common_EventData>(),
 
-                // Create the tile array
-                TileSet = new Common_Tileset[4]
             };
-            c.TileSet[0] = tileSet;
+            c.Maps[0].TileSet[0] = tileSet;
 
             // Add the events
             c.EventData = commonEvents;
@@ -393,7 +401,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Set the tiles
-            c.Tiles = new Common_Tile[map.Width * map.Height];
+            c.Maps[0].Tiles = new Common_Tile[map.Width * map.Height];
 
             int tileIndex = 0;
             for (int y = 0; y < map.Height; y++)
@@ -412,7 +420,7 @@ namespace R1Engine
                         TileSetGraphicIndex = (TileSetWidth * graphicY) + graphicX
                     };
 
-                    c.Tiles[tileIndex] = newTile;
+                    c.Maps[0].Tiles[tileIndex] = newTile;
 
                     tileIndex++;
                 }
@@ -455,7 +463,7 @@ namespace R1Engine
                 {
                     // Get the tiles
                     var tile = lvlData.MapData.Tiles[y * lvlData.MapData.Width + x];
-                    var commonTile = commonLevelData.Tiles[y * lvlData.MapData.Width + x];
+                    var commonTile = commonLevelData.Maps[0].Tiles[y * lvlData.MapData.Width + x];
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;

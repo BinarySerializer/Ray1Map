@@ -153,8 +153,8 @@ namespace R1Engine
 
                 // If X and Y are insane, clamp them
                 const int border = 10;
-                eventList[i].Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Width * 16) + border);
-                eventList[i].Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Height * 16) + border);
+                eventList[i].Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border);
+                eventList[i].Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border);
                 eventList[i].UpdateXAndY();
 
                 // No link
@@ -226,7 +226,7 @@ namespace R1Engine
                     var mox = mousepo.x * 16;
                     var moy = mousepo.y * 16;
                     //Don't add if clicked outside of the level bounds
-                    if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Width*16 && -moy < Controller.obj.levelController.currentLevel.Height*16) {
+                    if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width*16 && -moy < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height*16) {
 
                         var eventData = Controller.obj.levelController.EditorManager.AddEvent(eventDropdown.value, (uint)mox, (uint)-moy);
 
