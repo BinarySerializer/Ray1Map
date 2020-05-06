@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using R1Engine.Serialize;
@@ -26,6 +27,34 @@ namespace R1Engine
             DES = des;
             ETA = eta;
 
+            // Helper method for getting the names from an event type enum
+            string[] getEventTypeNames<T>()
+                where T : Enum
+            {
+                // Get the values
+                var values = EnumHelpers.GetValues<T>();
+
+                // Get the max value
+                var max = values.Cast<ushort>().Max();
+
+                // Create the array
+                var names = new string[max + 1];
+
+                // Add every value
+                for (int i = 0; i < names.Length; i++)
+                    names[i] = Enum.GetName(typeof(T), i) ?? $"Type_{i}";
+
+                return names;
+            }
+
+            // TODO: We should limit the types further (such as for Designer, EDU etc.). We could do this by tagging each event enum value with the platforms it's available on, or have a max value for each platform.
+            // Set the available event types based on game
+            if (context.Settings.Game == Game.Rayman2)
+                EventTypes = getEventTypeNames<PS1_R2Demo_EventType>();
+            else
+                EventTypes = getEventTypeNames<EventType>();
+
+
             // Load the event info data
             using (var csvFile = File.OpenRead("Events.csv"))
                 EventInfoData = GeneralEventInfoData.ReadCSV(csvFile).Where(IsAvailableInWorld).ToArray();
@@ -50,6 +79,11 @@ namespace R1Engine
         /// The event states
         /// </summary>
         public IReadOnlyDictionary<string, Common_EventState[][]> ETA { get; }
+
+        /// <summary>
+        /// The available event type names
+        /// </summary>
+        public string[] EventTypes { get; }
 
         /// <summary>
         /// The common level
@@ -202,7 +236,7 @@ namespace R1Engine
             var cmds = e.CommandCollection?.ToBytes(Settings);
 
             // Find match
-            var match = GetGeneralEventInfo((int)e.Type, e.Etat, e.SubEtat, e.DESKey, e.ETAKey, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
+            var match = GetGeneralEventInfo((ushort)(object)e.Type, e.Etat, e.SubEtat, e.DESKey, e.ETAKey, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
 
             // Return the editor info
             return new Common_EditorEventInfo(match?.Name);

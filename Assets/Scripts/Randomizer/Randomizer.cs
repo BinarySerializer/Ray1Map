@@ -29,9 +29,9 @@ namespace R1Engine
                     eventFlag = eventData.Type.GetAttribute<EventTypeInfoAttribute>()?.Flag
                 })
                 .Where(x => x.eventFlag == null || x.eventFlag == EventFlag.Normal)
-                .Where(x => x.eventData.Type != EventType.TYPE_RAY_POS && 
-                            x.eventData.Type != EventType.TYPE_PANCARTE &&
-                            x.eventData.Type != EventType.TYPE_SIGNPOST)
+                .Where(x => (EventType)x.eventData.Type != EventType.TYPE_RAY_POS &&
+                            (EventType)x.eventData.Type != EventType.TYPE_PANCARTE &&
+                            (EventType)x.eventData.Type != EventType.TYPE_SIGNPOST)
                 .Select(x => x.eventData))
             {
                 if (flags.HasFlag(RandomizerFlags.Pos))

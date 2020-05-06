@@ -31,7 +31,7 @@
         [EventTypeInfo(EventFlag.Always)]
         MetalThing1 = 13,
 
-        WaterLily1 = 18,
+        WaterLily = 18,
         FlyingRing = 19,
         Teleporter = 24,
         ExitSign = 27,
@@ -61,8 +61,7 @@
         [EventTypeInfo(EventFlag.Always)]
         Cannonball = 83,
 
-        // ???
-        WaterLily2 = 91,
+        Enemy = 91,
 
         [EventTypeInfo(EventFlag.Always)]
         MovingGunshot = 92,

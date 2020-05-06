@@ -106,7 +106,7 @@ namespace R1Engine {
             AnimationIndex = State?.AnimationIndex ?? 0;
 
             // Hack for multi-colored events
-            if (PC_RD_Manager.MultiColoredEvents.Contains(Data.Type))
+            if (Data.Type is EventType et && PC_RD_Manager.MultiColoredEvents.Contains(et))
                 AnimationIndex = (byte)(AnimationIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.HitPoints));
 
             // Update the graphics
@@ -123,7 +123,7 @@ namespace R1Engine {
         /// <summary>
         /// Indicates if the entire event sprite is supposed to be mirrored
         /// </summary>
-        public bool Mirrored => (Data.Type == EventType.TYPE_PUNAISE3 && Data.HitPoints == 1) || Data.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
+        public bool Mirrored => (Data.Type is EventType et && et == EventType.TYPE_PUNAISE3 && Data.HitPoints == 1) || Data.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
 
         /// <summary>
         /// The current animation of this event
@@ -279,8 +279,8 @@ namespace R1Engine {
 
             // TODO: Is there a flag for these events to determine if they should do this?
             // Hard-code frames for special events
-            if (Data.Type == EventType.TYPE_PUNAISE4 ||
-                Data.Type == EventType.TYPE_FALLING_CRAYON)
+            if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 ||
+                et == EventType.TYPE_FALLING_CRAYON))
             {
                 currentFrame = Data.HitPoints;
                 AnimSpeed = 0;

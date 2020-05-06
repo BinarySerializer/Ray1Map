@@ -56,6 +56,12 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
+            // Fill eventinfo dropdown with the event types
+            infoType.options.AddRange(Controller.obj.levelController.EditorManager.EventTypes.Select(x => new Dropdown.OptionData
+            {
+                text = x
+            }));
+
             // TODO: Scale events here
 
             // Initialize Rayman's animation as they're shared for small and dark Rayman
@@ -84,14 +90,14 @@ namespace R1Engine
             // Hard-code event animations for the different Rayman types
             Common_Design rayDes = null;
 
-            var rayEvent = eventList.Find(x => x.Data.Type == EventType.TYPE_RAY_POS);
+            var rayEvent = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_RAY_POS || x.Data.Type is PS1_R2Demo_EventType et2 && et2 == PS1_R2Demo_EventType.RaymanPosition);
 
             if (rayEvent != null)
                 rayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(rayEvent.Data.DESKey);
 
             if (rayDes != null)
             {
-                var miniRay = eventList.Find(x => x.Data.Type == EventType.TYPE_DEMI_RAYMAN);
+                var miniRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_DEMI_RAYMAN);
 
                 if (miniRay != null)
                 {
@@ -127,7 +133,7 @@ namespace R1Engine
                     }
                 }
 
-                var badRay = eventList.Find(x => x.Data.Type == EventType.TYPE_BLACK_RAY);
+                var badRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_BLACK_RAY);
 
                 if (badRay != null)
                 {
@@ -190,14 +196,7 @@ namespace R1Engine
             //Assign visibility refresh for the settings booleans
             Settings.OnShowAlwaysEventsChanged += ChangeEventsVisibility;
             Settings.OnShowEditorEventsChanged += ChangeEventsVisibility;
-            //Fill eventinfo dropdown with the event types
-            var all = Enum.GetValues(typeof(EventType));
-            foreach(var e in all) {
-                Dropdown.OptionData dat = new Dropdown.OptionData {
-                    text = e.ToString()
-                };
-                infoType.options.Add(dat);
-            }
+
             //Create empty list for commandlines
             commandLines = new List<CommandLine>();
         }
@@ -263,7 +262,7 @@ namespace R1Engine
                             infoHitPoints.text = currentlySelected.Data.HitPoints.ToString();
                             infoHitSprite.text = currentlySelected.Data.HitSprite.ToString();
                             infoFollow.isOn = currentlySelected.Data.FollowEnabled;
-                            infoType.value = (int)currentlySelected.Data.Type;
+                            infoType.value = (ushort)(object)currentlySelected.Data.Type;
                             infoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
                             infoLayer.text = currentlySelected.Data.Layer.ToString();
                             //Clear old commands
@@ -542,7 +541,7 @@ namespace R1Engine
         }
         public void FieldType() {
             if (currentlySelected != null) {
-                if ((EventType)infoType.value != currentlySelected.Data.Type) {
+                if (infoType.value != (ushort)(object)currentlySelected.Data.Type) {
                     currentlySelected.Data.Type = (EventType)infoType.value;
 
                     currentlySelected.RefreshFlag();

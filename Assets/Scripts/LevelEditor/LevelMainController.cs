@@ -196,12 +196,16 @@ namespace R1Engine
                     e.Flag == EventFlag.Editor)
                     e.gameObject.SetActive(false);
 
-                if (e.Data.Type == EventType.TYPE_GENERATING_DOOR || 
-                    e.Data.Type == EventType.TYPE_DESTROYING_DOOR || 
-                    e.Data.Type==EventType.MS_scintillement || 
-                    e.Data.Type==EventType.MS_super_gendoor ||
-                    e.Data.Type == EventType.MS_super_kildoor || 
-                    e.Data.Type==EventType.MS_compteur)
+                // Helper method
+                bool isGendoor(Common_Event ee) => ee.Data.Type is EventType et &&
+                                                   (et == EventType.TYPE_GENERATING_DOOR ||
+                                                   et == EventType.TYPE_DESTROYING_DOOR ||
+                                                   et == EventType.MS_scintillement ||
+                                                   et == EventType.MS_super_gendoor ||
+                                                   et == EventType.MS_super_kildoor ||
+                                                   et == EventType.MS_compteur);
+
+                if (isGendoor(e))
                     e.gameObject.SetActive(true);
 
                 e.ChangeLinksVisibility(true);
@@ -213,23 +217,13 @@ namespace R1Engine
                 }
                 else {
                     //Hide link if not linked to gendoor
-                    bool gendoorFound = e.Data.Type == EventType.TYPE_GENERATING_DOOR || 
-                                        e.Data.Type == EventType.TYPE_DESTROYING_DOOR || 
-                                        e.Data.Type == EventType.MS_scintillement || 
-                                        e.Data.Type == EventType.MS_super_gendoor || 
-                                        e.Data.Type == EventType.MS_super_kildoor ||
-                                        e.Data.Type == EventType.MS_compteur;
+                    bool gendoorFound = isGendoor(e);
                     var allofSame = new List<Common_Event> {
                         e
                     };
                     foreach (Common_Event f in Events.Where(f => f.LinkID == e.LinkID)) {
                         allofSame.Add(f);
-                        if (f.Data.Type == EventType.TYPE_GENERATING_DOOR || 
-                            f.Data.Type == EventType.TYPE_DESTROYING_DOOR || 
-                            f.Data.Type == EventType.MS_scintillement || 
-                            f.Data.Type == EventType.MS_super_gendoor || 
-                            f.Data.Type == EventType.MS_super_kildoor || 
-                            f.Data.Type == EventType.MS_compteur)
+                        if (isGendoor(f))
                             gendoorFound = true;
                     }
                     if (!gendoorFound) {

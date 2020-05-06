@@ -350,7 +350,7 @@ namespace R1Engine
                 // Add the event
                 commonEvents.Add(new Common_EventData
                 {
-                    //Type = e.Type,
+                    Type = e.EventType,
                     Etat = e.Etat,
                     SubEtat = e.SubEtat,
                     XPosition = e.XPosition,

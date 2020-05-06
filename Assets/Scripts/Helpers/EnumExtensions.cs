@@ -18,7 +18,7 @@ namespace R1Engine
         public static T GetAttribute<T>(this Enum value) where T : Attribute
         {
             if (value == null)
-                throw new ArgumentNullException(nameof(value));
+                return null;
 
             // Get the member info for the value
             var memberInfo = value.GetType().GetMember(value.ToString());
