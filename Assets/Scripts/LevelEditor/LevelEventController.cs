@@ -103,27 +103,24 @@ namespace R1Engine
                         {
                             var newAnim = new Common_Animation
                             {
-                                DefaultFrameXPosition = anim.DefaultFrameXPosition / 2,
-                                DefaultFrameYPosition = anim.DefaultFrameYPosition / 2,
-                                DefaultFrameWidth = anim.DefaultFrameWidth / 2,
-                                DefaultFrameHeight = anim.DefaultFrameHeight / 2,
-                                Frames = new Common_AnimationPart[anim.Frames.GetLength(0),
-                                    anim.Frames.GetLength(1)]
-                            };
-
-                            for (int x = 0; x < anim.Frames.GetLength(0); x++)
-                            {
-                                for (int y = 0; y < anim.Frames.GetLength(1); y++)
+                                Frames = anim.Frames.Select(x => new Common_AnimFrame()
                                 {
-                                    newAnim.Frames[x, y] = new Common_AnimationPart
+                                    FrameData = new Common_AnimationFrame
                                     {
-                                        SpriteIndex = anim.Frames[x, y].SpriteIndex,
-                                        X = anim.Frames[x, y].X / 2,
-                                        Y = anim.Frames[x, y].Y / 2,
-                                        Flipped = anim.Frames[x, y].Flipped
-                                    };
-                                }
-                            }
+                                        XPosition = (byte)(x.FrameData.XPosition / 2),
+                                        YPosition = (byte)(x.FrameData.YPosition / 2),
+                                        Width = (byte)(x.FrameData.Width / 2),
+                                        Height = (byte)(x.FrameData.Height / 2)
+                                    },
+                                    Layers = x.Layers.Select(l => new Common_AnimationPart()
+                                    {
+                                        SpriteIndex = l.SpriteIndex,
+                                        X = l.X / 2,
+                                        Y = l.Y / 2,
+                                        Flipped = l.Flipped
+                                    }).ToArray()
+                                }).ToArray()
+                            };
 
                             return newAnim;
                         }).ToList();

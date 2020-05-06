@@ -934,11 +934,7 @@ namespace R1Engine
             // Create the animation
             var animation = new Common_Animation
             {
-                Frames = new Common_AnimationPart[animationDescriptor.FrameCount, animationDescriptor.LayersPerFrame],
-                DefaultFrameXPosition = animationDescriptor.Frames.FirstOrDefault()?.XPosition ?? -1,
-                DefaultFrameYPosition = animationDescriptor.Frames.FirstOrDefault()?.YPosition ?? -1,
-                DefaultFrameWidth = animationDescriptor.Frames.FirstOrDefault()?.Width ?? -1,
-                DefaultFrameHeight = animationDescriptor.Frames.FirstOrDefault()?.Height ?? -1
+                Frames = new Common_AnimFrame[animationDescriptor.FrameCount],
             };
 
             // The layer index
@@ -947,6 +943,13 @@ namespace R1Engine
             // Create each frame
             for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
+                // Create the frame
+                var frame = new Common_AnimFrame()
+                {
+                    FrameData = animationDescriptor.Frames[i],
+                    Layers = new Common_AnimationPart[animationDescriptor.LayersPerFrame]
+                };
+
                 // Create each layer
                 for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
                 {
@@ -962,9 +965,12 @@ namespace R1Engine
                         Flipped = animationLayer.IsFlippedHorizontally
                     };
 
-                    // Add the texture
-                    animation.Frames[i, layerIndex] = part;
+                    // Add the part
+                    frame.Layers[layerIndex] = part;
                 }
+
+                // Set the frame
+                animation.Frames[i] = frame;
             }
 
             return animation;
