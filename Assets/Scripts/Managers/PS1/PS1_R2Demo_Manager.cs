@@ -242,59 +242,93 @@ namespace R1Engine
 
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
             var commonEvents = new List<Common_EventData>();
+            var eventDES = new Dictionary<Pointer, Common_Design>();
 
             if (loadTextures)
                 // Get the v-ram
                 FillVRAM(context);
 
+            // Create the global design list
+            var globalDesigns = new List<Sprite>();
+
+            // Add every sprite
+            foreach (var img in lvlData.FixImageDescriptors.Concat(FileFactory.Read<ObjectArray<Common_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC).Value))
+            {
+                Texture2D tex = GetSpriteTexture(context, null, img);
+
+                // Add it to the array
+                globalDesigns.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+            }
+
             // Get the events
             var events = lvlData.Events.Concat(lvlData.AlwaysEvents).ToArray();
 
-            // Get the animations
-            var anim = events.Where(x => x.AnimGroup?.AnimationDecriptors != null).
-                SelectMany(x => x.AnimGroup.AnimationDecriptors).
-                // Add Rayman's animations
-                Concat(footer.RaymanAnimGroup.AnimationDecriptors).
-                Where(x => x != null).
-                Distinct().
-                ToArray();
+            Controller.status = $"Loading animations";
+            await Controller.WaitIfNecessary();
 
-            // Get the ETA
+            // Get the ETA and DES
             foreach (var animGroup in events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup))
             {
-                if (animGroup?.ETAPointer == null || eventETA.ContainsKey(animGroup.ETAPointer))
-                    continue;
-
                 // Add the ETA
-                eventETA.Add(animGroup.ETAPointer, animGroup.EventStates);
+                if (animGroup?.ETAPointer != null && !eventETA.ContainsKey(animGroup.ETAPointer))
+                    eventETA.Add(animGroup.ETAPointer, animGroup.EventStates);
 
-                // TODO: Find a better way of doing this - we don't want to edit the state like this, especially since the anim index is a byte - might be better creating one DES for each animation group
-                // Change animation index to target global array
-                if (animGroup.AnimationDecriptors != null)
+                // Add the DES
+                if (animGroup?.AnimationDescriptorsPointer != null && !eventDES.ContainsKey(animGroup.AnimationDescriptorsPointer))
                 {
-                    foreach (var state in animGroup.EventStates.SelectMany(x => x))
+                    // Create the DES
+                    var des = new Common_Design()
                     {
-                        var a = animGroup.AnimationDecriptors.ElementAtOrDefault(state.AnimationIndex);
+                        Sprites = globalDesigns,
+                        Animations = new List<Common_Animation>()
+                    };
 
-                        if (a == null)
+                    foreach (var a in animGroup.AnimationDecriptors)
+                    {
+                        // Create the animation
+                        var animation = new Common_Animation
                         {
-                            Debug.LogWarning($"Animation descriptor not found of index {state.AnimationIndex} with length {animGroup.AnimationDecriptors.Length}");
+                            Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
+                            DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
+                            DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
+                            DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
+                            DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
+                        };
 
-                            // For now we default to 255 as that's an invalid index
-                            state.AnimationIndex = 255;
-                        }
-                        else
+                        // Create each frame
+                        for (int i = 0; i < a.Layers.Length; i++)
                         {
-                            state.AnimationIndex = (byte)(anim.FindItemIndex(x => x == a));
+                            // Get the layers for the frame
+                            var layers = a.Layers[i];
+
+                            // Create each layer
+                            for (var j = 0; j < layers.Length; j++)
+                            {
+                                var animationLayer = layers[j];
+
+                                // Create the animation part
+                                var part = new Common_AnimationPart
+                                {
+                                    SpriteIndex = animationLayer.ImageIndex,
+                                    X = animationLayer.XPosition,
+                                    Y = animationLayer.YPosition,
+                                    Flipped = animationLayer.IsFlippedHorizontally
+                                };
+
+                                // Add the texture
+                                animation.Frames[i, j] = part;
+                            }
                         }
+
+                        des.Animations.Add(animation);
                     }
+
+                    // Add the DES
+                    eventDES.Add(animGroup.AnimationDescriptorsPointer, des);
                 }
             }
 
             Controller.status = $"Loading events";
-
-            Debug.Log($"Loading {anim.Length} animations");
-
             await Controller.WaitIfNecessary();
 
             var index = 0;
@@ -310,7 +344,7 @@ namespace R1Engine
                     SubEtat = e.SubEtat,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
-                    DESKey = globalDESKey.ToString(),
+                    DESKey = e.AnimGroup?.AnimationDescriptorsPointer?.ToString() ?? "NULL",
                     ETAKey = e.AnimGroup?.ETAPointer?.ToString() ?? "NULL",
                     //OffsetBX = e.OffsetBX,
                     //OffsetBY = e.OffsetBY,
@@ -348,67 +382,6 @@ namespace R1Engine
                 });
 
                 index++;
-            }
-
-            // Create the global design
-            Common_Design globalDesign = new Common_Design
-            {
-                Sprites = new List<Sprite>(),
-                Animations = new List<Common_Animation>()
-            };
-
-            // Add every sprite
-            foreach (var img in lvlData.FixImageDescriptors.Concat(FileFactory.Read<ObjectArray<Common_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC).Value))
-            {
-                Texture2D tex = GetSpriteTexture(context, null, img);
-
-                // Add it to the array
-                globalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-            }
-
-            await Controller.WaitIfNecessary();
-            Controller.status = $"Loading animations";
-
-            // Add every animations
-            foreach (var a in anim)
-            {
-                // Create the animation
-                var animation = new Common_Animation
-                {
-                    Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
-                    DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
-                    DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
-                    DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
-                    DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
-                };
-
-                // Create each frame
-                for (int i = 0; i < a.Layers.Length; i++)
-                {
-                    // Get the layers for the frame
-                    var layers = a.Layers[i];
-
-                    // Create each layer
-                    for (var j = 0; j < layers.Length; j++)
-                    {
-                        var animationLayer = layers[j];
-
-                        // Create the animation part
-                        var part = new Common_AnimationPart
-                        {
-                            SpriteIndex = animationLayer.ImageIndex,
-                            X = animationLayer.XPosition,
-                            Y = animationLayer.YPosition,
-                            Flipped = animationLayer.IsFlippedHorizontally
-                        };
-
-                        // Add the texture
-                        animation.Frames[i, j] = part;
-                    }
-                }
-
-                // Add the animation to list
-                globalDesign.Animations.Add(animation);
             }
 
             await Controller.WaitIfNecessary();
@@ -478,13 +451,7 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return new PS1EditorManager(c, context, new Dictionary<Pointer, Common_Design>()
-            {
-                {
-                    globalDESKey,
-                    globalDesign
-                }
-            }, eventETA);
+            return new PS1EditorManager(c, context, eventDES, eventETA);
         }
 
         /// <summary>

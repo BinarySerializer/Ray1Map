@@ -74,7 +74,7 @@
         /// <summary>
         /// The event type
         /// </summary>
-        public ushort EventType { get; set; }
+        public PS1_R2Demo_EventType EventType { get; set; }
 
         // 68 (0x44)
 
@@ -201,7 +201,7 @@
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
 
             RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
-            EventType = s.Serialize<ushort>(EventType, name: nameof(EventType));
+            EventType = s.Serialize<PS1_R2Demo_EventType>(EventType, name: nameof(EventType));
 
             XPosition3 = s.Serialize<ushort>(XPosition3, name: nameof(XPosition3));
             YPosition3 = s.Serialize<ushort>(YPosition3, name: nameof(YPosition3));
@@ -240,55 +240,4 @@
 
         #endregion
     }
-
-    // TODO: Create enum
-    /*
-     
-    Event types for non-always events
-
-    0
-    2
-    3 - 1up
-    4 - Big power
-    6
-    9 - Floating mine
-    11 - Fist reflector
-    18 - Water lily
-    19 - Flying ring
-    24 - Teleporter
-    27 - Exit sign
-    34 - Scared platform
-    36 - Trap cube
-    38 - Trampoline
-    48 - 
-    49 - Rayman position
-    52 - Hp potion
-    56 - Rotating cube
-    81 - Cannon
-    91
-    95 - Destructable ground
-    96 - Smack BX-003
-    97 - Ting
-    98 - Dino
-    102
-    104
-
-    Event types for always events
-
-    4 - Small power
-    5 - Flash
-    8 - Hit effect
-    10 - Explosion
-    13
-    51 - Bolts
-    76
-    81
-    82
-    83 - Cannonball
-    92 - Moving gunshot
-    99
-    100 - Weird ball
-    103 - Gunshot explosion
-
-     */
 }
