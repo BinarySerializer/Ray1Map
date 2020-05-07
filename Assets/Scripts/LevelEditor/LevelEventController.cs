@@ -63,10 +63,14 @@ namespace R1Engine
             }));
 
             // TODO: Scale events here
-            float scaleFactor = Controller.obj.levelController.EditorManager.Level.Maps[editor.currentMap].ScaleFactor;
+            //float scaleFactor = Controller.obj.levelController.EditorManager.Level.Maps[editor.currentMap].ScaleFactor;
             var eventList = Controller.obj.levelController.Events;
             foreach (var e in eventList) {
-                e.Scale = scaleFactor;
+                //e.Scale = Controller.obj.levelController.EditorManager.Level.Maps[e].
+                //e.Scale = scaleFactor;
+                if (e.Data.MapLayer != null && e.Data.MapLayer.Value > 0) {
+                    e.Scale = Controller.obj.levelController.EditorManager.Level.Maps[e.Data.MapLayer.Value - 1].ScaleFactor;
+                }
             }
             // Initialize Rayman's animation as they're shared for small and dark Rayman
             InitializeRayAnim();

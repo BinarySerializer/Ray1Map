@@ -360,6 +360,7 @@ namespace R1Engine
                     OffsetBX = e.CollisionData?.OffsetBX ?? 0,
                     OffsetBY = e.CollisionData?.OffsetBY ?? 0,
                     OffsetHY = e.CollisionData?.OffsetHY ?? 0,
+                    MapLayer = e.MapLayer,
                     //FollowSprite = e.FollowSprite,
                     //HitPoints = e.Hitpoints,
                     Layer = e.Layer,

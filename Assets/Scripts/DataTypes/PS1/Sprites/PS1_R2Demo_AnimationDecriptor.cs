@@ -64,7 +64,7 @@
             // Serialize pointers
             LayersPointer = s.SerializePointer(LayersPointer, name: nameof(LayersPointer));
             FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
-            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
+            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3)); // ^points to 8 bytes
 
             // Serialize values
             LayersPerFrame = s.Serialize<ushort>(LayersPerFrame, name: nameof(LayersPerFrame));

@@ -92,6 +92,8 @@ namespace R1Engine
         /// </summary>
         public int Layer { get; set; }
 
+        public int? MapLayer { get; set; }
+
         public int HitSprite { get; set; }
 
         /// <summary>

@@ -429,9 +429,10 @@ namespace R1Engine {
 
             var fw = CurrentAnimation.Frames[0].FrameData.Width;
             var fh = CurrentAnimation.Frames[0].FrameData.Height;
-            var pivot = new Vector2(
+            /*var pivot = new Vector2(
                 (CurrentAnimation.Frames[0].FrameData.XPosition) + fw / 2f,
-                -((CurrentAnimation.Frames[0].FrameData.YPosition) + fh));
+                -((CurrentAnimation.Frames[0].FrameData.YPosition) + fh));*/
+            var pivot = new Vector2(Data.OffsetBX, -(Data.OffsetBY));
 
             for (int i = 0; i < CurrentAnimation.Frames[(int)currentFrame].Layers.Length; i++) {
                 // Skips sprites out of bounds
