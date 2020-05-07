@@ -56,26 +56,24 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
+            // Get the event list
+            var eventList = Controller.obj.levelController.Events;
+
+            // Initialize Rayman's animation as they're shared for small and dark Rayman
+            InitializeRayAnim();
+
+            // Setup events
+            foreach (var e in eventList)
+                e.InitialSetup();
+
+            // Initialize links
+            InitializeEventLinks();
+
             // Fill eventinfo dropdown with the event types
             infoType.options.AddRange(Controller.obj.levelController.EditorManager.EventTypes.Select(x => new Dropdown.OptionData
             {
                 text = x
             }));
-
-            // TODO: Scale events here
-            //float scaleFactor = Controller.obj.levelController.EditorManager.Level.Maps[editor.currentMap].ScaleFactor;
-            var eventList = Controller.obj.levelController.Events;
-            foreach (var e in eventList) {
-                //e.Scale = Controller.obj.levelController.EditorManager.Level.Maps[e].
-                //e.Scale = scaleFactor;
-                if (e.Data.MapLayer != null && e.Data.MapLayer.Value > 0) {
-                    e.Scale = Controller.obj.levelController.EditorManager.Level.Maps[e.Data.MapLayer.Value - 1].ScaleFactor;
-                }
-            }
-            // Initialize Rayman's animation as they're shared for small and dark Rayman
-            InitializeRayAnim();
-
-            InitializeEventLinks();
 
             // Fill the dropdown menu
             eventDropdown.options = Controller.obj.levelController.EditorManager.GetEvents().Select(x => new Dropdown.OptionData
@@ -83,12 +81,12 @@ namespace R1Engine
                 text = x
             }).ToList();
 
+            // Default to the first event
+            eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;
+
             // Fill Des and Eta dropdowns with their max values
             infoDes.options = Controller.obj.levelController.EditorManager.DES.Select(x => new Dropdown.OptionData(x.Key)).ToList();
             infoEta.options = Controller.obj.levelController.EditorManager.ETA.Select(x => new Dropdown.OptionData(x.Key)).ToList();
-
-            // Default to the first event
-            eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;
         }
 
         public void InitializeRayAnim()
@@ -103,53 +101,53 @@ namespace R1Engine
             if (rayEvent != null)
                 rayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(rayEvent.Data.DESKey);
 
-            if (rayDes != null)
+            if (rayDes == null) 
+                return;
+
+            var miniRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_DEMI_RAYMAN);
+
+            if (miniRay != null)
             {
-                var miniRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_DEMI_RAYMAN);
+                var miniRayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(miniRay.Data.DESKey);
 
-                if (miniRay != null)
+                if (miniRayDes != null)
                 {
-                    var des = Controller.obj.levelController.EditorManager.DES.TryGetItem(miniRay.Data.DESKey);
-
-                    if (des != null)
+                    miniRayDes.Animations = rayDes.Animations.Select(anim =>
                     {
-                        des.Animations = rayDes.Animations.Select(anim =>
+                        var newAnim = new Common_Animation
                         {
-                            var newAnim = new Common_Animation
+                            Frames = anim.Frames.Select(x => new Common_AnimFrame()
                             {
-                                Frames = anim.Frames.Select(x => new Common_AnimFrame()
+                                FrameData = new Common_AnimationFrame
                                 {
-                                    FrameData = new Common_AnimationFrame
-                                    {
-                                        XPosition = (byte)(x.FrameData.XPosition / 2),
-                                        YPosition = (byte)(x.FrameData.YPosition / 2),
-                                        Width = (byte)(x.FrameData.Width / 2),
-                                        Height = (byte)(x.FrameData.Height / 2)
-                                    },
-                                    Layers = x.Layers.Select(l => new Common_AnimationPart()
-                                    {
-                                        SpriteIndex = l.SpriteIndex,
-                                        X = l.X / 2,
-                                        Y = l.Y / 2,
-                                        Flipped = l.Flipped
-                                    }).ToArray()
+                                    XPosition = (byte)(x.FrameData.XPosition / 2),
+                                    YPosition = (byte)(x.FrameData.YPosition / 2),
+                                    Width = (byte)(x.FrameData.Width / 2),
+                                    Height = (byte)(x.FrameData.Height / 2)
+                                },
+                                Layers = x.Layers.Select(l => new Common_AnimationPart()
+                                {
+                                    SpriteIndex = l.SpriteIndex,
+                                    X = l.X / 2,
+                                    Y = l.Y / 2,
+                                    Flipped = l.Flipped
                                 }).ToArray()
-                            };
+                            }).ToArray()
+                        };
 
-                            return newAnim;
-                        }).ToList();
-                    }
+                        return newAnim;
+                    }).ToList();
                 }
+            }
 
-                var badRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_BLACK_RAY);
+            var badRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_BLACK_RAY);
 
-                if (badRay != null)
-                {
-                    var des = Controller.obj.levelController.EditorManager.DES.TryGetItem(badRay.Data.DESKey);
+            if (badRay != null)
+            {
+                var badRayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(badRay.Data.DESKey);
 
-                    if (des != null)
-                        des.Animations = rayDes.Animations;
-                }
+                if (badRayDes != null)
+                    badRayDes.Animations = rayDes.Animations;
             }
         }
 
@@ -160,10 +158,6 @@ namespace R1Engine
             // Convert linkIndex of each event to linkId
             for (int i = 0; i < eventList.Count; i++)
             {
-                // Refresh
-                eventList[i].RefreshFlag();
-                eventList[i].RefreshEditorInfo();
-
                 // If X and Y are insane, clamp them
                 const int border = 10;
                 eventList[i].Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border);
@@ -220,20 +214,24 @@ namespace R1Engine
         }
 
         private void Update() {
-            //Only do this if in event/link mode
+            // Only do this if in event/link mode
             bool modeEvents = editor.currentMode == Editor.EditMode.Events;
             bool modeLinks = editor.currentMode == Editor.EditMode.Links;
 
-            if ( modeEvents || modeLinks ) {
+            if ( modeEvents || modeLinks ) 
+            {
                 selectedLineRend.enabled = true;
-                //Add events with mmb
-                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents) {
+                
+                // Add events with mmb
+                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents) 
+                {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     var mox = mousepo.x * 16;
                     var moy = mousepo.y * 16;
-                    //Don't add if clicked outside of the level bounds
-                    if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width*16 && -moy < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height*16) {
-
+                    
+                    // Don't add if clicked outside of the level bounds
+                    if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width*16 && -moy < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height*16) 
+                    {
                         var eventData = Controller.obj.levelController.EditorManager.AddEvent(eventDropdown.value, (uint)mox, (uint)-moy);
 
                         Controller.obj.levelController.currentLevel.EventData.Add(eventData);
@@ -537,24 +535,24 @@ namespace R1Engine
                 }
             }
         }
-        public void FieldFollowEnabled() {
-            if (currentlySelected != null) {
-                if (infoFollow.isOn != currentlySelected.Data.FollowEnabled) {
-                    currentlySelected.Data.FollowEnabled = infoFollow.isOn;
+        public void FieldFollowEnabled() 
+        {
+            if (currentlySelected != null && infoFollow.isOn != currentlySelected.Data.FollowEnabled)
+            {
+                currentlySelected.Data.FollowEnabled = infoFollow.isOn;
 
-                    currentlySelected.RefreshName();
-                    currentlySelected.ChangeOffsetVisibility(true);
-                }
+                currentlySelected.RefreshName();
+                currentlySelected.ChangeOffsetVisibility(true);
             }
         }
-        public void FieldType() {
-            if (currentlySelected != null) {
-                if (infoType.value != currentlySelected.Data.TypeValue) {
-                    currentlySelected.Data.Type = (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString());
+        public void FieldType() 
+        {
+            if (currentlySelected != null && infoType.value != currentlySelected.Data.TypeValue) 
+            {
+                currentlySelected.Data.Type = (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString());
 
-                    currentlySelected.RefreshFlag();
-                    currentlySelected.RefreshName();
-                }
+                currentlySelected.RefreshFlag();
+                currentlySelected.RefreshName();
             }
         }
         public void FieldAnimIndex() {

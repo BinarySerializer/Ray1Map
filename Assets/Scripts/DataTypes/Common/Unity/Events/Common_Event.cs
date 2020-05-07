@@ -65,6 +65,18 @@ namespace R1Engine {
         #region Event Methods
 
         /// <summary>
+        /// Performs the initial setup for the event
+        /// </summary>
+        public void InitialSetup()
+        {
+            if (Data.MapLayer != null && Data.MapLayer.Value > 0)
+                Scale = Controller.obj.levelController.EditorManager.Level.Maps[Data.MapLayer.Value - 1].ScaleFactor;
+
+            RefreshFlag();
+            RefreshEditorInfo();
+        }
+
+        /// <summary>
         /// Refreshes the editor event info
         /// </summary>
         public void RefreshEditorInfo() {
