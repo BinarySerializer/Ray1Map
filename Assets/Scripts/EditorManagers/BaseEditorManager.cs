@@ -28,11 +28,10 @@ namespace R1Engine
             ETA = eta;
 
             // Helper method for getting the names from an event type enum
-            string[] getEventTypeNames<T>()
-                where T : Enum
+            string[] getEventTypeNames()
             {
                 // Get the values
-                var values = EnumHelpers.GetValues<T>();
+                var values = Enum.GetValues(EventTypeEnumType);
 
                 // Get the max value
                 var max = values.Cast<ushort>().Max();
@@ -42,18 +41,14 @@ namespace R1Engine
 
                 // Add every value
                 for (int i = 0; i < names.Length; i++)
-                    names[i] = Enum.GetName(typeof(T), i) ?? $"Type_{i}";
+                    names[i] = Enum.GetName(EventTypeEnumType, i) ?? $"Type_{i}";
 
                 return names;
             }
 
             // TODO: We should limit the types further (such as for Designer, EDU etc.). We could do this by tagging each event enum value with the platforms it's available on, or have a max value for each platform.
-            // Set the available event types based on game
-            if (context.Settings.Game == Game.Rayman2)
-                EventTypes = getEventTypeNames<PS1_R2Demo_EventType>();
-            else
-                EventTypes = getEventTypeNames<EventType>();
-
+            // Set the available event types
+            EventTypes = getEventTypeNames();
 
             // Load the event info data
             using (var csvFile = File.OpenRead("Events.csv"))
@@ -69,6 +64,11 @@ namespace R1Engine
         /// Indicates if the local commands should be used
         /// </summary>
         protected abstract bool UsesLocalCommands { get; }
+
+        /// <summary>
+        /// The type of enum for the event types
+        /// </summary>
+        public Type EventTypeEnumType => Settings.Game == Game.Rayman2 ? typeof(PS1_R2Demo_EventType) : typeof(EventType);
 
         /// <summary>
         /// The event designs
@@ -146,11 +146,11 @@ namespace R1Engine
                     labelOffsets = cmdData.LabelOffsets;
                 }
             }
-
+            
             // Return the event
             return new Common_EventData
             {
-                Type = (EventType)e.Type,
+                Type = (Enum)Enum.Parse(EventTypeEnumType, e.Type.ToString()),
                 Etat = e.Etat,
                 SubEtat = e.SubEtat,
                 XPosition = xPos,
@@ -236,7 +236,7 @@ namespace R1Engine
             var cmds = e.CommandCollection?.ToBytes(Settings);
 
             // Find match
-            var match = GetGeneralEventInfo((ushort)(object)e.Type, e.Etat, e.SubEtat, e.DESKey, e.ETAKey, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
+            var match = GetGeneralEventInfo(e.TypeValue, e.Etat, e.SubEtat, e.DESKey, e.ETAKey, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
 
             // Return the editor info
             return new Common_EditorEventInfo(match?.Name);

@@ -266,7 +266,7 @@ namespace R1Engine
                             infoHitPoints.text = currentlySelected.Data.HitPoints.ToString();
                             infoHitSprite.text = currentlySelected.Data.HitSprite.ToString();
                             infoFollow.isOn = currentlySelected.Data.FollowEnabled;
-                            infoType.value = (ushort)(object)currentlySelected.Data.Type;
+                            infoType.value = currentlySelected.Data.TypeValue;
                             infoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
                             infoLayer.text = currentlySelected.Data.Layer.ToString();
                             //Clear old commands
@@ -545,8 +545,8 @@ namespace R1Engine
         }
         public void FieldType() {
             if (currentlySelected != null) {
-                if (infoType.value != (ushort)(object)currentlySelected.Data.Type) {
-                    currentlySelected.Data.Type = (EventType)infoType.value;
+                if (infoType.value != currentlySelected.Data.TypeValue) {
+                    currentlySelected.Data.Type = (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString());
 
                     currentlySelected.RefreshFlag();
                     currentlySelected.RefreshName();

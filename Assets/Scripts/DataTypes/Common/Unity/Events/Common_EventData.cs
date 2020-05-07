@@ -7,10 +7,33 @@ namespace R1Engine
     /// </summary>
     public class Common_EventData
     {
+        private Enum _type;
+
         /// <summary>
         /// The event type
         /// </summary>
-        public Enum Type { get; set; }
+        public Enum Type
+        {
+            get => _type;
+            set
+            {
+                _type = value;
+
+                // Update type values
+                TypeValue = (ushort)Convert.ChangeType(Type, typeof(ushort));
+                TypeInfo = Type.GetAttribute<EventTypeInfoAttribute>();
+            }
+        }
+
+        /// <summary>
+        /// The event type as a ushort
+        /// </summary>
+        public ushort TypeValue { get; private set; }
+
+        /// <summary>
+        /// The event type info
+        /// </summary>
+        public EventTypeInfoAttribute TypeInfo { get; private set; }
 
         /// <summary>
         /// The event state

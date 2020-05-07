@@ -88,7 +88,7 @@ namespace R1Engine {
 
         public void RefreshFlag()
         {
-            Flag = Data.Type.GetAttribute<EventTypeInfoAttribute>()?.Flag ?? EventFlag.Normal;
+            Flag = Data.TypeInfo?.Flag ?? EventFlag.Normal;
         }
 
         public void RefreshVisuals(bool refreshState = true) {

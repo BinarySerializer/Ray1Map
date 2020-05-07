@@ -26,7 +26,7 @@ namespace R1Engine
                 .Select(eventData => new
                 {
                     eventData, 
-                    eventFlag = eventData.Type.GetAttribute<EventTypeInfoAttribute>()?.Flag
+                    eventFlag = eventData.TypeInfo?.Flag
                 })
                 .Where(x => x.eventFlag == null || x.eventFlag == EventFlag.Normal)
                 .Where(x => (EventType)x.eventData.Type != EventType.TYPE_RAY_POS &&
