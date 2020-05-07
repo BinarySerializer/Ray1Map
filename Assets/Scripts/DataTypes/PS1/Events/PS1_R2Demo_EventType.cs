@@ -82,7 +82,6 @@
         [EventTypeInfo(EventFlag.Always)]
         GunshotExplosion = 103,
 
-        Unk_104 = 104,
-
+        WaterFall = 104,
     }
 }

@@ -357,9 +357,9 @@ namespace R1Engine
                     YPosition = e.YPosition,
                     DESKey = e.AnimGroup?.AnimationDescriptorsPointer?.ToString() ?? "NULL",
                     ETAKey = e.AnimGroup?.ETAPointer?.ToString() ?? "NULL",
-                    //OffsetBX = e.OffsetBX,
-                    //OffsetBY = e.OffsetBY,
-                    //OffsetHY = e.OffsetHY,
+                    OffsetBX = e.CollisionData?.OffsetBX ?? 0,
+                    OffsetBY = e.CollisionData?.OffsetBY ?? 0,
+                    OffsetHY = e.CollisionData?.OffsetHY ?? 0,
                     //FollowSprite = e.FollowSprite,
                     //HitPoints = e.Hitpoints,
                     Layer = e.Layer,
@@ -389,7 +389,8 @@ namespace R1Engine
                                 $"IsFlippedHorizontally: {e.IsFlippedHorizontally}{Environment.NewLine}" +
                                 $"IsFaded: {e.IsFaded}{Environment.NewLine}" +
                                 $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
-                                $"CollisionDataValues: {String.Join("-", e.CollisionDataValues ?? new byte[0])}{Environment.NewLine}"
+                                $"CollisionDataValues 1: {String.Join("-", e.CollisionData?.Unk1 ?? new byte[0])}{Environment.NewLine}" +
+                                $"CollisionDataValues 2: {String.Join("-", e.CollisionData?.Unk2 ?? new byte[0])}{Environment.NewLine}"
                 });
 
                 index++;

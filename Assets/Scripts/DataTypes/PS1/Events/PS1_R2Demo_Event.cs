@@ -153,8 +153,10 @@
 
         #region Pointer Data
 
-        // TODO: Parse this
-        public byte[] CollisionDataValues { get; set; }
+        /// <summary>
+        /// The collision data
+        /// </summary>
+        public PS1_R2Demo_EventCollision CollisionData { get; set; }
 
         /// <summary>
         /// The current animation group
@@ -232,7 +234,7 @@
 
 
             if (CollisionDataPointer != null)
-                s.DoAt(CollisionDataPointer, () => CollisionDataValues = s.SerializeArray<byte>(CollisionDataValues, 16, name: nameof(CollisionDataValues)));
+                s.DoAt(CollisionDataPointer, () => CollisionData = s.SerializeObject<PS1_R2Demo_EventCollision>(CollisionData, name: nameof(CollisionData)));
 
             if (AnimGroupPointer != null)
                 s.DoAt(AnimGroupPointer, () => AnimGroup = s.SerializeObject<PS1_R2Demo_EventAnimGroup>(AnimGroup, name: nameof(AnimGroup)));
