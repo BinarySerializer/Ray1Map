@@ -225,6 +225,58 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets a common animation
+        /// </summary>
+        /// <param name="animationDescriptor">The animation descriptor</param>
+        /// <returns>The common animation</returns>
+        public virtual Common_Animation GetCommonAnimation(PS1_R1_AnimationDescriptor animationDescriptor)
+        {
+            // Create the animation
+            var animation = new Common_Animation
+            {
+                Frames = new Common_AnimFrame[animationDescriptor.FrameCount],
+            };
+
+            // The layer index
+            var layer = 0;
+
+            // Create each frame
+            for (int i = 0; i < animationDescriptor.FrameCount; i++)
+            {
+                // Create the frame
+                var frame = new Common_AnimFrame()
+                {
+                    FrameData = animationDescriptor.Frames[i],
+                    Layers = new Common_AnimationPart[animationDescriptor.LayersPerFrame]
+                };
+
+                // Create each layer
+                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
+                {
+                    var animationLayer = animationDescriptor.Layers[layer];
+                    layer++;
+
+                    // Create the animation part
+                    var part = new Common_AnimationPart
+                    {
+                        SpriteIndex = animationLayer.ImageIndex,
+                        X = animationLayer.XPosition,
+                        Y = animationLayer.YPosition,
+                        Flipped = animationLayer.IsFlippedHorizontally
+                    };
+
+                    // Add the part
+                    frame.Layers[layerIndex] = part;
+                }
+
+                // Set the frame
+                animation.Frames[i] = frame;
+            }
+
+            return animation;
+        }
+
+        /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>
@@ -292,47 +344,8 @@ namespace R1Engine
                             finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                         }
 
-                        // Animations
-                        foreach (var a in e.AnimDescriptors)
-                        {
-                            // Create the animation
-                            var animation = new Common_Animation
-                            {
-                                Frames = new Common_AnimationPart[a.FrameCount, a.LayersPerFrame],
-                                DefaultFrameXPosition = a.Frames.FirstOrDefault()?.XPosition ?? -1,
-                                DefaultFrameYPosition = a.Frames.FirstOrDefault()?.YPosition ?? -1,
-                                DefaultFrameWidth = a.Frames.FirstOrDefault()?.Width ?? -1,
-                                DefaultFrameHeight = a.Frames.FirstOrDefault()?.Height ?? -1,
-                            };
-
-                            // The layer index
-                            var layer = 0;
-
-                            // Create each frame
-                            for (int i = 0; i < a.FrameCount; i++)
-                            {
-                                // Create each layer
-                                for (var layerIndex = 0; layerIndex < a.LayersPerFrame; layerIndex++)
-                                {
-                                    var animationLayer = a.Layers[layer];
-                                    layer++;
-
-                                    // Create the animation part
-                                    var part = new Common_AnimationPart
-                                    {
-                                        SpriteIndex = animationLayer.ImageIndex,
-                                        X = animationLayer.XPosition,
-                                        Y = animationLayer.YPosition,
-                                        Flipped = animationLayer.IsFlippedHorizontally
-                                    };
-
-                                    // Add the texture
-                                    animation.Frames[i, layerIndex] = part;
-                                }
-                            }
-                            // Add the animation to list
-                            finalDesign.Animations.Add(animation);
-                        }
+                        // Add animations
+                        finalDesign.Animations.AddRange(e.AnimDescriptors.Select(GetCommonAnimation));
 
                         // Add to the designs
                         eventDesigns.Add(e.ImageDescriptorsPointer, finalDesign);

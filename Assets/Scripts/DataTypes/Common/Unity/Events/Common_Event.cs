@@ -106,7 +106,7 @@ namespace R1Engine {
             AnimationIndex = State?.AnimationIndex ?? 0;
 
             // Hack for multi-colored events
-            if (PC_RD_Manager.MultiColoredEvents.Contains(Data.Type))
+            if (Data.Type is EventType et && PC_RD_Manager.MultiColoredEvents.Contains(et))
                 AnimationIndex = (byte)(AnimationIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.HitPoints));
 
             // Update the graphics
@@ -123,7 +123,7 @@ namespace R1Engine {
         /// <summary>
         /// Indicates if the entire event sprite is supposed to be mirrored
         /// </summary>
-        public bool Mirrored => (Data.Type == EventType.TYPE_PUNAISE3 && Data.HitPoints == 1) || Data.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
+        public bool Mirrored => (Data.Type is EventType et && et == EventType.TYPE_PUNAISE3 && Data.HitPoints == 1) || Data.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
 
         /// <summary>
         /// The current animation of this event
@@ -184,7 +184,7 @@ namespace R1Engine {
                         currentFrame += (60f / AnimSpeed) * Time.deltaTime;
 
                     // Loop back to first frame
-                    if (currentFrame >= CurrentAnimation.Frames.GetLength(0))
+                    if (currentFrame >= CurrentAnimation.Frames.Length)
                     {
                         currentFrame = 0;
 
@@ -248,6 +248,7 @@ namespace R1Engine {
                     if (floored != prevFrame) {
                         UpdateParts(floored);
                         UpdateFollowSpriteLine();
+                        ChangeColliderSize();
                     }
                 }
             }
@@ -280,8 +281,8 @@ namespace R1Engine {
 
             // TODO: Is there a flag for these events to determine if they should do this?
             // Hard-code frames for special events
-            if (Data.Type == EventType.TYPE_PUNAISE4 ||
-                Data.Type == EventType.TYPE_FALLING_CRAYON)
+            if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 ||
+                et == EventType.TYPE_FALLING_CRAYON))
             {
                 currentFrame = Data.HitPoints;
                 AnimSpeed = 0;
@@ -306,13 +307,13 @@ namespace R1Engine {
             if (CurrentAnimation != null) {
                 offsetCrossBX.localPosition = new Vector2(Data.OffsetBX / 16f, 0f);
                 offsetCrossBY.localPosition = new Vector2(Data.OffsetBX / 16f, -(Data.OffsetBY / 16f));
-                offsetCrossHY.localPosition = new Vector2(Data.OffsetBX / 16f, -((Data.OffsetHY / 16f) + (CurrentAnimation.DefaultFrameYPosition / 16f)));
+                offsetCrossHY.localPosition = new Vector2(Data.OffsetBX / 16f, -((Data.OffsetHY / 16f) + (CurrentAnimation.Frames[0].FrameData.YPosition / 16f)));
             }
         }
 
         public void UpdateFollowSpriteLine() {
-            if (CurrentAnimation != null && Data.FollowSprite < CurrentAnimation.Frames.GetLength(1)) {
-                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame, Data.FollowSprite].X/16f, -CurrentAnimation.Frames[(int)currentFrame, Data.FollowSprite].Y/16f - (Data.OffsetHY / 16f));
+            if (CurrentAnimation != null && Data.FollowSprite < CurrentAnimation.Frames[(int)currentFrame].Layers.Length) {
+                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].X/16f, -CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].Y/16f - (Data.OffsetHY / 16f));
 
                 var w = (prefabRendereds[Data.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
@@ -368,7 +369,7 @@ namespace R1Engine {
             }
 
             // Get the frame length
-            var len = CurrentAnimation.Frames.GetLength(1);
+            var len = CurrentAnimation.Frames[(int)currentFrame].Layers.Length;
 
             // Clear old array
             ClearChildren();
@@ -404,10 +405,10 @@ namespace R1Engine {
         // Change collider size
         private void ChangeColliderSize() {
             if (CurrentAnimation != null) {
-                var w = CurrentAnimation.DefaultFrameWidth / 16f;
-                var h = CurrentAnimation.DefaultFrameHeight / 16f;
+                var w = CurrentAnimation.Frames[(int)currentFrame].FrameData.Width / 16f;
+                var h = CurrentAnimation.Frames[(int)currentFrame].FrameData.Height / 16f;
                 boxCollider.size = new Vector2(w, h);
-                boxCollider.offset = new Vector2((CurrentAnimation.DefaultFrameXPosition / 16f) + w / 2f, -((CurrentAnimation.DefaultFrameYPosition / 16f) + h / 2f));
+                boxCollider.offset = new Vector2((CurrentAnimation.Frames[(int)currentFrame].FrameData.XPosition / 16f) + w / 2f, -(CurrentAnimation.Frames[(int)currentFrame].FrameData.YPosition / 16f) + h / 2f);
             }
             else {
                 boxCollider.size = new Vector2(3, 3);
@@ -424,16 +425,16 @@ namespace R1Engine {
             // Get the sprites
             var sprites = EditorManager.DES[Data.DESKey].Sprites;
 
-            for (int i = 0; i < CurrentAnimation.Frames.GetLength(1); i++) {
+            for (int i = 0; i < CurrentAnimation.Frames[(int)currentFrame].Layers.Length; i++) {
                 // Skips sprites out of bounds
-                if (CurrentAnimation.Frames[frame, i].SpriteIndex >= sprites.Count) {
+                if (CurrentAnimation.Frames[frame].Layers[i].SpriteIndex >= sprites.Count) {
                     prefabRendereds[i].sprite = null;
                 }
                 else {
-                    prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame, i].SpriteIndex];
+                    prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame].Layers[i].SpriteIndex];
                 }
 
-                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Mirrored;
+                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame].Layers[i].Flipped || Mirrored;
 
 
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
@@ -447,9 +448,9 @@ namespace R1Engine {
 
 
                 var xx = (Mirrored 
-                    ? (CurrentAnimation.DefaultFrameWidth - (CurrentAnimation.Frames[frame, i].X) - 1) + CurrentAnimation.DefaultFrameXPosition * 2 - 2
-                    : CurrentAnimation.Frames[frame, i].X) + (CurrentAnimation.Frames[frame, i].Flipped ? w : 0);
-                var yy = -CurrentAnimation.Frames[frame, i].Y;
+                    ? (CurrentAnimation.Frames[0].FrameData.Width - (CurrentAnimation.Frames[frame].Layers[i].X) - 1) + CurrentAnimation.Frames[0].FrameData.Height * 2 - 2
+                    : CurrentAnimation.Frames[frame].Layers[i].X) + (CurrentAnimation.Frames[frame].Layers[i].Flipped ? w : 0);
+                var yy = -CurrentAnimation.Frames[frame].Layers[i].Y;
                 prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, prefabRendereds[i].transform.localPosition.z);
                 prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 

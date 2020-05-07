@@ -33,6 +33,11 @@ namespace R1Engine
         public Common_AnimationLayer[] Layers { get; set; }
 
         /// <summary>
+        /// The default animation frame (seems to always match the first frame)
+        /// </summary>
+        public Common_AnimationFrame DefaultFrame { get; set; }
+
+        /// <summary>
         /// The animation frames
         /// </summary>
         public Common_AnimationFrame[] Frames { get; set; }
@@ -40,7 +45,7 @@ namespace R1Engine
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: nameof(LayersPerFrame));
             Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
@@ -53,7 +58,8 @@ namespace R1Engine
                 Debug.LogWarning("Frame table offset is wrong");
             
             Layers = s.SerializeObjectArray<Common_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: nameof(Layers));
-            Frames = s.SerializeObjectArray<Common_AnimationFrame>(Frames, FrameCount + 1, name: nameof(Frames));
+            DefaultFrame = s.SerializeObject<Common_AnimationFrame>(DefaultFrame, name: nameof(DefaultFrame));
+            Frames = s.SerializeObjectArray<Common_AnimationFrame>(Frames, FrameCount, name: nameof(Frames));
         }
     }
 }

@@ -934,11 +934,7 @@ namespace R1Engine
             // Create the animation
             var animation = new Common_Animation
             {
-                Frames = new Common_AnimationPart[animationDescriptor.FrameCount, animationDescriptor.LayersPerFrame],
-                DefaultFrameXPosition = animationDescriptor.Frames.FirstOrDefault()?.XPosition ?? -1,
-                DefaultFrameYPosition = animationDescriptor.Frames.FirstOrDefault()?.YPosition ?? -1,
-                DefaultFrameWidth = animationDescriptor.Frames.FirstOrDefault()?.Width ?? -1,
-                DefaultFrameHeight = animationDescriptor.Frames.FirstOrDefault()?.Height ?? -1
+                Frames = new Common_AnimFrame[animationDescriptor.FrameCount],
             };
 
             // The layer index
@@ -947,6 +943,13 @@ namespace R1Engine
             // Create each frame
             for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
+                // Create the frame
+                var frame = new Common_AnimFrame()
+                {
+                    FrameData = animationDescriptor.Frames[i],
+                    Layers = new Common_AnimationPart[animationDescriptor.LayersPerFrame]
+                };
+
                 // Create each layer
                 for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
                 {
@@ -962,9 +965,12 @@ namespace R1Engine
                         Flipped = animationLayer.IsFlippedHorizontally
                     };
 
-                    // Add the texture
-                    animation.Frames[i, layerIndex] = part;
+                    // Add the part
+                    frame.Layers[layerIndex] = part;
                 }
+
+                // Set the frame
+                animation.Frames[i] = frame;
             }
 
             return animation;
@@ -1260,8 +1266,8 @@ namespace R1Engine
         public void AutoApplyPalette(Common_Lev level)
         {
             // Get the palette changers
-            var paletteXChangers = level.EventData.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
-            var paletteYChangers = level.EventData.Where(x => x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteXChangers = level.EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
+            var paletteYChangers = level.EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
 
             // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
@@ -1775,7 +1781,7 @@ namespace R1Engine
                     Unk_103 = 0,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
-                    Type = e.Type,
+                    Type = (EventType)e.Type,
                     OffsetBX = (byte)e.OffsetBX,
                     OffsetBY = (byte)e.OffsetBY,
                     Unk_106 = 0,

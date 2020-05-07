@@ -56,6 +56,12 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
+            // Fill eventinfo dropdown with the event types
+            infoType.options.AddRange(Controller.obj.levelController.EditorManager.EventTypes.Select(x => new Dropdown.OptionData
+            {
+                text = x
+            }));
+
             // TODO: Scale events here
             float scaleFactor = Controller.obj.levelController.EditorManager.Level.Maps[editor.currentMap].ScaleFactor;
             var eventList = Controller.obj.levelController.Events;
@@ -88,14 +94,14 @@ namespace R1Engine
             // Hard-code event animations for the different Rayman types
             Common_Design rayDes = null;
 
-            var rayEvent = eventList.Find(x => x.Data.Type == EventType.TYPE_RAY_POS);
+            var rayEvent = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_RAY_POS || x.Data.Type is PS1_R2Demo_EventType et2 && et2 == PS1_R2Demo_EventType.RaymanPosition);
 
             if (rayEvent != null)
                 rayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(rayEvent.Data.DESKey);
 
             if (rayDes != null)
             {
-                var miniRay = eventList.Find(x => x.Data.Type == EventType.TYPE_DEMI_RAYMAN);
+                var miniRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_DEMI_RAYMAN);
 
                 if (miniRay != null)
                 {
@@ -107,34 +113,31 @@ namespace R1Engine
                         {
                             var newAnim = new Common_Animation
                             {
-                                DefaultFrameXPosition = anim.DefaultFrameXPosition / 2,
-                                DefaultFrameYPosition = anim.DefaultFrameYPosition / 2,
-                                DefaultFrameWidth = anim.DefaultFrameWidth / 2,
-                                DefaultFrameHeight = anim.DefaultFrameHeight / 2,
-                                Frames = new Common_AnimationPart[anim.Frames.GetLength(0),
-                                    anim.Frames.GetLength(1)]
-                            };
-
-                            for (int x = 0; x < anim.Frames.GetLength(0); x++)
-                            {
-                                for (int y = 0; y < anim.Frames.GetLength(1); y++)
+                                Frames = anim.Frames.Select(x => new Common_AnimFrame()
                                 {
-                                    newAnim.Frames[x, y] = new Common_AnimationPart
+                                    FrameData = new Common_AnimationFrame
                                     {
-                                        SpriteIndex = anim.Frames[x, y].SpriteIndex,
-                                        X = anim.Frames[x, y].X / 2,
-                                        Y = anim.Frames[x, y].Y / 2,
-                                        Flipped = anim.Frames[x, y].Flipped
-                                    };
-                                }
-                            }
+                                        XPosition = (byte)(x.FrameData.XPosition / 2),
+                                        YPosition = (byte)(x.FrameData.YPosition / 2),
+                                        Width = (byte)(x.FrameData.Width / 2),
+                                        Height = (byte)(x.FrameData.Height / 2)
+                                    },
+                                    Layers = x.Layers.Select(l => new Common_AnimationPart()
+                                    {
+                                        SpriteIndex = l.SpriteIndex,
+                                        X = l.X / 2,
+                                        Y = l.Y / 2,
+                                        Flipped = l.Flipped
+                                    }).ToArray()
+                                }).ToArray()
+                            };
 
                             return newAnim;
                         }).ToList();
                     }
                 }
 
-                var badRay = eventList.Find(x => x.Data.Type == EventType.TYPE_BLACK_RAY);
+                var badRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_BLACK_RAY);
 
                 if (badRay != null)
                 {
@@ -197,14 +200,7 @@ namespace R1Engine
             //Assign visibility refresh for the settings booleans
             Settings.OnShowAlwaysEventsChanged += ChangeEventsVisibility;
             Settings.OnShowEditorEventsChanged += ChangeEventsVisibility;
-            //Fill eventinfo dropdown with the event types
-            var all = Enum.GetValues(typeof(EventType));
-            foreach(var e in all) {
-                Dropdown.OptionData dat = new Dropdown.OptionData {
-                    text = e.ToString()
-                };
-                infoType.options.Add(dat);
-            }
+
             //Create empty list for commandlines
             commandLines = new List<CommandLine>();
         }
@@ -270,7 +266,7 @@ namespace R1Engine
                             infoHitPoints.text = currentlySelected.Data.HitPoints.ToString();
                             infoHitSprite.text = currentlySelected.Data.HitSprite.ToString();
                             infoFollow.isOn = currentlySelected.Data.FollowEnabled;
-                            infoType.value = (int)currentlySelected.Data.Type;
+                            infoType.value = (ushort)(object)currentlySelected.Data.Type;
                             infoAnimIndex.text = currentlySelected.AnimationIndex.ToString();
                             infoLayer.text = currentlySelected.Data.Layer.ToString();
                             //Clear old commands
@@ -549,7 +545,7 @@ namespace R1Engine
         }
         public void FieldType() {
             if (currentlySelected != null) {
-                if ((EventType)infoType.value != currentlySelected.Data.Type) {
+                if (infoType.value != (ushort)(object)currentlySelected.Data.Type) {
                     currentlySelected.Data.Type = (EventType)infoType.value;
 
                     currentlySelected.RefreshFlag();

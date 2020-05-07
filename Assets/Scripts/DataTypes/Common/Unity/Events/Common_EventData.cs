@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common event data
@@ -8,7 +10,7 @@
         /// <summary>
         /// The event type
         /// </summary>
-        public EventType Type { get; set; }
+        public Enum Type { get; set; }
 
         /// <summary>
         /// The event state
