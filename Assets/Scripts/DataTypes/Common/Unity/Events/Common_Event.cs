@@ -408,7 +408,9 @@ namespace R1Engine {
                 var w = CurrentAnimation.Frames[(int)currentFrame].FrameData.Width / 16f;
                 var h = CurrentAnimation.Frames[(int)currentFrame].FrameData.Height / 16f;
                 boxCollider.size = new Vector2(w, h);
-                boxCollider.offset = new Vector2((CurrentAnimation.Frames[(int)currentFrame].FrameData.XPosition / 16f) + w / 2f, -(CurrentAnimation.Frames[(int)currentFrame].FrameData.YPosition / 16f) + h / 2f);
+                boxCollider.offset = new Vector2(
+                    (CurrentAnimation.Frames[(int)currentFrame].FrameData.XPosition / 16f) + w / 2f,
+                    -((CurrentAnimation.Frames[(int)currentFrame].FrameData.YPosition / 16f) + h / 2f));
             }
             else {
                 boxCollider.size = new Vector2(3, 3);
@@ -425,6 +427,12 @@ namespace R1Engine {
             // Get the sprites
             var sprites = EditorManager.DES[Data.DESKey].Sprites;
 
+            var fw = CurrentAnimation.Frames[0].FrameData.Width;
+            var fh = CurrentAnimation.Frames[0].FrameData.Height;
+            var pivot = new Vector2(
+                (CurrentAnimation.Frames[0].FrameData.XPosition) + fw / 2f,
+                -((CurrentAnimation.Frames[0].FrameData.YPosition) + fh));
+
             for (int i = 0; i < CurrentAnimation.Frames[(int)currentFrame].Layers.Length; i++) {
                 // Skips sprites out of bounds
                 if (CurrentAnimation.Frames[frame].Layers[i].SpriteIndex >= sprites.Count) {
@@ -440,18 +448,17 @@ namespace R1Engine {
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
                 var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
 
-
-
-                var cx = (Mirrored
-                    ? (CurrentAnimation.DefaultFrameWidth - (CurrentAnimation.Frames[frame, i].X) - 1) + CurrentAnimation.DefaultFrameXPosition * 2 - 2
-                    : CurrentAnimation.Frames[frame, i].X) + w / 2f;
-
-
                 var xx = (Mirrored 
-                    ? (CurrentAnimation.Frames[0].FrameData.Width - (CurrentAnimation.Frames[frame].Layers[i].X) - 1) + CurrentAnimation.Frames[0].FrameData.Height * 2 - 2
+                    ? (CurrentAnimation.Frames[0].FrameData.Width - (CurrentAnimation.Frames[frame].Layers[i].X) - 1) + CurrentAnimation.Frames[0].FrameData.XPosition * 2 - 2
                     : CurrentAnimation.Frames[frame].Layers[i].X) + (CurrentAnimation.Frames[frame].Layers[i].Flipped ? w : 0);
                 var yy = -CurrentAnimation.Frames[frame].Layers[i].Y;
-                prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, prefabRendereds[i].transform.localPosition.z);
+
+                // scale
+                Vector2 pos = new Vector2(
+                    ((xx - pivot.x) * Scale + pivot.x) / 16f,
+                    ((yy - pivot.y) * Scale + pivot.y) / 16f);
+
+                prefabRendereds[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
                 prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 
                 // Change visibility if always/editor
