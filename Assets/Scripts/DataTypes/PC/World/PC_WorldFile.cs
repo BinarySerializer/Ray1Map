@@ -48,8 +48,9 @@
         /// </summary>
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
-            // Serialize PC Header
-            base.SerializeImpl(s);
+            if (!(Context.Settings.EngineVersion == EngineVersion.RayEduPS1 && FileType != Type.BigRay))
+                // Serialize PC Header
+                base.SerializeImpl(s);
 
             if(FileType == Type.World) {
                 BG1 = s.Serialize<ushort>(BG1, name: nameof(BG1));
@@ -96,7 +97,7 @@
                 // Serialize sprites
                 DesItemCount = s.Serialize<ushort>(DesItemCount, name: nameof(DesItemCount));
 
-                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, FileType == Type.AllFix ? DesItemCount - 1 : DesItemCount,
+                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, FileType == Type.AllFix && Context.Settings.EngineVersion != EngineVersion.RayEduPS1 ? DesItemCount - 1 : DesItemCount,
                     onPreSerialize: data => data.FileType = FileType, name: nameof(DesItems));
             }
         }
