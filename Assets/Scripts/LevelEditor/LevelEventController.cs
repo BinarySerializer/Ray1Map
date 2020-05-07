@@ -57,7 +57,11 @@ namespace R1Engine
         public void InitializeEvents() 
         {
             // TODO: Scale events here
-
+            float scaleFactor = Controller.obj.levelController.EditorManager.Level.Maps[editor.currentMap].ScaleFactor;
+            var eventList = Controller.obj.levelController.Events;
+            foreach (var e in eventList) {
+                e.Scale = scaleFactor;
+            }
             // Initialize Rayman's animation as they're shared for small and dark Rayman
             InitializeRayAnim();
 

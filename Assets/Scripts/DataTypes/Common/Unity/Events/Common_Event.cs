@@ -130,6 +130,8 @@ namespace R1Engine {
         /// </summary>
         public Common_Animation CurrentAnimation;
 
+        public float Scale = 1f;
+
         // Current frame in the animation
         [HideInInspector]
         public float currentFrame = 0;
@@ -377,12 +379,12 @@ namespace R1Engine {
             // Populate it with empty ones
             for (int i = 0; i < len; i++) {
                 // Instantiate prefab
-                SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, len-i), Quaternion.identity).GetComponent<SpriteRenderer>();
+                SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, len-i), Quaternion.identity, transform).GetComponent<SpriteRenderer>();
                 newRenderer.sortingOrder = UniqueLayer;
 
                 // Set as child of events gameobject
                 newRenderer.gameObject.transform.parent = transform;
-
+                newRenderer.gameObject.transform.localScale = Vector3.one * Scale;
                 // Add to list
                 prefabRendereds[i] = newRenderer;
             }
@@ -433,12 +435,23 @@ namespace R1Engine {
 
                 prefabRendereds[i].flipX = CurrentAnimation.Frames[frame, i].Flipped || Mirrored;
 
+
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
+                var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
+
+
+
+                var cx = (Mirrored
+                    ? (CurrentAnimation.DefaultFrameWidth - (CurrentAnimation.Frames[frame, i].X) - 1) + CurrentAnimation.DefaultFrameXPosition * 2 - 2
+                    : CurrentAnimation.Frames[frame, i].X) + w / 2f;
+
+
                 var xx = (Mirrored 
                     ? (CurrentAnimation.DefaultFrameWidth - (CurrentAnimation.Frames[frame, i].X) - 1) + CurrentAnimation.DefaultFrameXPosition * 2 - 2
                     : CurrentAnimation.Frames[frame, i].X) + (CurrentAnimation.Frames[frame, i].Flipped ? w : 0);
                 var yy = -CurrentAnimation.Frames[frame, i].Y;
                 prefabRendereds[i].transform.localPosition = new Vector3(xx / 16f, yy / 16f, prefabRendereds[i].transform.localPosition.z);
+                prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 
                 // Change visibility if always/editor
                 prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
