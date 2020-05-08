@@ -29,11 +29,19 @@ namespace R1Engine
         //0 is auto
         private int currentPalette = 1;
 
+        // Reference to the background ting
+        public SpriteRenderer backgroundTint;
+
         /// <summary>
         /// The type collision tiles
         /// </summary>
         public Tile[] TypeCollisionTiles;
         public Tile[] TypeCollisionTilesHD;
+
+        // Infro tracked for when switching between template and normal level
+        private Vector3 previousCameraPos;
+        private int templateMaxY=0;
+
 
         public void Start() {
             // Disable palette buttons based on if there are 3 palettes or not
@@ -117,8 +125,12 @@ namespace R1Engine
                     yy++;
                 }
             }
+            templateMaxY = yy+1;
         }
 
+        public void ResizeBackgroundTint(int x, int y) {
+            backgroundTint.transform.localScale = new Vector2(x, y);
+        }
 
         public void ShowHideTemplate() {
             focusedOnTemplate = !focusedOnTemplate;
@@ -126,8 +138,23 @@ namespace R1Engine
             Tilemaps[1].gameObject.SetActive(!focusedOnTemplate);
             tilemapFull.gameObject.SetActive(focusedOnTemplate);
 
+            //Clear the selection square so it doesn't remain and look bad
+            editor.tileSelectSquare.Clear();
+
             if (focusedOnTemplate) {
                 editor.ClearSelection();
+                //Save camera and set new
+                previousCameraPos = Camera.main.transform.position;
+                Camera.main.GetComponent<EditorCam>().pos = new Vector3(0, 0, Camera.main.transform.position.z);
+                //Resize the background tint for a better effect
+                ResizeBackgroundTint(16, templateMaxY);
+            }
+            else {
+                //Set camera back
+                Camera.main.GetComponent<EditorCam>().pos = previousCameraPos;
+                //Resize background tint
+                var lvl = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+                ResizeBackgroundTint(lvl.Width, lvl.Height);
             }
         }
 
@@ -148,6 +175,10 @@ namespace R1Engine
                     t.CollisionType = 0;
                     t.PaletteIndex = 0;
                     t.TileSetGraphicIndex = (y * 16) + x;
+
+                    if (t.TileSetGraphicIndex > Controller.obj.levelController.currentLevel.Maps[editor.currentMap].TileSet[0].Tiles.Length-1) {
+                        t.TileSetGraphicIndex = 0;
+                    }
 
                     return t;
                 }

@@ -41,6 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background tint
+    uniqueID: 2805470175
+    locked: 0
   - name: Tiles
     uniqueID: 2904260121
     locked: 0

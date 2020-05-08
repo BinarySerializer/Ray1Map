@@ -38,9 +38,6 @@ namespace R1Engine
         public LevelTilemapController controllerTilemap;
         public LevelEventController controllerEvents;
 
-        // Reference to the background ting
-        public MeshFilter backgroundTint;
-
         // Render camera things
         public Camera renderCamera;
         private Texture2D tex;
@@ -69,6 +66,9 @@ namespace R1Engine
 
                 Controller.status = $"Initializing tile maps";
 
+                // Resize the background tint
+                controllerTilemap.ResizeBackgroundTint(currentLevel.Maps[editor.currentMap].Width, currentLevel.Maps[editor.currentMap].Height);
+
                 // Init tilemaps
                 controllerTilemap.InitializeTilemaps();
 
@@ -83,18 +83,6 @@ namespace R1Engine
                 controllerEvents.InitializeEvents();
 
                 await Controller.WaitIfNecessary();
-
-                // Draw the background tint
-                var mo = new Mesh {
-                    vertices = new Vector3[]
-                    {
-                    new Vector3(0, 0), new Vector3(currentLevel.Maps[editor.currentMap].Width, 0), new Vector3(currentLevel.Maps[editor.currentMap].Width, -currentLevel.Maps[editor.currentMap].Height),
-                    new Vector3(0, -currentLevel.Maps[editor.currentMap].Height)
-                    }
-                };
-
-                mo.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Quads, 0);
-                backgroundTint.sharedMesh = mo;
 
                 // Set up history
                 History = new EditorHistory<Ray1MapEditorHistoryItem>(x =>
