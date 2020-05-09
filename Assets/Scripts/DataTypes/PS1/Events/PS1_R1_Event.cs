@@ -90,8 +90,6 @@ namespace R1Engine
 
         public byte OffsetHY { get; set; }
 
-        public byte UnkDemo2 { get; set; }
-
         /// <summary>
         /// The sprite index which uses the offset collision
         /// </summary>
@@ -136,7 +134,6 @@ namespace R1Engine
             BitHelpers.SetBits(Flags, value ? 1 : 0, 1, offset);
         }
 
-        // TODO: Is this value not used for the vol3 & vol6 demos? How is follow enabled determined?
         public byte Flags { get; set; }
 
         public byte Unknown14 { get; set; }
@@ -250,7 +247,7 @@ namespace R1Engine
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
-                UnkDemo2 = s.Serialize<byte>(UnkDemo2, name: nameof(UnkDemo2));
+                Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
 
