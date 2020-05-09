@@ -1,7 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -194,10 +193,11 @@ namespace R1Engine
                     // Create the animation part
                     var part = new Common_AnimationPart
                     {
-                        SpriteIndex = animationLayer.ImageIndex,
-                        X = animationLayer.XPosition,
-                        Y = animationLayer.YPosition,
-                        Flipped = animationLayer.IsFlippedHorizontally
+                        ImageIndex = animationLayer.ImageIndex,
+                        XPosition = animationLayer.XPosition,
+                        YPosition = animationLayer.YPosition,
+                        IsFlippedHorizontally = animationLayer.IsFlippedHorizontally,
+                        IsFlippedVertically = animationLayer.IsFlippedVertically
                     };
 
                     // Add the part

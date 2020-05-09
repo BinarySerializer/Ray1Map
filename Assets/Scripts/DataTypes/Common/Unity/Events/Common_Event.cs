@@ -135,7 +135,7 @@ namespace R1Engine {
         /// <summary>
         /// Indicates if the entire event sprite is supposed to be mirrored
         /// </summary>
-        public bool Mirrored => (Data.Type is EventType et && et == EventType.TYPE_PUNAISE3 && Data.HitPoints == 1) || Data.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
+        public bool Mirrored => EditorManager.IsMirrored(Data);
 
         /// <summary>
         /// The current animation of this event
@@ -325,7 +325,7 @@ namespace R1Engine {
 
         public void UpdateFollowSpriteLine() {
             if (CurrentAnimation != null && Data.FollowSprite < CurrentAnimation.Frames[(int)currentFrame].Layers.Length) {
-                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].X/16f, -CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].Y/16f - (Data.OffsetHY / 16f));
+                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].XPosition/16f, -CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].YPosition/16f - (Data.OffsetHY / 16f));
 
                 var w = (prefabRendereds[Data.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
@@ -448,23 +448,24 @@ namespace R1Engine {
 
             for (int i = 0; i < CurrentAnimation.Frames[(int)currentFrame].Layers.Length; i++) {
                 // Skips sprites out of bounds
-                if (CurrentAnimation.Frames[frame].Layers[i].SpriteIndex >= sprites.Count) {
+                if (CurrentAnimation.Frames[frame].Layers[i].ImageIndex >= sprites.Count) {
                     prefabRendereds[i].sprite = null;
                 }
                 else {
-                    prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame].Layers[i].SpriteIndex];
+                    prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame].Layers[i].ImageIndex];
                 }
 
-                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame].Layers[i].Flipped || Mirrored;
+                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame].Layers[i].IsFlippedHorizontally || Mirrored;
+                prefabRendereds[i].flipY = CurrentAnimation.Frames[frame].Layers[i].IsFlippedVertically;
 
 
                 var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
                 var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
 
                 var xx = (Mirrored 
-                    ? (CurrentAnimation.Frames[0].FrameData.Width - (CurrentAnimation.Frames[frame].Layers[i].X) - 1) + CurrentAnimation.Frames[0].FrameData.XPosition * 2 - 2
-                    : CurrentAnimation.Frames[frame].Layers[i].X) + (CurrentAnimation.Frames[frame].Layers[i].Flipped ? w : 0);
-                var yy = -CurrentAnimation.Frames[frame].Layers[i].Y;
+                    ? (CurrentAnimation.Frames[0].FrameData.Width - (CurrentAnimation.Frames[frame].Layers[i].XPosition) - 1) + CurrentAnimation.Frames[0].FrameData.XPosition * 2 - 2
+                    : CurrentAnimation.Frames[frame].Layers[i].XPosition) + (CurrentAnimation.Frames[frame].Layers[i].IsFlippedHorizontally ? w : 0);
+                var yy = -(CurrentAnimation.Frames[frame].Layers[i].YPosition + (CurrentAnimation.Frames[frame].Layers[i].IsFlippedVertically ? h : 0));
 
                 // scale
                 Vector2 pos = new Vector2(

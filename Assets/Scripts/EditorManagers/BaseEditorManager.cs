@@ -12,6 +12,8 @@ namespace R1Engine
     /// </summary>
     public abstract class BaseEditorManager
     {
+        #region Constructor
+
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -54,6 +56,10 @@ namespace R1Engine
             using (var csvFile = File.OpenRead("Events.csv"))
                 EventInfoData = GeneralEventInfoData.ReadCSV(csvFile).Where(IsAvailableInWorld).ToArray();
         }
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// The loaded event info
@@ -106,6 +112,10 @@ namespace R1Engine
         /// <returns>The names of the available events to add</returns>
         public string[] GetEvents() => EventInfoData.Select(x => x.Name).ToArray();
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Adds a new event to the controller and returns it
         /// </summary>
@@ -125,8 +135,8 @@ namespace R1Engine
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
-                cmds = e.LocalCommands.Any() 
-                    ? Common_EventCommandCollection.FromBytes(e.LocalCommands, Settings) 
+                cmds = e.LocalCommands.Any()
+                    ? Common_EventCommandCollection.FromBytes(e.LocalCommands, Settings)
                     : EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(Common_EventCommandCollection.FromBytes(e.Commands, Settings), e.LabelOffsets), e.Commands);
 
                 // Local commands don't use label offsets
@@ -146,7 +156,7 @@ namespace R1Engine
                     labelOffsets = cmdData.LabelOffsets;
                 }
             }
-            
+
             // Return the event
             return new Common_EventData
             {
@@ -301,10 +311,11 @@ namespace R1Engine
                                 },
                                 Layers = x.Layers.Select(l => new Common_AnimationPart()
                                 {
-                                    SpriteIndex = l.SpriteIndex,
-                                    X = l.X / 2,
-                                    Y = l.Y / 2,
-                                    Flipped = l.Flipped
+                                    ImageIndex = l.ImageIndex,
+                                    XPosition = l.XPosition / 2,
+                                    YPosition = l.YPosition / 2,
+                                    IsFlippedHorizontally = l.IsFlippedHorizontally,
+                                    IsFlippedVertically = l.IsFlippedVertically,
                                 }).ToArray()
                             }).ToArray()
                         };
@@ -324,5 +335,14 @@ namespace R1Engine
                     badRayDes.Animations = rayDes.Animations;
             }
         }
+
+        /// <summary>
+        /// Indicates if the event should be mirrored horizontally
+        /// </summary>
+        /// <param name="eventData">The event data</param>
+        /// <returns></returns>
+        public bool IsMirrored(Common_EventData eventData) => (eventData.Type is EventType et && et == EventType.TYPE_PUNAISE3 && eventData.HitPoints == 1) || eventData.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
+
+        #endregion
     }
 }

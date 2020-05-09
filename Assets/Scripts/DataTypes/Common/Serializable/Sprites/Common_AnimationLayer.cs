@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common animation layer data
@@ -8,7 +10,37 @@
         /// <summary>
         /// Indicates if the layer is flipped horizontally
         /// </summary>
-        public bool IsFlippedHorizontally { get; set; }
+        public bool IsFlippedHorizontally
+        {
+            get => Flags.HasFlag(Common_AnimationLayerFlags.FlippedHorizontally);
+            set
+            {
+                if (value)
+                    Flags |= Common_AnimationLayerFlags.FlippedHorizontally;
+                else
+                    Flags &= ~Common_AnimationLayerFlags.FlippedHorizontally;
+            }
+        }
+
+        /// <summary>
+        /// Indicates if the layer is flipped vertically
+        /// </summary>
+        public bool IsFlippedVertically
+        {
+            get => Flags.HasFlag(Common_AnimationLayerFlags.FlippedVertically);
+            set
+            {
+                if (value)
+                    Flags |= Common_AnimationLayerFlags.FlippedVertically;
+                else
+                    Flags &= ~Common_AnimationLayerFlags.FlippedVertically;
+            }
+        }
+
+        /// <summary>
+        /// The animation layer flags
+        /// </summary>
+        public Common_AnimationLayerFlags Flags { get; set; }
 
         /// <summary>
         /// The x position
@@ -21,7 +53,7 @@
         public byte YPosition { get; set; }
 
         /// <summary>
-        /// The image index as it appears in the image block
+        /// The image index from the available sprites
         /// </summary>
         public ushort ImageIndex { get; set; }
 
@@ -36,12 +68,12 @@
 
                 value = (ushort)BitHelpers.SetBits(value, ImageIndex, 12, 0);
                 // TODO: There are most likely other flags here too, such as for flipping vertically (check the cannon target indicator sprite!)
-                value = (ushort)BitHelpers.SetBits(value, IsFlippedHorizontally ? 1 : 0, 4, 12);
+                value = (ushort)BitHelpers.SetBits(value, (int)Flags, 4, 12);
 
                 value = s.Serialize<ushort>(value, name: nameof(value));
 
                 ImageIndex = (ushort)(BitHelpers.ExtractBits(value, 12, 0));
-                IsFlippedHorizontally = BitHelpers.ExtractBits(value, 4, 12) != 0;
+                Flags = (Common_AnimationLayerFlags)BitHelpers.ExtractBits(value, 4, 12);
 
                 XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
@@ -53,6 +85,19 @@
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
             }
+        }
+
+        /// <summary>
+        /// Flags for <see cref="Common_AnimationLayer"/>
+        /// </summary>
+        [Flags]
+        public enum Common_AnimationLayerFlags
+        {
+            None = 0,
+            UnkFlag_0 = 1 << 1,
+            FlippedHorizontally = 1 << 2,
+            FlippedVertically = 1 << 3,
+            UnkFlag_3 = 1 << 4,
         }
     }
 }

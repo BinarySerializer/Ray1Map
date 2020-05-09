@@ -261,10 +261,10 @@ namespace R1Engine
                     // Create the animation part
                     var part = new Common_AnimationPart
                     {
-                        SpriteIndex = animationLayer.ImageIndex,
-                        X = animationLayer.XPosition,
-                        Y = animationLayer.YPosition,
-                        Flipped = animationLayer.IsFlippedHorizontally
+                        ImageIndex = animationLayer.ImageIndex,
+                        XPosition = animationLayer.XPosition,
+                        YPosition = animationLayer.YPosition,
+                        IsFlippedHorizontally = animationLayer.IsFlippedHorizontally
                     };
 
                     // Add the part
@@ -715,14 +715,14 @@ namespace R1Engine
                     {
                         var l = anim.Frames[dummyFrame].Layers[dummyLayer];
 
-                        if (l.SpriteIndex < textures.Length)
+                        if (l.ImageIndex < textures.Length)
                         {
-                            var s = textures[l.SpriteIndex];
+                            var s = textures[l.ImageIndex];
 
                             if (s != null)
                             {
-                                var w = s.width + l.X;
-                                var h = s.height + l.Y;
+                                var w = s.width + l.XPosition;
+                                var h = s.height + l.YPosition;
 
                                 if (frameWidth == null || frameWidth < w)
                                     frameWidth = w;
@@ -753,11 +753,11 @@ namespace R1Engine
                     {
                         var animationLayer = anim.Frames[frameIndex].Layers[layerIndex];
 
-                        if (animationLayer.SpriteIndex >= textures.Length)
+                        if (animationLayer.ImageIndex >= textures.Length)
                             continue;
 
                         // Get the sprite
-                        var sprite = textures[animationLayer.SpriteIndex];
+                        var sprite = textures[animationLayer.ImageIndex];
 
                         if (sprite == null)
                             continue;
@@ -769,8 +769,8 @@ namespace R1Engine
                             {
                                 var c = sprite.GetPixel(x, sprite.height - y - 1);
 
-                                var xPosition = (animationLayer.Flipped ? (sprite.width - 1 - x) : x) + animationLayer.X;
-                                var yPosition = y + animationLayer.Y;
+                                var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
+                                var yPosition = y + animationLayer.YPosition;
 
                                 if (xPosition >= tex.width)
                                     throw new Exception("Horizontal overflow!");
