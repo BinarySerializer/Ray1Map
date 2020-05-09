@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using Asyncoroutine;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -91,6 +92,7 @@ namespace R1Engine
             return new GameAction[]
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
+                new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllAnimationFramesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteTextures(settings, output)),
             };
         }
@@ -582,8 +584,211 @@ namespace R1Engine
                             desIndexes[exportDirName]++;
                         }
                     }
+
+                    // Unload textures
+                    await Resources.UnloadUnusedAssets();
                 }
             }
+        }
+
+        /// <summary>
+        /// Exports every animation frame from the game
+        /// </summary>
+        /// <param name="baseGameSettings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <returns>The task</returns>
+        public async Task ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
+        {
+            // TODO: Extract BigRay from INI
+
+            // Keep track of the hash for every DES
+            var hashList = new List<string>();
+
+            // Keep track of the DES index for each file
+            var desIndexes = new Dictionary<string, int>();
+
+            // Enumerate every world
+            foreach (var world in GetLevels(baseGameSettings))
+            {
+                baseGameSettings.World = world.Key;
+
+                // Enumerate every level
+                foreach (var lvl in world.Value)
+                {
+                    baseGameSettings.Level = lvl;
+
+                    // If Rayman 2, only include first map (since all 4 have same events)
+                    if (baseGameSettings.EngineVersion == EngineVersion.Ray2PS1 && lvl != 0)
+                        continue;
+
+                    // Create the context
+                    using (var context = new Context(baseGameSettings))
+                    {
+                        // Load the editor manager
+                        var editorManager = await LoadAsync(context, true);
+
+                        // Enumerate every design
+                        foreach (var des in editorManager.DES)
+                        {
+                            // Check the hash
+                            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                            {
+                                // Get the hash
+                                var hash = Convert.ToBase64String(sha1.ComputeHash(des.Value.Sprites.SelectMany(x => x?.texture?.GetRawTextureData() ?? new byte[0]).Append((byte)des.Value.Animations.Count).ToArray()));
+
+                                // Check if it's been used before
+                                if (hashList.Contains(hash))
+                                    continue;
+
+                                // Add to the hash list
+                                hashList.Add(hash);
+                            }
+
+                            // Get the export dir name
+                            var exportDirName = GetExportDirName(baseGameSettings, des.Value);
+
+                            if (!desIndexes.ContainsKey(exportDirName))
+                                desIndexes.Add(exportDirName, 0);
+
+                            await ExportAnimationFramesAsync(baseGameSettings, editorManager, des, Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]}"));
+
+                            desIndexes[exportDirName]++;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Exports the animation frames from a common design
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="editorManager">The current editor manager</param>
+        /// <param name="desValuePair">The common design and its key</param>
+        /// <param name="outputDir">The output directory to export to</param>
+        /// <returns>The task</returns>
+        public async Task ExportAnimationFramesAsync(GameSettings settings, BaseEditorManager editorManager, KeyValuePair<string, Common_Design> desValuePair, string outputDir)
+        {
+            // Find all events where this DES is used
+            var matchingEvents = editorManager.Level.EventData.Where(x => x.DESKey == desValuePair.Key);
+
+            // Find matching ETA for this DES from the level events
+            var matchingStates = matchingEvents.SelectMany(lvlEvent => editorManager.ETA[lvlEvent.ETAKey].SelectMany(x => x)).ToArray();
+
+            // Correct Rayman's ETA for Rayman 2
+            if (settings.EngineVersion == EngineVersion.Ray2PS1 && !matchingStates.Any())
+                matchingStates = editorManager.ETA.Last().Value.SelectMany(x => x).ToArray();
+
+            // Get the animations
+            var spriteAnim = desValuePair.Value.Animations;
+
+            // Get the textures
+            var textures = desValuePair.Value.Sprites?.Select(x => x?.texture).ToArray() ?? new Texture2D[0];
+
+            // Enumerate the animations
+            for (var j = 0; j < spriteAnim.Count; j++)
+            {
+                // Get the animation descriptor
+                var anim = spriteAnim[j];
+
+                // Get the speed
+                var speed = String.Join("-", matchingStates.Where(x => x.AnimationIndex == j).Select(x => x.AnimationSpeed).Distinct());
+
+                // Get the folder
+                var animFolderPath = Path.Combine(outputDir, $"{j}-{speed}");
+
+                int? frameWidth = null;
+                int? frameHeight = null;
+
+                var layersPerFrame = anim.Frames.First().Layers.Length;
+                var frameCount = anim.Frames.Length;
+
+                for (int dummyFrame = 0; dummyFrame < frameCount; dummyFrame++)
+                {
+                    for (int dummyLayer = 0; dummyLayer < layersPerFrame; dummyLayer++)
+                    {
+                        var l = anim.Frames[dummyFrame].Layers[dummyLayer];
+
+                        if (l.SpriteIndex < textures.Length)
+                        {
+                            var s = textures[l.SpriteIndex];
+
+                            if (s != null)
+                            {
+                                var w = s.width + l.X;
+                                var h = s.height + l.Y;
+
+                                if (frameWidth == null || frameWidth < w)
+                                    frameWidth = w;
+
+                                if (frameHeight == null || frameHeight < h)
+                                    frameHeight = h;
+                            }
+                        }
+                    }
+                }
+
+                // Create each animation frame
+                for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
+                {
+                    Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
+                    {
+                        filterMode = FilterMode.Point,
+                        wrapMode = TextureWrapMode.Clamp
+                    };
+
+                    // Default to fully transparent
+                    tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+
+                    bool hasLayers = false;
+
+                    // Write each layer
+                    for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++)
+                    {
+                        var animationLayer = anim.Frames[frameIndex].Layers[layerIndex];
+
+                        if (animationLayer.SpriteIndex >= textures.Length)
+                            continue;
+
+                        // Get the sprite
+                        var sprite = textures[animationLayer.SpriteIndex];
+
+                        if (sprite == null)
+                            continue;
+
+                        // Set every pixel
+                        for (int y = 0; y < sprite.height; y++)
+                        {
+                            for (int x = 0; x < sprite.width; x++)
+                            {
+                                var c = sprite.GetPixel(x, sprite.height - y - 1);
+
+                                var xPosition = (animationLayer.Flipped ? (sprite.width - 1 - x) : x) + animationLayer.X;
+                                var yPosition = y + animationLayer.Y;
+
+                                if (xPosition >= tex.width)
+                                    throw new Exception("Horizontal overflow!");
+
+                                if (c.a != 0)
+                                    tex.SetPixel(xPosition, tex.height - 1 - yPosition, c);
+                            }
+                        }
+
+                        hasLayers = true;
+                    }
+
+                    tex.Apply();
+
+                    if (!hasLayers)
+                        continue;
+
+                    // Save the file
+                    Util.ByteArrayToFile(Path.Combine(animFolderPath, $"{frameIndex}.png"), tex.EncodeToPNG());
+                }
+            }
+
+            // Unload textures
+            await Resources.UnloadUnusedAssets();
         }
 
         /// <summary>
