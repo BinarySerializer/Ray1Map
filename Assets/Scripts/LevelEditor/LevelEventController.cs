@@ -60,7 +60,7 @@ namespace R1Engine
             var eventList = Controller.obj.levelController.Events;
 
             // Initialize Rayman's animation as they're shared for small and dark Rayman
-            InitializeRayAnim();
+            Controller.obj.levelController.EditorManager.InitializeRayAnim();
 
             // Setup events
             foreach (var e in eventList)
@@ -87,68 +87,6 @@ namespace R1Engine
             // Fill Des and Eta dropdowns with their max values
             infoDes.options = Controller.obj.levelController.EditorManager.DES.Select(x => new Dropdown.OptionData(x.Key)).ToList();
             infoEta.options = Controller.obj.levelController.EditorManager.ETA.Select(x => new Dropdown.OptionData(x.Key)).ToList();
-        }
-
-        public void InitializeRayAnim()
-        {
-            var eventList = Controller.obj.levelController.Events;
-
-            // Hard-code event animations for the different Rayman types
-            Common_Design rayDes = null;
-
-            var rayEvent = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_RAY_POS || x.Data.Type is PS1_R2Demo_EventType et2 && et2 == PS1_R2Demo_EventType.RaymanPosition);
-
-            if (rayEvent != null)
-                rayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(rayEvent.Data.DESKey);
-
-            if (rayDes == null) 
-                return;
-
-            var miniRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_DEMI_RAYMAN);
-
-            if (miniRay != null)
-            {
-                var miniRayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(miniRay.Data.DESKey);
-
-                if (miniRayDes != null)
-                {
-                    miniRayDes.Animations = rayDes.Animations.Select(anim =>
-                    {
-                        var newAnim = new Common_Animation
-                        {
-                            Frames = anim.Frames.Select(x => new Common_AnimFrame()
-                            {
-                                FrameData = new Common_AnimationFrame
-                                {
-                                    XPosition = (byte)(x.FrameData.XPosition / 2),
-                                    YPosition = (byte)(x.FrameData.YPosition / 2),
-                                    Width = (byte)(x.FrameData.Width / 2),
-                                    Height = (byte)(x.FrameData.Height / 2)
-                                },
-                                Layers = x.Layers.Select(l => new Common_AnimationPart()
-                                {
-                                    SpriteIndex = l.SpriteIndex,
-                                    X = l.X / 2,
-                                    Y = l.Y / 2,
-                                    Flipped = l.Flipped
-                                }).ToArray()
-                            }).ToArray()
-                        };
-
-                        return newAnim;
-                    }).ToList();
-                }
-            }
-
-            var badRay = eventList.Find(x => x.Data.Type is EventType et && et == EventType.TYPE_BLACK_RAY);
-
-            if (badRay != null)
-            {
-                var badRayDes = Controller.obj.levelController.EditorManager.DES.TryGetItem(badRay.Data.DESKey);
-
-                if (badRayDes != null)
-                    badRayDes.Animations = rayDes.Animations;
-            }
         }
 
         public void InitializeEventLinks()

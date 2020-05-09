@@ -261,5 +261,68 @@ namespace R1Engine
         /// <param name="eventInfoData">The event info data item</param>
         /// <returns>True if it's available, otherwise false</returns>
         public abstract bool IsAvailableInWorld(GeneralEventInfoData eventInfoData);
+
+        /// <summary>
+        /// Sets up small and bad Rayman's animations
+        /// </summary>
+        public void InitializeRayAnim()
+        {
+            // Hard-code event animations for the different Rayman types
+            Common_Design rayDes = null;
+
+            var rayEvent = Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_RAY_POS || x.Type is PS1_R2Demo_EventType et2 && et2 == PS1_R2Demo_EventType.RaymanPosition);
+
+            if (rayEvent != null)
+                rayDes = DES.TryGetItem(rayEvent.DESKey);
+
+            if (rayDes == null)
+                return;
+
+            var miniRay = Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_DEMI_RAYMAN);
+
+            if (miniRay != null)
+            {
+                var miniRayDes = DES.TryGetItem(miniRay.DESKey);
+
+                if (miniRayDes != null)
+                {
+                    miniRayDes.Animations = rayDes.Animations.Select(anim =>
+                    {
+                        var newAnim = new Common_Animation
+                        {
+                            Frames = anim.Frames.Select(x => new Common_AnimFrame()
+                            {
+                                FrameData = new Common_AnimationFrame
+                                {
+                                    XPosition = (byte)(x.FrameData.XPosition / 2),
+                                    YPosition = (byte)(x.FrameData.YPosition / 2),
+                                    Width = (byte)(x.FrameData.Width / 2),
+                                    Height = (byte)(x.FrameData.Height / 2)
+                                },
+                                Layers = x.Layers.Select(l => new Common_AnimationPart()
+                                {
+                                    SpriteIndex = l.SpriteIndex,
+                                    X = l.X / 2,
+                                    Y = l.Y / 2,
+                                    Flipped = l.Flipped
+                                }).ToArray()
+                            }).ToArray()
+                        };
+
+                        return newAnim;
+                    }).ToList();
+                }
+            }
+
+            var badRay = Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_BLACK_RAY);
+
+            if (badRay != null)
+            {
+                var badRayDes = DES.TryGetItem(badRay.DESKey);
+
+                if (badRayDes != null)
+                    badRayDes.Animations = rayDes.Animations;
+            }
+        }
     }
 }

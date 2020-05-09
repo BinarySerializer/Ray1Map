@@ -544,6 +544,9 @@ namespace R1Engine
                         // Load the editor manager
                         var editorManager = await LoadAsync(context, true);
 
+                        // Set up animations
+                        editorManager.InitializeRayAnim();
+
                         // Enumerate every design
                         foreach (var des in editorManager.DES.Values)
                         {
@@ -626,6 +629,9 @@ namespace R1Engine
                     {
                         // Load the editor manager
                         var editorManager = await LoadAsync(context, true);
+
+                        // Set up animations
+                        editorManager.InitializeRayAnim();
 
                         // Enumerate every design
                         foreach (var des in editorManager.DES)
