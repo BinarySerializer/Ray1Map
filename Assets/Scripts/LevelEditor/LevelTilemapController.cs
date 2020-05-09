@@ -133,7 +133,7 @@ namespace R1Engine
                     yy++;
                 }
             }
-            Debug.Log(lvl.Maps[editor.currentMap].TileSet[0].Tiles.Length);
+            //Debug.Log(lvl.Maps[editor.currentMap].TileSet[0].Tiles.Length);
             templateMaxY = yy+1;
         }
 
