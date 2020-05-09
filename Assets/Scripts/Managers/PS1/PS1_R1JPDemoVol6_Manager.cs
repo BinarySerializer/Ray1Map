@@ -151,5 +151,29 @@ namespace R1Engine
             new PS1VignetteFileInfo("PRES01A.R16", 640),
             new PS1VignetteFileInfo("PRES01B.R16", 640),
         };
+
+        /// <summary>
+        /// Gets the base directory name for exporting a common design
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="des">The design to export</param>
+        /// <returns>The base directory name</returns>
+        protected override string GetExportDirName(GameSettings settings, Common_Design des)
+        {
+            // Get the file path
+            var path = des.FilePath;
+
+            if (path == null)
+                throw new Exception("Path can not be null");
+
+            if (path == GetAllfixFilePath())
+                return $"Allfix/";
+            else if (path == GetWorldFilePath(settings))
+                return $"{settings.World}/{settings.World} - ";
+            else if (path == GetLevelFilePath(settings))
+                return $"{settings.World}/{settings.World}{settings.Level} - ";
+
+            return $"Unknown/";
+        }
     }
 }

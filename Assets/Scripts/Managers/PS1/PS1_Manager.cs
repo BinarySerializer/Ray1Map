@@ -332,7 +332,8 @@ namespace R1Engine
                         Common_Design finalDesign = new Common_Design
                         {
                             Sprites = new List<Sprite>(),
-                            Animations = new List<Common_Animation>()
+                            Animations = new List<Common_Animation>(),
+                            FilePath = e.ImageDescriptorsPointer.file.filePath
                         };
 
                         // Get every sprite
@@ -502,6 +503,14 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Gets the base directory name for exporting a common design
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="des">The design to export</param>
+        /// <returns>The base directory name</returns>
+        protected abstract string GetExportDirName(GameSettings settings, Common_Design des);
+
+        /// <summary>
         /// Exports every sprite from the game
         /// </summary>
         /// <param name="baseGameSettings">The game settings</param>
@@ -509,8 +518,13 @@ namespace R1Engine
         /// <returns>The task</returns>
         public async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
+            // TODO: Extract BigRay from INI
+
             // Keep track of the hash for every DES
             var hashList = new List<string>();
+
+            // Keep track of the DES index for each file
+            var desIndexes = new Dictionary<string, int>();
 
             // Enumerate every world
             foreach (var world in GetLevels(baseGameSettings))
@@ -522,49 +536,51 @@ namespace R1Engine
                 {
                     baseGameSettings.Level = lvl;
 
-                    var dir = Path.Combine(outputDir, world.Key.ToString());
-
-                    Directory.CreateDirectory(dir);
-
                     // Create the context
-                    var context = new Context(baseGameSettings);
-
-                    // Load the editor manager
-                    var editorManager = await LoadAsync(context, true);
-
-                    var desIndex = 0;
-                    
-                    // Enumerate every design
-                    foreach (var des in editorManager.DES.Values)
+                    using (var context = new Context(baseGameSettings))
                     {
-                        // Get the raw data
-                        var rawData = des.Sprites.Where(x => x != null).SelectMany(x => x.texture.GetRawTextureData()).ToArray();
+                        // Load the editor manager
+                        var editorManager = await LoadAsync(context, true);
 
-                        // Check the hash
-                        using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                        // Enumerate every design
+                        foreach (var des in editorManager.DES.Values)
                         {
-                            // Get the hash
-                            var hash = Convert.ToBase64String(sha1.ComputeHash(rawData));
+                            // Get the export dir name
+                            var exportDirName = GetExportDirName(baseGameSettings, des);
 
-                            // Check if it's been used before
-                            if (hashList.Contains(hash))
-                                continue;
+                            if (!desIndexes.ContainsKey(exportDirName))
+                                desIndexes.Add(exportDirName, 0);
 
-                            hashList.Add(hash);
+                            var spriteIndex = -1;
+
+                            // Enumerate every sprite
+                            foreach (var sprite in des.Sprites.Where(x => x != null).Select(x => x.texture))
+                            {
+                                spriteIndex++;
+
+                                // Get the png encoded data
+                                var encodedData = sprite.EncodeToPNG();
+
+                                // Check the hash
+                                using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                                {
+                                    // Get the hash
+                                    var hash = Convert.ToBase64String(sha1.ComputeHash(encodedData));
+
+                                    // Check if it's been used before
+                                    if (hashList.Contains(hash))
+                                        continue;
+
+                                    // Add to the hash list
+                                    hashList.Add(hash);
+                                }
+
+                                // Export it
+                                Util.ByteArrayToFile(Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]} - {spriteIndex}.png"), encodedData);
+                            }
+
+                            desIndexes[exportDirName]++;
                         }
-
-                        var spriteIndex = 0;
-
-                        // Enumerate every sprite
-                        foreach (var sprite in des.Sprites.Where(x => x != null).Select(x => x.texture))
-                        {
-                            // Export it
-                            File.WriteAllBytes(Path.Combine(dir, $"{lvl} - {desIndex} - {spriteIndex}.png"), sprite.EncodeToPNG());
-
-                            spriteIndex++;
-                        }
-
-                        desIndex++;
                     }
                 }
             }

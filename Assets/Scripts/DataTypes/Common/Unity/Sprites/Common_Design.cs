@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// Common event design data
     /// </summary>
@@ -18,5 +18,10 @@ namespace R1Engine {
         /// The animations in this design
         /// </summary>
         public List<Common_Animation> Animations;
+
+        /// <summary>
+        /// The original file path for the sprite data
+        /// </summary>
+        public string FilePath { get; set; }
     }
 }

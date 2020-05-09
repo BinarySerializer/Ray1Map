@@ -1,6 +1,7 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -328,7 +329,8 @@ namespace R1Engine
                     var des = new Common_Design()
                     {
                         Sprites = globalDesigns,
-                        Animations = new List<Common_Animation>()
+                        Animations = new List<Common_Animation>(),
+                        FilePath = animGroup.AnimationDescriptorsPointer.file.filePath
                     };
 
                     // Add animations
@@ -476,5 +478,17 @@ namespace R1Engine
             new PS1VignetteFileInfo("LOGO_UBI.TIM", 320),
             new PS1VignetteFileInfo("JUNGLE/NEWFND16.TIM", 320),
         };
+
+        /// <summary>
+        /// Gets the base directory name for exporting a common design
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="des">The design to export</param>
+        /// <returns>The base directory name</returns>
+        protected override string GetExportDirName(GameSettings settings, Common_Design des)
+        {
+            // Since all paths are in allfix, we return an empty path
+            return String.Empty;
+        }
     }
 }

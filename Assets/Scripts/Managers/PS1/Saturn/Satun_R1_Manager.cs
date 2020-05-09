@@ -41,16 +41,16 @@ namespace R1Engine
         /// <summary>
         /// Gets the world data file path
         /// </summary>
-        /// <param name="context">The context</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The world data file path</returns>
-        public string GetWorldFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}.DTA";
+        public string GetWorldFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}.DTA";
 
         /// <summary>
         /// Gets the level data file path
         /// </summary>
-        /// <param name="context">The context</param>
+        /// <param name="settings">The game settings</param>
         /// <returns>The level data file path</returns>
-        public string GetLevelFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}{context.Settings.Level:00}.DTA";
+        public string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}{settings.Level:00}.DTA";
 
         /// <summary>
         /// Gets the map file path
@@ -249,8 +249,8 @@ namespace R1Engine
         {
             // Get the paths
             var allfixFilePath = GetAllfixFilePath();
-            var worldFilePath = GetWorldFilePath(context);
-            var levelFilePath = GetLevelFilePath(context);
+            var worldFilePath = GetWorldFilePath(context.Settings);
+            var levelFilePath = GetLevelFilePath(context.Settings);
             var tileSetPaletteFilePath = GetTileSetPaletteFilePath(context);
             var tileSetPaletteIndexTableFilePath = GetTileSetPaletteIndexTableFilePath(context);
             var tileSetFilePath = GetTileSetFilePath(context);
@@ -488,6 +488,30 @@ namespace R1Engine
             exportVig("VIGNET/VIG_RAP.VIG", 255);
             exportVig("VIGNET/VIG_TRZ.VIG", 178);
             exportVig("LANGUE.VIG", 320);
+        }
+
+        /// <summary>
+        /// Gets the base directory name for exporting a common design
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="des">The design to export</param>
+        /// <returns>The base directory name</returns>
+        protected override string GetExportDirName(GameSettings settings, Common_Design des)
+        {
+            // Get the file path
+            var path = des.FilePath;
+
+            if (path == null)
+                throw new Exception("Path can not be null");
+
+            if (path == GetAllfixFilePath())
+                return $"Allfix/";
+            else if (path == GetWorldFilePath(settings))
+                return $"{settings.World}/{settings.World} - ";
+            else if (path == GetLevelFilePath(settings))
+                return $"{settings.World}/{settings.World}{settings.Level} - ";
+
+            return $"Unknown/";
         }
     }
 }
