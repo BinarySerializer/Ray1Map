@@ -39,8 +39,12 @@ namespace R1Engine
         public Tile[] TypeCollisionTilesHD;
 
         // Infro tracked for when switching between template and normal level
-        private Vector3 previousCameraPos;
+        private Vector3 previousCameraPosNormal;
+        private Vector3 previousCameraPosTemplate = new Vector3(0,0,-10f);
         private int templateMaxY=0;
+
+        public int camMaxX=1;
+        public int camMaxY=1;
 
 
         public void Start() {
@@ -84,6 +88,10 @@ namespace R1Engine
             }
             // Fill out tiles
             RefreshTiles(Settings.GetGameManager.Has3Palettes ? 0 : 1);
+
+            //Set max cam sizes
+            camMaxX = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width;
+            camMaxY = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height;
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
@@ -125,13 +133,16 @@ namespace R1Engine
                     yy++;
                 }
             }
+            Debug.Log(lvl.Maps[editor.currentMap].TileSet[0].Tiles.Length);
             templateMaxY = yy+1;
         }
 
+        // Resize the background tint
         public void ResizeBackgroundTint(int x, int y) {
             backgroundTint.transform.localScale = new Vector2(x, y);
         }
 
+        // Used for switching the view between template and normal tiles
         public void ShowHideTemplate() {
             focusedOnTemplate = !focusedOnTemplate;
 
@@ -144,17 +155,24 @@ namespace R1Engine
             if (focusedOnTemplate) {
                 editor.ClearSelection();
                 //Save camera and set new
-                previousCameraPos = Camera.main.transform.position;
-                Camera.main.GetComponent<EditorCam>().pos = new Vector3(0, 0, Camera.main.transform.position.z);
+                previousCameraPosNormal = Camera.main.transform.position;
+                Camera.main.GetComponent<EditorCam>().pos = previousCameraPosTemplate;
                 //Resize the background tint for a better effect
                 ResizeBackgroundTint(16, templateMaxY);
+                //Set max cam sizes
+                camMaxX = 16;
+                camMaxY = templateMaxY;
             }
             else {
                 //Set camera back
-                Camera.main.GetComponent<EditorCam>().pos = previousCameraPos;
+                previousCameraPosTemplate = Camera.main.transform.position;
+                Camera.main.GetComponent<EditorCam>().pos = previousCameraPosNormal;
                 //Resize background tint
                 var lvl = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
                 ResizeBackgroundTint(lvl.Width, lvl.Height);
+                //Set max cam sizes
+                camMaxX = lvl.Width;
+                camMaxY = lvl.Height;
             }
         }
 

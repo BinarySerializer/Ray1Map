@@ -15,6 +15,8 @@ namespace R1Engine {
         Vector3 mousePosPrev;
         Editor editor;
 
+        public LevelTilemapController levelTilemapController;
+
         void Start() {
             Camera.main.orthographicSize = fov;
             fricStart = friction;
@@ -60,8 +62,9 @@ namespace R1Engine {
                 // Stuff
                 vel /= 1f + (1f * friction) * Time.deltaTime;
                 pos += vel * Time.deltaTime;
-                pos.x = Mathf.Clamp(pos.x, 0, Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width);
-                pos.y = Mathf.Clamp(pos.y, -Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height, 0);
+                pos.x = Mathf.Clamp(pos.x, 0, levelTilemapController.camMaxX);
+                pos.y = Mathf.Clamp(pos.y, -levelTilemapController.camMaxY, 0);
+
                 pos.z = -10f;
                 if (pixelSnap) {
                     transform.position = PxlVec.SnapVec(pos);

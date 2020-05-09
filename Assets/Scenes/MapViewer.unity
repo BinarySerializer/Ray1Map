@@ -2220,6 +2220,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2f193f7fe2d731f43a7b49d4a22fad60, type: 2}
   - {fileID: 11400000, guid: 18cf38b2e4a67fd40900a519486a32ab, type: 2}
   - {fileID: 11400000, guid: 6a8a4d6c2168e794586512299c6dbe8d, type: 2}
+  camMaxX: 1
+  camMaxY: 1
 --- !u!114 &172781304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6623,6 +6625,7 @@ MonoBehaviour:
   fricStart: 0
   pos: {x: 0, y: 0, z: 0}
   vel: {x: 0, y: 0, z: 0}
+  levelTilemapController: {fileID: 172781303}
 --- !u!1 &554778683
 GameObject:
   m_ObjectHideFlags: 0
