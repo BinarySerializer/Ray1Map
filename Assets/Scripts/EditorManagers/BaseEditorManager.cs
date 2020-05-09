@@ -341,7 +341,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="eventData">The event data</param>
         /// <returns></returns>
-        public bool IsMirrored(Common_EventData eventData) => (eventData.Type is EventType et && et == EventType.TYPE_PUNAISE3 && eventData.HitPoints == 1) || eventData.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT;
+        public bool IsMirrored(Common_EventData eventData) => (eventData.Type is EventType et && et == EventType.TYPE_PUNAISE3 && eventData.HitPoints == 1) || eventData.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT || eventData.FlipHorizontally;
 
         #endregion
     }

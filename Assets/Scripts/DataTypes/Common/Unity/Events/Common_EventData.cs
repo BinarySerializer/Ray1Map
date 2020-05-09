@@ -102,6 +102,11 @@ namespace R1Engine
         public bool FollowEnabled { get; set; }
 
         /// <summary>
+        /// Indicates if the event should be flipped horizontally. Only used in Rayman 2.
+        /// </summary>
+        public bool FlipHorizontally { get; set; }
+
+        /// <summary>
         /// The label offsets
         /// </summary>
         public ushort[] LabelOffsets { get; set; }

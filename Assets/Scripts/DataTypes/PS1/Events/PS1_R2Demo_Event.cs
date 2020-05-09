@@ -55,8 +55,13 @@
 
         // 26 (0x24)
 
+        public byte Unk1 { get; set; }
+
+        // TODO: Flags?
+        public bool IsFlippedHorizontally { get; set; }
+
         // Between 40-44 is where x and y pos is stored during runtime
-        public byte[] Unk1 { get; set; }
+        public byte[] Unk2 { get; set; }
 
         // 56 (0x38)
 
@@ -131,21 +136,13 @@
              
              */
 
-        // TODO: Is this correct?
-        // Indicates if it's on the background map during runtime - always 0 in files
-        public bool RuntimeIsOnBackgroundLayer { get; set; }
+        public byte RuntimeMapLayer { get; set; }
 
         public byte[] Unk4 { get; set; }
 
-        // TODO: Is this correct?
-        /// <summary>
-        /// Indicates if the event sprite should be flipped horizontally
-        /// </summary>
-        public bool IsFlippedHorizontally { get; set; }
-
-        // TODO: Is this correct?
-        // Runtime only? What does it really do? - always 0 in files
-        public bool IsFaded { get; set; }
+        // TODO: Flags?
+        public bool RuntimeIsFlippedHorizontally { get; set; }
+        public bool RuntimeIsFaded { get; set; }
 
         public byte[] Unk5 { get; set; }
 
@@ -196,8 +193,10 @@
             Unk_22 = s.Serialize<byte>(Unk_22, name: nameof(Unk_22));
             MapLayer = s.Serialize<byte>(MapLayer, name: nameof(MapLayer));
 
-            Unk1 = s.SerializeArray(Unk1, 19, name: nameof(Unk1));
+            Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
+            IsFlippedHorizontally = s.Serialize<bool>(IsFlippedHorizontally, name: nameof(IsFlippedHorizontally));
 
+            Unk2 = s.SerializeArray(Unk2, 17, name: nameof(Unk2));
 
             RuntimeCurrentStatePointer = s.Serialize<uint>(RuntimeCurrentStatePointer, name: nameof(RuntimeCurrentStatePointer));
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
@@ -223,12 +222,12 @@
 
             Unk3 = s.SerializeArray(Unk3, 10, name: nameof(Unk3));
 
-            RuntimeIsOnBackgroundLayer = s.Serialize<bool>(RuntimeIsOnBackgroundLayer, name: nameof(RuntimeIsOnBackgroundLayer));
+            RuntimeMapLayer = s.Serialize<byte>(RuntimeMapLayer, name: nameof(RuntimeMapLayer));
 
             Unk4 = s.SerializeArray(Unk4, 3, name: nameof(Unk4));
 
-            IsFlippedHorizontally = s.Serialize<bool>(IsFlippedHorizontally, name: nameof(IsFlippedHorizontally));
-            IsFaded = s.Serialize<bool>(IsFaded, name: nameof(IsFaded));
+            RuntimeIsFlippedHorizontally = s.Serialize<bool>(RuntimeIsFlippedHorizontally, name: nameof(RuntimeIsFlippedHorizontally));
+            RuntimeIsFaded = s.Serialize<bool>(RuntimeIsFaded, name: nameof(RuntimeIsFaded));
 
             Unk5 = s.SerializeArray(Unk5, 2, name: nameof(Unk5));
 

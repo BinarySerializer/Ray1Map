@@ -368,6 +368,7 @@ namespace R1Engine
                     Layer = e.Layer,
                     //HitSprite = e.HitSprite,
                     //FollowEnabled = e.GetFollowEnabled(context.Settings),
+                    FlipHorizontally = e.IsFlippedHorizontally,
                     //LabelOffsets = e.LabelOffsets,
                     //CommandCollection = e.Commands,
                     LinkIndex = lvlData.EventLinkTable.Length > index ? lvlData.EventLinkTable[index] : index,
@@ -380,7 +381,8 @@ namespace R1Engine
                                 $"UnkStateRelatedValue: {e.UnkStateRelatedValue}{Environment.NewLine}" +
                                 $"Unk_22: {e.Unk_22}{Environment.NewLine}" +
                                 $"MapLayer: {e.MapLayer}{Environment.NewLine}" +
-                                $"Unk1: {String.Join("-", e.Unk1)}{Environment.NewLine}" +
+                                $"Unk1: {e.Unk1}{Environment.NewLine}" +
+                                $"Unk2: {String.Join("-", e.Unk2)}{Environment.NewLine}" +
                                 $"RuntimeUnk1: {e.RuntimeUnk1}{Environment.NewLine}" +
                                 $"EventType: {e.EventType}{Environment.NewLine}" +
                                 $"RuntimeOffset1: {e.RuntimeOffset1}{Environment.NewLine}" +
@@ -390,7 +392,6 @@ namespace R1Engine
                                 $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
                                 $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
                                 $"IsFlippedHorizontally: {e.IsFlippedHorizontally}{Environment.NewLine}" +
-                                $"IsFaded: {e.IsFaded}{Environment.NewLine}" +
                                 $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
                                 $"CollisionDataValues 1: {String.Join("-", e.CollisionData?.Unk1 ?? new byte[0])}{Environment.NewLine}" +
                                 $"CollisionDataValues 2: {String.Join("-", e.CollisionData?.Unk2 ?? new byte[0])}{Environment.NewLine}"
