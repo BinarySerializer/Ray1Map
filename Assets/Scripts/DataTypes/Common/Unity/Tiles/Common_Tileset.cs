@@ -20,10 +20,10 @@ namespace R1Engine
         public Common_Tileset(IList<ARGBColor> tileMapColors, int tileMapWidth, int cellSize)
         {
             // Create the tile array
-            Tiles = new Tile[tileMapColors.Count];
+            Tiles = new Tile[tileMapColors.Count / (cellSize * cellSize)];
 
             // Create each tile
-            for (var index = 0; index < tileMapColors.Count / (cellSize * cellSize); index++)
+            for (var index = 0; index < Tiles.Length; index++)
             {
                 // Create the texture
                 Texture2D tex = new Texture2D(cellSize, cellSize, TextureFormat.RGBA32, false)
