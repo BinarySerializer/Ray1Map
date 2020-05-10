@@ -5,6 +5,15 @@
     /// </summary>
     public class PC_Event : R1Serializable
     {
+        #region GBA
+
+        public byte[] GBAUnk1 { get; set; }
+        public byte[] GBAUnk2 { get; set; }
+        public ushort GBA_XPosition2 { get; set; }
+        public ushort GBA_YPosition2 { get; set; }
+
+        #endregion
+
         public uint DES { get; set; }
 
         public uint DES2 { get; set; }
@@ -132,33 +141,50 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            DES = s.Serialize<uint>(DES, name: nameof(DES));
-            DES2 = s.Serialize<uint>(DES2, name: nameof(DES2));
-            DES3 = s.Serialize<uint>(DES3, name: nameof(DES3));
-            ETA = s.Serialize<uint>(ETA, name: nameof(ETA));
 
-            Unk_16 = s.Serialize<uint>(Unk_16, name: nameof(Unk_16));
-            Unk_20 = s.Serialize<uint>(Unk_20, name: nameof(Unk_20));
-            Unk_24 = s.Serialize<uint>(Unk_24, name: nameof(Unk_24));
-            Unk_28 = s.Serialize<uint>(Unk_28, name: nameof(Unk_28));
-            Unk_32 = s.Serialize<uint>(Unk_32, name: nameof(Unk_32));
-            Unk_36 = s.Serialize<uint>(Unk_36, name: nameof(Unk_36));
+            if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
+            {
+                GBAUnk1 = s.SerializeArray<byte>(GBAUnk1, 32, name: nameof(GBAUnk1));
 
-            XPosition = s.Serialize<uint>(XPosition, name: nameof(XPosition));
-            YPosition = s.Serialize<uint>(YPosition, name: nameof(YPosition));
+                XPosition = s.Serialize<ushort>((ushort)XPosition, name: nameof(XPosition));
+                YPosition = s.Serialize<ushort>((ushort)YPosition, name: nameof(YPosition));
 
-            Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
+                GBAUnk2 = s.SerializeArray<byte>(GBAUnk2, 8, name: nameof(GBAUnk2));
 
-            // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
-                Unk_52_Kit = s.Serialize<uint>(Unk_52_Kit, name: nameof(Unk_52_Kit));
+                GBA_XPosition2 = s.Serialize<ushort>(GBA_XPosition2, name: nameof(GBA_XPosition2));
+                GBA_YPosition2 = s.Serialize<ushort>(GBA_YPosition2, name: nameof(GBA_YPosition2));
+            }
+            else
+            {
+                DES = s.Serialize<uint>(DES, name: nameof(DES));
+                DES2 = s.Serialize<uint>(DES2, name: nameof(DES2));
+                DES3 = s.Serialize<uint>(DES3, name: nameof(DES3));
+                ETA = s.Serialize<uint>(ETA, name: nameof(ETA));
 
-            Unk_52 = s.Serialize<ushort>(Unk_52, name: nameof(Unk_52));
-            Unk_54 = s.Serialize<ushort>(Unk_54, name: nameof(Unk_54));
-            Unk_56 = s.Serialize<ushort>(Unk_56, name: nameof(Unk_56));
-            Unk_58 = s.Serialize<ushort>(Unk_58, name: nameof(Unk_58));
-            Unk_60 = s.Serialize<ushort>(Unk_60, name: nameof(Unk_60));
-            Unk_62 = s.Serialize<ushort>(Unk_62, name: nameof(Unk_62));
+                Unk_16 = s.Serialize<uint>(Unk_16, name: nameof(Unk_16));
+                Unk_20 = s.Serialize<uint>(Unk_20, name: nameof(Unk_20));
+                Unk_24 = s.Serialize<uint>(Unk_24, name: nameof(Unk_24));
+                Unk_28 = s.Serialize<uint>(Unk_28, name: nameof(Unk_28));
+                Unk_32 = s.Serialize<uint>(Unk_32, name: nameof(Unk_32));
+                Unk_36 = s.Serialize<uint>(Unk_36, name: nameof(Unk_36));
+
+                XPosition = s.Serialize<uint>(XPosition, name: nameof(XPosition));
+                YPosition = s.Serialize<uint>(YPosition, name: nameof(YPosition));
+
+                Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
+
+                // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
+                if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
+                    Unk_52_Kit = s.Serialize<uint>(Unk_52_Kit, name: nameof(Unk_52_Kit));
+
+                Unk_52 = s.Serialize<ushort>(Unk_52, name: nameof(Unk_52));
+                Unk_54 = s.Serialize<ushort>(Unk_54, name: nameof(Unk_54));
+                Unk_56 = s.Serialize<ushort>(Unk_56, name: nameof(Unk_56));
+                Unk_58 = s.Serialize<ushort>(Unk_58, name: nameof(Unk_58));
+                Unk_60 = s.Serialize<ushort>(Unk_60, name: nameof(Unk_60));
+                Unk_62 = s.Serialize<ushort>(Unk_62, name: nameof(Unk_62));
+            }
+
             Unk_64 = s.Serialize<ushort>(Unk_64, name: nameof(Unk_64));
             Unk_66 = s.Serialize<ushort>(Unk_66, name: nameof(Unk_66));
             Unk_68 = s.Serialize<ushort>(Unk_68, name: nameof(Unk_68));

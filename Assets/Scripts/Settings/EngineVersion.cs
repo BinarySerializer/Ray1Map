@@ -63,5 +63,10 @@ namespace R1Engine
         /// Rayman Ultimate (Pocket PC)
         /// </summary>
         RayPocketPC,
+
+        /// <summary>
+        /// Rayman Advance (GBA)
+        /// </summary>
+        RayGBA,
     }
 }
