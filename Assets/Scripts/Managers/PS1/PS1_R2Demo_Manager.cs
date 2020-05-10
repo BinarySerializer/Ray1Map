@@ -391,7 +391,7 @@ namespace R1Engine
                                 $"Unk_58: {e.Unk_58}{Environment.NewLine}" +
                                 $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
                                 $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
-                                $"IsFlippedHorizontally: {e.IsFlippedHorizontally}{Environment.NewLine}" +
+                                $"Flags: {String.Join(", ", e.Flags.GetFlags())}{Environment.NewLine}" +
                                 $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
                                 $"CollisionDataValues 1: {String.Join("-", e.CollisionData?.Unk1 ?? new byte[0])}{Environment.NewLine}" +
                                 $"CollisionDataValues 2: {String.Join("-", e.CollisionData?.Unk2 ?? new byte[0])}{Environment.NewLine}"

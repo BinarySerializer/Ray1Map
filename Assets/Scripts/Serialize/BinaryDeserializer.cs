@@ -43,7 +43,7 @@ namespace R1Engine
         }
 
         // Helper method which returns an object so we can cast it
-        protected object ReadAsObject<T>() {
+        protected object ReadAsObject<T>(string name = null) {
             // Get the type
             var type = typeof(T);
 
@@ -57,7 +57,7 @@ namespace R1Engine
                     var b = reader.ReadByte();
 
                     if (b != 0 && b != 1) {
-                        Debug.LogWarning("Binary boolean was not correctly formatted");
+                        Debug.LogWarning($"Binary boolean '{name}' ({b}) was not correctly formatted");
 
                         if (Settings.Log) {
                             Context.Log.Log(LogPrefix + "(" + typeof(T) + "): Binary boolean was not correctly formatted (" + b + ")");
@@ -173,7 +173,7 @@ namespace R1Engine
 
         public override T Serialize<T>(T obj, string name = null) {
             string logString = LogPrefix;
-            T t = (T)ReadAsObject<T>();
+            T t = (T)ReadAsObject<T>(name);
             if (Settings.Log) {
                 Context.Log.Log(logString + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + t.ToString());
             }
@@ -182,7 +182,7 @@ namespace R1Engine
 
         public override T SerializeChecksum<T>(T calculatedChecksum, string name = null) {
             string logString = LogPrefix;
-            T checksum = (T)ReadAsObject<T>();
+            T checksum = (T)ReadAsObject<T>(name);
             if (!checksum.Equals(calculatedChecksum)) {
                 Debug.LogWarning("Checksum " + name + " did not match!");
             }

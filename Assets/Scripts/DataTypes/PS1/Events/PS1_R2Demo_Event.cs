@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     // TODO: Clean up this class
 
@@ -57,8 +59,22 @@
 
         public byte Unk1 { get; set; }
 
-        // TODO: Flags?
-        public bool IsFlippedHorizontally { get; set; }
+        /// <summary>
+        /// Indicates if the event sprite is flipped horizontally
+        /// </summary>
+        public bool IsFlippedHorizontally
+        {
+            get => Flags.HasFlag(PS1_R2Demo_EventFlags.FlippedHorizontally);
+            set
+            {
+                if (value)
+                    Flags |= PS1_R2Demo_EventFlags.FlippedHorizontally;
+                else
+                    Flags &= ~PS1_R2Demo_EventFlags.FlippedHorizontally;
+            }
+        }
+
+        public PS1_R2Demo_EventFlags Flags { get; set; }
 
         // Between 40-44 is where x and y pos is stored during runtime
         public byte[] Unk2 { get; set; }
@@ -140,9 +156,10 @@
 
         public byte[] Unk4 { get; set; }
 
-        // TODO: Flags?
-        public bool RuntimeIsFlippedHorizontally { get; set; }
-        public bool RuntimeIsFaded { get; set; }
+        // First bit determines if the sprite should be flipped horizontally
+        public byte RuntimeFlags1 { get; set; }
+        // First bit determines if the sprite should be faded
+        public byte RuntimeFlags2 { get; set; }
 
         public byte[] Unk5 { get; set; }
 
@@ -170,6 +187,7 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
+            // Serialize initial unknown values
             UShort_00 = s.Serialize<ushort>(UShort_00, name: nameof(UShort_00));
             UShort_02 = s.Serialize<ushort>(UShort_02, name: nameof(UShort_02));
             UShort_04 = s.Serialize<ushort>(UShort_04, name: nameof(UShort_04));
@@ -181,12 +199,13 @@
             BehaviorPointer = s.SerializePointer(BehaviorPointer, name: nameof(BehaviorPointer));
             CollisionDataPointer = s.SerializePointer(CollisionDataPointer, name: nameof(CollisionDataPointer));
             AnimGroupPointer = s.SerializePointer(AnimGroupPointer, name: nameof(AnimGroupPointer));
-
             p_stHandlers = s.Serialize<uint>(p_stHandlers, name: nameof(p_stHandlers));
 
+            // Serialize positions
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
 
+            // Serialize state data
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
@@ -194,7 +213,7 @@
             MapLayer = s.Serialize<byte>(MapLayer, name: nameof(MapLayer));
 
             Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
-            IsFlippedHorizontally = s.Serialize<bool>(IsFlippedHorizontally, name: nameof(IsFlippedHorizontally));
+            Flags = s.Serialize<PS1_R2Demo_EventFlags>(Flags, name: nameof(Flags));
 
             Unk2 = s.SerializeArray(Unk2, 17, name: nameof(Unk2));
 
@@ -202,8 +221,11 @@
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
 
             RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
+
+            // Serialize the type
             EventType = s.Serialize<PS1_R2Demo_EventType>(EventType, name: nameof(EventType));
 
+            // Serialize runtime values
             XPosition3 = s.Serialize<ushort>(XPosition3, name: nameof(XPosition3));
             YPosition3 = s.Serialize<ushort>(YPosition3, name: nameof(YPosition3));
 
@@ -226,19 +248,39 @@
 
             Unk4 = s.SerializeArray(Unk4, 3, name: nameof(Unk4));
 
-            RuntimeIsFlippedHorizontally = s.Serialize<bool>(RuntimeIsFlippedHorizontally, name: nameof(RuntimeIsFlippedHorizontally));
-            RuntimeIsFaded = s.Serialize<bool>(RuntimeIsFaded, name: nameof(RuntimeIsFaded));
+            RuntimeFlags1 = s.Serialize<byte>(RuntimeFlags1, name: nameof(RuntimeFlags1));
+            RuntimeFlags2 = s.Serialize<byte>(RuntimeFlags2, name: nameof(RuntimeFlags2));
 
             Unk5 = s.SerializeArray(Unk5, 2, name: nameof(Unk5));
 
+            // Parse data from pointers
 
+            // Serialize collision data
             if (CollisionDataPointer != null)
                 s.DoAt(CollisionDataPointer, () => CollisionData = s.SerializeObject<PS1_R2Demo_EventCollision>(CollisionData, name: nameof(CollisionData)));
 
+            // Serialize the animation group data
             if (AnimGroupPointer != null)
                 s.DoAt(AnimGroupPointer, () => AnimGroup = s.SerializeObject<PS1_R2Demo_EventAnimGroup>(AnimGroup, name: nameof(AnimGroup)));
         }
 
         #endregion
+
+        /// <summary>
+        /// Flags for <see cref="PS1_R2Demo_Event"/>
+        /// </summary>
+        [Flags]
+        public enum PS1_R2Demo_EventFlags : byte
+        {
+            None = 0,
+            UnkFlag_0 = 1 << 0,
+            UnkFlag_1 = 1 << 1,
+            UnkFlag_2 = 1 << 2,
+            UnkFlag_3 = 1 << 3,
+            UnkFlag_4 = 1 << 4,
+            UnkFlag_5 = 1 << 5,
+            UnkFlag_6 = 1 << 6,
+            FlippedHorizontally = 1 << 7,
+        }
     }
 }

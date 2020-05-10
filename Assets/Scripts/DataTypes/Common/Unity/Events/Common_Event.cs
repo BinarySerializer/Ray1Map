@@ -64,6 +64,7 @@ namespace R1Engine {
 
         #region Event Methods
 
+        // TODO: Call this when adding a new event
         /// <summary>
         /// Performs the initial setup for the event
         /// </summary>
@@ -379,6 +380,9 @@ namespace R1Engine {
             else {
                 defautRenderer.enabled = false;
             }
+
+            // Reset the current frame
+            currentFrame = 0;
 
             // Get the frame length
             var len = CurrentAnimation.Frames[(int)currentFrame].Layers.Length;

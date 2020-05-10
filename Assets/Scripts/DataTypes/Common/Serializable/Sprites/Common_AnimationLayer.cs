@@ -94,10 +94,10 @@ namespace R1Engine
         public enum Common_AnimationLayerFlags
         {
             None = 0,
-            UnkFlag_0 = 1 << 1,
+            UnkFlag_0 = 1 << 0,
+            UnkFlag_1 = 1 << 1,
             FlippedHorizontally = 1 << 2,
             FlippedVertically = 1 << 3,
-            UnkFlag_3 = 1 << 4,
         }
     }
 }

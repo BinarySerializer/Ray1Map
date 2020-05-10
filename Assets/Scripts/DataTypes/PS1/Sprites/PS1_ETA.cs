@@ -103,6 +103,7 @@ namespace R1Engine
                             // Read the next bytes
                             var bytes = s.SerializeArray<byte>(null, stateSize, name: $"Dummy state {count}");
 
+                            // TODO: Check for Saturn pointers
                             // Check if it's invalid (is a pointer)
                             if (bytes[3] == 0x80)
                                 break;
