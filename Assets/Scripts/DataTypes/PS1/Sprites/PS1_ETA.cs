@@ -87,10 +87,41 @@ namespace R1Engine
                 // Get the size of the last Etat
                 if (EtatPointers[NumEtats - 1] != null)
                 {
-                    // TODO: Parse this last array - read until we reach a pointer (next Etat array), invalid values or end of stream
+                    // TODO: Find better way to parse this
+                    
+                    s.DoAt(s.CurrentPointer, () => {
+
+                        uint count = 0;
+                        const int maxCount = 20;
+
+                        while (true)
+                        {
+                            // Make sure we can read more
+                            if (s.CurrentLength - stateSize < s.CurrentPointer.FileOffset)
+                                break;
+
+                            // Read the next bytes
+                            var bytes = s.SerializeArray<byte>(null, stateSize, name: $"Dummy state {count}");
+
+                            // Check if it's invalid (is a pointer)
+                            if (bytes[3] == 0x80)
+                                break;
+
+                            // Make sure we haven't reached the max
+                            if (count > maxCount)
+                                break;
+
+                            count++;
+                        }
+
+                        NumSubEtats[NumEtats - 1] = count;
+                    });
+                    
+                    /*
                     // Temp fix so we don't read past the end of the stream - this however causes certain events to get the wrong state!
                     uint maxEtats = (s.CurrentLength - EtatPointers[NumEtats - 1].FileOffset) / stateSize;
                     NumSubEtats[NumEtats - 1] = System.Math.Min(20u, maxEtats);
+                    */
                 }
             }
 
