@@ -87,17 +87,20 @@
             {
                 RightSpeed = s.Serialize<sbyte>(RightSpeed, name: nameof(RightSpeed));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ||
+                    s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
                     UnkDemo1 = s.Serialize<byte>(UnkDemo1, name: nameof(UnkDemo1));
 
                 LeftSpeed = s.Serialize<sbyte>(LeftSpeed, name: nameof(LeftSpeed));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ||
+                    s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
                     UnkDemo2 = s.Serialize<byte>(UnkDemo2, name: nameof(UnkDemo2));
 
                 AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ||
+                    s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
                     UnkDemo3 = s.Serialize<byte>(UnkDemo3, name: nameof(UnkDemo3));
 
                 LinkedEtat = s.Serialize<byte>(LinkedEtat, name: nameof(LinkedEtat));
@@ -115,8 +118,10 @@
                     UnkDemo7 = s.Serialize<byte>(UnkDemo7, name: nameof(UnkDemo7));
                     UnkDemo8 = s.Serialize<byte>(UnkDemo8, name: nameof(UnkDemo8));
                 }
-                else
-                {
+                else {
+                    if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6) {
+                        UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
+                    }
                     SoundIndex = s.Serialize<byte>(SoundIndex, name: nameof(SoundIndex));
                     InteractionType = s.Serialize<byte>(InteractionType, name: nameof(InteractionType));
                 }

@@ -59,7 +59,11 @@
             });
             s.DoAt(AnimFramesPointer, () =>
             {
-                Frames = s.SerializeObjectArray(Frames, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? FrameCount : FrameCount + 1, name: nameof(Frames));
+                Frames = s.SerializeObjectArray(Frames,
+                    (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
+                    ? FrameCount 
+                    : FrameCount + 1,
+                    name: nameof(Frames));
             });
         }
     }

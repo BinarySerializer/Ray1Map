@@ -30,6 +30,7 @@ namespace R1Engine
         /// </summary>
         /// <returns>The allfix file path</returns>
         public virtual string GetAllfixFilePath() => $"RAY.DTA";
+        public string GetAllfixSpritePath() => $"RAY.IMG";
 
         /// <summary>
         /// Gets the file path for the world file
@@ -37,6 +38,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
         public virtual string GetWorldFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}.DTA";
+        public string GetWorldSpritePath(GameSettings settings) => $"{GetWorldName(settings.World)}.IMG";
 
         /// <summary>
         /// Gets the file path for the level tile set file
@@ -51,6 +53,9 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
         public string GetLevelFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}{settings.Level:00}.DTA";
+        public string GetLevelSpritePath(GameSettings settings) => $"{GetWorldName(settings.World)}{settings.Level:00}.IMG";
+        public string GetPalettePath(GameSettings settings, int i) => $"{GetWorldName(settings.World)}{i}.PAL";
+        public string GetFontPalettePath() => $"LETTRE.PAL";
 
         /// <summary>
         /// Gets the file path for the level map file
@@ -91,21 +96,42 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
-        public override void FillVRAM(Context context)
-        {
-            throw new NotImplementedException();
-        }
+        public override void FillVRAM(Context context) {
+            // Read palettes
+            var pal4 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var pal8 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = y.CurrentLength / 2);
+            var palLettre = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetFontPalettePath(), context, (y, x) => x.Length = y.CurrentLength / 2);
 
-        /// <summary>
-        /// Gets the sprite texture for an event
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="e">The event</param>
-        /// <param name="s">The image descriptor to use</param>
-        /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor s)
-        {
-            throw new NotImplementedException();
+            // Read the files
+            var fixGraphics = FileFactory.Read<Array<byte>>(GetAllfixSpritePath(), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var wldGraphics = FileFactory.Read<Array<byte>>(GetWorldSpritePath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelSpritePath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
+            
+            PS1_VRAM vram = new PS1_VRAM();
+
+            // skip loading the backgrounds for now. They take up 320 (=5*64) x 256 per background
+            // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
+            vram.currentXPage = 5;
+
+            // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
+            // storing the first bit of sprites we load as 1x2
+            byte[] cageSprites = new byte[128 * (256 * 2)];
+            Array.Copy(fixGraphics.Value, 0, cageSprites, 0, cageSprites.Length);
+            byte[] allFixSprites = new byte[fixGraphics.Value.Length - cageSprites.Length];
+            Array.Copy(fixGraphics.Value, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
+            /*byte[] unknown = new byte[128 * 8];
+            vram.AddData(unknown, 128);*/
+            vram.AddData(cageSprites, 128);
+            vram.AddData(allFixSprites, 256);
+
+            vram.AddData(wldGraphics.Value, 256);
+            vram.AddData(lvlGraphics.Value, 256);
+
+            int paletteY = 256 - 3; // 480 - 1 page height
+            vram.AddDataAt(1, 1, 0, paletteY++, palLettre.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, pal4.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            vram.AddDataAt(1, 1, 0, paletteY++, pal8.Value.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            context.StoreObject("vram", vram);
         }
 
         /// <summary>
@@ -123,6 +149,14 @@ namespace R1Engine
             var mapPath = GetMapFilePath(context.Settings);
             var tileSetPath = GetTileSetFilePath(context.Settings);
 
+            // sprites
+            await LoadExtraFile(context, GetAllfixSpritePath());
+            await LoadExtraFile(context, GetWorldSpritePath(context.Settings));
+            await LoadExtraFile(context, GetLevelSpritePath(context.Settings));
+            await LoadExtraFile(context, GetPalettePath(context.Settings, 4));
+            await LoadExtraFile(context, GetPalettePath(context.Settings, 8));
+            await LoadExtraFile(context, GetFontPalettePath());
+
             // Load the files
             await LoadExtraFile(context, allfixPath);
             await LoadExtraFile(context, worldPath);
@@ -135,9 +169,7 @@ namespace R1Engine
             var level = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
 
             // Load the level
-            return await LoadAsync(context, map, level.Events, level.EventLinkTable.Select(x => (ushort)x).ToArray(), 
-                // TODO: Change this to "loadTextures"!
-                false);
+            return await LoadAsync(context, map, level.Events, level.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
         /// <summary>
