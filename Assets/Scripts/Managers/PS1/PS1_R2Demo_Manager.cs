@@ -320,7 +320,7 @@ namespace R1Engine
             {
                 // Add the ETA
                 if (animGroup?.ETAPointer != null && !eventETA.ContainsKey(animGroup.ETAPointer))
-                    eventETA.Add(animGroup.ETAPointer, animGroup.EventStates);
+                    eventETA.Add(animGroup.ETAPointer, animGroup.ETA.EventStates);
 
                 // Add the DES
                 if (animGroup?.AnimationDescriptorsPointer != null && !eventDES.ContainsKey(animGroup.AnimationDescriptorsPointer))

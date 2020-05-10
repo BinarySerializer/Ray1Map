@@ -1,12 +1,12 @@
-﻿using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Animation group data for Rayman 2 (PS1 - Demo)
     /// </summary>
     public class PS1_R2Demo_EventAnimGroup : R1Serializable
     {
+        #region Event Data
+
         /// <summary>
         /// The ETA pointer
         /// </summary>
@@ -25,6 +25,9 @@ namespace R1Engine
         // Usually 0
         public ushort Unknown { get; set; }
 
+        #endregion
+
+        #region Parsed from Pointers
 
         /// <summary>
         /// The animation descriptors
@@ -32,25 +35,13 @@ namespace R1Engine
         public PS1_R2Demo_AnimationDecriptor[] AnimationDecriptors { get; set; }
 
         /// <summary>
-        /// The number of Etats
+        /// The event ETA
         /// </summary>
-        public uint NumEtats { get; set; }
+        public PS1_ETA ETA { get; set; }
 
-        /// <summary>
-        /// The numbers of SubEtats
-        /// </summary>
-        public uint[] NumSubEtats { get; set; }
+        #endregion
 
-        /// <summary>
-        /// Pointers to the ETA descriptors
-        /// </summary>
-        public Pointer[] EtatPointers { get; set; }
-
-        /// <summary>
-        /// Collection of states and substates
-        /// </summary>
-        public Common_EventState[][] EventStates { get; set; }
-
+        #region Methods
 
         /// <summary>
         /// Handles the data serialization
@@ -70,58 +61,11 @@ namespace R1Engine
             if (AnimationDescriptorsPointer != null)
                 s.DoAt(AnimationDescriptorsPointer, () => AnimationDecriptors = s.SerializeObjectArray<PS1_R2Demo_AnimationDecriptor>(AnimationDecriptors, AnimationDescriptorCount, name: nameof(AnimationDecriptors)));
 
-            // Serialize the event states (hack)
-            // Get number of ETAs, hack
-            if (s is BinaryDeserializer)
-            {
-                s.DoAt(ETAPointer, () => {
-                    Pointer p = s.SerializePointer(null, name: "FirstEtat");
-                    if (p.file != ETAPointer.file
-                        || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
-                        || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0)
-                    {
-                        Debug.LogWarning("Number of ETAs wasn't correctly determined");
-                    }
-                    NumEtats = (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4;
-                });
-            }
-            s.DoAt(ETAPointer, () => {
-                EtatPointers = s.SerializePointerArray(EtatPointers, NumEtats, name: nameof(EtatPointers));
-                if (NumSubEtats == null)
-                {
-                    // Get number of subetats, hack
-                    NumSubEtats = new uint[NumEtats];
-                    for (int i = 0; i < EtatPointers.Length - 1; i++)
-                    {
-                        if (EtatPointers[i] != null)
-                        {
-                            if (EtatPointers[i + 1] != null)
-                            {
-                                NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / (16);
-                            }
-                            else
-                            {
-                                Debug.LogWarning("An Etat Pointer was null - Number of SubEtats couldn't be determined");
-                            }
-                        }
-                    }
-                    if (EtatPointers[NumEtats - 1] != null)
-                    {
-                        // TODO: Parse this last array
-                        NumSubEtats[NumEtats - 1] = 10;
-                    }
-                }
-                if (EventStates == null)
-                {
-                    EventStates = new Common_EventState[NumEtats][];
-                }
-                for (int i = 0; i < EtatPointers.Length; i++)
-                {
-                    s.DoAt(EtatPointers[i], () => {
-                        EventStates[i] = s.SerializeObjectArray<Common_EventState>(EventStates[i], NumSubEtats[i], name: nameof(EventStates) + "[" + i + "]");
-                    });
-                }
-            });
+            // Serialize ETA
+            if (ETAPointer != null)
+                s.DoAt(ETAPointer, () => ETA = s.SerializeObject<PS1_ETA>(ETA, name: nameof(ETA)));
         }
+
+        #endregion
     }
 }

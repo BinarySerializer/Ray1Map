@@ -163,24 +163,9 @@ namespace R1Engine
         public ushort[] LabelOffsets { get; set; }
 
         /// <summary>
-        /// The number of Etats
+        /// The event ETA
         /// </summary>
-        public uint NumEtats { get; set; }
-
-        /// <summary>
-        /// The numbers of SubEtats
-        /// </summary>
-        public uint[] NumSubEtats { get; set; }
-
-        /// <summary>
-        /// Pointers to the ETA descriptors
-        /// </summary>
-        public Pointer[] EtatPointers { get; set; }
-
-        /// <summary>
-        /// Collection of states and substates for the event
-        /// </summary>
-        public Common_EventState[][] EventStates { get; set; }
+        public PS1_ETA ETA { get; set; }
 
         /// <summary>
         /// Image buffer
@@ -353,58 +338,8 @@ namespace R1Engine
             }
 
             // Serialize ETA
-
-            // TODO: The ETA hack doesn't work on vol6 as it doesn't have them in the same structure as other versions (?). The length of a state is also 12 so the Common_EventState class needs to be updated!
-            // Get number of ETAs, hack
-            if (s is BinaryDeserializer)
-            {
-                s.DoAt(ETAPointer, () => {
-                    Pointer p = s.SerializePointer(null, name: "FirstEtat");
-                    if (p.file != ETAPointer.file
-                    || p.AbsoluteOffset < ETAPointer.AbsoluteOffset + 4
-                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) % 4 != 0
-                    || (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4 <= Etat)
-                    {
-                        Debug.LogWarning("Number of ETAs wasn't correctly determined");
-                    }
-                    NumEtats = (p.AbsoluteOffset - ETAPointer.AbsoluteOffset) / 4;
-                });
-            }
-            s.DoAt(ETAPointer, () => {
-                EtatPointers = s.SerializePointerArray(EtatPointers, NumEtats, name: nameof(EtatPointers));
-                if (NumSubEtats == null) {
-                    // Get number of subetats, hack
-                    uint subEtatSize = (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 14u : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 12u : 8);
-                    NumSubEtats = new uint[NumEtats];
-                    for (int i = 0; i < EtatPointers.Length - 1; i++) {
-                        if (EtatPointers[i] != null) {
-                            if (EtatPointers[i + 1] != null) {
-                                NumSubEtats[i] = (EtatPointers[i + 1].AbsoluteOffset - EtatPointers[i].AbsoluteOffset) / subEtatSize;
-                            } else {
-                                Debug.LogWarning("An Etat Pointer was null - Number of SubEtats couldn't be determined");
-                            }
-                        }
-                    }
-                    if (EtatPointers[NumEtats - 1] != null) {
-                        // TODO: Parse this last array
-                        // Temp fix so we don't read past the end of the stream - this however causes certain events to get the wrong state!
-                        uint maxEtats = (s.CurrentLength - EtatPointers[NumEtats - 1].FileOffset) / subEtatSize;
-                        NumSubEtats[NumEtats - 1] = System.Math.Min(20u,maxEtats);
-
-                        //if (Etat == NumEtats - 1) {
-                        //    NumSubEtats[NumEtats - 1] = (uint)SubEtat + 1;
-                        //}
-                    }
-                }
-                if (EventStates == null) {
-                    EventStates = new Common_EventState[NumEtats][];
-                }
-                for (int i = 0; i < EtatPointers.Length; i++) {
-                    s.DoAt(EtatPointers[i], () => {
-                        EventStates[i] = s.SerializeObjectArray<Common_EventState>(EventStates[i], NumSubEtats[i], name: nameof(EventStates) + "[" + i + "]");
-                    });
-                }
-            });
+            if (ETAPointer != null)
+                s.DoAt(ETAPointer, () => ETA = s.SerializeObject<PS1_ETA>(ETA, name: nameof(ETA)));
 
             /*s.DoAt(ETAPointer + (Etat * 4), () =>
             {
@@ -418,7 +353,7 @@ namespace R1Engine
                 });
             });*/
 
-            if (EventStates?.ElementAtOrDefault(Etat)?.ElementAtOrDefault(SubEtat) == null)
+            if (ETA?.EventStates?.ElementAtOrDefault(Etat)?.ElementAtOrDefault(SubEtat) == null)
                 Debug.LogWarning($"Matching event state not found for event {Type} at {XPosition}x{YPosition} with E{Etat},SE{SubEtat}");
         }
 

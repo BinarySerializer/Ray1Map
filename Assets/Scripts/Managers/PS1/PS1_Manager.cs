@@ -356,7 +356,7 @@ namespace R1Engine
                 // Add if not found
                 if (e.ETAPointer != null && !eventETA.ContainsKey(e.ETAPointer))
                     // Add to the ETA
-                    eventETA.Add(e.ETAPointer, e.EventStates);
+                    eventETA.Add(e.ETAPointer, e.ETA.EventStates);
 
                 // Add the event
                 commonEvents.Add(new Common_EventData
