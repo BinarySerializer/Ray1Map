@@ -116,11 +116,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <param name="e">The event</param>
-        /// <param name="vram">The filled v-ram</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
         public virtual Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor s)
         {
+            // Get the loaded v-ram
             PS1_VRAM vram = context.GetStoredObject<PS1_VRAM>("vram");
 
             // Get the image properties
@@ -312,78 +312,76 @@ namespace R1Engine
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
             var commonEvents = new List<Common_EventData>();
 
-            // TODO: Temp fix so all versions work
-            if (events != null)
+            // Only load the v-ram if we're loading textures
+            if (loadTextures)
+                // Get the v-ram
+                FillVRAM(context);
+
+            var index = 0;
+
+            // Add every event
+            foreach (PS1_R1_Event e in events)
             {
-                if (loadTextures)
-                    // Get the v-ram
-                    FillVRAM(context);
+                Controller.status = $"Loading DES {index}/{events.Length}";
 
-                var index = 0;
+                await Controller.WaitIfNecessary();
 
-                // Add every event
-                foreach (PS1_R1_Event e in events)
+                // Add if not found
+                if (e.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(e.ImageDescriptorsPointer))
                 {
-                    Controller.status = $"Loading DES {index}/{events.Length}";
-
-                    await Controller.WaitIfNecessary();
-
-                    // Add if not found
-                    if (e.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(e.ImageDescriptorsPointer))
+                    Common_Design finalDesign = new Common_Design
                     {
-                        Common_Design finalDesign = new Common_Design
-                        {
-                            Sprites = new List<Sprite>(),
-                            Animations = new List<Common_Animation>(),
-                            FilePath = e.ImageDescriptorsPointer.file.filePath
-                        };
+                        Sprites = new List<Sprite>(),
+                        Animations = new List<Common_Animation>(),
+                        FilePath = e.ImageDescriptorsPointer.file.filePath
+                    };
 
-                        // Get every sprite
-                        foreach (Common_ImageDescriptor i in e.ImageDescriptors)
-                        {
-                            Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
+                    // Get every sprite
+                    foreach (Common_ImageDescriptor i in e.ImageDescriptors)
+                    {
+                        // Get the texture for the sprite, or null if not loading textures
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
 
-                            // Add it to the array
-                            finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                        }
-
-                        // Add animations
-                        finalDesign.Animations.AddRange(e.AnimDescriptors.Select(GetCommonAnimation));
-
-                        // Add to the designs
-                        eventDesigns.Add(e.ImageDescriptorsPointer, finalDesign);
+                        // Add it to the array
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                     }
 
-                    // Add if not found
-                    if (e.ETAPointer != null && !eventETA.ContainsKey(e.ETAPointer))
-                        // Add to the ETA
-                        eventETA.Add(e.ETAPointer, e.EventStates);
+                    // Add animations
+                    finalDesign.Animations.AddRange(e.AnimDescriptors.Select(GetCommonAnimation));
 
-                    // Add the event
-                    commonEvents.Add(new Common_EventData
-                    {
-                        Type = e.Type,
-                        Etat = e.Etat,
-                        SubEtat = e.SubEtat,
-                        XPosition = e.XPosition,
-                        YPosition = e.YPosition,
-                        DESKey = e.ImageDescriptorsPointer?.ToString() ?? String.Empty,
-                        ETAKey = e.ETAPointer?.ToString() ?? String.Empty,
-                        OffsetBX = e.OffsetBX,
-                        OffsetBY = e.OffsetBY,
-                        OffsetHY = e.OffsetHY,
-                        FollowSprite = e.FollowSprite,
-                        HitPoints = e.Hitpoints,
-                        Layer = e.Layer,
-                        HitSprite = e.HitSprite,
-                        FollowEnabled = e.GetFollowEnabled(context.Settings),
-                        LabelOffsets = e.LabelOffsets,
-                        CommandCollection = e.Commands,
-                        LinkIndex = eventLinkingTable[index]
-                    });
-
-                    index++;
+                    // Add to the designs
+                    eventDesigns.Add(e.ImageDescriptorsPointer, finalDesign);
                 }
+
+                // Add if not found
+                if (e.ETAPointer != null && !eventETA.ContainsKey(e.ETAPointer))
+                    // Add to the ETA
+                    eventETA.Add(e.ETAPointer, e.EventStates);
+
+                // Add the event
+                commonEvents.Add(new Common_EventData
+                {
+                    Type = e.Type,
+                    Etat = e.Etat,
+                    SubEtat = e.SubEtat,
+                    XPosition = e.XPosition,
+                    YPosition = e.YPosition,
+                    DESKey = e.ImageDescriptorsPointer?.ToString() ?? String.Empty,
+                    ETAKey = e.ETAPointer?.ToString() ?? String.Empty,
+                    OffsetBX = e.OffsetBX,
+                    OffsetBY = e.OffsetBY,
+                    OffsetHY = e.OffsetHY,
+                    FollowSprite = e.FollowSprite,
+                    HitPoints = e.Hitpoints,
+                    Layer = e.Layer,
+                    HitSprite = e.HitSprite,
+                    FollowEnabled = e.GetFollowEnabled(context.Settings),
+                    LabelOffsets = e.LabelOffsets,
+                    CommandCollection = e.Commands,
+                    LinkIndex = eventLinkingTable[index]
+                });
+
+                index++;
             }
 
             await Controller.WaitIfNecessary();
