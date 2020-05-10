@@ -1,6 +1,5 @@
 ﻿namespace R1Engine
 {
-    // TODO: Merge with PC_AnimationDescriptor
     /// <summary>
     /// Animation descriptor data for Rayman 1 (PS1)
     /// </summary>
@@ -53,18 +52,8 @@
             FrameCountSerialized = s.Serialize<ushort>(FrameCountSerialized, name: nameof(FrameCountSerialized));
 
             // Serialize data from pointers
-            s.DoAt(AnimLayersPointer, () =>
-            {
-                Layers = s.SerializeObjectArray(Layers, LayersPerFrame * FrameCount, name: nameof(Layers));
-            });
-            s.DoAt(AnimFramesPointer, () =>
-            {
-                Frames = s.SerializeObjectArray(Frames,
-                    (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
-                    ? FrameCount 
-                    : FrameCount + 1,
-                    name: nameof(Frames));
-            });
+            s.DoAt(AnimLayersPointer, () => Layers = s.SerializeObjectArray(Layers, LayersPerFrame * FrameCount, name: nameof(Layers)));
+            s.DoAt(AnimFramesPointer, () => Frames = s.SerializeObjectArray(Frames, FrameCount, name: nameof(Frames)));
         }
     }
 }
