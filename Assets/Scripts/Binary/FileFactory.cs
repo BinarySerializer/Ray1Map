@@ -37,6 +37,18 @@ namespace R1Engine
             return context.Deserializer.SerializeFile<T>(filePath, null, onPreSerialize: (t) => onPreSerialize?.Invoke(context.Deserializer, t), name: filePath);
         }
 
+
+        public static T Read<T>(Pointer offset, Context context, Action<SerializerObject, T> onPreSerialize = null, string name = null)
+            where T : R1Serializable, new() {
+            // Try cached version, to avoid creating the deserializer unless necessary
+            T mainObj = default;
+            // Use deserializer
+            context.Deserializer.DoAt(offset, () => {
+               mainObj = context.Deserializer.SerializeObject<T>(mainObj, onPreSerialize: (t) => onPreSerialize?.Invoke(context.Deserializer, t), name: name);
+            });
+            return mainObj;
+        }
+
         // TODO: Improve this system
         public static T ReadMapper<T>(string filePath, Context context, Action<T> onPreSerialize = null)
             where T : MapperEngineSerializable, new() {

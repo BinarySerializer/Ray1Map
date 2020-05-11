@@ -79,25 +79,146 @@ namespace R1Engine
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
-
-            for (int y = 0; y < tex.height; y++)
-            {
-                for (int x = 0; x < tex.width; x++)
-                {
-                    // TODO: Fix and load palettes
-
-                    var value = e.ImageBuffer[s.ImageBufferOffset + (y * tex.width + x)];
-
-                    if (value == 0)
-                        tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                    else
-                        tex.SetPixel(x, y, new Color(value / 255f, value / 255f, value / 255f));
+            tex.SetPixels(new Color[tex.width * tex.height]);
+            var paletteFile = "Jungle1Palettes.gba";
+            ObjectArray<ARGB1555Color> pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(paletteFile, context, (y, x) => x.Length = y.CurrentLength / 2);
+            var offset = s.ImageBufferOffset;
+            if (offset % 4 != 0) {
+                offset += 4 - (offset % 4);
+            }
+            var curOff = (int)offset;
+            int block_size = 0x20;
+            while (e.ImageBuffer[curOff] != 0xFF) {
+                var structure = e.ImageBuffer[curOff];
+                var blockX = e.ImageBuffer[curOff + 1];
+                var blockY = e.ImageBuffer[curOff + 2];
+                var paletteInd = e.ImageBuffer[curOff + 3];
+                bool doubleScale = (structure & 0x10) != 0;
+                curOff += 4;
+                switch (structure & 0xF) {
+                    case 11:
+                        for (int y = 0; y < 8; y++) {
+                            for (int x = 0; x < 4; x++) {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 10:
+                        for (int y = 0; y < 4; y++) {
+                            for (int x = 0; x < 2; x++) {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 9:
+                        for (int y = 0; y < 4; y++) {
+                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                        }
+                        break;
+                    case 8:
+                        // 2 blocks vertically
+                        for (int y = 0; y < 2; y++) {
+                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                        }
+                        break;
+                    case 7:
+                        for (int y = 0; y < 4; y++) {
+                            for (int x = 0; x < 8; x++) {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 6:
+                        for (int y = 0; y < 2; y++) {
+                            for (int x = 0; x < 4; x++) {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 5:
+                        for (int x = 0; x < 4; x++) {
+                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                        }
+                        //curOff += block_size * 4;
+                        break;
+                    case 4:
+                        // 2 blocks horizontally
+                        for (int x = 0; x < 2; x++) {
+                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                        }
+                        break;
+                    case 2:
+                        for (int y = 0; y < 4; y++) {
+                            for (int x = 0; x < 4; x++) {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 1:
+                        // 4 blocks
+                        for (int y = 0; y < 2; y++) {
+                            for (int x = 0; x < 2; x++) {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 0:
+                        // 1 block
+                        FillSpriteTextureBlock(tex, blockX, blockY, 0,0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                        curOff += block_size;
+                        break;
+                    default:
+                        Controller.print("Didn't recognize command " + structure + " - " + e.ImageBufferPointer_GBA + " - " + curOff + (e.ImageBufferPointer_GBA + offset));
+                        break;
                 }
             }
 
             tex.Apply();
 
             return tex;
+        }
+
+        public void FillSpriteTextureBlock(Texture2D tex,
+            int blockX, int blockY,
+            int relX, int relY,
+            byte[] imageBuffer, int imageBufferOffset,
+            ObjectArray<ARGB1555Color> pal, int paletteInd, bool doubleScale) {
+            for (int y = 0; y < 8; y++) {
+                for (int x = 0; x < 8; x++) {
+                    int actualX = blockX + (doubleScale ? relX * 2 : relX) * 8 + (doubleScale ? x * 2 : x);
+                    int actualY = blockY + (doubleScale ? relY * 2 : relY) * 8 + (doubleScale ? y * 2 : y);
+                    if (actualX < tex.width && actualY < tex.height) {
+                        int off = y * 8 + x;
+                        if (imageBufferOffset + off / 2 > imageBuffer.Length) continue;
+                        int b = imageBuffer[imageBufferOffset + off / 2];
+                        if (off % 2 == 0) {
+                            b = BitHelpers.ExtractBits(b, 4, 0);
+                        } else {
+                            b = BitHelpers.ExtractBits(b, 4, 4);
+                        }
+                        Color c = pal.Value[(16 + paletteInd) * 0x10 + b].GetColor();
+                        if (b != 0) {
+                            c = new Color(c.r, c.g, c.b, 1f);
+                        }
+                        tex.SetPixel(actualX, tex.height - 1 - actualY, c);
+                        if (doubleScale) {
+                            tex.SetPixel(actualX, tex.height - 1 - actualY - 1, c);
+                            tex.SetPixel(actualX + 1, tex.height - 1 - actualY, c);
+                            tex.SetPixel(actualX + 1, tex.height - 1 - actualY - 1, c);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -129,6 +250,10 @@ namespace R1Engine
                 filePath = memoryPath
             };
             context.AddFile(memoryFile);
+            var paletteFile = new GBAMemoryMappedFile(context, 0x05000000) {
+                filePath = "Jungle1Palettes.gba"
+            };
+            context.AddFile(paletteFile);
 
 
             // Deserialize the data
