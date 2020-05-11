@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -58,6 +59,32 @@ namespace R1Engine
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>
         public void AutoApplyPalette(Common_Lev level) {}
+
+        /// <summary>
+        /// Gets the sprite texture for an event
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="e">The event</param>
+        /// <param name="s">The image descriptor to use</param>
+        /// <returns>The texture</returns>
+        public virtual Texture2D GetSpriteTexture(Context context, PC_Event e, Common_ImageDescriptor s)
+        {
+            if (s.Index == 0)
+                return null;
+
+            // Create the texture
+            Texture2D tex = new Texture2D(s.OuterWidth, s.OuterHeight, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            tex.SetPixels(Enumerable.Repeat(Color.green, tex.width * tex.height).ToArray());
+
+            tex.Apply();
+
+            return tex;
+        }
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -128,11 +155,47 @@ namespace R1Engine
             // Load a dummy tile for now
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16*16).ToArray(), 1, 16);
 
+            var eventDesigns = new Dictionary<Pointer, Common_Design>();
+            var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
+
             var index = 0;
 
             // Load the events
             foreach (PC_Event e in events)
             {
+                // Add if not found
+                if (e.ImageDescriptorsPointer_GBA != null && !eventDesigns.ContainsKey(e.ImageDescriptorsPointer_GBA))
+                {
+                    Common_Design finalDesign = new Common_Design
+                    {
+                        Sprites = new List<Sprite>(),
+                        Animations = new List<Common_Animation>(),
+                        FilePath = e.ImageDescriptorsPointer_GBA.file.filePath
+                    };
+
+                    // Get every sprite
+                    foreach (Common_ImageDescriptor i in e.ImageDescriptors)
+                    {
+                        // Get the texture for the sprite, or null if not loading textures
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
+
+                        // Add it to the array
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    }
+
+                    // TODO: Clean this up - maybe inherit from the PS1 manager?
+                    // Add animations
+                    finalDesign.Animations.AddRange(e.AnimDescriptors.Select(x => new PS1_R1_Manager().GetCommonAnimation(x)));
+
+                    // Add to the designs
+                    eventDesigns.Add(e.ImageDescriptorsPointer_GBA, finalDesign);
+                }
+
+                // Add if not found
+                if (e.ETAPointer_GBA != null && !eventETA.ContainsKey(e.ETAPointer_GBA))
+                    // Add to the ETA
+                    eventETA.Add(e.ETAPointer_GBA, e.ETA_GBA);
+
                 // Add the event
                 commonLev.EventData.Add(new Common_EventData
                 {
@@ -141,11 +204,8 @@ namespace R1Engine
                     SubEtat = e.SubEtat,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
-
-                    // TODO: Fix once we load sprites and ETA
-                    DESKey = "N/A",
-                    ETAKey = "N/A",
-
+                    DESKey = e.ImageDescriptorsPointer_GBA?.ToString() ?? String.Empty,
+                    ETAKey = e.ETAPointer_GBA?.ToString() ?? String.Empty,
                     OffsetBX = e.OffsetBX,
                     OffsetBY = e.OffsetBY,
                     OffsetHY = e.OffsetHY,
@@ -184,7 +244,7 @@ namespace R1Engine
                 }
             }
 
-            return new GBA_R1_EditorManager(commonLev, context);
+            return new PS1EditorManager(commonLev, context, eventDesigns, eventETA);
         }
 
         /// <summary>

@@ -31,7 +31,9 @@ namespace R1Engine
 
         public PS1_R1_AnimationDescriptor[] AnimDescriptors { get; set; }
 
-        public Common_EventState CurrentState_GBA { get; set; }
+        public byte[] ImageBuffer { get; set; }
+
+        public Common_EventState[][] ETA_GBA { get; set; }
 
         /// <summary>
         /// The event commands
@@ -279,13 +281,31 @@ namespace R1Engine
 
                 // TODO: Parse the ETA fully - sadly it's structured differently from PS1 even though it uses pointers the same way
                 // Serialize the current state
-                s.DoAt(ETAPointer_GBA + (Etat * 4), () => s.DoAt(s.SerializePointer(null, name: "ETASubEtatPointer") + (SubEtat * 8), () => CurrentState_GBA = s.SerializeObject<Common_EventState>(CurrentState_GBA, name: nameof(CurrentState_GBA))));
+                s.DoAt(ETAPointer_GBA, () =>
+                {
+                    if (ETA_GBA == null)
+                        ETA_GBA = new Common_EventState[Etat + 1][];
+
+                    // TODO: Clean up
+                    for (int i = 0; i < ETA_GBA.Length; i++)
+                    {
+                        var pointer = s.SerializePointer(null, name: $"EtatPointer {i}");
+
+                        s.DoAt(pointer, () =>
+                        {
+                            ETA_GBA[i] = s.SerializeObjectArray<Common_EventState>(ETA_GBA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
+                        });
+                    }
+                });
 
                 // TODO: Parse the array fully - sadly we don't know the length unlike on PS1 :/
-                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, CurrentState_GBA.AnimationIndex == 0 ? 1 : CurrentState_GBA.AnimationIndex, name: nameof(AnimDescriptors)));
+                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, ETA_GBA[Etat][SubEtat].AnimationIndex == 0 ? 1 : ETA_GBA[Etat][SubEtat].AnimationIndex, name: nameof(AnimDescriptors)));
 
                 // TODO: Parse the array fully - sadly we don't know the length unlike on PS1 :/
                 s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, AnimDescriptors.SelectMany(x => x.Layers).Select(x => x.ImageIndex).Max() - 1, name: nameof(ImageDescriptors)));
+
+                // TODO: Decompress the buffer and get the correct size
+                s.DoAt(ImageBufferPointer_GBA, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageDescriptors.Select(x => x.OuterWidth * x.OuterHeight).Sum(), name: nameof(ImageBuffer)));
 
                 // Serialize the commands
                 if (CommandsPointer_GBA != null)
