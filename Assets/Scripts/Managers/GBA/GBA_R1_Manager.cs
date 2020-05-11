@@ -1,6 +1,7 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -150,6 +151,11 @@ namespace R1Engine
             // Doesn't seem correct
             s.DoAt(new Pointer(0x0202BB00, memoryFile), () => linkTable = s.SerializeArray<ushort>(linkTable, eventCount, name: nameof(linkTable)));
 
+            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_00.txt", levels.Select(x => x.Pointer_00));
+            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_04.txt", levels.Select(x => x.Pointer_04));
+            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_08.txt", levels.Select(x => x.Pointer_08));
+            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_0B.txt", levels.Select(x => x.Pointer_0B));
+            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\WorldPointer.txt", levels.Select(x => x.WorldPointer));
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev 

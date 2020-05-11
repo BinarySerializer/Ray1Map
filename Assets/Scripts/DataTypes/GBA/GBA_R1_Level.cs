@@ -5,14 +5,16 @@
     /// </summary>
     public class GBA_R1_Level : R1Serializable
     {
+        // Leads to a data structure where byte 5 and 7 are the map width and height - maybe after that is the compressed map?
         public Pointer Pointer_00 { get; set; }
+
         public Pointer Pointer_04 { get; set; }
         public Pointer Pointer_08 { get; set; }
         public Pointer Pointer_0B { get; set; }
 
         public byte[] Unk_10 { get; set; }
 
-        // Some world-specific info (tiles, palettes?)
+        // Some world-specific info - appears to be tiles?
         public Pointer WorldPointer { get; set; }
 
         /// <summary>

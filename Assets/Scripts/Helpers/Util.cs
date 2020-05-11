@@ -44,6 +44,22 @@ namespace R1Engine {
 			return newPath;
 		}
 
+		// For debugging
+		public static void ExportPointerArray(SerializerObject s, string path, IEnumerable<Pointer> pointers)
+        {
+            var p1 = pointers.Where(x => x != null).Distinct().OrderBy(x => x.AbsoluteOffset).ToArray();
+            var output = new List<string>();
+
+            for (int i = 0; i < p1.Length - 1; i++)
+            {
+                var length = p1[i + 1] - p1[i];
+
+                s.DoAt(p1[i], () => output.Add(String.Join(" ", s.SerializeArray<byte>(null, length).Select(x => x.ToString("X2")))));
+            }
+
+            File.WriteAllLines(path, output);
+        }
+
 		/// <summary>
 		/// Convert a byte array to a hex string
 		/// </summary>
