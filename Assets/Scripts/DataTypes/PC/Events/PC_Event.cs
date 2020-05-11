@@ -297,16 +297,16 @@ namespace R1Engine
 
                         s.DoAt(pointer, () =>
                         {
-                            ETA_GBA[i] = s.SerializeObjectArray<Common_EventState>(ETA_GBA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
+                            ETA_GBA[i] = s.SerializeObjectArray<Common_EventState>(ETA_GBA[i], i == Etat ? SubEtat + 5 : 1, name: $"ETA_GBA[{i}]");
                         });
                     }
                 });
 
                 // TODO: Parse the array fully - sadly we don't know the length unlike on PS1 :/
-                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, ETA_GBA[Etat][SubEtat].AnimationIndex == 0 ? 1 : ETA_GBA[Etat][SubEtat].AnimationIndex, name: nameof(AnimDescriptors)));
+                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, ETA_GBA.SelectMany(x => x.Select(y => y.AnimationIndex)).Max() + 1, name: nameof(AnimDescriptors)));
 
                 // TODO: Parse the array fully - sadly we don't know the length unlike on PS1 :/
-                s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, AnimDescriptors.SelectMany(x => x.Layers).Select(x => x.ImageIndex).Max() - 1, name: nameof(ImageDescriptors)));
+                s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, AnimDescriptors.SelectMany(x => x.Layers).Select(x => x.ImageIndex).Max() + 1, name: nameof(ImageDescriptors)));
 
                 // TODO: Get the correct size
                 s.DoAt(ImageBufferPointer_GBA, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageDescriptors.Select(x => x.OuterWidth * x.OuterHeight).Sum(), name: nameof(ImageBuffer)));
