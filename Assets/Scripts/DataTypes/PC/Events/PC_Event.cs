@@ -308,7 +308,7 @@ namespace R1Engine
                 // TODO: Parse the array fully - sadly we don't know the length unlike on PS1 :/
                 s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, AnimDescriptors.SelectMany(x => x.Layers).Select(x => x.ImageIndex).Max() - 1, name: nameof(ImageDescriptors)));
 
-                // TODO: Decompress the buffer and get the correct size
+                // TODO: Get the correct size
                 s.DoAt(ImageBufferPointer_GBA, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageDescriptors.Select(x => x.OuterWidth * x.OuterHeight).Sum(), name: nameof(ImageBuffer)));
 
                 // Serialize the commands

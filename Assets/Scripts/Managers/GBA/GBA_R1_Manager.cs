@@ -1,7 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -229,58 +228,29 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            // TODO: Parse the ROM - find out where the compressed data is stored and how it's compressed
-
             // Load the rom
-            var romPath = "ROM.gba";
+            var romFile = await LoadExtraFile(context, "ROM.gba", 0x08000000);
 
-            // Load the rom starting from the rom address
-            var romFile = new GBAMemoryMappedFile(context, 0x08000000)
-            {
-                filePath = romPath
-            };
-            context.AddFile(romFile);
+            // TODO: Parse data directly from ROM
+            // Load the memory file for the current level (the WRAM section)
+            var memoryFile = await LoadExtraFile(context, "Jungle2.gba", 0x02000000);
 
-            // For now we're reading memory dump files from the WRAM section
-            var memoryPath = "Jungle2.gba";
+            // Load the palette file for the current level
+            var paletteFile = await LoadExtraFile(context, "Jungle1Palettes.gba", 0x05000000);
 
-            // Load the file starting from the WRAM address
-            var memoryFile = new GBAMemoryMappedFile(context, 0x02000000)
-            {
-                filePath = memoryPath
-            };
-            context.AddFile(memoryFile);
-            var paletteFile = new GBAMemoryMappedFile(context, 0x05000000) {
-                filePath = "Jungle1Palettes.gba"
-            };
-            context.AddFile(paletteFile);
+            uint eventCount = 146;
+            uint levelCount = 22 + 18 + 13 + 13 + 12 + 4 + 6;
 
-
-            // Deserialize the data
-            var s = context.Deserializer;
-
-            GBA_R1_Level[] levels = null;
-            GBA_R1_Map map = null;
-            PC_Event[] events = null;
-            ushort[] linkTable = null;
-
-            var eventCount = 146;
-
-            // Parse rom
-            s.DoAt(new Pointer(0x085485B4, romFile), () => levels = s.SerializeObjectArray<GBA_R1_Level>(levels, 22+18+13+13+12+4+6, name: nameof(levels)));
+            // Read data from the ROM
+            GBA_R1_Level[] levels = FileFactory.Read<ObjectArray<GBA_R1_Level>>(new Pointer(0x085485B4, romFile), context, (ss, o) => o.Length = levelCount, name: $"Levels").Value;
+            GBA_R1_UnkStruct[] unkStruct = FileFactory.Read<ObjectArray<GBA_R1_UnkStruct>>(new Pointer(0x086D4D60, romFile), context, (ss, o) => o.Length = 48, name: $"UnkStruct").Value;
 
             // Parse memory files
-            s.DoAt(new Pointer(0x02002230, memoryFile), () => map = s.SerializeObject<GBA_R1_Map>(map, name: nameof(map)));
-            s.DoAt(new Pointer(0x020226B0, memoryFile), () => events = s.SerializeObjectArray<PC_Event>(events, eventCount, name: nameof(map)));
+            GBA_R1_Map map = FileFactory.Read<GBA_R1_Map>(new Pointer(0x02002230, memoryFile), context, name: $"Map");
+            PC_Event[] events = FileFactory.Read<ObjectArray<PC_Event>>(new Pointer(0x020226B0, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"Events").Value;
 
             // Doesn't seem correct
-            s.DoAt(new Pointer(0x0202BB00, memoryFile), () => linkTable = s.SerializeArray<ushort>(linkTable, eventCount, name: nameof(linkTable)));
-
-            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_00.txt", levels.Select(x => x.Pointer_00));
-            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_04.txt", levels.Select(x => x.Pointer_04));
-            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_08.txt", levels.Select(x => x.Pointer_08));
-            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\Pointer_0B.txt", levels.Select(x => x.Pointer_0B));
-            //Util.ExportPointerArray(s, @"C:\Users\RayCarrot\Downloads\WorldPointer.txt", levels.Select(x => x.WorldPointer));
+            ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202BB00, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev 
@@ -406,7 +376,24 @@ namespace R1Engine
         /// <param name="commonLevelData">The common level data</param>
         public void SaveLevel(Context context, Common_Lev commonLevelData) => throw new NotImplementedException();
 
+        /// <summary>
+        /// Preloads all the necessary files into the context
+        /// </summary>
+        /// <param name="context">The serialization context</param>
         public virtual Task LoadFilesAsync(Context context) => Task.CompletedTask;
+
+        public virtual async Task<GBAMemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
+        {
+            await FileSystem.PrepareFile(context.BasePath + path);
+
+            var file = new GBAMemoryMappedFile(context, baseAddress)
+            {
+                filePath = path,
+            };
+            context.AddFile(file);
+
+            return file;
+        }
 
         #endregion
     }
