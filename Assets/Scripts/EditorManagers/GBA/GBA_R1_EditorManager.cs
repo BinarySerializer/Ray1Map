@@ -9,7 +9,7 @@ namespace R1Engine
         public GBA_R1_EditorManager(Common_Lev level, Context context) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(new Dictionary<string, Common_Design>()), new ReadOnlyDictionary<string, Common_EventState[][]>(new Dictionary<string, Common_EventState[][]>()))
         { }
 
-        protected override bool UsesLocalCommands => false;
+        protected override bool UsesLocalCommands => true;
 
         public override string GetDesKey(GeneralEventInfoData eventInfoData) => null;
 

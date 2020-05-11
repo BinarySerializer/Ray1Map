@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event data for PC
@@ -7,10 +9,34 @@
     {
         #region GBA
 
+        public Pointer ImageDescriptorsPointer_GBA { get; set; }
+        public Pointer AnimDescriptorsPointer_GBA { get; set; }
+
+        // Compressed?
+        public Pointer ImageBufferPointer_GBA { get; set; }
+        
+        public Pointer ETAPointer_GBA { get; set; }
+        public Pointer CommandsPointer_GBA { get; set; }
+
         public byte[] GBAUnk1 { get; set; }
         public byte[] GBAUnk2 { get; set; }
         public ushort GBA_XPosition2 { get; set; }
         public ushort GBA_YPosition2 { get; set; }
+
+        #endregion
+
+        #region GBA Parsed Data
+
+        public Common_ImageDescriptor[] ImageDescriptors { get; set; }
+
+        public PS1_R1_AnimationDescriptor[] AnimDescriptors { get; set; }
+
+        public Common_EventState CurrentState_GBA { get; set; }
+
+        /// <summary>
+        /// The event commands
+        /// </summary>
+        public Common_EventCommandCollection Commands_GBA { get; set; }
 
         #endregion
 
@@ -136,6 +162,8 @@
 
         public ushort Unk_130 { get; set; }
 
+        public ushort Unk_132_GBA { get; set; }
+
         /// <summary>
         /// Serializes the data
         /// </summary>
@@ -144,7 +172,13 @@
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
             {
-                GBAUnk1 = s.SerializeArray<byte>(GBAUnk1, 32, name: nameof(GBAUnk1));
+                ImageDescriptorsPointer_GBA = s.SerializePointer(ImageDescriptorsPointer_GBA, name: nameof(ImageDescriptorsPointer_GBA));
+                AnimDescriptorsPointer_GBA = s.SerializePointer(AnimDescriptorsPointer_GBA, name: nameof(AnimDescriptorsPointer_GBA));
+                ImageBufferPointer_GBA = s.SerializePointer(ImageBufferPointer_GBA, name: nameof(ImageBufferPointer_GBA));
+                ETAPointer_GBA = s.SerializePointer(ETAPointer_GBA, name: nameof(ETAPointer_GBA));
+                CommandsPointer_GBA = s.SerializePointer(CommandsPointer_GBA, name: nameof(CommandsPointer_GBA));
+
+                GBAUnk1 = s.SerializeArray<byte>(GBAUnk1, 10, name: nameof(GBAUnk1));
 
                 XPosition = s.Serialize<ushort>((ushort)XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<ushort>((ushort)YPosition, name: nameof(YPosition));
@@ -236,6 +270,27 @@
             Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
 
             Unk_130 = s.Serialize<ushort>(Unk_130, name: nameof(Unk_130));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
+            {
+                Unk_132_GBA = s.Serialize<ushort>(Unk_132_GBA, name: nameof(Unk_132_GBA));
+
+                // Serialize data from pointers
+
+                // TODO: Parse the ETA fully - sadly it's structured differently from PS1 even though it uses pointers the same way
+                // Serialize the current state
+                s.DoAt(ETAPointer_GBA + (Etat * 4), () => s.DoAt(s.SerializePointer(null, name: "ETASubEtatPointer") + (SubEtat * 8), () => CurrentState_GBA = s.SerializeObject<Common_EventState>(CurrentState_GBA, name: nameof(CurrentState_GBA))));
+
+                // TODO: Parse the array fully - sadly we don't know the length unlike on PS1 :/
+                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, CurrentState_GBA.AnimationIndex == 0 ? 1 : CurrentState_GBA.AnimationIndex, name: nameof(AnimDescriptors)));
+
+                // TODO: Parse the array fully - sadly we don't know the length unlike on PS1 :/
+                s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, AnimDescriptors.SelectMany(x => x.Layers).Select(x => x.ImageIndex).Max() - 1, name: nameof(ImageDescriptors)));
+
+                // Serialize the commands
+                if (CommandsPointer_GBA != null)
+                    s.DoAt(CommandsPointer_GBA, () => Commands_GBA = s.SerializeObject<Common_EventCommandCollection>(Commands_GBA, name: nameof(Commands_GBA)));
+            }
         }
     }
 }

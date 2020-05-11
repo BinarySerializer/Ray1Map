@@ -69,24 +69,38 @@ namespace R1Engine
         {
             // TODO: Parse the ROM - find out where the compressed data is stored and how it's compressed
 
+            // Load the rom
+            var romPath = "ROM.gba";
+
+            // Load the rom starting from the rom address
+            var romFile = new GBAMemoryMappedFile(context, 0x08000000)
+            {
+                filePath = romPath
+            };
+            context.AddFile(romFile);
+
             // For now we're reading memory dump files from the WRAM section
-            var path = "Jungle1.gba";
+            var memoryPath = "Jungle2.gba";
 
             // Load the file starting from the WRAM address
-            var file = new MemoryMappedFile(context, 0x02000000)
+            var memoryFile = new GBAMemoryMappedFile(context, 0x02000000)
             {
-                filePath = path
+                filePath = memoryPath
             };
-            context.AddFile(file);
+            context.AddFile(memoryFile);
 
             // Deserialize the data
             var s = context.Deserializer;
 
             GBA_R1_Map map = null;
             PC_Event[] events = null;
+            ushort[] linkTable = null;
 
-            s.DoAt(new Pointer(0x02002230, file), () => map = s.SerializeObject<GBA_R1_Map>(map, name: nameof(map)));
-            s.DoAt(new Pointer(0x020226AE, file), () => events = s.SerializeObjectArray<PC_Event>(events, 72, name: nameof(map)));
+            var eventCount = 146;
+
+            s.DoAt(new Pointer(0x02002230, memoryFile), () => map = s.SerializeObject<GBA_R1_Map>(map, name: nameof(map)));
+            s.DoAt(new Pointer(0x020226B0, memoryFile), () => events = s.SerializeObjectArray<PC_Event>(events, eventCount, name: nameof(map)));
+            s.DoAt(new Pointer(0x0202BB00, memoryFile), () => linkTable = s.SerializeArray<ushort>(linkTable, eventCount, name: nameof(linkTable)));
 
 
             // Convert levelData to common level format
@@ -140,13 +154,8 @@ namespace R1Engine
                     Layer = e.Layer,
                     HitSprite = e.HitSprite,
                     FollowEnabled = e.FollowEnabled,
-
-                    // TODO: Parse this data
-                    //LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
-                    //CommandCollection = levelData.EventCommands[index].Commands,
-                    
-                    // TODO: Parse this data
-                    LinkIndex = index
+                    CommandCollection = e.Commands_GBA,
+                    LinkIndex = linkTable[index]
                 });
 
                 index++;
