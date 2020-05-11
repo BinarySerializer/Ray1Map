@@ -287,8 +287,6 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
             Controller.status = $"Loading sprite data";
 
-            var globalDESKey = lvlData.FixImageDescriptorsPointer;
-
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
             var commonEvents = new List<Common_EventData>();
             var eventDES = new Dictionary<Pointer, Common_Design>();
