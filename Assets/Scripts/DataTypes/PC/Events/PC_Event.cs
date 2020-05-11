@@ -297,7 +297,7 @@ namespace R1Engine
 
                         s.DoAt(pointer, () =>
                         {
-                            ETA_GBA[i] = s.SerializeObjectArray<Common_EventState>(ETA_GBA[i], i == Etat ? SubEtat + 5 : 1, name: $"ETA_GBA[{i}]");
+                            ETA_GBA[i] = s.SerializeObjectArray<Common_EventState>(ETA_GBA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
                         });
                     }
                 });
