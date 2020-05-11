@@ -142,7 +142,7 @@ namespace R1Engine
             var eventCount = 146;
 
             // Parse rom
-            s.DoAt(new Pointer(0x085485B8, romFile), () => levels = s.SerializeObjectArray<GBA_R1_Level>(levels, 21+18+13+13+12+4+6, name: nameof(levels)));
+            s.DoAt(new Pointer(0x085485B4, romFile), () => levels = s.SerializeObjectArray<GBA_R1_Level>(levels, 22+18+13+13+12+4+6, name: nameof(levels)));
 
             // Parse memory files
             s.DoAt(new Pointer(0x02002230, memoryFile), () => map = s.SerializeObject<GBA_R1_Map>(map, name: nameof(map)));
