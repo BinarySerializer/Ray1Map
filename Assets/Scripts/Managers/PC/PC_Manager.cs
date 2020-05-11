@@ -1586,7 +1586,8 @@ namespace R1Engine
                     FollowEnabled = e.FollowEnabled,
                     LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
                     CommandCollection = levelData.EventCommands[index].Commands,
-                    LinkIndex = levelData.EventLinkingTable[index]
+                    LinkIndex = levelData.EventLinkingTable[index],
+                    DebugText = $"Flags: {String.Join(", ", e.Flags.GetFlags())}{Environment.NewLine}"
                 });
 
                 index++;

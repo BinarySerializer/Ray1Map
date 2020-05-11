@@ -13,6 +13,8 @@
 
         public Pointer Pointer_08 { get; set; }
         public Pointer Pointer_0B { get; set; }
+
+        // World-specific
         public Pointer Pointer_10 { get; set; }
 
         public byte[] Unk_10 { get; set; }

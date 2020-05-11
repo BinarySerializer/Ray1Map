@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -146,20 +147,23 @@ namespace R1Engine
         public byte Unk_128 { get; set; }
 
         /// /// <summary>
-        /// Flags of the event.
-        /// Flags & (1 << 2) = switched on
-        /// Flags & (1 << 3) = "detect zone flag"? I think it might be the flip flag for some enemies
-        /// Flags & (1 << 5) = follow enabled (indicates if the event has collision
-        /// Flags & (1 << 8) = execute commands
+        /// The event flags
         /// </summary>
-        public byte Flags { get; set; }
+        public PC_EventFlags Flags { get; set; }
 
         /// <summary>
         /// Indicates if the event has collision
         /// </summary>
-        public bool FollowEnabled {
-            get => BitHelpers.ExtractBits(Flags, 1, 5) == 1;
-            set => Flags = (byte)BitHelpers.SetBits(Flags, value ? 1 : 0, 1, 5);
+        public bool FollowEnabled
+        {
+            get => Flags.HasFlag(PC_EventFlags.FollowEnabled);
+            set
+            {
+                if (value)
+                    Flags |= PC_EventFlags.FollowEnabled;
+                else
+                    Flags &= ~PC_EventFlags.FollowEnabled;
+            }
         }
 
         public ushort Unk_130 { get; set; }
@@ -269,7 +273,7 @@ namespace R1Engine
 
             Unk_128 = s.Serialize<byte>(Unk_128, name: nameof(Unk_128));
 
-            Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+            Flags = s.Serialize<PC_EventFlags>(Flags, name: nameof(Flags));
 
             Unk_130 = s.Serialize<ushort>(Unk_130, name: nameof(Unk_130));
 
@@ -311,6 +315,29 @@ namespace R1Engine
                 if (CommandsPointer_GBA != null)
                     s.DoAt(CommandsPointer_GBA, () => Commands_GBA = s.SerializeObject<Common_EventCommandCollection>(Commands_GBA, name: nameof(Commands_GBA)));
             }
+        }
+
+        /// <summary>
+        /// Flags for <see cref="PC_Event"/>
+        /// </summary>
+        [Flags]
+        public enum PC_EventFlags : byte
+        {
+            None = 0,
+            UnkFlag_0 = 1 << 0,
+            UnkFlag_1 = 1 << 1,
+            SwitchedOn = 1 << 2,
+
+            // Flip flag? Detection (like for hunter?)
+            DetectZone = 1 << 3,
+            ExecuteCommands = 1 << 4,
+            
+            /// <summary>
+            /// Indicates if the event has collision
+            /// </summary>
+            FollowEnabled = 1 << 5,
+            UnkFlag_6 = 1 << 6,
+            UnkFlag_7 = 1 << 7,
         }
     }
 }
