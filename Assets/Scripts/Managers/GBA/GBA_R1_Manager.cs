@@ -79,7 +79,20 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
 
-            tex.SetPixels(Enumerable.Repeat(Color.green, tex.width * tex.height).ToArray());
+            for (int y = 0; y < tex.height; y++)
+            {
+                for (int x = 0; x < tex.width; x++)
+                {
+                    // TODO: Fix and load palettes
+
+                    var value = e.ImageBuffer[s.ImageBufferOffset + (y * tex.width + x)];
+
+                    if (value == 0)
+                        tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                    else
+                        tex.SetPixel(x, y, new Color(value / 255f, value / 255f, value / 255f));
+                }
+            }
 
             tex.Apply();
 
@@ -116,17 +129,25 @@ namespace R1Engine
             };
             context.AddFile(memoryFile);
 
+
             // Deserialize the data
             var s = context.Deserializer;
 
+            GBA_R1_Level[] levels = null;
             GBA_R1_Map map = null;
             PC_Event[] events = null;
             ushort[] linkTable = null;
 
             var eventCount = 146;
 
+            // Parse rom
+            s.DoAt(new Pointer(0x085485B8, romFile), () => levels = s.SerializeObjectArray<GBA_R1_Level>(levels, 21+18+13+13+12+4+6, name: nameof(levels)));
+
+            // Parse memory files
             s.DoAt(new Pointer(0x02002230, memoryFile), () => map = s.SerializeObject<GBA_R1_Map>(map, name: nameof(map)));
             s.DoAt(new Pointer(0x020226B0, memoryFile), () => events = s.SerializeObjectArray<PC_Event>(events, eventCount, name: nameof(map)));
+
+            // Doesn't seem correct
             s.DoAt(new Pointer(0x0202BB00, memoryFile), () => linkTable = s.SerializeArray<ushort>(linkTable, eventCount, name: nameof(linkTable)));
 
 
