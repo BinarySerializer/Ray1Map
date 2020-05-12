@@ -470,20 +470,11 @@ namespace R1Engine
                     // Get every sprite
                     foreach (Common_ImageDescriptor i in e.ImageDescriptors)
                     {
-                        // TODO: Remove try/catch
-                        try
-                        {
-                            // Get the texture for the sprite, or null if not loading textures
-                            Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
+                        // Get the texture for the sprite, or null if not loading textures
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
 
-                            // Add it to the array
-                            finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                        }
-                        catch (Exception ex)
-                        {
-                            finalDesign.Sprites.Add(null);
-                            Debug.LogError($"{ex.Message}");
-                        }
+                        // Add it to the array
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                     }
 
                     // TODO: Clean this up - maybe inherit from the PS1 manager?
@@ -505,19 +496,11 @@ namespace R1Engine
                     {
                         foreach (var i in e.ImageDescriptors.Skip(current.Sprites.Count))
                         {
-                            try
-                            {
-                                // Get the texture for the sprite, or null if not loading textures
-                                Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
+                            // Get the texture for the sprite, or null if not loading textures
+                            Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
 
-                                // Add it to the array
-                                current.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                            }
-                            catch (Exception ex)
-                            {
-                                current.Sprites.Add(null);
-                                Debug.LogError($"{ex.Message}");
-                            }
+                            // Add it to the array
+                            current.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                         }
                     }
                 }
