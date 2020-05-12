@@ -60,6 +60,40 @@ namespace R1Engine
         /// <param name="level">The level to auto-apply the palette to</param>
         public void AutoApplyPalette(Common_Lev level) {}
 
+
+
+        /// <summary>
+        /// Gets the tile set to use
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The tile set to use</returns>
+        public Common_Tileset GetTileSet(Context context, Pointer offset, uint length) {
+            // Read the files
+            Array<byte> tiles = FileFactory.Read<Array<byte>>(offset, context, (s, a) => a.Length = length);
+
+
+            // Get the tile-set texture
+            var tex = new Texture2D(128, Mathf.CeilToInt(length / 8 / 128) * 8 * 2) {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            //tex.SetPixels(new Color[tex.width * tex.height]);
+            var paletteFile = "Jungle1Palettes.gba";
+            ObjectArray<ARGB1555Color> pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(paletteFile, context, (y, x) => x.Length = y.CurrentLength / 2);
+            var curOff = 0;
+            int block_size = 0x20;
+            for (int y = 0; y < tex.height / 8 / 2; y++) {
+                for (int x = 0; x < 128 / 8 / 2; x++) {
+                    FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, pal, -16, true, reverseHeight: false);
+                    curOff += block_size;
+                }
+            }
+
+            tex.Apply();
+
+            return new Common_Tileset(tex, CellSize);
+        }
+
         /// <summary>
         /// Gets the sprite texture for an event
         /// </summary>
@@ -191,7 +225,7 @@ namespace R1Engine
             int blockX, int blockY,
             int relX, int relY,
             byte[] imageBuffer, int imageBufferOffset,
-            ObjectArray<ARGB1555Color> pal, int paletteInd, bool doubleScale) {
+            ObjectArray<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true) {
             for (int y = 0; y < 8; y++) {
                 for (int x = 0; x < 8; x++) {
                     int actualX = blockX + (doubleScale ? relX * 2 : relX) * 8 + (doubleScale ? x * 2 : x);
@@ -209,11 +243,20 @@ namespace R1Engine
                         if (b != 0) {
                             c = new Color(c.r, c.g, c.b, 1f);
                         }
-                        tex.SetPixel(actualX, tex.height - 1 - actualY, c);
-                        if (doubleScale) {
-                            tex.SetPixel(actualX, tex.height - 1 - actualY - 1, c);
-                            tex.SetPixel(actualX + 1, tex.height - 1 - actualY, c);
-                            tex.SetPixel(actualX + 1, tex.height - 1 - actualY - 1, c);
+                        if (reverseHeight) {
+                            tex.SetPixel(actualX, tex.height - 1 - actualY, c);
+                            if (doubleScale) {
+                                tex.SetPixel(actualX, tex.height - 1 - actualY - 1, c);
+                                tex.SetPixel(actualX + 1, tex.height - 1 - actualY, c);
+                                tex.SetPixel(actualX + 1, tex.height - 1 - actualY - 1, c);
+                            }
+                        } else {
+                            tex.SetPixel(actualX, actualY, c);
+                            if (doubleScale) {
+                                tex.SetPixel(actualX, actualY + 1, c);
+                                tex.SetPixel(actualX + 1, actualY, c);
+                                tex.SetPixel(actualX + 1, actualY + 1, c);
+                            }
                         }
                     }
                 }
@@ -248,6 +291,11 @@ namespace R1Engine
             // Parse memory files
             GBA_R1_Map map = FileFactory.Read<GBA_R1_Map>(new Pointer(0x02002230, memoryFile), context, name: $"Map");
             PC_Event[] events = FileFactory.Read<ObjectArray<PC_Event>>(new Pointer(0x020226B0, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"Events").Value;
+            int maxTileInd = 0;
+            foreach (GBA_R1_MapTile t in map.Tiles) {
+                if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;
+            }
+            Common_Tileset tileset = GetTileSet(context, levels[1].WorldPointer, 0x261c0);
 
             // Doesn't seem correct
             ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202BB00, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
@@ -275,7 +323,8 @@ namespace R1Engine
             };
 
             // Load a dummy tile for now
-            commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16*16).ToArray(), 1, 16);
+            //commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16*16).ToArray(), 1, 16);
+            commonLev.Maps[0].TileSet[0] = tileset;
 
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
@@ -366,7 +415,7 @@ namespace R1Engine
                     commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile() 
                     {
                         // TODO: Fix once we load tile graphics
-                        //TileSetGraphicIndex = textureIndex,
+                        TileSetGraphicIndex = cell.TileIndex,
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,
                         XPosition = cellX,

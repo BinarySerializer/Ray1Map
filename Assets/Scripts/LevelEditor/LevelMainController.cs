@@ -137,8 +137,8 @@ namespace R1Engine
                     var tile = tileSet.Tiles[i].sprite;
 
                     // Get the texture offsets
-                    var offsetY = (int)Math.Floor(i / (double)tileSetWidth) * tileSize;
-                    var offsetX = (i - (offsetY)) * tileSize;
+                    var offsetY = (i / tileSetWidth) * tileSize;
+                    var offsetX = (i % tileSetWidth) * tileSize;
 
                     // Set the pixels
                     for (int y = 0; y < tile.rect.height; y++)
