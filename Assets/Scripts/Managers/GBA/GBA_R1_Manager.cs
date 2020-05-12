@@ -137,6 +137,7 @@ namespace R1Engine
         // TODO: Change these based on versions (EU/US/Beta)
         public virtual uint GetLevelArrayAddress => 0x085485B4;
         public virtual uint GetUnkStructArrayAddress => 0x086D4D60;
+        public virtual uint GetSpritePaletteAddress => 0x08548F56;
 
         /// <summary>
         /// Gets the global level index from the world and level
@@ -186,7 +187,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public Common_Tileset GetTileSet(Context context, Pointer offset, uint length) {
+        public Common_Tileset GetTileSet(Context context, Pointer offset, uint length, IList<ARGB1555Color> pal) {
             // Read the files
             Array<byte> tiles = FileFactory.Read<Array<byte>>(offset, context, (s, a) => a.Length = length);
 
@@ -197,13 +198,14 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
             //tex.SetPixels(new Color[tex.width * tex.height]);
-            var paletteFile = "Jungle1Palettes.gba";
-            ObjectArray<ARGB1555Color> pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(paletteFile, context, (y, x) => x.Length = y.CurrentLength / 2);
+
             var curOff = 0;
             int block_size = 0x20;
             for (int y = 0; y < tex.height / 8 / 2; y++) {
                 for (int x = 0; x < 128 / 8 / 2; x++) {
-                    FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, pal, -16, true, reverseHeight: false);
+                    FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, pal, 
+                        // TODO: Get correct palette index
+                        0, true, reverseHeight: false);
                     curOff += block_size;
                 }
             }
@@ -232,8 +234,8 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
             tex.SetPixels(new Color[tex.width * tex.height]);
-            var paletteFile = "Jungle1Palettes.gba";
-            ObjectArray<ARGB1555Color> pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(paletteFile, context, (y, x) => x.Length = y.CurrentLength / 2);
+
+            var pal = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context).SpritePalettes;
             var offset = s.ImageBufferOffset;
             if (offset % 4 != 0) {
                 offset += 4 - (offset % 4);
@@ -344,7 +346,7 @@ namespace R1Engine
             int blockX, int blockY,
             int relX, int relY,
             byte[] imageBuffer, int imageBufferOffset,
-            ObjectArray<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true) {
+            IList<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true) {
             for (int y = 0; y < 8; y++) {
                 for (int x = 0; x < 8; x++) {
                     int actualX = blockX + (doubleScale ? relX * 2 : relX) * 8 + (doubleScale ? x * 2 : x);
@@ -358,7 +360,7 @@ namespace R1Engine
                         } else {
                             b = BitHelpers.ExtractBits(b, 4, 4);
                         }
-                        Color c = pal.Value[(16 + paletteInd) * 0x10 + b].GetColor();
+                        Color c = pal[paletteInd * 0x10 + b].GetColor();
                         if (b != 0) {
                             c = new Color(c.r, c.g, c.b, 1f);
                         }
@@ -394,35 +396,30 @@ namespace R1Engine
             int globalLevelIndex = GetGlobalLevelIndex(context.Settings.World, context.Settings.Level);
 
             // Load the rom
-            var romFile = await LoadExtraFile(context, GetROMFilePath, 0x08000000);
+            await LoadExtraFile(context, GetROMFilePath, 0x08000000);
 
             // TODO: Parse data directly from ROM
             // Load the memory file for the current level (the WRAM section)
             var memoryFile = await LoadExtraFile(context, "Jungle2.gba", 0x02000000);
 
-            // Load the palette file for the current level
-            var paletteFile = await LoadExtraFile(context, "Jungle1Palettes.gba", 0x05000000);
-
             uint eventCount = 146;
-            uint levelCount = 22 + 18 + 13 + 13 + 12 + 4 + 6;
 
             // Read data from the ROM
-            GBA_R1_Level[] levels = FileFactory.Read<ObjectArray<GBA_R1_Level>>(new Pointer(GetLevelArrayAddress, romFile), context, (ss, o) => o.Length = levelCount, name: $"Levels").Value;
-            GBA_R1_UnkStruct[] unkStruct = FileFactory.Read<ObjectArray<GBA_R1_UnkStruct>>(new Pointer(GetUnkStructArrayAddress, romFile), context, (ss, o) => o.Length = 48, name: $"UnkStruct").Value;
+            var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
             // Parse memory files
             GBA_R1_Map map = FileFactory.Read<GBA_R1_Map>(new Pointer(0x02002230, memoryFile), context, name: $"Map");
             PC_Event[] events = FileFactory.Read<ObjectArray<PC_Event>>(new Pointer(0x020226B0, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"Events").Value;
 
             // Get the current level
-            var level = levels[globalLevelIndex];
+            var level = rom.Levels[globalLevelIndex];
 
 
             int maxTileInd = 0;
             foreach (GBA_R1_MapTile t in map.Tiles)
                 if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;
 
-            Common_Tileset tileset = GetTileSet(context, level.TilesPointer, 0x261c0);
+            Common_Tileset tileset = GetTileSet(context, level.TilesPointer, 0x261c0, level.TilePalettes);
 
             // Doesn't seem correct
             ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202BB00, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;

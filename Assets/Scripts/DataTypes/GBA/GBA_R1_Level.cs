@@ -38,9 +38,9 @@
         public GBA_R1_Map MapData { get; set; }
 
         /// <summary>
-        /// The 10 available tile palettes
+        /// The 10 available tile palettes (16 colors each)
         /// </summary>
-        public ARGB1555Color[][] TilePalettes { get; set; }
+        public ARGB1555Color[] TilePalettes { get; set; }
 
         #endregion
 
@@ -61,14 +61,7 @@
             Unk_10 = s.SerializeArray<byte>(Unk_10, 8, name: nameof(Unk_10));
 
             // Parse from pointers
-            s.DoAt(TilePalettePointer, () =>
-            {
-                if (TilePalettes == null)
-                    TilePalettes = new ARGB1555Color[10][];
-
-                for (int i = 0; i < TilePalettes.Length; i++)
-                    TilePalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TilePalettes[i], 16, name: $"{nameof(TilePalettes)}[{i}]");
-            });
+            s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 10 * 16, name: nameof(TilePalettes)));
         }
 
         #endregion

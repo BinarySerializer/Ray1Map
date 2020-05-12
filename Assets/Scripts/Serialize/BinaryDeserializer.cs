@@ -104,7 +104,7 @@ namespace R1Engine
                 case TypeCode.Empty:
                 case TypeCode.DBNull:
                 default:
-                    throw new NotSupportedException("The specified generic type can not be read from the reader");
+                    throw new NotSupportedException($"The specified generic type ('{name}') can not be read from the reader");
             }
         }
 
