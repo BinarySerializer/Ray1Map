@@ -7,6 +7,10 @@
     {
         Levels,
         UnkStructs,
-        SpritePalettes
+        SpritePalettes,
+        UnkLevelPointerArray1,
+        UnkLevelPointerArray2,
+        UnkLevelPointerArray3,
+        UnkLevelDwordArray,
     }
 }
