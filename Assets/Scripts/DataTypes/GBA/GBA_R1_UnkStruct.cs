@@ -5,8 +5,14 @@
     /// </summary>
     public class GBA_R1_UnkStruct : R1Serializable
     {
+        // Most pointers seem to lead to some sort of image data - vignette?
+
         public Pointer Pointer_00 { get; set; }
+
+        // Leads to link-table link structures
         public Pointer Pointer_04 { get; set; }
+
+        // Leads to some sort of index table between 00-05
         public Pointer Pointer_08 { get; set; }
         public Pointer Pointer_0B { get; set; }
 
