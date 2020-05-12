@@ -28,13 +28,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<World, int[]>[]
-        {
-            new KeyValuePair<World, int[]>(World.Jungle, new int[]
-            {
-                1
-            }), 
-        };
+        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetGBALevels.GroupBy(x => x).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Count()).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes
@@ -42,6 +36,131 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The available educational volumes</returns>
         public string[] GetEduVolumes(GameSettings settings) => new string[0];
+
+        /// <summary>
+        /// Gets the available levels ordered based on the global level array
+        /// </summary>
+        public World[] GetGBALevels => new World[]
+        {
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Jungle,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Music,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Mountain,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Image,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cave,
+            World.Cake,
+            World.Cake,
+            World.Cake,
+            World.Cake,
+            World.Jungle,
+            World.Music,
+            World.Mountain,
+            World.Image,
+            World.Cave,
+            World.Cake,
+        };
+
+        public virtual string GetROMFilePath => $"ROM.gba";
+
+        // TODO: Change these based on versions (EU/US/Beta)
+        public virtual uint GetLevelArrayAddress => 0x085485B4;
+        public virtual uint GetUnkStructArrayAddress => 0x086D4D60;
+
+        /// <summary>
+        /// Gets the global level index from the world and level
+        /// </summary>
+        /// <param name="world">The world</param>
+        /// <param name="lvl">The level</param>
+        /// <returns>The global index</returns>
+        public int GetGlobalLevelIndex(World world, int lvl)
+        {
+            var lvls = GetGBALevels;
+            var worldIndex = 0;
+            for (int i = 0; i < lvls.Length; i++)
+            {
+                if (lvls[i] == world)
+                {
+                    if (worldIndex == lvl)
+                        return i;
+
+                    worldIndex++;
+                }
+            }
+
+            return -1;
+        }
 
         #endregion
 
@@ -271,8 +390,11 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
+            // Get the global level index
+            int globalLevelIndex = GetGlobalLevelIndex(context.Settings.World, context.Settings.Level);
+
             // Load the rom
-            var romFile = await LoadExtraFile(context, "ROM.gba", 0x08000000);
+            var romFile = await LoadExtraFile(context, GetROMFilePath, 0x08000000);
 
             // TODO: Parse data directly from ROM
             // Load the memory file for the current level (the WRAM section)
@@ -285,17 +407,22 @@ namespace R1Engine
             uint levelCount = 22 + 18 + 13 + 13 + 12 + 4 + 6;
 
             // Read data from the ROM
-            GBA_R1_Level[] levels = FileFactory.Read<ObjectArray<GBA_R1_Level>>(new Pointer(0x085485B4, romFile), context, (ss, o) => o.Length = levelCount, name: $"Levels").Value;
-            GBA_R1_UnkStruct[] unkStruct = FileFactory.Read<ObjectArray<GBA_R1_UnkStruct>>(new Pointer(0x086D4D60, romFile), context, (ss, o) => o.Length = 48, name: $"UnkStruct").Value;
+            GBA_R1_Level[] levels = FileFactory.Read<ObjectArray<GBA_R1_Level>>(new Pointer(GetLevelArrayAddress, romFile), context, (ss, o) => o.Length = levelCount, name: $"Levels").Value;
+            GBA_R1_UnkStruct[] unkStruct = FileFactory.Read<ObjectArray<GBA_R1_UnkStruct>>(new Pointer(GetUnkStructArrayAddress, romFile), context, (ss, o) => o.Length = 48, name: $"UnkStruct").Value;
 
             // Parse memory files
             GBA_R1_Map map = FileFactory.Read<GBA_R1_Map>(new Pointer(0x02002230, memoryFile), context, name: $"Map");
             PC_Event[] events = FileFactory.Read<ObjectArray<PC_Event>>(new Pointer(0x020226B0, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"Events").Value;
+
+            // Get the current level
+            var level = levels[globalLevelIndex];
+
+
             int maxTileInd = 0;
-            foreach (GBA_R1_MapTile t in map.Tiles) {
+            foreach (GBA_R1_MapTile t in map.Tiles)
                 if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;
-            }
-            Common_Tileset tileset = GetTileSet(context, levels[1].WorldPointer, 0x261c0);
+
+            Common_Tileset tileset = GetTileSet(context, level.TilesPointer, 0x261c0);
 
             // Doesn't seem correct
             ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202BB00, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
@@ -322,7 +449,6 @@ namespace R1Engine
                 EventData = new List<Common_EventData>(),
             };
 
-            // Load a dummy tile for now
             //commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16*16).ToArray(), 1, 16);
             commonLev.Maps[0].TileSet[0] = tileset;
 
@@ -370,11 +496,61 @@ namespace R1Engine
                     // Add to the designs
                     eventDesigns.Add(e.ImageDescriptorsPointer_GBA, finalDesign);
                 }
+                else
+                {
+                    // Temporary solution - combine DES
+                    var current = eventDesigns[e.ImageDescriptorsPointer_GBA];
+
+                    if (e.AnimDescriptors.Length > current.Animations.Count)
+                        current.Animations.AddRange(e.AnimDescriptors.Skip(current.Animations.Count).Select(x => new PS1_R1_Manager().GetCommonAnimation(x)));
+
+                    if (e.ImageDescriptors.Length > current.Sprites.Count)
+                    {
+                        foreach (var i in e.ImageDescriptors.Skip(current.Sprites.Count))
+                        {
+                            try
+                            {
+                                // Get the texture for the sprite, or null if not loading textures
+                                Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
+
+                                // Add it to the array
+                                current.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                            }
+                            catch (Exception ex)
+                            {
+                                current.Sprites.Add(null);
+                                Debug.LogError($"{ex.Message}");
+                            }
+                        }
+                    }
+                }
 
                 // Add if not found
                 if (e.ETAPointer_GBA != null && !eventETA.ContainsKey(e.ETAPointer_GBA))
+                {
                     // Add to the ETA
                     eventETA.Add(e.ETAPointer_GBA, e.ETA_GBA);
+                }
+                else
+                {
+                    // Temporary solution - combine ETA
+                    var current = eventETA[e.ETAPointer_GBA];
+
+                    if (e.ETA_GBA.Length > current.Length)
+                        Array.Resize(ref current, e.ETA_GBA.Length);
+
+                    for (int i = 0; i < e.ETA_GBA.Length; i++)
+                    {
+                        if (current[i] == null)
+                            current[i] = new Common_EventState[e.ETA_GBA[i].Length];
+
+                        if (e.ETA_GBA[i].Length > current[i].Length)
+                            Array.Resize(ref current[i], e.ETA_GBA[i].Length);
+
+                        for (int j = 0; j < e.ETA_GBA[i].Length; j++)
+                            current[i][j] = e.ETA_GBA[i][j];
+                    }
+                }
 
                 // Add the event
                 commonLev.EventData.Add(new Common_EventData

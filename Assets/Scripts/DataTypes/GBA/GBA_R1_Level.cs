@@ -5,19 +5,46 @@
     /// </summary>
     public class GBA_R1_Level : R1Serializable
     {
-        // Some world-specific info - appears to be tiles?
-        public Pointer WorldPointer { get; set; }
+        #region Level Data
 
-        // Leads to a data structure where byte 5 and 7 are the map width and height - maybe after that is the compressed map?
-        public Pointer Pointer_04 { get; set; }
+        /// <summary>
+        /// Pointer to the tiles
+        /// </summary>
+        public Pointer TilesPointer { get; set; }
 
+        /// <summary>
+        /// Pointer to the compressed map data
+        /// </summary>
+        public Pointer MapDataPointer { get; set; }
+
+        // Leads to compressed data
         public Pointer Pointer_08 { get; set; }
+
+        // ?
         public Pointer Pointer_0B { get; set; }
 
-        // World-specific
-        public Pointer Pointer_10 { get; set; }
+        public Pointer TilePalettePointer { get; set; }
 
         public byte[] Unk_10 { get; set; }
+
+        #endregion
+
+        #region Parsed from Pointers
+
+        // TODO: Parse from compressed data
+        /// <summary>
+        /// The map data
+        /// </summary>
+        public GBA_R1_Map MapData { get; set; }
+
+        /// <summary>
+        /// The 10 available tile palettes
+        /// </summary>
+        public ARGB1555Color[][] TilePalettes { get; set; }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Handles the data serialization
@@ -25,13 +52,26 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            WorldPointer = s.SerializePointer(WorldPointer, name: nameof(WorldPointer));
-            Pointer_04 = s.SerializePointer(Pointer_04, name: nameof(Pointer_04));
+            // Serialize values
+            TilesPointer = s.SerializePointer(TilesPointer, name: nameof(TilesPointer));
+            MapDataPointer = s.SerializePointer(MapDataPointer, name: nameof(MapDataPointer));
             Pointer_08 = s.SerializePointer(Pointer_08, name: nameof(Pointer_08));
             Pointer_0B = s.SerializePointer(Pointer_0B, name: nameof(Pointer_0B));
-            Pointer_10 = s.SerializePointer(Pointer_10, name: nameof(Pointer_10));
+            TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
             Unk_10 = s.SerializeArray<byte>(Unk_10, 8, name: nameof(Unk_10));
+
+            // Parse from pointers
+            s.DoAt(TilePalettePointer, () =>
+            {
+                if (TilePalettes == null)
+                    TilePalettes = new ARGB1555Color[10][];
+
+                for (int i = 0; i < TilePalettes.Length; i++)
+                    TilePalettes[i] = s.SerializeObjectArray<ARGB1555Color>(TilePalettes[i], 16, name: $"{nameof(TilePalettes)}[{i}]");
+            });
         }
+
+        #endregion
     }
 
     /*
