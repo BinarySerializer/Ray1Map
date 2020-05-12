@@ -134,11 +134,6 @@ namespace R1Engine
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
-        // TODO: Change these based on versions (EU/US/Beta)
-        public virtual uint GetLevelArrayAddress => 0x085485B4;
-        public virtual uint GetUnkStructArrayAddress => 0x086D4D60;
-        public virtual uint GetSpritePaletteAddress => 0x08548F56;
-
         /// <summary>
         /// Gets the global level index from the world and level
         /// </summary>
@@ -179,7 +174,6 @@ namespace R1Engine
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>
         public void AutoApplyPalette(Common_Lev level) {}
-
 
 
         /// <summary>
@@ -409,6 +403,7 @@ namespace R1Engine
 
             // Parse memory files
             PC_Event[] events = FileFactory.Read<ObjectArray<PC_Event>>(new Pointer(0x020226B0, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"Events").Value;
+            ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202D408, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
 
             // Get the current level
             var level = rom.Levels[globalLevelIndex];
@@ -418,9 +413,6 @@ namespace R1Engine
                 if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;
 
             Common_Tileset tileset = GetTileSet(context, level.TilesPointer, 0x261c0, level.TilePalettes);
-
-            // Doesn't seem correct
-            ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202D408, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev 
@@ -481,26 +473,6 @@ namespace R1Engine
 
                     // Add to the designs
                     eventDesigns.Add(e.ImageDescriptorsPointer_GBA, finalDesign);
-                }
-                else
-                {
-                    // Temporary solution - combine DES
-                    var current = eventDesigns[e.ImageDescriptorsPointer_GBA];
-
-                    if (e.AnimDescriptors.Length > current.Animations.Count)
-                        current.Animations.AddRange(e.AnimDescriptors.Skip(current.Animations.Count).Select(x => new PS1_R1_Manager().GetCommonAnimation(x)));
-
-                    if (e.ImageDescriptors.Length > current.Sprites.Count)
-                    {
-                        foreach (var i in e.ImageDescriptors.Skip(current.Sprites.Count))
-                        {
-                            // Get the texture for the sprite, or null if not loading textures
-                            Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
-
-                            // Add it to the array
-                            current.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                        }
-                    }
                 }
 
                 // Add if not found

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman Advance (GBA)
@@ -19,16 +17,24 @@ namespace R1Engine
         /// </summary>
         public Pointer MapDataPointer { get; set; }
 
-        // Leads to compressed data
-        public Pointer Pointer_08 { get; set; }
+        /// <summary>
+        /// Pointer to the compressed tile palette index table.
+        /// </summary>
+        public Pointer TilePaletteIndexTablePointer { get; set; }
 
-        // ?
-        public Pointer Pointer_0B { get; set; }
+        /// <summary>
+        /// Pointer to the tile header data (2 bytes per tile)
+        /// </summary>
+        public Pointer TileHeaderDataPointer { get; set; }
 
+        /// <summary>
+        /// Pointer to the tile palettes
+        /// </summary>
         public Pointer TilePalettePointer { get; set; }
 
         public byte[] Unk_10 { get; set; }
 
+        // Is set to 2 when the map data is not compressed
         public uint Unk_14 { get; set; }
 
         #endregion
@@ -59,8 +65,8 @@ namespace R1Engine
             // Serialize values
             TilesPointer = s.SerializePointer(TilesPointer, name: nameof(TilesPointer));
             MapDataPointer = s.SerializePointer(MapDataPointer, name: nameof(MapDataPointer));
-            Pointer_08 = s.SerializePointer(Pointer_08, name: nameof(Pointer_08));
-            Pointer_0B = s.SerializePointer(Pointer_0B, name: nameof(Pointer_0B));
+            TilePaletteIndexTablePointer = s.SerializePointer(TilePaletteIndexTablePointer, name: nameof(TilePaletteIndexTablePointer));
+            TileHeaderDataPointer = s.SerializePointer(TileHeaderDataPointer, name: nameof(TileHeaderDataPointer));
             TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
             Unk_10 = s.SerializeArray<byte>(Unk_10, 4, name: nameof(Unk_10));
             Unk_14 = s.Serialize<uint>(Unk_14, name: nameof(Unk_14));
