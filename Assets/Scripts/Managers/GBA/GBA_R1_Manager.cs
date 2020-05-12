@@ -422,7 +422,7 @@ namespace R1Engine
             Common_Tileset tileset = GetTileSet(context, level.TilesPointer, 0x261c0, level.TilePalettes);
 
             // Doesn't seem correct
-            ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202BB00, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
+            ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202D408, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev 
