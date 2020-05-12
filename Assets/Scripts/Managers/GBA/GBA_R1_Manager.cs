@@ -153,7 +153,7 @@ namespace R1Engine
             {
                 if (lvls[i] == world)
                 {
-                    if (worldIndex == lvl)
+                    if (worldIndex == lvl - 1)
                         return i;
 
                     worldIndex++;
@@ -408,15 +408,13 @@ namespace R1Engine
             var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
             // Parse memory files
-            GBA_R1_Map map = FileFactory.Read<GBA_R1_Map>(new Pointer(0x02002230, memoryFile), context, name: $"Map");
             PC_Event[] events = FileFactory.Read<ObjectArray<PC_Event>>(new Pointer(0x020226B0, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"Events").Value;
 
             // Get the current level
             var level = rom.Levels[globalLevelIndex];
 
-
             int maxTileInd = 0;
-            foreach (GBA_R1_MapTile t in map.Tiles)
+            foreach (GBA_R1_MapTile t in level.MapData.Tiles)
                 if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;
 
             Common_Tileset tileset = GetTileSet(context, level.TilesPointer, 0x261c0, level.TilePalettes);
@@ -433,12 +431,12 @@ namespace R1Engine
                     new Common_LevelMap()
                     {
                         // Set the dimensions
-                        Width = map.Width,
-                        Height = map.Height,
+                        Width = level.MapData.Width,
+                        Height = level.MapData.Height,
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
-                        Tiles = new Common_Tile[map.Width * map.Height]
+                        Tiles = new Common_Tile[level.MapData.Width * level.MapData.Height]
                     }
                 },
 
@@ -560,15 +558,15 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Enumerate each cell
-            for (int cellY = 0; cellY < map.Height; cellY++) 
+            for (int cellY = 0; cellY < level.MapData.Height; cellY++) 
             {
-                for (int cellX = 0; cellX < map.Width; cellX++) 
+                for (int cellX = 0; cellX < level.MapData.Width; cellX++) 
                 {
                     // Get the cell
-                    var cell = map.Tiles[cellY * map.Width + cellX];
+                    var cell = level.MapData.Tiles[cellY * level.MapData.Width + cellX];
 
                     // Set the common tile
-                    commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile() 
+                    commonLev.Maps[0].Tiles[cellY * level.MapData.Width + cellX] = new Common_Tile() 
                     {
                         // TODO: Fix once we load tile graphics
                         TileSetGraphicIndex = cell.TileIndex,

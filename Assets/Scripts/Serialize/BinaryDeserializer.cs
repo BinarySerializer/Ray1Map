@@ -171,6 +171,28 @@ namespace R1Engine
             reader.BaseStream.Position = offset.FileOffset;
         }
 
+        public override T SerializeEncodedObject<T>(T obj, ISerializerEncoder encoder, string name = null)
+        {
+            // TODO: Handle and fix logging
+
+            // Create a dummy context
+            using (var dummyContext = new Context(Context.BasePath, Context.Settings))
+            {
+                // Decode the data into a stream
+                using (var memStream = encoder.Decode(this))
+                {
+                    // Stream key
+                    const string key = "DecodedBuffer";
+
+                    // Add the stream
+                    dummyContext.AddFile(new StreamFile(key, memStream, dummyContext));
+
+                    // Deserialize the bytes
+                    return FileFactory.Read<T>(key, dummyContext);
+                }
+            }
+        }
+
         public override T Serialize<T>(T obj, string name = null) {
             string logString = LogPrefix;
             T t = (T)ReadAsObject<T>(name);

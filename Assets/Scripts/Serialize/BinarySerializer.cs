@@ -151,6 +151,11 @@ namespace R1Engine
             writer.BaseStream.Position = offset.FileOffset;
         }
 
+        public override T SerializeEncodedObject<T>(T obj, ISerializerEncoder encoder, string name = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public override T Serialize<T>(T obj, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + obj.ToString());

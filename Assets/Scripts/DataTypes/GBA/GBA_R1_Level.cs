@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman Advance (GBA)
@@ -13,7 +15,7 @@
         public Pointer TilesPointer { get; set; }
 
         /// <summary>
-        /// Pointer to the compressed map data
+        /// Pointer to the compressed map data. Gets copied to 0x02002230 during runtime.
         /// </summary>
         public Pointer MapDataPointer { get; set; }
 
@@ -26,6 +28,8 @@
         public Pointer TilePalettePointer { get; set; }
 
         public byte[] Unk_10 { get; set; }
+
+        public uint Unk_14 { get; set; }
 
         #endregion
 
@@ -58,9 +62,17 @@
             Pointer_08 = s.SerializePointer(Pointer_08, name: nameof(Pointer_08));
             Pointer_0B = s.SerializePointer(Pointer_0B, name: nameof(Pointer_0B));
             TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
-            Unk_10 = s.SerializeArray<byte>(Unk_10, 8, name: nameof(Unk_10));
+            Unk_10 = s.SerializeArray<byte>(Unk_10, 4, name: nameof(Unk_10));
+            Unk_14 = s.Serialize<uint>(Unk_14, name: nameof(Unk_14));
 
             // Parse from pointers
+            s.DoAt(MapDataPointer, () =>
+            {
+                if (Unk_14 == 2)
+                    MapData = s.SerializeObject<GBA_R1_Map>(MapData, name: nameof(MapData));
+                else
+                    MapData = s.SerializeEncodedObject<GBA_R1_Map>(MapData, new LZSSEncoder(), name: nameof(MapData));
+            });
             s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 10 * 16, name: nameof(TilePalettes)));
         }
 

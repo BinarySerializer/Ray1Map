@@ -1,6 +1,5 @@
 ﻿using R1Engine.Serialize;
 using System;
-using System.IO;
 using System.Text;
 
 namespace R1Engine
@@ -39,6 +38,9 @@ namespace R1Engine
             action();
             Goto(off_current);
         }
+
+        public abstract T SerializeEncodedObject<T>(T obj, ISerializerEncoder encoder, string name = null)
+            where T : R1Serializable, new();
 
         /// <summary>
         /// Main Serialize method.
