@@ -1,6 +1,7 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -167,8 +168,44 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        public GameAction[] GetGameActions(GameSettings settings) => new GameAction[0];
-        
+        public GameAction[] GetGameActions(GameSettings settings)
+        {
+            return new GameAction[]
+            {
+                new GameAction("Export Vignette", false, true, async (input, output) => await ExtractVignetteAsync(settings, output)),
+            };
+        }
+
+        public async Task ExtractVignetteAsync(GameSettings settings, string outputDir)
+        {
+            // Create a context
+            using (var context = new Context(settings))
+            {
+                // Load the ROM
+                await LoadFilesAsync(context);
+
+                // Read data from the ROM
+                var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+
+                // Extract every vignette
+                for (int i = 0; i < rom.Vignettes.Length; i++)
+                {
+                    // Get the vignette
+                    var vig = rom.Vignettes[i];
+
+                    // Make sure we have image data
+                    if (vig.ImageData == null)
+                        continue;
+
+                    // Get the texture
+                    var tex = GetVignetteTexture(vig);
+
+                    // Save the texture
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"Vignette_{i}.png"), tex.EncodeToPNG());
+                }
+            }
+        }
+
         /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
@@ -339,6 +376,33 @@ namespace R1Engine
             return tex;
         }
 
+        public Texture2D GetVignetteTexture(GBA_R1_Vignette vig)
+        {
+            // Create the texture
+            var tex = new Texture2D(vig.Width * 8, vig.Height * 8)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            for (int y = 0; y < vig.Height; y++)
+            {
+                for (int x = 0; x < vig.Width; x++)
+                {
+                    var index = y * vig.Width + x;
+                    var blockIndex = vig.BlockIndices[index];
+
+                    var curOff = 0x20 * blockIndex;
+
+                    new GBA_R1_Manager().FillSpriteTextureBlock(tex, x * 8, y * 8, 0, 0, vig.ImageData, curOff, vig.Palettes, vig.PaletteIndices[index], false);
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
+
         public void FillSpriteTextureBlock(Texture2D tex,
             int blockX, int blockY,
             int relX, int relY,
@@ -391,9 +455,6 @@ namespace R1Engine
         {
             // Get the global level index
             int globalLevelIndex = GetGlobalLevelIndex(context.Settings.World, context.Settings.Level);
-
-            // Load the rom
-            await LoadExtraFile(context, GetROMFilePath, 0x08000000);
 
             // TODO: Parse data directly from ROM
             // Load the memory file for the current level (the WRAM section)
@@ -564,7 +625,10 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public virtual Task LoadFilesAsync(Context context) => Task.CompletedTask;
+        public virtual async Task LoadFilesAsync(Context context)
+        {
+            await LoadExtraFile(context, GetROMFilePath, 0x08000000);
+        }
 
         public virtual async Task<GBAMemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {

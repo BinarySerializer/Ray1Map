@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using R1Engine.Serialize;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman Advance (GBA)

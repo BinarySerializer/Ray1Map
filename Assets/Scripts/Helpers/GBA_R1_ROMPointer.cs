@@ -6,7 +6,7 @@
     public enum GBA_R1_ROMPointer
     {
         Levels,
-        UnkStructs,
+        Vignette,
         SpritePalettes,
         UnkLevelPointerArray1,
         UnkLevelPointerArray2,

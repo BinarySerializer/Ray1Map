@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using UnityEngine;
+
+namespace R1Engine
 {
     /// <summary>
     /// ROM data for Rayman Advance (GBA)
@@ -10,7 +12,10 @@
         /// </summary>
         public GBA_R1_Level[] Levels { get; set; }
 
-        public GBA_R1_UnkStruct[] UnkStructs { get; set; }
+        /// <summary>
+        /// The vignette data
+        /// </summary>
+        public GBA_R1_Vignette[] Vignettes { get; set; }
 
         /// <summary>
         /// The sprite palettes. The game uses the same 16 palettes (with 16 colors) for every sprite in the game. During runtime this gets copied to 0x05000200.
@@ -46,8 +51,8 @@
             // Serialize data from the ROM
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.Levels], this.Offset.file), 
                 () => Levels = s.SerializeObjectArray<GBA_R1_Level>(Levels, levelCount, name: nameof(Levels)));
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.UnkStructs], this.Offset.file), 
-                () => UnkStructs = s.SerializeObjectArray<GBA_R1_UnkStruct>(UnkStructs, 48, name: nameof(UnkStructs)));
+            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.Vignette], this.Offset.file), 
+                () => Vignettes = s.SerializeObjectArray<GBA_R1_Vignette>(Vignettes, 48, name: nameof(Vignettes)));
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.SpritePalettes], this.Offset.file), 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16 * 2, name: nameof(SpritePalettes)));
 
@@ -57,4 +62,25 @@
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.UnkLevelDwordArray], this.Offset.file), () => UnkLevelDwordArray = s.SerializeArray<uint>(UnkLevelDwordArray, levelCount, name: nameof(UnkLevelDwordArray)));
         }
     }
+
+    /*
+
+    Following arrays were found through IDA:
+     
+    Pointer array at 0x086DCE14 - 60 items
+    ushort array at 0x08549774
+    
+    uint array at 0x08549674
+    uint array at 0x0854925E
+    ushort array at 0x08549200
+    
+    Loc strings begin at 0x08F1D4C
+    
+    (these are aligned weirdly)
+    uint array at 0x0854925C
+    uin array at 0x0854925D
+    uint array at 0x0854925F
+     
+     
+     */
 }
