@@ -83,6 +83,17 @@
     uin array at 0x0854925D
     uint array at 0x0854925F
      
-     
+    Vignette:
+    16 palettes for the world map are located at 0x081528A8. They're referenced from 0x080017A4 (which seems to have a reference to image data?)
+    Only vignette missing now are loading screens + splash (splash screen palettes have no transparency) 
+
+    16 palettes for Ubi logo are     at 0x086EEDD8
+    16 palettes for Eclipse logo are at 0x086EEFD8
+    16 palettes for Rayman logo are  at 0x086EF188
+
+    Palettes for menu background and loading screens don't seem to exist in the rom - compressed?
+
+    0x086DEC00 has 6 pointers. First 3 to image data and last 3 to the palettes for Ubi, Eclipse and RayLogo
+
      */
 }
