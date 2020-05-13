@@ -181,27 +181,31 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public Common_Tileset GetTileSet(Context context, Pointer offset, uint length, IList<ARGB1555Color> pal) {
+        public Common_Tileset GetTileSet(Context context, GBA_R1_Level level) {
             // Read the files
-            Array<byte> tiles = FileFactory.Read<Array<byte>>(offset, context, (s, a) => a.Length = length);
+            int block_size = 0x20;
+            ushort maxBlockIndex = level.TileBlockIndices.Max();
+            Array<byte> tiles = FileFactory.Read<Array<byte>>(level.TilesPointer, context, (s, a) => a.Length = 0x20 * ((uint)maxBlockIndex + 1));
 
-
+            uint length = (uint)level.TileBlockIndices.Length * 8 * 8;
             // Get the tile-set texture
-            var tex = new Texture2D(128, Mathf.CeilToInt(length / 8 / 128) * 8 * 2) {
+            var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / CellSize) * CellSize) {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
             //tex.SetPixels(new Color[tex.width * tex.height]);
 
             var curOff = 0;
-            int block_size = 0x20;
-            for (int y = 0; y < tex.height / 8 / 2; y++) {
-                for (int x = 0; x < 128 / 8 / 2; x++) {
-                    FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, pal, 
-                        // TODO: Get correct palette index
-                        0, true, reverseHeight: false);
-                    curOff += block_size;
-                }
+            for (int i = 0; i < level.TileBlockIndices.Length; i++) {
+                ushort blockIndex = level.TileBlockIndices[i];
+                int x = 0, y = 0;
+
+                x = ((i / 4) * 2) % (256/8) + ((i % 2) == 0 ? 0 : 1);
+                y = (((i / 4) * 2) / (256/8)) * 2 + ((i % 4) < 2 ? 0 : 1);
+                curOff = block_size * blockIndex;
+                FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, level.TilePalettes,
+                    // TODO: Get correct palette index
+                    level.TilePaletteIndices[i], false, reverseHeight: false);
             }
 
             tex.Apply();
@@ -407,12 +411,13 @@ namespace R1Engine
 
             // Get the current level
             var level = rom.Levels[globalLevelIndex];
+            level.SerializeLevelData(context.Deserializer);
 
-            int maxTileInd = 0;
+            /*int maxTileInd = 0;
             foreach (GBA_R1_MapTile t in level.MapData.Tiles)
-                if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;
+                if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;*/
 
-            Common_Tileset tileset = GetTileSet(context, level.TilesPointer, 0x261c0, level.TilePalettes);
+            Common_Tileset tileset = GetTileSet(context, level);
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev 

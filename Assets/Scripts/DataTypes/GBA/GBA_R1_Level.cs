@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using R1Engine.Serialize;
+
+namespace R1Engine
 {
     /// <summary>
     /// Level data for Rayman Advance (GBA)
@@ -20,12 +22,12 @@
         /// <summary>
         /// Pointer to the compressed tile palette index table.
         /// </summary>
-        public Pointer TilePaletteIndexTablePointer { get; set; }
+        public Pointer TilePaletteIndicesPointer { get; set; }
 
         /// <summary>
         /// Pointer to the tile header data (2 bytes per tile)
         /// </summary>
-        public Pointer TileHeaderDataPointer { get; set; }
+        public Pointer TileBlockIndicesPointer { get; set; }
 
         /// <summary>
         /// Pointer to the tile palettes
@@ -34,8 +36,9 @@
 
         public byte[] Unk_10 { get; set; }
 
-        // Is set to 2 when the map data is not compressed
-        public uint Unk_14 { get; set; }
+        // 1 << 0: Compress map data
+        // 1 << 1: Compress tile palette indices
+        public uint CompressionFlags { get; set; }
 
         #endregion
 
@@ -52,6 +55,9 @@
         /// </summary>
         public ARGB1555Color[] TilePalettes { get; set; }
 
+        public byte[] TilePaletteIndices { get; set; }
+        public ushort[] TileBlockIndices { get; set; }
+
         #endregion
 
         #region Methods
@@ -65,21 +71,38 @@
             // Serialize values
             TilesPointer = s.SerializePointer(TilesPointer, name: nameof(TilesPointer));
             MapDataPointer = s.SerializePointer(MapDataPointer, name: nameof(MapDataPointer));
-            TilePaletteIndexTablePointer = s.SerializePointer(TilePaletteIndexTablePointer, name: nameof(TilePaletteIndexTablePointer));
-            TileHeaderDataPointer = s.SerializePointer(TileHeaderDataPointer, name: nameof(TileHeaderDataPointer));
+            TilePaletteIndicesPointer = s.SerializePointer(TilePaletteIndicesPointer, name: nameof(TilePaletteIndicesPointer));
+            TileBlockIndicesPointer = s.SerializePointer(TileBlockIndicesPointer, name: nameof(TileBlockIndicesPointer));
             TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
             Unk_10 = s.SerializeArray<byte>(Unk_10, 4, name: nameof(Unk_10));
-            Unk_14 = s.Serialize<uint>(Unk_14, name: nameof(Unk_14));
+            CompressionFlags = s.Serialize<uint>(CompressionFlags, name: nameof(CompressionFlags));
+        }
 
-            // Parse from pointers
-            s.DoAt(MapDataPointer, () =>
-            {
-                if (Unk_14 == 2)
+        public void SerializeLevelData(SerializerObject s) {
+            s.DoAt(MapDataPointer, () => {
+                if ((CompressionFlags & 1) == 1) {
+                    s.DoEncoded(new LZSSEncoder(), () => {
+                        MapData = s.SerializeObject<GBA_R1_Map>(MapData, name: nameof(MapData));
+                    });
+                } else {
                     MapData = s.SerializeObject<GBA_R1_Map>(MapData, name: nameof(MapData));
-                else
-                    MapData = s.SerializeEncodedObject<GBA_R1_Map>(MapData, new LZSSEncoder(), name: nameof(MapData));
+                }
+            });
+            s.DoAt(TilePaletteIndicesPointer, () => {
+                if ((CompressionFlags & 2) == 2) {
+                    s.DoEncoded(new LZSSEncoder(), () => {
+                        TilePaletteIndices = s.SerializeArray<byte>(TilePaletteIndices, s.CurrentLength, name: nameof(TilePaletteIndices));
+                    });
+                } else {
+                    uint numTileBlocks = (TilePaletteIndicesPointer.AbsoluteOffset - TileBlockIndicesPointer.AbsoluteOffset) / 2;
+                    TilePaletteIndices = s.SerializeArray<byte>(TilePaletteIndices, numTileBlocks, name: nameof(TilePaletteIndices));
+                }
+            });
+            s.DoAt(TileBlockIndicesPointer, () => {
+                TileBlockIndices = s.SerializeArray<ushort>(TileBlockIndices, TilePaletteIndices.Length, name: nameof(TileBlockIndices));
             });
             s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 10 * 16, name: nameof(TilePalettes)));
+
         }
 
         #endregion

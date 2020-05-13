@@ -43,6 +43,11 @@ namespace R1Engine.Serialize {
 		public void AddFile(BinaryFile file) {
 			MemoryMap.Files.Add(file);
 		}
+		public void RemoveFile(BinaryFile file) {
+			MemoryMap.Files.Remove(file);
+			deserializer?.DisposeFile(file);
+			serializer?.DisposeFile(file);
+		}
 		public Pointer<T> FilePointer<T>(string relativePath) where T : R1Serializable, new() {
 			Pointer p = FilePointer(relativePath);
 			if (p == null) return null;

@@ -151,11 +151,6 @@ namespace R1Engine
             writer.BaseStream.Position = offset.FileOffset;
         }
 
-        public override T SerializeEncodedObject<T>(T obj, ISerializerEncoder encoder, string name = null)
-        {
-            throw new NotImplementedException();
-        }
-
         public override T Serialize<T>(T obj, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(" + typeof(T) + ") " + (name ?? "<no name>") + ": " + obj.ToString());
@@ -293,6 +288,42 @@ namespace R1Engine
             }
             writers.Clear();
             writer = null;
+        }
+
+        public void DisposeFile(BinaryFile file) {
+            if (writers.ContainsKey(file)) {
+                Writer w = writers[file];
+                file.EndWrite(w.BaseStream);
+                ((IDisposable)w).Dispose();
+                writers.Remove(file);
+            }
+        }
+        public override void DoEncoded(IStreamEncoder encoder, Action action) {
+            // Encode the data into a stream
+            Stream encoded = null;
+            using(MemoryStream memStream = new MemoryStream()) {
+                // Stream key
+                string key = CurrentPointer.ToString() + "_decoded";
+
+                // Add the stream
+                StreamFile sf = new StreamFile(key, memStream, Context);
+                Context.AddFile(sf);
+
+                DoAt(sf.StartPointer, () => {
+                    action();
+                    encoded = encoder.EncodeStream(memStream);
+                });
+
+                Context.RemoveFile(sf);
+            }
+            // Turn stream into array & write bytes
+            if (encoded != null) {
+                using (MemoryStream ms = new MemoryStream()) {
+                    encoded.CopyTo(ms);
+                    writer.Write(ms.ToArray());
+                }
+                encoded.Close();
+            }
         }
     }
 }

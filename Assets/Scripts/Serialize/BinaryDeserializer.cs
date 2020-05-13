@@ -171,28 +171,6 @@ namespace R1Engine
             reader.BaseStream.Position = offset.FileOffset;
         }
 
-        public override T SerializeEncodedObject<T>(T obj, ISerializerEncoder encoder, string name = null)
-        {
-            // TODO: Handle and fix logging
-
-            // Create a dummy context
-            using (var dummyContext = new Context(Context.BasePath, Context.Settings))
-            {
-                // Decode the data into a stream
-                using (var memStream = encoder.Decode(this))
-                {
-                    // Stream key
-                    const string key = "DecodedBuffer";
-
-                    // Add the stream
-                    dummyContext.AddFile(new StreamFile(key, memStream, dummyContext));
-
-                    // Deserialize the bytes
-                    return FileFactory.Read<T>(key, dummyContext);
-                }
-            }
-        }
-
         public override T Serialize<T>(T obj, string name = null) {
             string logString = LogPrefix;
             T t = (T)ReadAsObject<T>(name);
@@ -356,6 +334,33 @@ namespace R1Engine
             }
             readers.Clear();
             reader = null;
+        }
+
+        public void DisposeFile(BinaryFile file) {
+            if (readers.ContainsKey(file)) {
+                Reader r = readers[file];
+                file.EndRead(r.BaseStream);
+                ((IDisposable)r).Dispose();
+                readers.Remove(file);
+            }
+        }
+        public override void DoEncoded(IStreamEncoder encoder, Action action) {
+            // Decode the data into a stream
+            using (var memStream = encoder.DecodeStream(reader.BaseStream)) {
+                // Stream key
+                string key = CurrentPointer.ToString() + "_decoded";
+
+                // Add the stream
+                StreamFile sf = new StreamFile(key, memStream, Context);
+                Context.AddFile(sf);
+
+                DoAt(sf.StartPointer, () => {
+                    action();
+                });
+
+                Context.RemoveFile(sf);
+
+            }
         }
     }
 }

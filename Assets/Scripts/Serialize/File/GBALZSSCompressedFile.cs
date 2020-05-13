@@ -1,21 +1,72 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace R1Engine
-{
-    // Implemented from: https://github.com/Barubary/dsdecmp/blob/master/CSharp/DSDecmp/Formats/Nitro/LZ10.cs
+namespace R1Engine.Serialize {
+	// Implemented from: https://github.com/Barubary/dsdecmp/blob/master/CSharp/DSDecmp/Formats/Nitro/LZ10.cs
+	public class GBALZSSCompressedFile : LinearSerializedFile {
+		public GBALZSSCompressedFile(Context context) : base(context) {
+		}
 
-    /// <summary>
-    /// Compresses/decompresses data using LZSS
-    /// </summary>
-    public class LZSSEncoder : IStreamEncoder
-    {
+		public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
+
+		public override Reader CreateReader() {
+			Stream s = FileSystem.GetFileReadStream(AbsolutePath);
+			// Create a memory stream to write to so we can get the position
+            var memStream = Decode(s);
+
+            // Set the position to the beginning
+            memStream.Position = 0;
+
+			length = (uint)memStream.Length;
+			Reader reader = new Reader(memStream, isLittleEndian: Endianness == Endian.Little);
+			return reader;
+		}
+
+		public override Writer CreateWriter() {
+			Stream memStream = new MemoryStream();
+			memStream.SetLength(length);
+			Writer writer = new Writer(memStream, isLittleEndian: Endianness == Endian.Little);
+			return writer;
+		}
+
+		public override void EndWrite(Stream writeStream) {
+			base.EndWrite(writeStream);
+			if (writeStream != null) {
+				CreateBackupFile();
+                throw new NotImplementedException();
+                /*using (Stream s = FileSystem.GetFileWriteStream(AbsolutePath)) {
+					using (GZipStream compressionStream = new GZipStream(s, CompressionMode.Compress)) {
+						writeStream.CopyTo(compressionStream);
+					}
+				}*/
+            }
+		}
+
+		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
+			if (length == 0) {
+				Stream s = FileSystem.GetFileReadStream(AbsolutePath);
+                // Create a memory stream to write to so we can get the position
+                var memStream = Decode(s);
+				length = (uint)memStream.Length;
+				memStream.Close();
+			}
+			uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
+			if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset <= baseAddress + length) {
+				return new Pointer(serializedValue, this, anchor: anchor);
+			}
+			return null;
+        }
         /// <summary>
         /// Decodes the data and returns it in a stream
         /// </summary>
-        /// <param name="s">The encoded stream</param>
+        /// <param name="s">The stream object</param>
         /// <returns>The stream with the decoded data</returns>
-        public Stream DecodeStream(Stream s) {
+        public Stream Decode(Stream s) {
             var decompressedStream = new MemoryStream();
 
             Reader reader = new Reader(s, isLittleEndian: true); // No using, because we don't want to close the stream
@@ -104,10 +155,6 @@ namespace R1Engine
 
             // Return the compressed data stream
             return decompressedStream;
-        }
-
-        public Stream EncodeStream(Stream s) {
-            throw new NotImplementedException();
         }
     }
 }

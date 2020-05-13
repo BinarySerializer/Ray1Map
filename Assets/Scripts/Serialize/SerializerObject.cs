@@ -39,8 +39,7 @@ namespace R1Engine
             Goto(off_current);
         }
 
-        public abstract T SerializeEncodedObject<T>(T obj, ISerializerEncoder encoder, string name = null)
-            where T : R1Serializable, new();
+        public abstract void DoEncoded(IStreamEncoder encoder, Action action);
 
         /// <summary>
         /// Main Serialize method.
