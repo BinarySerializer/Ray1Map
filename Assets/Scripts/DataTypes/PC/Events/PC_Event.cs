@@ -19,6 +19,7 @@ namespace R1Engine
         public Pointer ETAPointer_GBA { get; set; }
         public Pointer CommandsPointer_GBA { get; set; }
 
+        // First 2 bytes are the event index as it appears and is used to cross reference with the link table
         public byte[] GBAUnk1 { get; set; }
         public byte[] GBAUnk2 { get; set; }
         public ushort GBA_XPosition2 { get; set; }
@@ -64,8 +65,6 @@ namespace R1Engine
 
         public uint Unk_48 { get; set; }
 
-        public uint Unk_52_Kit { get; set; }
-
         public ushort Unk_52 { get; set; }
         public ushort Unk_54 { get; set; }
         public ushort Unk_56 { get; set; }
@@ -74,7 +73,10 @@ namespace R1Engine
         public ushort Unk_62 { get; set; }
         public ushort Unk_64 { get; set; }
         public ushort Unk_66 { get; set; }
-        public ushort Unk_68 { get; set; }
+        public ushort ImageDescriptorCount { get; set; }
+
+        public uint Unk_Kit { get; set; }
+
         public ushort Unk_70 { get; set; }
         public ushort Unk_72 { get; set; }
         public ushort Unk_74 { get; set; }
@@ -144,7 +146,7 @@ namespace R1Engine
 
         public byte Unk_127 { get; set; }
 
-        public byte Unk_128 { get; set; }
+        public byte AnimDescriptorCount { get; set; }
 
         /// /// <summary>
         /// The event flags
@@ -213,10 +215,6 @@ namespace R1Engine
 
                 Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
 
-                // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-                if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
-                    Unk_52_Kit = s.Serialize<uint>(Unk_52_Kit, name: nameof(Unk_52_Kit));
-
                 Unk_52 = s.Serialize<ushort>(Unk_52, name: nameof(Unk_52));
                 Unk_54 = s.Serialize<ushort>(Unk_54, name: nameof(Unk_54));
                 Unk_56 = s.Serialize<ushort>(Unk_56, name: nameof(Unk_56));
@@ -227,7 +225,12 @@ namespace R1Engine
 
             Unk_64 = s.Serialize<ushort>(Unk_64, name: nameof(Unk_64));
             Unk_66 = s.Serialize<ushort>(Unk_66, name: nameof(Unk_66));
-            Unk_68 = s.Serialize<ushort>(Unk_68, name: nameof(Unk_68));
+            ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
+
+            // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
+                Unk_Kit = s.Serialize<uint>(Unk_Kit, name: nameof(Unk_Kit));
+
             Unk_70 = s.Serialize<ushort>(Unk_70, name: nameof(Unk_70));
             Unk_72 = s.Serialize<ushort>(Unk_72, name: nameof(Unk_72));
             Unk_74 = s.Serialize<ushort>(Unk_74, name: nameof(Unk_74));
@@ -271,7 +274,7 @@ namespace R1Engine
             TempLayer = s.Serialize<byte>(TempLayer, name: nameof(TempLayer));
             Unk_127 = s.Serialize<byte>(Unk_127, name: nameof(Unk_127));
 
-            Unk_128 = s.Serialize<byte>(Unk_128, name: nameof(Unk_128));
+            AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
             Flags = s.Serialize<PC_EventFlags>(Flags, name: nameof(Flags));
 
@@ -302,9 +305,9 @@ namespace R1Engine
                     }
                 });
 
-                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, Unk_128, name: nameof(AnimDescriptors)));
+                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors)));
 
-                s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, Unk_68, name: nameof(ImageDescriptors)));
+                s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors)));
 
                 // TODO: Get the correct size
                 s.DoAt(ImageBufferPointer_GBA, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageDescriptors.Select(x => x.OuterWidth * x.OuterHeight).Sum(), name: nameof(ImageBuffer)));

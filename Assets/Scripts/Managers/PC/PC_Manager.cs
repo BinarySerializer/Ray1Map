@@ -1776,8 +1776,8 @@ namespace R1Engine
                     Unk_28 = 0,
                     Unk_32 = 0,
                     Unk_36 = 0,
-                    Unk_52_Kit = 0,
-                    Unk_68 = 92, // This value is required for boss icons to show on their health bars - why?
+                    Unk_Kit = 0,
+                    ImageDescriptorCount = 92, // This value is required for boss icons to show on their health bars - why?
                     Unk_98 = new byte[5],
                     Unk_103 = 0,
                     XPosition = e.XPosition,
@@ -1799,7 +1799,7 @@ namespace R1Engine
                     Unk_123 = 0,
                     Unk_124 = 0,
                     Unk_125 = 0,
-                    Unk_128 = 0,
+                    AnimDescriptorCount = 0,
                     FollowEnabled = e.FollowEnabled,
                     Unk_130 = 0
                 };

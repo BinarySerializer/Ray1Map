@@ -3,7 +3,7 @@
     /// <summary>
     /// ROM data for Rayman Advance (GBA)
     /// </summary>
-    public class GBA_R1_ROM : R1Serializable
+    public class GBA_R1_ROM : GBA_ROM
     {
         /// <summary>
         /// The data for the levels
@@ -17,9 +17,13 @@
         /// </summary>
         public ARGB1555Color[] SpritePalettes { get; set; }
 
-        // These pointers lead to even more pointers
+        // Pointers seem to lead to another pointer-array which in term leads to structs like this {ImageBufferPointer, (uint)Length} - maybe not? Only matches some.
         public Pointer[] UnkLevelPointerArray1 { get; set; }
+
+        // Pointers seem to lead to another pointer-array which in term leads to 28-byte long structs which begin with 2 pointers
         public Pointer[] UnkLevelPointerArray2 { get; set; }
+
+        // Pointers lead to 6 initial bytes followed by 28-byte long structs with two pointers in the middle
         public Pointer[] UnkLevelPointerArray3 { get; set; }
 
         // Indexes to something. It almost matches the music tracks.
@@ -31,6 +35,9 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
+            // Serialize ROM header
+            base.SerializeImpl(s);
+
             // Get the pointer table
             var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection);
 
