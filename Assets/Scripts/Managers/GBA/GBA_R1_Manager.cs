@@ -180,32 +180,31 @@ namespace R1Engine
         /// Gets the tile set to use
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="level">The level to get the tile set for</param>
         /// <returns>The tile set to use</returns>
         public Common_Tileset GetTileSet(Context context, GBA_R1_Level level) {
-            // Read the files
-            int block_size = 0x20;
+            // Read the tiles
+            const int block_size = 0x20;
             ushort maxBlockIndex = level.TileBlockIndices.Max();
             Array<byte> tiles = FileFactory.Read<Array<byte>>(level.TilesPointer, context, (s, a) => a.Length = 0x20 * ((uint)maxBlockIndex + 1));
 
             uint length = (uint)level.TileBlockIndices.Length * 8 * 8;
+
             // Get the tile-set texture
             var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / CellSize) * CellSize) {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
-            //tex.SetPixels(new Color[tex.width * tex.height]);
 
-            var curOff = 0;
             for (int i = 0; i < level.TileBlockIndices.Length; i++) {
                 ushort blockIndex = level.TileBlockIndices[i];
-                int x = 0, y = 0;
 
-                x = ((i / 4) * 2) % (256/8) + ((i % 2) == 0 ? 0 : 1);
-                y = (((i / 4) * 2) / (256/8)) * 2 + ((i % 4) < 2 ? 0 : 1);
-                curOff = block_size * blockIndex;
-                FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, level.TilePalettes,
-                    // TODO: Get correct palette index
-                    level.TilePaletteIndices[i], false, reverseHeight: false);
+                var x = ((i / 4) * 2) % (256/8) + ((i % 2) == 0 ? 0 : 1);
+                var y = (((i / 4) * 2) / (256/8)) * 2 + ((i % 4) < 2 ? 0 : 1);
+
+                var curOff = block_size * blockIndex;
+                
+                FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, level.TilePalettes, level.TilePaletteIndices[i], false, reverseHeight: false);
             }
 
             tex.Apply();
@@ -412,10 +411,6 @@ namespace R1Engine
             // Get the current level
             var level = rom.Levels[globalLevelIndex];
             level.SerializeLevelData(context.Deserializer);
-
-            /*int maxTileInd = 0;
-            foreach (GBA_R1_MapTile t in level.MapData.Tiles)
-                if (t.TileIndex > maxTileInd) maxTileInd = t.TileIndex;*/
 
             Common_Tileset tileset = GetTileSet(context, level);
 

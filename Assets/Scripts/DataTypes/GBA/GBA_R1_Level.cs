@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System.Linq;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -44,7 +45,6 @@ namespace R1Engine
 
         #region Parsed from Pointers
 
-        // TODO: Parse from compressed data
         /// <summary>
         /// The map data
         /// </summary>
@@ -56,6 +56,7 @@ namespace R1Engine
         public ARGB1555Color[] TilePalettes { get; set; }
 
         public byte[] TilePaletteIndices { get; set; }
+
         public ushort[] TileBlockIndices { get; set; }
 
         #endregion
@@ -98,54 +99,12 @@ namespace R1Engine
                     TilePaletteIndices = s.SerializeArray<byte>(TilePaletteIndices, numTileBlocks, name: nameof(TilePaletteIndices));
                 }
             });
-            s.DoAt(TileBlockIndicesPointer, () => {
-                TileBlockIndices = s.SerializeArray<ushort>(TileBlockIndices, TilePaletteIndices.Length, name: nameof(TileBlockIndices));
-            });
+
+            s.DoAt(TileBlockIndicesPointer, () => TileBlockIndices = s.SerializeArray<ushort>(TileBlockIndices, TilePaletteIndices.Length, name: nameof(TileBlockIndices)));
             s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 10 * 16, name: nameof(TilePalettes)));
 
         }
 
         #endregion
     }
-
-    /*
-     
-       v202A598 = *(_DWORD *)(28 * mapIndex + 0x85485B4);
-       Pointer_04 = *(_DWORD *)(28 * mapIndex + 0x85485B8);
-       if ( *(_BYTE *)(28 * mapIndex + 0x85485CC) & 1 )
-       {
-           sub_48428();
-           Pointer_04 = 33563184;
-       }
-       v20305E8 = Pointer_04 + 4;
-       v8 = *(_DWORD *)(28 * mapIndex + 0x85485BC);
-       if ( *(_BYTE *)(28 * mapIndex + 0x85485CC) & 2 )
-       {
-           sub_48428();
-           v8 = 33725136;
-       }
-       sub_38C(Pointer_04, v8, *(_DWORD *)(28 * mapIndex + 0x85485C0), v5, v17);
-       v20305E0 = v202A5A0;
-       v20305E2 = v202A578;
-       v9 = v202A578 * v202A5A0;
-       v20305E4 = v202A578 * v202A5A0;
-       if ( v18 )
-       {
-           sub_44AA4(v9);
-           v10 = sub_FF7C(v202BF10 | 1);
-           v11 = sub_2E0F8(v10);
-           v12 = sub_2D3C4(v11);
-           v9 = sub_10334(v12);
-       }
-       sub_3F8(v9);
-       v13 = *(_DWORD *)(4 * v17 + 0x8153980);
-       v20011D8 = *(_BYTE *)(*(_BYTE *)(28 * mapIndex + 0x85485CB) + v13);
-       if ( !*(_DWORD *)(36 * v20011D8 + 0x86D4D60) )
-           v20011D8 = *(_BYTE *)(*(_BYTE *)(28 * mapIndex + 0x85485CA) + v13);
-       if ( v20011D8 == 25 )
-           v20011D8 = 26;
-       sub_4841C(*(_DWORD *)(28 * mapIndex + 0x85485C4), 83886080, 80);
-     
-     
-     */
 }

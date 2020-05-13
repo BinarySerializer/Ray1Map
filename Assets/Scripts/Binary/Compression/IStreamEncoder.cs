@@ -14,7 +14,11 @@ namespace R1Engine
         /// <returns>The stream with the decoded data</returns>
         Stream DecodeStream(Stream s);
 
+        /// <summary>
+        /// Encodes the data and returns it in a stream
+        /// </summary>
+        /// <param name="s">The serializer object</param>
+        /// <returns>The stream with the encoded data</returns>
         Stream EncodeStream(Stream s);
-        // TODO: Support encoding
     }
 }
