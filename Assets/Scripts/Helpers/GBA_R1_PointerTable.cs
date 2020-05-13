@@ -20,7 +20,8 @@ namespace R1Engine
                 return new Dictionary<GBA_R1_ROMPointer, uint>()
                 {
                     [GBA_R1_ROMPointer.Levels] = 0x085485B4,
-                    [GBA_R1_ROMPointer.Vignette] = 0x086D4D60,
+                    [GBA_R1_ROMPointer.BackgroundVignette] = 0x086D4D60,
+                    [GBA_R1_ROMPointer.IntroVignette] = 0x080F7968,
                     [GBA_R1_ROMPointer.SpritePalettes] = 0x08548F56,
                     [GBA_R1_ROMPointer.UnkLevelPointerArray1] = 0x081A62E4,
                     [GBA_R1_ROMPointer.UnkLevelPointerArray2] = 0x081A6444,

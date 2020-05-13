@@ -1,11 +1,9 @@
-﻿using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Vignette background data for Rayman Advance (GBA)
     /// </summary>
-    public class GBA_R1_Vignette : R1Serializable
+    public class GBA_R1_BackgroundVignette : R1Serializable
     {
         #region Vignette Data
 
@@ -21,10 +19,10 @@ namespace R1Engine
         public ushort Width { get; set; }
         public ushort Height { get; set; }
 
-        // Always 0x00 except for first byte which is sometimes 1 - compression flag?
+        // Always 0x00 except for first byte which is sometimes 1
         public byte[] UnkBytes_14 { get; set; }
 
-        // Both pointers lead to a pointer array - size seems to be specified in UnkBytes_20
+        // Both pointers lead to a pointer array - size seems to be specified in UnkBytes_20 - parallax parts?
         public Pointer Pointer_18 { get; set; }
         public Pointer Pointer_1B { get; set; }
 

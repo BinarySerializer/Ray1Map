@@ -188,10 +188,10 @@ namespace R1Engine
                 var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
                 // Extract every vignette
-                for (int i = 0; i < rom.Vignettes.Length; i++)
+                for (int i = 0; i < rom.BackgroundVignettes.Length; i++)
                 {
                     // Get the vignette
-                    var vig = rom.Vignettes[i];
+                    var vig = rom.BackgroundVignettes[i];
 
                     // Make sure we have image data
                     if (vig.ImageData == null)
@@ -376,7 +376,7 @@ namespace R1Engine
             return tex;
         }
 
-        public Texture2D GetVignetteTexture(GBA_R1_Vignette vig)
+        public Texture2D GetVignetteTexture(GBA_R1_BackgroundVignette vig)
         {
             // Create the texture
             var tex = new Texture2D(vig.Width * 8, vig.Height * 8)

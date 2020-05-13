@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// ROM data for Rayman Advance (GBA)
@@ -13,9 +11,11 @@ namespace R1Engine
         public GBA_R1_Level[] Levels { get; set; }
 
         /// <summary>
-        /// The vignette data
+        /// The background vignette data
         /// </summary>
-        public GBA_R1_Vignette[] Vignettes { get; set; }
+        public GBA_R1_BackgroundVignette[] BackgroundVignettes { get; set; }
+
+        public GBA_R1_IntroVignette[] IntroVignettes { get; set; }
 
         /// <summary>
         /// The sprite palettes. The game uses the same 16 palettes (with 16 colors) for every sprite in the game. During runtime this gets copied to 0x05000200.
@@ -51,8 +51,10 @@ namespace R1Engine
             // Serialize data from the ROM
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.Levels], this.Offset.file), 
                 () => Levels = s.SerializeObjectArray<GBA_R1_Level>(Levels, levelCount, name: nameof(Levels)));
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.Vignette], this.Offset.file), 
-                () => Vignettes = s.SerializeObjectArray<GBA_R1_Vignette>(Vignettes, 48, name: nameof(Vignettes)));
+            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.BackgroundVignette], this.Offset.file), 
+                () => BackgroundVignettes = s.SerializeObjectArray<GBA_R1_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));
+            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.IntroVignette], this.Offset.file), 
+                () => IntroVignettes = s.SerializeObjectArray<GBA_R1_IntroVignette>(IntroVignettes, 14, name: nameof(IntroVignettes)));
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.SpritePalettes], this.Offset.file), 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16 * 2, name: nameof(SpritePalettes)));
 
