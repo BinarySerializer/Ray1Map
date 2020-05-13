@@ -70,6 +70,8 @@
 
             UnkBytes_20 = s.SerializeArray<byte>(UnkBytes_20, 4, name: nameof(UnkBytes_20));
 
+            // Serialize data from pointers
+
             if (ImageDataPointer != null)
                 s.DoAt(ImageDataPointer, () => ImageData = s.SerializeArray<byte>(ImageData, 0x20 * Width * Height, name: nameof(ImageData)));
 
@@ -80,7 +82,6 @@
                 s.DoAt(PaletteIndicesPointer, () => PaletteIndices = s.SerializeArray<byte>(PaletteIndices, Width * Height, name: nameof(PaletteIndices)));
 
             if (PalettesPointer != null)
-                // Serialize data from pointers
                 s.DoAt(PalettesPointer, () => Palettes = s.SerializeObjectArray<ARGB1555Color>(Palettes, 6 * 16, name: nameof(Palettes)));
         }
 

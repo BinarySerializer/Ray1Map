@@ -187,7 +187,7 @@ namespace R1Engine
                 // Read data from the ROM
                 var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
-                // Extract every vignette
+                // Extract every background vignette
                 for (int i = 0; i < rom.BackgroundVignettes.Length; i++)
                 {
                     // Get the vignette
@@ -201,7 +201,20 @@ namespace R1Engine
                     var tex = GetVignetteTexture(vig);
 
                     // Save the texture
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"Vignette_{i}.png"), tex.EncodeToPNG());
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"BG_{i}.png"), tex.EncodeToPNG());
+                }
+
+                // Extract every intro vignette
+                for (int i = 0; i < rom.IntroVignettes.Length; i++)
+                {
+                    // Get the vignette
+                    var vig = rom.IntroVignettes[i];
+
+                    // Get the texture
+                    var tex = GetVignetteTexture(vig);
+
+                    // Save the texture
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"Intro_{i}.png"), tex.EncodeToPNG());
                 }
             }
         }
@@ -394,7 +407,36 @@ namespace R1Engine
 
                     var curOff = 0x20 * blockIndex;
 
-                    new GBA_R1_Manager().FillSpriteTextureBlock(tex, x * 8, y * 8, 0, 0, vig.ImageData, curOff, vig.Palettes, vig.PaletteIndices[index], false);
+                    FillSpriteTextureBlock(tex, x * 8, y * 8, 0, 0, vig.ImageData, curOff, vig.Palettes, vig.PaletteIndices[index], false);
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
+        }
+        public Texture2D GetVignetteTexture(GBA_R1_IntroVignette vig)
+        {
+            // Create the texture
+            var tex = new Texture2D(vig.Width * 8, vig.Height * 8)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            for (int y = 0; y < vig.Height; y++)
+            {
+                for (int x = 0; x < vig.Width; x++)
+                {
+                    var index = y * vig.Width + x;
+                    var imgValue = vig.ImageValues[index];
+
+                    var blockIndex = BitHelpers.ExtractBits(imgValue, 12, 0);
+                    var palIndex = BitHelpers.ExtractBits(imgValue, 4, 12);
+
+                    var curOff = 0x20 * blockIndex;
+
+                    FillSpriteTextureBlock(tex, x * 8, y * 8, 0, 0, vig.ImageData, curOff, vig.Palettes, palIndex, false);
                 }
             }
 
