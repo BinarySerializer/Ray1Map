@@ -24,7 +24,7 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.IntroVignette] = 0x080F7968,
                     [GBA_R1_ROMPointer.SpritePalettes] = 0x08548F56,
                     [GBA_R1_ROMPointer.EventGraphicsPointers] = 0x081A62E4,
-                    [GBA_R1_ROMPointer.UnkLevelPointerArray2] = 0x081A6444,
+                    [GBA_R1_ROMPointer.EventDataPointers] = 0x081A6444,
                     [GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] = 0x081A65A4,
                     [GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] = 0x081A6704,
                 };

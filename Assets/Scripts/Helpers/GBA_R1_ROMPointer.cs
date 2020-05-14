@@ -10,7 +10,7 @@
         IntroVignette,
         SpritePalettes,
         EventGraphicsPointers,
-        UnkLevelPointerArray2,
+        EventDataPointers,
         EventGraphicsGroupCountTablePointers,
         LevelEventGraphicsGroupCounts,
     }

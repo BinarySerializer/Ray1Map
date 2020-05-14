@@ -11,7 +11,7 @@
         public int LevelIndex { get; set; }
 
         public Pointer EventGraphicsPointer { get; set; }
-        public Pointer Pointer2 { get; set; }
+        public Pointer EventDataPointer { get; set; }
         public Pointer GraphicsGroupCountTablePointer { get; set; }
         public uint GraphicsGroupCount { get; set; }
 
@@ -35,8 +35,8 @@
             // Serialize data
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers] + (uint)(4 * LevelIndex), this.Offset.file), 
                 () => EventGraphicsPointer = s.SerializePointer(EventGraphicsPointer, name: nameof(EventGraphicsPointer)));
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.UnkLevelPointerArray2] + (uint)(4 * LevelIndex), this.Offset.file), 
-                () => Pointer2 = s.SerializePointer(Pointer2,  name: nameof(Pointer2)));
+            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.EventDataPointers] + (uint)(4 * LevelIndex), this.Offset.file), 
+                () => EventDataPointer = s.SerializePointer(EventDataPointer,  name: nameof(EventDataPointer)));
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] + (uint)(4 * LevelIndex), this.Offset.file), 
                 () => GraphicsGroupCountTablePointer = s.SerializePointer(GraphicsGroupCountTablePointer, name: nameof(GraphicsGroupCountTablePointer)));
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] + (uint)(4 * LevelIndex), this.Offset.file), 
@@ -53,7 +53,7 @@
             for (int i = 0; i < GraphicData.Length; i++)
                 s.DoAt(GraphicDataPointers[i], () => GraphicData[i] = s.SerializeObject<GBA_R1_EventGraphicsData>(GraphicData[i], name: $"{nameof(GraphicData)}[{i}]"));
 
-            s.DoAt(Pointer2, () => EventDataPointers = s.SerializePointerArray(EventDataPointers, GraphicsGroupCount, name: nameof(EventDataPointers)));
+            s.DoAt(EventDataPointer, () => EventDataPointers = s.SerializePointerArray(EventDataPointers, GraphicsGroupCount, name: nameof(EventDataPointers)));
 
             if (EventData == null)
                 EventData = new GBA_R1_EventData[GraphicsGroupCount][];

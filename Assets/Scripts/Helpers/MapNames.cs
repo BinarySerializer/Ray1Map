@@ -69,6 +69,7 @@ namespace R1Engine
                 [21] = "Magician Bonus 4",
 
                 [22] = "Ray Breakout",
+                [23] = "Multiplayer",
             },
             [World.Music] = new Dictionary<int, string>()
             {
@@ -94,6 +95,8 @@ namespace R1Engine
 
                 [17] = "Magician Bonus 1",
                 [18] = "Magician Bonus 2",
+
+                [19] = "Multiplayer",
             },
             [World.Mountain] = new Dictionary<int, string>()
             {
@@ -113,6 +116,8 @@ namespace R1Engine
 
                 [12] = "Magician Bonus 1",
                 [13] = "Magician Bonus 2",
+
+                [14] = "Multiplayer",
             },
             [World.Image] = new Dictionary<int, string>()
             {
@@ -132,6 +137,8 @@ namespace R1Engine
 
                 [12] = "Magician Bonus 1",
                 [13] = "Magician Bonus 2",
+
+                [14] = "Multiplayer",
             },
             [World.Cave] = new Dictionary<int, string>()
             {
@@ -150,6 +157,8 @@ namespace R1Engine
                 [11] = "Mr Skops' Stalactites 3 - Boss",
 
                 [12] = "Magician Bonus 1",
+
+                [13] = "Multiplayer",
             },
             [World.Cake] = new Dictionary<int, string>()
             {
@@ -157,6 +166,8 @@ namespace R1Engine
                 [2] = "Mr Dark's Dare 2",
                 [3] = "Mr Dark's Dare 3",
                 [4] = "Mr Dark's Dare 4 - Boss",
+
+                [5] = "Multiplayer",
             },
         };
 
