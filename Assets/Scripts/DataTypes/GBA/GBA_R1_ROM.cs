@@ -59,6 +59,7 @@
             if (LevelEventData == null)
                 LevelEventData = new GBA_R1_LevelEventData[GBA_R1_Manager.LevelCount];
 
+            // TODO: Maybe only parse one level?
             for (int i = 0; i < LevelEventData.Length; i++)
             {
                 LevelEventData[i] = s.SerializeObject<GBA_R1_LevelEventData>(LevelEventData[i], x => x.LevelIndex = i, name: $"{nameof(LevelEventData)}[{i}]");

@@ -630,7 +630,7 @@ namespace R1Engine
                         // Add to the ETA
                         eventETA.Add(dat.ETAPointer, dat.ETA);
                     }
-                    else
+                    else if (dat.ETAPointer != null)
                     {
                         // Temporary solution - combine ETA
                         var current = eventETA[dat.ETAPointer];
