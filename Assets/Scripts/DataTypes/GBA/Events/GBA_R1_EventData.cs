@@ -36,12 +36,12 @@
         public byte Unk { get; set; }
 
 
-        public Common_EventState[][] ETA_GBA { get; set; }
+        public Common_EventState[][] ETA { get; set; }
 
         /// <summary>
         /// The event commands
         /// </summary>
-        public Common_EventCommandCollection Commands_GBA { get; set; }
+        public Common_EventCommandCollection Commands { get; set; }
 
 
         /// <summary>
@@ -74,23 +74,23 @@
             // Serialize the current state
             s.DoAt(ETAPointer, () =>
             {
-                if (ETA_GBA == null)
-                    ETA_GBA = new Common_EventState[Etat + 1][];
+                if (ETA == null)
+                    ETA = new Common_EventState[Etat + 1][];
 
                 // TODO: Clean up
-                for (int i = 0; i < ETA_GBA.Length; i++)
+                for (int i = 0; i < ETA.Length; i++)
                 {
                     var pointer = s.SerializePointer(null, name: $"EtatPointer {i}");
 
                     s.DoAt(pointer, () =>
                     {
-                        ETA_GBA[i] = s.SerializeObjectArray<Common_EventState>(ETA_GBA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
+                        ETA[i] = s.SerializeObjectArray<Common_EventState>(ETA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
                     });
                 }
             });
 
             if (CommandsPointer != null)
-                s.DoAt(CommandsPointer, () => Commands_GBA = s.SerializeObject<Common_EventCommandCollection>(Commands_GBA, name: nameof(Commands_GBA)));
+                s.DoAt(CommandsPointer, () => Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: nameof(Commands)));
         }
     }
 }

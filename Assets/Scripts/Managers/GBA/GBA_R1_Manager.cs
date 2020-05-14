@@ -628,26 +628,26 @@ namespace R1Engine
                     if (dat.ETAPointer != null && !eventETA.ContainsKey(dat.ETAPointer))
                     {
                         // Add to the ETA
-                        eventETA.Add(dat.ETAPointer, dat.ETA_GBA);
+                        eventETA.Add(dat.ETAPointer, dat.ETA);
                     }
                     else
                     {
                         // Temporary solution - combine ETA
                         var current = eventETA[dat.ETAPointer];
 
-                        if (dat.ETA_GBA.Length > current.Length)
-                            Array.Resize(ref current, dat.ETA_GBA.Length);
+                        if (dat.ETA.Length > current.Length)
+                            Array.Resize(ref current, dat.ETA.Length);
 
-                        for (int ii = 0; ii < dat.ETA_GBA.Length; ii++)
+                        for (int ii = 0; ii < dat.ETA.Length; ii++)
                         {
                             if (current[ii] == null)
-                                current[ii] = new Common_EventState[dat.ETA_GBA[ii].Length];
+                                current[ii] = new Common_EventState[dat.ETA[ii].Length];
 
-                            if (dat.ETA_GBA[ii].Length > current[ii].Length)
-                                Array.Resize(ref current[ii], dat.ETA_GBA[ii].Length);
+                            if (dat.ETA[ii].Length > current[ii].Length)
+                                Array.Resize(ref current[ii], dat.ETA[ii].Length);
 
-                            for (int jj = 0; jj < dat.ETA_GBA[ii].Length; jj++)
-                                current[ii][jj] = dat.ETA_GBA[ii][jj];
+                            for (int jj = 0; jj < dat.ETA[ii].Length; jj++)
+                                current[ii][jj] = dat.ETA[ii][jj];
                         }
                     }
 
@@ -671,8 +671,10 @@ namespace R1Engine
 
                         // TODO: Fix
                         //FollowEnabled = e.FollowEnabled,
-                        //CommandCollection = e.Commands_GBA,
+                        CommandCollection = dat.Commands,
+
                         // TODO: Fix
+                        //LinkIndex = dat.SomeIndex == 0xFFFF ? index : dat.SomeIndex
                         LinkIndex = index
                     });
 
