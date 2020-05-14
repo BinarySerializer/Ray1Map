@@ -15,6 +15,11 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
+        /// The amount of levels in the game
+        /// </summary>
+        public const int LevelCount = 22 + 18 + 13 + 13 + 12 + 4 + 6;
+
+        /// <summary>
         /// The size of one cell
         /// </summary>
         public const int CellSize = 16;
@@ -277,7 +282,7 @@ namespace R1Engine
         /// <param name="e">The event</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, PC_Event e, Common_ImageDescriptor s)
+        public virtual Texture2D GetSpriteTexture(Context context, GBA_R1_EventGraphicsData e, Common_ImageDescriptor s)
         {
             if (s.Index == 0)
                 return null;
@@ -290,106 +295,133 @@ namespace R1Engine
             };
             tex.SetPixels(new Color[tex.width * tex.height]);
 
-            var pal = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context).SpritePalettes;
-            var offset = s.ImageBufferOffset;
-            if (offset % 4 != 0) {
-                offset += 4 - (offset % 4);
-            }
-            var curOff = (int)offset;
-            int block_size = 0x20;
-            while (e.ImageBuffer[curOff] != 0xFF) {
-                var structure = e.ImageBuffer[curOff];
-                var blockX = e.ImageBuffer[curOff + 1];
-                var blockY = e.ImageBuffer[curOff + 2];
-                var paletteInd = e.ImageBuffer[curOff + 3];
-                bool doubleScale = (structure & 0x10) != 0;
-                curOff += 4;
-                switch (structure & 0xF) {
-                    case 11:
-                        for (int y = 0; y < 8; y++) {
-                            for (int x = 0; x < 4; x++) {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                        }
-                        break;
-                    case 10:
-                        for (int y = 0; y < 4; y++) {
-                            for (int x = 0; x < 2; x++) {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                        }
-                        break;
-                    case 9:
-                        for (int y = 0; y < 4; y++) {
-                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                            curOff += block_size;
-                        }
-                        break;
-                    case 8:
-                        // 2 blocks vertically
-                        for (int y = 0; y < 2; y++) {
-                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                            curOff += block_size;
-                        }
-                        break;
-                    case 7:
-                        for (int y = 0; y < 4; y++) {
-                            for (int x = 0; x < 8; x++) {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                        }
-                        break;
-                    case 6:
-                        for (int y = 0; y < 2; y++) {
-                            for (int x = 0; x < 4; x++) {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                        }
-                        break;
-                    case 5:
-                        for (int x = 0; x < 4; x++) {
-                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                            curOff += block_size;
-                        }
-                        //curOff += block_size * 4;
-                        break;
-                    case 4:
-                        // 2 blocks horizontally
-                        for (int x = 0; x < 2; x++) {
-                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                            curOff += block_size;
-                        }
-                        break;
-                    case 2:
-                        for (int y = 0; y < 4; y++) {
-                            for (int x = 0; x < 4; x++) {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                        }
-                        break;
-                    case 1:
-                        // 4 blocks
-                        for (int y = 0; y < 2; y++) {
-                            for (int x = 0; x < 2; x++) {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                        }
-                        break;
-                    case 0:
-                        // 1 block
-                        FillSpriteTextureBlock(tex, blockX, blockY, 0,0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                        curOff += block_size;
-                        break;
-                    default:
-                        Controller.print("Didn't recognize command " + structure + " - " + e.ImageBufferPointer_GBA + " - " + curOff + (e.ImageBufferPointer_GBA + offset));
-                        break;
+            // TODO: Remove this once we parse we img descriptor count!
+            try
+            {
+                var pal = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context).SpritePalettes;
+                var offset = s.ImageBufferOffset;
+                if (offset % 4 != 0)
+                {
+                    offset += 4 - (offset % 4);
                 }
+                var curOff = (int)offset;
+                int block_size = 0x20;
+                while (e.ImageBuffer[curOff] != 0xFF)
+                {
+                    var structure = e.ImageBuffer[curOff];
+                    var blockX = e.ImageBuffer[curOff + 1];
+                    var blockY = e.ImageBuffer[curOff + 2];
+                    var paletteInd = e.ImageBuffer[curOff + 3];
+                    bool doubleScale = (structure & 0x10) != 0;
+                    curOff += 4;
+                    switch (structure & 0xF)
+                    {
+                        case 11:
+                            for (int y = 0; y < 8; y++)
+                            {
+                                for (int x = 0; x < 4; x++)
+                                {
+                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                    curOff += block_size;
+                                }
+                            }
+                            break;
+                        case 10:
+                            for (int y = 0; y < 4; y++)
+                            {
+                                for (int x = 0; x < 2; x++)
+                                {
+                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                    curOff += block_size;
+                                }
+                            }
+                            break;
+                        case 9:
+                            for (int y = 0; y < 4; y++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                            break;
+                        case 8:
+                            // 2 blocks vertically
+                            for (int y = 0; y < 2; y++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                            break;
+                        case 7:
+                            for (int y = 0; y < 4; y++)
+                            {
+                                for (int x = 0; x < 8; x++)
+                                {
+                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                    curOff += block_size;
+                                }
+                            }
+                            break;
+                        case 6:
+                            for (int y = 0; y < 2; y++)
+                            {
+                                for (int x = 0; x < 4; x++)
+                                {
+                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                    curOff += block_size;
+                                }
+                            }
+                            break;
+                        case 5:
+                            for (int x = 0; x < 4; x++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                            //curOff += block_size * 4;
+                            break;
+                        case 4:
+                            // 2 blocks horizontally
+                            for (int x = 0; x < 2; x++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                            break;
+                        case 2:
+                            for (int y = 0; y < 4; y++)
+                            {
+                                for (int x = 0; x < 4; x++)
+                                {
+                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                    curOff += block_size;
+                                }
+                            }
+                            break;
+                        case 1:
+                            // 4 blocks
+                            for (int y = 0; y < 2; y++)
+                            {
+                                for (int x = 0; x < 2; x++)
+                                {
+                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                    curOff += block_size;
+                                }
+                            }
+                            break;
+                        case 0:
+                            // 1 block
+                            FillSpriteTextureBlock(tex, blockX, blockY, 0, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                            break;
+                        default:
+                            Controller.print("Didn't recognize command " + structure + " - " + e.ImageBufferPointer + " - " + curOff + (e.ImageBufferPointer + offset));
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                
             }
 
             tex.Apply();
@@ -515,18 +547,8 @@ namespace R1Engine
             // Get the global level index
             int globalLevelIndex = GetGlobalLevelIndex(context.Settings.World, context.Settings.Level);
 
-            // TODO: Parse data directly from ROM
-            // Load the memory file for the current level (the WRAM section)
-            var memoryFile = await LoadExtraFile(context, "Jungle2.gba", 0x02000000);
-
-            uint eventCount = 146;
-
             // Read data from the ROM
             var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
-
-            // Parse memory files
-            PC_Event[] events = FileFactory.Read<ObjectArray<PC_Event>>(new Pointer(0x020226B0, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"Events").Value;
-            ushort[] linkTable = FileFactory.Read<Array<ushort>>(new Pointer(0x0202D408, memoryFile), context, (ss, o) => o.Length = eventCount, name: $"EventLinks").Value;
 
             // Get the current level
             var level = rom.Levels[globalLevelIndex];
@@ -556,7 +578,6 @@ namespace R1Engine
                 EventData = new List<Common_EventData>(),
             };
 
-            //commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16*16).ToArray(), 1, 16);
             commonLev.Maps[0].TileSet[0] = tileset;
 
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
@@ -564,24 +585,28 @@ namespace R1Engine
 
             var index = 0;
 
+            var eventData = rom.LevelEventData[globalLevelIndex];
+
             // Load the events
-            foreach (PC_Event e in events)
+            for (int i = 0; i < eventData.GraphicsGroupCount; i++)
             {
+                var graphics = eventData.GraphicData[i];
+
                 // Add if not found
-                if (e.ImageDescriptorsPointer_GBA != null && !eventDesigns.ContainsKey(e.ImageDescriptorsPointer_GBA))
+                if (graphics.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(graphics.ImageDescriptorsPointer))
                 {
                     Common_Design finalDesign = new Common_Design
                     {
                         Sprites = new List<Sprite>(),
                         Animations = new List<Common_Animation>(),
-                        FilePath = e.ImageDescriptorsPointer_GBA.file.filePath
+                        FilePath = graphics.ImageDescriptorsPointer.file.filePath
                     };
 
                     // Get every sprite
-                    foreach (Common_ImageDescriptor i in e.ImageDescriptors)
+                    foreach (Common_ImageDescriptor img in graphics.ImageDescriptors)
                     {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img) : null;
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
@@ -589,63 +614,72 @@ namespace R1Engine
 
                     // TODO: Clean this up - maybe inherit from the PS1 manager?
                     // Add animations
-                    finalDesign.Animations.AddRange(e.AnimDescriptors.Select(x => new PS1_R1_Manager().GetCommonAnimation(x)));
+                    finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => new PS1_R1_Manager().GetCommonAnimation(x)));
 
                     // Add to the designs
-                    eventDesigns.Add(e.ImageDescriptorsPointer_GBA, finalDesign);
+                    eventDesigns.Add(graphics.ImageDescriptorsPointer, finalDesign);
                 }
 
-                // Add if not found
-                if (e.ETAPointer_GBA != null && !eventETA.ContainsKey(e.ETAPointer_GBA))
+                for (int j = 0; j < eventData.EventData[i].Length; j++)
                 {
-                    // Add to the ETA
-                    eventETA.Add(e.ETAPointer_GBA, e.ETA_GBA);
-                }
-                else
-                {
-                    // Temporary solution - combine ETA
-                    var current = eventETA[e.ETAPointer_GBA];
+                    var dat = eventData.EventData[i][j];
 
-                    if (e.ETA_GBA.Length > current.Length)
-                        Array.Resize(ref current, e.ETA_GBA.Length);
-
-                    for (int i = 0; i < e.ETA_GBA.Length; i++)
+                    // Add if not found
+                    if (dat.ETAPointer != null && !eventETA.ContainsKey(dat.ETAPointer))
                     {
-                        if (current[i] == null)
-                            current[i] = new Common_EventState[e.ETA_GBA[i].Length];
-
-                        if (e.ETA_GBA[i].Length > current[i].Length)
-                            Array.Resize(ref current[i], e.ETA_GBA[i].Length);
-
-                        for (int j = 0; j < e.ETA_GBA[i].Length; j++)
-                            current[i][j] = e.ETA_GBA[i][j];
+                        // Add to the ETA
+                        eventETA.Add(dat.ETAPointer, dat.ETA_GBA);
                     }
+                    else
+                    {
+                        // Temporary solution - combine ETA
+                        var current = eventETA[dat.ETAPointer];
+
+                        if (dat.ETA_GBA.Length > current.Length)
+                            Array.Resize(ref current, dat.ETA_GBA.Length);
+
+                        for (int ii = 0; ii < dat.ETA_GBA.Length; ii++)
+                        {
+                            if (current[ii] == null)
+                                current[ii] = new Common_EventState[dat.ETA_GBA[ii].Length];
+
+                            if (dat.ETA_GBA[ii].Length > current[ii].Length)
+                                Array.Resize(ref current[ii], dat.ETA_GBA[ii].Length);
+
+                            for (int jj = 0; jj < dat.ETA_GBA[ii].Length; jj++)
+                                current[ii][jj] = dat.ETA_GBA[ii][jj];
+                        }
+                    }
+
+                    // Add the event
+                    commonLev.EventData.Add(new Common_EventData
+                    {
+                        Type = dat.Type,
+                        Etat = dat.Etat,
+                        SubEtat = dat.SubEtat,
+                        XPosition = dat.XPosition,
+                        YPosition = dat.YPosition,
+                        DESKey = graphics.ImageDescriptorsPointer?.ToString() ?? String.Empty,
+                        ETAKey = dat.ETAPointer?.ToString() ?? String.Empty,
+                        OffsetBX = dat.OffsetBX,
+                        OffsetBY = dat.OffsetBY,
+                        OffsetHY = dat.OffsetHY,
+                        FollowSprite = dat.FollowSprite,
+                        HitPoints = dat.HitPoints,
+                        Layer = dat.Layer,
+                        HitSprite = dat.HitSprite,
+
+                        // TODO: Fix
+                        //FollowEnabled = e.FollowEnabled,
+                        //CommandCollection = e.Commands_GBA,
+                        // TODO: Fix
+                        LinkIndex = index
+                    });
+
+                    index++;
                 }
-
-                // Add the event
-                commonLev.EventData.Add(new Common_EventData
-                {
-                    Type = e.Type,
-                    Etat = e.Etat,
-                    SubEtat = e.SubEtat,
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
-                    DESKey = e.ImageDescriptorsPointer_GBA?.ToString() ?? String.Empty,
-                    ETAKey = e.ETAPointer_GBA?.ToString() ?? String.Empty,
-                    OffsetBX = e.OffsetBX,
-                    OffsetBY = e.OffsetBY,
-                    OffsetHY = e.OffsetHY,
-                    FollowSprite = e.FollowSprite,
-                    HitPoints = e.HitPoints,
-                    Layer = e.Layer,
-                    HitSprite = e.HitSprite,
-                    FollowEnabled = e.FollowEnabled,
-                    CommandCollection = e.Commands_GBA,
-                    LinkIndex = linkTable[index]
-                });
-
-                index++;
             }
+
 
             await Controller.WaitIfNecessary();
 

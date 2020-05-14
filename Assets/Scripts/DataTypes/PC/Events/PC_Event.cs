@@ -225,6 +225,7 @@ namespace R1Engine
 
             Unk_64 = s.Serialize<ushort>(Unk_64, name: nameof(Unk_64));
             Unk_66 = s.Serialize<ushort>(Unk_66, name: nameof(Unk_66));
+
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
             // TODO: Kit and edu has 4 more bytes between here and the type value - where does it belong?
@@ -235,17 +236,20 @@ namespace R1Engine
             Unk_72 = s.Serialize<ushort>(Unk_72, name: nameof(Unk_72));
             Unk_74 = s.Serialize<ushort>(Unk_74, name: nameof(Unk_74));
             Unk_76 = s.Serialize<ushort>(Unk_76, name: nameof(Unk_76));
+
             Unk_78 = s.Serialize<ushort>(Unk_78, name: nameof(Unk_78));
             Unk_80 = s.Serialize<ushort>(Unk_80, name: nameof(Unk_80));
             Unk_82 = s.Serialize<ushort>(Unk_82, name: nameof(Unk_82));
             Unk_84 = s.Serialize<ushort>(Unk_84, name: nameof(Unk_84));
             Unk_86 = s.Serialize<ushort>(Unk_86, name: nameof(Unk_86));
+            
             Unk_88 = s.Serialize<ushort>(Unk_88, name: nameof(Unk_88));
             Unk_90 = s.Serialize<ushort>(Unk_90, name: nameof(Unk_90));
             Unk_92 = s.Serialize<ushort>(Unk_92, name: nameof(Unk_92));
             Unk_94 = s.Serialize<ushort>(Unk_94, name: nameof(Unk_94));
 
             Type = s.Serialize<EventType>(Type, name: nameof(Type));
+            
             Unk_98 = s.SerializeArray<byte>(Unk_98, 5, name: nameof(Unk_98));
             Unk_103 = s.Serialize<byte>(Unk_103, name: nameof(Unk_103));
 
@@ -281,41 +285,7 @@ namespace R1Engine
             Unk_130 = s.Serialize<ushort>(Unk_130, name: nameof(Unk_130));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
-            {
                 Unk_132_GBA = s.Serialize<ushort>(Unk_132_GBA, name: nameof(Unk_132_GBA));
-
-                // Serialize data from pointers
-
-                // TODO: Parse the ETA fully - sadly it's structured differently from PS1 even though it uses pointers the same way
-                // Serialize the current state
-                s.DoAt(ETAPointer_GBA, () =>
-                {
-                    if (ETA_GBA == null)
-                        ETA_GBA = new Common_EventState[Etat + 1][];
-
-                    // TODO: Clean up
-                    for (int i = 0; i < ETA_GBA.Length; i++)
-                    {
-                        var pointer = s.SerializePointer(null, name: $"EtatPointer {i}");
-
-                        s.DoAt(pointer, () =>
-                        {
-                            ETA_GBA[i] = s.SerializeObjectArray<Common_EventState>(ETA_GBA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
-                        });
-                    }
-                });
-
-                s.DoAt(AnimDescriptorsPointer_GBA, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors)));
-
-                s.DoAt(ImageDescriptorsPointer_GBA, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors)));
-
-                // TODO: Get the correct size
-                s.DoAt(ImageBufferPointer_GBA, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageDescriptors.Select(x => x.OuterWidth * x.OuterHeight).Sum(), name: nameof(ImageBuffer)));
-
-                // Serialize the commands
-                if (CommandsPointer_GBA != null)
-                    s.DoAt(CommandsPointer_GBA, () => Commands_GBA = s.SerializeObject<Common_EventCommandCollection>(Commands_GBA, name: nameof(Commands_GBA)));
-            }
         }
 
         /// <summary>

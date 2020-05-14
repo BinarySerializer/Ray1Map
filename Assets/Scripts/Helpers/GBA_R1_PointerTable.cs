@@ -23,10 +23,10 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.BackgroundVignette] = 0x086D4D60,
                     [GBA_R1_ROMPointer.IntroVignette] = 0x080F7968,
                     [GBA_R1_ROMPointer.SpritePalettes] = 0x08548F56,
-                    [GBA_R1_ROMPointer.UnkLevelPointerArray1] = 0x081A62E4,
+                    [GBA_R1_ROMPointer.EventGraphicsPointers] = 0x081A62E4,
                     [GBA_R1_ROMPointer.UnkLevelPointerArray2] = 0x081A6444,
-                    [GBA_R1_ROMPointer.UnkLevelPointerArray3] = 0x081A65A4,
-                    [GBA_R1_ROMPointer.UnkLevelDwordArray] = 0x081A6704,
+                    [GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] = 0x081A65A4,
+                    [GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] = 0x081A6704,
                 };
             }
             else

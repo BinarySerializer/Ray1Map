@@ -9,9 +9,9 @@
         BackgroundVignette,
         IntroVignette,
         SpritePalettes,
-        UnkLevelPointerArray1,
+        EventGraphicsPointers,
         UnkLevelPointerArray2,
-        UnkLevelPointerArray3,
-        UnkLevelDwordArray,
+        EventGraphicsGroupCountTablePointers,
+        LevelEventGraphicsGroupCounts,
     }
 }
