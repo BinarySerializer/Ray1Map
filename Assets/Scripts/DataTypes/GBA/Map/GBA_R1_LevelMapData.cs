@@ -3,7 +3,7 @@
     /// <summary>
     /// Level data for Rayman Advance (GBA)
     /// </summary>
-    public class GBA_R1_Level : R1Serializable
+    public class GBA_R1_LevelMapData : R1Serializable
     {
         #region Level Data
 

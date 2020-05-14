@@ -1,15 +1,12 @@
-﻿namespace R1Engine
+﻿using System.Collections.Generic;
+
+namespace R1Engine
 {
     /// <summary>
     /// Level event data for Rayman Advance (GBA)
     /// </summary>
-    public class GBA_R1_LevelEventData : R1Serializable
+    public class GBA_R1_LevelEventData
     {
-        /// <summary>
-        /// The level index. Set this before serializing.
-        /// </summary>
-        public int LevelIndex { get; set; }
-
         public Pointer EventGraphicsPointer { get; set; }
         public Pointer EventDataPointer { get; set; }
         public Pointer GraphicsGroupCountTablePointer { get; set; }
@@ -27,19 +24,20 @@
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s)
+        /// <param name="pointerTable">The pointer table</param>
+        public void SerializeData(SerializerObject s, Dictionary<GBA_R1_ROMPointer, Pointer> pointerTable)
         {
-            // Get the pointer table
-            var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection);
+            // Get the global level index
+            var levelIndex = new GBA_R1_Manager().GetGlobalLevelIndex(s.GameSettings.World, s.GameSettings.Level);
 
             // Serialize data
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers] + (uint)(4 * LevelIndex), this.Offset.file), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers] + (uint)(4 * levelIndex), 
                 () => EventGraphicsPointer = s.SerializePointer(EventGraphicsPointer, name: nameof(EventGraphicsPointer)));
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.EventDataPointers] + (uint)(4 * LevelIndex), this.Offset.file), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.EventDataPointers] + (uint)(4 * levelIndex), 
                 () => EventDataPointer = s.SerializePointer(EventDataPointer,  name: nameof(EventDataPointer)));
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] + (uint)(4 * LevelIndex), this.Offset.file), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] + (uint)(4 * levelIndex), 
                 () => GraphicsGroupCountTablePointer = s.SerializePointer(GraphicsGroupCountTablePointer, name: nameof(GraphicsGroupCountTablePointer)));
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] + (uint)(4 * LevelIndex), this.Offset.file), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] + (uint)(4 * levelIndex), 
                 () => GraphicsGroupCount = s.Serialize<uint>(GraphicsGroupCount, name: nameof(GraphicsGroupCount)));
 
 

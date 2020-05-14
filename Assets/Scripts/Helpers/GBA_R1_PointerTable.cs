@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -12,8 +14,9 @@ namespace R1Engine
         /// Gets the pointer table for the specified GBA version
         /// </summary>
         /// <param name="gameMode">The GBA game mode</param>
+        /// <param name="romFile">The ROM file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<GBA_R1_ROMPointer, uint> GetPointerTable(GameModeSelection gameMode)
+        public static Dictionary<GBA_R1_ROMPointer, Pointer> GetPointerTable(GameModeSelection gameMode, BinaryFile romFile)
         {
             if (gameMode == GameModeSelection.RaymanAdvanceGBAEU)
             {
@@ -27,7 +30,7 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.EventDataPointers] = 0x081A6444,
                     [GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] = 0x081A65A4,
                     [GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] = 0x081A6704,
-                };
+                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             }
             else
             {

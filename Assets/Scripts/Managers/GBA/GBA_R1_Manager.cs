@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using Asyncoroutine;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -177,7 +178,8 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                new GameAction("Export Vignette", false, true, async (input, output) => await ExtractVignetteAsync(settings, output)),
+                //new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
             };
         }
 
@@ -243,15 +245,15 @@ namespace R1Engine
         /// Gets the tile set to use
         /// </summary>
         /// <param name="context">The context</param>
-        /// <param name="level">The level to get the tile set for</param>
+        /// <param name="levelMapData">The level to get the tile set for</param>
         /// <returns>The tile set to use</returns>
-        public Common_Tileset GetTileSet(Context context, GBA_R1_Level level) {
+        public Common_Tileset GetTileSet(Context context, GBA_R1_LevelMapData levelMapData) {
             // Read the tiles
             const int block_size = 0x20;
-            ushort maxBlockIndex = level.TileBlockIndices.Max();
-            Array<byte> tiles = FileFactory.Read<Array<byte>>(level.TilesPointer, context, (s, a) => a.Length = 0x20 * ((uint)maxBlockIndex + 1));
+            ushort maxBlockIndex = levelMapData.TileBlockIndices.Max();
+            Array<byte> tiles = FileFactory.Read<Array<byte>>(levelMapData.TilesPointer, context, (s, a) => a.Length = 0x20 * ((uint)maxBlockIndex + 1));
 
-            uint length = (uint)level.TileBlockIndices.Length * 8 * 8;
+            uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
 
             // Get the tile-set texture
             var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / CellSize) * CellSize) {
@@ -259,15 +261,15 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
 
-            for (int i = 0; i < level.TileBlockIndices.Length; i++) {
-                ushort blockIndex = level.TileBlockIndices[i];
+            for (int i = 0; i < levelMapData.TileBlockIndices.Length; i++) {
+                ushort blockIndex = levelMapData.TileBlockIndices[i];
 
                 var x = ((i / 4) * 2) % (256/8) + ((i % 2) == 0 ? 0 : 1);
                 var y = (((i / 4) * 2) / (256/8)) * 2 + ((i % 4) < 2 ? 0 : 1);
 
                 var curOff = block_size * blockIndex;
                 
-                FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, level.TilePalettes, level.TilePaletteIndices[i], false, reverseHeight: false);
+                FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, levelMapData.TilePalettes, levelMapData.TilePaletteIndices[i], false, reverseHeight: false);
             }
 
             tex.Apply();
@@ -550,11 +552,9 @@ namespace R1Engine
             // Read data from the ROM
             var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
-            // Get the current level
-            var level = rom.Levels[globalLevelIndex];
-            level.SerializeLevelData(context.Deserializer);
+            rom.LevelMapData.SerializeLevelData(context.Deserializer);
 
-            Common_Tileset tileset = GetTileSet(context, level);
+            Common_Tileset tileset = GetTileSet(context, rom.LevelMapData);
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev 
@@ -565,12 +565,12 @@ namespace R1Engine
                     new Common_LevelMap()
                     {
                         // Set the dimensions
-                        Width = level.MapData.Width,
-                        Height = level.MapData.Height,
+                        Width = rom.LevelMapData.MapData.Width,
+                        Height = rom.LevelMapData.MapData.Height,
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
-                        Tiles = new Common_Tile[level.MapData.Width * level.MapData.Height]
+                        Tiles = new Common_Tile[rom.LevelMapData.MapData.Width * rom.LevelMapData.MapData.Height]
                     }
                 },
 
@@ -585,7 +585,7 @@ namespace R1Engine
 
             var index = 0;
 
-            var eventData = rom.LevelEventData[globalLevelIndex];
+            var eventData = rom.LevelEventData;
 
             // Load the events
             for (int i = 0; i < eventData.GraphicsGroupCount; i++)
@@ -686,15 +686,15 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Enumerate each cell
-            for (int cellY = 0; cellY < level.MapData.Height; cellY++) 
+            for (int cellY = 0; cellY < rom.LevelMapData.MapData.Height; cellY++) 
             {
-                for (int cellX = 0; cellX < level.MapData.Width; cellX++) 
+                for (int cellX = 0; cellX < rom.LevelMapData.MapData.Width; cellX++) 
                 {
                     // Get the cell
-                    var cell = level.MapData.Tiles[cellY * level.MapData.Width + cellX];
+                    var cell = rom.LevelMapData.MapData.Tiles[cellY * rom.LevelMapData.MapData.Width + cellX];
 
                     // Set the common tile
-                    commonLev.Maps[0].Tiles[cellY * level.MapData.Width + cellX] = new Common_Tile() 
+                    commonLev.Maps[0].Tiles[cellY * rom.LevelMapData.MapData.Width + cellX] = new Common_Tile() 
                     {
                         // TODO: Fix once we load tile graphics
                         TileSetGraphicIndex = cell.TileIndex,

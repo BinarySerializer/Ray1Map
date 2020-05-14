@@ -8,12 +8,12 @@
         /// <summary>
         /// The data for the levels
         /// </summary>
-        public GBA_R1_Level[] Levels { get; set; }
+        public GBA_R1_LevelMapData LevelMapData { get; set; }
 
         /// <summary>
-        /// The event data for the levels
+        /// The event data for the current level
         /// </summary>
-        public GBA_R1_LevelEventData[] LevelEventData { get; set; }
+        public GBA_R1_LevelEventData LevelEventData { get; set; }
 
 
         /// <summary>
@@ -40,33 +40,28 @@
             // Serialize ROM header
             base.SerializeImpl(s);
 
+            // Get the global level index
+            var levelIndex = new GBA_R1_Manager().GetGlobalLevelIndex(s.GameSettings.World, s.GameSettings.Level);
+
             // Get the pointer table
-            var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection);
+            var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
             // Serialize data from the ROM
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.Levels], this.Offset.file), 
-                () => Levels = s.SerializeObjectArray<GBA_R1_Level>(Levels, GBA_R1_Manager.LevelCount, name: nameof(Levels)));
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.Levels] + (levelIndex * 28), 
+                () => LevelMapData = s.SerializeObject<GBA_R1_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
 
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.BackgroundVignette], this.Offset.file), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.BackgroundVignette], 
                 () => BackgroundVignettes = s.SerializeObjectArray<GBA_R1_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.IntroVignette], this.Offset.file), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.IntroVignette], 
                 () => IntroVignettes = s.SerializeObjectArray<GBA_R1_IntroVignette>(IntroVignettes, 14, name: nameof(IntroVignettes)));
             WorldMapVignette = s.SerializeObject<GBA_R1_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
 
-            s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.SpritePalettes], this.Offset.file), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.SpritePalettes], 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16 * 2, name: nameof(SpritePalettes)));
 
-            if (LevelEventData == null)
-                LevelEventData = new GBA_R1_LevelEventData[GBA_R1_Manager.LevelCount];
-
-            // TODO: Maybe only parse one level?
-            for (int i = 0; i < LevelEventData.Length; i++)
-            {
-                LevelEventData[i] = s.SerializeObject<GBA_R1_LevelEventData>(LevelEventData[i], x => x.LevelIndex = i, name: $"{nameof(LevelEventData)}[{i}]");
-
-                // TODO: Remove this. Temp fix so the object doesn't get cached.
-                s.Serialize<byte>(default);
-            }
+            // Serialize the level event data
+            LevelEventData = new GBA_R1_LevelEventData();
+            LevelEventData.SerializeData(s, pointerTable);
         }
     }
 
