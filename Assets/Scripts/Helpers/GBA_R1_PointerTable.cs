@@ -30,6 +30,7 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.EventDataPointers] = 0x081A6444,
                     [GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] = 0x081A65A4,
                     [GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] = 0x081A6704,
+                    [GBA_R1_ROMPointer.WorldLevelOffsetTable] = 0x081539A4,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             }
             else

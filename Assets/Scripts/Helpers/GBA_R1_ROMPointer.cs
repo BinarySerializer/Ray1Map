@@ -13,5 +13,6 @@
         EventDataPointers,
         EventGraphicsGroupCountTablePointers,
         LevelEventGraphicsGroupCounts,
+        WorldLevelOffsetTable,
     }
 }

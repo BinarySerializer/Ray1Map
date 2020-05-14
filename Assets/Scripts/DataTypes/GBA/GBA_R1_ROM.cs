@@ -32,6 +32,12 @@
         public ARGB1555Color[] SpritePalettes { get; set; }
 
         /// <summary>
+        /// World level index offset table for global level array
+        /// </summary>
+        public byte[] WorldLevelOffsetTable { get; set; }
+
+
+        /// <summary>
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>
@@ -58,6 +64,9 @@
 
             s.DoAt(pointerTable[GBA_R1_ROMPointer.SpritePalettes], 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16 * 2, name: nameof(SpritePalettes)));
+
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.WorldLevelOffsetTable],
+                () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 12, name: nameof(WorldLevelOffsetTable)));
 
             // Serialize the level event data
             LevelEventData = new GBA_R1_LevelEventData();
@@ -105,11 +114,6 @@
     0x0202A2DA - some array where first two bytes are used to compare level and world somehow
     0x020226B0 - events
     0x0202D408 - link table
-
-
-    ROM LOCATIONS TO PARSE:
-
-    0x081539A4 - index table for level offsets based on world in global level array
 
      */
 }
