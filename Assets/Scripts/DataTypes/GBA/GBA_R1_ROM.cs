@@ -87,11 +87,8 @@
     
     Loc strings begin at 0x08F1D4C
     
-    (these are aligned weirdly)
-    uint array at 0x0854925C
-    uin array at 0x0854925D
-    uint array at 0x0854925F
-    
+    (these might begin 1 byte earlier)
+    byte[4] array at 0x0854925C    
 
     SPLASH SCREENS:
 
