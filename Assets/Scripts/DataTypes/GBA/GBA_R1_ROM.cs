@@ -70,7 +70,7 @@
         public void Test(SerializerObject s)
         {
             // For every level...
-            for (int i = 0; i < Levels.Length; i++)
+            for (int i = 0; i < 1; i++)
             {
                 // Get values
                 var p1 = UnkLevelPointerArray1[i];
@@ -141,6 +141,12 @@
         public byte FollowSprite { get; set; }
         public byte HitPoints { get; set; }
 
+        public EventType Type { get; set; }
+
+        public byte HitSprite { get; set; }
+
+        public byte[] Unk { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -161,6 +167,9 @@
             SomeFlag = s.Serialize<byte>(SomeFlag, name: nameof(SomeFlag));
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
             HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
+            Type = s.Serialize<EventType>(Type, name: nameof(Type));
+            HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
+            Unk = s.SerializeArray<byte>(Unk, 2, name: nameof(Unk));
         }
     }
 
