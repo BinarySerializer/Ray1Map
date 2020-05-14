@@ -216,6 +216,14 @@ namespace R1Engine
                     // Save the texture
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"Intro_{i}.png"), tex.EncodeToPNG());
                 }
+
+                // Extract world map vignette
+
+                // Get the world map texture
+                var worldMapTex = GetVignetteTexture(rom.WorldMapVignette);
+
+                // Save the texture
+                Util.ByteArrayToFile(Path.Combine(outputDir, $"WorldMap.png"), worldMapTex.EncodeToPNG());
             }
         }
 
@@ -389,7 +397,7 @@ namespace R1Engine
             return tex;
         }
 
-        public Texture2D GetVignetteTexture(GBA_R1_BackgroundVignette vig)
+        public Texture2D GetVignetteTexture(GBA_R1_BaseVignette vig)
         {
             // Create the texture
             var tex = new Texture2D(vig.Width * 8, vig.Height * 8)
@@ -454,33 +462,42 @@ namespace R1Engine
                 for (int x = 0; x < 8; x++) {
                     int actualX = blockX + (doubleScale ? relX * 2 : relX) * 8 + (doubleScale ? x * 2 : x);
                     int actualY = blockY + (doubleScale ? relY * 2 : relY) * 8 + (doubleScale ? y * 2 : y);
-                    if (actualX < tex.width && actualY < tex.height) {
-                        int off = y * 8 + x;
-                        if (imageBufferOffset + off / 2 > imageBuffer.Length) continue;
-                        int b = imageBuffer[imageBufferOffset + off / 2];
-                        if (off % 2 == 0) {
-                            b = BitHelpers.ExtractBits(b, 4, 0);
-                        } else {
-                            b = BitHelpers.ExtractBits(b, 4, 4);
+                    
+                    if (actualX >= tex.width || actualY >= tex.height)
+                        continue;
+                    
+                    int off = y * 8 + x;
+                        
+                    if (imageBufferOffset + off / 2 > imageBuffer.Length) 
+                        continue;
+                        
+                    int b = imageBuffer[imageBufferOffset + off / 2];
+
+                    b = BitHelpers.ExtractBits(b, 4, off % 2 == 0 ? 0 : 4);
+
+                    Color c = pal[paletteInd * 0x10 + b].GetColor();
+
+                    if (b != 0)
+                        c = new Color(c.r, c.g, c.b, 1f);
+                        
+                    if (reverseHeight)
+                    {
+                        tex.SetPixel(actualX, tex.height - 1 - actualY, c);
+                        if (doubleScale)
+                        {
+                            tex.SetPixel(actualX, tex.height - 1 - actualY - 1, c);
+                            tex.SetPixel(actualX + 1, tex.height - 1 - actualY, c);
+                            tex.SetPixel(actualX + 1, tex.height - 1 - actualY - 1, c);
                         }
-                        Color c = pal[paletteInd * 0x10 + b].GetColor();
-                        if (b != 0) {
-                            c = new Color(c.r, c.g, c.b, 1f);
-                        }
-                        if (reverseHeight) {
-                            tex.SetPixel(actualX, tex.height - 1 - actualY, c);
-                            if (doubleScale) {
-                                tex.SetPixel(actualX, tex.height - 1 - actualY - 1, c);
-                                tex.SetPixel(actualX + 1, tex.height - 1 - actualY, c);
-                                tex.SetPixel(actualX + 1, tex.height - 1 - actualY - 1, c);
-                            }
-                        } else {
-                            tex.SetPixel(actualX, actualY, c);
-                            if (doubleScale) {
-                                tex.SetPixel(actualX, actualY + 1, c);
-                                tex.SetPixel(actualX + 1, actualY, c);
-                                tex.SetPixel(actualX + 1, actualY + 1, c);
-                            }
+                    }
+                    else
+                    {
+                        tex.SetPixel(actualX, actualY, c);
+                        if (doubleScale)
+                        {
+                            tex.SetPixel(actualX, actualY + 1, c);
+                            tex.SetPixel(actualX + 1, actualY, c);
+                            tex.SetPixel(actualX + 1, actualY + 1, c);
                         }
                     }
                 }

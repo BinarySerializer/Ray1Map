@@ -17,6 +17,8 @@
 
         public GBA_R1_IntroVignette[] IntroVignettes { get; set; }
 
+        public GBA_R1_WorldMapVignette WorldMapVignette { get; set; }
+
         /// <summary>
         /// The sprite palettes. The game uses the same 16 palettes (with 16 colors) for every sprite in the game. During runtime this gets copied to 0x05000200.
         /// </summary>
@@ -51,10 +53,13 @@
             // Serialize data from the ROM
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.Levels], this.Offset.file), 
                 () => Levels = s.SerializeObjectArray<GBA_R1_Level>(Levels, levelCount, name: nameof(Levels)));
+
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.BackgroundVignette], this.Offset.file), 
                 () => BackgroundVignettes = s.SerializeObjectArray<GBA_R1_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.IntroVignette], this.Offset.file), 
                 () => IntroVignettes = s.SerializeObjectArray<GBA_R1_IntroVignette>(IntroVignettes, 14, name: nameof(IntroVignettes)));
+            WorldMapVignette = s.SerializeObject<GBA_R1_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
+
             s.DoAt(new Pointer(pointerTable[GBA_R1_ROMPointer.SpritePalettes], this.Offset.file), 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16 * 2, name: nameof(SpritePalettes)));
 
@@ -67,7 +72,7 @@
 
     /*
 
-    Following arrays were found through IDA:
+    ARRAYS:
      
     Pointer array at 0x086DCE14 - 60 items
     ushort array at 0x08549774
@@ -82,18 +87,20 @@
     uint array at 0x0854925C
     uin array at 0x0854925D
     uint array at 0x0854925F
-     
-    Vignette:
-    16 palettes for the world map are located at 0x081528A8. They're referenced from 0x080017A4 (which seems to have a reference to image data?)
-    Only vignette missing now are loading screens + splash (splash screen palettes have no transparency) 
+    
+
+    SPLASH SCREENS:
 
     16 palettes for Ubi logo are     at 0x086EEDD8
     16 palettes for Eclipse logo are at 0x086EEFD8
     16 palettes for Rayman logo are  at 0x086EF188
 
-    Palettes for menu background and loading screens don't seem to exist in the rom - compressed?
+    0x086DEC00 has 6 pointers. First 3 to image data and last 3 to the palettes for Ubi, Eclipse and RayLogo - where are the index tables?
 
-    0x086DEC00 has 6 pointers. First 3 to image data and last 3 to the palettes for Ubi, Eclipse and RayLogo
+
+    LOADING + CREDITS SCREENS:
+
+    Palettes don't seem to exist in the rom - compressed?
 
      */
 }
