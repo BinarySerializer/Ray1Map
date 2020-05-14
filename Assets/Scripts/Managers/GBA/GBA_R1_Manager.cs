@@ -139,6 +139,9 @@ namespace R1Engine
             World.Cake,
         };
 
+        /// <summary>
+        /// Gets the file path to the ROM file
+        /// </summary>
         public virtual string GetROMFilePath => $"ROM.gba";
 
         /// <summary>
@@ -297,133 +300,125 @@ namespace R1Engine
             };
             tex.SetPixels(new Color[tex.width * tex.height]);
 
-            // TODO: Remove this once we parse we img descriptor count!
-            try
+            var pal = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context).SpritePalettes;
+            var offset = s.ImageBufferOffset;
+            if (offset % 4 != 0)
             {
-                var pal = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context).SpritePalettes;
-                var offset = s.ImageBufferOffset;
-                if (offset % 4 != 0)
+                offset += 4 - (offset % 4);
+            }
+            var curOff = (int)offset;
+            const int block_size = 0x20;
+            while (e.ImageBuffer[curOff] != 0xFF)
+            {
+                var structure = e.ImageBuffer[curOff];
+                var blockX = e.ImageBuffer[curOff + 1];
+                var blockY = e.ImageBuffer[curOff + 2];
+                var paletteInd = e.ImageBuffer[curOff + 3];
+                bool doubleScale = (structure & 0x10) != 0;
+                curOff += 4;
+                switch (structure & 0xF)
                 {
-                    offset += 4 - (offset % 4);
-                }
-                var curOff = (int)offset;
-                int block_size = 0x20;
-                while (e.ImageBuffer[curOff] != 0xFF)
-                {
-                    var structure = e.ImageBuffer[curOff];
-                    var blockX = e.ImageBuffer[curOff + 1];
-                    var blockY = e.ImageBuffer[curOff + 2];
-                    var paletteInd = e.ImageBuffer[curOff + 3];
-                    bool doubleScale = (structure & 0x10) != 0;
-                    curOff += 4;
-                    switch (structure & 0xF)
-                    {
-                        case 11:
-                            for (int y = 0; y < 8; y++)
-                            {
-                                for (int x = 0; x < 4; x++)
-                                {
-                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                    curOff += block_size;
-                                }
-                            }
-                            break;
-                        case 10:
-                            for (int y = 0; y < 4; y++)
-                            {
-                                for (int x = 0; x < 2; x++)
-                                {
-                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                    curOff += block_size;
-                                }
-                            }
-                            break;
-                        case 9:
-                            for (int y = 0; y < 4; y++)
-                            {
-                                FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                            break;
-                        case 8:
-                            // 2 blocks vertically
-                            for (int y = 0; y < 2; y++)
-                            {
-                                FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                curOff += block_size;
-                            }
-                            break;
-                        case 7:
-                            for (int y = 0; y < 4; y++)
-                            {
-                                for (int x = 0; x < 8; x++)
-                                {
-                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                    curOff += block_size;
-                                }
-                            }
-                            break;
-                        case 6:
-                            for (int y = 0; y < 2; y++)
-                            {
-                                for (int x = 0; x < 4; x++)
-                                {
-                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                    curOff += block_size;
-                                }
-                            }
-                            break;
-                        case 5:
+                    case 11:
+                        for (int y = 0; y < 8; y++)
+                        {
                             for (int x = 0; x < 4; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
-                            //curOff += block_size * 4;
-                            break;
-                        case 4:
-                            // 2 blocks horizontally
+                        }
+                        break;
+                    case 10:
+                        for (int y = 0; y < 4; y++)
+                        {
                             for (int x = 0; x < 2; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
-                            break;
-                        case 2:
-                            for (int y = 0; y < 4; y++)
-                            {
-                                for (int x = 0; x < 4; x++)
-                                {
-                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                    curOff += block_size;
-                                }
-                            }
-                            break;
-                        case 1:
-                            // 4 blocks
-                            for (int y = 0; y < 2; y++)
-                            {
-                                for (int x = 0; x < 2; x++)
-                                {
-                                    FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
-                                    curOff += block_size;
-                                }
-                            }
-                            break;
-                        case 0:
-                            // 1 block
-                            FillSpriteTextureBlock(tex, blockX, blockY, 0, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                        }
+                        break;
+                    case 9:
+                        for (int y = 0; y < 4; y++)
+                        {
+                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
                             curOff += block_size;
-                            break;
-                        default:
-                            Controller.print("Didn't recognize command " + structure + " - " + e.ImageBufferPointer + " - " + curOff + (e.ImageBufferPointer + offset));
-                            break;
-                    }
+                        }
+                        break;
+                    case 8:
+                        // 2 blocks vertically
+                        for (int y = 0; y < 2; y++)
+                        {
+                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                        }
+                        break;
+                    case 7:
+                        for (int y = 0; y < 4; y++)
+                        {
+                            for (int x = 0; x < 8; x++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 6:
+                        for (int y = 0; y < 2; y++)
+                        {
+                            for (int x = 0; x < 4; x++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 5:
+                        for (int x = 0; x < 4; x++)
+                        {
+                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                        }
+                        //curOff += block_size * 4;
+                        break;
+                    case 4:
+                        // 2 blocks horizontally
+                        for (int x = 0; x < 2; x++)
+                        {
+                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            curOff += block_size;
+                        }
+                        break;
+                    case 2:
+                        for (int y = 0; y < 4; y++)
+                        {
+                            for (int x = 0; x < 4; x++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 1:
+                        // 4 blocks
+                        for (int y = 0; y < 2; y++)
+                        {
+                            for (int x = 0; x < 2; x++)
+                            {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
+                    case 0:
+                        // 1 block
+                        FillSpriteTextureBlock(tex, blockX, blockY, 0, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                        curOff += block_size;
+                        break;
+                    default:
+                        Controller.print("Didn't recognize command " + structure + " - " + e.ImageBufferPointer + " - " + curOff + (e.ImageBufferPointer + offset));
+                        break;
                 }
-            }
-            catch (Exception ex)
-            {
-                
             }
 
             tex.Apply();
@@ -546,13 +541,19 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            // Get the global level index
-            int globalLevelIndex = GetGlobalLevelIndex(context.Settings.World, context.Settings.Level);
+            Controller.status = $"Loading ROM";
+            await Controller.WaitIfNecessary();
 
             // Read data from the ROM
             var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
+            Controller.status = $"Loading level data";
+            await Controller.WaitIfNecessary();
+
             rom.LevelMapData.SerializeLevelData(context.Deserializer);
+
+            Controller.status = $"Loading tile set";
+            await Controller.WaitIfNecessary();
 
             Common_Tileset tileset = GetTileSet(context, rom.LevelMapData);
 
@@ -579,6 +580,9 @@ namespace R1Engine
             };
 
             commonLev.Maps[0].TileSet[0] = tileset;
+
+            Controller.status = $"Loading events";
+            await Controller.WaitIfNecessary();
 
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
@@ -668,9 +672,7 @@ namespace R1Engine
                         HitPoints = dat.HitPoints,
                         Layer = dat.Layer,
                         HitSprite = dat.HitSprite,
-
-                        // TODO: Fix
-                        //FollowEnabled = e.FollowEnabled,
+                        FollowEnabled = dat.FollowEnabled,
                         CommandCollection = dat.Commands,
 
                         // TODO: Fix
@@ -682,7 +684,7 @@ namespace R1Engine
                 }
             }
 
-
+            Controller.status = $"Loading map";
             await Controller.WaitIfNecessary();
 
             // Enumerate each cell
@@ -696,7 +698,6 @@ namespace R1Engine
                     // Set the common tile
                     commonLev.Maps[0].Tiles[cellY * rom.LevelMapData.MapData.Width + cellX] = new Common_Tile() 
                     {
-                        // TODO: Fix once we load tile graphics
                         TileSetGraphicIndex = cell.TileIndex,
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,

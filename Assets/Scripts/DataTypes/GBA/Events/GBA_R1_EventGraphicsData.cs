@@ -15,7 +15,7 @@
         public Pointer ImageDescriptorsPointer { get; set; }
 
         // *(_WORD*)(eventOffsetInMemory + 50) = sub_4EC90(*(_DWORD*)(structOffset + 12), 0xCu);
-        public uint ImageDescriptorCount { get; set; }
+        public uint ImageDescriptorLength { get; set; }
 
         public Pointer ETAPointer { get; set; }
 
@@ -57,7 +57,7 @@
             ImageBufferPointer = s.SerializePointer(ImageBufferPointer, name: nameof(ImageBufferPointer));
             ImageBufferSize = s.Serialize<uint>(ImageBufferSize, name: nameof(ImageBufferSize));
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
-            ImageDescriptorCount = s.Serialize<uint>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
+            ImageDescriptorLength = s.Serialize<uint>(ImageDescriptorLength, name: nameof(ImageDescriptorLength));
             ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
             Unk = s.Serialize<uint>(Unk, name: nameof(Unk));
             AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
@@ -67,8 +67,7 @@
 
             s.DoAt(AnimDescriptorsPointer, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors)));
 
-            // TODO: Get the correct size
-            s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors)));
+            s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorLength / 12, name: nameof(ImageDescriptors)));
 
             s.DoAt(ImageBufferPointer, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageBufferSize, name: nameof(ImageBuffer)));
         }

@@ -24,7 +24,7 @@
         public byte OffsetHY { get; set; }
 
         // *(_BYTE*)(eventOffsetInMemory + 112) = *(_BYTE*)(eventOffsetInMemory + 112) & 0xFE | *(_BYTE*)(eventStruct1CurrentPointer + 21) & 1;
-        public byte SomeFlag { get; set; }
+        public bool FollowEnabled { get; set; }
 
         public byte FollowSprite { get; set; }
         public byte HitPoints { get; set; }
@@ -61,7 +61,7 @@
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
             OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
-            SomeFlag = s.Serialize<byte>(SomeFlag, name: nameof(SomeFlag));
+            FollowEnabled = s.Serialize<bool>(FollowEnabled, name: nameof(FollowEnabled));
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
             HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
             Type = s.Serialize<EventType>(Type, name: nameof(Type));
