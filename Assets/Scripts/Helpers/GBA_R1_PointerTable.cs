@@ -62,7 +62,7 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.WorldMapVignetteBlockIndices] = 0x08151468,
                     [GBA_R1_ROMPointer.WorldMapVignettePaletteIndices] = 0x081521E8,
                     [GBA_R1_ROMPointer.WorldMapVignettePalettes] = 0x081528A8,
-                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile) + offset);
+                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile) - offset);
             }
             else
             {

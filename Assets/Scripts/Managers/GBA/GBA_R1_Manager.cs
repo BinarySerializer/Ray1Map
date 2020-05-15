@@ -181,9 +181,95 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                //new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
+                new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
             };
+        }
+
+        /// <summary>
+        /// Exports every sprite from the game
+        /// </summary>
+        /// <param name="baseGameSettings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <returns>The task</returns>
+        public async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        {
+            // Create the context
+            using (var context = new Context(baseGameSettings))
+            {
+                // Load the rom
+                await LoadFilesAsync(context);
+
+                // Serialize the rom
+                var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+
+                var graphics = new Dictionary<Pointer, List<World>>();
+
+                // Enumerate every world
+                foreach (var world in GetLevels(baseGameSettings))
+                {
+                    baseGameSettings.World = world.Key;
+
+                    // Enumerate every level
+                    foreach (var lvl in world.Value)
+                    {
+                        baseGameSettings.Level = lvl;
+
+                        // Serialize the event data
+                        var eventData = new GBA_R1_LevelEventData();
+                        eventData.SerializeData(context.Deserializer, GBA_R1_PointerTable.GetPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file));
+
+                        // Get the event graphics
+                        for (var i = 0; i < eventData.GraphicData.Length; i++)
+                        {
+                            var key = eventData.GraphicDataPointers[i];
+
+                            if (!graphics.ContainsKey(key))
+                                graphics.Add(key, new List<World>());
+
+                            if (!graphics[key].Contains(world.Key))
+                                graphics[key].Add(world.Key);
+                        }
+                    }
+                }
+
+                var desIndex = 0;
+
+                // Enumerate every graphics
+                foreach (var gp in graphics)
+                {
+                    var imgIndex = 0;
+
+                    // Get the graphic data
+                    var g = FileFactory.Read<GBA_R1_EventGraphicsData>(gp.Key, context);
+
+                    // Get the world name
+                    var worldName = gp.Value.Count > 1 ? "Allfix" : gp.Value.First().ToString();
+
+                    // Enumerate every image descriptor
+                    foreach (var img in g.ImageDescriptors)
+                    {
+                        // Get the texture
+                        var tex = GetSpriteTexture(context, g, img);
+
+                        // Make sure it's not null
+                        if (tex == null)
+                        {
+                            imgIndex++;
+                            continue;
+                        }
+
+                        Util.ByteArrayToFile(Path.Combine(outputDir, worldName, $"{desIndex} - {imgIndex}.png"), tex.EncodeToPNG());
+
+                        imgIndex++;
+                    }
+
+                    desIndex++;
+                }
+
+                // Unload textures
+                await Resources.UnloadUnusedAssets();
+            }
         }
 
         public async Task ExtractVignetteAsync(GameSettings settings, string outputDir)
@@ -289,7 +375,7 @@ namespace R1Engine
         /// <returns>The texture</returns>
         public virtual Texture2D GetSpriteTexture(Context context, GBA_R1_EventGraphicsData e, Common_ImageDescriptor s)
         {
-            if (s.Index == 0)
+            if (s.Index == 0 || s.InnerWidth == 0 || s.InnerHeight == 0)
                 return null;
 
             // Create the texture
@@ -420,7 +506,6 @@ namespace R1Engine
                         break;
                 }
             }
-
             tex.Apply();
 
             return tex;
