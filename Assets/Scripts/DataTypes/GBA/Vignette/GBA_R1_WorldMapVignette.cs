@@ -13,12 +13,16 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
+            // Get the pointer table
+            var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+
+
             // Hard-code properties
 
-            ImageDataPointer = new Pointer(0x08145208, this.Offset.file);
-            BlockIndicesPointer = new Pointer(0x08151468, this.Offset.file);
-            PaletteIndicesPointer = new Pointer(0x081521E8, this.Offset.file);
-            PalettesPointer = new Pointer(0x081528A8, this.Offset.file);
+            ImageDataPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignetteImageData];
+            BlockIndicesPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignetteBlockIndices];
+            PaletteIndicesPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignettePaletteIndices];
+            PalettesPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignettePalettes];
 
             Width = 48;
             Height = 36;

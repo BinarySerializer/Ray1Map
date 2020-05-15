@@ -75,6 +75,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayGBA, Game.Rayman1, "Rayman Advance (GBA - EU)", typeof(GBA_R1_Manager))]
         RaymanAdvanceGBAEU,
 
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayGBA, Game.Rayman1, "Rayman Advance (GBA - US)", typeof(GBA_R1_Manager))]
+        RaymanAdvanceGBAUS,
+
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayGBA, Game.Rayman1, "Rayman Advance (GBA - EU Beta)", typeof(GBA_R1_Manager))]
+        RaymanAdvanceGBAEUBeta,
+
         [GameMode(MajorEngineVersion.PS1, EngineVersion.Ray2PS1, Game.Rayman2, "Rayman 2 (PS1 - Demo)", typeof(PS1_R2Demo_Manager))]
         Rayman2PS1Demo,
     }

@@ -53,7 +53,7 @@
             var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
             // Serialize data from the ROM
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.Levels] + (levelIndex * 28), 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.LevelMaps] + (levelIndex * 28), 
                 () => LevelMapData = s.SerializeObject<GBA_R1_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
 
             s.DoAt(pointerTable[GBA_R1_ROMPointer.BackgroundVignette], 
