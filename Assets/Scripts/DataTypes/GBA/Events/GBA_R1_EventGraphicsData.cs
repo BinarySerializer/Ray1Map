@@ -63,6 +63,21 @@
             AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
             AnimDescriptorCount = s.Serialize<uint>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
+            // Uncomment this when running ExportUnusedSpritesAsync to avoid parsing invalid data
+            /*
+            if (ImageBufferSize > 30000)
+                return;
+            if (ImageDescriptorLength > 200*12)
+                return;
+            if (AnimDescriptorCount > 200)
+                return;
+            if (ImageBufferPointer == null)
+                return;
+            if (ImageDescriptorsPointer == null)
+                return;
+            if (AnimDescriptorsPointer == null)
+                return;*/
+
             // Serialize data from pointers
 
             s.DoAt(AnimDescriptorsPointer, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors)));

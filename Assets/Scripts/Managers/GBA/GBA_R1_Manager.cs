@@ -272,6 +272,106 @@ namespace R1Engine
             }
         }
 
+        // TODO: Add found unused/unreferenced sprites to sprite export!
+        // Hacky method for finding unused sprites - make sure you uncomment the code in GBA_R1_EventGraphicsData!
+        // Searched memory regions:
+        //  EU: 
+        //  US: 0000000-1209356 (nothing), 2500000-4840408 (unused sprites)
+        //      2911324 - Drum walker
+        //      2920648 - Game over clock
+        //      2962384 - Ink
+        //      3044596 - Font small
+        //      3044628 - Font big
+        //      3329012 - Pins
+        //      
+        //  EU-Beta: 
+        //
+        public async Task ExportUnusedSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        {
+            // Create the context
+            using (var context = new Context(baseGameSettings))
+            {
+                // Load the rom
+                await LoadFilesAsync(context);
+
+                // Serialize the rom
+                var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+
+                // Get used graphics
+                var graphics = new List<Pointer>();
+
+                // Enumerate every world
+                foreach (var world in GetLevels(baseGameSettings))
+                {
+                    baseGameSettings.World = world.Key;
+
+                    // Enumerate every level
+                    foreach (var lvl in world.Value)
+                    {
+                        baseGameSettings.Level = lvl;
+
+                        // Serialize the event data
+                        var eventData = new GBA_R1_LevelEventData();
+                        eventData.SerializeData(context.Deserializer, GBA_R1_PointerTable.GetPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file));
+
+                        // Get the event graphics
+                        for (var i = 0; i < eventData.GraphicData.Length; i++)
+                        {
+                            if (!graphics.Contains(eventData.GraphicDataPointers[i]))
+                                graphics.Add(eventData.GraphicDataPointers[i]);
+                        }
+                    }
+                }
+
+                var s = context.Deserializer;
+
+                // Enumerate every fourth byte (we assume it's aligned this way)
+                for (int i = 0; i < s.CurrentLength; i += 4)
+                {
+                    File.WriteAllText(Path.Combine(outputDir, "log.txt"), $"{s.CurrentPointer.FileOffset} / {s.CurrentLength}");
+
+                    s.Goto(rom.Offset + i);
+
+                    try
+                    {
+                        // Make sure the graphic isn't referenced already
+                        if (graphics.Any(x => x == s.CurrentPointer))
+                            continue;
+
+                        // Serialize it
+                        var g = s.SerializeObject<GBA_R1_EventGraphicsData>(default);
+
+                        var imgIndex = 0;
+
+                        // Enumerate every image descriptor
+                        foreach (var img in g.ImageDescriptors)
+                        {
+                            // Get the texture
+                            var tex = GetSpriteTexture(context, g, img);
+
+                            // Make sure it's not null
+                            if (tex == null)
+                            {
+                                imgIndex++;
+                                continue;
+                            }
+
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{(rom.Offset + i).FileOffset} - {imgIndex}.png"), tex.EncodeToPNG());
+
+                            imgIndex++;
+                        }
+
+                        // Unload textures
+                        await Resources.UnloadUnusedAssets();
+                    }
+                    catch
+                    {
+                        // Do nothing...
+                    }
+                }
+            }
+        }
+
         public async Task ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context
