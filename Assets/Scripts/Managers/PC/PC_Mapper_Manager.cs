@@ -182,7 +182,7 @@ namespace R1Engine
             // Create a linking table
             var linkTable = new ushort[eventCount];
 
-            // Handle each even link group
+            // Handle each event link group
             foreach (var linkedEvents in events.Select((x, i) => new
             {
                 Index = i,

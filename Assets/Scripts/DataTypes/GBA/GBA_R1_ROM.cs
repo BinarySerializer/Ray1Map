@@ -111,6 +111,7 @@
     0x0202A2DA - some array where first two bytes are used to compare level and world somehow
     0x020226B0 - events
     0x0202D408 - link table
+    0x020226A8 - multiplayer flag
 
      */
 }

@@ -15,7 +15,7 @@
         public ushort Layer { get; set; }
 
         //*(_WORD*) (2 * eventIndex + v8549200) = *(_WORD*) (eventStruct1CurrentPointer + 14); - linkindex???
-        public ushort SomeIndex { get; set; }
+        public ushort LinkGroup { get; set; }
 
         public byte Etat { get; set; }
         public byte SubEtat { get; set; }
@@ -55,7 +55,7 @@
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
             Layer = s.Serialize<ushort>(Layer, name: nameof(Layer));
-            SomeIndex = s.Serialize<ushort>(SomeIndex, name: nameof(SomeIndex));
+            LinkGroup = s.Serialize<ushort>(LinkGroup, name: nameof(LinkGroup));
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));

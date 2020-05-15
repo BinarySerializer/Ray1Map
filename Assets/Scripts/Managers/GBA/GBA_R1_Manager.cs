@@ -672,9 +672,38 @@ namespace R1Engine
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
 
-            var index = 0;
-
             var eventData = rom.LevelEventData;
+
+            // Create a linking table
+            var linkTable = new ushort[eventData.EventData.Select(x => x.Length).Sum()];
+
+            // Handle each event link group
+            foreach (var linkedEvents in eventData.EventData.SelectMany(x => x).Select((x, i) => new
+            {
+                Index = i,
+                Data = x,
+                LinkID = x.LinkGroup == 0xFFFF ? -1 : x.LinkGroup
+            }).GroupBy(x => x.LinkID))
+            {
+                // Get the group
+                var group = linkedEvents.ToArray();
+
+                // Handle every event
+                for (int i = 0; i < group.Length; i++)
+                {
+                    // Get the item
+                    var item = group[i];
+
+                    if (item.Data.LinkGroup == 0xFFFF)
+                        linkTable[item.Index] = (ushort)item.Index;
+                    else if (group.Length == i + 1)
+                        linkTable[item.Index] = (ushort)group[0].Index;
+                    else
+                        linkTable[item.Index] = (ushort)group[i + 1].Index;
+                }
+            }
+
+            var index = 0;
 
             // Load the events
             for (int i = 0; i < eventData.GraphicsGroupCount; i++)
@@ -759,10 +788,7 @@ namespace R1Engine
                         HitSprite = dat.HitSprite,
                         FollowEnabled = dat.FollowEnabled,
                         CommandCollection = dat.Commands,
-
-                        // TODO: Fix
-                        //LinkIndex = dat.SomeIndex == 0xFFFF ? index : dat.SomeIndex
-                        LinkIndex = index
+                        LinkIndex = linkTable[index],
                     });
 
                     index++;
