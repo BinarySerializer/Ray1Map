@@ -304,7 +304,7 @@ namespace R1Engine
         /// <param name="eventLinkingTable">The event linking table</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_Event[] events, ushort[] eventLinkingTable, bool loadTextures)
+        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_Event[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
         {
             Common_Tileset tileSet = GetTileSet(context);
 
@@ -316,6 +316,30 @@ namespace R1Engine
             if (loadTextures)
                 // Get the v-ram
                 FillVRAM(context);
+
+            // Load background sprites
+            if (bg != null && loadTextures)
+            {
+                Common_Design finalDesign = new Common_Design
+                {
+                    Sprites = new List<Sprite>(),
+                    Animations = new List<Common_Animation>(),
+                    FilePath = bg.Offset.file.filePath
+                };
+
+                // Get every sprite
+                foreach (Common_ImageDescriptor i in bg.BackgroundLayerInfos)
+                {
+                    // Get the texture for the sprite, or null if not loading textures
+                    Texture2D tex = GetSpriteTexture(context, null, i);
+
+                    // Add it to the array
+                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                }
+
+                // Add to the designs
+                eventDesigns.Add(bg.Offset, finalDesign);
+            }
 
             var index = 0;
 

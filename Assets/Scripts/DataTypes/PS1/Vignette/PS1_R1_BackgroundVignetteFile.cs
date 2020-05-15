@@ -3,7 +3,7 @@
     /// <summary>
     /// Background vignette file data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_BackgroundVignetteFile : R1Serializable
+    public class PS1_R1_BackgroundVignetteFile : PS1_R1_BaseFile
     {
         /// <summary>
         /// The width of an image block
@@ -11,21 +11,26 @@
         public const int BlockWidth = 64;
 
         /// <summary>
-        /// The file pointers
+        /// The pointer to the image block
         /// </summary>
-        public uint[] Pointers { get; set; }
+        public Pointer ImageBlockPointer => BlockPointers[0];
 
         /// <summary>
-        /// The file size
+        /// The pointer to the palette block
         /// </summary>
-        public uint FileSize { get; set; }
+        public Pointer PaletteBlockPointer => BlockPointers[1];
 
         /// <summary>
         /// The image block
         /// </summary>
         public PS1_R1_VignetteBlockGroup ImageBlock { get; set; }
 
-        public byte[] UnknownBlock { get; set; }
+        public byte[] UnknownPaletteHeader { get; set; }
+
+        /// <summary>
+        /// The parallax sprites color palettes
+        /// </summary>
+        public ARGB1555Color[][] ParallaxPalettes { get; set; }
 
         /// <summary>
         /// Serializes the data
@@ -34,18 +39,27 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // HEADER
-
-            Pointers = s.SerializeArraySize<uint, uint>(Pointers);
-            Pointers = s.SerializeArray<uint>(Pointers, Pointers.Length, name: nameof(Pointers));
-            FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+            base.SerializeImpl(s);
 
             // IMAGE BLOCK
 
-            ImageBlock = s.SerializeObject<PS1_R1_VignetteBlockGroup>(ImageBlock, name: nameof(ImageBlock), onPreSerialize: x => x.BlockGroupSize = (int)(Pointers[1] - Pointers[0]) / 2);
+            s.DoAt(ImageBlockPointer, () => ImageBlock = s.SerializeObject<PS1_R1_VignetteBlockGroup>(ImageBlock, name: nameof(ImageBlock), onPreSerialize: x => x.BlockGroupSize = (int)(PaletteBlockPointer - ImageBlockPointer) / 2));
 
-            // UNKNOWN
+            // PARALLAX PALETTES
 
-            UnknownBlock = s.SerializeArray<byte>(UnknownBlock, FileSize - s.CurrentPointer.FileOffset, name: nameof(UnknownBlock));
+            // TODO: Fix the below code so we can parse the palettes
+            return;
+            s.DoAt(PaletteBlockPointer, () => 
+            {
+                UnknownPaletteHeader = s.SerializeArray<byte>(UnknownPaletteHeader, 60, name: nameof(UnknownPaletteHeader));
+
+                uint numPalettes = (uint)(FileSize - PaletteBlockPointer.FileOffset) / (256 * 2);
+                if (ParallaxPalettes == null)
+                    ParallaxPalettes = new ARGB1555Color[numPalettes][];
+
+                for (int i = 0; i < ParallaxPalettes.Length; i++)
+                    ParallaxPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(ParallaxPalettes[i], 256, name: nameof(ParallaxPalettes) + "[" + i + "]");
+            });
         }
     }
 }

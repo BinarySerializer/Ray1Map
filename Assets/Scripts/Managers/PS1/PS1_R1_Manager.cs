@@ -65,6 +65,50 @@ namespace R1Engine
             return new Common_Tileset(pixels, TileSetWidth, CellSize);
         }
 
+        // TODO: Fix & support for JP version
+        public string GetLevelBackgroundFilePath(GameSettings settings)
+        {
+            var index = -1;
+
+            if (settings.World == World.Jungle)
+            {
+                switch (settings.Level)
+                {
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 14:
+                    case 15:
+                    case 17:
+                        index = 1;
+                        break;
+
+                    case 1:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 13:
+                        index = 2;
+                        break;
+
+                    case 9:
+                        index = 3;
+                        break;
+
+                    case 16:
+                        index = 4;
+                        break;
+                }
+            }
+
+
+            return $"RAY/IMA/FND/{GetWorldName(settings.World)}F{index}.XXX";
+        }
+
         /// <summary>
         /// Fills the PS1 v-ram and returns it
         /// </summary>
@@ -76,6 +120,7 @@ namespace R1Engine
             var allFix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
             var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
             var levelTextureBlock = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock;
+            //var bg = FileFactory.Read<PS1_R1_BackgroundVignetteFile>(GetLevelBackgroundFilePath(context.Settings), context);
 
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -107,9 +152,15 @@ namespace R1Engine
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-
+            
+            //paletteY += 13 - world.TilePalettes.Length - bg.ParallaxPalettes.Length;
             paletteY += 13 - world.TilePalettes.Length;
 
+            //// Add background parallax palettes
+            //foreach (var p in bg.ParallaxPalettes.Reverse())
+            //    vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+
+            // Add tile palettes
             foreach (var p in world.TilePalettes)
                 vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
 
@@ -142,8 +193,11 @@ namespace R1Engine
             await LoadExtraFile(context, GetLevelFilePath(context.Settings));
             var level = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
+            //// Load the background
+            //await LoadExtraFile(context, GetLevelBackgroundFilePath(context.Settings));
+
             // Load the level
-            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures);
+            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, level.BackgroundData);
         }
     }
 }
