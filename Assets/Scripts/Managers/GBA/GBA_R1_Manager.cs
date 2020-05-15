@@ -457,7 +457,9 @@ namespace R1Engine
                 var y = (((i / 4) * 2) / (256/8)) * 2 + ((i % 4) < 2 ? 0 : 1);
 
                 var curOff = block_size * blockIndex;
-                
+                if (levelMapData.TilePaletteIndices[i] >= 10) {
+                    Debug.LogWarning("Tile palette index exceeded 9: " + i + " - " + levelMapData.TilePaletteIndices[i]);
+                }
                 FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, levelMapData.TilePalettes, levelMapData.TilePaletteIndices[i], false, reverseHeight: false);
             }
 
@@ -688,8 +690,7 @@ namespace R1Engine
                     int b = imageBuffer[imageBufferOffset + off / 2];
 
                     b = BitHelpers.ExtractBits(b, 4, off % 2 == 0 ? 0 : 4);
-
-                    Color c = pal[paletteInd * 0x10 + b].GetColor();
+                    Color c = pal[(paletteInd * 0x10 + b) % pal.Count].GetColor();
 
                     if (b != 0)
                         c = new Color(c.r, c.g, c.b, 1f);

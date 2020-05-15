@@ -253,7 +253,7 @@ namespace R1Engine
                     string normalLog = LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>") + ": ";
                     byte[] bytes = reader.ReadBytes((int)count);
                     Context.Log.Log(normalLog
-                        + Util.ByteArrayToHexString(bytes, Align: 16, NewLinePrefix: new string(' ', normalLog.Length)));
+                        + Util.ByteArrayToHexString(bytes, Align: 16, NewLinePrefix: new string(' ', normalLog.Length), MaxLines: 10));
                     return (T[])(object)bytes;
                 } else {
                     return (T[])(object)reader.ReadBytes((int)count);

@@ -67,12 +67,17 @@ namespace R1Engine {
 		/// <param name="Align">Should the byte array be split in different lines, this defines the length of one line</param>
 		/// <param name="NewLinePrefix">The prefix to add to each new line</param>
 		/// <returns></returns>
-		public static string ByteArrayToHexString(byte[] Bytes, int? Align = null, string NewLinePrefix = null) {
+		public static string ByteArrayToHexString(byte[] Bytes, int? Align = null, string NewLinePrefix = null, int? MaxLines = null) {
 			StringBuilder Result = new StringBuilder(Bytes.Length * 2);
 			string HexAlphabet = "0123456789ABCDEF";
-
+			int curLine = 0;
 			for(int i = 0; i < Bytes.Length; i++) {
 				if (i > 0 && Align.HasValue && i % Align == 0) {
+					curLine++;
+					if (MaxLines.HasValue && curLine >= MaxLines.Value) {
+						Result.Append("...");
+						return Result.ToString();
+					}
 					Result.Append("\n" + NewLinePrefix ?? "");
 				}
 				byte B = Bytes[i];
