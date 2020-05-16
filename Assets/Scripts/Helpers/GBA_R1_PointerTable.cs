@@ -38,6 +38,8 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.WorldMapVignetteBlockIndices] = 0x08151504,
                     [GBA_R1_ROMPointer.WorldMapVignettePaletteIndices] = 0x08152284,
                     [GBA_R1_ROMPointer.WorldMapVignettePalettes] = 0x08152944,
+
+                    [GBA_R1_ROMPointer.StringPointers] = 0x0854ADB4,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             }
             else if (gameMode == GameModeSelection.RaymanAdvanceGBAEU || gameMode == GameModeSelection.RaymanAdvanceGBAEUBeta)
@@ -62,6 +64,8 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.WorldMapVignetteBlockIndices] = 0x08151468,
                     [GBA_R1_ROMPointer.WorldMapVignettePaletteIndices] = 0x081521E8,
                     [GBA_R1_ROMPointer.WorldMapVignettePalettes] = 0x081528A8,
+
+                    [GBA_R1_ROMPointer.StringPointers] = 0x0854ACE0,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile) - offset);
             }
             else

@@ -21,5 +21,7 @@
         WorldMapVignetteBlockIndices,
         WorldMapVignettePaletteIndices,
         WorldMapVignettePalettes,
+
+        StringPointers,
     }
 }

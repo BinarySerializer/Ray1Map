@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Text;
+
+namespace R1Engine
 {
     /// <summary>
     /// ROM data for Rayman Advance (GBA)
@@ -37,6 +39,10 @@
         public byte[] WorldLevelOffsetTable { get; set; }
 
 
+        public Pointer[] StringPointerTable { get; set; }
+        public string[] Strings { get; set; }
+
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -71,6 +77,20 @@
             // Serialize the level event data
             LevelEventData = new GBA_R1_LevelEventData();
             LevelEventData.SerializeData(s, pointerTable);
+
+            // Serialize strings
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.StringPointers], () =>
+            {
+                StringPointerTable = s.SerializePointerArray(StringPointerTable, 1807, name: nameof(StringPointerTable));
+
+                if (Strings == null)
+                    Strings = new string[StringPointerTable.Length];
+
+                for (int i = 0; i < Strings.Length; i++)
+                    s.DoAt(StringPointerTable[i], () => Strings[i] = s.SerializeString(Strings[i], 
+                        // TODO: Is this correct?
+                        encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}]"));
+            });
         }
     }
 
