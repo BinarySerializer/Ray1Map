@@ -420,6 +420,40 @@ namespace R1Engine {
 
         // Change collider size
         private void ChangeColliderSize() {
+
+            if (CurrentAnimation != null) {
+                //Set box collider size to be the combination of all parts
+                float leftX = 0, topY = 0, rightX = 0, bottomY = 0;
+                bool first = true;
+                for(int i=0; i<prefabRendereds.Length; i++) {
+
+                    var part = prefabRendereds[i];
+                    var pos = new Vector2(Mathf.Abs(part.transform.localPosition.x)*16, Mathf.Abs(part.transform.localPosition.y)*16);
+
+                    if (part.sprite != null) {
+                        if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
+                            leftX = pos.x-(part.flipX ? part.sprite.texture.width : 0);
+                        if (pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0) > rightX || first)
+                            rightX = pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0);
+                        if (pos.y < topY || first)
+                            topY = pos.y;
+                        if (pos.y + part.sprite.texture.height > bottomY || first)
+                            bottomY = pos.y + part.sprite.texture.height;
+
+                        if (first)
+                            first = false;
+                    }                 
+                }
+
+                if (!first) {
+                    var w = (rightX - leftX) / 16f;
+                    var h = (bottomY - topY) / 16f;
+                    boxCollider.size = new Vector2(w, h);
+                    boxCollider.offset = new Vector2(leftX / 16f + w / 2f, -(topY / 16f + h / 2f));
+                }
+            }
+
+            /* BRING THIS BACK IF THINGS BREAK:
             if (CurrentAnimation != null) {
                 var w = CurrentAnimation.Frames[(int)currentFrame].FrameData.Width / 16f;
                 var h = CurrentAnimation.Frames[(int)currentFrame].FrameData.Height / 16f;
@@ -431,7 +465,7 @@ namespace R1Engine {
             else {
                 boxCollider.size = new Vector2(3, 3);
                 boxCollider.offset = new Vector2(0,0);
-            }
+            }*/
         }
 
         // Update all child sprite parts
