@@ -66,10 +66,13 @@ namespace R1Engine
         }
 
         // TODO: Fix & support for JP version
-        public string GetLevelBackgroundFilePath(GameSettings settings)
+        public string GetLevelBackgroundFilePath(GameSettings settings, bool returnNullIfNoParallax)
         {
+            return null;
+
             var index = -1;
 
+            // TODO: Add bonus levels
             if (settings.World == World.Jungle)
             {
                 switch (settings.Level)
@@ -83,7 +86,7 @@ namespace R1Engine
                     case 14:
                     case 15:
                     case 17:
-                        index = 1;
+                        index = returnNullIfNoParallax ? -1 : 1;
                         break;
 
                     case 1:
@@ -96,17 +99,32 @@ namespace R1Engine
                         break;
 
                     case 9:
-                        index = 3;
+                        index = returnNullIfNoParallax ? -1 : 3;
                         break;
 
                     case 16:
-                        index = 4;
+                        index = returnNullIfNoParallax ? -1 : 4;
+                        break;
+                }
+            }
+            else if (settings.World == World.Music)
+            {
+                switch (settings.Level)
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 5:
+                        index = 2;
+                        break;
+
+                    case 4:
+                        index = returnNullIfNoParallax ? -1 : 3;
                         break;
                 }
             }
 
-
-            return $"RAY/IMA/FND/{GetWorldName(settings.World)}F{index}.XXX";
+            return index == -1 ? null : $"RAY/IMA/FND/{GetWorldName(settings.World)}F{index}.XXX";
         }
 
         /// <summary>
@@ -120,7 +138,11 @@ namespace R1Engine
             var allFix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
             var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
             var levelTextureBlock = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock;
-            //var bg = FileFactory.Read<PS1_R1_BackgroundVignetteFile>(GetLevelBackgroundFilePath(context.Settings), context);
+
+            //var bgPath = GetLevelBackgroundFilePath(context.Settings, true);
+            //ARGB1555Color[][] bgPalette = new ARGB1555Color[0][];
+            //if (bgPath != null)
+            //    bgPalette = FileFactory.Read<PS1_R1_BackgroundVignetteFile>(bgPath, context).ParallaxPalettes;
 
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -152,14 +174,14 @@ namespace R1Engine
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            
-            //paletteY += 13 - world.TilePalettes.Length - bg.ParallaxPalettes.Length;
-            paletteY += 13 - world.TilePalettes.Length;
 
+            // TODO: How are these aligned? Seems different for every background...
             //// Add background parallax palettes
-            //foreach (var p in bg.ParallaxPalettes.Reverse())
+            //foreach (var p in bgPalette.Reverse())
             //    vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-
+            
+            paletteY += 13 - world.TilePalettes.Length;
+            
             // Add tile palettes
             foreach (var p in world.TilePalettes)
                 vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
@@ -193,11 +215,13 @@ namespace R1Engine
             await LoadExtraFile(context, GetLevelFilePath(context.Settings));
             var level = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context);
 
-            //// Load the background
-            //await LoadExtraFile(context, GetLevelBackgroundFilePath(context.Settings));
+            // Load the background
+            var bgPath = GetLevelBackgroundFilePath(context.Settings, true);
+            if (bgPath != null)
+                await LoadExtraFile(context, bgPath);
 
             // Load the level
-            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, level.BackgroundData);
+            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, bgPath == null ? null : level.BackgroundData);
         }
     }
 }

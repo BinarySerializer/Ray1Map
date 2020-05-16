@@ -47,13 +47,12 @@
 
             // PARALLAX PALETTES
 
-            // TODO: Fix the below code so we can parse the palettes
-            return;
             s.DoAt(PaletteBlockPointer, () => 
             {
-                UnknownPaletteHeader = s.SerializeArray<byte>(UnknownPaletteHeader, 60, name: nameof(UnknownPaletteHeader));
+                // TODO: Get correct length and parse
+                UnknownPaletteHeader = s.SerializeArray<byte>(UnknownPaletteHeader, (FileSize - PaletteBlockPointer.FileOffset) % 512, name: nameof(UnknownPaletteHeader));
 
-                uint numPalettes = (uint)(FileSize - PaletteBlockPointer.FileOffset) / (256 * 2);
+                uint numPalettes = (uint)(FileSize - s.CurrentPointer.FileOffset) / (256 * 2);
                 if (ParallaxPalettes == null)
                     ParallaxPalettes = new ARGB1555Color[numPalettes][];
 
