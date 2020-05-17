@@ -593,6 +593,8 @@ namespace R1Engine
                 }
             }
 
+            tex.Apply();
+
             return tex;
         }
 
