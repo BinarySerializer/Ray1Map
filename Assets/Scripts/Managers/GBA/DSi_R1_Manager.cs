@@ -140,7 +140,15 @@ namespace R1Engine
             // Read the tiles
             const int block_size = 0x40;
             //Array<byte> tiles = FileFactory.Read<Array<byte>>(levelMapData.TileData, context, (s, a) => a.Length = block_size * ((uint)maxBlockIndex + 1));
+            if (levelMapData.TileBlockIndices == null) {
+                var dummy = new Texture2D(256, Settings.CellSize) {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+                dummy.Apply();
 
+                return new Common_Tileset(dummy, Settings.CellSize);
+            }
             uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
 
             // Get the tile-set texture

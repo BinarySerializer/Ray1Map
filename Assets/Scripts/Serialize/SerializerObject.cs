@@ -33,10 +33,12 @@ namespace R1Engine
 
         public abstract void Goto(Pointer offset);
         public void DoAt(Pointer offset, Action action) {
-            Pointer off_current = CurrentPointer;
-            Goto(offset);
-            action();
-            Goto(off_current);
+            if (offset != null) {
+                Pointer off_current = CurrentPointer;
+                Goto(offset);
+                action();
+                Goto(off_current);
+            }
         }
 
         public abstract void DoEncoded(IStreamEncoder encoder, Action action);
