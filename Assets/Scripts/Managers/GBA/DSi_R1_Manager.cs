@@ -145,6 +145,7 @@ namespace R1Engine
                     filterMode = FilterMode.Point,
                     wrapMode = TextureWrapMode.Clamp
                 };
+                dummy.SetPixels(new Color[dummy.width * dummy.height]);
                 dummy.Apply();
 
                 return new Common_Tileset(dummy, Settings.CellSize);
@@ -311,7 +312,9 @@ namespace R1Engine
                         for (int ii = 0; ii < dat.ETA.Length; ii++)
                         {
                             if (current[ii] == null)
-                                current[ii] = new Common_EventState[dat.ETA[ii].Length];
+                                current[ii] = new Common_EventState[dat.ETA[ii]?.Length ?? 0];
+
+                            if (dat.ETA[ii] == null) continue;
 
                             if (dat.ETA[ii].Length > current[ii].Length)
                                 Array.Resize(ref current[ii], dat.ETA[ii].Length);
