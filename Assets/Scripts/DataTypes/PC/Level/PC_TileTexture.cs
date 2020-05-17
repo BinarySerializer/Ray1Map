@@ -25,7 +25,7 @@
         /// </summary>
         /// <param name="serializer">The serializer</param>
         public override void SerializeImpl(SerializerObject s) {
-            ColorIndexes = s.SerializeArray<byte>(ColorIndexes, PC_Manager.CellSize * PC_Manager.CellSize, name: nameof(ColorIndexes));
+            ColorIndexes = s.SerializeArray<byte>(ColorIndexes, Settings.CellSize * Settings.CellSize, name: nameof(ColorIndexes));
             Unknown1 = s.SerializeArray<byte>(Unknown1, 32, name: nameof(Unknown1));
         }
     }

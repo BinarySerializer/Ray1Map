@@ -17,11 +17,6 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
-        /// The size of one cell
-        /// </summary>
-        public const int CellSize = 16;
-
-        /// <summary>
         /// Gets the base path for the game data
         /// </summary>
         /// <returns>The data path</returns>
@@ -119,11 +114,6 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
         public abstract string GetWorldFilePath(GameSettings settings);
-
-        /// <summary>
-        /// Indicates if the game has 3 palettes it swaps between
-        /// </summary>
-        public abstract bool Has3Palettes { get; }
 
         /// <summary>
         /// Gets the levels for each world
@@ -1208,140 +1198,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Auto applies the palette to the tiles in the level
-        /// </summary>
-        /// <param name="level">The level to auto-apply the palette to</param>
-        public void AutoApplyPalette(Common_Lev level)
-        {
-            // Get the palette changers
-            var paletteXChangers = level.EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat < 6).ToDictionary(x => x.XPosition, x => (PC_PaletteChangerMode)x.SubEtat);
-            var paletteYChangers = level.EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (PC_PaletteChangerMode)x.SubEtat);
-
-            // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
-            // Check which type of palette changer we have
-            bool isPaletteHorizontal = paletteXChangers.Any();
-
-            // Keep track of the default palette
-            int defaultPalette = 1;
-
-            // Get the default palette
-            if (isPaletteHorizontal && paletteXChangers.Any())
-            {
-                switch (paletteXChangers.OrderBy(x => x.Key).First().Value)
-                {
-                    case PC_PaletteChangerMode.Left1toRight2:
-                    case PC_PaletteChangerMode.Left1toRight3:
-                        defaultPalette = 1;
-                        break;
-                    case PC_PaletteChangerMode.Left2toRight1:
-                    case PC_PaletteChangerMode.Left2toRight3:
-                        defaultPalette = 2;
-                        break;
-                    case PC_PaletteChangerMode.Left3toRight1:
-                    case PC_PaletteChangerMode.Left3toRight2:
-                        defaultPalette = 3;
-                        break;
-                }
-            }
-            else if (!isPaletteHorizontal && paletteYChangers.Any())
-            {
-                switch (paletteYChangers.OrderByDescending(x => x.Key).First().Value)
-                {
-                    case PC_PaletteChangerMode.Top1tobottom2:
-                    case PC_PaletteChangerMode.Top1tobottom3:
-                        defaultPalette = 1;
-                        break;
-                    case PC_PaletteChangerMode.Top2tobottom1:
-                    case PC_PaletteChangerMode.Top2tobottom3:
-                        defaultPalette = 2;
-                        break;
-                    case PC_PaletteChangerMode.Top3tobottom1:
-                    case PC_PaletteChangerMode.Top3tobottom2:
-                        defaultPalette = 3;
-                        break;
-                }
-            }
-
-            // Keep track of the current palette
-            int currentPalette = defaultPalette;
-
-            // Enumerate each cell (PC only has 1 map per level)
-            for (int cellY = 0; cellY < level.Maps[0].Height; cellY++)
-            {
-                // Reset the palette on each row if we have a horizontal changer
-                if (isPaletteHorizontal)
-                    currentPalette = defaultPalette;
-                // Otherwise check the y position
-                else
-                {
-                    // Check every pixel 16 steps forward
-                    for (int y = 0; y < CellSize; y++)
-                    {
-                        // Attempt to find a matching palette changer on this pixel
-                        var py = paletteYChangers.TryGetValue((uint)(CellSize * cellY + y), out PC_PaletteChangerMode pm) ? (PC_PaletteChangerMode?)pm : null;
-
-                        // If one was found, change the palette based on type
-                        if (py != null)
-                        {
-                            switch (py)
-                            {
-                                case PC_PaletteChangerMode.Top2tobottom1:
-                                case PC_PaletteChangerMode.Top3tobottom1:
-                                    currentPalette = 1;
-                                    break;
-                                case PC_PaletteChangerMode.Top1tobottom2:
-                                case PC_PaletteChangerMode.Top3tobottom2:
-                                    currentPalette = 2;
-                                    break;
-                                case PC_PaletteChangerMode.Top1tobottom3:
-                                case PC_PaletteChangerMode.Top2tobottom3:
-                                    currentPalette = 3;
-                                    break;
-                            }
-                        }
-                    }
-                }
-
-                for (int cellX = 0; cellX < level.Maps[0].Width; cellX++)
-                {
-                    // Check the x position for palette changing
-                    if (isPaletteHorizontal)
-                    {
-                        // Check every pixel 16 steps forward
-                        for (int x = 0; x < CellSize; x++)
-                        {
-                            // Attempt to find a matching palette changer on this pixel
-                            var px = paletteXChangers.TryGetValue((uint)(CellSize * cellX + x), out PC_PaletteChangerMode pm) ? (PC_PaletteChangerMode?)pm : null;
-
-                            // If one was found, change the palette based on type
-                            if (px != null)
-                            {
-                                switch (px)
-                                {
-                                    case PC_PaletteChangerMode.Left3toRight1:
-                                    case PC_PaletteChangerMode.Left2toRight1:
-                                        currentPalette = 1;
-                                        break;
-                                    case PC_PaletteChangerMode.Left1toRight2:
-                                    case PC_PaletteChangerMode.Left3toRight2:
-                                        currentPalette = 2;
-                                        break;
-                                    case PC_PaletteChangerMode.Left1toRight3:
-                                    case PC_PaletteChangerMode.Left2toRight3:
-                                        currentPalette = 3;
-                                        break;
-                                }
-                            }
-                        }
-                    }
-
-                    // Set the common tile
-                    level.Maps[0].Tiles[cellY * level.Maps[0].Width + cellX].PaletteIndex = currentPalette;
-                }
-            }
-        }
-
-        /// <summary>
         /// Imports raw image data into a DES
         /// </summary>
         /// <param name="des">The DES item</param>
@@ -1623,16 +1479,16 @@ namespace R1Engine
                 // Enumerate every palette
                 for (int i = 0; i < levData.ColorPalettes.Length; i++) {
                     // Create the texture to use for the tile
-                    var tileTexture = new Texture2D(CellSize, CellSize, TextureFormat.RGBA32, false) {
+                    var tileTexture = new Texture2D(Settings.CellSize, Settings.CellSize, TextureFormat.RGBA32, false) {
                         filterMode = FilterMode.Point,
                         wrapMode = TextureWrapMode.Clamp
                     };
 
                     // Write each pixel to the texture
-                    for (int y = 0; y < CellSize; y++) {
-                        for (int x = 0; x < CellSize; x++) {
+                    for (int y = 0; y < Settings.CellSize; y++) {
+                        for (int x = 0; x < Settings.CellSize; x++) {
                             // Get the index
-                            var cellIndex = CellSize * y + x;
+                            var cellIndex = Settings.CellSize * y + x;
 
                             // Get the color from the current palette (or default to fully transparent if it's the first tile)
                             var c = index == 0 ? new Color(0, 0, 0, 0) : levData.ColorPalettes[i][255 - texture.ColorIndexes[cellIndex]].GetColor();
@@ -1650,7 +1506,7 @@ namespace R1Engine
                     tileTexture.Apply();
 
                     // Create and set up the tile
-                    output[i].SetTile(tileTexture, CellSize, index);
+                    output[i].SetTile(tileTexture, Settings.CellSize, index);
                 }
 
                 index++;

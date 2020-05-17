@@ -35,7 +35,7 @@ namespace R1Engine
             var worldFile = FileFactory.Read<PS1_R1_WorldFile>(filename, context);
 
             int tileCount = worldFile.TilePaletteIndexTable.Length;
-            int width = TileSetWidth * CellSize;
+            int width = TileSetWidth * Settings.CellSize;
             int height = (worldFile.PalettedTiles.Length) / width;
 
             var pixels = new ARGB1555Color[width * height];
@@ -44,8 +44,8 @@ namespace R1Engine
 
             for (int yB = 0; yB < height; yB += 16)
             for (int xB = 0; xB < width; xB += 16, tile++)
-            for (int y = 0; y < CellSize; y++)
-            for (int x = 0; x < CellSize; x++)
+            for (int y = 0; y < Settings.CellSize; y++)
+            for (int x = 0; x < Settings.CellSize; x++)
             {
                 int pixel = x + xB + (y + yB) * width;
                 
@@ -62,7 +62,7 @@ namespace R1Engine
                 }
             }
 
-            return new Common_Tileset(pixels, TileSetWidth, CellSize);
+            return new Common_Tileset(pixels, TileSetWidth, Settings.CellSize);
         }
 
         // TODO: Fix & support for JP version

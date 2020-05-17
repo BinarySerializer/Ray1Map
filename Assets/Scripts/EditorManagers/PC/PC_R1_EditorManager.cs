@@ -29,6 +29,11 @@ namespace R1Engine
         { }
 
         /// <summary>
+        /// Indicates if the game has 3 palettes it swaps between
+        /// </summary>
+        public override bool Has3Palettes => true;
+
+        /// <summary>
         /// Indicates if the local commands should be used
         /// </summary>
         protected override bool UsesLocalCommands => false;

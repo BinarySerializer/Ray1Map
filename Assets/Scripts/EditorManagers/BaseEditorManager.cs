@@ -62,6 +62,11 @@ namespace R1Engine
         #region Properties
 
         /// <summary>
+        /// Indicates if the game has 3 palettes it swaps between
+        /// </summary>
+        public virtual bool Has3Palettes => false;
+
+        /// <summary>
         /// The loaded event info
         /// </summary>
         protected GeneralEventInfoData[] EventInfoData { get; }

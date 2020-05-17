@@ -140,7 +140,7 @@ namespace R1Engine
             });
 
             // Get the tile-set texture
-            var tex = tileSet.ToTexture(CellSize * TileSetWidth);
+            var tex = tileSet.ToTexture(Settings.CellSize * TileSetWidth);
 
             // Add transparency
             for (int y = 0; y < tex.height; y++)
@@ -156,7 +156,7 @@ namespace R1Engine
 
             tex.Apply();
 
-            return new Common_Tileset(tex, CellSize);
+            return new Common_Tileset(tex, Settings.CellSize);
         }
 
         /// <summary>

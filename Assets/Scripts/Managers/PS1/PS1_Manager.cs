@@ -18,11 +18,6 @@ namespace R1Engine
         #region Values and paths
 
         /// <summary>
-        /// The size of one cell
-        /// </summary>
-        public const int CellSize = 16;
-
-        /// <summary>
         /// The width of the tile set in tiles
         /// </summary>
         public abstract int TileSetWidth { get; }
@@ -58,11 +53,6 @@ namespace R1Engine
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
             }
         }
-
-        /// <summary>
-        /// Indicates if the game has 3 palettes it swaps between
-        /// </summary>
-        public bool Has3Palettes => false;
 
         /// <summary>
         /// Gets the levels for each world
@@ -225,12 +215,6 @@ namespace R1Engine
             // Return the texture
             return tex;
         }
-
-        /// <summary>
-        /// Auto applies the palette to the tiles in the level
-        /// </summary>
-        /// <param name="level">The level to auto-apply the palette to</param>
-        public void AutoApplyPalette(Common_Lev level) { }
 
         public virtual async Task LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);
@@ -455,7 +439,7 @@ namespace R1Engine
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
                     tile.TileMapY = (int)Math.Floor(commonTile.TileSetGraphicIndex / (double)TileSetWidth);
-                    tile.TileMapX = commonTile.TileSetGraphicIndex - (CellSize * tile.TileMapY);
+                    tile.TileMapX = commonTile.TileSetGraphicIndex - (Settings.CellSize * tile.TileMapY);
                 }
             }
 

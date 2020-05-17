@@ -261,6 +261,11 @@ namespace R1Engine {
         public static Encoding StringEncoding { get; } = Encoding.GetEncoding(437);
 
         /// <summary>
+        /// The size of a map cell
+        /// </summary>
+        public const int CellSize = 16;
+
+        /// <summary>
         /// Gets the current game settings
         /// </summary>
         public static GameSettings GetGameSettings => new GameSettings(SelectedGameMode, CurrentDirectory, World, Level)

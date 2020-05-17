@@ -89,7 +89,7 @@ namespace R1Engine
             var tileSet = FileFactory.Read<ObjectArray<ARGB1555Color>>(filename, context, (s, x) => x.Length = s.CurrentLength / 2);
 
             // Return the tile set
-            return new Common_Tileset(tileSet.Value, TileSetWidth, CellSize);
+            return new Common_Tileset(tileSet.Value, TileSetWidth, Settings.CellSize);
         }
 
         /// <summary>

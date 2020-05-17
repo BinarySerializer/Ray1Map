@@ -21,16 +21,6 @@ namespace R1Engine
         public const int LevelCount = 22 + 18 + 13 + 13 + 12 + 4 + 6;
 
         /// <summary>
-        /// The size of one cell
-        /// </summary>
-        public const int CellSize = 16;
-
-        /// <summary>
-        /// Indicates if the game has 3 palettes it swaps between
-        /// </summary>
-        public bool Has3Palettes => false;
-
-        /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -421,12 +411,6 @@ namespace R1Engine
             }
         }
 
-        /// <summary>
-        /// Auto applies the palette to the tiles in the level
-        /// </summary>
-        /// <param name="level">The level to auto-apply the palette to</param>
-        public void AutoApplyPalette(Common_Lev level) {}
-
 
         /// <summary>
         /// Gets the tile set to use
@@ -443,7 +427,7 @@ namespace R1Engine
             uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
 
             // Get the tile-set texture
-            var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / CellSize) * CellSize) {
+            var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize) {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
@@ -463,7 +447,7 @@ namespace R1Engine
 
             tex.Apply();
 
-            return new Common_Tileset(tex, CellSize);
+            return new Common_Tileset(tex, Settings.CellSize);
         }
 
         /// <summary>

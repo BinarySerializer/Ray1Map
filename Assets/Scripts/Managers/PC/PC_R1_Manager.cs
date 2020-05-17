@@ -59,11 +59,6 @@ namespace R1Engine
         public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{(int)settings.World + 1}.WLD";
 
         /// <summary>
-        /// Indicates if the game has 3 palettes it swaps between
-        /// </summary>
-        public override bool Has3Palettes => true;
-
-        /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
         public override ArchiveFile[] GetArchiveFiles(GameSettings settings) => new ArchiveFile[0];

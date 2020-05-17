@@ -10,11 +10,6 @@ namespace R1Engine
     public interface IGameManager
     {
         /// <summary>
-        /// Indicates if the game has 3 palettes it swaps between
-        /// </summary>
-        bool Has3Palettes { get; }
-
-        /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -34,12 +29,6 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
         GameAction[] GetGameActions(GameSettings settings);
-
-        /// <summary>
-        /// Auto applies the palette to the tiles in the level
-        /// </summary>
-        /// <param name="level">The level to auto-apply the palette to</param>
-        void AutoApplyPalette(Common_Lev level);
 
         /// <summary>
         /// Loads the specified level for the editor

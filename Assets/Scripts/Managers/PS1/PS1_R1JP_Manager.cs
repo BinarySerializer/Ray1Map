@@ -65,7 +65,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override Common_Tileset GetTileSet(Context context) => new Common_Tileset(GetTileSetColors(context), TileSetWidth, CellSize);
+        public override Common_Tileset GetTileSet(Context context) => new Common_Tileset(GetTileSetColors(context), TileSetWidth, Settings.CellSize);
 
         /// <summary>
         /// Fills the PS1 v-ram and returns it

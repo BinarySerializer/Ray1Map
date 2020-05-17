@@ -71,11 +71,6 @@ namespace R1Engine
         public override string GetSoundManifestFilePath() => GetDataPath() + $"SNDH8B.DAT";
 
         /// <summary>
-        /// Indicates if the game has 3 palettes it swaps between
-        /// </summary>
-        public override bool Has3Palettes => false;
-
-        /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>

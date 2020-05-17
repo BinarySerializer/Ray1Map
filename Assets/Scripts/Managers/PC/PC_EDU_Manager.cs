@@ -54,11 +54,6 @@ namespace R1Engine
         public string GetVolumePath(GameSettings settings) => GetDataPath() + settings.EduVolume + "/";
 
         /// <summary>
-        /// Indicates if the game has 3 palettes it swaps between
-        /// </summary>
-        public override bool Has3Palettes => true;
-
-        /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>

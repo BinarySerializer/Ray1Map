@@ -47,20 +47,19 @@ namespace R1Engine
         public int camMaxY=1;
 
 
-        public void Start() {
+        public void InitializeTilemaps() {
             // Disable palette buttons based on if there are 3 palettes or not
-            if (!Settings.GetGameManager.Has3Palettes) {
+            if (!Controller.obj.levelController.EditorManager.Has3Palettes)
+            {
                 paletteText.SetActive(false);
                 paletteButtons[0].gameObject.SetActive(false);
                 paletteButtons[1].gameObject.SetActive(false);
                 paletteButtons[2].gameObject.SetActive(false);
                 paletteButtons[3].gameObject.SetActive(false);
             }
-        }
 
-        public void InitializeTilemaps() {
             // Fill out types first
-            foreach(Common_Tile t in Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles) 
+            foreach (Common_Tile t in Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles) 
             {
                 var collisionTypeIndex = (int)t.CollisionType;
 
@@ -87,7 +86,7 @@ namespace R1Engine
                 }
             }
             // Fill out tiles
-            RefreshTiles(Settings.GetGameManager.Has3Palettes ? 0 : 1);
+            RefreshTiles(Controller.obj.levelController.EditorManager.Has3Palettes ? 0 : 1);
 
             //Set max cam sizes
             camMaxX = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width;
@@ -112,9 +111,9 @@ namespace R1Engine
             // Get the current level
             var lvl = Controller.obj.levelController.currentLevel;
 
-            // If auto, refresh indexes in manager
+            // If auto, refresh indexes
             if (palette == 0)
-                Settings.GetGameManager.AutoApplyPalette(lvl);
+                lvl.AutoApplyPalette();
 
             //Refresh tiles
             foreach (Common_Tile t in lvl.Maps[editor.currentMap].Tiles)

@@ -276,7 +276,7 @@ namespace R1Engine
 
                     // Serialize each rough texture
                     for (int i = 0; i < RoughTextureCount; i++)
-                        RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], PC_Manager.CellSize * PC_Manager.CellSize, "RoughTextures[" + i + "]");
+                        RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], Settings.CellSize * Settings.CellSize, "RoughTextures[" + i + "]");
 
                     // Get the checksum
                     var c1 = s.EndCalculateChecksum<byte>();

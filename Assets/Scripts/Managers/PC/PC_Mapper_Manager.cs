@@ -251,8 +251,8 @@ namespace R1Engine
             // Read the .pcx file and get the texture
             var pcxtex = FileFactory.Read<PCX>(paths["pcx"], context).ToTexture();
 
-            var tileSetWidth = pcxtex.width / CellSize;
-            var tileSetHeight = pcxtex.height / CellSize;
+            var tileSetWidth = pcxtex.width / Settings.CellSize;
+            var tileSetHeight = pcxtex.height / Settings.CellSize;
 
             // Create the tile array
             var tiles = new Tile[tileSetWidth * tileSetHeight];
@@ -279,7 +279,7 @@ namespace R1Engine
                 {
                     // Create a tile
                     Tile t = ScriptableObject.CreateInstance<Tile>();
-                    t.sprite = Sprite.Create(pcxtex, new Rect(tx * CellSize, ty * CellSize, CellSize, CellSize), new Vector2(0.5f, 0.5f), CellSize, 20);
+                    t.sprite = Sprite.Create(pcxtex, new Rect(tx * Settings.CellSize, ty * Settings.CellSize, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), 16, 20);
 
                     // Set the tile
                     tiles[ty * tileSetWidth + tx] = t;
