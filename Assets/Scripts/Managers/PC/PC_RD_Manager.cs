@@ -316,7 +316,7 @@ namespace R1Engine
                     };
 
                     // Add the animation to list
-                    commonDesign.Animations.Add(GetCommonAnimation(ca));
+                    commonDesign.Animations.Add(ca.ToCommonAnimation());
                 }
             }
 

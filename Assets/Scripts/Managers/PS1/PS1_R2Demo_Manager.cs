@@ -162,55 +162,6 @@ namespace R1Engine
             //PaletteHelpers.ExportVram(context.Settings.GameDirectory + "vram.png", vram);
         }
 
-        /// <summary>
-        /// Gets a common animation
-        /// </summary>
-        /// <param name="animationDescriptor">The animation descriptor</param>
-        /// <returns>The common animation</returns>
-        public virtual Common_Animation GetCommonR2Animation(PS1_R2Demo_AnimationDecriptor animationDescriptor)
-        {
-            // Create the animation
-            var animation = new Common_Animation
-            {
-                Frames = new Common_AnimFrame[animationDescriptor.FrameCount],
-            };
-
-            // Create each frame
-            for (int i = 0; i < animationDescriptor.FrameCount; i++)
-            {
-                // Create the frame
-                var frame = new Common_AnimFrame()
-                {
-                    FrameData = animationDescriptor.Frames[i],
-                    Layers = new Common_AnimationPart[animationDescriptor.LayersPerFrame]
-                };
-
-                // Create each layer
-                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
-                {
-                    var animationLayer = animationDescriptor.Layers[i][layerIndex];
-
-                    // Create the animation part
-                    var part = new Common_AnimationPart
-                    {
-                        ImageIndex = animationLayer.ImageIndex,
-                        XPosition = animationLayer.XPosition,
-                        YPosition = animationLayer.YPosition,
-                        IsFlippedHorizontally = animationLayer.IsFlippedHorizontally,
-                        IsFlippedVertically = animationLayer.IsFlippedVertically
-                    };
-
-                    // Add the part
-                    frame.Layers[layerIndex] = part;
-                }
-
-                // Set the frame
-                animation.Frames[i] = frame;
-            }
-
-            return animation;
-        }
-
         public async Task<uint> LoadFile(Context context, string path, uint baseAddress) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
@@ -332,7 +283,7 @@ namespace R1Engine
                     };
 
                     // Add animations
-                    des.Animations.AddRange(animGroup.AnimationDecriptors.Select(GetCommonR2Animation));
+                    des.Animations.AddRange(animGroup.AnimationDecriptors.Select(x => x.ToCommonAnimation()));
 
                     // Add the DES
                     eventDES.Add(animGroup.AnimationDescriptorsPointer, des);

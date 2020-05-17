@@ -3,7 +3,7 @@
     /// <summary>
     /// Animation descriptor data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_AnimationDescriptor : R1Serializable
+    public class PS1_R1_AnimationDescriptor : R1Serializable, IAnimationDescriptor
     {
         /// <summary>
         /// Pointer to the animation layers

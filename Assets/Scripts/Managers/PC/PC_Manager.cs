@@ -925,58 +925,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets a common animation
-        /// </summary>
-        /// <param name="animationDescriptor">The animation descriptor</param>
-        /// <returns>The common animation</returns>
-        public virtual Common_Animation GetCommonAnimation(PC_AnimationDescriptor animationDescriptor)
-        {
-            // Create the animation
-            var animation = new Common_Animation
-            {
-                Frames = new Common_AnimFrame[animationDescriptor.FrameCount],
-            };
-
-            // The layer index
-            var layer = 0;
-
-            // Create each frame
-            for (int i = 0; i < animationDescriptor.FrameCount; i++)
-            {
-                // Create the frame
-                var frame = new Common_AnimFrame()
-                {
-                    FrameData = animationDescriptor.Frames[i],
-                    Layers = new Common_AnimationPart[animationDescriptor.LayersPerFrame]
-                };
-
-                // Create each layer
-                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
-                {
-                    var animationLayer = animationDescriptor.Layers[layer];
-                    layer++;
-
-                    // Create the animation part
-                    var part = new Common_AnimationPart
-                    {
-                        ImageIndex = animationLayer.ImageIndex,
-                        XPosition = animationLayer.XPosition,
-                        YPosition = animationLayer.YPosition,
-                        IsFlippedHorizontally = animationLayer.IsFlippedHorizontally
-                    };
-
-                    // Add the part
-                    frame.Layers[layerIndex] = part;
-                }
-
-                // Set the frame
-                animation.Frames[i] = frame;
-            }
-
-            return animation;
-        }
-
-        /// <summary>
         /// Gets a common design
         /// </summary>
         /// <param name="context">The context</param>
@@ -1009,7 +957,7 @@ namespace R1Engine
             // Animations
             foreach (var a in des.AnimationDescriptors)
                 // Add the animation to list
-                commonDesign.Animations.Add(GetCommonAnimation(a));
+                commonDesign.Animations.Add(a.ToCommonAnimation());
 
             return commonDesign;
         }

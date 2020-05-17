@@ -5,7 +5,7 @@ namespace R1Engine
     /// <summary>
     /// Animation descriptor data for PC
     /// </summary>
-    public class PC_AnimationDescriptor : R1Serializable
+    public class PC_AnimationDescriptor : R1Serializable, IAnimationDescriptor
     {
         /// <summary>
         /// The number of layers to use per frame

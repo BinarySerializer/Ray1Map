@@ -227,58 +227,6 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Gets a common animation
-        /// </summary>
-        /// <param name="animationDescriptor">The animation descriptor</param>
-        /// <returns>The common animation</returns>
-        public virtual Common_Animation GetCommonAnimation(PS1_R1_AnimationDescriptor animationDescriptor)
-        {
-            // Create the animation
-            var animation = new Common_Animation
-            {
-                Frames = new Common_AnimFrame[animationDescriptor.FrameCount],
-            };
-
-            // The layer index
-            var layer = 0;
-
-            // Create each frame
-            for (int i = 0; i < animationDescriptor.FrameCount; i++)
-            {
-                // Create the frame
-                var frame = new Common_AnimFrame()
-                {
-                    FrameData = animationDescriptor.Frames[i],
-                    Layers = new Common_AnimationPart[animationDescriptor.LayersPerFrame]
-                };
-
-                // Create each layer
-                for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++)
-                {
-                    var animationLayer = animationDescriptor.Layers[layer];
-                    layer++;
-
-                    // Create the animation part
-                    var part = new Common_AnimationPart
-                    {
-                        ImageIndex = animationLayer.ImageIndex,
-                        XPosition = animationLayer.XPosition,
-                        YPosition = animationLayer.YPosition,
-                        IsFlippedHorizontally = animationLayer.IsFlippedHorizontally
-                    };
-
-                    // Add the part
-                    frame.Layers[layerIndex] = part;
-                }
-
-                // Set the frame
-                animation.Frames[i] = frame;
-            }
-
-            return animation;
-        }
-
-        /// <summary>
         /// Auto applies the palette to the tiles in the level
         /// </summary>
         /// <param name="level">The level to auto-apply the palette to</param>
@@ -303,6 +251,7 @@ namespace R1Engine
         /// <param name="events">The events</param>
         /// <param name="eventLinkingTable">The event linking table</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
+        /// <param name="bg">The background block data if available</param>
         /// <returns>The editor manager</returns>
         public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_Event[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
         {
@@ -371,7 +320,7 @@ namespace R1Engine
                     }
 
                     // Add animations
-                    finalDesign.Animations.AddRange(e.AnimDescriptors.Select(GetCommonAnimation));
+                    finalDesign.Animations.AddRange(e.AnimDescriptors.Select(x => x.ToCommonAnimation()));
 
                     // Add to the designs
                     eventDesigns.Add(e.ImageDescriptorsPointer, finalDesign);

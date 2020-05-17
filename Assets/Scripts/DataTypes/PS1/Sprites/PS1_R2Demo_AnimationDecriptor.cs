@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     /// <summary>
     /// Animation descriptor for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class PS1_R2Demo_AnimationDecriptor : R1Serializable
+    public class PS1_R2Demo_AnimationDecriptor : R1Serializable, IAnimationDescriptor
     {
         #region Animation Data
 
@@ -52,6 +54,20 @@
         /// The animation frames
         /// </summary>
         public Common_AnimationFrame[] Frames { get; set; }
+
+        #endregion
+
+        #region Interface Members
+
+        /// <summary>
+        /// The number of layers to use per frame
+        /// </summary>
+        byte IAnimationDescriptor.LayersPerFrame => (byte)LayersPerFrame;
+
+        /// <summary>
+        /// The animation layers
+        /// </summary>
+        Common_AnimationLayer[] IAnimationDescriptor.Layers => Layers.SelectMany(x => x).ToArray();
 
         #endregion
 
