@@ -203,6 +203,9 @@ namespace R1Engine
                 // Serialize the rom
                 var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
+                // Get a pointer table
+                var pointerTable = GBA_R1_PointerTable.GetPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file);
+
                 var graphics = new Dictionary<Pointer, List<World>>();
 
                 // Enumerate every world
@@ -233,6 +236,14 @@ namespace R1Engine
                     }
                 }
 
+                // Add unused graphics
+                graphics.Add(pointerTable[GBA_R1_ROMPointer.DrumWalkerGraphics], new List<World>());
+                graphics.Add(pointerTable[GBA_R1_ROMPointer.ClockGraphics], new List<World>());
+                graphics.Add(pointerTable[GBA_R1_ROMPointer.InkGraphics], new List<World>());
+                graphics.Add(pointerTable[GBA_R1_ROMPointer.FontSmallGraphics], new List<World>());
+                graphics.Add(pointerTable[GBA_R1_ROMPointer.FontLargeGraphics], new List<World>());
+                graphics.Add(pointerTable[GBA_R1_ROMPointer.PinsGraphics], new List<World>());
+
                 var desIndex = 0;
 
                 // Enumerate every graphics
@@ -244,7 +255,7 @@ namespace R1Engine
                     var g = FileFactory.Read<GBA_R1_EventGraphicsData>(gp.Key, context);
 
                     // Get the world name
-                    var worldName = gp.Value.Count > 1 ? "Allfix" : gp.Value.First().ToString();
+                    var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().ToString());
 
                     // Enumerate every image descriptor
                     foreach (var img in g.ImageDescriptors)
@@ -272,20 +283,7 @@ namespace R1Engine
             }
         }
 
-        // TODO: Add found unused/unreferenced sprites to sprite export!
         // Hacky method for finding unused sprites - make sure you uncomment the code in GBA_R1_EventGraphicsData!
-        // Searched memory regions:
-        //  EU: 
-        //  US: 0000000-1209356 (nothing), 2500000-4840408 (unused sprites)
-        //      2911324 - Drum walker
-        //      2920648 - Game over clock
-        //      2962384 - Ink
-        //      3044596 - Font small
-        //      3044628 - Font big
-        //      3329012 - Pins
-        //      
-        //  EU-Beta: 
-        //
         public async Task ExportUnusedSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Create the context
@@ -328,9 +326,9 @@ namespace R1Engine
                 // Enumerate every fourth byte (we assume it's aligned this way)
                 for (int i = 0; i < s.CurrentLength; i += 4)
                 {
-                    File.WriteAllText(Path.Combine(outputDir, "log.txt"), $"{s.CurrentPointer.FileOffset} / {s.CurrentLength}");
-
                     s.Goto(rom.Offset + i);
+
+                    File.WriteAllText(Path.Combine(outputDir, "log.txt"), $"{s.CurrentPointer.FileOffset} / {s.CurrentLength}");
 
                     try
                     {

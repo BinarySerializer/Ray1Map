@@ -23,5 +23,13 @@
         WorldMapVignettePalettes,
 
         StringPointers,
+
+        // Graphics not referenced from events
+        DrumWalkerGraphics,
+        ClockGraphics,
+        InkGraphics,
+        FontSmallGraphics,
+        FontLargeGraphics,
+        PinsGraphics
     }
 }

@@ -104,11 +104,10 @@ namespace R1Engine
     uint array at 0x08549674
     uint array at 0x0854925E
     ushort array at 0x08549200
-    
-    Loc strings begin at 0x08F1D4C
-    
+        
     (these might begin 1 byte earlier)
     byte[4] array at 0x0854925C    
+
 
     SPLASH SCREENS:
 

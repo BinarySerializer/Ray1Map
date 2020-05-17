@@ -40,6 +40,13 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.WorldMapVignettePalettes] = 0x08152944,
 
                     [GBA_R1_ROMPointer.StringPointers] = 0x0854ADB4,
+
+                    [GBA_R1_ROMPointer.DrumWalkerGraphics] = 0x082C6C5C,
+                    [GBA_R1_ROMPointer.ClockGraphics] = 0x082C90C8,
+                    [GBA_R1_ROMPointer.InkGraphics] = 0x082D33D0,
+                    [GBA_R1_ROMPointer.FontSmallGraphics] = 0x082E74F4,
+                    [GBA_R1_ROMPointer.FontLargeGraphics] = 0x082E7514,
+                    [GBA_R1_ROMPointer.PinsGraphics] = 0x0832CBF4,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             }
             else if (gameMode == GameModeSelection.RaymanAdvanceGBAEU || gameMode == GameModeSelection.RaymanAdvanceGBAEUBeta)
@@ -66,6 +73,13 @@ namespace R1Engine
                     [GBA_R1_ROMPointer.WorldMapVignettePalettes] = 0x081528A8,
 
                     [GBA_R1_ROMPointer.StringPointers] = 0x0854ACE0,
+
+                    [GBA_R1_ROMPointer.DrumWalkerGraphics] = 0x082C6B88,
+                    [GBA_R1_ROMPointer.ClockGraphics] = 0x082C8FF4,
+                    [GBA_R1_ROMPointer.InkGraphics] = 0x082D32FC,
+                    [GBA_R1_ROMPointer.FontSmallGraphics] = 0x082E7420,
+                    [GBA_R1_ROMPointer.FontLargeGraphics] = 0x082E7440,
+                    [GBA_R1_ROMPointer.PinsGraphics] = 0x0832CB20,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile) - offset);
             }
             else
