@@ -1,14 +1,14 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
 
 namespace R1Engine
 {
     /// <summary>
-    /// Pointer table data for GBA
+    /// Pointer tables for rom games
     /// </summary>
-    public static class GBA_R1_PointerTable
+    public static class PointerTables
     {
         /// <summary>
         /// Gets the pointer table for the specified GBA version
@@ -16,7 +16,7 @@ namespace R1Engine
         /// <param name="gameMode">The GBA game mode</param>
         /// <param name="romFile">The ROM file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<GBA_R1_ROMPointer, Pointer> GetPointerTable(GameModeSelection gameMode, BinaryFile romFile)
+        public static Dictionary<GBA_R1_ROMPointer, Pointer> GetGBAPointerTable(GameModeSelection gameMode, BinaryFile romFile)
         {
             if (gameMode == GameModeSelection.RaymanAdvanceGBAUS)
             {
@@ -86,6 +86,26 @@ namespace R1Engine
             {
                 throw new ArgumentOutOfRangeException(nameof(gameMode), gameMode, null);
             }
+        }
+
+        /// <summary>
+        /// Gets the pointer table for the specified DSi version
+        /// </summary>
+        /// <param name="gameMode">The DSi game mode</param>
+        /// <param name="dataFile">The data file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<DSi_R1_Pointer, Pointer> GetDSiPointerTable(GameModeSelection gameMode, BinaryFile dataFile)
+        {
+            return new Dictionary<DSi_R1_Pointer, uint>()
+            {
+                [DSi_R1_Pointer.JungleMaps] = 0x0226C6B4,
+                [DSi_R1_Pointer.LevelMaps] = 0x02361968,
+
+                [DSi_R1_Pointer.EventGraphicsPointers] = 0x0284B5B0,
+                [DSi_R1_Pointer.EventDataPointers] = 0x0284B6F8,
+                [DSi_R1_Pointer.EventGraphicsGroupCountTablePointers] = 0x0284B988,
+                [DSi_R1_Pointer.LevelEventGraphicsGroupCounts] = 0x0284B840,
+            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, dataFile));
         }
     }
 }

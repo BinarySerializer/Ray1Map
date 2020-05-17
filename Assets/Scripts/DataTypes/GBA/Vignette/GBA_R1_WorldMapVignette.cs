@@ -14,7 +14,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Get the pointer table
-            var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+            var pointerTable = PointerTables.GetGBAPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
 
             // Hard-code properties

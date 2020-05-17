@@ -1,6 +1,9 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using R1Engine.Serialize;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -136,7 +139,191 @@ namespace R1Engine
         {
             // TODO: Eventually merge this with the LoadAsync method in the GBA manager
 
-            throw new NotImplementedException();
+            var data = FileFactory.Read<DSi_R1_DataFile>(GetROMFilePath, context);
+            data.LevelMapData.SerializeLevelData(context.Deserializer);
+
+            var map = data.LevelMapData.MapData;
+
+            // Convert levelData to common level format
+            Common_Lev commonLev = new Common_Lev
+            {
+                // Create the map
+                Maps = new Common_LevelMap[]
+                {
+                    new Common_LevelMap()
+                    {
+                        // Set the dimensions
+                        Width = map.Width,
+                        Height = map.Height,
+
+                        // Create the tile arrays
+                        TileSet = new Common_Tileset[3],
+                        Tiles = new Common_Tile[map.Width * map.Height]
+                    }
+                },
+
+                // Create the events list
+                EventData = new List<Common_EventData>(),
+            };
+
+            // Load a dummy tile for now
+            commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16 * 16).ToArray(), 1, 16);
+
+            Controller.status = $"Loading events";
+            await Controller.WaitIfNecessary();
+
+            var eventDesigns = new Dictionary<Pointer, Common_Design>();
+            var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
+
+            var eventData = data.LevelEventData;
+
+            // Create a linking table
+            var linkTable = new ushort[eventData.EventData.Select(x => x.Length).Sum()];
+
+            // Handle each event link group
+            foreach (var linkedEvents in eventData.EventData.SelectMany(x => x).Select((x, i) => new
+            {
+                Index = i,
+                Data = x,
+                LinkID = x.LinkGroup == 0xFFFF ? -1 : x.LinkGroup
+            }).GroupBy(x => x.LinkID))
+            {
+                // Get the group
+                var group = linkedEvents.ToArray();
+
+                // Handle every event
+                for (int i = 0; i < group.Length; i++)
+                {
+                    // Get the item
+                    var item = group[i];
+
+                    if (item.Data.LinkGroup == 0xFFFF)
+                        linkTable[item.Index] = (ushort)item.Index;
+                    else if (group.Length == i + 1)
+                        linkTable[item.Index] = (ushort)group[0].Index;
+                    else
+                        linkTable[item.Index] = (ushort)group[i + 1].Index;
+                }
+            }
+
+            var index = 0;
+
+            // Load the events
+            for (int i = 0; i < eventData.GraphicsGroupCount; i++)
+            {
+                var graphics = eventData.GraphicData[i];
+
+                // Add if not found
+                if (graphics.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(graphics.ImageDescriptorsPointer))
+                {
+                    Common_Design finalDesign = new Common_Design
+                    {
+                        Sprites = new List<Sprite>(),
+                        Animations = new List<Common_Animation>(),
+                        FilePath = graphics.ImageDescriptorsPointer.file.filePath
+                    };
+
+                    // Get every sprite
+                    foreach (Common_ImageDescriptor img in graphics.ImageDescriptors)
+                    {
+                        // TODO: Fix and get palette
+                        // Get the texture for the sprite, or null if not loading textures
+                        //Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, Enumerable.Repeat(new ARGB1555Color(50, 50, 50), 512).ToArray()) : null;
+                        Texture2D tex = null;
+
+                        // Add it to the array
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    }
+
+                    // Add animations
+                    finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => x.ToCommonAnimation()));
+
+                    // Add to the designs
+                    eventDesigns.Add(graphics.ImageDescriptorsPointer, finalDesign);
+                }
+
+                for (int j = 0; j < eventData.EventData[i].Length; j++)
+                {
+                    var dat = eventData.EventData[i][j];
+
+                    // Add if not found
+                    if (dat.ETAPointer != null && !eventETA.ContainsKey(dat.ETAPointer))
+                    {
+                        // Add to the ETA
+                        eventETA.Add(dat.ETAPointer, dat.ETA);
+                    }
+                    else if (dat.ETAPointer != null)
+                    {
+                        // Temporary solution - combine ETA
+                        var current = eventETA[dat.ETAPointer];
+
+                        if (dat.ETA.Length > current.Length)
+                            Array.Resize(ref current, dat.ETA.Length);
+
+                        for (int ii = 0; ii < dat.ETA.Length; ii++)
+                        {
+                            if (current[ii] == null)
+                                current[ii] = new Common_EventState[dat.ETA[ii].Length];
+
+                            if (dat.ETA[ii].Length > current[ii].Length)
+                                Array.Resize(ref current[ii], dat.ETA[ii].Length);
+
+                            for (int jj = 0; jj < dat.ETA[ii].Length; jj++)
+                                current[ii][jj] = dat.ETA[ii][jj];
+                        }
+                    }
+
+                    // Add the event
+                    commonLev.EventData.Add(new Common_EventData
+                    {
+                        Type = dat.Type,
+                        Etat = dat.Etat,
+                        SubEtat = dat.SubEtat,
+                        XPosition = dat.XPosition,
+                        YPosition = dat.YPosition,
+                        DESKey = graphics.ImageDescriptorsPointer?.ToString() ?? String.Empty,
+                        ETAKey = dat.ETAPointer?.ToString() ?? String.Empty,
+                        OffsetBX = dat.OffsetBX,
+                        OffsetBY = dat.OffsetBY,
+                        OffsetHY = dat.OffsetHY,
+                        FollowSprite = dat.FollowSprite,
+                        HitPoints = dat.HitPoints,
+                        Layer = dat.Layer,
+                        HitSprite = dat.HitSprite,
+                        FollowEnabled = dat.FollowEnabled,
+                        CommandCollection = dat.Commands,
+                        LinkIndex = linkTable[index],
+                    });
+
+                    index++;
+                }
+            }
+
+            Controller.status = $"Loading map";
+            await Controller.WaitIfNecessary();
+
+            // Enumerate each cell
+            for (int cellY = 0; cellY < map.Height; cellY++)
+            {
+                for (int cellX = 0; cellX < map.Width; cellX++)
+                {
+                    // Get the cell
+                    var cell = map.Tiles[cellY * map.Width + cellX];
+
+                    // Set the common tile
+                    commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile()
+                    {
+                        // TODO: Fix once we load tile graphics
+                        //TileSetGraphicIndex = textureIndex,
+                        CollisionType = cell.CollisionType,
+                        PaletteIndex = 1,
+                        XPosition = cellX,
+                        YPosition = cellY
+                    };
+                }
+            }
+
+            return new PS1EditorManager(commonLev, context, eventDesigns, eventETA);
         }
 
         /// <summary>

@@ -194,7 +194,7 @@ namespace R1Engine
                 var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
                 // Get a pointer table
-                var pointerTable = GBA_R1_PointerTable.GetPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file);
+                var pointerTable = PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file);
 
                 var graphics = new Dictionary<Pointer, List<World>>();
 
@@ -210,7 +210,7 @@ namespace R1Engine
 
                         // Serialize the event data
                         var eventData = new GBA_R1_LevelEventData();
-                        eventData.SerializeData(context.Deserializer, GBA_R1_PointerTable.GetPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file));
+                        eventData.SerializeData(context.Deserializer, pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], pointerTable[GBA_R1_ROMPointer.EventDataPointers], pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
 
                         // Get the event graphics
                         for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -251,7 +251,7 @@ namespace R1Engine
                     foreach (var img in g.ImageDescriptors)
                     {
                         // Get the texture
-                        var tex = GetSpriteTexture(context, g, img);
+                        var tex = GetSpriteTexture(context, g, img, rom.SpritePalettes);
 
                         // Make sure it's not null
                         if (tex == null)
@@ -288,6 +288,8 @@ namespace R1Engine
                 // Get used graphics
                 var graphics = new List<Pointer>();
 
+                var pointerTable = PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file);
+
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings))
                 {
@@ -300,7 +302,7 @@ namespace R1Engine
 
                         // Serialize the event data
                         var eventData = new GBA_R1_LevelEventData();
-                        eventData.SerializeData(context.Deserializer, GBA_R1_PointerTable.GetPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file));
+                        eventData.SerializeData(context.Deserializer, pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], pointerTable[GBA_R1_ROMPointer.EventDataPointers], pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
 
                         // Get the event graphics
                         for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -335,7 +337,7 @@ namespace R1Engine
                         foreach (var img in g.ImageDescriptors)
                         {
                             // Get the texture
-                            var tex = GetSpriteTexture(context, g, img);
+                            var tex = GetSpriteTexture(context, g, img, rom.SpritePalettes);
 
                             // Make sure it's not null
                             if (tex == null)
@@ -456,8 +458,9 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="e">The event</param>
         /// <param name="s">The image descriptor to use</param>
+        /// <param name="pal">The sprite palette</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, GBA_R1_EventGraphicsData e, Common_ImageDescriptor s)
+        public virtual Texture2D GetSpriteTexture(Context context, GBA_R1_EventGraphicsData e, Common_ImageDescriptor s, ARGB1555Color[] pal)
         {
             if (s.Index == 0 || s.InnerWidth == 0 || s.InnerHeight == 0)
                 return null;
@@ -470,7 +473,6 @@ namespace R1Engine
             };
             tex.SetPixels(new Color[tex.width * tex.height]);
 
-            var pal = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context).SpritePalettes;
             var offset = s.ImageBufferOffset;
             if (offset % 4 != 0)
             {
@@ -590,7 +592,6 @@ namespace R1Engine
                         break;
                 }
             }
-            tex.Apply();
 
             return tex;
         }
@@ -807,7 +808,7 @@ namespace R1Engine
                     foreach (Common_ImageDescriptor img in graphics.ImageDescriptors)
                     {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img) : null;
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, rom.SpritePalettes) : null;
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));

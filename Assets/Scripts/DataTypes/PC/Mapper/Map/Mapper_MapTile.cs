@@ -16,9 +16,9 @@
         public TileCollisionType CollisionType { get; set; }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             TileIndex = s.Serialize<ushort>(TileIndex, name: nameof(TileIndex));
 

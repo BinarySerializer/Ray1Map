@@ -45,7 +45,7 @@
         /// <summary>
         /// The map data
         /// </summary>
-        public GBA_R1_Map MapData { get; set; }
+        public Mapper_Map MapData { get; set; }
 
         /// <summary>
         /// The 10 available tile palettes (16 colors each)
@@ -80,10 +80,10 @@
             s.DoAt(MapDataPointer, () => {
                 if ((CompressionFlags & 1) == 1) {
                     s.DoEncoded(new LZSSEncoder(), () => {
-                        MapData = s.SerializeObject<GBA_R1_Map>(MapData, name: nameof(MapData));
+                        MapData = s.SerializeObject<Mapper_Map>(MapData, name: nameof(MapData));
                     });
                 } else {
-                    MapData = s.SerializeObject<GBA_R1_Map>(MapData, name: nameof(MapData));
+                    MapData = s.SerializeObject<Mapper_Map>(MapData, name: nameof(MapData));
                 }
             });
             s.DoAt(TilePaletteIndicesPointer, () => {

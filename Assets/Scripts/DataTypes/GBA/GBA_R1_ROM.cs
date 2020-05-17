@@ -56,7 +56,7 @@ namespace R1Engine
             var levelIndex = new GBA_R1_Manager().GetGlobalLevelIndex(s.GameSettings.World, s.GameSettings.Level);
 
             // Get the pointer table
-            var pointerTable = GBA_R1_PointerTable.GetPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+            var pointerTable = PointerTables.GetGBAPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
             // Serialize data from the ROM
             s.DoAt(pointerTable[GBA_R1_ROMPointer.LevelMaps] + (levelIndex * 28), 
@@ -76,7 +76,7 @@ namespace R1Engine
 
             // Serialize the level event data
             LevelEventData = new GBA_R1_LevelEventData();
-            LevelEventData.SerializeData(s, pointerTable);
+            LevelEventData.SerializeData(s, pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], pointerTable[GBA_R1_ROMPointer.EventDataPointers], pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
 
             // Serialize strings
             s.DoAt(pointerTable[GBA_R1_ROMPointer.StringPointers], () =>

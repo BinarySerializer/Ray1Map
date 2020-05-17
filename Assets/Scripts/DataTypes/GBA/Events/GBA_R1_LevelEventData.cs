@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Level event data for Rayman Advance (GBA)
@@ -24,20 +22,19 @@ namespace R1Engine
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>
-        /// <param name="pointerTable">The pointer table</param>
-        public void SerializeData(SerializerObject s, Dictionary<GBA_R1_ROMPointer, Pointer> pointerTable)
+        public void SerializeData(SerializerObject s, Pointer eventGraphicsPointers, Pointer eventDataPointers, Pointer eventGraphicsGroupCountTablePointers, Pointer levelEventGraphicsGroupCounts)
         {
             // Get the global level index
             var levelIndex = new GBA_R1_Manager().GetGlobalLevelIndex(s.GameSettings.World, s.GameSettings.Level);
 
             // Serialize data
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers] + (uint)(4 * levelIndex), 
+            s.DoAt(eventGraphicsPointers + (uint)(4 * levelIndex), 
                 () => EventGraphicsPointer = s.SerializePointer(EventGraphicsPointer, name: nameof(EventGraphicsPointer)));
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.EventDataPointers] + (uint)(4 * levelIndex), 
+            s.DoAt(eventDataPointers + (uint)(4 * levelIndex), 
                 () => EventDataPointer = s.SerializePointer(EventDataPointer,  name: nameof(EventDataPointer)));
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers] + (uint)(4 * levelIndex), 
+            s.DoAt(eventGraphicsGroupCountTablePointers + (uint)(4 * levelIndex), 
                 () => GraphicsGroupCountTablePointer = s.SerializePointer(GraphicsGroupCountTablePointer, name: nameof(GraphicsGroupCountTablePointer)));
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts] + (uint)(4 * levelIndex), 
+            s.DoAt(levelEventGraphicsGroupCounts + (uint)(4 * levelIndex), 
                 () => GraphicsGroupCount = s.Serialize<uint>(GraphicsGroupCount, name: nameof(GraphicsGroupCount)));
 
 
