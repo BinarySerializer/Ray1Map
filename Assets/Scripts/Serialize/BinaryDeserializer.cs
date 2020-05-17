@@ -345,10 +345,10 @@ namespace R1Engine
             }
         }
         public override void DoEncoded(IStreamEncoder encoder, Action action) {
+            // Stream key
+            string key = CurrentPointer.ToString() + "_decoded";
             // Decode the data into a stream
             using (var memStream = encoder.DecodeStream(reader.BaseStream)) {
-                // Stream key
-                string key = CurrentPointer.ToString() + "_decoded";
 
                 // Add the stream
                 StreamFile sf = new StreamFile(key, memStream, Context);
