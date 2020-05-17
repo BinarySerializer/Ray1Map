@@ -10,7 +10,7 @@ using UnityEngine;
 namespace R1Engine
 {
     /// <summary>
-    /// Base game manager for PC
+    /// Base game manager for GBA
     /// </summary>
     public class GBA_R1_Manager : IGameManager {
         #region Values and paths
@@ -25,7 +25,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetGBALevels.GroupBy(x => x).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Count()).ToArray())).ToArray();
+        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetGlobalLevels.GroupBy(x => x).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Count()).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes
@@ -37,7 +37,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the available levels ordered based on the global level array
         /// </summary>
-        public World[] GetGBALevels => new World[]
+        public virtual World[] GetGlobalLevels => new World[]
         {
             World.Jungle,
             World.Jungle,
@@ -142,7 +142,7 @@ namespace R1Engine
         /// <returns>The global index</returns>
         public int GetGlobalLevelIndex(World world, int lvl)
         {
-            var lvls = GetGBALevels;
+            var lvls = GetGlobalLevels;
             var worldIndex = 0;
             for (int i = 0; i < lvls.Length; i++)
             {
@@ -182,7 +182,7 @@ namespace R1Engine
         /// <param name="baseGameSettings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
         /// <returns>The task</returns>
-        public async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        public virtual async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Create the context
             using (var context = new Context(baseGameSettings))
@@ -274,7 +274,7 @@ namespace R1Engine
         }
 
         // Hacky method for finding unused sprites - make sure you uncomment the code in GBA_R1_EventGraphicsData!
-        public async Task ExportUnusedSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        public virtual async Task ExportUnusedSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Create the context
             using (var context = new Context(baseGameSettings))
@@ -360,7 +360,7 @@ namespace R1Engine
             }
         }
 
-        public async Task ExtractVignetteAsync(GameSettings settings, string outputDir)
+        public virtual async Task ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context
             using (var context = new Context(settings))
@@ -418,7 +418,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="levelMapData">The level to get the tile set for</param>
         /// <returns>The tile set to use</returns>
-        public Common_Tileset GetTileSet(Context context, GBA_R1_LevelMapData levelMapData) {
+        public virtual Common_Tileset GetTileSet(Context context, GBA_R1_LevelMapData levelMapData) {
             // Read the tiles
             const int block_size = 0x20;
             ushort maxBlockIndex = levelMapData.TileBlockIndices.Max();

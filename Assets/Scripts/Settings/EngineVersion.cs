@@ -68,5 +68,10 @@ namespace R1Engine
         /// Rayman Advance (GBA)
         /// </summary>
         RayGBA,
+
+        /// <summary>
+        /// Rayman 1 (DSi)
+        /// </summary>
+        RayDSi,
     }
 }
