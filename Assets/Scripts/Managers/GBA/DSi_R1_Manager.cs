@@ -129,6 +129,47 @@ namespace R1Engine
 
         public override Task ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new NotImplementedException();
 
+
+        /// <summary>
+        /// Gets the tile set to use
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="levelMapData">The level to get the tile set for</param>
+        /// <returns>The tile set to use</returns>
+        public Common_Tileset GetTileSet(Context context, DSi_R1_LevelMapData levelMapData) {
+            // Read the tiles
+            const int block_size = 0x40;
+            ushort maxBlockIndex = levelMapData.TileBlockIndices.Max();
+            Debug.Log(maxBlockIndex);
+            //Array<byte> tiles = FileFactory.Read<Array<byte>>(levelMapData.TileData, context, (s, a) => a.Length = block_size * ((uint)maxBlockIndex + 1));
+
+            uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
+
+            // Get the tile-set texture
+            var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize) {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            for (int i = 0; i < levelMapData.TileBlockIndices.Length; i++) {
+                ushort blockIndex = levelMapData.TileBlockIndices[i];
+
+                var x = ((i / 4) * 2) % (256 / 8) + ((i % 2) == 0 ? 0 : 1);
+                var y = (((i / 4) * 2) / (256 / 8)) * 2 + ((i % 4) < 2 ? 0 : 1);
+
+                var curOff = block_size * blockIndex;
+                /*if (levelMapData.TilePaletteIndices[i] >= 10) {
+                    Debug.LogWarning("Tile palette index exceeded 9: " + i + " - " + levelMapData.TilePaletteIndices[i]);
+                }*/
+                FillSpriteTextureBlock(tex, 0, 0, x, y, levelMapData.TileData, curOff, levelMapData.TilePalette, 0, false, reverseHeight: false, is4Bit: false);
+            }
+
+            tex.Apply();
+
+            return new Common_Tileset(tex, Settings.CellSize);
+        }
+
+
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -167,7 +208,8 @@ namespace R1Engine
             };
 
             // Load a dummy tile for now
-            commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16 * 16).ToArray(), 1, 16);
+            commonLev.Maps[0].TileSet[0] = GetTileSet(context, data.LevelMapData);
+            //commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGBColor(0, 0, 0, 0), 16 * 16).ToArray(), 1, 16);
 
             Controller.status = $"Loading events";
             await Controller.WaitIfNecessary();
@@ -313,8 +355,7 @@ namespace R1Engine
                     // Set the common tile
                     commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile()
                     {
-                        // TODO: Fix once we load tile graphics
-                        //TileSetGraphicIndex = textureIndex,
+                        TileSetGraphicIndex = cell.TileIndex,
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,
                         XPosition = cellX,

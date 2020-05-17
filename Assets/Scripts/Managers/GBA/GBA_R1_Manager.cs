@@ -658,7 +658,7 @@ namespace R1Engine
             int blockX, int blockY,
             int relX, int relY,
             byte[] imageBuffer, int imageBufferOffset,
-            IList<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true) {
+            IList<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true, bool is4Bit = true) {
             for (int y = 0; y < 8; y++) {
                 for (int x = 0; x < 8; x++) {
                     int actualX = blockX + (doubleScale ? relX * 2 : relX) * 8 + (doubleScale ? x * 2 : x);
@@ -668,17 +668,29 @@ namespace R1Engine
                         continue;
                     
                     int off = y * 8 + x;
-                        
-                    if (imageBufferOffset + off / 2 > imageBuffer.Length) 
-                        continue;
-                        
-                    int b = imageBuffer[imageBufferOffset + off / 2];
 
-                    b = BitHelpers.ExtractBits(b, 4, off % 2 == 0 ? 0 : 4);
-                    Color c = pal[(paletteInd * 0x10 + b) % pal.Count].GetColor();
+                    int b = 0;
+                    Color c;
+                    if (is4Bit) {
+                        if (imageBufferOffset + off / 2 > imageBuffer.Length)
+                            continue;
+                        b = imageBuffer[imageBufferOffset + off / 2];
 
-                    if (b != 0)
-                        c = new Color(c.r, c.g, c.b, 1f);
+                        b = BitHelpers.ExtractBits(b, 4, off % 2 == 0 ? 0 : 4);
+                        c = pal[(paletteInd * 0x10 + b) % pal.Count].GetColor();
+
+                        if (b != 0)
+                            c = new Color(c.r, c.g, c.b, 1f);
+                    } else {
+                        if (imageBufferOffset + off > imageBuffer.Length)
+                            continue;
+                        b = imageBuffer[imageBufferOffset + off];
+                        c = pal[(paletteInd * 0x100 + b) % pal.Count].GetColor();
+                        if (b != 0)
+                            c = new Color(c.r, c.g, c.b, 1f);
+                        else
+                            c = new Color(0, 0, 0, 0f);
+                    }
                         
                     if (reverseHeight)
                     {
