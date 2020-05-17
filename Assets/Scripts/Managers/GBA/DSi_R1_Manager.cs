@@ -139,8 +139,6 @@ namespace R1Engine
         public Common_Tileset GetTileSet(Context context, DSi_R1_LevelMapData levelMapData) {
             // Read the tiles
             const int block_size = 0x40;
-            ushort maxBlockIndex = levelMapData.TileBlockIndices.Max();
-            Debug.Log(maxBlockIndex);
             //Array<byte> tiles = FileFactory.Read<Array<byte>>(levelMapData.TileData, context, (s, a) => a.Length = block_size * ((uint)maxBlockIndex + 1));
 
             uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
