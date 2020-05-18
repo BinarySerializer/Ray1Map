@@ -869,8 +869,9 @@ namespace R1Engine
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                     }
 
-                    // Add animations
-                    finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => x.ToCommonAnimation()));
+                    if (graphics.AnimDescriptors != null)
+                        // Add animations
+                        finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => x.ToCommonAnimation()));
 
                     // Add to the designs
                     eventDesigns.Add(graphics.ImageDescriptorsPointer, finalDesign);
