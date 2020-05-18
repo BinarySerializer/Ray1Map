@@ -158,6 +158,16 @@ namespace R1Engine
             return -1;
         }
 
+        /// <summary>
+        /// True if colors are 4-bit, false if they're 8-bit
+        /// </summary>
+        public virtual bool Is4Bit => true;
+
+        /// <summary>
+        /// True if palette indexes are used, false if not
+        /// </summary>
+        public virtual bool UsesPaletteIndex => true;
+
         #endregion
 
         #region Manager Methods
@@ -422,9 +432,21 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public virtual Common_Tileset GetTileSet(Context context, GBA_R1_LevelMapData levelMapData) {
             // Read the tiles
-            const int block_size = 0x20;
-            ushort maxBlockIndex = levelMapData.TileBlockIndices.Max();
-            Array<byte> tiles = FileFactory.Read<Array<byte>>(levelMapData.TilesPointer, context, (s, a) => a.Length = 0x20 * ((uint)maxBlockIndex + 1));
+            int block_size = Is4Bit ? 0x20 : 0x40;
+
+            // If there are no tile blocks, return a dummy tile set
+            if (levelMapData.TileBlockIndices == null)
+            {
+                var dummy = new Texture2D(256, Settings.CellSize)
+                {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+                dummy.SetPixels(new Color[dummy.width * dummy.height]);
+                dummy.Apply();
+
+                return new Common_Tileset(dummy, Settings.CellSize);
+            }
 
             uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
 
@@ -441,10 +463,11 @@ namespace R1Engine
                 var y = (((i / 4) * 2) / (256/8)) * 2 + ((i % 4) < 2 ? 0 : 1);
 
                 var curOff = block_size * blockIndex;
-                if (levelMapData.TilePaletteIndices[i] >= 10) {
+
+                if (UsesPaletteIndex && levelMapData.TilePaletteIndices[i] >= 10)
                     Debug.LogWarning("Tile palette index exceeded 9: " + i + " - " + levelMapData.TilePaletteIndices[i]);
-                }
-                FillSpriteTextureBlock(tex, 0, 0, x, y, tiles.Value, curOff, levelMapData.TilePalettes, levelMapData.TilePaletteIndices[i], false, reverseHeight: false);
+
+                FillSpriteTextureBlock(tex, 0, 0, x, y, levelMapData.TileData, curOff, levelMapData.TilePalettes, UsesPaletteIndex ? levelMapData.TilePaletteIndices[i] : 0, false, reverseHeight: false);
             }
 
             tex.Apply();
@@ -474,20 +497,26 @@ namespace R1Engine
             tex.SetPixels(new Color[tex.width * tex.height]);
 
             var offset = s.ImageBufferOffset;
+
             if (offset % 4 != 0)
-            {
                 offset += 4 - (offset % 4);
-            }
+
             var curOff = (int)offset;
-            const int block_size = 0x20;
+
+            int block_size = Is4Bit ? 0x20 : 0x40;
+
             while (e.ImageBuffer[curOff] != 0xFF)
             {
+                // TODO: Why is this value sometimes here? Better way to skip/parse it?
+                while (e.ImageBuffer[curOff] == 0xFE)
+                    curOff++;
+
                 var structure = e.ImageBuffer[curOff];
                 var blockX = e.ImageBuffer[curOff + 1];
                 var blockY = e.ImageBuffer[curOff + 2];
-                var paletteInd = e.ImageBuffer[curOff + 3];
+                var paletteInd = UsesPaletteIndex ? e.ImageBuffer[curOff + 3] : 0;
                 bool doubleScale = (structure & 0x10) != 0;
-                curOff += 4;
+                curOff += UsesPaletteIndex ? 4 : 3;
                 switch (structure & 0xF)
                 {
                     case 11:
@@ -658,7 +687,7 @@ namespace R1Engine
             int blockX, int blockY,
             int relX, int relY,
             byte[] imageBuffer, int imageBufferOffset,
-            IList<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true, bool is4Bit = true) {
+            IList<ARGB1555Color> pal, int paletteInd, bool doubleScale, bool reverseHeight = true) {
             for (int y = 0; y < 8; y++) {
                 for (int x = 0; x < 8; x++) {
                     int actualX = blockX + (doubleScale ? relX * 2 : relX) * 8 + (doubleScale ? x * 2 : x);
@@ -671,7 +700,7 @@ namespace R1Engine
 
                     int b = 0;
                     Color c;
-                    if (is4Bit) {
+                    if (Is4Bit) {
                         if (imageBufferOffset + off / 2 > imageBuffer.Length)
                             continue;
                         b = imageBuffer[imageBufferOffset + off / 2];
@@ -730,15 +759,29 @@ namespace R1Engine
             // Read data from the ROM
             var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
+            return await LoadAsync(context, loadTextures, rom.LevelMapData, rom.LevelEventData, rom.SpritePalettes);
+        }
+
+        /// <summary>
+        /// Loads the specified level for the editor
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        /// <param name="loadTextures">Indicates if textures should be loaded</param>
+        /// <param name="map">The level map data</param>
+        /// <param name="eventData">The level event data</param>
+        /// <param name="spritePalette">The sprite palette</param>
+        /// <returns>The editor manager</returns>
+        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures, GBA_R1_LevelMapData map, GBA_R1_LevelEventData eventData, ARGB1555Color[] spritePalette)
+        {
             Controller.status = $"Loading level data";
             await Controller.WaitIfNecessary();
 
-            rom.LevelMapData.SerializeLevelData(context.Deserializer);
+            map.SerializeLevelData(context.Deserializer);
 
             Controller.status = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            Common_Tileset tileset = GetTileSet(context, rom.LevelMapData);
+            Common_Tileset tileset = GetTileSet(context, map);
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev 
@@ -749,12 +792,12 @@ namespace R1Engine
                     new Common_LevelMap()
                     {
                         // Set the dimensions
-                        Width = rom.LevelMapData.MapData.Width,
-                        Height = rom.LevelMapData.MapData.Height,
+                        Width = map.MapData.Width,
+                        Height = map.MapData.Height,
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
-                        Tiles = new Common_Tile[rom.LevelMapData.MapData.Width * rom.LevelMapData.MapData.Height]
+                        Tiles = new Common_Tile[map.MapData.Width * map.MapData.Height]
                     }
                 },
 
@@ -769,8 +812,6 @@ namespace R1Engine
 
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
-
-            var eventData = rom.LevelEventData;
 
             // Create a linking table
             var linkTable = new ushort[eventData.EventData.Select(x => x.Length).Sum()];
@@ -822,7 +863,7 @@ namespace R1Engine
                     foreach (Common_ImageDescriptor img in graphics.ImageDescriptors)
                     {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, rom.SpritePalettes) : null;
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, spritePalette) : null;
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
@@ -856,12 +897,12 @@ namespace R1Engine
                         for (int ii = 0; ii < dat.ETA.Length; ii++)
                         {
                             if (current[ii] == null)
-                                current[ii] = new Common_EventState[dat.ETA[ii].Length];
+                                current[ii] = new Common_EventState[dat.ETA[ii]?.Length ?? 0];
 
-                            if (dat.ETA[ii].Length > current[ii].Length)
+                            if ((dat.ETA[ii]?.Length ?? 0) > current[ii].Length)
                                 Array.Resize(ref current[ii], dat.ETA[ii].Length);
 
-                            for (int jj = 0; jj < dat.ETA[ii].Length; jj++)
+                            for (int jj = 0; jj < (dat.ETA[ii]?.Length ?? 0); jj++)
                                 current[ii][jj] = dat.ETA[ii][jj];
                         }
                     }
@@ -896,15 +937,15 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Enumerate each cell
-            for (int cellY = 0; cellY < rom.LevelMapData.MapData.Height; cellY++) 
+            for (int cellY = 0; cellY < map.MapData.Height; cellY++) 
             {
-                for (int cellX = 0; cellX < rom.LevelMapData.MapData.Width; cellX++) 
+                for (int cellX = 0; cellX < map.MapData.Width; cellX++) 
                 {
                     // Get the cell
-                    var cell = rom.LevelMapData.MapData.Tiles[cellY * rom.LevelMapData.MapData.Width + cellX];
+                    var cell = map.MapData.Tiles[cellY * map.MapData.Width + cellX];
 
                     // Set the common tile
-                    commonLev.Maps[0].Tiles[cellY * rom.LevelMapData.MapData.Width + cellX] = new Common_Tile() 
+                    commonLev.Maps[0].Tiles[cellY * map.MapData.Width + cellX] = new Common_Tile() 
                     {
                         TileSetGraphicIndex = cell.TileIndex,
                         CollisionType = cell.CollisionType,
