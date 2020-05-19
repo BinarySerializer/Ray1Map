@@ -10,6 +10,8 @@
         BackgroundVignette,
         SpecialPalettes,
 
+        StringPointers,
+
         EventGraphicsPointers,
         EventDataPointers,
         EventGraphicsGroupCountTablePointers,

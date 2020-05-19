@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace R1Engine
 {
@@ -60,7 +61,9 @@ namespace R1Engine
         // TODO: Parse these from data
         public GBA_R1_IntroVignette[] IntroVignettes => null;
         public GBA_R1_WorldMapVignette WorldMapVignette => null;
-        public string[] Strings => null;
+
+        public Pointer[] StringPointerTable { get; set; }
+        public string[] Strings { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -85,6 +88,20 @@ namespace R1Engine
             LevelEventData.SerializeData(s, pointerTable[DSi_R1_Pointer.EventGraphicsPointers], pointerTable[DSi_R1_Pointer.EventDataPointers], pointerTable[DSi_R1_Pointer.EventGraphicsGroupCountTablePointers], pointerTable[DSi_R1_Pointer.LevelEventGraphicsGroupCounts]);
 
             s.DoAt(pointerTable[DSi_R1_Pointer.SpecialPalettes], () => Palettes = s.SerializeObjectArray<DSi_R1_PaletteReference>(Palettes, 10, name: nameof(Palettes)));
+
+            // Serialize strings
+            s.DoAt(pointerTable[DSi_R1_Pointer.StringPointers], () =>
+            {
+                StringPointerTable = s.SerializePointerArray(StringPointerTable, 1969, name: nameof(StringPointerTable));
+
+                if (Strings == null)
+                    Strings = new string[StringPointerTable.Length];
+
+                for (int i = 0; i < Strings.Length; i++)
+                    s.DoAt(StringPointerTable[i], () => Strings[i] = s.SerializeString(Strings[i],
+                        // TODO: Is this correct?
+                        encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}]"));
+            });
         }
 
         /// <summary>

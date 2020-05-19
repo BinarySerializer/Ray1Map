@@ -103,6 +103,8 @@ namespace R1Engine
                 [DSi_R1_Pointer.BackgroundVignette] = 0x025A1478,
                 [DSi_R1_Pointer.SpecialPalettes] = 0x02268FEC,
 
+                [DSi_R1_Pointer.StringPointers] = 0x022604D0,
+
                 [DSi_R1_Pointer.EventGraphicsPointers] = 0x0284B5B0,
                 [DSi_R1_Pointer.EventDataPointers] = 0x0284B6F8,
                 [DSi_R1_Pointer.EventGraphicsGroupCountTablePointers] = 0x0284B988,
