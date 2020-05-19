@@ -135,6 +135,11 @@ namespace R1Engine
         public virtual string GetROMFilePath => $"ROM.gba";
 
         /// <summary>
+        /// Gets the base address for the ROM file
+        /// </summary>
+        protected virtual uint GetROMBaseAddress => 0x08000000;
+
+        /// <summary>
         /// Gets the global level index from the world and level
         /// </summary>
         /// <param name="world">The world</param>
@@ -173,6 +178,13 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
+        /// Loads the game data
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The game data</returns>
+        protected virtual IGBA_R1_Data LoadData(Context context) => FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+
+        /// <summary>
         /// Gets the available game actions
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -194,19 +206,23 @@ namespace R1Engine
         /// <returns>The task</returns>
         public virtual async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
+            // Lazy check if we're on GBA or DSi
+            var isGBA = baseGameSettings.EngineVersion == EngineVersion.RayGBA;
+
             // Create the context
             using (var context = new Context(baseGameSettings))
             {
-                // Load the rom
+                // Load the game data
                 await LoadFilesAsync(context);
 
                 // Serialize the rom
-                var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+                var data = LoadData(context);
 
-                // Get a pointer table
-                var pointerTable = PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file);
+                // Get a pointer tables
+                var gbaPointerTable = isGBA ? PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var dsiPointerTable = !isGBA ? PointerTables.GetDSiPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
 
-                var graphics = new Dictionary<Pointer, List<World>>();
+                var graphics = new Dictionary<Pointer, List<KeyValuePair<World, ARGB1555Color[]>>>();
 
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings))
@@ -220,7 +236,11 @@ namespace R1Engine
 
                         // Serialize the event data
                         var eventData = new GBA_R1_LevelEventData();
-                        eventData.SerializeData(context.Deserializer, pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], pointerTable[GBA_R1_ROMPointer.EventDataPointers], pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
+
+                        if (isGBA)
+                            eventData.SerializeData(context.Deserializer, gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], gbaPointerTable[GBA_R1_ROMPointer.EventDataPointers], gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
+                        else
+                            eventData.SerializeData(context.Deserializer, dsiPointerTable[DSi_R1_Pointer.EventGraphicsPointers], dsiPointerTable[DSi_R1_Pointer.EventDataPointers], dsiPointerTable[DSi_R1_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[DSi_R1_Pointer.LevelEventGraphicsGroupCounts]);
 
                         // Get the event graphics
                         for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -228,21 +248,24 @@ namespace R1Engine
                             var key = eventData.GraphicDataPointers[i];
 
                             if (!graphics.ContainsKey(key))
-                                graphics.Add(key, new List<World>());
+                                graphics.Add(key, new List<KeyValuePair<World, ARGB1555Color[]>>());
 
-                            if (!graphics[key].Contains(world.Key))
-                                graphics[key].Add(world.Key);
+                            if (graphics[key].All(x => x.Key != world.Key))
+                                graphics[key].Add(new KeyValuePair<World, ARGB1555Color[]>(world.Key, data.GetSpritePalettes(baseGameSettings)));
                         }
                     }
                 }
 
                 // Add unused graphics
-                graphics.Add(pointerTable[GBA_R1_ROMPointer.DrumWalkerGraphics], new List<World>());
-                graphics.Add(pointerTable[GBA_R1_ROMPointer.ClockGraphics], new List<World>());
-                graphics.Add(pointerTable[GBA_R1_ROMPointer.InkGraphics], new List<World>());
-                graphics.Add(pointerTable[GBA_R1_ROMPointer.FontSmallGraphics], new List<World>());
-                graphics.Add(pointerTable[GBA_R1_ROMPointer.FontLargeGraphics], new List<World>());
-                graphics.Add(pointerTable[GBA_R1_ROMPointer.PinsGraphics], new List<World>());
+                if (isGBA)
+                {
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.DrumWalkerGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.ClockGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.InkGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontSmallGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontLargeGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.PinsGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                }
 
                 var desIndex = 0;
 
@@ -255,13 +278,13 @@ namespace R1Engine
                     var g = FileFactory.Read<GBA_R1_EventGraphicsData>(gp.Key, context);
 
                     // Get the world name
-                    var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().ToString());
+                    var worldName = gp.Value.Count > 1 ? "Allfix" : (!gp.Value.Any() ? "Other" : gp.Value.First().Key.ToString());
 
                     // Enumerate every image descriptor
                     foreach (var img in g.ImageDescriptors)
                     {
                         // Get the texture
-                        var tex = GetSpriteTexture(context, g, img, rom.SpritePalettes);
+                        var tex = GetSpriteTexture(context, g, img, gp.Value?.FirstOrDefault().Value ?? data.GetSpritePalettes(baseGameSettings));
 
                         // Make sure it's not null
                         if (tex == null)
@@ -380,46 +403,56 @@ namespace R1Engine
                 // Load the ROM
                 await LoadFilesAsync(context);
 
-                // Read data from the ROM
-                var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+                // Load the game data
+                var data = LoadData(context);
 
-                // Extract every background vignette
-                for (int i = 0; i < rom.BackgroundVignettes.Length; i++)
+                // Extract background vignettes
+                if (data.BackgroundVignettes != null)
                 {
-                    // Get the vignette
-                    var vig = rom.BackgroundVignettes[i];
+                    // Extract every background vignette
+                    for (int i = 0; i < data.BackgroundVignettes.Length; i++)
+                    {
+                        // Get the vignette
+                        var vig = data.BackgroundVignettes[i];
 
-                    // Make sure we have image data
-                    if (vig.ImageData == null)
-                        continue;
+                        // Make sure we have image data
+                        if (vig.ImageData == null)
+                            continue;
 
-                    // Get the texture
-                    var tex = GetVignetteTexture(vig);
+                        // Get the texture
+                        var tex = GetVignetteTexture(vig);
 
-                    // Save the texture
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"BG_{i}.png"), tex.EncodeToPNG());
+                        // Save the texture
+                        Util.ByteArrayToFile(Path.Combine(outputDir, $"BG_{i}.png"), tex.EncodeToPNG());
+                    }
                 }
 
-                // Extract every intro vignette
-                for (int i = 0; i < rom.IntroVignettes.Length; i++)
+                // Extract intro vignettes
+                if (data.IntroVignettes != null)
                 {
-                    // Get the vignette
-                    var vig = rom.IntroVignettes[i];
+                    // Extract every intro vignette
+                    for (int i = 0; i < data.IntroVignettes.Length; i++)
+                    {
+                        // Get the vignette
+                        var vig = data.IntroVignettes[i];
 
-                    // Get the texture
-                    var tex = GetVignetteTexture(vig);
+                        // Get the texture
+                        var tex = GetVignetteTexture(vig);
 
-                    // Save the texture
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"Intro_{i}.png"), tex.EncodeToPNG());
+                        // Save the texture
+                        Util.ByteArrayToFile(Path.Combine(outputDir, $"Intro_{i}.png"), tex.EncodeToPNG());
+                    }
                 }
 
                 // Extract world map vignette
+                if (data.WorldMapVignette != null)
+                {
+                    // Get the world map texture
+                    var worldMapTex = GetVignetteTexture(data.WorldMapVignette);
 
-                // Get the world map texture
-                var worldMapTex = GetVignetteTexture(rom.WorldMapVignette);
-
-                // Save the texture
-                Util.ByteArrayToFile(Path.Combine(outputDir, $"WorldMap.png"), worldMapTex.EncodeToPNG());
+                    // Save the texture
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"WorldMap.png"), worldMapTex.EncodeToPNG());
+                }
             }
         }
 
@@ -763,26 +796,17 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading ROM";
+            Controller.status = $"Loading data";
             await Controller.WaitIfNecessary();
 
             // Read data from the ROM
-            var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+            var data = LoadData(context);
 
-            return await LoadAsync(context, loadTextures, rom.LevelMapData, rom.LevelEventData, rom.SpritePalettes);
-        }
+            // Get properties
+            var map = data.LevelMapData;
+            var eventData = data.LevelEventData;
+            var spritePalette = data.GetSpritePalettes(context.Settings);
 
-        /// <summary>
-        /// Loads the specified level for the editor
-        /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <param name="map">The level map data</param>
-        /// <param name="eventData">The level event data</param>
-        /// <param name="spritePalette">The sprite palette</param>
-        /// <returns>The editor manager</returns>
-        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures, GBA_R1_LevelMapData map, GBA_R1_LevelEventData eventData, ARGB1555Color[] spritePalette)
-        {
             Controller.status = $"Loading level data";
             await Controller.WaitIfNecessary();
 
@@ -981,10 +1005,7 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public virtual async Task LoadFilesAsync(Context context)
-        {
-            await LoadExtraFile(context, GetROMFilePath, 0x08000000);
-        }
+        public async Task LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
 
         public virtual async Task<GBAMemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {

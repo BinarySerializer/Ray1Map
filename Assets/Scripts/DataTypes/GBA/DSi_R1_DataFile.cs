@@ -6,10 +6,10 @@ namespace R1Engine
     /// <summary>
     /// Data for Rayman 1 (DSi)
     /// </summary>
-    public class DSi_R1_DataFile : R1Serializable
+    public class DSi_R1_DataFile : R1Serializable, IGBA_R1_Data
     {
         /// <summary>
-        /// The data for the level
+        /// The map data for the current level
         /// </summary>
         public GBA_R1_LevelMapData LevelMapData { get; set; }
 
@@ -20,12 +20,47 @@ namespace R1Engine
 
         public DSi_R1_PaletteReference[] Palettes { get; set; }
 
-        public ARGB1555Color[] SpritePalette { get; set; }
+        /// <summary>
+        /// The sprite palette for the current level
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        public ARGB1555Color[] GetSpritePalettes(GameSettings settings)
+        {
+            DSi_R1_PaletteReference palRef = null;
+            switch (settings.World)
+            {
+                case World.Jungle:
+                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_ray");
+                    break;
+                case World.Music:
+                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_mus");
+                    break;
+                case World.Mountain:
+                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_mnt");
+                    // NOTE: There's a mnt2. It appears to be unused?
+                    break;
+                case World.Image:
+                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_img");
+                    break;
+                case World.Cave:
+                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_cav");
+                    break;
+                case World.Cake:
+                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_ray");
+                    break;
+            }
+            return palRef?.Palette;
+        }
 
         /// <summary>
         /// The background vignette data
         /// </summary>
         public GBA_R1_BackgroundVignette[] BackgroundVignettes { get; set; }
+
+        // TODO: Parse these from data
+        public GBA_R1_IntroVignette[] IntroVignettes => null;
+        public GBA_R1_WorldMapVignette WorldMapVignette => null;
+        public string[] Strings => null;
 
         /// <summary>
         /// Handles the data serialization
@@ -49,39 +84,7 @@ namespace R1Engine
             LevelEventData = new GBA_R1_LevelEventData();
             LevelEventData.SerializeData(s, pointerTable[DSi_R1_Pointer.EventGraphicsPointers], pointerTable[DSi_R1_Pointer.EventDataPointers], pointerTable[DSi_R1_Pointer.EventGraphicsGroupCountTablePointers], pointerTable[DSi_R1_Pointer.LevelEventGraphicsGroupCounts]);
 
-            s.DoAt(pointerTable[DSi_R1_Pointer.SpecialPalettes], () => {
-                Palettes = s.SerializeObjectArray<DSi_R1_PaletteReference>(Palettes, 10, name: nameof(Palettes));
-            });
-            // TODO: Check this & correct where necessary
-            DSi_R1_PaletteReference palRef = null;
-            switch (s.Context.Settings.World) {
-                case World.Jungle:
-                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_ray");
-                    break;
-                case World.Music:
-                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_mus");
-                    break;
-                case World.Mountain:
-                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_mnt");
-                    // TODO: there's a mnt2!
-                    break;
-                case World.Image:
-                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_img");
-                    break;
-                case World.Cave:
-                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_cav");
-                    break;
-                case World.Cake:
-                    palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_ray");
-                    break;
-            }
-            SpritePalette = palRef?.Palette;
-            /*s.DoAt(pointerTable[DSi_R1_Pointer.JungleMaps], () =>
-            {
-                var jun1 = s.SerializeObject<GBA_R1_LevelMapData>(LevelMapData, name: nameof(LevelMapData));
-                jun1.SerializeLevelData(s);
-                SpritePalettes = jun1.TilePalettes;
-            });*/
+            s.DoAt(pointerTable[DSi_R1_Pointer.SpecialPalettes], () => Palettes = s.SerializeObjectArray<DSi_R1_PaletteReference>(Palettes, 10, name: nameof(Palettes)));
         }
 
         /// <summary>

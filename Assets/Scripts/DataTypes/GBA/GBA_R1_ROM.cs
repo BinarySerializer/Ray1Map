@@ -5,10 +5,10 @@ namespace R1Engine
     /// <summary>
     /// ROM data for Rayman Advance (GBA)
     /// </summary>
-    public class GBA_R1_ROM : GBA_ROM
+    public class GBA_R1_ROM : GBA_ROM, IGBA_R1_Data
     {
         /// <summary>
-        /// The data for the levels
+        /// The map data for the current level
         /// </summary>
         public GBA_R1_LevelMapData LevelMapData { get; set; }
 
@@ -23,8 +23,14 @@ namespace R1Engine
         /// </summary>
         public GBA_R1_BackgroundVignette[] BackgroundVignettes { get; set; }
 
+        /// <summary>
+        /// The intro vignette data
+        /// </summary>
         public GBA_R1_IntroVignette[] IntroVignettes { get; set; }
 
+        /// <summary>
+        /// The world map vignette
+        /// </summary>
         public GBA_R1_WorldMapVignette WorldMapVignette { get; set; }
 
 
@@ -34,12 +40,22 @@ namespace R1Engine
         public ARGB1555Color[] SpritePalettes { get; set; }
 
         /// <summary>
+        /// The sprite palette for the current level
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        public ARGB1555Color[] GetSpritePalettes(GameSettings settings) => SpritePalettes; 
+
+        /// <summary>
         /// World level index offset table for global level array
         /// </summary>
         public byte[] WorldLevelOffsetTable { get; set; }
 
 
         public Pointer[] StringPointerTable { get; set; }
+
+        /// <summary>
+        /// The strings
+        /// </summary>
         public string[] Strings { get; set; }
 
 
