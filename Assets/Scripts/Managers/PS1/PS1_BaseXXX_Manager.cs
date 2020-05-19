@@ -60,7 +60,7 @@ namespace R1Engine
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Where(x => x.Length == 5)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).ToArray();
+            .ToArray())).Where(x => x.Value.Any()).ToArray();
 
         /// <summary>
         /// Gets the vignette file info
