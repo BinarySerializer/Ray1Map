@@ -7,6 +7,8 @@
     {
         JungleMaps,
         LevelMaps,
+        BackgroundVignette,
+        SpecialPalettes,
 
         EventGraphicsPointers,
         EventDataPointers,

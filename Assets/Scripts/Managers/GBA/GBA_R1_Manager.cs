@@ -497,20 +497,22 @@ namespace R1Engine
             tex.SetPixels(new Color[tex.width * tex.height]);
 
             var offset = s.ImageBufferOffset;
-
-            if (offset % 4 != 0)
-                offset += 4 - (offset % 4);
-
             var curOff = (int)offset;
+            if (UsesPaletteIndex) {
+                if (curOff % 4 != 0)
+                    curOff += 4 - (curOff % 4);
+            }
 
             int block_size = Is4Bit ? 0x20 : 0x40;
 
+            //Controller.print((e.ImageBufferPointer + offset) + " - " + offset);
+
             while (e.ImageBuffer[curOff] != 0xFF)
             {
-                // TODO: Why is this value sometimes here? Better way to skip/parse it?
-                while (e.ImageBuffer[curOff] == 0xFE)
+                if (e.ImageBuffer[curOff] == 0xFE) {
                     curOff++;
-
+                    continue;
+                }
                 var structure = e.ImageBuffer[curOff];
                 var blockX = e.ImageBuffer[curOff + 1];
                 var blockY = e.ImageBuffer[curOff + 2];
@@ -590,6 +592,14 @@ namespace R1Engine
                             curOff += block_size;
                         }
                         break;
+                    case 3:
+                        for (int y = 0; y < 8; y++) {
+                            for (int x = 0; x < 8; x++) {
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                curOff += block_size;
+                            }
+                        }
+                        break;
                     case 2:
                         for (int y = 0; y < 4; y++)
                         {
@@ -643,9 +653,9 @@ namespace R1Engine
                     var index = y * vig.Width + x;
                     var blockIndex = vig.BlockIndices[index];
 
-                    var curOff = 0x20 * blockIndex;
+                    var curOff = (Is4Bit ? 0x20 : 0x40) * blockIndex;
 
-                    FillSpriteTextureBlock(tex, x * 8, y * 8, 0, 0, vig.ImageData, curOff, vig.Palettes, vig.PaletteIndices[index], false);
+                    FillSpriteTextureBlock(tex, x * 8, y * 8, 0, 0, vig.ImageData, curOff, vig.Palettes, vig.PaletteIndices?[index] ?? 0, false);
                 }
             }
 
@@ -672,7 +682,7 @@ namespace R1Engine
                     var blockIndex = BitHelpers.ExtractBits(imgValue, 12, 0);
                     var palIndex = BitHelpers.ExtractBits(imgValue, 4, 12);
 
-                    var curOff = 0x20 * blockIndex;
+                    var curOff = (Is4Bit ? 0x20 : 0x40) * blockIndex;
 
                     FillSpriteTextureBlock(tex, x * 8, y * 8, 0, 0, vig.ImageData, curOff, vig.Palettes, palIndex, false);
                 }

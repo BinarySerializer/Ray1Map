@@ -12,6 +12,10 @@
         #endregion
 
         #region Vignette Data
+        // DSi Unknown dwords
+        public uint DSi_Dword_00;
+        public uint DSi_Dword_04;
+        public uint DSi_Dword_2C;
 
         // Always 0x00 except for first byte which is sometimes 1
         public byte[] UnkBytes_14 { get; set; }
@@ -34,6 +38,10 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize data
+            if (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi) {
+                DSi_Dword_00 = s.Serialize<uint>(DSi_Dword_00, name: nameof(DSi_Dword_00));
+                DSi_Dword_04 = s.Serialize<uint>(DSi_Dword_04, name: nameof(DSi_Dword_04));
+            }
             ImageDataPointer = s.SerializePointer(ImageDataPointer, name: nameof(ImageDataPointer));
             BlockIndicesPointer = s.SerializePointer(BlockIndicesPointer, name: nameof(BlockIndicesPointer));
             PaletteIndicesPointer = s.SerializePointer(PaletteIndicesPointer, name: nameof(PaletteIndicesPointer));
@@ -48,6 +56,9 @@
             Pointer_1B = s.SerializePointer(Pointer_1B, name: nameof(Pointer_1B));
 
             UnkBytes_20 = s.SerializeArray<byte>(UnkBytes_20, 4, name: nameof(UnkBytes_20));
+            if (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi) {
+                DSi_Dword_2C = s.Serialize<uint>(DSi_Dword_2C, name: nameof(DSi_Dword_2C));
+            }
 
             // Serialize data from pointers
 

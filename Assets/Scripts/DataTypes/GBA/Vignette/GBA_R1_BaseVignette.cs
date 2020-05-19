@@ -61,17 +61,25 @@
         {
             // Serialize data from pointers
 
-            if (ImageDataPointer != null)
-                s.DoAt(ImageDataPointer, () => ImageData = s.SerializeArray<byte>(ImageData, 0x20 * Width * Height, name: nameof(ImageData)));
+            s.DoAt(ImageDataPointer, () => {
+                if (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi) {
+                    s.DoEncoded(new LZSSEncoder(), () => {
+                        ImageData = s.SerializeArray<byte>(ImageData, 0x40 * Width * Height, name: nameof(ImageData));
+                    });
+                } else {
+                    ImageData = s.SerializeArray<byte>(ImageData, 0x20 * Width * Height, name: nameof(ImageData));
+                }
+            });
 
-            if (BlockIndicesPointer != null)
-                s.DoAt(BlockIndicesPointer, () => BlockIndices = s.SerializeArray<ushort>(BlockIndices, Width * Height, name: nameof(BlockIndices)));
+            s.DoAt(BlockIndicesPointer, () => BlockIndices = s.SerializeArray<ushort>(BlockIndices, Width * Height, name: nameof(BlockIndices)));
 
-            if (PaletteIndicesPointer != null)
-                s.DoAt(PaletteIndicesPointer, () => PaletteIndices = s.SerializeArray<byte>(PaletteIndices, Width * Height, name: nameof(PaletteIndices)));
+            s.DoAt(PaletteIndicesPointer, () => PaletteIndices = s.SerializeArray<byte>(PaletteIndices, Width * Height, name: nameof(PaletteIndices)));
 
-            if (PalettesPointer != null)
-                s.DoAt(PalettesPointer, () => Palettes = s.SerializeObjectArray<ARGB1555Color>(Palettes, PaletteCount * 16, name: nameof(Palettes)));
+            s.DoAt(PalettesPointer, () => {
+                Palettes = s.SerializeObjectArray<ARGB1555Color>(Palettes,
+                    (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi) ? 256 : (PaletteCount * 16),
+                    name: nameof(Palettes));
+            });
         }
 
         #endregion
