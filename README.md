@@ -31,8 +31,8 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - EU)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -63,8 +63,8 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - EU Demo)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -209,7 +209,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">Rayman 1 (GBA - EU)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -217,7 +217,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">Rayman 1 (GBA - US)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -225,14 +225,14 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">Rayman 1 (GBA - EU Beta)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (DSi)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
