@@ -101,6 +101,7 @@ namespace R1Engine
                 [DSi_R1_Pointer.JungleMaps] = 0x0226C6B4,
                 [DSi_R1_Pointer.LevelMaps] = 0x02361968,
                 [DSi_R1_Pointer.BackgroundVignette] = 0x025A1478,
+                [DSi_R1_Pointer.WorldMapVignette] = 0x021E17FC,
                 [DSi_R1_Pointer.SpecialPalettes] = 0x02268FEC,
 
                 [DSi_R1_Pointer.StringPointers] = 0x022604D0,

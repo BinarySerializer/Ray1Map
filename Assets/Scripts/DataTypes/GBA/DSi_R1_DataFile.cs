@@ -60,7 +60,7 @@ namespace R1Engine
 
         // TODO: Parse these from data
         public GBA_R1_IntroVignette[] IntroVignettes => null;
-        public GBA_R1_WorldMapVignette WorldMapVignette => null;
+        public GBA_R1_WorldMapVignette WorldMapVignette { get; set; }
 
         public Pointer[] StringPointerTable { get; set; }
         public string[] Strings { get; set; }
@@ -82,6 +82,7 @@ namespace R1Engine
                 () => LevelMapData = s.SerializeObject<GBA_R1_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
             s.DoAt(pointerTable[DSi_R1_Pointer.BackgroundVignette],
                 () => BackgroundVignettes = s.SerializeObjectArray<GBA_R1_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));
+            WorldMapVignette = s.SerializeObject<GBA_R1_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
 
             // Serialize the level event data
             LevelEventData = new GBA_R1_LevelEventData();
@@ -129,4 +130,21 @@ namespace R1Engine
             Util.ByteArrayToFile(s.Context.BasePath + "relocated.bin", data);
         }
     }
+
+    /*
+
+        SPLASH SCREENS:
+
+        ???
+
+
+        LOADING + CREDITS SCREENS:
+
+        ???
+
+
+        INTRO SCREENS:
+
+        ???
+ */
 }

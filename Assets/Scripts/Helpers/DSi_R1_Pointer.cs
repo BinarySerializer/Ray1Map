@@ -8,6 +8,7 @@
         JungleMaps,
         LevelMaps,
         BackgroundVignette,
+        WorldMapVignette,
         SpecialPalettes,
 
         StringPointers,

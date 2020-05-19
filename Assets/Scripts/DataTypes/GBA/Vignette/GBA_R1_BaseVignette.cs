@@ -53,20 +53,20 @@
 
         #region Public Methods
 
-        /// <summary>
-        /// Handles the data serialization
-        /// </summary>
-        /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s)
+        public void SerializeVignette(SerializerObject s, bool isImgDataCompressed)
         {
             // Serialize data from pointers
 
             s.DoAt(ImageDataPointer, () => {
-                if (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi) {
-                    s.DoEncoded(new LZSSEncoder(), () => {
+                if (s.Context.Settings.GameModeSelection == GameModeSelection.RaymanDSi)
+                {
+                    if (isImgDataCompressed)
+                        s.DoEncoded(new LZSSEncoder(), () => ImageData = s.SerializeArray<byte>(ImageData, 0x40 * Width * Height, name: nameof(ImageData)));
+                    else
                         ImageData = s.SerializeArray<byte>(ImageData, 0x40 * Width * Height, name: nameof(ImageData));
-                    });
-                } else {
+                } 
+                else 
+                {
                     ImageData = s.SerializeArray<byte>(ImageData, 0x20 * Width * Height, name: nameof(ImageData));
                 }
             });
