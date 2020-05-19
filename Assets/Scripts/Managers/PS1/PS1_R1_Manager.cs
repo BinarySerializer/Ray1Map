@@ -17,9 +17,10 @@ namespace R1Engine
         public override int TileSetWidth => 16;
 
         /// <summary>
-        /// The file info to use
+        /// Gets the file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoUS;
+        /// <param name="settings">The game settings</param>
+        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => settings.GameModeSelection == GameModeSelection.RaymanPS1US ? PS1FileInfo.fileInfoUS : PS1FileInfo.fileInfoPAL;
 
         /// <summary>
         /// Gets the tile set to use

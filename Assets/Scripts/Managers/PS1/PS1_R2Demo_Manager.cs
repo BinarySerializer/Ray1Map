@@ -35,9 +35,10 @@ namespace R1Engine
 
 
         /// <summary>
-        /// The file info to use
+        /// Gets the file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoR2PS1;
+        /// <param name="settings">The game settings</param>
+        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoR2PS1;
 
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
@@ -165,7 +166,7 @@ namespace R1Engine
         public async Task<uint> LoadFile(Context context, string path, uint baseAddress) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
-            Dictionary<string, PS1FileInfo> fileInfo = FileInfo;
+            Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
             if (baseAddress != 0) {
                 PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode) {
                     filePath = path,

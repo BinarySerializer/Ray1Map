@@ -23,9 +23,10 @@ namespace R1Engine
         public abstract int TileSetWidth { get; }
 
         /// <summary>
-        /// The file info to use
+        /// Gets the file info to use
         /// </summary>
-        protected abstract Dictionary<string, PS1FileInfo> FileInfo { get; }
+        /// <param name="settings">The game settings</param>
+        protected abstract Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings);
 
         protected virtual PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.DevPointerXOR;
 
@@ -219,7 +220,7 @@ namespace R1Engine
         public virtual async Task LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
-            Dictionary<string, PS1FileInfo> fileInfo = FileInfo;
+            Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
             PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress, InvalidPointerMode) {
                 filePath = path,
                 Length = fileInfo[path].Size

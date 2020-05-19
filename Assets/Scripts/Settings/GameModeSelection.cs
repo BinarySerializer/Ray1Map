@@ -12,11 +12,11 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1 - US)", typeof(PS1_R1_Manager))]
         RaymanPS1US,
 
-        //[GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1 - EU)", typeof(PS1_R1_Manager))]
-        //RaymanPS1EU,
+        [GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1 - EU)", typeof(PS1_R1_Manager))]
+        RaymanPS1EU,
 
-        //[GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1 - EU Demo)", typeof(PS1_R1_Manager))]
-        //RaymanPS1EUDemo,
+        [GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1, Game.Rayman1, "Rayman 1 (PS1 - EU Demo)", typeof(PS1_R1EUDemo_Manager))]
+        RaymanPS1EUDemo,
 
         [GameMode(MajorEngineVersion.PS1, EngineVersion.RayPS1JP, Game.Rayman1, "Rayman 1 (PS1 - JP)", typeof(PS1_R1JP_Manager))]
         RaymanPS1Japan,

@@ -19,9 +19,10 @@ namespace R1Engine
         public override int TileSetWidth => 40;
 
         /// <summary>
-        /// The file info to use
+        /// Gets the file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => PS1FileInfo.fileInfoDemoVol6;
+        /// <param name="settings">The game settings</param>
+        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoDemoVol6;
 
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 

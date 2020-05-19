@@ -21,9 +21,10 @@ namespace R1Engine
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
         /// <summary>
-        /// The file info to use
+        /// Gets the file info to use
         /// </summary>
-        protected override Dictionary<string, PS1FileInfo> FileInfo => null;
+        /// <param name="settings">The game settings</param>
+        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => null;
 
         /// <summary>
         /// Gets the folder path for the specified world
