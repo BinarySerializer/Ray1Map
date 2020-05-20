@@ -11,7 +11,7 @@
 
         public string[] IfCommand { get; set; }
 
-        public uint UnkGroup { get; set; }
+        public uint Layer { get; set; }
 
         public string ETAFile { get; set; }
 

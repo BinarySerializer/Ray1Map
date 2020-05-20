@@ -32,7 +32,7 @@ namespace R1Engine
                 // Get the values
                 eventManifestItem.Name = parser.NextValue();
                 eventManifestItem.DESFile = parser.NextValue();
-                eventManifestItem.UnkGroup = UInt32.Parse(parser.NextValue());
+                eventManifestItem.Layer = UInt32.Parse(parser.NextValue());
                 eventManifestItem.ETAFile = parser.NextValue();
 
                 // Get the commands
