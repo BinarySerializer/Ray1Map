@@ -110,6 +110,8 @@ namespace R1Engine
                 [DSi_R1_Pointer.EventDataPointers] = 0x0284B6F8,
                 [DSi_R1_Pointer.EventGraphicsGroupCountTablePointers] = 0x0284B988,
                 [DSi_R1_Pointer.LevelEventGraphicsGroupCounts] = 0x0284B840,
+
+                [DSi_R1_Pointer.ClockGraphics] = 0x0281BA8C,
             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, dataFile));
         }
     }

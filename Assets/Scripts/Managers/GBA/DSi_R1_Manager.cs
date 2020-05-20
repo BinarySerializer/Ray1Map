@@ -1,8 +1,4 @@
-﻿using Asyncoroutine;
-using R1Engine.Serialize;
-using System.IO;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -115,7 +111,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the base address for the ROM file
         /// </summary>
-        protected override uint GetROMBaseAddress => 0x21E0F00;
+        protected override uint GetROMBaseAddress => 0x021E0F00;
 
         /// <summary>
         /// True if colors are 4-bit, false if they're 8-bit

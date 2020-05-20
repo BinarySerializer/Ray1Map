@@ -17,5 +17,7 @@
         EventDataPointers,
         EventGraphicsGroupCountTablePointers,
         LevelEventGraphicsGroupCounts,
+
+        ClockGraphics
     }
 }

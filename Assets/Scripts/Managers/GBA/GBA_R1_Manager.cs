@@ -266,6 +266,11 @@ namespace R1Engine
                     graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontLargeGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
                     graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.PinsGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
                 }
+                else
+                {
+                    // TODO: Where is the font?
+                    graphics.Add(dsiPointerTable[DSi_R1_Pointer.ClockGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                }
 
                 var desIndex = 0;
 
