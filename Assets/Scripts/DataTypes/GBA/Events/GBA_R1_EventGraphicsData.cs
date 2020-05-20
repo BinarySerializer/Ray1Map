@@ -65,7 +65,7 @@
 
             // Uncomment this when running ExportUnusedSpritesAsync to avoid parsing invalid data
             /*
-            if (ImageBufferSize > 30000)
+            if (ImageBufferSize > 100000)
                 return;
             if (ImageDescriptorLength > 200*12)
                 return;

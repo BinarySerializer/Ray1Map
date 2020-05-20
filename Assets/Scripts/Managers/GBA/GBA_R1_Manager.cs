@@ -309,19 +309,24 @@ namespace R1Engine
         // Hacky method for finding unused sprites - make sure you uncomment the code in GBA_R1_EventGraphicsData!
         public virtual async Task ExportUnusedSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
+            // Lazy check if we're on GBA or DSi
+            var isGBA = baseGameSettings.EngineVersion == EngineVersion.RayGBA;
+
             // Create the context
             using (var context = new Context(baseGameSettings))
             {
                 // Load the rom
                 await LoadFilesAsync(context);
 
-                // Serialize the rom
-                var rom = FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+                // Load the data
+                var data = LoadData(context);
 
                 // Get used graphics
                 var graphics = new List<Pointer>();
 
-                var pointerTable = PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, rom.Offset.file);
+                // Get a pointer tables
+                var gbaPointerTable = isGBA ? PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var dsiPointerTable = !isGBA ? PointerTables.GetDSiPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
 
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings))
@@ -335,7 +340,11 @@ namespace R1Engine
 
                         // Serialize the event data
                         var eventData = new GBA_R1_LevelEventData();
-                        eventData.SerializeData(context.Deserializer, pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], pointerTable[GBA_R1_ROMPointer.EventDataPointers], pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
+
+                        if (isGBA)
+                            eventData.SerializeData(context.Deserializer, gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], gbaPointerTable[GBA_R1_ROMPointer.EventDataPointers], gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
+                        else
+                            eventData.SerializeData(context.Deserializer, dsiPointerTable[DSi_R1_Pointer.EventGraphicsPointers], dsiPointerTable[DSi_R1_Pointer.EventDataPointers], dsiPointerTable[DSi_R1_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[DSi_R1_Pointer.LevelEventGraphicsGroupCounts]);
 
                         // Get the event graphics
                         for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -351,7 +360,7 @@ namespace R1Engine
                 // Enumerate every fourth byte (we assume it's aligned this way)
                 for (int i = 0; i < s.CurrentLength; i += 4)
                 {
-                    s.Goto(rom.Offset + i);
+                    s.Goto(((R1Serializable)data).Offset + i);
 
                     File.WriteAllText(Path.Combine(outputDir, "log.txt"), $"{s.CurrentPointer.FileOffset} / {s.CurrentLength}");
 
@@ -370,7 +379,7 @@ namespace R1Engine
                         foreach (var img in g.ImageDescriptors)
                         {
                             // Get the texture
-                            var tex = GetSpriteTexture(context, g, img, rom.SpritePalettes);
+                            var tex = GetSpriteTexture(context, g, img, data.GetSpritePalettes(baseGameSettings));
 
                             // Make sure it's not null
                             if (tex == null)
@@ -379,7 +388,7 @@ namespace R1Engine
                                 continue;
                             }
 
-                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{(rom.Offset + i).FileOffset} - {imgIndex}.png"), tex.EncodeToPNG());
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{(((R1Serializable)data).Offset + i).FileOffset} - {imgIndex}.png"), tex.EncodeToPNG());
 
                             imgIndex++;
                         }
