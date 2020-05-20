@@ -72,9 +72,64 @@ namespace R1Engine
             new AdditionalSoundArchive("VIG", new ArchiveFile("SNDVIG.DAT"), 16),
         };
 
+        /// <summary>
+        /// Gets the available game actions
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game actions</returns>
+        public override GameAction[] GetGameActions(GameSettings settings)
+        {
+            return base.GetGameActions(settings).Concat(new GameAction[]
+            {
+                new GameAction("Decrypt Save Files", false, false, (input, output) => DecryptSaveFiles(settings)),
+                new GameAction("Read Save Files", false, false, (input, output) => ReadSaveFiles(settings)),
+            }).ToArray();
+        }
+
         #endregion
 
         #region Manager Methods
+
+        public void DecryptSaveFiles(GameSettings settings)
+        {
+            using (var context = new Context(settings))
+            {
+                foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
+                {
+                    LinearSerializedFile f = new LinearSerializedFile(context)
+                    {
+                        filePath = save
+                    };
+                    context.AddFile(f);
+                    SerializerObject s = context.Deserializer;
+                    s.DoAt(f.StartPointer, () => {
+                        s.DoEncoded(new R1PCSaveEncoder(), () => {
+                            byte[] b = s.SerializeArray<byte>(null, s.CurrentLength, name: "SaveFile");
+                            Util.ByteArrayToFile(context.BasePath + save + ".dec", b);
+                        });
+                    });
+                }
+            }
+        }
+
+        public void ReadSaveFiles(GameSettings settings)
+        {
+            using (var context = new Context(settings))
+            {
+                foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.sav", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
+                {
+                    LinearSerializedFile f = new LinearSerializedFile(context)
+                    {
+                        filePath = save
+                    };
+                    context.AddFile(f);
+                    SerializerObject s = context.Deserializer;
+                    s.DoAt(f.StartPointer, () => {
+                        s.DoEncoded(new R1PCSaveEncoder(), () => s.SerializeObject<R1_PC_SaveFile>(default, name: "SaveFile"));
+                    });
+                }
+            }
+        }
 
         /// <summary>
         /// Extracts the data from an archive file

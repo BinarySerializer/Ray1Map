@@ -1318,20 +1318,6 @@ namespace R1Engine
             return eventDesigns.ToArray();
         }
 
-        public void TestSaveFile(Context context, string saveFile) {
-            LinearSerializedFile f = new LinearSerializedFile(context) {
-                filePath = saveFile
-            };
-            context.AddFile(f);
-            SerializerObject s = context.Deserializer;
-            s.DoAt(f.StartPointer, () => {
-                s.DoEncoded(new R1PCSaveEncoder(), () => {
-                    byte[] b = s.SerializeArray<byte>(null, s.CurrentLength, name: "SaveFile");
-                    Util.ByteArrayToFile(context.BasePath + saveFile + ".dec", b);
-                });
-            });
-        }
-
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -1341,9 +1327,6 @@ namespace R1Engine
         public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
-
-            /*TestSaveFile(context, "RAYMAN1.SAV");
-            TestSaveFile(context, "RAYMAN3.SAV");*/
 
             // Read the level data
             var levelData = FileFactory.Read<PC_LevFile>(GetLevelFilePath(context.Settings), context);
