@@ -50,9 +50,11 @@ namespace R1Engine.Serialize {
 		protected void CreateBackupFile() {
 			if (Settings.BackupFiles) {
 				if (!FileSystem.FileExists(AbsolutePath + ".BAK")) {
-					using (Stream s = FileSystem.GetFileReadStream(AbsolutePath)) {
-						using (Stream sb = FileSystem.GetFileWriteStream(AbsolutePath + ".BAK")) {
-							s.CopyTo(sb);
+					if (FileSystem.FileExists(AbsolutePath)) {
+						using (Stream s = FileSystem.GetFileReadStream(AbsolutePath)) {
+							using (Stream sb = FileSystem.GetFileWriteStream(AbsolutePath + ".BAK")) {
+								s.CopyTo(sb);
+							}
 						}
 					}
 				}

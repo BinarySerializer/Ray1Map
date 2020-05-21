@@ -311,6 +311,7 @@ namespace R1Engine
 
                 DoAt(sf.StartPointer, () => {
                     action();
+                    memStream.Position = 0;
                     encoded = encoder.EncodeStream(memStream);
                 });
 

@@ -102,12 +102,23 @@ namespace R1Engine
                     };
                     context.AddFile(f);
                     SerializerObject s = context.Deserializer;
+                    byte[] saveData = null;
                     s.DoAt(f.StartPointer, () => {
                         s.DoEncoded(new R1PCSaveEncoder(), () => {
-                            byte[] b = s.SerializeArray<byte>(null, s.CurrentLength, name: "SaveFile");
-                            Util.ByteArrayToFile(context.BasePath + save + ".dec", b);
+                            saveData = s.SerializeArray<byte>(saveData, s.CurrentLength, name: "SaveData");
+                            Util.ByteArrayToFile(context.BasePath + save + ".dec", saveData);
                         });
                     });
+                    /*LinearSerializedFile f2 = new LinearSerializedFile(context) {
+                        filePath = save + ".recompressed"
+                    };
+                    context.AddFile(f2);
+                    s = context.Serializer;
+                    s.DoAt(f2.StartPointer, () => {
+                        s.DoEncoded(new R1PCSaveEncoder(), () => {
+                            saveData = s.SerializeArray<byte>(saveData, saveData.Length, name: "SaveData");
+                        });
+                    });*/
                 }
             }
         }

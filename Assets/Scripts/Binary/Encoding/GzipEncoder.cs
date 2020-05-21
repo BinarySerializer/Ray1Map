@@ -32,6 +32,7 @@ namespace R1Engine {
             using (GZipStream compressionStream = new GZipStream(memStream, CompressionMode.Compress)) {
                 s.CopyTo(compressionStream);
             }
+            memStream.Position = 0;
             return memStream;
         }
     }
