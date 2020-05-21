@@ -123,6 +123,40 @@ namespace R1Engine
                 // Delete the original file
                 File.Delete(filePath);
             }
+
+
+            // Enumerate every encrypted file
+            foreach (string filePath in Directory.EnumerateFiles(basePath, "*.compressed*", SearchOption.AllDirectories)) {
+                // Get the file name
+                string filename = Path.GetFileName(filePath);
+
+                // Decrypt the file name without the .spd extension
+                string decFileName = filename.Substring(0, filename.Length - 11);
+
+                // Get the output file path
+                string outputFilePath = Path.GetDirectoryName(filePath) + "/" + decFileName;
+
+                using (Stream s = FileSystem.GetFileReadStream(filePath)) {
+                    using (Reader reader = new Reader(s)) {
+                        uint decompressedSize = reader.ReadUInt32();
+                        uint compressionAlgorithmID = reader.ReadUInt32();
+                        if (compressionAlgorithmID != 1) continue;
+
+                        // Read the file bytes
+                        byte[] bytes = reader.ReadBytes((int)s.Length - 8);
+
+                        if (bytes.Length > 0) {
+                            byte[] output = LZ4.LZ4Codec.Decode(bytes, 0, bytes.Length, (int)decompressedSize);
+                            Util.ByteArrayToFile(outputFilePath, output);
+                        } else {
+                            Util.ByteArrayToFile(outputFilePath, new byte[0]);
+                        }
+                    }
+                }
+
+                // Delete the original file
+                File.Delete(filePath);
+            }
         }
 
         /// <summary>
