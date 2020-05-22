@@ -25,7 +25,7 @@
         /// </summary>
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
             {
                 PrimaryKitHeader = s.SerializeArray<byte>(PrimaryKitHeader, 5, name: nameof(PrimaryKitHeader));
                 SecondaryKitHeader = s.SerializeArray<byte>(SecondaryKitHeader, 5, name: nameof(SecondaryKitHeader));

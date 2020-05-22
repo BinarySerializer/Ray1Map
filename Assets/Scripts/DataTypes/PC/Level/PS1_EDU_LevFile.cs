@@ -32,13 +32,15 @@ namespace R1Engine
         public byte LastPlan1Palette { get; set; }
 
         public byte[] Unk2 { get; set; }
+        public uint Unk3 { get; set; }
+        public uint Unk4 { get; set; }
 
         /// <summary>
         /// The amount of events
         /// </summary>
         public ushort EventCount { get; set; }
 
-        public uint Unk3 { get; set; }
+        public uint EventBlockSize { get; set; }
 
         /// <summary>
         /// The events
@@ -97,36 +99,28 @@ namespace R1Engine
             LastPlan1Palette = s.Serialize<byte>(LastPlan1Palette, name: nameof(LastPlan1Palette));
 
             // Serialize unknown bytes
-            Unk2 = s.SerializeArray<byte>(Unk2, 4800, name: nameof(Unk2));
+            Unk2 = s.SerializeArray<byte>(Unk2, 0x12C4, name: nameof(Unk2));
 
-            // Serialize events
-            EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
-
+            // Serialize event block header
             Unk3 = s.Serialize<uint>(Unk3, name: nameof(Unk3));
+            Unk4 = s.Serialize<uint>(Unk4, name: nameof(Unk4));
+            EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
+            EventBlockSize = s.Serialize<uint>(EventBlockSize, name: nameof(EventBlockSize)); 
+            
+            // Start of event block
+            Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));            
 
-            Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
-
-            // Hack to get padding length
-            int getPaddingLength()
-            {
-                var paddingLength = 0;
-
-                s.DoAt(s.CurrentPointer, () =>
-                {
-                    while (s.Serialize<byte>(0) == 0xCD)
-                        paddingLength++;
-                });
-
-                return paddingLength;
+            if (UnkEventPadding1 == null) {
+                UnkEventPadding1 = new byte[(EventCount + (EventCount % 2)) * 4];
             }
-
-            var eventPaddingLength = UnkEventPadding1?.Length ?? getPaddingLength();
-            UnkEventPadding1 = s.SerializeArray<byte>(UnkEventPadding1, eventPaddingLength, name: nameof(UnkEventPadding1));
+            UnkEventPadding1 = s.SerializeArray<byte>(UnkEventPadding1, UnkEventPadding1.Length, name: nameof(UnkEventPadding1));
 
             EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, EventCount, name: nameof(EventLinkTable));
 
-            eventPaddingLength = UnkEventPadding2?.Length ?? getPaddingLength();
-            UnkEventPadding2 = s.SerializeArray<byte>(UnkEventPadding2, eventPaddingLength, name: nameof(UnkEventPadding2));
+            if (UnkEventPadding2 == null) {
+                UnkEventPadding2 = new byte[(1-(EventCount % 2)) * 2];
+            }
+            UnkEventPadding2 = s.SerializeArray<byte>(UnkEventPadding2, UnkEventPadding2.Length, name: nameof(UnkEventPadding2));
 
             // After this comes the commands. They do not have any length specified like on PC. When label offsets are used they're separated using 0xCD twice.
 
