@@ -113,6 +113,7 @@ namespace R1Engine
 
             // TODO: Just for testing...
             FileFactory.Read<PS1_EDU_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+            FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.ColorPalettes.First()) : new Common_Design[0];
