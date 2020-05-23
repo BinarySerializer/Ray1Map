@@ -83,6 +83,7 @@
             // Serialize ETA
             s.DoAt(ETABlockPointer, () =>
             {
+                // TODO: What is this?
                 UnkETAData = s.SerializeArray<byte>(UnkETAData, 4 * 8, name: nameof(UnkETAData));
 
                 if (ETA == null)
