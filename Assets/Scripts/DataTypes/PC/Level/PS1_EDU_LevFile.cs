@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace R1Engine
 {
     /// <summary>
     /// Level data for EDU on PS1
     /// </summary>
-    public class PS1_EDU_LevFile : PC_BaseFile
+    public class PS1_EDU_LevFile : R1Serializable
     {
         #region Public Properties
         public byte[] Header_Unk1 { get; set; }
@@ -75,9 +74,6 @@ namespace R1Engine
         /// </summary>
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
-            // PC HEADER
-            base.SerializeImpl(s);
-
             // HEADER BLOCK
             Header_Unk1 = s.SerializeArray<byte>(Header_Unk1, 0xD, name: nameof(Header_Unk1));
             Header_Unk2 = s.SerializeArray<byte>(Header_Unk2, 0x3, name: nameof(Header_Unk2));
@@ -119,41 +115,47 @@ namespace R1Engine
             EventBlockPointer = s.CurrentPointer;
             s.Goto(EventBlockPointer + EventBlockSize);
 
-            // Unknown (event-related but outside of main event block)
+            // Serialize event command counts
             EventNumCommands = s.SerializeArray<ushort>(EventNumCommands, EventCount, name: nameof(EventNumCommands));
             EventNumLabelOffsets = s.SerializeArray<ushort>(EventNumLabelOffsets, EventCount, name: nameof(EventNumLabelOffsets));
 
-            // After this comes the tiles. They are stored in a tileset, 512x256 (where each tile is 16px).
+            // Serialize tile-set texture data
             TileTextures = s.SerializeArray<byte>(TileTextures, 512 * 256, name: nameof(TileTextures));
 
-            // After this comes the map tiles, 6 bytes each until end of file
+            // Serialize the map tiles
             MapBlockSize = s.Serialize<uint>(MapBlockSize, name: nameof(MapBlockSize));
             MapTiles = s.SerializeObjectArray<PC_MapTile>(MapTiles, MapBlockSize / 6, name: nameof(MapTiles));
 
 
             // Finally, read the events
             s.DoAt(EventBlockPointer, () => {
+
+                // Helper method to get the current position inside of the event block
                 int GetPosInEventBlock() {
                     int currentPos = (int)(s.CurrentPointer - EventBlockPointer);
                     return currentPos;
                 }
-                // Start of event block
+
+                // Serialize the events
                 Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
 
+                // Padding...
                 s.SerializeArray<byte>(Enumerable.Repeat((byte)0xCD, EventCount * 4).ToArray(), EventCount * 4, name: "Padding");
                 if (EventCount % 2 != 0) {
-                    int padding = 4;
+                    const int padding = 4;
                     s.SerializeArray<byte>(Enumerable.Repeat((byte)0xCD, padding).ToArray(), padding, name: "Padding");
                 }
 
+                // Serialize the event link table
                 EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, EventCount, name: nameof(EventLinkTable));
 
+                // Padding...
                 if (EventCount % 2 == 0) {
-                    int padding = 2;
+                    const int padding = 2;
                     s.SerializeArray<byte>(Enumerable.Repeat((byte)0xCD, padding).ToArray(), padding, name: "Padding");
                 }
 
-                // After this comes the commands. They do not have any length specified like on PC. When label offsets are used they're separated using 0xCD twice.
+                // Serialize the commands
                 if (EventCommands == null) {
                     EventCommands = new PC_EventCommand[EventCount];
                 }

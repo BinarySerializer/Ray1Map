@@ -97,7 +97,7 @@
                 // Serialize sprites
                 DesItemCount = s.Serialize<ushort>(DesItemCount, name: nameof(DesItemCount));
 
-                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, FileType == Type.AllFix && Context.Settings.EngineVersion != EngineVersion.RayEduPS1 ? DesItemCount - 1 : DesItemCount,
+                DesItems = s.SerializeObjectArray<PC_DES>(DesItems, FileType == Type.AllFix ? DesItemCount - 1 : DesItemCount,
                     onPreSerialize: data => data.FileType = FileType, name: nameof(DesItems));
             }
         }

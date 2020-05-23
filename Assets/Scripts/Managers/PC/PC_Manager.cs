@@ -1700,7 +1700,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The event states</returns>
-        public IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
+        public virtual IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
         {
             // Read the fixed data
             var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context, (s, x) => x.FileType = PC_WorldFile.Type.AllFix);
