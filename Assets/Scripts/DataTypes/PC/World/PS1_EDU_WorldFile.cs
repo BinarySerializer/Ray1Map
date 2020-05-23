@@ -66,8 +66,10 @@
             if (Plan0NumPcx == null)
                 Plan0NumPcx = new byte[Plan0NumPcxCount][];
 
+            s.BeginXOR(0x19);
             for (int i = 0; i < Plan0NumPcx.Length; i++)
                 Plan0NumPcx[i] = s.SerializeArray<byte>(Plan0NumPcx[i], 8, name: $"{nameof(Plan0NumPcx)}[{i}]");
+            s.EndXOR();
 
             // Serialize counts
             DESCount = s.Serialize<ushort>(DESCount, name: nameof(DESCount));

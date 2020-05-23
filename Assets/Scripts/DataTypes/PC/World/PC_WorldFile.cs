@@ -58,6 +58,8 @@
                 Plan0NumPcxCount = s.Serialize<byte>(Plan0NumPcxCount, name: nameof(Plan0NumPcxCount));
                 VideoBiosCheckSum = s.Serialize<byte>(VideoBiosCheckSum, name: nameof(VideoBiosCheckSum));
                 BiosCheckSum = s.Serialize<byte>(BiosCheckSum, name: nameof(BiosCheckSum));
+
+                // 0x19 for EDU?
                 s.BeginXOR(0x15);
                 Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: nameof(Plan0NumPcx));
                 s.EndXOR();
