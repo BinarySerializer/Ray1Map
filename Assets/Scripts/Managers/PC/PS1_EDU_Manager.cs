@@ -1,10 +1,9 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using R1Engine.Serialize;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -45,6 +44,13 @@ namespace R1Engine
         public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings) + $"BIGRAY.DAT";
 
         /// <summary>
+        /// Gets the file path for the .grx bundle
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The .grx bundle file path</returns>
+        public string GetGRXFilePath(GameSettings settings) => $"{settings.EduVolume}.GRX";
+
+        /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -67,9 +73,47 @@ namespace R1Engine
             }).ToArray();
         }
 
+        /// <summary>
+        /// Gets the available game actions
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game actions</returns>
+        public override GameAction[] GetGameActions(GameSettings settings)
+        {
+            return new GameAction[]
+            {
+                new GameAction("Export Archives", false, true, (i, o) => ExportGRX(settings, o)), 
+            };
+        }
+
         #endregion
 
         #region Manager Methods
+
+        /// <summary>
+        /// Exports the .grx files
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputDir">The output directory to export to</param>
+        public void ExportGRX(GameSettings settings, string outputDir)
+        {
+            // Create the context
+            using (var context = new Context(settings))
+            {
+                foreach (var grxFilePath in Directory.GetFiles(settings.GameDirectory, "*.grx", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
+                {
+                    context.AddFile(new LinearSerializedFile(context)
+                    {
+                        filePath = grxFilePath
+                    });
+
+                    var grx = FileFactory.Read<PS1_EDU_GRX>(grxFilePath, context);
+
+                    foreach (var grxFile in grx.Files)
+                        Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, grxFile.FileName), grx.GetFileBytes(context.Deserializer, grxFile.FileName));
+                }
+            }
+        }
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -88,6 +132,16 @@ namespace R1Engine
             var levelData = FileFactory.Read<PS1_EDU_LevFile>(GetLevelFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
+
+            // Get the .grp file name to use
+            var grpName = $"UW{((int)context.Settings.World) + 1}L{context.Settings.Level}";
+
+            // Load the .grx bundle
+            var grx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFilePath(context.Settings), context);
+
+            // Get the .gsp and .tex files
+            var gsp = grx.GetFileBytes(context.Deserializer, grpName + ".GSP");
+            var tex = grx.GetFileBytes(context.Deserializer, grpName + ".TEX");
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
@@ -218,6 +272,22 @@ namespace R1Engine
         {
             // TODO: Read ETA from allfix + world
             return new PC_ETA[0];
+        }
+
+        /// <summary>
+        /// Preloads all the necessary files into the context
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        public override async Task LoadFilesAsync(Context context)
+        {
+            // Load base files
+            await base.LoadFilesAsync(context);
+
+            // Load the .grx file
+            var grx = GetGRXFilePath(context.Settings);
+
+            await FileSystem.PrepareFile(context.BasePath + grx);
+            context.AddFile(GetFile(context, grx));
         }
 
         #endregion
