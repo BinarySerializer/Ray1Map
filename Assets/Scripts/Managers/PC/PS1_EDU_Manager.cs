@@ -51,6 +51,13 @@ namespace R1Engine
         public string GetGRXFilePath(GameSettings settings) => $"{settings.EduVolume}.GRX";
 
         /// <summary>
+        /// Gets the name for the file to use in the main .grx files
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The name</returns>
+        public string GetGRXName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 1)}W{((int)settings.World) + 1}L{settings.Level}";
+
+        /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -133,8 +140,8 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            // Get the .grp file name to use
-            var grpName = $"UW{((int)context.Settings.World) + 1}L{context.Settings.Level}";
+            // Get the .grx file name to use
+            var grpName = GetGRXName(context.Settings);
 
             // Load the .grx bundle
             var grx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFilePath(context.Settings), context);
