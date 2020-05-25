@@ -130,7 +130,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            // TODO: Set to true once we parse world files!
+            // TODO: Remove once we parse world files!
             loadTextures = false;
 
             Controller.status = $"Loading map data for {context.Settings.EduVolume}: {context.Settings.World} {context.Settings.Level}";
@@ -205,11 +205,8 @@ namespace R1Engine
                     Layer = e.Layer,
                     HitSprite = e.HitSprite,
                     FollowEnabled = e.FollowEnabled,
-
-                    // TODO: Is this correct?
                     LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
                     CommandCollection = levelData.EventCommands[index].Commands,
-                    
                     LinkIndex = levelData.EventLinkTable[index],
                     DebugText = $"Flags: {String.Join(", ", e.Flags.GetFlags())}{Environment.NewLine}"
                 });
