@@ -25,9 +25,13 @@
 
         public byte[] Unk7 { get; set; }
 
-        public uint ETABlockLength { get; set; }
+        public uint MainDataBlockLength { get; set; }
 
-        public Pointer ETABlockPointer { get; set; }
+        public Pointer MainDataBlockPointer { get; set; }
+
+        public Common_ImageDescriptor[][] ImageDescriptors { get; set; }
+
+        public PS1_EDU_AnimationDescriptor[][] AnimationDescriptors { get; set; }
 
         /// <summary>
         /// The event states for every ETA
@@ -81,12 +85,12 @@
 
             Unk7 = s.SerializeArray<byte>(Unk7, 0x1A, name: nameof(Unk7));
 
-            // Serialize ETA block length
-            ETABlockLength = s.Serialize<uint>(ETABlockLength, name: nameof(ETABlockLength));
+            // Serialize main data block length
+            MainDataBlockLength = s.Serialize<uint>(MainDataBlockLength, name: nameof(MainDataBlockLength));
 
-            // We parse the ETA later...
-            ETABlockPointer = s.CurrentPointer;
-            s.Goto(ETABlockPointer + ETABlockLength);
+            // We parse the main data block later...
+            MainDataBlockPointer = s.CurrentPointer;
+            s.Goto(MainDataBlockPointer + MainDataBlockLength);
 
             // Serialize ETA tables
             ETAStateCountTableCount = s.Serialize<byte>(ETAStateCountTableCount, name: nameof(ETAStateCountTableCount));
@@ -103,12 +107,25 @@
             for (int i = 0; i < UnkBlock6.Length; i++)
                 UnkBlock6[i] = s.SerializeArray<byte>(UnkBlock6[i], 0xFE, name: $"{nameof(UnkBlock6)}[{i}]");
 
-            // Serialize ETA
-            s.DoAt(ETABlockPointer, () =>
+            // Serialize the main data block
+            s.DoAt(MainDataBlockPointer, () =>
             {
-                // TODO: ETA begins at 0x552C6 for the Jungle world file - what's the data before it?
+                if (ImageDescriptors == null)
+                    ImageDescriptors = new Common_ImageDescriptor[DESCount][];
 
-                return;
+                if (AnimationDescriptors == null)
+                    AnimationDescriptors = new PS1_EDU_AnimationDescriptor[DESCount][];
+
+                for (int i = 0; i < ImageDescriptors.Length; i++)
+                {
+                    ImageDescriptors[i] = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors[i], DESData[i].ImageDescriptorsCount, name: $"{nameof(ImageDescriptors)}[{i}]");
+
+                    AnimationDescriptors[i] = s.SerializeObjectArray<PS1_EDU_AnimationDescriptor>(AnimationDescriptors[i], DESData[i].AnimationDescriptorsCount, name: $"{nameof(AnimationDescriptors)}[{i}]");
+
+                    // TODO: Here are some 14-byte structs which sometimes are followed by 3 or 6 bytes of data
+                }
+
+                // TODO: ETA begins at 0x552C6 for the Jungle world file
 
                 if (ETA == null)
                     ETA = new Common_EventState[ETACount][][];

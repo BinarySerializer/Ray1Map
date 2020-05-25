@@ -13,11 +13,11 @@
 
         public PS1_EDU_DESData[] DESData { get; set; }
 
-        public uint ETABlockLength { get; set; }
+        public uint MainDataBlockLength { get; set; }
 
-        public Pointer ETABlockPointer { get; set; }
+        public Pointer MainDataBlockPointer { get; set; }
 
-        public byte[] UnkETAData { get; set; }
+        public byte[] MainData_UnkBytes { get; set; }
 
         /// <summary>
         /// The event states for every ETA
@@ -57,12 +57,12 @@
             // Serialize the DES data
             DESData = s.SerializeObjectArray<PS1_EDU_DESData>(DESData, DESCount, name: nameof(DESData));
 
-            // Serialize ETA block length
-            ETABlockLength = s.Serialize<uint>(ETABlockLength, name: nameof(ETABlockLength));
+            // Serialize main data block length
+            MainDataBlockLength = s.Serialize<uint>(MainDataBlockLength, name: nameof(MainDataBlockLength));
 
-            // We parse the ETA later...
-            ETABlockPointer = s.CurrentPointer;
-            s.Goto(ETABlockPointer + ETABlockLength);
+            // We parse the main data block later...
+            MainDataBlockPointer = s.CurrentPointer;
+            s.Goto(MainDataBlockPointer + MainDataBlockLength);
 
             UnkDwordArray = s.SerializeArray<uint>(UnkDwordArray, 8, name: nameof(UnkDwordArray));
 
@@ -80,11 +80,11 @@
             for (int i = 0; i < UnkBlock6.Length; i++)
                 UnkBlock6[i] = s.SerializeArray<byte>(UnkBlock6[i], 0xFE, name: $"{nameof(UnkBlock6)}[{i}]");
 
-            // Serialize ETA
-            s.DoAt(ETABlockPointer, () =>
+            // Serialize the main data block
+            s.DoAt(MainDataBlockPointer, () =>
             {
                 // TODO: What is this?
-                UnkETAData = s.SerializeArray<byte>(UnkETAData, 4 * 8, name: nameof(UnkETAData));
+                MainData_UnkBytes = s.SerializeArray<byte>(MainData_UnkBytes, 4 * 8, name: nameof(MainData_UnkBytes));
 
                 if (ETA == null)
                     ETA = new Common_EventState[ETACount][][];
@@ -106,6 +106,8 @@
                         stateIndex++;
                     }
                 }
+
+                // TODO: Serialize image/animation descriptors - check world file where some of that data has been parsed!
             });
         }
 
