@@ -1,5 +1,7 @@
 ﻿namespace R1Engine
 {
+    // This class uses the same structure as normal events. Dummy data is always 0 as the event values aren't used here.
+
     /// <summary>
     /// DES data for EDU on PS1
     /// </summary>
@@ -9,20 +11,19 @@
 
         public uint AnimationDescriptorsPointer { get; set; }
 
-        // Always 0?
-        public byte[] Unk1 { get; set; }
+        public byte[] Dummy1 { get; set; }
 
         public uint ImageBufferLength { get; set; }
 
-        // Always 0?
-        public byte[] Unk2 { get; set; }
+        public byte[] Dummy2 { get; set; }
 
-        public uint ImageDescriptorsCount { get; set; }
+        public ushort ImageDescriptorsCount { get; set; }
 
-        // Always 0?
-        public byte[] Unk3 { get; set; }
+        public byte[] Dummy3 { get; set; }
 
-        public uint AnimationDescriptorsCount { get; set; }
+        public byte AnimationDescriptorsCount { get; set; }
+
+        public byte[] Dummy4 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -32,12 +33,13 @@
         {
             ImageDescriptorsPointer = s.Serialize<uint>(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
             AnimationDescriptorsPointer = s.Serialize<uint>(AnimationDescriptorsPointer, name: nameof(AnimationDescriptorsPointer));
-            Unk1 = s.SerializeArray<byte>(Unk1, 32, name: nameof(Unk1));
+            Dummy1 = s.SerializeArray<byte>(Dummy1, 32, name: nameof(Dummy1));
             ImageBufferLength = s.Serialize<uint>(ImageBufferLength, name: nameof(ImageBufferLength));
-            Unk2 = s.SerializeArray<byte>(Unk2, 24, name: nameof(Unk2));
-            ImageDescriptorsCount = s.Serialize<uint>(ImageDescriptorsCount, name: nameof(ImageDescriptorsCount));
-            Unk3 = s.SerializeArray<byte>(Unk3, 60, name: nameof(Unk3));
-            AnimationDescriptorsCount = s.Serialize<uint>(AnimationDescriptorsCount, name: nameof(AnimationDescriptorsCount));
+            Dummy2 = s.SerializeArray<byte>(Dummy2, 24, name: nameof(Dummy2));
+            ImageDescriptorsCount = s.Serialize<ushort>(ImageDescriptorsCount, name: nameof(ImageDescriptorsCount));
+            Dummy3 = s.SerializeArray<byte>(Dummy3, 62, name: nameof(Dummy3));
+            AnimationDescriptorsCount = s.Serialize<byte>(AnimationDescriptorsCount, name: nameof(AnimationDescriptorsCount));
+            Dummy4 = s.SerializeArray<byte>(Dummy4, 3, name: nameof(Dummy4));
         }
     }
 }
