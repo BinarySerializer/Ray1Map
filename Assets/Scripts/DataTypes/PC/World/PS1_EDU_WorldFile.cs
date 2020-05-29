@@ -110,6 +110,10 @@
             // Serialize the main data block
             s.DoAt(MainDataBlockPointer, () =>
             {
+                // TODO: This block should be serialized from pointers!
+
+                // Old code:
+
                 if (ImageDescriptors == null)
                     ImageDescriptors = new Common_ImageDescriptor[DESCount][];
 

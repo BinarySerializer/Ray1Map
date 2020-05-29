@@ -5,6 +5,10 @@
     /// </summary>
     public class PS1_EDU_DESData : R1Serializable
     {
+        public uint ImageDescriptorsPointer { get; set; }
+
+        public uint AnimationDescriptorsPointer { get; set; }
+
         public byte[] Unk1 { get; set; }
 
         // ushort/uint?
@@ -23,7 +27,9 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            Unk1 = s.SerializeArray<byte>(Unk1, 68, name: nameof(Unk1));
+            ImageDescriptorsPointer = s.Serialize<uint>(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
+            AnimationDescriptorsPointer = s.Serialize<uint>(AnimationDescriptorsPointer, name: nameof(AnimationDescriptorsPointer));
+            Unk1 = s.SerializeArray<byte>(Unk1, 60, name: nameof(Unk1));
             ImageDescriptorsCount = s.Serialize<byte>(ImageDescriptorsCount, name: nameof(ImageDescriptorsCount));
             Unk2 = s.SerializeArray<byte>(Unk2, 63, name: nameof(Unk2));
             AnimationDescriptorsCount = s.Serialize<byte>(AnimationDescriptorsCount, name: nameof(AnimationDescriptorsCount));

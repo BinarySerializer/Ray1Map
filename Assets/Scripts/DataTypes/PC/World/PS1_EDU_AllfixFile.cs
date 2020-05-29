@@ -83,6 +83,10 @@
             // Serialize the main data block
             s.DoAt(MainDataBlockPointer, () =>
             {
+                // TODO: This block should be serialized from pointers!
+
+                // Old code:
+
                 // TODO: What is this?
                 MainData_UnkBytes = s.SerializeArray<byte>(MainData_UnkBytes, 4 * 8, name: nameof(MainData_UnkBytes));
 

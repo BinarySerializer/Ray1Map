@@ -1,12 +1,14 @@
 ﻿namespace R1Engine
 {
+    // TODO: Merge with PS1 anim descriptor class once we parse pointers!
+
     /// <summary>
     /// Animation descriptor data for EDU on PS1
     /// </summary>
     public class PS1_EDU_AnimationDescriptor : R1Serializable
     {
-        public uint Unk1 { get; set; }
-        public uint Unk2 { get; set; }
+        public uint AnimLayersPointer { get; set; }
+        public uint AnimFramesPointer { get; set; }
 
         public ushort LayersPerFrame { get; set; }
         public ushort FrameCount { get; set; }
@@ -17,8 +19,8 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            Unk1 = s.Serialize<uint>(Unk1, name: nameof(Unk1));
-            Unk2 = s.Serialize<uint>(Unk2, name: nameof(Unk2));
+            AnimLayersPointer = s.Serialize<uint>(AnimLayersPointer, name: nameof(AnimLayersPointer));
+            AnimFramesPointer = s.Serialize<uint>(AnimFramesPointer, name: nameof(AnimFramesPointer));
             LayersPerFrame = s.Serialize<ushort>(LayersPerFrame, name: nameof(LayersPerFrame));
             FrameCount = s.Serialize<ushort>(FrameCount, name: nameof(FrameCount));
         }
