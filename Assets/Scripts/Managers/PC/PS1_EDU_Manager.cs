@@ -111,9 +111,10 @@ namespace R1Engine
         {
             return new GameAction[]
             {
+                new GameAction("Export Sprites", false, true, (input, output) => ExportGRX(settings, output, true)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
-                new GameAction("Export GRX", false, true, (i, o) => ExportGRX(settings, o)), 
+                new GameAction("Export GRX", false, true, (input, output) => ExportGRX(settings, output, false)), 
             };
         }
 
@@ -126,7 +127,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory to export to</param>
-        public void ExportGRX(GameSettings settings, string outputDir)
+        /// <param name="exportSprites">True if sprites should be exported, false if the files should be exported</param>
+        public void ExportGRX(GameSettings settings, string outputDir, bool exportSprites)
         {
             // Create the context
             using (var context = new Context(settings))
@@ -140,20 +142,28 @@ namespace R1Engine
 
                     var grx = FileFactory.Read<PS1_EDU_GRX>(grxFilePath, context);
 
-                    foreach (var grxFile in grx.Files) {
-                        Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, grxFile.FileName), grx.GetFileBytes(context.Deserializer, grxFile.FileName));
-                        if (grxFile.FileName.ToLower().EndsWith(".tex")) {
-                            string baseName = grxFile.FileName.Substring(0, grxFile.FileName.Length - 4);
-                            Texture2D[] tex = GetSpriteTextures(context, grx, baseName).ToArray();
-                            for (int i = 0; i < tex.Length; i++) {
-                                Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
-                            }
-                            /*Texture2D[] tex = GetPageTextures(context, grx, baseName).ToArray();
-                            for (int i = 0; i < Math.Min(100, tex.Length); i++) {
-                                Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
-                            }*/
-                        }
+                    foreach (var grxFile in grx.Files) 
+                    {
+                        if (exportSprites)
+                        {
+                            if (grxFile.FileName.ToLower().EndsWith(".tex"))
+                            {
+                                string baseName = grxFile.FileName.Substring(0, grxFile.FileName.Length - 4);
 
+                                Texture2D[] tex = GetSpriteTextures(context, grx, baseName).ToArray();
+
+                                for (int i = 0; i < tex.Length; i++)
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
+                                /*Texture2D[] tex = GetPageTextures(context, grx, baseName).ToArray();
+                                for (int i = 0; i < Math.Min(100, tex.Length); i++) {
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
+                                }*/
+                            }
+                        }
+                        else
+                        {
+                            Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, grxFile.FileName), grx.GetFileBytes(context.Deserializer, grxFile.FileName));
+                        }
                     }
                 }
             }
@@ -284,8 +294,6 @@ namespace R1Engine
                 yield return sprite;
             }
         }
-
-
 
         /// <summary>
         /// Gets the sprites from a .grx file
