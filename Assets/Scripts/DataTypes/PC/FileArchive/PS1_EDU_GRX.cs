@@ -28,6 +28,13 @@ namespace R1Engine
         public PS1_EDU_GRXFile[] Files { get; set; }
 
         /// <summary>
+        /// Gets the file with the specified file name
+        /// </summary>
+        /// <param name="fileName">The file name</param>
+        /// <returns>The file</returns>
+        public PS1_EDU_GRXFile GetFile(string fileName) => Files?.FindItem(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception($"No matching file was found for name {fileName}");
+
+        /// <summary>
         /// Gets the file bytes based on name
         /// </summary>
         /// <param name="s">The serializer object</param>
@@ -36,10 +43,7 @@ namespace R1Engine
         public byte[] GetFileBytes(SerializerObject s, string fileName)
         {
             // Attempt to find the file
-            var file = Files?.FindItem(x => x.FileName == fileName);
-
-            if (file == null)
-                throw new Exception($"No matching file was found for name {fileName}");
+            var file = GetFile(fileName);
 
             // Create the buffer
             byte[] buffer = null;

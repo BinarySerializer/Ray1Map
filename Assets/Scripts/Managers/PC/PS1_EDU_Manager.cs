@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -44,18 +45,39 @@ namespace R1Engine
         public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings) + $"BIGRAY.DAT";
 
         /// <summary>
-        /// Gets the file path for the .grx bundle
+        /// Gets the file path for the .grx bundle for allfix
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The .grx bundle file path</returns>
-        public string GetGRXFilePath(GameSettings settings) => $"{settings.EduVolume}.GRX";
+        public string GetGRXFixFilePath(GameSettings settings) => $"FIX{settings.EduVolume.Substring(2, 1)}.GRX";
 
         /// <summary>
-        /// Gets the name for the file to use in the main .grx files
+        /// Gets the file path for the .grx bundle for the levels
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The .grx bundle file path</returns>
+        public string GetGRXLevelFilePath(GameSettings settings) => $"{settings.EduVolume}.GRX";
+
+        /// <summary>
+        /// Gets the name for the file to use in the .grx files for BigRay
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The name</returns>
-        public string GetGRXName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 1)}W{((int)settings.World) + 1}L{settings.Level}";
+        public string GetGRXBigRayName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 2).ToLower()}_br";
+
+        /// <summary>
+        /// Gets the name for the file to use in the .grx files for allfix
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The name</returns>
+        public string GetGRXFixName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 2).ToLower()}_fix";
+        
+        /// <summary>
+        /// Gets the name for the file to use in the .grx files for the current level
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The name</returns>
+        public string GetGRXLevelName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 1)}W{((int)settings.World) + 1}L{settings.Level}";
 
         /// <summary>
         /// Gets the levels for each world
@@ -125,6 +147,114 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Loads the sprites for the level
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <returns>The common event designs</returns>
+        public async Task<Common_Design[]> LoadSpritesAsync(Context context)
+        {
+            Controller.status = $"Loading sprites";
+            await Controller.WaitIfNecessary();
+
+            // Create the output list
+            List<Common_Design> eventDesigns = new List<Common_Design>();
+
+            // Load the world files
+            var allfix = FileFactory.Read<PS1_EDU_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+            var world = FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context);
+
+            // Get all DES
+            var des = allfix.DESData.Concat(world.DESData);
+
+            // Load the .grx bundles
+            var fixGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFixFilePath(context.Settings), context);
+            var worldGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXLevelFilePath(context.Settings), context);
+
+            // Get the textures from allfix and world
+            var textures = GetSpriteTextures(context, fixGrx, GetGRXFixName(context.Settings)).Concat(GetSpriteTextures(context, worldGrx, GetGRXLevelName(context.Settings)));
+
+            // TODO: Fix this
+            // Enumerate every DES
+            foreach (var d in des)
+            {
+                var sprites = textures.Take(d.ImageDescriptorsCount).Select(x => Sprite.Create(x, new Rect(0, 0, x.width, x.height), new Vector2(0f, 1f), 16, 20)).ToList();
+                var animations = new List<Common_Animation>();
+
+                eventDesigns.Add(new Common_Design()
+                {
+                    Animations = animations,
+                    Sprites = sprites
+                });
+            }
+
+            // Return the sprites
+            return eventDesigns.ToArray();
+        }
+
+        /// <summary>
+        /// Gets the sprites from a .grx file
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="grx">The .grx file</param>
+        /// <param name="fileName">The file name, without the extension</param>
+        /// <returns>The sprites</returns>
+        public IEnumerable<Texture2D> GetSpriteTextures(Context context, PS1_EDU_GRX grx, string fileName)
+        {
+            // Get the .gsp and .tex data
+            var s = context.Deserializer;
+
+            PS1_EDU_TEX tex = null;
+            ushort[] gspIndices = null;
+
+            s.DoAt(grx.BaseOffset + grx.GetFile(fileName + ".TEX").FileOffset, () => tex = s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(tex)));
+            s.DoAt(grx.BaseOffset + grx.GetFile(fileName + ".GSP").FileOffset, () => gspIndices = s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(gspIndices)).Indices);
+
+            // TODO: Fix this
+            // Create texture pages
+            var pages = tex.TexturePages.Select(x =>
+            {
+                var vram = new PS1_VRAM();
+                vram.AddData(x, (int)tex.Width);
+                return vram;
+            }).ToArray();
+
+            // Parse the sprites from the texture pages
+            foreach (var d in tex.Descriptors)
+            {
+                // Get the texture page
+                var page = pages[d.PageIndex];
+
+                // Create the texture
+                Texture2D sprite = new Texture2D(d.Width, d.Height, TextureFormat.RGBA32, false)
+                {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+
+                // Default to fully transparent
+                sprite.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), sprite.height * sprite.width).ToArray());
+
+                for (int y = 0; y < d.Height; y++)
+                {
+                    for (int x = 0; x < d.Width; x++)
+                    {
+                        // TODO: Fix this
+                        var paletteIndex = page.GetPixel8(0, 0, d.XInPage + x, d.YInPage + y);
+
+                        // TODO: Fix this
+                        // Set the pixel
+                        sprite.SetPixel(x, d.Height - 1 - y, new Color(BitHelpers.ExtractBits(paletteIndex, 3, 0) / 7f, BitHelpers.ExtractBits(paletteIndex, 3, 3) / 7f, BitHelpers.ExtractBits(paletteIndex, 2, 6) / 3f));
+                    }
+                }
+
+                // Apply the changes
+                sprite.Apply();
+
+                yield return sprite;
+            }
+        }
+
+        /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
         /// <param name="context">The serialization context</param>
@@ -132,25 +262,12 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            // TODO: Remove once we parse world files!
-            loadTextures = false;
-
             Controller.status = $"Loading map data for {context.Settings.EduVolume}: {context.Settings.World} {context.Settings.Level}";
 
             // Load the level
             var levelData = FileFactory.Read<PS1_EDU_LevFile>(GetLevelFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
-
-            // Get the .grx file name to use
-            var grpName = GetGRXName(context.Settings);
-
-            // Load the .grx bundle
-            var grx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFilePath(context.Settings), context);
-
-            // Get the .gsp and .tex files
-            var gsp = grx.GetFileBytes(context.Deserializer, grpName + ".GSP");
-            var tex = grx.GetFileBytes(context.Deserializer, grpName + ".TEX");
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
@@ -174,12 +291,8 @@ namespace R1Engine
                 EventData = new List<Common_EventData>(),
             };
 
-            // TODO: Just for testing...
-            FileFactory.Read<PS1_EDU_AllfixFile>(GetAllfixFilePath(context.Settings), context);
-            FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context);
-
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.ColorPalettes.First()) : new Common_Design[0];
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context) : new Common_Design[0];
 
             var index = 0;
 
@@ -289,11 +402,15 @@ namespace R1Engine
             // Load base files
             await base.LoadFilesAsync(context);
 
-            // Load the .grx file
-            var grx = GetGRXFilePath(context.Settings);
+            // Load the .grx files
+            await LoadFileAsync(GetGRXFixFilePath(context.Settings));
+            await LoadFileAsync(GetGRXLevelFilePath(context.Settings));
 
-            await FileSystem.PrepareFile(context.BasePath + grx);
-            context.AddFile(GetFile(context, grx));
+            async Task LoadFileAsync(string filePath)
+            {
+                await FileSystem.PrepareFile(context.BasePath + filePath);
+                context.AddFile(GetFile(context, filePath));
+            }
         }
 
         #endregion
