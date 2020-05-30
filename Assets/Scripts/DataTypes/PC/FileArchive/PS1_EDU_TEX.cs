@@ -39,7 +39,7 @@ namespace R1Engine
             if (Palettes == null) Palettes = new ObjectArray<ARGB1555Color>[NumPalettes];
             if (Descriptors == null) Descriptors = new PS1_EDU_TEXDescriptor[NumDescriptors];
 
-            PagePointers = s.SerializePointerArray(PagePointers, PagePointers.Length, name: nameof(PagePointers));
+            PagePointers = s.SerializePointerArray(PagePointers, PagePointers.Length, anchor: Offset, name: nameof(PagePointers));
             Palettes = s.SerializeObjectArray(Palettes, Palettes.Length, onPreSerialize: a => a.Length = PaletteLength, name: nameof(Palettes));
             Descriptors = s.SerializeObjectArray(Descriptors, Descriptors.Length, name: nameof(Descriptors));
 
@@ -63,8 +63,27 @@ namespace R1Engine
         }
         private uint PageLength {
             get {
-                return Width * Height * BitDepth / 8;
+                return Width * Height;// * BitDepth / 8;
             }
+        }
+
+        public ushort GetPagePixel(int pageIndex, int x, int y) {
+            int actualX = x * (int)BitDepth / 8;
+            //int actualW = (int)Width * 8 / (int)BitDepth;
+            int ind = y * (int)Width + actualX;
+            switch (BitDepth) {
+                case 4:
+                    if (x % 2 == 0) {
+                        return (ushort)BitHelpers.ExtractBits(TexturePages[pageIndex][ind], 4, 0);
+                    } else {
+                        return (ushort)BitHelpers.ExtractBits(TexturePages[pageIndex][ind], 4, 4);
+                    }
+                case 8:
+                    return TexturePages[pageIndex][ind];
+                case 16:
+                    return (ushort)((TexturePages[pageIndex][ind]) | (TexturePages[pageIndex][ind + 1] << 8));
+            }
+            return 0;
         }
     }
 }

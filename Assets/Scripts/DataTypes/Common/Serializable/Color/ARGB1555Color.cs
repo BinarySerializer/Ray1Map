@@ -46,5 +46,11 @@
         public override void SerializeImpl(SerializerObject s) {
             Color1555 = s.Serialize<ushort>(Color1555, name: nameof(Color1555));
         }
+
+        public static ARGB1555Color From1555(ushort argb1555) {
+            ARGB1555Color col = new ARGB1555Color();
+            col.Color1555 = argb1555;
+            return col;
+        }
     }
 }

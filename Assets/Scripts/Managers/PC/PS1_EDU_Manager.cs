@@ -140,8 +140,21 @@ namespace R1Engine
 
                     var grx = FileFactory.Read<PS1_EDU_GRX>(grxFilePath, context);
 
-                    foreach (var grxFile in grx.Files)
+                    foreach (var grxFile in grx.Files) {
                         Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, grxFile.FileName), grx.GetFileBytes(context.Deserializer, grxFile.FileName));
+                        if (grxFile.FileName.ToLower().EndsWith(".tex")) {
+                            string baseName = grxFile.FileName.Substring(0, grxFile.FileName.Length - 4);
+                            Texture2D[] tex = GetSpriteTextures(context, grx, baseName).ToArray();
+                            for (int i = 0; i < tex.Length; i++) {
+                                Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
+                            }
+                            /*Texture2D[] tex = GetPageTextures(context, grx, baseName).ToArray();
+                            for (int i = 0; i < Math.Min(100, tex.Length); i++) {
+                                Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
+                            }*/
+                        }
+
+                    }
                 }
             }
         }
@@ -209,20 +222,15 @@ namespace R1Engine
             s.DoAt(grx.BaseOffset + grx.GetFile(fileName + ".TEX").FileOffset, () => tex = s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(tex)));
             s.DoAt(grx.BaseOffset + grx.GetFile(fileName + ".GSP").FileOffset, () => gspIndices = s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(gspIndices)).Indices);
 
-            // TODO: Fix this
-            // Create texture pages
-            var pages = tex.TexturePages.Select(x =>
-            {
-                var vram = new PS1_VRAM();
-                vram.AddData(x, (int)tex.Width);
-                return vram;
-            }).ToArray();
-
             // Parse the sprites from the texture pages
-            foreach (var d in tex.Descriptors)
-            {
+            for(int i = 0; i < tex.Descriptors.Length; i++) {
+                var d = tex.Descriptors[i];
+                ObjectArray<ARGB1555Color> palette = null;
+                if (tex.Palettes.Length == tex.Descriptors.Length) {
+                    palette = tex.Palettes[i];
+                }
                 // Get the texture page
-                var page = pages[d.PageIndex];
+                var page = tex.TexturePages[d.PageIndex];
 
                 // Create the texture
                 Texture2D sprite = new Texture2D(d.Width, d.Height, TextureFormat.RGBA32, false)
@@ -232,18 +240,97 @@ namespace R1Engine
                 };
 
                 // Default to fully transparent
-                sprite.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), sprite.height * sprite.width).ToArray());
+                sprite.SetPixels(new Color[sprite.height * sprite.width]);
 
                 for (int y = 0; y < d.Height; y++)
                 {
                     for (int x = 0; x < d.Width; x++)
                     {
+                        var paletteIndex = tex.GetPagePixel(d.PageIndex, d.XInPage + x, d.YInPage + y);
+
+                        if (palette == null) {
+                            switch (tex.BitDepth) {
+                                case 4: paletteIndex <<= 4; break;
+                                case 8: break;
+                                case 16: paletteIndex >>= 8; break;
+                            }
+                            sprite.SetPixel(
+                                x,
+                                d.Height - 1 - y,
+                                new Color(paletteIndex / 255f, paletteIndex / 255f, paletteIndex / 255f));
+                        } else {
+                            ARGB1555Color col = null;
+                            switch (tex.BitDepth) {
+                                case 4: col = palette.Value[paletteIndex]; break;
+                                case 8: col = palette.Value[paletteIndex]; break;
+                                case 16: col = ARGB1555Color.From1555(paletteIndex); break;
+                            }
+                            Color c = col.GetColor();
+                            if (paletteIndex != 0)
+                                c = new Color(c.r, c.g, c.b, 1f);
+                            else
+                                c = new Color(0, 0, 0, 0f);
+                            sprite.SetPixel(
+                                x,
+                                d.Height - 1 - y,
+                                c);
+                        }
+                    }
+                }
+
+                // Apply the changes
+                sprite.Apply();
+
+                yield return sprite;
+            }
+        }
+
+
+
+        /// <summary>
+        /// Gets the sprites from a .grx file
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="grx">The .grx file</param>
+        /// <param name="fileName">The file name, without the extension</param>
+        /// <returns>The sprites</returns>
+        public IEnumerable<Texture2D> GetPageTextures(Context context, PS1_EDU_GRX grx, string fileName) {
+            // Get the .gsp and .tex data
+            var s = context.Deserializer;
+
+            PS1_EDU_TEX tex = null;
+
+            s.DoAt(grx.BaseOffset + grx.GetFile(fileName + ".TEX").FileOffset, () => tex = s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(tex)));
+            
+            for(int i = 0; i < tex.TexturePages.Length; i++) {
+                //var page = tex.TexturePages[i];
+                // Create the texture
+                int actualW = (int)tex.Width * (int)tex.BitDepth / 8;
+                Texture2D sprite = new Texture2D(actualW, (int)tex.Height, TextureFormat.RGBA32, false) {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+
+                // Default to fully transparent
+                sprite.SetPixels(new Color[sprite.height * sprite.width]);
+
+                for (int y = 0; y < sprite.height; y++) {
+                    for (int x = 0; x < sprite.width; x++) {
                         // TODO: Fix this
-                        var paletteIndex = page.GetPixel8(0, 0, d.XInPage + x, d.YInPage + y);
+                        var color = tex.GetPagePixel(i, x, y);
+                        //var paletteIndex = page.GetPixel8(0, 0, d.XInPage + x, d.YInPage + y);
 
                         // TODO: Fix this
                         // Set the pixel
-                        sprite.SetPixel(x, d.Height - 1 - y, new Color(BitHelpers.ExtractBits(paletteIndex, 3, 0) / 7f, BitHelpers.ExtractBits(paletteIndex, 3, 3) / 7f, BitHelpers.ExtractBits(paletteIndex, 2, 6) / 3f));
+                        switch (tex.BitDepth) {
+                            case 4: color <<= 4; break;
+                            case 8: break;
+                            case 16: color >>= 8; break;
+                        }
+                        sprite.SetPixel(
+                            x,
+                            sprite.height - 1 - y,
+                            new Color(color / 255f, color / 255f, color / 255f));
                     }
                 }
 
