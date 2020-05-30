@@ -89,7 +89,9 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                new GameAction("Export Archives", false, true, (i, o) => ExportGRX(settings, o)), 
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
+                new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
+                new GameAction("Export GRX", false, true, (i, o) => ExportGRX(settings, o)), 
             };
         }
 
