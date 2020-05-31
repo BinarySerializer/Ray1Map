@@ -34,7 +34,10 @@ namespace R1Engine
         public byte LastPlan1Palette { get; set; }
 
         public uint Unk1_1 { get; set; }
-        public byte[] Unk2 { get; set; }
+
+        // Some offset table? Has numbers going from 0 and increasing by 288, with other numbers sometimes in between
+        public uint[] Unk2 { get; set; }
+
         public uint Unk3 { get; set; }
         public uint Unk4 { get; set; }
 
@@ -105,7 +108,7 @@ namespace R1Engine
 
             // Serialize unknown bytes
             Unk1_1 = s.Serialize<uint>(Unk1_1, name: nameof(Unk1_1));
-            Unk2 = s.SerializeArray<byte>(Unk2, 0x12C0, name: nameof(Unk2));
+            Unk2 = s.SerializeArray<uint>(Unk2, 1200, name: nameof(Unk2));
 
             // Serialize event block header
             Unk3 = s.Serialize<uint>(Unk3, name: nameof(Unk3));
