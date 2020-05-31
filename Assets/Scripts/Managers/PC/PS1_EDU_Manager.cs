@@ -136,6 +136,8 @@ namespace R1Engine
                 // Get the big ray palette if exporting sprites
                 IList<ARGBColor> brPal = null;
 
+                var s = context.Deserializer;
+
                 if (exportSprites)
                     brPal = GetBigRayPalette(context);
 
@@ -156,16 +158,16 @@ namespace R1Engine
                             {
                                 string baseName = grxFile.FileName.Substring(0, grxFile.FileName.Length - 4);
 
-                                Texture2D[] tex = GetSpriteTextures(context, grx, baseName, 
+                                PS1_EDU_TEX texFile = null;
+
+                                s.DoAt(grx.BaseOffset + grxFile.FileOffset, () => texFile = s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(texFile)));
+
+                                Texture2D[] tex = GetSpriteTextures(texFile, 
                                     // Use BigRay palette for BigRay sprites
                                     grxFile.FileName.Substring(3, 2) == "br" ? brPal : null).ToArray();
 
                                 for (int i = 0; i < tex.Length; i++)
                                     Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
-                                /*Texture2D[] tex = GetPageTextures(context, grx, baseName).ToArray();
-                                for (int i = 0; i < Math.Min(100, tex.Length); i++) {
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, baseName, $"{i}.png"), tex[i].EncodeToPNG());
-                                }*/
                             }
                         }
                         else
@@ -194,31 +196,71 @@ namespace R1Engine
             var allfix = FileFactory.Read<PS1_EDU_AllfixFile>(GetAllfixFilePath(context.Settings), context);
             var world = FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context);
 
-            // Get all DES
-            var des = allfix.DESData.Concat(world.DESData);
-
             // Load the .grx bundles
             var fixGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFixFilePath(context.Settings), context);
             var worldGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXLevelFilePath(context.Settings), context);
 
-            // Get the textures from allfix and world
-            var textures = GetSpriteTextures(context, fixGrx, GetGRXFixName(context.Settings)).Concat(GetSpriteTextures(context, worldGrx, GetGRXLevelName(context.Settings)));
+            var s = context.Deserializer;
 
-            // TODO: Fix this
-            // Enumerate every DES
-            foreach (var d in des)
+            // Load .grx files (.tex and .gsp)
+            PS1_EDU_TEX fixTex = s.DoAt(fixGrx.BaseOffset + fixGrx.GetFile(GetGRXFixName(context.Settings) + ".TEX").FileOffset, () => s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(fixTex)));
+            ushort[] fixIndices = s.DoAt(fixGrx.BaseOffset + fixGrx.GetFile(GetGRXFixName(context.Settings) + ".GSP").FileOffset, () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(fixIndices)).Indices);
+            PS1_EDU_TEX worldTex = s.DoAt(worldGrx.BaseOffset + worldGrx.GetFile(GetGRXLevelName(context.Settings) + ".TEX").FileOffset, () => s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(worldTex)));
+            ushort[] worldIndices = s.DoAt(worldGrx.BaseOffset + worldGrx.GetFile(GetGRXLevelName(context.Settings) + ".GSP").FileOffset, () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(worldIndices)).Indices);
+
+            // Load the sprites
+            LoadSprites(GetSpriteTextures(fixTex).ToArray(), fixIndices, allfix.DESData);
+            LoadSprites(GetSpriteTextures(worldTex).ToArray(), worldIndices, world.DESData);
+
+            // Helper method for loading sprites
+            void LoadSprites(IReadOnlyList<Texture2D> textures, IReadOnlyList<ushort> indexTable, IEnumerable<PS1_EDU_DESData> des)
             {
-                var sprites = textures.Take(d.ImageDescriptorsCount).Select(x => Sprite.Create(x, new Rect(0, 0, x.width, x.height), new Vector2(0f, 1f), 16, 20)).ToList();
-                var animations = new List<Common_Animation>();
+                var imgDescriptorIndex = 0;
 
-                eventDesigns.Add(new Common_Design()
+                // Enumerate every DES
+                foreach (var d in des)
                 {
-                    Animations = animations,
-                    Sprites = sprites
-                });
-            }
+                    var sprites = new List<Sprite>();
 
-            foreach (Texture2D _ in textures) { }
+                    // Enumerate every image descriptor
+                    for (int i = 0; i < d.ImageDescriptorsCount; i++)
+                    {
+                        // Get the texture
+                        var tex = textures[indexTable[imgDescriptorIndex]];
+
+                        // Get the sprite
+                        sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+
+                        imgDescriptorIndex++;
+                    }
+
+                    eventDesigns.Add(new Common_Design()
+                    {
+                        // TODO: Add parsed animations
+                        Animations = new List<Common_Animation>()
+                        {
+                            new Common_Animation()
+                            {
+                                Frames = new Common_AnimFrame[]
+                                {
+                                    new Common_AnimFrame()
+                                    {
+                                        Layers = new Common_AnimationPart[]
+                                        {
+                                            new Common_AnimationPart()
+                                            {
+
+                                            }
+                                        },
+                                        FrameData = new Common_AnimationFrame()
+                                    }
+                                }
+                            }
+                        },
+                        Sprites = sprites
+                    });
+                }
+            }
 
             // Return the sprites
             return eventDesigns.ToArray();
@@ -227,22 +269,11 @@ namespace R1Engine
         /// <summary>
         /// Gets the sprites from a .grx file
         /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="grx">The .grx file</param>
-        /// <param name="fileName">The file name, without the extension</param>
+        /// <param name="tex">The .tex file data</param>
         /// <param name="palette">Optional palette to use</param>
         /// <returns>The sprites</returns>
-        public IEnumerable<Texture2D> GetSpriteTextures(Context context, PS1_EDU_GRX grx, string fileName, IList<ARGBColor> palette = null)
+        public IEnumerable<Texture2D> GetSpriteTextures(PS1_EDU_TEX tex, IList<ARGBColor> palette = null)
         {
-            // Get the .gsp and .tex data
-            var s = context.Deserializer;
-
-            PS1_EDU_TEX tex = null;
-            ushort[] gspIndices = null;
-
-            s.DoAt(grx.BaseOffset + grx.GetFile(fileName + ".TEX").FileOffset, () => tex = s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(tex)));
-            s.DoAt(grx.BaseOffset + grx.GetFile(fileName + ".GSP").FileOffset, () => gspIndices = s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(gspIndices)).Indices);
-
             // Parse the sprites from the texture pages
             for(int i = 0; i < tex.Descriptors.Length; i++) {
                 var d = tex.Descriptors[i];
