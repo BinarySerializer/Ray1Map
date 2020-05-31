@@ -40,6 +40,17 @@ namespace R1Engine
                 Goto(off_current);
             }
         }
+        public T DoAt<T>(Pointer offset, Func<T> action) {
+            if (offset != null) {
+                Pointer off_current = CurrentPointer;
+                Goto(offset);
+                var result = action();
+                Goto(off_current);
+                return result;
+            }
+
+            return default;
+        }
 
         public abstract void DoEncoded(IStreamEncoder encoder, Action action);
 
