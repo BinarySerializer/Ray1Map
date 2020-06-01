@@ -193,8 +193,8 @@ namespace R1Engine
             List<Common_Design> eventDesigns = new List<Common_Design>();
 
             // Load the world files
-            var allfix = FileFactory.Read<PS1_EDU_AllfixFile>(GetAllfixFilePath(context.Settings), context);
-            var world = FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var allfix = FileFactory.Read<PS1_EDU_WorldFile>(GetAllfixFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.World);
 
             // Load the .grx bundles
             var fixGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFixFilePath(context.Settings), context);
@@ -209,16 +209,17 @@ namespace R1Engine
             ushort[] worldIndices = s.DoAt(worldGrx.BaseOffset + worldGrx.GetFile(GetGRXLevelName(context.Settings) + ".GSP").FileOffset, () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(worldIndices)).Indices);
 
             // Load the sprites
-            LoadSprites(GetSpriteTextures(fixTex).ToArray(), fixIndices, allfix.DESData);
-            LoadSprites(GetSpriteTextures(worldTex).ToArray(), worldIndices, world.DESData);
+            LoadSprites(GetSpriteTextures(fixTex).ToArray(), fixIndices, allfix);
+            LoadSprites(GetSpriteTextures(worldTex).ToArray(), worldIndices, world);
 
             // Helper method for loading sprites
-            void LoadSprites(IReadOnlyList<Texture2D> textures, IReadOnlyList<ushort> indexTable, IEnumerable<PS1_EDU_DESData> des)
+            void LoadSprites(IReadOnlyList<Texture2D> textures, IReadOnlyList<ushort> indexTable, PS1_EDU_WorldFile worldData)
             {
                 var imgDescriptorIndex = 0;
+                var desIndex = 0;
 
                 // Enumerate every DES
-                foreach (var d in des)
+                foreach (var d in worldData.DESData)
                 {
                     var sprites = new List<Sprite>();
 
@@ -236,29 +237,11 @@ namespace R1Engine
 
                     eventDesigns.Add(new Common_Design()
                     {
-                        // TODO: Add parsed animations
-                        Animations = new List<Common_Animation>()
-                        {
-                            new Common_Animation()
-                            {
-                                Frames = new Common_AnimFrame[]
-                                {
-                                    new Common_AnimFrame()
-                                    {
-                                        Layers = new Common_AnimationPart[]
-                                        {
-                                            new Common_AnimationPart()
-                                            {
-
-                                            }
-                                        },
-                                        FrameData = new Common_AnimationFrame()
-                                    }
-                                }
-                            }
-                        },
+                        Animations = worldData.AnimationDescriptors[desIndex].Select(x => x.ToCommonAnimation()).ToList(),
                         Sprites = sprites
                     });
+
+                    desIndex++;
                 }
             }
 
@@ -470,8 +453,15 @@ namespace R1Engine
         /// <returns>The event states</returns>
         public override IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
         {
-            // TODO: Read ETA from allfix + world
-            return new PC_ETA[0];
+            // Load the world files
+            var allfix = FileFactory.Read<PS1_EDU_WorldFile>(GetAllfixFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.Allfix);
+            var world = FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.World);
+
+            // Return the ETA
+            return allfix.ETA.Concat(world.ETA).Select(x => new PC_ETA()
+            {
+                States = x
+            });
         }
 
         /// <summary>

@@ -7,8 +7,8 @@
     /// </summary>
     public class PS1_EDU_DESData : R1Serializable
     {
+        // These get set during runtime
         public uint ImageDescriptorsPointer { get; set; }
-
         public uint AnimationDescriptorsPointer { get; set; }
 
         public byte[] Dummy1 { get; set; }
