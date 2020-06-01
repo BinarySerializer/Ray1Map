@@ -195,55 +195,49 @@ namespace R1Engine
             // Load the world files
             var allfix = FileFactory.Read<PS1_EDU_WorldFile>(GetAllfixFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.Allfix);
             var world = FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.World);
+            var level = FileFactory.Read<PS1_EDU_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the .grx bundles
             var fixGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFixFilePath(context.Settings), context);
-            var worldGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXLevelFilePath(context.Settings), context);
+            var levelGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXLevelFilePath(context.Settings), context);
 
             var s = context.Deserializer;
 
             // Load .grx files (.tex and .gsp)
-            PS1_EDU_TEX fixTex = s.DoAt(fixGrx.BaseOffset + fixGrx.GetFile(GetGRXFixName(context.Settings) + ".TEX").FileOffset, () => s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(fixTex)));
-            ushort[] fixIndices = s.DoAt(fixGrx.BaseOffset + fixGrx.GetFile(GetGRXFixName(context.Settings) + ".GSP").FileOffset, () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(fixIndices)).Indices);
-            PS1_EDU_TEX worldTex = s.DoAt(worldGrx.BaseOffset + worldGrx.GetFile(GetGRXLevelName(context.Settings) + ".TEX").FileOffset, () => s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(worldTex)));
-            ushort[] worldIndices = s.DoAt(worldGrx.BaseOffset + worldGrx.GetFile(GetGRXLevelName(context.Settings) + ".GSP").FileOffset, () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(worldIndices)).Indices);
+            PS1_EDU_TEX levelTex = s.DoAt(levelGrx.BaseOffset + levelGrx.GetFile(GetGRXLevelName(context.Settings) + ".TEX").FileOffset, () => s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(levelTex)));
+            ushort[] levelIndices = s.DoAt(levelGrx.BaseOffset + levelGrx.GetFile(GetGRXLevelName(context.Settings) + ".GSP").FileOffset, () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(levelIndices)).Indices);
+            Texture2D[] textures = GetSpriteTextures(levelTex).ToArray();
 
-            // Load the sprites
-            LoadSprites(GetSpriteTextures(fixTex).ToArray(), fixIndices, allfix);
-            LoadSprites(GetSpriteTextures(worldTex).ToArray(), worldIndices, world);
-
-            // Helper method for loading sprites
-            void LoadSprites(IReadOnlyList<Texture2D> textures, IReadOnlyList<ushort> indexTable, PS1_EDU_WorldFile worldData)
-            {
-                var imgDescriptorIndex = 0;
-                var desIndex = 0;
-
-                // Enumerate every DES
-                foreach (var d in worldData.DESData)
-                {
-                    var sprites = new List<Sprite>();
-
-                    // Enumerate every image descriptor
-                    for (int i = 0; i < d.ImageDescriptorsCount; i++)
-                    {
-                        // Get the texture
-                        var tex = textures[indexTable[imgDescriptorIndex]];
-
-                        // Get the sprite
-                        sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-
-                        imgDescriptorIndex++;
+            int gsp_index = 0;
+            Common_Design[] des = new Common_Design[allfix.DESCount + world.DESCount];
+            Common_ImageDescriptor[][] imageDescriptors = new Common_ImageDescriptor[allfix.DESCount + world.DESCount][];
+            for (int i = 0; i < des.Length; i++) {
+                PS1_EDU_DESData d = null;
+                PS1_EDU_AnimationDescriptor[] anims = null;
+                if (i < allfix.DESCount) {
+                    d = allfix.DESData[i];
+                    anims = allfix.AnimationDescriptors[i];
+                    imageDescriptors[i] = allfix.ImageDescriptors[i];
+                } else {
+                    d = world.DESData[i - allfix.DESCount];
+                    anims = world.AnimationDescriptors[i - allfix.DESCount];
+                    imageDescriptors[i] = world.ImageDescriptors[i - allfix.DESCount];
+                }
+                des[i] = new Common_Design();
+                des[i].Sprites = new Sprite[d.ImageDescriptorsCount].ToList();
+                des[i].Animations = anims.Select(x => x.ToCommonAnimation()).ToList();
+            }
+            foreach (PC_Event e in level.Events) {
+                for (int i = 0; i < e.ImageDescriptorCount; i++) {
+                    ushort currentTexture = levelIndices[gsp_index];
+                    var tex = textures[currentTexture];
+                    if (imageDescriptors[e.DES][i].Index != 0) {
+                        des[e.DES].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
                     }
-
-                    eventDesigns.Add(new Common_Design()
-                    {
-                        Animations = worldData.AnimationDescriptors[desIndex].Select(x => x.ToCommonAnimation()).ToList(),
-                        Sprites = sprites
-                    });
-
-                    desIndex++;
+                    gsp_index++;
                 }
             }
+            eventDesigns = des.ToList();
 
             // Return the sprites
             return eventDesigns.ToArray();
