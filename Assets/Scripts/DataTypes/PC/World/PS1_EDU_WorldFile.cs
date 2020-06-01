@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     /// <summary>
     /// World data for EDU on PS1
@@ -46,11 +48,11 @@
 
         public byte[] ETASubStateCountTable { get; set; }
 
-        public uint Unk10Length { get; set; }
+        public uint AnimationDescriptorLayersBlockSizeTableCount { get; set; }
 
-        public ushort[] Unk10 { get; set; }
+        public ushort[] AnimationDescriptorLayersBlockSizeTable { get; set; }
 
-        public byte[][] UnkBlock6 { get; set; }
+        public Common_AnimationLayer[] AnimationLayers { get; set; }
 
         #endregion
 
@@ -98,27 +100,21 @@
             ETASubStateCountTableCount = s.Serialize<byte>(ETASubStateCountTableCount, name: nameof(ETASubStateCountTableCount));
             ETASubStateCountTable = s.SerializeArray<byte>(ETASubStateCountTable, ETASubStateCountTableCount, name: nameof(ETASubStateCountTable));
 
-            Unk10Length = s.Serialize<uint>(Unk10Length, name: nameof(Unk10Length));
-            Unk10 = s.SerializeArray<ushort>(Unk10, Unk10Length, name: nameof(Unk10));
+            AnimationDescriptorLayersBlockSizeTableCount = s.Serialize<uint>(AnimationDescriptorLayersBlockSizeTableCount, name: nameof(AnimationDescriptorLayersBlockSizeTableCount));
+            AnimationDescriptorLayersBlockSizeTable = s.SerializeArray<ushort>(AnimationDescriptorLayersBlockSizeTable, AnimationDescriptorLayersBlockSizeTableCount, name: nameof(AnimationDescriptorLayersBlockSizeTable));
 
-            if (UnkBlock6 == null)
-                UnkBlock6 = new byte[4][];
-
-            for (int i = 0; i < UnkBlock6.Length; i++)
-                UnkBlock6[i] = s.SerializeArray<byte>(UnkBlock6[i], 0xFE, name: $"{nameof(UnkBlock6)}[{i}]");
+            AnimationLayers = s.SerializeObjectArray<Common_AnimationLayer>(AnimationLayers, 0xfe, name: nameof(AnimationLayers));
 
             // Serialize the main data block
             s.DoAt(MainDataBlockPointer, () =>
             {
-                // TODO: This block should be serialized from pointers!
-
-                // Old code:
-
                 if (ImageDescriptors == null)
                     ImageDescriptors = new Common_ImageDescriptor[DESCount][];
 
                 if (AnimationDescriptors == null)
                     AnimationDescriptors = new PS1_EDU_AnimationDescriptor[DESCount][];
+
+                int curAnimDesc = 0;
 
                 for (int i = 0; i < ImageDescriptors.Length; i++)
                 {
@@ -126,11 +122,30 @@
 
                     AnimationDescriptors[i] = s.SerializeObjectArray<PS1_EDU_AnimationDescriptor>(AnimationDescriptors[i], DESData[i].AnimationDescriptorsCount, name: $"{nameof(AnimationDescriptors)}[{i}]");
 
-                    // TODO: Here are some 14-byte structs which sometimes are followed by 3 or 6 bytes of data
+                    // TODO: Save these in the AnimationDescriptor
+                    for (int j = 0; j < AnimationDescriptors[i].Length; j++) {
+                        var descriptor = AnimationDescriptors[i][j];
+                        if (descriptor.FrameCount > 0) {
+                            // Each of these indices is an index in the AnimationLayers array.
+                            // 0 and 1 are special indices apparently, so the layer each byte links to is AnimationLayers[byte-2], otherwise the layer is null?
+                            // TODO: Figure out what exactly 0 and 1 do
+                            byte[] LayersIndices = s.SerializeArray<byte>(null, AnimationDescriptorLayersBlockSizeTable[curAnimDesc], name: "AnimationLayersIndices");
+                            
+                            if (AnimationDescriptorLayersBlockSizeTable[curAnimDesc] % 4 != 0) {
+                                // Padding seems to contain garbage data in this case instead of 0xCD?
+                                int padding = 4 - AnimationDescriptorLayersBlockSizeTable[curAnimDesc] % 4;
+                                s.SerializeArray<byte>(Enumerable.Repeat((byte)0xCD, padding).ToArray(), padding, name: "Padding");
+                            }
+                            if (descriptor.AnimFramesPointer != 0xFFFFFFFF) {
+                                Common_AnimationFrame[] frames = s.SerializeObjectArray<Common_AnimationFrame>(null, descriptor.FrameCount, name: "AnimationFrames");
+                            }
+                            curAnimDesc++;
+                        }
+                    }
                 }
 
-                // TODO: ETA begins at 0x552C6 for the Jungle world file
-
+                // ETA begins at 0x552C6 for the Jungle world file
+                // And we reached it :)
                 if (ETA == null)
                     ETA = new Common_EventState[ETACount][][];
 
@@ -141,6 +156,10 @@
                 {
                     if (ETA[i] == null)
                         ETA[i] = new Common_EventState[ETAStateCountTable[i]][];
+
+                    // EDU serializes the pointer structs, but the pointers are invalid. They can be anything as they're overwritten with valid memory pointers upon load
+                    uint[] pointerStructs = Enumerable.Repeat((uint)1, ETA[i].Length).ToArray();
+                    pointerStructs = s.SerializeArray<uint>(pointerStructs, pointerStructs.Length, name: $"ETAPointers[{i}]");
 
                     // Serialize every state
                     for (int j = 0; j < ETA[i].Length; j++)
