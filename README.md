@@ -205,6 +205,22 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
+    <tr>
+    <td class="tg-yw4l">Rayman 1 (Jaguar - Prototype 1)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+    <tr>
+    <td class="tg-yw4l">Rayman 1 (Jaguar - Prototype 2)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (GBA - EU)</td>
     <td class="tg-yw4l">✔</td>
