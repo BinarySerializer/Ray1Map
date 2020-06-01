@@ -20,8 +20,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) =>
-            $"{GetVolumePath(settings)}{GetShortWorldName(settings.World)}/{GetShortWorldName(settings.World)}{Math.Ceiling(settings.Level / 19d):00}/{GetShortWorldName(settings.World)}{settings.Level:00}.NEW";
+        public override string GetLevelFilePath(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + $"{GetVolumePath(settings)}{GetShortWorldName(settings.World)}", $"{GetShortWorldName(settings.World)}{settings.Level:00}.NEW", SearchOption.AllDirectories).First().Substring(settings.GameDirectory.Length).Replace('\\', '/');
 
         /// <summary>
         /// Gets the file path for the specified world file
@@ -45,39 +44,62 @@ namespace R1Engine
         public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings) + $"BIGRAY.DAT";
 
         /// <summary>
-        /// Gets the file path for the .grx bundle for allfix
+        /// Gets the file paths for the .grx bundles
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The .grx bundle file path</returns>
-        public string GetGRXFixFilePath(GameSettings settings) => $"FIX{settings.EduVolume.Substring(2, 1)}.GRX";
-
-        /// <summary>
-        /// Gets the file path for the .grx bundle for the levels
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The .grx bundle file path</returns>
-        public string GetGRXLevelFilePath(GameSettings settings) => $"{settings.EduVolume}.GRX";
+        /// <returns>The .grx bundle file paths</returns>
+        public string[] GetAllGRX(GameSettings settings) => Directory.GetFiles(settings.GameDirectory, "*.grx", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToArray();
 
         /// <summary>
         /// Gets the name for the file to use in the .grx files for BigRay
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The name</returns>
-        public string GetGRXBigRayName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 2).ToLower()}_br";
+        public string GetGRXBigRayName(GameSettings settings) => $"{GetShortVolName(settings).ToLower()}_br";
 
         /// <summary>
-        /// Gets the name for the file to use in the .grx files for allfix
+        /// Gets the short volume name for the volume
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The name</returns>
-        public string GetGRXFixName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 2).ToLower()}_fix";
-        
+        /// <returns>The short volume name</returns>
+        public string GetShortVolName(GameSettings settings)
+        {
+            var v = settings.EduVolume.Substring(0, 2).ToUpper();
+
+            switch (v)
+            {
+                case "US":
+                    return "US";
+
+                case "FG":
+                    return "FR";
+
+                case "IG":
+                    return "IT";
+
+                case "EG":
+                    return "SP";
+
+                case "DG":
+                    return "GM";
+
+                case "GB":
+                    return "EN";
+
+                case "CS":
+                    return "SP";
+
+                default:
+                    return v;
+            }
+        }
+
         /// <summary>
         /// Gets the name for the file to use in the .grx files for the current level
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The name</returns>
-        public string GetGRXLevelName(GameSettings settings) => $"{settings.EduVolume.Substring(0, 1)}W{((int)settings.World) + 1}L{settings.Level}";
+        public string GetGRXLevelName(GameSettings settings) => $"{GetShortVolName(settings).Substring(0, 1)}W{((int)settings.World) + 1}L{settings.Level}";
 
         /// <summary>
         /// Gets the levels for each world
@@ -141,7 +163,7 @@ namespace R1Engine
                 if (exportSprites)
                     brPal = GetBigRayPalette(context);
 
-                foreach (var grxFilePath in Directory.GetFiles(settings.GameDirectory, "*.grx", SearchOption.TopDirectoryOnly).Select(Path.GetFileName))
+                foreach (var grxFilePath in GetAllGRX(settings))
                 {
                     context.AddFile(new LinearSerializedFile(context)
                     {
@@ -189,23 +211,32 @@ namespace R1Engine
             Controller.status = $"Loading sprites";
             await Controller.WaitIfNecessary();
 
-            // Create the output list
-            List<Common_Design> eventDesigns = new List<Common_Design>();
-
             // Load the world files
             var allfix = FileFactory.Read<PS1_EDU_WorldFile>(GetAllfixFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.Allfix);
             var world = FileFactory.Read<PS1_EDU_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = PS1_EDU_WorldFile.Type.World);
             var level = FileFactory.Read<PS1_EDU_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the .grx bundles
-            var fixGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXFixFilePath(context.Settings), context);
-            var levelGrx = FileFactory.Read<PS1_EDU_GRX>(GetGRXLevelFilePath(context.Settings), context);
+            var grx = GetAllGRX(context.Settings).Select(x => FileFactory.Read<PS1_EDU_GRX>(x, context)).ToArray();
+
+            // Helper method to get grx file pointer
+            Pointer GetFilePointer(string fileName)
+            {
+                // Get the file
+                var file = grx.SelectMany(x => x.Files).FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception($"No matching file was found for name {fileName}");
+
+                // Get the grx it belongs to
+                var g = grx.First(x => x.Files.Contains(file));
+
+                // Return the pointer
+                return g.BaseOffset + file.FileOffset;
+            }
 
             var s = context.Deserializer;
 
             // Load .grx files (.tex and .gsp)
-            PS1_EDU_TEX levelTex = s.DoAt(levelGrx.BaseOffset + levelGrx.GetFile(GetGRXLevelName(context.Settings) + ".TEX").FileOffset, () => s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(levelTex)));
-            ushort[] levelIndices = s.DoAt(levelGrx.BaseOffset + levelGrx.GetFile(GetGRXLevelName(context.Settings) + ".GSP").FileOffset, () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(levelIndices)).Indices);
+            PS1_EDU_TEX levelTex = s.DoAt(GetFilePointer(GetGRXLevelName(context.Settings) + ".TEX"), () => s.SerializeObject<PS1_EDU_TEX>(default, name: nameof(levelTex)));
+            ushort[] levelIndices = s.DoAt(GetFilePointer(GetGRXLevelName(context.Settings) + ".GSP"), () => s.SerializeObject<PS1_EDU_GSP>(default, name: nameof(levelIndices)).Indices);
             Texture2D[] textures = GetSpriteTextures(levelTex).ToArray();
 
             int gsp_index = 0;
@@ -237,10 +268,9 @@ namespace R1Engine
                     gsp_index++;
                 }
             }
-            eventDesigns = des.ToList();
 
             // Return the sprites
-            return eventDesigns.ToArray();
+            return des;
         }
 
         /// <summary>
@@ -468,8 +498,8 @@ namespace R1Engine
             await base.LoadFilesAsync(context);
 
             // Load the .grx files
-            await LoadFileAsync(GetGRXFixFilePath(context.Settings));
-            await LoadFileAsync(GetGRXLevelFilePath(context.Settings));
+            foreach (var g in GetAllGRX(context.Settings))
+                await LoadFileAsync(g);
 
             async Task LoadFileAsync(string filePath)
             {
