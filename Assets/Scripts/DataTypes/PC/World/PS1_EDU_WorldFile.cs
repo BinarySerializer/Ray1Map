@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace R1Engine
@@ -174,12 +174,13 @@ namespace R1Engine
                             var descriptor = AnimationDescriptors[i][j];
 
                             if (descriptor.FrameCount <= 0)
+                            {
+                                curAnimDesc++;
                                 continue;
+                            }
 
-                            // Each of these indices is an index in the AnimationLayers array.
-                            // 0 and 1 are special indices apparently, so the layer each byte links to is AnimationLayers[byte-2], otherwise the layer is null?
-                            // TODO: Figure out what exactly 0 and 1 do
-                            descriptor.LayersIndices = s.SerializeArray<byte>(descriptor.LayersIndices, AnimationDescriptorLayersBlockSizeTable[curAnimDesc], name: nameof(descriptor.LayersIndices));
+                            // Serialize layer data
+                            descriptor.LayersData = s.SerializeArray<byte>(descriptor.LayersData, AnimationDescriptorLayersBlockSizeTable[curAnimDesc], name: nameof(descriptor.LayersData));
 
                             // Padding...
                             if (AnimationDescriptorLayersBlockSizeTable[curAnimDesc] % 4 != 0)
@@ -193,8 +194,35 @@ namespace R1Engine
                             if (descriptor.AnimFramesPointer != 0xFFFFFFFF)
                                 descriptor.Frames = s.SerializeObjectArray<Common_AnimationFrame>(descriptor.Frames, descriptor.FrameCount, name: nameof(descriptor.Frames));
 
-                            // Set layer references
-                            descriptor.Layers = descriptor.LayersIndices.Select(x => AnimationLayers.ElementAtOrDefault(x - 2) ?? new Common_AnimationLayer()).ToArray();
+                            // Parse layers
+                            if (descriptor.Layers == null)
+                            {
+                                var layers = new List<Common_AnimationLayer>();
+                                var offset = 0;
+
+                                while (offset < descriptor.LayersData.Length)
+                                {
+                                    if (descriptor.LayersData[offset] < 2)
+                                    {
+                                        layers.Add(new Common_AnimationLayer()
+                                        {
+                                            IsFlippedHorizontally = descriptor.LayersData[offset + 0] == 1,
+                                            XPosition = descriptor.LayersData[offset + 1],
+                                            YPosition = descriptor.LayersData[offset + 2],
+                                            ImageIndex = descriptor.LayersData[offset + 3],
+                                        });
+
+                                        offset += 4;
+                                    }
+                                    else
+                                    {
+                                        layers.Add(AnimationLayers[descriptor.LayersData[offset] - 2]);
+                                        offset++;
+                                    }
+                                }
+
+                                descriptor.Layers = layers.ToArray();
+                            }
 
                             curAnimDesc++;
                         }

@@ -19,10 +19,8 @@
         #region Parsed Properties
 
         // Parsed from world files
-        public byte[] LayersIndices { get; set; }
+        public byte[] LayersData { get; set; }
         public Common_AnimationFrame[] Frames { get; set; }
-
-        // Reference to layers
         public Common_AnimationLayer[] Layers { get; set; }
 
         // Interface members
