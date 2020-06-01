@@ -427,7 +427,7 @@ namespace R1Engine
             var vigData = ExtractArchive(context, vig);
 
             // Get the splash screen vignette
-            var splashVig = vigData.FindItem(x => context.Settings.EngineVersion == EngineVersion.RayEduPS1 ? x.FileName.StartsWith("FND04") : x.FileName.StartsWith("FND0"));
+            var splashVig = vigData.FindItem(x => context.Settings.EngineVersion == EngineVersion.RayEduPS1 || context.Settings.EngineVersion == EngineVersion.RayEduPC ? x.FileName.StartsWith("FND04") : x.FileName.StartsWith("FND0"));
 
             if (splashVig == null) 
                 return null;
