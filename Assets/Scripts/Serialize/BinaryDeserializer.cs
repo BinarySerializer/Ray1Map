@@ -351,7 +351,10 @@ namespace R1Engine
             using (var memStream = encoder.DecodeStream(reader.BaseStream)) {
 
                 // Add the stream
-                StreamFile sf = new StreamFile(key, memStream, Context);
+                StreamFile sf = new StreamFile(key, memStream, Context)
+                {
+                    Endianness = currentFile.Endianness
+                };
                 Context.AddFile(sf);
 
                 DoAt(sf.StartPointer, () => {

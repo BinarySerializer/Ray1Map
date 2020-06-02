@@ -19,12 +19,12 @@ namespace R1Engine.Serialize {
 		public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
 
 		public override Reader CreateReader() {
-			Reader reader = new Reader(stream, isLittleEndian: true);
+			Reader reader = new Reader(stream, isLittleEndian: Endianness == Endian.Little);
 			return reader;
 		}
 
 		public override Writer CreateWriter() {
-			Writer writer = new Writer(stream, isLittleEndian: true);
+			Writer writer = new Writer(stream, isLittleEndian: Endianness == Endian.Little);
 			stream.Position = 0;
 			return writer;
 		}

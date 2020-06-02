@@ -306,7 +306,10 @@ namespace R1Engine
                 string key = CurrentPointer.ToString() + "_decoded";
 
                 // Add the stream
-                StreamFile sf = new StreamFile(key, memStream, Context);
+                StreamFile sf = new StreamFile(key, memStream, Context)
+                {
+                    Endianness = currentFile.Endianness
+                };
                 Context.AddFile(sf);
 
                 DoAt(sf.StartPointer, () => {
