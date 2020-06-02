@@ -62,7 +62,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputPath">The path to extract to</param>
-        /// <param name="as888">Indicates if the blocks should be converted to BGR-888</param>
+        /// <param name="as888">Indicates if the blocks should be converted to RGB-888</param>
         public async Task ExtractCompressedDataAsync(GameSettings settings, string outputPath, bool as888)
         {
             // Create a context
@@ -87,7 +87,7 @@ namespace R1Engine
                         // Read the next 4 bytes and check if the header matches
                         var header = s.Serialize<uint>(default);
 
-                        if (header == 0x02434E52)
+                        if (header == 0x524E4302)
                         {
                             // Go back four steps
                             s.Goto(s.CurrentPointer - 4);
@@ -97,30 +97,26 @@ namespace R1Engine
 
                             s.DoEncoded(new RNCEncoder(), () =>
                             {
-                                var bytes = s.SerializeArray<byte>(default, s.CurrentLength);
-
                                 if (as888)
                                 {
-                                    var output = new byte[(bytes.Length / 2) * 3];
+                                    var values = s.SerializeArray<ushort>(default, s.CurrentLength / 2);
 
-                                    for (int i = 0; i < bytes.Length; i += 2)
+                                    var output = new byte[(values.Length / 2) * 3];
+
+                                    for (int i = 0; i < values.Length; i += 2)
                                     {
-                                        var v = BitConverter.ToUInt16(new byte[]
-                                        {
-                                            bytes[i + 1],
-                                            bytes[i],
-                                        }, 0);
+                                        var v = values[i];
 
-                                        output[(i / 2) * 3 + 0] = (byte)((BitHelpers.ExtractBits(v, 5, 11) / 31f) * 255);
                                         output[(i / 2) * 3 + 1] = (byte)((BitHelpers.ExtractBits(v, 6, 0) / 63f) * 255);
-                                        output[(i / 2) * 3 + 2] = (byte)((BitHelpers.ExtractBits(v, 5, 6) / 31f) * 255);
+                                        output[(i / 2) * 3 + 0] = (byte)((BitHelpers.ExtractBits(v, 5, 6) / 31f) * 255);
+                                        output[(i / 2) * 3 + 2] = (byte)((BitHelpers.ExtractBits(v, 5, 11) / 31f) * 255);
                                     }
 
                                     Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}"), output);
                                 }
                                 else
                                 {
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}"), bytes);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}"), s.SerializeArray<byte>(default, s.CurrentLength));
                                 }
                             });
                         }
