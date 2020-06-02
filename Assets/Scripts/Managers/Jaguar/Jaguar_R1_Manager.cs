@@ -79,11 +79,6 @@ namespace R1Engine
                     // Enumerate every byte
                     while (s.CurrentPointer.FileOffset < file.Length)
                     {
-                        if (s.CurrentPointer.FileOffset == 43680)
-                        {
-                            Debugger.Break();
-                        }
-
                         // Read the next 4 bytes and check if the header matches
                         var header = s.Serialize<uint>(default);
 
@@ -107,8 +102,9 @@ namespace R1Engine
                                     {
                                         var v = values[i];
 
-                                        output[(i / 2) * 3 + 1] = (byte)((BitHelpers.ExtractBits(v, 6, 0) / 63f) * 255);
+                                        // Write RGB values
                                         output[(i / 2) * 3 + 0] = (byte)((BitHelpers.ExtractBits(v, 5, 6) / 31f) * 255);
+                                        output[(i / 2) * 3 + 1] = (byte)((BitHelpers.ExtractBits(v, 6, 0) / 63f) * 255);
                                         output[(i / 2) * 3 + 2] = (byte)((BitHelpers.ExtractBits(v, 5, 11) / 31f) * 255);
                                     }
 
@@ -138,18 +134,13 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            var s = context.Deserializer;
+            // Read the rom
+            var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
 
-            // Hacky way to get map data
-            var map = s.DoAt(new Pointer(GetROMBaseAddress + 3175788, context.GetFile(GetROMFilePath)), () =>
-            {
-                PS1_R1_MapBlock m = null;
+            // Get the map
+            var map = rom.MapData;
 
-                s.DoEncoded(new RNCEncoder(), () => m = s.SerializeObject<PS1_R1_MapBlock>(default));
-
-                return m;
-            });
-
+            // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
             {
                 // Create the map
@@ -194,7 +185,9 @@ namespace R1Engine
                 }
             }
 
-            return new PS1EditorManager(commonLev, context, new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>());
+            return new PS1EditorManager(commonLev, context, 
+                // TODO: Load graphics and ETA
+                new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>());
         }
 
         /// <summary>
