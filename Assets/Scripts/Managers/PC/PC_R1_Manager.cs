@@ -82,32 +82,13 @@ namespace R1Engine
             return base.GetGameActions(settings).Concat(new GameAction[]
             {
                 new GameAction("Decrypt Save Files", false, false, (input, output) => DecryptSaveFiles(settings)),
-                new GameAction("Read Save Files", false, false, (input, output) => ReadSaveFiles(settings)),
-                new GameAction("Decrypt RNC Files", false, false, (input, output) => DecryptRNCFiles(settings)),
+                new GameAction("Read Save Files", false, false, (input, output) => ReadSaveFiles(settings))
             }).ToArray();
         }
 
         #endregion
 
         #region Manager Methods
-        public void DecryptRNCFiles(GameSettings settings) {
-            using (var context = new Context(settings)) {
-                foreach (var save in Directory.GetFiles(settings.GameDirectory, "*.rnc", SearchOption.TopDirectoryOnly).Select(Path.GetFileName)) {
-                    LinearSerializedFile f = new LinearSerializedFile(context) {
-                        filePath = save
-                    };
-                    context.AddFile(f);
-                    SerializerObject s = context.Deserializer;
-                    byte[] rncData = null;
-                    s.DoAt(f.StartPointer, () => {
-                        s.DoEncoded(new RNCEncoder(), () => {
-                            rncData = s.SerializeArray<byte>(rncData, s.CurrentLength, name: "SaveData");
-                            Util.ByteArrayToFile(context.BasePath + save + ".dec", rncData);
-                        });
-                    });
-                }
-            }
-        }
 
         public void DecryptSaveFiles(GameSettings settings)
         {

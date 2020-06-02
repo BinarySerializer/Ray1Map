@@ -65,6 +65,11 @@ namespace R1Engine
         RayPocketPC,
 
         /// <summary>
+        /// Rayman 1 (Jaguar)
+        /// </summary>
+        RayJaguar,
+
+        /// <summary>
         /// Rayman Advance (GBA)
         /// </summary>
         RayGBA,
