@@ -21,6 +21,9 @@
         WaterNoSplash = 13,
         Passthrough = 14,
         Solid = 15,
+        
+        // Below ones are not on Jaguar
+        
         Seed = 16,
         Slippery_Steep_Left = 18,
         Slippery_Steep_Right = 19,

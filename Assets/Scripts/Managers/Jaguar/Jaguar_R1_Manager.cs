@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -140,7 +142,63 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            return new PS1EditorManager(null, context, null, null);
+            var s = context.Deserializer;
+
+            // Hacky way to get map data
+            var map = s.DoAt(new Pointer(GetROMBaseAddress + 3175788, context.GetFile(GetROMFilePath)), () =>
+            {
+                PS1_R1_MapBlock m = null;
+
+                s.DoEncoded(new RNCEncoder(), () => m = s.SerializeObject<PS1_R1_MapBlock>(default));
+
+                return m;
+            });
+
+            Common_Lev commonLev = new Common_Lev
+            {
+                // Create the map
+                Maps = new Common_LevelMap[]
+                {
+                    new Common_LevelMap()
+                    {
+                        // Set the dimensions
+                        Width = map.Width,
+                        Height = map.Height,
+
+                        // Create the tile arrays
+                        TileSet = new Common_Tileset[3],
+                        Tiles = new Common_Tile[map.Width * map.Height]
+                    }
+                },
+
+                // Create the events list
+                EventData = new List<Common_EventData>(),
+            };
+
+            // Dummy tileset
+            commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGB1555Color(0, 0, 0), 16*16).ToArray(), 1, 16);
+
+            // Enumerate each cell
+            for (int cellY = 0; cellY < map.Height; cellY++)
+            {
+                for (int cellX = 0; cellX < map.Width; cellX++)
+                {
+                    // Get the cell
+                    var cell = map.Tiles[cellY * map.Width + cellX];
+
+                    // Set the common tile
+                    commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile()
+                    {
+                        TileSetGraphicIndex = 0,
+                        CollisionType = cell.CollisionType,
+                        PaletteIndex = 1,
+                        XPosition = cellX,
+                        YPosition = cellY
+                    };
+                }
+            }
+
+            return new PS1EditorManager(commonLev, context, new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>());
         }
 
         /// <summary>
@@ -163,6 +221,7 @@ namespace R1Engine
             var file = new MemoryMappedFile(context, baseAddress)
             {
                 filePath = path,
+                Endianness = BinaryFile.Endian.Big
             };
             context.AddFile(file);
 

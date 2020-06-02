@@ -1,4 +1,7 @@
-﻿namespace R1Engine
+﻿using System;
+using System.Linq;
+
+namespace R1Engine
 {
     /// <summary>
     /// Map tile data for Rayman 1 (PS1)
@@ -56,6 +59,18 @@
 
                 // TODO: Serialize this? Is it part of collision type? This appears in other PS1 versions too and is skipped there. It appears to always be 0 though.
                 s.Serialize<byte>(0);
+            }
+            else if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
+            {
+                ushort value = 0;
+
+                value = (ushort)BitHelpers.SetBits(value, TileMapX, 12, 0);
+                value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 4, 12);
+
+                value = BitConverter.ToUInt16(s.SerializeArray<byte>(BitConverter.GetBytes(value).Reverse().ToArray(), 2, name: nameof(value)).Reverse().ToArray(), 0);
+
+                TileMapX = BitHelpers.ExtractBits(value, 12, 0);
+                CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 4, 12);
             }
             else
             {
