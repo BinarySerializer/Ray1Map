@@ -23,17 +23,17 @@
         public ushort Color565 {
             get {
                 ushort val = 0;
-                BitHelpers.SetBits(val, (ushort)((Red / 255f) * 31), 5, 6);
+                BitHelpers.SetBits(val, (ushort)((Red / 255f) * 31), 5, 11);
                 BitHelpers.SetBits(val, (ushort)((Green / 255f) * 63), 6, 0);
-                BitHelpers.SetBits(val, (ushort)((Blue / 255f) * 31), 5, 11);
+                BitHelpers.SetBits(val, (ushort)((Blue / 255f) * 31), 5, 6);
                 return val;
             }
             set {
                 ushort color16 = value;
                 // Extract the bits
-                Red = (byte)((BitHelpers.ExtractBits(color16, 5, 6) / 31f) * 255);
+                Red = (byte)((BitHelpers.ExtractBits(color16, 5, 11) / 31f) * 255);
                 Green = (byte)((BitHelpers.ExtractBits(color16, 6, 0) / 63f) * 255);
-                Blue = (byte)((BitHelpers.ExtractBits(color16, 5, 11) / 31f) * 255);
+                Blue = (byte)((BitHelpers.ExtractBits(color16, 5, 6) / 31f) * 255);
                 Alpha = 255;
             }
         }

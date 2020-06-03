@@ -160,8 +160,8 @@ namespace R1Engine
                 EventData = new List<Common_EventData>(),
             };
 
-            // Dummy tileset
-            commonLev.Maps[0].TileSet[0] = new Common_Tileset(Enumerable.Repeat(new ARGB1555Color(0, 0, 0), 16*16).ToArray(), 1, 16);
+            // Load tile set
+            commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData, 1, 16);
 
             // Enumerate each cell
             for (int cellY = 0; cellY < map.Height; cellY++)
@@ -174,7 +174,7 @@ namespace R1Engine
                     // Set the common tile
                     commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile()
                     {
-                        TileSetGraphicIndex = 0,
+                        TileSetGraphicIndex = cell.TileMapX,
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,
                         XPosition = cellX,

@@ -15,6 +15,11 @@
         /// </summary>
         public RGB556Color[] SpritePalette { get; set; }
 
+        /// <summary>
+        /// The current tileset data
+        /// </summary>
+        public RGB556Color[] TileData { get; set; }
+
         public byte[] ImageBuffer { get; set; }
 
         /// <summary>
@@ -24,8 +29,9 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // TODO: Don't hard-code this!
-            var mapPointer = this.Offset + 3175788;
+            var mapPointer = this.Offset + 3415677;
             var palPointer = new Pointer(0x009B8C6A, this.Offset.file);
+            var tilesPointer = this.Offset + 3222288;
             var bufferPointer = this.Offset + 486418;
 
             // Serialize map data
@@ -33,6 +39,9 @@
             
             // Serialize sprite palette
             s.DoAt(palPointer, () => SpritePalette = s.SerializeObjectArray<RGB556Color>(SpritePalette, 256, name: nameof(SpritePalette)));
+
+            // Serialize tile data
+            s.DoAt(tilesPointer, () => s.DoEncoded(new RNCEncoder(), () => TileData = s.SerializeObjectArray<RGB556Color>(TileData, s.CurrentLength / 2, name: nameof(TileData))));
 
             s.DoAt(bufferPointer, () => s.DoEncoded(new RNCEncoder(), () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, s.CurrentLength, name: nameof(ImageBuffer))));
 
