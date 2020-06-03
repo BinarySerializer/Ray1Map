@@ -77,7 +77,7 @@ namespace R1Engine
                 s.DoAt(file.StartPointer, () =>
                 {
                     // Enumerate every byte
-                    while (s.CurrentPointer.FileOffset < file.Length)
+                    while (s.CurrentPointer.FileOffset < file.Length - 4)
                     {
                         // Read the next 4 bytes and check if the header matches
                         var header = s.Serialize<uint>(default);
@@ -108,11 +108,11 @@ namespace R1Engine
                                         output[(i / 2) * 3 + 2] = (byte)((BitHelpers.ExtractBits(v, 5, 11) / 31f) * 255);
                                     }
 
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}"), output);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{string.Format("{0:X8}",p.FileOffset + 0x00800000)}"), output);
                                 }
                                 else
                                 {
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}"), s.SerializeArray<byte>(default, s.CurrentLength));
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{string.Format("{0:X8}", p.FileOffset + 0x00800000)}"), s.SerializeArray<byte>(default, s.CurrentLength));
                                 }
                             });
                         }
