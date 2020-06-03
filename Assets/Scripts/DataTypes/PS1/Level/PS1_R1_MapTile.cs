@@ -67,8 +67,8 @@ namespace R1Engine
                 value = (ushort)BitHelpers.SetBits(value, TileMapX, 12, 0);
                 value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 4, 12);
 
-                value = BitConverter.ToUInt16(s.SerializeArray<byte>(BitConverter.GetBytes(value).Reverse().ToArray(), 2, name: nameof(value)).Reverse().ToArray(), 0);
-
+                value = s.Serialize<ushort>(value, name: nameof(value));
+                
                 TileMapX = BitHelpers.ExtractBits(value, 12, 0);
                 CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 4, 12);
             }
