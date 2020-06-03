@@ -94,16 +94,16 @@ namespace R1Engine
                                 {
                                     var values = s.SerializeObjectArray<RGB556Color>(default, s.CurrentLength / 2);
 
-                                    var output = new byte[(values.Length / 2) * 3];
-
-                                    for (int i = 0; i < values.Length; i += 2)
+                                    var output = new byte[values.Length * 3];
+                                        
+                                    for (int i = 0; i < values.Length; i++)
                                     {
                                         var v = values[i];
 
                                         // Write RGB values
-                                        output[(i / 2) * 3 + 0] = v.Red;
-                                        output[(i / 2) * 3 + 1] = v.Green;
-                                        output[(i / 2) * 3 + 2] = v.Blue;
+                                        output[i * 3 + 0] = v.Red;
+                                        output[i * 3 + 1] = v.Green;
+                                        output[i * 3 + 2] = v.Blue;
                                     }
 
                                     Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{p.FileOffset + 0x00800000:X8}"), output);
