@@ -161,7 +161,7 @@ namespace R1Engine
             };
 
             // Load tile set
-            commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData, 1, 16);
+            commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
 
             // Enumerate each cell
             for (int cellY = 0; cellY < map.Height; cellY++)
