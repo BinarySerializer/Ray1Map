@@ -1,11 +1,9 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -94,7 +92,7 @@ namespace R1Engine
                             {
                                 if (as888)
                                 {
-                                    var values = s.SerializeArray<ushort>(default, s.CurrentLength / 2);
+                                    var values = s.SerializeObjectArray<RGB556Color>(default, s.CurrentLength / 2);
 
                                     var output = new byte[(values.Length / 2) * 3];
 
@@ -103,16 +101,16 @@ namespace R1Engine
                                         var v = values[i];
 
                                         // Write RGB values
-                                        output[(i / 2) * 3 + 0] = (byte)((BitHelpers.ExtractBits(v, 5, 6) / 31f) * 255);
-                                        output[(i / 2) * 3 + 1] = (byte)((BitHelpers.ExtractBits(v, 6, 0) / 63f) * 255);
-                                        output[(i / 2) * 3 + 2] = (byte)((BitHelpers.ExtractBits(v, 5, 11) / 31f) * 255);
+                                        output[(i / 2) * 3 + 0] = v.Red;
+                                        output[(i / 2) * 3 + 1] = v.Green;
+                                        output[(i / 2) * 3 + 2] = v.Blue;
                                     }
 
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{string.Format("{0:X8}",p.FileOffset + 0x00800000)}"), output);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{p.FileOffset + 0x00800000:X8}"), output);
                                 }
                                 else
                                 {
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{string.Format("{0:X8}", p.FileOffset + 0x00800000)}"), s.SerializeArray<byte>(default, s.CurrentLength));
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"decompressedBlock_{p.FileOffset}_{p.FileOffset + 0x00800000:X8}"), s.SerializeArray<byte>(default, s.CurrentLength));
                                 }
                             });
                         }
