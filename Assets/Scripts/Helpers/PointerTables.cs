@@ -114,5 +114,18 @@ namespace R1Engine
                 [DSi_R1_Pointer.ClockGraphics] = 0x0281BA8C,
             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, dataFile));
         }
+
+        /// <summary>
+        /// Gets the pointer table for the Jaguar version
+        /// </summary>
+        /// <param name="romFile">The rom file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<Jaguar_R1_Pointer, Pointer> GetDSiPointerTable(BinaryFile romFile)
+        {
+            return new Dictionary<Jaguar_R1_Pointer, uint>()
+            {
+
+            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+        }
     }
 }
