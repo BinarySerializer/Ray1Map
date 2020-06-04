@@ -124,6 +124,19 @@ namespace R1Engine
             }
         }
 
+
+        /// <summary>
+        /// Gets the available levels ordered based on the global level array
+        /// </summary>
+        public virtual Dictionary<World, int> GetNumLevels => new Dictionary<World, int> {
+            [World.Jungle] = 21,
+            [World.Music] = 14,
+            [World.Mountain] = 13,
+            [World.Image] = 19,
+            [World.Cave] = 14,
+            [World.Cake] = 4
+        };
+
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>

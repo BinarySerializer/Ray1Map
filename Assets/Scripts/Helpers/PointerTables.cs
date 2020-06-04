@@ -118,13 +118,18 @@ namespace R1Engine
         /// <summary>
         /// Gets the pointer table for the Jaguar version
         /// </summary>
+        /// <param name="gameMode">The Jaguar game mode</param>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<Jaguar_R1_Pointer, Pointer> GetDSiPointerTable(BinaryFile romFile)
+        public static Dictionary<Jaguar_R1_Pointer, Pointer> GetJaguarPointerTable(GameModeSelection gameMode, BinaryFile romFile)
         {
             return new Dictionary<Jaguar_R1_Pointer, uint>()
             {
-
+                [Jaguar_R1_Pointer.DES] = 0x00906130,
+                [Jaguar_R1_Pointer.FixSprites] = 0x009496C8,
+                [Jaguar_R1_Pointer.WorldSprites] = 0x00949034,
+                [Jaguar_R1_Pointer.MapData] = 0x00949054,
+                [Jaguar_R1_Pointer.Music] = 0x009210F0,
             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
         }
     }

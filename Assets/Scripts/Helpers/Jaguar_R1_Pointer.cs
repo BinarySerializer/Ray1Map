@@ -5,6 +5,10 @@
     /// </summary>
     public enum Jaguar_R1_Pointer
     {
-
+        DES,
+        FixSprites,
+        WorldSprites,
+        MapData,
+        Music,
     }
 }
