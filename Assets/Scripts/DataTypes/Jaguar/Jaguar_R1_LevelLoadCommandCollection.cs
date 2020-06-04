@@ -24,8 +24,8 @@ namespace R1Engine
 
                 int index = 0;
 
-                // Loop until we reach the invalid command
-                while (cmd.LastOrDefault()?.Type != 0) {
+                // Loop until we reach the end command
+                while (cmd.LastOrDefault()?.Type != Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.End) {
                     cmd.Add(s.SerializeObject((Jaguar_R1_LevelLoadCommand)null, name: $"Commands[{index}]"));
                     index++;
                 }

@@ -22,6 +22,7 @@ namespace R1Engine
         public Pointer LevelMapBlockPointer;
         public Pointer LevelMysteriousDataPointer;
         public uint ImageBufferMemoryPointerPointer; // The address of the image buffer in memory is writtento this location. Is referenced in the DES data.
+        public uint TargetImageBufferMemoryPointer;
 
         /// <summary>
         /// Handles the data serialization
@@ -39,7 +40,7 @@ namespace R1Engine
             // Parse the data based on the type
             switch (Type) 
             {
-                case LevelLoadCommandType.Invalid:
+                case LevelLoadCommandType.End:
                     break;
                 
                 case LevelLoadCommandType.LevelMap:
@@ -59,11 +60,10 @@ namespace R1Engine
                     UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
                     break;
 
-                case LevelLoadCommandType.Unk2:
-                    UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
+                case LevelLoadCommandType.MoveGraphics:
+                    ImageBufferMemoryPointer = s.Serialize<uint>(ImageBufferMemoryPointer, name: nameof(ImageBufferMemoryPointer));
+                    TargetImageBufferMemoryPointer = s.Serialize<uint>(TargetImageBufferMemoryPointer, name: nameof(TargetImageBufferMemoryPointer));
                     Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
-                    Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
-                    Short3 = s.Serialize<short>(Short3, name: nameof(Short3));
                     break;
 
                 case LevelLoadCommandType.Unk3:
@@ -112,13 +112,13 @@ namespace R1Engine
 
         public enum LevelLoadCommandType : ushort
         {
-            Invalid = 0x00,
+            End = 0x00,
             NotImplemented1 = 0x04,
             LevelMap = 0x08,
             Graphics = 0x0C,
             Unk1 = 0x10,
             NotImplemented2 = 0x14,
-            Unk2 = 0x18,
+            MoveGraphics = 0x18,
             Unk3 = 0x1C,
             UnkDES1 = 0x20,
             Sprites = 0x24,
