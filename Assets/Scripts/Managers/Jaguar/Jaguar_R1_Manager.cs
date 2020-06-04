@@ -173,8 +173,21 @@ namespace R1Engine
                 EventData = new List<Common_EventData>(),
             };
 
+            // Music 14 referenced unavailable tiles, so we need to pad the tileset
+            var tilesetData = rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray();
+            var tilesetDataLength = (map.Tiles.Max(x => x.TileMapX) + 1) * 16 * 16;
+            if (tilesetData.Length < tilesetDataLength)
+            {
+                Array.Resize(ref tilesetData, tilesetDataLength);
+                for (int i = 0; i < tilesetData.Length; i++)
+                {
+                    if (tilesetData[i] == null)
+                        tilesetData[i] = new RGB556Color(0, 0, 0, 0);
+                }
+            }
+
             // Load tile set
-            commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
+            commonLev.Maps[0].TileSet[0] = new Common_Tileset(tilesetData, 1, 16);
 
             // Enumerate each cell
             for (int cellY = 0; cellY < map.Height; cellY++)
