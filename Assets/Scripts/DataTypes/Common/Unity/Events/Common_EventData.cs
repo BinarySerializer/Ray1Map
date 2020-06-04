@@ -2,6 +2,8 @@
 
 namespace R1Engine
 {
+    // TODO: Change value types to match those in the game!
+
     /// <summary>
     /// Common event data
     /// </summary>

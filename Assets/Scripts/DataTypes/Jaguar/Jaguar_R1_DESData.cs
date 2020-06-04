@@ -13,7 +13,10 @@
         public Pointer Pointer_08;
         public Pointer Pointer_0C;
         public Pointer Pointer_10;
+
+        // Pointer to image descriptors
         public Pointer Pointer_14;
+
         public uint UInt_08;
         public uint UInt_0C;
         public uint UInt_10;
