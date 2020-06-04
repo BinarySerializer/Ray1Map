@@ -141,9 +141,8 @@ namespace R1Engine
             // Get pointers
             var mapPointer = map.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
             var palPointer = map.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette).PalettePointer;
-            // TODO: How do we get the tiles pointer?
-            //var tilesPointer = MapDataLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].First().Commands.Last(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics).ImageBufferPointer;
-            var tilesPointer = WorldSpritesLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics).ImageBufferPointer;
+
+            var tilesPointer = map.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldSpritesLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
 
             // Serialize map data
             s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<PS1_R1_MapBlock>(MapData, name: nameof(MapData))));
