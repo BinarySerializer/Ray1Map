@@ -18,7 +18,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<World, int[]>[0];
+        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetNumLevels.OrderBy(x => x.Key).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes
@@ -36,6 +36,19 @@ namespace R1Engine
         /// Gets the base address for the ROM file
         /// </summary>
         protected virtual uint GetROMBaseAddress => 0x00800000;
+
+        /// <summary>
+        /// Gets the available levels ordered based on the global level array
+        /// </summary>
+        public virtual KeyValuePair<World, int>[] GetNumLevels => new KeyValuePair<World, int>[]
+        {
+            new KeyValuePair<World, int>(World.Jungle, 21),
+            new KeyValuePair<World, int>(World.Mountain, 14),
+            new KeyValuePair<World, int>(World.Cave, 13),
+            new KeyValuePair<World, int>(World.Music, 19),
+            new KeyValuePair<World, int>(World.Image, 14),
+            new KeyValuePair<World, int>(World.Cake, 4)
+        };
 
         #endregion
 
@@ -123,19 +136,6 @@ namespace R1Engine
                 });
             }
         }
-
-
-        /// <summary>
-        /// Gets the available levels ordered based on the global level array
-        /// </summary>
-        public virtual Dictionary<World, int> GetNumLevels => new Dictionary<World, int> {
-            [World.Jungle] = 21,
-            [World.Music] = 14,
-            [World.Mountain] = 13,
-            [World.Image] = 19,
-            [World.Cave] = 14,
-            [World.Cake] = 4
-        };
 
         /// <summary>
         /// Loads the specified level for the editor

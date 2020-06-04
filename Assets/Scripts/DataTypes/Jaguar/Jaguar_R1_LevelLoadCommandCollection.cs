@@ -8,7 +8,10 @@ namespace R1Engine
     /// </summary>
     public class Jaguar_R1_LevelLoadCommandCollection : R1Serializable
     {
-        Jaguar_R1_LevelLoadCommand[] Commands { get; set; }
+        /// <summary>
+        /// The commands
+        /// </summary>
+        public Jaguar_R1_LevelLoadCommand[] Commands { get; set; }
 
         /// <summary>
         /// Handles the data serialization
