@@ -6,6 +6,11 @@
     public enum MajorEngineVersion
     {
         /// <summary>
+        /// Jaguar
+        /// </summary>
+        Jaguar,
+
+        /// <summary>
         /// PC, Pocket PC and Mobile
         /// </summary>
         PC,

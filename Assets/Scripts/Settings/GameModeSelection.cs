@@ -72,8 +72,14 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayPocketPC, Game.Rayman1, "Rayman Classic (Mobile)", typeof(Mobile_R1_Manager))]
         RaymanClassicMobile,
 
-        [GameMode(MajorEngineVersion.PS1, EngineVersion.RayJaguar, Game.Rayman1, "Rayman 1 (Jaguar)", typeof(Jaguar_R1_Manager))]
+        [GameMode(MajorEngineVersion.Jaguar, EngineVersion.RayJaguar, Game.Rayman1, "Rayman 1 (Jaguar)", typeof(Jaguar_R1_Manager))]
         RaymanJaguar,
+
+        //[GameMode(MajorEngineVersion.Jaguar, EngineVersion.RayJaguarProto1, Game.Rayman1, "Rayman 1 (Jaguar - Prototype 1)", typeof(Jaguar_R1Proto1_Manager))]
+        //RaymanJaguarPrototype1,
+
+        //[GameMode(MajorEngineVersion.Jaguar, EngineVersion.RayJaguarProto2, Game.Rayman1, "Rayman 2 (Jaguar - Prototype 1)", typeof(Jaguar_R1Proto2_Manager))]
+        //RaymanJaguarPrototype2,
 
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayGBA, Game.Rayman1, "Rayman Advance (GBA - EU)", typeof(GBA_R1_Manager))]
         RaymanAdvanceGBAEU,
