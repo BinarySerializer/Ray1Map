@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -50,6 +51,58 @@ namespace R1Engine
             new KeyValuePair<World, int>(World.Cake, 4)
         };
 
+        /// <summary>
+        /// Gets the vignette addresses and widths
+        /// </summary>
+        protected virtual KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
+        {
+            // Vignette
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 43680, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 127930, 160),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 140541, 136),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 150788, 160),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 162259, 80),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 169031, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 246393, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 300827, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 329569, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 351048, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 372555, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 391386, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 409555, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 423273, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 429878, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 450942, 320),
+
+            // Background/foreground
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1353130, 192),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1395878, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1462294, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1553686, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1743668, 144),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1750880, 48),
+
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1809526, 192),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1845684, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1928746, 192),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 1971368, 192),
+
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 2205640, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 2269442, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 2355852, 160),
+
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 2702140, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 2803818, 192),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 2824590, 320),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 2916108, 192),
+
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 3078442, 192),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 3118496, 384),
+
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 3276778, 384),
+            new KeyValuePair<uint, int>(GetROMBaseAddress + 3323878, 320),
+        };
+
         #endregion
 
         #region Manager Methods
@@ -63,9 +116,59 @@ namespace R1Engine
         {
             return new GameAction[]
             {
+                new GameAction("Extract Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Extract Compressed Data", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, false)),
                 new GameAction("Extract Compressed Data (888)", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, true)),
             };
+        }
+
+        /// <summary>
+        /// Extracts all vignette
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <param name="outputPath">The path to extract to</param>
+        /// <returns>The task</returns>
+        public async Task ExtractVignetteAsync(GameSettings settings, string outputPath)
+        {
+            // Create a context
+            using (var context = new Context(settings))
+            {
+                // Get a deserializer
+                var s = context.Deserializer;
+
+                // Add the file
+                var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+
+                // Export every vignette
+                foreach (var vig in GetVignette)
+                {
+                    s.DoAt(new Pointer(vig.Key, file), () =>
+                    {
+                        s.DoEncoded(new RNCEncoder(), () =>
+                        {
+                            var values = s.SerializeObjectArray<RGB556Color>(default, s.CurrentLength / 2);
+
+                            var tex = new Texture2D(vig.Value, values.Length / vig.Value)
+                            {
+                                filterMode = FilterMode.Point,
+                                wrapMode = TextureWrapMode.Clamp
+                            };
+
+                            for (int y = 0; y < tex.height; y++)
+                            {
+                                for (int x = 0; x < tex.width; x++)
+                                {
+                                    tex.SetPixel(x, tex.height - y - 1, values[y * tex.width + x].GetColor());
+                                }
+                            }
+
+                            tex.Apply();
+
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"Vig_{vig.Key:X8}.png"), tex.EncodeToPNG());
+                        });
+                    });
+                }
+            }
         }
 
         /// <summary>
