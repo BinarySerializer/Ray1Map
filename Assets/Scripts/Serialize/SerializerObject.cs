@@ -112,5 +112,12 @@ namespace R1Engine
 
         public virtual void BeginXOR(byte xorKey) { }
         public virtual void EndXOR() { }
+
+        public void DoXOR(byte xorKey, Action action)
+        {
+            BeginXOR(xorKey);
+            action();
+            EndXOR();
+        }
     }
 }
