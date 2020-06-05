@@ -142,7 +142,7 @@ namespace R1Engine
     MEMORY LOCATIONS:
 
     0x02030394 - current world
-    0x0202E5F0 - current level
+    0x0202FB7C - current level
     0x0202A2DA - some array where first two bytes are used to compare level and world somehow
     0x020226B0 - events
     0x0202D408 - link table
