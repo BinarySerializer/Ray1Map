@@ -6,11 +6,6 @@
     public class PC_TileTexture : R1Serializable
     {
         /// <summary>
-        /// The offset for this texture, as defines in the textures offset table. This value is not a part of the texture and has to be set manually.
-        /// </summary>
-        public uint TextureOffset { get; set; }
-
-        /// <summary>
         /// The color indexes for this texture
         /// </summary>
         public byte[] ColorIndexes { get; set; }

@@ -1426,7 +1426,7 @@ namespace R1Engine
                         var texOffset = levelData.TexturesOffsetTable[cell.TextureIndex];
 
                         // Get the texture
-                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.TextureOffset == texOffset) : levelData.TransparentTextures.FindItem(x => x.TextureOffset == texOffset);
+                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TransparentTextures.FindItem(x => x.Offset == texOffset);
 
                         // Get the index
                         textureIndex = levelData.NonTransparentTextures.Concat(levelData.TransparentTextures).FindItemIndex(x => x == texture);
@@ -1542,11 +1542,11 @@ namespace R1Engine
                         tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
                     else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount) {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].TextureOffset);
+                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
                     }
                     else {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].TextureOffset);
+                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].Offset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
                     }
                 }
