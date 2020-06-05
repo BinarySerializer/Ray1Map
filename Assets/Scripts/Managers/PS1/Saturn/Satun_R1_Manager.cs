@@ -166,10 +166,12 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <returns>The filled v-ram</returns>
         public override void FillVRAM(Context context) {
+            string fixPath = GetFixImageFilePath();
             string worldPath = GetWorldImageFilePath(context);
-            var fixImg = FileFactory.Read<Array<byte>>(GetFixImageFilePath(), context, (y, x) => x.Length = y.CurrentLength);
+            string levelPath = GetLevelImageFilePath(context);
+            var fixImg = context.FileExists(fixPath) ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
             var worldImg = context.FileExists(worldPath) ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
-            var levelImg = FileFactory.Read<Array<byte>>(GetLevelImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength);
+            var levelImg = context.FileExists(levelPath) ? FileFactory.Read<Array<byte>>(levelPath, context, (y, x) => x.Length = y.CurrentLength) : null;
             
             ImageBuffer buf = new ImageBuffer();
             if (fixImg != null) buf.AddData(fixImg.Value);

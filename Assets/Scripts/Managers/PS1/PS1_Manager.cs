@@ -278,7 +278,7 @@ namespace R1Engine
             var index = 0;
 
             // Add every event
-            foreach (PS1_R1_Event e in events)
+            foreach (PS1_R1_Event e in events ?? (events = new PS1_R1_Event[0]))
             {
                 Controller.status = $"Loading DES {index}/{events.Length}";
 
