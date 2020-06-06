@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Asyncoroutine;
 using UnityEngine;
 
 namespace R1Engine
@@ -116,11 +117,160 @@ namespace R1Engine
         {
             return new GameAction[]
             {
+                new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Extract Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Extract Compressed Data", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, false)),
                 new GameAction("Extract Compressed Data (888)", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, true)),
                 new GameAction("Convert Music to MIDI", false, true, (input, output) => ConvertMusicAsync(settings, output)),
             };
+        }
+
+        /// <summary>
+        /// Exports every sprite from the game
+        /// </summary>
+        /// <param name="baseGameSettings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <returns>The task</returns>
+        public virtual async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        {
+            // Create the context
+            using (var context = new Context(baseGameSettings))
+            {
+                // Load the game data
+                await LoadFilesAsync(context);
+
+                // Serialize the rom
+                var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
+
+                // Get the level counts
+                var levels = GetNumLevels;
+
+                // Get the deserializer
+                var s = context.Deserializer;
+
+                // TODO: Export big ray and breakout - from seventh world?
+
+                // Get allfix sprite commands
+                var allfixCmds = rom.FixSpritesLoadCommands.Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).ToArray();
+
+                // Export allfix
+                await ExportGroupAsync(allfixCmds, Enumerable.Repeat(rom.SpritePalette, allfixCmds.Length).ToArray(), "Allfix");
+
+                // Enumerate every world
+                foreach (var world in GetLevels(baseGameSettings))
+                {
+                    // Get the world index
+                    var worldIndex = levels.FindItemIndex(x => x.Key == world.Key);
+
+                    // Get the level load commands
+                    var lvlCmds = rom.MapDataLoadCommands[worldIndex];
+
+                    // TODO: Why do some Cave maps not have palettes or cmds?
+                    // Get palettes for the levels
+                    var palettes = lvlCmds.
+                        Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)?.PalettePointer).
+                        Select((x, i) => x == null ? rom.SpritePalette : s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: $"SpritePalette[{i}]"))).
+                        ToArray();
+
+                    // Get the world and level sprite commands and palettes
+                    var worldCmds = new List<Jaguar_R1_LevelLoadCommand>();
+                    var worldPal = new List<RGB556Color[]>();
+
+                    // Add world data
+                    worldCmds.AddRange(rom.WorldSpritesLoadCommands[worldIndex].Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites));
+                    worldPal.AddRange(Enumerable.Repeat(palettes.First(), worldCmds.Count));
+
+                    // Keep track of all level image buffers we have exported
+                    var pointers = new List<Pointer>();
+
+                    // TODO: Some sprites get the wrong palette, like the Bzzit ones - why?
+                    // Enumerate every level
+                    for (int lvl = 0; lvl < lvlCmds.Length; lvl++)
+                    {
+                        foreach (var c in lvlCmds[lvl]?.Commands?.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).Where(x => !pointers.Contains(x.ImageBufferPointer)) ?? new Jaguar_R1_LevelLoadCommand[0])
+                        {
+                            worldCmds.Add(c);
+                            worldPal.Add(palettes[lvl]);
+                            pointers.Add(c.ImageBufferPointer);
+                        }
+                    }
+
+                    // Export world
+                    await ExportGroupAsync(worldCmds, worldPal, world.Key.ToString());
+                }
+
+                // Helper method for exporting a collection of DES
+                async Task ExportGroupAsync(IReadOnlyList<Jaguar_R1_LevelLoadCommand> cmds, IReadOnlyList<RGB556Color[]> palettes, string name)
+                {
+                    // Enumerate every graphics
+                    for (var desIndex = 0; desIndex < cmds.Count; desIndex++)
+                    {
+                        // Get values for current DES
+                        var cmd = cmds[desIndex];
+                        var pal = palettes[desIndex];
+
+                        // Get the image buffer
+                        byte[] imgBuffer = null;
+                        s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
+
+                        // Get the DES
+                        var des = rom.DESData.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer);
+
+                        // TODO: This doesn't always work - why?
+                        if (des == null)
+                        {
+                            Debug.LogWarning($"No DES found!");
+                            continue;
+                        }
+
+                        var imgIndex = 0;
+
+                        // Export every sprite
+                        foreach (var d in des.ImageDescriptors)
+                        {
+                            // Make sure the sprite is valid
+                            if (d.Index != 0x00 && d.Index != 0xFF)
+                            {
+                                // TODO: Remove the try/catch once we fix the width!
+                                try
+                                {
+                                    // Create a texture
+                                    var tex = new Texture2D(d.OuterWidth, d.OuterHeight)
+                                    {
+                                        filterMode = FilterMode.Point,
+                                        wrapMode = TextureWrapMode.Clamp
+                                    };
+
+                                    // Set every pixel
+                                    for (int y = 0; y < tex.height; y++)
+                                    {
+                                        for (int x = 0; x < tex.width; x++)
+                                        {
+                                            var index = y * tex.width + x;
+                                            index += (int)d.ImageBufferOffset;
+
+                                            tex.SetPixel(x, tex.height - y - 1, pal[imgBuffer[index]].GetColor());
+                                        }
+                                    }
+
+                                    tex.Apply();
+
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {imgIndex}.png"), tex.EncodeToPNG());
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.LogWarning(ex.Message);
+                                }
+                            }
+
+                            imgIndex++;
+                        }
+                    }
+
+                    // Unload textures
+                    await Resources.UnloadUnusedAssets();
+                }
+            }
         }
 
         /// <summary>
@@ -321,68 +471,6 @@ namespace R1Engine
                     };
                 }
             }
-
-            /*
-            var pal = rom.SpritePalette
-                // TODO: This removes black when it should be used...
-                .Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray();
-            var s = context.Deserializer;
-            var desIndex = 0;
-            var outputPath = @"C:\Users\RayCarrot\Downloads\JagSprites";
-
-            foreach (var fixCmd in rom.FixSpritesLoadCommands.Commands.Concat(rom.WorldSpritesLoadCommands[GetNumLevels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands).Concat(rom.MapDataLoadCommands[GetNumLevels.FindItemIndex(x => x.Key == s.GameSettings.World)][context.Settings.Level - 1].Commands).Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites))
-            {
-                var des = rom.DESData.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == fixCmd.ImageBufferMemoryPointerPointer);
-
-                if (des == null)
-                {
-                    Debug.LogWarning($"No DES found!");
-                    continue;
-                }
-
-                byte[] imgBuffer = null;
-                s.DoAt(fixCmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
-
-                var desc = des.ImageDescriptors.Where(x => x.Index != 0x00 && x.Index != 0xFF);
-
-                var i = 0;
-
-                foreach (var d in desc)
-                {
-                    try
-                    {
-                        var tex = new Texture2D(d.OuterWidth, d.OuterHeight)
-                        {
-                            filterMode = FilterMode.Point,
-                            wrapMode = TextureWrapMode.Clamp
-                        };
-
-                        for (int y = 0; y < tex.height; y++)
-                        {
-                            for (int x = 0; x < tex.width; x++)
-                            {
-                                var index = y * tex.width + x;
-                                index += (int)d.ImageBufferOffset;
-
-                                tex.SetPixel(x, tex.height - y - 1, pal[imgBuffer[index]].GetColor());
-                            }
-                        }
-
-                        tex.Apply();
-
-                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{desIndex} - {i}.png"), tex.EncodeToPNG());
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning(ex.Message);
-                    }
-
-                    i++;
-                }
-
-                desIndex++;
-            }
-            */
 
             return new PS1EditorManager(commonLev, context, 
                 // TODO: Load graphics and ETA
