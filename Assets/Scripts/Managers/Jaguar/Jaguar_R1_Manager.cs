@@ -322,6 +322,68 @@ namespace R1Engine
                 }
             }
 
+            /*
+            var pal = rom.SpritePalette
+                // TODO: This removes black when it should be used...
+                .Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray();
+            var s = context.Deserializer;
+            var desIndex = 0;
+            var outputPath = @"C:\Users\RayCarrot\Downloads\JagSprites";
+
+            foreach (var fixCmd in rom.FixSpritesLoadCommands.Commands.Concat(rom.WorldSpritesLoadCommands[GetNumLevels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands).Concat(rom.MapDataLoadCommands[GetNumLevels.FindItemIndex(x => x.Key == s.GameSettings.World)][context.Settings.Level - 1].Commands).Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites))
+            {
+                var des = rom.DESData.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == fixCmd.ImageBufferMemoryPointerPointer);
+
+                if (des == null)
+                {
+                    Debug.LogWarning($"No DES found!");
+                    continue;
+                }
+
+                byte[] imgBuffer = null;
+                s.DoAt(fixCmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
+
+                var desc = des.ImageDescriptors.Where(x => x.Index != 0x00 && x.Index != 0xFF);
+
+                var i = 0;
+
+                foreach (var d in desc)
+                {
+                    try
+                    {
+                        var tex = new Texture2D(d.OuterWidth, d.OuterHeight)
+                        {
+                            filterMode = FilterMode.Point,
+                            wrapMode = TextureWrapMode.Clamp
+                        };
+
+                        for (int y = 0; y < tex.height; y++)
+                        {
+                            for (int x = 0; x < tex.width; x++)
+                            {
+                                var index = y * tex.width + x;
+                                index += (int)d.ImageBufferOffset;
+
+                                tex.SetPixel(x, tex.height - y - 1, pal[imgBuffer[index]].GetColor());
+                            }
+                        }
+
+                        tex.Apply();
+
+                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{desIndex} - {i}.png"), tex.EncodeToPNG());
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning(ex.Message);
+                    }
+
+                    i++;
+                }
+
+                desIndex++;
+            }
+            */
+
             return new PS1EditorManager(commonLev, context, 
                 // TODO: Load graphics and ETA
                 new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>());
@@ -344,7 +406,8 @@ namespace R1Engine
         {
             await FileSystem.PrepareFile(context.BasePath + path);
 
-            var file = new MemoryMappedFile(context, baseAddress)
+            // TODO: Maybe change this - using this for now to allow invalid pointers
+            var file = new GBAMemoryMappedFile(context, baseAddress)
             {
                 filePath = path,
                 Endianness = BinaryFile.Endian.Big

@@ -73,7 +73,7 @@
 
                 Jag_Byte05 = s.Serialize<byte>(Jag_Byte05, name: nameof(Jag_Byte05));
                 Jag_Ushort06 = s.Serialize<ushort>(Jag_Ushort06, name: nameof(Jag_Ushort06));
-                OuterHeight = (ushort)(Jag_Ushort06 << 6);
+                OuterHeight = (ushort)(Jag_Ushort06 >> 6);
                 Jag_Ushort08 = s.Serialize<ushort>(Jag_Ushort08, name: nameof(Jag_Ushort08));
                 OuterWidth = s.Serialize<byte>((byte)OuterWidth, name: nameof(OuterWidth));
 
