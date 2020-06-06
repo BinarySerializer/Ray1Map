@@ -5,29 +5,29 @@
     /// </summary>
     public class Jaguar_R1_DESData : R1Serializable
     {
-        public ushort UShort_00;
-        public Pointer Pointer_02;
-        public ushort UShort_06;
+        public ushort UShort_00 { get; set; }
+        public Pointer Pointer_02 { get; set; }
+        public ushort UShort_06 { get; set; }
 
         // Sometimes a pointer, sometimes not. Why? Until we figure it out, serialize all pointers as uints
-        public Pointer Pointer_08;
-        public Pointer Pointer_0C;
-        public Pointer Pointer_10;
+        public Pointer Pointer_08 { get; set; }
+        public Pointer Pointer_0C { get; set; }
+        public Pointer Pointer_10 { get; set; }
 
         // Pointer to image descriptors
-        public Pointer Pointer_14;
+        public Pointer Pointer_14 { get; set; }
 
-        public uint UInt_08;
-        public uint UInt_0C;
-        public uint UInt_10;
-        public uint UInt_14;
+        public uint UInt_08 { get; set; }
+        public uint UInt_0C { get; set; }
+        public uint UInt_10 { get; set; }
+        public uint UInt_14 { get; set; }
 
-        public uint UInt_18;
-        public uint UInt_1C;
-        public ushort UShort_20;
-        public uint UInt_22;
-        public Pointer Pointer_22;
-        public ushort UShort_26;
+        public uint UInt_18 { get; set; }
+        public uint UInt_1C { get; set; }
+        public ushort UShort_20 { get; set; }
+        public uint UInt_22 { get; set; }
+        public Pointer Pointer_22 { get; set; }
+        public ushort UShort_26 { get; set; }
 
         /// <summary>
         /// Handles the data serialization

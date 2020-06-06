@@ -119,6 +119,7 @@ namespace R1Engine
                 new GameAction("Extract Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Extract Compressed Data", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, false)),
                 new GameAction("Extract Compressed Data (888)", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, true)),
+                new GameAction("Convert Music to MIDI", false, true, (input, output) => ConvertMusicAsync(settings, output)),
             };
         }
 
@@ -235,6 +236,28 @@ namespace R1Engine
                             // Go back three steps
                             s.Goto(s.CurrentPointer - 3);
                         }
+                    }
+                });
+            }
+        }
+
+        public async Task ConvertMusicAsync(GameSettings settings, string outputPath) {
+            // Create a context
+            using (var context = new Context(settings)) {
+                // Get a deserializer
+                var s = context.Deserializer;
+
+                // Add the file
+                var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+                var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.GameModeSelection, file);
+                s.DoAt(pointerTable[Jaguar_R1_Pointer.Music], () => {
+                    // Read the music table
+                    Jaguar_R1_MusicTableEntry[] MusicTable = s.SerializeObjectArray<Jaguar_R1_MusicTableEntry>(null, 0x20, name: nameof(MusicTable));
+                    // Immediately after this: pointer to sample buffer?
+
+                    // For each entry
+                    for (int i = 0; i < MusicTable.Length; i++) {
+                        // TODO: Find a way to write midi files, then experiment
                     }
                 });
             }
