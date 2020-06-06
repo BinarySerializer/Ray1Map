@@ -148,7 +148,7 @@ namespace R1Engine
                 // Get the deserializer
                 var s = context.Deserializer;
 
-                // TODO: Export big ray and breakout - from seventh world?
+                // TODO: Export big ray and font - from seventh world?
 
                 // Get allfix sprite commands
                 var allfixCmds = rom.FixSpritesLoadCommands.Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).ToArray();
@@ -180,6 +180,7 @@ namespace R1Engine
                     worldCmds.AddRange(rom.WorldSpritesLoadCommands[worldIndex].Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites));
                     worldPal.AddRange(Enumerable.Repeat(palettes.First(), worldCmds.Count));
 
+                    // TODO: Some sprites still get duplicated - why?
                     // Keep track of all level image buffers we have exported
                     var pointers = new List<Pointer>();
 
@@ -187,7 +188,7 @@ namespace R1Engine
                     // Enumerate every level
                     for (int lvl = 0; lvl < lvlCmds.Length; lvl++)
                     {
-                        foreach (var c in lvlCmds[lvl]?.Commands?.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).Where(x => !pointers.Contains(x.ImageBufferPointer)) ?? new Jaguar_R1_LevelLoadCommand[0])
+                        foreach (var c in lvlCmds[lvl]?.Commands?.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).Where(x => pointers.All(y => y != x.ImageBufferPointer)) ?? new Jaguar_R1_LevelLoadCommand[0])
                         {
                             worldCmds.Add(c);
                             worldPal.Add(palettes[lvl]);
@@ -248,8 +249,9 @@ namespace R1Engine
                                         {
                                             var index = y * tex.width + x;
                                             index += (int)d.ImageBufferOffset;
+                                            var palIndex = imgBuffer[index];
 
-                                            tex.SetPixel(x, tex.height - y - 1, pal[imgBuffer[index]].GetColor());
+                                            tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[palIndex].GetColor());
                                         }
                                     }
 
