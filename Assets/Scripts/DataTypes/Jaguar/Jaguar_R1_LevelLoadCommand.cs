@@ -7,22 +7,22 @@ namespace R1Engine
     /// </summary>
     public class Jaguar_R1_LevelLoadCommand : R1Serializable
     {
-        public LevelLoadCommandType Type;
+        public LevelLoadCommandType Type { get; set; }
 
         // Arguments
-        public uint UInt1;
-        public uint UInt2;
-        public short Short1;
-        public short Short2;
-        public short Short3;
-        public Pointer PalettePointer;
-        public Pointer ImageBufferPointer; // Compressed
-        public uint ImageBufferMemoryPointer; // Uncompressed data is loaded to this location
-        public uint DESDataMemoryPointer; // full DES array is copied to 0x001F9000. These pointers point to an offset in that array. Maybe it's not all DES data?
-        public Pointer LevelMapBlockPointer;
-        public Pointer LevelMysteriousDataPointer;
-        public uint ImageBufferMemoryPointerPointer; // The address of the image buffer in memory is writtento this location. Is referenced in the DES data.
-        public uint TargetImageBufferMemoryPointer;
+        public uint UInt1 { get; set; }
+        public uint UInt2 { get; set; }
+        public short Short1 { get; set; }
+        public short Short2 { get; set; }
+        public short Short3 { get; set; }
+        public Pointer PalettePointer { get; set; }
+        public Pointer ImageBufferPointer { get; set; } // Compressed
+        public uint ImageBufferMemoryPointer { get; set; } // Uncompressed data is loaded to this location
+        public uint DESDataMemoryPointer { get; set; } // full DES array is copied to 0x001F9000. These pointers point to an offset in that array. Maybe it's not all DES data?
+        public Pointer LevelMapBlockPointer { get; set; }
+        public Pointer LevelMysteriousDataPointer { get; set; }
+        public uint ImageBufferMemoryPointerPointer { get; set; } // The address of the image buffer in memory is writtento this location. Is referenced in the DES data.
+        public uint TargetImageBufferMemoryPointer { get; set; }
 
         /// <summary>
         /// Handles the data serialization
