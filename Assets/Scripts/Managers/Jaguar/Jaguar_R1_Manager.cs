@@ -237,22 +237,37 @@ namespace R1Engine
                                         wrapMode = TextureWrapMode.Clamp
                                     };
 
+                                    bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
+
                                     // Set every pixel
                                     for (int y = 0; y < tex.height; y++)
                                     {
                                         for (int x = 0; x < tex.width; x++)
                                         {
                                             var index = y * tex.width + x;
-                                            index += (int)d.ImageBufferOffset;
-                                            var palIndex = imgBuffer[index];
 
-                                            tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[palIndex].GetColor());
+                                            var palIndex = 0;
+                                            if (is8Bit) {
+                                                palIndex = imgBuffer[d.ImageBufferOffset + index];
+                                                tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[palIndex].GetColor());
+                                            } else {
+                                                //int indexInPal = 0;
+                                                int indexInPal = BitHelpers.ExtractBits(d.Jag_Byte0A, 4, 1);
+                                                palIndex = imgBuffer[d.ImageBufferOffset + index / 2];
+                                                if (index % 2 == 0) {
+                                                    palIndex = BitHelpers.ExtractBits(palIndex, 4, 4);
+                                                } else {
+                                                    palIndex = BitHelpers.ExtractBits(palIndex, 4, 0);
+                                                }
+
+                                                tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[indexInPal * 16 + palIndex].GetColor());
+                                            }
                                         }
                                     }
 
                                     tex.Apply();
 
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {imgIndex}.png"), tex.EncodeToPNG());
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {imgIndex} - {string.Format("{0:X8}",d.Offset.FileOffset)}.png"), tex.EncodeToPNG());
                                 }
                                 catch (Exception ex)
                                 {

@@ -58,7 +58,9 @@
         public byte Jag_Byte05 { get; set; }
         public ushort Jag_Ushort06 { get; set; }
         public ushort Jag_Ushort08 { get; set; }
-        public byte[] Jag_Bytes0A { get; set; }
+        public byte Jag_Byte0A { get; set; }
+        public byte[] Jag_Bytes0B { get; set; }
+        public byte Jag_Byte0E { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -77,7 +79,9 @@
                 Jag_Ushort08 = s.Serialize<ushort>(Jag_Ushort08, name: nameof(Jag_Ushort08));
                 OuterWidth = s.Serialize<byte>((byte)OuterWidth, name: nameof(OuterWidth));
 
-                Jag_Bytes0A = s.SerializeArray<byte>(Jag_Bytes0A, 5, name: nameof(Jag_Bytes0A));
+                Jag_Byte0A = s.Serialize<byte>(Jag_Byte0A, name: nameof(Jag_Byte0A));
+                Jag_Bytes0B = s.SerializeArray<byte>(Jag_Bytes0B, 3, name: nameof(Jag_Bytes0B));
+                Jag_Byte0E = s.Serialize<byte>(Jag_Byte0E, name: nameof(Jag_Byte0E));
                 Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
             }
             else
