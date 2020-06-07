@@ -266,40 +266,28 @@ namespace R1Engine
                     // Serialize the length of the third unknown value
                     Unknown3Count = s.Serialize<uint>(Unknown3Count, name: nameof(Unknown3Count));
 
-                    // Begin calculating the rough texture checksum
-                    s.BeginCalculateChecksum(new Checksum8Calculator());
+                    RoughTexturesChecksum = s.DoChecksum(new Checksum8Calculator(), () =>
+                    {
+                        // TODO: Is this xor-encrypted with 0xFD?
+                        // Create the collection of rough textures if necessary
+                        if (RoughTextures == null)
+                            RoughTextures = new byte[RoughTexturesCount][];
 
-                    // TODO: Is this xor-encrypted with 0xFD?
-                    // Create the collection of rough textures if necessary
-                    if (RoughTextures == null)
-                        RoughTextures = new byte[RoughTexturesCount][];
-
-                    // Serialize each rough texture
-                    for (int i = 0; i < RoughTexturesCount; i++)
-                        RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], Settings.CellSize * Settings.CellSize, name:
-                            $"{nameof(RoughTextures)}[{i}]");
-
-                    // Get the checksum
-                    var c1 = s.EndCalculateChecksum<byte>();
-
-                    // Read & verify the checksum for the rough textures
-                    RoughTexturesChecksum = s.SerializeChecksum<byte>(c1, name: nameof(RoughTexturesChecksum));
+                        // Serialize each rough texture
+                        for (int i = 0; i < RoughTexturesCount; i++)
+                            RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], Settings.CellSize * Settings.CellSize, name:
+                                $"{nameof(RoughTextures)}[{i}]");
+                    }, ChecksumPlacement.After, name: nameof(RoughTexturesChecksum));
 
                     // Read the offset table for the rough textures
                     RoughTexturesOffsetTable = s.SerializeArray<uint>(RoughTexturesOffsetTable, 1200, name: nameof(RoughTexturesOffsetTable));
 
-                    // Begin calculating the unknown 3 checksum
-                    s.BeginCalculateChecksum(new Checksum8Calculator());
-
-                    // TODO: Is this xor-encrypted with 0xF3?
-                    // Serialize the items for the third unknown value
-                    Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: nameof(Unknown3));
-
-                    // Get the checksum
-                    var c2 = s.EndCalculateChecksum<byte>();
-
-                    // Serialize the checksum for the third unknown value
-                    Unknown3Checksum = s.SerializeChecksum<byte>(c2, name: nameof(Unknown3Checksum));
+                    Unknown3Checksum = s.DoChecksum(new Checksum8Calculator(), () =>
+                    {
+                        // TODO: Is this xor-encrypted with 0xF3?
+                        // Serialize the items for the third unknown value
+                        Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: nameof(Unknown3));
+                    }, ChecksumPlacement.After, name: nameof(Unknown3Checksum));
 
                     // Read the offset table for the third unknown value
                     Unknown3OffsetTable = s.SerializeArray<uint>(Unknown3OffsetTable, 1200, name: nameof(Unknown3OffsetTable));
@@ -322,40 +310,29 @@ namespace R1Engine
             if (s.CurrentPointer != TextureBlockPointer)
                 Debug.LogError("Texture block offset is incorrect");
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
-                // TODO: Verify checksum
-                TextureBlockChecksum = s.Serialize<byte>(TextureBlockChecksum, name: nameof(TextureBlockChecksum));
-
-            s.DoXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 255), () =>
+            TextureBlockChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
-                // Read the offset table for the textures, based from the start of the tile texture arrays
-                TexturesOffsetTable = s.SerializePointerArray(TexturesOffsetTable, 1200, s.CurrentPointer + 1200 * 4 + 3 * 4, name: nameof(TexturesOffsetTable));
+                s.DoXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 255), () =>
+                {
+                    // Read the offset table for the textures, based from the start of the tile texture arrays
+                    TexturesOffsetTable = s.SerializePointerArray(TexturesOffsetTable, 1200, s.CurrentPointer + 1200 * 4 + 3 * 4, name: nameof(TexturesOffsetTable));
 
-                // Read the textures count
-                TexturesCount = s.Serialize<uint>(TexturesCount, name: nameof(TexturesCount));
-                NonTransparentTexturesCount = s.Serialize<uint>(NonTransparentTexturesCount, name: nameof(NonTransparentTexturesCount));
-                TexturesDataTableCount = s.Serialize<uint>(TexturesDataTableCount, name: nameof(TexturesDataTableCount));
-            });
+                    // Read the textures count
+                    TexturesCount = s.Serialize<uint>(TexturesCount, name: nameof(TexturesCount));
+                    NonTransparentTexturesCount = s.Serialize<uint>(NonTransparentTexturesCount, name: nameof(NonTransparentTexturesCount));
+                    TexturesDataTableCount = s.Serialize<uint>(TexturesDataTableCount, name: nameof(TexturesDataTableCount));
+                });
 
-            // Begin calculating the texture checksum
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
-                s.BeginCalculateChecksum(new Checksum8Calculator());
+                TexturesChecksum = s.DoChecksum(new Checksum8Calculator(), () =>
+                {
+                    // Serialize the textures
+                    NonTransparentTextures = s.SerializeObjectArray<PC_TileTexture>(NonTransparentTextures, NonTransparentTexturesCount, name: nameof(NonTransparentTextures));
+                    TransparentTextures = s.SerializeObjectArray<PC_TransparentTileTexture>(TransparentTextures, TexturesCount - NonTransparentTexturesCount, name: nameof(TransparentTextures));
 
-            // Serialize the textures
-            NonTransparentTextures = s.SerializeObjectArray<PC_TileTexture>(NonTransparentTextures, NonTransparentTexturesCount, name: nameof(NonTransparentTextures));
-            TransparentTextures = s.SerializeObjectArray<PC_TransparentTileTexture>(TransparentTextures, TexturesCount - NonTransparentTexturesCount, name: nameof(TransparentTextures));
-
-            // Serialize the fourth unknown value
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 32, name: nameof(Unknown4));
-
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
-            {
-                // Get the checksum
-                var c = s.EndCalculateChecksum<byte>();
-
-                // Serialize the checksum for the textures
-                TexturesChecksum = s.SerializeChecksum<byte>(c, name: nameof(TexturesChecksum));
-            }
+                    // Serialize the fourth unknown value
+                    Unknown4 = s.SerializeArray<byte>(Unknown4, 32, name: nameof(Unknown4));
+                }, ChecksumPlacement.After, calculateChecksum: s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC, name: nameof(TexturesChecksum));
+            }, ChecksumPlacement.Before, calculateChecksum: s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC, name: nameof(TextureBlockChecksum));
 
             // EVENT BLOCK
 
@@ -363,41 +340,40 @@ namespace R1Engine
             if (s.GameSettings.EngineVersion != EngineVersion.RayPocketPC && s.CurrentPointer != EventBlockPointer)
                 Debug.LogError("Event block offset is incorrect");
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
-                // TODO: Verify checksum
-                EventBlockChecksum = s.Serialize<byte>(EventBlockChecksum, name: nameof(EventBlockChecksum));
-
-            // Set the xor key to use for the event block
-            s.DoXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 145), () =>
+            EventBlockChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
-                // Serialize the event count
-                EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
+                // Set the xor key to use for the event block
+                s.DoXOR((byte)(s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? 0 : 145), () =>
+                {
+                    // Serialize the event count
+                    EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
 
-                // Serialize the event linking table
-                EventLinkingTable = s.SerializeArray<ushort>(EventLinkingTable, EventCount, name: nameof(EventLinkingTable));
+                    // Serialize the event linking table
+                    EventLinkingTable = s.SerializeArray<ushort>(EventLinkingTable, EventCount, name: nameof(EventLinkingTable));
 
-                // Serialize the events
-                Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
+                    // Serialize the events
+                    Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
 
-                // Serialize the event commands
-                EventCommands = s.SerializeObjectArray<PC_EventCommand>(EventCommands, EventCount, name: nameof(EventCommands));
-            });
+                    // Serialize the event commands
+                    EventCommands = s.SerializeObjectArray<PC_EventCommand>(EventCommands, EventCount, name: nameof(EventCommands));
+                });
+            }, ChecksumPlacement.Before, calculateChecksum: s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC, name: nameof(EventBlockChecksum));
 
             // FOOTER BLOCK
 
             if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanByHisFansPC || s.GameSettings.GameModeSelection == GameModeSelection.Rayman60LevelsPC)
             {
-                // TODO: Verify checksum
-                KitFooterBlockChecksum = s.Serialize<byte>(KitFooterBlockChecksum, name: nameof(KitFooterBlockChecksum));
-
-                s.DoXOR(0x96, () =>
+                KitFooterBlockChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
                 {
-                    LevelName = s.SerializeString(LevelName, 25, name: nameof(LevelName));
-                    LevelAuthor = s.SerializeString(LevelAuthor, 25, name: nameof(LevelAuthor));
-                    LevelDescription = s.SerializeString(LevelDescription, 113, name: nameof(LevelDescription));
+                    s.DoXOR(0x96, () =>
+                    {
+                        LevelName = s.SerializeString(LevelName, 25, name: nameof(LevelName));
+                        LevelAuthor = s.SerializeString(LevelAuthor, 25, name: nameof(LevelAuthor));
+                        LevelDescription = s.SerializeString(LevelDescription, 113, name: nameof(LevelDescription));
 
-                    UnkKitProperties = s.SerializeArray<byte>(UnkKitProperties, 133, name: nameof(UnkKitProperties));
-                });
+                        UnkKitProperties = s.SerializeArray<byte>(UnkKitProperties, 133, name: nameof(UnkKitProperties));
+                    });
+                }, ChecksumPlacement.Before, name: nameof(KitFooterBlockChecksum));
             }
         }
 
