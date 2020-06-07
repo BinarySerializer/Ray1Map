@@ -16,56 +16,56 @@ namespace R1Engine {
         public override void Write(Int32 value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(Int16 value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(UInt32 value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(UInt16 value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(Int64 value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(UInt64 value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(Single value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(Double value) {
             var data = BitConverter.GetBytes(value);
             if (isLittleEndian != BitConverter.IsLittleEndian) Array.Reverse(data);
-            base.Write(data);
+            Write(data);
         }
 
         public void WriteNullDelimitedString(string value, Encoding encoding = null) {
             if (encoding == null)
                 encoding = Settings.StringEncoding;
             byte[] data = encoding.GetBytes(value + '\0');
-            base.Write(data);
+            Write(data);
         }
 
         public void WriteString(string value, decimal size, Encoding encoding = null) {
@@ -75,7 +75,7 @@ namespace R1Engine {
             if (data.Length != size) {
                 Array.Resize(ref data, (int)size);
             }
-            base.Write(data);
+            Write(data);
         }
 
         public override void Write(byte[] buffer) {
