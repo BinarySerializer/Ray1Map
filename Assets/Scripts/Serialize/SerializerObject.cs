@@ -121,20 +121,24 @@ namespace R1Engine
             EndXOR();
         }
 
-        public T DoChecksum<T>(IChecksumCalculator<T> c, Action action, ChecksumPlacement placement, string name = null)
+        public T DoChecksum<T>(IChecksumCalculator<T> c, Action action, ChecksumPlacement placement, bool calculateChecksum = true, string name = null)
         {
             // Get the current pointer
             var p = CurrentPointer;
 
             // Skip the length of the checksum value if it's before the data
-            if (placement == ChecksumPlacement.Before)
+            if (calculateChecksum && placement == ChecksumPlacement.Before)
                 Goto(CurrentPointer + Marshal.SizeOf<T>());
 
             // Begin calculating the checksum
-            BeginCalculateChecksum(c);
+            if (calculateChecksum)
+                BeginCalculateChecksum(c);
 
             // Serialize the block data
             action();
+
+            if (!calculateChecksum)
+                return default;
 
             // End calculating the checksum
             var v = EndCalculateChecksum<T>();
@@ -147,9 +151,19 @@ namespace R1Engine
         }
     }
 
+    /// <summary>
+    /// The placement for a checksum
+    /// </summary>
     public enum ChecksumPlacement
     {
+        /// <summary>
+        /// Before the data block
+        /// </summary>
         Before,
+
+        /// <summary>
+        /// After the data block
+        /// </summary>
         After
     }
 }
