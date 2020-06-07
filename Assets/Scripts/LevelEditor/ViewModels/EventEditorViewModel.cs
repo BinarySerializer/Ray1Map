@@ -58,6 +58,13 @@ namespace R1Engine
             get => _selectedEvent;
             set
             {
+                // Reset values if the selected event is being changed without it first being set to null
+                if (value != null && _selectedEvent != null)
+                {
+                    _selectedEvent = null;
+                    Refresh();
+                }
+
                 _selectedEvent = value;
                 Refresh();
             }

@@ -58,8 +58,12 @@
         public byte Jag_Byte05 { get; set; }
         public ushort Jag_Ushort06 { get; set; }
         public ushort Jag_Ushort08 { get; set; }
+
+        // Four bits from offset 1 are palette offset for 4-bit sprites
         public byte Jag_Byte0A { get; set; }
         public byte[] Jag_Bytes0B { get; set; }
+
+        // Flags - bit 4 indicates if it's 8-bit (otherwise 4-bit)
         public byte Jag_Byte0E { get; set; }
 
         /// <summary>

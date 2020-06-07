@@ -165,7 +165,7 @@ namespace R1Engine
                     // Get the level load commands
                     var lvlCmds = rom.MapDataLoadCommands[worldIndex];
 
-                    // TODO: Why do some Cave maps not have palettes or cmds?
+                    // TODO: Why does Cave 3 not have palettes or cmds?
                     // Get palettes for the levels
                     var palettes = lvlCmds.
                         Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)?.PalettePointer).
@@ -224,55 +224,19 @@ namespace R1Engine
                         // Export every sprite
                         foreach (var d in des.ImageDescriptors)
                         {
-                            // Make sure the sprite is valid
-                            if (d.Index != 0x00 && d.Index != 0xFF)
+                            // TODO: Remove the try/catch once we fix the width!
+                            try
                             {
-                                // TODO: Remove the try/catch once we fix the width!
-                                try
-                                {
-                                    // Create a texture
-                                    var tex = new Texture2D(d.OuterWidth, d.OuterHeight)
-                                    {
-                                        filterMode = FilterMode.Point,
-                                        wrapMode = TextureWrapMode.Clamp
-                                    };
+                                // Get the texture
+                                var tex = GetSpriteTexture(d, pal, imgBuffer);
 
-                                    bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
-
-                                    // Set every pixel
-                                    for (int y = 0; y < tex.height; y++)
-                                    {
-                                        for (int x = 0; x < tex.width; x++)
-                                        {
-                                            var index = y * tex.width + x;
-
-                                            var palIndex = 0;
-                                            if (is8Bit) {
-                                                palIndex = imgBuffer[d.ImageBufferOffset + index];
-                                                tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[palIndex].GetColor());
-                                            } else {
-                                                //int indexInPal = 0;
-                                                int indexInPal = BitHelpers.ExtractBits(d.Jag_Byte0A, 4, 1);
-                                                palIndex = imgBuffer[d.ImageBufferOffset + index / 2];
-                                                if (index % 2 == 0) {
-                                                    palIndex = BitHelpers.ExtractBits(palIndex, 4, 4);
-                                                } else {
-                                                    palIndex = BitHelpers.ExtractBits(palIndex, 4, 0);
-                                                }
-
-                                                tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[indexInPal * 16 + palIndex].GetColor());
-                                            }
-                                        }
-                                    }
-
-                                    tex.Apply();
-
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {string.Format("{0:X8}", cmd.ImageBufferMemoryPointerPointer)} - {imgIndex} - {string.Format("{0:X8}",d.Offset.FileOffset)}.png"), tex.EncodeToPNG());
-                                }
-                                catch (Exception ex)
-                                {
-                                    Debug.LogWarning(ex.Message);
-                                }
+                                // Export if not null
+                                if (tex != null)
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {imgIndex} - 0x{d.Offset.FileOffset:X8}.png"), tex.EncodeToPNG());
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogWarning(ex.Message);
                             }
 
                             imgIndex++;
@@ -283,6 +247,58 @@ namespace R1Engine
                     await Resources.UnloadUnusedAssets();
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the texture for a sprite
+        /// </summary>
+        /// <param name="d">The image descriptor</param>
+        /// <param name="pal">The palette</param>
+        /// <param name="imgBuffer">The image buffer</param>
+        /// <returns>The sprite texture</returns>
+        public Texture2D GetSpriteTexture(Common_ImageDescriptor d, ARGBColor[] pal, byte[] imgBuffer)
+        {
+            // Make sure the sprite is valid
+            if (d.Index == 0x00 || d.Index == 0xFF)
+                return null;
+
+            // Create a texture
+            var tex = new Texture2D(d.OuterWidth, d.OuterHeight)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
+
+            // Set every pixel
+            for (int y = 0; y < tex.height; y++)
+            {
+                for (int x = 0; x < tex.width; x++)
+                {
+                    var index = y * tex.width + x;
+
+                    int palIndex;
+                    if (is8Bit)
+                    {
+                        palIndex = imgBuffer[d.ImageBufferOffset + index];
+
+                        tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[palIndex].GetColor());
+                    }
+                    else
+                    {
+                        int indexInPal = BitHelpers.ExtractBits(d.Jag_Byte0A, 4, 1);
+                        palIndex = imgBuffer[d.ImageBufferOffset + index / 2];
+                        palIndex = BitHelpers.ExtractBits(palIndex, 4, index % 2 == 0 ? 4 : 0);
+
+                        tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[indexInPal * 16 + palIndex].GetColor());
+                    }
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
         }
 
         /// <summary>
@@ -422,7 +438,7 @@ namespace R1Engine
                     for (int i = 0; i < MusicTable.Length; i++) {
                         w.Write(MusicTable[i],
                             Path.Combine(outputPath,
-                            $"Track{i}_{string.Format("{0:X8}",MusicTable[i].MusicDataPointer.AbsoluteOffset)}.mid"));
+                            $"Track{i}_{MusicTable[i].MusicDataPointer.AbsoluteOffset:X8}.mid"));
                     }
                 });
             }
@@ -434,7 +450,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public virtual Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Read the rom
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
@@ -464,7 +480,7 @@ namespace R1Engine
                 EventData = new List<Common_EventData>(),
             };
 
-            // Load tile set
+            // Load tile set and treat black as transparent
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
 
             // Enumerate each cell
@@ -478,7 +494,9 @@ namespace R1Engine
                     // Set the common tile
                     commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile()
                     {
+                        // We need to ignore some bits since it's sometimes set when the tile index should be 0
                         TileSetGraphicIndex = cell.TileMapX & 0x7FF,
+
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,
                         XPosition = cellX,
@@ -487,9 +505,9 @@ namespace R1Engine
                 }
             }
 
-            return new PS1EditorManager(commonLev, context, 
+            return Task.FromResult<BaseEditorManager>(new PS1EditorManager(commonLev, context,
                 // TODO: Load graphics and ETA
-                new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>());
+                new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>()));
         }
 
         /// <summary>

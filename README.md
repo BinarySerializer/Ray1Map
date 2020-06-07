@@ -122,7 +122,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -130,7 +130,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -146,7 +146,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -154,7 +154,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -162,7 +162,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -178,7 +178,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>

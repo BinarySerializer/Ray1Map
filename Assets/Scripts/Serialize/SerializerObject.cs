@@ -1,5 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace R1Engine
@@ -119,5 +120,50 @@ namespace R1Engine
             action();
             EndXOR();
         }
+
+        public T DoChecksum<T>(IChecksumCalculator<T> c, Action action, ChecksumPlacement placement, bool calculateChecksum = true, string name = null)
+        {
+            // Get the current pointer
+            var p = CurrentPointer;
+
+            // Skip the length of the checksum value if it's before the data
+            if (calculateChecksum && placement == ChecksumPlacement.Before)
+                Goto(CurrentPointer + Marshal.SizeOf<T>());
+
+            // Begin calculating the checksum
+            if (calculateChecksum)
+                BeginCalculateChecksum(c);
+
+            // Serialize the block data
+            action();
+
+            if (!calculateChecksum)
+                return default;
+
+            // End calculating the checksum
+            var v = EndCalculateChecksum<T>();
+
+            // Serialize the checksum
+            if (placement == ChecksumPlacement.Before)
+                return DoAt(p, () => SerializeChecksum(v, name));
+            else
+                return SerializeChecksum(v, name);
+        }
+    }
+
+    /// <summary>
+    /// The placement for a checksum
+    /// </summary>
+    public enum ChecksumPlacement
+    {
+        /// <summary>
+        /// Before the data block
+        /// </summary>
+        Before,
+
+        /// <summary>
+        /// After the data block
+        /// </summary>
+        After
     }
 }

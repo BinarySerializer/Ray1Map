@@ -17,6 +17,11 @@
     public interface IChecksumCalculator
     {
         /// <summary>
+        /// Indicates if the checksum should be calculated for the decrypted data. This is ignored if the data is not encrypted.
+        /// </summary>
+        bool CalculateForDecryptedData { get; }
+
+        /// <summary>
         /// Adds a byte to the checksum
         /// </summary>
         /// <param name="b">The byte to add</param>
