@@ -3,7 +3,7 @@
     /// <summary>
     /// Music data for Rayman 1 (Jaguar)
     /// </summary>
-    public class Jaguar_R1_MusicFileEntry : R1Serializable
+    public class Jaguar_R1_MusicData : R1Serializable
     {
         public int Time { get; set; } // Time in milliseconds
         public int Command { get; set; }

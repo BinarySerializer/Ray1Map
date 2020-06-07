@@ -267,7 +267,7 @@ namespace R1Engine
 
                                     tex.Apply();
 
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {imgIndex} - {string.Format("{0:X8}",d.Offset.FileOffset)}.png"), tex.EncodeToPNG());
+                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {string.Format("{0:X8}", cmd.ImageBufferMemoryPointerPointer)} - {imgIndex} - {string.Format("{0:X8}",d.Offset.FileOffset)}.png"), tex.EncodeToPNG());
                                 }
                                 catch (Exception ex)
                                 {
@@ -414,13 +414,13 @@ namespace R1Engine
                 var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.GameModeSelection, file);
                 s.DoAt(pointerTable[Jaguar_R1_Pointer.Music], () => {
                     // Read the music table
-                    Jaguar_R1_MusicTableEntry[] MusicTable = s.SerializeObjectArray<Jaguar_R1_MusicTableEntry>(null, 0x20, name: nameof(MusicTable));
+                    Jaguar_R1_MusicDescriptor[] MusicTable = s.SerializeObjectArray<Jaguar_R1_MusicDescriptor>(null, 0x20, name: nameof(MusicTable));
                     // Immediately after this: pointer to sample buffer?
 
                     // For each entry
                     MidiWriter w = new MidiWriter();
                     for (int i = 0; i < MusicTable.Length; i++) {
-                        w.Write(MusicTable[i].MusicFile,
+                        w.Write(MusicTable[i],
                             Path.Combine(outputPath,
                             $"Track{i}_{string.Format("{0:X8}",MusicTable[i].MusicDataPointer.AbsoluteOffset)}.mid"));
                     }

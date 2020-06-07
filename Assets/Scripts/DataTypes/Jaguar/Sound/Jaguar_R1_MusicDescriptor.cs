@@ -3,7 +3,7 @@
     /// <summary>
     /// Music data for Rayman 1 (Jaguar)
     /// </summary>
-    public class Jaguar_R1_MusicTableEntry : R1Serializable
+    public class Jaguar_R1_MusicDescriptor : R1Serializable
     {
         public Pointer MusicDataPointer { get; set; }
         public ushort UShort_04 { get; set; }
@@ -11,7 +11,7 @@
         public byte[] Unk { get; set; }
 
         // Parsed
-        public Jaguar_R1_MusicFile MusicFile { get; set; }
+        public Jaguar_R1_MusicData[] MusicData { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -25,7 +25,7 @@
 
             s.DoAt(MusicDataPointer, () => {
                 s.DoEncoded(new RNCEncoder(), () => {
-                    MusicFile = s.SerializeObject<Jaguar_R1_MusicFile>(MusicFile, name: nameof(MusicFile));
+                    MusicData = s.SerializeObjectArray(MusicData, s.CurrentLength / 0x8, name: nameof(MusicData));
                 });
             });
         }
