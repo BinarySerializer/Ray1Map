@@ -18,7 +18,7 @@ namespace R1Engine {
 		private Track CreateTrack(Jaguar_R1_MusicFile jagFile) {
 			Track t = new Track();
 			TempoChangeBuilder b = new TempoChangeBuilder();
-			b.Tempo = 22500;
+			b.Tempo = 22000;
 			b.Build();
 			t.Insert(0, b.Result);
 			ChannelMessageBuilder builder = new ChannelMessageBuilder();
@@ -41,12 +41,13 @@ namespace R1Engine {
 						int command = BitHelpers.ExtractBits(e.Command, 1, 31);
 						if (command == 1) {
 							builder.Command = ChannelCommand.NoteOn;
+							int instrument = BitHelpers.ExtractBits(e.Command, 4, 21);
 							int freq = BitHelpers.ExtractBits(e.Command, 13, 8);
-							int vel = BitHelpers.ExtractBits(e.Command, 8, 0);
-							builder.Data1 = GetMidiPitch(freq, 699f);
+							int vel = BitHelpers.ExtractBits(e.Command, 7, 0);
+							builder.Data1 = GetMidiPitch(freq, 349f);
 							//builder.Data2 = UnityEngine.Mathf.RoundToInt(127f * (vel / 7f));
-							float velf = ((vel + 1) / 256f); // hack
-							builder.Data2 = Mathf.RoundToInt((0.75f + velf / 4f) * 127f);
+							float velf = ((vel + 1) / 128f); // hack
+							builder.Data2 = Mathf.RoundToInt(velf * 127f);
 							//builder.Data2 = 127;
 						} else {
 							builder.Command = ChannelCommand.NoteOff;
