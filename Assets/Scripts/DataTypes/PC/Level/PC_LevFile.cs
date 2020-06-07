@@ -266,27 +266,28 @@ namespace R1Engine
                     // Serialize the length of the third unknown value
                     Unknown3Count = s.Serialize<uint>(Unknown3Count, name: nameof(Unknown3Count));
 
-                    RoughTexturesChecksum = s.DoChecksum(new Checksum8Calculator(), () =>
+                    RoughTexturesChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
                     {
-                        // TODO: Is this xor-encrypted with 0xFD?
-                        // Create the collection of rough textures if necessary
-                        if (RoughTextures == null)
-                            RoughTextures = new byte[RoughTexturesCount][];
+                        s.DoXOR(0x7D, () =>
+                        {
+                            // Create the collection of rough textures if necessary
+                            if (RoughTextures == null)
+                                RoughTextures = new byte[RoughTexturesCount][];
 
-                        // Serialize each rough texture
-                        for (int i = 0; i < RoughTexturesCount; i++)
-                            RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], Settings.CellSize * Settings.CellSize, name:
-                                $"{nameof(RoughTextures)}[{i}]");
+                            // Serialize each rough texture
+                            for (int i = 0; i < RoughTexturesCount; i++)
+                                RoughTextures[i] = s.SerializeArray<byte>(RoughTextures[i], Settings.CellSize * Settings.CellSize, name:
+                                    $"{nameof(RoughTextures)}[{i}]");
+                        });
                     }, ChecksumPlacement.After, name: nameof(RoughTexturesChecksum));
 
                     // Read the offset table for the rough textures
                     RoughTexturesOffsetTable = s.SerializeArray<uint>(RoughTexturesOffsetTable, 1200, name: nameof(RoughTexturesOffsetTable));
 
-                    Unknown3Checksum = s.DoChecksum(new Checksum8Calculator(), () =>
+                    Unknown3Checksum = s.DoChecksum(new Checksum8Calculator(false), () =>
                     {
-                        // TODO: Is this xor-encrypted with 0xF3?
                         // Serialize the items for the third unknown value
-                        Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: nameof(Unknown3));
+                        s.DoXOR(0xF3, () => Unknown3 = s.SerializeArray<byte>(Unknown3, Unknown3Count, name: nameof(Unknown3)));
                     }, ChecksumPlacement.After, name: nameof(Unknown3Checksum));
 
                     // Read the offset table for the third unknown value
