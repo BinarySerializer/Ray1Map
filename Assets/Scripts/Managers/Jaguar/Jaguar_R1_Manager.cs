@@ -418,8 +418,11 @@ namespace R1Engine
                     // Immediately after this: pointer to sample buffer?
 
                     // For each entry
+                    MidiWriter w = new MidiWriter();
                     for (int i = 0; i < MusicTable.Length; i++) {
-                        // TODO: Find a way to write midi files, then experiment
+                        w.Write(MusicTable[i].MusicFile,
+                            Path.Combine(outputPath,
+                            $"Track{i}_{string.Format("{0:X8}",MusicTable[i].MusicDataPointer.AbsoluteOffset)}.mid"));
                     }
                 });
             }
