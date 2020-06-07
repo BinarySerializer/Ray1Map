@@ -11,8 +11,8 @@ namespace R1Engine {
         bool autoAlignOn = false;
         byte? xorKey = null;
         IChecksumCalculator checksumCalculator = null;
-        public Reader(System.IO.Stream stream) : base(stream) { isLittleEndian = true; }
-        public Reader(System.IO.Stream stream, bool isLittleEndian) : base(stream) { this.isLittleEndian = isLittleEndian; }
+        public Reader(Stream stream) : base(stream) { isLittleEndian = true; }
+        public Reader(Stream stream, bool isLittleEndian) : base(stream) { this.isLittleEndian = isLittleEndian; }
         public bool AutoAligning {
             get { return autoAlignOn; }
             set { autoAlignOn = value; bytesSinceAlignStart = 0; }
@@ -62,39 +62,42 @@ namespace R1Engine {
 
 		public override byte[] ReadBytes(int count) {
             byte[] bytes = base.ReadBytes(count);
-            if(autoAlignOn) bytesSinceAlignStart += (uint)bytes.Length;
+            
+            if (autoAlignOn) 
+                bytesSinceAlignStart += (uint)bytes.Length;
+
+            if (checksumCalculator?.CalculateForDecryptedData == false)
+                checksumCalculator?.AddBytes(bytes);
+
             if (xorKey.HasValue) {
                 for (int i = 0; i < count; i++) {
                     bytes[i] = (byte)(bytes[i] ^ xorKey.Value);
                 }
             }
-            if (checksumCalculator != null) {
-                checksumCalculator.AddBytes(bytes);
-            }
+
+            if (checksumCalculator?.CalculateForDecryptedData == true)
+                checksumCalculator?.AddBytes(bytes);
+
             return bytes;
         }
 
-        public override sbyte ReadSByte() {
-            sbyte result = base.ReadSByte();
-            if (autoAlignOn) bytesSinceAlignStart++;
-            if (xorKey.HasValue) {
-                result = (sbyte)(result ^ xorKey.Value);
-            }
-            if (checksumCalculator != null) {
-                checksumCalculator.AddByte((byte)result);
-            }
-            return result;
-        }
+        public override sbyte ReadSByte() => (sbyte)ReadByte();
 
         public override byte ReadByte() {
             byte result = base.ReadByte();
-            if(autoAlignOn) bytesSinceAlignStart++;
-            if (xorKey.HasValue) {
+            
+            if (autoAlignOn)
+                bytesSinceAlignStart++;
+            
+            if (checksumCalculator?.CalculateForDecryptedData == false)
+                checksumCalculator?.AddByte(result);
+
+            if (xorKey.HasValue)
                 result = (byte)(result ^ xorKey.Value);
-            }
-            if (checksumCalculator != null) {
-                checksumCalculator.AddByte(result);
-            }
+
+            if (checksumCalculator?.CalculateForDecryptedData == true)
+                checksumCalculator?.AddByte(result);
+
             return result;
         }
 
@@ -161,7 +164,7 @@ namespace R1Engine {
             this.xorKey = xorKey;
         }
         public void EndXOR() {
-            this.xorKey = null;
+            xorKey = null;
         }
         public void BeginCalculateChecksum(IChecksumCalculator checksumCalculator) {
             this.checksumCalculator = checksumCalculator;

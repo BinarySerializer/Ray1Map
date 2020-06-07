@@ -5,13 +5,13 @@ using System.Text;
 namespace R1Engine {
     public class Writer : BinaryWriter {
         bool isLittleEndian = true;
-        byte? xorKey = null;
-        IChecksumCalculator checksumCalculator = null;
-        uint bytesSinceAlignStart = 0;
+        byte? xorKey;
+        IChecksumCalculator checksumCalculator;
+        uint bytesSinceAlignStart;
         bool autoAlignOn = false;
 
-        public Writer(System.IO.Stream stream) : base(stream) { isLittleEndian = true; }
-        public Writer(System.IO.Stream stream, bool isLittleEndian) : base(stream) { this.isLittleEndian = isLittleEndian; }
+        public Writer(Stream stream) : base(stream) { isLittleEndian = true; }
+        public Writer(Stream stream, bool isLittleEndian) : base(stream) { this.isLittleEndian = isLittleEndian; }
 
         public override void Write(Int32 value) {
             var data = BitConverter.GetBytes(value);
@@ -73,17 +73,20 @@ namespace R1Engine {
                 encoding = Settings.StringEncoding;
             byte[] data = encoding.GetBytes(value + '\0');
             if (data.Length != size) {
-                Array.Resize<byte>(ref data, (int)size);
+                Array.Resize(ref data, (int)size);
             }
             base.Write(data);
         }
 
         public override void Write(byte[] buffer) {
-            if (buffer == null) return;
+            if (buffer == null) 
+                return;
+            
             var data = buffer;
-            if (checksumCalculator != null) {
-                checksumCalculator.AddBytes(data);
-            }
+
+            if (checksumCalculator?.CalculateForDecryptedData == true)
+                checksumCalculator?.AddBytes(data);
+
             if (xorKey.HasValue) {
                 // Avoid changing data in array, so create a copy
                 data = new byte[buffer.Length];
@@ -92,33 +95,34 @@ namespace R1Engine {
                     data[i] = (byte)(data[i] ^ xorKey.Value);
                 }
             }
+
+            if (checksumCalculator?.CalculateForDecryptedData == false)
+                checksumCalculator?.AddBytes(data);
+
             base.Write(data);
-            if (autoAlignOn) bytesSinceAlignStart += (uint)data.Length;
+            
+            if (autoAlignOn) 
+                bytesSinceAlignStart += (uint)data.Length;
         }
 
         public override void Write(byte value) {
-            byte data = value;
-            if (checksumCalculator != null) {
-                checksumCalculator.AddByte(data);
-            }
-            if (xorKey.HasValue) {
-                data = (byte)(data ^ xorKey.Value);
-            }
-            base.Write(data);
-            if (autoAlignOn) bytesSinceAlignStart++;
+
+            if (checksumCalculator?.CalculateForDecryptedData == true)
+                checksumCalculator?.AddByte(value);
+
+            if (xorKey.HasValue)
+                value = (byte)(value ^ xorKey.Value);
+
+            if (checksumCalculator?.CalculateForDecryptedData == false)
+                checksumCalculator?.AddByte(value);
+
+            base.Write(value);
+            
+            if (autoAlignOn) 
+                bytesSinceAlignStart++;
         }
 
-        public override void Write(sbyte value) {
-            sbyte data = value;
-            if (checksumCalculator != null) {
-                checksumCalculator.AddByte((byte)data);
-            }
-            if (xorKey.HasValue) {
-                data = (sbyte)(data ^ xorKey.Value);
-            }
-            base.Write(data);
-            if (autoAlignOn) bytesSinceAlignStart++;
-        }
+        public override void Write(sbyte value) => Write((byte)value);
 
         #region Alignment
         // To make sure position is a multiple of alignBytes
@@ -162,7 +166,7 @@ namespace R1Engine {
             this.xorKey = xorKey;
         }
         public void EndXOR() {
-            this.xorKey = null;
+            xorKey = null;
         }
         public void BeginCalculateChecksum(IChecksumCalculator checksumCalculator) {
             this.checksumCalculator = checksumCalculator;
