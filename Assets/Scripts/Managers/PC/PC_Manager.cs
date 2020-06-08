@@ -510,7 +510,7 @@ namespace R1Engine
             var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
 
             // Find the level with the correct palette
-            var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.Events.Any(y => y.DES == desIndex)) ?? levels.First();
+            var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.EventData.Events.Any(y => y.DES == desIndex)) ?? levels.First();
 
             // Enumerate each image
             for (int i = 0; i < desItem.ImageDescriptors.Length; i++)
@@ -523,7 +523,7 @@ namespace R1Engine
                     continue;
 
                 // Get the texture
-                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.ColorPalettes.First(), processedImageData);
+                Texture2D tex = GetSpriteTexture(imgDescriptor, palette ?? lvl.MapData.ColorPalettes.First(), processedImageData);
 
                 // Set the texture
                 output[i] = tex;
@@ -614,7 +614,7 @@ namespace R1Engine
                 if (worldFile.FileType != PC_WorldFile.Type.BigRay)
                 {
                     // Search level events
-                    foreach (var lvlEvent in levels.SelectMany(x => x.Events).Where(x => x.DES == desIndex))
+                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.DES == desIndex))
                         matchingStates.AddRange(eta[lvlEvent.ETA].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
 
                     // Search event info
@@ -1326,12 +1326,12 @@ namespace R1Engine
                     new Common_LevelMap()
                     {
                         // Set the dimensions
-                        Width = levelData.Width,
-                        Height = levelData.Height,
+                        Width = levelData.MapData.Width,
+                        Height = levelData.MapData.Height,
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
-                        Tiles = new Common_Tile[levelData.Width * levelData.Height]
+                        Tiles = new Common_Tile[levelData.MapData.Width * levelData.MapData.Height]
                     }
                 },
 
@@ -1340,7 +1340,7 @@ namespace R1Engine
             };
 
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.ColorPalettes.First()) : new Common_Design[0];
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.MapData.ColorPalettes.First()) : new Common_Design[0];
 
             // Read the world data
             var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
@@ -1352,7 +1352,7 @@ namespace R1Engine
 
             var index = 0;
 
-            foreach (PC_Event e in levelData.Events)
+            foreach (PC_Event e in levelData.EventData.Events)
             {
                 // Get the file keys
                 var desKey = desNames.Any() ? desNames[e.DES] : e.DES.ToString();
@@ -1376,9 +1376,9 @@ namespace R1Engine
                     Layer = e.Layer,
                     HitSprite = e.HitSprite,
                     FollowEnabled = e.FollowEnabled,
-                    LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
-                    CommandCollection = levelData.EventCommands[index].Commands,
-                    LinkIndex = levelData.EventLinkingTable[index],
+                    LabelOffsets = levelData.EventData.EventCommands[index].LabelOffsetTable,
+                    CommandCollection = levelData.EventData.EventCommands[index].Commands,
+                    LinkIndex = levelData.EventData.EventLinkingTable[index],
                     DebugText = $"Flags: {String.Join(", ", e.Flags.GetFlags())}{Environment.NewLine}"
                 });
 
@@ -1398,12 +1398,12 @@ namespace R1Engine
             commonLev.Maps[0].TileSet[2] = tileSets[2];
 
             // Enumerate each cell
-            for (int cellY = 0; cellY < levelData.Height; cellY++) 
+            for (int cellY = 0; cellY < levelData.MapData.Height; cellY++) 
             {
-                for (int cellX = 0; cellX < levelData.Width; cellX++) 
+                for (int cellX = 0; cellX < levelData.MapData.Width; cellX++) 
                 {
                     // Get the cell
-                    var cell = levelData.Tiles[cellY * levelData.Width + cellX];
+                    var cell = levelData.MapData.Tiles[cellY * levelData.MapData.Width + cellX];
 
                     // Get the texture index, default to 0 for fully transparent (no texture)
                     var textureIndex = 0;
@@ -1411,17 +1411,17 @@ namespace R1Engine
                     // Ignore if fully transparent
                     if (cell.TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent) {
                         // Get the offset for the texture
-                        var texOffset = levelData.TexturesOffsetTable[cell.TextureIndex];
+                        var texOffset = levelData.TileTextureData.TexturesOffsetTable[cell.TextureIndex];
 
                         // Get the texture
-                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TransparentTextures.FindItem(x => x.Offset == texOffset);
+                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.TileTextureData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TileTextureData.TransparentTextures.FindItem(x => x.Offset == texOffset);
 
                         // Get the index
-                        textureIndex = levelData.NonTransparentTextures.Concat(levelData.TransparentTextures).FindItemIndex(x => x == texture);
+                        textureIndex = levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).FindItemIndex(x => x == texture);
                     }
 
                     // Set the common tile
-                    commonLev.Maps[0].Tiles[cellY * levelData.Width + cellX] = new Common_Tile() 
+                    commonLev.Maps[0].Tiles[cellY * levelData.MapData.Width + cellX] = new Common_Tile() 
                     {
                         TileSetGraphicIndex = textureIndex,
                         CollisionType = cell.CollisionType,
@@ -1454,18 +1454,18 @@ namespace R1Engine
             // Create the output array
             var output = new Common_Tileset[]
             {
-                new Common_Tileset(new Tile[levData.TexturesCount]),
-                new Common_Tileset(new Tile[levData.TexturesCount]),
-                new Common_Tileset(new Tile[levData.TexturesCount])
+                new Common_Tileset(new Tile[levData.TileTextureData.TexturesCount]),
+                new Common_Tileset(new Tile[levData.TileTextureData.TexturesCount]),
+                new Common_Tileset(new Tile[levData.TileTextureData.TexturesCount])
             };
 
             // Keep track of the tile index
             int index = 0;
 
             // Enumerate every texture
-            foreach (var texture in levData.NonTransparentTextures.Concat(levData.TransparentTextures)) {
+            foreach (var texture in levData.TileTextureData.NonTransparentTextures.Concat(levData.TileTextureData.TransparentTextures)) {
                 // Enumerate every palette
-                for (int i = 0; i < levData.ColorPalettes.Length; i++) {
+                for (int i = 0; i < levData.MapData.ColorPalettes.Length; i++) {
                     // Create the texture to use for the tile
                     var tileTexture = new Texture2D(Settings.CellSize, Settings.CellSize, TextureFormat.RGBA32, false) {
                         filterMode = FilterMode.Point,
@@ -1479,7 +1479,7 @@ namespace R1Engine
                             var cellIndex = Settings.CellSize * y + x;
 
                             // Get the color from the current palette (or default to fully transparent if it's the first tile)
-                            var c = index == 0 ? new Color(0, 0, 0, 0) : levData.ColorPalettes[i][255 - texture.ColorIndexes[cellIndex]].GetColor();
+                            var c = index == 0 ? new Color(0, 0, 0, 0) : levData.MapData.ColorPalettes[i][255 - texture.ColorIndexes[cellIndex]].GetColor();
 
                             // If the texture is transparent, add the alpha channel
                             if (texture is PC_TransparentTileTexture tt)
@@ -1516,11 +1516,11 @@ namespace R1Engine
             var lvlData = context.GetMainFileObject<PC_LevFile>(lvlPath);
 
             // Update the tiles
-            for (int y = 0; y < lvlData.Height; y++) {
-                for (int x = 0; x < lvlData.Width; x++) {
+            for (int y = 0; y < lvlData.MapData.Height; y++) {
+                for (int x = 0; x < lvlData.MapData.Width; x++) {
                     // Get the tiles
-                    var tile = lvlData.Tiles[y * lvlData.Width + x];
-                    var commonTile = commonLevelData.Maps[0].Tiles[y * lvlData.Width + x];
+                    var tile = lvlData.MapData.Tiles[y * lvlData.MapData.Width + x];
+                    var commonTile = commonLevelData.Maps[0].Tiles[y * lvlData.MapData.Width + x];
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
@@ -1529,12 +1529,12 @@ namespace R1Engine
                         tile.TextureIndex = 0;
                         tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
-                    else if (commonTile.TileSetGraphicIndex < lvlData.NonTransparentTexturesCount) {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
+                    else if (commonTile.TileSetGraphicIndex < lvlData.TileTextureData.NonTransparentTexturesCount) {
+                        tile.TextureIndex = (ushort)lvlData.TileTextureData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TileTextureData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
                     }
                     else {
-                        tile.TextureIndex = (ushort)lvlData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.NonTransparentTexturesCount)].Offset);
+                        tile.TextureIndex = (ushort)lvlData.TileTextureData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TileTextureData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.TileTextureData.NonTransparentTexturesCount)].Offset);
                         tile.TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
                     }
                 }
@@ -1617,10 +1617,10 @@ namespace R1Engine
             }
 
             // Update event values
-            lvlData.EventCount = (ushort)events.Count;
-            lvlData.Events = events.ToArray();
-            lvlData.EventCommands = eventCommands.ToArray();
-            lvlData.EventLinkingTable = eventLinkingTable.ToArray();
+            lvlData.EventData.EventCount = (ushort)events.Count;
+            lvlData.EventData.Events = events.ToArray();
+            lvlData.EventData.EventCommands = eventCommands.ToArray();
+            lvlData.EventData.EventLinkingTable = eventLinkingTable.ToArray();
 
             // Save the file
             FileFactory.Write<PC_LevFile>(lvlPath, context);
