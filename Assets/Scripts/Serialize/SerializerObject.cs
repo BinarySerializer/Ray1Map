@@ -84,6 +84,8 @@ namespace R1Engine
         public abstract Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, string name = null) where T : R1Serializable, new();
 
         public abstract string SerializeString(string obj, decimal? length = null, Encoding encoding = null, string name = null);
+        public abstract string[] SerializeStringArray(string[] obj, decimal count, int length, Encoding encoding = null, string name = null);
+
         public abstract T[] SerializeArraySize<T, U>(T[] obj, string name = null) where U : struct;
 
         public virtual T SerializeFile<T>(string relativePath, T obj, Action<T> onPreSerialize = null, string name = null) where T : R1Serializable, new() {

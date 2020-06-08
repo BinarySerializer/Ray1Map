@@ -1,7 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -134,6 +133,22 @@ namespace R1Engine
                 Context.Log.Log(logString + "(string) " + (name ?? "<no name>") + ": " + t);
             }
             return t;
+        }
+
+        public override string[] SerializeStringArray(string[] obj, decimal count, int length, Encoding encoding = null, string name = null)
+        {
+            if (Settings.Log)
+            {
+                string logString = LogPrefix;
+                Context.Log.Log(logString + "(String[" + count + "]) " + (name ?? "<no name>"));
+            }
+            var buffer = new string[(int)count];
+
+            for (int i = 0; i < count; i++)
+                // Read the value
+                buffer[i] = SerializeString(default, length, encoding, name: name == null ? null : name + "[" + i + "]");
+
+            return buffer;
         }
 
         /// <summary>

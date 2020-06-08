@@ -119,6 +119,18 @@ namespace R1Engine
             return obj;
         }
 
+        public override string[] SerializeStringArray(string[] obj, decimal count, int length, Encoding encoding = null, string name = null)
+        {
+            if (Settings.Log)
+                Context.Log.Log(LogPrefix + "(String[" + count + "]) " + (name ?? "<no name>"));
+
+            for (int i = 0; i < count; i++)
+                // Read the value
+                SerializeString(obj[i], length, encoding, name: name == null ? null : name + "[" + i + "]");
+
+            return obj;
+        }
+
         /// <summary>
         /// Begins calculating byte checksum for all decrypted bytes read from the stream
         /// </summary>
