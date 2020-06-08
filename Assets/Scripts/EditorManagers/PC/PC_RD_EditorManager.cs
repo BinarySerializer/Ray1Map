@@ -20,16 +20,21 @@ namespace R1Engine
         /// <param name="designs">The common design</param>
         public PC_RD_EditorManager(Common_Lev level, Context context, PC_RD_Manager manager, IEnumerable<Common_Design> designs) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(designs.Select((x, i) => new
         {
-            FileName = manager.GetDESFileName(context, i, false),
+            FileName = manager.GetDESFileName(context, i),
             Item = x
         }).ToDictionary(x => x.FileName, x => x.Item)), new ReadOnlyDictionary<string, Common_EventState[][]>(manager.GetCurrentEventStates(context).Select((x, i) => new
         {
-            FileName = manager.GetETAFileName(context, i, false),
+            FileName = manager.GetETAFileName(context, i),
             Item = x
         }).ToDictionary(x => x.FileName, x => x.Item.States)))
         {
-            DESFileIndex = manager.GetDESNames(context, false);
-            ETAFileIndex = manager.GetETANames(context, false);
+            // Read the world data
+            var worldData = FileFactory.Read<PC_WorldFile>(manager.GetWorldFilePath(context.Settings), context,
+                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+
+            // Get file names if available
+            DESFileIndex = worldData.DESFileNames ?? new string[0];
+            ETAFileIndex = worldData.ETAFileNames ?? new string[0];
         }
 
         /// <summary>

@@ -17,9 +17,20 @@
         public byte BiosCheckSum { get; set; }
         public byte VideoBiosCheckSum { get; set; }
 
-        // Something related to the background PCX files
+        /// <summary>
+        /// The amount of referenced vignette PCX files
+        /// </summary>
         public byte Plan0NumPcxCount { get; set; }
+
+        /// <summary>
+        /// The referenced PCX files, indexed (Rayman 1 PC)
+        /// </summary>
         public byte[] Plan0NumPcx { get; set; }
+
+        /// <summary>
+        /// The referenced PCX files, names (RayKit, EDU etc.)
+        /// </summary>
+        public string[] Plan0NumPcxFiles { get; set; }
 
         /// <summary>
         /// The amount of DES items
@@ -36,8 +47,14 @@
         /// </summary>
         public PC_ETA[] Eta { get; set; }
 
-        // Includes file name manifest
-        public byte[] Unknown5 { get; set; }
+        public byte WorldDefineChecksum { get; set; }
+        
+        // What is this?
+        public byte[] WorldDefines { get; set; }
+        
+        public string[] DESFileNames { get; set; }
+
+        public string[] ETAFileNames { get; set; }
 
         #endregion
 
@@ -59,15 +76,15 @@
                 VideoBiosCheckSum = s.Serialize<byte>(VideoBiosCheckSum, name: nameof(VideoBiosCheckSum));
                 BiosCheckSum = s.Serialize<byte>(BiosCheckSum, name: nameof(BiosCheckSum));
 
-                // 0x19 for EDU?
-                s.BeginXOR(0x15);
-                Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC ? Plan0NumPcxCount : Plan0NumPcxCount * 8, name: nameof(Plan0NumPcx));
-                s.EndXOR();
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPC || s.GameSettings.EngineVersion == EngineVersion.RayPocketPC)
+                    s.DoXOR(0x15, () => Plan0NumPcx = s.SerializeArray<byte>(Plan0NumPcx, Plan0NumPcxCount, name: nameof(Plan0NumPcx)));
+                else
+                    s.DoXOR(0x19, () => Plan0NumPcxFiles = s.SerializeStringArray(Plan0NumPcxFiles, Plan0NumPcxCount, 8, name: nameof(Plan0NumPcxFiles)));
             }
 
             if (FileType == Type.World) {
-                SerializeSprites();
-                SerializeEta();
+                SerializeDES();
+                SerializeETA();
             }
             else if (FileType == Type.BigRay)
             {
@@ -76,25 +93,34 @@
                 DesItems = s.SerializeObjectArray<PC_DES>(DesItems, DesItemCount,
                     onPreSerialize: data => data.FileType = FileType, name: nameof(DesItems));
 
-                SerializeEta();
+                SerializeETA();
             }
             else
             {
-                SerializeEta();
-                SerializeSprites();
+                SerializeETA();
+                SerializeDES();
             }
 
-            Unknown5 = s.SerializeArray<byte>(Unknown5, s.CurrentLength - s.CurrentPointer.FileOffset, name: nameof(Unknown5));
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC && FileType == Type.World)
+            {
+                WorldDefineChecksum = s.DoChecksum(new Checksum8Calculator(), () =>
+                {
+                    WorldDefines = s.SerializeArray<byte>(WorldDefines, 26, name: nameof(WorldDefines));
+                }, ChecksumPlacement.Before, name: nameof(WorldDefineChecksum));
 
-            // Helper method for reading the eta
-            void SerializeEta()
+                DESFileNames = s.SerializeStringArray(DESFileNames, 100, 13, name: nameof(DESFileNames));
+                ETAFileNames = s.SerializeStringArray(ETAFileNames, 60, 13, name: nameof(ETAFileNames));
+            }
+
+            // Helper method for reading the ETA
+            void SerializeETA()
             {
                 Eta = s.SerializeArraySize<PC_ETA, byte>(Eta, name: nameof(Eta));
                 Eta = s.SerializeObjectArray<PC_ETA>(Eta, Eta.Length, name: nameof(Eta));
             }
 
-            // Helper method for reading the sprites
-            void SerializeSprites()
+            // Helper method for reading the DES
+            void SerializeDES()
             {
                 // Serialize sprites
                 DesItemCount = s.Serialize<ushort>(DesItemCount, name: nameof(DesItemCount));

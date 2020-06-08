@@ -130,22 +130,6 @@ namespace R1Engine
         public virtual string[] GetEduVolumes(GameSettings settings) => new string[0];
 
         /// <summary>
-        /// Gets the DES file names, in order, for the world
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="includeExtension">Indicates if the file extension should be included</param>
-        /// <returns>The DES file names</returns>
-        public virtual string[] GetDESNames(Context context, bool includeExtension) => new string[0];
-
-        /// <summary>
-        /// Gets the ETA file names, in order, for the world
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <returns>The ETA file names</returns>
-        /// <param name="includeExtension">Indicates if the file extension should be included</param>
-        public virtual string[] GetETANames(Context context, bool includeExtension) => new string[0];
-
-        /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -344,10 +328,10 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.BasePath + worldPath))
                         return null;
 
-                    // TODO: Update this to not skip and to not include extensions
-                    var a = GetDESNames(context, true).Skip(1).ToArray();
+                    // TODO: Update this to not include extensions
+                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context, (s, o) => o.FileType = PC_WorldFile.Type.World).DESFileNames?.Skip(1).ToArray();
 
-                    return a.Any() ? a : null;
+                    return a?.Any() == true ? a : null;
                 });
 
                 // Get the ETA names for every world
@@ -361,9 +345,9 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.BasePath + worldPath))
                         return null;
 
-                    var a = GetETANames(context, true);
+                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context, (s, o) => o.FileType = PC_WorldFile.Type.World).ETAFileNames?.ToArray();
 
-                    return a.Any() ? a : null;
+                    return a?.Any() == true ? a : null;
                 });
 
                 // Keep track of Rayman's anim
@@ -1358,9 +1342,13 @@ namespace R1Engine
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.ColorPalettes.First()) : new Common_Design[0];
 
+            // Read the world data
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
+                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+
             // Get file names if available
-            var desNames = GetDESNames(context, false);
-            var etaNames = GetETANames(context, false);
+            var desNames = worldData.DESFileNames ?? new string[0];
+            var etaNames = worldData.ETAFileNames ?? new string[0];
 
             var index = 0;
 
@@ -1557,9 +1545,13 @@ namespace R1Engine
             var eventCommands = new List<PC_EventCommand>();
             var eventLinkingTable = new List<ushort>();
 
+            // Read the world data
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
+                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+
             // Get file names if available
-            var desNames = GetDESNames(context, false);
-            var etaNames = GetETANames(context, false);
+            var desNames = worldData.DESFileNames ?? new string[0];
+            var etaNames = worldData.ETAFileNames ?? new string[0];
 
             foreach (var e in commonLevelData.EventData) 
             {
