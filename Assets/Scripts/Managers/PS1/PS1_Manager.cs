@@ -420,8 +420,6 @@ namespace R1Engine
             if (!(this is PS1_BaseXXX_Manager xxx))
                 return;
 
-            // TODO: This currently only works for NTSC
-
             // Get the level file path
             var lvlPath = xxx.GetLevelFilePath(context.Settings);
 
@@ -444,9 +442,15 @@ namespace R1Engine
                 }
             }
 
+            // TODO: Implement - we need to make new event objects from the existing properties! Only problem is the pointers in the event header which don't get saved. Save them with the DES/ETA in a dictionary for the keys?
             // Set events
-            // TODO: Implement
+            lvlData.EventData.Events.FindItem(x => x.Type == EventType.TYPE_ONEUP).XPosition += 100;
 
+            lvlData.EditedBlock = new PS1_R1_EditedLevelBlock();
+            lvlData.EditedBlock.UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, lvlData.EventData.Events, lvlData.EventData.EventLinkingTable, context.Settings);
+
+            // TODO: For some reason the header for the event block gets nulled out after writing - why?
+            // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
             FileFactory.Write<PS1_R1_LevFile>(lvlPath, context);
         }

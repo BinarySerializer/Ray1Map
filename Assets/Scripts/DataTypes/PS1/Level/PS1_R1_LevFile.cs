@@ -45,6 +45,9 @@
         /// </summary>
         public byte[] TextureBlock { get; set; }
 
+        // NOTE: This block is not part of the original game and gets added by the Ray1Map editor!
+        public PS1_R1_EditedLevelBlock EditedBlock { get; set; }
+
         /// <summary>
         /// Serializes the data
         /// </summary>
@@ -73,6 +76,10 @@
             s.DoAt(TextureBlockPointer, () => {
                 TextureBlock = s.SerializeArray<byte>(TextureBlock, FileSize - TextureBlockPointer.FileOffset, name: nameof(TextureBlock));
             });
+
+            // Only serialize if there is data at the end of the file or if the block is not null (then we're assumed to be writing)
+            if (s.CurrentLength > FileSize || EditedBlock != null)
+                EditedBlock = s.SerializeObject<PS1_R1_EditedLevelBlock>(EditedBlock, name: nameof(EditedBlock));
         }
     }
 }
