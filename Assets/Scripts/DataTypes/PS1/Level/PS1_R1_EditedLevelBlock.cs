@@ -28,7 +28,7 @@
             }
 
             long currentOffset = 0;
-            Pointer getCurrentBlockPointer() => offset + (3 * 4) + currentOffset;
+            Pointer getCurrentBlockPointer() => offset + (4 * 4) + currentOffset;
 
             originalBlock.EventCount = (byte)events.Length;
             originalBlock.EventsPointer = getCurrentBlockPointer();
