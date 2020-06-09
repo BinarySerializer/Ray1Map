@@ -417,7 +417,7 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return new PS1EditorManager(c, context, eventDES, eventETA);
+            return new PS1EditorManager(c, context, eventDES, eventETA, null);
         }
 
         /// <summary>

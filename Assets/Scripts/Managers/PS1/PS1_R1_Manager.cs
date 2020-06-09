@@ -224,5 +224,113 @@ namespace R1Engine
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, bgPath == null ? null : level.BackgroundData);
         }
+
+        /// <summary>
+        /// Saves the specified level
+        /// </summary>
+        /// <param name="context">The serialization context</param>
+        /// <param name="editorManager">The editor manager</param>
+        public override void SaveLevel(Context context, BaseEditorManager editorManager)
+        {
+            var em = (PS1EditorManager)editorManager;
+            var commonLevelData = editorManager.Level;
+
+            // Get the level file path
+            var lvlPath = GetLevelFilePath(context.Settings);
+
+            // Get the level data
+            var lvlData = context.GetMainFileObject<PS1_R1_LevFile>(lvlPath);
+
+            // Update the tiles
+            for (int y = 0; y < lvlData.MapData.Height; y++)
+            {
+                for (int x = 0; x < lvlData.MapData.Width; x++)
+                {
+                    // Get the tiles
+                    var tile = lvlData.MapData.Tiles[y * lvlData.MapData.Width + x];
+                    var commonTile = commonLevelData.Maps[0].Tiles[y * lvlData.MapData.Width + x];
+
+                    // Update the tile
+                    tile.CollisionType = commonTile.CollisionType;
+                    tile.TileMapY = (int)Math.Floor(commonTile.TileSetGraphicIndex / (double)TileSetWidth);
+                    tile.TileMapX = commonTile.TileSetGraphicIndex - (Settings.CellSize * tile.TileMapY);
+                }
+            }
+
+            var newEvents = commonLevelData.EventData.Select(e =>
+            {
+                // Get the DES data
+                var des = em.DESCollection[e.DESKey];
+                var eta = em.ETACollection[e.ETAKey];
+
+                var newEvent = new PS1_R1_Event
+                {
+                    // TODO: Move all this init code to a constructor overload?
+
+                    ImageDescriptorsPointer = des.ImageDescriptorsPointer,
+                    AnimDescriptorsPointer = des.AnimDescriptorsPointer,
+                    ImageBufferPointer = des.ImageBufferPointer,
+                    ETAPointer = eta.ETAPointer,
+                    
+                    // Ignore since these get set automatically later...
+                    //CommandsPointer = null,
+                    //LabelOffsetsPointer = null,
+
+                    Unknown1 = 0,
+                    UnkDemo1 = new byte[46],
+                    XPosition = (ushort)e.XPosition,
+                    YPosition = (ushort)e.YPosition,
+                    Unknown2 = new byte[context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 12 :
+                        context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 10 : 16],
+                    ImageDescriptorCount = (ushort)des.ImageDescriptors.Length,
+                    Unknown4 = 0,
+                    Unknown5 = 0,
+                    Unknown6 = new byte[28],
+                    OffsetBX = (byte)e.OffsetBX,
+                    OffsetBY = (byte)e.OffsetBY,
+                    RuntimeCurrentAnimIndex = 0,
+                    RuntimeCurrentAnimFrame = 0,
+                    Etat = (byte)e.Etat,
+                    Unknown8 = 0,
+                    SubEtat = (byte)e.SubEtat,
+                    Unknown9 = 0,
+                    Unknown10 = 0,
+                    Unknown11 = 0,
+                    OffsetHY = (byte)e.OffsetHY,
+                    FollowSprite = (byte)e.FollowSprite,
+                    Hitpoints = (byte)e.HitPoints,
+                    Unknown15 = 0,
+                    Layer = (byte)e.Layer,
+                    Type = (EventType)e.Type,
+                    HitSprite = (byte)e.HitSprite,
+                    Unknown12 = new byte[context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 11 :
+                        context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 8 : 7],
+                    AnimDescriptorCount = (byte)des.AnimDescriptors.Length,
+                    Unknown13 = 0,
+                    Unknown14 = 0,
+                    ImageDescriptors = des.ImageDescriptors,
+                    AnimDescriptors = des.AnimDescriptors,
+                    Commands = e.CommandCollection,
+                    LabelOffsets = e.LabelOffsets,
+                    ETA = eta.ETA,
+                    ImageBuffer = des.ImageBuffer
+                };
+
+                newEvent.SetFollowEnabled(context.Settings, e.FollowEnabled);
+
+                return newEvent;
+            }).ToArray();
+
+            var newEventLinkTable = commonLevelData.EventData.Select(x => (byte)x.LinkIndex).ToArray();
+
+            // Create the edited block which we append to the file
+            lvlData.EditedBlock = new PS1_R1_EditedLevelBlock();
+
+            lvlData.EditedBlock.UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, newEvents, newEventLinkTable, context.Settings);
+
+            // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
+            // Save the file
+            FileFactory.Write<PS1_R1_LevFile>(lvlPath, context);
+        }
     }
 }

@@ -1507,8 +1507,10 @@ namespace R1Engine
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(Context context, Common_Lev commonLevelData) {
+        /// <param name="editorManager">The editor manager</param>
+        public void SaveLevel(Context context, BaseEditorManager editorManager) {
+            var commonLevelData = editorManager.Level;
+
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
 

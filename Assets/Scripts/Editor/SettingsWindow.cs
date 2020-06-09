@@ -272,7 +272,7 @@ public class SettingsWindow : UnityWindow
                 Randomizer.Randomize(editorManager, flag, (int)world.Key + lvl + RandomizerSeed, 0);
 
                 // Save the level
-                manager.SaveLevel(context, editorManager.Level);
+                manager.SaveLevel(context, editorManager);
             }
         }
     }

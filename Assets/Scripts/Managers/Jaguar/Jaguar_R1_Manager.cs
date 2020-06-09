@@ -507,15 +507,15 @@ namespace R1Engine
 
             return Task.FromResult<BaseEditorManager>(new PS1EditorManager(commonLev, context,
                 // TODO: Load graphics and ETA
-                new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>()));
+                new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>(), null));
         }
 
         /// <summary>
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(Context context, Common_Lev commonLevelData) => throw new NotImplementedException();
+        /// <param name="editorManager">The editor manager</param>
+        public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
 
         /// <summary>
         /// Preloads all the necessary files into the context

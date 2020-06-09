@@ -101,9 +101,9 @@ namespace R1Engine
             // Set events
             Controller.obj.levelEventController.CalculateLinkIndexes();
 
-            using (serializeContext) {
-                Settings.GetGameManager.SaveLevel(serializeContext, currentLevel);
-            }
+            using (serializeContext)
+                Settings.GetGameManager.SaveLevel(serializeContext, EditorManager);
+
             Debug.Log("Saved.");
         }
 

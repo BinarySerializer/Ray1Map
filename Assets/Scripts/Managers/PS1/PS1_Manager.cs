@@ -399,7 +399,7 @@ namespace R1Engine
             }
 
             // Return an editor manager
-            return new PS1EditorManager(c, context, eventDesigns, eventETA);
+            return new PS1EditorManager(c, context, eventDesigns, eventETA, events);
         }
 
         /// <summary>
@@ -414,46 +414,8 @@ namespace R1Engine
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="commonLevelData">The common level data</param>
-        public void SaveLevel(Context context, Common_Lev commonLevelData)
-        {
-            if (!(this is PS1_BaseXXX_Manager xxx))
-                return;
-
-            // Get the level file path
-            var lvlPath = xxx.GetLevelFilePath(context.Settings);
-
-            // Get the level data
-            var lvlData = context.GetMainFileObject<PS1_R1_LevFile>(lvlPath);
-
-            // Update the tiles
-            for (int y = 0; y < lvlData.MapData.Height; y++)
-            {
-                for (int x = 0; x < lvlData.MapData.Width; x++)
-                {
-                    // Get the tiles
-                    var tile = lvlData.MapData.Tiles[y * lvlData.MapData.Width + x];
-                    var commonTile = commonLevelData.Maps[0].Tiles[y * lvlData.MapData.Width + x];
-
-                    // Update the tile
-                    tile.CollisionType = commonTile.CollisionType;
-                    tile.TileMapY = (int)Math.Floor(commonTile.TileSetGraphicIndex / (double)TileSetWidth);
-                    tile.TileMapX = commonTile.TileSetGraphicIndex - (Settings.CellSize * tile.TileMapY);
-                }
-            }
-
-            // TODO: Implement - we need to make new event objects from the existing properties! Only problem is the pointers in the event header which don't get saved. Save them with the DES/ETA in a dictionary for the keys?
-            // Set events
-            lvlData.EventData.Events.FindItem(x => x.Type == EventType.TYPE_ONEUP).XPosition += 100;
-
-            lvlData.EditedBlock = new PS1_R1_EditedLevelBlock();
-            lvlData.EditedBlock.UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, lvlData.EventData.Events, lvlData.EventData.EventLinkingTable, context.Settings);
-
-            // TODO: For some reason the header for the event block gets nulled out after writing - why?
-            // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
-            // Save the file
-            FileFactory.Write<PS1_R1_LevFile>(lvlPath, context);
-        }
+        /// <param name="editorManager">The editor manager</param>
+        public virtual void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
 
         /// <summary>
         /// Preloads all the necessary files into the context

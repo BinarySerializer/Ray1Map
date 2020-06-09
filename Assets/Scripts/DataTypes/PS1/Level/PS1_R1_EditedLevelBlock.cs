@@ -32,23 +32,25 @@
 
             originalBlock.EventCount = (byte)events.Length;
             originalBlock.EventsPointer = getCurrentBlockPointer();
+            originalBlock.Events = events;
 
             currentOffset += events.Length * 112;
 
             originalBlock.EventLinkCount = (byte)eventLinkingTable.Length;
             originalBlock.EventLinksPointer = getCurrentBlockPointer();
+            originalBlock.EventLinkingTable = eventLinkingTable;
 
             currentOffset += eventLinkingTable.Length;
 
             foreach (var e in events)
             {
-                if (e.CommandsPointer != null)
+                if (e.Commands != null)
                 {
                     e.CommandsPointer = getCurrentBlockPointer();
                     currentOffset += e.Commands.ToBytes(settings).Length;
                 }
 
-                if (e.LabelOffsetsPointer != null)
+                if (e.LabelOffsets != null)
                 {
                     e.LabelOffsetsPointer = getCurrentBlockPointer();
                     currentOffset += (e.LabelOffsets.Length + 1) * 2;
