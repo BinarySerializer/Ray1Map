@@ -122,6 +122,7 @@ namespace R1Engine
                 new GameAction("Extract Compressed Data", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, false)),
                 new GameAction("Extract Compressed Data (888)", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, true)),
                 new GameAction("Convert Music to MIDI", false, true, (input, output) => ConvertMusicAsync(settings, output)),
+                new GameAction("Fix memory dump byte swapping", false, false, (input, output) => FixMemoryDumpByteSwapping(settings)),
             };
         }
 
@@ -441,6 +442,38 @@ namespace R1Engine
                             $"Track{i}_{MusicTable[i].MusicDataPointer.AbsoluteOffset:X8}.mid"));
                     }
                 });
+            }
+        }
+
+
+        public async Task FixMemoryDumpByteSwapping(GameSettings settings) {
+            await Task.CompletedTask;
+            // Create a context
+            using (var context = new Context(settings)) {
+                // Get a deserializer
+                var s = context.Deserializer;
+                string[] files = Directory.EnumerateFiles(context.BasePath, "*.jag", SearchOption.TopDirectoryOnly).ToArray();
+                foreach (string filepath in files) {
+                    // Add the file
+                    string path = filepath.Substring(context.BasePath.Length);
+                    var file = new LinearSerializedFile(context) {
+                        filePath = path,
+                        Endianness = BinaryFile.Endian.Little
+                    };
+                    context.AddFile(file);
+                    ushort[] data = s.DoAt(file.StartPointer, () => {
+                        return s.SerializeArray<ushort>(null, s.CurrentLength / 2, name: nameof(data));
+                    });
+
+                    using (MemoryStream ms = new MemoryStream()) {
+                        Writer w = new Writer(ms, isLittleEndian: false);
+                        foreach (ushort u in data) {
+                            w.Write(u);
+                        }
+                        ms.Position = 0;
+                        Util.ByteArrayToFile(context.BasePath + path + ".fixed", ms.ToArray());
+                    }
+                }
             }
         }
 
