@@ -31,6 +31,11 @@ namespace R1Engine
         public PS1_R1_MapBlock MapData { get; set; }
 
         /// <summary>
+        /// The event data for the current level
+        /// </summary>
+        public Jaguar_R1_EventBlock EventData { get; set; }
+
+        /// <summary>
         /// The current sprite palette
         /// </summary>
         public RGB556Color[] SpritePalette { get; set; }
@@ -140,12 +145,14 @@ namespace R1Engine
 
             // Get pointers
             var mapPointer = map.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
+            var eventPointer = map.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelEventBlockPointer;
             var palPointer = map.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette).PalettePointer;
 
             var tilesPointer = map.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldSpritesLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
 
-            // Serialize map data
+            // Serialize map and event data
             s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<PS1_R1_MapBlock>(MapData, name: nameof(MapData))));
+            s.DoAt(eventPointer, () => s.DoEncoded(new RNCEncoder(), () => EventData = s.SerializeObject<Jaguar_R1_EventBlock>(EventData, name: nameof(EventData))));
 
             // Serialize sprite palette
             s.DoAt<RGB556Color[]>(palPointer, () => SpritePalette = s.SerializeObjectArray<RGB556Color>(SpritePalette, 256, name: nameof(SpritePalette)));

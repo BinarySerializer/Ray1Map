@@ -20,7 +20,7 @@ namespace R1Engine
         public uint ImageBufferMemoryPointer { get; set; } // Uncompressed data is loaded to this location
         public uint DESDataMemoryPointer { get; set; } // full DES array is copied to 0x001F9000. These pointers point to an offset in that array. Maybe it's not all DES data?
         public Pointer LevelMapBlockPointer { get; set; }
-        public Pointer LevelMysteriousDataPointer { get; set; }
+        public Pointer LevelEventBlockPointer { get; set; }
         public uint ImageBufferMemoryPointerPointer { get; set; } // The address of the image buffer in memory is writtento this location. Is referenced in the DES data.
         public uint TargetImageBufferMemoryPointer { get; set; }
 
@@ -46,7 +46,7 @@ namespace R1Engine
                 case LevelLoadCommandType.LevelMap:
                     UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
                     LevelMapBlockPointer = s.SerializePointer(LevelMapBlockPointer, name: nameof(LevelMapBlockPointer));
-                    LevelMysteriousDataPointer = s.SerializePointer(LevelMysteriousDataPointer, name: nameof(LevelMysteriousDataPointer));
+                    LevelEventBlockPointer = s.SerializePointer(LevelEventBlockPointer, name: nameof(LevelEventBlockPointer));
                     break;
 
                 case LevelLoadCommandType.Graphics:

@@ -516,6 +516,62 @@ namespace R1Engine
             // Load tile set and treat black as transparent
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
 
+            var width = rom.EventData.Width;
+            var height = rom.EventData.Height;
+
+            // Load events
+            for (var i = 0; i < rom.EventData.EventData.Length; i++)
+            {
+                var e = rom.EventData.EventData[i];
+                
+                // Get the map position
+                var mapPos = rom.EventData.EventIndexMap.FindItemIndex(z => z == i + 1);
+
+                // Calculate the rough position
+                var roughPosition = ((mapPos % (uint)width) << 0x10 | (mapPos / (uint)height) & 0xffff) << 2;
+
+                // Get the final position
+                var finalPos = ((short)((uint)roughPosition >> 0x10) * 0x10 + e.PositionOffset) - 100;
+
+                var y = (uint)Math.Floor(finalPos / (double)(map.Width * Settings.CellSize));
+                var x = (uint)(finalPos - (Settings.CellSize * y));
+
+                commonLev.EventData.Add(new Common_EventData
+                {
+                    Type = EventType.TYPE_BADGUY1,
+                    Etat = 0,
+                    SubEtat = 0,
+
+                    XPosition = x,
+                    YPosition = y,
+
+                    DESKey = String.Empty,
+                    ETAKey = String.Empty,
+                    OffsetBX = 0,
+                    OffsetBY = 0,
+                    OffsetHY = 0,
+                    FollowSprite = 0,
+                    HitPoints = 0,
+                    Layer = 0,
+                    MapLayer = null,
+                    HitSprite = 0,
+                    FollowEnabled = false,
+                    FlipHorizontally = false,
+                    LabelOffsets = new ushort[0],
+                    CommandCollection = null,
+                    LinkIndex = i,
+                    DebugText = $"IsValid: {e.IsValid}{Environment.NewLine}" +
+                                $"Unk_04: {e.Unk_04}{Environment.NewLine}" +
+                                $"Unk_0A: {e.Unk_0A}{Environment.NewLine}" +
+                                $"Unk_0C: {e.Unk_0C}{Environment.NewLine}" +
+                                $"AlwaysEventsCount: {e.AlwaysEventsCount}{Environment.NewLine}" +
+                                $"FinalPos: {finalPos}{Environment.NewLine}" +
+                                $"MapPos: {mapPos}{Environment.NewLine}" +
+                                $"RoughPosition: {roughPosition}{Environment.NewLine}" +
+                                $"PositionOffset: {e.PositionOffset}{Environment.NewLine}"
+                });
+            }
+
             // Enumerate each cell
             for (int cellY = 0; cellY < map.Height; cellY++)
             {
