@@ -7,9 +7,8 @@ namespace R1Engine
     /// </summary>
     public class Jaguar_R1_EventBlock : R1Serializable
     {
-        // Always 01 00 00 00, indicates it he event block has events?
-        public ushort Unk_00 { get; set; }
-        public ushort Unk_02 { get; set; }
+        // Is this correct?
+        public bool HasEvents { get; set; }
 
         // Event map dimensions, always the map size divided by 4
         public ushort Width { get; set; }
@@ -29,8 +28,8 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            Unk_00 = s.Serialize<ushort>(Unk_00, name: nameof(Unk_00));
-            Unk_02 = s.Serialize<ushort>(Unk_02, name: nameof(Unk_02));
+            HasEvents = s.Serialize<bool>(HasEvents, name: nameof(HasEvents));
+            s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
             
             // Serialize event map dimensions
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
@@ -46,9 +45,7 @@ namespace R1Engine
 
             // Serialize the events based on the offsets
             for (int i = 0; i < EventData.Length; i++)
-            {
                 s.DoAt(Offset + 0x1608 + EventOffsetTable[i], () => EventData[i] = s.SerializeObject<Jaguar_R1_EventData>(EventData[i], e => e.IsAlways = false, name: $"{nameof(EventData)}[{i}]"));
-            }
         }
     }
 }

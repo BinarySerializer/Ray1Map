@@ -11,15 +11,16 @@
         // 0 if invalid event, 1 if valid?
         public ushort IsValid { get; set; }
 
-        public ushort PositionOffset { get; set; }
-
-        public ushort Unk_04 { get; set; }
+        // Offsets for the position
+        public ushort OffsetX { get; set; }
+        public ushort OffsetY { get; set; }
 
         public uint DESPointer { get; set; }
 
+        // Always 0x05?
         public ushort Unk_0A { get; set; }
 
-        // Link index?
+        // Some index?
         public ushort Unk_0C { get; set; }
 
         public ushort AlwaysEventsCount { get; set; }
@@ -35,8 +36,8 @@
             if (!IsAlways)
                 IsValid = s.Serialize<ushort>(IsValid, name: nameof(IsValid));
 
-            PositionOffset = s.Serialize<ushort>(PositionOffset, name: nameof(PositionOffset));
-            Unk_04 = s.Serialize<ushort>(Unk_04, name: nameof(Unk_04));
+            OffsetX = s.Serialize<ushort>(OffsetX, name: nameof(OffsetX));
+            OffsetY = s.Serialize<ushort>(OffsetY, name: nameof(OffsetY));
             DESPointer = s.Serialize<uint>(DESPointer, name: nameof(DESPointer));
             Unk_0A = s.Serialize<ushort>(Unk_0A, name: nameof(Unk_0A));
             Unk_0C = s.Serialize<ushort>(Unk_0C, name: nameof(Unk_0C));
