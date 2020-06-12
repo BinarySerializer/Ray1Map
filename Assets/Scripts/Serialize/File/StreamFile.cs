@@ -30,9 +30,17 @@ namespace R1Engine.Serialize {
 		}
 
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
-			uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
+			// No pointers in stream file
+			/*uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
 			if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset <= baseAddress + length) {
 				return new Pointer(serializedValue, this, anchor: anchor);
+			}*/
+			// Check memory mapped files
+			List<MemoryMappedFile> files = Context.MemoryMap.Files.OfType<MemoryMappedFile>().ToList<MemoryMappedFile>();
+			files.Sort((a, b) => b.baseAddress.CompareTo(a.baseAddress));
+			foreach (MemoryMappedFile f in files) {
+				Pointer p = f.GetPointerInThisFileOnly(serializedValue, anchor: anchor);
+				if (p != null) return p;
 			}
 			return null;
 		}

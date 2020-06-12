@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using R1Engine.Serialize;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -60,11 +61,18 @@ namespace R1Engine
             var levels = new Jaguar_R1_Manager().GetNumLevels;
 
             // Serialize DES data
-            s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
+            MemoryMappedByteArrayFile ram = s.Context.GetFile("RAM") as MemoryMappedByteArrayFile;
+            if (s is BinaryDeserializer) {
+                s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
+                    byte[] DESDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(DESDataBytes));
+                    ram.WriteBytes(0x001f9000, DESDataBytes);
+                });
+            }
+            //s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
                 // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
                 // A lot of those pointers can be found in the blocks that load level data.
-                DESData = s.SerializeObjectArray<Jaguar_R1_DESData>(DESData, 0x1C4, name: nameof(DESData));
-            });
+                //DESData = s.SerializeObjectArray<Jaguar_R1_DESData>(DESData, 0x1C4, name: nameof(DESData));
+            //});
 
             // Serialize allfix sprite data
             s.DoAt(pointerTable[Jaguar_R1_Pointer.FixSprites], () => {

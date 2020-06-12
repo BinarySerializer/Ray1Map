@@ -477,6 +477,14 @@ namespace R1Engine
             }
         }
 
+        public void InitRAM(Context context) {
+            // Load at 1 to prevent 0 being read as a valid pointer
+            var file = new MemoryMappedByteArrayFile("RAM", 0x00200000 - 1, context, 1) {
+                Endianness = BinaryFile.Endian.Big
+            };
+            context.AddFile(file);
+        }
+
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -485,6 +493,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
+            InitRAM(context);
             // Read the rom
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
 
