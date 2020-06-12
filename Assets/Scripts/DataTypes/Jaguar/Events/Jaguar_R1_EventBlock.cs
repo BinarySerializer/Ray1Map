@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -20,7 +21,7 @@ namespace R1Engine
         // Indexed, with offsets to the data table
         public ushort[] EventOffsetTable { get; set; }
 
-        public Jaguar_R1_EventData[] EventData { get; set; }
+        public Jaguar_R1_EventData[][] EventData { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -41,11 +42,32 @@ namespace R1Engine
             s.DoAt(Offset + 0x1208, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, EventIndexMap.Max(), name: nameof(EventIndexMap)));
 
             if (EventData == null)
-                EventData = new Jaguar_R1_EventData[EventOffsetTable.Length];
+                EventData = new Jaguar_R1_EventData[EventOffsetTable.Length][];
 
             // Serialize the events based on the offsets
             for (int i = 0; i < EventData.Length; i++)
-                s.DoAt(Offset + 0x1608 + EventOffsetTable[i], () => EventData[i] = s.SerializeObject<Jaguar_R1_EventData>(EventData[i], e => e.IsAlways = false, name: $"{nameof(EventData)}[{i}]"));
+            {
+                s.DoAt(Offset + 0x1608 + EventOffsetTable[i], () =>
+                {
+                    if (EventData[i] == null)
+                    {
+                        var temp = new List<Jaguar_R1_EventData>();
+
+                        var index = 0;
+                        while (s.Serialize<ushort>(default, name: "ReadEvent") == 1)
+                        {
+                            temp.Add(s.SerializeObject<Jaguar_R1_EventData>(default, name: $"{nameof(EventData)}[{i}][{index}]"));
+                            index++;
+                        }
+
+                        EventData[i] = temp.ToArray();
+                    }
+                    else
+                    {
+                        EventData[i] = s.SerializeObjectArray<Jaguar_R1_EventData>(EventData[i], EventData[i].Length, name: $"{nameof(EventData)}[{i}]");
+                    }
+                });
+            }
         }
     }
 }

@@ -522,63 +522,23 @@ namespace R1Engine
             // Load events
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
-                var e = rom.EventData.EventData[i];
-                
                 // Get the map base position, based on the event map
                 var mapPos = rom.EventData.EventIndexMap.FindItemIndex(z => z == i + 1);
 
                 // Get the x and y positions
-                var y = (uint)Math.Floor(mapPos / (double)(rom.EventData.Width));
-                var x = (uint)(mapPos - (y * rom.EventData.Width));
+                var mapY = (uint)Math.Floor(mapPos / (double)(rom.EventData.Width));
+                var mapX = (uint)(mapPos - (mapY * rom.EventData.Width));
                 
                 // Calculate the actual position on the map
-                x *= 4 * Settings.CellSize;
-                y *= 4 * Settings.CellSize;
+                mapX *= 4 * Settings.CellSize;
+                mapY *= 4 * Settings.CellSize;
 
-                // Append the offsets
-                x += e.OffsetX;
-                y += e.OffsetY;
-
-                // Add the event
-                commonLev.EventData.Add(new Common_EventData
+                // Add every event on this tile
+                for (int j = 0; j < rom.EventData.EventData[i].Length; j++)
                 {
-                    // TODO: Fill out values...
-                    Type = EventType.TYPE_BADGUY1,
-                    Etat = 0,
-                    SubEtat = 0,
+                    var e = rom.EventData.EventData[i][j];
 
-                    XPosition = x,
-                    YPosition = y,
-
-                    // TODO: Fill out values...
-                    DESKey = String.Empty,
-                    ETAKey = String.Empty,
-                    OffsetBX = 0,
-                    OffsetBY = 0,
-                    OffsetHY = 0,
-                    FollowSprite = 0,
-                    HitPoints = 0,
-                    Layer = 0,
-                    MapLayer = null,
-                    HitSprite = 0,
-                    FollowEnabled = false,
-                    FlipHorizontally = false,
-                    LabelOffsets = new ushort[0],
-                    CommandCollection = null,
-                    LinkIndex = linkIndex,
-                    DebugText = $"Unk_0A: {e.Unk_0A}{Environment.NewLine}" +
-                                $"Unk_0C: {e.Unk_0C}{Environment.NewLine}" +
-                                $"AlwaysEventsCount: {e.AlwaysEventsCount}{Environment.NewLine}" +
-                                $"MapPos: {mapPos}{Environment.NewLine}" +
-                                $"OffsetX: {e.OffsetX}{Environment.NewLine}" +
-                                $"OffsetY: {e.OffsetY}{Environment.NewLine}"
-                });
-
-                linkIndex++;
-
-                // Add always events
-                foreach (var ae in e?.AlwaysEvents ?? new Jaguar_R1_EventData[0])
-                {
+                    // Add the event
                     commonLev.EventData.Add(new Common_EventData
                     {
                         // TODO: Fill out values...
@@ -586,8 +546,8 @@ namespace R1Engine
                         Etat = 0,
                         SubEtat = 0,
 
-                        XPosition = ae.OffsetX,
-                        YPosition = ae.OffsetY,
+                        XPosition = mapX + e.OffsetX,
+                        YPosition = mapY + e.OffsetY,
 
                         // TODO: Fill out values...
                         DESKey = String.Empty,
@@ -605,16 +565,17 @@ namespace R1Engine
                         LabelOffsets = new ushort[0],
                         CommandCollection = null,
                         LinkIndex = linkIndex,
-                        DebugText = $"Unk_0A: {ae.Unk_0A}{Environment.NewLine}" +
-                                    $"Unk_0C: {ae.Unk_0C}{Environment.NewLine}" +
-                                    $"OffsetX: {ae.OffsetX}{Environment.NewLine}" +
-                                    $"OffsetY: {ae.OffsetY}{Environment.NewLine}"
+                        DebugText = $"Unk_0A: {e.Unk_0A}{Environment.NewLine}" +
+                                    $"Unk_0C: {e.Unk_0C}{Environment.NewLine}" +
+                                    $"MapPos: {mapPos}{Environment.NewLine}" +
+                                    $"OffsetX: {e.OffsetX}{Environment.NewLine}" +
+                                    $"OffsetY: {e.OffsetY}{Environment.NewLine}"
                     });
 
                     linkIndex++;
                 }
             }
-
+            Debug.Log(commonLev.EventData.Count);
             // Enumerate each cell
             for (int cellY = 0; cellY < map.Height; cellY++)
             {
