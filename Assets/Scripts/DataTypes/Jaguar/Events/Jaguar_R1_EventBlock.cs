@@ -64,7 +64,13 @@ namespace R1Engine
                     }
                     else
                     {
-                        EventData[i] = s.SerializeObjectArray<Jaguar_R1_EventData>(EventData[i], EventData[i].Length, name: $"{nameof(EventData)}[{i}]");
+                        for (int j = 0; j < EventData[i].Length; j++)
+                        {
+                            s.Serialize<ushort>(1, name: "ReadEvent");
+                            EventData[i][j] = s.SerializeObject<Jaguar_R1_EventData>(EventData[i][j], name: $"{nameof(EventData)}[{i}][{j}]");
+                        }
+
+                        s.Serialize<ushort>(0, name: "ReadEvent");
                     }
                 });
             }

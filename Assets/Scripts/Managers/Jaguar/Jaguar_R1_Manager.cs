@@ -575,7 +575,7 @@ namespace R1Engine
                     linkIndex++;
                 }
             }
-            Debug.Log(commonLev.EventData.Count);
+
             // Enumerate each cell
             for (int cellY = 0; cellY < map.Height; cellY++)
             {
