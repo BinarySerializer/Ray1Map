@@ -84,7 +84,7 @@ namespace R1Engine
 
         public void FieldAnimIndex()
         {
-            if (ViewModel.SelectedEvent != null)
+            if (ViewModel?.SelectedEvent != null)
             {
                 int.TryParse(infoAnimIndex.text, out var new_anim);
                 if (new_anim != ViewModel.SelectedEvent.AnimationIndex)
@@ -315,10 +315,10 @@ namespace R1Engine
                     var e = hit.collider?.GetComponentInParent<Common_Event>();
                     if (e != null) {
                         
-                        if (ViewModel.SelectedEvent != null)
+                        if (ViewModel?.SelectedEvent != null)
                             ViewModel.SelectedEvent.ChangeOffsetVisibility(false);
 
-                        if (e != ViewModel.SelectedEvent) {
+                        if (e != ViewModel?.SelectedEvent && ViewModel != null) {
                             ViewModel.SelectedEvent = e;
                             //Change event info if event is selected
                             infoName.text = ViewModel.DisplayName;
@@ -346,7 +346,7 @@ namespace R1Engine
                         }
                     }
                     else {
-                        if (ViewModel.SelectedEvent != null)
+                        if (ViewModel?.SelectedEvent != null)
                             ViewModel.SelectedEvent.ChangeOffsetVisibility(false);
                         selectedLineRend.enabled = false;
                         ViewModel.SelectedEvent = null;
@@ -356,7 +356,7 @@ namespace R1Engine
                 }
                 //Drag and move the event
                 if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) {
-                    if (ViewModel.SelectedEvent != null) {
+                    if (ViewModel?.SelectedEvent != null) {
                         //Move event if in event mode
                         if (modeEvents) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -393,7 +393,7 @@ namespace R1Engine
                 }
                 //Delete selected event
                 if (Input.GetKeyDown(KeyCode.Delete) && modeEvents) {
-                    if (ViewModel.SelectedEvent != null) {
+                    if (ViewModel?.SelectedEvent != null) {
                         ViewModel.SelectedEvent.ChangeOffsetVisibility(false);
                         ViewModel.SelectedEvent.Delete();
                         ViewModel.SelectedEvent = null;
