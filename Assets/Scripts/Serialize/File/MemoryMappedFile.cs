@@ -29,7 +29,7 @@ namespace R1Engine.Serialize {
 		}
 
 		private uint length = 0;
-		public uint Length {
+		public virtual uint Length {
 			get {
 				if (length == 0) {
 					using (Stream s = FileSystem.GetFileReadStream(AbsolutePath)) {
