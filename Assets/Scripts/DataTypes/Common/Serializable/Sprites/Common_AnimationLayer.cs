@@ -78,6 +78,14 @@ namespace R1Engine
                 XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
             }
+            else if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
+            {
+                // TODO: Where is flip flag?
+
+                YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
+                ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
+                XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
+            }
             else
             {
                 IsFlippedHorizontally = s.Serialize<bool>(IsFlippedHorizontally, name: nameof(IsFlippedHorizontally));

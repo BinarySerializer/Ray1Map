@@ -578,6 +578,7 @@ namespace R1Engine
                         DebugText = $"Unk_0A: {e.Unk_0A}{Environment.NewLine}" +
                                     $"Unk_0C: {e.Unk_0C}{Environment.NewLine}" +
                                     $"MapPos: {mapPos}{Environment.NewLine}" +
+                                    $"DES: {e.DESPointer}{Environment.NewLine}" +
                                     $"OffsetX: {e.OffsetX}{Environment.NewLine}" +
                                     $"OffsetY: {e.OffsetY}{Environment.NewLine}"
                     });
