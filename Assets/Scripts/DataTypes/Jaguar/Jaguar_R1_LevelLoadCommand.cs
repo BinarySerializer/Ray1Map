@@ -18,7 +18,7 @@ namespace R1Engine
         public Pointer PalettePointer { get; set; }
         public Pointer ImageBufferPointer { get; set; } // Compressed
         public uint ImageBufferMemoryPointer { get; set; } // Uncompressed data is loaded to this location
-        public uint DESDataMemoryPointer { get; set; } // full DES array is copied to 0x001F9000. These pointers point to an offset in that array. Maybe it's not all DES data?
+        public Pointer DESDataMemoryPointer { get; set; } // full DES array is copied to 0x001F9000. These pointers point to an offset in that array. Maybe it's not all DES data?
         public Pointer LevelMapBlockPointer { get; set; }
         public Pointer LevelEventBlockPointer { get; set; }
         public uint ImageBufferMemoryPointerPointer { get; set; } // The address of the image buffer in memory is writtento this location. Is referenced in the DES data.
@@ -73,7 +73,7 @@ namespace R1Engine
                 case LevelLoadCommandType.UnkDES1:
                     Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
                     Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
-                    DESDataMemoryPointer = s.Serialize<uint>(DESDataMemoryPointer, name: nameof(DESDataMemoryPointer));
+                    DESDataMemoryPointer = s.SerializePointer(DESDataMemoryPointer, name: nameof(DESDataMemoryPointer));
                     break;
 
                 case LevelLoadCommandType.Sprites:
@@ -87,13 +87,13 @@ namespace R1Engine
                     Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
                     Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
                     Short3 = s.Serialize<short>(Short3, name: nameof(Short3));
-                    DESDataMemoryPointer = s.Serialize<uint>(DESDataMemoryPointer, name: nameof(DESDataMemoryPointer));
+                    DESDataMemoryPointer = s.SerializePointer(DESDataMemoryPointer, name: nameof(DESDataMemoryPointer));
                     break;
 
                 case LevelLoadCommandType.UnkDES3:
                     Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
                     Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
-                    DESDataMemoryPointer = s.Serialize<uint>(DESDataMemoryPointer, name: nameof(DESDataMemoryPointer));
+                    DESDataMemoryPointer = s.SerializePointer(DESDataMemoryPointer, name: nameof(DESDataMemoryPointer));
                     break;
 
                 case LevelLoadCommandType.Palette:
@@ -124,8 +124,8 @@ namespace R1Engine
             Sprites = 0x24,
             NotImplemented3 = 0x28,
             NotImplemented4 = 0x2C,
-            UnkDES2 = 0x30,
-            UnkDES3 = 0x34,
+            UnkDES2 = 0x30, // Pointer to code pointer
+            UnkDES3 = 0x34, // Pointer to an empty entry with only first pointer and a code pointer.
             Palette = 0x38,
             NotImplemented5 = 0x3C,
             NotImplemented6 = 0x40,

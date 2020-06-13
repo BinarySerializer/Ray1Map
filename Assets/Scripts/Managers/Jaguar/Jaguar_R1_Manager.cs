@@ -211,7 +211,9 @@ namespace R1Engine
                         s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
 
                         // Get the DES
-                        var des = rom.DESData.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer);
+                        //var des = rom.DESData.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer);
+                        // TODO: fix this
+                        Jaguar_R1_DESData des = null;
 
                         // TODO: This doesn't always work - why?
                         if (des == null)
@@ -477,13 +479,13 @@ namespace R1Engine
             }
         }
 
-        public void InitRAM(Context context) {
+        /*public void InitRAM(Context context) {
             // Load at 1 to prevent 0 being read as a valid pointer
             var file = new MemoryMappedByteArrayFile("RAM", 0x00200000 - 1, context, 1) {
                 Endianness = BinaryFile.Endian.Big
             };
             context.AddFile(file);
-        }
+        }*/
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -493,7 +495,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            InitRAM(context);
+            //InitRAM(context);
             // Read the rom
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
 
@@ -630,7 +632,7 @@ namespace R1Engine
             await FileSystem.PrepareFile(context.BasePath + path);
 
             // TODO: Maybe change this - using this for now to allow invalid pointers
-            var file = new GBAMemoryMappedFile(context, baseAddress)
+            var file = new MemoryMappedFile(context, baseAddress)
             {
                 filePath = path,
                 Endianness = BinaryFile.Endian.Big

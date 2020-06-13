@@ -17,6 +17,9 @@
         // Some index?
         public ushort Unk_0C { get; set; }
 
+        // Parsed
+        public Jaguar_R1_DESData DESData { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -28,6 +31,10 @@
             DESPointer = s.SerializePointer(DESPointer, name: nameof(DESPointer));
             Unk_0A = s.Serialize<ushort>(Unk_0A, name: nameof(Unk_0A));
             Unk_0C = s.Serialize<ushort>(Unk_0C, name: nameof(Unk_0C));
+
+            s.DoAt(DESPointer, () => {
+                DESData = s.SerializeObject<Jaguar_R1_DESData>(DESData, name: nameof(DESData));
+            });
         }
     }
 }

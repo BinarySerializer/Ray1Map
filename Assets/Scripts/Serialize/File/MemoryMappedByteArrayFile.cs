@@ -10,6 +10,10 @@ namespace R1Engine.Serialize
             filePath = name;
             Bytes = new byte[length];
         }
+        public MemoryMappedByteArrayFile(string name, byte[] bytes, Context context, uint baseAddress) : base(context, baseAddress) {
+            filePath = name;
+            Bytes = bytes;
+        }
 
         public override uint Length
         {

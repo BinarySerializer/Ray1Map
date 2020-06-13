@@ -10,7 +10,6 @@ namespace R1Engine
     {
         #region Global Data
 
-        public Jaguar_R1_DESData[] DESData { get; set; }
         public Pointer[] WorldSpritesLoadCommandPointers { get; set; }
         public Pointer[][] MapDataLoadCommandPointers { get; set; }
 
@@ -61,18 +60,23 @@ namespace R1Engine
             var levels = new Jaguar_R1_Manager().GetNumLevels;
 
             // Serialize DES data
-            MemoryMappedByteArrayFile ram = s.Context.GetFile("RAM") as MemoryMappedByteArrayFile;
+            /*MemoryMappedByteArrayFile ram = s.Context.GetFile("RAM") as MemoryMappedByteArrayFile;
             if (s is BinaryDeserializer) {
                 s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
                     byte[] DESDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(DESDataBytes));
                     ram.WriteBytes(0x001f9000, DESDataBytes);
                 });
-            }
-            //s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
+            }*/
+            if (!s.Context.FileExists("RAM_DES")) {
                 // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
-                // A lot of those pointers can be found in the blocks that load level data.
-                //DESData = s.SerializeObjectArray<Jaguar_R1_DESData>(DESData, 0x1C4, name: nameof(DESData));
-            //});
+                s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
+                    byte[] DESDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(DESDataBytes));
+                    var file = new MemoryMappedByteArrayFile("RAM_DES", DESDataBytes, s.Context, 0x001f9000) {
+                        Endianness = BinaryFile.Endian.Big
+                    };
+                    s.Context.AddFile(file);
+                });
+            }
 
             // Serialize allfix sprite data
             s.DoAt(pointerTable[Jaguar_R1_Pointer.FixSprites], () => {
