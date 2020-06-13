@@ -45,6 +45,8 @@ namespace R1Engine
         /// </summary>
         public RGB556Color[] TileData { get; set; }
 
+        public Jaguar_R1_DESData[] DESData { get; set; }
+
         #endregion
 
         #region Methods
@@ -75,6 +77,9 @@ namespace R1Engine
                         Endianness = BinaryFile.Endian.Big
                     };
                     s.Context.AddFile(file);
+                    s.DoAt(file.StartPointer, () => {
+                        DESData = s.SerializeObjectArray<Jaguar_R1_DESData>(DESData, 0x1C4, name: nameof(DESData));
+                    });
                 });
             }
 
