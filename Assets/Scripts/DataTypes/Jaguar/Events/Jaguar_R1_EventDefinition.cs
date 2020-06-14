@@ -147,6 +147,22 @@ namespace R1Engine
 
                     if (temp.Any())
                     {
+                        Pointer CheckPtr0 = null, CheckPtr1 = null;
+                        bool success = true;
+                        s.DoAt(s.CurrentPointer + 0x2, () => {
+                            try {
+                                CheckPtr0 = s.SerializePointer(CheckPtr0, name: nameof(CheckPtr0));
+                                CheckPtr1 = s.SerializePointer(CheckPtr1, name: nameof(CheckPtr1));
+                            } catch (Exception) {
+                                success = false;
+                            }
+                        });
+                        if (!success
+                        || (CheckPtr0 != null && CheckPtr0.file != EventStatesPointer.file)
+                        || (CheckPtr1 != null && CheckPtr1.file != EventStatesPointer.file)) {
+                            break;
+                        }
+                        /*
                         byte[] CheckBytes = default;
                         s.DoAt(s.CurrentPointer + 0xA, () => {
                             CheckBytes = s.SerializeArray<byte>(CheckBytes, 2, name: nameof(CheckBytes));
@@ -154,7 +170,7 @@ namespace R1Engine
                         if (CheckBytes[0] != 0 || CheckBytes[1] != 0xFF)
                         {
                             break;
-                        }
+                        }*/
                     }
                     var i = s.SerializeObject<Jaguar_R1_EventState>(default, name: $"{nameof(States)}[{index}]");
 
@@ -170,10 +186,10 @@ namespace R1Engine
             s.DoAt(ImageDescriptorsPointer, () =>
             {
                 // TODO: This doesn't seem to work consistently at all - fallback to previous method for now
-                if (false)
+                if (States != null && States.Length > 0)
                 {
                     ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, States.Where(x => x?.Animation != null).SelectMany(x => x.Animation.Layers).Max(x => x.ImageIndex) + 1, name: nameof(ImageDescriptors));
-                    Debug.Log(ImageDescriptors.Length);
+                    //Debug.Log(ImageDescriptors.Length);
                 }
                 else
                 {

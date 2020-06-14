@@ -37,6 +37,19 @@ namespace R1Engine
             }
         }
 
+        private byte JaguarXByte {
+            get {
+                byte val = 0;
+                val = (byte)BitHelpers.SetBits(val, XPosition, 7, 0);
+                val = (byte)BitHelpers.SetBits(val, IsFlippedHorizontally ? 1 : 0, 1, 7);
+                return val;
+            }
+            set {
+                XPosition = (byte)BitHelpers.ExtractBits(value, 7, 0);
+                IsFlippedHorizontally = BitHelpers.ExtractBits(value, 1, 7) != 0;
+            }
+        }
+
         /// <summary>
         /// The animation layer flags
         /// </summary>
@@ -80,9 +93,7 @@ namespace R1Engine
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
             {
-                // TODO: Where is flip flag?
-
-                XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
+                JaguarXByte = s.Serialize<byte>(JaguarXByte, name: nameof(JaguarXByte));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
             }
