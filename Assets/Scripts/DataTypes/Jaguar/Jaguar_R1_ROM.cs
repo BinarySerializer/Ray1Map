@@ -143,10 +143,23 @@ namespace R1Engine
                             s.DoAt(FunctionPointer, () => {
                                 // Parse assembly
                                 ushort instruction = s.Serialize<ushort>(0x41f9, name: nameof(instruction)); // Load effective address
-                                while (instruction == 0x23fc)
-                                { // Move
-                                    s.Serialize<uint>(0, name: "MoveArg0"); // arguments differ for each level
-                                    s.Serialize<uint>(0, name: "MoveArg1");
+                                while (instruction != 0x41f9) {
+                                    switch (instruction) {
+                                        case 0x23fc: // Move (q)
+                                            s.Serialize<uint>(0, name: "MoveArg0"); // arguments differ for each level
+                                            s.Serialize<uint>(0, name: "MoveArg1");
+                                            break;
+                                        case 0x33fc: // Move (w)
+                                            s.Serialize<ushort>(0, name: "MoveArg0"); // arguments differ for each level
+                                            s.Serialize<ushort>(0, name: "MoveArg1");
+                                            break;
+                                        case 0x0839: // btst (b)
+                                            s.SerializeArray<byte>(null, 6, name: "BtstArgs");
+                                            break;
+                                        case 0x5279: // addq (w)
+                                            s.Serialize<uint>(0, name: "AddqArg0");
+                                            break;
+                                    }
                                     instruction = s.Serialize<ushort>(0x41f9, name: nameof(instruction)); // Load effective address
                                 }
                                 MapDataLoadCommandPointers[i][j] = s.SerializePointer(MapDataLoadCommandPointers[i][j], name: $"{nameof(MapDataLoadCommandPointers)}[{i}][{j}]");
