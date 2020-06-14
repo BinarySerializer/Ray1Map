@@ -585,7 +585,7 @@ namespace R1Engine
                     }
 
                     // Add if not found
-                    if (e.EventDefinition.EventStatesPointer != null && e.EventDefinition.States != null && !eventETA.ContainsKey(e.EventDefinition.EventStatesPointer))
+                    if (e.EventDefinition.States != null && e.EventDefinition.States.Length > 0 && !eventETA.ContainsKey(e.EventDefinition.States[0].Offset))
                     {
                         var validStates = e.EventDefinition.States.Where(x => x.Animation != null).ToArray();
 
@@ -609,14 +609,25 @@ namespace R1Engine
                         }
 
                         // Add to the states
-                        eventETA.Add(e.EventDefinition.EventStatesPointer, states);
+                        eventETA.Add(e.EventDefinition.States[0].Offset, states);
                     }
 
+                    // Get state index
+                    int stateIndex = 0;
+                    if (e.EventDefinition.States != null && e.EventDefinition.States.Length > 1 && eventETA.ContainsKey(e.EventDefinition.States[0].Offset)) {
+                        var eta = eventETA[e.EventDefinition.States[0].Offset];
+                        var validStates = e.EventDefinition.States.Where(x => x.Animation != null).ToArray();
+                        int ind = validStates.FindItemIndex(state => state.Offset == e.EventDefinition.CurrentStatePointer);
+                        if (ind >= 0) {
+                            stateIndex = ind;
+                        }
+                    }
+
+
                     // Add the event
-                    commonLev.EventData.Add(new Common_EventData
+                        commonLev.EventData.Add(new Common_EventData
                     {
-                        // TODO: Set this to the state index
-                        Etat = 0,
+                        Etat = stateIndex,
                         
                         LinkIndex = linkIndex,
 
@@ -624,7 +635,7 @@ namespace R1Engine
                         YPosition = mapY + e.OffsetY,
 
                         DESKey = e.EventDefinition.Offset?.ToString() ?? String.Empty,
-                        ETAKey = e.EventDefinition.EventStatesPointer?.ToString() ?? String.Empty,
+                        ETAKey = e.EventDefinition.CurrentStatePointer?.ToString() ?? String.Empty,
                         
                         // These are not available on Jaguar
                         SubEtat = 0,
