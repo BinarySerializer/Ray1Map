@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System.Collections.Generic;
+using R1Engine.Serialize;
 using System.Linq;
 
 namespace R1Engine
@@ -47,6 +48,11 @@ namespace R1Engine
 
         public Jaguar_R1_EventDefinition[] EventDefinitions { get; set; }
 
+        /// <summary>
+        /// The image buffers for the current level, with the key being the memory pointer pointer
+        /// </summary>
+        public Dictionary<uint, byte[]> ImageBuffers { get; set; }
+
         #endregion
 
         #region Methods
@@ -71,7 +77,7 @@ namespace R1Engine
             }*/
             if (!s.Context.FileExists("RAM_EventDefinitions")) {
                 // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
+                s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () => {
                     byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(EventDefsDataBytes));
                     var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context, 0x001f9000) {
                         Endianness = BinaryFile.Endian.Big
@@ -176,6 +182,25 @@ namespace R1Engine
 
             // Serialize tile data
             s.DoAt(tilesPointer, () => s.DoEncoded(new RNCEncoder(), () => TileData = s.SerializeObjectArray<RGB556Color>(TileData, s.CurrentLength / 2, name: nameof(TileData))));
+
+            // Serialize image buffers
+            if (ImageBuffers == null)
+            {
+                ImageBuffers = new Dictionary<uint, byte[]>();
+
+                var index = 0;
+                foreach (var cmd in FixSpritesLoadCommands.Commands.Concat(WorldSpritesLoadCommands.SelectMany(x => x.Commands)).Concat(map).Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites))
+                {
+                    if (ImageBuffers.ContainsKey(cmd.ImageBufferMemoryPointerPointer))
+                        continue;
+                    
+                    s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () =>
+                    {
+                        ImageBuffers.Add(cmd.ImageBufferMemoryPointerPointer, s.SerializeArray<byte>(default, s.CurrentLength, $"ImageBuffer[{index}]"));
+                    }));
+                    index++;
+                }
+            }
         }
 
         #endregion

@@ -526,6 +526,8 @@ namespace R1Engine
             // Load tile set and treat black as transparent
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
 
+            var eventDesigns = new Dictionary<Pointer, Common_Design>();
+
             // TODO: Fix with correct link index
             var linkIndex = 0;
 
@@ -548,6 +550,41 @@ namespace R1Engine
                 {
                     var e = rom.EventData.EventData[i][j];
 
+                    // Add if not found
+                    if (e.EventDefinition.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(e.EventDefinition.ImageDescriptorsPointer))
+                    {
+                        Common_Design finalDesign = new Common_Design
+                        {
+                            Sprites = new List<Sprite>(),
+                            Animations = new List<Common_Animation>()
+                        };
+
+                        // Get every sprite
+                        foreach (Common_ImageDescriptor img in e.EventDefinition.ImageDescriptors)
+                        {
+                            // TODO: Remove try catch
+                            try
+                            {
+                                // Get the texture for the sprite, or null if not loading textures
+                                Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[e.EventDefinition.ImageBufferMemoryPointerPointer]) : null;
+
+                                // Add it to the array
+                                finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                            }
+                            catch (Exception ex)
+                            {
+                                finalDesign.Sprites.Add(null);
+                            }
+                        }
+
+                        if (e.EventDefinition.States != null)
+                            // Add animations
+                            finalDesign.Animations.AddRange(e.EventDefinition.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation()));
+
+                        // Add to the designs
+                        eventDesigns.Add(e.EventDefinition.ImageDescriptorsPointer, finalDesign);
+                    }
+
                     // Add the event
                     commonLev.EventData.Add(new Common_EventData
                     {
@@ -560,7 +597,7 @@ namespace R1Engine
                         YPosition = mapY + e.OffsetY,
 
                         // TODO: Fill out values...
-                        DESKey = String.Empty,
+                        DESKey = e.EventDefinition.ImageDescriptorsPointer?.ToString() ?? String.Empty,
                         ETAKey = String.Empty,
                         OffsetBX = 0,
                         OffsetBY = 0,
@@ -609,9 +646,7 @@ namespace R1Engine
                 }
             }
 
-            return Task.FromResult<BaseEditorManager>(new PS1EditorManager(commonLev, context,
-                // TODO: Load graphics and ETA
-                new Dictionary<Pointer, Common_Design>(), new Dictionary<Pointer, Common_EventState[][]>(), null));
+            return Task.FromResult<BaseEditorManager>(new PS1EditorManager(commonLev, context, eventDesigns, new Dictionary<Pointer, Common_EventState[][]>(), null));
         }
 
         /// <summary>

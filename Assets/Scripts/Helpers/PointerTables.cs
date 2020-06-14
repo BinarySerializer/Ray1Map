@@ -125,7 +125,7 @@ namespace R1Engine
         {
             return new Dictionary<Jaguar_R1_Pointer, uint>()
             {
-                [Jaguar_R1_Pointer.DES] = 0x00906130,
+                [Jaguar_R1_Pointer.EventDefinitions] = 0x00906130,
                 [Jaguar_R1_Pointer.FixSprites] = 0x009496C8,
                 [Jaguar_R1_Pointer.WorldSprites] = 0x00949034,
                 [Jaguar_R1_Pointer.MapData] = 0x00949054,

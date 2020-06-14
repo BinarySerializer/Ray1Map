@@ -5,7 +5,7 @@
     /// </summary>
     public enum Jaguar_R1_Pointer
     {
-        DES,
+        EventDefinitions,
         FixSprites,
         WorldSprites,
         MapData,

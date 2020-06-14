@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -14,14 +16,8 @@ namespace R1Engine
         public Pointer Pointer_02 { get; set; } // Points to a struct of size 0x26. just some shorts, no pointers
         public ushort StructType2 { get; set; }
 
-        // Points to a struct with 4 pointers:
-        // 1. A list of structs of size 0x6. Animation descriptors?
-        // 2. A code pointer
-        // 3. A pointer to itself
-        // 4. Another code pointer
-        // With the two code pointers, maybe it's related to event behavior
         public Pointer CodePointer { get; set; }
-        public Pointer AnimationsAndCodePointer { get; set; } 
+        public Pointer EventStatesPointer { get; set; } 
         public Pointer Pointer_0C { get; set; }
         public ushort UShort_10 { get; set; }
         public ushort UShort_12 { get; set; }
@@ -65,7 +61,7 @@ namespace R1Engine
             Pointer_02 = s.SerializePointer(Pointer_02, name: nameof(Pointer_02));
             StructType2 = s.Serialize<ushort>(StructType2, name: nameof(StructType2));
             if (StructType2 == 29) {
-                AnimationsAndCodePointer = s.SerializePointer(AnimationsAndCodePointer, name: nameof(AnimationsAndCodePointer));
+                EventStatesPointer = s.SerializePointer(EventStatesPointer, name: nameof(EventStatesPointer));
                 Pointer_0C = s.SerializePointer(Pointer_0C, name: nameof(Pointer_0C));
                 UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
                 UShort_12 = s.Serialize<ushort>(UShort_12, name: nameof(UShort_12));
@@ -79,7 +75,7 @@ namespace R1Engine
                 UShort_26 = s.Serialize<ushort>(UShort_26, name: nameof(UShort_26));
                 CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
             } else if (StructType2 == 6 || StructType2 == 7 || StructType2 == 30 || StructType2 == 31) {
-                AnimationsAndCodePointer = s.SerializePointer(AnimationsAndCodePointer, name: nameof(AnimationsAndCodePointer));
+                EventStatesPointer = s.SerializePointer(EventStatesPointer, name: nameof(EventStatesPointer));
                 Pointer_0C = s.SerializePointer(Pointer_0C, name: nameof(Pointer_0C));
                 UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
                 UShort_12 = s.Serialize<ushort>(UShort_12, name: nameof(UShort_12));
@@ -125,7 +121,7 @@ namespace R1Engine
                 Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
                 UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x10, name: nameof(UnkBytes));
             } else {
-                AnimationsAndCodePointer = s.SerializePointer(AnimationsAndCodePointer, name: nameof(AnimationsAndCodePointer));
+                EventStatesPointer = s.SerializePointer(EventStatesPointer, name: nameof(EventStatesPointer));
                 Pointer_0C = s.SerializePointer(Pointer_0C, name: nameof(Pointer_0C));
                 UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
                 UShort_12 = s.Serialize<ushort>(UShort_12, name: nameof(UShort_12));
@@ -140,39 +136,23 @@ namespace R1Engine
                 UShort_26 = s.Serialize<ushort>(UShort_26, name: nameof(UShort_26));
             }
 
-            s.DoAt(ImageDescriptorsPointer, () =>
-            {
-                // TODO: Find way to get the length
-                var temp = new List<Common_ImageDescriptor>();
-
-                var index = 0;
-                while (true)
-                {
-                    var i = s.SerializeObject<Common_ImageDescriptor>(default, name: $"{nameof(ImageDescriptors)}[{index}]");
-
-                    if (temp.Any() && i.Index != 0xFF && i.ImageBufferOffset < temp.Last().ImageBufferOffset)
-                        break;
-
-                    temp.Add(i);
-
-                    index++;
-                }
-
-                ImageDescriptors = temp.ToArray();
-            });
-            s.DoAt(AnimationsAndCodePointer, () => {
+            // Serialize event states
+            s.DoAt(EventStatesPointer, () => {
                 // TODO: Find way to get the length
                 var temp = new List<Jaguar_R1_EventState>();
 
                 var index = 0;
-                while (true) {
+                while (true)
+                {
 
-                    if (temp.Any()) {
+                    if (temp.Any())
+                    {
                         byte[] CheckBytes = default;
                         s.DoAt(s.CurrentPointer + 0xA, () => {
                             CheckBytes = s.SerializeArray<byte>(CheckBytes, 2, name: nameof(CheckBytes));
                         });
-                        if (CheckBytes[0] != 0 || CheckBytes[1] != 0xFF) {
+                        if (CheckBytes[0] != 0 || CheckBytes[1] != 0xFF)
+                        {
                             break;
                         }
                     }
@@ -184,6 +164,36 @@ namespace R1Engine
                 }
 
                 States = temp.ToArray();
+            });
+
+            // Serialize image descriptors based on the state animations
+            s.DoAt(ImageDescriptorsPointer, () =>
+            {
+                // TODO: This doesn't seem to work consistently at all - fallback to previous method for now
+                if (false)
+                {
+                    ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, States.Where(x => x?.Animation != null).SelectMany(x => x.Animation.Layers).Max(x => x.ImageIndex) + 1, name: nameof(ImageDescriptors));
+                    Debug.Log(ImageDescriptors.Length);
+                }
+                else
+                {
+                    var temp = new List<Common_ImageDescriptor>();
+
+                    var index = 0;
+                    while (true)
+                    {
+                        var i = s.SerializeObject<Common_ImageDescriptor>(default, name: $"{nameof(ImageDescriptors)}[{index}]");
+
+                        if (temp.Any() && i.Index != 0xFF && i.ImageBufferOffset < temp.Last().ImageBufferOffset)
+                            break;
+
+                        temp.Add(i);
+
+                        index++;
+                    }
+
+                    ImageDescriptors = temp.ToArray();
+                }
             });
         }
 
