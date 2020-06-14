@@ -6,7 +6,7 @@
     public class Jaguar_R1_EventState : R1Serializable
     {
         public byte Byte00 { get; set; }
-        public byte Byte01 { get; set; }
+        public byte AnimationSpeed { get; set; }
 
         public Pointer AnimationPointer { get; set; }
         public Pointer LinkedStatePointer { get; set; }
@@ -26,7 +26,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             Byte00 = s.Serialize<byte>(Byte00, name: nameof(Byte00));
-            Byte01 = s.Serialize<byte>(Byte01, name: nameof(Byte01));
+            AnimationSpeed = s.Serialize<byte>(AnimationSpeed, name: nameof(AnimationSpeed));
             if (Byte00 != 0) {
                 AnimationPointer = s.SerializePointer(AnimationPointer, name: nameof(AnimationPointer));
             } else {

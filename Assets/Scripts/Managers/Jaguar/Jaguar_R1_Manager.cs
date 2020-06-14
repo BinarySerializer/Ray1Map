@@ -587,13 +587,15 @@ namespace R1Engine
                     // Add if not found
                     if (e.EventDefinition.EventStatesPointer != null && e.EventDefinition.States != null && !eventETA.ContainsKey(e.EventDefinition.EventStatesPointer))
                     {
+                        var validStates = e.EventDefinition.States.Where(x => x.Animation != null).ToArray();
+
                         // Create a common state array
-                        var states = new Common_EventState[e.EventDefinition.States.Length][];
+                        var states = new Common_EventState[validStates.Length][];
 
                         // Add dummy states
                         for (byte s = 0; s < states.Length; s++)
                         {
-                            var stateLinkIndex = e.EventDefinition.States.Where(x => x.Animation != null).FindItemIndex(x => x == e.EventDefinition.States[s].LinkedState);
+                            var stateLinkIndex = validStates.FindItemIndex(x => x == validStates[s].LinkedState);
 
                             states[s] = new Common_EventState[]
                             {
@@ -601,9 +603,7 @@ namespace R1Engine
                                 {
                                     AnimationIndex = s,
                                     LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                    
-                                    // TODO: Set these correctly
-                                    AnimationSpeed = 2,
+                                    AnimationSpeed = validStates[s].AnimationSpeed,
                                 }
                             };
                         }
