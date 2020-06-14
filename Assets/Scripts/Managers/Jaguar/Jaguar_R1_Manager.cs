@@ -585,7 +585,11 @@ namespace R1Engine
                     }
 
                     // Add if not found
-                    if (e.EventDefinition.States != null && e.EventDefinition.States.Length > 0 && !eventETA.ContainsKey(e.EventDefinition.States[0].Offset))
+                    Pointer etatKey = null;
+                    if (e.EventDefinition.States != null && e.EventDefinition.States.Length > 0) {
+                        etatKey = e.EventDefinition.States[0].Offset;
+                    }
+                    if (etatKey != null && !eventETA.ContainsKey(etatKey))
                     {
                         var validStates = e.EventDefinition.States.Where(x => x.Animation != null).ToArray();
 
@@ -609,12 +613,12 @@ namespace R1Engine
                         }
 
                         // Add to the states
-                        eventETA.Add(e.EventDefinition.States[0].Offset, states);
+                        eventETA.Add(etatKey, states);
                     }
 
                     // Get state index
                     int stateIndex = 0;
-                    if (e.EventDefinition.States != null && e.EventDefinition.States.Length > 1 && eventETA.ContainsKey(e.EventDefinition.States[0].Offset)) {
+                    if (e.EventDefinition.States != null && e.EventDefinition.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
                         var eta = eventETA[e.EventDefinition.States[0].Offset];
                         var validStates = e.EventDefinition.States.Where(x => x.Animation != null).ToArray();
                         int ind = validStates.FindItemIndex(state => state.Offset == e.EventDefinition.CurrentStatePointer);
@@ -635,7 +639,7 @@ namespace R1Engine
                         YPosition = mapY + e.OffsetY,
 
                         DESKey = e.EventDefinition.Offset?.ToString() ?? String.Empty,
-                        ETAKey = e.EventDefinition.CurrentStatePointer?.ToString() ?? String.Empty,
+                        ETAKey = etatKey?.ToString() ?? String.Empty,
                         
                         // These are not available on Jaguar
                         SubEtat = 0,
