@@ -261,7 +261,7 @@ namespace R1Engine
         public Texture2D GetSpriteTexture(Common_ImageDescriptor d, ARGBColor[] pal, byte[] imgBuffer)
         {
             // Make sure the sprite is valid
-            if (d.Index == 0x00 || d.Index == 0xFF)
+            if (d.OuterHeight == 0 || d.OuterWidth == 0 || d.Index == 0xFF)
                 return null;
 
             // Create a texture
@@ -578,7 +578,9 @@ namespace R1Engine
 
                         if (e.EventDefinition.States != null)
                             // Add animations
-                            finalDesign.Animations.AddRange(e.EventDefinition.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation()));
+                            finalDesign.Animations.AddRange(e.EventDefinition.States.Where(x => x.Animation != null).Select(x => {
+                                return x.Animation.ToCommonAnimation(e.EventDefinition);
+                            }));
 
                         // Add to the designs
                         eventDesigns.Add(e.EventDefinition.Offset, finalDesign);

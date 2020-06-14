@@ -37,7 +37,7 @@ namespace R1Engine
             }
         }
 
-        private byte JaguarXByte {
+        /*private byte JaguarXByte {
             get {
                 byte val = 0;
                 val = (byte)BitHelpers.SetBits(val, XPosition, 7, 0);
@@ -49,6 +49,22 @@ namespace R1Engine
                 IsFlippedHorizontally = BitHelpers.ExtractBits(value, 1, 7) != 0;
             }
         }
+
+        private byte JaguarImageIndexByte {
+            get {
+                byte val = 0;
+                val = (byte)BitHelpers.SetBits(val, ImageIndex, 7, 0);
+                val = (byte)BitHelpers.SetBits(val, IsFlippedHorizontally ? 1 : 0, 1, 7);
+                return val;
+            }
+            set {
+                ImageIndex = (byte)BitHelpers.ExtractBits(value, 7, 0);
+                IsFlippedHorizontally = BitHelpers.ExtractBits(value, 1, 7) != 0;
+            }
+        }
+        public bool FlipFlagInX = false;*/
+        public byte JaguarXByte { get; set; }
+        public byte JaguarImageIndexByte { get; set; }
 
         /// <summary>
         /// The animation layer flags
@@ -93,7 +109,16 @@ namespace R1Engine
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
             {
-                JaguarXByte = s.Serialize<byte>(JaguarXByte, name: nameof(JaguarXByte));
+                /*if (FlipFlagInX) {
+                    JaguarXByte = s.Serialize<byte>(JaguarXByte, name: nameof(JaguarXByte));
+                    YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
+                    ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
+                } else {
+                    XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
+                    YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
+                    JaguarImageIndexByte = s.Serialize<byte>(JaguarImageIndexByte, name: nameof(JaguarImageIndexByte));
+                }*/
+                XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
             }

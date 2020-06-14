@@ -38,6 +38,8 @@
 
             s.DoAt(AnimationPointer, () => {
                 Animation = s.SerializeObject<Jaguar_R1_AnimationDescriptor>(Animation, name: nameof(Animation));
+                //Animation = s.SerializeObject<Jaguar_R1_AnimationDescriptor>(Animation, onPreSerialize: l => l.FlipFlagInX = this.FlipFlagInX, name: nameof(Animation));
+                //Animation = s.SerializeObject<Jaguar_R1_AnimationDescriptor>(Animation, onPreSerialize: l => l.FlipFlagInX = (Byte00 != 200), name: nameof(Animation));
             });
             s.DoAt(LinkedStatePointer, () => {
                 LinkedState = s.SerializeObject<Jaguar_R1_EventState>(LinkedState, name: nameof(LinkedState));

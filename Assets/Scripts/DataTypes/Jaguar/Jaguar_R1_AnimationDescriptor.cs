@@ -42,5 +42,65 @@
             // Serialize data from pointers
             Layers = s.SerializeObjectArray(Layers, LayersPerFrame * FrameCount, name: nameof(Layers));
         }
+
+        /// <summary>
+        /// Gets a common animation from the animation descriptor
+        /// </summary>
+        /// <param name="animationDescriptor">The animation descriptor</param>
+        /// <returns>The common animation</returns>
+        public Common_Animation ToCommonAnimation(Jaguar_R1_EventDefinition eventDefinition) {
+            // Create the animation
+            var animation = new Common_Animation {
+                Frames = new Common_AnimFrame[FrameCount],
+            };
+
+            // The layer index
+            var layer = 0;
+
+            // Create each frame
+            for (int i = 0; i < FrameCount; i++) {
+                // Create the frame
+                var frame = new Common_AnimFrame() {
+                    FrameData = Frames?[i],
+                    Layers = new Common_AnimationPart[LayersPerFrame]
+                };
+                if (Frames?[i] == null) {
+                    frame.FrameData = new Common_AnimationFrame();
+                }
+                if (Layers != null) {
+
+                    // Create each layer
+                    for (var layerIndex = 0; layerIndex < LayersPerFrame; layerIndex++) {
+                        var animationLayer = Layers[layer];
+                        layer++;
+
+                        // Create the animation part
+                        Common_AnimationPart part;
+                        if (eventDefinition.UShort_12 == 5) {
+                            part = new Common_AnimationPart {
+                                ImageIndex = BitHelpers.ExtractBits(animationLayer.ImageIndex, 7, 0),
+                                XPosition = animationLayer.XPosition,
+                                YPosition = animationLayer.YPosition,
+                                IsFlippedHorizontally = BitHelpers.ExtractBits(animationLayer.ImageIndex, 1, 7) != 0
+                            };
+                        } else {
+                            part = new Common_AnimationPart {
+                                ImageIndex = animationLayer.ImageIndex,
+                                XPosition = BitHelpers.ExtractBits(animationLayer.XPosition, 7, 0),
+                                YPosition = animationLayer.YPosition,
+                                IsFlippedHorizontally = BitHelpers.ExtractBits(animationLayer.XPosition, 1, 7) != 0
+                            };
+                        }
+
+                        // Add the part
+                        frame.Layers[layerIndex] = part;
+                    }
+                }
+                // Set the frame
+                animation.Frames[i] = frame;
+            }
+
+            return animation;
+        }
     }
 }

@@ -55,9 +55,9 @@
         public byte ImageOffsetInPageY { get; set; }
         public ushort Unknown6 { get; set; }
 
-        public byte Jag_Byte05 { get; set; }
-        public ushort Jag_Ushort06 { get; set; }
-        public ushort Jag_Ushort08 { get; set; }
+        public byte Jag_Byte04 { get; set; }
+        public ushort Jag_Ushort05 { get; set; }
+        public ushort Jag_Ushort07 { get; set; }
 
         // Four bits from offset 1 are palette offset for 4-bit sprites
         public byte Jag_Byte0A { get; set; }
@@ -77,10 +77,10 @@
                 // TODO: Is the fourth byte always 0?
                 ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset << 8, name: nameof(ImageBufferOffset)) >> 8;
 
-                Jag_Byte05 = s.Serialize<byte>(Jag_Byte05, name: nameof(Jag_Byte05));
-                Jag_Ushort06 = s.Serialize<ushort>(Jag_Ushort06, name: nameof(Jag_Ushort06));
-                OuterHeight = (ushort)(Jag_Ushort06 >> 6);
-                Jag_Ushort08 = s.Serialize<ushort>(Jag_Ushort08, name: nameof(Jag_Ushort08));
+                Jag_Byte04 = s.Serialize<byte>(Jag_Byte04, name: nameof(Jag_Byte04));
+                Jag_Ushort05 = s.Serialize<ushort>(Jag_Ushort05, name: nameof(Jag_Ushort05));
+                OuterHeight = (ushort)(Jag_Ushort05 >> 6);
+                Jag_Ushort07 = s.Serialize<ushort>(Jag_Ushort07, name: nameof(Jag_Ushort07));
                 OuterWidth = s.Serialize<byte>((byte)OuterWidth, name: nameof(OuterWidth));
 
                 Jag_Byte0A = s.Serialize<byte>(Jag_Byte0A, name: nameof(Jag_Byte0A));
