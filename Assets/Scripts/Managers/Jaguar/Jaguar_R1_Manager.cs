@@ -211,7 +211,7 @@ namespace R1Engine
                         s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
 
                         // Get the DES
-                        var des = rom.DESData.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer);
+                        var des = rom.EventDefinitions.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer);
                         // TODO: fix this
 
                         // TODO: This doesn't always work - why?
@@ -578,7 +578,7 @@ namespace R1Engine
                         DebugText = $"Unk_0A: {e.Unk_0A}{Environment.NewLine}" +
                                     $"Unk_0C: {e.Unk_0C}{Environment.NewLine}" +
                                     $"MapPos: {mapPos}{Environment.NewLine}" +
-                                    $"DES: {e.DESPointer}{Environment.NewLine}" +
+                                    $"DES: {e.EventDefinitionPointer}{Environment.NewLine}" +
                                     $"OffsetX: {e.OffsetX}{Environment.NewLine}" +
                                     $"OffsetY: {e.OffsetY}{Environment.NewLine}"
                     });

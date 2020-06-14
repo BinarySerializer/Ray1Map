@@ -45,7 +45,7 @@ namespace R1Engine
         /// </summary>
         public RGB556Color[] TileData { get; set; }
 
-        public Jaguar_R1_DESData[] DESData { get; set; }
+        public Jaguar_R1_EventDefinition[] EventDefinitions { get; set; }
 
         #endregion
 
@@ -61,7 +61,7 @@ namespace R1Engine
             var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
             var levels = new Jaguar_R1_Manager().GetNumLevels;
 
-            // Serialize DES data
+            // Serialize event definition data
             /*MemoryMappedByteArrayFile ram = s.Context.GetFile("RAM") as MemoryMappedByteArrayFile;
             if (s is BinaryDeserializer) {
                 s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
@@ -69,16 +69,16 @@ namespace R1Engine
                     ram.WriteBytes(0x001f9000, DESDataBytes);
                 });
             }*/
-            if (!s.Context.FileExists("RAM_DES")) {
+            if (!s.Context.FileExists("RAM_EventDefinitions")) {
                 // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
                 s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
-                    byte[] DESDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(DESDataBytes));
-                    var file = new MemoryMappedByteArrayFile("RAM_DES", DESDataBytes, s.Context, 0x001f9000) {
+                    byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(EventDefsDataBytes));
+                    var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context, 0x001f9000) {
                         Endianness = BinaryFile.Endian.Big
                     };
                     s.Context.AddFile(file);
                     s.DoAt(file.StartPointer, () => {
-                        DESData = s.SerializeObjectArray<Jaguar_R1_DESData>(DESData, 0x1C4, name: nameof(DESData));
+                        EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, 0x1C4, name: nameof(EventDefinitions));
                     });
                 });
             }

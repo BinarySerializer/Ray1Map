@@ -4,11 +4,11 @@ using System.Linq;
 namespace R1Engine
 {
     /// <summary>
-    /// DES data for Rayman 1 (Jaguar)
+    /// Event definition data for Rayman 1 (Jaguar)
     /// </summary>
-    public class Jaguar_R1_DESData : R1Serializable
+    public class Jaguar_R1_EventDefinition : R1Serializable
     {
-        #region DES Data
+        #region Event Data
 
         public short StructType1 { get; set; }
         public Pointer Pointer_02 { get; set; } // Points to a struct of size 0x26. just some shorts, no pointers
@@ -49,6 +49,7 @@ namespace R1Engine
         #region Parsed from Pointers
 
         public Common_ImageDescriptor[] ImageDescriptors { get; set; }
+        public Jaguar_R1_EventState[] States { get; set; }
 
         #endregion
 
@@ -158,6 +159,31 @@ namespace R1Engine
                 }
 
                 ImageDescriptors = temp.ToArray();
+            });
+            s.DoAt(AnimationsAndCodePointer, () => {
+                // TODO: Find way to get the length
+                var temp = new List<Jaguar_R1_EventState>();
+
+                var index = 0;
+                while (true) {
+
+                    if (temp.Any()) {
+                        byte[] CheckBytes = default;
+                        s.DoAt(s.CurrentPointer + 0xA, () => {
+                            CheckBytes = s.SerializeArray<byte>(CheckBytes, 2, name: nameof(CheckBytes));
+                        });
+                        if (CheckBytes[0] != 0 || CheckBytes[1] != 0xFF) {
+                            break;
+                        }
+                    }
+                    var i = s.SerializeObject<Jaguar_R1_EventState>(default, name: $"{nameof(States)}[{index}]");
+
+                    temp.Add(i);
+
+                    index++;
+                }
+
+                States = temp.ToArray();
             });
         }
 

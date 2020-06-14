@@ -21,7 +21,7 @@ namespace R1Engine
         // Indexed, with offsets to the data table
         public ushort[] EventOffsetTable { get; set; }
 
-        public Jaguar_R1_EventData[][] EventData { get; set; }
+        public Jaguar_R1_EventInstance[][] EventData { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -42,7 +42,7 @@ namespace R1Engine
             s.DoAt(Offset + 0x1208, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, EventIndexMap.Max(), name: nameof(EventIndexMap)));
 
             if (EventData == null)
-                EventData = new Jaguar_R1_EventData[EventOffsetTable.Length][];
+                EventData = new Jaguar_R1_EventInstance[EventOffsetTable.Length][];
 
             // Serialize the events based on the offsets
             for (int i = 0; i < EventData.Length; i++)
@@ -51,12 +51,12 @@ namespace R1Engine
                 {
                     if (EventData[i] == null)
                     {
-                        var temp = new List<Jaguar_R1_EventData>();
+                        var temp = new List<Jaguar_R1_EventInstance>();
 
                         var index = 0;
                         while (s.Serialize<ushort>(default, name: "ReadEvent") == 1)
                         {
-                            temp.Add(s.SerializeObject<Jaguar_R1_EventData>(default, name: $"{nameof(EventData)}[{i}][{index}]"));
+                            temp.Add(s.SerializeObject<Jaguar_R1_EventInstance>(default, name: $"{nameof(EventData)}[{i}][{index}]"));
                             index++;
                         }
 
@@ -67,7 +67,7 @@ namespace R1Engine
                         for (int j = 0; j < EventData[i].Length; j++)
                         {
                             s.Serialize<ushort>(1, name: "ReadEvent");
-                            EventData[i][j] = s.SerializeObject<Jaguar_R1_EventData>(EventData[i][j], name: $"{nameof(EventData)}[{i}][{j}]");
+                            EventData[i][j] = s.SerializeObject<Jaguar_R1_EventInstance>(EventData[i][j], name: $"{nameof(EventData)}[{i}][{j}]");
                         }
 
                         s.Serialize<ushort>(0, name: "ReadEvent");
