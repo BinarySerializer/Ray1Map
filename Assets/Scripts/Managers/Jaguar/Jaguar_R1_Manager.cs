@@ -600,9 +600,9 @@ namespace R1Engine
                                 new Common_EventState
                                 {
                                     AnimationIndex = s,
+                                    LinkedEtat = (byte)e.EventDefinition.States.FindItemIndex(x => x == e.EventDefinition.States[s].LinkedState),
                                     
                                     // TODO: Set these correctly
-                                    LinkedEtat = s,
                                     AnimationSpeed = 2,
                                 }
                             };
