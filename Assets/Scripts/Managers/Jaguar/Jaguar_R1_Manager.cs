@@ -527,6 +527,7 @@ namespace R1Engine
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
 
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
+            var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
 
             // TODO: Fix with correct link index
             var linkIndex = 0;
@@ -585,20 +586,49 @@ namespace R1Engine
                         eventDesigns.Add(e.EventDefinition.ImageDescriptorsPointer, finalDesign);
                     }
 
+                    // Add if not found
+                    if (e.EventDefinition.EventStatesPointer != null && e.EventDefinition.States != null && !eventETA.ContainsKey(e.EventDefinition.EventStatesPointer))
+                    {
+                        // Create a common state array
+                        var states = new Common_EventState[e.EventDefinition.States.Length][];
+
+                        // Add dummy states
+                        for (byte s = 0; s < states.Length; s++)
+                        {
+                            states[s] = new Common_EventState[]
+                            {
+                                new Common_EventState
+                                {
+                                    AnimationIndex = s,
+                                    
+                                    // TODO: Set these correctly
+                                    LinkedEtat = s,
+                                    AnimationSpeed = 2,
+                                }
+                            };
+                        }
+
+                        // Add to the states
+                        eventETA.Add(e.EventDefinition.EventStatesPointer, states);
+                    }
+
                     // Add the event
                     commonLev.EventData.Add(new Common_EventData
                     {
-                        // TODO: Fill out values...
-                        Type = EventType.TYPE_BADGUY1,
+                        // TODO: Set this to the state index
                         Etat = 0,
-                        SubEtat = 0,
+                        
+                        LinkIndex = linkIndex,
 
                         XPosition = mapX + e.OffsetX,
                         YPosition = mapY + e.OffsetY,
 
-                        // TODO: Fill out values...
                         DESKey = e.EventDefinition.ImageDescriptorsPointer?.ToString() ?? String.Empty,
-                        ETAKey = String.Empty,
+                        ETAKey = e.EventDefinition.EventStatesPointer?.ToString() ?? String.Empty,
+                        
+                        // These are not available on Jaguar
+                        SubEtat = 0,
+                        Type = EventType.TYPE_BADGUY1,
                         OffsetBX = 0,
                         OffsetBY = 0,
                         OffsetHY = 0,
@@ -611,7 +641,7 @@ namespace R1Engine
                         FlipHorizontally = false,
                         LabelOffsets = new ushort[0],
                         CommandCollection = null,
-                        LinkIndex = linkIndex,
+
                         DebugText = $"Unk_0A: {e.Unk_0A}{Environment.NewLine}" +
                                     $"Unk_0C: {e.Unk_0C}{Environment.NewLine}" +
                                     $"MapPos: {mapPos}{Environment.NewLine}" +
@@ -646,7 +676,7 @@ namespace R1Engine
                 }
             }
 
-            return Task.FromResult<BaseEditorManager>(new PS1EditorManager(commonLev, context, eventDesigns, new Dictionary<Pointer, Common_EventState[][]>(), null));
+            return Task.FromResult<BaseEditorManager>(new PS1EditorManager(commonLev, context, eventDesigns, eventETA, null));
         }
 
         /// <summary>
