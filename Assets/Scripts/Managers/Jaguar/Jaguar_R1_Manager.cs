@@ -593,12 +593,14 @@ namespace R1Engine
                         // Add dummy states
                         for (byte s = 0; s < states.Length; s++)
                         {
+                            var stateLinkIndex = e.EventDefinition.States.Where(x => x.Animation != null).FindItemIndex(x => x == e.EventDefinition.States[s].LinkedState);
+
                             states[s] = new Common_EventState[]
                             {
                                 new Common_EventState
                                 {
                                     AnimationIndex = s,
-                                    LinkedEtat = (byte)e.EventDefinition.States.FindItemIndex(x => x == e.EventDefinition.States[s].LinkedState),
+                                    LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
                                     
                                     // TODO: Set these correctly
                                     AnimationSpeed = 2,
