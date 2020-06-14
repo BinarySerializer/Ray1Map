@@ -82,9 +82,9 @@ namespace R1Engine
             {
                 // TODO: Where is flip flag?
 
+                XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));
                 ImageIndex = s.Serialize<byte>((byte)ImageIndex, name: nameof(ImageIndex));
-                XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
             }
             else
             {

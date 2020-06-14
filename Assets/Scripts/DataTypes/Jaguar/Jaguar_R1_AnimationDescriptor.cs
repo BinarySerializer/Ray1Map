@@ -34,9 +34,9 @@
             // TODO: Are there frames anywhere?
 
             // Serialize data
-            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: nameof(LayersPerFrame));
-            s.Serialize<byte>(default, name: "Padding");
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
+            s.Serialize<byte>(default, name: "Padding");
+            LayersPerFrame = s.Serialize<byte>(LayersPerFrame, name: nameof(LayersPerFrame));
             s.Serialize<byte>(default, name: "Padding");
 
             // Serialize data from pointers

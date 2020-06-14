@@ -552,7 +552,7 @@ namespace R1Engine
                     var e = rom.EventData.EventData[i][j];
 
                     // Add if not found
-                    if (e.EventDefinition.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(e.EventDefinition.ImageDescriptorsPointer))
+                    if (!eventDesigns.ContainsKey(e.EventDefinition.Offset))
                     {
                         Common_Design finalDesign = new Common_Design
                         {
@@ -561,20 +561,18 @@ namespace R1Engine
                         };
 
                         // Get every sprite
-                        foreach (Common_ImageDescriptor img in e.EventDefinition.ImageDescriptors)
-                        {
-                            // TODO: Remove try catch
-                            try
-                            {
-                                // Get the texture for the sprite, or null if not loading textures
-                                Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[e.EventDefinition.ImageBufferMemoryPointerPointer]) : null;
+                        if (e.EventDefinition.ImageDescriptors != null) {
+                            foreach (Common_ImageDescriptor img in e.EventDefinition.ImageDescriptors) {
+                                // TODO: Remove try catch
+                                try {
+                                    // Get the texture for the sprite, or null if not loading textures
+                                    Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[e.EventDefinition.ImageBufferMemoryPointerPointer]) : null;
 
-                                // Add it to the array
-                                finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                            }
-                            catch (Exception ex)
-                            {
-                                finalDesign.Sprites.Add(null);
+                                    // Add it to the array
+                                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                                } catch (Exception ex) {
+                                    finalDesign.Sprites.Add(null);
+                                }
                             }
                         }
 
@@ -583,7 +581,7 @@ namespace R1Engine
                             finalDesign.Animations.AddRange(e.EventDefinition.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation()));
 
                         // Add to the designs
-                        eventDesigns.Add(e.EventDefinition.ImageDescriptorsPointer, finalDesign);
+                        eventDesigns.Add(e.EventDefinition.Offset, finalDesign);
                     }
 
                     // Add if not found
@@ -623,7 +621,7 @@ namespace R1Engine
                         XPosition = mapX + e.OffsetX,
                         YPosition = mapY + e.OffsetY,
 
-                        DESKey = e.EventDefinition.ImageDescriptorsPointer?.ToString() ?? String.Empty,
+                        DESKey = e.EventDefinition.Offset?.ToString() ?? String.Empty,
                         ETAKey = e.EventDefinition.EventStatesPointer?.ToString() ?? String.Empty,
                         
                         // These are not available on Jaguar
