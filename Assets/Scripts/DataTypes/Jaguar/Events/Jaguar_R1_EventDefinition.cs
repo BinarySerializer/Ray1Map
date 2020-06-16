@@ -212,7 +212,11 @@ namespace R1Engine {
 			s.DoAt(ImageDescriptorsPointer, () => {
 				// TODO: This doesn't seem to work consistently at all - fallback to previous method for now
 				if (States != null && States.Length > 0) {
-					ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, States.Where(x => x?.Animation != null).SelectMany(x => x.Animation.Layers).Max(x => x.ImageIndex) + 1, name: nameof(ImageDescriptors));
+					int maxImageIndex = States
+						.Where(x => x?.Animation != null)
+						.SelectMany(x => x.Animation.Layers)
+						.Max(x => UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) : x.ImageIndex);
+					ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
 					//Debug.Log(ImageDescriptors.Length);
 				} else {
 					var temp = new List<Common_ImageDescriptor>();
