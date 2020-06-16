@@ -954,6 +954,8 @@ namespace R1Engine
                             for (int jj = 0; jj < (dat.ETA[ii]?.Length ?? 0); jj++)
                                 current[ii][jj] = dat.ETA[ii][jj];
                         }
+
+                        eventETA[dat.ETAPointer] = current;
                     }
 
                     // Add the event
