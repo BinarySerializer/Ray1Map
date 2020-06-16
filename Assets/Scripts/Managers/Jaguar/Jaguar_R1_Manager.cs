@@ -166,7 +166,6 @@ namespace R1Engine
                     // Get the level load commands
                     var lvlCmds = rom.MapDataLoadCommands[worldIndex];
 
-                    // TODO: Why does Cave 3 not have palettes or cmds?
                     // Get palettes for the levels
                     var palettes = lvlCmds.
                         Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)?.PalettePointer).
@@ -224,7 +223,7 @@ namespace R1Engine
                         var imgIndex = 0;
 
                         // Export every sprite
-                        foreach (var d in des.ImageDescriptors)
+                        foreach (var d in des.ImageDescriptors ?? des.ComplexData?.ImageDescriptors ?? new Common_ImageDescriptor[0])
                         {
                             // TODO: Remove the try/catch once we fix the width!
                             try
