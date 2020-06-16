@@ -16,7 +16,7 @@ namespace R1Engine {
 
 		public Pointer CodePointer { get; set; }
 		public Pointer CurrentStatePointer { get; set; }
-		public Pointer GraphicsPointer { get; set; }
+		public Pointer ComplexDataPointer { get; set; }
 		public ushort UShort_10 { get; set; }
 		public ushort UShort_12 { get; set; }
 		public Pointer ImageDescriptorsPointer { get; set; }
@@ -44,7 +44,7 @@ namespace R1Engine {
 
 		public Common_ImageDescriptor[] ImageDescriptors { get; set; }
 		public Jaguar_R1_EventState[] States { get; set; }
-		public Jaguar_R1_EventGraphics Graphics { get; set; }
+		public Jaguar_R1_EventComplexData ComplexData { get; set; }
 
 		#endregion
 
@@ -60,7 +60,7 @@ namespace R1Engine {
 			StructType2 = s.Serialize<ushort>(StructType2, name: nameof(StructType2));
 			if (StructType2 == 29) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
-				GraphicsPointer = s.SerializePointer(GraphicsPointer, name: nameof(GraphicsPointer));
+				ComplexDataPointer = s.SerializePointer(ComplexDataPointer, name: nameof(ComplexDataPointer));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
 				UShort_12 = s.Serialize<ushort>(UShort_12, name: nameof(UShort_12));
 				ImageBufferMemoryPointerPointer = s.Serialize<uint>(ImageBufferMemoryPointerPointer, name: nameof(ImageBufferMemoryPointerPointer));
@@ -74,7 +74,7 @@ namespace R1Engine {
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 			} else if (StructType2 == 6 || StructType2 == 7 || StructType2 == 30 || StructType2 == 31) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
-				GraphicsPointer = s.SerializePointer(GraphicsPointer, name: nameof(GraphicsPointer));
+				ComplexDataPointer = s.SerializePointer(ComplexDataPointer, name: nameof(ComplexDataPointer));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
 				UShort_12 = s.Serialize<ushort>(UShort_12, name: nameof(UShort_12));
 				ImageBufferMemoryPointerPointer = s.Serialize<uint>(ImageBufferMemoryPointerPointer, name: nameof(ImageBufferMemoryPointerPointer));
@@ -200,10 +200,10 @@ namespace R1Engine {
 
 					States = temp.ToArray();
 				});
-			} else if (GraphicsPointer != null) {
+			} else if (ComplexDataPointer != null) {
 				if (!(StructType2 == 30 && StructType1 == 5)) { // Different struct in this case, that only has states with code pointers
-					s.DoAt(GraphicsPointer, () => {
-						Graphics = s.SerializeObject<Jaguar_R1_EventGraphics>(Graphics, onPreSerialize: g => g.StructType = StructType2, name: nameof(Graphics));
+					s.DoAt(ComplexDataPointer, () => {
+						ComplexData = s.SerializeObject<Jaguar_R1_EventComplexData>(ComplexData, onPreSerialize: g => g.StructType = StructType2, name: nameof(ComplexData));
 					});
 				}
 			}

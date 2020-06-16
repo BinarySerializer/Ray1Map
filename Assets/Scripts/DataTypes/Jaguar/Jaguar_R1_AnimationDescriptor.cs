@@ -76,7 +76,7 @@
 
                         // Create the animation part
                         Common_AnimationPart part;
-                        if (eventDefinition.UShort_12 == 5) {
+                        if (eventDefinition.UShort_12 == 5 || eventDefinition.StructType2 == 31) {
                             part = new Common_AnimationPart {
                                 ImageIndex = BitHelpers.ExtractBits(animationLayer.ImageIndex, 7, 0),
                                 XPosition = animationLayer.XPosition,
