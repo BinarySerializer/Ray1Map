@@ -491,9 +491,11 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public virtual Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            //InitRAM(context);
+            Controller.status = $"Loading data";
+            await Controller.WaitIfNecessary();
+
             // Read the rom
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
 
@@ -522,6 +524,9 @@ namespace R1Engine
                 EventData = new List<Common_EventData>(),
             };
 
+            Controller.status = $"Loading tile set";
+            await Controller.WaitIfNecessary();
+
             // Load tile set and treat black as transparent
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
 
@@ -530,6 +535,9 @@ namespace R1Engine
 
             // TODO: Fix with correct link index
             var linkIndex = 0;
+
+            Controller.status = $"Loading events & states";
+            await Controller.WaitIfNecessary();
 
             // Load events
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
@@ -781,6 +789,9 @@ namespace R1Engine
                 }
             }
 
+            Controller.status = $"Loading map";
+            await Controller.WaitIfNecessary();
+
             // Enumerate each cell
             for (int cellY = 0; cellY < map.Height; cellY++)
             {
@@ -803,7 +814,7 @@ namespace R1Engine
                 }
             }
 
-            return Task.FromResult<BaseEditorManager>(new PS1EditorManager(commonLev, context, eventDesigns, eventETA, null));
+            return new PS1EditorManager(commonLev, context, eventDesigns, eventETA, null);
         }
 
         /// <summary>
