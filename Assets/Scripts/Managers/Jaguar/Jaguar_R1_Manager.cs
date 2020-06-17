@@ -583,34 +583,28 @@ namespace R1Engine
                                     finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                                 } catch (Exception ex) {
                                     finalDesign.Sprites.Add(null);
+                                    Debug.LogWarning($"Error loading sprite: {ex.Message}");
                                 }
                             }
                         }
-                        if (ed.ImageDescriptors != null) {
+                        if (ed.ImageDescriptors != null)
                             AddImageDescriptors(ed.ImageDescriptors);
-                        }
-                        if (ed.ComplexData != null) {
+
+                        if (ed.ComplexData != null)
                             AddImageDescriptors(ed.ComplexData?.ImageDescriptors);
-                        }
 
                         // Add animations
                         if (ed.States != null) {
-                            finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => {
-                                return x.Animation.ToCommonAnimation(ed);
-                            }));
+                            finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation(ed)));
                         } else if (ed.ComplexData != null) {
                             if (ed.ComplexData.Transitions != null) {
                                 foreach (var graphref in ed.ComplexData.Transitions) {
                                     if (graphref.ComplexData?.States == null) continue;
-                                    finalDesign.Animations.AddRange(graphref.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => {
-                                        return x.ToCommonAnimation(ed);
-                                    }));
+                                    finalDesign.Animations.AddRange(graphref.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                                 }
                             } else {
                                 if (ed.ComplexData.States != null) {
-                                    finalDesign.Animations.AddRange(ed.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => {
-                                        return x.ToCommonAnimation(ed);
-                                    }));
+                                    finalDesign.Animations.AddRange(ed.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                                 }
                             }
                         }
@@ -728,7 +722,6 @@ namespace R1Engine
                     if (etatKey != null) {
                         if (!usesComplexData) {
                             if (ed.States != null && ed.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
-                                var eta = eventETA[etatKey];
                                 var validStates = ed.States.Where(x => x.Animation != null).ToArray();
                                 int ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
                                 if (ind >= 0) {
@@ -774,12 +767,14 @@ namespace R1Engine
                         LabelOffsets = new ushort[0],
                         CommandCollection = null,
 
-                        DebugText = $"Unk_0A: {e.Unk_0A}{Environment.NewLine}" +
-                                    $"Unk_0C: {e.Unk_0C}{Environment.NewLine}" +
+                        DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
+                                    $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
+                                    $"{nameof(e.Unk_0C)}: {e.Unk_0C}{Environment.NewLine}" +
                                     $"MapPos: {mapPos}{Environment.NewLine}" +
-                                    $"DES: {e.EventDefinitionPointer}{Environment.NewLine}" +
-                                    $"OffsetX: {e.OffsetX}{Environment.NewLine}" +
-                                    $"OffsetY: {e.OffsetY}{Environment.NewLine}"
+                                    $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
+                                    $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
+                                    $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
+                                    $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}"
                     });
 
                     linkIndex++;

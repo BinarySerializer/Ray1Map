@@ -54,23 +54,23 @@ namespace R1Engine
                         var temp = new List<Jaguar_R1_EventInstance>();
 
                         var index = 0;
-                        while (s.Serialize<ushort>(default, name: "ReadEvent") != 0)
+                        while (temp.LastOrDefault()?.Unk_00 != 0)
                         {
                             temp.Add(s.SerializeObject<Jaguar_R1_EventInstance>(default, name: $"{nameof(EventData)}[{i}][{index}]"));
                             index++;
                         }
+
+                        // Remove last entry as it's invalid
+                        temp.RemoveAt(temp.Count - 1);
 
                         EventData[i] = temp.ToArray();
                     }
                     else
                     {
                         for (int j = 0; j < EventData[i].Length; j++)
-                        {
-                            s.Serialize<ushort>(1, name: "ReadEvent");
                             EventData[i][j] = s.SerializeObject<Jaguar_R1_EventInstance>(EventData[i][j], name: $"{nameof(EventData)}[{i}][{j}]");
-                        }
 
-                        s.Serialize<ushort>(0, name: "ReadEvent");
+                        s.Serialize<ushort>(0, name: nameof(Jaguar_R1_EventInstance.Unk_00));
                     }
                 });
             }
