@@ -591,15 +591,15 @@ namespace R1Engine
                         } else if (ed.ComplexData != null) {
                             if (ed.ComplexData.Transitions != null) {
                                 foreach (var graphref in ed.ComplexData.Transitions) {
-                                    if (graphref.State?.States == null) continue;
-                                    finalDesign.Animations.AddRange(graphref.State.States.Where(x => x.Animation != null).Select(x => {
-                                        return x.Animation.ToCommonAnimation(ed);
+                                    if (graphref.ComplexData?.States == null) continue;
+                                    finalDesign.Animations.AddRange(graphref.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => {
+                                        return x.ToCommonAnimation(ed);
                                     }));
                                 }
                             } else {
                                 if (ed.ComplexData.States != null) {
-                                    finalDesign.Animations.AddRange(ed.ComplexData.States.Where(x => x.Animation != null).Select(x => {
-                                        return x.Animation.ToCommonAnimation(ed);
+                                    finalDesign.Animations.AddRange(ed.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => {
+                                        return x.ToCommonAnimation(ed);
                                     }));
                                 }
                             }
@@ -659,10 +659,10 @@ namespace R1Engine
                                 var states = new Common_EventState[7][];
 
                                 for(int gr = 0; gr < 7; gr++) {
-                                    if (ed.ComplexData.Transitions[gr].State == null) continue;
-                                    var g = ed.ComplexData.Transitions[gr].State;
+                                    if (ed.ComplexData.Transitions[gr].ComplexData == null) continue;
+                                    var g = ed.ComplexData.Transitions[gr].ComplexData;
 
-                                    var validStates = g.States.Where(x => x.Animation != null).ToArray();
+                                    var validStates = g.States.Where(x => x.Layers?.Length > 0).ToArray();
 
                                     // Create a common state array
                                     var substates = new Common_EventState[validStates.Length];
@@ -685,7 +685,7 @@ namespace R1Engine
                                 // Add to the states
                                 eventETA.Add(etatKey, states);
                             } else {
-                                var validStates = ed.ComplexData.States.Where(x => x.Animation != null).ToArray();
+                                var validStates = ed.ComplexData.States.Where(x => x.Layers?.Length > 0).ToArray();
 
                                 // Create a common state array
                                 var states = new Common_EventState[validStates.Length][];
@@ -727,7 +727,7 @@ namespace R1Engine
                             }
                         } else {
                             if (usesSubstates) {
-                                stateIndex = ed.ComplexData.Transitions.FindItemIndex(g => g.State == ed.ComplexData);
+                                stateIndex = ed.ComplexData.Transitions.FindItemIndex(g => g.ComplexData == ed.ComplexData);
                                 substateIndex = 0;
                             } else {
                                 stateIndex = 0;

@@ -10,9 +10,9 @@ namespace R1Engine {
 	public class Jaguar_R1_EventDefinition : R1Serializable {
 		#region Event Data
 
-		public short StructType1 { get; set; }
+		public short NumLayers { get; set; }
 		public Pointer Pointer_02 { get; set; } // Points to a struct of size 0x26. just some shorts, no pointers
-		public ushort StructType2 { get; set; }
+		public ushort StructType { get; set; }
 
 		public Pointer CodePointer { get; set; }
 		public Pointer CurrentStatePointer { get; set; }
@@ -55,10 +55,10 @@ namespace R1Engine {
 		/// </summary>
 		/// <param name="s">The serializer object</param>
 		public override void SerializeImpl(SerializerObject s) {
-			StructType1 = s.Serialize<short>(StructType1, name: nameof(StructType1));
+			NumLayers = s.Serialize<short>(NumLayers, name: nameof(NumLayers));
 			Pointer_02 = s.SerializePointer(Pointer_02, name: nameof(Pointer_02));
-			StructType2 = s.Serialize<ushort>(StructType2, name: nameof(StructType2));
-			if (StructType2 == 29) {
+			StructType = s.Serialize<ushort>(StructType, name: nameof(StructType));
+			if (StructType == 29) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
 				ComplexDataPointer = s.SerializePointer(ComplexDataPointer, name: nameof(ComplexDataPointer));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
@@ -72,7 +72,7 @@ namespace R1Engine {
 				UShort_24 = s.Serialize<ushort>(UShort_24, name: nameof(UShort_24));
 				UShort_26 = s.Serialize<ushort>(UShort_26, name: nameof(UShort_26));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
-			} else if (StructType2 == 6 || StructType2 == 7 || StructType2 == 30 || StructType2 == 31) {
+			} else if (StructType == 6 || StructType == 7 || StructType == 30 || StructType == 31) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
 				ComplexDataPointer = s.SerializePointer(ComplexDataPointer, name: nameof(ComplexDataPointer));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
@@ -89,27 +89,27 @@ namespace R1Engine {
 				Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
 				Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 				Byte_27 = s.Serialize<byte>(Byte_27, name: nameof(Byte_27));
-			} else if (StructType2 == 23 || StructType2 == 11 || StructType2 == 2) {
+			} else if (StructType == 23 || StructType == 11 || StructType == 2) {
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1c, name: nameof(UnkBytes));
-			} else if (StructType2 == 36 || StructType2 == 37 || StructType2 == 56) {
+			} else if (StructType == 36 || StructType == 37 || StructType == 56) {
 				Byte_20 = s.Serialize<byte>(Byte_20, name: nameof(Byte_20));
 				Byte_21 = s.Serialize<byte>(Byte_21, name: nameof(Byte_21));
 				Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
 				Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1C, name: nameof(UnkBytes));
-			} else if (StructType2 == 111) {
+			} else if (StructType == 111) {
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x8, name: nameof(UnkBytes));
 				UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0xA, name: nameof(UnkBytes));
-			} else if (StructType2 == 112 || StructType2 == 113 || StructType2 == 114) {
+			} else if (StructType == 112 || StructType == 113 || StructType == 114) {
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1a, name: nameof(UnkBytes));
-			} else if (StructType2 == 25) {
+			} else if (StructType == 25) {
 				UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
 				UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
@@ -201,9 +201,12 @@ namespace R1Engine {
 					States = temp.ToArray();
 				});
 			} else if (ComplexDataPointer != null) {
-				if (!(StructType2 == 30 && StructType1 == 5)) { // Different struct in this case, that only has states with code pointers
+				if (!(StructType == 30 && NumLayers == 5)) { // Different struct in this case, that only has states with code pointers
 					s.DoAt(ComplexDataPointer, () => {
-						ComplexData = s.SerializeObject<Jaguar_R1_EventComplexData>(ComplexData, onPreSerialize: g => g.StructType = StructType2, name: nameof(ComplexData));
+						ComplexData = s.SerializeObject<Jaguar_R1_EventComplexData>(ComplexData, onPreSerialize: cd => {
+							cd.StructType = StructType;
+							cd.NumLayers = (ushort)NumLayers;
+						}, name: nameof(ComplexData));
 					});
 				}
 			}

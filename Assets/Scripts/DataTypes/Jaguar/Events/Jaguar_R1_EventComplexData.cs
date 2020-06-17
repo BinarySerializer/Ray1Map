@@ -10,6 +10,7 @@ namespace R1Engine
     public class Jaguar_R1_EventComplexData : R1Serializable
     {
         public ushort StructType { get; set; } // Read from EventDefinition
+		public ushort NumLayers { get; set; }
 
         public byte[] UnkBytes { get; set; }
         public Pointer ImageDescriptorsPointer { get; set; }
@@ -31,7 +32,10 @@ namespace R1Engine
             }
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
             if (StructType != 29) {
-                Transitions = s.SerializeObjectArray<Jaguar_R1_EventComplexDataTransition>(Transitions, 7, onPreSerialize: g => g.StructType = StructType, name: nameof(Transitions));
+                Transitions = s.SerializeObjectArray<Jaguar_R1_EventComplexDataTransition>(Transitions, 7, onPreSerialize: g => {
+					g.StructType = StructType;
+					g.NumLayers = NumLayers;
+				}, name: nameof(Transitions));
             }
 
 			// Serialize from first state index
@@ -55,7 +59,8 @@ namespace R1Engine
 						|| (CheckPtr0 != null && CheckPtr0.file != Offset.file)) {
 							break;
 						} else if(CheckPtr0 != null) {
-							byte[] CheckBytes = null;
+							// Can't check animation header, the frame pointer doesn't always point to the start of the actual animation
+							/*byte[] CheckBytes = null;
 							s.DoAt(CheckPtr0 - 4, () => {
 								CheckBytes = s.SerializeArray<byte>(CheckBytes, 4, name: nameof(CheckBytes));
 								if (CheckBytes[1] != 0 || CheckBytes[3] != 0
@@ -63,11 +68,11 @@ namespace R1Engine
 									// Padding should be padding, other values should be filled in
 									success = false;
 								}
-							});
+							});*/
 							if (!success) break;
 						}
 					}
-					var i = s.SerializeObject<Jaguar_R1_EventComplexDataState>(default, name: $"{nameof(States)}[{index}]");
+					var i = s.SerializeObject<Jaguar_R1_EventComplexDataState>(default, onPreSerialize: state => state.LayersPerFrame = NumLayers, name: $"{nameof(States)}[{index}]");
 
 					temp.Add(i);
 
@@ -80,8 +85,8 @@ namespace R1Engine
 				// TODO: This doesn't seem to work consistently at all - fallback to previous method for now
 				if (States != null && States.Length > 0) {
 					int maxImageIndex = States
-						.Where(x => x?.Animation != null)
-						.SelectMany(x => x.Animation.Layers)
+						.Where(x => x?.Layers != null)
+						.SelectMany(x => x.Layers)
 						.Max(x => /*UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) :*/ x.ImageIndex);
 					ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
 					//Debug.Log(ImageDescriptors.Length);
