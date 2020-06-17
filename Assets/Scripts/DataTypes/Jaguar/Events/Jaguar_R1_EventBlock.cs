@@ -54,7 +54,7 @@ namespace R1Engine
                         var temp = new List<Jaguar_R1_EventInstance>();
 
                         var index = 0;
-                        while (s.Serialize<ushort>(default, name: "ReadEvent") == 1)
+                        while (s.Serialize<ushort>(default, name: "ReadEvent") != 0)
                         {
                             temp.Add(s.SerializeObject<Jaguar_R1_EventInstance>(default, name: $"{nameof(EventData)}[{i}][{index}]"));
                             index++;

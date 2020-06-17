@@ -551,6 +551,16 @@ namespace R1Engine
                     var e = rom.EventData.EventData[i][j];
                     var ed = e.EventDefinition;
 
+                    /* TODO: Process special event definitions.
+                     * - 0x001FB3C8[0x000023C8]: RAY POS
+                     * - 0x001FB760[0x00002760]: Mr Dark boss spawners
+                     * - 0x001F9CD0[0x00000CD0]: Gendoors. Spawns next event read by ReadEvent in Jaguar_R1_EventBlock
+                     */
+                    /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
+                        var indEd = Array.IndexOf(rom.EventDefinitions,ed);
+                        ed = rom.EventDefinitions[indEd + e.Unk_0C];
+                    }*/
+
                     // Add if not found
                     if (!eventDesigns.ContainsKey(ed.Offset))
                     {
