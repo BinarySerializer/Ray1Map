@@ -204,12 +204,13 @@ namespace R1Engine
                 var index = 0;
                 foreach (var cmd in FixSpritesLoadCommands.Commands.Concat(WorldSpritesLoadCommands.SelectMany(x => x.Commands)).Concat(map).Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites))
                 {
-                    if (ImageBuffers.ContainsKey(cmd.ImageBufferMemoryPointerPointer))
+                    // Later commands overwrite the current one
+                    /*if (ImageBuffers.ContainsKey(cmd.ImageBufferMemoryPointerPointer))
                         continue;
-                    
+                    */
                     s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () =>
                     {
-                        ImageBuffers.Add(cmd.ImageBufferMemoryPointerPointer, s.SerializeArray<byte>(default, s.CurrentLength, $"ImageBuffer[{index}]"));
+                        ImageBuffers[cmd.ImageBufferMemoryPointerPointer] = s.SerializeArray<byte>(default, s.CurrentLength, $"ImageBuffer[{index}]");
                     }));
                     index++;
                 }
