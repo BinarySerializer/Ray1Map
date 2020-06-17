@@ -9,8 +9,8 @@
         public ushort Unk_00 { get; set; }
 
         // Offsets for the position
-        public ushort OffsetX { get; set; }
-        public ushort OffsetY { get; set; }
+        public short OffsetX { get; set; }
+        public short OffsetY { get; set; }
 
         public Pointer EventDefinitionPointer { get; set; }
 
@@ -34,8 +34,8 @@
             if (Unk_00 == 0)
                 return;
 
-            OffsetX = s.Serialize<ushort>(OffsetX, name: nameof(OffsetX));
-            OffsetY = s.Serialize<ushort>(OffsetY, name: nameof(OffsetY));
+            OffsetX = s.Serialize<short>(OffsetX, name: nameof(OffsetX));
+            OffsetY = s.Serialize<short>(OffsetY, name: nameof(OffsetY));
             EventDefinitionPointer = s.SerializePointer(EventDefinitionPointer, name: nameof(EventDefinitionPointer));
             Unk_0A = s.Serialize<ushort>(Unk_0A, name: nameof(Unk_0A));
             Unk_0C = s.Serialize<ushort>(Unk_0C, name: nameof(Unk_0C));

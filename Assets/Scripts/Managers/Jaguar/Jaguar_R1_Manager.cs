@@ -558,6 +558,7 @@ namespace R1Engine
                 {
                     var e = rom.EventData.EventData[i][j];
                     var ed = e.EventDefinition;
+                    int? predeterminedState = null;
 
                     /* TODO: Process special event definitions.
                      * - 0x001FB3C8[0x000023C8]: RAY POS
@@ -567,6 +568,16 @@ namespace R1Engine
                     /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
                         var indEd = Array.IndexOf(rom.EventDefinitions,ed);
                         ed = rom.EventDefinitions[indEd + e.Unk_0C];
+                    }*/
+                    /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
+                        var indEd = Array.IndexOf(rom.EventDefinitions, ed);
+                        ed = rom.EventDefinitions[indEd + 2];
+                    }*/
+                    // Switch
+                    /*if (ed.CodePointer?.AbsoluteOffset == 0x00B9C67C) {
+                        //var indEd = Array.IndexOf(rom.EventDefinitions, ed);
+                        ed = rom.EventDefinitions[388];
+                        predeterminedState = e.EventDefinition.UnkBytes[5];
                     }*/
 
                     // Add if not found
@@ -591,7 +602,7 @@ namespace R1Engine
                                     finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                                 } catch (Exception ex) {
                                     finalDesign.Sprites.Add(null);
-                                    Debug.LogWarning($"Error loading sprite: {ex.Message}");
+                                    Debug.LogWarning($"Error loading sprite with descriptor {img.Offset} for event definition {ed.Offset}: {ex.Message}");
                                 }
                             }
                         }
@@ -731,7 +742,17 @@ namespace R1Engine
                         if (!usesComplexData) {
                             if (ed.States != null && ed.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
                                 var validStates = ed.States.Where(x => x.Animation != null).ToArray();
-                                int ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
+                                int ind = 0;
+                                if (predeterminedState.HasValue && predeterminedState.Value < ed.States.Length) {
+                                    var st = ed.States[predeterminedState.Value];
+                                    if (st.LinkedState != null) st = st.LinkedState;
+                                    ind = validStates.FindItemIndex(state => state.Offset == st.Offset);
+                                    if (ind < 0) {
+                                        ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
+                                    }
+                                } else {
+                                    ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
+                                }
                                 if (ind >= 0) {
                                     stateIndex = ind;
                                 }
@@ -754,8 +775,8 @@ namespace R1Engine
                             
                         LinkIndex = linkIndex,
 
-                        XPosition = mapX + e.OffsetX,
-                        YPosition = mapY + e.OffsetY,
+                        XPosition = (uint)(mapX + e.OffsetX),
+                        YPosition = (uint)(mapY + e.OffsetY),
 
                         DESKey = ed.Offset?.ToString() ?? String.Empty,
                         ETAKey = etatKey?.ToString() ?? String.Empty,
