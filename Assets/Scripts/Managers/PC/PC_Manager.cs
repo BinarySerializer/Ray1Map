@@ -510,7 +510,7 @@ namespace R1Engine
             var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
 
             // Find the level with the correct palette
-            var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.EventData.Events.Any(y => y.DES == desIndex)) ?? levels.First();
+            var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.EventData.Events.Any(y => y.DES_ImageDescriptors == desIndex)) ?? levels.First();
 
             // Enumerate each image
             for (int i = 0; i < desItem.ImageDescriptors.Length; i++)
@@ -614,7 +614,7 @@ namespace R1Engine
                 if (worldFile.FileType != PC_WorldFile.Type.BigRay)
                 {
                     // Search level events
-                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.DES == desIndex))
+                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.DES_ImageDescriptors == desIndex))
                         matchingStates.AddRange(eta[lvlEvent.ETA].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
 
                     // Search event info
@@ -1396,7 +1396,7 @@ namespace R1Engine
             foreach (PC_Event e in levelData.EventData.Events)
             {
                 // Get the file keys
-                var desKey = desNames.Any() ? desNames[e.DES] : e.DES.ToString();
+                var desKey = desNames.Any() ? desNames[e.DES_ImageDescriptors] : e.DES_ImageDescriptors.ToString();
                 var etaKey = etaNames.Any() ? etaNames[e.ETA] : e.ETA.ToString();
 
                 // Add the event
@@ -1605,11 +1605,11 @@ namespace R1Engine
                 // Create the event
                 var r1Event = new PC_Event
                 {
-                    DES = desIndex,
-                    DES2 = desIndex,
-                    DES3 = desIndex,
+                    DES_ImageDescriptors = desIndex,
+                    DES_AnimationDescriptors = desIndex,
+                    DES_ImageBuffer = desIndex,
                     ETA = etaIndex,
-                    Unk_16 = 0,
+                    RuntimeCommandsPointer = 0,
                     Unk_20 = 0,
                     Unk_24 = 0,
                     Unk_28 = 0,
@@ -1627,7 +1627,7 @@ namespace R1Engine
                     Unk_106 = 0,
                     SubEtat = (byte)e.SubEtat,
                     Etat = (byte)e.Etat,
-                    Unk_110 = 0,
+                    RuntimeSubEtat = 0,
                     Unk_112 = 0,
                     OffsetHY = (byte)e.OffsetHY,
                     FollowSprite = (byte)e.FollowSprite,

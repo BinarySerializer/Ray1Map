@@ -1,59 +1,24 @@
 ﻿using System;
-using System.Linq;
 
 namespace R1Engine
 {
+    // TODO: Merge event data with PS1? The majority is the same.
     /// <summary>
     /// Event data for PC
     /// </summary>
     public class PC_Event : R1Serializable
     {
-        #region GBA
-
-        public Pointer ImageDescriptorsPointer_GBA { get; set; }
-        public Pointer AnimDescriptorsPointer_GBA { get; set; }
-
-        // Compressed?
-        public Pointer ImageBufferPointer_GBA { get; set; }
-        
-        public Pointer ETAPointer_GBA { get; set; }
-        public Pointer CommandsPointer_GBA { get; set; }
-
-        // First 2 bytes are the event index as it appears and is used to cross reference with the link table
-        public byte[] GBAUnk1 { get; set; }
-        public byte[] GBAUnk2 { get; set; }
-        public ushort GBA_XPosition2 { get; set; }
-        public ushort GBA_YPosition2 { get; set; }
-
-        #endregion
-
-        #region GBA Parsed Data
-
-        public Common_ImageDescriptor[] ImageDescriptors { get; set; }
-
-        public PS1_R1_AnimationDescriptor[] AnimDescriptors { get; set; }
-
-        public byte[] ImageBuffer { get; set; }
-
-        public Common_EventState[][] ETA_GBA { get; set; }
-
-        /// <summary>
-        /// The event commands
-        /// </summary>
-        public Common_EventCommandCollection Commands_GBA { get; set; }
-
-        #endregion
-
-        public uint DES { get; set; }
-
-        public uint DES2 { get; set; }
-
-        public uint DES3 { get; set; }
-
+        // These are indexes in the files and get replaced with pointers during runtime!
+        public uint DES_ImageDescriptors { get; set; }
+        public uint DES_AnimationDescriptors { get; set; }
+        public uint DES_ImageBuffer { get; set; }
         public uint ETA { get; set; }
 
-        public uint Unk_16 { get; set; }
+        public uint RuntimeCommandsPointer { get; set; }
+        
+        // Label offsets?
         public uint Unk_20 { get; set; }
+
         public uint Unk_24 { get; set; }
         public uint Unk_28 { get; set; }
         public uint Unk_32 { get; set; }
@@ -65,14 +30,19 @@ namespace R1Engine
 
         public uint Unk_48 { get; set; }
 
-        public ushort Unk_52 { get; set; }
+        // This index is used by the game to handle the event links
+        public ushort EventIndex { get; set; }
+
         public ushort Unk_54 { get; set; }
         public ushort Unk_56 { get; set; }
         public ushort Unk_58 { get; set; }
-        public ushort Unk_60 { get; set; }
-        public ushort Unk_62 { get; set; }
+
+        public ushort RuntimeXPosition { get; set; }
+        public ushort RuntimeYPosition { get; set; }
+
         public ushort Unk_64 { get; set; }
         public ushort Unk_66 { get; set; }
+
         public ushort ImageDescriptorCount { get; set; }
 
         public uint Unk_Kit { get; set; }
@@ -108,7 +78,9 @@ namespace R1Engine
 
         public byte Etat { get; set; }
 
-        public ushort Unk_110 { get; set; }
+        public byte RuntimeSubEtat { get; set; }
+
+        public byte RuntimeEtat { get; set; }
 
         public uint Unk_112 { get; set; }
 
@@ -121,11 +93,7 @@ namespace R1Engine
 
         public byte HitPoints { get; set; }
 
-        // TODO: This is a flag - other flags are used in EDU
-        /// <summary>
-        /// Indicates if the event is multi-colored (only used for Designer)
-        /// </summary>
-        public bool IsMultiColored { get; set; }
+        public byte RuntimeHitPoints { get; set; }
 
         /// <summary>
         /// The layer the event sprite gets drawn to, between 1 and 7
@@ -142,7 +110,7 @@ namespace R1Engine
         /// <summary>
         /// The layer, as stored in the game. Always 0 when serialized
         /// </summary>
-        public byte TempLayer { get; set; }
+        public byte RuntimeLayer { get; set; }
 
         public byte Unk_127 { get; set; }
 
@@ -170,58 +138,37 @@ namespace R1Engine
 
         public ushort Unk_130 { get; set; }
 
-        public ushort Unk_132_GBA { get; set; }
-
         /// <summary>
         /// Serializes the data
         /// </summary>
         /// <param name="serializer">The serializer</param>
-        public override void SerializeImpl(SerializerObject s) {
+        public override void SerializeImpl(SerializerObject s)
+        {
+            DES_ImageDescriptors = s.Serialize<uint>(DES_ImageDescriptors, name: nameof(DES_ImageDescriptors));
+            DES_AnimationDescriptors = s.Serialize<uint>(DES_AnimationDescriptors, name: nameof(DES_AnimationDescriptors));
+            DES_ImageBuffer = s.Serialize<uint>(DES_ImageBuffer, name: nameof(DES_ImageBuffer));
+            ETA = s.Serialize<uint>(ETA, name: nameof(ETA));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
-            {
-                ImageDescriptorsPointer_GBA = s.SerializePointer(ImageDescriptorsPointer_GBA, name: nameof(ImageDescriptorsPointer_GBA));
-                AnimDescriptorsPointer_GBA = s.SerializePointer(AnimDescriptorsPointer_GBA, name: nameof(AnimDescriptorsPointer_GBA));
-                ImageBufferPointer_GBA = s.SerializePointer(ImageBufferPointer_GBA, name: nameof(ImageBufferPointer_GBA));
-                ETAPointer_GBA = s.SerializePointer(ETAPointer_GBA, name: nameof(ETAPointer_GBA));
-                CommandsPointer_GBA = s.SerializePointer(CommandsPointer_GBA, name: nameof(CommandsPointer_GBA));
+            RuntimeCommandsPointer = s.Serialize<uint>(RuntimeCommandsPointer, name: nameof(RuntimeCommandsPointer));
 
-                GBAUnk1 = s.SerializeArray<byte>(GBAUnk1, 10, name: nameof(GBAUnk1));
+            Unk_20 = s.Serialize<uint>(Unk_20, name: nameof(Unk_20));
+            Unk_24 = s.Serialize<uint>(Unk_24, name: nameof(Unk_24));
+            Unk_28 = s.Serialize<uint>(Unk_28, name: nameof(Unk_28));
+            Unk_32 = s.Serialize<uint>(Unk_32, name: nameof(Unk_32));
+            Unk_36 = s.Serialize<uint>(Unk_36, name: nameof(Unk_36));
 
-                XPosition = s.Serialize<ushort>((ushort)XPosition, name: nameof(XPosition));
-                YPosition = s.Serialize<ushort>((ushort)YPosition, name: nameof(YPosition));
+            XPosition = s.Serialize<uint>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<uint>(YPosition, name: nameof(YPosition));
 
-                GBAUnk2 = s.SerializeArray<byte>(GBAUnk2, 8, name: nameof(GBAUnk2));
+            Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
 
-                GBA_XPosition2 = s.Serialize<ushort>(GBA_XPosition2, name: nameof(GBA_XPosition2));
-                GBA_YPosition2 = s.Serialize<ushort>(GBA_YPosition2, name: nameof(GBA_YPosition2));
-            }
-            else
-            {
-                DES = s.Serialize<uint>(DES, name: nameof(DES));
-                DES2 = s.Serialize<uint>(DES2, name: nameof(DES2));
-                DES3 = s.Serialize<uint>(DES3, name: nameof(DES3));
-                ETA = s.Serialize<uint>(ETA, name: nameof(ETA));
+            EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
+            Unk_54 = s.Serialize<ushort>(Unk_54, name: nameof(Unk_54));
+            Unk_56 = s.Serialize<ushort>(Unk_56, name: nameof(Unk_56));
+            Unk_58 = s.Serialize<ushort>(Unk_58, name: nameof(Unk_58));
 
-                Unk_16 = s.Serialize<uint>(Unk_16, name: nameof(Unk_16));
-                Unk_20 = s.Serialize<uint>(Unk_20, name: nameof(Unk_20));
-                Unk_24 = s.Serialize<uint>(Unk_24, name: nameof(Unk_24));
-                Unk_28 = s.Serialize<uint>(Unk_28, name: nameof(Unk_28));
-                Unk_32 = s.Serialize<uint>(Unk_32, name: nameof(Unk_32));
-                Unk_36 = s.Serialize<uint>(Unk_36, name: nameof(Unk_36));
-
-                XPosition = s.Serialize<uint>(XPosition, name: nameof(XPosition));
-                YPosition = s.Serialize<uint>(YPosition, name: nameof(YPosition));
-
-                Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
-
-                Unk_52 = s.Serialize<ushort>(Unk_52, name: nameof(Unk_52));
-                Unk_54 = s.Serialize<ushort>(Unk_54, name: nameof(Unk_54));
-                Unk_56 = s.Serialize<ushort>(Unk_56, name: nameof(Unk_56));
-                Unk_58 = s.Serialize<ushort>(Unk_58, name: nameof(Unk_58));
-                Unk_60 = s.Serialize<ushort>(Unk_60, name: nameof(Unk_60));
-                Unk_62 = s.Serialize<ushort>(Unk_62, name: nameof(Unk_62));
-            }
+            RuntimeXPosition = s.Serialize<ushort>(RuntimeXPosition, name: nameof(RuntimeXPosition));
+            RuntimeYPosition = s.Serialize<ushort>(RuntimeYPosition, name: nameof(RuntimeYPosition));
 
             Unk_64 = s.Serialize<ushort>(Unk_64, name: nameof(Unk_64));
             Unk_66 = s.Serialize<ushort>(Unk_66, name: nameof(Unk_66));
@@ -261,13 +208,14 @@ namespace R1Engine
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
 
-            Unk_110 = s.Serialize<ushort>(Unk_110, name: nameof(Unk_110));
+            RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
+            RuntimeEtat = s.Serialize<byte>(RuntimeEtat, name: nameof(RuntimeEtat));
             Unk_112 = s.Serialize<uint>(Unk_112, name: nameof(Unk_112));
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
             HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
-            IsMultiColored = s.Serialize<bool>(IsMultiColored, name: nameof(IsMultiColored));
+            RuntimeHitPoints = s.Serialize<byte>(RuntimeHitPoints, name: nameof(RuntimeHitPoints));
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
             HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
 
@@ -275,7 +223,7 @@ namespace R1Engine
             Unk_123 = s.Serialize<byte>(Unk_123, name: nameof(Unk_123));
             Unk_124 = s.Serialize<byte>(Unk_124, name: nameof(Unk_124));
             Unk_125 = s.Serialize<byte>(Unk_125, name: nameof(Unk_125));
-            TempLayer = s.Serialize<byte>(TempLayer, name: nameof(TempLayer));
+            RuntimeLayer = s.Serialize<byte>(RuntimeLayer, name: nameof(RuntimeLayer));
             Unk_127 = s.Serialize<byte>(Unk_127, name: nameof(Unk_127));
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
@@ -283,9 +231,6 @@ namespace R1Engine
             Flags = s.Serialize<PC_EventFlags>(Flags, name: nameof(Flags));
 
             Unk_130 = s.Serialize<ushort>(Unk_130, name: nameof(Unk_130));
-
-            if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
-                Unk_132_GBA = s.Serialize<ushort>(Unk_132_GBA, name: nameof(Unk_132_GBA));
         }
 
         /// <summary>

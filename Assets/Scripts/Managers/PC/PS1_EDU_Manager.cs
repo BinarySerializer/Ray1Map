@@ -262,8 +262,8 @@ namespace R1Engine
                 for (int i = 0; i < e.ImageDescriptorCount; i++) {
                     ushort currentTexture = levelIndices[gsp_index];
                     var tex = textures[currentTexture];
-                    if (imageDescriptors[e.DES][i].Index != 0) {
-                        des[e.DES].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
+                    if (imageDescriptors[e.DES_ImageDescriptors][i].Index != 0) {
+                        des[e.DES_ImageDescriptors].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
                     }
                     gsp_index++;
                 }
@@ -387,7 +387,7 @@ namespace R1Engine
             foreach (PC_Event e in levelData.Events)
             {
                 // Get the file keys
-                var desKey = e.DES.ToString();
+                var desKey = e.DES_ImageDescriptors.ToString();
                 var etaKey = e.ETA.ToString();
 
                 // Add the event
