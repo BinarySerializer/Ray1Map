@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace R1Engine
@@ -39,19 +40,19 @@ namespace R1Engine
         /// </summary>
         /// <param name="outputPath">The path to export to</param>
         /// <param name="palette">The palette</param>
-        public static void ExportPalette(string outputPath, ARGBColor[] palette,
-            int scale= 16, int offset = 0,
-            int? optionalLength = null, int? optionalWrap = null)
+        public static void ExportPalette(string outputPath, IList<ARGBColor> palette, int scale= 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null)
         {
-            int length = optionalLength.HasValue ? optionalLength.Value : palette.Length;
-            int wrap = optionalWrap.HasValue ? optionalWrap.Value : length;
+            int length = optionalLength ?? palette.Count;
+            int wrap = optionalWrap ?? length;
             var tex = new Texture2D(Mathf.Min(length, wrap) * scale, Mathf.CeilToInt(length / (float)wrap) * scale);
 
             for (int i = offset; i < offset + length; i++)
             {
                 int mainY = tex.height - 1 - ((i - offset) / wrap);
                 int mainX = (i - offset) % wrap;
+                
                 Color col = palette[i].GetColor();
+                
                 for (int y = 0; y < scale; y++)
                 {
                     for (int x = 0; x < scale; x++)

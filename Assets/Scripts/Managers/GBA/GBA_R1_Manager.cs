@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -195,6 +196,7 @@ namespace R1Engine
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
+                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
             };
         }
 
@@ -468,6 +470,49 @@ namespace R1Engine
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"WorldMap.png"), worldMapTex.EncodeToPNG());
                 }
             }
+        }
+
+        public async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        {
+            var pal = new List<ARGB1555Color[]>();
+
+            // Enumerate every world
+            foreach (var world in GetLevels(settings))
+            {
+                settings.World = world.Key;
+
+                // Enumerate every level
+                foreach (var lvl in world.Value)
+                {
+                    settings.Level = lvl;
+
+                    using (var context = new Context(settings))
+                    {
+                        // Load the game data
+                        await LoadFilesAsync(context);
+
+                        // Serialize the rom
+                        var data = LoadData(context);
+                        data.LevelMapData.SerializeLevelData(context.Deserializer);
+
+                        // Add the tile palette
+                        if (data.LevelMapData.TilePalettes != null && !pal.Any(x => x.SequenceEqual(data.LevelMapData.TilePalettes)))
+                            pal.Add(data.LevelMapData.TilePalettes);
+
+                        // Add the sprite palette
+                        var spritePal = data.GetSpritePalettes(settings);
+
+                        if (spritePal != null && !pal.Any(x => x.SequenceEqual(spritePal)))
+                            pal.Add(spritePal);
+                    }
+                }
+            }
+
+            foreach (ARGB1555Color c in pal.SelectMany(p => p))
+                c.Alpha = Byte.MaxValue;
+
+            // Export
+            PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), pal.SelectMany(x => x).ToArray(), optionalWrap: settings.EngineVersion == EngineVersion.RayGBA ? 16 : 256);
         }
 
 

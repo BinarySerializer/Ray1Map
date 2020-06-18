@@ -1074,6 +1074,7 @@ namespace R1Engine
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
                 new GameAction("Export Sound", false, true, (input, output) => ExtractSound(settings, output)),
+                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
             };
         }
 
@@ -1178,6 +1179,46 @@ namespace R1Engine
                         // Write the bytes
                         File.WriteAllBytes(Path.Combine(output, fileData.FileName + archiveFile.FileExtension), fileData.Data);
                 }
+            }
+        }
+
+        public void ExportPaletteImage(GameSettings settings, string outputPath)
+        {
+            using (var context = new Context(settings))
+            {
+                var pal = new List<RGB666Color[]>();
+
+                // Enumerate every world
+                foreach (var world in GetLevels(settings))
+                {
+                    settings.World = world.Key;
+
+                    // Enumerate every level
+                    foreach (var lvl in world.Value)
+                    {
+                        settings.Level = lvl;
+
+                        // Get the file path
+                        var path = GetLevelFilePath(settings);
+
+                        // Load the level
+                        context.AddFile(new LinearSerializedFile(context)
+                        {
+                            filePath = path
+                        });
+
+                        // Read the level
+                        var lvlData = FileFactory.Read<PC_LevFile>(path, context);
+
+                        // Add the palettes
+                        foreach (var mapPal in lvlData.MapData.ColorPalettes)
+                            if (!pal.Any(x => x.SequenceEqual(mapPal)))
+                                pal.Add(mapPal);
+                    }
+                }
+
+                // Export
+                PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), pal.SelectMany(x => x).ToArray(), optionalWrap: 256);
             }
         }
 

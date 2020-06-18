@@ -123,6 +123,7 @@ namespace R1Engine
                 new GameAction("Extract Compressed Data (888)", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, true)),
                 new GameAction("Convert Music to MIDI", false, true, (input, output) => ConvertMusicAsync(settings, output)),
                 new GameAction("Fix memory dump byte swapping", false, false, (input, output) => FixMemoryDumpByteSwapping(settings)),
+                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
             };
         }
 
@@ -445,9 +446,35 @@ namespace R1Engine
             }
         }
 
+        public async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
 
-        public async Task FixMemoryDumpByteSwapping(GameSettings settings) {
-            await Task.CompletedTask;
+                // Serialize the rom
+                var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
+
+                // Get a deserializer
+                var s = context.Deserializer;
+
+                // Get every palette
+                var pal = rom.MapDataLoadCommands.
+                    SelectMany(x => x).
+                    Select(x => x.Commands.First(y => y.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)).
+                    Select(x => x.PalettePointer).
+                    Distinct().
+                    SelectMany(x => s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: "SpritePalette"))).
+                    ToArray();
+
+                // Export
+                PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), pal, optionalWrap: 256);
+            }
+        }
+
+
+        public void FixMemoryDumpByteSwapping(GameSettings settings) {
             // Create a context
             using (var context = new Context(settings)) {
                 // Get a deserializer
