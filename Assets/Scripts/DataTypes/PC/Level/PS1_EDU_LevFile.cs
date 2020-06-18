@@ -8,10 +8,8 @@ namespace R1Engine
     public class PS1_EDU_LevFile : R1Serializable
     {
         #region Public Properties
-        public byte[] Header_Unk1 { get; set; }
-        public byte[] Header_Unk2 { get; set; }
-        public byte[] Header_Unk3_1 { get; set; }
-        public byte[] Header_Unk3_2 { get; set; }
+
+        public PC_KitLevelDefinesBlock LevelDefines { get; set; }
 
         /// <summary>
         /// The width of the map, in cells
@@ -78,10 +76,7 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             // HEADER BLOCK
-            Header_Unk1 = s.SerializeArray<byte>(Header_Unk1, 0xD, name: nameof(Header_Unk1));
-            Header_Unk2 = s.SerializeArray<byte>(Header_Unk2, 0x3, name: nameof(Header_Unk2));
-            Header_Unk3_1 = s.SerializeArray<byte>(Header_Unk3_1, 0x18, name: nameof(Header_Unk3_1));
-            Header_Unk3_2 = s.SerializeArray<byte>(Header_Unk3_2, 0x18, name: nameof(Header_Unk3_2));
+            LevelDefines = s.SerializeObject<PC_KitLevelDefinesBlock>(LevelDefines, name: nameof(LevelDefines));
 
             // Serialize map size
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
