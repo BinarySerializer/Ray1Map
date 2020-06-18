@@ -85,7 +85,7 @@ namespace R1Engine
             WorldMapVignette = s.SerializeObject<GBA_R1_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
 
             s.DoAt(pointerTable[GBA_R1_ROMPointer.SpritePalettes], 
-                () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16 * 2, name: nameof(SpritePalettes)));
+                () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16, name: nameof(SpritePalettes)));
 
             s.DoAt(pointerTable[GBA_R1_ROMPointer.WorldLevelOffsetTable],
                 () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 12, name: nameof(WorldLevelOffsetTable)));
