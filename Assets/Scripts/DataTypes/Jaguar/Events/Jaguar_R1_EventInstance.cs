@@ -17,7 +17,6 @@
         // Always 0x05?
         public ushort Unk_0A { get; set; }
 
-        // Some index?
         public ushort EventIndex { get; set; }
 
         // Parsed

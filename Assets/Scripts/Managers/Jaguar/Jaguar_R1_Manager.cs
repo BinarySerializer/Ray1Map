@@ -504,14 +504,6 @@ namespace R1Engine
             }
         }
 
-        /*public void InitRAM(Context context) {
-            // Load at 1 to prevent 0 being read as a valid pointer
-            var file = new MemoryMappedByteArrayFile("RAM", 0x00200000 - 1, context, 1) {
-                Endianness = BinaryFile.Endian.Big
-            };
-            context.AddFile(file);
-        }*/
-
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -560,7 +552,6 @@ namespace R1Engine
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
 
-            // TODO: Fix with correct link index
             var eventIndex = 0;
 
             Controller.status = $"Loading events & states";
@@ -581,10 +572,7 @@ namespace R1Engine
                 mapX *= 4 * Settings.CellSize;
                 mapY *= 4 * Settings.CellSize;
 
-                bool IsGendoor(int index) {
-                    var e = rom.EventData.EventData[i][index];
-                    return (e.EventDefinitionPointer.AbsoluteOffset == 0x001F9CD0);
-                }
+                bool IsGendoor(int index) => rom.EventData.EventData[i][index].EventDefinitionPointer.AbsoluteOffset == 0x001F9CD0;
 
                 // Add every event on this tile
                 int? linkBackIndex = null;
@@ -592,6 +580,10 @@ namespace R1Engine
                 {
                     var e = rom.EventData.EventData[i][j];
                     if (uniqueEvents.ContainsKey(e.EventIndex)) {
+
+                        if (uniqueEvents[e.EventIndex].XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].YPosition != (uint)(mapY + e.OffsetY))
+                            Debug.LogWarning("An event with an existing index which was removed has a different map position");
+
                         continue; // Duplicate
                     }
                     var ed = e.EventDefinition;
