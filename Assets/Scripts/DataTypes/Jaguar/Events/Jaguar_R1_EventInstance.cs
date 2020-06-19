@@ -18,7 +18,7 @@
         public ushort Unk_0A { get; set; }
 
         // Some index?
-        public ushort Unk_0C { get; set; }
+        public ushort EventIndex { get; set; }
 
         // Parsed
         public Jaguar_R1_EventDefinition EventDefinition { get; set; }
@@ -38,7 +38,7 @@
             OffsetY = s.Serialize<short>(OffsetY, name: nameof(OffsetY));
             EventDefinitionPointer = s.SerializePointer(EventDefinitionPointer, name: nameof(EventDefinitionPointer));
             Unk_0A = s.Serialize<ushort>(Unk_0A, name: nameof(Unk_0A));
-            Unk_0C = s.Serialize<ushort>(Unk_0C, name: nameof(Unk_0C));
+            EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
 
             s.DoAt(EventDefinitionPointer, () => EventDefinition = s.SerializeObject<Jaguar_R1_EventDefinition>(EventDefinition, name: nameof(EventDefinition)));
         }

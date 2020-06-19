@@ -245,8 +245,10 @@ namespace R1Engine
                     int nextEvent = eventList[i].Data.LinkIndex;
                     eventList[i].LinkID = currentId;
                     eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
-                    while (nextEvent != i)
+                    int prevEvent = i;
+                    while (nextEvent != i && nextEvent != prevEvent)
                     {
+                        prevEvent = nextEvent;
                         eventList[nextEvent].LinkID = currentId;
 
                         // Stack the link cubes

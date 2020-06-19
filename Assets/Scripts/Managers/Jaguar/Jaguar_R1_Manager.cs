@@ -561,12 +561,13 @@ namespace R1Engine
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
 
             // TODO: Fix with correct link index
-            var linkIndex = 0;
+            var eventIndex = 0;
 
             Controller.status = $"Loading events & states";
             await Controller.WaitIfNecessary();
 
             // Load events
+            Dictionary<int, Common_EventData> uniqueEvents = new Dictionary<int, Common_EventData>();
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
                 // Get the map base position, based on the event map
@@ -580,35 +581,60 @@ namespace R1Engine
                 mapX *= 4 * Settings.CellSize;
                 mapY *= 4 * Settings.CellSize;
 
+                bool IsGendoor(int index) {
+                    var e = rom.EventData.EventData[i][index];
+                    return (e.EventDefinitionPointer.AbsoluteOffset == 0x001F9CD0);
+                }
+
                 // Add every event on this tile
+                int? linkBackIndex = null;
                 for (int j = 0; j < rom.EventData.EventData[i].Length; j++)
                 {
                     var e = rom.EventData.EventData[i][j];
+                    if (uniqueEvents.ContainsKey(e.EventIndex)) {
+                        continue; // Duplicate
+                    }
                     var ed = e.EventDefinition;
                     int? predeterminedState = null;
 
-                    /* TODO: Process special event definitions.
+					/* TODO: Process special event definitions.
                      * - 0x001FB3C8[0x000023C8]: RAY POS
                      * - 0x001FB760[0x00002760]: Mr Dark boss spawners
                      * - 0x001F9CD0[0x00000CD0]: Gendoors. Spawns next event read by ReadEvent in Jaguar_R1_EventBlock
                      */
-                    /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
+					var linkIndex = eventIndex;
+                    if (linkBackIndex.HasValue) {
+                        linkIndex++;
+                        if (j == rom.EventData.EventData[i].Length - 1 || IsGendoor(j + 1) || rom.EventData.EventData[i][j + 1].Unk_00 != 2) {
+                            linkIndex = linkBackIndex.Value;
+                            linkBackIndex = null;
+                        }
+
+                    } else if (e.Unk_00 == 2) {
+                        // Duplicate
+                        continue;
+                    }
+                    if (IsGendoor(j)) {
+                        linkBackIndex = eventIndex;
+                        linkIndex++;
+                    }
+					/*if (ed.CodePointer?.FileOffset == 0x00101E32) {
                         var indEd = Array.IndexOf(rom.EventDefinitions,ed);
                         ed = rom.EventDefinitions[indEd + e.Unk_0C];
                     }*/
-                    /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
-                        var indEd = Array.IndexOf(rom.EventDefinitions, ed);
-                        ed = rom.EventDefinitions[indEd + 2];
-                    }*/
-                    // Switch
-                    /*if (ed.CodePointer?.AbsoluteOffset == 0x00B9C67C) {
-                        //var indEd = Array.IndexOf(rom.EventDefinitions, ed);
-                        ed = rom.EventDefinitions[388];
-                        predeterminedState = e.EventDefinition.UnkBytes[5];
-                    }*/
+					/*if (ed.CodePointer?.FileOffset == 0x00101E32) {
+						var indEd = Array.IndexOf(rom.EventDefinitions, ed);
+						ed = rom.EventDefinitions[indEd + 2];
+					}*/
+					// Switch
+					/*if (ed.CodePointer?.AbsoluteOffset == 0x00B9C67C) {
+						//var indEd = Array.IndexOf(rom.EventDefinitions, ed);
+						ed = rom.EventDefinitions[388];
+						predeterminedState = e.EventDefinition.UnkBytes[5];
+					}*/
 
-                    // Add if not found
-                    if (!eventDesigns.ContainsKey(ed.Offset))
+					// Add if not found
+					if (!eventDesigns.ContainsKey(ed.Offset))
                     {
                         Common_Design finalDesign = new Common_Design
                         {
@@ -795,11 +821,10 @@ namespace R1Engine
                     }
 
                     // Add the event
-                    commonLev.EventData.Add(new Common_EventData
-                    {
+                    uniqueEvents[e.EventIndex] = new Common_EventData {
                         Etat = stateIndex,
                         SubEtat = substateIndex,
-                            
+
                         LinkIndex = linkIndex,
 
                         XPosition = (uint)(mapX + e.OffsetX),
@@ -807,7 +832,7 @@ namespace R1Engine
 
                         DESKey = ed.Offset?.ToString() ?? String.Empty,
                         ETAKey = etatKey?.ToString() ?? String.Empty,
-                        
+
                         // These are not available on Jaguar
                         Type = EventType.TYPE_BADGUY1,
                         OffsetBX = 0,
@@ -825,15 +850,16 @@ namespace R1Engine
 
                         DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
                                     $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
-                                    $"{nameof(e.Unk_0C)}: {e.Unk_0C}{Environment.NewLine}" +
+                                    $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
                                     $"MapPos: {mapPos}{Environment.NewLine}" +
                                     $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
                                     $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
                                     $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
                                     $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}"
-                    });
+                    };
+                    commonLev.EventData.Add(uniqueEvents[e.EventIndex]);
 
-                    linkIndex++;
+                    eventIndex++;
                 }
             }
 
