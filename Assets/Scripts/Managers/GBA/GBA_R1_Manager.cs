@@ -474,7 +474,8 @@ namespace R1Engine
 
         public async Task ExportPaletteImage(GameSettings settings, string outputPath)
         {
-            var pal = new List<ARGB1555Color[]>();
+            var spritePals = new List<ARGB1555Color[]>();
+            var tilePals = new List<ARGB1555Color[]>();
 
             // Enumerate every world
             foreach (var world in GetLevels(settings))
@@ -496,23 +497,23 @@ namespace R1Engine
                         data.LevelMapData.SerializeLevelData(context.Deserializer);
 
                         // Add the tile palette
-                        if (data.LevelMapData.TilePalettes != null && !pal.Any(x => x.SequenceEqual(data.LevelMapData.TilePalettes)))
-                            pal.Add(data.LevelMapData.TilePalettes);
+                        if (data.LevelMapData.TilePalettes != null && !tilePals.Any(x => x.SequenceEqual(data.LevelMapData.TilePalettes)))
+                            tilePals.Add(data.LevelMapData.TilePalettes);
 
                         // Add the sprite palette
                         var spritePal = data.GetSpritePalettes(settings);
 
-                        if (spritePal != null && !pal.Any(x => x.SequenceEqual(spritePal)))
-                            pal.Add(spritePal);
+                        if (spritePal != null && !spritePals.Any(x => x.SequenceEqual(spritePal)))
+                            spritePals.Add(spritePal);
                     }
                 }
             }
 
-            foreach (ARGB1555Color c in pal.SelectMany(p => p))
+            foreach (ARGB1555Color c in spritePals.Concat(tilePals).SelectMany(p => p))
                 c.Alpha = Byte.MaxValue;
 
             // Export
-            PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), pal.SelectMany(x => x).ToArray(), optionalWrap: settings.EngineVersion == EngineVersion.RayGBA ? 16 : 256);
+            PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), spritePals.Concat(tilePals).SelectMany(x => x).ToArray(), optionalWrap: settings.EngineVersion == EngineVersion.RayGBA ? 16 : 256);
         }
 
 

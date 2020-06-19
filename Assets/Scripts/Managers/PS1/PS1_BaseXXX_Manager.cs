@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -61,6 +63,19 @@ namespace R1Engine
             .Where(x => x.Length == 5)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).Where(x => x.Value.Any()).ToArray();
+
+        /// <summary>
+        /// Gets the available game actions
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game actions</returns>
+        public override GameAction[] GetGameActions(GameSettings settings)
+        {
+            return base.GetGameActions(settings).Concat(new GameAction[]
+            {
+                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
+            }).ToArray();
+        }
 
         /// <summary>
         /// Gets the vignette file info
@@ -173,6 +188,52 @@ namespace R1Engine
                 return $"{settings.World}/{settings.World}{settings.Level} - ";
 
             return $"Unknown/";
+        }
+
+        public async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        {
+            var spritePals = new List<ARGB1555Color[]>();
+            var tilePals = new List<ARGB1555Color[]>();
+
+            void Add(ICollection<ARGB1555Color[]> pals, ARGB1555Color[] pal)
+            {
+                if (pal != null && !pals.Any(x => x.SequenceEqual(pal)))
+                    pals.Add(pal);
+            }
+
+            // Enumerate every world
+            foreach (var world in GetLevels(settings))
+            {
+                settings.World = world.Key;
+                settings.Level = 1;
+
+                using (var context = new Context(settings))
+                {
+                    // Read the allfix file
+                    await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
+                    var allfix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+
+                    Add(spritePals, allfix.Palette1);
+                    Add(spritePals, allfix.Palette2);
+                    Add(spritePals, allfix.Palette3);
+                    Add(spritePals, allfix.Palette4);
+                    Add(spritePals, allfix.Palette5);
+                    Add(spritePals, allfix.Palette6);
+
+                    // Read the world file
+                    await LoadExtraFile(context, GetWorldFilePath(context.Settings));
+                    var wld = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
+
+                    Add(spritePals, wld.EventPalette1);
+                    Add(spritePals, wld.EventPalette2);
+
+                    foreach (var tilePal in wld.TilePalettes ?? new ARGB1555Color[0][])
+                        Add(tilePals, tilePal);
+                }
+            }
+
+            // Export
+            PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), spritePals.Concat(tilePals).SelectMany(x => x).ToArray(), optionalWrap: 256);
         }
     }
 }
