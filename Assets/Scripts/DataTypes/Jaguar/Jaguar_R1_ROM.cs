@@ -11,16 +11,16 @@ namespace R1Engine
     {
         #region Global Data
 
-        public Pointer[] WorldSpritesLoadCommandPointers { get; set; }
-        public Pointer[][] MapDataLoadCommandPointers { get; set; }
+        public Pointer[] WorldLoadCommandPointers { get; set; }
+        public Pointer[][] LevelLoadCommandPointers { get; set; }
 
         #endregion
 
         #region Global Data (Parsed)
 
-        public Jaguar_R1_LevelLoadCommandCollection FixSpritesLoadCommands { get; set; }
-        public Jaguar_R1_LevelLoadCommandCollection[] WorldSpritesLoadCommands { get; set; }
-        public Jaguar_R1_LevelLoadCommandCollection[][] MapDataLoadCommands { get; set; }
+        public Jaguar_R1_LevelLoadCommandCollection AllfixLoadCommands { get; set; }
+        public Jaguar_R1_LevelLoadCommandCollection[] WorldLoadCommands { get; set; }
+        public Jaguar_R1_LevelLoadCommandCollection[][] LevelLoadCommands { get; set; }
 
         #endregion
 
@@ -91,17 +91,17 @@ namespace R1Engine
 
             // Serialize allfix sprite data
             s.DoAt(pointerTable[Jaguar_R1_Pointer.FixSprites], () => {
-                FixSpritesLoadCommands = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(FixSpritesLoadCommands, name: nameof(FixSpritesLoadCommands));
+                AllfixLoadCommands = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands));
             });
 
             // Serialize world sprite data
             s.DoAt(pointerTable[Jaguar_R1_Pointer.WorldSprites], () => 
             {
-                if (WorldSpritesLoadCommandPointers == null) 
-                    WorldSpritesLoadCommandPointers = new Pointer[6];
+                if (WorldLoadCommandPointers == null) 
+                    WorldLoadCommandPointers = new Pointer[6];
 
-                if (WorldSpritesLoadCommands == null) 
-                    WorldSpritesLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[6];
+                if (WorldLoadCommands == null) 
+                    WorldLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[6];
 
                 for (int i = 0; i < 6; i++)
                 {
@@ -109,9 +109,9 @@ namespace R1Engine
                     s.DoAt(FunctionPointer, () => {
                         // Parse assembly
                         ushort instruction = s.Serialize<ushort>(0x41f9, name: nameof(instruction)); // Load effective address
-                        WorldSpritesLoadCommandPointers[i] = s.SerializePointer(WorldSpritesLoadCommandPointers[i], name: $"{nameof(WorldSpritesLoadCommandPointers)}[{i}]");
-                        s.DoAt(WorldSpritesLoadCommandPointers[i], () => {
-                            WorldSpritesLoadCommands[i] = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(WorldSpritesLoadCommands[i], name: $"{nameof(WorldSpritesLoadCommands)}[{i}]");
+                        WorldLoadCommandPointers[i] = s.SerializePointer(WorldLoadCommandPointers[i], name: $"{nameof(WorldLoadCommandPointers)}[{i}]");
+                        s.DoAt(WorldLoadCommandPointers[i], () => {
+                            WorldLoadCommands[i] = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(WorldLoadCommands[i], name: $"{nameof(WorldLoadCommands)}[{i}]");
                         });
                     });
                 }
@@ -119,21 +119,21 @@ namespace R1Engine
 
             s.DoAt(pointerTable[Jaguar_R1_Pointer.MapData], () =>
             {
-                if (MapDataLoadCommandPointers == null)
-                    MapDataLoadCommandPointers = new Pointer[7][];
+                if (LevelLoadCommandPointers == null)
+                    LevelLoadCommandPointers = new Pointer[7][];
 
-                if (MapDataLoadCommands == null)
-                    MapDataLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[7][];
+                if (LevelLoadCommands == null)
+                    LevelLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[7][];
 
                 for (int i = 0; i < 7; i++)
                 {
                     int numLevels = i < 6 ? levels[i].Value : new Jaguar_R1_Manager().ExtraMapCommands.Length;
 
-                    if (MapDataLoadCommandPointers[i] == null)
-                        MapDataLoadCommandPointers[i] = new Pointer[numLevels];
+                    if (LevelLoadCommandPointers[i] == null)
+                        LevelLoadCommandPointers[i] = new Pointer[numLevels];
 
-                    if (MapDataLoadCommands[i] == null)
-                        MapDataLoadCommands[i] = new Jaguar_R1_LevelLoadCommandCollection[numLevels];
+                    if (LevelLoadCommands[i] == null)
+                        LevelLoadCommands[i] = new Jaguar_R1_LevelLoadCommandCollection[numLevels];
 
                     int[] extraMapCommands = i == 6 ? new Jaguar_R1_Manager().ExtraMapCommands : null;
 
@@ -167,9 +167,9 @@ namespace R1Engine
                                     }
                                     instruction = s.Serialize<ushort>(0x41f9, name: nameof(instruction)); // Load effective address
                                 }
-                                MapDataLoadCommandPointers[i][j] = s.SerializePointer(MapDataLoadCommandPointers[i][j], name: $"{nameof(MapDataLoadCommandPointers)}[{i}][{j}]");
-                                s.DoAt(MapDataLoadCommandPointers[i][j], () => {
-                                    MapDataLoadCommands[i][j] = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(MapDataLoadCommands[i][j], name: $"{nameof(MapDataLoadCommands)}[{i}][{j}]");
+                                LevelLoadCommandPointers[i][j] = s.SerializePointer(LevelLoadCommandPointers[i][j], name: $"{nameof(LevelLoadCommandPointers)}[{i}][{j}]");
+                                s.DoAt(LevelLoadCommandPointers[i][j], () => {
+                                    LevelLoadCommands[i][j] = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(LevelLoadCommands[i][j], name: $"{nameof(LevelLoadCommands)}[{i}][{j}]");
                                 });
                             });
                         }
@@ -183,15 +183,15 @@ namespace R1Engine
 
 
             // Get the current map load commands
-            var wldCommands = WorldSpritesLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)];
-            var mapCommands = MapDataLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)][s.GameSettings.Level - 1].Commands;
+            var wldCommands = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)];
+            var mapCommands = LevelLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)][s.GameSettings.Level - 1].Commands;
 
             // Get pointers
             var mapPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
             var eventPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelEventBlockPointer;
             var palPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette).PalettePointer;
 
-            var tilesPointer = mapCommands.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldSpritesLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
+            var tilesPointer = mapCommands.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
 
             // Serialize map and event data
             s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<PS1_R1_MapBlock>(MapData, name: nameof(MapData))));
@@ -209,7 +209,7 @@ namespace R1Engine
                 ImageBuffers = new Dictionary<uint, byte[]>();
 
                 var index = 0;
-                foreach (var cmd in FixSpritesLoadCommands.Commands.Concat(wldCommands.Commands).Concat(mapCommands).Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites))
+                foreach (var cmd in AllfixLoadCommands.Commands.Concat(wldCommands.Commands).Concat(mapCommands).Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites))
                 {
                     // Later commands overwrite previous ones
                     /*if (ImageBuffers.ContainsKey(cmd.ImageBufferMemoryPointerPointer))

@@ -121,7 +121,8 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
+                new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output, false)),
+                new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllSpritesAsync(settings, output, true)),
                 new GameAction("Extract Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Extract Compressed Data", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, false)),
                 new GameAction("Extract Compressed Data (888)", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, true)),
@@ -136,8 +137,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="baseGameSettings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
+        /// <param name="exportAnimFrames">True if animation frames should be exported, false if sprites should be exported</param>
         /// <returns>The task</returns>
-        public virtual async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        public virtual async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir, bool exportAnimFrames)
         {
             // Create the context
             using (var context = new Context(baseGameSettings))
@@ -158,19 +160,24 @@ namespace R1Engine
                 var s = context.Deserializer;
 
                 // Get allfix sprite commands
-                var allfixCmds = rom.FixSpritesLoadCommands.Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).ToArray();
+                var allfixCmds = rom.AllfixLoadCommands.Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).ToArray();
 
                 // Export allfix
                 await ExportGroupAsync(allfixCmds, Enumerable.Repeat(rom.SpritePalette, allfixCmds.Length).ToArray(), "Allfix");
 
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings))
-                {
-                    // Get the world index
-                    var worldIndex = levels.FindItemIndex(x => x.Key == world.Key);
+                    // Export world
+                    await ExportWorldAsync(levels.FindItemIndex(x => x.Key == world.Key), world.Key.ToString());
 
+                // Export extra world
+                await ExportWorldAsync(7, "Extra");
+
+                // Helper method for exporting a world
+                async Task ExportWorldAsync(int worldIndex, string name)
+                {
                     // Get the level load commands
-                    var lvlCmds = rom.MapDataLoadCommands[worldIndex];
+                    var lvlCmds = rom.LevelLoadCommands[worldIndex];
 
                     // Get palettes for the levels
                     var palettes = lvlCmds.
@@ -182,11 +189,15 @@ namespace R1Engine
                     var worldCmds = new List<Jaguar_R1_LevelLoadCommand>();
                     var worldPal = new List<RGB556Color[]>();
 
-                    // Add world data
-                    foreach (var p in palettes) {
-                        var sprCommands = rom.WorldSpritesLoadCommands[worldIndex].Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites);
-                        worldCmds.AddRange(sprCommands);
-                        worldPal.AddRange(Enumerable.Repeat(p, sprCommands.Count()));
+                    if (worldIndex < 7)
+                    {
+                        // Add world data
+                        foreach (var p in palettes)
+                        {
+                            var sprCommands = rom.WorldLoadCommands[worldIndex].Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites);
+                            worldCmds.AddRange(sprCommands);
+                            worldPal.AddRange(Enumerable.Repeat(p, sprCommands.Count()));
+                        }
                     }
 
                     // Enumerate every level
@@ -202,36 +213,7 @@ namespace R1Engine
                     }
 
                     // Export world
-                    await ExportGroupAsync(worldCmds, worldPal, world.Key.ToString());
-                }
-
-                // Extra
-                {
-                    // Get the level load commands
-                    var lvlCmds = rom.MapDataLoadCommands[6];
-
-                    // Get palettes for the levels
-                    var palettes = lvlCmds.
-                        Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)?.PalettePointer).
-                        Select((x, i) => x == null ? rom.SpritePalette : s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: $"SpritePalette[{i}]"))).
-                        ToArray();
-
-                    // Get the world and level sprite commands and palettes
-                    var worldCmds = new List<Jaguar_R1_LevelLoadCommand>();
-                    var worldPal = new List<RGB556Color[]>();
-
-                    // Enumerate every level
-                    for (int lvl = 0; lvl < lvlCmds.Length; lvl++) {
-                        foreach (var c in lvlCmds[lvl]?.Commands?
-                            .Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites)
-                            .Where(x => worldCmds.All(y => y.ImageBufferPointer != x.ImageBufferPointer)) ?? new Jaguar_R1_LevelLoadCommand[0]) {
-                            worldCmds.Add(c);
-                            worldPal.Add(palettes[lvl]);
-                        }
-                    }
-
-                    // Export world
-                    await ExportGroupAsync(worldCmds, worldPal, "Extra");
+                    await ExportGroupAsync(worldCmds, worldPal, name);
                 }
 
                 // Helper method for exporting a collection of DES
@@ -258,31 +240,160 @@ namespace R1Engine
                             continue;
                         }
 
-                        // Export every sprite
+                        var eventDefIndex = 0;
+
+                        // Export every event DES
                         foreach (var ed in eventDefinitions) 
                         {
-                            var imgIndex = 0;
-                            var ids = ed.ImageDescriptors ?? ed.ComplexData?.ImageDescriptors ?? new Common_ImageDescriptor[0];
-                        
-                            foreach (var d in ids) 
+                            var imageDescriptors = ed.ImageDescriptors ?? ed.ComplexData?.ImageDescriptors ?? new Common_ImageDescriptor[0];
+
+                            if (exportAnimFrames)
                             {
-                                string filename = Path.Combine(outputDir, name, $"{cmd.ImageBufferPointer.StringAbsoluteOffset}_{pal.First().Offset.StringAbsoluteOffset}_{cmd.ImageBufferMemoryPointerPointer:X8}_{ids.First().Offset.StringAbsoluteOffset} - {imgIndex}.png");
-                                
-                                if (!exportedFiles.Contains(filename))
+                                var animations = ed.States?.Where(x => x.Animation?.Layers != null).Select(x => new
                                 {
-                                    // Get the texture
-                                    var tex = GetSpriteTexture(d, pal, imgBuffer);
+                                    Anim = x.Animation.ToCommonAnimation(),
+                                    x.AnimationSpeed
+                                }) ?? ed.ComplexData?.States?.Where(x => x.Layers != null).Select(x => new
+                                {
+                                    Anim = x.ToCommonAnimation(ed),
+                                    AnimationSpeed = Byte.MaxValue
+                                });
 
-                                    // Export if not null
-                                    if (tex != null)
+                                if (animations == null)
+                                    continue;
+
+                                // Get every sprite
+                                var sprites = imageDescriptors.Select(x => GetSpriteTexture(x, pal, imgBuffer)).ToArray();
+
+                                var animIndex = 0;
+
+                                // Export every animation
+                                foreach (var anim in animations)
+                                {
+                                    if (!anim.Anim.Frames.Any())
                                     {
-                                        Util.ByteArrayToFile(filename, tex.EncodeToPNG());
-                                        exportedFiles.Add(filename);
+                                        animIndex++;
+                                        continue;
                                     }
-                                }
 
-                                imgIndex++;
+                                    // Get the folder
+                                    var animFolderPath = Path.Combine(outputDir, name, $"{desIndex}-{eventDefIndex}", $"{animIndex}-{anim.AnimationSpeed}");
+
+                                    int? frameWidth = null;
+                                    int? frameHeight = null;
+
+                                    var layersPerFrame = anim.Anim.Frames.First().Layers.Length;
+                                    var frameCount = anim.Anim.Frames.Length;
+
+                                    for (int dummyFrame = 0; dummyFrame < frameCount; dummyFrame++)
+                                    {
+                                        for (int dummyLayer = 0; dummyLayer < layersPerFrame; dummyLayer++)
+                                        {
+                                            var l = anim.Anim.Frames[dummyFrame].Layers[dummyLayer];
+
+                                            if (l.ImageIndex < sprites.Length)
+                                            {
+                                                var sprite = sprites[l.ImageIndex];
+
+                                                if (sprite != null)
+                                                {
+                                                    var w = sprite.width + l.XPosition;
+                                                    var h = sprite.height + l.YPosition;
+
+                                                    if (frameWidth == null || frameWidth < w)
+                                                        frameWidth = w;
+
+                                                    if (frameHeight == null || frameHeight < h)
+                                                        frameHeight = h;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Create each animation frame
+                                    for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
+                                    {
+                                        Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
+                                        {
+                                            filterMode = FilterMode.Point,
+                                            wrapMode = TextureWrapMode.Clamp
+                                        };
+
+                                        // Default to fully transparent
+                                        tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+
+                                        bool hasLayers = false;
+
+                                        // Write each layer
+                                        for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++)
+                                        {
+                                            var animationLayer = anim.Anim.Frames[frameIndex].Layers[layerIndex];
+
+                                            if (animationLayer.ImageIndex >= sprites.Length)
+                                                continue;
+
+                                            // Get the sprite
+                                            var sprite = sprites[animationLayer.ImageIndex];
+
+                                            if (sprite == null)
+                                                continue;
+
+                                            // Set every pixel
+                                            for (int y = 0; y < sprite.height; y++)
+                                            {
+                                                for (int x = 0; x < sprite.width; x++)
+                                                {
+                                                    var c = sprite.GetPixel(x, sprite.height - y - 1);
+
+                                                    var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
+                                                    var yPosition = y + animationLayer.YPosition;
+
+                                                    if (c.a != 0)
+                                                        tex.SetPixel(xPosition, tex.height - 1 - yPosition, c);
+                                                }
+                                            }
+
+                                            hasLayers = true;
+                                        }
+
+                                        tex.Apply();
+
+                                        if (!hasLayers)
+                                            continue;
+
+                                        // Save the file
+                                        Util.ByteArrayToFile(Path.Combine(animFolderPath, $"{frameIndex}.png"), tex.EncodeToPNG());
+                                    }
+
+                                    animIndex++;
+                                }
                             }
+                            else
+                            {
+                                var imgIndex = 0;
+
+                                foreach (var d in imageDescriptors)
+                                {
+                                    string filename = Path.Combine(outputDir, name, $"{cmd.ImageBufferPointer.StringAbsoluteOffset}_{pal.First().Offset.StringAbsoluteOffset}_{cmd.ImageBufferMemoryPointerPointer:X8}_{imageDescriptors.First().Offset.StringAbsoluteOffset} - {imgIndex}.png");
+
+                                    if (!exportedFiles.Contains(filename))
+                                    {
+                                        // Get the texture
+                                        var tex = GetSpriteTexture(d, pal, imgBuffer);
+
+                                        // Export if not null
+                                        if (tex != null)
+                                        {
+                                            Util.ByteArrayToFile(filename, tex.EncodeToPNG());
+                                            exportedFiles.Add(filename);
+                                        }
+                                    }
+
+                                    imgIndex++;
+                                }
+                            }
+
+                            eventDefIndex++;
                         }
                     }
 
@@ -516,7 +627,7 @@ namespace R1Engine
                 var s = context.Deserializer;
 
                 // Get every palette
-                var pal = rom.MapDataLoadCommands.
+                var pal = rom.LevelLoadCommands.
                     SelectMany(x => x).
                     Select(x => x.Commands.First(y => y.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)).
                     Select(x => x.PalettePointer).
@@ -582,17 +693,11 @@ namespace R1Engine
                 void AddImageDescriptors(Common_ImageDescriptor[] imgDesc) {
                     if (imgDesc == null) return;
                     foreach (Common_ImageDescriptor img in imgDesc) {
-                        // TODO: Remove try catch
-                        try {
-                            // Get the texture for the sprite, or null if not loading textures
-                            Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[ed.ImageBufferMemoryPointerPointer]) : null;
+                        // Get the texture for the sprite, or null if not loading textures
+                        Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[ed.ImageBufferMemoryPointerPointer]) : null;
 
-                            // Add it to the array
-                            finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                        } catch (Exception ex) {
-                            finalDesign.Sprites.Add(null);
-                            Debug.LogWarning($"Error loading sprite with descriptor {img.Offset} for event definition {ed.Offset}: {ex.Message}");
-                        }
+                        // Add it to the array
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                     }
                 }
                 if (ed.ImageDescriptors != null)
@@ -627,13 +732,10 @@ namespace R1Engine
             Pointer etatKey = null;
             if (ed.States != null && ed.States.Length > 0) {
                 etatKey = ed.States[0].Offset;
-            } else if (ed.ComplexData != null) {
+            } else if (ed.ComplexData != null)
+            {
                 usesComplexData = true;
-                if (ed.ComplexData.Transitions != null) {
-                    etatKey = ed.ComplexData.Transitions[0].Offset;
-                } else {
-                    etatKey = ed.ComplexData.Offset;
-                }
+                etatKey = ed.ComplexData.Transitions != null ? ed.ComplexData.Transitions[0].Offset : ed.ComplexData.Offset;
             }
 
             // Add ETAT if not found
@@ -648,17 +750,18 @@ namespace R1Engine
                     for (byte s = 0; s < states.Length; s++) {
                         var stateLinkIndex = -1;
                         var fullStateIndex = ed.States.FindItemIndex(x => x == validStates[s]);
-                        if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null) {
-                            stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
-                        }
 
-                        states[s] = new Common_EventState[] {
-                                    new Common_EventState {
-                                        AnimationIndex = s,
-                                        LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                        AnimationSpeed = validStates[s].AnimationSpeed,
-                                    }
-                                };
+                        if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null)
+                            stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
+
+                        states[s] = new Common_EventState[] 
+                        {
+                            new Common_EventState {
+                                AnimationIndex = s,
+                                LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
+                                AnimationSpeed = validStates[s].AnimationSpeed,
+                            }
+                        };
                     }
 
                     // Add to the states
@@ -730,7 +833,7 @@ namespace R1Engine
                 if (!usesComplexData) {
                     if (ed.States != null && ed.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
                         var validStates = ed.States.Where(x => x.Animation != null).ToArray();
-                        int ind = 0;
+                        int ind;
                         if (predeterminedState.HasValue && predeterminedState.Value < ed.States.Length) {
                             var st = ed.States[predeterminedState.Value];
                             if (st.LinkedState != null) st = st.LinkedState;
