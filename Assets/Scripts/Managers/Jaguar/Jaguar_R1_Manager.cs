@@ -52,6 +52,10 @@ namespace R1Engine
             new KeyValuePair<World, int>(World.Cake, 4)
         };
 
+        public virtual int[] ExtraMapCommands => new int[] {
+            0, 1, 3, 4, 5, 6, 7, 9
+        };
+
         /// <summary>
         /// Gets the vignette addresses and widths
         /// </summary>
@@ -199,6 +203,35 @@ namespace R1Engine
 
                     // Export world
                     await ExportGroupAsync(worldCmds, worldPal, world.Key.ToString());
+                }
+                // Extra
+                {
+                    // Get the level load commands
+                    var lvlCmds = rom.MapDataLoadCommands[6];
+
+                    // Get palettes for the levels
+                    var palettes = lvlCmds.
+                        Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)?.PalettePointer).
+                        Select((x, i) => x == null ? rom.SpritePalette : s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: $"SpritePalette[{i}]"))).
+                        ToArray();
+
+                    // Get the world and level sprite commands and palettes
+                    var worldCmds = new List<Jaguar_R1_LevelLoadCommand>();
+                    var worldPal = new List<RGB556Color[]>();
+
+                    // TODO: Some sprites get the wrong palette, like the Bzzit ones - why?
+                    // Enumerate every level
+                    for (int lvl = 0; lvl < lvlCmds.Length; lvl++) {
+                        foreach (var c in lvlCmds[lvl]?.Commands?
+                            .Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites)
+                            .Where(x => worldCmds.All(y => y.ImageBufferPointer != x.ImageBufferPointer)) ?? new Jaguar_R1_LevelLoadCommand[0]) {
+                            worldCmds.Add(c);
+                            worldPal.Add(palettes[lvl]);
+                        }
+                    }
+
+                    // Export world
+                    await ExportGroupAsync(worldCmds, worldPal, "Extra");
                 }
 
                 // Helper method for exporting a collection of DES

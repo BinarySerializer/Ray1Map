@@ -120,14 +120,14 @@ namespace R1Engine
             s.DoAt(pointerTable[Jaguar_R1_Pointer.MapData], () =>
             {
                 if (MapDataLoadCommandPointers == null)
-                    MapDataLoadCommandPointers = new Pointer[6][];
+                    MapDataLoadCommandPointers = new Pointer[7][];
 
                 if (MapDataLoadCommands == null)
-                    MapDataLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[6][];
+                    MapDataLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[7][];
 
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 7; i++)
                 {
-                    int numLevels = levels[i].Value;
+                    int numLevels = i < 6 ? levels[i].Value : new Jaguar_R1_Manager().ExtraMapCommands.Length;
 
                     if (MapDataLoadCommandPointers[i] == null)
                         MapDataLoadCommandPointers[i] = new Pointer[numLevels];
@@ -135,10 +135,15 @@ namespace R1Engine
                     if (MapDataLoadCommands[i] == null)
                         MapDataLoadCommands[i] = new Jaguar_R1_LevelLoadCommandCollection[numLevels];
 
+                    int[] extraMapCommands = i == 6 ? new Jaguar_R1_Manager().ExtraMapCommands : null;
+
                     Pointer FunctionListPointer = s.SerializePointer(null, name: nameof(FunctionListPointer));
                     s.DoAt(FunctionListPointer, () => {
                         for (int j = 0; j < numLevels; j++)
                         {
+                            if (i == 6) {
+                                s.Goto(FunctionListPointer + 4 * extraMapCommands[j]);
+                            }
                             Pointer FunctionPointer = s.SerializePointer(null, name: nameof(FunctionPointer));
                             s.DoAt(FunctionPointer, () => {
                                 // Parse assembly
@@ -171,8 +176,9 @@ namespace R1Engine
                     });
                 }
             });
-            // TODO: there are a few more special load commands in a "7th" world. Probably for the menu, breakout etc
+            // There are a few more special load commands in a "7th" world. Probably for the menu, breakout etc
             // Some functions in that list don't have load a LevelLoadCommand block, so they can't be parsed normally.
+
 
 
 
