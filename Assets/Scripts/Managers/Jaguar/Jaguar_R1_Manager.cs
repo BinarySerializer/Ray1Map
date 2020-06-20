@@ -283,7 +283,7 @@ namespace R1Engine
                                     exportedFiles.Add(animKey);
 
                                     // Get the folder
-                                    var animFolderPath = Path.Combine(outputDir, name, $"{desIndex}-{eventDefIndex}", $"{animIndex}-{anim.AnimationSpeed}");
+                                    var animFolderPath = Path.Combine(outputDir, name, $"{desIndex}-{eventDefIndex}-{ed.Offset.StringAbsoluteOffset}", $"{animIndex}-{anim.AnimationSpeed}");
 
                                     int? frameWidth = null;
                                     int? frameHeight = null;
