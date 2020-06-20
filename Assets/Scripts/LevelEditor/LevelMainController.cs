@@ -185,13 +185,19 @@ namespace R1Engine
                     e.gameObject.SetActive(false);
 
                 // Helper method
-                bool isGendoor(Common_Event ee) => ee.Data.Type is EventType et &&
-                                                   (et == EventType.TYPE_GENERATING_DOOR ||
-                                                   et == EventType.TYPE_DESTROYING_DOOR ||
-                                                   et == EventType.MS_scintillement ||
-                                                   et == EventType.MS_super_gendoor ||
-                                                   et == EventType.MS_super_kildoor ||
-                                                   et == EventType.MS_compteur);
+                bool isGendoor(Common_Event ee)
+                {
+                    if (Controller.CurrentSettings.EngineVersion == EngineVersion.RayJaguar)
+                        return ee.LinkID != 0;
+                    else
+                        return ee.Data.Type is EventType et &&
+                               (et == EventType.TYPE_GENERATING_DOOR ||
+                                et == EventType.TYPE_DESTROYING_DOOR ||
+                                et == EventType.MS_scintillement ||
+                                et == EventType.MS_super_gendoor ||
+                                et == EventType.MS_super_kildoor ||
+                                et == EventType.MS_compteur);
+                }
 
                 if (isGendoor(e))
                     e.gameObject.SetActive(true);
