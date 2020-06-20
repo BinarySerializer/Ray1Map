@@ -504,6 +504,230 @@ namespace R1Engine
             }
         }
 
+        public Common_EventData CreateEventData(
+            Context c,
+            Jaguar_R1_EventDefinition ed,
+            Dictionary<Pointer, Common_Design> eventDesigns,
+            Dictionary<Pointer, Common_EventState[][]> eventETA,
+            bool loadTextures) {
+            var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, c);
+            int? predeterminedState = null;
+
+            /* TODO: Process special event definitions.
+             * - 0x001FB3C8[0x000023C8]: RAY POS
+             * - 0x001FB760[0x00002760]: Mr Dark boss spawners
+             * - 0x001F9CD0[0x00000CD0]: Gendoors. Spawns next event read by ReadEvent in Jaguar_R1_EventBlock
+             */
+
+            // Add if not found
+            if (!eventDesigns.ContainsKey(ed.Offset)) {
+                Common_Design finalDesign = new Common_Design {
+                    Sprites = new List<Sprite>(),
+                    Animations = new List<Common_Animation>()
+                };
+
+                // Get every sprite
+                void AddImageDescriptors(Common_ImageDescriptor[] imgDesc) {
+                    if (imgDesc == null) return;
+                    foreach (Common_ImageDescriptor img in imgDesc) {
+                        // TODO: Remove try catch
+                        try {
+                            // Get the texture for the sprite, or null if not loading textures
+                            Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[ed.ImageBufferMemoryPointerPointer]) : null;
+
+                            // Add it to the array
+                            finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                        } catch (Exception ex) {
+                            finalDesign.Sprites.Add(null);
+                            Debug.LogWarning($"Error loading sprite with descriptor {img.Offset} for event definition {ed.Offset}: {ex.Message}");
+                        }
+                    }
+                }
+                if (ed.ImageDescriptors != null)
+                    AddImageDescriptors(ed.ImageDescriptors);
+
+                if (ed.ComplexData != null)
+                    AddImageDescriptors(ed.ComplexData?.ImageDescriptors);
+
+                // Add animations
+                if (ed.States != null) {
+                    finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation(ed)));
+                } else if (ed.ComplexData != null) {
+                    if (ed.ComplexData.Transitions != null) {
+                        foreach (var graphref in ed.ComplexData.Transitions) {
+                            if (graphref.ComplexData?.States == null) continue;
+                            finalDesign.Animations.AddRange(graphref.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
+                        }
+                    } else {
+                        if (ed.ComplexData.States != null) {
+                            finalDesign.Animations.AddRange(ed.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
+                        }
+                    }
+                }
+
+                // Add to the designs
+                eventDesigns.Add(ed.Offset, finalDesign);
+            }
+
+            // Key for ETAT
+            bool usesComplexData = false;
+            bool usesSubstates = false;
+            Pointer etatKey = null;
+            if (ed.States != null && ed.States.Length > 0) {
+                etatKey = ed.States[0].Offset;
+            } else if (ed.ComplexData != null) {
+                usesComplexData = true;
+                if (ed.ComplexData.Transitions != null) {
+                    etatKey = ed.ComplexData.Transitions[0].Offset;
+                } else {
+                    etatKey = ed.ComplexData.Offset;
+                }
+            }
+
+            // Add ETAT if not found
+            if (etatKey != null && !eventETA.ContainsKey(etatKey)) {
+                if (!usesComplexData) {
+                    var validStates = ed.States.Where(x => x.Animation != null).ToArray();
+
+                    // Create a common state array
+                    var states = new Common_EventState[validStates.Length][];
+
+                    // Add dummy states
+                    for (byte s = 0; s < states.Length; s++) {
+                        var stateLinkIndex = -1;
+                        var fullStateIndex = ed.States.FindItemIndex(x => x == validStates[s]);
+                        if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null) {
+                            stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
+                        }
+
+                        states[s] = new Common_EventState[] {
+                                    new Common_EventState {
+                                        AnimationIndex = s,
+                                        LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
+                                        AnimationSpeed = validStates[s].AnimationSpeed,
+                                    }
+                                };
+                    }
+
+                    // Add to the states
+                    eventETA.Add(etatKey, states);
+                } else {
+                    if (ed.ComplexData.Transitions != null) {
+                        usesSubstates = true;
+
+                        var states = new Common_EventState[7][];
+
+                        for (int gr = 0; gr < 7; gr++) {
+                            if (ed.ComplexData.Transitions[gr].ComplexData == null) continue;
+                            var g = ed.ComplexData.Transitions[gr].ComplexData;
+
+                            var validStates = g.States.Where(x => x.Layers?.Length > 0).ToArray();
+
+                            // Create a common state array
+                            var substates = new Common_EventState[validStates.Length];
+
+                            for (byte s = 0; s < substates.Length; s++) {
+                                var stateLinkIndex = -1;
+                                if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < ed.ComplexData.States.Length) {
+                                    var linkedState = ed.ComplexData.States[validStates[s].LinkedStateIndex - 1];
+                                    stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
+                                }
+
+                                substates[s] = new Common_EventState {
+                                    AnimationIndex = s,
+                                    LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
+                                    AnimationSpeed = 1,
+                                };
+                            }
+                            states[gr] = substates;
+                        }
+                        // Add to the states
+                        eventETA.Add(etatKey, states);
+                    } else {
+                        var validStates = ed.ComplexData.States.Where(x => x.Layers?.Length > 0).ToArray();
+
+                        // Create a common state array
+                        var states = new Common_EventState[validStates.Length][];
+
+                        for (byte s = 0; s < states.Length; s++) {
+                            var stateLinkIndex = -1;
+                            if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < ed.ComplexData.States.Length) {
+                                var linkedState = ed.ComplexData.States[validStates[s].LinkedStateIndex - 1];
+                                stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
+                            }
+
+                            states[s] = new Common_EventState[] {
+                                        new Common_EventState {
+                                            AnimationIndex = s,
+                                            LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
+                                            AnimationSpeed = 1,
+                                        }
+                                    };
+                        }
+
+                        // Add to the states
+                        eventETA.Add(etatKey, states);
+                    }
+                }
+            }
+
+            // Get state index
+            int stateIndex = 0;
+            int substateIndex = 0;
+            if (etatKey != null) {
+                if (!usesComplexData) {
+                    if (ed.States != null && ed.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
+                        var validStates = ed.States.Where(x => x.Animation != null).ToArray();
+                        int ind = 0;
+                        if (predeterminedState.HasValue && predeterminedState.Value < ed.States.Length) {
+                            var st = ed.States[predeterminedState.Value];
+                            if (st.LinkedState != null) st = st.LinkedState;
+                            ind = validStates.FindItemIndex(state => state.Offset == st.Offset);
+                            if (ind < 0) {
+                                ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
+                            }
+                        } else {
+                            ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
+                        }
+                        if (ind >= 0) {
+                            stateIndex = ind;
+                        }
+                    }
+                } else {
+                    if (usesSubstates) {
+                        stateIndex = ed.ComplexData.Transitions.FindItemIndex(g => g.ComplexData == ed.ComplexData);
+                        substateIndex = 0;
+                    } else {
+                        stateIndex = 0;
+                    }
+                }
+            }
+
+            // Add the event
+            return new Common_EventData {
+                Etat = stateIndex,
+                SubEtat = substateIndex,
+
+                DESKey = ed.Offset?.ToString() ?? String.Empty,
+                ETAKey = etatKey?.ToString() ?? String.Empty,
+
+                // These are not available on Jaguar
+                Type = EventType.TYPE_BADGUY1,
+                OffsetBX = 0,
+                OffsetBY = 0,
+                OffsetHY = 0,
+                FollowSprite = 0,
+                HitPoints = 0,
+                Layer = 0,
+                MapLayer = null,
+                HitSprite = 0,
+                FollowEnabled = false,
+                FlipHorizontally = false,
+                LabelOffsets = new ushort[0],
+                CommandCollection = null
+            };
+        }
+
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -587,8 +811,6 @@ namespace R1Engine
                         continue; // Duplicate
                     }
                     var ed = e.EventDefinition;
-                    int? predeterminedState = null;
-
 					/* TODO: Process special event definitions.
                      * - 0x001FB3C8[0x000023C8]: RAY POS
                      * - 0x001FB760[0x00002760]: Mr Dark boss spawners
@@ -610,248 +832,47 @@ namespace R1Engine
                         linkBackIndex = eventIndex;
                         linkIndex++;
                     }
-					/*if (ed.CodePointer?.FileOffset == 0x00101E32) {
+                    /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
                         var indEd = Array.IndexOf(rom.EventDefinitions,ed);
                         ed = rom.EventDefinitions[indEd + e.Unk_0C];
                     }*/
-					/*if (ed.CodePointer?.FileOffset == 0x00101E32) {
+                    /*if (ed.CodePointer?.FileOffset == 0x00101E32) {
 						var indEd = Array.IndexOf(rom.EventDefinitions, ed);
 						ed = rom.EventDefinitions[indEd + 2];
 					}*/
-					// Switch
-					/*if (ed.CodePointer?.AbsoluteOffset == 0x00B9C67C) {
+                    // Switch
+                    /*if (ed.CodePointer?.AbsoluteOffset == 0x00B9C67C) {
 						//var indEd = Array.IndexOf(rom.EventDefinitions, ed);
 						ed = rom.EventDefinitions[388];
 						predeterminedState = e.EventDefinition.UnkBytes[5];
 					}*/
-
-					// Add if not found
-					if (!eventDesigns.ContainsKey(ed.Offset))
-                    {
-                        Common_Design finalDesign = new Common_Design
-                        {
-                            Sprites = new List<Sprite>(),
-                            Animations = new List<Common_Animation>()
-                        };
-
-                        // Get every sprite
-                        void AddImageDescriptors(Common_ImageDescriptor[] imgDesc) {
-                            if (imgDesc == null) return;
-                            foreach (Common_ImageDescriptor img in imgDesc) {
-                                // TODO: Remove try catch
-                                try {
-                                    // Get the texture for the sprite, or null if not loading textures
-                                    Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[ed.ImageBufferMemoryPointerPointer]) : null;
-
-                                    // Add it to the array
-                                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                                } catch (Exception ex) {
-                                    finalDesign.Sprites.Add(null);
-                                    Debug.LogWarning($"Error loading sprite with descriptor {img.Offset} for event definition {ed.Offset}: {ex.Message}");
-                                }
-                            }
-                        }
-                        if (ed.ImageDescriptors != null)
-                            AddImageDescriptors(ed.ImageDescriptors);
-
-                        if (ed.ComplexData != null)
-                            AddImageDescriptors(ed.ComplexData?.ImageDescriptors);
-
-                        // Add animations
-                        if (ed.States != null) {
-                            finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation(ed)));
-                        } else if (ed.ComplexData != null) {
-                            if (ed.ComplexData.Transitions != null) {
-                                foreach (var graphref in ed.ComplexData.Transitions) {
-                                    if (graphref.ComplexData?.States == null) continue;
-                                    finalDesign.Animations.AddRange(graphref.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
-                                }
-                            } else {
-                                if (ed.ComplexData.States != null) {
-                                    finalDesign.Animations.AddRange(ed.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
-                                }
-                            }
-                        }
-
-                        // Add to the designs
-                        eventDesigns.Add(ed.Offset, finalDesign);
-                    }
-
-                    // Key for ETAT
-                    bool usesComplexData = false;
-                    bool usesSubstates = false;
-                    Pointer etatKey = null;
-                    if (ed.States != null && ed.States.Length > 0) {
-                        etatKey = ed.States[0].Offset;
-                    } else if (ed.ComplexData != null) {
-                        usesComplexData = true;
-                        if (ed.ComplexData.Transitions != null) {
-                            etatKey = ed.ComplexData.Transitions[0].Offset;
-                        } else {
-                            etatKey = ed.ComplexData.Offset;
-                        }
-                    }
-
-                    // Add ETAT if not found
-                    if (etatKey != null && !eventETA.ContainsKey(etatKey))
-                    {
-                        if (!usesComplexData) {
-                            var validStates = ed.States.Where(x => x.Animation != null).ToArray();
-
-                            // Create a common state array
-                            var states = new Common_EventState[validStates.Length][];
-
-                            // Add dummy states
-                            for (byte s = 0; s < states.Length; s++) {
-                                var stateLinkIndex = -1;
-                                var fullStateIndex = ed.States.FindItemIndex(x => x == validStates[s]);
-                                if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null) {
-                                    stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
-                                }
-
-								states[s] = new Common_EventState[] {
-									new Common_EventState {
-									    AnimationIndex = s,
-									    LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-									    AnimationSpeed = validStates[s].AnimationSpeed,
-								    }
-								};
-							}
-
-                            // Add to the states
-                            eventETA.Add(etatKey, states);
-                        } else {
-                            if (ed.ComplexData.Transitions != null) {
-                                usesSubstates = true;
-
-                                var states = new Common_EventState[7][];
-
-                                for(int gr = 0; gr < 7; gr++) {
-                                    if (ed.ComplexData.Transitions[gr].ComplexData == null) continue;
-                                    var g = ed.ComplexData.Transitions[gr].ComplexData;
-
-                                    var validStates = g.States.Where(x => x.Layers?.Length > 0).ToArray();
-
-                                    // Create a common state array
-                                    var substates = new Common_EventState[validStates.Length];
-
-                                    for (byte s = 0; s < substates.Length; s++) {
-                                        var stateLinkIndex = -1;
-                                        if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < ed.ComplexData.States.Length) {
-                                            var linkedState = ed.ComplexData.States[validStates[s].LinkedStateIndex - 1];
-                                            stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
-                                        }
-
-                                        substates[s] = new Common_EventState {
-                                            AnimationIndex = s,
-                                            LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                            AnimationSpeed = 1,
-                                        };
-                                    }
-                                    states[gr] = substates;
-                                }
-                                // Add to the states
-                                eventETA.Add(etatKey, states);
-                            } else {
-                                var validStates = ed.ComplexData.States.Where(x => x.Layers?.Length > 0).ToArray();
-
-                                // Create a common state array
-                                var states = new Common_EventState[validStates.Length][];
-
-                                for (byte s = 0; s < states.Length; s++) {
-                                    var stateLinkIndex = -1;
-                                    if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < ed.ComplexData.States.Length) {
-                                        var linkedState = ed.ComplexData.States[validStates[s].LinkedStateIndex - 1];
-                                        stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
-                                    }
-
-                                    states[s] = new Common_EventState[] {
-                                        new Common_EventState {
-                                            AnimationIndex = s,
-                                            LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                            AnimationSpeed = 1,
-                                        }
-                                    };
-                                }
-
-                                // Add to the states
-                                eventETA.Add(etatKey, states);
-                            }
-                        }
-                    }
-
-                    // Get state index
-                    int stateIndex = 0;
-                    int substateIndex = 0;
-                    if (etatKey != null) {
-                        if (!usesComplexData) {
-                            if (ed.States != null && ed.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
-                                var validStates = ed.States.Where(x => x.Animation != null).ToArray();
-                                int ind = 0;
-                                if (predeterminedState.HasValue && predeterminedState.Value < ed.States.Length) {
-                                    var st = ed.States[predeterminedState.Value];
-                                    if (st.LinkedState != null) st = st.LinkedState;
-                                    ind = validStates.FindItemIndex(state => state.Offset == st.Offset);
-                                    if (ind < 0) {
-                                        ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
-                                    }
-                                } else {
-                                    ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
-                                }
-                                if (ind >= 0) {
-                                    stateIndex = ind;
-                                }
-                            }
-                        } else {
-                            if (usesSubstates) {
-                                stateIndex = ed.ComplexData.Transitions.FindItemIndex(g => g.ComplexData == ed.ComplexData);
-                                substateIndex = 0;
-                            } else {
-                                stateIndex = 0;
-                            }
-                        }
-                    }
-
                     // Add the event
-                    uniqueEvents[e.EventIndex] = new Common_EventData {
-                        Etat = stateIndex,
-                        SubEtat = substateIndex,
-
-                        LinkIndex = linkIndex,
-
-                        XPosition = (uint)(mapX + e.OffsetX),
-                        YPosition = (uint)(mapY + e.OffsetY),
-
-                        DESKey = ed.Offset?.ToString() ?? String.Empty,
-                        ETAKey = etatKey?.ToString() ?? String.Empty,
-
-                        // These are not available on Jaguar
-                        Type = EventType.TYPE_BADGUY1,
-                        OffsetBX = 0,
-                        OffsetBY = 0,
-                        OffsetHY = 0,
-                        FollowSprite = 0,
-                        HitPoints = 0,
-                        Layer = 0,
-                        MapLayer = null,
-                        HitSprite = 0,
-                        FollowEnabled = false,
-                        FlipHorizontally = false,
-                        LabelOffsets = new ushort[0],
-                        CommandCollection = null,
-
-                        DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
+                    uniqueEvents[e.EventIndex] = CreateEventData(context, ed, eventDesigns, eventETA, loadTextures);
+                    uniqueEvents[e.EventIndex].LinkIndex = linkIndex;
+                    uniqueEvents[e.EventIndex].XPosition = (uint)(mapX + e.OffsetX);
+                    uniqueEvents[e.EventIndex].YPosition = (uint)(mapY + e.OffsetY);
+                    uniqueEvents[e.EventIndex].DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
                                     $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
                                     $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
                                     $"MapPos: {mapPos}{Environment.NewLine}" +
                                     $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
                                     $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
                                     $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
-                                    $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}"
-                    };
+                                    $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}";
+
                     commonLev.EventData.Add(uniqueEvents[e.EventIndex]);
 
                     eventIndex++;
+                }
+            }
+            // Check if all events have been loaded
+
+            for (var i = 0; i < rom.EventData.EventData.Length; i++) {
+                for (int j = 0; j < rom.EventData.EventData[i].Length; j++) {
+                    Jaguar_R1_EventInstance inst = rom.EventData.EventData[i][j];
+                    if (!uniqueEvents.ContainsKey(inst.EventIndex)) {
+                        Debug.LogWarning("Event with index " + inst.EventIndex + " wasn't loaded!");
+                    }
                 }
             }
 
