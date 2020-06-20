@@ -142,6 +142,9 @@ namespace R1Engine
             // Create the context
             using (var context = new Context(baseGameSettings))
             {
+                // Keep track of exported files
+                var exportedFiles = new List<string>();
+
                 // Load the game data
                 await LoadFilesAsync(context);
 
@@ -153,8 +156,6 @@ namespace R1Engine
 
                 // Get the deserializer
                 var s = context.Deserializer;
-
-                // TODO: Export big ray and font - from seventh world?
 
                 // Get allfix sprite commands
                 var allfixCmds = rom.FixSpritesLoadCommands.Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).ToArray();
@@ -188,7 +189,6 @@ namespace R1Engine
                         worldPal.AddRange(Enumerable.Repeat(p, sprCommands.Count()));
                     }
 
-                    // TODO: Some sprites get the wrong palette, like the Bzzit ones - why?
                     // Enumerate every level
                     for (int lvl = 0; lvl < lvlCmds.Length; lvl++)
                     {
@@ -204,6 +204,7 @@ namespace R1Engine
                     // Export world
                     await ExportGroupAsync(worldCmds, worldPal, world.Key.ToString());
                 }
+
                 // Extra
                 {
                     // Get the level load commands
@@ -219,7 +220,6 @@ namespace R1Engine
                     var worldCmds = new List<Jaguar_R1_LevelLoadCommand>();
                     var worldPal = new List<RGB556Color[]>();
 
-                    // TODO: Some sprites get the wrong palette, like the Bzzit ones - why?
                     // Enumerate every level
                     for (int lvl = 0; lvl < lvlCmds.Length; lvl++) {
                         foreach (var c in lvlCmds[lvl]?.Commands?
@@ -246,13 +246,12 @@ namespace R1Engine
 
                         // Get the image buffer
                         byte[] imgBuffer = null;
+
                         s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
 
                         // Get the event definition
                         var eventDefinitions = rom.EventDefinitions.Where(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer).ToArray();
-                        // TODO: fix this
 
-                        // TODO: This doesn't always work - why?
                         if (eventDefinitions.Length == 0)
                         {
                             Debug.LogWarning($"No EventDefinition found!");
@@ -260,23 +259,26 @@ namespace R1Engine
                         }
 
                         // Export every sprite
-                        foreach (var ed in eventDefinitions) {
+                        foreach (var ed in eventDefinitions) 
+                        {
                             var imgIndex = 0;
                             var ids = ed.ImageDescriptors ?? ed.ComplexData?.ImageDescriptors ?? new Common_ImageDescriptor[0];
-                            foreach (var d in ids) {
-                                // TODO: Remove the try/catch once we fix the width!
-                                try {
-                                    string filename = Path.Combine(outputDir, name, $"{cmd.ImageBufferPointer.StringAbsoluteOffset}_{pal.First().Offset.StringAbsoluteOffset}_{string.Format("{0:X8}", cmd.ImageBufferMemoryPointerPointer)}_{ids.First().Offset.StringAbsoluteOffset} - {imgIndex}.png");
-                                    if (!File.Exists(filename)) {
-                                        // Get the texture
-                                        var tex = GetSpriteTexture(d, pal, imgBuffer);
+                        
+                            foreach (var d in ids) 
+                            {
+                                string filename = Path.Combine(outputDir, name, $"{cmd.ImageBufferPointer.StringAbsoluteOffset}_{pal.First().Offset.StringAbsoluteOffset}_{cmd.ImageBufferMemoryPointerPointer:X8}_{ids.First().Offset.StringAbsoluteOffset} - {imgIndex}.png");
+                                
+                                if (!exportedFiles.Contains(filename))
+                                {
+                                    // Get the texture
+                                    var tex = GetSpriteTexture(d, pal, imgBuffer);
 
-                                        // Export if not null
-                                        if (tex != null)
-                                            Util.ByteArrayToFile(filename, tex.EncodeToPNG());
+                                    // Export if not null
+                                    if (tex != null)
+                                    {
+                                        Util.ByteArrayToFile(filename, tex.EncodeToPNG());
+                                        exportedFiles.Add(filename);
                                     }
-                                } catch (Exception ex) {
-                                    Debug.LogWarning(ex.Message);
                                 }
 
                                 imgIndex++;
@@ -303,6 +305,10 @@ namespace R1Engine
             if (d.OuterHeight == 0 || d.OuterWidth == 0 || d.Index == 0xFF)
                 return null;
 
+            // Make sure the index is not out of bounds
+            if (d.ImageBufferOffset + (d.OuterHeight * d.OuterWidth) >= imgBuffer.Length)
+                return null;
+
             // Create a texture
             var tex = new Texture2D(d.OuterWidth, d.OuterHeight)
             {
@@ -311,6 +317,7 @@ namespace R1Engine
             };
 
             bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
+            var isFullyTransparent = true;
 
             // Set every pixel
             for (int y = 0; y < tex.height; y++)
@@ -324,6 +331,9 @@ namespace R1Engine
                     {
                         palIndex = imgBuffer[d.ImageBufferOffset + index];
 
+                        if (palIndex != 0)
+                            isFullyTransparent = false;
+
                         tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[palIndex].GetColor());
                     }
                     else
@@ -332,10 +342,17 @@ namespace R1Engine
                         palIndex = imgBuffer[d.ImageBufferOffset + index / 2];
                         palIndex = BitHelpers.ExtractBits(palIndex, 4, index % 2 == 0 ? 4 : 0);
 
+                        if (palIndex != 0)
+                            isFullyTransparent = false;
+
                         tex.SetPixel(x, tex.height - y - 1, palIndex == 0 ? new Color() : pal[indexInPal * 16 + palIndex].GetColor());
                     }
                 }
             }
+
+            // Return null if fully transparent
+            if (isFullyTransparent)
+                return null;
 
             tex.Apply();
 
@@ -543,12 +560,8 @@ namespace R1Engine
             }
         }
 
-        public Common_EventData CreateEventData(
-            Context c,
-            Jaguar_R1_EventDefinition ed,
-            Dictionary<Pointer, Common_Design> eventDesigns,
-            Dictionary<Pointer, Common_EventState[][]> eventETA,
-            bool loadTextures) {
+        public Common_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<Pointer, Common_Design> eventDesigns, Dictionary<Pointer, Common_EventState[][]> eventETA, bool loadTextures) 
+        {
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, c);
             int? predeterminedState = null;
 
@@ -822,6 +835,7 @@ namespace R1Engine
 
             // Load events
             Dictionary<int, Common_EventData> uniqueEvents = new Dictionary<int, Common_EventData>();
+
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
                 // Get the map base position, based on the event map
@@ -842,6 +856,7 @@ namespace R1Engine
                 for (int j = 0; j < rom.EventData.EventData[i].Length; j++)
                 {
                     var e = rom.EventData.EventData[i][j];
+                    
                     if (uniqueEvents.ContainsKey(e.EventIndex)) {
 
                         if (uniqueEvents[e.EventIndex].XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].YPosition != (uint)(mapY + e.OffsetY))
@@ -849,13 +864,16 @@ namespace R1Engine
 
                         continue; // Duplicate
                     }
+
                     var ed = e.EventDefinition;
+
 					/* TODO: Process special event definitions.
                      * - 0x001FB3C8[0x000023C8]: RAY POS
                      * - 0x001FB760[0x00002760]: Mr Dark boss spawners
                      * - 0x001F9CD0[0x00000CD0]: Gendoors. Spawns next event read by ReadEvent in Jaguar_R1_EventBlock
                      */
-					var linkIndex = eventIndex;
+					
+                    var linkIndex = eventIndex;
                     if (linkBackIndex.HasValue) {
                         linkIndex++;
                         if (j == rom.EventData.EventData[i].Length - 1 || IsGendoor(j + 1) || rom.EventData.EventData[i][j + 1].Unk_00 != 2) {
@@ -891,27 +909,27 @@ namespace R1Engine
                     uniqueEvents[e.EventIndex].XPosition = (uint)(mapX + e.OffsetX);
                     uniqueEvents[e.EventIndex].YPosition = (uint)(mapY + e.OffsetY);
                     uniqueEvents[e.EventIndex].DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
-                                    $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
-                                    $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
-                                    $"MapPos: {mapPos}{Environment.NewLine}" +
-                                    $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
-                                    $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
-                                    $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
-                                    $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}";
-
+                                                           $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
+                                                           $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
+                                                           $"MapPos: {mapPos}{Environment.NewLine}" +
+                                                           $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
+                                                           $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
+                                                           $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
+                                                           $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}";
+                    
                     commonLev.EventData.Add(uniqueEvents[e.EventIndex]);
 
                     eventIndex++;
                 }
             }
-            // Check if all events have been loaded
 
-            for (var i = 0; i < rom.EventData.EventData.Length; i++) {
-                for (int j = 0; j < rom.EventData.EventData[i].Length; j++) {
-                    Jaguar_R1_EventInstance inst = rom.EventData.EventData[i][j];
-                    if (!uniqueEvents.ContainsKey(inst.EventIndex)) {
-                        Debug.LogWarning("Event with index " + inst.EventIndex + " wasn't loaded!");
-                    }
+            // Check if all events have been loaded
+            foreach (var t in rom.EventData.EventData)
+            {
+                foreach (Jaguar_R1_EventInstance inst in t)
+                {
+                    if (!uniqueEvents.ContainsKey(inst.EventIndex))
+                        Debug.LogWarning($"Event with index {inst.EventIndex} wasn't loaded!");
                 }
             }
 
