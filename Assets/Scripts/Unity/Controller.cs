@@ -64,7 +64,9 @@ namespace R1Engine
 
         async void Start()
         {
+            var loadTimer = new Stopwatch();
             stopwatch.Start();
+            loadTimer.Start();
 
             status = "Starting...";
 
@@ -75,13 +77,14 @@ namespace R1Engine
             status = String.Empty;
 
             stopwatch.Stop();
+            loadTimer.Stop();
 
             var startEvent = levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE));
 
             if (startEvent != null)
                 Camera.main.transform.position = new Vector3(startEvent.Data.XPosition, startEvent.Data.YPosition, -10f);
 
-            Debug.Log("Loaded");
+            Debug.Log($"Loaded in {loadTimer.ElapsedMilliseconds}ms");
         }
     }
 }
