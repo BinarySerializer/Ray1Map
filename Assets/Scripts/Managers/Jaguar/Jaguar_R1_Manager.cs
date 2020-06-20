@@ -132,6 +132,13 @@ namespace R1Engine
             };
         }
 
+        private class ExportAnim {
+            public Common_Animation Anim;
+            public byte AnimationSpeed;
+            public Pointer Pointer;
+            public Common_ImageDescriptor[] OverrideImageDescriptors;
+        }
+
         /// <summary>
         /// Exports every sprite from the game
         /// </summary>
@@ -249,19 +256,36 @@ namespace R1Engine
 
                             if (exportAnimFrames)
                             {
-                                var animations = ed.States?.Where(x => x.Animation?.Layers != null).Select(x => new
-                                {
-                                    Anim = x.Animation.ToCommonAnimation(ed),
-                                    x.AnimationSpeed,
-                                    Pointer = x.Animation.Offset
-                                }) ?? ed.ComplexData?.States?.Where(x => x.Layers != null).Select(x => new
-                                {
-                                    Anim = x.ToCommonAnimation(ed),
-                                    AnimationSpeed = Byte.MaxValue,
-                                    Pointer = x.Offset
-                                });
 
-                                if (animations == null)
+                                // Create template
+                                var animations = new List<ExportAnim>();
+                                HashSet<Pointer> complexDataSeen = new HashSet<Pointer>();
+
+                                var animNormal = ed.States?.Where(x => x.Animation?.Layers != null).Select(x => new ExportAnim() {
+                                    Anim = x.Animation.ToCommonAnimation(ed),
+                                    AnimationSpeed = x.AnimationSpeed,
+                                    Pointer = x.Animation.Offset
+                                });
+                                if (animNormal != null) animations.AddRange(animNormal);
+                                void AddComplexData(Jaguar_R1_EventComplexData cd) {
+                                    if (cd == null || complexDataSeen.Contains(cd.Offset)) return;
+                                    complexDataSeen.Add(cd.Offset);
+                                    var animComplex = cd.States?.Where(x => x.Layers != null).Select(x => new ExportAnim() {
+                                        OverrideImageDescriptors = cd.ImageDescriptors,
+                                        Anim = x.ToCommonAnimation(ed),
+                                        AnimationSpeed = Byte.MaxValue,
+                                        Pointer = x.Offset
+                                    });
+                                    if (animComplex != null) animations.AddRange(animComplex);
+                                    if (cd.Transitions != null) {
+                                        foreach (Jaguar_R1_EventComplexDataTransition t in cd.Transitions) {
+                                            AddComplexData(t.ComplexData);
+                                        }
+                                    }
+                                }
+                                AddComplexData(ed.ComplexData);
+
+                                if (animations.Count == 0)
                                     continue;
 
                                 // Get every sprite
@@ -275,6 +299,10 @@ namespace R1Engine
                                     int flippingMethod = 0;
                                     if (((ed.UShort_12 & 5) == 5) || ed.StructType == 31) {
                                         flippingMethod = 1;
+                                    }
+                                    var animSprites = sprites;
+                                    if (anim.OverrideImageDescriptors != null) {
+                                        sprites = anim.OverrideImageDescriptors.Select(x => GetSpriteTexture(x, pal, imgBuffer)).ToArray();
                                     }
                                     var animKey = $"{anim.Pointer.StringAbsoluteOffset}-{pal.First().Offset.StringAbsoluteOffset}-{imageDescriptors.First().Offset.StringAbsoluteOffset}-{flippingMethod}";
 
