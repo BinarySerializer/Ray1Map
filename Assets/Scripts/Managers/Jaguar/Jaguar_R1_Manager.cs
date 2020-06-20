@@ -272,7 +272,11 @@ namespace R1Engine
                                 // Export every animation
                                 foreach (var anim in animations)
                                 {
-                                    var animKey = $"{anim.Pointer.StringAbsoluteOffset}-{pal.First().Offset.StringAbsoluteOffset}-{imageDescriptors.First().Offset.StringAbsoluteOffset}";
+                                    int flippingMethod = 0;
+                                    if (((ed.UShort_12 & 5) == 5) || ed.StructType == 31) {
+                                        flippingMethod = 1;
+                                    }
+                                    var animKey = $"{anim.Pointer.StringAbsoluteOffset}-{pal.First().Offset.StringAbsoluteOffset}-{imageDescriptors.First().Offset.StringAbsoluteOffset}-{flippingMethod}";
 
                                     if (!anim.Anim.Frames.Any() || exportedFiles.Contains(animKey))
                                     {
