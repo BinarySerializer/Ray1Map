@@ -42,6 +42,18 @@ namespace R1Engine {
             }
         }
 
+        public string StringFileOffset {
+            get {
+                return String.Format("{0:X8}", FileOffset);
+            }
+        }
+
+        public string StringAbsoluteOffset {
+            get {
+                return String.Format("{0:X8}", AbsoluteOffset);
+            }
+        }
+
         public Pointer SetAnchor(Pointer anchor) {
             Pointer ptr = new Pointer(AbsoluteOffset, file);
             ptr.Anchor = anchor;

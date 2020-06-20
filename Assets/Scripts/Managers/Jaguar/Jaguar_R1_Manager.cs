@@ -178,14 +178,19 @@ namespace R1Engine
                     var worldPal = new List<RGB556Color[]>();
 
                     // Add world data
-                    worldCmds.AddRange(rom.WorldSpritesLoadCommands[worldIndex].Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites));
-                    worldPal.AddRange(Enumerable.Repeat(palettes.First(), worldCmds.Count));
+                    foreach (var p in palettes) {
+                        var sprCommands = rom.WorldSpritesLoadCommands[worldIndex].Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites);
+                        worldCmds.AddRange(sprCommands);
+                        worldPal.AddRange(Enumerable.Repeat(p, sprCommands.Count()));
+                    }
 
                     // TODO: Some sprites get the wrong palette, like the Bzzit ones - why?
                     // Enumerate every level
                     for (int lvl = 0; lvl < lvlCmds.Length; lvl++)
                     {
-                        foreach (var c in lvlCmds[lvl]?.Commands?.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites).Where(x => worldCmds.All(y => y.ImageBufferPointer != x.ImageBufferPointer)) ?? new Jaguar_R1_LevelLoadCommand[0])
+                        foreach (var c in lvlCmds[lvl]?.Commands?
+                            .Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites)
+                            .Where(x => worldCmds.All(y => y.ImageBufferPointer != x.ImageBufferPointer)) ?? new Jaguar_R1_LevelLoadCommand[0])
                         {
                             worldCmds.Add(c);
                             worldPal.Add(palettes[lvl]);
@@ -210,38 +215,39 @@ namespace R1Engine
                         byte[] imgBuffer = null;
                         s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
 
-                        // Get the DES
-                        var des = rom.EventDefinitions.FirstOrDefault(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer);
+                        // Get the event definition
+                        var eventDefinitions = rom.EventDefinitions.Where(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer).ToArray();
                         // TODO: fix this
 
                         // TODO: This doesn't always work - why?
-                        if (des == null)
+                        if (eventDefinitions.Length == 0)
                         {
-                            Debug.LogWarning($"No DES found!");
+                            Debug.LogWarning($"No EventDefinition found!");
                             continue;
                         }
 
-                        var imgIndex = 0;
-
                         // Export every sprite
-                        foreach (var d in des.ImageDescriptors ?? des.ComplexData?.ImageDescriptors ?? new Common_ImageDescriptor[0])
-                        {
-                            // TODO: Remove the try/catch once we fix the width!
-                            try
-                            {
-                                // Get the texture
-                                var tex = GetSpriteTexture(d, pal, imgBuffer);
+                        foreach (var ed in eventDefinitions) {
+                            var imgIndex = 0;
+                            var ids = ed.ImageDescriptors ?? ed.ComplexData?.ImageDescriptors ?? new Common_ImageDescriptor[0];
+                            foreach (var d in ids) {
+                                // TODO: Remove the try/catch once we fix the width!
+                                try {
+                                    string filename = Path.Combine(outputDir, name, $"{cmd.ImageBufferPointer.StringAbsoluteOffset}_{pal.First().Offset.StringAbsoluteOffset}_{string.Format("{0:X8}", cmd.ImageBufferMemoryPointerPointer)}_{ids.First().Offset.StringAbsoluteOffset} - {imgIndex}.png");
+                                    if (!File.Exists(filename)) {
+                                        // Get the texture
+                                        var tex = GetSpriteTexture(d, pal, imgBuffer);
 
-                                // Export if not null
-                                if (tex != null)
-                                    Util.ByteArrayToFile(Path.Combine(outputDir, name, $"{desIndex} - {imgIndex} - 0x{d.Offset.FileOffset:X8}.png"), tex.EncodeToPNG());
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.LogWarning(ex.Message);
-                            }
+                                        // Export if not null
+                                        if (tex != null)
+                                            Util.ByteArrayToFile(filename, tex.EncodeToPNG());
+                                    }
+                                } catch (Exception ex) {
+                                    Debug.LogWarning(ex.Message);
+                                }
 
-                            imgIndex++;
+                                imgIndex++;
+                            }
                         }
                     }
 
