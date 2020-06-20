@@ -171,7 +171,7 @@ namespace R1Engine
                     await ExportWorldAsync(levels.FindItemIndex(x => x.Key == world.Key), world.Key.ToString());
 
                 // Export extra world
-                await ExportWorldAsync(7, "Extra");
+                await ExportWorldAsync(6, "Extra");
 
                 // Helper method for exporting a world
                 async Task ExportWorldAsync(int worldIndex, string name)
@@ -189,7 +189,7 @@ namespace R1Engine
                     var worldCmds = new List<Jaguar_R1_LevelLoadCommand>();
                     var worldPal = new List<RGB556Color[]>();
 
-                    if (worldIndex < 7)
+                    if (worldIndex < 6)
                     {
                         // Add world data
                         foreach (var p in palettes)
@@ -251,12 +251,14 @@ namespace R1Engine
                             {
                                 var animations = ed.States?.Where(x => x.Animation?.Layers != null).Select(x => new
                                 {
-                                    Anim = x.Animation.ToCommonAnimation(),
-                                    x.AnimationSpeed
+                                    Anim = x.Animation.ToCommonAnimation(ed),
+                                    x.AnimationSpeed,
+                                    Pointer = x.Animation.Offset
                                 }) ?? ed.ComplexData?.States?.Where(x => x.Layers != null).Select(x => new
                                 {
                                     Anim = x.ToCommonAnimation(ed),
-                                    AnimationSpeed = Byte.MaxValue
+                                    AnimationSpeed = Byte.MaxValue,
+                                    Pointer = x.Offset
                                 });
 
                                 if (animations == null)
@@ -270,11 +272,15 @@ namespace R1Engine
                                 // Export every animation
                                 foreach (var anim in animations)
                                 {
-                                    if (!anim.Anim.Frames.Any())
+                                    var animKey = $"{anim.Pointer.StringAbsoluteOffset}-{pal.First().Offset.StringAbsoluteOffset}-{imageDescriptors.First().Offset.StringAbsoluteOffset}";
+
+                                    if (!anim.Anim.Frames.Any() || exportedFiles.Contains(animKey))
                                     {
                                         animIndex++;
                                         continue;
                                     }
+
+                                    exportedFiles.Add(animKey);
 
                                     // Get the folder
                                     var animFolderPath = Path.Combine(outputDir, name, $"{desIndex}-{eventDefIndex}", $"{animIndex}-{anim.AnimationSpeed}");
@@ -416,8 +422,10 @@ namespace R1Engine
             if (d.OuterHeight == 0 || d.OuterWidth == 0 || d.Index == 0xFF)
                 return null;
 
+            bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
+
             // Make sure the index is not out of bounds
-            if (d.ImageBufferOffset + (d.OuterHeight * d.OuterWidth) >= imgBuffer.Length)
+            if (d.ImageBufferOffset + ((d.OuterHeight * d.OuterWidth) / (is8Bit ? 1 : 2)) > imgBuffer.Length)
                 return null;
 
             // Create a texture
@@ -427,7 +435,6 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
 
-            bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
             var isFullyTransparent = true;
 
             // Set every pixel
