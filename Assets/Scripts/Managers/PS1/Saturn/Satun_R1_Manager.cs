@@ -160,6 +160,37 @@ namespace R1Engine
             return new Common_Tileset(tex, Settings.CellSize);
         }
 
+        public int GetPaletteIndex(Context context) {
+            // Imitates code at 0x0603586c (US executable)
+            // After tile palettes: 19
+            int part2 = 19;
+            int level = context.Settings.Level;
+            switch (context.Settings.World) {
+                case World.Jungle:
+                    if (level == 9) { // Different palette for Swamp 1? Why is the water splash here not the right color?
+                        return part2 + 1;
+                    } else {
+                        return 2;
+                    }
+                case World.Music:
+                    return 0;
+                case World.Mountain:
+                    return 4;
+                case World.Image:
+                    if (level == 4 || level == 11) { // Different palette for the boss levels
+                        return part2 + 4;
+                    } else {
+                        return 3;
+                    }
+                case World.Cave:
+                    return 1;
+                case World.Cake:
+                    return part2 + 3;
+                default:
+                    return 0;
+            }
+        }
+
         /// <summary>
         /// Fills the PS1 v-ram and returns it
         /// </summary>
@@ -203,9 +234,12 @@ namespace R1Engine
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
             if (img.ImageType == 3) {
-                paletteOffset = 20 * 256;
+                //paletteOffset = 20 * 256;
+                paletteOffset = (ushort)((GetPaletteIndex(context) * 256));
             } else {
-                paletteOffset = (ushort)(19 * 256 + ((img.Unknown2 >> 4) - 1) * 16);
+                paletteOffset = (ushort)((GetPaletteIndex(context) * 256) + ((img.PaletteInfo >> 8)) * 16);
+                //paletteOffset = (ushort)((GetPaletteIndex(context) * 256) + ((img.Unknown2 >> 4) - 1) * 16);
+                //paletteOffset = (ushort)(19 * 256 + ((img.Unknown2 >> 4) - 1) * 16);
             }
 
             // Set every pixel
@@ -216,6 +250,11 @@ namespace R1Engine
 
                         // Set the pixel
                         var color = palette[paletteOffset + paletteIndex].GetColor();
+                        if (paletteIndex == 0) {
+                            color = new Color(color.r, color.g, color.b, 0f);
+                        } else {
+                            color = new Color(color.r, color.g, color.b, 1f);
+                        }
                         tex.SetPixel(x, height - 1 - y, color);
                     }
                 }
@@ -230,6 +269,11 @@ namespace R1Engine
 
                         // Set the pixel
                         var color = palette[paletteOffset + paletteIndex].GetColor();
+                        if (paletteIndex == 0) {
+                            color = new Color(color.r, color.g, color.b, 0f);
+                        } else {
+                            color = new Color(color.r, color.g, color.b, 1f);
+                        }
                         tex.SetPixel(x, height - 1 - y, color);
                     }
                 }
