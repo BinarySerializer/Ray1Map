@@ -263,7 +263,7 @@ namespace R1Engine
 
                                 var animNormal = ed.States?.Where(x => x.Animation?.Layers != null).Select(x => new ExportAnim() {
                                     Anim = x.Animation.ToCommonAnimation(ed),
-                                    AnimationSpeed = x.AnimationSpeed,
+                                    AnimationSpeed = (byte)(x.AnimationSpeed & 0b1111),
                                     Pointer = x.Animation.Offset
                                 });
                                 if (animNormal != null) animations.AddRange(animNormal);
@@ -273,7 +273,7 @@ namespace R1Engine
                                     var animComplex = cd.States?.Where(x => x.Layers != null).Select(x => new ExportAnim() {
                                         OverrideImageDescriptors = cd.ImageDescriptors,
                                         Anim = x.ToCommonAnimation(ed),
-                                        AnimationSpeed = Byte.MaxValue,
+                                        AnimationSpeed = (byte)(x.UnkBytes[0] & 0b1111),
                                         Pointer = x.Offset
                                     });
                                     if (animComplex != null) animations.AddRange(animComplex);
