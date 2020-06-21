@@ -34,6 +34,30 @@ namespace R1Engine
         public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
 
         /// <summary>
+        /// Gets the offset for the palettes in the game executable
+        /// </summary>
+        /// <returns>The offset for the palettes in the game executable</returns>
+        public uint GetPalOffsetFilePath(GameSettings settings)
+        {
+            if (settings.GameModeSelection == GameModeSelection.RaymanSaturnUS)
+                return 0x79224;
+            else if (settings.GameModeSelection == GameModeSelection.RaymanSaturnEU)
+                return 0x78D14;
+            else if (settings.GameModeSelection == GameModeSelection.RaymanSaturnJP)
+                return 0x791C4;
+            else if (settings.GameModeSelection == GameModeSelection.RaymanSaturnProto)
+                return 0x87754;
+            else
+                throw new ArgumentOutOfRangeException(nameof(settings.GameModeSelection), settings.GameModeSelection, "The requested game mode is not supported for Saturn");
+        }
+
+        /// <summary>
+        /// Gets the executable file path
+        /// </summary>
+        /// <returns>The executable file path</returns>
+        public string GetExeFilePath() => "0";
+
+        /// <summary>
         /// Gets the allfix file path
         /// </summary>
         /// <returns>The allfix file path</returns>
@@ -226,8 +250,8 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
             //Debug.Log(string.Format("{0:X8}", img.ImageBufferOffset) + " - " + tex.width + " - " + tex.height);
-            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>("0.PAL", context, (s, x) => x.Length = s.CurrentLength / 2);
-            //var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetTileSetPaletteFilePath(context), context, (s, x) => x.Length = s.CurrentLength / 2);
+            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(GetExeFilePath()).StartPointer + GetPalOffsetFilePath(context.Settings), context, (s, x) => x.Length = 25 * 256 * 2);
+
             var palette = pal.Value;
             var paletteOffset = img.PaletteInfo;
 
@@ -321,9 +345,10 @@ namespace R1Engine
 
             if (FileSystem.FileExists(context.BasePath + levelFilePath))
             {
-                await LoadFile(context, "0.PAL"); // TODO: read the palettes from the '0' executable file
-                var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>("0.PAL", context, (s, x) => x.Length = s.CurrentLength / 2);
-                PaletteHelpers.ExportPalette(context.BasePath + "0.png", pal.Value, scale: 1, optionalWrap: 256);
+                // Load executable to get the palettes
+                await LoadFile(context, GetExeFilePath());
+
+                // Load the texture files
                 await LoadFile(context, GetFixImageFilePath());
                 await LoadFile(context, GetWorldImageFilePath(context));
                 await LoadFile(context, GetLevelImageFilePath(context));
