@@ -767,7 +767,6 @@ namespace R1Engine
 
             // Key for ETAT
             bool usesComplexData = false;
-            bool usesSubstates = false;
             Pointer etatKey = null;
             if (ed.States != null && ed.States.Length > 0) {
                 etatKey = ed.States[0].Offset;
@@ -798,7 +797,7 @@ namespace R1Engine
                             new Common_EventState {
                                 AnimationIndex = s,
                                 LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                AnimationSpeed = validStates[s].AnimationSpeed,
+                                AnimationSpeed = (byte)(validStates[s].AnimationSpeed & 0b1111),
                             }
                         };
                     }
@@ -806,62 +805,39 @@ namespace R1Engine
                     // Add to the states
                     eventETA.Add(etatKey, states);
                 } else {
-                    if (ed.ComplexData.Transitions != null) {
-                        usesSubstates = true;
-
-                        var states = new Common_EventState[7][];
-
-                        for (int gr = 0; gr < 7; gr++) {
-                            if (ed.ComplexData.Transitions[gr].ComplexData == null) continue;
-                            var g = ed.ComplexData.Transitions[gr].ComplexData;
-
-                            var validStates = g.States.Where(x => x.Layers?.Length > 0).ToArray();
-
-                            // Create a common state array
-                            var substates = new Common_EventState[validStates.Length];
-
-                            for (byte s = 0; s < substates.Length; s++) {
-                                var stateLinkIndex = -1;
-                                if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < ed.ComplexData.States.Length) {
-                                    var linkedState = ed.ComplexData.States[validStates[s].LinkedStateIndex - 1];
-                                    stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
-                                }
-
-                                substates[s] = new Common_EventState {
-                                    AnimationIndex = s,
-                                    LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                    AnimationSpeed = 1,
-                                };
-                            }
-                            states[gr] = substates;
-                        }
-                        // Add to the states
-                        eventETA.Add(etatKey, states);
-                    } else {
-                        var validStates = ed.ComplexData.States.Where(x => x.Layers?.Length > 0).ToArray();
-
-                        // Create a common state array
-                        var states = new Common_EventState[validStates.Length][];
-
-                        for (byte s = 0; s < states.Length; s++) {
+                    List<Jaguar_R1_EventComplexData> cds = new List<Jaguar_R1_EventComplexData>();
+                    List<Common_EventState[]> states = new List<Common_EventState[]>();
+                    void AddComplexData(Jaguar_R1_EventComplexData cd) {
+                        if (cd == null || cds.Contains(cd)) return;
+                        cds.Add(cd);
+                        var validStates = cd.States.Where(x => x.Layers?.Length > 0).ToArray();
+                        var substates = new Common_EventState[validStates.Length];
+                        for (byte s = 0; s < substates.Length; s++) {
                             var stateLinkIndex = -1;
-                            if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < ed.ComplexData.States.Length) {
-                                var linkedState = ed.ComplexData.States[validStates[s].LinkedStateIndex - 1];
+                            if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < cd.States.Length) {
+                                var linkedState = cd.States[validStates[s].LinkedStateIndex - 1];
                                 stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
                             }
 
-                            states[s] = new Common_EventState[] {
-                                        new Common_EventState {
-                                            AnimationIndex = s,
-                                            LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                            AnimationSpeed = 1,
-                                        }
-                                    };
+                            substates[s] = new Common_EventState {
+                                AnimationIndex = s,
+                                LinkedEtat = (byte)states.Count,
+                                LinkedSubEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
+                                AnimationSpeed = (byte)(validStates[s].UnkBytes[0] & 0b1111),
+                            };
                         }
 
-                        // Add to the states
-                        eventETA.Add(etatKey, states);
+                        states.Add(substates);
+                        if (cd.Transitions != null) {
+                            foreach (Jaguar_R1_EventComplexDataTransition t in cd.Transitions) {
+                                AddComplexData(t.ComplexData);
+                            }
+                        }
                     }
+                    AddComplexData(ed.ComplexData);
+
+                    // Add to the states
+                    eventETA.Add(etatKey, states.ToArray());
                 }
             }
 
@@ -888,9 +864,17 @@ namespace R1Engine
                         }
                     }
                 } else {
-                    if (usesSubstates) {
-                        stateIndex = ed.ComplexData.Transitions.FindItemIndex(g => g.ComplexData == ed.ComplexData);
+                    if (usesComplexData) {
+                        stateIndex = 0;
                         substateIndex = 0;
+                        if (ed.UInt_1C > 0 && ed.UInt_1C - 1 < ed.ComplexData?.States?.Length) {
+                            var validStates = ed.ComplexData.States.Where(x => x.Layers?.Length > 0).ToArray();
+                            var linkedState = ed.ComplexData.States[ed.UInt_1C - 1];
+                            var goodSubstate = validStates.FindItemIndex(x => x == linkedState);
+                            if (goodSubstate != -1) {
+                                substateIndex = goodSubstate;
+                            }
+                        }
                     } else {
                         stateIndex = 0;
                     }
@@ -986,7 +970,7 @@ namespace R1Engine
             var gendoor = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000A00), eventDesigns, eventETA, loadTextures); // Gendoor
             var piranha = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000012E8), eventDesigns, eventETA, loadTextures); // Piranha
             var scroll = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000014A0), eventDesigns, eventETA, loadTextures); // Scroll
-            var rayBzzit = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000F0), eventDesigns, eventETA, loadTextures); // Rayman on Bzzit
+            var rayBzzit = (context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000F0), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
@@ -1082,7 +1066,7 @@ namespace R1Engine
                         {
                             eventData.DESKey = gendoor.DESKey;
                             eventData.ETAKey = gendoor.ETAKey;
-                            eventData.Etat = 2;
+                            eventData.SubEtat = 2;
                         }
                         else if (ed.Offset.FileOffset == 0x000012C0) // Piranha
                         {
@@ -1097,8 +1081,10 @@ namespace R1Engine
                         }
                         else if (ed.Offset.FileOffset == 0x00002760) // Rayman on Bzzit
                         {
-                            eventData.DESKey = rayBzzit.DESKey;
-                            eventData.ETAKey = rayBzzit.ETAKey;
+                            if (rayBzzit != null) {
+                                eventData.DESKey = rayBzzit.DESKey;
+                                eventData.ETAKey = rayBzzit.ETAKey;
+                            }
                         }
                     }
 
