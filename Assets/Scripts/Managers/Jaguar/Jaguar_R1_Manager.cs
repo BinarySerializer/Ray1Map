@@ -1080,7 +1080,7 @@ namespace R1Engine
                             eventData.ETAKey = scroll.ETAKey;
                             eventData.Etat = 2;
                         }
-                        else if (ed.Offset.FileOffset == 0x00002760) // Rayman on Bzzit
+                        else if (ed.Offset.FileOffset == 0x00002760 && context.Settings.World == World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
                             if (rayBzzit != null) {
                                 eventData.DESKey = rayBzzit.DESKey;
