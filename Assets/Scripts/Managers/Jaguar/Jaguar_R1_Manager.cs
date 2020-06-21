@@ -971,12 +971,22 @@ namespace R1Engine
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
 
             var eventIndex = 0;
+            
+            // Set to true to change the event state to display them correctly, or false to use the original states
+            var correctEventStates = true;
 
             Controller.status = $"Loading events & states";
             await Controller.WaitIfNecessary();
 
             // Load events
             Dictionary<int, Common_EventData> uniqueEvents = new Dictionary<int, Common_EventData>();
+
+            // Load special events so we can display them
+            var rayPos = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000A0), eventDesigns, eventETA, loadTextures); // Rayman position
+            var gendoor = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000A00), eventDesigns, eventETA, loadTextures); // Gendoor
+            var piranha = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000012E8), eventDesigns, eventETA, loadTextures); // Piranha
+            var scroll = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000014A0), eventDesigns, eventETA, loadTextures); // Scroll
+            var rayBzzit = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000F0), eventDesigns, eventETA, loadTextures); // Rayman on Bzzit
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
@@ -1046,19 +1056,52 @@ namespace R1Engine
 						predeterminedState = e.EventDefinition.UnkBytes[5];
 					}*/
                     // Add the event
-                    uniqueEvents[e.EventIndex] = CreateEventData(context, ed, eventDesigns, eventETA, loadTextures);
-                    uniqueEvents[e.EventIndex].LinkIndex = linkIndex;
-                    uniqueEvents[e.EventIndex].XPosition = (uint)(mapX + e.OffsetX);
-                    uniqueEvents[e.EventIndex].YPosition = (uint)(mapY + e.OffsetY);
-                    uniqueEvents[e.EventIndex].DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
-                                                           $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
-                                                           $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
-                                                           $"MapPos: {mapPos}{Environment.NewLine}" +
-                                                           $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
-                                                           $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
-                                                           $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
-                                                           $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}";
-                    
+                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, loadTextures); ;
+                    uniqueEvents[e.EventIndex] = eventData;
+                    eventData.LinkIndex = linkIndex;
+                    eventData.XPosition = (uint)(mapX + e.OffsetX);
+                    eventData.YPosition = (uint)(mapY + e.OffsetY);
+                    eventData.DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
+                                          $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
+                                          $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
+                                          $"MapPos: {mapPos}{Environment.NewLine}" +
+                                          $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
+                                          $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
+                                          $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
+                                          $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}";
+
+                    // Hack change the DES and ETA if special event so it displays correctly
+                    if (correctEventStates)
+                    {
+                        if (ed.Offset.FileOffset == 0x000023C8) // Rayman position
+                        {
+                            eventData.DESKey = rayPos.DESKey;
+                            eventData.ETAKey = rayPos.ETAKey;
+                        }
+                        else if (ed.Offset.FileOffset == 0x00000CD0) // Gendoor
+                        {
+                            eventData.DESKey = gendoor.DESKey;
+                            eventData.ETAKey = gendoor.ETAKey;
+                            eventData.Etat = 2;
+                        }
+                        else if (ed.Offset.FileOffset == 0x000012C0) // Piranha
+                        {
+                            eventData.DESKey = piranha.DESKey;
+                            eventData.ETAKey = piranha.ETAKey;
+                        }
+                        else if (ed.Offset.FileOffset == 0x00001450 || ed.Offset.FileOffset == 0x00001478) // Scroll fast/slow
+                        {
+                            eventData.DESKey = scroll.DESKey;
+                            eventData.ETAKey = scroll.ETAKey;
+                            eventData.Etat = 2;
+                        }
+                        else if (ed.Offset.FileOffset == 0x00002760) // Rayman on Bzzit
+                        {
+                            eventData.DESKey = rayBzzit.DESKey;
+                            eventData.ETAKey = rayBzzit.ETAKey;
+                        }
+                    }
+
                     commonLev.EventData.Add(uniqueEvents[e.EventIndex]);
 
                     eventIndex++;
@@ -1074,6 +1117,27 @@ namespace R1Engine
                         Debug.LogWarning($"Event with index {inst.EventIndex} wasn't loaded!");
                 }
             }
+
+            // Use this to load every single event
+            /*
+            commonLev.EventData.Clear();
+            var ind = 0;
+            foreach (var def in rom.EventDefinitions)
+            {
+                try
+                {
+                    var eventData = CreateEventData(context, def, eventDesigns, eventETA, loadTextures);
+                    eventData.LinkIndex = ind;
+                    eventData.XPosition = (uint)(ind * 20);
+                    eventData.DebugText = $"EventDefinitionPointer: {def.Offset}{Environment.NewLine}";
+                    commonLev.EventData.Add(eventData);
+                    ind++;
+                }
+                catch (Exception ex)
+                {
+                    // Some will crash cause they're from other worlds, just ignore for now...
+                }
+            }*/
 
             Controller.status = $"Loading map";
             await Controller.WaitIfNecessary();
