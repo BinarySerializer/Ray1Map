@@ -733,7 +733,7 @@ namespace R1Engine
                     if (imgDesc == null) return;
                     foreach (Common_ImageDescriptor img in imgDesc) {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[ed.ImageBufferMemoryPointerPointer]) : null;
+                        Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(ed.ImageBufferMemoryPointerPointer) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[ed.ImageBufferMemoryPointerPointer]) : null;
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
