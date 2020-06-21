@@ -83,7 +83,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Palettes are currently not correct</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Saturn - EU)</td>
@@ -91,7 +91,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Palettes are currently not correct</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Saturn - JP)</td>
@@ -99,7 +99,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Palettes are currently not correct</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Saturn - Prototype)</td>
@@ -107,7 +107,7 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Palettes are currently not correct</td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PC)</td>
@@ -199,8 +199,8 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Jaguar)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
