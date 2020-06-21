@@ -167,7 +167,7 @@ namespace R1Engine
             int level = context.Settings.Level;
             switch (context.Settings.World) {
                 case World.Jungle:
-                    if (level == 9) { // Different palette for Swamp 1? Why is the water splash here not the right color?
+                    if (level == 9 || level == 16) { // Different palette for Moskito boss, but why Swamp 1?
                         return part2 + 1;
                     } else {
                         return 2;
