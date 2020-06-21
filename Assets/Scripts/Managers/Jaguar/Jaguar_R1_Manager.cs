@@ -966,7 +966,7 @@ namespace R1Engine
             Dictionary<int, Common_EventData> uniqueEvents = new Dictionary<int, Common_EventData>();
 
             // Load special events so we can display them
-            var rayPos = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000A0), eventDesigns, eventETA, loadTextures); // Rayman position
+            var rayPos = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000000), eventDesigns, eventETA, loadTextures); // Rayman position
             var gendoor = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000A00), eventDesigns, eventETA, loadTextures); // Gendoor
             var piranha = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000012E8), eventDesigns, eventETA, loadTextures); // Piranha
             var scroll = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000014A0), eventDesigns, eventETA, loadTextures); // Scroll
@@ -1061,6 +1061,7 @@ namespace R1Engine
                         {
                             eventData.DESKey = rayPos.DESKey;
                             eventData.ETAKey = rayPos.ETAKey;
+                            eventData.SubEtat = 7;
                         }
                         else if (ed.Offset.FileOffset == 0x00000CD0) // Gendoor
                         {
