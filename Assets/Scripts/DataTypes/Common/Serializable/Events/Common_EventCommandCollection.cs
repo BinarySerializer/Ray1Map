@@ -86,7 +86,7 @@ namespace R1Engine
                 int index = 0;
 
                 // Loop until we reach the invalid command
-                while (cmd.LastOrDefault()?.Command != EventCommand.INVALID_CMD)
+                while (cmd.LastOrDefault()?.Command != EventCommand.INVALID_CMD && cmd.LastOrDefault()?.Command != EventCommand.INVALID_CMD_DEMO)
                 {
                     cmd.Add(s.SerializeObject((Common_EventCommand)null, name: $"Commands [{index}]"));
                     index++;

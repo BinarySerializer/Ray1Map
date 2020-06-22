@@ -39,7 +39,7 @@ namespace R1Engine
         /// <summary>
         /// Indicates if the local commands should be used
         /// </summary>
-        protected override bool UsesLocalCommands => false;
+        protected override bool UsesLocalCommands => Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6;
 
         /// <summary>
         /// Gets the DES key for the specified event data item

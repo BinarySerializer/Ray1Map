@@ -63,6 +63,7 @@ namespace R1Engine
                     case EventCommand.GO_SKIPTRUE:
                     case EventCommand.GO_SKIPFALSE:
                     case EventCommand.INVALID_CMD:
+                    case EventCommand.INVALID_CMD_DEMO:
                         Arguments = s.SerializeArray<byte>(Arguments, 1, name: nameof(Arguments));
                         break;
 

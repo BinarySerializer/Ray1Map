@@ -324,45 +324,41 @@ namespace R1Engine
                 s.DoAt(ImageBufferPointer, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageBuffer.Length, name: nameof(ImageBuffer)));
             }
 
-            // TODO: Serialize commands in the demos. They appear to be formatted differently as the invalid command is 0x42 rather then 0x21 - is everything doubled? Why are there no labels? Does it use local labels instead?
-            if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3 && s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol6)
+            // Serialize the commands
+            if (CommandsPointer != null)
+                s.DoAt(CommandsPointer, () => Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: nameof(Commands)));
+
+            // Serialize the label offsets
+            if (LabelOffsetsPointer != null)
             {
-                // Serialize the commands
-                if (CommandsPointer != null)
-                    s.DoAt(CommandsPointer, () => Commands = s.SerializeObject(Commands, name: nameof(Commands)));
-
-                // Serialize the label offsets
-                if (LabelOffsetsPointer != null)
+                s.DoAt(LabelOffsetsPointer, () =>
                 {
-                    s.DoAt(LabelOffsetsPointer, () =>
+                    if (LabelOffsets == null)
                     {
-                        if (LabelOffsets == null)
+                        // Create a temporary list
+                        var l = new List<ushort>();
+
+                        int index = 0;
+
+                        // Loop until we reach null
+                        while (l.LastOrDefault() != 0)
                         {
-                            // Create a temporary list
-                            var l = new List<ushort>();
-
-                            int index = 0;
-
-                            // Loop until we reach null
-                            while (l.LastOrDefault() != 0)
-                            {
-                                l.Add(s.Serialize((ushort)0, name: $"LabelOffsets [{index}]"));
-                                index++;
-                            }
-
-                            // Set the label offsets
-                            LabelOffsets = l.ToArray();
+                            l.Add(s.Serialize((ushort)0, name: $"LabelOffsets [{index}]"));
+                            index++;
                         }
-                        else
-                        {
-                            // Serialize the label offsets
-                            s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
 
-                            // Null terminate it
-                            s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");
-                        }
-                    });
-                }
+                        // Set the label offsets
+                        LabelOffsets = l.ToArray();
+                    }
+                    else
+                    {
+                        // Serialize the label offsets
+                        s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
+
+                        // Null terminate it
+                        s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");
+                    }
+                });
             }
 
             // Serialize ETA
