@@ -1,27 +1,55 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using R1Engine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class DummySceneController : MonoBehaviour
 {
+    static DummySceneController()
+    {
+        Data = EnumHelpers.GetValues<GameModeSelection>().Select(x => new
+        {
+            Mode = x,
+            Manager = (IGameManager)Activator.CreateInstance(x.GetAttribute<GameModeAttribute>().ManagerType),
+        }).
+            Where(x => Directory.Exists(Settings.GameDirectories.TryGetItem(x.Mode))).
+            SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode])).
+                SelectMany(y => y.Value.
+                    Select(z => new SettingsData(x.Mode, y.Key, z)))).
+            ToArray();
+        Index = 0;
+    }
+
     void Start()
     {
-        var manager = Settings.GetGameManager;
-        var world = manager.GetLevels(Settings.GetGameSettings).Where(x => x.Key == Settings.World).SelectMany(x => x.Value).ToArray();
-
-        var levelIndex = world.FindItemIndex(x => x == Settings.Level);
+        Settings.SelectedGameMode = Data[Index].GameModeSelection;
+        Settings.World = Data[Index].World;
+        Settings.Level = Data[Index].Level;
 
         SceneManager.LoadScene("MapViewer");
 
-        if ((levelIndex + 1) == world.Length)
+        Index++;
+        Debug.Log(Index);
+    }
+
+    private static SettingsData[] Data { get; }
+    private static int Index { get; set; }
+
+    private class SettingsData
+    {
+        public SettingsData(GameModeSelection gameModeSelection, World world, int level)
         {
-            Settings.World++;
-            Settings.Level = manager.GetLevels(Settings.GetGameSettings).Where(x => x.Key == Settings.World).SelectMany(x => x.Value).First();
+            GameModeSelection = gameModeSelection;
+            World = world;
+            Level = level;
         }
-        else
-        {
-            Settings.Level = world[levelIndex + 1];
-        }
+
+        public GameModeSelection GameModeSelection { get; }
+
+        public World World { get; }
+
+        public int Level { get; }
     }
 }
