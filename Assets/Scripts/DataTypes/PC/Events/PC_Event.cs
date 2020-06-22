@@ -159,8 +159,8 @@ namespace R1Engine
             ETA = s.Serialize<uint>(ETA, name: nameof(ETA));
 
             RuntimeCommandsPointer = s.Serialize<uint>(RuntimeCommandsPointer, name: nameof(RuntimeCommandsPointer));
-
             RuntimeLabelOffsetsPointer = s.Serialize<uint>(RuntimeLabelOffsetsPointer, name: nameof(RuntimeLabelOffsetsPointer));
+            
             Unk_24 = s.Serialize<uint>(Unk_24, name: nameof(Unk_24));
             Unk_28 = s.Serialize<uint>(Unk_28, name: nameof(Unk_28));
             Unk_32 = s.Serialize<uint>(Unk_32, name: nameof(Unk_32));

@@ -1596,6 +1596,8 @@ namespace R1Engine
             var desNames = worldData.DESFileNames ?? new string[0];
             var etaNames = worldData.ETAFileNames ?? new string[0];
 
+            ushort index = 0;
+
             foreach (var e in commonLevelData.EventData) 
             {
                 // Get the file indexes
@@ -1609,36 +1611,90 @@ namespace R1Engine
                     DES_AnimationDescriptors = desIndex,
                     DES_ImageBuffer = desIndex,
                     ETA = etaIndex,
+
                     RuntimeCommandsPointer = 0,
                     RuntimeLabelOffsetsPointer = 0,
+
                     Unk_24 = 0,
                     Unk_28 = 0,
                     Unk_32 = 0,
                     Unk_36 = 0,
-                    Unk_Kit = 0,
-                    ImageDescriptorCount = 92, // This value is required for boss icons to show on their health bars - why?
-                    Unk_98 = new byte[5],
-                    Unk_103 = 0,
+
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
+
+                    Unk_48 = 0,
+
+                    EventIndex = index,
+
+                    Unk_54 = 0,
+                    Unk_56 = 0,
+                    Unk_58 = 0,
+
+                    RuntimeXPosition = 0,
+                    RuntimeYPosition = 0,
+
+                    Unk_64 = 0,
+                    Unk_66 = 0,
+
+                    ImageDescriptorCount = (ushort)editorManager.DES[e.DESKey].Sprites.Count,
+
+                    Unk_Kit = 0,
+
+                    Unk_70 = 0,
+                    Unk_72 = 0,
+                    Unk_74 = 0,
+                    Unk_76 = 0,
+                    Unk_78 = 0,
+                    Unk_80 = 0,
+                    Unk_82 = 0,
+                    Unk_84 = 0,
+                    Unk_86 = 0,
+                    Unk_88 = 0,
+                    Unk_90 = 0,
+                    Unk_92 = 0,
+                    Unk_94 = 0,
+
+                    Unk_98 = new byte[5],
+                    Unk_103 = 0,
+
                     Type = (EventType)e.Type,
                     OffsetBX = (byte)e.OffsetBX,
                     OffsetBY = (byte)e.OffsetBY,
+
+                    RuntimeCurrentAnimIndex = 0,
+                    RuntimeCurrentAnimFrame = 0,
+
                     SubEtat = (byte)e.SubEtat,
                     Etat = (byte)e.Etat,
+
                     RuntimeSubEtat = 0,
+                    RuntimeEtat = 0,
+
                     Unk_112 = 0,
+
                     OffsetHY = (byte)e.OffsetHY,
-                    FollowSprite = (byte)e.FollowSprite,
+                    FollowSprite = (byte) e.FollowSprite
+                    ,
                     HitPoints = (byte)e.HitPoints,
+                    RuntimeHitPoints = 0,
+
                     Layer = (byte)e.Layer,
                     HitSprite = (byte)e.HitSprite,
+
                     Unk_122 = 0,
                     Unk_123 = 0,
                     Unk_124 = 0,
                     Unk_125 = 0,
+
+                    RuntimeLayer = 0,
+
+                    Unk_127 = 0,
+
                     AnimDescriptorCount = 0,
+                    //Flags = PC_Event.PC_EventFlags.None,
                     FollowEnabled = e.FollowEnabled,
+
                     Unk_130 = 0
                 };
 
@@ -1656,6 +1712,8 @@ namespace R1Engine
 
                 // Add the event links
                 eventLinkingTable.Add((ushort)e.LinkIndex);
+
+                index++;
             }
 
             // Update event values
