@@ -2,6 +2,22 @@
 
 namespace R1Engine
 {
+    /*
+     
+    PC 1.21 memory:
+
+    unkData 1 and 2 seems to be split up link tables?
+    0x16DDE8 - unkPointer1
+    0x16DDEC - unkPointer1DataCount
+    0x16DDF0 - pointer to events in memory
+    0x16DDF4 - event count
+    0x16DDF8 - unkPointer2
+    0x16DDFC - unkPointer2DataCount
+
+    0x16F650 - pointer to Rayman's event in memory (note: Rayman uses the "normal" x and y values rather than the runtime ones!)
+     
+     */
+
     // TODO: Merge event data with PS1? The majority is the same.
     /// <summary>
     /// Event data for PC
@@ -15,9 +31,7 @@ namespace R1Engine
         public uint ETA { get; set; }
 
         public uint RuntimeCommandsPointer { get; set; }
-        
-        // Label offsets?
-        public uint Unk_20 { get; set; }
+        public uint RuntimeLabelOffsetsPointer { get; set; }
 
         public uint Unk_24 { get; set; }
         public uint Unk_28 { get; set; }
@@ -25,7 +39,6 @@ namespace R1Engine
         public uint Unk_36 { get; set; }
 
         public uint XPosition { get; set; }
-
         public uint YPosition { get; set; }
 
         public uint Unk_48 { get; set; }
@@ -68,18 +81,15 @@ namespace R1Engine
         public byte Unk_103 { get; set; }
 
         public byte OffsetBX { get; set; }
-
         public byte OffsetBY { get; set; }
 
-        // TODO: This is actually two bytes - with one of them being 255 when the letters in EDU games should be lower-case (they default to upper-case)
-        public ushort Unk_106 { get; set; }
+        public byte RuntimeCurrentAnimIndex { get; set; }
+        public byte RuntimeCurrentAnimFrame { get; set; }
 
         public byte SubEtat { get; set; }
-
         public byte Etat { get; set; }
 
         public byte RuntimeSubEtat { get; set; }
-
         public byte RuntimeEtat { get; set; }
 
         public uint Unk_112 { get; set; }
@@ -92,7 +102,6 @@ namespace R1Engine
         public byte FollowSprite { get; set; }
 
         public byte HitPoints { get; set; }
-
         public byte RuntimeHitPoints { get; set; }
 
         /// <summary>
@@ -151,7 +160,7 @@ namespace R1Engine
 
             RuntimeCommandsPointer = s.Serialize<uint>(RuntimeCommandsPointer, name: nameof(RuntimeCommandsPointer));
 
-            Unk_20 = s.Serialize<uint>(Unk_20, name: nameof(Unk_20));
+            RuntimeLabelOffsetsPointer = s.Serialize<uint>(RuntimeLabelOffsetsPointer, name: nameof(RuntimeLabelOffsetsPointer));
             Unk_24 = s.Serialize<uint>(Unk_24, name: nameof(Unk_24));
             Unk_28 = s.Serialize<uint>(Unk_28, name: nameof(Unk_28));
             Unk_32 = s.Serialize<uint>(Unk_32, name: nameof(Unk_32));
@@ -203,7 +212,8 @@ namespace R1Engine
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));
             OffsetBY = s.Serialize<byte>(OffsetBY, name: nameof(OffsetBY));
 
-            Unk_106 = s.Serialize<ushort>(Unk_106, name: nameof(Unk_106));
+            RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
+            RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));

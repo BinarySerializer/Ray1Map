@@ -54,7 +54,15 @@ namespace R1Engine
         /// </summary>
         public ushort YPosition { get; set; }
 
+        // This index is used by the game to handle the event links
+        public ushort EventIndex { get; set; }
+
         public byte[] Unknown2 { get; set; }
+
+        public ushort RuntimeXPosition { get; set; }
+        public ushort RuntimeYPosition { get; set; }
+
+        public byte[] Unknown3 { get; set; }
 
         /// <summary>
         /// The amount of image descriptors
@@ -69,20 +77,16 @@ namespace R1Engine
         public byte[] Unknown6 { get; set; }
 
         public byte OffsetBX { get; set; }
-
         public byte OffsetBY { get; set; }
 
         public byte RuntimeCurrentAnimIndex { get; set; }
-
         public byte RuntimeCurrentAnimFrame { get; set; }
 
         public byte Etat { get; set; }
-
-        public byte Unknown8 { get; set; }
+        public byte RuntimeEtat { get; set; }
         
         public byte SubEtat { get; set; }
-
-        public byte Unknown9 { get; set; }
+        public byte RuntimeSubEtat { get; set; }
 
         public ushort Unknown10 { get; set; }
 
@@ -97,7 +101,7 @@ namespace R1Engine
 
         public byte Hitpoints { get; set; }
 
-        public byte Unknown15 { get; set; }
+        public byte RuntimeHitpoints { get; set; }
 
         /// <summary>
         /// The layer the event sprite gets drawn to, between 1 and 7
@@ -112,6 +116,9 @@ namespace R1Engine
         public byte HitSprite { get; set; }
 
         public byte[] Unknown12 { get; set; }
+
+        public byte RuntimeLayer { get; set; }
+        public byte Unknown15 { get; set; }
 
         /// <summary>
         /// The amount of animation descriptors
@@ -203,8 +210,23 @@ namespace R1Engine
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
             
-            // Serialize unknown properties
-            Unknown2 = s.SerializeArray<byte>(Unknown2, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 12 : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 10 : 16, name: nameof(Unknown2));
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JP)
+            {
+                EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
+
+                Unknown2 = s.SerializeArray<byte>(Unknown2, 6, name: nameof(Unknown2));
+
+                RuntimeXPosition = s.Serialize<ushort>(RuntimeXPosition, name: nameof(RuntimeXPosition));
+                RuntimeYPosition = s.Serialize<ushort>(RuntimeYPosition, name: nameof(RuntimeYPosition));
+
+                Unknown3 = s.SerializeArray<byte>(Unknown3, 4, name: nameof(Unknown3));
+            }
+            else
+            {
+                // TODO: Which of these values are runtime pos?
+                Unknown2 = s.SerializeArray<byte>(Unknown2, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 12 : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 10 : 16, name: nameof(Unknown2));
+            }
+
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
             if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
@@ -222,9 +244,9 @@ namespace R1Engine
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
-            Unknown8 = s.Serialize<byte>(Unknown8, name: nameof(Unknown8));
+            RuntimeEtat = s.Serialize<byte>(RuntimeEtat, name: nameof(RuntimeEtat));
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
-            Unknown9 = s.Serialize<byte>(Unknown9, name: nameof(Unknown9));
+            RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
 
             Unknown10 = s.Serialize<ushort>(Unknown10, name: nameof(Unknown10));
             Unknown11 = s.Serialize<ushort>(Unknown11, name: nameof(Unknown11));
@@ -238,7 +260,7 @@ namespace R1Engine
 
             Hitpoints = s.Serialize<byte>(Hitpoints, name: nameof(Hitpoints));
 
-            Unknown15 = s.Serialize<byte>(Unknown15, name: nameof(Unknown15));
+            RuntimeHitpoints = s.Serialize<byte>(RuntimeHitpoints, name: nameof(RuntimeHitpoints));
 
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 
@@ -246,50 +268,60 @@ namespace R1Engine
 
             HitSprite = s.Serialize<byte>(HitSprite, name: nameof(HitSprite));
 
-            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 11 : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 8 : 7, name: nameof(Unknown12));
+            Unknown12 = s.SerializeArray<byte>(Unknown12, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 11 : s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 8 : 5, name: nameof(Unknown12));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JP)
+            {
+                RuntimeLayer = s.Serialize<byte>(RuntimeLayer, name: nameof(RuntimeLayer));
+
+                // Always 0, even in memory
+                Unknown15 = s.Serialize<byte>(Unknown15, name: nameof(Unknown15));
+            }
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
             if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
             {
+                // Appears to be some form of runtime flags for if the event is in view, should be drawn etc.
                 Unknown13 = s.Serialize<byte>(Unknown13, name: nameof(Unknown13));
 
                 if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol6)
                 {
                     Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+
+                    // Always 0, even in memory
                     Unknown14 = s.Serialize<byte>(Unknown14, name: nameof(Unknown14));
                 }
             }
 
             // Serialize the image descriptors
-            s.DoAt(ImageDescriptorsPointer, () => {
-                ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
-            });
+            s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors)));
 
             // Serialize the animation descriptors
-            s.DoAt(AnimDescriptorsPointer, () => {
-                AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors));
-            });
+            s.DoAt(AnimDescriptorsPointer, () => AnimDescriptors = s.SerializeObjectArray<PS1_R1_AnimationDescriptor>(AnimDescriptors, AnimDescriptorCount, name: nameof(AnimDescriptors)));
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3) {
                 if (ImageBuffer == null && ImageBufferPointer != null && ImageDescriptors != null) {
                     // Determine length of image buffer
                     uint length = 0;
-                    foreach (Common_ImageDescriptor img in ImageDescriptors) {
-                        if (img.ImageType != 2 && img.ImageType != 3) continue;
+                    foreach (Common_ImageDescriptor img in ImageDescriptors) 
+                    {
+                        if (img.ImageType != 2 && img.ImageType != 3) 
+                            continue;
+
                         uint curLength = img.ImageBufferOffset;
-                        if (img.ImageType == 2) {
+
+                        if (img.ImageType == 2)
                             curLength += (uint)(img.OuterWidth / 2) * img.OuterHeight;
-                        } else if (img.ImageType == 3) {
+                        else if (img.ImageType == 3)
                             curLength += (uint)img.OuterWidth * img.OuterHeight;
-                        }
-                        if (curLength > length) length = curLength;
+                        
+                        if (curLength > length) 
+                            length = curLength;
                     }
                     ImageBuffer = new byte[length];
                 }
-                s.DoAt(ImageBufferPointer, () => {
-                    ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageBuffer.Length, name: nameof(ImageBuffer));
-                });
+                s.DoAt(ImageBufferPointer, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageBuffer.Length, name: nameof(ImageBuffer)));
             }
 
             // TODO: Serialize commands in the demos. They appear to be formatted differently as the invalid command is 0x42 rather then 0x21 - is everything doubled? Why are there no labels? Does it use local labels instead?
@@ -297,11 +329,7 @@ namespace R1Engine
             {
                 // Serialize the commands
                 if (CommandsPointer != null)
-                {
-                    s.DoAt(CommandsPointer, () => {
-                        Commands = s.SerializeObject(Commands, name: nameof(Commands));
-                    });
-                }
+                    s.DoAt(CommandsPointer, () => Commands = s.SerializeObject(Commands, name: nameof(Commands)));
 
                 // Serialize the label offsets
                 if (LabelOffsetsPointer != null)

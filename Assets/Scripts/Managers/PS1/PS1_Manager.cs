@@ -336,7 +336,8 @@ namespace R1Engine
                     FollowEnabled = e.GetFollowEnabled(context.Settings),
                     LabelOffsets = e.LabelOffsets,
                     CommandCollection = e.Commands,
-                    LinkIndex = eventLinkingTable[index]
+                    LinkIndex = eventLinkingTable[index],
+                    DebugText = $"{nameof(PS1_R1_Event.Unknown13)}: {e.Unknown13}{Environment.NewLine}"
                 });
 
                 index++;
