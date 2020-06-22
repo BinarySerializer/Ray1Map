@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -89,7 +90,7 @@ namespace R1Engine
                 {
                     // TODO: Find better way to parse this
                     
-                    s.DoAt(s.CurrentPointer, () => {
+                    s.DoAt(EtatPointers.Last(), () => {
 
                         uint count = 0;
                         const int maxCount = 20;
