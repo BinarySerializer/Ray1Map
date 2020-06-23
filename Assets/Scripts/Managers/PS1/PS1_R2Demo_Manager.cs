@@ -333,7 +333,7 @@ namespace R1Engine
                                 $"MapLayer: {e.MapLayer}{Environment.NewLine}" +
                                 $"Unk1: {e.Unk1}{Environment.NewLine}" +
                                 $"Unk2: {String.Join("-", e.Unk2)}{Environment.NewLine}" +
-                                $"RuntimeUnk1: {e.RuntimeUnk1}{Environment.NewLine}" +
+                                $"RuntimeUnk1: {e.EventIndex}{Environment.NewLine}" +
                                 $"EventType: {e.EventType}{Environment.NewLine}" +
                                 $"RuntimeOffset1: {e.RuntimeOffset1}{Environment.NewLine}" +
                                 $"RuntimeOffset2: {e.RuntimeOffset2}{Environment.NewLine}" +

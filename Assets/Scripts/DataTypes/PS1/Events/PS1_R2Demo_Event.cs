@@ -46,6 +46,8 @@ namespace R1Engine
 
         public byte Etat { get; set; }
         public byte SubEtat { get; set; }
+
+        // Appears to closely resemble the hitpoints value from R1
         public byte UnkStateRelatedValue { get; set; }
 
         // 24 (0x22)
@@ -89,8 +91,7 @@ namespace R1Engine
 
         // 64 (0x40)
 
-        // Unknown value - probably runtime only?
-        public ushort RuntimeUnk1 { get; set; }
+        public ushort EventIndex { get; set; }
 
         /// <summary>
         /// The event type
@@ -114,8 +115,9 @@ namespace R1Engine
         // 0x4C and 0x4E are ushorts
 
         // Second byte in here determines horizontal speed and fourth byte the vertical speed
-        // Always 0 in files except last 2 bytes
         public byte[] RuntimeBytes1 { get; set; }
+
+        public byte RuntimeCurrentAnimIndex { get; set; }
 
         // 84 (0x54)
 
@@ -220,7 +222,7 @@ namespace R1Engine
             RuntimeCurrentStatePointer = s.Serialize<uint>(RuntimeCurrentStatePointer, name: nameof(RuntimeCurrentStatePointer));
             RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
 
-            RuntimeUnk1 = s.Serialize<ushort>(RuntimeUnk1, name: nameof(RuntimeUnk1));
+            EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
 
             // Serialize the type
             EventType = s.Serialize<PS1_R2Demo_EventType>(EventType, name: nameof(EventType));
@@ -232,7 +234,8 @@ namespace R1Engine
             RuntimeOffset1 = s.Serialize<ushort>(RuntimeOffset1, name: nameof(RuntimeOffset1));
             RuntimeOffset2 = s.Serialize<ushort>(RuntimeOffset2, name: nameof(RuntimeOffset2));
 
-            RuntimeBytes1 = s.SerializeArray(RuntimeBytes1, 8, name: nameof(RuntimeBytes1));
+            RuntimeBytes1 = s.SerializeArray(RuntimeBytes1, 7, name: nameof(RuntimeBytes1));
+            RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
             RuntimeEtat = s.Serialize<byte>(RuntimeEtat, name: nameof(RuntimeEtat));
