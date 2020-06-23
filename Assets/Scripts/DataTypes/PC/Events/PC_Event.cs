@@ -250,19 +250,31 @@ namespace R1Engine
         public enum PC_EventFlags : byte
         {
             None = 0,
+
             UnkFlag_0 = 1 << 0,
+
             UnkFlag_1 = 1 << 1,
+
+            /// <summary>
+            /// Indicates if the event should be drawn on screen
+            /// </summary>
             SwitchedOn = 1 << 2,
 
-            // Flip flag? Detection (like for hunter?)
+            /// <summary>
+            /// Indicates if the event should be flipped
+            /// </summary>
             DetectZone = 1 << 3,
+
             ExecuteCommands = 1 << 4,
             
             /// <summary>
             /// Indicates if the event has collision
             /// </summary>
             FollowEnabled = 1 << 5,
+
             UnkFlag_6 = 1 << 6,
+
+            // Appears related to the displaying animation. Changes a lot when an animation is playing.
             UnkFlag_7 = 1 << 7,
         }
     }
