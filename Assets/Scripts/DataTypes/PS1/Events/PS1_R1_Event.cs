@@ -327,7 +327,7 @@ namespace R1Engine
             }
 
             // Serialize the commands
-            if (CommandsPointer != null && s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
+            if (CommandsPointer != null)
                 s.DoAt(CommandsPointer, () => Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: nameof(Commands)));
 
             // Serialize the label offsets

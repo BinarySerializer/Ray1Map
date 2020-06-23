@@ -69,7 +69,7 @@ namespace R1Engine
 
                     case EventCommand.GO_DOLOOP:
                     case EventCommand.GO_RETURN:
-                        Arguments = s.SerializeArray<byte>(Arguments, 0, name: nameof(Arguments));
+                        Arguments = s.SerializeArray<byte>(Arguments, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 1 : 0, name: nameof(Arguments));
                         break;
 
                     case EventCommand.GO_TEST:
