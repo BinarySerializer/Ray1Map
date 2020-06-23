@@ -52,9 +52,11 @@ public class SettingsWindow : UnityWindow
 
 		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.Popup(GetNextRect(ref yPos), "Game", (int)Settings.SelectedGameMode, GameModeNames);
 
-		// Map
+        Settings.LoadFromMemory = EditorGUI.Toggle(GetNextRect(ref yPos), "Load from memory", Settings.LoadFromMemory);
 
-		DrawHeader(ref yPos, "Map");
+        // Map
+
+        DrawHeader(ref yPos, "Map");
 
         Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames));
 

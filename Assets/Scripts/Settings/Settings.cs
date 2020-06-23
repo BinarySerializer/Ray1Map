@@ -144,6 +144,8 @@ namespace R1Engine {
             }
         }
 
+        public static bool LoadFromMemory { get; set; }
+
         /// <summary>
         /// True for the HD collision sheet to be used, false for the original Rayman Designer one to be used
         /// </summary>
@@ -302,6 +304,7 @@ namespace R1Engine {
 
             EduVolume = s.SerializeString("EduVolume", EduVolume);
             Level = s.SerializeInt("SelectedLevelFile", Level);
+            LoadFromMemory = s.SerializeBool("LoadFromMemory", LoadFromMemory);
             UseHDCollisionSheet = s.SerializeBool("UseHDCollisionSheet", UseHDCollisionSheet);
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);

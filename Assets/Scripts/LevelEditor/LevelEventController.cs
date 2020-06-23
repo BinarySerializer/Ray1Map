@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using R1Engine.Serialize;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,8 +12,7 @@ namespace R1Engine
     {
         #region Fields
 
-        // TODO: Move fields like commands, label offsets and layer to view model
-
+        // TODO: Maybe get rid of this?
         /// <summary>
         /// The view model for the event editor
         /// </summary>
@@ -62,6 +62,8 @@ namespace R1Engine
         public int currentId = 1;
 
         public int lastUsedLayer = 0;
+
+        public bool hasLoaded;
 
         #endregion
 
@@ -132,6 +134,8 @@ namespace R1Engine
             // Fill Des and Eta dropdowns with their max values
             infoDes.options = ViewModel.EditorManager.DES.Select(x => new Dropdown.OptionData(x.Key)).ToList();
             infoEta.options = ViewModel.EditorManager.ETA.Select(x => new Dropdown.OptionData(x.Key)).ToList();
+
+            hasLoaded = true;
         }
 
         protected void InitializeViewModel()
@@ -281,7 +285,51 @@ namespace R1Engine
             }
         }
 
-        private void Update() {
+        // TODO: Move this to another file
+        public class GameMemoryData
+        {
+            public uint EventsPointer { get; set; }
+            public uint EventsCount { get; set; }
+            public PC_Event[] Events { get; set; }
+
+            public PC_Event RayEvent { get; set; }
+
+            public void Serialize(SerializerObject s, Pointer basePointer)
+            {
+                if (s.GameSettings.EngineVersion == EngineVersion.RayPC)
+                {
+                    // Get pointers
+                    EventsPointer = s.DoAt(basePointer + 0x16DDF0, () => s.Serialize<uint>(EventsPointer, name: nameof(EventsPointer)));
+
+                    // Serialize data
+                    EventsCount = s.DoAt(basePointer + 0x16DDF4, () => s.Serialize<uint>(EventsCount, name: nameof(EventsCount)));
+                    Events = s.DoAt(basePointer + EventsPointer, () => s.SerializeObjectArray<PC_Event>(Events, EventsCount, name: nameof(Events)));
+                    RayEvent = s.DoAt(basePointer + 0x16F650, () => s.SerializeObject<PC_Event>(RayEvent, name: nameof(RayEvent)));
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+
+        float memoryLoadTimer = 0;
+
+        private void Update() 
+        {
+            if (!hasLoaded)
+                return;
+
+            if (Settings.LoadFromMemory)
+            {
+                memoryLoadTimer += Time.deltaTime;
+                if (memoryLoadTimer > 1.0f / 60.0f)
+                {
+                    UpdateFromMemory();
+                    memoryLoadTimer = 0.0f;
+                }
+            }
+
             // Only do this if in event/link mode
             bool modeEvents = editor.currentMode == Editor.EditMode.Events;
             bool modeLinks = editor.currentMode == Editor.EditMode.Links;
@@ -405,6 +453,85 @@ namespace R1Engine
             }
             else {
                 selectedLineRend.enabled = false;
+            }
+        }
+
+        public void UpdateFromMemory()
+        {
+            using (var context = new Context(Controller.CurrentSettings))
+            {
+                const string memKey = "MemStream";
+
+                // TODO: Do not hard-code the process name
+                using (var memStream = new ProcessMemoryStream("DOSBox.exe", ProcessMemoryStream.Mode.Read))
+                {
+                    context.AddFile(new StreamFile(memKey, memStream, context));
+
+                    // TODO: Do not hard-code game base pointer - have manager get this (it'll differ for different emulator versions too!)
+                    var offset = context.GetFile(memKey).StartPointer;
+                    var s = context.Deserializer;
+                    var basePointer = offset + s.DoAt(offset + 0x01D3A1A0, () => s.Serialize<uint>(default));
+
+                    var mem = new GameMemoryData();
+                    mem.Serialize(context.Deserializer, basePointer);
+
+                    // TODO: Clean up this hacky code - introduce more variables in the common event class OR have the common event directly reference a PC_Event instance
+                    for (int i = 0; i < mem.EventsCount; i++)
+                    {
+                        var commonEvent = Controller.obj.levelController.Events[i];
+                        var memEvent = mem.Events[i];
+
+                        commonEvent.ForceMirror = memEvent.Flags.HasFlag(PC_Event.PC_EventFlags.DetectZone);
+
+                        commonEvent.CurrentEtat = memEvent.RuntimeEtat;
+                        commonEvent.CurrentSubEtat = memEvent.RuntimeSubEtat;
+
+                        if (commonEvent.AnimationIndex != memEvent.RuntimeCurrentAnimIndex)
+                            commonEvent.ChangeAnimation(memEvent.RuntimeCurrentAnimIndex);
+
+                        commonEvent.CurrentFrame = memEvent.RuntimeCurrentAnimFrame;
+                        commonEvent.UniqueLayer = memEvent.RuntimeCurrentAnimFrame;
+
+                        commonEvent.Data.XPosition = memEvent.XPosition;
+                        commonEvent.Data.YPosition = memEvent.YPosition;
+
+                        if (memEvent.Type != EventType.TYPE_RAY_POS)
+                            commonEvent.Data.DebugText = $"Flags: {Convert.ToString((int)memEvent.Flags, 2).PadLeft(8, '0')}";
+
+                        if (!memEvent.Flags.HasFlag(PC_Event.PC_EventFlags.SwitchedOn))
+                        {
+                            commonEvent.Data.XPosition = UInt32.MaxValue;
+                            commonEvent.Data.YPosition = UInt32.MaxValue;
+                        }
+
+                        commonEvent.UpdateXAndY();
+                    }
+
+                    // TODO: Clean this up - we should add a special event as Rayman's event which is always loaded instead of editing TYPE_RAY_POS (which is not in all levels). For this we need to hard-code the data for Rayman, such as the graphics pointers etc. (since that's what the game does).
+                    var commonRayEvent = Controller.obj.levelController.Events.First(x => x.Data.Type.Equals(EventType.TYPE_RAY_POS));
+
+                    commonRayEvent.ForceMirror = mem.RayEvent.Flags.HasFlag(PC_Event.PC_EventFlags.DetectZone);
+
+                    commonRayEvent.CurrentEtat = mem.RayEvent.RuntimeEtat;
+                    commonRayEvent.CurrentSubEtat = mem.RayEvent.RuntimeSubEtat;
+
+                    if (commonRayEvent.AnimationIndex != mem.RayEvent.RuntimeCurrentAnimIndex)
+                        commonRayEvent.ChangeAnimation(mem.RayEvent.RuntimeCurrentAnimIndex);
+
+                    commonRayEvent.CurrentFrame = mem.RayEvent.RuntimeCurrentAnimFrame;
+                    commonRayEvent.Data.XPosition = mem.RayEvent.XPosition;
+                    commonRayEvent.Data.YPosition = mem.RayEvent.YPosition;
+
+                    if (!mem.RayEvent.Flags.HasFlag(PC_Event.PC_EventFlags.SwitchedOn))
+                    {
+                        commonRayEvent.Data.XPosition = UInt32.MaxValue;
+                        commonRayEvent.Data.YPosition = UInt32.MaxValue;
+                    }
+
+                    commonRayEvent.UpdateXAndY();
+
+                    commonRayEvent.Data.DebugText = $"Flags: {Convert.ToString((int)mem.RayEvent.Flags, 2).PadLeft(8, '0')}";
+                }
             }
         }
 

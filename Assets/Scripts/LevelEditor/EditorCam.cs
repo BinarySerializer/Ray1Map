@@ -31,6 +31,16 @@ namespace R1Engine {
         }
 
         void Update() {
+
+            if (Settings.LoadFromMemory && Controller.obj.levelEventController.hasLoaded)
+            {
+                var startEvent = Controller.obj.levelController.currentLevel.EventData.FindItem(x => x.Type.Equals(EventType.TYPE_RAY_POS));
+
+                if (startEvent != null)
+                    pos = new Vector3(startEvent.XPosition / 16f, -(startEvent.YPosition / 16f));
+            }
+
+
             if (Controller.obj.levelController.currentLevel != null) {
                 // RMB scroling
                 if (GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {

@@ -9,6 +9,8 @@ namespace R1Engine {
     public class Common_Event : MonoBehaviour {
         #region Public Properties
 
+        public bool AutoUpdate => !Settings.LoadFromMemory;
+
         /// <summary>
         /// The event display name
         /// </summary>
@@ -136,7 +138,9 @@ namespace R1Engine {
         /// <summary>
         /// Indicates if the entire event sprite is supposed to be mirrored
         /// </summary>
-        public bool Mirrored => EditorManager.IsMirrored(Data);
+        public bool Mirrored => ForceMirror || EditorManager.IsMirrored(Data);
+
+        public bool ForceMirror { get; set; }
 
         /// <summary>
         /// The current animation of this event
@@ -146,8 +150,11 @@ namespace R1Engine {
         public float Scale = 1f;
 
         // Current frame in the animation
+
+        public float CurrentFrame { get; set; }
+
         [HideInInspector]
-        public float currentFrame = 0;
+        public float prevFrame = 0;
 
         // Default sprite
         public SpriteRenderer defautRenderer;
@@ -190,78 +197,82 @@ namespace R1Engine {
             // Scroll through animation frames
             if (CurrentAnimation != null && prefabRendereds != null) {
                 if (prefabRendereds.Length > 0) {
-                    int prevFrame = Mathf.FloorToInt(currentFrame);
+                    var previousFrame = Mathf.FloorToInt(prevFrame);
 
-                    // Increment frame if animating
-                    if (Settings.AnimateSprites && AnimSpeed > 0)
-                        currentFrame += (60f / AnimSpeed) * Time.deltaTime;
-
-                    // Loop back to first frame
-                    if (currentFrame >= CurrentAnimation.Frames.Length)
+                    if (AutoUpdate)
                     {
-                        currentFrame = 0;
+                        // Increment frame if animating
+                        if (Settings.AnimateSprites && AnimSpeed > 0)
+                            CurrentFrame += (60f / AnimSpeed) * Time.deltaTime;
 
-                        // Get the current state
-                        var state = State;
-
-                        switch (Settings.StateSwitchingMode)
+                        // Loop back to first frame
+                        if (CurrentFrame >= CurrentAnimation.Frames.Length)
                         {
-                            default:
-                            case StateSwitchingMode.None:
+                            CurrentFrame = 0;
 
-                                // Make sure it's not the initial state
-                                if (!(CurrentEtat == Data.Etat && CurrentSubEtat == Data.SubEtat))
-                                {
-                                    // Update the visuals and reset the state
-                                    RefreshVisuals();
-                                }
+                            // Get the current state
+                            var state = State;
 
-                                break;
+                            switch (Settings.StateSwitchingMode)
+                            {
+                                default:
+                                case StateSwitchingMode.None:
 
-                            case StateSwitchingMode.Loop:
-
-                                // Check if we've reached the end of the linking chain...
-                                if (CurrentEtat == state.LinkedEtat && CurrentSubEtat == state.LinkedSubEtat)
-                                {
                                     // Make sure it's not the initial state
                                     if (!(CurrentEtat == Data.Etat && CurrentSubEtat == Data.SubEtat))
                                     {
                                         // Update the visuals and reset the state
                                         RefreshVisuals();
                                     }
-                                }
-                                else
-                                {
+
+                                    break;
+
+                                case StateSwitchingMode.Loop:
+
+                                    // Check if we've reached the end of the linking chain...
+                                    if (CurrentEtat == state.LinkedEtat && CurrentSubEtat == state.LinkedSubEtat)
+                                    {
+                                        // Make sure it's not the initial state
+                                        if (!(CurrentEtat == Data.Etat && CurrentSubEtat == Data.SubEtat))
+                                        {
+                                            // Update the visuals and reset the state
+                                            RefreshVisuals();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Update state values to the linked one
+                                        CurrentEtat = state.LinkedEtat;
+                                        CurrentSubEtat = state.LinkedSubEtat;
+
+                                        // Update the visuals
+                                        RefreshVisuals(false);
+                                    }
+
+                                    break;
+
+                                case StateSwitchingMode.Original:
+
                                     // Update state values to the linked one
                                     CurrentEtat = state.LinkedEtat;
                                     CurrentSubEtat = state.LinkedSubEtat;
 
                                     // Update the visuals
                                     RefreshVisuals(false);
-                                }
 
-                                break;
-                            
-                            case StateSwitchingMode.Original:
-
-                                // Update state values to the linked one
-                                CurrentEtat = state.LinkedEtat;
-                                CurrentSubEtat = state.LinkedSubEtat;
-
-                                // Update the visuals
-                                RefreshVisuals(false);
-
-                                break;
+                                    break;
+                            }
                         }
                     }
 
-                    int floored = Mathf.FloorToInt(currentFrame);
+                    int floored = Mathf.FloorToInt(CurrentFrame);
 
                     // Update child renderers with correct part and position, but only if current frame has updated
-                    if (floored != prevFrame) {
+                    if (floored != previousFrame) {
                         UpdateParts(floored);
                         UpdateFollowSpriteLine();
                         ChangeColliderSize();
+                        prevFrame = CurrentFrame;
                     }
                 }
             }
@@ -297,15 +308,15 @@ namespace R1Engine {
             if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 ||
                 et == EventType.TYPE_FALLING_CRAYON))
             {
-                currentFrame = Data.HitPoints;
+                CurrentFrame = Data.HitPoints;
                 AnimSpeed = 0;
             }
             else
             {
-                currentFrame = 0;
+                CurrentFrame = 0;
             }
 
-            UpdateParts((int)currentFrame);
+            UpdateParts((int)CurrentFrame);
 
             // Collider
             ChangeColliderSize();
@@ -325,8 +336,8 @@ namespace R1Engine {
         }
 
         public void UpdateFollowSpriteLine() {
-            if (CurrentAnimation != null && Data.FollowSprite < CurrentAnimation.Frames[(int)currentFrame].Layers.Length) {
-                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].XPosition/16f, -CurrentAnimation.Frames[(int)currentFrame].Layers[Data.FollowSprite].YPosition/16f - (Data.OffsetHY / 16f));
+            if (CurrentAnimation != null && Data.FollowSprite < CurrentAnimation.Frames[(int)CurrentFrame].Layers.Length) {
+                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)CurrentFrame].Layers[Data.FollowSprite].XPosition/16f, -CurrentAnimation.Frames[(int)CurrentFrame].Layers[Data.FollowSprite].YPosition/16f - (Data.OffsetHY / 16f));
 
                 var w = (prefabRendereds[Data.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
@@ -382,10 +393,10 @@ namespace R1Engine {
             }
 
             // Reset the current frame
-            currentFrame = 0;
+            CurrentFrame = 0;
 
             // Get the frame length
-            var len = CurrentAnimation.Frames[(int)currentFrame].Layers.Length;
+            var len = CurrentAnimation.Frames[(int)CurrentFrame].Layers.Length;
 
             // Clear old array
             ClearChildren();
@@ -477,14 +488,12 @@ namespace R1Engine {
             // Get the sprites
             var sprites = EditorManager.DES[Data.DESKey].Sprites;
 
-            var fw = CurrentAnimation.Frames[0].FrameData.Width;
-            var fh = CurrentAnimation.Frames[0].FrameData.Height;
             /*var pivot = new Vector2(
                 (CurrentAnimation.Frames[0].FrameData.XPosition) + fw / 2f,
                 -((CurrentAnimation.Frames[0].FrameData.YPosition) + fh));*/
             var pivot = new Vector2(Data.OffsetBX, -(Data.OffsetBY));
 
-            for (int i = 0; i < CurrentAnimation.Frames[(int)currentFrame].Layers.Length; i++) {
+            for (int i = 0; i < CurrentAnimation.Frames[(int)CurrentFrame].Layers.Length; i++) {
                 // Skips sprites out of bounds
                 if (CurrentAnimation.Frames[frame].Layers[i].ImageIndex >= sprites.Count) {
                     prefabRendereds[i].sprite = null;

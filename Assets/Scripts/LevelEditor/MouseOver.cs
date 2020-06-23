@@ -30,7 +30,7 @@ namespace R1Engine
                 // Set debug text
                 Controller.obj.tempDebugText.text = Settings.ShowDebugInfo 
                     ? $"{e.Data.DebugText}{Environment.NewLine}" +
-                      $"CurrentFrame: {(int)e.currentFrame}{Environment.NewLine}" +
+                      $"CurrentFrame: {(int)e.CurrentFrame}{Environment.NewLine}" +
                       $"Frames: {e.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
                       $"AnimationIndex: {e.AnimationIndex}{Environment.NewLine}" +
                       $"AnimationSpeed: {e.AnimSpeed}{Environment.NewLine}" +
