@@ -214,7 +214,11 @@ namespace R1Engine
             if (instance == null) {
                 instance = new T();
                 instance.Init(current);
-                Context.Cache.Add<T>(instance);
+
+                // Do not cache objects from memory stream files as they auto-update
+                if (!(currentFile is ProcessMemoryStreamFile))
+                    Context.Cache.Add<T>(instance);
+                
                 if (Settings.Log) {
                     string logString = LogPrefix;
                     Context.Log.Log(logString + "(Object: " + typeof(T) + ") " + (name ?? "<no name>"));
