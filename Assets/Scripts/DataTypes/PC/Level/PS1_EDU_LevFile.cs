@@ -50,7 +50,7 @@ namespace R1Engine
         /// <summary>
         /// The events
         /// </summary>
-        public PC_Event[] Events { get; set; }
+        public EventData[] Events { get; set; }
 
         /// <summary>
         /// The event link table
@@ -135,7 +135,7 @@ namespace R1Engine
                 }
 
                 // Serialize the events
-                Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
+                Events = s.SerializeObjectArray<EventData>(Events, EventCount, name: nameof(Events));
 
                 // Padding...
                 s.SerializeArray<byte>(Enumerable.Repeat((byte)0xCD, EventCount * 4).ToArray(), EventCount * 4, name: "Padding");

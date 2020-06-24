@@ -112,7 +112,7 @@ namespace R1Engine
         /// <param name="vram">The filled v-ram</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor s)
+        public override Texture2D GetSpriteTexture(Context context, EventData e, Common_ImageDescriptor s)
         {
             if (s.ImageType != 2 && s.ImageType != 3) 
                 return null;

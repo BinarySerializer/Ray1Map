@@ -290,9 +290,9 @@ namespace R1Engine
         {
             public Pointer EventsPointer { get; set; }
             public uint EventsCount { get; set; }
-            public PC_Event[] Events { get; set; }
+            public EventData[] Events { get; set; }
 
-            public PC_Event RayEvent { get; set; }
+            public EventData RayEvent { get; set; }
 
             public void Serialize(SerializerObject s, Pointer basePointer)
             {
@@ -303,8 +303,8 @@ namespace R1Engine
 
                     // Serialize data
                     EventsCount = s.DoAt(basePointer + 0x16DDF4, () => s.Serialize<uint>(EventsCount, name: nameof(EventsCount)));
-                    Events = s.DoAt(EventsPointer, () => s.SerializeObjectArray<PC_Event>(Events, EventsCount, name: nameof(Events)));
-                    RayEvent = s.DoAt(basePointer + 0x16F650, () => s.SerializeObject<PC_Event>(RayEvent, name: nameof(RayEvent)));
+                    Events = s.DoAt(EventsPointer, () => s.SerializeObjectArray<EventData>(Events, EventsCount, name: nameof(Events)));
+                    RayEvent = s.DoAt(basePointer + 0x16F650, () => s.SerializeObject<EventData>(RayEvent, name: nameof(RayEvent)));
                 }
                 else
                 {
@@ -491,7 +491,7 @@ namespace R1Engine
                 var commonEvent = Controller.obj.levelController.Events[i];
                 var memEvent = mem.Events[i];
 
-                commonEvent.ForceMirror = memEvent.Flags.HasFlag(PC_Event.PC_EventFlags.DetectZone);
+                commonEvent.ForceMirror = memEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.DetectZone);
 
                 commonEvent.CurrentEtat = memEvent.RuntimeEtat;
                 commonEvent.CurrentSubEtat = memEvent.RuntimeSubEtat;
@@ -506,9 +506,9 @@ namespace R1Engine
                 commonEvent.Data.YPosition = memEvent.YPosition;
 
                 if (memEvent.Type != EventType.TYPE_RAY_POS)
-                    commonEvent.Data.DebugText = $"Flags: {Convert.ToString((int)memEvent.Flags, 2).PadLeft(8, '0')}";
+                    commonEvent.Data.DebugText = $"Flags: {Convert.ToString((int)memEvent.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
 
-                if (!memEvent.Flags.HasFlag(PC_Event.PC_EventFlags.SwitchedOn))
+                if (!memEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn))
                 {
                     commonEvent.Data.XPosition = UInt32.MaxValue;
                     commonEvent.Data.YPosition = UInt32.MaxValue;
@@ -520,7 +520,7 @@ namespace R1Engine
             // TODO: Clean this up - we should add a special event as Rayman's event which is always loaded instead of editing TYPE_RAY_POS (which is not in all levels). For this we need to hard-code the data for Rayman, such as the graphics pointers etc. (since that's what the game does).
             var commonRayEvent = Controller.obj.levelController.Events.First(x => x.Data.Type.Equals(EventType.TYPE_RAY_POS));
 
-            commonRayEvent.ForceMirror = mem.RayEvent.Flags.HasFlag(PC_Event.PC_EventFlags.DetectZone);
+            commonRayEvent.ForceMirror = mem.RayEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.DetectZone);
 
             commonRayEvent.CurrentEtat = mem.RayEvent.RuntimeEtat;
             commonRayEvent.CurrentSubEtat = mem.RayEvent.RuntimeSubEtat;
@@ -532,7 +532,7 @@ namespace R1Engine
             commonRayEvent.Data.XPosition = mem.RayEvent.XPosition;
             commonRayEvent.Data.YPosition = mem.RayEvent.YPosition;
 
-            if (!mem.RayEvent.Flags.HasFlag(PC_Event.PC_EventFlags.SwitchedOn))
+            if (!mem.RayEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn))
             {
                 commonRayEvent.Data.XPosition = UInt32.MaxValue;
                 commonRayEvent.Data.YPosition = UInt32.MaxValue;
@@ -540,7 +540,7 @@ namespace R1Engine
 
             commonRayEvent.UpdateXAndY();
 
-            commonRayEvent.Data.DebugText = $"Flags: {Convert.ToString((int)mem.RayEvent.Flags, 2).PadLeft(8, '0')}";
+            commonRayEvent.Data.DebugText = $"Flags: {Convert.ToString((int)mem.RayEvent.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
         }
 
         private void LateUpdate() {

@@ -258,12 +258,12 @@ namespace R1Engine
                 des[i].Sprites = new Sprite[d.ImageDescriptorsCount].ToList();
                 des[i].Animations = anims.Select(x => x.ToCommonAnimation()).ToList();
             }
-            foreach (PC_Event e in level.Events) {
+            foreach (EventData e in level.Events) {
                 for (int i = 0; i < e.ImageDescriptorCount; i++) {
                     ushort currentTexture = levelIndices[gsp_index];
                     var tex = textures[currentTexture];
-                    if (imageDescriptors[e.DES_ImageDescriptors][i].Index != 0) {
-                        des[e.DES_ImageDescriptors].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
+                    if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0) {
+                        des[e.PC_ImageDescriptorsIndex].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
                     }
                     gsp_index++;
                 }
@@ -384,11 +384,11 @@ namespace R1Engine
 
             var index = 0;
 
-            foreach (PC_Event e in levelData.Events)
+            foreach (EventData e in levelData.Events)
             {
                 // Get the file keys
-                var desKey = e.DES_ImageDescriptors.ToString();
-                var etaKey = e.ETA.ToString();
+                var desKey = e.PC_ImageDescriptorsIndex.ToString();
+                var etaKey = e.PC_ETAIndex.ToString();
 
                 // Add the event
                 commonLev.EventData.Add(new Common_EventData
@@ -407,11 +407,11 @@ namespace R1Engine
                     HitPoints = e.HitPoints,
                     Layer = e.Layer,
                     HitSprite = e.HitSprite,
-                    FollowEnabled = e.FollowEnabled,
+                    FollowEnabled = e.GetFollowEnabled(context.Settings),
                     LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
                     CommandCollection = levelData.EventCommands[index].Commands,
                     LinkIndex = levelData.EventLinkTable[index],
-                    DebugText = $"Flags: {String.Join(", ", e.Flags.GetFlags())}{Environment.NewLine}"
+                    DebugText = $"Flags: {String.Join(", ", e.PC_Flags.GetFlags())}{Environment.NewLine}"
                 });
 
                 index++;

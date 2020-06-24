@@ -12,10 +12,10 @@
         public byte[] DataBlock { get; set; }
 
         // Parsed
-        public PS1_R1_Event[] OriginalEvents { get; set; }
+        public EventData[] OriginalEvents { get; set; }
         public byte[] OriginalEventLinkingTable { get; set; }
 
-        public void UpdateAndFillDataBlock(Pointer offset, PS1_R1_EventBlock originalBlock, PS1_R1_Event[] events, byte[] eventLinkingTable, GameSettings settings)
+        public void UpdateAndFillDataBlock(Pointer offset, PS1_R1_EventBlock originalBlock, EventData[] events, byte[] eventLinkingTable, GameSettings settings)
         {
             // Copy the original data if not already copied over
             if (OriginalEventsPointer == null)
@@ -71,7 +71,7 @@
             DataBlock = s.SerializeArray<byte>(DataBlock, DataBlockLength, name: nameof(DataBlock));
 
             // Parse data from pointers
-            s.DoAt(OriginalEventsPointer, () => OriginalEvents = s.SerializeObjectArray<PS1_R1_Event>(OriginalEvents, OriginalEventCount, name: nameof(OriginalEvents)));
+            s.DoAt(OriginalEventsPointer, () => OriginalEvents = s.SerializeObjectArray<EventData>(OriginalEvents, OriginalEventCount, name: nameof(OriginalEvents)));
             s.DoAt(OriginalEventLinksPointer, () => OriginalEventLinkingTable = s.SerializeArray<byte>(OriginalEventLinkingTable, OriginalEventCount, name: nameof(OriginalEventLinkingTable)));
         }
     }

@@ -7,7 +7,7 @@ namespace R1Engine
     /// <summary>
     /// Event data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_Event : R1Serializable
+    public class PS1_R1_Events : R1Serializable
     {
         #region Event Properties
 
@@ -40,11 +40,11 @@ namespace R1Engine
         public Pointer LabelOffsetsPointer { get; set; }
 
         // Always 0
-        public uint Unknown1 { get; set; }
+        public uint PS1_Unk1 { get; set; }
 
-        public byte[] UnkDemo1 { get; set; }
-        public uint UnkDemo2 { get; set; }
-        public ushort UnkDemo3 { get; set; }
+        public byte[] PS1Demo_Unk1 { get; set; }
+        public uint PS1Demo_Unk2 { get; set; }
+        public ushort PS1Demo_Unk3 { get; set; }
 
         /// <summary>
         /// The x position
@@ -59,24 +59,26 @@ namespace R1Engine
         // This index is used by the game to handle the event links
         public ushort EventIndex { get; set; }
 
-        public byte[] Unknown2 { get; set; }
+        public byte[] PS1_Unk2 { get; set; }
 
         public ushort RuntimeXPosition { get; set; }
         public ushort RuntimeYPosition { get; set; }
 
-        public byte[] Unknown3 { get; set; }
+        // 3 ushorts; Unk_64, Unk_66
+        public byte[] PS1_Unk3 { get; set; }
 
         /// <summary>
         /// The amount of image descriptors
         /// </summary>
         public ushort ImageDescriptorCount { get; set; }
 
-        public ushort Unknown4 { get; set; }
+        public ushort PS1_Unk4 { get; set; }
 
         // Always 254?
-        public ushort Unknown5 { get; set; }
+        public ushort PS1_Unk5 { get; set; }
 
-        public byte[] Unknown6 { get; set; }
+        // All ushorts from PC Unk_70-Unk_94 except last one which is only on PS1
+        public byte[] PS1_Unk6 { get; set; }
 
         public byte OffsetBX { get; set; }
         public byte OffsetBY { get; set; }
@@ -90,8 +92,8 @@ namespace R1Engine
         public byte SubEtat { get; set; }
         public byte RuntimeSubEtat { get; set; }
 
+        // These are uint Unk_112
         public ushort Unknown10 { get; set; }
-
         public ushort Unknown11 { get; set; }
 
         public byte OffsetHY { get; set; }
@@ -117,8 +119,10 @@ namespace R1Engine
 
         public byte HitSprite { get; set; }
 
+        // First byte is PS1 only, rest are Unk_122-Unk_125
         public byte[] Unknown12 { get; set; }
 
+        // Unk_127
         public byte RuntimeLayer { get; set; }
         public byte Unknown15 { get; set; }
 
@@ -127,6 +131,7 @@ namespace R1Engine
         /// </summary>
         public byte AnimDescriptorCount { get; set; }
         
+        // PS1 only - runtime flags?
         public byte Unknown13 { get; set; }
 
         public bool GetFollowEnabled(GameSettings settings)
@@ -200,16 +205,16 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
             {
-                UnkDemo1 = s.SerializeArray<byte>(UnkDemo1, 40, name: nameof(UnkDemo1));
+                PS1Demo_Unk1 = s.SerializeArray<byte>(PS1Demo_Unk1, 40, name: nameof(PS1Demo_Unk1));
 
                 EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
 
-                UnkDemo2 = s.Serialize<uint>(UnkDemo2, name: nameof(UnkDemo2));
+                PS1Demo_Unk2 = s.Serialize<uint>(PS1Demo_Unk2, name: nameof(PS1Demo_Unk2));
             }
             else
             {
                 LabelOffsetsPointer = s.SerializePointer(LabelOffsetsPointer, name: nameof(LabelOffsetsPointer));
-                Unknown1 = s.Serialize<uint>(Unknown1, name: nameof(Unknown1));
+                PS1_Unk1 = s.Serialize<uint>(PS1_Unk1, name: nameof(PS1_Unk1));
             }
 
             // Serialize position
@@ -220,26 +225,26 @@ namespace R1Engine
             {
                 EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
 
-                Unknown2 = s.SerializeArray<byte>(Unknown2, 6, name: nameof(Unknown2));
+                PS1_Unk2 = s.SerializeArray<byte>(PS1_Unk2, 6, name: nameof(PS1_Unk2));
             }
             else
             {
-                UnkDemo3 = s.Serialize<ushort>(UnkDemo3, name: nameof(UnkDemo3));
+                PS1Demo_Unk3 = s.Serialize<ushort>(PS1Demo_Unk3, name: nameof(PS1Demo_Unk3));
             }
 
             RuntimeXPosition = s.Serialize<ushort>(RuntimeXPosition, name: nameof(RuntimeXPosition));
             RuntimeYPosition = s.Serialize<ushort>(RuntimeYPosition, name: nameof(RuntimeYPosition));
 
-            Unknown3 = s.SerializeArray<byte>(Unknown3, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 6 : 4, name: nameof(Unknown3));
+            PS1_Unk3 = s.SerializeArray<byte>(PS1_Unk3, s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 6 : 4, name: nameof(PS1_Unk3));
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
-            Unknown6 = s.SerializeArray<byte>(Unknown6, 28, name: nameof(Unknown6));
+            PS1_Unk6 = s.SerializeArray<byte>(PS1_Unk6, 28, name: nameof(PS1_Unk6));
 
             if (s.GameSettings.EngineVersion != EngineVersion.RayPS1JPDemoVol3)
             {
-                Unknown4 = s.Serialize<ushort>(Unknown4, name: nameof(Unknown4));
-                Unknown5 = s.Serialize<ushort>(Unknown5, name: nameof(Unknown5));
+                PS1_Unk4 = s.Serialize<ushort>(PS1_Unk4, name: nameof(PS1_Unk4));
+                PS1_Unk5 = s.Serialize<ushort>(PS1_Unk5, name: nameof(PS1_Unk5));
             }
 
             OffsetBX = s.Serialize<byte>(OffsetBX, name: nameof(OffsetBX));

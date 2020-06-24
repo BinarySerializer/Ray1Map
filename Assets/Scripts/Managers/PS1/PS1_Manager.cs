@@ -109,7 +109,7 @@ namespace R1Engine
         /// <param name="e">The event</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor s)
+        public virtual Texture2D GetSpriteTexture(Context context, EventData e, Common_ImageDescriptor s)
         {
             // Get the loaded v-ram
             PS1_VRAM vram = context.GetStoredObject<PS1_VRAM>("vram");
@@ -238,7 +238,7 @@ namespace R1Engine
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
         /// <returns>The editor manager</returns>
-        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, PS1_R1_Event[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
+        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, EventData[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
         {
             Common_Tileset tileSet = GetTileSet(context);
 
@@ -278,7 +278,7 @@ namespace R1Engine
             var index = 0;
 
             // Add every event
-            foreach (PS1_R1_Event e in events ?? (events = new PS1_R1_Event[0]))
+            foreach (EventData e in events ?? (events = new EventData[0]))
             {
                 Controller.status = $"Loading DES {index}/{events.Length}";
 
@@ -330,14 +330,13 @@ namespace R1Engine
                     OffsetBY = e.OffsetBY,
                     OffsetHY = e.OffsetHY,
                     FollowSprite = e.FollowSprite,
-                    HitPoints = e.Hitpoints,
+                    HitPoints = e.HitPoints,
                     Layer = e.Layer,
                     HitSprite = e.HitSprite,
                     FollowEnabled = e.GetFollowEnabled(context.Settings),
                     LabelOffsets = e.LabelOffsets,
                     CommandCollection = e.Commands,
-                    LinkIndex = eventLinkingTable[index],
-                    DebugText = $"{nameof(PS1_R1_Event.Unknown13)}: {e.Unknown13}{Environment.NewLine}"
+                    LinkIndex = eventLinkingTable[index]
                 });
 
                 index++;

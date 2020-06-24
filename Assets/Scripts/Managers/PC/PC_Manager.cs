@@ -510,7 +510,7 @@ namespace R1Engine
             var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
 
             // Find the level with the correct palette
-            var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.EventData.Events.Any(y => y.DES_ImageDescriptors == desIndex)) ?? levels.First();
+            var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.EventData.Events.Any(y => y.PC_ImageDescriptorsIndex == desIndex)) ?? levels.First();
 
             // Enumerate each image
             for (int i = 0; i < desItem.ImageDescriptors.Length; i++)
@@ -614,8 +614,8 @@ namespace R1Engine
                 if (worldFile.FileType != PC_WorldFile.Type.BigRay)
                 {
                     // Search level events
-                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.DES_ImageDescriptors == desIndex))
-                        matchingStates.AddRange(eta[lvlEvent.ETA].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
+                    foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.PC_ImageDescriptorsIndex == desIndex))
+                        matchingStates.AddRange(eta[lvlEvent.PC_ETAIndex].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
 
                     // Search event info
                     foreach (var ei in eventInfo)
@@ -1393,11 +1393,11 @@ namespace R1Engine
 
             var index = 0;
 
-            foreach (PC_Event e in levelData.EventData.Events)
+            foreach (EventData e in levelData.EventData.Events)
             {
                 // Get the file keys
-                var desKey = desNames.Any() ? desNames[e.DES_ImageDescriptors] : e.DES_ImageDescriptors.ToString();
-                var etaKey = etaNames.Any() ? etaNames[e.ETA] : e.ETA.ToString();
+                var desKey = desNames.Any() ? desNames[e.PC_ImageDescriptorsIndex] : e.PC_ImageDescriptorsIndex.ToString();
+                var etaKey = etaNames.Any() ? etaNames[e.PC_ETAIndex] : e.PC_ETAIndex.ToString();
 
                 // Add the event
                 commonLev.EventData.Add(new Common_EventData
@@ -1416,11 +1416,11 @@ namespace R1Engine
                     HitPoints = e.HitPoints,
                     Layer = e.Layer,
                     HitSprite = e.HitSprite,
-                    FollowEnabled = e.FollowEnabled,
+                    FollowEnabled = e.GetFollowEnabled(context.Settings),
                     LabelOffsets = levelData.EventData.EventCommands[index].LabelOffsetTable,
                     CommandCollection = levelData.EventData.EventCommands[index].Commands,
                     LinkIndex = levelData.EventData.EventLinkingTable[index],
-                    DebugText = $"Flags: {String.Join(", ", e.Flags.GetFlags())}{Environment.NewLine}"
+                    DebugText = $"Flags: {String.Join(", ", e.PC_Flags.GetFlags())}{Environment.NewLine}"
                 });
 
                 index++;
@@ -1584,7 +1584,7 @@ namespace R1Engine
             }
 
             // Temporary event lists
-            var events = new List<PC_Event>();
+            var events = new List<EventData>();
             var eventCommands = new List<PC_EventCommand>();
             var eventLinkingTable = new List<ushort>();
 
@@ -1596,8 +1596,6 @@ namespace R1Engine
             var desNames = worldData.DESFileNames ?? new string[0];
             var etaNames = worldData.ETAFileNames ?? new string[0];
 
-            ushort index = 0;
-
             foreach (var e in commonLevelData.EventData) 
             {
                 // Get the file indexes
@@ -1605,98 +1603,40 @@ namespace R1Engine
                 var etaIndex = etaNames.Any() ? (uint)etaNames.FindItemIndex(x => x == e.ETAKey) : UInt32.Parse(e.ETAKey);
 
                 // Create the event
-                var r1Event = new PC_Event
+                var r1Event = new EventData
                 {
-                    DES_ImageDescriptors = desIndex,
-                    DES_AnimationDescriptors = desIndex,
-                    DES_ImageBuffer = desIndex,
-                    ETA = etaIndex,
+                    PC_ImageDescriptorsIndex = desIndex,
+                    PC_AnimationDescriptorsIndex = desIndex,
+                    PC_ImageBufferIndex = desIndex,
+                    PC_ETAIndex = etaIndex,
 
-                    RuntimeCommandsPointer = 0,
-                    RuntimeLabelOffsetsPointer = 0,
-
-                    Unk_24 = 0,
-                    Unk_28 = 0,
-                    Unk_32 = 0,
-                    Unk_36 = 0,
+                    PS1Demo_Unk1 = new byte[40],
 
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
 
-                    Unk_48 = 0,
-
-                    EventIndex = index,
-
-                    Unk_54 = 0,
-                    Unk_56 = 0,
-                    Unk_58 = 0,
-
-                    RuntimeXPosition = 0,
-                    RuntimeYPosition = 0,
-
-                    Unk_64 = 0,
-                    Unk_66 = 0,
-
                     ImageDescriptorCount = (ushort)editorManager.DES[e.DESKey].Sprites.Count,
 
-                    Unk_Kit = 0,
-
-                    Unk_70 = 0,
-                    Unk_72 = 0,
-                    Unk_74 = 0,
-                    Unk_76 = 0,
-                    Unk_78 = 0,
-                    Unk_80 = 0,
-                    Unk_82 = 0,
-                    Unk_84 = 0,
-                    Unk_86 = 0,
-                    Unk_88 = 0,
-                    Unk_90 = 0,
-                    Unk_92 = 0,
-                    Unk_94 = 0,
-
                     Unk_98 = new byte[5],
-                    Unk_103 = 0,
 
                     Type = (EventType)e.Type,
                     OffsetBX = (byte)e.OffsetBX,
                     OffsetBY = (byte)e.OffsetBY,
 
-                    RuntimeCurrentAnimIndex = 0,
-                    RuntimeCurrentAnimFrame = 0,
-
                     SubEtat = (byte)e.SubEtat,
                     Etat = (byte)e.Etat,
 
-                    RuntimeSubEtat = 0,
-                    RuntimeEtat = 0,
-
-                    Unk_112 = 0,
-
                     OffsetHY = (byte)e.OffsetHY,
-                    FollowSprite = (byte) e.FollowSprite
-                    ,
+                    FollowSprite = (byte)e.FollowSprite,
                     HitPoints = (byte)e.HitPoints,
-                    RuntimeHitPoints = 0,
 
                     Layer = (byte)e.Layer,
                     HitSprite = (byte)e.HitSprite,
 
-                    Unk_122 = 0,
-                    Unk_123 = 0,
-                    Unk_124 = 0,
-                    Unk_125 = 0,
-
-                    RuntimeLayer = 0,
-
-                    Unk_127 = 0,
-
-                    AnimDescriptorCount = 0,
-                    //Flags = PC_Event.PC_EventFlags.None,
-                    FollowEnabled = e.FollowEnabled,
-
-                    Unk_130 = 0
+                    AnimDescriptorCount = (byte)editorManager.DES[e.DESKey].Animations.Count,
                 };
+
+                r1Event.SetFollowEnabled(context.Settings, e.FollowEnabled);
 
                 // Add the event
                 events.Add(r1Event);
@@ -1712,8 +1652,6 @@ namespace R1Engine
 
                 // Add the event links
                 eventLinkingTable.Add((ushort)e.LinkIndex);
-
-                index++;
             }
 
             // Update event values

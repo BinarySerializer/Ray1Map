@@ -263,51 +263,42 @@ namespace R1Engine
                 var des = em.DESCollection[e.DESKey];
                 var eta = em.ETACollection[e.ETAKey];
 
-                var newEvent = new PS1_R1_Event
+                var newEvent = new EventData
                 {
-                    // TODO: Move all this init code to a constructor overload?
-
                     ImageDescriptorsPointer = des.ImageDescriptorsPointer,
                     AnimDescriptorsPointer = des.AnimDescriptorsPointer,
                     ImageBufferPointer = des.ImageBufferPointer,
                     ETAPointer = eta.ETAPointer,
-                    
+
                     // Ignore since these get set automatically later...
                     //CommandsPointer = null,
                     //LabelOffsetsPointer = null,
 
-                    Unknown1 = 0,
-                    UnkDemo1 = new byte[46],
+                    PS1Demo_Unk1 = new byte[40],
+
                     XPosition = (ushort)e.XPosition,
                     YPosition = (ushort)e.YPosition,
-                    Unknown2 = new byte[context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 12 :
-                        context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 10 : 16],
+
                     ImageDescriptorCount = (ushort)des.ImageDescriptors.Length,
-                    Unknown4 = 0,
-                    Unknown5 = 0,
-                    Unknown6 = new byte[28],
+
+                    Unk_98 = new byte[5],
+
                     OffsetBX = (byte)e.OffsetBX,
                     OffsetBY = (byte)e.OffsetBY,
-                    RuntimeCurrentAnimIndex = 0,
-                    RuntimeCurrentAnimFrame = 0,
+
                     Etat = (byte)e.Etat,
-                    RuntimeEtat = 0,
                     SubEtat = (byte)e.SubEtat,
-                    RuntimeSubEtat = 0,
-                    Unknown10 = 0,
-                    Unknown11 = 0,
+
                     OffsetHY = (byte)e.OffsetHY,
                     FollowSprite = (byte)e.FollowSprite,
-                    Hitpoints = (byte)e.HitPoints,
-                    RuntimeHitpoints = 0,
+                    HitPoints = (byte)e.HitPoints,
+
                     Layer = (byte)e.Layer,
                     Type = (EventType)e.Type,
                     HitSprite = (byte)e.HitSprite,
-                    Unknown12 = new byte[context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 ? 11 :
-                        context.Settings.EngineVersion == EngineVersion.RayPS1JPDemoVol6 ? 8 : 7],
+
                     AnimDescriptorCount = (byte)des.AnimDescriptors.Length,
-                    Unknown13 = 0,
-                    Unknown14 = 0,
+
                     ImageDescriptors = des.ImageDescriptors,
                     AnimDescriptors = des.AnimDescriptors,
                     Commands = e.CommandCollection,

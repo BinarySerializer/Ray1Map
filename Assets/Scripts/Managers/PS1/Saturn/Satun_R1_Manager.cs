@@ -235,7 +235,7 @@ namespace R1Engine
             context.StoreObject("vram", buf);
         }
 
-        public override Texture2D GetSpriteTexture(Context context, PS1_R1_Event e, Common_ImageDescriptor img) {
+        public override Texture2D GetSpriteTexture(Context context, EventData e, Common_ImageDescriptor img) {
             if (img.ImageType != 2 && img.ImageType != 3) return null;
             if (img.Unknown2 == 0) return null;
             ImageBuffer buf = context.GetStoredObject<ImageBuffer>("vram");

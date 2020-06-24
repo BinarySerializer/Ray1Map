@@ -11,7 +11,7 @@ namespace R1Engine
     /// </summary>
     public class PS1EditorManager : BaseEditorManager
     {
-        public PS1EditorManager(Common_Lev level, Context context, IDictionary<Pointer, Common_Design> des, IDictionary<Pointer, Common_EventState[][]> eta, PS1_R1_Event[] events) 
+        public PS1EditorManager(Common_Lev level, Context context, IDictionary<Pointer, Common_Design> des, IDictionary<Pointer, Common_EventState[][]> eta, EventData[] events) 
             : base(level, context, new ReadOnlyDictionary<string, Common_Design>(des.ToDictionary(x => x.Key.ToString(), x => x.Value)), new ReadOnlyDictionary<string, Common_EventState[][]>(eta.ToDictionary(x => x.Key.ToString(), x => x.Value)))
         {
             // TODO: Different PS1 versions may use different event object, so for now we need to expect this to be null!

@@ -23,7 +23,7 @@
         /// <summary>
         /// The events in the map
         /// </summary>
-        public PC_Event[] Events { get; set; }
+        public EventData[] Events { get; set; }
 
         /// <summary>
         /// The event commands in the map
@@ -48,7 +48,7 @@
                     EventLinkingTable = s.SerializeArray<ushort>(EventLinkingTable, EventCount, name: nameof(EventLinkingTable));
 
                     // Serialize the events
-                    Events = s.SerializeObjectArray<PC_Event>(Events, EventCount, name: nameof(Events));
+                    Events = s.SerializeObjectArray<EventData>(Events, EventCount, name: nameof(Events));
 
                     // Serialize the event commands
                     EventCommands = s.SerializeObjectArray<PC_EventCommand>(EventCommands, EventCount, name: nameof(EventCommands));

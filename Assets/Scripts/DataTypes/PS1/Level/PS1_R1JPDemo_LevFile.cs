@@ -21,7 +21,7 @@
         public Pointer EventLinkTablePointer { get; set; }
         public uint EvenLinkCount { get; set; }
 
-        public PS1_R1_Event[] Events { get; set; }
+        public EventData[] Events { get; set; }
         public PS1_R1JPDemoVol3_UnknownEventTableItem[] UnknownEventTable { get; set; }
         public byte[] EventLinkTable { get; set; }
 
@@ -53,7 +53,7 @@
             // Serialize data from pointers
             s.DoAt(EventsPointer, () =>
             {
-                Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: nameof(Events));
+                Events = s.SerializeObjectArray<EventData>(Events, EventCount, name: nameof(Events));
             });
 
             if (UnknownEventTablePointer != null)

@@ -30,7 +30,7 @@ namespace R1Engine
         /// <summary>
         /// The events
         /// </summary>
-        public PS1_R1_Event[] Events { get; set; }
+        public EventData[] Events { get; set; }
 
         /// <summary>
         /// Data table for event linking
@@ -57,7 +57,7 @@ namespace R1Engine
             s.DoAt(EventsPointer, (() =>
             {
                 // Serialize every event
-                Events = s.SerializeObjectArray<PS1_R1_Event>(Events, EventCount, name: nameof(Events));
+                Events = s.SerializeObjectArray<EventData>(Events, EventCount, name: nameof(Events));
             }));
 
             s.DoAt(EventLinksPointer, (() =>
