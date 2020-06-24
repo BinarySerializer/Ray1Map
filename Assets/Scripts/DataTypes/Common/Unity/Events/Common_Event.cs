@@ -9,49 +9,30 @@ namespace R1Engine {
     public class Common_Event : MonoBehaviour {
         #region Public Properties
 
-        public bool AutoUpdate => !Settings.LoadFromMemory;
-
-        /// <summary>
-        /// The event display name
-        /// </summary>
         public string DisplayName { get; set; }
 
-        /// <summary>
-        /// The event flag
-        /// </summary>
-        public EventFlag Flag { get; set; }
+        public Editor_EventData Data { get; set; }
 
+        public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.EventData.RuntimeEtat)?.ElementAtOrDefault(Data.EventData.RuntimeSubEtat);
+
+        public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.EventData.RuntimeCurrentAnimIndex);
+
+        public int AnimSpeed
+        {
+            get
+            {
+                if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON))
+                    return 0;
+
+                return (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn
+                    ? State?.AnimationSpeed >> 4
+                    : State?.AnimationSpeed) ?? 0;
+            }
+        }
+
+        public byte? PrevAnimIndex { get; set; }
+        public float EditorAnimFrame { get; set; }
         public int UniqueLayer { get; set; }
-
-        /// <summary>
-        /// The event data
-        /// </summary>
-        public Common_EventData Data { get; set; }
-
-        /// <summary>
-        /// The current animation speed
-        /// </summary>
-        public int AnimSpeed { get; set; }
-
-        /// <summary>
-        /// The current animation index
-        /// </summary>
-        public int AnimationIndex { get; set; }
-
-        /// <summary>
-        /// The current Etat value for the visuals
-        /// </summary>
-        public int CurrentEtat { get; set; }
-
-        /// <summary>
-        /// The current SubEtat value for the visuals
-        /// </summary>
-        public int CurrentSubEtat { get; set; }
-
-        /// <summary>
-        /// The current state
-        /// </summary>
-        public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(CurrentEtat)?.ElementAtOrDefault(CurrentSubEtat);
 
         #endregion
 
@@ -75,7 +56,15 @@ namespace R1Engine {
             if (Data.MapLayer != null && Data.MapLayer.Value > 0)
                 Scale = Controller.obj.levelController.EditorManager.Level.Maps[Data.MapLayer.Value - 1].ScaleFactor;
 
-            RefreshFlag();
+            Data.EventData.RuntimeEtat = Data.EventData.Etat;
+            Data.EventData.RuntimeSubEtat = Data.EventData.SubEtat;
+            Data.EventData.RuntimeLayer = Data.EventData.Layer;
+            Data.EventData.RuntimeXPosition = (ushort)Data.EventData.XPosition;
+            Data.EventData.RuntimeYPosition = (ushort)Data.EventData.YPosition;
+            Data.EventData.RuntimeCurrentAnimFrame = 0;
+            Data.EventData.RuntimeCurrentAnimIndex = 0;
+            Data.EventData.RuntimeHitPoints = Data.EventData.HitPoints;
+
             RefreshEditorInfo();
         }
 
@@ -83,50 +72,12 @@ namespace R1Engine {
         /// Refreshes the editor event info
         /// </summary>
         public void RefreshEditorInfo() {
-            // Get the event info data
-            var eventInfo = EditorManager.GetEditorEventInfo(Data);
-            // Set the name
-            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Data.Type}";
-
-            RefreshVisuals();
+            RefreshName();
             ChangeOffsetVisibility(false);
             ChangeLinksVisibility(false);
         }
         
-        public void RefreshName() {
-            // Get the event info data
-            var eventInfo = EditorManager.GetEditorEventInfo(Data);
-
-            // Set the name
-            DisplayName = name = eventInfo?.DisplayName ?? $"Unknown type {Data.Type}";
-        }
-
-        public void RefreshFlag()
-        {
-            Flag = Data.TypeInfo?.Flag ?? EventFlag.Normal;
-        }
-
-        public void RefreshVisuals(bool refreshState = true) {
-            if (refreshState)
-            {
-                // Set the state
-                CurrentEtat = Data.Etat;
-                CurrentSubEtat = Data.SubEtat;
-            }
-
-            // Set the animation speed
-            AnimSpeed = (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn ? State?.AnimationSpeed >> 4 : State?.AnimationSpeed) ?? 0;
-
-            // Set the animation index
-            AnimationIndex = State?.AnimationIndex ?? 0;
-
-            // Hack for multi-colored events
-            if (Data.Type is EventType et && PC_RD_Manager.MultiColoredEvents.Contains(et))
-                AnimationIndex = (byte)(AnimationIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.HitPoints));
-
-            // Update the graphics
-            ChangeAppearance();
-        }
+        public void RefreshName() => DisplayName = name = EditorManager.GetDisplayName(Data) ?? $"Unknown type {Data.Type}";
 
         #endregion
 
@@ -135,26 +86,8 @@ namespace R1Engine {
         /// </summary>
         public int LinkID;
 
-        /// <summary>
-        /// Indicates if the entire event sprite is supposed to be mirrored
-        /// </summary>
-        public bool Mirrored => ForceMirror || EditorManager.IsMirrored(Data);
-
-        public bool ForceMirror { get; set; }
-
-        /// <summary>
-        /// The current animation of this event
-        /// </summary>
-        public Common_Animation CurrentAnimation;
 
         public float Scale = 1f;
-
-        // Current frame in the animation
-
-        public float CurrentFrame { get; set; }
-
-        [HideInInspector]
-        public float prevFrame = 0;
 
         // Default sprite
         public SpriteRenderer defautRenderer;
@@ -189,159 +122,232 @@ namespace R1Engine {
             linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
         }
 
-        void Update() {
+        // TODO: Changing the state doesn't change the animation until it's done playing
+        // TODO: Get rid of view model class since we barely need to update now
 
-            if (Controller.obj?.levelController?.currentLevel == null)
+        void Update()
+        {
+            // Make sure the events have loaded
+            if (!Controller.obj.levelEventController.hasLoaded)
                 return;
 
-            // Scroll through animation frames
-            if (CurrentAnimation != null && prefabRendereds != null) {
-                if (prefabRendereds.Length > 0) {
-                    var previousFrame = Mathf.FloorToInt(prevFrame);
+            // Update frame and states
+            if (CurrentAnimation != null && !Settings.LoadFromMemory) 
+            {
+                // Increment frame if animating
+                if (Settings.AnimateSprites && AnimSpeed > 0)
+                    EditorAnimFrame += (60f / AnimSpeed) * Time.deltaTime;
 
-                    if (AutoUpdate)
+                // Update the frame
+                Data.EventData.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
+
+                // Loop back to first frame
+                if (Data.EventData.RuntimeCurrentAnimFrame >= CurrentAnimation.Frames.Length)
+                {
+                    Data.EventData.RuntimeCurrentAnimFrame = 0;
+                    EditorAnimFrame = 0;
+
+                    if (Settings.StateSwitchingMode != StateSwitchingMode.None)
                     {
-                        // Increment frame if animating
-                        if (Settings.AnimateSprites && AnimSpeed > 0)
-                            CurrentFrame += (60f / AnimSpeed) * Time.deltaTime;
+                        // Get the current state
+                        var state = State;
 
-                        // Loop back to first frame
-                        if (CurrentFrame >= CurrentAnimation.Frames.Length)
+                        // Check if we've reached the end of the linking chain and we're looping
+                        if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && Data.EventData.RuntimeEtat == state.LinkedEtat && Data.EventData.RuntimeSubEtat == state.LinkedSubEtat)
                         {
-                            CurrentFrame = 0;
-
-                            // Get the current state
-                            var state = State;
-
-                            switch (Settings.StateSwitchingMode)
-                            {
-                                default:
-                                case StateSwitchingMode.None:
-
-                                    // Make sure it's not the initial state
-                                    if (!(CurrentEtat == Data.Etat && CurrentSubEtat == Data.SubEtat))
-                                    {
-                                        // Update the visuals and reset the state
-                                        RefreshVisuals();
-                                    }
-
-                                    break;
-
-                                case StateSwitchingMode.Loop:
-
-                                    // Check if we've reached the end of the linking chain...
-                                    if (CurrentEtat == state.LinkedEtat && CurrentSubEtat == state.LinkedSubEtat)
-                                    {
-                                        // Make sure it's not the initial state
-                                        if (!(CurrentEtat == Data.Etat && CurrentSubEtat == Data.SubEtat))
-                                        {
-                                            // Update the visuals and reset the state
-                                            RefreshVisuals();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // Update state values to the linked one
-                                        CurrentEtat = state.LinkedEtat;
-                                        CurrentSubEtat = state.LinkedSubEtat;
-
-                                        // Update the visuals
-                                        RefreshVisuals(false);
-                                    }
-
-                                    break;
-
-                                case StateSwitchingMode.Original:
-
-                                    // Update state values to the linked one
-                                    CurrentEtat = state.LinkedEtat;
-                                    CurrentSubEtat = state.LinkedSubEtat;
-
-                                    // Update the visuals
-                                    RefreshVisuals(false);
-
-                                    break;
-                            }
+                            // Reset the state
+                            Data.EventData.RuntimeEtat = Data.EventData.Etat;
+                            Data.EventData.RuntimeSubEtat = Data.EventData.SubEtat;
                         }
-                    }
-
-                    int floored = Mathf.FloorToInt(CurrentFrame);
-
-                    // Update child renderers with correct part and position, but only if current frame has updated
-                    if (floored != previousFrame) {
-                        UpdateParts(floored);
-                        UpdateFollowSpriteLine();
-                        ChangeColliderSize();
-                        prevFrame = CurrentFrame;
+                        else
+                        {
+                            // Update state values to the linked one
+                            Data.EventData.RuntimeEtat = state.LinkedEtat;
+                            Data.EventData.RuntimeSubEtat = state.LinkedSubEtat;
+                        }
                     }
                 }
             }
 
-            //Change collider with show always/editor events
-            boxCollider.enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
+            // Update the animation index if not loading from memory
+            if (!Settings.LoadFromMemory)
+            {
+                Data.EventData.RuntimeCurrentAnimIndex = State?.AnimationIndex ?? 0;
 
-            //New midpoint
-            midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
-            //Link line to cube
-            lineRend.SetPosition(0, midpoint);
-            lineRend.SetPosition(1, linkCube.position);
-        }
+                // Hack for multi-colored events
+                if (Data.Type is EventType et && PC_RD_Manager.MultiColoredEvents.Contains(et))
+                    Data.EventData.RuntimeCurrentAnimIndex = (byte)(Data.EventData.RuntimeCurrentAnimIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.EventData.HitPoints));
+            }
 
-        public void UpdateXAndY() {
-            transform.position = new Vector3(Data.XPosition / 16f, -(Data.YPosition / 16f), 0);
-            //Don't move link cube if it's part of a link
-            if (LinkID != 0) {
+            // Check if the animation has changed
+            if (PrevAnimIndex != Data.EventData.RuntimeCurrentAnimIndex)
+            {
+                // Update the animation index
+                PrevAnimIndex = Data.EventData.RuntimeCurrentAnimIndex;
+
+                // If animation is null, use default renderer ("E")
+                if (CurrentAnimation == null)
+                {
+                    defautRenderer.enabled = true;
+                    ClearChildren();
+                }
+                else
+                {
+                    defautRenderer.enabled = false;
+
+                    // Reset the current frame
+                    if (!Settings.LoadFromMemory)
+                    {
+                        Data.EventData.RuntimeCurrentAnimFrame = 0;
+                        EditorAnimFrame = 0;
+                    }
+
+                    // Get the amount of layers per frame
+                    var len = CurrentAnimation.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers.Length;
+
+                    // Clear old array
+                    ClearChildren();
+
+                    // Create array
+                    prefabRendereds = new SpriteRenderer[len];
+
+                    // Populate it with empty ones
+                    for (int i = 0; i < len; i++)
+                    {
+                        // Instantiate prefab
+                        SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, len - i), Quaternion.identity, transform).GetComponent<SpriteRenderer>();
+                        newRenderer.sortingOrder = UniqueLayer;
+
+                        // Set as child of events gameobject
+                        newRenderer.gameObject.transform.parent = transform;
+                        newRenderer.gameObject.transform.localScale = Vector3.one * Scale;
+                        // Add to list
+                        prefabRendereds[i] = newRenderer;
+                    }
+                }
+            }
+
+            // Get the current animation
+            var anim = CurrentAnimation;
+
+            // Update x and y
+            transform.position = new Vector3(Data.EventData.XPosition / 16f, -(Data.EventData.YPosition / 16f), 0);
+
+            // Don't move link cube if it's part of a link
+            if (LinkID != 0)
                 linkCube.position = linkCubeLockPosition;
-            }
-            else {
-                linkCubeLockPosition = linkCube.position;
-            }
-        }
-
-        // Change des and everything
-        private void ChangeAppearance() {
-            // Change to new animation
-            ChangeAnimation(AnimationIndex);
-
-            // TODO: Is there a flag for these events to determine if they should do this?
-            // Hard-code frames for special events
-            if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 ||
-                et == EventType.TYPE_FALLING_CRAYON))
-            {
-                CurrentFrame = Data.HitPoints;
-                AnimSpeed = 0;
-            }
             else
+                linkCubeLockPosition = linkCube.position;
+
+            // Update sprite parts in the animation
+            if (anim != null)
             {
-                CurrentFrame = 0;
+                var frame = Data.EventData.RuntimeCurrentAnimFrame;
+
+                // Get the sprites
+                var sprites = EditorManager.DES[Data.DESKey].Sprites;
+
+                var pivot = new Vector2(Data.EventData.OffsetBX, -(Data.EventData.OffsetBY));
+
+                var mirrored = Data.GetIsFlippedHorizontally();
+
+                for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
+                {
+                    // Skips sprites out of bounds
+                    prefabRendereds[i].sprite = anim.Frames[frame].Layers[i].ImageIndex >= sprites.Count ? null : sprites[anim.Frames[frame].Layers[i].ImageIndex];
+
+                    prefabRendereds[i].flipX =
+                        (anim.Frames[frame].Layers[i].IsFlippedHorizontally || mirrored) &&
+                        !(anim.Frames[frame].Layers[i].IsFlippedHorizontally && mirrored);
+                    prefabRendereds[i].flipY = anim.Frames[frame].Layers[i].IsFlippedVertically;
+
+                    var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
+                    var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
+
+                    var xx = (mirrored
+                                 ? (anim.Frames[0].FrameData.Width -
+                                    (anim.Frames[frame].Layers[i].XPosition) - 1) +
+                                 anim.Frames[0].FrameData.XPosition * 2 - 2
+                                 : anim.Frames[frame].Layers[i].XPosition) +
+                             (anim.Frames[frame].Layers[i].IsFlippedHorizontally ? w : 0);
+                    var yy = -(anim.Frames[frame].Layers[i].YPosition +
+                               (anim.Frames[frame].Layers[i].IsFlippedVertically ? h : 0));
+
+                    // scale
+                    Vector2 pos = new Vector2(
+                        ((xx - pivot.x) * Scale + pivot.x) / 16f,
+                        ((yy - pivot.y) * Scale + pivot.y) / 16f);
+
+                    prefabRendereds[i].transform.localPosition =
+                        new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
+                    prefabRendereds[i].transform.localScale = Vector3.one * Scale;
+
+                    // Change visibility if always/editor
+                    prefabRendereds[i].enabled = Data.GetIsVisible();
+                }
             }
 
-            UpdateParts((int)CurrentFrame);
+            // Update the follow sprite line
+            if (anim != null && Data.EventData.FollowSprite < anim.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers.Length)
+            {
+                followSpriteLine.localPosition = new Vector2(anim.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers[Data.EventData.FollowSprite].XPosition / 16f, -anim.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers[Data.EventData.FollowSprite].YPosition / 16f - (Data.EventData.OffsetHY / 16f));
 
-            // Collider
-            ChangeColliderSize();
-
-            //Offset points
-            UpdateOffsetPoints();
-            //FollowSprite line
-            UpdateFollowSpriteLine();
-        }
-
-        public void UpdateOffsetPoints() {
-            if (CurrentAnimation != null) {
-                offsetCrossBX.localPosition = new Vector2(Data.OffsetBX / 16f, 0f);
-                offsetCrossBY.localPosition = new Vector2(Data.OffsetBX / 16f, -(Data.OffsetBY / 16f));
-                offsetCrossHY.localPosition = new Vector2(Data.OffsetBX / 16f, -((Data.OffsetHY / 16f) + (CurrentAnimation.Frames[0].FrameData.YPosition / 16f)));
-            }
-        }
-
-        public void UpdateFollowSpriteLine() {
-            if (CurrentAnimation != null && Data.FollowSprite < CurrentAnimation.Frames[(int)CurrentFrame].Layers.Length) {
-                followSpriteLine.localPosition = new Vector2(CurrentAnimation.Frames[(int)CurrentFrame].Layers[Data.FollowSprite].XPosition/16f, -CurrentAnimation.Frames[(int)CurrentFrame].Layers[Data.FollowSprite].YPosition/16f - (Data.OffsetHY / 16f));
-
-                var w = (prefabRendereds[Data.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.FollowSprite].sprite.texture.width;
+                var w = (prefabRendereds[Data.EventData.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.EventData.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
             }
+
+            // Update the collider size for when selecting the events
+            if (anim != null)
+            {
+                // Set box collider size to be the combination of all parts
+                float leftX = 0, topY = 0, rightX = 0, bottomY = 0;
+                bool first = true;
+                foreach (SpriteRenderer part in prefabRendereds)
+                {
+                    var pos = new Vector2(Mathf.Abs(part.transform.localPosition.x) * 16, Mathf.Abs(part.transform.localPosition.y) * 16);
+
+                    if (part.sprite == null)
+                        continue;
+
+                    if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
+                        leftX = pos.x - (part.flipX ? part.sprite.texture.width : 0);
+                    if (pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0) > rightX || first)
+                        rightX = pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0);
+                    if (pos.y < topY || first)
+                        topY = pos.y;
+                    if (pos.y + part.sprite.texture.height > bottomY || first)
+                        bottomY = pos.y + part.sprite.texture.height;
+
+                    if (first)
+                        first = false;
+                }
+
+                if (!first)
+                {
+                    var w = (rightX - leftX) / 16f;
+                    var h = (bottomY - topY) / 16f;
+                    boxCollider.size = new Vector2(w, h);
+                    boxCollider.offset = new Vector2(leftX / 16f + w / 2f, -(topY / 16f + h / 2f));
+                }
+            }
+
+            // Update offset points
+            if (anim != null)
+            {
+                offsetCrossBX.localPosition = new Vector2(Data.EventData.OffsetBX / 16f, 0f);
+                offsetCrossBY.localPosition = new Vector2(Data.EventData.OffsetBX / 16f, -(Data.EventData.OffsetBY / 16f));
+                offsetCrossHY.localPosition = new Vector2(Data.EventData.OffsetBX / 16f, -((Data.EventData.OffsetHY / 16f) + (CurrentAnimation.Frames[0].FrameData.YPosition / 16f)));
+            }
+
+            // Update visibility
+            boxCollider.enabled = Data.GetIsVisible();
+
+            // Set new midpoint
+            midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
+
+            // Set link line to cube
+            lineRend.SetPosition(0, midpoint);
+            lineRend.SetPosition(1, linkCube.position);
         }
 
         public void ChangeOffsetVisibility(bool visible) {
@@ -350,18 +356,13 @@ namespace R1Engine {
             offsetCrossBY.gameObject.SetActive(visible);
             offsetCrossHY.gameObject.SetActive(visible);
             followSpriteLine.gameObject.SetActive(visible);
-            followSpriteLine.gameObject.SetActive(visible && Data.FollowEnabled);
+            followSpriteLine.gameObject.SetActive(visible && Data.EventData.GetFollowEnabled(EditorManager.Settings));
         }
 
         public void ChangeLinksVisibility(bool visible) {
-            if (visible) {
-                if (Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) {
-                    visible = false;
-                }
-                else if (Flag == EventFlag.Editor && !Settings.ShowEditorEvents) {
-                    visible = false;
-                }
-                //Change link colours
+            if (visible && Data.GetIsVisible()) {
+
+                //Change link colors
                 if (LinkID == 0) {
                     lineRend.startColor = Controller.obj.levelEventController.linkColorDeactive;
                     lineRend.endColor = Controller.obj.levelEventController.linkColorDeactive;
@@ -377,47 +378,6 @@ namespace R1Engine {
             linkCube.gameObject.SetActive(visible);
         }
 
-        // Try to load a new animation and change to it
-        public void ChangeAnimation(int newAnim) {
-            // Get the current animation
-            CurrentAnimation = EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(newAnim);
-
-            // If animation is null, use default
-            if (CurrentAnimation == null) {
-                defautRenderer.enabled = true;
-                ClearChildren();
-                return;
-            }
-            else {
-                defautRenderer.enabled = false;
-            }
-
-            // Reset the current frame
-            CurrentFrame = 0;
-
-            // Get the frame length
-            var len = CurrentAnimation.Frames[(int)CurrentFrame].Layers.Length;
-
-            // Clear old array
-            ClearChildren();
-
-            // Create array
-            prefabRendereds = new SpriteRenderer[len];
-
-            // Populate it with empty ones
-            for (int i = 0; i < len; i++) {
-                // Instantiate prefab
-                SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, len-i), Quaternion.identity, transform).GetComponent<SpriteRenderer>();
-                newRenderer.sortingOrder = UniqueLayer;
-
-                // Set as child of events gameobject
-                newRenderer.gameObject.transform.parent = transform;
-                newRenderer.gameObject.transform.localScale = Vector3.one * Scale;
-                // Add to list
-                prefabRendereds[i] = newRenderer;
-            }
-        }
-
         private void ClearChildren() {
             // Clear old array
             if (prefabRendereds != null) {
@@ -426,104 +386,6 @@ namespace R1Engine {
 
                 Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
                 prefabRendereds = null;
-            }
-        }
-
-        // Change collider size
-        private void ChangeColliderSize() {
-
-            if (CurrentAnimation != null) {
-                //Set box collider size to be the combination of all parts
-                float leftX = 0, topY = 0, rightX = 0, bottomY = 0;
-                bool first = true;
-                for(int i=0; i<prefabRendereds.Length; i++) {
-
-                    var part = prefabRendereds[i];
-                    var pos = new Vector2(Mathf.Abs(part.transform.localPosition.x)*16, Mathf.Abs(part.transform.localPosition.y)*16);
-
-                    if (part.sprite != null) {
-                        if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
-                            leftX = pos.x-(part.flipX ? part.sprite.texture.width : 0);
-                        if (pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0) > rightX || first)
-                            rightX = pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0);
-                        if (pos.y < topY || first)
-                            topY = pos.y;
-                        if (pos.y + part.sprite.texture.height > bottomY || first)
-                            bottomY = pos.y + part.sprite.texture.height;
-
-                        if (first)
-                            first = false;
-                    }                 
-                }
-
-                if (!first) {
-                    var w = (rightX - leftX) / 16f;
-                    var h = (bottomY - topY) / 16f;
-                    boxCollider.size = new Vector2(w, h);
-                    boxCollider.offset = new Vector2(leftX / 16f + w / 2f, -(topY / 16f + h / 2f));
-                }
-            }
-
-            /* BRING THIS BACK IF THINGS BREAK:
-            if (CurrentAnimation != null) {
-                var w = CurrentAnimation.Frames[(int)currentFrame].FrameData.Width / 16f;
-                var h = CurrentAnimation.Frames[(int)currentFrame].FrameData.Height / 16f;
-                boxCollider.size = new Vector2(w, h);
-                boxCollider.offset = new Vector2(
-                    (CurrentAnimation.Frames[(int)currentFrame].FrameData.XPosition / 16f) + w / 2f,
-                    -((CurrentAnimation.Frames[(int)currentFrame].FrameData.YPosition / 16f) + h / 2f));
-            }
-            else {
-                boxCollider.size = new Vector2(3, 3);
-                boxCollider.offset = new Vector2(0,0);
-            }*/
-        }
-
-        // Update all child sprite parts
-        private void UpdateParts(int frame) {
-            // Make sure the current animation is not null
-            if (CurrentAnimation == null)
-                return;
-
-            // Get the sprites
-            var sprites = EditorManager.DES[Data.DESKey].Sprites;
-
-            /*var pivot = new Vector2(
-                (CurrentAnimation.Frames[0].FrameData.XPosition) + fw / 2f,
-                -((CurrentAnimation.Frames[0].FrameData.YPosition) + fh));*/
-            var pivot = new Vector2(Data.OffsetBX, -(Data.OffsetBY));
-
-            for (int i = 0; i < CurrentAnimation.Frames[(int)CurrentFrame].Layers.Length; i++) {
-                // Skips sprites out of bounds
-                if (CurrentAnimation.Frames[frame].Layers[i].ImageIndex >= sprites.Count) {
-                    prefabRendereds[i].sprite = null;
-                }
-                else {
-                    prefabRendereds[i].sprite = sprites[CurrentAnimation.Frames[frame].Layers[i].ImageIndex];
-                }
-
-                prefabRendereds[i].flipX = CurrentAnimation.Frames[frame].Layers[i].IsFlippedHorizontally || Mirrored;
-                prefabRendereds[i].flipY = CurrentAnimation.Frames[frame].Layers[i].IsFlippedVertically;
-
-
-                var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
-                var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
-
-                var xx = (Mirrored 
-                    ? (CurrentAnimation.Frames[0].FrameData.Width - (CurrentAnimation.Frames[frame].Layers[i].XPosition) - 1) + CurrentAnimation.Frames[0].FrameData.XPosition * 2 - 2
-                    : CurrentAnimation.Frames[frame].Layers[i].XPosition) + (CurrentAnimation.Frames[frame].Layers[i].IsFlippedHorizontally ? w : 0);
-                var yy = -(CurrentAnimation.Frames[frame].Layers[i].YPosition + (CurrentAnimation.Frames[frame].Layers[i].IsFlippedVertically ? h : 0));
-
-                // scale
-                Vector2 pos = new Vector2(
-                    ((xx - pivot.x) * Scale + pivot.x) / 16f,
-                    ((yy - pivot.y) * Scale + pivot.y) / 16f);
-
-                prefabRendereds[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
-                prefabRendereds[i].transform.localScale = Vector3.one * Scale;
-
-                // Change visibility if always/editor
-                prefabRendereds[i].enabled = !(Flag == EventFlag.Always && !Settings.ShowAlwaysEvents) && !(Flag == EventFlag.Editor && !Settings.ShowEditorEvents);
             }
         }
 

@@ -263,53 +263,30 @@ namespace R1Engine
                 var des = em.DESCollection[e.DESKey];
                 var eta = em.ETACollection[e.ETAKey];
 
-                var newEvent = new EventData
-                {
-                    ImageDescriptorsPointer = des.ImageDescriptorsPointer,
-                    AnimDescriptorsPointer = des.AnimDescriptorsPointer,
-                    ImageBufferPointer = des.ImageBufferPointer,
-                    ETAPointer = eta.ETAPointer,
+                var ed = e.EventData;
 
-                    // Ignore since these get set automatically later...
-                    //CommandsPointer = null,
-                    //LabelOffsetsPointer = null,
+                if (ed.PS1Demo_Unk1 == null)
+                    ed.PS1Demo_Unk1 = new byte[40];
 
-                    PS1Demo_Unk1 = new byte[40],
+                if (ed.Unk_98 == null)
+                    ed.Unk_98 = new byte[5];
 
-                    XPosition = (ushort)e.XPosition,
-                    YPosition = (ushort)e.YPosition,
+                ed.ImageDescriptorsPointer = des.ImageDescriptorsPointer;
+                ed.AnimDescriptorsPointer = des.AnimDescriptorsPointer;
+                ed.ImageBufferPointer = des.ImageBufferPointer;
+                ed.ETAPointer = eta.ETAPointer;
 
-                    ImageDescriptorCount = (ushort)des.ImageDescriptors.Length,
+                ed.ImageDescriptorCount = (ushort)des.ImageDescriptors.Length;
+                ed.AnimDescriptorCount = (byte)des.AnimDescriptors.Length;
 
-                    Unk_98 = new byte[5],
+                ed.ImageDescriptors = des.ImageDescriptors;
+                ed.AnimDescriptors = des.AnimDescriptors;
+                ed.Commands = e.CommandCollection;
+                ed.LabelOffsets = e.LabelOffsets;
+                ed.ETA = eta.ETA;
+                ed.ImageBuffer = des.ImageBuffer;
 
-                    OffsetBX = (byte)e.OffsetBX,
-                    OffsetBY = (byte)e.OffsetBY,
-
-                    Etat = (byte)e.Etat,
-                    SubEtat = (byte)e.SubEtat,
-
-                    OffsetHY = (byte)e.OffsetHY,
-                    FollowSprite = (byte)e.FollowSprite,
-                    HitPoints = (byte)e.HitPoints,
-
-                    Layer = (byte)e.Layer,
-                    Type = (EventType)e.Type,
-                    HitSprite = (byte)e.HitSprite,
-
-                    AnimDescriptorCount = (byte)des.AnimDescriptors.Length,
-
-                    ImageDescriptors = des.ImageDescriptors,
-                    AnimDescriptors = des.AnimDescriptors,
-                    Commands = e.CommandCollection,
-                    LabelOffsets = e.LabelOffsets,
-                    ETA = eta.ETA,
-                    ImageBuffer = des.ImageBuffer
-                };
-
-                newEvent.SetFollowEnabled(context.Settings, e.FollowEnabled);
-
-                return newEvent;
+                return ed;
             }).ToArray();
 
             var newEventLinkTable = commonLevelData.EventData.Select(x => (byte)x.LinkIndex).ToArray();

@@ -180,8 +180,8 @@ namespace R1Engine
             // Hide unused links and show gendoors
             foreach (var e in Events) 
             {
-                if (e.Flag==EventFlag.Always || 
-                    e.Flag == EventFlag.Editor)
+                if (e.Data.TypeInfo.Flag==EventFlag.Always ||
+                    e.Data.TypeInfo.Flag == EventFlag.Editor)
                     e.gameObject.SetActive(false);
 
                 // Helper method

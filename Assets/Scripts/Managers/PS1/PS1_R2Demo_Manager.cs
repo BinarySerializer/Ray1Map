@@ -240,7 +240,7 @@ namespace R1Engine
             Controller.status = $"Loading sprite data";
 
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
-            var commonEvents = new List<Common_EventData>();
+            var commonEvents = new List<Editor_EventData>();
             var eventDES = new Dictionary<Pointer, Common_Design>();
 
             if (loadTextures)
@@ -300,27 +300,23 @@ namespace R1Engine
             foreach (var e in events)
             {
                 // Add the event
-                commonEvents.Add(new Common_EventData
+                commonEvents.Add(new Editor_EventData(new EventData()
                 {
-                    Type = e.EventType,
                     Etat = e.Etat,
                     SubEtat = e.SubEtat,
                     XPosition = e.XPosition,
                     YPosition = e.YPosition,
-                    DESKey = e.AnimGroup?.AnimationDescriptorsPointer?.ToString() ?? "NULL",
-                    ETAKey = e.AnimGroup?.ETAPointer?.ToString() ?? "NULL",
                     OffsetBX = e.CollisionData?.OffsetBX ?? 0,
                     OffsetBY = e.CollisionData?.OffsetBY ?? 0,
                     OffsetHY = e.CollisionData?.OffsetHY ?? 0,
-                    MapLayer = e.MapLayer,
-                    //FollowSprite = e.FollowSprite,
-                    //HitPoints = e.Hitpoints,
                     Layer = e.Layer,
-                    //HitSprite = e.HitSprite,
-                    //FollowEnabled = e.GetFollowEnabled(context.Settings),
+                })
+                {
+                    Type = e.EventType,
+                    DESKey = e.AnimGroup?.AnimationDescriptorsPointer?.ToString() ?? "NULL",
+                    ETAKey = e.AnimGroup?.ETAPointer?.ToString() ?? "NULL",
+                    MapLayer = e.MapLayer,
                     FlipHorizontally = e.IsFlippedHorizontally,
-                    //LabelOffsets = e.LabelOffsets,
-                    //CommandCollection = e.Commands,
                     LinkIndex = lvlData.EventLinkTable.Length > index ? lvlData.EventLinkTable[index] : index,
                     DebugText = $"UShort_00: {e.UShort_00}{Environment.NewLine}" +
                                 $"UShort_02: {e.UShort_02}{Environment.NewLine}" +
@@ -371,7 +367,7 @@ namespace R1Engine
                 }).ToArray(),
 
                 // Create the events list
-                EventData = new List<Common_EventData>(),
+                EventData = new List<Editor_EventData>(),
 
                 DefaultMap = context.Settings.Level
             };

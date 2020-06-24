@@ -82,7 +82,7 @@ namespace R1Engine
             var startEvent = levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE));
 
             if (startEvent != null)
-                Camera.main.transform.position = new Vector3(startEvent.Data.XPosition, startEvent.Data.YPosition, -10f);
+                Camera.main.transform.position = new Vector3(startEvent.Data.EventData.XPosition, startEvent.Data.EventData.YPosition, -10f);
 
             Debug.Log($"Loaded in {loadTimer.ElapsedMilliseconds}ms");
         }

@@ -128,7 +128,7 @@ namespace R1Engine
         /// <param name="xPos">The x position</param>
         /// <param name="yPos">The y position</param>
         /// <returns>The event</returns>
-        public Common_EventData AddEvent(int index, uint xPos, uint yPos)
+        public Editor_EventData AddEvent(int index, uint xPos, uint yPos)
         {
             // Get the event
             var e = EventInfoData[index];
@@ -162,28 +162,35 @@ namespace R1Engine
                 }
             }
 
-            // Return the event
-            return new Common_EventData
+            var eventData = new Editor_EventData(new EventData()
             {
-                Type = (Enum)Enum.Parse(EventTypeEnumType, e.Type.ToString()),
-                Etat = e.Etat,
-                SubEtat = e.SubEtat,
+                Etat = (byte)e.Etat,
+                SubEtat = (byte)e.SubEtat,
                 XPosition = xPos,
                 YPosition = yPos,
+                OffsetBX = (byte)e.OffsetBX,
+                OffsetBY = (byte)e.OffsetBY,
+                OffsetHY = (byte)e.OffsetHY,
+                FollowSprite = (byte)e.FollowSprite,
+                HitPoints = (byte)e.HitPoints,
+                Layer = 0,
+                HitSprite = (byte)e.HitSprite,
+            })
+            {
+                Type = (Enum)Enum.Parse(EventTypeEnumType, e.Type.ToString()),
                 DESKey = GetDesKey(e),
                 ETAKey = GetEtaKey(e),
-                OffsetBX = e.OffsetBX,
-                OffsetBY = e.OffsetBY,
-                OffsetHY = e.OffsetHY,
-                FollowSprite = e.FollowSprite,
-                HitPoints = e.HitPoints,
-                Layer = 0,
-                HitSprite = e.HitSprite,
-                FollowEnabled = e.FollowEnabled,
                 LabelOffsets = labelOffsets,
                 CommandCollection = cmds,
                 LinkIndex = 0
             };
+
+            eventData.EventData.SetFollowEnabled(Settings, e.FollowEnabled);
+
+            if (EventTypeEnumType == typeof(EventType))
+                eventData.EventData.Type = (EventType)eventData.Type;
+
+            return eventData;
         }
 
         /// <summary>
@@ -240,21 +247,16 @@ namespace R1Engine
             return match;
         }
 
-        /// <summary>
-        /// Gets the common editor event info for an event
-        /// </summary>
-        /// <param name="e">The event</param>
-        /// <returns>The common editor event info</returns>
-        public Common_EditorEventInfo GetEditorEventInfo(Common_EventData e)
+        public string GetDisplayName(Editor_EventData e)
         {
             // Get the command bytes
             var cmds = e.CommandCollection?.ToBytes(Settings);
 
             // Find match
-            var match = GetGeneralEventInfo(e.TypeValue, e.Etat, e.SubEtat, e.DESKey, e.ETAKey, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.LabelOffsets, cmds);
+            var match = GetGeneralEventInfo(e.TypeValue, e.EventData.Etat, e.EventData.SubEtat, e.DESKey, e.ETAKey, e.EventData.OffsetBX, e.EventData.OffsetBY, e.EventData.OffsetHY, e.EventData.FollowSprite, e.EventData.HitPoints, e.EventData.HitSprite, e.EventData.GetFollowEnabled(Settings), e.LabelOffsets, cmds);
 
             // Return the editor info
-            return new Common_EditorEventInfo(match?.Name);
+            return match?.Name;
         }
 
         /// <summary>
@@ -340,13 +342,6 @@ namespace R1Engine
                     badRayDes.Animations = rayDes.Animations;
             }
         }
-
-        /// <summary>
-        /// Indicates if the event should be mirrored horizontally
-        /// </summary>
-        /// <param name="eventData">The event data</param>
-        /// <returns></returns>
-        public bool IsMirrored(Common_EventData eventData) => (eventData.Type is EventType et && et == EventType.TYPE_PUNAISE3 && eventData.HitPoints == 1) || eventData.CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT || eventData.FlipHorizontally;
 
         #endregion
     }

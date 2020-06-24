@@ -37,7 +37,7 @@ namespace R1Engine {
                 var startEvent = Controller.obj.levelController.currentLevel.EventData.FindItem(x => x.Type.Equals(EventType.TYPE_RAY_POS));
 
                 if (startEvent != null)
-                    pos = new Vector3(startEvent.XPosition / 16f, -(startEvent.YPosition / 16f));
+                    pos = new Vector3(startEvent.EventData.XPosition / 16f, -(startEvent.EventData.YPosition / 16f));
             }
 
 

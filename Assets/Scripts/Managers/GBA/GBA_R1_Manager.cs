@@ -896,7 +896,7 @@ namespace R1Engine
                 },
 
                 // Create the events list
-                EventData = new List<Common_EventData>(),
+                EventData = new List<Editor_EventData>(),
             };
 
             commonLev.Maps[0].TileSet[0] = tileset;
@@ -1004,27 +1004,33 @@ namespace R1Engine
                         eventETA[dat.ETAPointer] = current;
                     }
 
-                    // Add the event
-                    commonLev.EventData.Add(new Common_EventData
+                    var editorEventData = new Editor_EventData(new EventData()
                     {
                         Type = dat.Type,
                         Etat = dat.Etat,
                         SubEtat = dat.SubEtat,
                         XPosition = dat.XPosition,
                         YPosition = dat.YPosition,
-                        DESKey = graphics.ImageDescriptorsPointer?.ToString() ?? String.Empty,
-                        ETAKey = dat.ETAPointer?.ToString() ?? String.Empty,
                         OffsetBX = dat.OffsetBX,
                         OffsetBY = dat.OffsetBY,
                         OffsetHY = dat.OffsetHY,
                         FollowSprite = dat.FollowSprite,
                         HitPoints = dat.HitPoints,
-                        Layer = dat.Layer,
+                        Layer = (byte)dat.Layer,
                         HitSprite = dat.HitSprite,
-                        FollowEnabled = dat.FollowEnabled,
+                    })
+                    {
+                        Type = dat.Type,
+                        DESKey = graphics.ImageDescriptorsPointer?.ToString() ?? String.Empty,
+                        ETAKey = dat.ETAPointer?.ToString() ?? String.Empty,
                         CommandCollection = dat.Commands,
                         LinkIndex = linkTable[index],
-                    });
+                    };
+
+                    editorEventData.EventData.SetFollowEnabled(context.Settings, dat.FollowEnabled);
+
+                    // Add the event
+                    commonLev.EventData.Add(editorEventData);
 
                     index++;
                 }

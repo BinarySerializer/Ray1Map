@@ -28,8 +28,8 @@ namespace R1Engine
         private uint? _yPosition;
         private string _des;
         private string _eta;
-        private int? _etat;
-        private int? _subEtat;
+        private byte? _etat;
+        private byte? _subEtat;
         private byte? _offsetBx;
         private byte? _offsetBy;
         private byte? _offsetHy;
@@ -82,10 +82,9 @@ namespace R1Engine
 
                 _xPosition = value;
 
-                if (XPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.XPosition)
+                if (XPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.EventData.XPosition)
                 {
-                    SelectedEvent.Data.XPosition = XPosition.Value;
-                    SelectedEvent.UpdateXAndY();
+                    SelectedEvent.Data.EventData.XPosition = XPosition.Value;
                 }
 
                 OnPropertyChanged();
@@ -102,10 +101,9 @@ namespace R1Engine
 
                 _yPosition = value;
 
-                if (YPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.YPosition)
+                if (YPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.EventData.YPosition)
                 {
-                    SelectedEvent.Data.YPosition = YPosition.Value;
-                    SelectedEvent.UpdateXAndY();
+                    SelectedEvent.Data.EventData.YPosition = YPosition.Value;
                 }
 
                 OnPropertyChanged();
@@ -126,7 +124,6 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.DESKey = DES;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.RefreshVisuals();
                 }
 
                 OnPropertyChanged();
@@ -147,14 +144,13 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.ETAKey = ETA;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.RefreshVisuals();
                 }
 
                 OnPropertyChanged();
             }
         }
 
-        public int? Etat
+        public byte? Etat
         {
             get => _etat;
             set
@@ -164,18 +160,18 @@ namespace R1Engine
 
                 _etat = value;
 
-                if (Etat != null && SelectedEvent != null && Etat != SelectedEvent.Data.Etat)
+                if (Etat != null && SelectedEvent != null && Etat != SelectedEvent.Data.EventData.Etat)
                 {
-                    SelectedEvent.Data.Etat = Etat.Value;
+                    SelectedEvent.Data.EventData.Etat = Etat.Value;
+                    SelectedEvent.Data.EventData.RuntimeEtat = Etat.Value;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.RefreshVisuals();
                 }
 
                 OnPropertyChanged();
             }
         }
 
-        public int? SubEtat
+        public byte? SubEtat
         {
             get => _subEtat;
             set
@@ -185,11 +181,11 @@ namespace R1Engine
 
                 _subEtat = value;
 
-                if (SubEtat != null && SelectedEvent != null && SubEtat != SelectedEvent.Data.SubEtat)
+                if (SubEtat != null && SelectedEvent != null && SubEtat != SelectedEvent.Data.EventData.SubEtat)
                 {
-                    SelectedEvent.Data.SubEtat = SubEtat.Value;
+                    SelectedEvent.Data.EventData.SubEtat = SubEtat.Value;
+                    SelectedEvent.Data.EventData.RuntimeSubEtat = SubEtat.Value;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.RefreshVisuals();
                 }
 
                 OnPropertyChanged();
@@ -206,11 +202,10 @@ namespace R1Engine
 
                 _offsetBx = value;
 
-                if (OffsetBX.HasValue && SelectedEvent != null && OffsetBX != SelectedEvent.Data.OffsetBX)
+                if (OffsetBX.HasValue && SelectedEvent != null && OffsetBX != SelectedEvent.Data.EventData.OffsetBX)
                 {
-                    SelectedEvent.Data.OffsetBX = OffsetBX.Value;
+                    SelectedEvent.Data.EventData.OffsetBX = OffsetBX.Value;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.UpdateOffsetPoints();
                 }
 
                 OnPropertyChanged();
@@ -227,11 +222,10 @@ namespace R1Engine
 
                 _offsetBy = value;
 
-                if (OffsetBY.HasValue && SelectedEvent != null && OffsetBY != SelectedEvent.Data.OffsetBY)
+                if (OffsetBY.HasValue && SelectedEvent != null && OffsetBY != SelectedEvent.Data.EventData.OffsetBY)
                 {
-                    SelectedEvent.Data.OffsetBY = OffsetBY.Value;
+                    SelectedEvent.Data.EventData.OffsetBY = OffsetBY.Value;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.UpdateOffsetPoints();
                 }
 
                 OnPropertyChanged();
@@ -248,12 +242,10 @@ namespace R1Engine
 
                 _offsetHy = value;
 
-                if (OffsetHY.HasValue && SelectedEvent != null && OffsetHY != SelectedEvent.Data.OffsetHY)
+                if (OffsetHY.HasValue && SelectedEvent != null && OffsetHY != SelectedEvent.Data.EventData.OffsetHY)
                 {
-                    SelectedEvent.Data.OffsetHY = OffsetHY.Value;
+                    SelectedEvent.Data.EventData.OffsetHY = OffsetHY.Value;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.UpdateOffsetPoints();
-                    SelectedEvent.UpdateFollowSpriteLine();
                 }
 
                 OnPropertyChanged();
@@ -270,11 +262,10 @@ namespace R1Engine
 
                 _followSprite = value;
 
-                if (FollowSprite.HasValue && SelectedEvent != null && FollowSprite != SelectedEvent.Data.FollowSprite)
+                if (FollowSprite.HasValue && SelectedEvent != null && FollowSprite != SelectedEvent.Data.EventData.FollowSprite)
                 {
-                    SelectedEvent.Data.FollowSprite = FollowSprite.Value;
+                    SelectedEvent.Data.EventData.FollowSprite = FollowSprite.Value;
                     SelectedEvent.RefreshName();
-                    SelectedEvent.UpdateFollowSpriteLine();
                 }
 
                 OnPropertyChanged();
@@ -291,9 +282,9 @@ namespace R1Engine
 
                 _hitPoints = value;
 
-                if (HitPoints.HasValue && SelectedEvent != null && HitPoints != SelectedEvent.Data.HitPoints)
+                if (HitPoints.HasValue && SelectedEvent != null && HitPoints != SelectedEvent.Data.EventData.HitPoints)
                 {
-                    SelectedEvent.Data.HitPoints = HitPoints.Value;
+                    SelectedEvent.Data.EventData.HitPoints = HitPoints.Value;
                     SelectedEvent.RefreshName();
                 }
 
@@ -311,9 +302,9 @@ namespace R1Engine
 
                 _hitSprite = value;
 
-                if (HitSprite.HasValue && SelectedEvent != null && HitSprite != SelectedEvent.Data.HitSprite)
+                if (HitSprite.HasValue && SelectedEvent != null && HitSprite != SelectedEvent.Data.EventData.HitSprite)
                 {
-                    SelectedEvent.Data.HitSprite = HitSprite.Value;
+                    SelectedEvent.Data.EventData.HitSprite = HitSprite.Value;
                     SelectedEvent.RefreshName();
                 }
 
@@ -331,9 +322,9 @@ namespace R1Engine
 
                 _followEnabled = value;
 
-                if (FollowEnabled.HasValue && SelectedEvent != null && FollowEnabled != SelectedEvent.Data.FollowEnabled)
+                if (FollowEnabled.HasValue && SelectedEvent != null && FollowEnabled != SelectedEvent.Data.EventData.GetFollowEnabled(Controller.obj.levelController.EditorManager.Settings))
                 {
-                    SelectedEvent.Data.FollowEnabled = FollowEnabled.Value;
+                    SelectedEvent.Data.EventData.SetFollowEnabled(Controller.obj.levelController.EditorManager.Settings, FollowEnabled.Value);
                     SelectedEvent.RefreshName();
                     SelectedEvent.ChangeOffsetVisibility(true);
                 }
@@ -355,7 +346,6 @@ namespace R1Engine
                 if (Type != null && SelectedEvent != null && !Equals(Type, SelectedEvent.Data.Type))
                 {
                     SelectedEvent.Data.Type = Type;
-                    SelectedEvent.RefreshFlag();
                     SelectedEvent.RefreshName();
                 }
 
@@ -372,19 +362,19 @@ namespace R1Engine
         /// </summary>
         protected void Refresh()
         {
-            XPosition = SelectedEvent?.Data.XPosition;
-            YPosition = SelectedEvent?.Data.YPosition;
+            XPosition = SelectedEvent?.Data.EventData.XPosition;
+            YPosition = SelectedEvent?.Data.EventData.YPosition;
             DES = SelectedEvent?.Data.DESKey;
             ETA = SelectedEvent?.Data.ETAKey;
-            Etat = SelectedEvent?.Data.Etat;
-            SubEtat = SelectedEvent?.Data.SubEtat;
-            OffsetBX = (byte?)SelectedEvent?.Data.OffsetBX;
-            OffsetBY = (byte?)SelectedEvent?.Data.OffsetBY;
-            OffsetHY = (byte?)SelectedEvent?.Data.OffsetHY;
-            FollowSprite = (byte?)SelectedEvent?.Data.FollowSprite;
-            HitPoints = (byte?)SelectedEvent?.Data.HitPoints;
-            HitSprite = (byte?)SelectedEvent?.Data.HitSprite;
-            FollowEnabled = SelectedEvent?.Data.FollowEnabled;
+            Etat = SelectedEvent?.Data.EventData.Etat;
+            SubEtat = SelectedEvent?.Data.EventData.SubEtat;
+            OffsetBX = (byte?)SelectedEvent?.Data.EventData.OffsetBX;
+            OffsetBY = (byte?)SelectedEvent?.Data.EventData.OffsetBY;
+            OffsetHY = (byte?)SelectedEvent?.Data.EventData.OffsetHY;
+            FollowSprite = (byte?)SelectedEvent?.Data.EventData.FollowSprite;
+            HitPoints = (byte?)SelectedEvent?.Data.EventData.HitPoints;
+            HitSprite = (byte?)SelectedEvent?.Data.EventData.HitSprite;
+            FollowEnabled = SelectedEvent?.Data.EventData.GetFollowEnabled(Controller.obj.levelController.EditorManager.Settings);
             Type = SelectedEvent?.Data.Type;
         }
 

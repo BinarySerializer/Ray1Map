@@ -376,7 +376,7 @@ namespace R1Engine
                 },
 
                 // Create the events list
-                EventData = new List<Common_EventData>(),
+                EventData = new List<Editor_EventData>(),
             };
 
             // Load the sprites
@@ -391,23 +391,11 @@ namespace R1Engine
                 var etaKey = e.PC_ETAIndex.ToString();
 
                 // Add the event
-                commonLev.EventData.Add(new Common_EventData
+                commonLev.EventData.Add(new Editor_EventData(e)
                 {
                     Type = e.Type,
-                    Etat = e.Etat,
-                    SubEtat = e.SubEtat,
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
                     DESKey = desKey,
                     ETAKey = etaKey,
-                    OffsetBX = e.OffsetBX,
-                    OffsetBY = e.OffsetBY,
-                    OffsetHY = e.OffsetHY,
-                    FollowSprite = e.FollowSprite,
-                    HitPoints = e.HitPoints,
-                    Layer = e.Layer,
-                    HitSprite = e.HitSprite,
-                    FollowEnabled = e.GetFollowEnabled(context.Settings),
                     LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
                     CommandCollection = levelData.EventCommands[index].Commands,
                     LinkIndex = levelData.EventLinkTable[index],

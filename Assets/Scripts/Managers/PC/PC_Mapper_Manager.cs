@@ -137,7 +137,7 @@ namespace R1Engine
                 },
 
                 // Create the events list
-                EventData = new List<Common_EventData>(),
+                EventData = new List<Editor_EventData>(),
 
             };
 
@@ -218,24 +218,32 @@ namespace R1Engine
                 // Get the data
                 var e = eventData.EventData;
 
-                // Add the event
-                commonLev.EventData.Add(new Common_EventData
+                var type = (EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1);
+
+                var ed = new EventData()
                 {
-                    Type = (EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1),
-                    Etat = (int)e.Etat,
-                    SubEtat = Int32.TryParse(e.SubEtat, out var r2) ? r2 : -1,
+                    Type = type,
+                    Etat = (byte)e.Etat,
+                    SubEtat = Byte.TryParse(e.SubEtat, out var r2) ? r2 : (byte)0,
                     XPosition = (uint)e.XPosition,
                     YPosition = (uint)e.YPosition,
+                    OffsetBX = (byte)e.Offset_BX,
+                    OffsetBY = (byte)e.Offset_BY,
+                    OffsetHY = (byte)e.Offset_HY,
+                    FollowSprite = (byte)e.Follow_sprite,
+                    HitPoints = (byte)e.Hitpoints,
+                    Layer = (byte)e.Layer,
+                    HitSprite = (byte)e.Hit_sprite
+                };
+
+                ed.SetFollowEnabled(context.Settings, e.Follow_enabled > 0);
+
+                // Add the event
+                commonLev.EventData.Add(new Editor_EventData(ed)
+                {
+                    Type = type,
                     DESKey = eventData.DESFileName,
                     ETAKey = e.ETAFile,
-                    OffsetBX = (int)e.Offset_BX,
-                    OffsetBY = (int)e.Offset_BY,
-                    OffsetHY = (int)e.Offset_HY,
-                    FollowSprite = (int)e.Follow_sprite,
-                    HitPoints = (int)e.Hitpoints,
-                    Layer = e.Layer,
-                    HitSprite = (int)e.Hit_sprite,
-                    FollowEnabled = e.Follow_enabled > 0,
                     LabelOffsets = new ushort[0],
                     CommandCollection = Common_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray(), context.Settings),
                     LinkIndex = linkTable[index]

@@ -73,8 +73,8 @@ namespace R1Engine
         public void FieldYPosition() => ViewModel.XPosition = uint.TryParse(infoY.text, out var v) ? v : 0;
         public void FieldDes() => ViewModel.DES = infoDes.options[infoDes.value].text;
         public void FieldEta() => ViewModel.ETA = infoEta.options[infoEta.value].text;
-        public void FieldEtat() => ViewModel.Etat = infoEtat.value;
-        public void FieldSubEtat() => ViewModel.SubEtat = infoSubEtat.value;
+        public void FieldEtat() => ViewModel.Etat = (byte)infoEtat.value;
+        public void FieldSubEtat() => ViewModel.SubEtat = (byte)infoSubEtat.value;
         public void FieldOffsetBx() => ViewModel.OffsetBX = byte.TryParse(infoOffsetBx.text, out var v) ? v : (byte)0;
         public void FieldOffsetBy() => ViewModel.OffsetBY = byte.TryParse(infoOffsetBy.text, out var v) ? v : (byte)0;
         public void FieldOffsetHy() => ViewModel.OffsetHY = byte.TryParse(infoOffsetHy.text, out var v) ? v : (byte)0;
@@ -84,18 +84,7 @@ namespace R1Engine
         public void FieldFollowEnabled() => ViewModel.FollowEnabled = infoFollow.isOn;
         public void FieldType() => ViewModel.Type = (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString());
 
-        public void FieldAnimIndex()
-        {
-            if (ViewModel?.SelectedEvent != null)
-            {
-                int.TryParse(infoAnimIndex.text, out var new_anim);
-                if (new_anim != ViewModel.SelectedEvent.AnimationIndex)
-                {
-                    ViewModel.SelectedEvent.AnimationIndex = new_anim;
-                    ViewModel.SelectedEvent.ChangeAnimation(new_anim);
-                }
-            }
-        }
+        public void FieldAnimIndex() => throw new NotImplementedException("The animation index can not be updated");
 
         #endregion
 
@@ -230,9 +219,8 @@ namespace R1Engine
             {
                 // If X and Y are insane, clamp them
                 const int border = 10;
-                eventList[i].Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border);
-                eventList[i].Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border);
-                eventList[i].UpdateXAndY();
+                eventList[i].Data.EventData.XPosition = (uint)Mathf.Clamp(eventList[i].Data.EventData.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border);
+                eventList[i].Data.EventData.YPosition = (uint)Mathf.Clamp(eventList[i].Data.EventData.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border);
 
                 // No link
                 if (eventList[i].Data.LinkIndex == i)
@@ -278,7 +266,6 @@ namespace R1Engine
         public void ChangeEventsVisibility(object o, EventArgs e) {
             if (Controller.obj.levelController.currentLevel != null) {
                 foreach (var eve in Controller.obj.levelController.Events) {
-                    eve.RefreshVisuals();
                     if (editor.currentMode == Editor.EditMode.Links)
                         eve.ChangeLinksVisibility(true);
                 }
@@ -377,8 +364,8 @@ namespace R1Engine
                             ViewModel.SelectedEvent = e;
                             //Change event info if event is selected
                             infoName.text = ViewModel.DisplayName;
-                            infoAnimIndex.text = ViewModel.SelectedEvent.AnimationIndex.ToString();
-                            infoLayer.text = ViewModel.SelectedEvent.Data.Layer.ToString();
+                            infoAnimIndex.text = ViewModel.SelectedEvent.Data.EventData.RuntimeCurrentAnimIndex.ToString();
+                            infoLayer.text = ViewModel.SelectedEvent.Data.EventData.Layer.ToString();
                             //Clear old commands
                             ClearCommands();
                             //Fill out the commands
@@ -491,56 +478,22 @@ namespace R1Engine
                 var commonEvent = Controller.obj.levelController.Events[i];
                 var memEvent = mem.Events[i];
 
-                commonEvent.ForceMirror = memEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.DetectZone);
+                //commonEvent.CurrentEtat = memEvent.RuntimeEtat;
+                //commonEvent.CurrentSubEtat = memEvent.RuntimeSubEtat;
 
-                commonEvent.CurrentEtat = memEvent.RuntimeEtat;
-                commonEvent.CurrentSubEtat = memEvent.RuntimeSubEtat;
+                //if (commonEvent.AnimationIndex != memEvent.RuntimeCurrentAnimIndex)
+                //    commonEvent.ChangeAnimation(memEvent.RuntimeCurrentAnimIndex);
 
-                if (commonEvent.AnimationIndex != memEvent.RuntimeCurrentAnimIndex)
-                    commonEvent.ChangeAnimation(memEvent.RuntimeCurrentAnimIndex);
+                //commonEvent.CurrentFrame = memEvent.RuntimeCurrentAnimFrame;
+                //commonEvent.UniqueLayer = memEvent.RuntimeCurrentAnimFrame;
 
-                commonEvent.CurrentFrame = memEvent.RuntimeCurrentAnimFrame;
-                commonEvent.UniqueLayer = memEvent.RuntimeCurrentAnimFrame;
+                //commonEvent.Data.XPosition = memEvent.XPosition;
+                //commonEvent.Data.YPosition = memEvent.YPosition;
+                
+                //commonEvent.Data.DebugText = $"Flags: {Convert.ToString((int)memEvent.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
 
-                commonEvent.Data.XPosition = memEvent.XPosition;
-                commonEvent.Data.YPosition = memEvent.YPosition;
-
-                if (memEvent.Type != EventType.TYPE_RAY_POS)
-                    commonEvent.Data.DebugText = $"Flags: {Convert.ToString((int)memEvent.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
-
-                if (!memEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn))
-                {
-                    commonEvent.Data.XPosition = UInt32.MaxValue;
-                    commonEvent.Data.YPosition = UInt32.MaxValue;
-                }
-
-                commonEvent.UpdateXAndY();
+                //commonEvent.UpdateXAndY();
             }
-
-            // TODO: Clean this up - we should add a special event as Rayman's event which is always loaded instead of editing TYPE_RAY_POS (which is not in all levels). For this we need to hard-code the data for Rayman, such as the graphics pointers etc. (since that's what the game does).
-            var commonRayEvent = Controller.obj.levelController.Events.First(x => x.Data.Type.Equals(EventType.TYPE_RAY_POS));
-
-            commonRayEvent.ForceMirror = mem.RayEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.DetectZone);
-
-            commonRayEvent.CurrentEtat = mem.RayEvent.RuntimeEtat;
-            commonRayEvent.CurrentSubEtat = mem.RayEvent.RuntimeSubEtat;
-
-            if (commonRayEvent.AnimationIndex != mem.RayEvent.RuntimeCurrentAnimIndex)
-                commonRayEvent.ChangeAnimation(mem.RayEvent.RuntimeCurrentAnimIndex);
-
-            commonRayEvent.CurrentFrame = mem.RayEvent.RuntimeCurrentAnimFrame;
-            commonRayEvent.Data.XPosition = mem.RayEvent.XPosition;
-            commonRayEvent.Data.YPosition = mem.RayEvent.YPosition;
-
-            if (!mem.RayEvent.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn))
-            {
-                commonRayEvent.Data.XPosition = UInt32.MaxValue;
-                commonRayEvent.Data.YPosition = UInt32.MaxValue;
-            }
-
-            commonRayEvent.UpdateXAndY();
-
-            commonRayEvent.Data.DebugText = $"Flags: {Convert.ToString((int)mem.RayEvent.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
         }
 
         private void LateUpdate() {
@@ -649,10 +602,10 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(Common_EventData eventData)
+        public Common_Event AddEvent(Editor_EventData eventData)
         {
             // Instantiate prefab
-            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.XPosition / 16f, -(eventData .YPosition / 16f), eventData.Layer), Quaternion.identity).GetComponent<Common_Event>();
+            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.EventData.XPosition / 16f, -(eventData.EventData.YPosition / 16f), eventData.EventData.Layer), Quaternion.identity).GetComponent<Common_Event>();
 
             newEvent.Data = eventData;
 

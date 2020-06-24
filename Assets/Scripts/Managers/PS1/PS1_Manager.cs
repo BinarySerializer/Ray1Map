@@ -244,7 +244,7 @@ namespace R1Engine
 
             var eventDesigns = new Dictionary<Pointer, Common_Design>();
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
-            var commonEvents = new List<Common_EventData>();
+            var commonEvents = new List<Editor_EventData>();
 
             // Only load the v-ram if we're loading textures
             if (loadTextures)
@@ -317,23 +317,11 @@ namespace R1Engine
                     eventETA.Add(e.ETAPointer, e.ETA.EventStates);
 
                 // Add the event
-                commonEvents.Add(new Common_EventData
+                commonEvents.Add(new Editor_EventData(e)
                 {
                     Type = e.Type,
-                    Etat = e.Etat,
-                    SubEtat = e.SubEtat,
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
                     DESKey = e.ImageDescriptorsPointer?.ToString() ?? String.Empty,
                     ETAKey = e.ETAPointer?.ToString() ?? String.Empty,
-                    OffsetBX = e.OffsetBX,
-                    OffsetBY = e.OffsetBY,
-                    OffsetHY = e.OffsetHY,
-                    FollowSprite = e.FollowSprite,
-                    HitPoints = e.HitPoints,
-                    Layer = e.Layer,
-                    HitSprite = e.HitSprite,
-                    FollowEnabled = e.GetFollowEnabled(context.Settings),
                     LabelOffsets = e.LabelOffsets,
                     CommandCollection = e.Commands,
                     LinkIndex = eventLinkingTable[index]
@@ -362,7 +350,7 @@ namespace R1Engine
                 },
 
                 // Create the events list
-                EventData = new List<Common_EventData>(),
+                EventData = new List<Editor_EventData>(),
 
             };
             c.Maps[0].TileSet[0] = tileSet;

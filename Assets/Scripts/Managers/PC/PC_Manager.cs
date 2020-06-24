@@ -1377,7 +1377,7 @@ namespace R1Engine
                 },
 
                 // Create the events list
-                EventData = new List<Common_EventData>(),
+                EventData = new List<Editor_EventData>(),
             };
 
             // Load the sprites
@@ -1400,23 +1400,11 @@ namespace R1Engine
                 var etaKey = etaNames.Any() ? etaNames[e.PC_ETAIndex] : e.PC_ETAIndex.ToString();
 
                 // Add the event
-                commonLev.EventData.Add(new Common_EventData
+                commonLev.EventData.Add(new Editor_EventData(e)
                 {
                     Type = e.Type,
-                    Etat = e.Etat,
-                    SubEtat = e.SubEtat,
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
                     DESKey = desKey,
                     ETAKey = etaKey,
-                    OffsetBX = e.OffsetBX,
-                    OffsetBY = e.OffsetBY,
-                    OffsetHY = e.OffsetHY,
-                    FollowSprite = e.FollowSprite,
-                    HitPoints = e.HitPoints,
-                    Layer = e.Layer,
-                    HitSprite = e.HitSprite,
-                    FollowEnabled = e.GetFollowEnabled(context.Settings),
                     LabelOffsets = levelData.EventData.EventCommands[index].LabelOffsetTable,
                     CommandCollection = levelData.EventData.EventCommands[index].Commands,
                     LinkIndex = levelData.EventData.EventLinkingTable[index],
@@ -1602,41 +1590,21 @@ namespace R1Engine
                 var desIndex = desNames.Any() ? (uint)desNames.FindItemIndex(x => x == e.DESKey) : UInt32.Parse(e.DESKey);
                 var etaIndex = etaNames.Any() ? (uint)etaNames.FindItemIndex(x => x == e.ETAKey) : UInt32.Parse(e.ETAKey);
 
-                // Create the event
-                var r1Event = new EventData
-                {
-                    PC_ImageDescriptorsIndex = desIndex,
-                    PC_AnimationDescriptorsIndex = desIndex,
-                    PC_ImageBufferIndex = desIndex,
-                    PC_ETAIndex = etaIndex,
+                var r1Event = e.EventData;
 
-                    PS1Demo_Unk1 = new byte[40],
+                if (r1Event.PS1Demo_Unk1 == null)
+                    r1Event.PS1Demo_Unk1 = new byte[40];
 
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
+                if (r1Event.Unk_98 == null)
+                    r1Event.Unk_98 = new byte[5];
 
-                    ImageDescriptorCount = (ushort)editorManager.DES[e.DESKey].Sprites.Count,
+                r1Event.PC_ImageDescriptorsIndex = desIndex;
+                r1Event.PC_AnimationDescriptorsIndex = desIndex;
+                r1Event.PC_ImageBufferIndex = desIndex;
+                r1Event.PC_ETAIndex = etaIndex;
 
-                    Unk_98 = new byte[5],
-
-                    Type = (EventType)e.Type,
-                    OffsetBX = (byte)e.OffsetBX,
-                    OffsetBY = (byte)e.OffsetBY,
-
-                    SubEtat = (byte)e.SubEtat,
-                    Etat = (byte)e.Etat,
-
-                    OffsetHY = (byte)e.OffsetHY,
-                    FollowSprite = (byte)e.FollowSprite,
-                    HitPoints = (byte)e.HitPoints,
-
-                    Layer = (byte)e.Layer,
-                    HitSprite = (byte)e.HitSprite,
-
-                    AnimDescriptorCount = (byte)editorManager.DES[e.DESKey].Animations.Count,
-                };
-
-                r1Event.SetFollowEnabled(context.Settings, e.FollowEnabled);
+                r1Event.ImageDescriptorCount = (ushort)editorManager.DES[e.DESKey].Sprites.Count;
+                r1Event.AnimDescriptorCount = (byte)editorManager.DES[e.DESKey].Animations.Count;
 
                 // Add the event
                 events.Add(r1Event);

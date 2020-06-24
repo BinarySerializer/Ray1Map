@@ -19,7 +19,7 @@ namespace R1Engine {
             if (root == null) root = GameObject.Find("Events").transform;
             name = $"{root.childCount} | {ev.Data.Type}";
             transform.parent = root;
-            transform.position = new Vector3(ev.Data.XPosition, ev.Data.YPosition) + Vector3.forward * 5;
+            transform.position = new Vector3(ev.Data.EventData.XPosition, ev.Data.EventData.YPosition) + Vector3.forward * 5;
         }
     }
 }

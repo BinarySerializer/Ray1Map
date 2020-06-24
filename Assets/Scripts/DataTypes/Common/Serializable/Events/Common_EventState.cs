@@ -47,6 +47,8 @@
 
         public byte UnkDemo4 { get; set; }
 
+        public byte Unk { get; set; }
+
         /// <summary>
         /// The amount of frames to skip in the animation each second, or 0 for it to not animate
         /// </summary>
@@ -109,6 +111,7 @@
                 if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                     UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
 
+                // TODO: Shift this accordingly, on all non-Saturn platforms the first 4 bits are another value! Anim speed is only 4 bits
                 AnimationSpeed = s.Serialize<byte>(AnimationSpeed, name: nameof(AnimationSpeed));
 
                 if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)

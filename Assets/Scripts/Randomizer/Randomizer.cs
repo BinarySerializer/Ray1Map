@@ -22,7 +22,7 @@ namespace R1Engine
             var maxY = editorManager.Level.Maps[map].Height * 16;
 
             // Enumerate every event
-            foreach (Common_EventData eventData in editorManager.Level.EventData
+            foreach (Editor_EventData eventData in editorManager.Level.EventData
                 .Select(eventData => new
                 {
                     eventData, 
@@ -36,8 +36,8 @@ namespace R1Engine
             {
                 if (flags.HasFlag(RandomizerFlags.Pos))
                 {
-                    eventData.XPosition = (uint)random.Next(0, maxX);
-                    eventData.YPosition = (uint)random.Next(0, maxY);
+                    eventData.EventData.XPosition = (uint)random.Next(0, maxX);
+                    eventData.EventData.YPosition = (uint)random.Next(0, maxY);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Des))
@@ -62,14 +62,14 @@ namespace R1Engine
 
                 if (flags.HasFlag(RandomizerFlags.Follow))
                 {
-                    eventData.FollowEnabled = random.Next(0, 1) == 1;
-                    eventData.OffsetHY = random.Next(0, 10);
+                    eventData.EventData.SetFollowEnabled(editorManager.Settings, random.Next(0, 1) == 1);
+                    eventData.EventData.OffsetHY = (byte)random.Next(0, 10);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.States))
                 {
-                    eventData.Etat = random.Next(0, editorManager.ETA[eventData.ETAKey].Length - 1);
-                    eventData.SubEtat = random.Next(0, editorManager.ETA[eventData.ETAKey][eventData.Etat].Length - 1);
+                    eventData.EventData.Etat = (byte)random.Next(0, editorManager.ETA[eventData.ETAKey].Length - 1);
+                    eventData.EventData.SubEtat = (byte)random.Next(0, editorManager.ETA[eventData.ETAKey][eventData.EventData.Etat].Length - 1);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Type))

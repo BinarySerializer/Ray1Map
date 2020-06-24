@@ -710,7 +710,7 @@ namespace R1Engine
             }
         }
 
-        public Common_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<Pointer, Common_Design> eventDesigns, Dictionary<Pointer, Common_EventState[][]> eventETA, bool loadTextures) 
+        public Editor_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<Pointer, Common_Design> eventDesigns, Dictionary<Pointer, Common_EventState[][]> eventETA, bool loadTextures) 
         {
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, c);
             int? predeterminedState = null;
@@ -882,27 +882,16 @@ namespace R1Engine
             }
 
             // Add the event
-            return new Common_EventData {
-                Etat = stateIndex,
-                SubEtat = substateIndex,
-
+            return new Editor_EventData(new EventData()
+            {
+                Etat = (byte)stateIndex,
+                SubEtat = (byte)substateIndex,
+            })
+            {
                 DESKey = ed.Offset?.ToString() ?? String.Empty,
                 ETAKey = etatKey?.ToString() ?? String.Empty,
 
-                // These are not available on Jaguar
                 Type = EventType.TYPE_BADGUY1,
-                OffsetBX = 0,
-                OffsetBY = 0,
-                OffsetHY = 0,
-                FollowSprite = 0,
-                HitPoints = 0,
-                Layer = 0,
-                MapLayer = null,
-                HitSprite = 0,
-                FollowEnabled = false,
-                FlipHorizontally = false,
-                LabelOffsets = new ushort[0],
-                CommandCollection = null
             };
         }
 
@@ -942,7 +931,7 @@ namespace R1Engine
                 },
 
                 // Create the events list
-                EventData = new List<Common_EventData>(),
+                EventData = new List<Editor_EventData>(),
             };
 
             Controller.status = $"Loading tile set";
@@ -963,7 +952,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load events
-            Dictionary<int, Common_EventData> uniqueEvents = new Dictionary<int, Common_EventData>();
+            Dictionary<int, Editor_EventData> uniqueEvents = new Dictionary<int, Editor_EventData>();
 
             // Load special events so we can display them
             var rayPos = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000000), eventDesigns, eventETA, loadTextures); // Rayman position
@@ -995,7 +984,7 @@ namespace R1Engine
                     
                     if (uniqueEvents.ContainsKey(e.EventIndex)) {
 
-                        if (uniqueEvents[e.EventIndex].XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].YPosition != (uint)(mapY + e.OffsetY))
+                        if (uniqueEvents[e.EventIndex].EventData.XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].EventData.YPosition != (uint)(mapY + e.OffsetY))
                             Debug.LogWarning("An event with an existing index which was removed has a different map position");
 
                         continue; // Duplicate
@@ -1043,8 +1032,8 @@ namespace R1Engine
                     var eventData = CreateEventData(context, ed, eventDesigns, eventETA, loadTextures); ;
                     uniqueEvents[e.EventIndex] = eventData;
                     eventData.LinkIndex = linkIndex;
-                    eventData.XPosition = (uint)(mapX + e.OffsetX);
-                    eventData.YPosition = (uint)(mapY + e.OffsetY);
+                    eventData.EventData.XPosition = (uint)(mapX + e.OffsetX);
+                    eventData.EventData.YPosition = (uint)(mapY + e.OffsetY);
                     eventData.DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
                                           $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
                                           $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
@@ -1061,13 +1050,13 @@ namespace R1Engine
                         {
                             eventData.DESKey = rayPos.DESKey;
                             eventData.ETAKey = rayPos.ETAKey;
-                            eventData.SubEtat = 7;
+                            eventData.EventData.SubEtat = 7;
                         }
                         else if (ed.Offset.FileOffset == 0x00000CD0) // Gendoor
                         {
                             eventData.DESKey = gendoor.DESKey;
                             eventData.ETAKey = gendoor.ETAKey;
-                            eventData.SubEtat = 2;
+                            eventData.EventData.SubEtat = 2;
                         }
                         else if (ed.Offset.FileOffset == 0x000012C0) // Piranha
                         {
@@ -1078,7 +1067,7 @@ namespace R1Engine
                         {
                             eventData.DESKey = scroll.DESKey;
                             eventData.ETAKey = scroll.ETAKey;
-                            eventData.Etat = 2;
+                            eventData.EventData.Etat = 2;
                         }
                         else if (ed.Offset.FileOffset == 0x00002760 && context.Settings.World == World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
