@@ -275,14 +275,14 @@ namespace R1Engine
         {
             if (!hasLoaded)
                 return;
-
+            bool makingChanges = false;
             if (Settings.LoadFromMemory)
             {
                 memoryLoadTimer += Time.deltaTime;
                 if (memoryLoadTimer > 1.0f / 60.0f)
                 {
-                    UpdateFromMemory();
-                    memoryLoadTimer = 0.0f;
+                    makingChanges = UpdateFromMemory();
+                    if(!makingChanges) memoryLoadTimer = 0.0f;
                 }
             }
             else
@@ -290,7 +290,7 @@ namespace R1Engine
                 GameMemoryContext?.Dispose();
                 GameMemoryContext = null;
             }
-
+            if (makingChanges) return;
             // Only do this if in event/link mode
             bool modeEvents = editor.currentMode == Editor.EditMode.Events;
             bool modeLinks = editor.currentMode == Editor.EditMode.Links;
@@ -422,8 +422,9 @@ namespace R1Engine
         public Pointer EventArrayOffset { get; set; }
         public Pointer RayEventOffset { get; set; }
 
-        public void UpdateFromMemory()
+        public bool UpdateFromMemory()
         {
+            bool madeEdits = false;
             // TODO: Dispose when we stop program?
             if (GameMemoryContext == null)
             {
@@ -469,7 +470,7 @@ namespace R1Engine
                                    $"Unk_70: {ed.EventData.RuntimeCMDOffset}{Environment.NewLine}" +
                                    $"Unk_112: {ed.EventData.Unk_112}{Environment.NewLine}" +
                                    $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
-
+                    if (s is BinarySerializer) madeEdits = true;
                     ed.HasPendingEdits = false;
                     currentOffset = s.CurrentPointer;
                 }
@@ -479,9 +480,10 @@ namespace R1Engine
                 s.Goto(currentOffset);
                 ray.EventData.Init(s.CurrentPointer);
                 ray.EventData.Serialize(s);
-
+                if (s is BinarySerializer) madeEdits = true;
                 ray.HasPendingEdits = false;
             }
+            return madeEdits;
         }
 
         private void LateUpdate() {
