@@ -351,7 +351,7 @@ namespace R1Engine
                         //Update offset visibility
                         ViewModel.SelectedEvent.ChangeOffsetVisibility(true);
                         //Change the link
-                        if (modeLinks) {
+                        if (modeLinks && ViewModel.SelectedEvent != Controller.obj.levelController.RaymanEvent) {
                             ViewModel.SelectedEvent.LinkID = 0;
                             ViewModel.SelectedEvent.ChangeLinksVisibility(true);
                         }
@@ -376,7 +376,7 @@ namespace R1Engine
                             ViewModel.YPosition = (uint)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), 0, UInt32.MaxValue);
                         }
                         //Else move links
-                        if (modeLinks) {
+                        if (modeLinks && ViewModel.SelectedEvent != Controller.obj.levelController.RaymanEvent) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             ViewModel.SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
                         }
