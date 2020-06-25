@@ -32,6 +32,7 @@ namespace R1Engine {
 
         public byte? PrevAnimIndex { get; set; }
         public float EditorAnimFrame { get; set; }
+        public float UpdateTimer { get; set; }
         public int UniqueLayer { get; set; }
 
         #endregion
@@ -124,6 +125,7 @@ namespace R1Engine {
 
         // TODO: Changing the state doesn't change the animation until it's done playing
         // TODO: Get rid of view model class since we barely need to update now
+        // TODO: Editing type should set the type in both places if possible
 
         void Update()
         {
@@ -131,12 +133,20 @@ namespace R1Engine {
             if (!Controller.obj.levelEventController.hasLoaded)
                 return;
 
+            UpdateTimer += Time.deltaTime;
+            
+            // Only update 60 frames per second, as that's the framerate for the game
+            if (!(UpdateTimer > 1.0f / 60.0f))
+                return;
+
+            UpdateTimer = 0.0f;
+
             // Update frame and states
             if (CurrentAnimation != null && !Settings.LoadFromMemory) 
             {
                 // Increment frame if animating
                 if (Settings.AnimateSprites && AnimSpeed > 0)
-                    EditorAnimFrame += (60f / AnimSpeed) * Time.deltaTime;
+                    EditorAnimFrame += (60f / AnimSpeed) / 60f;
 
                 // Update the frame
                 Data.EventData.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
