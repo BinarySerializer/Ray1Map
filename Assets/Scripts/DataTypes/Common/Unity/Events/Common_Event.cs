@@ -125,7 +125,7 @@ namespace R1Engine {
             {
                 // Increment frame if animating
                 if (Settings.AnimateSprites && AnimSpeed > 0)
-                    EditorAnimFrame += (60f / AnimSpeed) / 60f;
+                    EditorAnimFrame += (60f / AnimSpeed) * Time.deltaTime;
 
                 // Update the frame
                 Data.EventData.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
