@@ -460,26 +460,27 @@ namespace R1Engine
                 foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
                 {
                     s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                    s.DoAt(currentOffset, () => {
-                        ed.EventData.Init(s.CurrentPointer);
-                        ed.EventData.Serialize(s);
-                        ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
-                                        $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
-                                        $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
+                    s.Goto(currentOffset);
+                    ed.EventData.Init(s.CurrentPointer);
+                    ed.EventData.Serialize(s);
+                    ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
+                                   $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
+                                   $"Unk_48: {ed.EventData.Unk_48}{Environment.NewLine}" +
+                                   $"Unk_70: {ed.EventData.Unk_70}{Environment.NewLine}" +
+                                   $"Unk_112: {ed.EventData.Unk_112}{Environment.NewLine}" +
+                                   $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
 
-                        ed.HasPendingEdits = false;
-                        currentOffset = s.CurrentPointer;
-                    });
+                    ed.HasPendingEdits = false;
+                    currentOffset = s.CurrentPointer;
                 }
                 currentOffset = RayEventOffset;
                 var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
                 s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                s.DoAt(currentOffset, () => {
-                    ray.EventData.Init(s.CurrentPointer);
-                    ray.EventData.Serialize(s);
+                s.Goto(currentOffset);
+                ray.EventData.Init(s.CurrentPointer);
+                ray.EventData.Serialize(s);
 
-                    ray.HasPendingEdits = false;
-                });
+                ray.HasPendingEdits = false;
             }
         }
 
