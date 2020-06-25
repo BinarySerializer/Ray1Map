@@ -107,19 +107,6 @@ namespace R1Engine {
             if (!Controller.obj.levelEventController.hasLoaded)
                 return;
 
-            UpdateTimer += Time.deltaTime;
-            
-            // Only update 60 frames per second, as that's the framerate for the game
-            if (!(UpdateTimer > 1.0f / 60.0f))
-                return;
-
-            UpdateTimer = 0.0f;
-
-            if (Settings.LoadFromMemory)
-            {
-
-            }
-
             // Update frame and states
             if (CurrentAnimation != null && !Settings.LoadFromMemory) 
             {
@@ -157,6 +144,14 @@ namespace R1Engine {
                     }
                 }
             }
+
+            UpdateTimer += Time.deltaTime;
+
+            // Only update 60 frames per second, as that's the framerate for the game
+            if (!(UpdateTimer > 1.0f / 60.0f))
+                return;
+
+            UpdateTimer = 0.0f;
 
             // Update the animation index if not loading from memory
             if (!Settings.LoadFromMemory)
