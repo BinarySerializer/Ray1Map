@@ -455,12 +455,13 @@ namespace R1Engine
 
             if (GameMemoryContext != null)
             {
-
+                Pointer lastOffset = EventArrayOffset;
                 GameMemoryContext.Deserializer.DoAt(EventArrayOffset, () =>
                 {
                     foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
                     {
                         SerializerObject s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+                        if (s.CurrentPointer == null) s.Goto(lastOffset);
                         ed.EventData.Init(s.CurrentPointer);
                         ed.EventData.Serialize(s);
                         ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
@@ -468,6 +469,7 @@ namespace R1Engine
                                        $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
 
                         ed.HasPendingEdits = false;
+                        lastOffset = s.CurrentPointer;
                     }
                 });
 
