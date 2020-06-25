@@ -111,8 +111,30 @@
                 if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                     UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
 
-                // TODO: Shift this accordingly, on all non-Saturn platforms the first 4 bits are another value! Anim speed is only 4 bits
-                AnimationSpeed = s.Serialize<byte>(AnimationSpeed, name: nameof(AnimationSpeed));
+                if (s.GameSettings.EngineVersion == EngineVersion.RaySaturn)
+                {
+                    byte value = 0;
+
+                    value = (byte)BitHelpers.SetBits(value, Unk, 4, 0);
+                    value = (byte)BitHelpers.SetBits(value, AnimationSpeed, 4, 4);
+
+                    value = s.Serialize<byte>(value, name: nameof(value));
+
+                    Unk = (byte)BitHelpers.ExtractBits(value, 4, 0);
+                    AnimationSpeed = (byte)BitHelpers.ExtractBits(value, 4, 4);
+                }
+                else
+                {
+                    byte value = 0;
+
+                    value = (byte)BitHelpers.SetBits(value, AnimationSpeed, 4, 0);
+                    value = (byte)BitHelpers.SetBits(value, Unk, 4, 4);
+
+                    value = s.Serialize<byte>(value, name: nameof(value));
+
+                    AnimationSpeed = (byte)BitHelpers.ExtractBits(value, 4, 0);
+                    Unk = (byte)BitHelpers.ExtractBits(value, 4, 4);
+                }
 
                 if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3)
                 {

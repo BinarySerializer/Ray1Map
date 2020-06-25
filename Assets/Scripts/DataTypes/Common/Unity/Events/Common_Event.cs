@@ -16,24 +16,13 @@ namespace R1Engine {
         public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
         public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.EventData.RuntimeEtat)?.ElementAtOrDefault(Data.EventData.RuntimeSubEtat);
         public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.EventData.RuntimeCurrentAnimIndex);
-
-        public int AnimSpeed
-        {
-            get
-            {
-                if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON))
-                    return 0;
-
-                return (Controller.CurrentSettings.EngineVersion == EngineVersion.RaySaturn
-                    ? State?.AnimationSpeed >> 4
-                    : State?.AnimationSpeed) ?? 0;
-            }
-        }
+        public int AnimSpeed => Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON) ? 0 : State?.AnimationSpeed ?? 0;
 
         public byte? PrevAnimIndex { get; set; }
         public float EditorAnimFrame { get; set; }
         public float UpdateTimer { get; set; }
         public int UniqueLayer { get; set; }
+        public int LinkID { get; set; }
 
         #endregion
 
@@ -72,12 +61,6 @@ namespace R1Engine {
         public void RefreshName() => DisplayName = name = EditorManager.GetDisplayName(Data) ?? $"Unknown type {Data.Type}";
 
         #endregion
-
-        /// <summary>
-        /// The link ID used by the editor
-        /// </summary>
-        public int LinkID;
-
 
         public float Scale = 1f;
 
