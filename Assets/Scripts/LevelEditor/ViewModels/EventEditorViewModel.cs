@@ -78,6 +78,7 @@ namespace R1Engine
                 if (XPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.EventData.XPosition)
                 {
                     SelectedEvent.Data.EventData.XPosition = XPosition.Value;
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -97,6 +98,7 @@ namespace R1Engine
                 if (YPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.EventData.YPosition)
                 {
                     SelectedEvent.Data.EventData.YPosition = YPosition.Value;
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();

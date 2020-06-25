@@ -67,6 +67,8 @@ namespace R1Engine
         /// </summary>
         public string DebugText { get; set; }
 
+        public bool HasPendingEdits { get; set; }
+
         #endregion
 
         #region Public Methods
