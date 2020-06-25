@@ -461,7 +461,7 @@ namespace R1Engine
                     foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
                     {
                         SerializerObject s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                        if (s.CurrentPointer == null) s.Goto(lastOffset);
+                        s.Goto(lastOffset);
                         ed.EventData.Init(s.CurrentPointer);
                         ed.EventData.Serialize(s);
                         ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
