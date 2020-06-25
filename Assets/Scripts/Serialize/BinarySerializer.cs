@@ -295,8 +295,7 @@ namespace R1Engine
 
         public void Dispose() {
             foreach (KeyValuePair <BinaryFile, Writer> w in writers) {
-                w.Key.EndWrite(w.Value.BaseStream);
-                ((IDisposable)w.Value).Dispose();
+                w.Key.EndWrite(w.Value);
             }
             writers.Clear();
             writer = null;
@@ -305,8 +304,7 @@ namespace R1Engine
         public void DisposeFile(BinaryFile file) {
             if (writers.ContainsKey(file)) {
                 Writer w = writers[file];
-                file.EndWrite(w.BaseStream);
-                ((IDisposable)w).Dispose();
+                file.EndWrite(w);
                 writers.Remove(file);
             }
         }

@@ -431,7 +431,7 @@ namespace R1Engine
 
                 try
                 {
-                    var file = new ProcessMemoryStreamFile("MemStream", new ProcessMemoryStream("DOSBox.exe", ProcessMemoryStream.Mode.AllAccess), GameMemoryContext);
+                    var file = new ProcessMemoryStreamFile("MemStream", "DOSBox.exe", GameMemoryContext);
 
                     // TODO: Do not hard-code the process name
                     GameMemoryContext.AddFile(file);
@@ -455,15 +455,14 @@ namespace R1Engine
 
             if (GameMemoryContext != null)
             {
-                var s = GameMemoryContext.Deserializer;
-                var w = GameMemoryContext.Serializer;
 
-                s.DoAt(EventArrayOffset, () =>
+                GameMemoryContext.Deserializer.DoAt(EventArrayOffset, () =>
                 {
                     foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
                     {
+                        SerializerObject s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
                         ed.EventData.Init(s.CurrentPointer);
-                        ed.EventData.Serialize(ed.HasPendingEdits ? (SerializerObject)w : s);
+                        ed.EventData.Serialize(s);
                         ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
                                        $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
                                        $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
@@ -472,8 +471,9 @@ namespace R1Engine
                     }
                 });
 
-                s.DoAt(RayEventOffset, () =>
+                GameMemoryContext.Deserializer.DoAt(RayEventOffset, () =>
                 {
+                    SerializerObject s = GameMemoryContext.Deserializer;
                     var ray = Controller.obj.levelController.EditorManager.Level.Rayman.EventData;
                     ray.Init(s.CurrentPointer);
                     ray.Serialize(s);

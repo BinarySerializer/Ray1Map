@@ -1,20 +1,36 @@
 ﻿namespace R1Engine.Serialize
 {
-    public class ProcessMemoryStreamFile : StreamFile
-    {
-        public ProcessMemoryStreamFile(string name, ProcessMemoryStream stream, Context context) : base(name, stream, context)
-        { }
+    public class ProcessMemoryStreamFile : BinaryFile {
+		private string filename; // Keep filename so we can reopen stream later
+		private ProcessMemoryStream stream;
+
+		public ProcessMemoryStreamFile(string name, string filename, Context context) : base(context) {
+			this.filename = filename;
+			filePath = name;
+			stream = null;
+        }
 
         public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
+		public override Reader CreateReader() {
+			if(stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
+			Reader reader = new Reader(new NonClosingStreamWrapper(stream), isLittleEndian: Endianness == Endian.Little);
+			return reader;
+		}
 
-        public override Pointer GetPointer(uint serializedValue, Pointer anchor = null)
-        {
-            uint anchorOffset = anchor?.AbsoluteOffset ?? 0;
+		public override Writer CreateWriter() {
+			if (stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
+			Writer writer = new Writer(new NonClosingStreamWrapper(stream), isLittleEndian: Endianness == Endian.Little);
+			return writer;
+		}
 
-            //if (serializedValue + anchorOffset >= baseAddress && serializedValue + anchorOffset < baseAddress + length)
-                return new Pointer(serializedValue, this, anchor: anchor);
+		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
+			return new Pointer(serializedValue, this, anchor: anchor);
+		}
 
-            //return null;
-        }
-    }
+		public override void Dispose() {
+			stream?.Dispose();
+			stream = null;
+			base.Dispose();
+		}
+	}
 }

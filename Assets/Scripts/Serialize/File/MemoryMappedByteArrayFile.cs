@@ -34,9 +34,8 @@ namespace R1Engine.Serialize
             return writer;
         }
 
-        public override void EndRead(Stream readStream) {
-            base.EndRead(readStream);
-            readStream.Close();
+        public override void EndRead(Reader reader) {
+            base.EndRead(reader);
         }
 
         public void WriteBytes(uint position, byte[] source) {

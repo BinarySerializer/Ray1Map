@@ -47,6 +47,7 @@ namespace R1Engine.Serialize {
 			MemoryMap.Files.Remove(file);
 			deserializer?.DisposeFile(file);
 			serializer?.DisposeFile(file);
+			file?.Dispose();
 		}
 		public Pointer<T> FilePointer<T>(string relativePath) where T : R1Serializable, new() {
 			Pointer p = FilePointer(relativePath);
@@ -117,6 +118,9 @@ namespace R1Engine.Serialize {
 			deserializer = null;
 			serializer?.Dispose();
 			serializer = null;
+			foreach (var file in MemoryMap.Files) {
+				file?.Dispose();
+			}
 			Log.WriteLog();
 		}
 

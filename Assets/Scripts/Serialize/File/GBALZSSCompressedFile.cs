@@ -34,10 +34,9 @@ namespace R1Engine.Serialize {
 			return writer;
 		}
 
-		public override void EndWrite(Stream writeStream) {
-			base.EndWrite(writeStream);
-			if (writeStream != null) {
-				CreateBackupFile();
+		public override void EndWrite(Writer writer) {
+            if (writer != null) {
+                CreateBackupFile();
                 throw new NotImplementedException();
                 /*using (Stream s = FileSystem.GetFileWriteStream(AbsolutePath)) {
 					using (GZipStream compressionStream = new GZipStream(s, CompressionMode.Compress)) {
@@ -45,6 +44,7 @@ namespace R1Engine.Serialize {
 					}
 				}*/
             }
+            base.EndWrite(writer);
 		}
 
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {

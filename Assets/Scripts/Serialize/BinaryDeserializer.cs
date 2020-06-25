@@ -348,8 +348,7 @@ namespace R1Engine
 
         public void Dispose() {
             foreach (KeyValuePair<BinaryFile, Reader> r in readers) {
-                r.Key.EndRead(r.Value.BaseStream);
-                ((IDisposable)r.Value).Dispose();
+                r.Key.EndRead(r.Value);
             }
             readers.Clear();
             reader = null;
@@ -358,8 +357,7 @@ namespace R1Engine
         public void DisposeFile(BinaryFile file) {
             if (readers.ContainsKey(file)) {
                 Reader r = readers[file];
-                file.EndRead(r.BaseStream);
-                ((IDisposable)r).Dispose();
+                file.EndRead(r);
                 readers.Remove(file);
             }
         }

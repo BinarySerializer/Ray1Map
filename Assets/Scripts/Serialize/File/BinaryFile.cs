@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace R1Engine.Serialize {
-	public abstract class BinaryFile {
+	public abstract class BinaryFile : IDisposable {
 		public Context Context { get; }
 		public long baseAddress;
 		private Dictionary<uint, Pointer> predefinedPointers = new Dictionary<uint, Pointer>();
@@ -40,8 +40,12 @@ namespace R1Engine.Serialize {
 			return null;
 		}
 
-		public virtual void EndRead(Stream readStream) { }
-		public virtual void EndWrite(Stream writeStream) { }
+		public virtual void EndRead(Reader reader) {
+			((IDisposable)reader).Dispose();
+		}
+		public virtual void EndWrite(Writer writer) {
+			((IDisposable)writer).Dispose();
+		}
 
 		public BinaryFile(Context context) {
 			this.Context = context;
@@ -60,6 +64,8 @@ namespace R1Engine.Serialize {
 				}
 			}
 		}
+
+		public virtual void Dispose() { }
 
 		public Endian Endianness { get; set; } = Endian.Little;
 		public enum Endian {
