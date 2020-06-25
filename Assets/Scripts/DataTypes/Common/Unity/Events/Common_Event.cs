@@ -243,25 +243,21 @@ namespace R1Engine {
                     var isFlippedHor = anim.Frames[frame].Layers[i].IsFlippedHorizontally;
 
                     // Indicate if the sprites should be flipped
-                    prefabRendereds[i].flipX = (isFlippedHor || mirrored) && !(isFlippedHor && mirrored);
+                    prefabRendereds[i].flipX = (isFlippedHor ^ mirrored);
                     prefabRendereds[i].flipY = anim.Frames[frame].Layers[i].IsFlippedVertically;
 
                     // Get the dimensions
                     var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
                     var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
-
-                    int xx;
-
-                    // TODO: This isn't working during memory loading
-                    if (mirrored && !isFlippedHor)
-                        xx = (anim.Frames[frame].FrameData.Width - (anim.Frames[frame].Layers[i].XPosition) - 1) + anim.Frames[frame].FrameData.XPosition * 2 - 2;
-                    else
-                        xx = anim.Frames[frame].Layers[i].XPosition + (anim.Frames[frame].Layers[i].IsFlippedHorizontally ? w : 0);
+                    
+                    var xx = anim.Frames[frame].Layers[i].XPosition + (isFlippedHor ? w : 0);
 
                     var yy = -(anim.Frames[frame].Layers[i].YPosition + (anim.Frames[frame].Layers[i].IsFlippedVertically ? h : 0));
 
                     // scale
-                    Vector2 pos = new Vector2(((xx - pivot.x) * Scale + pivot.x) / 16f, ((yy - pivot.y) * Scale + pivot.y) / 16f);
+                    Vector2 pos = new Vector2(
+                        ((xx - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / 16f,
+                        ((yy - pivot.y) * Scale + pivot.y) / 16f);
 
                     prefabRendereds[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
                     prefabRendereds[i].transform.localScale = Vector3.one * Scale;
