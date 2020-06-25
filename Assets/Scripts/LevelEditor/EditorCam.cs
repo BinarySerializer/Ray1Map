@@ -32,7 +32,7 @@ namespace R1Engine {
 
         void Update() {
 
-            if (Settings.LoadFromMemory && Controller.obj.levelEventController.hasLoaded)
+            if (Settings.LoadFromMemory && Controller.obj.levelEventController.hasLoaded && Settings.FollowRaymanInMemoryMode)
             {
                 var rayman = Controller.obj.levelController.currentLevel.Rayman;
 

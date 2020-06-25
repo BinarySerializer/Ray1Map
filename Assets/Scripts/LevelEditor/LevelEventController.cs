@@ -70,7 +70,7 @@ namespace R1Engine
         #region Field Changed Methods
 
         public void FieldXPosition() => ViewModel.XPosition = uint.TryParse(infoX.text, out var v) ? v : 0;
-        public void FieldYPosition() => ViewModel.XPosition = uint.TryParse(infoY.text, out var v) ? v : 0;
+        public void FieldYPosition() => ViewModel.YPosition = uint.TryParse(infoY.text, out var v) ? v : 0;
         public void FieldDes() => ViewModel.DES = infoDes.options[infoDes.value].text;
         public void FieldEta() => ViewModel.ETA = infoEta.options[infoEta.value].text;
         public void FieldEtat() => ViewModel.Etat = (byte)infoEtat.value;
@@ -85,7 +85,7 @@ namespace R1Engine
         public void FieldType() => ViewModel.Type = (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString());
 
         public void FieldAnimIndex() => throw new NotImplementedException("The animation index can not be updated");
-
+     
         #endregion
 
         public void InitializeEvents() 

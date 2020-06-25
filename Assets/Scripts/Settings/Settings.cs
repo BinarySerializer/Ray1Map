@@ -212,6 +212,8 @@ namespace R1Engine {
 
         public static bool ScreenshotEnumeration { get; set; }
 
+        public static bool FollowRaymanInMemoryMode { get; set; } = true;
+
         /// <summary>
         /// Indicates if .BAK backup files should be created before writing
         /// </summary>
@@ -316,6 +318,7 @@ namespace R1Engine {
             ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
             ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo);
+            FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
 
             Log = s.SerializeBool("Log", Log);
             LogFile = s.SerializeString("LogFile", LogFile);

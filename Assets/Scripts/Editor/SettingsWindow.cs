@@ -168,6 +168,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ScreenshotEnumeration = EditorGUI.Toggle(GetNextRect(ref yPos), "Screenshot enumeration", Settings.ScreenshotEnumeration);
 
+        Settings.FollowRaymanInMemoryMode = EditorGUI.Toggle(GetNextRect(ref yPos), "Follow Rayman in memory mode", Settings.FollowRaymanInMemoryMode);
+
         Rect rect = GetNextRect(ref yPos);
         rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization log"));
         bool log = Settings.Log;

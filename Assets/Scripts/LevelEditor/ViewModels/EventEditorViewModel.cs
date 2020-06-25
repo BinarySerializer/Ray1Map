@@ -95,7 +95,7 @@ namespace R1Engine
 
                 _yPosition = value;
 
-                if (YPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.EventData.YPosition)
+                if (YPosition.HasValue && SelectedEvent != null && YPosition != SelectedEvent.Data.EventData.YPosition)
                 {
                     SelectedEvent.Data.EventData.YPosition = YPosition.Value;
                     SelectedEvent.Data.HasPendingEdits = true;
