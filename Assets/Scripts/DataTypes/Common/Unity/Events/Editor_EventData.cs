@@ -104,10 +104,6 @@ namespace R1Engine
             // Get event flag
             var flag = TypeInfo?.Flag ?? EventFlag.Normal;
 
-            // If it's an editor event, check if it should be shown
-            if (flag == EventFlag.Editor)
-                return Settings.ShowEditorEvents;
-
             // Check runtime flag if loading from memory
             if (Settings.LoadFromMemory)
             {
@@ -118,6 +114,9 @@ namespace R1Engine
             }
             else
             {
+                if (flag == EventFlag.Editor)
+                    return Settings.ShowEditorEvents;
+
                 if (flag == EventFlag.Always)
                     return Settings.ShowAlwaysEvents;
             }

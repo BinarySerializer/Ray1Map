@@ -463,6 +463,9 @@ namespace R1Engine
                     {
                         ed.EventData.Init(s.CurrentPointer);
                         ed.EventData.Serialize(s);
+                        ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
+                                       $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
+                                       $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
                     }
                 });
 
