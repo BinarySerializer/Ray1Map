@@ -92,14 +92,11 @@ namespace R1Engine
         {
             InitializeViewModel();
 
-            // Get the event list
-            var eventList = Controller.obj.levelController.Events;
-
             // Initialize Rayman's animation as they're shared for small and dark Rayman
             ViewModel.EditorManager.InitializeRayAnim();
 
             // Setup events
-            foreach (var e in eventList)
+            foreach (var e in Controller.obj.levelController.GetAllEvents)
                 e.InitialSetup();
 
             // Initialize links
@@ -129,7 +126,7 @@ namespace R1Engine
 
         protected void InitializeViewModel()
         {
-            ViewModel = new EventEditorViewModel(Controller.obj.levelController.Events, Controller.obj.levelController.EditorManager);
+            ViewModel = new EventEditorViewModel(Controller.obj.levelController.EditorManager);
 
             ViewModel.PropertyChanged += (s, e) =>
             {
@@ -265,42 +262,14 @@ namespace R1Engine
 
         public void ChangeEventsVisibility(object o, EventArgs e) {
             if (Controller.obj.levelController.currentLevel != null) {
-                foreach (var eve in Controller.obj.levelController.Events) {
+                foreach (var eve in Controller.obj.levelController.GetAllEvents) {
                     if (editor.currentMode == Editor.EditMode.Links)
                         eve.ChangeLinksVisibility(true);
                 }
             }
         }
 
-        // TODO: Move this to another file
-        public class GameMemoryData
-        {
-            public Pointer EventsPointer { get; set; }
-            public uint EventsCount { get; set; }
-            public EventData[] Events { get; set; }
-
-            public EventData RayEvent { get; set; }
-
-            public void Serialize(SerializerObject s, Pointer basePointer)
-            {
-                if (s.GameSettings.EngineVersion == EngineVersion.RayPC)
-                {
-                    // Get pointers
-                    EventsPointer = s.DoAt(basePointer + 0x16DDF0, () => s.SerializePointer(EventsPointer, anchor: basePointer, name: nameof(EventsPointer)));
-
-                    // Serialize data
-                    EventsCount = s.DoAt(basePointer + 0x16DDF4, () => s.Serialize<uint>(EventsCount, name: nameof(EventsCount)));
-                    Events = s.DoAt(EventsPointer, () => s.SerializeObjectArray<EventData>(Events, EventsCount, name: nameof(Events)));
-                    RayEvent = s.DoAt(basePointer + 0x16F650, () => s.SerializeObject<EventData>(RayEvent, name: nameof(RayEvent)));
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-        }
-
-        float memoryLoadTimer = 0;
+        private float memoryLoadTimer = 0;
 
         private void Update() 
         {
@@ -450,49 +419,59 @@ namespace R1Engine
 
         public Context GameMemoryContext { get; set; }
         public Pointer GameMemoryOffset { get; set; }
+        public Pointer EventArrayOffset { get; set; }
+        public Pointer RayEventOffset { get; set; }
 
         public void UpdateFromMemory()
         {
-            const string memKey = "MemStream";
-
             // TODO: Dispose when we stop program?
             if (GameMemoryContext == null)
             {
                 GameMemoryContext = new Context(Controller.CurrentSettings);
 
-                // TODO: Do not hard-code the process name
-                GameMemoryContext.AddFile(new ProcessMemoryStreamFile(memKey, new ProcessMemoryStream("DOSBox.exe", ProcessMemoryStream.Mode.Read), GameMemoryContext));
+                try
+                {
+                    var file = new ProcessMemoryStreamFile("MemStream", new ProcessMemoryStream("DOSBox.exe", ProcessMemoryStream.Mode.Read), GameMemoryContext);
 
-                // TODO: Do not hard-code game base pointer - have manager get this (it'll differ for different emulator versions too!)
-                var offset = GameMemoryContext.GetFile(memKey).StartPointer;
-                var s = GameMemoryContext.Deserializer;
-                GameMemoryOffset = s.DoAt(offset + 0x01D3A1A0, () => s.SerializePointer(default, name: nameof(GameMemoryOffset)));
+                    // TODO: Do not hard-code the process name
+                    GameMemoryContext.AddFile(file);
+
+                    // TODO: Do not hard-code game base pointer - have manager get this (it'll differ for different emulator versions too!)
+                    var offset = file.StartPointer;
+                    var s = GameMemoryContext.Deserializer;
+
+                    // TODO: Have managers handle this - this is currently hard-coded for PC 1.21
+                    // Get pointers
+                    GameMemoryOffset = s.DoAt(offset + 0x01D3A1A0, () => s.SerializePointer(default, name: nameof(GameMemoryOffset)));
+                    EventArrayOffset = s.DoAt(GameMemoryOffset + 0x16DDF0, () => s.SerializePointer(EventArrayOffset, anchor: GameMemoryOffset, name: nameof(EventArrayOffset)));
+                    RayEventOffset = GameMemoryOffset + 0x16F650;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError(ex.Message);
+                    GameMemoryContext = null;
+                }
             }
 
-            var mem = new GameMemoryData();
-            mem.Serialize(GameMemoryContext.Deserializer, GameMemoryOffset);
-
-            // TODO: Clean up this hacky code - introduce more variables in the common event class OR have the common event directly reference a PC_Event instance
-            for (int i = 0; i < mem.EventsCount; i++)
+            if (GameMemoryContext != null)
             {
-                var commonEvent = Controller.obj.levelController.Events[i];
-                var memEvent = mem.Events[i];
+                var s = GameMemoryContext.Deserializer;
 
-                //commonEvent.CurrentEtat = memEvent.RuntimeEtat;
-                //commonEvent.CurrentSubEtat = memEvent.RuntimeSubEtat;
+                s.DoAt(EventArrayOffset, () =>
+                {
+                    foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
+                    {
+                        ed.EventData.Init(s.CurrentPointer);
+                        ed.EventData.Serialize(s);
+                    }
+                });
 
-                //if (commonEvent.AnimationIndex != memEvent.RuntimeCurrentAnimIndex)
-                //    commonEvent.ChangeAnimation(memEvent.RuntimeCurrentAnimIndex);
-
-                //commonEvent.CurrentFrame = memEvent.RuntimeCurrentAnimFrame;
-                //commonEvent.UniqueLayer = memEvent.RuntimeCurrentAnimFrame;
-
-                //commonEvent.Data.XPosition = memEvent.XPosition;
-                //commonEvent.Data.YPosition = memEvent.YPosition;
-                
-                //commonEvent.Data.DebugText = $"Flags: {Convert.ToString((int)memEvent.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
-
-                //commonEvent.UpdateXAndY();
+                s.DoAt(RayEventOffset, () =>
+                {
+                    var ray = Controller.obj.levelController.EditorManager.Level.Rayman.EventData;
+                    ray.Init(s.CurrentPointer);
+                    ray.Serialize(s);
+                });
             }
         }
 

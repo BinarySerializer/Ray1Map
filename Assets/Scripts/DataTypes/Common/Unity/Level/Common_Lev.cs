@@ -23,6 +23,8 @@ namespace R1Engine
         /// </summary>
         public List<Editor_EventData> EventData { get; set; }
 
+        public Editor_EventData Rayman { get; set; }
+
         #endregion
 
         #region Public Methods

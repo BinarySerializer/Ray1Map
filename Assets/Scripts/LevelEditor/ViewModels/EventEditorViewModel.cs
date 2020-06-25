@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -12,10 +11,9 @@ namespace R1Engine
     {
         #region Constructor
 
-        public EventEditorViewModel(IReadOnlyList<Common_Event> events, BaseEditorManager editorManager)
+        public EventEditorViewModel(BaseEditorManager editorManager)
         {
             // Set properties
-            Events = events;
             EditorManager = editorManager;
         }
 
@@ -42,11 +40,6 @@ namespace R1Engine
         #endregion
 
         #region Public Properties
-
-        /// <summary>
-        /// The available events
-        /// </summary>
-        public IReadOnlyList<Common_Event> Events { get; }
 
         public BaseEditorManager EditorManager { get; }
 

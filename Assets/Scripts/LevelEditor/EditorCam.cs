@@ -34,10 +34,10 @@ namespace R1Engine {
 
             if (Settings.LoadFromMemory && Controller.obj.levelEventController.hasLoaded)
             {
-                var startEvent = Controller.obj.levelController.currentLevel.EventData.FindItem(x => x.Type.Equals(EventType.TYPE_RAY_POS));
+                var rayman = Controller.obj.levelController.currentLevel.Rayman;
 
-                if (startEvent != null)
-                    pos = new Vector3(startEvent.EventData.XPosition / 16f, -(startEvent.EventData.YPosition / 16f));
+                if (rayman != null)
+                    pos = new Vector3(rayman.EventData.XPosition / 16f, -(rayman.EventData.YPosition / 16f));
             }
 
 

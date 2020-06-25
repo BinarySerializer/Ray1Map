@@ -6,15 +6,15 @@ namespace R1Engine {
     /// <summary>
     /// Common event data
     /// </summary>
-    public class Common_Event : MonoBehaviour {
+    public class Common_Event : MonoBehaviour 
+    {
         #region Public Properties
 
         public string DisplayName { get; set; }
-
         public Editor_EventData Data { get; set; }
 
+        public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
         public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.EventData.RuntimeEtat)?.ElementAtOrDefault(Data.EventData.RuntimeSubEtat);
-
         public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.EventData.RuntimeCurrentAnimIndex);
 
         public int AnimSpeed
@@ -34,15 +34,6 @@ namespace R1Engine {
         public float EditorAnimFrame { get; set; }
         public float UpdateTimer { get; set; }
         public int UniqueLayer { get; set; }
-
-        #endregion
-
-        #region Shortcuts
-
-        /// <summary>
-        /// The editor manager
-        /// </summary>
-        public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
 
         #endregion
 
@@ -140,6 +131,11 @@ namespace R1Engine {
                 return;
 
             UpdateTimer = 0.0f;
+
+            if (Settings.LoadFromMemory)
+            {
+
+            }
 
             // Update frame and states
             if (CurrentAnimation != null && !Settings.LoadFromMemory) 
@@ -263,33 +259,33 @@ namespace R1Engine {
 
                 for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
                 {
-                    // Skips sprites out of bounds
+                    // Set the sprite, skipping sprites which are out of bounds
                     prefabRendereds[i].sprite = anim.Frames[frame].Layers[i].ImageIndex >= sprites.Count ? null : sprites[anim.Frames[frame].Layers[i].ImageIndex];
 
-                    prefabRendereds[i].flipX =
-                        (anim.Frames[frame].Layers[i].IsFlippedHorizontally || mirrored) &&
-                        !(anim.Frames[frame].Layers[i].IsFlippedHorizontally && mirrored);
+                    var isFlippedHor = anim.Frames[frame].Layers[i].IsFlippedHorizontally;
+
+                    // Indicate if the sprites should be flipped
+                    prefabRendereds[i].flipX = (isFlippedHor || mirrored) && !(isFlippedHor && mirrored);
                     prefabRendereds[i].flipY = anim.Frames[frame].Layers[i].IsFlippedVertically;
 
+                    // Get the dimensions
                     var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
                     var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
 
-                    var xx = (mirrored
-                                 ? (anim.Frames[0].FrameData.Width -
-                                    (anim.Frames[frame].Layers[i].XPosition) - 1) +
-                                 anim.Frames[0].FrameData.XPosition * 2 - 2
-                                 : anim.Frames[frame].Layers[i].XPosition) +
-                             (anim.Frames[frame].Layers[i].IsFlippedHorizontally ? w : 0);
-                    var yy = -(anim.Frames[frame].Layers[i].YPosition +
-                               (anim.Frames[frame].Layers[i].IsFlippedVertically ? h : 0));
+                    int xx;
+
+                    // TODO: This isn't working during memory loading
+                    if (mirrored && !isFlippedHor)
+                        xx = (anim.Frames[frame].FrameData.Width - (anim.Frames[frame].Layers[i].XPosition) - 1) + anim.Frames[frame].FrameData.XPosition * 2 - 2;
+                    else
+                        xx = anim.Frames[frame].Layers[i].XPosition + (anim.Frames[frame].Layers[i].IsFlippedHorizontally ? w : 0);
+
+                    var yy = -(anim.Frames[frame].Layers[i].YPosition + (anim.Frames[frame].Layers[i].IsFlippedVertically ? h : 0));
 
                     // scale
-                    Vector2 pos = new Vector2(
-                        ((xx - pivot.x) * Scale + pivot.x) / 16f,
-                        ((yy - pivot.y) * Scale + pivot.y) / 16f);
+                    Vector2 pos = new Vector2(((xx - pivot.x) * Scale + pivot.x) / 16f, ((yy - pivot.y) * Scale + pivot.y) / 16f);
 
-                    prefabRendereds[i].transform.localPosition =
-                        new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
+                    prefabRendereds[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
                     prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 
                     // Change visibility if always/editor

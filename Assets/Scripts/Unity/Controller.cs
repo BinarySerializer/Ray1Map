@@ -79,10 +79,10 @@ namespace R1Engine
             stopwatch.Stop();
             loadTimer.Stop();
 
-            var startEvent = levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE));
+            var startEvent = levelController.EditorManager.Level.Rayman?.EventData ?? levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE))?.Data.EventData;
 
             if (startEvent != null)
-                Camera.main.transform.position = new Vector3(startEvent.Data.EventData.XPosition, startEvent.Data.EventData.YPosition, -10f);
+                Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition, -10f);
 
             Debug.Log($"Loaded in {loadTimer.ElapsedMilliseconds}ms");
         }

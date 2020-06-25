@@ -42,7 +42,10 @@
         TYPE_GENEBADGUY = 20,
         TYPE_PHOTOGRAPHE = 21,
         TYPE_MOVE_PLAT = 22,
+
+        [EventTypeInfo(EventFlag.Always)]
         TYPE_RAYMAN = 23,
+
         TYPE_INTERACTPLT = 24,
         TYPE_INST_PLAT = 25,
         TYPE_CRUMBLE_PLAT = 26,

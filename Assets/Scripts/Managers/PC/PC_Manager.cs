@@ -1414,6 +1414,28 @@ namespace R1Engine
                 index++;
             }
 
+            // Add Rayman
+            commonLev.Rayman = new Editor_EventData(new EventData
+            {
+                XPosition = 0,
+                YPosition = 0,
+                Type = EventType.TYPE_RAYMAN,
+                OffsetBX = 80,
+                OffsetBY = 78,
+                SubEtat = 19,
+                Etat = 0,
+                OffsetHY = 20,
+                FollowSprite = 0,
+                HitPoints = 0,
+                Layer = 7,
+                HitSprite = 0,
+            })
+            {
+                Type = EventType.TYPE_RAYMAN,
+                DESKey = desNames.Any() ? desNames[1] : "1",
+                ETAKey = etaNames.Any() ? etaNames[0] : "0",
+            };
+
             await Controller.WaitIfNecessary();
 
             Controller.status = $"Loading tile set";

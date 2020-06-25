@@ -27,6 +27,10 @@ namespace R1Engine
         /// </summary>
         public List<Common_Event> Events { get; set; }
 
+        public Common_Event RaymanEvent { get; set; }
+
+        public IEnumerable<Common_Event> GetAllEvents => RaymanEvent != null ? Events.Append(RaymanEvent) : Events;
+
         // The current level we are operating with
         public Common_Lev currentLevel => EditorManager?.Level;
         public Editor editor => controllerEvents.editor;
@@ -78,6 +82,9 @@ namespace R1Engine
 
                 // Add events
                 Events = currentLevel.EventData.Select(x => controllerEvents.AddEvent(x)).ToList();
+
+                if (currentLevel.Rayman != null)
+                    RaymanEvent = controllerEvents.AddEvent(currentLevel.Rayman);
 
                 // Init event things
                 controllerEvents.InitializeEvents();

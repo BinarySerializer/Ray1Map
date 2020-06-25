@@ -287,7 +287,7 @@ namespace R1Engine
             // Hard-code event animations for the different Rayman types
             Common_Design rayDes = null;
 
-            var rayEvent = Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_RAY_POS || x.Type is PS1_R2Demo_EventType et2 && et2 == PS1_R2Demo_EventType.RaymanPosition);
+            var rayEvent = Level.Rayman ?? Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_RAY_POS || x.Type is PS1_R2Demo_EventType et2 && et2 == PS1_R2Demo_EventType.RaymanPosition);
 
             if (rayEvent != null)
                 rayDes = DES.TryGetItem(rayEvent.DESKey);
