@@ -90,7 +90,7 @@ namespace R1Engine
 
         public uint Kit_Unk { get; set; }
 
-        public ushort Unk_70 { get; set; }
+        public ushort RuntimeCMDOffset { get; set; }
         public ushort Unk_72 { get; set; }
         public ushort Unk_74 { get; set; }
         public ushort Unk_76 { get; set; }
@@ -333,7 +333,8 @@ namespace R1Engine
             if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
                 Kit_Unk = s.Serialize<uint>(Kit_Unk, name: nameof(Kit_Unk));
 
-            Unk_70 = s.Serialize<ushort>(Unk_70, name: nameof(Unk_70));
+            RuntimeCMDOffset = s.Serialize<ushort>(RuntimeCMDOffset, name: nameof(RuntimeCMDOffset));
+            
             Unk_72 = s.Serialize<ushort>(Unk_72, name: nameof(Unk_72));
             Unk_74 = s.Serialize<ushort>(Unk_74, name: nameof(Unk_74));
             Unk_76 = s.Serialize<ushort>(Unk_76, name: nameof(Unk_76));
@@ -388,6 +389,7 @@ namespace R1Engine
                 RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
             }
 
+            // Appears to be the currently executing command (is set to 30 when there is no command) - sometimes it's a pointer though?
             Unk_112 = s.Serialize<uint>(Unk_112, name: nameof(Unk_112));
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
