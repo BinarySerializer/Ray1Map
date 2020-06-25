@@ -405,6 +405,7 @@ namespace R1Engine {
             }
 
             public void Dispose() {
+                writer?.Flush();
                 ((IDisposable)writer).Dispose();
             }
 

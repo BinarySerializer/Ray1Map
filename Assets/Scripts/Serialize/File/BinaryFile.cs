@@ -44,6 +44,7 @@ namespace R1Engine.Serialize {
 			((IDisposable)reader).Dispose();
 		}
 		public virtual void EndWrite(Writer writer) {
+			writer?.Flush();
 			((IDisposable)writer).Dispose();
 		}
 
