@@ -1,4 +1,6 @@
-﻿namespace R1Engine.Serialize
+﻿using System.IO;
+
+namespace R1Engine.Serialize
 {
     public class ProcessMemoryStreamFile : BinaryFile {
 		private string filename; // Keep filename so we can reopen stream later
@@ -13,13 +15,13 @@
         public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
 		public override Reader CreateReader() {
 			if(stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
-			Reader reader = new Reader(new NonClosingStreamWrapper(stream), isLittleEndian: Endianness == Endian.Little);
+			Reader reader = new Reader(new BufferedStream(new NonClosingStreamWrapper(stream)), isLittleEndian: Endianness == Endian.Little);
 			return reader;
 		}
 
 		public override Writer CreateWriter() {
 			if (stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
-			Writer writer = new Writer(new NonClosingStreamWrapper(stream), isLittleEndian: Endianness == Endian.Little);
+			Writer writer = new Writer(new BufferedStream(new NonClosingStreamWrapper(stream)), isLittleEndian: Endianness == Endian.Little);
 			return writer;
 		}
 
