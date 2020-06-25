@@ -455,29 +455,26 @@ namespace R1Engine
 
             if (GameMemoryContext != null)
             {
-                Pointer lastOffset = EventArrayOffset;
-                GameMemoryContext.Deserializer.DoAt(EventArrayOffset, () =>
+                Pointer currentOffset = EventArrayOffset;
+                SerializerObject s;
+                foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
                 {
-                    foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
-                    {
-                        SerializerObject s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                        s.Goto(lastOffset);
+                    s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+                    s.DoAt(currentOffset, () => {
                         ed.EventData.Init(s.CurrentPointer);
                         ed.EventData.Serialize(s);
                         ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
-                                       $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
-                                       $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
+                                        $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
+                                        $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
 
                         ed.HasPendingEdits = false;
-                        lastOffset = s.CurrentPointer;
-                    }
-                });
-
-                GameMemoryContext.Deserializer.DoAt(RayEventOffset, () =>
-                {
-                    var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
-                    SerializerObject s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                    s.Goto(RayEventOffset);
+                        currentOffset = s.CurrentPointer;
+                    });
+                }
+                currentOffset = RayEventOffset;
+                var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
+                s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+                s.DoAt(currentOffset, () => {
                     ray.EventData.Init(s.CurrentPointer);
                     ray.EventData.Serialize(s);
 
