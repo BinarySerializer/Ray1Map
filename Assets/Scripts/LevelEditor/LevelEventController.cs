@@ -475,10 +475,13 @@ namespace R1Engine
 
                 GameMemoryContext.Deserializer.DoAt(RayEventOffset, () =>
                 {
-                    SerializerObject s = GameMemoryContext.Deserializer;
-                    var ray = Controller.obj.levelController.EditorManager.Level.Rayman.EventData;
-                    ray.Init(s.CurrentPointer);
-                    ray.Serialize(s);
+                    var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
+                    SerializerObject s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+                    s.Goto(RayEventOffset);
+                    ray.EventData.Init(s.CurrentPointer);
+                    ray.EventData.Serialize(s);
+
+                    ray.HasPendingEdits = false;
                 });
             }
         }
