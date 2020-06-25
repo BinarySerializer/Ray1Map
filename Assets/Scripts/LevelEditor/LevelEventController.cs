@@ -466,7 +466,7 @@ namespace R1Engine
                     ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
                                    $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
                                    $"Unk_48: {ed.EventData.Unk_48}{Environment.NewLine}" +
-                                   $"Unk_70: {ed.EventData.Unk_70}{Environment.NewLine}" +
+                                   $"Unk_70: {ed.EventData.RuntimeCMDOffset}{Environment.NewLine}" +
                                    $"Unk_112: {ed.EventData.Unk_112}{Environment.NewLine}" +
                                    $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
 
