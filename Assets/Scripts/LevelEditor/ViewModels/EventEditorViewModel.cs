@@ -119,6 +119,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.DESKey = DES;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -139,6 +140,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.ETAKey = ETA;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -160,6 +162,7 @@ namespace R1Engine
                     SelectedEvent.Data.EventData.Etat = Etat.Value;
                     SelectedEvent.Data.EventData.RuntimeEtat = Etat.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -181,6 +184,7 @@ namespace R1Engine
                     SelectedEvent.Data.EventData.SubEtat = SubEtat.Value;
                     SelectedEvent.Data.EventData.RuntimeSubEtat = SubEtat.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -201,6 +205,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.EventData.OffsetBX = OffsetBX.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -221,6 +226,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.EventData.OffsetBY = OffsetBY.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -241,6 +247,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.EventData.OffsetHY = OffsetHY.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -261,6 +268,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.EventData.FollowSprite = FollowSprite.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -280,7 +288,9 @@ namespace R1Engine
                 if (HitPoints.HasValue && SelectedEvent != null && HitPoints != SelectedEvent.Data.EventData.HitPoints)
                 {
                     SelectedEvent.Data.EventData.HitPoints = HitPoints.Value;
+                    SelectedEvent.Data.EventData.RuntimeHitPoints = HitPoints.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -301,6 +311,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.EventData.HitSprite = HitSprite.Value;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -322,6 +333,7 @@ namespace R1Engine
                     SelectedEvent.Data.EventData.SetFollowEnabled(Controller.obj.levelController.EditorManager.Settings, FollowEnabled.Value);
                     SelectedEvent.RefreshName();
                     SelectedEvent.ChangeOffsetVisibility(true);
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
@@ -342,6 +354,7 @@ namespace R1Engine
                 {
                     SelectedEvent.Data.Type = Type;
                     SelectedEvent.RefreshName();
+                    SelectedEvent.Data.HasPendingEdits = true;
                 }
 
                 OnPropertyChanged();
