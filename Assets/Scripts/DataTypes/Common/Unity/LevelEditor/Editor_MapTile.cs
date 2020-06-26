@@ -7,7 +7,7 @@
         /// <summary>
         /// The palette index, between 1 and 3
         /// </summary>
-        public int PaletteIndex { get; set; }
+        public int PaletteIndex { get; set; } = 1;
 
         public Editor_MapTile CloneObj() => new Editor_MapTile(Data.CloneObj())
         {
