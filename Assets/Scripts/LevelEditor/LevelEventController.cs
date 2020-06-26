@@ -421,7 +421,9 @@ namespace R1Engine
         public Pointer GameMemoryOffset { get; set; }
         public Pointer EventArrayOffset { get; set; }
         public Pointer RayEventOffset { get; set; }
+        public Pointer TileArrayOffset { get; set; }
 
+        // TODO: Move this to some main controller since we do tile stuff here too
         public bool UpdateFromMemory()
         {
             bool madeEdits = false;
@@ -445,6 +447,7 @@ namespace R1Engine
                     // Get pointers
                     GameMemoryOffset = s.DoAt(offset + 0x01D3A1A0, () => s.SerializePointer(default, name: nameof(GameMemoryOffset)));
                     EventArrayOffset = s.DoAt(GameMemoryOffset + 0x16DDF0, () => s.SerializePointer(EventArrayOffset, anchor: GameMemoryOffset, name: nameof(EventArrayOffset)));
+                    TileArrayOffset = s.DoAt(GameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, anchor: GameMemoryOffset, name: nameof(TileArrayOffset)));
                     RayEventOffset = GameMemoryOffset + 0x16F650;
                 }
                 catch (Exception ex)
@@ -480,6 +483,22 @@ namespace R1Engine
                 ray.Data.Serialize(s);
                 if (s is BinarySerializer) madeEdits = true;
                 ray.HasPendingEdits = false;
+
+                currentOffset = TileArrayOffset;
+                s = GameMemoryContext.Serializer;
+                foreach (var mapTile in Controller.obj.levelController.EditorManager.Level.Maps[0].MapTiles)
+                {
+                    if (mapTile.HasPendingEdits)
+                    {
+                        s.Goto(currentOffset);
+                        mapTile.Data.Init(s.CurrentPointer);
+                        mapTile.Data.Serialize(s);
+                        mapTile.HasPendingEdits = false;
+                    }
+
+                    // TODO: Don't hard-code this as each game has a different size!
+                    currentOffset += 6;
+                }
             }
             return madeEdits;
         }

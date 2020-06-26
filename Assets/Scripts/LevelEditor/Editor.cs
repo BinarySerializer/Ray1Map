@@ -326,10 +326,13 @@ namespace R1Engine
                                     for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
                                         for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
                                         {
-                                            TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
+                                            var t = map.GetMapTile(x, y);
+                                            TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
                                             var selectionTile = selection[xi, yi];
                                             lvlController.controllerTilemap.SetTileAtPos(x, y, selectionTile);
+
+                                            t.HasPendingEdits = true;
 
                                             TempTileHistory.Add(new Ray1MapEditorHistoryTile(selectionTile.CloneObj(), xi, yi));
 
@@ -371,9 +374,11 @@ namespace R1Engine
                             {
                                 for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
                                 {
-                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
+                                    var t = map.GetMapTile(x, y);
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
                                     var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
+                                    t.HasPendingEdits = true;
 
                                     TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
                                 }
@@ -386,9 +391,12 @@ namespace R1Engine
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
                                 for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
                                 {
-                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
+                                    var t = map.GetMapTile(x, y);
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
                                     var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, currentType);
+
+                                    t.HasPendingEdits = true;
 
                                     TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
                                 }
@@ -412,9 +420,12 @@ namespace R1Engine
                                 
                                 if (x>=0 && y>=0 && x<w && y<h)
                                 {
-                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
+                                    var t = map.GetMapTile(x, y);
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
                                     lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
+                                    
+                                    t.HasPendingEdits = true;
 
                                     TempTileHistory.Add(new Ray1MapEditorHistoryTile(selection[xi, yi].CloneObj(), xi, yi));
                                 }
