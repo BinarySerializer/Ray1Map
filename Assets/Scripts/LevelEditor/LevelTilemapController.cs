@@ -226,6 +226,7 @@ namespace R1Engine
             destTile.PaletteIndex = newTile.PaletteIndex;
             destTile.Data.TileMapX = newTile.Data.TileMapX;
             destTile.Data.TileMapY = newTile.Data.TileMapY;
+            destTile.Data.PC_TransparencyMode = newTile.Data.PC_TransparencyMode;
             destTile.Data.PC_Unk1 = newTile.Data.PC_Unk1;
             destTile.Data.PC_Unk2 = newTile.Data.PC_Unk2;
         }
