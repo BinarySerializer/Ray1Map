@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Map data for the Mapper
+    /// Common map data
     /// </summary>
-    public class Mapper_Map : R1Serializable
+    public class MapData : R1Serializable
     {
         #region Public Properties
 
@@ -20,7 +20,7 @@
         /// <summary>
         /// The tiles for the map
         /// </summary>
-        public Mapper_MapTile[] Tiles { get; set; }
+        public MapTile[] Tiles { get; set; }
 
         #endregion
 
@@ -29,14 +29,15 @@
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
-        public override void SerializeImpl(SerializerObject s) {
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s) 
+        {
             // Serialize map size
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
             // Serialize tiles
-            Tiles = s.SerializeObjectArray<Mapper_MapTile>(Tiles, Width * Height, name: nameof(Tiles));
+            Tiles = s.SerializeObjectArray<MapTile>(Tiles, Width * Height, name: nameof(Tiles));
         }
 
         #endregion

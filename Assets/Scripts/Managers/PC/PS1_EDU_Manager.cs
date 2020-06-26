@@ -428,7 +428,7 @@ namespace R1Engine
                     // Set the common tile
                     commonLev.Maps[0].Tiles[cellY * levelData.Width + cellX] = new Common_Tile()
                     {
-                        TileSetGraphicIndex = cell.TextureIndex,
+                        TileSetGraphicIndex = cell.TileMapX,
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,
                         XPosition = cellX,

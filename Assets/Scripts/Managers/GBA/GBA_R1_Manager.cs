@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Resources;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -1050,7 +1049,7 @@ namespace R1Engine
                     // Set the common tile
                     commonLev.Maps[0].Tiles[cellY * map.MapData.Width + cellX] = new Common_Tile() 
                     {
-                        TileSetGraphicIndex = cell.TileIndex,
+                        TileSetGraphicIndex = cell.TileMapX,
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,
                         XPosition = cellX,

@@ -1,10 +1,9 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using R1Engine.Serialize;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -166,7 +165,7 @@ namespace R1Engine
             await LoadExtraFile(context, tileSetPath);
 
             // Read the files
-            var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
+            var map = FileFactory.Read<MapData>(mapPath, context);
             var level = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
 
             // Load the level

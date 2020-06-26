@@ -38,7 +38,7 @@
         /// <summary>
         /// The map block data
         /// </summary>
-        public PS1_R1_MapBlock MapData { get; set; }
+        public MapData MapData { get; set; }
 
         /// <summary>
         /// The texture block
@@ -59,17 +59,17 @@
 
             // BACKGROUND BLOCK
             s.DoAt(BackgroundBlockPointer, () => {
-                BackgroundData = s.SerializeObject(BackgroundData, name: nameof(BackgroundData));
+                BackgroundData = s.SerializeObject<PS1_R1_BackgroundBlock>(BackgroundData, name: nameof(BackgroundData));
             });
 
             // EVENT BLOCK
             s.DoAt(EventBlockPointer, () => {
-                EventData = s.SerializeObject(EventData, name: nameof(EventData));
+                EventData = s.SerializeObject<PS1_R1_EventBlock>(EventData, name: nameof(EventData));
             });
 
             // MAP BLOCK
             s.DoAt(MapBlockPointer, () => {
-                MapData = s.SerializeObject(MapData, name: nameof(MapData));
+                MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData));
             });
 
             // TEXTURE BLOCK

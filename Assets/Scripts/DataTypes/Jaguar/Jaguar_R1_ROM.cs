@@ -29,7 +29,7 @@ namespace R1Engine
         /// <summary>
         /// The map data for the current level
         /// </summary>
-        public PS1_R1_MapBlock MapData { get; set; }
+        public MapData MapData { get; set; }
 
         /// <summary>
         /// The event data for the current level
@@ -194,7 +194,7 @@ namespace R1Engine
             var tilesPointer = mapCommands.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
 
             // Serialize map and event data
-            s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<PS1_R1_MapBlock>(MapData, name: nameof(MapData))));
+            s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));
             s.DoAt(eventPointer, () => s.DoEncoded(new RNCEncoder(), () => EventData = s.SerializeObject<Jaguar_R1_EventBlock>(EventData, name: nameof(EventData))));
 
             // Serialize sprite palette

@@ -3,6 +3,7 @@ using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -252,8 +253,8 @@ namespace R1Engine
 
                     // Update the tile
                     tile.CollisionType = commonTile.CollisionType;
-                    tile.TileMapY = (int)Math.Floor(commonTile.TileSetGraphicIndex / (double)TileSetWidth);
-                    tile.TileMapX = commonTile.TileSetGraphicIndex - (Settings.CellSize * tile.TileMapY);
+                    tile.TileMapY = Mathf.FloatToHalf(commonTile.TileSetGraphicIndex / (float)TileSetWidth);
+                    tile.TileMapX = (ushort)(commonTile.TileSetGraphicIndex - (Settings.CellSize * tile.TileMapY));
                 }
             }
 

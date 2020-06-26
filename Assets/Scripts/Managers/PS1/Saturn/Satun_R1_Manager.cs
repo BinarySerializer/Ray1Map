@@ -357,7 +357,7 @@ namespace R1Engine
             // NOTE: Big ray data is always loaded at 0x00280000
 
             // Read the map block
-            var map = FileFactory.Read<PS1_R1_MapBlock>(mapFilePath, context);
+            var map = FileFactory.Read<MapData>(mapFilePath, context);
 
             PS1_R1_EventBlock eventBlock = null;
 

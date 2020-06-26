@@ -114,7 +114,7 @@ namespace R1Engine
             }
 
             // Read the map data
-            var mapData = FileFactory.Read<Mapper_Map>(paths["event.map"], context);
+            var mapData = FileFactory.Read<MapData>(paths["event.map"], context);
 
             await Controller.WaitIfNecessary();
 
@@ -311,7 +311,7 @@ namespace R1Engine
                         XPosition = tx,
                         YPosition = ty,
                         CollisionType = mapData.Tiles[tileIndex].CollisionType,
-                        TileSetGraphicIndex = mapData.Tiles[tileIndex].TileIndex
+                        TileSetGraphicIndex = mapData.Tiles[tileIndex].TileMapX
                     };
 
                     commonLev.Maps[0].Tiles[tileIndex] = newTile;

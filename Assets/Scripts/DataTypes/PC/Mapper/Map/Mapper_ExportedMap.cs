@@ -64,7 +64,7 @@
         /// <summary>
         /// The map data
         /// </summary>
-        public Mapper_Map MapData { get; set; }
+        public MapData MapData { get; set; }
 
         public byte[] EventMevData { get; set; }
 
@@ -92,7 +92,7 @@
 
             // Read the data blocks
             MapProperties = s.SerializeArray<byte>(MapProperties, MapPropertiesLength, name: nameof(MapProperties));
-            MapData = s.Serialize<Mapper_Map>(MapData, name: nameof(MapData));
+            MapData = s.Serialize<MapData>(MapData, name: nameof(MapData));
             EventMevData = s.SerializeArray<byte>(EventMevData, EventMevDataLength, name: nameof(EventMevData));
             EventSevData = s.SerializeArray<byte>(EventSevData, EventSevDataLength, name: nameof(EventSevData));
         }

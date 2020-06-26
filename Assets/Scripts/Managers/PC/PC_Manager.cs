@@ -1460,12 +1460,12 @@ namespace R1Engine
                     var textureIndex = 0;
 
                     // Ignore if fully transparent
-                    if (cell.TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent) {
+                    if (cell.PC_TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent) {
                         // Get the offset for the texture
-                        var texOffset = levelData.TileTextureData.TexturesOffsetTable[cell.TextureIndex];
+                        var texOffset = levelData.TileTextureData.TexturesOffsetTable[cell.TileMapX];
 
                         // Get the texture
-                        var texture = cell.TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.TileTextureData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TileTextureData.TransparentTextures.FindItem(x => x.Offset == texOffset);
+                        var texture = cell.PC_TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.TileTextureData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TileTextureData.TransparentTextures.FindItem(x => x.Offset == texOffset);
 
                         // Get the index
                         textureIndex = levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).FindItemIndex(x => x == texture);
@@ -1579,16 +1579,16 @@ namespace R1Engine
                     tile.CollisionType = commonTile.CollisionType;
 
                     if (commonTile.TileSetGraphicIndex == 0) {
-                        tile.TextureIndex = 0;
-                        tile.TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
+                        tile.TileMapX = 0;
+                        tile.PC_TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent;
                     }
                     else if (commonTile.TileSetGraphicIndex < lvlData.TileTextureData.NonTransparentTexturesCount) {
-                        tile.TextureIndex = (ushort)lvlData.TileTextureData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TileTextureData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
-                        tile.TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
+                        tile.TileMapX = (ushort)lvlData.TileTextureData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TileTextureData.NonTransparentTextures[commonTile.TileSetGraphicIndex].Offset);
+                        tile.PC_TransparencyMode = PC_MapTileTransparencyMode.NoTransparency;
                     }
                     else {
-                        tile.TextureIndex = (ushort)lvlData.TileTextureData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TileTextureData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.TileTextureData.NonTransparentTexturesCount)].Offset);
-                        tile.TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
+                        tile.TileMapX = (ushort)lvlData.TileTextureData.TexturesOffsetTable.FindItemIndex(z => z == lvlData.TileTextureData.TransparentTextures[(commonTile.TileSetGraphicIndex - lvlData.TileTextureData.NonTransparentTexturesCount)].Offset);
+                        tile.PC_TransparencyMode = PC_MapTileTransparencyMode.PartiallyTransparent;
                     }
                 }
             }

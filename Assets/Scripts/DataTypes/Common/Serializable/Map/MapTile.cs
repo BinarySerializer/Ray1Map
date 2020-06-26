@@ -1,27 +1,33 @@
-﻿using System;
-using System.Linq;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
-    /// Map tile data for Rayman 1 (PS1)
+    /// Common map tile data
     /// </summary>
-    public class PS1_R1_MapTile : R1Serializable
+    public class MapTile : R1Serializable
     {
         /// <summary>
         /// The tile map x position
         /// </summary>
-        public int TileMapX { get; set; }
+        public ushort TileMapX { get; set; }
 
         /// <summary>
         /// The tile map y position
         /// </summary>
-        public int TileMapY { get; set; }
+        public ushort TileMapY { get; set; }
 
         /// <summary>
-        /// The collision type
+        /// The tile collision type
         /// </summary>
         public TileCollisionType CollisionType { get; set; }
+
+        public byte PC_Unk1 { get; set; }
+
+        /// <summary>
+        /// The transparency mode for this cell
+        /// </summary>
+        public PC_MapTileTransparencyMode PC_TransparencyMode { get; set; }
+
+        public byte PC_Unk2 { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -29,7 +35,22 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) 
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
+            if (s.GameSettings.GameModeSelection == GameModeSelection.MapperPC || s.GameSettings.EngineVersion == EngineVersion.RayGBA|| s.GameSettings.EngineVersion == EngineVersion.RayDSi)
+            {
+                TileMapX = s.Serialize<ushort>(TileMapX, name: nameof(TileMapX));
+                TileMapY = 0;
+                CollisionType = (TileCollisionType)s.Serialize<ushort>((ushort)CollisionType, name: nameof(CollisionType));
+            }
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PC)
+            {
+                TileMapX = s.Serialize<ushort>(TileMapX, name: nameof(TileMapX));
+                TileMapY = 0;
+                CollisionType = s.Serialize<TileCollisionType>(CollisionType, name: nameof(CollisionType));
+                PC_Unk1 = s.Serialize<byte>(PC_Unk1, name: nameof(PC_Unk1));
+                PC_TransparencyMode = s.Serialize<PC_MapTileTransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
+                PC_Unk2 = s.Serialize<byte>(PC_Unk2, name: nameof(PC_Unk2));
+            }
+            else if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
             {
                 int value = 0;
 
@@ -39,8 +60,8 @@ namespace R1Engine
 
                 value = s.Serialize<int>(value, name: nameof(value));
 
-                TileMapX = BitHelpers.ExtractBits(value, 10, 0);
-                TileMapY = BitHelpers.ExtractBits(value, 6, 10);
+                TileMapX = (ushort)BitHelpers.ExtractBits(value, 10, 0);
+                TileMapY = (ushort)BitHelpers.ExtractBits(value, 6, 10);
                 CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 8, 16);
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.RaySaturn)
@@ -52,8 +73,8 @@ namespace R1Engine
 
                 value = s.Serialize<ushort>(value, name: nameof(value));
 
-                TileMapX = BitHelpers.ExtractBits(value, 4, 0);
-                TileMapY = BitHelpers.ExtractBits(value, 12, 4);
+                TileMapX = (ushort)BitHelpers.ExtractBits(value, 4, 0);
+                TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 4);
 
                 CollisionType = (TileCollisionType)s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
 
@@ -68,8 +89,9 @@ namespace R1Engine
                 value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 4, 12);
 
                 value = s.Serialize<ushort>(value, name: nameof(value));
-                
-                TileMapX = BitHelpers.ExtractBits(value, 12, 0);
+
+                TileMapX = (ushort)BitHelpers.ExtractBits(value, 12, 0);
+                TileMapY = 0;
                 CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 4, 12);
             }
             else
@@ -89,14 +111,14 @@ namespace R1Engine
                 value = s.Serialize<ushort>(value, name: nameof(value));
                 if (s.GameSettings.EngineVersion == EngineVersion.RayPS1 || s.GameSettings.EngineVersion == EngineVersion.Ray2PS1)
                 {
-                    TileMapX = BitHelpers.ExtractBits(value, 4, 0);
-                    TileMapY = BitHelpers.ExtractBits(value, 6, 4);
+                    TileMapX = (ushort)BitHelpers.ExtractBits(value, 4, 0);
+                    TileMapY = (ushort)BitHelpers.ExtractBits(value, 6, 4);
                     CollisionType = (TileCollisionType)(BitHelpers.ExtractBits(value, 6, 10));
                 }
                 else if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JP)
                 {
+                    TileMapX = (ushort)BitHelpers.ExtractBits(value, 9, 0);
                     TileMapY = 0;
-                    TileMapX = BitHelpers.ExtractBits(value, 9, 0);
                     CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 7, 9);
                 }
             }

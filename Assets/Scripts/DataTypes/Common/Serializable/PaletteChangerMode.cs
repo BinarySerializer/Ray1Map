@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Palette changer modes for PC
+    /// Palette changer modes
     /// </summary>
-    public enum PC_PaletteChangerMode
+    public enum PaletteChangerMode
     {
         Left1toRight2 = 0,
         Left1toRight3 = 1,

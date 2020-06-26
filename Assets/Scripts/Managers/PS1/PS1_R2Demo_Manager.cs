@@ -234,7 +234,7 @@ namespace R1Engine
             var lvlData = FileFactory.Read<PS1_R2Demo_LevDataFile>(levelDTAPath, context);
 
             // Read the map blocks
-            var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<PS1_R1_MapBlock>(GetSubMapPath(x), context)).ToArray();
+            var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<MapData>(GetSubMapPath(x), context)).ToArray();
 
             await Controller.WaitIfNecessary();
             Controller.status = $"Loading sprite data";

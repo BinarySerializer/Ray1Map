@@ -64,7 +64,7 @@ namespace R1Engine
         public ushort[] EventNumLabelOffsets { get; set; }
         public byte[] TileTextures { get; set; }
         public uint MapBlockSize { get; set; }
-        public PC_MapTile[] MapTiles { get; set; }
+        public MapTile[] MapTiles { get; set; }
 
         #endregion
 
@@ -122,7 +122,7 @@ namespace R1Engine
 
             // Serialize the map tiles
             MapBlockSize = s.Serialize<uint>(MapBlockSize, name: nameof(MapBlockSize));
-            MapTiles = s.SerializeObjectArray<PC_MapTile>(MapTiles, MapBlockSize / 6, name: nameof(MapTiles));
+            MapTiles = s.SerializeObjectArray<MapTile>(MapTiles, MapBlockSize / 6, name: nameof(MapTiles));
 
 
             // Finally, read the events

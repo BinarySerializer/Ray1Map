@@ -208,7 +208,7 @@ namespace R1Engine
             await LoadExtraFile(context, pal8Path);
 
             // Read the files
-            var map = FileFactory.Read<PS1_R1_MapBlock>(mapPath, context);
+            var map = FileFactory.Read<MapData>(mapPath, context);
             var lvl = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
 
             // Load the level

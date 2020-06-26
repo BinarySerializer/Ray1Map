@@ -60,7 +60,7 @@ namespace R1Engine
         /// <summary>
         /// The map data
         /// </summary>
-        public Mapper_Map MapData { get; set; }
+        public MapData MapData { get; set; }
 
         /// <summary>
         /// The 10 available tile palettes (16 colors each)
@@ -113,12 +113,12 @@ namespace R1Engine
                     if ((CompressionFlags & 1) == 1)
                     {
                         s.DoEncoded(new LZSSEncoder(), () => {
-                            MapData = s.SerializeObject<Mapper_Map>(MapData, name: nameof(MapData));
+                            MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData));
                         });
                     }
                     else
                     {
-                        MapData = s.SerializeObject<Mapper_Map>(MapData, name: nameof(MapData));
+                        MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData));
                     }
                 });
                 s.DoAt(TilePaletteIndicesPointer, () => {
@@ -141,13 +141,13 @@ namespace R1Engine
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.RayDSi)
             {
-                s.DoAt(MapDataPointer, () => s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeObject<Mapper_Map>(MapData, name: nameof(MapData))));
+                s.DoAt(MapDataPointer, () => s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));
                 s.DoAt(TileDataPointer, () => {
                     s.DoEncoded(new LZSSEncoder(), () => TileData = s.SerializeArray<byte>(TileData, s.CurrentLength, name: nameof(TileData)));
                 });
                 s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 256, name: nameof(TilePalettes)));
                 s.DoAt(TileBlockIndicesPointer, () => {
-                    uint maxTileInd = MapData.Tiles.Max(t => t.TileIndex);
+                    uint maxTileInd = MapData.Tiles.Max(t => t.TileMapX);
                     TileBlockIndices = s.SerializeArray<ushort>(TileBlockIndices, (maxTileInd + 1) * 4, name: nameof(TileBlockIndices));
                 });
             }

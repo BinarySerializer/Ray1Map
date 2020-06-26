@@ -238,7 +238,7 @@ namespace R1Engine
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
         /// <returns>The editor manager</returns>
-        public async Task<BaseEditorManager> LoadAsync(Context context, PS1_R1_MapBlock map, EventData[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
+        public async Task<BaseEditorManager> LoadAsync(Context context, MapData map, EventData[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
         {
             Common_Tileset tileSet = GetTileSet(context);
 
