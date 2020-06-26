@@ -49,6 +49,14 @@ namespace R1Engine
                     //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);
                     textCollision.text = $"Collision: {t.CollisionType}";
                     textGraphic.text = $"Graphic tile: {t.TileSetGraphicIndex}";
+
+                    // Set debug text
+                    Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
+                        ? $"{t.DebugText}{Environment.NewLine}" +
+                          $"Collision: {t.CollisionType}{Environment.NewLine}" +
+                          $"TileIndex: {t.TileSetGraphicIndex}{Environment.NewLine}" +
+                          $"PaletteIndex: {t.PaletteIndex}{Environment.NewLine}"
+                        : String.Empty;
                 }
             }
         }

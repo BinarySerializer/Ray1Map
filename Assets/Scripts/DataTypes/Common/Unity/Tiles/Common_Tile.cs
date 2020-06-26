@@ -2,6 +2,8 @@
 
 namespace R1Engine 
 {
+    // TODO: Change this system - make Editor_MapTile which holds a MapTile it can serialize and has properties for pal index and debug info
+
     /// <summary>
     /// A map tile
     /// </summary>
@@ -31,6 +33,8 @@ namespace R1Engine
         /// The collision type
         /// </summary>
         public TileCollisionType CollisionType { get; set; }
+
+        public string DebugText { get; set; }
 
         /// <summary>
         /// Creates a clone of the object

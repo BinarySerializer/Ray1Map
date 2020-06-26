@@ -1478,7 +1478,9 @@ namespace R1Engine
                         CollisionType = cell.CollisionType,
                         PaletteIndex = 1,
                         XPosition = cellX,
-                        YPosition = cellY
+                        YPosition = cellY,
+                        DebugText = $"Unk1: {cell.PC_Unk1}{Environment.NewLine}" +
+                                    $"Unk2: {cell.PC_Unk2}{Environment.NewLine}"
                     };
                 }
             }
