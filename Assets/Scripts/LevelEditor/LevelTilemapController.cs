@@ -199,8 +199,8 @@ namespace R1Engine
 
                 Editor_MapTile t = new Editor_MapTile(new MapTile());
 
-                t.Data.TileMapY = Mathf.FloatToHalf(graphicIndex1D / (float)map.TileSetWidth);
-                t.Data.TileMapX = (ushort)(graphicIndex1D - (Settings.CellSize * t.Data.TileMapY));
+                t.Data.TileMapY = (ushort)Mathf.FloorToInt(graphicIndex1D / (float)map.TileSetWidth);
+                t.Data.TileMapX = (ushort)(graphicIndex1D - (map.TileSetWidth * t.Data.TileMapY));
 
                 return t;
             }

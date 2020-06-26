@@ -147,7 +147,7 @@ namespace R1Engine
                 });
                 s.DoAt(TilePalettePointer, () => TilePalettes = s.SerializeObjectArray<ARGB1555Color>(TilePalettes, 256, name: nameof(TilePalettes)));
                 s.DoAt(TileBlockIndicesPointer, () => {
-                    uint maxTileInd = MapData.Tiles.Max(t => t.TileMapX);
+                    uint maxTileInd = MapData.Tiles.Max(t => t.TileMapY);
                     TileBlockIndices = s.SerializeArray<ushort>(TileBlockIndices, (maxTileInd + 1) * 4, name: nameof(TileBlockIndices));
                 });
             }

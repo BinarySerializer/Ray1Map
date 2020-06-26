@@ -39,14 +39,14 @@ namespace R1Engine
         {
             if (s.GameSettings.GameModeSelection == GameModeSelection.MapperPC || s.GameSettings.EngineVersion == EngineVersion.RayGBA|| s.GameSettings.EngineVersion == EngineVersion.RayDSi)
             {
-                TileMapX = s.Serialize<ushort>(TileMapX, name: nameof(TileMapX));
-                TileMapY = 0;
+                TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
+                TileMapX = 0;
                 CollisionType = (TileCollisionType)s.Serialize<ushort>((ushort)CollisionType, name: nameof(CollisionType));
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PC)
             {
-                TileMapX = s.Serialize<ushort>(TileMapX, name: nameof(TileMapX));
-                TileMapY = 0;
+                TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
+                TileMapX = 0;
                 CollisionType = s.Serialize<TileCollisionType>(CollisionType, name: nameof(CollisionType));
                 PC_Unk1 = s.Serialize<byte>(PC_Unk1, name: nameof(PC_Unk1));
                 PC_TransparencyMode = s.Serialize<PC_MapTileTransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
@@ -87,13 +87,13 @@ namespace R1Engine
             {
                 ushort value = 0;
 
-                value = (ushort)BitHelpers.SetBits(value, TileMapX, 12, 0);
+                value = (ushort)BitHelpers.SetBits(value, TileMapY, 12, 0);
                 value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 4, 12);
 
                 value = s.Serialize<ushort>(value, name: nameof(value));
 
-                TileMapX = (ushort)BitHelpers.ExtractBits(value, 12, 0);
-                TileMapY = 0;
+                TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0);
+                TileMapX = 0;
                 CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 4, 12);
             }
             else
