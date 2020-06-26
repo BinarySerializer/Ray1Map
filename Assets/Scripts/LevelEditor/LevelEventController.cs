@@ -485,19 +485,32 @@ namespace R1Engine
                 ray.HasPendingEdits = false;
 
                 currentOffset = TileArrayOffset;
-                s = GameMemoryContext.Serializer;
-                foreach (var mapTile in Controller.obj.levelController.EditorManager.Level.Maps[0].MapTiles)
+                var map = Controller.obj.levelController.EditorManager.Level.Maps[0];
+
+                for (int y = 0; y < map.Height; y++)
                 {
-                    if (mapTile.HasPendingEdits)
+                    for (int x = 0; x < map.Width; x++)
                     {
+                        var mapTile = map.MapTiles[y * map.Width + x];
+
+                        s = mapTile.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+
                         s.Goto(currentOffset);
+
+                        var prevX = mapTile.Data.TileMapX;
+                        var prevY = mapTile.Data.TileMapY;
+
                         mapTile.Data.Init(s.CurrentPointer);
                         mapTile.Data.Serialize(s);
-                        mapTile.HasPendingEdits = false;
-                    }
 
-                    // TODO: Don't hard-code this as each game has a different size!
-                    currentOffset += 6;
+                        if (s is BinarySerializer) madeEdits = true;
+                        mapTile.HasPendingEdits = false;
+
+                        if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
+                            Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
+
+                        currentOffset = s.CurrentPointer;
+                    }
                 }
             }
             return madeEdits;
