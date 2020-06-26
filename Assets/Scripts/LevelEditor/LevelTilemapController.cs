@@ -58,33 +58,29 @@ namespace R1Engine
                 paletteButtons[3].gameObject.SetActive(false);
             }
 
+            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+            var collisionTileSet = Settings.UseHDCollisionSheet ? TypeCollisionTilesHD : TypeCollisionTiles;
+
             // Fill out types first
-            foreach (Common_Tile t in Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles) 
+            for (int y = 0; y < map.Height; y++)
             {
-                var collisionTypeIndex = (int)t.CollisionType;
-
-                // Fill out types first
-                if (Settings.UseHDCollisionSheet) 
+                for (int x = 0; x < map.Width; x++)
                 {
-                    if (collisionTypeIndex >= TypeCollisionTilesHD.Length)
+                    // Get the collision index
+                    var collisionTypeIndex = (int)map.MapTiles[y * map.Width + x].Data.CollisionType;
+
+                    // Make sure it's not out of bounds
+                    if (collisionTypeIndex >= collisionTileSet.Length)
                     {
-                        Debug.LogWarning($"Collision type {t.CollisionType} is not supported");
+                        Debug.LogWarning($"Collision type {collisionTypeIndex} is not supported");
                         collisionTypeIndex = 0;
                     }
 
-                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTilesHD[collisionTypeIndex]);
-                }
-                else 
-                {
-                    if (collisionTypeIndex >= TypeCollisionTiles.Length)
-                    {
-                        Debug.LogWarning($"Collision type {t.CollisionType} is not supported");
-                        collisionTypeIndex = 0;
-                    }
-
-                    Tilemaps[0].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), TypeCollisionTiles[collisionTypeIndex]);
+                    // Set the collision tile
+                    Tilemaps[0].SetTile(new Vector3Int(x, y, 0), collisionTileSet[collisionTypeIndex]);
                 }
             }
+
             // Fill out tiles
             RefreshTiles(Controller.obj.levelController.EditorManager.Has3Palettes ? 0 : 1);
 
@@ -94,37 +90,43 @@ namespace R1Engine
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
-        public void RefreshTiles(int palette) {
-            //Change button visibility
+        public void RefreshTiles(int palette)
+        {
+            // Change button visibility
             currentPalette = palette;
             for (int i = 0; i < paletteButtons.Length; i++) {
                 ColorBlock b = paletteButtons[i].colors;
-                if (currentPalette == i) {
-                    b.normalColor = new Color(1, 1, 1);
-                }
-                else {
-                    b.normalColor = new Color(0.5f, 0.5f, 0.5f);
-                }
+                b.normalColor = currentPalette == i ? new Color(1, 1, 1) : new Color(0.5f, 0.5f, 0.5f);
                 paletteButtons[i].colors = b;
             }
 
-            // Get the current level
+            // Get the current level and map
             var lvl = Controller.obj.levelController.currentLevel;
+            var map = lvl.Maps[editor.currentMap];
 
             // If auto, refresh indexes
             if (palette == 0)
                 lvl.AutoApplyPalette();
 
-            //Refresh tiles
-            foreach (Common_Tile t in lvl.Maps[editor.currentMap].Tiles)
+            // Refresh tiles
+            for (int y = 0; y < map.Height; y++)
             {
-                int p = (palette == 0 ? t.PaletteIndex : palette) - 1;
-                Tilemaps[1].SetTile(new Vector3Int(t.XPosition, t.YPosition, 0), lvl.Maps[editor.currentMap].TileSet[p].Tiles[t.TileSetGraphicIndex]);
+                for (int x = 0; x < map.Width; x++)
+                {
+                    var t = map.MapTiles[y * map.Width + x];
+
+                    if (palette != 0)
+                        t.PaletteIndex = palette;
+
+                    Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(t));
+                }
             }
-            //Refresh the full tilemap
+
+            // Refresh the full tilemap template
             int xx = 0;
             int yy = 0;
-            foreach(Tile t in lvl.Maps[editor.currentMap].TileSet[0].Tiles) {
+            foreach(Tile t in lvl.Maps[editor.currentMap].TileSet[0].Tiles) 
+            {
                 tilemapFull.SetTile(new Vector3Int(xx, yy, 0), t);
                 xx++;
                 if (xx == 16) {
@@ -132,14 +134,12 @@ namespace R1Engine
                     yy++;
                 }
             }
-            //Debug.Log(lvl.Maps[editor.currentMap].TileSet[0].Tiles.Length);
-            templateMaxY = yy+1;
+
+            templateMaxY = yy + 1;
         }
 
         // Resize the background tint
-        public void ResizeBackgroundTint(int x, int y) {
-            backgroundTint.transform.localScale = new Vector2(x, y);
-        }
+        public void ResizeBackgroundTint(int x, int y) => backgroundTint.transform.localScale = new Vector2(x, y);
 
         // Used for switching the view between template and normal tiles
         public void ShowHideTemplate() {
@@ -182,61 +182,68 @@ namespace R1Engine
         }
 
         // Get one common tile at given position
-        public Common_Tile GetTileAtPos(int x, int y) {
-            if (Controller.obj.levelController.currentLevel == null) {
+        public Editor_MapTile GetTileAtPos(int x, int y) 
+        {
+            if (Controller.obj.levelController.currentLevel == null)
                 return null;
-            }
-            else {
-                if (focusedOnTemplate) {
-                    Common_Tile t = new Common_Tile();
-                    t.CollisionType = 0;
-                    t.PaletteIndex = 0;
-                    t.TileSetGraphicIndex = (y * 16) + x;
 
-                    if (t.TileSetGraphicIndex > Controller.obj.levelController.currentLevel.Maps[editor.currentMap].TileSet[0].Tiles.Length-1) {
-                        t.TileSetGraphicIndex = 0;
-                    }
+            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
 
-                    return t;
-                }
-                else {
-                    foreach (var t in Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles) {
-                        if (t.XPosition == x && t.YPosition == y) {
-                            return t;
-                        }
-                    }
-                }
-                return null;
+            if (focusedOnTemplate)
+            {
+                // Get the 1-dimensional graphic tile index
+                var graphicIndex1D = (y * 16) + x;
+
+                if (graphicIndex1D > map.TileSet[0].Tiles.Length - 1)
+                    graphicIndex1D = 0;
+
+                Editor_MapTile t = new Editor_MapTile(new MapTile());
+
+                t.Data.TileMapY = Mathf.FloatToHalf(graphicIndex1D / (float)map.TileSetWidth);
+                t.Data.TileMapX = (ushort)(graphicIndex1D - (Settings.CellSize * t.Data.TileMapY));
+
+                return t;
             }
+
+            return map.GetMapTile(x, y);
         }
 
-        public Common_Tile SetTileAtPos(int x, int y, Common_Tile newTileInfo, Common_Tile tile = null) {
+        public void SetTileAtPos(int x, int y, Editor_MapTile newTile) 
+        {
+            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+
+            // Update tile graphics
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)newTileInfo.CollisionType]);
-            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.Maps[editor.currentMap].TileSet[0].Tiles[newTileInfo.TileSetGraphicIndex]);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)newTile.Data.CollisionType]);
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(newTile));
 
-            // Get the tile if null
-            if (tile == null)
-                tile = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
+            // Get the tile to set
+            var destTile = map.MapTiles[y * map.Width + x];
 
-            tile.CollisionType = newTileInfo.CollisionType;
-            tile.PaletteIndex = newTileInfo.PaletteIndex;
-            tile.TileSetGraphicIndex = newTileInfo.TileSetGraphicIndex;
-
-            return tile;
+            // Update destination tile values
+            destTile.Data.CollisionType = newTile.Data.CollisionType;
+            destTile.PaletteIndex = newTile.PaletteIndex;
+            destTile.Data.TileMapX = newTile.Data.TileMapX;
+            destTile.Data.TileMapY = newTile.Data.TileMapY;
+            destTile.Data.PC_Unk1 = newTile.Data.PC_Unk1;
+            destTile.Data.PC_Unk2 = newTile.Data.PC_Unk2;
         }
 
-        public Common_Tile SetTypeAtPos(int x, int y, TileCollisionType typeIndex, Common_Tile tile = null) {
+        public Editor_MapTile SetTypeAtPos(int x, int y, TileCollisionType collisionType) 
+        {
+            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+
+            // Update tile graphics
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)typeIndex]);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)collisionType]);
 
-            // Get the tile if null
-            if (tile == null)
-                tile = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
-            tile.CollisionType = typeIndex;
+            // Get the tile to set
+            var destTile = map.MapTiles[y * map.Width + x];
 
-            return tile;
+            destTile.Data.CollisionType = collisionType;
+
+            return destTile;
         }
     }
 }

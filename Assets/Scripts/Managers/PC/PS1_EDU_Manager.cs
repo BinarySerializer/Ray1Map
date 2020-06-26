@@ -371,7 +371,8 @@ namespace R1Engine
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
-                        Tiles = new Common_Tile[levelData.Width * levelData.Height],
+                        MapTiles = levelData.MapTiles.Select(x => new Editor_MapTile(x)).ToArray(),
+                        TileSetWidth = 1
                     }
                 },
 
@@ -416,26 +417,6 @@ namespace R1Engine
             commonLev.Maps[0].TileSet[0] = tileSets[0];
             commonLev.Maps[0].TileSet[1] = tileSets[1];
             commonLev.Maps[0].TileSet[2] = tileSets[2];
-
-            // Enumerate each cell
-            for (int cellY = 0; cellY < levelData.Height; cellY++)
-            {
-                for (int cellX = 0; cellX < levelData.Width; cellX++)
-                {
-                    // Get the cell
-                    var cell = levelData.MapTiles[cellY * levelData.Width + cellX];
-
-                    // Set the common tile
-                    commonLev.Maps[0].Tiles[cellY * levelData.Width + cellX] = new Common_Tile()
-                    {
-                        TileSetGraphicIndex = cell.TileMapX,
-                        CollisionType = cell.CollisionType,
-                        PaletteIndex = 1,
-                        XPosition = cellX,
-                        YPosition = cellY
-                    };
-                }
-            }
 
             // Return an editor manager
             return GetEditorManager(commonLev, context, eventDesigns);

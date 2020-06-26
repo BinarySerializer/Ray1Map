@@ -185,10 +185,10 @@ namespace R1Engine
                 LinkIndex = 0
             };
 
-            eventData.EventData.SetFollowEnabled(Settings, e.FollowEnabled);
+            eventData.Data.SetFollowEnabled(Settings, e.FollowEnabled);
 
             if (EventTypeEnumType == typeof(EventType))
-                eventData.EventData.Type = (EventType)eventData.Type;
+                eventData.Data.Type = (EventType)eventData.Type;
 
             return eventData;
         }
@@ -253,7 +253,7 @@ namespace R1Engine
             var cmds = e.CommandCollection?.ToBytes(Settings);
 
             // Find match
-            var match = GetGeneralEventInfo(e.TypeValue, e.EventData.Etat, e.EventData.SubEtat, e.DESKey, e.ETAKey, e.EventData.OffsetBX, e.EventData.OffsetBY, e.EventData.OffsetHY, e.EventData.FollowSprite, e.EventData.HitPoints, e.EventData.HitSprite, e.EventData.GetFollowEnabled(Settings), e.LabelOffsets, cmds);
+            var match = GetGeneralEventInfo(e.TypeValue, e.Data.Etat, e.Data.SubEtat, e.DESKey, e.ETAKey, e.Data.OffsetBX, e.Data.OffsetBY, e.Data.OffsetHY, e.Data.FollowSprite, e.Data.HitPoints, e.Data.HitSprite, e.Data.GetFollowEnabled(Settings), e.LabelOffsets, cmds);
 
             // Return the editor info
             return match?.Name;

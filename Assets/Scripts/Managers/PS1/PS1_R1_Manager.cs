@@ -1,9 +1,8 @@
-﻿using System;
-using R1Engine.Serialize;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -247,14 +246,8 @@ namespace R1Engine
             {
                 for (int x = 0; x < lvlData.MapData.Width; x++)
                 {
-                    // Get the tiles
-                    var tile = lvlData.MapData.Tiles[y * lvlData.MapData.Width + x];
-                    var commonTile = commonLevelData.Maps[0].Tiles[y * lvlData.MapData.Width + x];
-
-                    // Update the tile
-                    tile.CollisionType = commonTile.CollisionType;
-                    tile.TileMapY = Mathf.FloatToHalf(commonTile.TileSetGraphicIndex / (float)TileSetWidth);
-                    tile.TileMapX = (ushort)(commonTile.TileSetGraphicIndex - (Settings.CellSize * tile.TileMapY));
+                    // Set the tile
+                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = commonLevelData.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data;
                 }
             }
 
@@ -264,7 +257,7 @@ namespace R1Engine
                 var des = em.DESCollection[e.DESKey];
                 var eta = em.ETACollection[e.ETAKey];
 
-                var ed = e.EventData;
+                var ed = e.Data;
 
                 if (ed.PS1Demo_Unk1 == null)
                     ed.PS1Demo_Unk1 = new byte[40];

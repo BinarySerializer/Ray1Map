@@ -3,14 +3,11 @@ using System.Linq;
 
 namespace R1Engine
 {
-    public class Editor_EventData
+    public class Editor_EventData : EditorWrapper<EventData>
     {
         #region Constructor
 
-        public Editor_EventData(EventData eventData)
-        {
-            EventData = eventData;
-        }
+        public Editor_EventData(EventData eventData) : base(eventData) { }
 
         #endregion
 
@@ -21,8 +18,6 @@ namespace R1Engine
         #endregion
 
         #region Public Properties
-
-        public EventData EventData { get; }
 
         /// <summary>
         /// The event type
@@ -62,13 +57,6 @@ namespace R1Engine
         /// </summary>
         public int LinkIndex { get; set; }
 
-        /// <summary>
-        /// Optional debug text
-        /// </summary>
-        public string DebugText { get; set; }
-
-        public bool HasPendingEdits { get; set; }
-
         #endregion
 
         #region Public Methods
@@ -78,7 +66,7 @@ namespace R1Engine
             // If loading from memory, check runtime flags
             if (Settings.LoadFromMemory)
             {
-                if (EventData.PC_Flags.HasFlag(EventData.PC_EventFlags.DetectZone))
+                if (Data.PC_Flags.HasFlag(EventData.PC_EventFlags.DetectZone))
                     return true;
 
                 // TODO: Check PS1 flags
@@ -91,7 +79,7 @@ namespace R1Engine
                 return true;
 
             // Check if it's the pin event and if the hp flag is set
-            if (Type is EventType et && et == EventType.TYPE_PUNAISE3 && EventData.HitPoints == 1)
+            if (Type is EventType et && et == EventType.TYPE_PUNAISE3 && Data.HitPoints == 1)
                 return true;
 
             // If the first command changes its direction to right, flip the event (a bit hacky, but works for trumpets etc.)
@@ -112,7 +100,7 @@ namespace R1Engine
                 // TODO: Check PS1 flags
                 // TODO: This flag doesn't always work, for example when you defeat an enemy it stays visible
 
-                return EventData.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn);
+                return Data.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn);
             }
             else
             {

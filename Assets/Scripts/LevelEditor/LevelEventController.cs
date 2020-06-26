@@ -216,8 +216,8 @@ namespace R1Engine
             {
                 // If X and Y are insane, clamp them
                 const int border = 10;
-                eventList[i].Data.EventData.XPosition = (uint)Mathf.Clamp(eventList[i].Data.EventData.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border);
-                eventList[i].Data.EventData.YPosition = (uint)Mathf.Clamp(eventList[i].Data.EventData.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border);
+                eventList[i].Data.Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border);
+                eventList[i].Data.Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border);
 
                 // No link
                 if (eventList[i].Data.LinkIndex == i)
@@ -333,8 +333,8 @@ namespace R1Engine
                             ViewModel.SelectedEvent = e;
                             //Change event info if event is selected
                             infoName.text = ViewModel.DisplayName;
-                            infoAnimIndex.text = ViewModel.SelectedEvent.Data.EventData.RuntimeCurrentAnimIndex.ToString();
-                            infoLayer.text = ViewModel.SelectedEvent.Data.EventData.Layer.ToString();
+                            infoAnimIndex.text = ViewModel.SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
+                            infoLayer.text = ViewModel.SelectedEvent.Data.Data.Layer.ToString();
                             //Clear old commands
                             ClearCommands();
                             //Fill out the commands
@@ -462,12 +462,12 @@ namespace R1Engine
                 {
                     s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
                     s.Goto(currentOffset);
-                    ed.EventData.Init(s.CurrentPointer);
-                    ed.EventData.Serialize(s);
-                    ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
-                                   $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
-                                   $"Unk_112: {ed.EventData.Unk_112}{Environment.NewLine}" +
-                                   $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
+                    ed.Data.Init(s.CurrentPointer);
+                    ed.Data.Serialize(s);
+                    ed.DebugText = $"Pos: {ed.Data.XPosition}, {ed.Data.YPosition}{Environment.NewLine}" +
+                                   $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
+                                   $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
+                                   $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
                     if (s is BinarySerializer) madeEdits = true;
                     ed.HasPendingEdits = false;
                     currentOffset = s.CurrentPointer;
@@ -476,8 +476,8 @@ namespace R1Engine
                 var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
                 s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
                 s.Goto(currentOffset);
-                ray.EventData.Init(s.CurrentPointer);
-                ray.EventData.Serialize(s);
+                ray.Data.Init(s.CurrentPointer);
+                ray.Data.Serialize(s);
                 if (s is BinarySerializer) madeEdits = true;
                 ray.HasPendingEdits = false;
             }
@@ -593,7 +593,7 @@ namespace R1Engine
         public Common_Event AddEvent(Editor_EventData eventData)
         {
             // Instantiate prefab
-            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.EventData.XPosition / 16f, -(eventData.EventData.YPosition / 16f), eventData.EventData.Layer), Quaternion.identity).GetComponent<Common_Event>();
+            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.Data.XPosition / 16f, -(eventData.Data.YPosition / 16f), eventData.Data.Layer), Quaternion.identity).GetComponent<Common_Event>();
 
             newEvent.Data = eventData;
 

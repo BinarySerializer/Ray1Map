@@ -95,8 +95,8 @@ namespace R1Engine
                 History = new EditorHistory<Ray1MapEditorHistoryItem>(x =>
                 {
                     // Set tiles
-                    foreach (var item in x.ModifiedTiles)
-                        controllerTilemap.SetTileAtPos(item.XPosition, item.YPosition, item);
+                    foreach (var tileItem in x.ModifiedTiles)
+                        controllerTilemap.SetTileAtPos(tileItem.XPos, tileItem.YPos, tileItem.Item);
                 });
 
                 if (Settings.ScreenshotEnumeration)

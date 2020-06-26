@@ -14,8 +14,8 @@ namespace R1Engine {
         public Editor_EventData Data { get; set; }
 
         public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
-        public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.EventData.RuntimeEtat)?.ElementAtOrDefault(Data.EventData.RuntimeSubEtat);
-        public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.EventData.RuntimeCurrentAnimIndex);
+        public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Data.RuntimeEtat)?.ElementAtOrDefault(Data.Data.RuntimeSubEtat);
+        public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.Data.RuntimeCurrentAnimIndex);
         public int AnimSpeed => Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON) ? 0 : State?.AnimationSpeed ?? 0;
 
         public byte? PrevAnimIndex { get; set; }
@@ -37,14 +37,14 @@ namespace R1Engine {
             if (Data.MapLayer != null && Data.MapLayer.Value > 0)
                 Scale = Controller.obj.levelController.EditorManager.Level.Maps[Data.MapLayer.Value - 1].ScaleFactor;
 
-            Data.EventData.RuntimeEtat = Data.EventData.Etat;
-            Data.EventData.RuntimeSubEtat = Data.EventData.SubEtat;
-            Data.EventData.RuntimeLayer = Data.EventData.Layer;
-            Data.EventData.RuntimeXPosition = (ushort)Data.EventData.XPosition;
-            Data.EventData.RuntimeYPosition = (ushort)Data.EventData.YPosition;
-            Data.EventData.RuntimeCurrentAnimFrame = 0;
-            Data.EventData.RuntimeCurrentAnimIndex = 0;
-            Data.EventData.RuntimeHitPoints = Data.EventData.HitPoints;
+            Data.Data.RuntimeEtat = Data.Data.Etat;
+            Data.Data.RuntimeSubEtat = Data.Data.SubEtat;
+            Data.Data.RuntimeLayer = Data.Data.Layer;
+            Data.Data.RuntimeXPosition = (ushort)Data.Data.XPosition;
+            Data.Data.RuntimeYPosition = (ushort)Data.Data.YPosition;
+            Data.Data.RuntimeCurrentAnimFrame = 0;
+            Data.Data.RuntimeCurrentAnimIndex = 0;
+            Data.Data.RuntimeHitPoints = Data.Data.HitPoints;
 
             RefreshEditorInfo();
         }
@@ -115,12 +115,12 @@ namespace R1Engine {
                     EditorAnimFrame += (60f / AnimSpeed) * Time.deltaTime;
 
                 // Update the frame
-                Data.EventData.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
+                Data.Data.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
 
                 // Loop back to first frame
-                if (Data.EventData.RuntimeCurrentAnimFrame >= CurrentAnimation.Frames.Length)
+                if (Data.Data.RuntimeCurrentAnimFrame >= CurrentAnimation.Frames.Length)
                 {
-                    Data.EventData.RuntimeCurrentAnimFrame = 0;
+                    Data.Data.RuntimeCurrentAnimFrame = 0;
                     EditorAnimFrame = 0;
 
                     if (Settings.StateSwitchingMode != StateSwitchingMode.None)
@@ -129,17 +129,17 @@ namespace R1Engine {
                         var state = State;
 
                         // Check if we've reached the end of the linking chain and we're looping
-                        if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && Data.EventData.RuntimeEtat == state.LinkedEtat && Data.EventData.RuntimeSubEtat == state.LinkedSubEtat)
+                        if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && Data.Data.RuntimeEtat == state.LinkedEtat && Data.Data.RuntimeSubEtat == state.LinkedSubEtat)
                         {
                             // Reset the state
-                            Data.EventData.RuntimeEtat = Data.EventData.Etat;
-                            Data.EventData.RuntimeSubEtat = Data.EventData.SubEtat;
+                            Data.Data.RuntimeEtat = Data.Data.Etat;
+                            Data.Data.RuntimeSubEtat = Data.Data.SubEtat;
                         }
                         else
                         {
                             // Update state values to the linked one
-                            Data.EventData.RuntimeEtat = state.LinkedEtat;
-                            Data.EventData.RuntimeSubEtat = state.LinkedSubEtat;
+                            Data.Data.RuntimeEtat = state.LinkedEtat;
+                            Data.Data.RuntimeSubEtat = state.LinkedSubEtat;
                         }
                     }
                 }
@@ -156,18 +156,18 @@ namespace R1Engine {
             // Update the animation index if not loading from memory
             if (!Settings.LoadFromMemory)
             {
-                Data.EventData.RuntimeCurrentAnimIndex = State?.AnimationIndex ?? 0;
+                Data.Data.RuntimeCurrentAnimIndex = State?.AnimationIndex ?? 0;
 
                 // Hack for multi-colored events
                 if (Data.Type is EventType et && PC_RD_Manager.MultiColoredEvents.Contains(et))
-                    Data.EventData.RuntimeCurrentAnimIndex = (byte)(Data.EventData.RuntimeCurrentAnimIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.EventData.HitPoints));
+                    Data.Data.RuntimeCurrentAnimIndex = (byte)(Data.Data.RuntimeCurrentAnimIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.Data.HitPoints));
             }
 
             // Check if the animation has changed
-            if (PrevAnimIndex != Data.EventData.RuntimeCurrentAnimIndex)
+            if (PrevAnimIndex != Data.Data.RuntimeCurrentAnimIndex)
             {
                 // Update the animation index
-                PrevAnimIndex = Data.EventData.RuntimeCurrentAnimIndex;
+                PrevAnimIndex = Data.Data.RuntimeCurrentAnimIndex;
 
                 // If animation is null, use default renderer ("E")
                 if (CurrentAnimation == null)
@@ -182,12 +182,12 @@ namespace R1Engine {
                     // Reset the current frame
                     if (!Settings.LoadFromMemory)
                     {
-                        Data.EventData.RuntimeCurrentAnimFrame = 0;
+                        Data.Data.RuntimeCurrentAnimFrame = 0;
                         EditorAnimFrame = 0;
                     }
 
                     // Get the amount of layers per frame
-                    var len = CurrentAnimation.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers.Length;
+                    var len = CurrentAnimation.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers.Length;
 
                     // Clear old array
                     ClearChildren();
@@ -215,7 +215,7 @@ namespace R1Engine {
             var anim = CurrentAnimation;
 
             // Update x and y
-            transform.position = new Vector3(Data.EventData.XPosition / 16f, -(Data.EventData.YPosition / 16f), 0);
+            transform.position = new Vector3(Data.Data.XPosition / 16f, -(Data.Data.YPosition / 16f), 0);
 
             // Don't move link cube if it's part of a link
             if (LinkID != 0)
@@ -226,12 +226,12 @@ namespace R1Engine {
             // Update sprite parts in the animation
             if (anim != null)
             {
-                var frame = Data.EventData.RuntimeCurrentAnimFrame;
+                var frame = Data.Data.RuntimeCurrentAnimFrame;
 
                 // Get the sprites
                 var sprites = EditorManager.DES[Data.DESKey].Sprites;
 
-                var pivot = new Vector2(Data.EventData.OffsetBX, -(Data.EventData.OffsetBY));
+                var pivot = new Vector2(Data.Data.OffsetBX, -(Data.Data.OffsetBY));
 
                 var mirrored = Data.GetIsFlippedHorizontally();
 
@@ -268,11 +268,11 @@ namespace R1Engine {
             }
 
             // Update the follow sprite line
-            if (anim != null && Data.EventData.FollowSprite < anim.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers.Length)
+            if (anim != null && Data.Data.FollowSprite < anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers.Length)
             {
-                followSpriteLine.localPosition = new Vector2(anim.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers[Data.EventData.FollowSprite].XPosition / 16f, -anim.Frames[Data.EventData.RuntimeCurrentAnimFrame].Layers[Data.EventData.FollowSprite].YPosition / 16f - (Data.EventData.OffsetHY / 16f));
+                followSpriteLine.localPosition = new Vector2(anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].XPosition / 16f, -anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].YPosition / 16f - (Data.Data.OffsetHY / 16f));
 
-                var w = (prefabRendereds[Data.EventData.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.EventData.FollowSprite].sprite.texture.width;
+                var w = (prefabRendereds[Data.Data.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.Data.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
             }
 
@@ -314,9 +314,9 @@ namespace R1Engine {
             // Update offset points
             if (anim != null)
             {
-                offsetCrossBX.localPosition = new Vector2(Data.EventData.OffsetBX / 16f, 0f);
-                offsetCrossBY.localPosition = new Vector2(Data.EventData.OffsetBX / 16f, -(Data.EventData.OffsetBY / 16f));
-                offsetCrossHY.localPosition = new Vector2(Data.EventData.OffsetBX / 16f, -((Data.EventData.OffsetHY / 16f) + (CurrentAnimation.Frames[0].FrameData.YPosition / 16f)));
+                offsetCrossBX.localPosition = new Vector2(Data.Data.OffsetBX / 16f, 0f);
+                offsetCrossBY.localPosition = new Vector2(Data.Data.OffsetBX / 16f, -(Data.Data.OffsetBY / 16f));
+                offsetCrossHY.localPosition = new Vector2(Data.Data.OffsetBX / 16f, -((Data.Data.OffsetHY / 16f) + (CurrentAnimation.Frames[0].FrameData.YPosition / 16f)));
             }
 
             // Update visibility
@@ -336,7 +336,7 @@ namespace R1Engine {
             offsetCrossBY.gameObject.SetActive(visible);
             offsetCrossHY.gameObject.SetActive(visible);
             followSpriteLine.gameObject.SetActive(visible);
-            followSpriteLine.gameObject.SetActive(visible && Data.EventData.GetFollowEnabled(EditorManager.Settings));
+            followSpriteLine.gameObject.SetActive(visible && Data.Data.GetFollowEnabled(EditorManager.Settings));
         }
 
         public void ChangeLinksVisibility(bool visible) {

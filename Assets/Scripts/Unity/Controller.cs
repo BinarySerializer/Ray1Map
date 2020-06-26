@@ -79,7 +79,7 @@ namespace R1Engine
             stopwatch.Stop();
             loadTimer.Stop();
 
-            var startEvent = levelController.EditorManager.Level.Rayman?.EventData ?? levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE))?.Data.EventData;
+            var startEvent = levelController.EditorManager.Level.Rayman?.Data ?? levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE))?.Data.Data;
 
             if (startEvent != null)
                 Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition, -10f);

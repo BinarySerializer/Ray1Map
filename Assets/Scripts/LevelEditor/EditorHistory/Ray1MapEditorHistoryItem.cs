@@ -9,7 +9,7 @@
         /// Default constructor
         /// </summary>
         /// <param name="modifiedTiles">The tiles which have been modified</param>
-        public Ray1MapEditorHistoryItem(Common_Tile[] modifiedTiles)
+        public Ray1MapEditorHistoryItem(Ray1MapEditorHistoryTile[] modifiedTiles)
         {
             ModifiedTiles = modifiedTiles;
         }
@@ -17,6 +17,6 @@
         /// <summary>
         /// The tiles which have been modified
         /// </summary>
-        public Common_Tile[] ModifiedTiles { get; }
+        public Ray1MapEditorHistoryTile[] ModifiedTiles { get; }
     }
 }

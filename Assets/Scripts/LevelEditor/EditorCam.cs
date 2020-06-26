@@ -37,7 +37,7 @@ namespace R1Engine {
                 var rayman = Controller.obj.levelController.currentLevel.Rayman;
 
                 if (rayman != null)
-                    pos = new Vector3(rayman.EventData.XPosition / 16f, -(rayman.EventData.YPosition / 16f));
+                    pos = new Vector3(rayman.Data.XPosition / 16f, -(rayman.Data.YPosition / 16f));
             }
 
 

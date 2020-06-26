@@ -363,7 +363,8 @@ namespace R1Engine
                     ScaleFactor = i == 1 ? 0.5f : 1,
 
                     // Create the tile array
-                    TileSet = new Common_Tileset[1]
+                    TileSet = new Common_Tileset[1],
+                    TileSetWidth = TileSetWidth
                 }).ToArray(),
 
                 // Create the events list
@@ -386,30 +387,7 @@ namespace R1Engine
                 c.Maps[i].TileSet[0] = tileSet;
 
                 // Set the tiles
-                c.Maps[i].Tiles = new Common_Tile[maps[i].Width * maps[i].Height];
-
-                int tileIndex = 0;
-                for (int y = 0; y < maps[i].Height; y++)
-                {
-                    for (int x = 0; x < maps[i].Width; x++)
-                    {
-                        var graphicX = maps[i].Tiles[tileIndex].TileMapX;
-                        var graphicY = maps[i].Tiles[tileIndex].TileMapY;
-
-                        Common_Tile newTile = new Common_Tile
-                        {
-                            PaletteIndex = 1,
-                            XPosition = x,
-                            YPosition = y,
-                            CollisionType = maps[i].Tiles[tileIndex].CollisionType,
-                            TileSetGraphicIndex = (TileSetWidth * graphicY) + graphicX
-                        };
-
-                        c.Maps[i].Tiles[tileIndex] = newTile;
-
-                        tileIndex++;
-                    }
-                }
+                c.Maps[i].MapTiles = maps[i].Tiles.Select(x => new Editor_MapTile(x)).ToArray();
             }
 
             // Return an editor manager

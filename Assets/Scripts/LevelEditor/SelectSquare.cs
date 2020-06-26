@@ -37,11 +37,11 @@ namespace R1Engine {
         /// Gets the tiles contained within the selection square.
         /// </summary>
         /// <returns></returns>
-        public Common_Tile[] GetTiles() {
-            var r = new List<Common_Tile>();
+        public Editor_MapTile[] GetTiles() {
+            var r = new List<Editor_MapTile>();
             for (int y = (int)YStart; y <= YEnd; y++)
                 for (int x = (int)XStart; x <= XEnd; x++)
-                    r.Add(lvl.Maps[tileController.editor.currentMap].Tiles[x + y * lvl.Maps[tileController.editor.currentMap].Width]);
+                    r.Add(lvl.Maps[tileController.editor.currentMap].MapTiles[x + y * lvl.Maps[tileController.editor.currentMap].Width]);
             return r.ToArray();
         }
 

@@ -345,7 +345,8 @@ namespace R1Engine
                         Height = map.Height,
 
                         // Create the tile array
-                        TileSet = new Common_Tileset[1]
+                        TileSet = new Common_Tileset[1],
+                        TileSetWidth = TileSetWidth
                     }
                 },
 
@@ -361,30 +362,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Set the tiles
-            c.Maps[0].Tiles = new Common_Tile[map.Width * map.Height];
-
-            int tileIndex = 0;
-            for (int y = 0; y < map.Height; y++)
-            {
-                for (int x = 0; x < map.Width; x++)
-                {
-                    var graphicX = map.Tiles[tileIndex].TileMapX;
-                    var graphicY = map.Tiles[tileIndex].TileMapY;
-
-                    Common_Tile newTile = new Common_Tile
-                    {
-                        PaletteIndex = 1,
-                        XPosition = x,
-                        YPosition = y,
-                        CollisionType = map.Tiles[tileIndex].CollisionType,
-                        TileSetGraphicIndex = (TileSetWidth * graphicY) + graphicX
-                    };
-
-                    c.Maps[0].Tiles[tileIndex] = newTile;
-
-                    tileIndex++;
-                }
-            }
+            c.Maps[0].MapTiles = map.Tiles.Select(x => new Editor_MapTile(x)).ToArray();
 
             // Return an editor manager
             return new PS1EditorManager(c, context, eventDesigns, eventETA, events);

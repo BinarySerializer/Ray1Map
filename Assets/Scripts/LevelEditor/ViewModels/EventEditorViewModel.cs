@@ -75,9 +75,9 @@ namespace R1Engine
 
                 _xPosition = value;
 
-                if (XPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.EventData.XPosition)
+                if (XPosition.HasValue && SelectedEvent != null && XPosition != SelectedEvent.Data.Data.XPosition)
                 {
-                    SelectedEvent.Data.EventData.XPosition = XPosition.Value;
+                    SelectedEvent.Data.Data.XPosition = XPosition.Value;
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
 
@@ -95,9 +95,9 @@ namespace R1Engine
 
                 _yPosition = value;
 
-                if (YPosition.HasValue && SelectedEvent != null && YPosition != SelectedEvent.Data.EventData.YPosition)
+                if (YPosition.HasValue && SelectedEvent != null && YPosition != SelectedEvent.Data.Data.YPosition)
                 {
-                    SelectedEvent.Data.EventData.YPosition = YPosition.Value;
+                    SelectedEvent.Data.Data.YPosition = YPosition.Value;
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
 
@@ -157,10 +157,10 @@ namespace R1Engine
 
                 _etat = value;
 
-                if (Etat != null && SelectedEvent != null && Etat != SelectedEvent.Data.EventData.Etat)
+                if (Etat != null && SelectedEvent != null && Etat != SelectedEvent.Data.Data.Etat)
                 {
-                    SelectedEvent.Data.EventData.Etat = Etat.Value;
-                    SelectedEvent.Data.EventData.RuntimeEtat = Etat.Value;
+                    SelectedEvent.Data.Data.Etat = Etat.Value;
+                    SelectedEvent.Data.Data.RuntimeEtat = Etat.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -179,10 +179,10 @@ namespace R1Engine
 
                 _subEtat = value;
 
-                if (SubEtat != null && SelectedEvent != null && SubEtat != SelectedEvent.Data.EventData.SubEtat)
+                if (SubEtat != null && SelectedEvent != null && SubEtat != SelectedEvent.Data.Data.SubEtat)
                 {
-                    SelectedEvent.Data.EventData.SubEtat = SubEtat.Value;
-                    SelectedEvent.Data.EventData.RuntimeSubEtat = SubEtat.Value;
+                    SelectedEvent.Data.Data.SubEtat = SubEtat.Value;
+                    SelectedEvent.Data.Data.RuntimeSubEtat = SubEtat.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -201,9 +201,9 @@ namespace R1Engine
 
                 _offsetBx = value;
 
-                if (OffsetBX.HasValue && SelectedEvent != null && OffsetBX != SelectedEvent.Data.EventData.OffsetBX)
+                if (OffsetBX.HasValue && SelectedEvent != null && OffsetBX != SelectedEvent.Data.Data.OffsetBX)
                 {
-                    SelectedEvent.Data.EventData.OffsetBX = OffsetBX.Value;
+                    SelectedEvent.Data.Data.OffsetBX = OffsetBX.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -222,9 +222,9 @@ namespace R1Engine
 
                 _offsetBy = value;
 
-                if (OffsetBY.HasValue && SelectedEvent != null && OffsetBY != SelectedEvent.Data.EventData.OffsetBY)
+                if (OffsetBY.HasValue && SelectedEvent != null && OffsetBY != SelectedEvent.Data.Data.OffsetBY)
                 {
-                    SelectedEvent.Data.EventData.OffsetBY = OffsetBY.Value;
+                    SelectedEvent.Data.Data.OffsetBY = OffsetBY.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -243,9 +243,9 @@ namespace R1Engine
 
                 _offsetHy = value;
 
-                if (OffsetHY.HasValue && SelectedEvent != null && OffsetHY != SelectedEvent.Data.EventData.OffsetHY)
+                if (OffsetHY.HasValue && SelectedEvent != null && OffsetHY != SelectedEvent.Data.Data.OffsetHY)
                 {
-                    SelectedEvent.Data.EventData.OffsetHY = OffsetHY.Value;
+                    SelectedEvent.Data.Data.OffsetHY = OffsetHY.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -264,9 +264,9 @@ namespace R1Engine
 
                 _followSprite = value;
 
-                if (FollowSprite.HasValue && SelectedEvent != null && FollowSprite != SelectedEvent.Data.EventData.FollowSprite)
+                if (FollowSprite.HasValue && SelectedEvent != null && FollowSprite != SelectedEvent.Data.Data.FollowSprite)
                 {
-                    SelectedEvent.Data.EventData.FollowSprite = FollowSprite.Value;
+                    SelectedEvent.Data.Data.FollowSprite = FollowSprite.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -285,10 +285,10 @@ namespace R1Engine
 
                 _hitPoints = value;
 
-                if (HitPoints.HasValue && SelectedEvent != null && HitPoints != SelectedEvent.Data.EventData.HitPoints)
+                if (HitPoints.HasValue && SelectedEvent != null && HitPoints != SelectedEvent.Data.Data.HitPoints)
                 {
-                    SelectedEvent.Data.EventData.HitPoints = HitPoints.Value;
-                    SelectedEvent.Data.EventData.RuntimeHitPoints = HitPoints.Value;
+                    SelectedEvent.Data.Data.HitPoints = HitPoints.Value;
+                    SelectedEvent.Data.Data.RuntimeHitPoints = HitPoints.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -307,9 +307,9 @@ namespace R1Engine
 
                 _hitSprite = value;
 
-                if (HitSprite.HasValue && SelectedEvent != null && HitSprite != SelectedEvent.Data.EventData.HitSprite)
+                if (HitSprite.HasValue && SelectedEvent != null && HitSprite != SelectedEvent.Data.Data.HitSprite)
                 {
-                    SelectedEvent.Data.EventData.HitSprite = HitSprite.Value;
+                    SelectedEvent.Data.Data.HitSprite = HitSprite.Value;
                     SelectedEvent.RefreshName();
                     SelectedEvent.Data.HasPendingEdits = true;
                 }
@@ -328,9 +328,9 @@ namespace R1Engine
 
                 _followEnabled = value;
 
-                if (FollowEnabled.HasValue && SelectedEvent != null && FollowEnabled != SelectedEvent.Data.EventData.GetFollowEnabled(Controller.obj.levelController.EditorManager.Settings))
+                if (FollowEnabled.HasValue && SelectedEvent != null && FollowEnabled != SelectedEvent.Data.Data.GetFollowEnabled(Controller.obj.levelController.EditorManager.Settings))
                 {
-                    SelectedEvent.Data.EventData.SetFollowEnabled(Controller.obj.levelController.EditorManager.Settings, FollowEnabled.Value);
+                    SelectedEvent.Data.Data.SetFollowEnabled(Controller.obj.levelController.EditorManager.Settings, FollowEnabled.Value);
                     SelectedEvent.RefreshName();
                     SelectedEvent.ChangeOffsetVisibility(true);
                     SelectedEvent.Data.HasPendingEdits = true;
@@ -370,19 +370,19 @@ namespace R1Engine
         /// </summary>
         protected void Refresh()
         {
-            XPosition = SelectedEvent?.Data.EventData.XPosition;
-            YPosition = SelectedEvent?.Data.EventData.YPosition;
+            XPosition = SelectedEvent?.Data.Data.XPosition;
+            YPosition = SelectedEvent?.Data.Data.YPosition;
             DES = SelectedEvent?.Data.DESKey;
             ETA = SelectedEvent?.Data.ETAKey;
-            Etat = SelectedEvent?.Data.EventData.Etat;
-            SubEtat = SelectedEvent?.Data.EventData.SubEtat;
-            OffsetBX = (byte?)SelectedEvent?.Data.EventData.OffsetBX;
-            OffsetBY = (byte?)SelectedEvent?.Data.EventData.OffsetBY;
-            OffsetHY = (byte?)SelectedEvent?.Data.EventData.OffsetHY;
-            FollowSprite = (byte?)SelectedEvent?.Data.EventData.FollowSprite;
-            HitPoints = (byte?)SelectedEvent?.Data.EventData.HitPoints;
-            HitSprite = (byte?)SelectedEvent?.Data.EventData.HitSprite;
-            FollowEnabled = SelectedEvent?.Data.EventData.GetFollowEnabled(Controller.obj.levelController.EditorManager.Settings);
+            Etat = SelectedEvent?.Data.Data.Etat;
+            SubEtat = SelectedEvent?.Data.Data.SubEtat;
+            OffsetBX = (byte?)SelectedEvent?.Data.Data.OffsetBX;
+            OffsetBY = (byte?)SelectedEvent?.Data.Data.OffsetBY;
+            OffsetHY = (byte?)SelectedEvent?.Data.Data.OffsetHY;
+            FollowSprite = (byte?)SelectedEvent?.Data.Data.FollowSprite;
+            HitPoints = (byte?)SelectedEvent?.Data.Data.HitPoints;
+            HitSprite = (byte?)SelectedEvent?.Data.Data.HitSprite;
+            FollowEnabled = SelectedEvent?.Data.Data.GetFollowEnabled(Controller.obj.levelController.EditorManager.Settings);
             Type = SelectedEvent?.Data.Type;
         }
 

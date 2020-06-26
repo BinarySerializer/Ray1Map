@@ -36,8 +36,8 @@ namespace R1Engine
             {
                 if (flags.HasFlag(RandomizerFlags.Pos))
                 {
-                    eventData.EventData.XPosition = (uint)random.Next(0, maxX);
-                    eventData.EventData.YPosition = (uint)random.Next(0, maxY);
+                    eventData.Data.XPosition = (uint)random.Next(0, maxX);
+                    eventData.Data.YPosition = (uint)random.Next(0, maxY);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Des))
@@ -62,14 +62,14 @@ namespace R1Engine
 
                 if (flags.HasFlag(RandomizerFlags.Follow))
                 {
-                    eventData.EventData.SetFollowEnabled(editorManager.Settings, random.Next(0, 1) == 1);
-                    eventData.EventData.OffsetHY = (byte)random.Next(0, 10);
+                    eventData.Data.SetFollowEnabled(editorManager.Settings, random.Next(0, 1) == 1);
+                    eventData.Data.OffsetHY = (byte)random.Next(0, 10);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.States))
                 {
-                    eventData.EventData.Etat = (byte)random.Next(0, editorManager.ETA[eventData.ETAKey].Length - 1);
-                    eventData.EventData.SubEtat = (byte)random.Next(0, editorManager.ETA[eventData.ETAKey][eventData.EventData.Etat].Length - 1);
+                    eventData.Data.Etat = (byte)random.Next(0, editorManager.ETA[eventData.ETAKey].Length - 1);
+                    eventData.Data.SubEtat = (byte)random.Next(0, editorManager.ETA[eventData.ETAKey][eventData.Data.Etat].Length - 1);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Type))

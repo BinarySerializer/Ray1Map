@@ -1,9 +1,11 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common map tile data
     /// </summary>
-    public class MapTile : R1Serializable
+    public class MapTile : R1Serializable, ICloneable
     {
         /// <summary>
         /// The tile map x position
@@ -123,5 +125,8 @@
                 }
             }
         }
+
+        public MapTile CloneObj() => (MapTile)Clone();
+        public object Clone() => MemberwiseClone();
     }
 }

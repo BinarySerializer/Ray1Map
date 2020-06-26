@@ -1,10 +1,16 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common level map data
     /// </summary>
     public class Common_LevelMap
     {
+        #region Public Properties
+
         /// <summary>
         /// The event scale factor
         /// </summary>
@@ -21,13 +27,33 @@
         public ushort Height { get; set; }
 
         /// <summary>
-        /// The common tile-sets
+        /// The width of the tileset in tiles
+        /// </summary>
+        public int TileSetWidth { get; set; }
+
+        /// <summary>
+        /// The tile-sets, one for each palette
         /// </summary>
         public Common_Tileset[] TileSet { get; set; }
 
         /// <summary>
-        /// The tiles
+        /// The map tiles
         /// </summary>
-        public Common_Tile[] Tiles { get; set; }
+        public Editor_MapTile[] MapTiles { get; set; }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Gets the tile for the specific map tile
+        /// </summary>
+        /// <param name="mapTile">The map tile</param>
+        /// <returns>The tile</returns>
+        public Tile GetTile(Editor_MapTile mapTile) => TileSet[mapTile.PaletteIndex - 1].Tiles[(TileSetWidth * mapTile.Data.TileMapY) + mapTile.Data.TileMapX];
+
+        public Editor_MapTile GetMapTile(int x, int y) => MapTiles.ElementAtOrDefault((Width * y) + x);
+
+        #endregion
     }
 }

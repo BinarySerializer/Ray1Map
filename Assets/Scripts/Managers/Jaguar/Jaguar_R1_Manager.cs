@@ -926,7 +926,8 @@ namespace R1Engine
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
-                        Tiles = new Common_Tile[map.Width * map.Height]
+                        MapTiles = map.Tiles.Select(x => new Editor_MapTile(x)).ToArray(),
+                        TileSetWidth = 1
                     }
                 },
 
@@ -984,7 +985,7 @@ namespace R1Engine
                     
                     if (uniqueEvents.ContainsKey(e.EventIndex)) {
 
-                        if (uniqueEvents[e.EventIndex].EventData.XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].EventData.YPosition != (uint)(mapY + e.OffsetY))
+                        if (uniqueEvents[e.EventIndex].Data.XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].Data.YPosition != (uint)(mapY + e.OffsetY))
                             Debug.LogWarning("An event with an existing index which was removed has a different map position");
 
                         continue; // Duplicate
@@ -1032,8 +1033,8 @@ namespace R1Engine
                     var eventData = CreateEventData(context, ed, eventDesigns, eventETA, loadTextures); ;
                     uniqueEvents[e.EventIndex] = eventData;
                     eventData.LinkIndex = linkIndex;
-                    eventData.EventData.XPosition = (uint)(mapX + e.OffsetX);
-                    eventData.EventData.YPosition = (uint)(mapY + e.OffsetY);
+                    eventData.Data.XPosition = (uint)(mapX + e.OffsetX);
+                    eventData.Data.YPosition = (uint)(mapY + e.OffsetY);
                     eventData.DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
                                           $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
                                           $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
@@ -1050,13 +1051,13 @@ namespace R1Engine
                         {
                             eventData.DESKey = rayPos.DESKey;
                             eventData.ETAKey = rayPos.ETAKey;
-                            eventData.EventData.SubEtat = 7;
+                            eventData.Data.SubEtat = 7;
                         }
                         else if (ed.Offset.FileOffset == 0x00000CD0) // Gendoor
                         {
                             eventData.DESKey = gendoor.DESKey;
                             eventData.ETAKey = gendoor.ETAKey;
-                            eventData.EventData.SubEtat = 2;
+                            eventData.Data.SubEtat = 2;
                         }
                         else if (ed.Offset.FileOffset == 0x000012C0) // Piranha
                         {
@@ -1067,7 +1068,7 @@ namespace R1Engine
                         {
                             eventData.DESKey = scroll.DESKey;
                             eventData.ETAKey = scroll.ETAKey;
-                            eventData.EventData.Etat = 2;
+                            eventData.Data.Etat = 2;
                         }
                         else if (ed.Offset.FileOffset == 0x00002760 && context.Settings.World == World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
@@ -1114,31 +1115,6 @@ namespace R1Engine
                     // Some will crash cause they're from other worlds, just ignore for now...
                 }
             }*/
-
-            Controller.status = $"Loading map";
-            await Controller.WaitIfNecessary();
-
-            // Enumerate each cell
-            for (int cellY = 0; cellY < map.Height; cellY++)
-            {
-                for (int cellX = 0; cellX < map.Width; cellX++)
-                {
-                    // Get the cell
-                    var cell = map.Tiles[cellY * map.Width + cellX];
-
-                    // Set the common tile
-                    commonLev.Maps[0].Tiles[cellY * map.Width + cellX] = new Common_Tile()
-                    {
-                        // We need to ignore some bits since it's sometimes set when the tile index should be 0
-                        TileSetGraphicIndex = cell.TileMapX & 0x7FF,
-
-                        CollisionType = cell.CollisionType,
-                        PaletteIndex = 1,
-                        XPosition = cellX,
-                        YPosition = cellY
-                    };
-                }
-            }
 
             return new PS1EditorManager(commonLev, context, eventDesigns, eventETA, null);
         }

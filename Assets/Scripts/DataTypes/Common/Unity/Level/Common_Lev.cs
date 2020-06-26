@@ -23,6 +23,9 @@ namespace R1Engine
         /// </summary>
         public List<Editor_EventData> EventData { get; set; }
 
+        /// <summary>
+        /// Rayman's event
+        /// </summary>
         public Editor_EventData Rayman { get; set; }
 
         #endregion
@@ -35,10 +38,10 @@ namespace R1Engine
         public void AutoApplyPalette()
         {
             // Get the palette changers
-            var paletteXChangers = EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat < 6).ToDictionary(x => x.EventData.XPosition, x => (PaletteChangerMode)x.EventData.SubEtat);
-            var paletteYChangers = EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat >= 6).ToDictionary(x => x.EventData.YPosition, x => (PaletteChangerMode)x.EventData.SubEtat);
+            var paletteXChangers = EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.Data.SubEtat < 6).ToDictionary(x => x.Data.XPosition, x => (PaletteChangerMode)x.Data.SubEtat);
+            var paletteYChangers = EventData.Where(x => (EventType)x.Type == EventType.TYPE_PALETTE_SWAPPER && x.Data.SubEtat >= 6).ToDictionary(x => x.Data.YPosition, x => (PaletteChangerMode)x.Data.SubEtat);
 
-            // TODO: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
+            // NOTE: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
             bool isPaletteHorizontal = paletteXChangers.Any();
 
@@ -157,7 +160,7 @@ namespace R1Engine
                     }
 
                     // Set the common tile
-                    Maps[0].Tiles[cellY * Maps[0].Width + cellX].PaletteIndex = currentPalette;
+                    Maps[0].MapTiles[cellY * Maps[0].Width + cellX].PaletteIndex = currentPalette;
                 }
             }
         }

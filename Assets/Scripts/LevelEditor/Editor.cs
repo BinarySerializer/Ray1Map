@@ -31,7 +31,7 @@ namespace R1Engine
         public GameObject layerEvents;
 
         //Current tile under the mouse
-        public Common_Tile mouseTile;
+        public Editor_MapTile mouseTile;
 
         bool selecting;
         bool dragging;
@@ -53,10 +53,10 @@ namespace R1Engine
         public int currentMap => lvlController.EditorManager.Level.DefaultMap;
 
         //Selected tiles
-        public Common_Tile[,] selection;
+        public Editor_MapTile[,] selection;
 
-        private readonly List<Common_Tile> TempPrevTileHistory = new List<Common_Tile>();
-        private readonly List<Common_Tile> TempTileHistory = new List<Common_Tile>();
+        private readonly List<Ray1MapEditorHistoryTile> TempPrevTileHistory = new List<Ray1MapEditorHistoryTile>();
+        private readonly List<Ray1MapEditorHistoryTile> TempTileHistory = new List<Ray1MapEditorHistoryTile>();
 
         public void SetEditMode(int mode) {
             // Set
@@ -182,8 +182,13 @@ namespace R1Engine
                 previewTilemap.ClearAllTiles();
         }
 
-        void Update() {
+        void Update() 
+        {
+            if (Controller.obj.levelController.currentLevel == null)
+                return;
 
+            var map = Controller.obj.levelController.currentLevel.Maps[currentMap];
+        
             //Tile editing
             if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
                 // Get the tile under the mouse
@@ -193,9 +198,8 @@ namespace R1Engine
                 // =============== SELECTION SQUARE ===============
 
                 // Escape clears selection info
-                if (GetKeyDown(KeyCode.Escape)) {
+                if (GetKeyDown(KeyCode.Escape))
                     ClearSelection();
-                }                
 
                 // Left click begins drag and assigns the starting corner of the selection square
                 if (!dragging && mouseTile != null) {
@@ -221,18 +225,24 @@ namespace R1Engine
                         tileSelectSquare.color = colorNew;
                         tileSelectSquare.SetEndCorner(endX, endY);
 
-                        if (currentMode == EditMode.Tiles) {
-                            //Change preview position
+                        if (currentMode == EditMode.Tiles) 
+                        {
+                            // Change preview position
                             previewTilemap.transform.position = new Vector3((int)tileSelectSquare.XStart, -(int)tileSelectSquare.YStart);
-                            //Expand the preview tiles
+
+                            // Expand the preview tiles
                             if (selection != null) {
                                 previewTilemap.ClearAllTiles();
                                 int xi = 0;
                                 int yi = 0;
-                                for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                    for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
-                                        previewTilemap.SetTile(new Vector3Int(x - (int)tileSelectSquare.XStart, y - (int)tileSelectSquare.YStart, 0), Controller.obj.levelController.currentLevel.Maps[currentMap].TileSet[0].Tiles[selection[xi, yi].TileSetGraphicIndex]);
+                                for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) 
+                                {
+                                    for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
+                                    {
+                                        previewTilemap.SetTile(new Vector3Int(x - (int)tileSelectSquare.XStart, y - (int)tileSelectSquare.YStart, 0), map.GetTile(selection[xi, yi]));
+
                                         xi++;
+
                                         if (xi >= selection.GetLength(0))
                                             xi = 0;
                                     }
@@ -273,23 +283,32 @@ namespace R1Engine
                 if (GetMouseButtonDown(1))
                     cam.friction = cam.fricStart;
 
-                if (dragging) {
-                    if (currentMode == EditMode.Tiles) {
+                if (dragging) 
+                {
+                    if (currentMode == EditMode.Tiles) 
+                    {
                         // If dragging and selecting mouse up, record the selection
                         if (selecting && !GetMouseButton(0)) {
                             dragging = false;
-                            //Create array for selected area
-                            selection = new Common_Tile[(int)(tileSelectSquare.XEnd - tileSelectSquare.XStart) + 1, (int)(tileSelectSquare.YEnd - tileSelectSquare.YStart) + 1];
+
+                            // Create array for selected area
+                            selection = new Editor_MapTile[(int)(tileSelectSquare.XEnd - tileSelectSquare.XStart) + 1, (int)(tileSelectSquare.YEnd - tileSelectSquare.YStart) + 1];
+
                             int xi = 0;
                             int yi = 0;
-                            //Save the selected area
-                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
+
+                            // Save the selected area
+                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) 
+                            {
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
+                                {
                                     var t = lvlController.controllerTilemap.GetTileAtPos(x, y);
                                     selection[xi, yi] = t;
-                                    //Also fill out preview tilemap
+
+                                    // Also fill out preview tilemap
                                     if (currentMode == EditMode.Tiles)
-                                        previewTilemap.SetTile(new Vector3Int(xi, yi, 0), Controller.obj.levelController.currentLevel.Maps[currentMap].TileSet[0].Tiles[t.TileSetGraphicIndex]);
+                                        previewTilemap.SetTile(new Vector3Int(xi, yi, 0), map.GetTile(t));
+
                                     xi++;
                                 }
                                 xi = 0;
@@ -305,13 +324,14 @@ namespace R1Engine
                                     int yi = 0;
                                     //"Paste" the selection
                                     for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                        for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
+                                        for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
+                                        {
+                                            TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
 
-                                            var t = Controller.obj.levelController.currentLevel.Maps[currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
-                                            TempPrevTileHistory.Add(t.CloneTile());
+                                            var selectionTile = selection[xi, yi];
+                                            lvlController.controllerTilemap.SetTileAtPos(x, y, selectionTile);
 
-                                            var tile = lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi], t);
-                                            TempTileHistory.Add(tile.CloneTile());
+                                            TempTileHistory.Add(new Ray1MapEditorHistoryTile(selectionTile.CloneObj(), xi, yi));
 
                                             xi++;
                                             if (xi >= selection.GetLength(0))
@@ -323,54 +343,61 @@ namespace R1Engine
                                             yi = 0;
                                     }
                                 }
-                                //Cut the preview back to the original size since it's been expanded
-                                if (currentMode == EditMode.Tiles) {
+                                // Cut the preview back to the original size since it's been expanded
+                                if (currentMode == EditMode.Tiles) 
+                                {
                                     previewTilemap.ClearAllTiles();
-                                    //Save the selected area
-                                    for (int y = 0; y <= selection.GetLength(1) - 1; y++) {
-                                        for (int x = 0; x <= selection.GetLength(0) - 1; x++) {
-                                            previewTilemap.SetTile(new Vector3Int(x, y, 0), Controller.obj.levelController.currentLevel.Maps[currentMap].TileSet[0].Tiles[selection[x, y].TileSetGraphicIndex]);
+                                    // Save the selected area
+                                    for (int y = 0; y <= selection.GetLength(1) - 1; y++) 
+                                    {
+                                        for (int x = 0; x <= selection.GetLength(0) - 1; x++) 
+                                        {
+                                            previewTilemap.SetTile(new Vector3Int(x, y, 0), map.GetTile(selection[x, y]));
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                    else if (currentMode == EditMode.Collisions) {
+                    else if (currentMode == EditMode.Collisions) 
+                    {
                         //If dragging and selecting mouse up; clear types
-                        if (selecting && !GetMouseButton(0)) {
+                        if (selecting && !GetMouseButton(0))
+                        {
                             dragging = false;
-                            //"Paste" the selection
-                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
+
+                            // "Paste" the selection
+                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) 
+                            {
                                 for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
                                 {
-                                    var t = Controller.obj.levelController.currentLevel.Maps[currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
-                                    TempPrevTileHistory.Add(t.CloneTile());
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, 0, t);
-                                    TempTileHistory.Add(tile.CloneTile());
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
+
+                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
                                 }
                             }
                         }
-                        //Fill with selected type
+                        // Fill with selected type
                         if (!selecting && GetMouseButtonUp(0)) {
                             dragging = false;
-                            //"Paste" the selection
+                            // "Paste" the selection
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
                                 for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
                                 {
-                                    var t = Controller.obj.levelController.currentLevel.Maps[currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
-                                    TempPrevTileHistory.Add(t.CloneTile());
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, currentType, t);
-                                    TempTileHistory.Add(tile.CloneTile());
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, currentType);
+
+                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
                                 }
                             }
                         }
                     }
                 }
 
-                //Stamp selection with ctrl+v
+                // Stamp selection with ctrl+v
                 if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.V) && !dragging) {
                     if (selection != null && !lvlTilemapController.focusedOnTemplate) {
                         int xi = 0;
@@ -379,17 +406,17 @@ namespace R1Engine
                         int h = Controller.obj.levelController.currentLevel.Maps[currentMap].Height;
                         int my = -(int)mousePositionTile.y;
                         int mx = (int)mousePositionTile.x;
-                        //"Paste" the selection
+                        // "Paste" the selection
                         for (int y = my; y <= my+selection.GetLength(1)-1; y++) {
                             for (int x = mx; x <= mx+selection.GetLength(0)-1; x++) {
                                 
                                 if (x>=0 && y>=0 && x<w && y<h)
                                 {
-                                    var t = Controller.obj.levelController.currentLevel.Maps[currentMap].Tiles.FindItem(item => item.XPosition == x && item.YPosition == y);
-                                    TempPrevTileHistory.Add(t.CloneTile());
+                                    TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(map.GetMapTile(x, y).CloneObj(), x, y));
 
-                                    var tile = lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi], t);
-                                    TempTileHistory.Add(tile.CloneTile());
+                                    lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
+
+                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(selection[xi, yi].CloneObj(), xi, yi));
                                 }
 
                                 xi++;

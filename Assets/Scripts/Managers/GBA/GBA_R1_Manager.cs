@@ -890,7 +890,8 @@ namespace R1Engine
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
-                        Tiles = new Common_Tile[map.MapData.Width * map.MapData.Height]
+                        MapTiles = map.MapData.Tiles.Select(x => new Editor_MapTile(x)).ToArray(),
+                        TileSetWidth = 1
                     }
                 },
 
@@ -1026,35 +1027,12 @@ namespace R1Engine
                         LinkIndex = linkTable[index],
                     };
 
-                    editorEventData.EventData.SetFollowEnabled(context.Settings, dat.FollowEnabled);
+                    editorEventData.Data.SetFollowEnabled(context.Settings, dat.FollowEnabled);
 
                     // Add the event
                     commonLev.EventData.Add(editorEventData);
 
                     index++;
-                }
-            }
-
-            Controller.status = $"Loading map";
-            await Controller.WaitIfNecessary();
-
-            // Enumerate each cell
-            for (int cellY = 0; cellY < map.MapData.Height; cellY++) 
-            {
-                for (int cellX = 0; cellX < map.MapData.Width; cellX++) 
-                {
-                    // Get the cell
-                    var cell = map.MapData.Tiles[cellY * map.MapData.Width + cellX];
-
-                    // Set the common tile
-                    commonLev.Maps[0].Tiles[cellY * map.MapData.Width + cellX] = new Common_Tile() 
-                    {
-                        TileSetGraphicIndex = cell.TileMapX,
-                        CollisionType = cell.CollisionType,
-                        PaletteIndex = 1,
-                        XPosition = cellX,
-                        YPosition = cellY
-                    };
                 }
             }
 
