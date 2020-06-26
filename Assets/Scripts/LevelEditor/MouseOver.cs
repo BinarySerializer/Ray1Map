@@ -55,6 +55,8 @@ namespace R1Engine
                     Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
                         ? $"{t.DebugText}{Environment.NewLine}" +
                           $"Collision: {t.Data.CollisionType}{Environment.NewLine}" +
+                          $"PC_Unk1: {t.Data.PC_Unk1}{Environment.NewLine}" +
+                          $"PC_Unk2: {t.Data.PC_Unk2}{Environment.NewLine}" +
                           $"PaletteIndex: {t.PaletteIndex}{Environment.NewLine}"
                         : String.Empty;
                 }
