@@ -334,7 +334,7 @@ namespace R1Engine
 
                                             t.HasPendingEdits = true;
 
-                                            TempTileHistory.Add(new Ray1MapEditorHistoryTile(selectionTile.CloneObj(), xi, yi));
+                                            TempTileHistory.Add(new Ray1MapEditorHistoryTile(selectionTile.CloneObj(), x, y));
 
                                             xi++;
                                             if (xi >= selection.GetLength(0))
@@ -427,7 +427,7 @@ namespace R1Engine
                                     
                                     t.HasPendingEdits = true;
 
-                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(selection[xi, yi].CloneObj(), xi, yi));
+                                    TempTileHistory.Add(new Ray1MapEditorHistoryTile(selection[xi, yi].CloneObj(), x, y));
                                 }
 
                                 xi++;
