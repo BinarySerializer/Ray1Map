@@ -10,12 +10,24 @@ namespace R1Engine
 
         public void UpdatePointers(SerializerObject s, Pointer gameMemoryOffset)
         {
+            // Rayman 1 (PC)
             if (s.GameSettings.EngineVersion == EngineVersion.RayPC)
             {
                 // For version 1.21 - verify it works for other ones too!
                 EventArrayOffset = s.DoAt(gameMemoryOffset + 0x16DDF0, () => s.SerializePointer(EventArrayOffset, anchor: gameMemoryOffset, name: nameof(EventArrayOffset)));
                 TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, anchor: gameMemoryOffset, name: nameof(TileArrayOffset)));
                 RayEventOffset = gameMemoryOffset + 0x16F650;
+            }
+            // Rayman Advance (GBA)
+            else if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
+            {
+                // TODO: Update the event class to support the GBA structure when in memory so that this will work!
+                EventArrayOffset = gameMemoryOffset + 0x020226AE;
+
+                TileArrayOffset = gameMemoryOffset + 0x02002230 + 4; // skip the width + height ushorts
+                
+                // TODO: Find this
+                RayEventOffset = null;
             }
             else
             {
