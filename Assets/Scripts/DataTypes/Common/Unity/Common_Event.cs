@@ -263,24 +263,8 @@ namespace R1Engine {
                     prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 
                     // Get visiblity
-                    var v = Data.GetVisibility();
-
-                    switch (v)
-                    {
-                        case Editor_EventData.EventVisibility.Visible:
-                            prefabRendereds[i].enabled = true;
-                            prefabRendereds[i].color = Color.white;
-                            break;
-
-                        case Editor_EventData.EventVisibility.Faded:
-                            prefabRendereds[i].enabled = true;
-                            prefabRendereds[i].color = new Color(1, 1, 1, 0.5f);
-                            break;
-
-                        case Editor_EventData.EventVisibility.Invisible:
-                            prefabRendereds[i].enabled = false;
-                            break;
-                    }
+                    prefabRendereds[i].enabled = Data.GetIsVisible();
+                    prefabRendereds[i].color = Data.GetIsFaded() ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
             }
 
@@ -337,7 +321,7 @@ namespace R1Engine {
             }
 
             // Update visibility
-            boxCollider.enabled = Data.GetVisibility() != Editor_EventData.EventVisibility.Invisible;
+            boxCollider.enabled = Data.GetIsVisible();
 
             // Set new midpoint
             midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
@@ -357,7 +341,7 @@ namespace R1Engine {
         }
 
         public void ChangeLinksVisibility(bool visible) {
-            if (visible && Data.GetVisibility() != Editor_EventData.EventVisibility.Invisible) {
+            if (visible && Data.GetIsVisible()) {
 
                 //Change link colors
                 if (LinkID == 0) {

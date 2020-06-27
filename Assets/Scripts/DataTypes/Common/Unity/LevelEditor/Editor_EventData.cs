@@ -59,7 +59,11 @@ namespace R1Engine
 
         #endregion
 
-        #region Public Methods
+        #region Methods
+
+        // TODO: Check PS1 flags
+        // Unk_28 is also some active flag, but it's 0 for Rayman
+        protected bool IsActive() => Data.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn) && Data.Unk_36 == 1;
 
         public bool GetIsFlippedHorizontally()
         {
@@ -89,39 +93,22 @@ namespace R1Engine
             return false;
         }
 
-        public EventVisibility GetVisibility()
+        public bool GetIsVisible()
         {
             // Get event flag
             var flag = TypeInfo?.Flag ?? EventFlag.Normal;
 
-            // Check runtime flag if loading from memory
-            if (Settings.LoadFromMemory)
-            {
-                // TODO: Check PS1 flags
-                // TODO: This flag doesn't always work, for example when you defeat an enemy it stays visible
+            if (flag == EventFlag.Editor)
+                return Settings.ShowEditorEvents;
 
-                // Unk_28 is also some active flag, but it's 0 for Rayman
-                return Data.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn) && Data.Unk_36 == 1 ? EventVisibility.Visible : EventVisibility.Faded;
-            }
-            else
-            {
-                if (flag == EventFlag.Editor)
-                    return Settings.ShowEditorEvents ? EventVisibility.Invisible : EventVisibility.Visible;
-
-                if (flag == EventFlag.Always)
-                    return Settings.ShowAlwaysEvents ? EventVisibility.Invisible : EventVisibility.Visible;
-            }
+            if (flag == EventFlag.Always)
+                return Settings.ShowAlwaysEvents || (Settings.LoadFromMemory && IsActive());
 
             // Default to visible
-            return EventVisibility.Visible;
+            return true;
         }
 
-        public enum EventVisibility
-        {
-            Visible,
-            Faded,
-            Invisible
-        }
+        public bool GetIsFaded() => Settings.LoadFromMemory && !IsActive();
 
         #endregion
     }
