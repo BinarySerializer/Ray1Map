@@ -36,8 +36,8 @@ namespace R1Engine
             {
                 if (flags.HasFlag(RandomizerFlags.Pos))
                 {
-                    eventData.Data.XPosition = (uint)random.Next(0, maxX);
-                    eventData.Data.YPosition = (uint)random.Next(0, maxY);
+                    eventData.Data.XPosition = (short)random.Next(0, maxX);
+                    eventData.Data.YPosition = (short)random.Next(0, maxY);
                 }
 
                 if (flags.HasFlag(RandomizerFlags.Des))

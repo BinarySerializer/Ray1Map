@@ -1033,8 +1033,8 @@ namespace R1Engine
                     var eventData = CreateEventData(context, ed, eventDesigns, eventETA, loadTextures); ;
                     uniqueEvents[e.EventIndex] = eventData;
                     eventData.LinkIndex = linkIndex;
-                    eventData.Data.XPosition = (uint)(mapX + e.OffsetX);
-                    eventData.Data.YPosition = (uint)(mapY + e.OffsetY);
+                    eventData.Data.XPosition = (short)(mapX + e.OffsetX);
+                    eventData.Data.YPosition = (short)(mapY + e.OffsetY);
                     eventData.DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
                                           $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
                                           $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +

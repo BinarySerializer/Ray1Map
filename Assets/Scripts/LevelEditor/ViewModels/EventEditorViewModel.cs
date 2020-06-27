@@ -22,8 +22,8 @@ namespace R1Engine
         #region Private Fields
 
         private Common_Event _selectedEvent;
-        private uint? _xPosition;
-        private uint? _yPosition;
+        private short? _xPosition;
+        private short? _yPosition;
         private string _des;
         private string _eta;
         private byte? _etat;
@@ -65,7 +65,7 @@ namespace R1Engine
 
         public string DisplayName => SelectedEvent?.DisplayName ?? String.Empty;
 
-        public uint? XPosition
+        public short? XPosition
         {
             get => _xPosition;
             set
@@ -85,7 +85,7 @@ namespace R1Engine
             }
         }
 
-        public uint? YPosition
+        public short? YPosition
         {
             get => _yPosition;
             set
@@ -370,8 +370,8 @@ namespace R1Engine
         /// </summary>
         protected void Refresh()
         {
-            XPosition = SelectedEvent?.Data.Data.XPosition;
-            YPosition = SelectedEvent?.Data.Data.YPosition;
+            XPosition = (short?)SelectedEvent?.Data.Data.XPosition;
+            YPosition = (short?)SelectedEvent?.Data.Data.YPosition;
             DES = SelectedEvent?.Data.DESKey;
             ETA = SelectedEvent?.Data.ETAKey;
             Etat = SelectedEvent?.Data.Data.Etat;

@@ -102,7 +102,7 @@ namespace R1Engine
                     for (int y = 0; y < Settings.CellSize; y++)
                     {
                         // Attempt to find a matching palette changer on this pixel
-                        var py = paletteYChangers.TryGetValue((uint)(Settings.CellSize * cellY + y), out PaletteChangerMode pm) ? (PaletteChangerMode?)pm : null;
+                        var py = paletteYChangers.TryGetValue((short)(Settings.CellSize * cellY + y), out PaletteChangerMode pm) ? (PaletteChangerMode?)pm : null;
 
                         // If one was found, change the palette based on type
                         if (py != null)
@@ -135,7 +135,7 @@ namespace R1Engine
                         for (int x = 0; x < Settings.CellSize; x++)
                         {
                             // Attempt to find a matching palette changer on this pixel
-                            var px = paletteXChangers.TryGetValue((uint)(Settings.CellSize * cellX + x), out PaletteChangerMode pm) ? (PaletteChangerMode?)pm : null;
+                            var px = paletteXChangers.TryGetValue((short)(Settings.CellSize * cellX + x), out PaletteChangerMode pm) ? (PaletteChangerMode?)pm : null;
 
                             // If one was found, change the palette based on type
                             if (px != null)

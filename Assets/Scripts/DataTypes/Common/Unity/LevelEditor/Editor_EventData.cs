@@ -89,7 +89,7 @@ namespace R1Engine
             return false;
         }
 
-        public bool GetIsVisible()
+        public EventVisibility GetVisibility()
         {
             // Get event flag
             var flag = TypeInfo?.Flag ?? EventFlag.Normal;
@@ -100,19 +100,27 @@ namespace R1Engine
                 // TODO: Check PS1 flags
                 // TODO: This flag doesn't always work, for example when you defeat an enemy it stays visible
 
-                return Data.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn);
+                // Unk_28 is also some active flag, but it's 0 for Rayman
+                return Data.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn) && Data.Unk_36 == 1 ? EventVisibility.Visible : EventVisibility.Faded;
             }
             else
             {
                 if (flag == EventFlag.Editor)
-                    return Settings.ShowEditorEvents;
+                    return Settings.ShowEditorEvents ? EventVisibility.Invisible : EventVisibility.Visible;
 
                 if (flag == EventFlag.Always)
-                    return Settings.ShowAlwaysEvents;
+                    return Settings.ShowAlwaysEvents ? EventVisibility.Invisible : EventVisibility.Visible;
             }
 
             // Default to visible
-            return true;
+            return EventVisibility.Visible;
+        }
+
+        public enum EventVisibility
+        {
+            Visible,
+            Faded,
+            Invisible
         }
 
         #endregion

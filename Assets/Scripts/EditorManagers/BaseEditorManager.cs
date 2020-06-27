@@ -128,7 +128,7 @@ namespace R1Engine
         /// <param name="xPos">The x position</param>
         /// <param name="yPos">The y position</param>
         /// <returns>The event</returns>
-        public Editor_EventData AddEvent(int index, uint xPos, uint yPos)
+        public Editor_EventData AddEvent(int index, short xPos, short yPos)
         {
             // Get the event
             var e = EventInfoData[index];

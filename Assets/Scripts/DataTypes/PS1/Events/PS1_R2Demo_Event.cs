@@ -35,12 +35,12 @@ namespace R1Engine
         /// <summary>
         /// The event x position on the map
         /// </summary>
-        public ushort XPosition { get; set; }
+        public short XPosition { get; set; }
 
         /// <summary>
         /// The event y position on the map
         /// </summary>
-        public ushort YPosition { get; set; }
+        public short YPosition { get; set; }
 
         // 32 (0x20)
 
@@ -204,8 +204,8 @@ namespace R1Engine
             p_stHandlers = s.Serialize<uint>(p_stHandlers, name: nameof(p_stHandlers));
 
             // Serialize positions
-            XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
-            YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
+            XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
 
             // Serialize state data
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));

@@ -9,8 +9,8 @@
 
         public Pointer CommandsPointer { get; set; }
 
-        public ushort XPosition { get; set; }
-        public ushort YPosition { get; set; }
+        public short XPosition { get; set; }
+        public short YPosition { get; set; }
 
         public ushort Layer { get; set; }
 
@@ -52,8 +52,8 @@
         {
             ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
             CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
-            XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
-            YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));
+            XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
             Layer = s.Serialize<ushort>(Layer, name: nameof(Layer));
             LinkGroup = s.Serialize<ushort>(LinkGroup, name: nameof(LinkGroup));
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));

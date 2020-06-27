@@ -69,8 +69,8 @@ namespace R1Engine
 
         #region Field Changed Methods
 
-        public void FieldXPosition() => ViewModel.XPosition = uint.TryParse(infoX.text, out var v) ? v : 0;
-        public void FieldYPosition() => ViewModel.YPosition = uint.TryParse(infoY.text, out var v) ? v : 0;
+        public void FieldXPosition() => ViewModel.XPosition = short.TryParse(infoX.text, out var v) ? v : (short)0;
+        public void FieldYPosition() => ViewModel.YPosition = short.TryParse(infoY.text, out var v) ? v : (short)0;
         public void FieldDes() => ViewModel.DES = infoDes.options[infoDes.value].text;
         public void FieldEta() => ViewModel.ETA = infoEta.options[infoEta.value].text;
         public void FieldEtat() => ViewModel.Etat = (byte)infoEtat.value;
@@ -216,8 +216,8 @@ namespace R1Engine
             {
                 // If X and Y are insane, clamp them
                 const int border = 10;
-                eventList[i].Data.Data.XPosition = (uint)Mathf.Clamp(eventList[i].Data.Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border);
-                eventList[i].Data.Data.YPosition = (uint)Mathf.Clamp(eventList[i].Data.Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border);
+                eventList[i].Data.Data.XPosition = ((short)Mathf.Clamp(eventList[i].Data.Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border));
+                eventList[i].Data.Data.YPosition = ((short)Mathf.Clamp(eventList[i].Data.Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border));
 
                 // No link
                 if (eventList[i].Data.LinkIndex == i)
@@ -309,7 +309,7 @@ namespace R1Engine
                     // Don't add if clicked outside of the level bounds
                     if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width*16 && -moy < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height*16) 
                     {
-                        var eventData = Controller.obj.levelController.EditorManager.AddEvent(eventDropdown.value, (uint)mox, (uint)-moy);
+                        var eventData = Controller.obj.levelController.EditorManager.AddEvent(eventDropdown.value, (short)mox, (short)-moy);
 
                         Controller.obj.levelController.currentLevel.EventData.Add(eventData);
                         var eve = AddEvent(eventData);
@@ -372,8 +372,8 @@ namespace R1Engine
                         if (modeEvents) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                            ViewModel.XPosition = (uint)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16), 0, UInt32.MaxValue);
-                            ViewModel.YPosition = (uint)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), 0, UInt32.MaxValue);
+                            ViewModel.XPosition = (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16), Int16.MinValue, Int16.MaxValue);
+                            ViewModel.YPosition = (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), Int16.MinValue, Int16.MaxValue);
                         }
                         //Else move links
                         if (modeLinks && ViewModel.SelectedEvent != Controller.obj.levelController.RaymanEvent) {
@@ -456,37 +456,36 @@ namespace R1Engine
                 Pointer currentOffset;
                 SerializerObject s;
 
+                void SerializeEvent(Editor_EventData ed)
+                {
+                    s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+                    s.Goto(currentOffset);
+                    ed.Data.Init(s.CurrentPointer);
+                    ed.Data.Serialize(s);
+                    ed.DebugText = $"Pos: {ed.Data.XPosition}, {ed.Data.YPosition}{Environment.NewLine}" +
+                                   $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
+                                   $"Unk_28: {ed.Data.Unk_28}{Environment.NewLine}" +
+                                   $"Unk_36: {ed.Data.Unk_36}{Environment.NewLine}" +
+                                   $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
+                                   $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
+                    if (s is BinarySerializer) madeEdits = true;
+                    ed.HasPendingEdits = false;
+                    currentOffset = s.CurrentPointer;
+                }
+
                 // Events
                 if (GameMemoryData.EventArrayOffset != null)
                 {
                     currentOffset = GameMemoryData.EventArrayOffset;
                     foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
-                    {
-                        s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                        s.Goto(currentOffset);
-                        ed.Data.Init(s.CurrentPointer);
-                        ed.Data.Serialize(s);
-                        ed.DebugText = $"Pos: {ed.Data.XPosition}, {ed.Data.YPosition}{Environment.NewLine}" +
-                                       $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
-                                       $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
-                                       $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
-                        if (s is BinarySerializer) madeEdits = true;
-                        ed.HasPendingEdits = false;
-                        currentOffset = s.CurrentPointer;
-                    }
+                        SerializeEvent(ed);
                 }
 
                 // Rayman
                 if (GameMemoryData.RayEventOffset != null)
                 {
                     currentOffset = GameMemoryData.RayEventOffset;
-                    var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
-                    s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                    s.Goto(currentOffset);
-                    ray.Data.Init(s.CurrentPointer);
-                    ray.Data.Serialize(s);
-                    if (s is BinarySerializer) madeEdits = true;
-                    ray.HasPendingEdits = false;
+                    SerializeEvent(Controller.obj.levelController.EditorManager.Level.Rayman);
                 }
 
                 // Tiles

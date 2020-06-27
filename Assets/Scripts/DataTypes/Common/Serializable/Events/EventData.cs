@@ -65,8 +65,8 @@ namespace R1Engine
         public uint Unk_32 { get; set; }
         public uint Unk_36 { get; set; }
 
-        public uint XPosition { get; set; }
-        public uint YPosition { get; set; }
+        public int XPosition { get; set; }
+        public int YPosition { get; set; }
 
         public ushort PS1Demo_Unk3 { get; set; }
 
@@ -293,13 +293,13 @@ namespace R1Engine
 
             if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PC)
             {
-                XPosition = s.Serialize<uint>(XPosition, name: nameof(XPosition));
-                YPosition = s.Serialize<uint>(YPosition, name: nameof(YPosition));
+                XPosition = s.Serialize<int>(XPosition, name: nameof(XPosition));
+                YPosition = s.Serialize<int>(YPosition, name: nameof(YPosition));
             }
             else
             {
-                XPosition = s.Serialize<ushort>((ushort)XPosition, name: nameof(XPosition));
-                YPosition = s.Serialize<ushort>((ushort)YPosition, name: nameof(YPosition));
+                XPosition = s.Serialize<short>((short)XPosition, name: nameof(XPosition));
+                YPosition = s.Serialize<short>((short)YPosition, name: nameof(YPosition));
             }
 
             if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.RayPS1JPDemoVol6)
