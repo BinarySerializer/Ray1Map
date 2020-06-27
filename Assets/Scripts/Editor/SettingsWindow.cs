@@ -22,7 +22,28 @@ public class SettingsWindow : UnityWindow
 		titleContent.text = "Settings";
 	}
 
-	public async void OnGUI()
+    public string[] DefaultMemoryOptionNames { get; } = new string[]
+    {
+        "Custom",
+        "DOSBox 0.74"
+    };
+
+    public string[] DefaultMemoryOptionProcessNames { get; } = new string[]
+    {
+        null,
+        "DOSBox.exe"
+    };
+
+    public int[] DefaultMemoryOptionPointers { get; } = new int[]
+    {
+        -1,
+        0x01D3A1A0
+    };
+
+    public int DefaultMemoryOptionsIndex { get; set; }
+    public int PreviousDefaultMemoryOptionsIndex { get; set; } = -1;
+
+    public async void OnGUI()
 	{
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
@@ -51,8 +72,43 @@ public class SettingsWindow : UnityWindow
         DrawHeader(ref yPos, "Mode");
 
 		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.Popup(GetNextRect(ref yPos), "Game", (int)Settings.SelectedGameMode, GameModeNames);
-
+        
         Settings.LoadFromMemory = EditorGUI.Toggle(GetNextRect(ref yPos), "Load from memory", Settings.LoadFromMemory);
+        
+        // Memory
+        
+        DrawHeader(ref yPos, "Memory");
+
+        if (Settings.LoadFromMemory)
+        {
+            DefaultMemoryOptionsIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Default memory options", DefaultMemoryOptionsIndex, DefaultMemoryOptionNames);
+
+            if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex)
+            {
+                if (PreviousDefaultMemoryOptionsIndex == -1)
+                {
+                    var match = Enumerable.Range(0, DefaultMemoryOptionNames.Length).FirstOrDefault(x => DefaultMemoryOptionProcessNames[x] == Settings.ProcessName && DefaultMemoryOptionPointers[x] == Settings.GameBasePointer);
+
+                    if (match > 0)
+                        DefaultMemoryOptionsIndex = match;
+                }
+
+                PreviousDefaultMemoryOptionsIndex = DefaultMemoryOptionsIndex;
+
+                if (DefaultMemoryOptionsIndex != 0)
+                {
+                    Settings.ProcessName = DefaultMemoryOptionProcessNames[DefaultMemoryOptionsIndex];
+                    Settings.GameBasePointer = DefaultMemoryOptionPointers[DefaultMemoryOptionsIndex];
+                }
+            }
+
+            EditorGUI.BeginDisabledGroup(DefaultMemoryOptionsIndex != 0);
+
+            Settings.ProcessName = EditorGUI.TextField(GetNextRect(ref yPos), "Process name", Settings.ProcessName);
+            Settings.GameBasePointer = EditorGUI.IntField(GetNextRect(ref yPos), "Game memory pointer", Settings.GameBasePointer);
+         
+            EditorGUI.EndDisabledGroup();
+        }
 
         // Map
 

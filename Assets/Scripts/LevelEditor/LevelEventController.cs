@@ -418,15 +418,13 @@ namespace R1Engine
         }
 
         public Context GameMemoryContext { get; set; }
-        public Pointer GameMemoryOffset { get; set; }
-        public Pointer EventArrayOffset { get; set; }
-        public Pointer RayEventOffset { get; set; }
-        public Pointer TileArrayOffset { get; set; }
+        public R1MemoryData GameMemoryData { get; } = new R1MemoryData();
 
         // TODO: Move this to some main controller since we do tile stuff here too
         public bool UpdateFromMemory()
         {
             bool madeEdits = false;
+
             // TODO: Dispose when we stop program?
             if (GameMemoryContext == null)
             {
@@ -434,21 +432,17 @@ namespace R1Engine
 
                 try
                 {
-                    var file = new ProcessMemoryStreamFile("MemStream", "DOSBox.exe", GameMemoryContext);
+                    var file = new ProcessMemoryStreamFile("MemStream", Settings.ProcessName, GameMemoryContext);
 
-                    // TODO: Do not hard-code the process name
                     GameMemoryContext.AddFile(file);
 
-                    // TODO: Do not hard-code game base pointer - have manager get this (it'll differ for different emulator versions too!)
                     var offset = file.StartPointer;
                     var s = GameMemoryContext.Deserializer;
 
-                    // TODO: Have managers handle this - this is currently hard-coded for PC 1.21
-                    // Get pointers
-                    GameMemoryOffset = s.DoAt(offset + 0x01D3A1A0, () => s.SerializePointer(default, name: nameof(GameMemoryOffset)));
-                    EventArrayOffset = s.DoAt(GameMemoryOffset + 0x16DDF0, () => s.SerializePointer(EventArrayOffset, anchor: GameMemoryOffset, name: nameof(EventArrayOffset)));
-                    TileArrayOffset = s.DoAt(GameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, anchor: GameMemoryOffset, name: nameof(TileArrayOffset)));
-                    RayEventOffset = GameMemoryOffset + 0x16F650;
+                    // Get the base pointer
+                    var baseOffset = s.DoAt(offset + Settings.GameBasePointer, () => s.SerializePointer(default));
+
+                    GameMemoryData.UpdatePointers(s, baseOffset);
                 }
                 catch (Exception ex)
                 {
@@ -459,57 +453,72 @@ namespace R1Engine
 
             if (GameMemoryContext != null)
             {
-                Pointer currentOffset = EventArrayOffset;
+                Pointer currentOffset;
                 SerializerObject s;
-                foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
-                {
-                    s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                    s.Goto(currentOffset);
-                    ed.Data.Init(s.CurrentPointer);
-                    ed.Data.Serialize(s);
-                    ed.DebugText = $"Pos: {ed.Data.XPosition}, {ed.Data.YPosition}{Environment.NewLine}" +
-                                   $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
-                                   $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
-                                   $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
-                    if (s is BinarySerializer) madeEdits = true;
-                    ed.HasPendingEdits = false;
-                    currentOffset = s.CurrentPointer;
-                }
-                currentOffset = RayEventOffset;
-                var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
-                s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                s.Goto(currentOffset);
-                ray.Data.Init(s.CurrentPointer);
-                ray.Data.Serialize(s);
-                if (s is BinarySerializer) madeEdits = true;
-                ray.HasPendingEdits = false;
 
-                currentOffset = TileArrayOffset;
-                var map = Controller.obj.levelController.EditorManager.Level.Maps[0];
-
-                for (int y = 0; y < map.Height; y++)
+                // Events
+                if (GameMemoryData.EventArrayOffset != null)
                 {
-                    for (int x = 0; x < map.Width; x++)
+                    currentOffset = GameMemoryData.EventArrayOffset;
+                    foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
                     {
-                        var mapTile = map.MapTiles[y * map.Width + x];
-
-                        s = mapTile.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-
+                        s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
                         s.Goto(currentOffset);
-
-                        var prevX = mapTile.Data.TileMapX;
-                        var prevY = mapTile.Data.TileMapY;
-
-                        mapTile.Data.Init(s.CurrentPointer);
-                        mapTile.Data.Serialize(s);
-
+                        ed.Data.Init(s.CurrentPointer);
+                        ed.Data.Serialize(s);
+                        ed.DebugText = $"Pos: {ed.Data.XPosition}, {ed.Data.YPosition}{Environment.NewLine}" +
+                                       $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
+                                       $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
+                                       $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
                         if (s is BinarySerializer) madeEdits = true;
-                        mapTile.HasPendingEdits = false;
-
-                        if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
-                            Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
-
+                        ed.HasPendingEdits = false;
                         currentOffset = s.CurrentPointer;
+                    }
+                }
+
+                // Rayman
+                if (GameMemoryData.RayEventOffset != null)
+                {
+                    currentOffset = GameMemoryData.RayEventOffset;
+                    var ray = Controller.obj.levelController.EditorManager.Level.Rayman;
+                    s = ray.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+                    s.Goto(currentOffset);
+                    ray.Data.Init(s.CurrentPointer);
+                    ray.Data.Serialize(s);
+                    if (s is BinarySerializer) madeEdits = true;
+                    ray.HasPendingEdits = false;
+                }
+
+                // Tiles
+                if (GameMemoryData.TileArrayOffset != null)
+                {
+                    currentOffset = GameMemoryData.TileArrayOffset;
+                    var map = Controller.obj.levelController.EditorManager.Level.Maps[0];
+
+                    for (int y = 0; y < map.Height; y++)
+                    {
+                        for (int x = 0; x < map.Width; x++)
+                        {
+                            var mapTile = map.MapTiles[y * map.Width + x];
+
+                            s = mapTile.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
+
+                            s.Goto(currentOffset);
+
+                            var prevX = mapTile.Data.TileMapX;
+                            var prevY = mapTile.Data.TileMapY;
+
+                            mapTile.Data.Init(s.CurrentPointer);
+                            mapTile.Data.Serialize(s);
+
+                            if (s is BinarySerializer) madeEdits = true;
+                            mapTile.HasPendingEdits = false;
+
+                            if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
+                                Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
+
+                            currentOffset = s.CurrentPointer;
+                        }
                     }
                 }
             }
