@@ -442,8 +442,10 @@ namespace R1Engine
 
                     // Get the base pointer
                     var baseOffset = s.DoAt(offset + Settings.GameBasePointer, () => s.SerializePointer(default));
+                    file.anchorOffset = baseOffset.AbsoluteOffset;
+                    s.Goto(baseOffset);
 
-                    GameMemoryData.Update(s, baseOffset);
+                    GameMemoryData.Update(s);
                 }
                 catch (Exception ex)
                 {
@@ -523,11 +525,9 @@ namespace R1Engine
                             currentOffset = s.CurrentPointer;
 
                             // On PC we need to also update the BigMap pointer table
-                            if (GameMemoryData.BigMap != null && s is BinarySerializer)
-                            {
+                            if (GameMemoryData.BigMap != null && s is BinarySerializer) {
                                 var pointerOffset = GameMemoryData.BigMap.MapTileTexturesPointersPointer + (4 * tileIndex);
                                 var newPointer = GameMemoryData.BigMap.TileTexturesPointer + (lvl.Maps[0].PCTileOffsetTable[mapTile.Data.TileMapY]).SerializedOffset;
-
                                 s.Goto(pointerOffset);
 
                                 s.SerializePointer(newPointer);

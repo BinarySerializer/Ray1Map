@@ -81,10 +81,10 @@ namespace R1Engine {
             return !(x == y);
         }
         public static Pointer operator +(Pointer x, Decimal y) {
-            return new Pointer((uint)(x.AbsoluteOffset + y), x.file);
+            return new Pointer((uint)(x.AbsoluteOffset + y), x.file) { Anchor = x.Anchor };
         }
         public static Pointer operator -(Pointer x, Decimal y) {
-            return new Pointer((uint)(x.AbsoluteOffset - y), x.file);
+            return new Pointer((uint)(x.AbsoluteOffset - y), x.file) { Anchor = x.Anchor };
         }
         public static ulong operator +(Pointer x, Pointer y) {
             return x.AbsoluteOffset + y.AbsoluteOffset;

@@ -10,16 +10,17 @@ namespace R1Engine
         public Pointer TileArrayOffset { get; set; }
         public PC_BigMap BigMap { get; set; }
 
-        public void Update(SerializerObject s, Pointer gameMemoryOffset)
+        public void Update(SerializerObject s)
         {
+            Pointer gameMemoryOffset = s.CurrentPointer;
             // Rayman 1 (PC)
             if (s.GameSettings.EngineVersion == EngineVersion.RayPC)
             {
                 // For version 1.21 - verify it works for other ones too!
-                EventArrayOffset = s.DoAt(gameMemoryOffset + 0x16DDF0, () => s.SerializePointer(EventArrayOffset, anchor: gameMemoryOffset, name: nameof(EventArrayOffset)));
+                EventArrayOffset = s.DoAt(gameMemoryOffset + 0x16DDF0, () => s.SerializePointer(EventArrayOffset, name: nameof(EventArrayOffset)));
                 RayEventOffset = gameMemoryOffset + 0x16F650;
 
-                TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, anchor: gameMemoryOffset, name: nameof(TileArrayOffset)));
+                TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, name: nameof(TileArrayOffset)));
                 s.DoAt(gameMemoryOffset + 0x1631D8, () => BigMap = s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
             }
             // Rayman Advance (GBA)

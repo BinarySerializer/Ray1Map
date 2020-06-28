@@ -5,6 +5,7 @@ namespace R1Engine.Serialize
     public class ProcessMemoryStreamFile : BinaryFile {
 		private string filename; // Keep filename so we can reopen stream later
 		private ProcessMemoryStream stream;
+		public uint anchorOffset = 0;
 
 		public ProcessMemoryStreamFile(string name, string filename, Context context) : base(context) {
 			this.filename = filename;
@@ -26,7 +27,8 @@ namespace R1Engine.Serialize
 		}
 
 		public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
-			return new Pointer(serializedValue, this, anchor: anchor);
+			Pointer wrapAnchor = anchorOffset != 0 ? new Pointer(anchorOffset, this, anchor: anchor) : anchor;
+			return new Pointer(serializedValue, this, anchor: wrapAnchor);
 		}
 
 		public override void Dispose() {
