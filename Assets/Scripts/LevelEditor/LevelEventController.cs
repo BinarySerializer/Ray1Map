@@ -423,6 +423,7 @@ namespace R1Engine
         // TODO: Move this to some main controller since we do tile stuff here too
         public bool UpdateFromMemory()
         {
+            var lvl = Controller.obj.levelController.EditorManager.Level;
             bool madeEdits = false;
 
             // TODO: Dispose when we stop program?
@@ -442,7 +443,7 @@ namespace R1Engine
                     // Get the base pointer
                     var baseOffset = s.DoAt(offset + Settings.GameBasePointer, () => s.SerializePointer(default));
 
-                    GameMemoryData.UpdatePointers(s, baseOffset);
+                    GameMemoryData.Update(s, baseOffset);
                 }
                 catch (Exception ex)
                 {
@@ -477,7 +478,7 @@ namespace R1Engine
                 if (GameMemoryData.EventArrayOffset != null)
                 {
                     currentOffset = GameMemoryData.EventArrayOffset;
-                    foreach (Editor_EventData ed in Controller.obj.levelController.EditorManager.Level.EventData)
+                    foreach (Editor_EventData ed in lvl.EventData)
                         SerializeEvent(ed);
                 }
 
@@ -485,20 +486,21 @@ namespace R1Engine
                 if (GameMemoryData.RayEventOffset != null)
                 {
                     currentOffset = GameMemoryData.RayEventOffset;
-                    SerializeEvent(Controller.obj.levelController.EditorManager.Level.Rayman);
+                    SerializeEvent(lvl.Rayman);
                 }
 
                 // Tiles
                 if (GameMemoryData.TileArrayOffset != null)
                 {
                     currentOffset = GameMemoryData.TileArrayOffset;
-                    var map = Controller.obj.levelController.EditorManager.Level.Maps[0];
+                    var map = lvl.Maps[0];
 
                     for (int y = 0; y < map.Height; y++)
                     {
                         for (int x = 0; x < map.Width; x++)
                         {
-                            var mapTile = map.MapTiles[y * map.Width + x];
+                            var tileIndex = y * map.Width + x;
+                            var mapTile = map.MapTiles[tileIndex];
 
                             s = mapTile.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
 
@@ -510,13 +512,26 @@ namespace R1Engine
                             mapTile.Data.Init(s.CurrentPointer);
                             mapTile.Data.Serialize(s);
 
-                            if (s is BinarySerializer) madeEdits = true;
+                            if (s is BinarySerializer) 
+                                madeEdits = true;
+                            
                             mapTile.HasPendingEdits = false;
 
                             if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
                                 Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
 
                             currentOffset = s.CurrentPointer;
+
+                            // On PC we need to also update the BigMap pointer table
+                            if (GameMemoryData.BigMap != null && s is BinarySerializer)
+                            {
+                                var pointerOffset = GameMemoryData.BigMap.MapTileTexturesPointersPointer + (4 * tileIndex);
+                                var newPointer = GameMemoryData.BigMap.TileTexturesPointer + (lvl.Maps[0].PCTileOffsetTable[mapTile.Data.TileMapY]).SerializedOffset;
+
+                                s.Goto(pointerOffset);
+
+                                s.SerializePointer(newPointer);
+                            }
                         }
                     }
                 }

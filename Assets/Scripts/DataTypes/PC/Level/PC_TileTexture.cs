@@ -11,17 +11,23 @@
         public byte[] ColorIndexes { get; set; }
 
         /// <summary>
-        /// Unknown array of bytes, always 32 in length
+        /// A flag determining the tile transparency mode
+        /// </summary>
+        public uint TransparencyMode { get; set; }
+
+        /// <summary>
+        /// Unknown array of bytes. Appears to be leftover garbage data.
         /// </summary>
         public byte[] Unknown1 { get; set; }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             ColorIndexes = s.SerializeArray<byte>(ColorIndexes, Settings.CellSize * Settings.CellSize, name: nameof(ColorIndexes));
-            Unknown1 = s.SerializeArray<byte>(Unknown1, 32, name: nameof(Unknown1));
+            TransparencyMode = s.Serialize<uint>(TransparencyMode, name: nameof(TransparencyMode));
+            Unknown1 = s.SerializeArray<byte>(Unknown1, 28, name: nameof(Unknown1));
         }
     }
 }

@@ -11,13 +11,14 @@
         public byte[] Alpha { get; set; }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             ColorIndexes = s.SerializeArray<byte>(ColorIndexes, Settings.CellSize * Settings.CellSize, name: nameof(ColorIndexes));
             Alpha = s.SerializeArray<byte>(Alpha, Settings.CellSize * Settings.CellSize, name: nameof(Alpha));
-            Unknown1 = s.SerializeArray<byte>(Unknown1, 32, name: nameof(Unknown1));
+            TransparencyMode = s.Serialize<uint>(TransparencyMode, name: nameof(TransparencyMode));
+            Unknown1 = s.SerializeArray<byte>(Unknown1, 28, name: nameof(Unknown1));
         }
     }
 }

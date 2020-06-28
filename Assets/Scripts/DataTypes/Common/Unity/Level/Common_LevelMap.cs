@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace R1Engine
@@ -35,6 +34,17 @@ namespace R1Engine
         /// The tile-sets, one for each palette
         /// </summary>
         public Common_Tileset[] TileSet { get; set; }
+
+        // TODO: Use this when copying tiles from the template to set the flag correctly!
+        /// <summary>
+        /// The tile data for PC
+        /// </summary>
+        public PC_TileTexture[] PCTiles { get; set; }
+
+        /// <summary>
+        /// Tile texture offset table for PC
+        /// </summary>
+        public Pointer[] PCTileOffsetTable { get; set; }
 
         /// <summary>
         /// The map tiles

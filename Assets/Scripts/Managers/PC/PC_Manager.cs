@@ -1373,7 +1373,10 @@ namespace R1Engine
                         // Create the tile arrays
                         TileSet = new Common_Tileset[3],
                         MapTiles = levelData.MapData.Tiles.Select(x => new Editor_MapTile(x)).ToArray(),
-                        TileSetWidth = 1
+                        TileSetWidth = 1,
+
+                        PCTiles = levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).ToArray(),
+                        PCTileOffsetTable = levelData.TileTextureData.TexturesOffsetTable
                     }
                 },
 
@@ -1457,28 +1460,9 @@ namespace R1Engine
                     // Get the cell
                     var cell = levelData.MapData.Tiles[cellY * levelData.MapData.Width + cellX];
 
-                    // Get the texture index, default to 0 for fully transparent (no texture)
-                    var textureIndex = 0;
-
-                    // Ignore if fully transparent
-                    if (cell.PC_TransparencyMode != PC_MapTileTransparencyMode.FullyTransparent) {
-                        // Get the offset for the texture
-                        var texOffset = levelData.TileTextureData.TexturesOffsetTable[cell.TileMapX];
-
-                        // Get the texture
-                        var texture = cell.PC_TransparencyMode == PC_MapTileTransparencyMode.NoTransparency ? levelData.TileTextureData.NonTransparentTextures.FindItem(x => x.Offset == texOffset) : levelData.TileTextureData.TransparentTextures.FindItem(x => x.Offset == texOffset);
-
-                        // Get the index
-                        textureIndex = levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).FindItemIndex(x => x == texture);
-                    }
-
                     // TODO: FIX
                     // Set the common tile
-                    commonLev.Maps[0].MapTiles[cellY * levelData.MapData.Width + cellX] = new Editor_MapTile(cell)
-                    {
-                        DebugText = $"Unk1: {cell.PC_Unk1}{Environment.NewLine}" +
-                                    $"Unk2: {cell.PC_Unk2}{Environment.NewLine}"
-                    };
+                    commonLev.Maps[0].MapTiles[cellY * levelData.MapData.Width + cellX] = new Editor_MapTile(cell);
                 }
             }
 
