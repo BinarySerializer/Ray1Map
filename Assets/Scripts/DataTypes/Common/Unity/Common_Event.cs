@@ -200,7 +200,7 @@ namespace R1Engine {
                     {
                         // Instantiate prefab
                         SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, len - i), Quaternion.identity, transform).GetComponent<SpriteRenderer>();
-                        newRenderer.sortingOrder = UniqueLayer;
+                        newRenderer.sortingOrder = Settings.LoadFromMemory ? -(Data.Data.EventIndex + (256 * Data.Data.RuntimeLayer)) : UniqueLayer;
 
                         // Set as child of events gameobject
                         newRenderer.gameObject.transform.parent = transform;
