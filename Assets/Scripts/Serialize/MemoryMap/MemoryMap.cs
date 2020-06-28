@@ -20,5 +20,9 @@ namespace R1Engine.Serialize {
 		public void AddPointer(Pointer pointer) {
 			Pointers.Add(pointer);
 		}
+
+		public void ClearPointers() {
+			Pointers.Clear();
+		}
 	}
 }

@@ -64,7 +64,7 @@
                     var palette = ColorPalettes[paletteIndex];
                     ColorPalettes[paletteIndex] = s.SerializeObjectArray<RGB666Color>(palette, palette.Length, name: $"{nameof(ColorPalettes)}[{paletteIndex}]");
                 }
-
+                
                 // Serialize unknown byte
                 LastPlan1Palette = s.Serialize<byte>(LastPlan1Palette, name: nameof(LastPlan1Palette));
 

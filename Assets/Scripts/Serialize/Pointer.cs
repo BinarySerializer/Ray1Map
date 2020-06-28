@@ -19,7 +19,7 @@ namespace R1Engine {
             this.AbsoluteOffset = offset;
             this.file = file;
             this.Context = file.Context;
-            if (Context != null) {
+            if (Context != null && !(file is ProcessMemoryStreamFile)) {
                 Context.MemoryMap.AddPointer(this);
             }
         }

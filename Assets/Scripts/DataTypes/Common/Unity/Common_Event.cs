@@ -362,8 +362,11 @@ namespace R1Engine {
         private void ClearChildren() {
             // Clear old array
             if (prefabRendereds != null) {
-                foreach (SpriteRenderer t in prefabRendereds)
-                    Destroy(t.gameObject);
+                foreach (SpriteRenderer t in prefabRendereds) {
+                    GameObject g = t.gameObject;
+                    Destroy(t);
+                    Destroy(g);
+                }
 
                 Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
                 prefabRendereds = null;
