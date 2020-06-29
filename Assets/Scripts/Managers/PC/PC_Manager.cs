@@ -1375,7 +1375,19 @@ namespace R1Engine
                         MapTiles = levelData.MapData.Tiles.Select(x => new Editor_MapTile(x)).ToArray(),
                         TileSetWidth = 1,
 
-                        PCTiles = levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).ToArray(),
+                        TileSetTransparencyModes = levelData.TileTextureData.TexturesOffsetTable.Select(x => levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
+                        {
+                            if (x == null)
+                                return PC_MapTileTransparencyMode.FullyTransparent;
+
+                            if (x.TransparencyMode == 0xAAAAAAAA)
+                                return PC_MapTileTransparencyMode.FullyTransparent;
+
+                            if (x.TransparencyMode == 0x55555555)
+                                return PC_MapTileTransparencyMode.NoTransparency;
+
+                            return PC_MapTileTransparencyMode.PartiallyTransparent;
+                        }).ToArray(),
                         PCTileOffsetTable = levelData.TileTextureData.TexturesOffsetTable
                     }
                 },

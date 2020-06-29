@@ -226,9 +226,12 @@ namespace R1Engine
             destTile.PaletteIndex = newTile.PaletteIndex;
             destTile.Data.TileMapX = newTile.Data.TileMapX;
             destTile.Data.TileMapY = newTile.Data.TileMapY;
-            destTile.Data.PC_TransparencyMode = newTile.Data.PC_TransparencyMode;
             destTile.Data.PC_Unk1 = newTile.Data.PC_Unk1;
             destTile.Data.PC_Unk2 = newTile.Data.PC_Unk2;
+
+            // Get the correct transparency mode to set if available
+            if (map.TileSetTransparencyModes != null)
+                destTile.Data.PC_TransparencyMode = map.TileSetTransparencyModes[(map.TileSetWidth * newTile.Data.TileMapY) + newTile.Data.TileMapX];
         }
 
         public Editor_MapTile SetTypeAtPos(int x, int y, TileCollisionType collisionType) 

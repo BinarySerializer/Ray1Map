@@ -35,11 +35,10 @@ namespace R1Engine
         /// </summary>
         public Common_Tileset[] TileSet { get; set; }
 
-        // TODO: Use this when copying tiles from the template to set the flag correctly!
         /// <summary>
-        /// The tile data for PC
+        /// The transparency mode for the tiles in the tileset on PC
         /// </summary>
-        public PC_TileTexture[] PCTiles { get; set; }
+        public PC_MapTileTransparencyMode[] TileSetTransparencyModes { get; set; }
 
         /// <summary>
         /// Tile texture offset table for PC
