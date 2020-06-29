@@ -467,6 +467,8 @@ namespace R1Engine
                     ed.Data.Serialize(s);
                     ed.DebugText = $"Pos: {ed.Data.XPosition}, {ed.Data.YPosition}{Environment.NewLine}" +
                                    $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
+                                   $"Layer: {ed.Data.Layer}{Environment.NewLine}" +
+                                   $"RuntimeLayer: {ed.Data.RuntimeLayer}{Environment.NewLine}" +
                                    $"Unk_28: {ed.Data.Unk_28}{Environment.NewLine}" +
                                    $"Unk_36: {ed.Data.Unk_36}{Environment.NewLine}" +
                                    $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
