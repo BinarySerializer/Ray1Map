@@ -219,8 +219,8 @@ namespace R1Engine
                 if (UsesLocalCommands)
                     return e.LocalCommands.SequenceEqual(commands);
                 else
-                    return e.LabelOffsets.SequenceEqual(labelOffsets) &&
-                           e.Commands.SequenceEqual(commands);
+                    return e.LabelOffsets.SequenceEqual(labelOffsets ?? new ushort[0]) &&
+                           e.Commands.SequenceEqual(commands ?? new byte[0]);
             }
 
             // Find a matching item
@@ -241,7 +241,7 @@ namespace R1Engine
 
             // Create dummy item if not found
             if (match == null && EventInfoData.Any())
-                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat}");
+                Debug.LogWarning($"Matching event not found for event with type {type}, etat {etat} & subetat {subEtat} in level {Settings.World}{Settings.Level}");
 
             // Return the item
             return match;

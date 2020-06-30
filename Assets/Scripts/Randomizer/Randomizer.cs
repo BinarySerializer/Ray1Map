@@ -26,9 +26,10 @@ namespace R1Engine
                 .Select(eventData => new
                 {
                     eventData, 
-                    eventFlag = eventData.TypeInfo?.Flag
+                    isAlways = eventData.GetIsAlways(),
+                    isEditor = eventData.GetIsEditor()
                 })
-                .Where(x => x.eventFlag == null || x.eventFlag == EventFlag.Normal)
+                .Where(x => !x.isAlways && !x.isEditor)
                 .Where(x => (EventType)x.eventData.Type != EventType.TYPE_RAY_POS &&
                             (EventType)x.eventData.Type != EventType.TYPE_PANCARTE &&
                             (EventType)x.eventData.Type != EventType.TYPE_SIGNPOST)

@@ -40,7 +40,7 @@ namespace R1Engine
         /// </summary>
         public ushort TypeValue { get; private set; }
 
-        public EventTypeInfoAttribute TypeInfo { get; private set; }
+        protected EventTypeInfoAttribute TypeInfo { get; private set; }
 
         public string DESKey { get; set; }
         public string ETAKey { get; set; }
@@ -95,13 +95,10 @@ namespace R1Engine
 
         public bool GetIsVisible()
         {
-            // Get event flag
-            var flag = TypeInfo?.Flag ?? EventFlag.Normal;
-
-            if (flag == EventFlag.Editor)
+            if (GetIsEditor())
                 return Settings.ShowEditorEvents;
 
-            if (flag == EventFlag.Always)
+            if (GetIsAlways())
                 return Settings.ShowAlwaysEvents || (Settings.LoadFromMemory && IsActive());
 
             // Default to visible
@@ -109,6 +106,10 @@ namespace R1Engine
         }
 
         public bool GetIsFaded() => Settings.LoadFromMemory && !IsActive();
+
+        public bool GetIsAlways() => TypeInfo?.Flag == EventFlag.Always || (Data.XPosition == -1 && Data.YPosition == -1);
+
+        public bool GetIsEditor() => TypeInfo?.Flag == EventFlag.Editor;
 
         #endregion
     }

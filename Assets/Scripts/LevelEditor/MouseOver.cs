@@ -36,7 +36,6 @@ namespace R1Engine
                       $"AnimationIndex: {e.Data.Data.RuntimeCurrentAnimIndex}{Environment.NewLine}" +
                       $"AnimationSpeed: {e.AnimSpeed}{Environment.NewLine}" +
                       $"Sound: {e.State?.SoundIndex}{Environment.NewLine}" +
-                      $"Flag: {e.Data.TypeInfo?.Flag}{Environment.NewLine}" +
                       $"Etat: {e.Data.Data.RuntimeEtat}{Environment.NewLine}" +
                       $"SubEtat: {e.Data.Data.RuntimeSubEtat}{Environment.NewLine}"
                     : String.Empty;

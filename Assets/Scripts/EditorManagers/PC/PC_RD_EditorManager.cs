@@ -59,7 +59,7 @@ namespace R1Engine
         /// <returns>The DES key</returns>
         public override string GetDesKey(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.DesKit[Settings.World];
+            return eventInfoData.DesKit[Settings.World] + ".DES";
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace R1Engine
         /// <returns>The ETA key</returns>
         public override string GetEtaKey(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.EtaKit[Settings.World];
+            return eventInfoData.EtaKit[Settings.World] + ".ETA";
         }
 
         /// <summary>

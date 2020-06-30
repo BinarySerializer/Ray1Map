@@ -173,23 +173,37 @@ namespace R1Engine
         public void ConvertLevelToPNG() {
 
             // Get the path to save to
-            //var destPath = EditorUtility.SaveFilePanel("Select file destination", null, $"{Settings.GetGameSettings.GameModeSelection} - {Settings.World} {Settings.Level:00}.png", "png");
-
             var destPath = $@"Screenshots\{Controller.CurrentSettings.GameModeSelection}\{Controller.CurrentSettings.GameModeSelection} - {Controller.CurrentSettings.World} {Controller.CurrentSettings.Level:00}.png";
 
+            // Create the directory
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
+            Enum[] exceptions = new Enum[]
+            {
+                EventType.TYPE_GENERATING_DOOR,
+                EventType.TYPE_DESTROYING_DOOR,
+                EventType.MS_scintillement,
+                EventType.MS_super_gendoor,
+                EventType.MS_super_kildoor,
+                EventType.MS_compteur,
+                EventType.TYPE_RAY_POS,
+                EventType.TYPE_INDICATOR,
+            };
+
             // TODO: Allow this to be configured | THIS whole part should be refactored, the foreach after is bad
-            // Set settings
-            //Settings.ShowAlwaysEvents = false;
-            //Settings.ShowEditorEvents = false;
+
+            // Hide Rayman
+            if (RaymanEvent != null)
+                RaymanEvent.gameObject.SetActive(false);
 
             // Hide unused links and show gendoors
             foreach (var e in Events) 
             {
-                if (e.Data.TypeInfo.Flag==EventFlag.Always ||
-                    e.Data.TypeInfo.Flag == EventFlag.Editor)
+                // Hide always and editor events, except for certain ones
+                if ((e.Data.GetIsAlways() || e.Data.GetIsEditor()) && !exceptions.Contains(e.Data.Type))
                     e.gameObject.SetActive(false);
+                else
+                    e.gameObject.SetActive(true);
 
                 // Helper method
                 bool isGendoor(Common_Event ee)
@@ -205,9 +219,6 @@ namespace R1Engine
                                 et == EventType.MS_super_kildoor ||
                                 et == EventType.MS_compteur);
                 }
-
-                if (isGendoor(e))
-                    e.gameObject.SetActive(true);
 
                 e.ChangeLinksVisibility(true);
 

@@ -185,7 +185,10 @@
         TYPE_BBL = 97,
         
         TYPE_SPACE_MAMA = 98,
+
+        [EventTypeInfo(EventFlag.Editor)]
         TYPE_RAY_POS = 99,
+        
         TYPE_MITE = 100,
         TYPE_MORNINGSTAR_MOUNTAI = 101,
         
@@ -296,6 +299,8 @@
         TYPE_TIBETAIN_2 = 160,
         TYPE_WIZ = 161,
         TYPE_UFO_IDC = 162,
+
+        [EventTypeInfo(EventFlag.Editor)]
         TYPE_INDICATOR = 163,
         
         [EventTypeInfo(EventFlag.Editor)]
@@ -438,7 +443,10 @@
         TYPE_ANNULE_SORT_DARK = 236,
         
         TYPE_GOMME = 237,
+
+        [EventTypeInfo(EventFlag.Always)]
         TYPE_POING_FEE = 238,
+
         TYPE_PIRATE_GUETTEUR2 = 239,
         TYPE_CRAYON_HAUT = 240,
         TYPE_HERSE_HAUT = 241,
