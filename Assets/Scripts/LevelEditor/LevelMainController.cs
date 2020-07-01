@@ -200,8 +200,9 @@ namespace R1Engine
             foreach (var e in Events) 
             {
                 e.ForceUpdate();
+
                 // Hide always and editor events, except for certain ones
-                if ((e.Data.GetIsAlways() || e.Data.GetIsEditor()) && !exceptions.Contains(e.Data.Type))
+                if ((e.Data.GetIsAlways(EditorManager.Settings) || e.Data.GetIsEditor()) && !exceptions.Contains(e.Data.Type))
                     e.gameObject.SetActive(false);
                 else
                     e.gameObject.SetActive(true);

@@ -114,36 +114,45 @@ namespace R1Engine {
             // Update frame and states
             if (CurrentAnimation != null && !Settings.LoadFromMemory) 
             {
-                // Increment frame if animating
-                if (Settings.AnimateSprites && AnimSpeed > 0)
-                    EditorAnimFrame += (60f / AnimSpeed) * Time.deltaTime;
-
-                // Update the frame
-                Data.Data.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
-
-                // Loop back to first frame
-                if (Data.Data.RuntimeCurrentAnimFrame >= CurrentAnimation.Frames.Length)
+                // Set frame based on hit points for special events
+                if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON))
                 {
-                    Data.Data.RuntimeCurrentAnimFrame = 0;
-                    EditorAnimFrame = 0;
+                    Data.Data.RuntimeCurrentAnimFrame = Data.Data.HitPoints;
+                    EditorAnimFrame = Data.Data.HitPoints;
+                }
+                else
+                {
+                    // Increment frame if animating
+                    if (Settings.AnimateSprites && AnimSpeed > 0)
+                        EditorAnimFrame += (60f / AnimSpeed) * Time.deltaTime;
 
-                    if (Settings.StateSwitchingMode != StateSwitchingMode.None)
+                    // Update the frame
+                    Data.Data.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
+
+                    // Loop back to first frame
+                    if (Data.Data.RuntimeCurrentAnimFrame >= CurrentAnimation.Frames.Length)
                     {
-                        // Get the current state
-                        var state = State;
+                        Data.Data.RuntimeCurrentAnimFrame = 0;
+                        EditorAnimFrame = 0;
 
-                        // Check if we've reached the end of the linking chain and we're looping
-                        if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && Data.Data.RuntimeEtat == state.LinkedEtat && Data.Data.RuntimeSubEtat == state.LinkedSubEtat)
+                        if (Settings.StateSwitchingMode != StateSwitchingMode.None)
                         {
-                            // Reset the state
-                            Data.Data.RuntimeEtat = Data.Data.Etat;
-                            Data.Data.RuntimeSubEtat = Data.Data.SubEtat;
-                        }
-                        else
-                        {
-                            // Update state values to the linked one
-                            Data.Data.RuntimeEtat = state.LinkedEtat;
-                            Data.Data.RuntimeSubEtat = state.LinkedSubEtat;
+                            // Get the current state
+                            var state = State;
+
+                            // Check if we've reached the end of the linking chain and we're looping
+                            if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && Data.Data.RuntimeEtat == state.LinkedEtat && Data.Data.RuntimeSubEtat == state.LinkedSubEtat)
+                            {
+                                // Reset the state
+                                Data.Data.RuntimeEtat = Data.Data.Etat;
+                                Data.Data.RuntimeSubEtat = Data.Data.SubEtat;
+                            }
+                            else
+                            {
+                                // Update state values to the linked one
+                                Data.Data.RuntimeEtat = state.LinkedEtat;
+                                Data.Data.RuntimeSubEtat = state.LinkedSubEtat;
+                            }
                         }
                     }
                 }
@@ -267,7 +276,7 @@ namespace R1Engine {
                     prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 
                     // Get visiblity
-                    prefabRendereds[i].enabled = Data.GetIsVisible();
+                    prefabRendereds[i].enabled = Data.GetIsVisible(EditorManager.Settings);
                     prefabRendereds[i].color = Data.GetIsFaded() ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
             }
@@ -325,7 +334,7 @@ namespace R1Engine {
             }
 
             // Update visibility
-            boxCollider.enabled = Data.GetIsVisible();
+            boxCollider.enabled = Data.GetIsVisible(EditorManager.Settings);
 
             // Set new midpoint
             midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
@@ -345,7 +354,7 @@ namespace R1Engine {
         }
 
         public void ChangeLinksVisibility(bool visible) {
-            if (visible && Data.GetIsVisible()) {
+            if (visible && Data.GetIsVisible(EditorManager.Settings)) {
 
                 //Change link colors
                 if (LinkID == 0) {

@@ -26,7 +26,7 @@ namespace R1Engine
                 .Select(eventData => new
                 {
                     eventData, 
-                    isAlways = eventData.GetIsAlways(),
+                    isAlways = eventData.GetIsAlways(editorManager.Settings),
                     isEditor = eventData.GetIsEditor()
                 })
                 .Where(x => !x.isAlways && !x.isEditor)
