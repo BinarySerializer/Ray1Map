@@ -239,7 +239,7 @@ namespace R1Engine
                                 {
                                     for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
                                     {
-                                        previewTilemap.SetTile(new Vector3Int(x - (int)tileSelectSquare.XStart, y - (int)tileSelectSquare.YStart, 0), map.GetTile(selection[xi, yi]));
+                                        previewTilemap.SetTile(new Vector3Int(x - (int)tileSelectSquare.XStart, y - (int)tileSelectSquare.YStart, 0), map.GetTile(selection[xi, yi], Controller.obj.levelController.EditorManager.Settings));
 
                                         xi++;
 
@@ -307,7 +307,7 @@ namespace R1Engine
 
                                     // Also fill out preview tilemap
                                     if (currentMode == EditMode.Tiles)
-                                        previewTilemap.SetTile(new Vector3Int(xi, yi, 0), map.GetTile(t));
+                                        previewTilemap.SetTile(new Vector3Int(xi, yi, 0), map.GetTile(t, Controller.obj.levelController.EditorManager.Settings));
 
                                     xi++;
                                 }
@@ -355,7 +355,7 @@ namespace R1Engine
                                     {
                                         for (int x = 0; x <= selection.GetLength(0) - 1; x++) 
                                         {
-                                            previewTilemap.SetTile(new Vector3Int(x, y, 0), map.GetTile(selection[x, y]));
+                                            previewTilemap.SetTile(new Vector3Int(x, y, 0), map.GetTile(selection[x, y], Controller.obj.levelController.EditorManager.Settings));
                                         }
                                     }
                                 }

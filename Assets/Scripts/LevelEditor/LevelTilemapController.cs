@@ -118,7 +118,7 @@ namespace R1Engine
                     if (palette != 0)
                         t.PaletteIndex = palette;
 
-                    Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(t));
+                    Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, Controller.obj.levelController.EditorManager.Settings));
                 }
             }
 
@@ -216,7 +216,7 @@ namespace R1Engine
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)newTile.Data.CollisionType]);
-            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(newTile));
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(newTile, Controller.obj.levelController.EditorManager.Settings));
 
             // Get the tile to set
             var destTile = map.MapTiles[y * map.Width + x];
