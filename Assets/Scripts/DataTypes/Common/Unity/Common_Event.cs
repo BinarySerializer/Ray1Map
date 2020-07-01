@@ -97,6 +97,10 @@ namespace R1Engine {
             linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
         }
 
+        public void ForceUpdate() {
+            Update();
+        }
+
         // TODO: Changing the state doesn't change the animation until it's done playing
         // TODO: Get rid of view model class since we barely need to update now
         // TODO: Editing type should set the type in both places if possible

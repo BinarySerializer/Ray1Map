@@ -199,6 +199,7 @@ namespace R1Engine
             // Hide unused links and show gendoors
             foreach (var e in Events) 
             {
+                e.ForceUpdate();
                 // Hide always and editor events, except for certain ones
                 if ((e.Data.GetIsAlways() || e.Data.GetIsEditor()) && !exceptions.Contains(e.Data.Type))
                     e.gameObject.SetActive(false);
