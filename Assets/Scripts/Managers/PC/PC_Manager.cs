@@ -1513,6 +1513,9 @@ namespace R1Engine
                         wrapMode = TextureWrapMode.Clamp
                     };
 
+                    // Keep track if all pixels are red (transparent tile in RayKit)
+                    bool allRed = true;
+
                     // Write each pixel to the texture
                     for (int y = 0; y < Settings.CellSize; y++)
                     {
@@ -1521,8 +1524,11 @@ namespace R1Engine
                             // Get the index
                             var cellIndex = Settings.CellSize * y + x;
 
-                            // Get the color from the current palette (or default to fully transparent if a valid tile texture was not found or it's the first one)
+                            // Get the color from the current palette (or default to fully transparent if a valid tile texture was not found or it has the transparency flag)
                             var c = tileTex == null || index == 0 ? new Color(0, 0, 0, 0) : levData.MapData.ColorPalettes[i][255 - tileTex.ColorIndexes[cellIndex]].GetColor();
+
+                            if (tileTex != null && tileTex.ColorIndexes[cellIndex] != 242)
+                                allRed = false;
 
                             // If the texture is transparent, add the alpha channel
                             if (tileTex is PC_TransparentTileTexture tt)
@@ -1532,6 +1538,10 @@ namespace R1Engine
                             tileTexture.SetPixel(x, y, c);
                         }
                     }
+
+                    // If all red, make it transparent
+                    if (allRed)
+                        tileTexture.SetPixels(Enumerable.Repeat(new Color(), Settings.CellSize * Settings.CellSize).ToArray());
 
                     // Apply the pixels to the texture
                     tileTexture.Apply();
