@@ -72,5 +72,8 @@ namespace R1Engine.Serialize {
 			}
 			return null;
 		}
+
+		// PocketPC has broken block pointers
+		public override bool AllowInvalidPointer(uint serializedValue, Pointer anchor = null) => true;
 	}
 }
