@@ -54,7 +54,12 @@
                 EventData = new GBA_R1_EventData[GraphicsGroupCount][];
 
             for (int i = 0; i < EventData.Length; i++)
-                s.DoAt(EventDataPointers[i], () => EventData[i] = s.SerializeObjectArray<GBA_R1_EventData>(EventData[i], GraphicsGroupCountTable[i], name: $"{nameof(EventData)}[{i}]"));
+            {
+                if (EventDataPointers[i] != null)
+                    s.DoAt(EventDataPointers[i], () => EventData[i] = s.SerializeObjectArray<GBA_R1_EventData>(EventData[i], GraphicsGroupCountTable[i], name: $"{nameof(EventData)}[{i}]"));
+                else
+                    EventData[i] = new GBA_R1_EventData[0];
+            }
         }
     }
 }
