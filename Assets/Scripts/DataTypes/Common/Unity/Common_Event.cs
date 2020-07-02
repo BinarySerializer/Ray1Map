@@ -276,7 +276,7 @@ namespace R1Engine {
                     prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 
                     // Get visiblity
-                    prefabRendereds[i].enabled = Data.GetIsVisible(EditorManager.Settings);
+                    prefabRendereds[i].enabled = Data.GetIsVisible();
                     prefabRendereds[i].color = Data.GetIsFaded() ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
             }
@@ -334,7 +334,7 @@ namespace R1Engine {
             }
 
             // Update visibility
-            boxCollider.enabled = Data.GetIsVisible(EditorManager.Settings);
+            boxCollider.enabled = Data.GetIsVisible();
 
             // Set new midpoint
             midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
@@ -354,7 +354,7 @@ namespace R1Engine {
         }
 
         public void ChangeLinksVisibility(bool visible) {
-            if (visible && Data.GetIsVisible(EditorManager.Settings)) {
+            if (visible && Data.GetIsVisible()) {
 
                 //Change link colors
                 if (LinkID == 0) {

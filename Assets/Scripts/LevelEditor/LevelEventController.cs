@@ -216,8 +216,12 @@ namespace R1Engine
             {
                 // If X and Y are insane, clamp them
                 const int border = 10;
-                eventList[i].Data.Data.XPosition = ((short)Mathf.Clamp(eventList[i].Data.Data.XPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border));
-                eventList[i].Data.Data.YPosition = ((short)Mathf.Clamp(eventList[i].Data.Data.YPosition, -border, (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border));
+
+                if (eventList[i].Data.Data.XPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border || eventList[i].Data.Data.XPosition < -border)
+                    eventList[i].Data.Data.XPosition = (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border;
+
+                if (eventList[i].Data.Data.YPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border || eventList[i].Data.Data.YPosition < -border)
+                    eventList[i].Data.Data.YPosition = (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border;
 
                 // No link
                 if (eventList[i].Data.LinkIndex == i)

@@ -93,12 +93,12 @@ namespace R1Engine
             return false;
         }
 
-        public bool GetIsVisible(GameSettings settings)
+        public bool GetIsVisible()
         {
             if (GetIsEditor())
                 return Settings.ShowEditorEvents;
 
-            if (GetIsAlways(settings))
+            if (GetIsAlways())
                 return Settings.ShowAlwaysEvents || (Settings.LoadFromMemory && IsActive());
 
             // Default to visible
@@ -107,12 +107,8 @@ namespace R1Engine
 
         public bool GetIsFaded() => Settings.LoadFromMemory && !IsActive();
 
-        public bool GetIsAlways(GameSettings settings)
+        public bool GetIsAlways()
         {
-            // Any event with an x or y below 0 is treated as an always event, except in Rayman 2
-            if (Data.XPosition < 0 && Data.YPosition < 0 && settings.EngineVersion != EngineVersion.Ray2PS1)
-                return true;
-
             // The "DEMO" text uses type "TYPE_DARK2_PINK_FLY", which is normally an always event
             if (Type is EventType e && e == EventType.TYPE_DARK2_PINK_FLY)
                 return false;
