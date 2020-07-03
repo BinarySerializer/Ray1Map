@@ -207,6 +207,19 @@ namespace R1Engine
                 else
                     e.gameObject.SetActive(true);
 
+                // Always hide events with no graphics
+                if (e.defautRenderer.enabled)
+                    e.gameObject.SetActive(false);
+
+                // Hide events from other layers
+                if (e.Data.MapLayer != null && e.Data.MapLayer - 1 != editor.currentMap)
+                    e.gameObject.SetActive(false);
+
+                // TODO: Find solution to this
+                // Temporarily hide the Rayman 2 waterfall as it has the wrong map layer
+                if (Equals(e.Data.Type, PS1_R2Demo_EventType.WaterFall))
+                    e.gameObject.SetActive(false);
+
                 // Helper method
                 bool isGendoor(Common_Event ee)
                 {
