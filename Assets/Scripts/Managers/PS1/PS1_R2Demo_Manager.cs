@@ -318,6 +318,7 @@ namespace R1Engine
                     MapLayer = e.MapLayer,
                     FlipHorizontally = e.IsFlippedHorizontally,
                     LinkIndex = lvlData.EventLinkTable.Length > index ? lvlData.EventLinkTable[index] : index,
+                    ForceAlways = lvlData.AlwaysEvents.Contains(e),
                     DebugText = $"UShort_00: {e.UShort_00}{Environment.NewLine}" +
                                 $"UShort_02: {e.UShort_02}{Environment.NewLine}" +
                                 $"UShort_04: {e.UShort_04}{Environment.NewLine}" +
