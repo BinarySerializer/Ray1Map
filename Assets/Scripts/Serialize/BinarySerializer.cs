@@ -194,7 +194,7 @@ namespace R1Engine
             return obj;
         }
 
-        public override Pointer SerializePointer(Pointer obj, Pointer anchor = null, string name = null) {
+        public override Pointer SerializePointer(Pointer obj, Pointer anchor = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer): " + obj?.ToString());
             }
@@ -206,7 +206,7 @@ namespace R1Engine
             return obj;
         }
 
-        public override Pointer<T> SerializePointer<T>(Pointer<T> obj, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, string name = null) {
+        public override Pointer<T> SerializePointer<T>(Pointer<T> obj, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer<T>: " + typeof(T) + ") " + (name ?? "<no name>"));
             }
@@ -259,24 +259,24 @@ namespace R1Engine
             return obj;
         }
 
-        public override Pointer[] SerializePointerArray(Pointer[] obj, decimal count, Pointer anchor = null, string name = null) {
+        public override Pointer[] SerializePointerArray(Pointer[] obj, decimal count, Pointer anchor = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer[" + count + "]) " + (name ?? "<no name>"));
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializePointer(obj[i], name: name == null ? null : name + "[" + i + "]");
+                SerializePointer(obj[i], allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return obj;
         }
 
-        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, string name = null) {
+        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer<" + typeof(T) + ">[" + count + "]) " + (name ?? "<no name>"));
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializePointer<T>(obj[i], resolve: resolve, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                SerializePointer<T>(obj[i], resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return obj;
         }

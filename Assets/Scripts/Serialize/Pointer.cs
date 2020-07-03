@@ -114,8 +114,8 @@ namespace R1Engine {
             }
         }
 
-        public Pointer(SerializerObject s, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null) {
-            this.pointer = s.SerializePointer(this.pointer, anchor: anchor, name: "Pointer");
+        public Pointer(SerializerObject s, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false) {
+            this.pointer = s.SerializePointer(this.pointer, anchor: anchor, allowInvalid: allowInvalid, name: "Pointer");
             if (resolve) {
                 Resolve(s, onPreSerialize: onPreSerialize);
             }

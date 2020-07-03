@@ -75,8 +75,9 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Serialize the pointers
-            EventBlockPointer = s.SerializePointer(EventBlockPointer, name: nameof(EventBlockPointer));
-            TextureBlockPointer = s.SerializePointer(TextureBlockPointer, name: nameof(TextureBlockPointer));
+            bool allowInvalid = s.GameSettings.EngineVersion == EngineVersion.RayPocketPC || s.GameSettings.GameModeSelection == GameModeSelection.RaymanClassicMobile;
+            EventBlockPointer = s.SerializePointer(EventBlockPointer, allowInvalid: allowInvalid, name: nameof(EventBlockPointer));
+            TextureBlockPointer = s.SerializePointer(TextureBlockPointer, allowInvalid: allowInvalid, name: nameof(TextureBlockPointer));
 
             // Serialize the level defines
             if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC)

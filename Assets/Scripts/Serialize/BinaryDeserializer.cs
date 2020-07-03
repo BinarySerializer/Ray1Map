@@ -233,7 +233,7 @@ namespace R1Engine
             return instance;
         }
 
-        public override Pointer SerializePointer(Pointer obj, Pointer anchor = null, string name = null) {
+        public override Pointer SerializePointer(Pointer obj, Pointer anchor = null, bool allowInvalid = false, string name = null) {
             string logString = LogPrefix;
             Pointer current = CurrentPointer;
             uint value = reader.ReadUInt32();
@@ -242,7 +242,7 @@ namespace R1Engine
                 ptr = ptr.SetAnchor(anchor);
             }
             if(ptr == null) ptr = currentFile.GetPointer(value, anchor: anchor);
-            if (ptr == null && value != 0 && !currentFile.AllowInvalidPointer(value, anchor: anchor)) {
+            if (ptr == null && value != 0 && !allowInvalid && !currentFile.AllowInvalidPointer(value, anchor: anchor)) {
                 if (Settings.Log) {
                     Context.Log.Log(logString + "(Pointer) " + (name ?? "<no name>") + ": InvalidPointerException - " + string.Format("{0:X8}", value));
                 }
@@ -254,13 +254,13 @@ namespace R1Engine
             return ptr;
         }
 
-        public override Pointer<T> SerializePointer<T>(Pointer<T> obj, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, string name = null) {
+        public override Pointer<T> SerializePointer<T>(Pointer<T> obj, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Pointer<T>: " + typeof(T) + ") " + (name ?? "<no name>"));
             }
             Depth++;
-            Pointer<T> p = new Pointer<T>(this, anchor: anchor, resolve: resolve, onPreSerialize: onPreSerialize);
+            Pointer<T> p = new Pointer<T>(this, anchor: anchor, resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid);
             Depth--;
             return p;
         }
@@ -306,7 +306,7 @@ namespace R1Engine
             return buffer;
         }
 
-        public override Pointer[] SerializePointerArray(Pointer[] obj, decimal count, Pointer anchor = null, string name = null) {
+        public override Pointer[] SerializePointerArray(Pointer[] obj, decimal count, Pointer anchor = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Pointer[" + count + "]) " + (name ?? "<no name>"));
@@ -315,12 +315,12 @@ namespace R1Engine
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = SerializePointer(default, anchor: anchor, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = SerializePointer(default, anchor: anchor, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
 
-        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, string name = null) {
+        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Pointer<" + typeof(T) + ">[" + count + "]) " + (name ?? "<no name>"));
@@ -329,7 +329,7 @@ namespace R1Engine
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = SerializePointer<T>(default, resolve: resolve, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = SerializePointer<T>(default, resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
