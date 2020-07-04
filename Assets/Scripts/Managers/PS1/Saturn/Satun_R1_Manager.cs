@@ -423,7 +423,7 @@ namespace R1Engine
 
                         pixelOffset += newTex.width * newTex.height;
                     
-                        File.WriteAllBytes(outputPath, newTex.EncodeToPNG());
+                        Util.ByteArrayToFile(outputPath, newTex.EncodeToPNG());
                     }
                 }
                 else
@@ -431,7 +431,7 @@ namespace R1Engine
                     // Get the output file path
                     var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
 
-                    File.WriteAllBytes(outputPath, tex.EncodeToPNG());
+                    Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
                 }
             }
 
@@ -467,7 +467,7 @@ namespace R1Engine
                 // Get the output file path
                 var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
 
-                File.WriteAllBytes(outputPath, tex.EncodeToPNG());
+                Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
             }
 
             // TODO: The width isn't right for all of these - this only includes files from the EU release! US/JP are the same.
