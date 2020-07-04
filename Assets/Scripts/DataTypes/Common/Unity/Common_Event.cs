@@ -24,6 +24,8 @@ namespace R1Engine {
         public int UniqueLayer { get; set; }
         public int LinkID { get; set; }
 
+        public bool DisplayOffsets { get; set; }
+
         #endregion
 
         #region Event Methods
@@ -54,7 +56,6 @@ namespace R1Engine {
         /// </summary>
         public void RefreshEditorInfo() {
             RefreshName();
-            ChangeOffsetVisibility(false);
             ChangeLinksVisibility(false);
         }
         
@@ -100,10 +101,6 @@ namespace R1Engine {
         public void ForceUpdate() {
             Update();
         }
-
-        // TODO: Changing the state doesn't change the animation until it's done playing
-        // TODO: Get rid of view model class since we barely need to update now
-        // TODO: Editing type should set the type in both places if possible
 
         void Update()
         {
@@ -342,15 +339,14 @@ namespace R1Engine {
             // Set link line to cube
             lineRend.SetPosition(0, midpoint);
             lineRend.SetPosition(1, linkCube.position);
-        }
 
-        public void ChangeOffsetVisibility(bool visible) {
-            offsetOrigin.gameObject.SetActive(visible);
-            offsetCrossBX.gameObject.SetActive(visible);
-            offsetCrossBY.gameObject.SetActive(visible);
-            offsetCrossHY.gameObject.SetActive(visible);
-            followSpriteLine.gameObject.SetActive(visible);
-            followSpriteLine.gameObject.SetActive(visible && Data.Data.GetFollowEnabled(EditorManager.Settings));
+            // Change the offsets visibility
+            offsetOrigin.gameObject.SetActive(DisplayOffsets);
+            offsetCrossBX.gameObject.SetActive(DisplayOffsets);
+            offsetCrossBY.gameObject.SetActive(DisplayOffsets);
+            offsetCrossHY.gameObject.SetActive(DisplayOffsets);
+            followSpriteLine.gameObject.SetActive(DisplayOffsets);
+            followSpriteLine.gameObject.SetActive(DisplayOffsets && Data.Data.GetFollowEnabled(EditorManager.Settings));
         }
 
         public void ChangeLinksVisibility(bool visible) {

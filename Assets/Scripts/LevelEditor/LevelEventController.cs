@@ -12,11 +12,11 @@ namespace R1Engine
     {
         #region Fields
 
-        // TODO: Maybe get rid of this?
         /// <summary>
-        /// The view model for the event editor
+        /// The currently selected event
         /// </summary>
-        public EventEditorViewModel ViewModel;
+        public Common_Event SelectedEvent { get; set; }
+        public Common_Event PrevSelectedEvent { get; set; }
 
         // Prefabs
         public GameObject eventParent;
@@ -65,24 +65,45 @@ namespace R1Engine
 
         public bool hasLoaded;
 
+        public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
+        public bool LogModifications => true;
+
         #endregion
 
         #region Field Changed Methods
 
-        public void FieldXPosition() => ViewModel.XPosition = short.TryParse(infoX.text, out var v) ? v : (short)0;
-        public void FieldYPosition() => ViewModel.YPosition = short.TryParse(infoY.text, out var v) ? v : (short)0;
-        public void FieldDes() => ViewModel.DES = infoDes.options[infoDes.value].text;
-        public void FieldEta() => ViewModel.ETA = infoEta.options[infoEta.value].text;
-        public void FieldEtat() => ViewModel.Etat = (byte)infoEtat.value;
-        public void FieldSubEtat() => ViewModel.SubEtat = (byte)infoSubEtat.value;
-        public void FieldOffsetBx() => ViewModel.OffsetBX = byte.TryParse(infoOffsetBx.text, out var v) ? v : (byte)0;
-        public void FieldOffsetBy() => ViewModel.OffsetBY = byte.TryParse(infoOffsetBy.text, out var v) ? v : (byte)0;
-        public void FieldOffsetHy() => ViewModel.OffsetHY = byte.TryParse(infoOffsetHy.text, out var v) ? v : (byte)0;
-        public void FieldFollowSprite() => ViewModel.FollowSprite = byte.TryParse(infoFollowSprite.text, out var v) ? v : (byte)0;
-        public void FieldHitPoints() => ViewModel.HitPoints = byte.TryParse(infoHitPoints.text, out var v) ? v : (byte)0;
-        public void FieldHitSprite() => ViewModel.HitSprite = byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0;
-        public void FieldFollowEnabled() => ViewModel.FollowEnabled = infoFollow.isOn;
-        public void FieldType() => ViewModel.Type = (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString());
+        private void FieldUpdated<T>(Action<T> updateAction, T newValue, Func<T> currentValue, string logName, bool refreshName = true)
+            where T : IComparable
+        {
+            if (SelectedEvent != null && !newValue.Equals(currentValue()))
+            {
+                updateAction(newValue);
+                SelectedEvent.Data.HasPendingEdits = true;
+
+                if (refreshName)
+                    SelectedEvent.RefreshName();
+
+                if (LogModifications)
+                    Debug.Log($"{logName} has been modified");
+            }
+        }
+
+        public void FieldXPosition() => FieldUpdated(x => SelectedEvent.Data.Data.XPosition = x, Int16.TryParse(infoX.text, out var v) ? v : 0, () => SelectedEvent.Data.Data.XPosition, "XPos", false);
+        public void FieldYPosition() => FieldUpdated(x => SelectedEvent.Data.Data.YPosition = x, Int16.TryParse(infoY.text, out var v) ? v : 0, () => SelectedEvent.Data.Data.YPosition, "YPos", false);
+        public void FieldDes() => FieldUpdated(x => SelectedEvent.Data.DESKey = x, infoDes.options[infoDes.value].text, () => SelectedEvent.Data.DESKey, "DES");
+        public void FieldEta() => FieldUpdated(x => SelectedEvent.Data.ETAKey = x, infoEta.options[infoEta.value].text, () => SelectedEvent.Data.ETAKey, "ETA");
+        public void FieldEtat() => FieldUpdated(x => SelectedEvent.Data.Data.Etat = SelectedEvent.Data.Data.RuntimeEtat = x, (byte)infoEtat.value, () => SelectedEvent.Data.Data.Etat, "Etat");
+        public void FieldSubEtat() => FieldUpdated(x => SelectedEvent.Data.Data.SubEtat = SelectedEvent.Data.Data.RuntimeSubEtat = x, (byte)infoSubEtat.value, () => SelectedEvent.Data.Data.SubEtat, "SubEtat");
+        public void FieldOffsetBx() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetBX = x, byte.TryParse(infoOffsetBx.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetBX, "BX");
+        public void FieldOffsetBy() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetBY = x, byte.TryParse(infoOffsetBy.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetBY, "BY");
+        public void FieldOffsetHy() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetHY = x, byte.TryParse(infoOffsetHy.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetHY, "HY");
+        public void FieldFollowSprite() => FieldUpdated(x => SelectedEvent.Data.Data.FollowSprite = x, byte.TryParse(infoFollowSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.FollowSprite, "FollowSprite");
+        public void FieldHitPoints() => FieldUpdated(x => SelectedEvent.Data.Data.HitPoints = SelectedEvent.Data.Data.RuntimeHitPoints = x, byte.TryParse(infoHitPoints.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.HitPoints, "HitPoints");
+        public void FieldHitSprite() => FieldUpdated(x => SelectedEvent.Data.Data.HitSprite = x, byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.HitSprite, "HitSprite");
+        public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.Data.Data.SetFollowEnabled(Controller.CurrentSettings, x), infoFollow.isOn, () => SelectedEvent.Data.Data.GetFollowEnabled(Controller.CurrentSettings), "FollowEnabled");
+
+        // TODO: Editing type should set the type in both places if possible
+        public void FieldType() => FieldUpdated(x => SelectedEvent.Data.Type = x, (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString()), () => SelectedEvent.Data.Type, "Type");
 
         public void FieldAnimIndex() => throw new NotImplementedException("The animation index can not be updated");
      
@@ -90,10 +111,8 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
-            InitializeViewModel();
-
             // Initialize Rayman's animation as they're shared for small and dark Rayman
-            ViewModel.EditorManager.InitializeRayAnim();
+            EditorManager.InitializeRayAnim();
 
             // Setup events
             foreach (var e in Controller.obj.levelController.GetAllEvents)
@@ -103,13 +122,13 @@ namespace R1Engine
             InitializeEventLinks();
 
             // Fill eventinfo dropdown with the event types
-            infoType.options.AddRange(ViewModel.EditorManager.EventTypes.Select(x => new Dropdown.OptionData
+            infoType.options.AddRange(EditorManager.EventTypes.Select(x => new Dropdown.OptionData
             {
                 text = x
             }));
 
             // Fill the dropdown menu
-            eventDropdown.options = ViewModel.EditorManager.GetEvents().Select(x => new Dropdown.OptionData
+            eventDropdown.options = EditorManager.GetEvents().Select(x => new Dropdown.OptionData
             {
                 text = x
             }).ToList();
@@ -118,93 +137,10 @@ namespace R1Engine
             eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;
 
             // Fill Des and Eta dropdowns with their max values
-            infoDes.options = ViewModel.EditorManager.DES.Select(x => new Dropdown.OptionData(x.Key)).ToList();
-            infoEta.options = ViewModel.EditorManager.ETA.Select(x => new Dropdown.OptionData(x.Key)).ToList();
+            infoDes.options = EditorManager.DES.Select(x => new Dropdown.OptionData(x.Key)).ToList();
+            infoEta.options = EditorManager.ETA.Select(x => new Dropdown.OptionData(x.Key)).ToList();
 
             hasLoaded = true;
-        }
-
-        protected void InitializeViewModel()
-        {
-            ViewModel = new EventEditorViewModel(Controller.obj.levelController.EditorManager);
-
-            ViewModel.PropertyChanged += (s, e) =>
-            {
-                switch (e.PropertyName)
-                {
-                    case nameof(ViewModel.XPosition):
-                        infoX.text = ViewModel.XPosition?.ToString() ?? String.Empty;
-                        break;
-
-                    case nameof(ViewModel.YPosition):
-                        infoY.text = ViewModel.YPosition?.ToString() ?? String.Empty;
-                        break;
-
-                    case nameof(ViewModel.DES):
-                        infoDes.value = infoDes.options.FindIndex(x => x.text == ViewModel.DES);
-                        break;
-
-                    case nameof(ViewModel.ETA):
-                        infoEta.value = infoEta.options.FindIndex(x => x.text == ViewModel.ETA);
-
-                        UpdateInfoEtat();
-                        UpdateInfoSubEtat();
-
-                        if (ViewModel.Etat >= infoEtat.options.Count)
-                            ViewModel.Etat = 0;
-
-                        if (ViewModel.SubEtat >= infoSubEtat.options.Count)
-                            ViewModel.SubEtat = 0;
-
-                        break;
-
-                    case nameof(ViewModel.Etat):
-                        infoEtat.value = ViewModel.Etat ?? 0;
-
-                        UpdateInfoSubEtat();
-
-                        if (ViewModel.SubEtat >= infoSubEtat.options.Count)
-                            ViewModel.SubEtat = 0;
-
-                        break;
-
-                    case nameof(ViewModel.SubEtat):
-                        infoSubEtat.value = ViewModel.SubEtat ?? 0;
-                        break;
-
-                    case nameof(ViewModel.OffsetBX):
-                        infoOffsetBx.text = (ViewModel.OffsetBX ?? 0).ToString();
-                        break;
-
-                    case nameof(ViewModel.OffsetBY):
-                        infoOffsetBy.text = (ViewModel.OffsetBY ?? 0).ToString();
-                        break;
-
-                    case nameof(ViewModel.OffsetHY):
-                        infoOffsetHy.text = (ViewModel.OffsetHY ?? 0).ToString();
-                        break;
-
-                    case nameof(ViewModel.FollowSprite):
-                        infoFollowSprite.text = (ViewModel.FollowSprite ?? 0).ToString();
-                        break;
-
-                    case nameof(ViewModel.HitPoints):
-                        infoHitPoints.text = (ViewModel.HitPoints ?? 0).ToString();
-                        break;
-
-                    case nameof(ViewModel.HitSprite):
-                        infoHitSprite.text = (ViewModel.HitSprite ?? 0).ToString();
-                        break;
-
-                    case nameof(ViewModel.FollowEnabled):
-                        infoFollow.isOn = ViewModel.FollowEnabled ?? false;
-                        break;
-
-                    case nameof(ViewModel.Type):
-                        infoType.value = (ushort)Convert.ChangeType(ViewModel.Type ?? (object)0, typeof(ushort));
-                        break;
-                }
-            };
         }
 
         protected void InitializeEventLinks()
@@ -215,12 +151,13 @@ namespace R1Engine
             for (int i = 0; i < eventList.Count; i++)
             {
                 // If X and Y are insane, clamp them
+                const int allowedBorder = 200;
                 const int border = 10;
 
-                if (eventList[i].Data.Data.XPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border || eventList[i].Data.Data.XPosition < -border)
+                if (eventList[i].Data.Data.XPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + allowedBorder || eventList[i].Data.Data.XPosition < -allowedBorder)
                     eventList[i].Data.Data.XPosition = (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border;
 
-                if (eventList[i].Data.Data.YPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border || eventList[i].Data.Data.YPosition < -border)
+                if (eventList[i].Data.Data.YPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + allowedBorder || eventList[i].Data.Data.YPosition < -allowedBorder)
                     eventList[i].Data.Data.YPosition = (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border;
 
                 // No link
@@ -275,10 +212,142 @@ namespace R1Engine
 
         private float memoryLoadTimer = 0;
 
+        private void UpdateEventFields()
+        {
+            // Update Etat and SubEtat drop downs
+            var etatLength = SelectedEvent?.Data.ETAKey == null ? 0 : EditorManager.ETA.TryGetItem(SelectedEvent.Data.ETAKey)?.Length ?? 0;
+            var subEtatLength = SelectedEvent == null ? 0 : EditorManager.ETA.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat)?.Length ?? 0;
+
+            if (infoEtat.options.Count != etatLength)
+            {
+                // Clear old options
+                infoEtat.options.Clear();
+
+                // Set new options
+                infoEtat.options.AddRange(Enumerable.Range(0, etatLength).Select(x => new Dropdown.OptionData
+                {
+                    text = x.ToString()
+                }));
+
+                //Debug.Log($"Etat array updated to size {etatLength}");
+            }
+            if (infoSubEtat.options.Count != subEtatLength)
+            {
+                // Clear old options
+                infoSubEtat.options.Clear();
+
+                // Set new options
+                infoSubEtat.options.AddRange(Enumerable.Range(0, subEtatLength).Select(x => new Dropdown.OptionData
+                {
+                    text = x.ToString()
+                }));
+
+                //Debug.Log($"SubEtat array updated to size {subEtatLength}");
+            }
+
+            // Make sure Etat and SubEtat indexes are not out of range
+            if (!Settings.LoadFromMemory)
+            {
+                if (SelectedEvent?.Data.Data.Etat >= infoEtat.options.Count)
+                    FieldUpdated(x => SelectedEvent.Data.Data.Etat = SelectedEvent.Data.Data.RuntimeEtat = x, (byte)0, () => SelectedEvent.Data.Data.Etat, "Etat");
+
+                if (SelectedEvent?.Data.Data.SubEtat >= infoSubEtat.options.Count)
+                    FieldUpdated(x => SelectedEvent.Data.Data.SubEtat = SelectedEvent.Data.Data.RuntimeSubEtat = x, (byte)0, () => SelectedEvent.Data.Data.SubEtat, "SubEtat");
+            }
+
+            // Helper method for updating a field
+            void updateInputField<T>(InputField field, T value, Func<string, T> parser)
+                where T : IComparable
+            {
+                T parsed = parser(field.text);
+
+                if ((field.isFocused || EqualityComparer<T>.Default.Equals(parsed, value)) && !String.IsNullOrWhiteSpace(field.text) && PrevSelectedEvent == SelectedEvent) 
+                    return;
+                
+                field.text = value.ToString();
+            }
+
+            // Helper method for updating a drop down
+            void updateDropDown<T>(Dropdown field, T value)
+                where T : IComparable
+            {
+                var selectedIndex = field.value;
+                var currentIndex = field.options.FindIndex(x => x.text == value?.ToString());
+
+                if (currentIndex == -1)
+                    currentIndex = 0;
+
+                if (selectedIndex == currentIndex && PrevSelectedEvent == SelectedEvent) 
+                    return;
+                
+                field.value = currentIndex;
+            }
+
+            // Helper method for updating a toggle
+            void updateToggle(Toggle field, bool value)
+            {
+                if (field.isOn == value && PrevSelectedEvent == SelectedEvent) 
+                    return;
+                
+                field.isOn = value;
+            }
+
+            // X Position
+            updateInputField<short>(infoX, (short)(SelectedEvent?.Data.Data.XPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
+
+            // Y Position
+            updateInputField<short>(infoY, (short)(SelectedEvent?.Data.Data.YPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
+
+            // DES
+            updateDropDown<string>(infoDes, SelectedEvent?.Data.DESKey);
+
+            // ETA
+            updateDropDown<string>(infoEta, SelectedEvent?.Data.ETAKey);
+
+            // Etat
+            updateDropDown<byte>(infoEtat, SelectedEvent?.Data.Data.Etat ?? 0);
+
+            // SubEtat
+            updateDropDown<byte>(infoSubEtat, SelectedEvent?.Data.Data.SubEtat ?? 0);
+
+            // OffsetBX
+            updateInputField<byte>(infoOffsetBx, SelectedEvent?.Data.Data.OffsetBX ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+            
+            // OffsetBY
+            updateInputField<byte>(infoOffsetBy, SelectedEvent?.Data.Data.OffsetBY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+
+            // OffsetHY
+            updateInputField<byte>(infoOffsetHy, SelectedEvent?.Data.Data.OffsetHY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+
+            // FollowSprite
+            updateInputField<byte>(infoFollowSprite, SelectedEvent?.Data.Data.FollowSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+
+            // HitPoints
+            updateInputField<byte>(infoHitPoints, SelectedEvent?.Data.Data.HitPoints ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+
+            // HitSprite
+            updateInputField<byte>(infoHitSprite, SelectedEvent?.Data.Data.HitSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+
+            // FollowEnabled
+            updateToggle(infoFollow, SelectedEvent?.Data.Data.GetFollowEnabled(EditorManager.Settings) ?? false);
+
+            // Type
+            updateDropDown<Enum>(infoType, SelectedEvent?.Data.Type);
+
+            // Set other fields
+            infoName.text = SelectedEvent?.DisplayName ?? String.Empty;
+
+            PrevSelectedEvent = SelectedEvent;
+        }
+
         private void Update() 
         {
             if (!hasLoaded)
                 return;
+
+            // Update the fields
+            UpdateEventFields();
+
             bool makingChanges = false;
             if (Settings.LoadFromMemory)
             {
@@ -325,98 +394,123 @@ namespace R1Engine
                     }
                 }
                 //Detect event under mouse when clicked
-                if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
+                if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) 
+                {
                     RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+                    
                     var e = hit.collider?.GetComponentInParent<Common_Event>();
-                    if (e != null) {
-                        
-                        if (ViewModel?.SelectedEvent != null)
-                            ViewModel.SelectedEvent.ChangeOffsetVisibility(false);
+                    
+                    if (e != null) 
+                    {
+                        if (SelectedEvent != null)
+                            SelectedEvent.DisplayOffsets = false;
 
-                        if (e != ViewModel?.SelectedEvent && ViewModel != null) {
-                            ViewModel.SelectedEvent = e;
-                            //Change event info if event is selected
-                            infoName.text = ViewModel.DisplayName;
-                            infoAnimIndex.text = ViewModel.SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
-                            infoLayer.text = ViewModel.SelectedEvent.Data.Data.Layer.ToString();
-                            //Clear old commands
+                        if (e != SelectedEvent) 
+                        {
+                            SelectedEvent = e;
+
+                            // Change event info if event is selected
+                            infoAnimIndex.text = SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
+                            infoLayer.text = SelectedEvent.Data.Data.Layer.ToString();
+                            
+                            // Clear old commands
                             ClearCommands();
-                            //Fill out the commands
-                            foreach (var c in ViewModel.SelectedEvent.Data.CommandCollection?.Commands ?? new Common_EventCommand[0]) {
+
+                            // Fill out the commands
+                            foreach (var c in SelectedEvent.Data.CommandCollection?.Commands ?? new Common_EventCommand[0]) {
                                 CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
                                 cmd.command = c;
                                 cmd.transform.SetParent(commandListParent, false);
                                 commandLines.Add(cmd);
                             }
                         }
-                        //Record selected position
+
+                        // Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
-                        //Update offset visibility
-                        ViewModel.SelectedEvent.ChangeOffsetVisibility(true);
-                        //Change the link
-                        if (modeLinks && ViewModel.SelectedEvent != Controller.obj.levelController.RaymanEvent) {
-                            ViewModel.SelectedEvent.LinkID = 0;
-                            ViewModel.SelectedEvent.ChangeLinksVisibility(true);
+
+                        // Update offset visibility
+                        if (SelectedEvent != null)
+                            SelectedEvent.DisplayOffsets = true;
+
+                        // Change the link
+                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanEvent && SelectedEvent != null) 
+                        {
+                            SelectedEvent.LinkID = 0;
+                            SelectedEvent.ChangeLinksVisibility(true);
                         }
                     }
-                    else {
-                        if (ViewModel?.SelectedEvent != null)
-                            ViewModel.SelectedEvent.ChangeOffsetVisibility(false);
+                    else 
+                    {
+                        if (SelectedEvent != null)
+                            SelectedEvent.DisplayOffsets = false;
+
                         selectedLineRend.enabled = false;
-                        ViewModel.SelectedEvent = null;
-                        //Clear info window
+                        SelectedEvent = null;
+
+                        // Clear info window
                         ClearInfoWindow();
                     }
                 }
-                //Drag and move the event
-                if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) {
-                    if (ViewModel?.SelectedEvent != null) {
-                        //Move event if in event mode
+
+                // Drag and move the event
+                if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
+                {
+                    if (SelectedEvent != null) 
+                    {
+                        // Move event if in event mode
                         if (modeEvents) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                            ViewModel.XPosition = (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16), Int16.MinValue, Int16.MaxValue);
-                            ViewModel.YPosition = (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), Int16.MinValue, Int16.MaxValue);
+                            FieldUpdated(x => SelectedEvent.Data.Data.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.XPosition, "XPos");
+                            FieldUpdated(x => SelectedEvent.Data.Data.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.YPosition, "YPos");
                         }
-                        //Else move links
-                        if (modeLinks && ViewModel.SelectedEvent != Controller.obj.levelController.RaymanEvent) {
+
+                        // Else move links
+                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanEvent) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                            ViewModel.SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
+                            SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
                         }
                     }
                 }
+
                 //Confirm links with mmb
-                if (Input.GetMouseButtonDown(2) && modeLinks && ViewModel.SelectedEvent.LinkID==0) {
+                if (Input.GetMouseButtonDown(2) && modeLinks && SelectedEvent?.LinkID == 0)
+                {
                     bool alone = true;
-                    foreach (var ee in Controller.obj.levelController.Events) {
-                        if (ee.linkCube.position== ViewModel.SelectedEvent.linkCube.position) {
-                            if (ee != ViewModel.SelectedEvent) {
-                                ee.LinkID = currentId;
-                                ee.ChangeLinksVisibility(true);
-                                ee.linkCubeLockPosition = ee.linkCube.position;
-                                alone = false;
-                            }
-                        }
+                    
+                    foreach (Common_Event ee in Controller.obj.levelController.Events.
+                        Where(ee => ee.linkCube.position == SelectedEvent.linkCube.position).
+                        Where(ee => ee != SelectedEvent))
+                    {
+                        ee.LinkID = currentId;
+                        ee.ChangeLinksVisibility(true);
+                        ee.linkCubeLockPosition = ee.linkCube.position;
+                        alone = false;
                     }
-                    if (!alone) {
-                        ViewModel.SelectedEvent.LinkID = currentId;
-                        ViewModel.SelectedEvent.ChangeLinksVisibility(true);
-                        ViewModel.SelectedEvent.linkCubeLockPosition = ViewModel.SelectedEvent.linkCube.position;
+
+                    if (!alone) 
+                    {
+                        SelectedEvent.LinkID = currentId;
+                        SelectedEvent.ChangeLinksVisibility(true);
+                        SelectedEvent.linkCubeLockPosition = SelectedEvent.linkCube.position;
                     }
                     currentId++;
                 }
-                //Delete selected event
-                if (Input.GetKeyDown(KeyCode.Delete) && modeEvents) {
-                    if (ViewModel?.SelectedEvent != null) {
-                        ViewModel.SelectedEvent.ChangeOffsetVisibility(false);
-                        ViewModel.SelectedEvent.Delete();
-                        ViewModel.SelectedEvent = null;
-                        ClearInfoWindow();
-                    }
+
+                // Delete selected event
+                if (Input.GetKeyDown(KeyCode.Delete) && modeEvents && SelectedEvent != null)
+                {
+                    if (SelectedEvent != null)
+                        SelectedEvent.DisplayOffsets = false;
+
+                    SelectedEvent.Delete();
+                    SelectedEvent = null;
+                    ClearInfoWindow();
                 }
             }
-            else {
+            else 
+            {
                 selectedLineRend.enabled = false;
             }
         }
@@ -477,7 +571,12 @@ namespace R1Engine
                                    $"Unk_36: {ed.Data.Unk_36}{Environment.NewLine}" +
                                    $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
                                    $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
-                    if (s is BinarySerializer) madeEdits = true;
+                    if (s is BinarySerializer)
+                    {
+                        Debug.Log($"Edited event");
+                        madeEdits = true;
+                    }
+
                     ed.HasPendingEdits = false;
                     currentOffset = s.CurrentPointer;
                 }
@@ -545,50 +644,24 @@ namespace R1Engine
             return madeEdits;
         }
 
-        private void LateUpdate() {
-            //Update selection square lines
-            if (ViewModel?.SelectedEvent != null) {
-                selectedLineRend.SetPosition(0, new Vector2(ViewModel.SelectedEvent.midpoint.x - ViewModel.SelectedEvent.boxCollider.size.x / 2f, ViewModel.SelectedEvent.midpoint.y - ViewModel.SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(1, new Vector2(ViewModel.SelectedEvent.midpoint.x + ViewModel.SelectedEvent.boxCollider.size.x / 2f, ViewModel.SelectedEvent.midpoint.y - ViewModel.SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(2, new Vector2(ViewModel.SelectedEvent.midpoint.x + ViewModel.SelectedEvent.boxCollider.size.x / 2f, ViewModel.SelectedEvent.midpoint.y + ViewModel.SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(3, new Vector2(ViewModel.SelectedEvent.midpoint.x - ViewModel.SelectedEvent.boxCollider.size.x / 2f, ViewModel.SelectedEvent.midpoint.y + ViewModel.SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(4, new Vector2(ViewModel.SelectedEvent.midpoint.x - ViewModel.SelectedEvent.boxCollider.size.x / 2f, ViewModel.SelectedEvent.midpoint.y - ViewModel.SelectedEvent.boxCollider.size.y / 2f));
+        private void LateUpdate() 
+        {
+            // Update selection square lines
+            if (SelectedEvent != null) 
+            {
+                selectedLineRend.SetPosition(0, new Vector2(SelectedEvent.midpoint.x - SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y - SelectedEvent.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(1, new Vector2(SelectedEvent.midpoint.x + SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y - SelectedEvent.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(2, new Vector2(SelectedEvent.midpoint.x + SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y + SelectedEvent.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(3, new Vector2(SelectedEvent.midpoint.x - SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y + SelectedEvent.boxCollider.size.y / 2f));
+                selectedLineRend.SetPosition(4, new Vector2(SelectedEvent.midpoint.x - SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y - SelectedEvent.boxCollider.size.y / 2f));
             }
-            else {
+            else 
+            {
                 selectedLineRend.SetPosition(0, Vector2.zero);
                 selectedLineRend.SetPosition(1, Vector2.zero);
                 selectedLineRend.SetPosition(2, Vector2.zero);
                 selectedLineRend.SetPosition(3, Vector2.zero);
                 selectedLineRend.SetPosition(4, Vector2.zero);
-            }
-        }
-
-        public void UpdateInfoEtat() 
-        {
-            // Clear old options
-            infoEtat.options.Clear();
-
-            // Populate new options
-            var max = ViewModel.ETA == null ? 0 : ViewModel.EditorManager.ETA.TryGetItem(ViewModel.ETA)?.Length ?? 0;
-            for (int i = 0; i < max; i++) {
-                Dropdown.OptionData dat = new Dropdown.OptionData {
-                    text = i.ToString()
-                };
-                infoEtat.options.Add(dat);
-            }
-        }
-        private void UpdateInfoSubEtat() 
-        {
-            // Clear old options
-            infoSubEtat.options.Clear();
-
-            // Populate new options
-            var max = ViewModel.ETA == null ? 0 : Controller.obj.levelController.EditorManager.ETA.TryGetItem(ViewModel.ETA)?.ElementAtOrDefault(ViewModel.Etat ?? -1)?.Length ?? 0;
-            for (int i = 0; i < max; i++) {
-                Dropdown.OptionData dat = new Dropdown.OptionData {
-                    text = i.ToString()
-                };
-                infoSubEtat.options.Add(dat);
             }
         }
 

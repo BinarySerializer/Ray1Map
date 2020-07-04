@@ -57,6 +57,11 @@ namespace R1Engine
         /// </summary>
         public int LinkIndex { get; set; }
 
+        /// <summary>
+        /// True if the event is forced to be handled as an always event
+        /// </summary>
+        public bool ForceAlways { get; set; }
+
         #endregion
 
         #region Methods
@@ -109,6 +114,10 @@ namespace R1Engine
 
         public bool GetIsAlways()
         {
+            // Check if it's forced to be handled as an always event
+            if (ForceAlways)
+                return true;
+
             // The "DEMO" text uses type "TYPE_DARK2_PINK_FLY", which is normally an always event
             if (Type is EventType e && e == EventType.TYPE_DARK2_PINK_FLY)
                 return false;

@@ -37,7 +37,7 @@ namespace R1Engine
         /// Gets the offset for the palettes in the game executable
         /// </summary>
         /// <returns>The offset for the palettes in the game executable</returns>
-        public uint GetPalOffsetFilePath(GameSettings settings)
+        public uint GetPalOffset(GameSettings settings)
         {
             if (settings.GameModeSelection == GameModeSelection.RaymanSaturnUS)
                 return 0x79224;
@@ -250,7 +250,7 @@ namespace R1Engine
                 wrapMode = TextureWrapMode.Clamp
             };
             //Debug.Log(string.Format("{0:X8}", img.ImageBufferOffset) + " - " + tex.width + " - " + tex.height);
-            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(GetExeFilePath()).StartPointer + GetPalOffsetFilePath(context.Settings), context, (s, x) => x.Length = 25 * 256 * 2);
+            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(GetExeFilePath()).StartPointer + GetPalOffset(context.Settings), context, (s, x) => x.Length = 25 * 256 * 2);
 
             var palette = pal.Value;
             var paletteOffset = img.PaletteInfo;
@@ -423,7 +423,7 @@ namespace R1Engine
 
                         pixelOffset += newTex.width * newTex.height;
                     
-                        File.WriteAllBytes(outputPath, newTex.EncodeToPNG());
+                        Util.ByteArrayToFile(outputPath, newTex.EncodeToPNG());
                     }
                 }
                 else
@@ -431,7 +431,7 @@ namespace R1Engine
                     // Get the output file path
                     var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
 
-                    File.WriteAllBytes(outputPath, tex.EncodeToPNG());
+                    Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
                 }
             }
 
@@ -467,7 +467,7 @@ namespace R1Engine
                 // Get the output file path
                 var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
 
-                File.WriteAllBytes(outputPath, tex.EncodeToPNG());
+                Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
             }
 
             // TODO: The width isn't right for all of these - this only includes files from the EU release! US/JP are the same.
