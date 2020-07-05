@@ -24,7 +24,10 @@ namespace R1Engine
         // ID?
         public uint Unknown3 { get; set; }
 
-        public ushort FrameTableOffset { get; set; }
+        /// <summary>
+        /// The length of <see cref="Layers"/>, <see cref="DefaultFrame"/> and <see cref="Frames"/>
+        /// </summary>
+        public ushort AnimationDataLength { get; set; }
 
         /// <summary>
         /// The animation layers
@@ -51,11 +54,7 @@ namespace R1Engine
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
             Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
             Unknown3 = s.Serialize<uint>(Unknown3, name: nameof(Unknown3));
-            FrameTableOffset = s.Serialize<ushort>(FrameTableOffset, name: nameof(FrameTableOffset));
-            
-            if (FrameTableOffset != 4 * (LayersPerFrame * FrameCount + 1))
-                Debug.LogWarning("Frame table offset is wrong");
-            
+            AnimationDataLength = s.Serialize<ushort>(AnimationDataLength, name: nameof(AnimationDataLength));
             Layers = s.SerializeObjectArray<Common_AnimationLayer>(Layers, LayersPerFrame * FrameCount, name: nameof(Layers));
             DefaultFrame = s.SerializeObject<Common_AnimationFrame>(DefaultFrame, name: nameof(DefaultFrame));
             Frames = s.SerializeObjectArray<Common_AnimationFrame>(Frames, FrameCount, name: nameof(Frames));

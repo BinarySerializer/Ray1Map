@@ -1136,7 +1136,6 @@ namespace R1Engine
         {
             await FileSystem.PrepareFile(context.BasePath + path);
 
-            // TODO: Maybe change this - using this for now to allow invalid pointers
             var file = new MemoryMappedFile(context, baseAddress)
             {
                 filePath = path,

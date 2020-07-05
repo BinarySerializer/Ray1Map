@@ -215,7 +215,7 @@ namespace R1Engine
                         FrameCount = a.FrameCount,
                         Unknown2 = a.Unknown2,
                         Unknown3 = a.Unknown3,
-                        FrameTableOffset = a.FrameTableOffset,
+                        AnimationDataLength = a.AnimationDataLength,
                         Layers = a.Layers.Select(x => new Common_AnimationLayer
                         {
                             IsFlippedHorizontally = x.IsFlippedHorizontally,

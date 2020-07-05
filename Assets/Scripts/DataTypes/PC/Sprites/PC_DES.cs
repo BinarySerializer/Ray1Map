@@ -13,7 +13,9 @@ namespace R1Engine
         /// </summary>
         public bool RequiresBackgroundClearing { get; set; }
 
-        public byte[] Unknown1 { get; set; }
+        public uint Allfix_Unk1 { get; set; }
+        public uint RaymanExeSize { get; set; }
+        public uint RaymanExeCheckSum1 { get; set; }
 
         /// <summary>
         /// The length of the image data
@@ -30,7 +32,7 @@ namespace R1Engine
         /// </summary>
         public byte ImageDataChecksum { get; set; }
 
-        public uint Unknown2 { get; set; }
+        public uint RaymanExeCheckSum2 { get; set; }
 
         /// <summary>
         /// The amount of image descriptors
@@ -53,9 +55,9 @@ namespace R1Engine
         public PC_AnimationDescriptor[] AnimationDescriptors { get; set; }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             if (FileType == Type.World)
                 RequiresBackgroundClearing = s.Serialize<bool>(RequiresBackgroundClearing, name: nameof(RequiresBackgroundClearing));
@@ -63,10 +65,15 @@ namespace R1Engine
                 RequiresBackgroundClearing = true;
 
             if (FileType == Type.AllFix)
-                Unknown1 = s.SerializeArray<byte>(Unknown1, 12, name: nameof(Unknown1));
+            {
+                Allfix_Unk1 = s.Serialize<uint>(Allfix_Unk1, name: nameof(Allfix_Unk1));
+                RaymanExeSize = s.Serialize<uint>(RaymanExeSize, name: nameof(RaymanExeSize));
+                RaymanExeCheckSum1 = s.Serialize<uint>(RaymanExeCheckSum1, name: nameof(RaymanExeCheckSum1));
+            }
 
             ImageDataLength = s.Serialize<uint>(ImageDataLength, name: nameof(ImageDataLength));
 
+            // TODO: Handle checksum
             if (FileType == Type.World && (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC))
             {
                 ImageDataChecksum = s.Serialize<byte>(ImageDataChecksum, name: nameof(ImageDataChecksum));
@@ -81,7 +88,7 @@ namespace R1Engine
             }
 
             if (FileType == Type.AllFix)
-                Unknown2 = s.Serialize<uint>(Unknown2, name: nameof(Unknown2));
+                RaymanExeCheckSum2 = s.Serialize<uint>(RaymanExeCheckSum2, name: nameof(RaymanExeCheckSum2));
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
             ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
