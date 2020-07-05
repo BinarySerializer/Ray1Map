@@ -102,8 +102,13 @@ namespace R1Engine
         public void FieldHitSprite() => FieldUpdated(x => SelectedEvent.Data.Data.HitSprite = x, byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.HitSprite, "HitSprite");
         public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.Data.Data.SetFollowEnabled(Controller.CurrentSettings, x), infoFollow.isOn, () => SelectedEvent.Data.Data.GetFollowEnabled(Controller.CurrentSettings), "FollowEnabled");
 
-        // TODO: Editing type should set the type in both places if possible
-        public void FieldType() => FieldUpdated(x => SelectedEvent.Data.Type = x, (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString()), () => SelectedEvent.Data.Type, "Type");
+        public void FieldType() => FieldUpdated(x =>
+        {
+            SelectedEvent.Data.Type = x;
+
+            if (x is EventType et)
+                SelectedEvent.Data.Data.Type = et;
+        }, (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString()), () => SelectedEvent.Data.Type, "Type");
 
         public void FieldAnimIndex() => throw new NotImplementedException("The animation index can not be updated");
      
