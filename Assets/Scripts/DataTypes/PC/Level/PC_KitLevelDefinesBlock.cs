@@ -31,12 +31,12 @@
 
             BackGroundDefineNormalChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
-                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackGroundDefineNormal = s.SerializeArray<byte>(LevelDefine_0, 24, name: nameof(LevelDefine_0)));
+                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackGroundDefineNormal = s.SerializeArray<byte>(BackGroundDefineNormal, 24, name: nameof(BackGroundDefineNormal)));
             }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(BackGroundDefineNormalChecksum));
 
             BackGroundDefineDiffChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
-                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackGroundDefineDiff = s.SerializeArray<byte>(LevelDefine_0, 24, name: nameof(LevelDefine_0)));
+                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackGroundDefineDiff = s.SerializeArray<byte>(BackGroundDefineDiff, 24, name: nameof(BackGroundDefineDiff)));
             }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(BackGroundDefineDiffChecksum));
         }
     }
