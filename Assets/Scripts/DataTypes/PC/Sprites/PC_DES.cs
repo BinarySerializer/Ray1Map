@@ -1,6 +1,4 @@
-﻿using Type = R1Engine.PC_WorldFile.Type;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// DES item data for PC
@@ -94,6 +92,13 @@ namespace R1Engine
             ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors));
             AnimationDescriptorCount = s.Serialize<byte>(AnimationDescriptorCount, name: nameof(AnimationDescriptorCount));
             AnimationDescriptors = s.SerializeObjectArray<PC_AnimationDescriptor>(AnimationDescriptors, AnimationDescriptorCount, name: nameof(AnimationDescriptors));
+        }
+
+        public enum Type
+        {
+            World,
+            AllFix,
+            BigRay
         }
     }
 }

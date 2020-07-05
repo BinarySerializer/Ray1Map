@@ -85,13 +85,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <param name="desIndex">The DES index</param>
-        /// <param name="includeExtension">Indicates if the file extension should be included</param>
         /// <returns>The file name</returns>
         public string GetDESFileName(Context context, int desIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             // Get file names
             var desNames = worldData.DESFileNames ?? new string[0];
@@ -105,13 +103,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <param name="etaIndex">The ETA index</param>
-        /// <param name="includeExtension">Indicates if the file extension should be included</param>
         /// <returns>The file name</returns>
         public string GetETAFileName(Context context, int etaIndex)
         {
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             // Get file names
             var etaNames = worldData.ETAFileNames ?? new string[0];

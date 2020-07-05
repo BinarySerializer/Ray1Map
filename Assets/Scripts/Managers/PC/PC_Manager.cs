@@ -329,7 +329,7 @@ namespace R1Engine
                         return null;
 
                     // TODO: Update this to not include extensions
-                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context, (s, o) => o.FileType = PC_WorldFile.Type.World).DESFileNames?.Skip(1).ToArray();
+                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context).DESFileNames?.Skip(1).ToArray();
 
                     return a?.Any() == true ? a : null;
                 });
@@ -345,7 +345,7 @@ namespace R1Engine
                     if (!FileSystem.FileExists(context.BasePath + worldPath))
                         return null;
 
-                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context, (s, o) => o.FileType = PC_WorldFile.Type.World).ETAFileNames?.ToArray();
+                    var a = FileFactory.Read<PC_WorldFile>(worldPath, context).ETAFileNames?.ToArray();
 
                     return a?.Any() == true ? a : null;
                 });
@@ -354,11 +354,13 @@ namespace R1Engine
                 PC_AnimationDescriptor[] rayAnim = null;
 
                 // Helper method for exporting textures
-                async Task<PC_WorldFile> ExportTexturesAsync(string filePath, PC_WorldFile.Type type, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<ARGBColor> palette = null) {
+                async Task<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<ARGBColor> palette = null)
+                    where Wld : PC_BaseWorldFile, new()
+                {
                     // Read the file
-                    var file = FileFactory.Read<PC_WorldFile>(filePath, context, onPreSerialize: (s, data) => data.FileType = type);
+                    var file = FileFactory.Read<Wld>(filePath, context);
 
-                    if (rayAnim == null && type == PC_WorldFile.Type.AllFix)
+                    if (rayAnim == null && file is PC_AllfixFile)
                         // Rayman is always the first DES
                         rayAnim = file.DesItems.First().AnimationDescriptors;
 
@@ -372,10 +374,10 @@ namespace R1Engine
                 }
 
                 // Export big ray
-                await ExportTexturesAsync(GetBigRayFilePath(context.Settings), PC_WorldFile.Type.BigRay, "Bigray", 0, new PC_ETA[0], null, null, GetBigRayPalette(context));
+                await ExportTexturesAsync<PC_BigRayFile>(GetBigRayFilePath(context.Settings), "Bigray", 0, new PC_ETA[0], null, null, GetBigRayPalette(context));
 
                 // Export allfix
-                var allfix = await ExportTexturesAsync(GetAllfixFilePath(context.Settings), PC_WorldFile.Type.AllFix, "Allfix", 0, new PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
+                var allfix = await ExportTexturesAsync<PC_AllfixFile>(GetAllfixFilePath(context.Settings), "Allfix", 0, new PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
 
                 // Enumerate every world
                 foreach (World world in EnumHelpers.GetValues<World>()) {
@@ -389,7 +391,7 @@ namespace R1Engine
                         continue;
 
                     // Export world
-                    await ExportTexturesAsync(worldPath, PC_WorldFile.Type.World, world.ToString(), allfix.DesItems.Length, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
+                    await ExportTexturesAsync<PC_WorldFile>(worldPath, world.ToString(), allfix.DesItems.Length, allfix.Eta, desNames.TryGetItem(world), etaNames.TryGetItem(world));
                 }
             }
         }
@@ -452,7 +454,7 @@ namespace R1Engine
         /// <param name="desOffset">The amount of textures in the allfix to use as the DES offset if a world texture</param>
         /// <param name="desNames">The DES names, if available</param>
         /// <param name="palette">Optional palette to use</param>
-        public void ExportSpriteTextures(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null) {
+        public void ExportSpriteTextures(Context context, PC_BaseWorldFile worldFile, string outputDir, int desOffset, string[] desNames, IList<ARGBColor> palette = null) {
             // Create the directory
             Directory.CreateDirectory(outputDir);
 
@@ -546,7 +548,7 @@ namespace R1Engine
         /// <param name="eventInfo">The event info</param>
         /// <param name="rayAnim">Rayman's animation</param>
         /// <param name="palette">Optional palette to use</param>
-        public async Task ExportAnimationFramesAsync(Context context, PC_WorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_AnimationDescriptor[] rayAnim, IList<ARGBColor> palette = null)
+        public async Task ExportAnimationFramesAsync(Context context, PC_BaseWorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_AnimationDescriptor[] rayAnim, IList<ARGBColor> palette = null)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -571,7 +573,7 @@ namespace R1Engine
             int? darkRayDES = null;
 
             // Get the small Rayman DES if allfix
-            if (worldFile.FileType == PC_WorldFile.Type.AllFix)
+            if (worldFile is PC_AllfixFile)
             {
                 var ei = eventInfo.FindItem(x => x.Type == (int)EventType.TYPE_DEMI_RAYMAN);
 
@@ -584,7 +586,7 @@ namespace R1Engine
             }
 
             // Get the Dark Rayman DES if Cake
-            if (worldFile.FileType == PC_WorldFile.Type.World && context.Settings.World == World.Cake)
+            if (worldFile is PC_WorldFile && context.Settings.World == World.Cake)
             {
                 var ei = eventInfo.FindItem(x => x.Type == (int)EventType.TYPE_BLACK_RAY);
 
@@ -611,7 +613,7 @@ namespace R1Engine
                 // Find matching ETA for this DES
                 List<Common_EventState> matchingStates = new List<Common_EventState>();
 
-                if (worldFile.FileType != PC_WorldFile.Type.BigRay)
+                if (!(worldFile is PC_BigRayFile))
                 {
                     // Search level events
                     foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.PC_ImageDescriptorsIndex == desIndex))
@@ -667,7 +669,7 @@ namespace R1Engine
                     string speed;
 
                     // Hard-code for big ray
-                    if (worldFile.FileType == PC_WorldFile.Type.BigRay)
+                    if (worldFile is PC_BigRayFile)
                         speed = "1";
                     // Hard-code for clock event
                     else if (desIndex == 7)
@@ -1290,16 +1292,14 @@ namespace R1Engine
             Controller.status = $"Loading allfix";
 
             // Read the fixed data
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.AllFix);
+            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
 
             Controller.status = $"Loading world";
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
 
@@ -1307,8 +1307,7 @@ namespace R1Engine
 
             // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
             // Read the big ray data
-            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.BigRay);
+            var bigRayData = FileFactory.Read<PC_BigRayFile>(GetBigRayFilePath(context.Settings), context);
 
             // Get the big ray palette
             var bigRayPalette = GetBigRayPalette(context);
@@ -1400,8 +1399,7 @@ namespace R1Engine
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.MapData.ColorPalettes.First()) : new Common_Design[0];
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             // Get file names if available
             var desNames = worldData.DESFileNames ?? new string[0];
@@ -1584,8 +1582,7 @@ namespace R1Engine
             var eventLinkingTable = new List<ushort>();
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             // Get file names if available
             var desNames = worldData.DESFileNames ?? new string[0];
@@ -1708,13 +1705,13 @@ namespace R1Engine
         public virtual IEnumerable<PC_ETA> GetCurrentEventStates(Context context)
         {
             // Read the fixed data
-            var allfix = FileFactory.Read<PC_WorldFile>(GetAllfixFilePath(context.Settings), context, (s, x) => x.FileType = PC_WorldFile.Type.AllFix);
+            var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context, (s, x) => x.FileType = PC_WorldFile.Type.World);
+            var worldData = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             // Read the big ray data
-            var bigRayData = FileFactory.Read<PC_WorldFile>(GetBigRayFilePath(context.Settings), context, (s, x) => x.FileType = PC_WorldFile.Type.BigRay);
+            var bigRayData = FileFactory.Read<PC_BigRayFile>(GetBigRayFilePath(context.Settings), context);
 
             // Get the eta items
             return allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);

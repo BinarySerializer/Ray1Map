@@ -29,8 +29,7 @@ namespace R1Engine
         }).ToDictionary(x => x.FileName, x => x.Item.States)))
         {
             // Read the world data
-            var worldData = FileFactory.Read<PC_WorldFile>(manager.GetWorldFilePath(context.Settings), context,
-                onPreSerialize: (s, data) => data.FileType = PC_WorldFile.Type.World);
+            var worldData = FileFactory.Read<PC_WorldFile>(manager.GetWorldFilePath(context.Settings), context);
 
             // Get file names if available
             DESFileIndex = worldData.DESFileNames ?? new string[0];
