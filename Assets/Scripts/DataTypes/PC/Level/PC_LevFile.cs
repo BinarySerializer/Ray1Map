@@ -61,6 +61,9 @@ namespace R1Engine
 
         public PC_ProfileDefine ProfileDefine { get; set; }
 
+        public byte EDU_AlphaChecksum { get; set; }
+        public byte[][] EDU_Alpha { get; set; }
+
         #endregion
 
         #region Public Methods
@@ -118,6 +121,19 @@ namespace R1Engine
             // Serialize the profile define data (only on By his Fans and 60 Levels)
             if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanByHisFansPC || s.GameSettings.GameModeSelection == GameModeSelection.Rayman60LevelsPC)
                 ProfileDefine = s.SerializeObject<PC_ProfileDefine>(ProfileDefine, name: nameof(ProfileDefine));
+
+            // Serialize alpha data (only on EDU)
+            if (s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
+            {
+                EDU_AlphaChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
+                {
+                    if (EDU_Alpha == null)
+                        EDU_Alpha = new byte[480][];
+
+                    for (int i = 0; i < EDU_Alpha.Length; i++)
+                        EDU_Alpha[i] = s.SerializeArray<byte>(EDU_Alpha[i], 256, name: $"{nameof(EDU_Alpha)}[{i}]");
+                }, ChecksumPlacement.Before, name: nameof(EDU_AlphaChecksum));
+            }
         }
 
         #endregion
