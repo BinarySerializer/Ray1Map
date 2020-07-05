@@ -1,4 +1,10 @@
-﻿using Sanford.Multimedia.Midi;
+﻿#if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+#define ISWINDOWS
+#endif
+
+#if ISWINDOWS
+using Sanford.Multimedia.Midi;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +16,8 @@ using UnityEngine;
 namespace R1Engine {
 	public class MidiWriter {
 		public void Write(Jaguar_R1_MusicDescriptor file, string outPath) {
-			Sequence s = new Sequence();
+#if ISWINDOWS
+            Sequence s = new Sequence();
 			Track t = new Track();
 			s.Add(CreateTrack(file));
 			// This plugin doesn't overwrite files
@@ -18,9 +25,11 @@ namespace R1Engine {
 				File.Delete(outPath);
 			}
 			s.Save(outPath);
-		}
+#endif
+        }
 
-		private Track CreateTrack(Jaguar_R1_MusicDescriptor jagFile) {
+#if ISWINDOWS
+        private Track CreateTrack(Jaguar_R1_MusicDescriptor jagFile) {
 			Track t = new Track();
 			TempoChangeBuilder b = new TempoChangeBuilder();
 			b.Tempo = 22000;
@@ -553,5 +562,6 @@ namespace R1Engine {
             OpenTriangle = 81,
         }
         #endregion
+#endif
     }
 }
