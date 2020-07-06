@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// Event localization data for Rayman Mapper (PC)
@@ -17,7 +13,7 @@ namespace R1Engine
         /// <summary>
         /// Unknown header values
         /// </summary>
-        public ushort[] Unknown2 { get; set; }
+        public ushort[][] UnkHeader { get; set; }
 
         /// <summary>
         /// The localization items
@@ -27,32 +23,23 @@ namespace R1Engine
         /// <summary>
         /// Serializes the data
         /// </summary>
-        /// <param name="serializer">The serializer</param>
-        public override void SerializeImpl(SerializerObject s) {
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s) 
+        {
+            // Serialize header
             base.SerializeImpl(s);
 
+            // Serialize the count
             LocCount = s.Serialize<uint>(LocCount, name: nameof(LocCount));
 
-            if (s is BinaryDeserializer)
-            {
-                // TODO: Find way to avoid this
-                // Since we don't know the length we go on until we hit the bytes for the localization items (they always start with MS)
-                byte[] values;
-                List<ushort> tempList = new List<ushort>();
+            // Serialize unknown header
+            if (UnkHeader == null)
+                UnkHeader = new ushort[LocCount][];
 
-                while (Settings.StringEncoding.GetString(values = s.SerializeArray<byte>(null,2)) != "MS")
-                    tempList.Add(BitConverter.ToUInt16(values, 0));
+            for (int i = 0; i < UnkHeader.Length; i++)
+                UnkHeader[i] = s.SerializeArray<ushort>(UnkHeader[i], 3, name: $"{nameof(UnkHeader)}[{i}]");
 
-                Unknown2 = tempList.ToArray();
-
-                // Go back two steps...
-                s.Goto(s.CurrentPointer - 2);
-            }
-            else
-            {
-                s.SerializeArray<ushort>(Unknown2, Unknown2.Length, name: nameof(Unknown2));
-            }
-
+            // Serialize the localization items
             LocItems = s.SerializeObjectArray<PC_Mapper_EventLocItem>(LocItems, LocCount, name: nameof(LocItems));
         }
     }

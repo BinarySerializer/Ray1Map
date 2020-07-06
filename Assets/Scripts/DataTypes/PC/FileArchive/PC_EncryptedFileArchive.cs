@@ -55,9 +55,7 @@ namespace R1Engine
                 // Serialize the entry
                 s.DoAt(Offset + entry.FileOffset, () =>
                 {
-                    s.BeginXOR(entry.XORKey);
-                    DecodedFiles[i] = s.SerializeArray<byte>(DecodedFiles[i], entry.FileSize, name: $"{nameof(DecodedFiles)} [{i}]");
-                    s.EndXOR();
+                    s.DoXOR(entry.XORKey, () => DecodedFiles[i] = s.SerializeArray<byte>(DecodedFiles[i], entry.FileSize, name: $"{nameof(DecodedFiles)} [{i}]"));
                 });
             }
         }
