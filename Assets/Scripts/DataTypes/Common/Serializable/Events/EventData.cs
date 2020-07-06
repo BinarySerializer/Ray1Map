@@ -352,16 +352,16 @@ namespace R1Engine
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
-            // NOTE: Kit and edu has 4 more bytes between here and the type value - where does it belong?
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
-                Kit_Unk = s.Serialize<uint>(Kit_Unk, name: nameof(Kit_Unk));
-
             RuntimeCMDOffset = s.Serialize<ushort>(RuntimeCMDOffset, name: nameof(RuntimeCMDOffset));
             
             Unk_72 = s.Serialize<ushort>(Unk_72, name: nameof(Unk_72));
             Unk_74 = s.Serialize<ushort>(Unk_74, name: nameof(Unk_74));
-            Unk_76 = s.Serialize<ushort>(Unk_76, name: nameof(Unk_76));
 
+            // NOTE: Kit and edu has 4 more bytes between here and Unk_88 - where does it belong?
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
+                Kit_Unk = s.Serialize<uint>(Kit_Unk, name: nameof(Kit_Unk));
+
+            Unk_76 = s.Serialize<ushort>(Unk_76, name: nameof(Unk_76));
             Unk_78 = s.Serialize<ushort>(Unk_78, name: nameof(Unk_78));
             Unk_80 = s.Serialize<ushort>(Unk_80, name: nameof(Unk_80));
             Unk_82 = s.Serialize<ushort>(Unk_82, name: nameof(Unk_82));
