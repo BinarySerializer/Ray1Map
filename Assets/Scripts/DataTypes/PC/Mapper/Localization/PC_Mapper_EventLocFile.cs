@@ -11,9 +11,9 @@
         public uint LocCount { get; set; }
 
         /// <summary>
-        /// Unknown header values
+        /// The size of each string in each loc item
         /// </summary>
-        public ushort[][] UnkHeader { get; set; }
+        public ushort[][] StringLengths { get; set; }
 
         /// <summary>
         /// The localization items
@@ -32,12 +32,12 @@
             // Serialize the count
             LocCount = s.Serialize<uint>(LocCount, name: nameof(LocCount));
 
-            // Serialize unknown header
-            if (UnkHeader == null)
-                UnkHeader = new ushort[LocCount][];
+            // Serialize the string lengths. We however don't use these values as the strings are all null-terminated.
+            if (StringLengths == null)
+                StringLengths = new ushort[LocCount][];
 
-            for (int i = 0; i < UnkHeader.Length; i++)
-                UnkHeader[i] = s.SerializeArray<ushort>(UnkHeader[i], 3, name: $"{nameof(UnkHeader)}[{i}]");
+            for (int i = 0; i < StringLengths.Length; i++)
+                StringLengths[i] = s.SerializeArray<ushort>(StringLengths[i], 3, name: $"{nameof(StringLengths)}[{i}]");
 
             // Serialize the localization items
             LocItems = s.SerializeObjectArray<PC_Mapper_EventLocItem>(LocItems, LocCount, name: nameof(LocItems));
