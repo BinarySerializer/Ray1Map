@@ -107,21 +107,6 @@
                         ETA[j] = s.SerializeObjectArray<Common_EventState>(ETA[j], count, name: $"{nameof(ETA)}[{j}]");
                     });
                 }
-
-
-                if (ETA == null)
-                    ETA = new Common_EventState[Etat + 1][];
-
-                // TODO: Clean up
-                /*for (int i = 0; i < ETA.Length; i++)
-                {
-                    var pointer = s.SerializePointer(null, name: $"EtatPointer {i}");
-
-                    s.DoAt(pointer, () =>
-                    {
-                        ETA[i] = s.SerializeObjectArray<Common_EventState>(ETA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
-                    });
-                }*/
             });
 
             if (CommandsPointer != null)
