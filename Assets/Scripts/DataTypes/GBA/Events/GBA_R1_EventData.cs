@@ -71,28 +71,30 @@
             // Serialize data from pointers
 
             // Serialize the current state
-            s.DoAt(ETAPointer, () =>
-            {
+            if(ETAPointer != null) {
                 uint etatCount = (uint)Etat + 1;
-                s.DoAt(ETAPointer, () => {
-                    uint curEtatCount = 0;
-                    Pointer off_prev = null;
-                    while (true) {
-                        Pointer off_next = s.SerializePointer(null, allowInvalid: true, name: "TestPointer");
-                        if (curEtatCount < etatCount
-                        || (off_next != null
-                        && off_next != ETAPointer
-                        && (off_prev == null
-                        || (off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0)
-                        && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000)))) {
-                            curEtatCount++;
-                            off_prev = off_next;
-                        } else {
-                            break;
+                if (s.GameSettings.EngineVersion == EngineVersion.RayDSi) {
+                } else {
+                    s.DoAt(ETAPointer, () => {
+                        uint curEtatCount = 0;
+                        Pointer off_prev = null;
+                        while (true) {
+                            Pointer off_next = s.SerializePointer(null, allowInvalid: true, name: "TestPointer");
+                            if (curEtatCount < etatCount
+                            || (off_next != null
+                            && off_next != ETAPointer
+                            && (off_prev == null
+                            || (off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0)
+                            && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000)))) {
+                                curEtatCount++;
+                                off_prev = off_next;
+                            } else {
+                                break;
+                            }
                         }
-                    }
-                    etatCount = curEtatCount;
-                });
+                        etatCount = curEtatCount;
+                    });
+                }
                 Pointer[] EtatPointers = null;
                 s.DoAt(ETAPointer, () => {
                     EtatPointers = s.SerializePointerArray(EtatPointers, etatCount, name: $"{nameof(EtatPointers)}");
@@ -101,13 +103,18 @@
                 // Serialize subetats
                 ETA = new Common_EventState[EtatPointers.Length][];
                 for (int j = 0; j < EtatPointers.Length; j++) {
-                    Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
-                    uint count = (uint)((nextPointer - EtatPointers[j]) / 8);
+                    uint count = 0;
+                    if (s.GameSettings.EngineVersion == EngineVersion.RayDSi) {
+                        count = j == Etat ? (uint)(SubEtat + 1) : 1;
+                    } else {
+                        Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
+                        count = (uint)((nextPointer - EtatPointers[j]) / 8);
+                    }
                     s.DoAt(EtatPointers[j], () => {
                         ETA[j] = s.SerializeObjectArray<Common_EventState>(ETA[j], count, name: $"{nameof(ETA)}[{j}]");
                     });
                 }
-            });
+            }
 
             if (CommandsPointer != null)
                 s.DoAt(CommandsPointer, () => Commands = s.SerializeObject<Common_EventCommandCollection>(Commands, name: nameof(Commands)));

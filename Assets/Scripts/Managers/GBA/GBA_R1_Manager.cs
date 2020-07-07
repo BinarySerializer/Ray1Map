@@ -977,8 +977,32 @@ namespace R1Engine
 
                     // Add if not found
                     if (dat.ETAPointer != null && !eventETA.ContainsKey(dat.ETAPointer))
+                    {
                         // Add to the ETA
                         eventETA.Add(dat.ETAPointer, dat.ETA);
+                    }
+                    else if (dat.ETAPointer != null && context.Settings.EngineVersion == EngineVersion.RayDSi)
+                    {
+                        // Temporary solution - combine ETA
+                        var current = eventETA[dat.ETAPointer];
+
+                        if (dat.ETA.Length > current.Length)
+                            Array.Resize(ref current, dat.ETA.Length);
+
+                        for (int ii = 0; ii < dat.ETA.Length; ii++)
+                        {
+                            if (current[ii] == null)
+                                current[ii] = new Common_EventState[dat.ETA[ii]?.Length ?? 0];
+
+                            if ((dat.ETA[ii]?.Length ?? 0) > current[ii].Length)
+                                Array.Resize(ref current[ii], dat.ETA[ii].Length);
+
+                            for (int jj = 0; jj < (dat.ETA[ii]?.Length ?? 0); jj++)
+                                current[ii][jj] = dat.ETA[ii][jj];
+                        }
+
+                        eventETA[dat.ETAPointer] = current;
+                    }
 
                     var editorEventData = new Editor_EventData(new EventData()
                     {
