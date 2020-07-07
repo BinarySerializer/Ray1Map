@@ -70,34 +70,34 @@
 
             // Serialize data from pointers
 
-            // TODO: Parse the ETA fully - sadly it's structured differently from PS1 even though it uses pointers the same way
             // Serialize the current state
             s.DoAt(ETAPointer, () =>
             {
-                uint EtatCount = (uint)Etat + 1;
+                uint etatCount = (uint)Etat + 1;
                 s.DoAt(ETAPointer, () => {
-                    uint CurEtatCount = 0;
+                    uint curEtatCount = 0;
                     Pointer off_prev = null;
                     while (true) {
                         Pointer off_next = s.SerializePointer(null, allowInvalid: true, name: "TestPointer");
-                        if (CurEtatCount < EtatCount
+                        if (curEtatCount < etatCount
                         || (off_next != null
                         && off_next != ETAPointer
                         && (off_prev == null
                         || (off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0)
                         && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000)))) {
-                            CurEtatCount++;
+                            curEtatCount++;
                             off_prev = off_next;
                         } else {
                             break;
                         }
                     }
-                    EtatCount = CurEtatCount;
+                    etatCount = curEtatCount;
                 });
                 Pointer[] EtatPointers = null;
                 s.DoAt(ETAPointer, () => {
-                    EtatPointers = s.SerializePointerArray(EtatPointers, EtatCount, name: $"{nameof(EtatPointers)}");
+                    EtatPointers = s.SerializePointerArray(EtatPointers, etatCount, name: $"{nameof(EtatPointers)}");
                 });
+
                 // Serialize subetats
                 ETA = new Common_EventState[EtatPointers.Length][];
                 for (int j = 0; j < EtatPointers.Length; j++) {

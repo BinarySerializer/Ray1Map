@@ -18,7 +18,6 @@
 
         public Pointer ETAsPointer { get; set; }
 
-        // Usually between 1-3
         public uint ETAsCount { get; set; }
 
         public Pointer AnimDescriptorsPointer { get; set; }
