@@ -67,7 +67,7 @@ namespace R1Engine
                 for (int x = 0; x < map.Width; x++)
                 {
                     // Get the collision index
-                    var collisionTypeIndex = (int)map.MapTiles[y * map.Width + x].Data.CollisionType;
+                    var collisionTypeIndex = GetTileCollisionIndex(map.MapTiles[y * map.Width + x].Data.CollisionType);
 
                     // Make sure it's not out of bounds
                     if (collisionTypeIndex >= collisionTileSet.Length)
@@ -215,7 +215,7 @@ namespace R1Engine
             // Update tile graphics
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)newTile.Data.CollisionType]);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[GetTileCollisionIndex(newTile.Data.CollisionType)]);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(newTile, Controller.obj.levelController.EditorManager.Settings));
 
             // Get the tile to set
@@ -240,7 +240,7 @@ namespace R1Engine
 
             // Update tile graphics
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)collisionType]);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[GetTileCollisionIndex(collisionType)]);
 
             // Get the tile to set
             var destTile = map.MapTiles[y * map.Width + x];
@@ -248,6 +248,20 @@ namespace R1Engine
             destTile.Data.CollisionType = collisionType;
 
             return destTile;
+        }
+
+        private int GetTileCollisionIndex(TileCollisionType colType)
+        {
+            var colIndex = (int)colType;
+
+            // Correct collision types to display on Jaguar
+            if (Controller.obj.levelController.EditorManager.Settings.MajorEngineVersion == MajorEngineVersion.Jaguar)
+            {
+                if (colIndex == 11)
+                    colIndex = 24;
+            }
+
+            return colIndex;
         }
     }
 }
