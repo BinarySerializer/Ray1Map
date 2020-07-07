@@ -3,8 +3,7 @@
     /// <summary>
     /// Event graphic data for Rayman Advance (GBA)
     /// </summary>
-    public class GBA_R1_EventGraphicsData : R1Serializable
-    {
+    public class GBA_R1_EventGraphicsData : R1Serializable {
         // sub_50BA4((_BYTE*)eventPointer, 0, 116u);
 
         public Pointer ImageBufferPointer { get; set; }
@@ -17,10 +16,10 @@
         // *(_WORD*)(eventOffsetInMemory + 50) = sub_4EC90(*(_DWORD*)(structOffset + 12), 0xCu);
         public uint ImageDescriptorLength { get; set; }
 
-        public Pointer ETAPointer { get; set; }
+        public Pointer ETAsPointer { get; set; }
 
         // Usually between 1-3
-        public uint Unk { get; set; }
+        public uint ETAsCount { get; set; }
 
         public Pointer AnimDescriptorsPointer { get; set; }
 
@@ -50,16 +49,15 @@
         /// Handles the data serialization
         /// </summary>
         /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s)
-        {
+        public override void SerializeImpl(SerializerObject s) {
             // Serialize data
 
             ImageBufferPointer = s.SerializePointer(ImageBufferPointer, name: nameof(ImageBufferPointer));
             ImageBufferSize = s.Serialize<uint>(ImageBufferSize, name: nameof(ImageBufferSize));
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
             ImageDescriptorLength = s.Serialize<uint>(ImageDescriptorLength, name: nameof(ImageDescriptorLength));
-            ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
-            Unk = s.Serialize<uint>(Unk, name: nameof(Unk));
+            ETAsPointer = s.SerializePointer(ETAsPointer, name: nameof(ETAsPointer));
+            ETAsCount = s.Serialize<uint>(ETAsCount, name: nameof(ETAsCount));
             AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
             AnimDescriptorCount = s.Serialize<uint>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
 
@@ -85,6 +83,7 @@
             s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorLength / 12, name: nameof(ImageDescriptors)));
 
             s.DoAt(ImageBufferPointer, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageBufferSize, name: nameof(ImageBuffer)));
+
         }
     }
 }

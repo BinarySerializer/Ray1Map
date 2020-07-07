@@ -74,11 +74,46 @@
             // Serialize the current state
             s.DoAt(ETAPointer, () =>
             {
+                uint EtatCount = (uint)Etat + 1;
+                s.DoAt(ETAPointer, () => {
+                    uint CurEtatCount = 0;
+                    Pointer off_prev = null;
+                    while (true) {
+                        Pointer off_next = s.SerializePointer(null, allowInvalid: true, name: "TestPointer");
+                        if (CurEtatCount < EtatCount
+                        || (off_next != null
+                        && off_next != ETAPointer
+                        && (off_prev == null
+                        || (off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0)
+                        && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000)))) {
+                            CurEtatCount++;
+                            off_prev = off_next;
+                        } else {
+                            break;
+                        }
+                    }
+                    EtatCount = CurEtatCount;
+                });
+                Pointer[] EtatPointers = null;
+                s.DoAt(ETAPointer, () => {
+                    EtatPointers = s.SerializePointerArray(EtatPointers, EtatCount, name: $"{nameof(EtatPointers)}");
+                });
+                // Serialize subetats
+                ETA = new Common_EventState[EtatPointers.Length][];
+                for (int j = 0; j < EtatPointers.Length; j++) {
+                    Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
+                    uint count = (uint)((nextPointer - EtatPointers[j]) / 8);
+                    s.DoAt(EtatPointers[j], () => {
+                        ETA[j] = s.SerializeObjectArray<Common_EventState>(ETA[j], count, name: $"{nameof(ETA)}[{j}]");
+                    });
+                }
+
+
                 if (ETA == null)
                     ETA = new Common_EventState[Etat + 1][];
 
                 // TODO: Clean up
-                for (int i = 0; i < ETA.Length; i++)
+                /*for (int i = 0; i < ETA.Length; i++)
                 {
                     var pointer = s.SerializePointer(null, name: $"EtatPointer {i}");
 
@@ -86,7 +121,7 @@
                     {
                         ETA[i] = s.SerializeObjectArray<Common_EventState>(ETA[i], i == Etat ? SubEtat + 1 : 1, name: $"ETA_GBA[{i}]");
                     });
-                }
+                }*/
             });
 
             if (CommandsPointer != null)
