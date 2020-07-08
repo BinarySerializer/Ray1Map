@@ -25,7 +25,7 @@ namespace R1Engine
                 BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
             }
             // Rayman Designer (PC)
-            else if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC)
+            else if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanDesignerPC)
             {
                 EventArrayOffset = s.DoAt(gameMemoryOffset + 0x14A600, () => s.SerializePointer(EventArrayOffset, name: nameof(EventArrayOffset)));
                 RayEventOffset = gameMemoryOffset + 0x14A4E8;
