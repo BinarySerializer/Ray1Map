@@ -66,7 +66,7 @@ namespace R1Engine
         public bool hasLoaded;
 
         public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
-        public bool LogModifications => true;
+        public bool LogModifications => false;
 
         #endregion
 
