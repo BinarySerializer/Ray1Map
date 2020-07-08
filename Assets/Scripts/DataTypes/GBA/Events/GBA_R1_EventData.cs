@@ -1,4 +1,7 @@
-﻿namespace R1Engine
+﻿using System;
+using System.Linq;
+
+namespace R1Engine
 {
     /// <summary>
     /// Event data for Rayman Advance (GBA)
@@ -71,49 +74,101 @@
             // Serialize data from pointers
 
             // Serialize the current state
-            if(ETAPointer != null) {
-                uint etatCount = (uint)Etat + 1;
-                if (s.GameSettings.EngineVersion == EngineVersion.RayDSi) {
-                } else {
-                    s.DoAt(ETAPointer, () => {
-                        uint curEtatCount = 0;
-                        Pointer off_prev = null;
-                        while (true) {
-                            Pointer off_next = s.SerializePointer(null, allowInvalid: true, name: "TestPointer");
-                            if (curEtatCount < etatCount
-                            || (off_next != null
-                            && off_next != ETAPointer
-                            && (off_prev == null
-                            || (off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0)
-                            && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000)))) {
-                                curEtatCount++;
-                                off_prev = off_next;
-                            } else {
-                                break;
+            if(ETAPointer != null) 
+            {
+                do
+                {
+                    var hasSerialized = ETA != null && s is BinaryDeserializer;
+
+                    int etatCount;
+
+                    if (!hasSerialized)
+                    {
+                        etatCount = Etat + 1;
+
+                        // Get correct etat count on GBA
+                        if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
+                        {
+                            s.DoAt(ETAPointer, () => {
+                                int curEtatCount = 0;
+                                Pointer off_prev = null;
+                                while (true)
+                                {
+                                    Pointer off_next = s.SerializePointer(null, allowInvalid: true, name: "TestPointer");
+                                    if (curEtatCount < etatCount 
+                                        || (off_next != null 
+                                        && off_next != ETAPointer
+                                        && (off_prev == null 
+                                        || (off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0) 
+                                        && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000))))
+                                    {
+                                        curEtatCount++;
+                                        off_prev = off_next;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                                etatCount = curEtatCount;
+                            });
+                        }
+                    }
+                    else
+                    {
+                        etatCount = ETA.Length;
+                    }
+
+                    // Get max linked etat if we've already serialized ETA
+                    if (hasSerialized)
+                    {
+                        var maxLinked = ETA.SelectMany(x => x).Where(x => x != null).Max(x => x.LinkedEtat) + 1;
+
+                        if (etatCount < maxLinked)
+                            etatCount = maxLinked;
+                    }
+
+                    // Serialize etat pointers
+                    Pointer[] EtatPointers = s.DoAt(ETAPointer, () => s.SerializePointerArray(default, etatCount, name: $"{nameof(EtatPointers)}"));
+
+                    // Serialize subetats
+                    var prevETA = ETA;
+                    ETA = new Common_EventState[EtatPointers.Length][];
+                    for (int j = 0; j < EtatPointers.Length; j++)
+                    {
+                        int count;
+
+                        if (!hasSerialized || prevETA.Length <= j)
+                        {
+                            if (s.GameSettings.EngineVersion == EngineVersion.RayDSi)
+                            {
+                                count = j == Etat ? (SubEtat + 1) : 1;
+                            }
+                            else
+                            {
+                                Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
+                                count = (int)((nextPointer - EtatPointers[j]) / 8);
                             }
                         }
-                        etatCount = curEtatCount;
-                    });
-                }
-                Pointer[] EtatPointers = null;
-                s.DoAt(ETAPointer, () => {
-                    EtatPointers = s.SerializePointerArray(EtatPointers, etatCount, name: $"{nameof(EtatPointers)}");
-                });
+                        else
+                        {
+                            count = prevETA[j].Length;
 
-                // Serialize subetats
-                ETA = new Common_EventState[EtatPointers.Length][];
-                for (int j = 0; j < EtatPointers.Length; j++) {
-                    uint count = 0;
-                    if (s.GameSettings.EngineVersion == EngineVersion.RayDSi) {
-                        count = j == Etat ? (uint)(SubEtat + 1) : 1;
-                    } else {
-                        Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
-                        count = (uint)((nextPointer - EtatPointers[j]) / 8);
+                            // Get max linked subetat
+                            var validLinks = prevETA.SelectMany(x => x).Where(x => x?.LinkedEtat == j).ToArray();
+                            var maxLinked = validLinks.Any() ? validLinks.Max(x => x.LinkedSubEtat) + 1 : -1;
+
+                            if (count < maxLinked)
+                                count = maxLinked;
+                        }
+
+                        // Serialize all states
+                        s.DoAt(EtatPointers[j], () => ETA[j] = s.SerializeObjectArray<Common_EventState>(ETA[j], count, name: $"{nameof(ETA)}[{j}]"));
+
+                        if (ETA[j] == null)
+                            ETA[j] = new Common_EventState[count];
                     }
-                    s.DoAt(EtatPointers[j], () => {
-                        ETA[j] = s.SerializeObjectArray<Common_EventState>(ETA[j], count, name: $"{nameof(ETA)}[{j}]");
-                    });
-                }
+                } while (!ETA.SelectMany(x => x).Where(x => x != null).All(eta => ETA.Length > eta.LinkedEtat && ETA[eta.LinkedEtat].Length > eta.LinkedSubEtat));
             }
 
             if (CommandsPointer != null)
