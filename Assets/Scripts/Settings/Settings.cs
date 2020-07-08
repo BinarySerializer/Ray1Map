@@ -218,6 +218,8 @@ namespace R1Engine {
 
         public static bool FollowRaymanInMemoryMode { get; set; } = true;
 
+        public static bool HideDirSettings { get; set; }
+
         /// <summary>
         /// Indicates if .BAK backup files should be created before writing
         /// </summary>
@@ -325,6 +327,7 @@ namespace R1Engine {
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
             ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo);
             FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
+            HideDirSettings = s.SerializeBool("HideDirSettings", HideDirSettings);
 
             Log = s.SerializeBool("Log", Log);
             LogFile = s.SerializeString("LogFile", LogFile);

@@ -77,10 +77,10 @@ public class SettingsWindow : UnityWindow
         
         // Memory
         
-        DrawHeader(ref yPos, "Memory");
-
         if (Settings.LoadFromMemory)
         {
+            DrawHeader(ref yPos, "Memory");
+
             DefaultMemoryOptionsIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Default memory options", DefaultMemoryOptionsIndex, DefaultMemoryOptionNames);
 
             if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex)
@@ -187,14 +187,24 @@ public class SettingsWindow : UnityWindow
         // Directories
         DrawHeader(ref yPos, "Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
 
-        var modes = EnumHelpers.GetValues<GameModeSelection>();
-        if (fileMode == FileSystem.Mode.Web) {
-            foreach (var mode in modes) {
-                Settings.GameDirectoriesWeb[mode] = EditorGUI.TextField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
+        Settings.HideDirSettings = EditorGUI.Toggle(GetNextRect(ref yPos), "Hide directory fields", Settings.HideDirSettings);
+
+        if (!Settings.HideDirSettings)
+        {
+            var modes = EnumHelpers.GetValues<GameModeSelection>();
+            if (fileMode == FileSystem.Mode.Web)
+            {
+                foreach (var mode in modes)
+                {
+                    Settings.GameDirectoriesWeb[mode] = EditorGUI.TextField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
+                }
             }
-        } else {
-            foreach (var mode in modes) {
-                Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
+            else
+            {
+                foreach (var mode in modes)
+                {
+                    Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
+                }
             }
         }
 
