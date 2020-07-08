@@ -90,10 +90,10 @@ namespace R1Engine
                 {
                     // TODO: Find better way to parse this
                     
-                    s.DoAt(EtatPointers.Last(), () => {
-
+                    s.DoAt(EtatPointers.Last(), () => 
+                    {
                         uint count = 0;
-                        const int maxCount = 20;
+                        const int maxCount = 69;
 
                         while (true)
                         {
@@ -101,13 +101,12 @@ namespace R1Engine
                             if (s.CurrentLength - stateSize < s.CurrentPointer.FileOffset)
                                 break;
 
-                            // Read the next bytes
-                            var bytes = s.SerializeArray<byte>(null, stateSize, name: $"Dummy state {count}");
-
-                            // TODO: Check for Saturn pointers
-                            // Check if it's invalid (is a pointer)
-                            if (bytes[3] == 0x80)
+                            // Make sure it's not a pointer
+                            if (s.DoAt(s.CurrentPointer, () => s.SerializePointer(default, allowInvalid: true, name: $"Dummy pointer {count}")) != null)
                                 break;
+
+                            // Read the next state
+                            s.SerializeObject<Common_EventState>(null, name: $"Dummy state {count}");
 
                             // Make sure we haven't reached the max
                             if (count > maxCount)
@@ -118,12 +117,6 @@ namespace R1Engine
 
                         NumSubEtats[NumEtats - 1] = count;
                     });
-                    
-                    /*
-                    // Temp fix so we don't read past the end of the stream - this however causes certain events to get the wrong state!
-                    uint maxEtats = (s.CurrentLength - EtatPointers[NumEtats - 1].FileOffset) / stateSize;
-                    NumSubEtats[NumEtats - 1] = System.Math.Min(20u, maxEtats);
-                    */
                 }
             }
 
