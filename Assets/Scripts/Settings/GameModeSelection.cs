@@ -39,8 +39,23 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.PS1, EngineVersion.RaySaturn, Game.Rayman1, "Rayman 1 (Saturn - JP)", typeof(Satun_R1_Manager))]
         RaymanSaturnJP,
 
-        [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC)", typeof(PC_R1_Manager))]
-        RaymanPC,
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC - 1.00)", typeof(PC_R1_Manager))]
+        RaymanPC_1_00,
+
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC - 1.10)", typeof(PC_R1_Manager))]
+        RaymanPC_1_10,
+
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC - 1.12)", typeof(PC_R1_Manager))]
+        RaymanPC_1_12,
+
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC - 1.20)", typeof(PC_R1_Manager))]
+        RaymanPC_1_20,
+
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC - 1.21 JP)", typeof(PC_R1_Manager))]
+        RaymanPC_1_21_JP,
+
+        [GameMode(MajorEngineVersion.PC, EngineVersion.RayPC, Game.Rayman1, "Rayman 1 (PC - 1.21)", typeof(PC_R1_Manager))]
+        RaymanPC_1_21,
 
         [GameMode(MajorEngineVersion.PC, EngineVersion.RayKitPC, Game.RaymanDesigner, "Rayman Gold (PC - Demo)", typeof(PC_RD_Manager))]
         RaymanGoldPCDemo,

@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-// Copied from Ubi-Canvas
 public class UnityWindow : EditorWindow
 {
     protected Rect GetNextRect(ref float yPos, float padding = 4f, float height = 0f, float vPadding = 0f, float vPaddingBottom = 0f)
@@ -34,20 +34,20 @@ public class UnityWindow : EditorWindow
         value = EditorGUI.Toggle(new Rect(rect.x, rect.y, rect.height, rect.height), value);
         return new Rect(rect.x + rect.height, rect.y, rect.width - rect.height, rect.height);
     }
-    protected Rect BrowseButton(Rect rect, string name, GUIContent content, Action action)
+
+    protected void BrowseButton(Rect rect, string name, GUIContent content, Action action, int width)
     {
         GUIStyle butStyle = EditorStyles.miniButtonRight;
-        Rect buttonRect = new Rect(rect.x + rect.width - 24, rect.y, 24, rect.height);
+        Rect buttonRect = new Rect(rect.x + rect.width - width, rect.y, width, rect.height);
         GUI.SetNextControlName("Button " + name);
 
         if (GUI.Button(buttonRect, content, butStyle))
             action();
-
-        return new Rect(rect.x, rect.y, rect.width - 24, rect.height);
     }
+
     protected string DirectoryField(Rect rect, string title, string value, bool includeLabel = true)
     {
-        rect = BrowseButton(rect, title, EditorGUIUtility.IconContent("Folder Icon"), () => 
+        BrowseButton(rect, title, EditorGUIUtility.IconContent("Folder Icon"), () => 
         {
             string selectedFolder = EditorUtility.OpenFolderPanel(title, value, "");
             if (!string.IsNullOrEmpty(selectedFolder))
@@ -56,53 +56,49 @@ public class UnityWindow : EditorWindow
                 value = selectedFolder;
                 Dirty = true;
             }
-        });
-        if (!includeLabel)
+        }, ButtonWidth);
+
+        rect = new Rect(rect.x, rect.y, rect.width - ButtonWidth, rect.height);
+
+        BrowseButton(rect, title, EditorGUIUtility.IconContent("UpArrow"), () =>
         {
-            value = EditorGUI.TextField(rect, value);
-        }
-        else
-        {
-            value = EditorGUI.TextField(rect, new GUIContent(title), value);
-        }
+            if (Directory.Exists(value))
+                Process.Start(value);
+        }, ButtonWidth);
+
+        rect = new Rect(rect.x, rect.y, rect.width - ButtonWidth, rect.height);
+
+        value = !includeLabel ? EditorGUI.TextField(rect, value) : EditorGUI.TextField(rect, new GUIContent(title), value);
+
         return value;
     }
 
     protected string FileField(Rect rect, string title, string value, bool save, string extension, bool includeLabel = true)
     {
-        rect = BrowseButton(rect, title, EditorGUIUtility.IconContent("Folder Icon"), () => 
+        BrowseButton(rect, title, EditorGUIUtility.IconContent("Folder Icon"), () => 
         {
-            string file;
             string directory = "";
             string defaultName = "";
+
             if (!string.IsNullOrEmpty(value))
             {
                 directory = Path.GetFileName(Path.GetFullPath(value));
                 defaultName = Path.GetFileName(value);
             }
-            if (save)
-            {
-                file = EditorUtility.SaveFilePanel(title, directory, defaultName, extension);
-            }
-            else
-            {
-                file = EditorUtility.OpenFilePanel(title, directory, extension);
-            }
+
+            var file = save ? EditorUtility.SaveFilePanel(title, directory, defaultName, extension) : EditorUtility.OpenFilePanel(title, directory, extension);
+
             if (!string.IsNullOrEmpty(file))
             {
                 GUI.FocusControl("Button " + title);
                 value = file;
                 Dirty = true;
             }
-        });
-        if (!includeLabel)
-        {
-            value = EditorGUI.TextField(rect, value);
-        }
-        else
-        {
-            value = EditorGUI.TextField(rect, new GUIContent(title), value);
-        }
+        }, ButtonWidth);
+
+        rect = new Rect(rect.x, rect.y, rect.width - ButtonWidth, rect.height);
+
+        value = !includeLabel ? EditorGUI.TextField(rect, value) : EditorGUI.TextField(rect, new GUIContent(title), value);
         return value;
     }
 
@@ -114,6 +110,8 @@ public class UnityWindow : EditorWindow
     protected bool scrollbarShown { get; set; }
 
     protected float scrollbarWidth { get; set; } = 16f;
+
+    protected const int ButtonWidth = 24;
 
     protected void OnInspectorUpdate()
     {

@@ -122,7 +122,52 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman 1 (PC)</td>
+    <td class="tg-yw4l">Rayman 1 (PC - 1.00)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (PC - 1.10)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (PC - 1.12)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (PC - 1.20)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (PC - 1.21 JP)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (PC - 1.21)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>

@@ -12,18 +12,19 @@ namespace R1Engine
 
         public void Update(SerializerObject s)
         {
+            // Get the game memory offset
             Pointer gameMemoryOffset = s.CurrentPointer;
 
-            // Rayman 1 (PC)
-            if (s.GameSettings.EngineVersion == EngineVersion.RayPC)
+            // Rayman 1 (PC - 1.21)
+            if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPC_1_21)
             {
-                // For version 1.21 - verify it works for other ones too!
                 EventArrayOffset = s.DoAt(gameMemoryOffset + 0x16DDF0, () => s.SerializePointer(EventArrayOffset, name: nameof(EventArrayOffset)));
                 RayEventOffset = gameMemoryOffset + 0x16F650;
 
                 TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, name: nameof(TileArrayOffset)));
                 BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
             }
+
             // Rayman Designer (PC)
             else if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanDesignerPC)
             {
@@ -34,6 +35,7 @@ namespace R1Engine
                 //TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, name: nameof(TileArrayOffset)));
                 //BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
             }
+
             // Rayman Advance (GBA)
             else if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
             {
@@ -45,10 +47,10 @@ namespace R1Engine
                 // TODO: Find this
                 RayEventOffset = null;
             }
+
+
             else
-            {
                 throw new NotImplementedException("The selected game mode does currently not support memory loading");
-            }
         }
     }
 }

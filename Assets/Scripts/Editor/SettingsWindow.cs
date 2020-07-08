@@ -51,7 +51,7 @@ public class SettingsWindow : UnityWindow
         }
 
         // Increase label width due to it being cut off otherwise
-        EditorGUIUtility.labelWidth = 180;
+        EditorGUIUtility.labelWidth = 192;
 
 		float yPos = 0f;
 
@@ -148,15 +148,9 @@ public class SettingsWindow : UnityWindow
 			Settings.Level = currentLevels.FirstOrDefault().Key;
 
         // Helper method for getting the level name
-        string GetLvlName(int lvlNum, string lvlName)
-        {
-            if (lvlName != null)
-                return $"{lvlNum:00} - {lvlName}";
-            else
-                return $"{lvlNum}";
-        }
+        string GetLvlName(int lvlNum, string lvlName) => lvlName != null ? $"{lvlNum:00} - {lvlName}" : $"{lvlNum}";
 
-		var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
+        var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
 
         if (currentLevels.Length > lvlIndex && lvlIndex != -1)
             Settings.Level = currentLevels[lvlIndex].Key;
@@ -231,9 +225,9 @@ public class SettingsWindow : UnityWindow
         bool log = Settings.Log;
         rect = PrefixToggle(rect, ref log);
         Settings.Log = log;
-        if (Settings.Log) {
+
+        if (Settings.Log)
             Settings.LogFile = FileField(rect, "Serialization log File", Settings.LogFile, true, "txt", includeLabel: false);
-        }
 
         // Tools
 
@@ -247,11 +241,8 @@ public class SettingsWindow : UnityWindow
         }
 
         // Add every export option
-        for (var i = 0; i < CurrentGameActions.Length; i++)
+        foreach (GameAction action in CurrentGameActions)
         {
-            // Get the option
-            var action = CurrentGameActions[i];
-
             if (GUI.Button(GetNextRect(ref yPos), action.DisplayName))
             {
                 // Get the directories
