@@ -339,6 +339,8 @@ NOTE: This project is currently in its early stages and may be unstable. Saving 
 * Select the game mode, world and level
 * Start the project in Unity
 
+Editor tutorial: https://github.com/Adsolution/Ray1Map/wiki/Editor-(tutorial)
+
 ## Screenshots
 
 <div align="center">
