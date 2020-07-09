@@ -22,8 +22,12 @@
         /// </summary>
         public string LevelDescription { get; set; }
 
-        // TODO: Serialize this (ends with some booleans for level properties)
-        public byte[] UnkKitProperties { get; set; }
+        public bool Power_Fist { get; set; }
+        public bool Power_Hang { get; set; }
+        public bool Power_Run { get; set; }
+        public bool Power_Seed { get; set; }
+        public bool Power_Helico { get; set; }
+        public bool Power_SuperHelico { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -37,9 +41,14 @@
                 {
                     LevelName = s.SerializeString(LevelName, 25, name: nameof(LevelName));
                     LevelAuthor = s.SerializeString(LevelAuthor, 25, name: nameof(LevelAuthor));
-                    LevelDescription = s.SerializeString(LevelDescription, 113, name: nameof(LevelDescription));
+                    LevelDescription = s.SerializeString(LevelDescription, 240, name: nameof(LevelDescription));
 
-                    UnkKitProperties = s.SerializeArray<byte>(UnkKitProperties, 133, name: nameof(UnkKitProperties));
+                    Power_Fist = s.Serialize<bool>(Power_Fist, name: nameof(Power_Fist));
+                    Power_Hang = s.Serialize<bool>(Power_Hang, name: nameof(Power_Hang));
+                    Power_Run = s.Serialize<bool>(Power_Run, name: nameof(Power_Run));
+                    Power_Seed = s.Serialize<bool>(Power_Seed, name: nameof(Power_Seed));
+                    Power_Helico = s.Serialize<bool>(Power_Helico, name: nameof(Power_Helico));
+                    Power_SuperHelico = s.Serialize<bool>(Power_SuperHelico, name: nameof(Power_SuperHelico));
                 });
             }, ChecksumPlacement.Before, name: nameof(ProfileDefineChecksum));
         }
