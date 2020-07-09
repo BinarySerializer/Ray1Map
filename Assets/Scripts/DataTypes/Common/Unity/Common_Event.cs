@@ -112,7 +112,7 @@ namespace R1Engine {
             if (CurrentAnimation != null && !Settings.LoadFromMemory) 
             {
                 // Set frame based on hit points for special events
-                if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON))
+                if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON || et == EventType.TYPE_EDU_LETTRE))
                 {
                     Data.Data.RuntimeCurrentAnimFrame = Data.Data.HitPoints;
                     EditorAnimFrame = Data.Data.HitPoints;
