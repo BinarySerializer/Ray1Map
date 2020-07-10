@@ -6,11 +6,11 @@
         public byte[] LevelDefine_0 { get; set; }
         public byte[] LevelDefine_1 { get; set; }
 
-        public byte BackGroundDefineNormalChecksum { get; set; }
-        public byte[] BackGroundDefineNormal { get; set; }
+        public byte BackgroundDefineNormalChecksum { get; set; }
+        public BackgroundLayerPosition[] BackgroundDefineNormal { get; set; }
 
-        public byte BackGroundDefineDiffChecksum { get; set; }
-        public byte[] BackGroundDefineDiff { get; set; }
+        public byte BackgroundDefineDiffChecksum { get; set; }
+        public BackgroundLayerPosition[] BackgroundDefineDiff { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -29,15 +29,15 @@
                 });
             }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(LevelDefineChecksum));
 
-            BackGroundDefineNormalChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
+            BackgroundDefineNormalChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
-                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackGroundDefineNormal = s.SerializeArray<byte>(BackGroundDefineNormal, 24, name: nameof(BackGroundDefineNormal)));
-            }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(BackGroundDefineNormalChecksum));
+                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackgroundDefineNormal = s.SerializeObjectArray<BackgroundLayerPosition>(BackgroundDefineNormal, 6, name: nameof(BackgroundDefineNormal)));
+            }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(BackgroundDefineNormalChecksum));
 
-            BackGroundDefineDiffChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
+            BackgroundDefineDiffChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
             {
-                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackGroundDefineDiff = s.SerializeArray<byte>(BackGroundDefineDiff, 24, name: nameof(BackGroundDefineDiff)));
-            }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(BackGroundDefineDiffChecksum));
+                s.DoXOR((byte)(isEncryptedAndChecksum ? 0xA5 : 0), () => BackgroundDefineDiff = s.SerializeObjectArray<BackgroundLayerPosition>(BackgroundDefineDiff, 6, name: nameof(BackgroundDefineDiff)));
+            }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(BackgroundDefineDiffChecksum));
         }
     }
 }

@@ -1,11 +1,9 @@
-﻿using System.IO;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
-    /// Background later position data for Rayman 1 (PS1)
+    /// Background later position data
     /// </summary>
-    public class PS1_R1_BackgroundLayerPosition : R1Serializable
+    public class BackgroundLayerPosition : R1Serializable
     {
         /// <summary>
         /// The layer x position
@@ -18,9 +16,9 @@ namespace R1Engine
         public ushort YPosition { get; set; }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             XPosition = s.Serialize<ushort>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<ushort>(YPosition, name: nameof(YPosition));

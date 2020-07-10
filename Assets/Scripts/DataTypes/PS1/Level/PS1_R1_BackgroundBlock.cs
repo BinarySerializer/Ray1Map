@@ -5,11 +5,10 @@
     /// </summary>
     public class PS1_R1_BackgroundBlock : R1Serializable
     {
-        /// <summary>
-        /// The background layer positions
-        /// </summary>
-        public PS1_R1_BackgroundLayerPosition[] BackgroundLayerPositions { get; set; }
+        public BackgroundLayerPosition[] BackgroundDefineNormal { get; set; }
+        public BackgroundLayerPosition[] BackgroundDefineDiff { get; set; }
 
+        // LevelDefine_0?
         public byte[] Unknown3 { get; set; }
 
         /// <summary>
@@ -25,8 +24,9 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            // Serialize the background layer information (always 12)
-            BackgroundLayerPositions = s.SerializeObjectArray<PS1_R1_BackgroundLayerPosition>(BackgroundLayerPositions, 12, name: nameof(BackgroundLayerPositions));
+            // Serialize the background layer information
+            BackgroundDefineNormal = s.SerializeObjectArray<BackgroundLayerPosition>(BackgroundDefineNormal, 6, name: nameof(BackgroundDefineNormal));
+            BackgroundDefineDiff = s.SerializeObjectArray<BackgroundLayerPosition>(BackgroundDefineDiff, 6, name: nameof(BackgroundDefineDiff));
 
             Unknown3 = s.SerializeArray<byte>(Unknown3, 16, name: nameof(Unknown3));
 
