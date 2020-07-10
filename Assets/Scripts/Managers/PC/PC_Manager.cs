@@ -431,17 +431,7 @@ namespace R1Engine
                 var pcx = FileFactory.Read<PCX>(key, context);
 
                 // Get the palette
-                var bigRayPalette = new List<ARGBColor>();
-
-                for (int i = 0; i < pcx.VGAPalette.Length; i += 3)
-                {
-                    bigRayPalette.Add(new ARGBColor(
-                        red: pcx.VGAPalette[i + 0],
-                        green: pcx.VGAPalette[i + 1],
-                        blue: pcx.VGAPalette[i + 2]));
-                }
-
-                return bigRayPalette;
+                return pcx.VGAPalette;
             }
         }
 

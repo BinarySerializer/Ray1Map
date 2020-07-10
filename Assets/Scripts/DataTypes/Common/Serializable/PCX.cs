@@ -48,7 +48,7 @@ namespace R1Engine
 
         public byte PaletteStart { get; set; }
 
-        public byte[] VGAPalette { get; set; }
+        public RGB888Color[] VGAPalette { get; set; }
 
         public int ImageWidth => XEnd - XStart + 1;
 
@@ -75,13 +75,8 @@ namespace R1Engine
                     // Get the palette index
                     var paletteIndex = ScanLines[y][x];
 
-                    // Get the colors
-                    var r = VGAPalette[(paletteIndex * 3) + 0] / 255f;
-                    var g = VGAPalette[(paletteIndex * 3) + 1] / 255f;
-                    var b = VGAPalette[(paletteIndex * 3) + 2] / 255f;
-
                     // Set the pixel
-                    tex.SetPixel(x, y, new Color(r, g, b, 1));
+                    tex.SetPixel(x, y, VGAPalette[paletteIndex].GetColor());
                 }
             }
 
@@ -93,9 +88,9 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             // Serialize the header
             Identifier = s.Serialize<byte>(Identifier, name: nameof(Identifier));
@@ -181,7 +176,7 @@ namespace R1Engine
             PaletteStart = s.Serialize<byte>(PaletteStart, name: nameof(PaletteStart));
 
             // Serialize the palette
-            VGAPalette = s.SerializeArray<byte>(VGAPalette, 256 * 3, name: nameof(VGAPalette));
+            VGAPalette = s.SerializeObjectArray<RGB888Color>(VGAPalette, 256, name: nameof(VGAPalette));
         }
     }
 }

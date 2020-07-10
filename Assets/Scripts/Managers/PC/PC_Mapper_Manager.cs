@@ -161,12 +161,8 @@ namespace R1Engine
             // Get the palette from the PCX file
             var vgaPalette = FileFactory.Read<PCX>(paths["pcx"], context).VGAPalette;
 
-            var palette = new List<ARGBColor>();
-            for (var i = 0; i < vgaPalette.Length; i += 3)
-                palette.Add(new ARGBColor(vgaPalette[i + 0], vgaPalette[i + 1], vgaPalette[i + 2]));
-
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, palette) : new Common_Design[0];
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, vgaPalette) : new Common_Design[0];
 
             var index = 0;
 
