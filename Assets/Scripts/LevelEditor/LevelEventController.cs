@@ -574,7 +574,6 @@ namespace R1Engine
                                    $"RuntimeLayer: {ed.Data.RuntimeLayer}{Environment.NewLine}" +
                                    $"Unk_28: {ed.Data.Unk_28}{Environment.NewLine}" +
                                    $"Unk_36: {ed.Data.Unk_36}{Environment.NewLine}" +
-                                   $"Unk_112: {ed.Data.Unk_112}{Environment.NewLine}" +
                                    $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
                     if (s is BinarySerializer)
                     {
