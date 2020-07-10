@@ -51,15 +51,15 @@ namespace R1Engine
                 // Set the name
                 item.Name = name;
 
-                var cmdBuffer = new List<byte>();
+                var cmdBuffer = new List<short>();
 
                 do
                 {
-                    // Since command parameters can be both signed and unsigned bytes we read them as shorts and cast
-                    cmdBuffer.Add((byte)parser.ReadShortValue());
+                    // Since command parameters can be both signed and unsigned bytes we read them as shorts
+                    cmdBuffer.Add(parser.ReadShortValue());
                 } while (cmdBuffer.Last() != 0xFF);
 
-                item.EventCommands = cmdBuffer.ToArray();
+                item.EventCommands = cmdBuffer.Select(x => (byte)x).ToArray();
 
                 // Read values
                 item.XPosition = parser.ReadShortValue();
