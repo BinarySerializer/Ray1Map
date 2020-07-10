@@ -3,53 +3,77 @@ using System.Linq;
 
 namespace R1Engine
 {
-    /// <summary>
-    /// Event CMD data for the Mapper
-    /// </summary>
-    public class Mapper_EventCMD : MapperTextSerializable
+    public class Mapper_EventManifest : MapperTextSerializable
     {
-        public Mapper_EventCMDItem[] Events { get; set; }
-        public Mapper_AlwaysEventCMDItem[] AlwaysEvents { get; set; }
+        public Mapper_EventDefinition[] EventDefinitions { get; set; }
+        public Mapper_AlwaysEventDefinition[] AlwaysEventDefinitions { get; set; }
 
         public override void Read(MapperTextParser parser)
         {
-            var ed = new List<Mapper_EventCMDItem>();
-            var aed = new List<Mapper_AlwaysEventCMDItem>();
+            var ed = new List<Mapper_EventDefinition>();
+            var aed = new List<Mapper_AlwaysEventDefinition>();
 
             while (true)
             {
                 // Get the next value
-                var etaFile = parser.ReadValue();
+                var value = parser.ReadValue();
 
                 // Stop reading once we reached the end
-                if (etaFile == null)
+                if (value == null)
                     break;
 
+                // Only parse event definitions
+                if (value != "£def")
+                    continue;
+
                 // Create a definition
-                Mapper_EventDefinition item;
+                Mapper_BaseEventDefinition item;
 
                 // Get the name
                 var name = parser.ReadValue();
-
+                
                 // Create the definition
                 if (name == "always")
                 {
-                    var alwaysItem = new Mapper_AlwaysEventCMDItem();
+                    var alwaysItem = new Mapper_AlwaysEventDefinition();
                     aed.Add(alwaysItem);
                     item = alwaysItem;
                 }
                 else
                 {
-                    var normalItem = new Mapper_EventCMDItem();
+                    var normalItem = new Mapper_EventDefinition();
                     ed.Add(normalItem);
                     item = normalItem;
                 }
 
-                // Set the ETA file name
-                item.ETAFile = etaFile;
-
                 // Set the name
                 item.Name = name;
+
+                var nextValue = parser.ReadValue();
+
+                // Read the if values if it's an always object
+                if (item is Mapper_AlwaysEventDefinition ae && nextValue == "£if")
+                {
+                    var ifBuffer = new List<string>();
+
+                    while (true)
+                    {
+                        nextValue = parser.ReadValue();
+
+                        if (nextValue == "£endif")
+                            break;
+
+                        ifBuffer.Add(nextValue);
+                    }
+
+                    ae.IfCommand = ifBuffer.ToArray();
+
+                    nextValue = parser.ReadValue();
+                }
+
+                item.DESFile = nextValue;
+                item.DisplayPrio = parser.ReadByteValue();
+                item.ETAFile = parser.ReadValue();
 
                 var cmdBuffer = new List<byte>();
 
@@ -65,12 +89,6 @@ namespace R1Engine
                 item.XPosition = parser.ReadShortValue();
                 item.YPosition = parser.ReadShortValue();
 
-                if (item is Mapper_EventCMDItem med)
-                {
-                    med.DisplayPrio = parser.ReadByteValue();
-                    med.LinkID = parser.ReadShortValue();
-                }
-
                 item.Etat = parser.ReadByteValue();
                 item.SubEtat = parser.ReadByteValue();
 
@@ -84,12 +102,15 @@ namespace R1Engine
 
                 item.Type = (EventType)parser.ReadShortValue();
                 item.HitSprite = parser.ReadByteValue();
-                item.DesignerGroup = parser.ReadByteValue();
+
+                // Read the group if it's not an always object
+                if (item is Mapper_EventDefinition e)
+                    e.DesignerGroup = parser.ReadByteValue();
             }
 
             // Set the parsed values
-            Events = ed.ToArray();
-            AlwaysEvents = aed.ToArray();
+            EventDefinitions = ed.ToArray();
+            AlwaysEventDefinitions = aed.ToArray();
         }
     }
 }

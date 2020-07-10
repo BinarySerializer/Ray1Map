@@ -171,7 +171,7 @@ namespace R1Engine
             var index = 0;
 
             // Get the events
-            var events = cmd.SelectMany(x => x.Value.Items.Select(y => new
+            var events = cmd.SelectMany(x => x.Value.Events.Concat<Mapper_EventDefinition>(x.Value.AlwaysEvents).Select(y => new
             {
                 DESFileName = x.Key,
                 EventData = y
@@ -188,7 +188,7 @@ namespace R1Engine
             {
                 Index = i,
                 Data = x,
-                LinkID = x.EventData.Name == "always" ? -1 : x.EventData.LinkID
+                LinkID = x.EventData is Mapper_EventCMDItem ei ? ei.LinkID : -1
             }).GroupBy(x => x.LinkID))
             {
                 // Get the group
@@ -219,30 +219,28 @@ namespace R1Engine
                 // Get the data
                 var e = eventData.EventData;
 
-                var type = (EventType)(Int32.TryParse(e.Obj_type, out var r1) ? r1 : -1);
-
                 var ed = new EventData()
                 {
-                    Type = type,
-                    Etat = (byte)e.Etat,
-                    SubEtat = Byte.TryParse(e.SubEtat, out var r2) ? r2 : (byte)0,
-                    XPosition = (short)e.XPosition,
-                    YPosition = (short)e.YPosition,
-                    OffsetBX = (byte)e.Offset_BX,
-                    OffsetBY = (byte)e.Offset_BY,
-                    OffsetHY = (byte)e.Offset_HY,
-                    FollowSprite = (byte)e.Follow_sprite,
-                    HitPoints = (byte)e.Hitpoints,
-                    Layer = (byte)e.Layer,
-                    HitSprite = (byte)e.Hit_sprite
+                    Type = e.Type,
+                    Etat = e.Etat,
+                    SubEtat = e.SubEtat,
+                    XPosition = e.XPosition,
+                    YPosition = e.YPosition,
+                    OffsetBX = e.OffsetBX,
+                    OffsetBY = e.OffsetBY,
+                    OffsetHY = e.OffsetHY,
+                    FollowSprite = e.FollowSprite,
+                    HitPoints = e.HitPoints,
+                    Layer = e.DisplayPrio,
+                    HitSprite = e.HitSprite
                 };
 
-                ed.SetFollowEnabled(context.Settings, e.Follow_enabled > 0);
+                ed.SetFollowEnabled(context.Settings, e.FollowEnabled > 0);
 
                 // Add the event
                 commonLev.EventData.Add(new Editor_EventData(ed)
                 {
-                    Type = type,
+                    Type = e.Type,
                     DESKey = eventData.DESFileName,
                     ETAKey = e.ETAFile,
                     LabelOffsets = new ushort[0],
