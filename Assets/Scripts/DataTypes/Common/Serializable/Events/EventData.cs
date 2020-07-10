@@ -113,8 +113,8 @@ namespace R1Engine
 
         public uint Kit_Unk { get; set; }
 
-        public ushort RuntimeCMDOffset { get; set; }
-        public ushort Unk_72 { get; set; }
+        public ushort RuntimeCurrentCommandOffset { get; set; }
+        public ushort RuntimeCurrentCommandArgument { get; set; }
         public ushort Unk_74 { get; set; }
         public ushort Unk_76 { get; set; }
         public ushort Unk_78 { get; set; }
@@ -149,7 +149,7 @@ namespace R1Engine
         public byte RuntimeSubEtat { get; set; }
         public byte RuntimeEtat { get; set; }
 
-        public uint Unk_112 { get; set; }
+        public uint RuntimeCurrentCommand { get; set; }
 
         public byte OffsetHY { get; set; }
 
@@ -352,9 +352,9 @@ namespace R1Engine
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
-            RuntimeCMDOffset = s.Serialize<ushort>(RuntimeCMDOffset, name: nameof(RuntimeCMDOffset));
+            RuntimeCurrentCommandOffset = s.Serialize<ushort>(RuntimeCurrentCommandOffset, name: nameof(RuntimeCurrentCommandOffset));
             
-            Unk_72 = s.Serialize<ushort>(Unk_72, name: nameof(Unk_72));
+            RuntimeCurrentCommandArgument = s.Serialize<ushort>(RuntimeCurrentCommandArgument, name: nameof(RuntimeCurrentCommandArgument));
             Unk_74 = s.Serialize<ushort>(Unk_74, name: nameof(Unk_74));
 
             // NOTE: Kit and edu has 4 more bytes between here and Unk_88 - where does it belong?
@@ -412,8 +412,7 @@ namespace R1Engine
                 RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
             }
 
-            // Appears to be the currently executing command (is set to 30 when there is no command) - sometimes it's a pointer though?
-            Unk_112 = s.Serialize<uint>(Unk_112, name: nameof(Unk_112));
+            RuntimeCurrentCommand = s.Serialize<uint>(RuntimeCurrentCommand, name: nameof(RuntimeCurrentCommand));
 
             OffsetHY = s.Serialize<byte>(OffsetHY, name: nameof(OffsetHY));
 
