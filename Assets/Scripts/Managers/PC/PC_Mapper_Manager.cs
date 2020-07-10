@@ -228,7 +228,10 @@ namespace R1Engine
                     FollowSprite = e.FollowSprite,
                     HitPoints = e.HitPoints,
                     Layer = e.DisplayPrio,
-                    HitSprite = e.HitSprite
+                    HitSprite = e.HitSprite,
+
+                    PS1Demo_Unk1 = new byte[40],
+                    Unk_98 = new byte[5]
                 };
 
                 ed.SetFollowEnabled(context.Settings, e.FollowEnabled > 0);
