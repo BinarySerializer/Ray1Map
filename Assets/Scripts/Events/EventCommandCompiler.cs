@@ -154,18 +154,18 @@ namespace R1Engine
             /// <summary>
             /// Default constructor
             /// </summary>
-            /// <param name="events">The event commands</param>
+            /// <param name="commands">The event commands</param>
             /// <param name="labelOffsets">The label offsets</param>
-            public CompiledEventCommandData(Common_EventCommandCollection events, ushort[] labelOffsets)
+            public CompiledEventCommandData(Common_EventCommandCollection commands, ushort[] labelOffsets)
             {
-                Events = events;
+                Commands = commands;
                 LabelOffsets = labelOffsets;
             }
 
             /// <summary>
             /// The event commands
             /// </summary>
-            public Common_EventCommandCollection Events { get; }
+            public Common_EventCommandCollection Commands { get; }
 
             /// <summary>
             /// The label offsets

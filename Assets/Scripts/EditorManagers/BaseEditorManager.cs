@@ -157,7 +157,7 @@ namespace R1Engine
                 else
                 {
                     var cmdData = EventCommandCompiler.Compile(Common_EventCommandCollection.FromBytes(e.LocalCommands, Settings), e.LocalCommands);
-                    cmds = cmdData.Events;
+                    cmds = cmdData.Commands;
                     labelOffsets = cmdData.LabelOffsets;
                 }
             }
