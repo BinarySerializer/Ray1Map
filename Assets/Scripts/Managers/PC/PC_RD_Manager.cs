@@ -171,7 +171,7 @@ namespace R1Engine
             };
 
             // Process the image data
-            var processedImageData = ProcessImageData(des.ImageData, des.RequiresBackgroundClearing);
+            var processedImageData = des.RequiresBackgroundClearing ? ProcessImageData(des.ImageData) : des.ImageData;
 
             // Add sprites for each color
             for (int i = 0; i < 6; i++)

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Diagnostics;
+
+namespace R1Engine
 {
     /// <summary>
     /// DES item data for PC
@@ -6,6 +8,7 @@
     public class PC_DES : R1Serializable {
         public Type FileType { get; set; }
 
+        // TODO: Is that what this property is for? It seems it's true for all DES except the parallax ones.
         /// <summary>
         /// Indicates if the sprite has some gradation and requires clearing
         /// </summary>
@@ -71,19 +74,16 @@
 
             ImageDataLength = s.Serialize<uint>(ImageDataLength, name: nameof(ImageDataLength));
 
-            // TODO: Handle checksum
-            if (FileType == Type.World && (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC))
-            {
-                ImageDataChecksum = s.Serialize<byte>(ImageDataChecksum, name: nameof(ImageDataChecksum));
-                ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: nameof(ImageData));
-            }
-            else
-            {
-                ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: nameof(ImageData));
+            var isChecksumBefore = FileType == Type.World && (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC);
+            var hasChecksum = !(!isChecksumBefore && FileType == Type.BigRay);
 
-                if (FileType != Type.BigRay)
-                    ImageDataChecksum = s.Serialize<byte>(ImageDataChecksum, name: nameof(ImageDataChecksum));
-            }
+            ImageDataChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
+            {
+                s.DoXOR(0x8F, () =>
+                {
+                    ImageData = s.SerializeArray<byte>(ImageData, ImageDataLength, name: nameof(ImageData));
+                });
+            }, isChecksumBefore ? ChecksumPlacement.Before : ChecksumPlacement.After, calculateChecksum: hasChecksum, name: nameof(ImageDataChecksum));
 
             if (FileType == Type.AllFix)
                 RaymanExeCheckSum2 = s.Serialize<uint>(RaymanExeCheckSum2, name: nameof(RaymanExeCheckSum2));

@@ -499,7 +499,7 @@ namespace R1Engine
             var output = new Texture2D[desItem.ImageDescriptors.Length];
 
             // Process the image data
-            var processedImageData = ProcessImageData(desItem.ImageData, desItem.RequiresBackgroundClearing);
+            var processedImageData = desItem.RequiresBackgroundClearing ? ProcessImageData(desItem.ImageData) : desItem.ImageData;
 
             // Find the level with the correct palette
             var lvl = levels.FindLast(x => x.BackgroundSpritesDES == desIndex || x.EventData.Events.Any(y => y.PC_ImageDescriptorsIndex == desIndex)) ?? levels.First();
@@ -777,7 +777,7 @@ namespace R1Engine
         /// <param name="imageData">The image data to process</param>
         /// <param name="requiresBackgroundClearing">Indicates if the data requires background clearing</param>
         /// <returns>The processed image data</returns>
-        public byte[] ProcessImageData(byte[] imageData, bool requiresBackgroundClearing)
+        public byte[] ProcessImageData(byte[] imageData)
         {
             // Create the output array
             var processedData = new byte[imageData.Length];
@@ -786,25 +786,21 @@ namespace R1Engine
 
             for (int i = imageData.Length - 1; i >= 0; i--)
             {
-                // Decrypt the byte
-                processedData[i] = (byte)(imageData[i] ^ 143);
+                // Get the byte
+                var b = imageData[i];
 
-                // Continue to next if we don't need to do background clearing
-                if (!requiresBackgroundClearing)
-                    continue;
-
-                if (processedData[i] == 161 || processedData[i] == 250)
+                if (b == 161 || b == 250)
                 {
-                    flag = processedData[i];
-                    processedData[i] = 0;
+                    flag = b;
+                    b = 0;
                 }
                 else if (flag != -1)
                 {
-                    int num6 = (flag < 255) ? (flag + 1) : 255;
+                    int num6 = (flag < 0xFF) ? (flag + 1) : 0xFF;
 
-                    if (processedData[i] == num6)
+                    if (b == num6)
                     {
-                        processedData[i] = 0;
+                        b = 0;
                         flag = num6;
                     }
                     else
@@ -812,6 +808,9 @@ namespace R1Engine
                         flag = -1;
                     }
                 }
+
+                // Set the byte
+                processedData[i] = b;
             }
 
             return processedData;
@@ -908,7 +907,7 @@ namespace R1Engine
             };
 
             // Process the image data
-            var processedImageData = ProcessImageData(des.ImageData, des.RequiresBackgroundClearing);
+            var processedImageData = des.RequiresBackgroundClearing ? ProcessImageData(des.ImageData) : des.ImageData;
 
             // Sprites
             foreach (var s in des.ImageDescriptors)
@@ -1231,7 +1230,7 @@ namespace R1Engine
 
                 // Add every byte and encrypt it
                 for (int i = 0; i < data.Value.Length; i++)
-                    des.ImageData[imgDesc.ImageBufferOffset + i] = (byte)(data.Value[i] ^ 143);
+                    des.ImageData[imgDesc.ImageBufferOffset + i] = data.Value[i];
             }
 
             // TODO: Move the reverse image processing to its own method
@@ -1241,31 +1240,26 @@ namespace R1Engine
             for (int i = des.ImageData.Length - 1; i >= 0; i--)
             {
                 // Get the decrypted value
-                var val = des.ImageData[i] ^ 143;
+                var val = des.ImageData[i];
 
                 // Check if it should be transparent
                 if (val == 0)
                 {
                     if (flag == -1)
-                        flag = 161;
+                        flag = 0xA1;
                     else
                         flag++;
 
-                    if (flag > 255)
-                        flag = 255;
+                    if (flag > 0xFF)
+                        flag = 0xFF;
 
-                    des.ImageData[i] = (byte)(flag ^ 143);
+                    des.ImageData[i] = (byte)flag;
                 }
                 else
                 {
                     flag = -1;
                 }
             }
-
-            // TODO: Checksum should be handled automatically when writing
-            var check = new Checksum8Calculator();
-            check.AddBytes(des.ImageData);
-            des.ImageDataChecksum = check.ChecksumValue;
         }
 
         /// <summary>
