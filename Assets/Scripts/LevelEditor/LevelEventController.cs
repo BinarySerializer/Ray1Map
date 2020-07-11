@@ -572,8 +572,32 @@ namespace R1Engine
                                    $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
                                    $"Layer: {ed.Data.Layer}{Environment.NewLine}" +
                                    $"RuntimeLayer: {ed.Data.RuntimeLayer}{Environment.NewLine}" +
+                                   $"{Environment.NewLine}" +
+                                   $"Unk_24: {ed.Data.Unk_24}{Environment.NewLine}" +
                                    $"Unk_28: {ed.Data.Unk_28}{Environment.NewLine}" +
+                                   $"Unk_32: {ed.Data.Unk_32}{Environment.NewLine}" +
                                    $"Unk_36: {ed.Data.Unk_36}{Environment.NewLine}" +
+                                   $"{Environment.NewLine}" +
+                                   $"Unk_48: {ed.Data.Unk_48}{Environment.NewLine}" +
+                                   $"Unk_54: {ed.Data.Unk_54}{Environment.NewLine}" +
+                                   $"Unk_56: {ed.Data.Unk_56}{Environment.NewLine}" +
+                                   $"Unk_58: {ed.Data.Unk_58}{Environment.NewLine}" +
+                                   $"{Environment.NewLine}" +
+                                   $"Unk_64: {ed.Data.Unk_64}{Environment.NewLine}" +
+                                   $"Unk_66: {ed.Data.Unk_66}{Environment.NewLine}" +
+                                   $"{Environment.NewLine}" +
+                                   $"Unk_74: {ed.Data.Unk_74}{Environment.NewLine}" +
+                                   $"Unk_76: {ed.Data.Unk_76}{Environment.NewLine}" +
+                                   $"Unk_78: {ed.Data.Unk_78}{Environment.NewLine}" +
+                                   $"Unk_80: {ed.Data.Unk_80}{Environment.NewLine}" +
+                                   $"Unk_82: {ed.Data.Unk_82}{Environment.NewLine}" +
+                                   $"Unk_84: {ed.Data.Unk_84}{Environment.NewLine}" +
+                                   $"Unk_86: {ed.Data.Unk_86}{Environment.NewLine}" +
+                                   $"Unk_88: {ed.Data.Unk_88}{Environment.NewLine}" +
+                                   $"Unk_90: {ed.Data.Unk_90}{Environment.NewLine}" +
+                                   $"Unk_92: {ed.Data.Unk_92}{Environment.NewLine}" +
+                                   $"Unk_94: {ed.Data.Unk_94}{Environment.NewLine}" +
+                                   $"{Environment.NewLine}" +
                                    $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
                     if (s is BinarySerializer)
                     {

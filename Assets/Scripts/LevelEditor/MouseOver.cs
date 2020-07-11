@@ -35,7 +35,12 @@ namespace R1Engine
                       $"Frames: {e.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
                       $"AnimationIndex: {e.Data.Data.RuntimeCurrentAnimIndex}{Environment.NewLine}" +
                       $"AnimationSpeed: {e.AnimSpeed}{Environment.NewLine}" +
+                      $"{Environment.NewLine}" +
+                      $"RightSpeed: {e.State?.RightSpeed}{Environment.NewLine}" +
+                      $"LeftSpeed: {e.State?.LeftSpeed}{Environment.NewLine}" +
+                      $"InteractionType: {e.State?.InteractionType}{Environment.NewLine}" +
                       $"Sound: {e.State?.SoundIndex}{Environment.NewLine}" +
+                      $"{Environment.NewLine}" +
                       $"Etat: {e.Data.Data.RuntimeEtat}{Environment.NewLine}" +
                       $"SubEtat: {e.Data.Data.RuntimeSubEtat}{Environment.NewLine}"
                     : String.Empty;

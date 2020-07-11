@@ -2111,7 +2111,6 @@ MonoBehaviour:
   prefabCommandLine: {fileID: 1705437700543924348, guid: cc1b4c0ae9d99e84e950798a7c8badd6,
     type: 3}
   editor: {fileID: 1956467904}
-  currentlySelected: {fileID: 0}
   selectedPosition: {x: 0, y: 0}
   selectedLineRend: {fileID: 172781305}
   eventDropdown: {fileID: 1333982090}
@@ -2139,6 +2138,7 @@ MonoBehaviour:
   linkColorDeactive: {r: 0.43529412, g: 0, b: 0.06833768, a: 0.5882353}
   currentId: 1
   lastUsedLayer: 0
+  hasLoaded: 0
 --- !u!120 &172781305
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -15642,8 +15642,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 575, y: -370.25}
-  m_SizeDelta: {x: 1150, y: 553.51}
+  m_AnchoredPosition: {x: 575, y: -420}
+  m_SizeDelta: {x: 1150, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1362650566
 MonoBehaviour:
@@ -15670,11 +15670,11 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 40
-    m_Alignment: 0
-    m_AlignByGeometry: 0
+    m_Alignment: 3
+    m_AlignByGeometry: 1
     m_RichText: 1
     m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: '
 
