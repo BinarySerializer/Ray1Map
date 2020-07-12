@@ -143,9 +143,7 @@ namespace R1Engine
                     [Jaguar_R1_Pointer.FixSprites] = 0x008028BA,
                     [Jaguar_R1_Pointer.WorldSprites] = 0x00874F14,
                     [Jaguar_R1_Pointer.MapData] = 0x00874F34,
-                    
-                    // TODO: Find pointer
-                    [Jaguar_R1_Pointer.Music] = 0x0,
+                    [Jaguar_R1_Pointer.Music] = 0x00846C80,
                 }.ToDictionary(x => x.Key, x => x.Value == 0 ? null : new Pointer(x.Value, romFile));
             }
             else

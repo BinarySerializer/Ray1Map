@@ -638,7 +638,7 @@ namespace R1Engine
                 var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.EngineVersion, file);
                 s.DoAt(pointerTable[Jaguar_R1_Pointer.Music], () => {
                     // Read the music table
-                    Jaguar_R1_MusicDescriptor[] MusicTable = s.SerializeObjectArray<Jaguar_R1_MusicDescriptor>(null, 0x20, name: nameof(MusicTable));
+                    Jaguar_R1_MusicDescriptor[] MusicTable = s.SerializeObjectArray<Jaguar_R1_MusicDescriptor>(null, s.GameSettings.EngineVersion == EngineVersion.RayJaguar ? 0x20 : 1, name: nameof(MusicTable));
                     // Immediately after this: pointer to sample buffer?
 
                     // For each entry
