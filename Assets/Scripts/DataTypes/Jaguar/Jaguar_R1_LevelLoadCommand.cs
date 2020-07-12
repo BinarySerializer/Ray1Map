@@ -100,7 +100,12 @@ namespace R1Engine
                     PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
                     break;
 
-                case LevelLoadCommandType.NotImplemented1:
+                case LevelLoadCommandType.PaletteDemo:
+                    PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
+                    UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
+                    Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+                    break;
+
                 case LevelLoadCommandType.NotImplemented2:
                 case LevelLoadCommandType.NotImplemented3:
                 case LevelLoadCommandType.NotImplemented4:
@@ -113,7 +118,7 @@ namespace R1Engine
         public enum LevelLoadCommandType : ushort
         {
             End = 0x00,
-            NotImplemented1 = 0x04,
+            PaletteDemo = 0x04,
             LevelMap = 0x08,
             Graphics = 0x0C,
             Unk1 = 0x10,

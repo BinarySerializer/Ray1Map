@@ -89,7 +89,9 @@ namespace R1Engine {
 				Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
 				Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 				Byte_27 = s.Serialize<byte>(Byte_27, name: nameof(Byte_27));
-			} else if (StructType == 23 || StructType == 11 || StructType == 2) {
+			} else if (StructType == 23 || StructType == 11 || StructType == 2 || 
+                       // TODO: Is this correct?
+                       (s.GameSettings.EngineVersion == EngineVersion.RayJaguarDemo && StructType == 10)) {
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1c, name: nameof(UnkBytes));
 			} else if (StructType == 36 || StructType == 37 || StructType == 56) {

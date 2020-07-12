@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common game settings
@@ -65,5 +67,7 @@
         /// The educational game volume name
         /// </summary>
         public string EduVolume { get; set; }
+
+        public IGameManager GetGameManager => (IGameManager)Activator.CreateInstance(GameModeSelection.GetAttribute<GameModeAttribute>().ManagerType);
     }
 }

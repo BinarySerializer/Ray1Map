@@ -83,7 +83,7 @@ namespace R1Engine
                 // TODO: Serialize this? Is it part of collision type? This appears in other PS1 versions too and is skipped there. It appears to always be 0 though.
                 s.Serialize<byte>(0);
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Jaguar)
             {
                 ushort value = 0;
 

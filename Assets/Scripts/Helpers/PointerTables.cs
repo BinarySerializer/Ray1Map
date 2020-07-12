@@ -118,19 +118,40 @@ namespace R1Engine
         /// <summary>
         /// Gets the pointer table for the Jaguar version
         /// </summary>
-        /// <param name="gameMode">The Jaguar game mode</param>
+        /// <param name="engine">The Jaguar engine version</param>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<Jaguar_R1_Pointer, Pointer> GetJaguarPointerTable(GameModeSelection gameMode, BinaryFile romFile)
+        public static Dictionary<Jaguar_R1_Pointer, Pointer> GetJaguarPointerTable(EngineVersion engine, BinaryFile romFile)
         {
-            return new Dictionary<Jaguar_R1_Pointer, uint>()
+            if (engine == EngineVersion.RayJaguar)
             {
-                [Jaguar_R1_Pointer.EventDefinitions] = 0x00906130,
-                [Jaguar_R1_Pointer.FixSprites] = 0x009496C8,
-                [Jaguar_R1_Pointer.WorldSprites] = 0x00949034,
-                [Jaguar_R1_Pointer.MapData] = 0x00949054,
-                [Jaguar_R1_Pointer.Music] = 0x009210F0,
-            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+                return new Dictionary<Jaguar_R1_Pointer, uint>()
+                {
+                    [Jaguar_R1_Pointer.EventDefinitions] = 0x00906130,
+                    [Jaguar_R1_Pointer.FixSprites] = 0x009496C8,
+                    [Jaguar_R1_Pointer.WorldSprites] = 0x00949034,
+                    [Jaguar_R1_Pointer.MapData] = 0x00949054,
+                    [Jaguar_R1_Pointer.Music] = 0x009210F0,
+                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+            }
+            else if (engine == EngineVersion.RayJaguarDemo)
+            {
+                return new Dictionary<Jaguar_R1_Pointer, uint>()
+                {
+                    // TODO: Find pointer
+                    [Jaguar_R1_Pointer.EventDefinitions] = 0x0,
+                    [Jaguar_R1_Pointer.FixSprites] = 0x008028BA,
+                    [Jaguar_R1_Pointer.WorldSprites] = 0x00874F14,
+                    [Jaguar_R1_Pointer.MapData] = 0x00874F34,
+                    
+                    // TODO: Find pointer
+                    [Jaguar_R1_Pointer.Music] = 0x0,
+                }.ToDictionary(x => x.Key, x => x.Value == 0 ? null : new Pointer(x.Value, romFile));
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(engine), engine, null);
+            }
         }
     }
 }

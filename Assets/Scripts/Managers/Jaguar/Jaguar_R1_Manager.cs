@@ -20,7 +20,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetNumLevels.OrderBy(x => x.Key).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray();
+        public virtual KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetNumLevels.OrderBy(x => x.Key).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes
@@ -635,7 +635,7 @@ namespace R1Engine
 
                 // Add the file
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
-                var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.GameModeSelection, file);
+                var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.EngineVersion, file);
                 s.DoAt(pointerTable[Jaguar_R1_Pointer.Music], () => {
                     // Read the music table
                     Jaguar_R1_MusicDescriptor[] MusicTable = s.SerializeObjectArray<Jaguar_R1_MusicDescriptor>(null, 0x20, name: nameof(MusicTable));
@@ -668,7 +668,8 @@ namespace R1Engine
                 // Get every palette
                 var pal = rom.LevelLoadCommands.
                     SelectMany(x => x).
-                    Select(x => x.Commands.First(y => y.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)).
+                    Where(x => x?.Commands != null).
+                    Select(x => x.Commands.First(y => y.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette || y.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)).
                     Select(x => x.PalettePointer).
                     Distinct().
                     SelectMany(x => s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: "SpritePalette"))).
@@ -946,8 +947,9 @@ namespace R1Engine
 
             var eventIndex = 0;
             
+            // TODO: Correct for demo once we parse the event definitions!
             // Set to true to change the event state to display them correctly, or false to use the original states
-            var correctEventStates = true;
+            var correctEventStates = context.Settings.EngineVersion == EngineVersion.RayJaguar;
 
             Controller.status = $"Loading events & states";
             await Controller.WaitIfNecessary();
@@ -956,11 +958,11 @@ namespace R1Engine
             Dictionary<int, Editor_EventData> uniqueEvents = new Dictionary<int, Editor_EventData>();
 
             // Load special events so we can display them
-            var rayPos = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000000), eventDesigns, eventETA, loadTextures); // Rayman position
-            var gendoor = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000A00), eventDesigns, eventETA, loadTextures); // Gendoor
-            var piranha = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000012E8), eventDesigns, eventETA, loadTextures); // Piranha
-            var scroll = CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000014A0), eventDesigns, eventETA, loadTextures); // Scroll
-            var rayBzzit = (context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000F0), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
+            var rayPos = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000000), eventDesigns, eventETA, loadTextures) : null; // Rayman position
+            var gendoor = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000A00), eventDesigns, eventETA, loadTextures) : null; // Gendoor
+            var piranha = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000012E8), eventDesigns, eventETA, loadTextures) : null; // Piranha
+            var scroll = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000014A0), eventDesigns, eventETA, loadTextures) : null; // Scroll
+            var rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000F0), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {

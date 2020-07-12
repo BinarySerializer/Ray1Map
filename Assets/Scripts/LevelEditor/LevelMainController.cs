@@ -223,7 +223,7 @@ namespace R1Engine
                 // Helper method
                 bool isGendoor(Common_Event ee)
                 {
-                    if (Controller.CurrentSettings.EngineVersion == EngineVersion.RayJaguar)
+                    if (Controller.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Jaguar)
                         return ee.LinkID != 0;
                     else
                         return ee.Data.Type is EventType et &&

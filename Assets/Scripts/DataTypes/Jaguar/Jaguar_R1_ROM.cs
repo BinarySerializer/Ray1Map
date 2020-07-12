@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using R1Engine.Serialize;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -64,35 +66,27 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get info
-            var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
-            var levels = new Jaguar_R1_Manager().GetNumLevels;
+            var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.EngineVersion, this.Offset.file);
+            var manager = (Jaguar_R1_Manager)s.GameSettings.GetGameManager;
+            var levels = manager.GetNumLevels;
 
             // Serialize event definition data
-            /*MemoryMappedByteArrayFile ram = s.Context.GetFile("RAM") as MemoryMappedByteArrayFile;
-            if (s is BinaryDeserializer) {
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.DES], () => {
-                    byte[] DESDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(DESDataBytes));
-                    ram.WriteBytes(0x001f9000, DESDataBytes);
-                });
-            }*/
-            if (!s.Context.FileExists("RAM_EventDefinitions")) {
+            if (!s.Context.FileExists("RAM_EventDefinitions")) 
+            {
                 // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () => {
+                s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () => 
+                {
                     byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(EventDefsDataBytes));
                     var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context, 0x001f9000) {
                         Endianness = BinaryFile.Endian.Big
                     };
                     s.Context.AddFile(file);
-                    s.DoAt(file.StartPointer, () => {
-                        EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, 0x1C4, name: nameof(EventDefinitions));
-                    });
+                    s.DoAt(file.StartPointer, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, 0x1C4, name: nameof(EventDefinitions)));
                 });
             }
 
             // Serialize allfix sprite data
-            s.DoAt(pointerTable[Jaguar_R1_Pointer.FixSprites], () => {
-                AllfixLoadCommands = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands));
-            });
+            s.DoAt(pointerTable[Jaguar_R1_Pointer.FixSprites], () => AllfixLoadCommands = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands)));
 
             // Serialize world sprite data
             s.DoAt(pointerTable[Jaguar_R1_Pointer.WorldSprites], () => 
@@ -125,9 +119,11 @@ namespace R1Engine
                 if (LevelLoadCommands == null)
                     LevelLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[7][];
 
+                // Serialize map data for each world (6 + extra)
                 for (int i = 0; i < 7; i++)
                 {
-                    int numLevels = i < 6 ? levels[i].Value : new Jaguar_R1_Manager().ExtraMapCommands.Length;
+                    // Get the number of levels in the world
+                    int numLevels = i < 6 ? levels[i].Value : manager.ExtraMapCommands.Length;
 
                     if (LevelLoadCommandPointers[i] == null)
                         LevelLoadCommandPointers[i] = new Pointer[numLevels];
@@ -135,16 +131,25 @@ namespace R1Engine
                     if (LevelLoadCommands[i] == null)
                         LevelLoadCommands[i] = new Jaguar_R1_LevelLoadCommandCollection[numLevels];
 
-                    int[] extraMapCommands = i == 6 ? new Jaguar_R1_Manager().ExtraMapCommands : null;
+                    // Get the levels to serialize for the extra map commands
+                    int[] extraMapCommands = i == 6 ? manager.ExtraMapCommands : null;
 
+                    // Serialize the pointer to the load function pointer list
                     Pointer FunctionListPointer = s.SerializePointer(null, name: nameof(FunctionListPointer));
-                    s.DoAt(FunctionListPointer, () => {
+
+                    // Parse the load functions
+                    s.DoAt(FunctionListPointer, () => 
+                    {
+                        // Serialize every level load function
                         for (int j = 0; j < numLevels; j++)
                         {
-                            if (i == 6) {
+                            // If the special world, go to the valid map
+                            if (i == 6)
                                 s.Goto(FunctionListPointer + 4 * extraMapCommands[j]);
-                            }
+
+                            // Serialize the pointer to the function
                             Pointer FunctionPointer = s.SerializePointer(null, name: nameof(FunctionPointer));
+
                             s.DoAt(FunctionPointer, () => {
                                 // Parse assembly
                                 ushort instruction = s.Serialize<ushort>(0x41f9, name: nameof(instruction)); // Load effective address
@@ -167,7 +172,11 @@ namespace R1Engine
                                     }
                                     instruction = s.Serialize<ushort>(0x41f9, name: nameof(instruction)); // Load effective address
                                 }
-                                LevelLoadCommandPointers[i][j] = s.SerializePointer(LevelLoadCommandPointers[i][j], name: $"{nameof(LevelLoadCommandPointers)}[{i}][{j}]");
+
+                                // Serialize the load command pointer
+                                LevelLoadCommandPointers[i][j] = s.SerializePointer(LevelLoadCommandPointers[i][j], allowInvalid: true, name: $"{nameof(LevelLoadCommandPointers)}[{i}][{j}]");
+
+                                // Serialize the load commands
                                 s.DoAt(LevelLoadCommandPointers[i][j], () => {
                                     LevelLoadCommands[i][j] = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(LevelLoadCommands[i][j], name: $"{nameof(LevelLoadCommands)}[{i}][{j}]");
                                 });
@@ -176,11 +185,6 @@ namespace R1Engine
                     });
                 }
             });
-            // There are a few more special load commands in a "7th" world. Probably for the menu, breakout etc
-            // Some functions in that list don't have load a LevelLoadCommand block, so they can't be parsed normally.
-
-
-
 
             // Get the current map load commands
             var wldCommands = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)];
@@ -189,13 +193,22 @@ namespace R1Engine
             // Get pointers
             var mapPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
             var eventPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelEventBlockPointer;
-            var palPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette).PalettePointer;
+            var palPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette || x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.PaletteDemo).PalettePointer;
 
-            var tilesPointer = mapCommands.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
+            Pointer tilesPointer;
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
+                tilesPointer = mapCommands.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
+            else
+                tilesPointer = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.Last(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001BD800).ImageBufferPointer;
 
             // Serialize map and event data
             s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));
-            s.DoAt(eventPointer, () => s.DoEncoded(new RNCEncoder(), () => EventData = s.SerializeObject<Jaguar_R1_EventBlock>(EventData, name: nameof(EventData))));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
+                s.DoAt(eventPointer, () => s.DoEncoded(new RNCEncoder(), () => EventData = s.SerializeObject<Jaguar_R1_EventBlock>(EventData, name: nameof(EventData))));
+            else if (s.GameSettings.EngineVersion == EngineVersion.RayJaguarDemo)
+                s.DoAt(eventPointer, () => EventData = s.SerializeObject<Jaguar_R1_EventBlock>(EventData, name: nameof(EventData)));
 
             // Serialize sprite palette
             s.DoAt<RGB556Color[]>(palPointer, () => SpritePalette = s.SerializeObjectArray<RGB556Color>(SpritePalette, 256, name: nameof(SpritePalette)));
@@ -215,10 +228,20 @@ namespace R1Engine
                     /*if (ImageBuffers.ContainsKey(cmd.ImageBufferMemoryPointerPointer))
                         continue;
                     */
-                    s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () =>
+
+                    // Temp fix for certain demo buffers
+                    try
                     {
-                        ImageBuffers[cmd.ImageBufferMemoryPointerPointer] = s.SerializeArray<byte>(default, s.CurrentLength, $"ImageBuffer[{index}]");
-                    }));
+                        s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () =>
+                        {
+                            ImageBuffers[cmd.ImageBufferMemoryPointerPointer] = s.SerializeArray<byte>(default, s.CurrentLength, $"ImageBuffer[{index}]");
+                        }));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Failed to serialize image buffer at {cmd.ImageBufferMemoryPointerPointer} with error {ex.Message}");
+                        ImageBuffers[cmd.ImageBufferMemoryPointerPointer] = new byte[0];
+                    }
                     index++;
                 }
             }
