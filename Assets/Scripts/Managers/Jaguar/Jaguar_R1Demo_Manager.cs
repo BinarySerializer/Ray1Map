@@ -55,7 +55,22 @@ namespace R1Engine
         /// <summary>
         /// Gets the vignette addresses and widths
         /// </summary>
-        protected override KeyValuePair<uint, int>[] GetVignette => throw new NotImplementedException();
+        protected override KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
+        {
+            // World map
+            new KeyValuePair<uint, int>(0x875BC0, 320), 
+            
+            // Breakout
+            new KeyValuePair<uint, int>(0x8855F8, 320), 
+
+            // Jungle
+            new KeyValuePair<uint, int>(0x8B083E, 192), 
+            new KeyValuePair<uint, int>(0x8D735E, 144), 
+            new KeyValuePair<uint, int>(0x8D8F8A, 48), 
+
+            // Music
+            new KeyValuePair<uint, int>(0x8F64E6, 384), 
+        };
 
         #endregion
     }
