@@ -73,7 +73,25 @@ namespace R1Engine
             // Music
             new KeyValuePair<uint, int>(0x8F64E6, 384), 
         };
+        protected override Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
+            // Read the rom
+            var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
+            Pointer baseOff = rom.EventDefinitions[0].Offset;
+            return new Dictionary<SpecialEventType, Pointer>() {
+                [SpecialEventType.RayPos] = baseOff + 0x1BF8,
+                [SpecialEventType.Gendoor] = null,
+                [SpecialEventType.Piranha] = baseOff + 0xDE8,
+                [SpecialEventType.ScrollFast] = null,
+                [SpecialEventType.ScrollSlow] = null,
+                [SpecialEventType.RayOnBzzit] = null,
 
+                [SpecialEventType.RaymanVisual] = baseOff,
+                [SpecialEventType.GendoorVisual] = baseOff + 0x5A0,
+                [SpecialEventType.PiranhaVisual] = baseOff + 0xE38,
+                [SpecialEventType.ScrollVisual] = null,
+                [SpecialEventType.RayOnBzzitVisual] = null
+            };
+        }
         #endregion
     }
 }

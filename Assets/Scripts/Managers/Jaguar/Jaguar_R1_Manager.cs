@@ -190,7 +190,8 @@ namespace R1Engine
 
                     // Get palettes for the levels
                     var palettes = lvlCmds.
-                        Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette)?.PalettePointer).
+                        Select((x, i) => x?.Commands?.FirstOrDefault(c => c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Palette
+                        || c.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.PaletteDemo)?.PalettePointer).
                         Select((x, i) => x == null ? rom.SpritePalette : s.DoAt<RGB556Color[]>(x, () => s.SerializeObjectArray<RGB556Color>(default, 256, name: $"SpritePalette[{i}]"))).
                         ToArray();
 
@@ -238,8 +239,6 @@ namespace R1Engine
                         // Get the image buffer
                         byte[] imgBuffer = null;
 
-                        s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
-
                         // Get the event definition
                         var eventDefinitions = rom.EventDefinitions.Where(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer).ToArray();
 
@@ -250,6 +249,9 @@ namespace R1Engine
                         }
 
                         var eventDefIndex = 0;
+
+                        s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
+
 
                         // Export every event DES
                         foreach (var ed in eventDefinitions) 
@@ -715,6 +717,7 @@ namespace R1Engine
 
         public Editor_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<Pointer, Common_Design> eventDesigns, Dictionary<Pointer, Common_EventState[][]> eventETA, bool loadTextures) 
         {
+            if (ed == null) return null;
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, c);
             int? predeterminedState = null;
 
@@ -897,6 +900,39 @@ namespace R1Engine
                 Type = EventType.TYPE_BADGUY1,
             };
         }
+        protected enum SpecialEventType {
+            RayPos,
+            Gendoor,
+            Piranha,
+            ScrollFast,
+            ScrollSlow,
+            RayOnBzzit,
+
+            RaymanVisual,
+            GendoorVisual,
+            PiranhaVisual,
+            ScrollVisual,
+            RayOnBzzitVisual
+        }
+        protected virtual Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
+            // Read the rom
+            var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
+            Pointer baseOff = rom.EventDefinitions[0].Offset;
+            return new Dictionary<SpecialEventType, Pointer>() {
+                [SpecialEventType.RayPos] = baseOff + 0x000023C8,
+                [SpecialEventType.Gendoor] = baseOff + 0xCD0,
+                [SpecialEventType.Piranha] = baseOff + 0x000012C0,
+                [SpecialEventType.ScrollFast] = baseOff + 0x00001450,
+                [SpecialEventType.ScrollSlow] = baseOff + 0x00001478,
+                [SpecialEventType.RayOnBzzit] = baseOff + 0x00002760,
+
+                [SpecialEventType.RaymanVisual] = baseOff,
+                [SpecialEventType.GendoorVisual] = baseOff + 0x00000A00,
+                [SpecialEventType.PiranhaVisual] = baseOff + 0x000012E8,
+                [SpecialEventType.ScrollVisual] = baseOff + 0x14A0,
+                [SpecialEventType.RayOnBzzitVisual] = baseOff + 0x000000F0,
+            };
+        }
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -948,10 +984,10 @@ namespace R1Engine
             var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
 
             var eventIndex = 0;
-            
+
             // TODO: Correct for demo once we parse the event definitions!
             // Set to true to change the event state to display them correctly, or false to use the original states
-            var correctEventStates = context.Settings.EngineVersion == EngineVersion.RayJaguar;
+            var correctEventStates = true; // context.Settings.EngineVersion == EngineVersion.RayJaguar;
 
             Controller.status = $"Loading events & states";
             await Controller.WaitIfNecessary();
@@ -960,11 +996,13 @@ namespace R1Engine
             Dictionary<int, Editor_EventData> uniqueEvents = new Dictionary<int, Editor_EventData>();
 
             // Load special events so we can display them
-            var rayPos = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000000), eventDesigns, eventETA, loadTextures) : null; // Rayman position
-            var gendoor = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x00000A00), eventDesigns, eventETA, loadTextures) : null; // Gendoor
-            var piranha = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000012E8), eventDesigns, eventETA, loadTextures) : null; // Piranha
-            var scroll = correctEventStates ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000014A0), eventDesigns, eventETA, loadTextures) : null; // Scroll
-            var rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, rom.EventDefinitions.First(x => x.Offset.FileOffset == 0x000000F0), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
+            var specialPointers = GetSpecialEventPointers(context);
+            Editor_EventData rayPos, gendoor, piranha, scroll, rayBzzit; // Rayman on Bzzit
+            rayPos = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman position
+            gendoor = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, loadTextures) : null; // Gendoor
+            piranha = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, loadTextures) : null; // Piranha
+            scroll = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual]), eventDesigns, eventETA, loadTextures) : null; // Scroll
+            rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
@@ -979,7 +1017,12 @@ namespace R1Engine
                 mapX *= 4 * Settings.CellSize;
                 mapY *= 4 * Settings.CellSize;
 
-                bool IsGendoor(int index) => rom.EventData.EventData[i][index].EventDefinitionPointer.AbsoluteOffset == 0x001F9CD0;
+                bool IsGendoor(int index) {
+                    switch (context.Settings.GameModeSelection) {
+                        default:
+                            return rom.EventData.EventData[i][index].EventDefinitionPointer.AbsoluteOffset == 0x001F9CD0;
+                    }
+                }
 
                 // Add every event on this tile
                 int? linkBackIndex = null;
@@ -1051,30 +1094,30 @@ namespace R1Engine
                     // Hack change the DES and ETA if special event so it displays correctly
                     if (correctEventStates)
                     {
-                        if (ed.Offset.FileOffset == 0x000023C8) // Rayman position
+                        if (ed.Offset == specialPointers[SpecialEventType.RayPos]) // Rayman position
                         {
                             eventData.DESKey = rayPos.DESKey;
                             eventData.ETAKey = rayPos.ETAKey;
                             eventData.Data.SubEtat = 7;
                         }
-                        else if (ed.Offset.FileOffset == 0x00000CD0) // Gendoor
+                        else if (ed.Offset == specialPointers[SpecialEventType.Gendoor]) // Gendoor
                         {
                             eventData.DESKey = gendoor.DESKey;
                             eventData.ETAKey = gendoor.ETAKey;
                             eventData.Data.SubEtat = 2;
                         }
-                        else if (ed.Offset.FileOffset == 0x000012C0) // Piranha
+                        else if (ed.Offset == specialPointers[SpecialEventType.Piranha]) // Piranha
                         {
                             eventData.DESKey = piranha.DESKey;
                             eventData.ETAKey = piranha.ETAKey;
                         }
-                        else if (ed.Offset.FileOffset == 0x00001450 || ed.Offset.FileOffset == 0x00001478) // Scroll fast/slow
+                        else if (ed.Offset == specialPointers[SpecialEventType.ScrollFast] || ed.Offset == specialPointers[SpecialEventType.ScrollSlow]) // Scroll fast/slow
                         {
                             eventData.DESKey = scroll.DESKey;
                             eventData.ETAKey = scroll.ETAKey;
                             eventData.Data.Etat = 2;
                         }
-                        else if (ed.Offset.FileOffset == 0x00002760 && context.Settings.World == World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
+                        else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.Settings.World == World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
                             if (rayBzzit != null) {
                                 eventData.DESKey = rayBzzit.DESKey;

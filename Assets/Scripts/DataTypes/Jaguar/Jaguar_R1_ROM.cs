@@ -71,18 +71,21 @@ namespace R1Engine
             var levels = manager.GetNumLevels;
 
             // Serialize event definition data
-            if (!s.Context.FileExists("RAM_EventDefinitions")) 
-            {
-                // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () => 
-                {
-                    byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, manager.EventCount * 0x28, name: nameof(EventDefsDataBytes));
-                    var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context, 0x001f9000) {
-                        Endianness = BinaryFile.Endian.Big
-                    };
-                    s.Context.AddFile(file);
-                    s.DoAt(file.StartPointer, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, manager.EventCount, name: nameof(EventDefinitions)));
-                });
+            if (s.GameSettings.EngineVersion == EngineVersion.RayJaguarDemo) {
+                // Pointers all point to the ROM, not RAM
+                s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, manager.EventCount, name: nameof(EventDefinitions)));
+            } else {
+                if (!s.Context.FileExists("RAM_EventDefinitions")) {
+                    // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
+                    s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () => {
+                        byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, manager.EventCount * 0x28, name: nameof(EventDefsDataBytes));
+                        var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context, 0x001f9000) {
+                            Endianness = BinaryFile.Endian.Big
+                        };
+                        s.Context.AddFile(file);
+                        s.DoAt(file.StartPointer, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, manager.EventCount, name: nameof(EventDefinitions)));
+                    });
+                }
             }
 
             // Serialize allfix sprite data
