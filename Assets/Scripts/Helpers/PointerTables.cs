@@ -138,7 +138,6 @@ namespace R1Engine
             {
                 return new Dictionary<Jaguar_R1_Pointer, uint>()
                 {
-                    // TODO: Find pointer
                     [Jaguar_R1_Pointer.EventDefinitions] = 0x00918B40,
                     [Jaguar_R1_Pointer.FixSprites] = 0x008028BA,
                     [Jaguar_R1_Pointer.WorldSprites] = 0x00874F14,

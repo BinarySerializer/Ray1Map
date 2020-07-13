@@ -904,6 +904,7 @@ namespace R1Engine
             RayPos,
             Gendoor,
             Piranha,
+            Piranha2,
             ScrollFast,
             ScrollSlow,
             RayOnBzzit,
@@ -912,7 +913,7 @@ namespace R1Engine
             GendoorVisual,
             PiranhaVisual,
             ScrollVisual,
-            RayOnBzzitVisual
+            RayOnBzzitVisual,
         }
         protected virtual Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
             // Read the rom
@@ -922,6 +923,7 @@ namespace R1Engine
                 [SpecialEventType.RayPos] = baseOff + 0x000023C8,
                 [SpecialEventType.Gendoor] = baseOff + 0xCD0,
                 [SpecialEventType.Piranha] = baseOff + 0x000012C0,
+                [SpecialEventType.Piranha2] = null,
                 [SpecialEventType.ScrollFast] = baseOff + 0x00001450,
                 [SpecialEventType.ScrollSlow] = baseOff + 0x00001478,
                 [SpecialEventType.RayOnBzzit] = baseOff + 0x00002760,
@@ -985,7 +987,6 @@ namespace R1Engine
 
             var eventIndex = 0;
 
-            // TODO: Correct for demo once we parse the event definitions!
             // Set to true to change the event state to display them correctly, or false to use the original states
             var correctEventStates = true; // context.Settings.EngineVersion == EngineVersion.RayJaguar;
 
@@ -997,7 +998,7 @@ namespace R1Engine
 
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
-            Editor_EventData rayPos, gendoor, piranha, scroll, rayBzzit; // Rayman on Bzzit
+            Editor_EventData rayPos, gendoor, piranha, scroll, rayBzzit;
             rayPos = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman position
             gendoor = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, loadTextures) : null; // Gendoor
             piranha = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, loadTextures) : null; // Piranha
@@ -1106,16 +1107,23 @@ namespace R1Engine
                             eventData.ETAKey = gendoor.ETAKey;
                             eventData.Data.SubEtat = 2;
                         }
-                        else if (ed.Offset == specialPointers[SpecialEventType.Piranha]) // Piranha
+                        else if (ed.Offset == specialPointers[SpecialEventType.Piranha] || ed.Offset == specialPointers[SpecialEventType.Piranha2]) // Piranha
                         {
                             eventData.DESKey = piranha.DESKey;
                             eventData.ETAKey = piranha.ETAKey;
+
+                            if (context.Settings.EngineVersion == EngineVersion.RayJaguarDemo)
+                                eventData.Data.Etat = 1;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.ScrollFast] || ed.Offset == specialPointers[SpecialEventType.ScrollSlow]) // Scroll fast/slow
                         {
                             eventData.DESKey = scroll.DESKey;
                             eventData.ETAKey = scroll.ETAKey;
-                            eventData.Data.Etat = 2;
+
+                            if (context.Settings.EngineVersion == EngineVersion.RayJaguarDemo)
+                                eventData.Data.Etat = 6;
+                            else
+                                eventData.Data.Etat = 2;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.Settings.World == World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
@@ -1152,7 +1160,7 @@ namespace R1Engine
                 {
                     var eventData = CreateEventData(context, def, eventDesigns, eventETA, loadTextures);
                     eventData.LinkIndex = ind;
-                    eventData.XPosition = (uint)(ind * 20);
+                    eventData.Data.XPosition = (short)(ind * 20);
                     eventData.DebugText = $"EventDefinitionPointer: {def.Offset}{Environment.NewLine}";
                     commonLev.EventData.Add(eventData);
                     ind++;

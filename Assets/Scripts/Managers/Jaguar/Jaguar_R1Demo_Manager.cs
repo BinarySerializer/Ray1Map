@@ -79,17 +79,19 @@ namespace R1Engine
             Pointer baseOff = rom.EventDefinitions[0].Offset;
             return new Dictionary<SpecialEventType, Pointer>() {
                 [SpecialEventType.RayPos] = baseOff + 0x1BF8,
-                [SpecialEventType.Gendoor] = null,
+                [SpecialEventType.Gendoor] = null, // Doesn't exist
                 [SpecialEventType.Piranha] = baseOff + 0xDE8,
-                [SpecialEventType.ScrollFast] = null,
-                [SpecialEventType.ScrollSlow] = null,
-                [SpecialEventType.RayOnBzzit] = null,
+                [SpecialEventType.Piranha2] = baseOff + 0xE10,
+                [SpecialEventType.ScrollFast] = baseOff + 0xFA0,
+                [SpecialEventType.ScrollSlow] = baseOff + 0xFC8,
+                [SpecialEventType.RayOnBzzit] = null, // baseOff + 0x1C20
+                //[SpecialEventType.Betilla] = baseOff + 0x1C20,
 
                 [SpecialEventType.RaymanVisual] = baseOff,
                 [SpecialEventType.GendoorVisual] = baseOff + 0x5A0,
                 [SpecialEventType.PiranhaVisual] = baseOff + 0xE38,
-                [SpecialEventType.ScrollVisual] = null,
-                [SpecialEventType.RayOnBzzitVisual] = null
+                [SpecialEventType.ScrollVisual] = baseOff + 0x1040,
+                [SpecialEventType.RayOnBzzitVisual] = null, // Doesn't exist
             };
         }
         #endregion
