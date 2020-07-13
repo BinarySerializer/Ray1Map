@@ -52,6 +52,8 @@ namespace R1Engine
             0, 1, 2
         };
 
+        public override uint EventCount => 0xB5;
+
         /// <summary>
         /// Gets the vignette addresses and widths
         /// </summary>

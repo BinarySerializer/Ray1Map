@@ -139,6 +139,8 @@ namespace R1Engine
             public Common_ImageDescriptor[] OverrideImageDescriptors;
         }
 
+        public virtual uint EventCount => 0x1C4;
+
         /// <summary>
         /// Exports every sprite from the game
         /// </summary>

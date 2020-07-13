@@ -107,7 +107,7 @@ namespace R1Engine {
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0xA, name: nameof(UnkBytes));
-			} else if (StructType == 112 || StructType == 113 || StructType == 114) {
+			} else if (StructType == 112 || StructType == 113 || StructType == 114 || StructType == 26) {
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1a, name: nameof(UnkBytes));

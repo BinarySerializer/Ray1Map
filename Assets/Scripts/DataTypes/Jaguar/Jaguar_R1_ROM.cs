@@ -76,12 +76,12 @@ namespace R1Engine
                 // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
                 s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () => 
                 {
-                    byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, 0x1C4 * 0x28, name: nameof(EventDefsDataBytes));
+                    byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, manager.EventCount * 0x28, name: nameof(EventDefsDataBytes));
                     var file = new MemoryMappedByteArrayFile("RAM_EventDefinitions", EventDefsDataBytes, s.Context, 0x001f9000) {
                         Endianness = BinaryFile.Endian.Big
                     };
                     s.Context.AddFile(file);
-                    s.DoAt(file.StartPointer, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, 0x1C4, name: nameof(EventDefinitions)));
+                    s.DoAt(file.StartPointer, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, manager.EventCount, name: nameof(EventDefinitions)));
                 });
             }
 
