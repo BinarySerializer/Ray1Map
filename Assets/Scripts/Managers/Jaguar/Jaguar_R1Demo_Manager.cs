@@ -94,6 +94,83 @@ namespace R1Engine
                 [SpecialEventType.RayOnBzzitVisual] = null, // Doesn't exist
             };
         }
+
+        public override uint[] AdditionalEventDefinitionPointers => new uint[] {
+            0x0086da20,
+            0x0091fcc8,
+
+            0x0086940E,
+            0x0091FD24,
+            0x0091FD4C,
+            0x0091FE4A,
+            0x0091FE72,
+
+            0x00872194,
+            0x00872202,
+            0x008722DE,
+            0x00872426,
+            0x0087244e,
+            0x00872476,
+            0x0087249e,
+            0x008724c6,
+            0x008724ee,
+            0x00872516,
+
+            0x008695DA,
+            0x00869602,
+            0x0086962A,
+            0x00869652,
+            0x0086967A,
+            0x008696A2,
+            0x008696CA,
+            0x008696F2,
+            0x0086971A,
+
+            0x00873B52,
+            0x00873B7A,
+            0x00873CF2,
+            0x00873D1A,
+            0x00873e1e,
+            0x00873e46,
+            0x00873e6e,
+            0x00873e96,
+            0x00873ebe,
+            0x00873ee6,
+            0x00873f0e,
+            0x00873f8e,
+            0x00873fb6,
+            0x00874134,
+            0x0087415c,
+            0x008741a8,
+
+            0x0086DA20,
+
+            0x00866598,
+            0x0086869E,
+            0x00868C22,
+
+            0x0084E772,
+            0x00850CEE,
+            0x00851332,
+
+            0x00857D96,
+
+            0x0085A2D0,
+            0x00860E2E,
+            0x00860ED6,
+
+            0x0085F88C,
+            0x0086080C,
+
+            0x008726FE,
+
+            0x00862C00,
+            0x00863182,
+            
+            0x0086DAE6,
+
+            0x0086F23A,
+        };
         #endregion
     }
 }

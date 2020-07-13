@@ -49,6 +49,7 @@ namespace R1Engine
         public RGB556Color[] TileData { get; set; }
 
         public Jaguar_R1_EventDefinition[] EventDefinitions { get; set; }
+        public Jaguar_R1_EventDefinition[] AdditionalEventDefinitions { get; set; }
 
         /// <summary>
         /// The image buffers for the current level, with the key being the memory pointer pointer
@@ -86,6 +87,13 @@ namespace R1Engine
                         s.DoAt(file.StartPointer, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions, manager.EventCount, name: nameof(EventDefinitions)));
                     });
                 }
+            }
+            if (AdditionalEventDefinitions == null) {
+                AdditionalEventDefinitions = manager.AdditionalEventDefinitionPointers.Select(p => {
+                    return s.DoAt(new Pointer(p, pointerTable[Jaguar_R1_Pointer.EventDefinitions].file), () => {
+                        return s.SerializeObject<Jaguar_R1_EventDefinition>(null, name: nameof(AdditionalEventDefinitions));
+                    });
+                }).ToArray();
             }
 
             // Serialize allfix sprite data

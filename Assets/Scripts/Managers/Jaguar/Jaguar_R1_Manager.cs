@@ -175,7 +175,7 @@ namespace R1Engine
                 await ExportGroupAsync(allfixCmds, Enumerable.Repeat(rom.SpritePalette, allfixCmds.Length).ToArray(), "Allfix");
 
                 // Enumerate every world
-                foreach (var world in GetLevels(baseGameSettings))
+                foreach (var world in GetNumLevels)// GetLevels(baseGameSettings))
                     // Export world
                     await ExportWorldAsync(levels.FindItemIndex(x => x.Key == world.Key), world.Key.ToString());
 
@@ -240,8 +240,8 @@ namespace R1Engine
                         byte[] imgBuffer = null;
 
                         // Get the event definition
-                        var eventDefinitions = rom.EventDefinitions.Where(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer).ToArray();
-
+                        var eventDefinitions = rom.EventDefinitions.Concat(rom.AdditionalEventDefinitions)
+                            .Where(x => x.ImageBufferMemoryPointerPointer == cmd.ImageBufferMemoryPointerPointer).ToArray();
                         if (eventDefinitions.Length == 0)
                         {
                             Debug.LogWarning($"No EventDefinition found with ImageBufferMemoryPtrPtr == {string.Format("{0:X8}",cmd.ImageBufferMemoryPointerPointer)}!");
@@ -249,9 +249,15 @@ namespace R1Engine
                         }
 
                         var eventDefIndex = 0;
-
-                        s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer")));
-
+                        try {
+                            s.DoAt(cmd.ImageBufferPointer, () => s.DoEncoded(new RNCEncoder(), () => {
+                                imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer");
+                            }));
+                        } catch (Exception ex) {
+                            Debug.LogWarning($"Failed to serialize image buffer at {string.Format("{0:X8}", cmd.ImageBufferMemoryPointerPointer)}} with error {ex.Message}");
+                            imgBuffer = new byte[0];
+                            continue;
+                        }
 
                         // Export every event DES
                         foreach (var ed in eventDefinitions) 
@@ -959,6 +965,7 @@ namespace R1Engine
                 [SpecialEventType.RayOnBzzitVisual] = baseOff + 0x000000F0,
             };
         }
+        public virtual uint[] AdditionalEventDefinitionPointers => new uint[0];
 
         /// <summary>
         /// Loads the specified level for the editor
