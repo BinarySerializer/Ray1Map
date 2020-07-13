@@ -38,6 +38,10 @@ namespace R1Engine {
 		public Pointer UnkPointer1 { get; set; }
 		public Pointer UnkPointer2 { get; set; }
 
+		public Pointer AnimationPointer { get; set; }
+		public byte FrameCount { get; set; }
+		public Common_AnimationLayer[] AnimationLayers { get; set; }
+
 		#endregion
 
 		#region Parsed from Pointers
@@ -112,12 +116,12 @@ namespace R1Engine {
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1a, name: nameof(UnkBytes));
 			} else if (StructType == 25) {
-				UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
-				UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
+				ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
+				AnimationPointer = s.SerializePointer(AnimationPointer, name: nameof(AnimationPointer));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				Byte_20 = s.Serialize<byte>(Byte_20, name: nameof(Byte_20));
 				Byte_21 = s.Serialize<byte>(Byte_21, name: nameof(Byte_21));
-				Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
+				FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
 				Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x10, name: nameof(UnkBytes));
 			} else {
@@ -213,10 +217,22 @@ namespace R1Engine {
 				}
 			}
 
+			s.DoAt(AnimationPointer, () => {
+				int layers = NumLayers > 0 ? NumLayers : 1;
+				AnimationLayers = s.SerializeObjectArray<Common_AnimationLayer>(AnimationLayers, layers * FrameCount, name: nameof(AnimationLayers));
+			});
+
 			// Serialize image descriptors based on the state animations
 			s.DoAt(ImageDescriptorsPointer, () => {
+				if (StructType == 25) {
+					ImageBufferMemoryPointerPointer = s.Serialize<uint>(ImageBufferMemoryPointerPointer, name: nameof(ImageBufferMemoryPointerPointer));
+				}
+
 				// TODO: This doesn't seem to work consistently at all - fallback to previous method for now
-				if (States != null && States.Length > 0) {
+				if (AnimationLayers != null) {
+					int maxImageIndex = AnimationLayers.Max(x => UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) : x.ImageIndex);
+					ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
+				} else if (States != null && States.Length > 0) {
 					int maxImageIndex = States
 						.Where(x => x?.Animation != null)
 						.SelectMany(x => x.Animation.Layers)
@@ -241,6 +257,66 @@ namespace R1Engine {
 					ImageDescriptors = temp.ToArray();
 				}
 			});
+		}
+
+
+
+		/// <summary>
+		/// Gets a common animation from the animation descriptor
+		/// </summary>
+		/// <param name="animationDescriptor">The animation descriptor</param>
+		/// <returns>The common animation</returns>
+		public Common_Animation ToCommonAnimation() {
+			// Create the animation
+			var animation = new Common_Animation {
+				Frames = new Common_AnimFrame[FrameCount],
+			};
+
+			// The layer index
+			var layer = 0;
+			int LayersPerFrame = NumLayers > 0 ? NumLayers : 1;
+
+			// Create each frame
+			for (int i = 0; i < FrameCount; i++) {
+				// Create the frame
+				var frame = new Common_AnimFrame() {
+					FrameData = new Common_AnimationFrame(),
+					Layers = new Common_AnimationPart[LayersPerFrame]
+				};
+				if (AnimationLayers != null) {
+
+					// Create each layer
+					for (var layerIndex = 0; layerIndex < LayersPerFrame; layerIndex++) {
+						var animationLayer = AnimationLayers[layer];
+						layer++;
+
+						// Create the animation part
+						Common_AnimationPart part;
+						if (UShort_12 == 5 || StructType == 31) {
+							part = new Common_AnimationPart {
+								ImageIndex = BitHelpers.ExtractBits(animationLayer.ImageIndex, 7, 0),
+								XPosition = animationLayer.XPosition,
+								YPosition = animationLayer.YPosition,
+								IsFlippedHorizontally = BitHelpers.ExtractBits(animationLayer.ImageIndex, 1, 7) != 0
+							};
+						} else {
+							part = new Common_AnimationPart {
+								ImageIndex = animationLayer.ImageIndex,
+								XPosition = BitHelpers.ExtractBits(animationLayer.XPosition, 7, 0),
+								YPosition = animationLayer.YPosition,
+								IsFlippedHorizontally = BitHelpers.ExtractBits(animationLayer.XPosition, 1, 7) != 0
+							};
+						}
+
+						// Add the part
+						frame.Layers[layerIndex] = part;
+					}
+				}
+				// Set the frame
+				animation.Frames[i] = frame;
+			}
+
+			return animation;
 		}
 
 		#endregion

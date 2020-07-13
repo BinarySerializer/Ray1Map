@@ -244,7 +244,7 @@ namespace R1Engine
 
                         if (eventDefinitions.Length == 0)
                         {
-                            Debug.LogWarning($"No EventDefinition found!");
+                            Debug.LogWarning($"No EventDefinition found with ImageBufferMemoryPtrPtr == {string.Format("{0:X8}",cmd.ImageBufferMemoryPointerPointer)}!");
                             continue;
                         }
 
@@ -265,6 +265,12 @@ namespace R1Engine
                                 var animations = new List<ExportAnim>();
                                 HashSet<Pointer> complexDataSeen = new HashSet<Pointer>();
 
+                                var animSingle = ed.AnimationLayers != null ? new ExportAnim() {
+                                    Anim = ed.ToCommonAnimation(),
+                                    AnimationSpeed = 1,
+                                    Pointer = ed.Offset
+                                } : null;
+                                if (animSingle != null) animations.Add(animSingle);
                                 var animNormal = ed.States?.Where(x => x.Animation?.Layers != null).Select(x => new ExportAnim() {
                                     Anim = x.Animation.ToCommonAnimation(ed),
                                     AnimationSpeed = (byte)(x.AnimationSpeed & 0b1111),
@@ -752,7 +758,9 @@ namespace R1Engine
                     AddImageDescriptors(ed.ComplexData?.ImageDescriptors);
 
                 // Add animations
-                if (ed.States != null) {
+                if (ed.AnimationLayers != null) {
+                    finalDesign.Animations.Add(ed.ToCommonAnimation());
+                } else if (ed.States != null) {
                     finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation(ed)));
                 } else if (ed.ComplexData != null) {
                     if (ed.ComplexData.Transitions != null) {
@@ -774,7 +782,9 @@ namespace R1Engine
             // Key for ETAT
             bool usesComplexData = false;
             Pointer etatKey = null;
-            if (ed.States != null && ed.States.Length > 0) {
+            if (ed.AnimationLayers != null) {
+                etatKey = ed.Offset;
+            } if (ed.States != null && ed.States.Length > 0) {
                 etatKey = ed.States[0].Offset;
             } else if (ed.ComplexData != null)
             {
@@ -785,31 +795,45 @@ namespace R1Engine
             // Add ETAT if not found
             if (etatKey != null && !eventETA.ContainsKey(etatKey)) {
                 if (!usesComplexData) {
-                    var validStates = ed.States.Where(x => x.Animation != null).ToArray();
+                    if (ed.AnimationLayers != null) {
+                        // Create a common state array
+                        var states = new Common_EventState[1][] {
+                            new Common_EventState[1] {
+                                new Common_EventState {
+                                    AnimationIndex = 0,
+                                    LinkedEtat = 0,
+                                    AnimationSpeed = 1,
+                                }
+                            }
+                        };
+                        eventETA.Add(etatKey, states);
+                    } else {
+                        var validStates = ed.States.Where(x => x.Animation != null).ToArray();
 
-                    // Create a common state array
-                    var states = new Common_EventState[validStates.Length][];
+                        // Create a common state array
+                        var states = new Common_EventState[validStates.Length][];
 
-                    // Add dummy states
-                    for (byte s = 0; s < states.Length; s++) {
-                        var stateLinkIndex = -1;
-                        var fullStateIndex = ed.States.FindItemIndex(x => x == validStates[s]);
+                        // Add dummy states
+                        for (byte s = 0; s < states.Length; s++) {
+                            var stateLinkIndex = -1;
+                            var fullStateIndex = ed.States.FindItemIndex(x => x == validStates[s]);
 
-                        if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null)
-                            stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
+                            if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null)
+                                stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
 
-                        states[s] = new Common_EventState[] 
-                        {
+                            states[s] = new Common_EventState[]
+                            {
                             new Common_EventState {
                                 AnimationIndex = s,
                                 LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
                                 AnimationSpeed = (byte)(validStates[s].AnimationSpeed & 0b1111),
                             }
-                        };
-                    }
+                            };
+                        }
 
-                    // Add to the states
-                    eventETA.Add(etatKey, states);
+                        // Add to the states
+                        eventETA.Add(etatKey, states);
+                    }
                 } else {
                     List<Jaguar_R1_EventComplexData> cds = new List<Jaguar_R1_EventComplexData>();
                     List<Common_EventState[]> states = new List<Common_EventState[]>();
