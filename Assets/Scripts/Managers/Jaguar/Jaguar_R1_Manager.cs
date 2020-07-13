@@ -254,7 +254,7 @@ namespace R1Engine
                                 imgBuffer = s.SerializeArray<byte>(default, s.CurrentLength, "ImageBuffer");
                             }));
                         } catch (Exception ex) {
-                            Debug.LogWarning($"Failed to serialize image buffer at {string.Format("{0:X8}", cmd.ImageBufferMemoryPointerPointer)}} with error {ex.Message}");
+                            Debug.LogWarning($"Failed to serialize image buffer at {string.Format("{0:X8}", cmd.ImageBufferMemoryPointerPointer)} with error {ex.Message}");
                             imgBuffer = new byte[0];
                             continue;
                         }
@@ -965,7 +965,32 @@ namespace R1Engine
                 [SpecialEventType.RayOnBzzitVisual] = baseOff + 0x000000F0,
             };
         }
-        public virtual uint[] AdditionalEventDefinitionPointers => new uint[0];
+        public virtual uint[] AdditionalEventDefinitionPointers => new uint[] {
+            0x00BDBFDC,
+            0x00B6018C,
+
+            0x00B617EE,
+            0x00B61816,
+            0x00B6183E,
+            0x00B61866,
+            0x00B6188E,
+
+            0x00B5DF54,
+            0x00B5DF7C,
+
+            0x00BF8B90,
+            0x00BF8CA8,
+            0x00BF8D20,
+            0x00BF8E38,
+            0x00BF8EB8,
+            0x00BF8F9C,
+            0x00BF9094,
+            0x00BF90BC,
+            0x00BF90FC,
+            0x00BF9124,
+            0x00BF9164,
+
+        };
 
         /// <summary>
         /// Loads the specified level for the editor
