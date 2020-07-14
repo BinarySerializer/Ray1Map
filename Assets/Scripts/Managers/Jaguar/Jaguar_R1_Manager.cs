@@ -276,9 +276,9 @@ namespace R1Engine
                             {
                                 if (name == "Mountain")
                                 {
-                                    // Mr Stone
+                                    // Stoneman
                                     if (eventDefinitions.FirstOrDefault()?.Offset.AbsoluteOffset == 0x00919CC0)
-                                        imgBufferPointer = mainRomOffset + 3854654;
+                                        imgBufferPointer = mainRomOffset + 662779;
 
                                     // Spider
                                     if (eventDefinitions.FirstOrDefault()?.Offset.AbsoluteOffset == 0x0091A440)
@@ -287,6 +287,10 @@ namespace R1Engine
                                     // Stone dog
                                     if (eventDefinitions.FirstOrDefault()?.Offset.AbsoluteOffset == 0x00919D10)
                                         imgBufferPointer = mainRomOffset + 673800;
+
+                                    // Mountain
+                                    if (eventDefinitions.FirstOrDefault()?.Offset.AbsoluteOffset == 0x00919BA8)
+                                        imgBufferPointer = mainRomOffset + 676759;
                                 }
                             }
 
