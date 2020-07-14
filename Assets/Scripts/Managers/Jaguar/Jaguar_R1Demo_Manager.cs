@@ -85,13 +85,15 @@ namespace R1Engine
                 [SpecialEventType.ScrollFast] = baseOff + 0xFA0,
                 [SpecialEventType.ScrollSlow] = baseOff + 0xFC8,
                 [SpecialEventType.RayOnBzzit] = null, // baseOff + 0x1C20
-                //[SpecialEventType.Betilla] = baseOff + 0x1C20,
+                [SpecialEventType.BzzitDemo] = rom.Offset + 0x1183C8,
 
                 [SpecialEventType.RaymanVisual] = baseOff,
                 [SpecialEventType.GendoorVisual] = baseOff + 0x5A0,
                 [SpecialEventType.PiranhaVisual] = baseOff + 0xE38,
                 [SpecialEventType.ScrollVisual] = baseOff + 0x1040,
-                [SpecialEventType.RayOnBzzitVisual] = null, // Doesn't exist
+                [SpecialEventType.RayOnBzzitVisual] = null,
+                [SpecialEventType.BzzitDemoVisual] = rom.Offset + 0x11DCC8,
+                //[SpecialEventType.BetillaDemoVisual] = rom.Offset + 0x6BA20,
             };
         }
 

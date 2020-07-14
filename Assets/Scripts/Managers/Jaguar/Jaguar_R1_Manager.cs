@@ -938,12 +938,14 @@ namespace R1Engine
             ScrollFast,
             ScrollSlow,
             RayOnBzzit,
+            BzzitDemo,
 
             RaymanVisual,
             GendoorVisual,
             PiranhaVisual,
             ScrollVisual,
             RayOnBzzitVisual,
+            BzzitDemoVisual,
         }
         protected virtual Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) {
             // Read the rom
@@ -1052,14 +1054,18 @@ namespace R1Engine
             // Load events
             Dictionary<int, Editor_EventData> uniqueEvents = new Dictionary<int, Editor_EventData>();
 
+            // Get all event definitions
+            var eventDefs = rom.EventDefinitions.Concat(rom.AdditionalEventDefinitions).ToArray();
+
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
-            Editor_EventData rayPos, gendoor, piranha, scroll, rayBzzit;
-            rayPos = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman position
-            gendoor = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, loadTextures) : null; // Gendoor
-            piranha = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, loadTextures) : null; // Piranha
-            scroll = correctEventStates ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual]), eventDesigns, eventETA, loadTextures) : null; // Scroll
-            rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, rom.EventDefinitions.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
+
+            var rayPos = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman position
+            var gendoor = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, loadTextures) : null; // Gendoor
+            var piranha = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, loadTextures) : null; // Piranha
+            var scroll = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual]), eventDesigns, eventETA, loadTextures) : null; // Scroll
+            var rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
+            var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDesigns, eventETA, loadTextures) : null; // Bzzit (demo)
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
@@ -1188,6 +1194,15 @@ namespace R1Engine
                                 eventData.ETAKey = rayBzzit.ETAKey;
                             }
                         }
+                        else if (ed.Offset == specialPointers[SpecialEventType.BzzitDemo]) // Bzzit (demo)
+                        {
+                            if (bzzitDemo != null) {
+                                eventData.DESKey = bzzitDemo.DESKey;
+                                eventData.ETAKey = bzzitDemo.ETAKey;
+
+                                eventData.Data.SubEtat = 0;
+                            }
+                        }
                     }
 
                     commonLev.EventData.Add(uniqueEvents[e.EventIndex]);
@@ -1207,10 +1222,10 @@ namespace R1Engine
             }
 
             // Use this to load every single event
-            
+
             /*commonLev.EventData.Clear();
             var ind = 0;
-            foreach (var def in rom.EventDefinitions.Concat(rom.AdditionalEventDefinitions))
+            foreach (var def in eventDefs)
             {
                 try
                 {
