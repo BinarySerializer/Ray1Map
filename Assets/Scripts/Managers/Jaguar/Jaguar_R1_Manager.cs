@@ -204,7 +204,7 @@ namespace R1Engine
                         // Add world data
                         foreach (var p in palettes)
                         {
-                            var sprCommands = rom.WorldLoadCommands[worldIndex].Commands.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites);
+                            var sprCommands = rom.WorldLoadCommands[worldIndex]?.Commands?.Where(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Sprites) ?? new Jaguar_R1_LevelLoadCommand[0];
                             worldCmds.AddRange(sprCommands);
                             worldPal.AddRange(Enumerable.Repeat(p, sprCommands.Count()));
                         }
@@ -1207,10 +1207,10 @@ namespace R1Engine
             }
 
             // Use this to load every single event
-            /*
-            commonLev.EventData.Clear();
+            
+            /*commonLev.EventData.Clear();
             var ind = 0;
-            foreach (var def in rom.EventDefinitions)
+            foreach (var def in rom.EventDefinitions.Concat(rom.AdditionalEventDefinitions))
             {
                 try
                 {
