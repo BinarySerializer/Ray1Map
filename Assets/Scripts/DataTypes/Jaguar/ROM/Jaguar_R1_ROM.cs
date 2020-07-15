@@ -321,9 +321,18 @@ namespace R1Engine
             {
                 // TODO: Parse load commands at ml_jun
 
-                // We can also get these pointers from the load commands
+                // NOTE: We can also get these pointers from the load commands
+
+                // Palette
+                s.DoAt(GetProtoDataPointer(Jaguar_R1Proto_References.coltable), () => SpritePalette = s.SerializeObjectArray<RGB556Color>(SpritePalette, 256, name: nameof(SpritePalette)));
+                
+                // Map
                 s.DoAt(GetProtoDataPointer(Jaguar_R1Proto_References.jun_map), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData)));
+                
+                // Events
                 s.DoAt(GetProtoDataPointer(Jaguar_R1Proto_References.test_mapevent), () => EventData = s.SerializeObject<Jaguar_R1_EventBlock>(EventData, name: nameof(EventData)));
+                
+                // Tilemap
                 s.DoAt(GetProtoDataPointer(Jaguar_R1Proto_References.jun_block), () => TileData = s.SerializeObjectArray<RGB556Color>(TileData, 440 * (16 * 16), name: nameof(TileData)));
             }
         }

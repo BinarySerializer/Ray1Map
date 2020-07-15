@@ -117,7 +117,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        public GameAction[] GetGameActions(GameSettings settings)
+        public virtual GameAction[] GetGameActions(GameSettings settings)
         {
             return new GameAction[]
             {
