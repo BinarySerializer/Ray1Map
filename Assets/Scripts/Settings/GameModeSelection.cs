@@ -90,8 +90,8 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Jaguar, EngineVersion.RayJaguar, Game.Rayman1, "Rayman 1 (Jaguar)", typeof(Jaguar_R1_Manager))]
         RaymanJaguar,
 
-        //[GameMode(MajorEngineVersion.Jaguar, EngineVersion.RayJaguarProto, Game.Rayman1, "Rayman 1 (Jaguar - Prototype)", typeof(Jaguar_R1Proto_Manager))]
-        //RaymanJaguarPrototype,
+        [GameMode(MajorEngineVersion.Jaguar, EngineVersion.RayJaguarProto, Game.Rayman1, "Rayman 1 (Jaguar - Prototype)", typeof(Jaguar_R1Proto_Manager))]
+        RaymanJaguarPrototype,
 
         [GameMode(MajorEngineVersion.Jaguar, EngineVersion.RayJaguarDemo, Game.Rayman1, "Rayman 1 (Jaguar - Demo)", typeof(Jaguar_R1Demo_Manager))]
         RaymanJaguarDemo,

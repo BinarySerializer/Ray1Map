@@ -207,7 +207,8 @@ namespace R1Engine {
 					States = temp.ToArray();
 				});
 			} else if (ComplexDataPointer != null) {
-				if (!(StructType == 30 && NumLayers == 5)) { // Different struct in this case, that only has states with code pointers
+				// TODO: Why does this not work for the proto?
+				if (!(StructType == 30 && NumLayers == 5) && s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto) { // Different struct in this case, that only has states with code pointers
 					s.DoAt(ComplexDataPointer, () => {
 						ComplexData = s.SerializeObject<Jaguar_R1_EventComplexData>(ComplexData, onPreSerialize: cd => {
 							cd.StructType = StructType;

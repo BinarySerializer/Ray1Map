@@ -70,6 +70,11 @@ namespace R1Engine
         RayJaguar,
 
         /// <summary>
+        /// Rayman 1 (Jaguar - Prototype)
+        /// </summary>
+        RayJaguarProto,
+
+        /// <summary>
         /// Rayman 1 (Jaguar - Demo)
         /// </summary>
         RayJaguarDemo,

@@ -29,6 +29,10 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
+            // Get offsets
+            var offsetTableOffset = s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto ? Offset + 0x1208 : new Jaguar_R1Proto_Manager().GetDataPointer(s.Context, Jaguar_R1Proto_References.test_offlist);
+            var eventTableOffset = s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto ? Offset + 0x1608 : new Jaguar_R1Proto_Manager().GetDataPointer(s.Context, Jaguar_R1Proto_References.test_event);
+
             HasEvents = s.Serialize<bool>(HasEvents, name: nameof(HasEvents));
             s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
             
@@ -39,7 +43,7 @@ namespace R1Engine
             EventIndexMap = s.SerializeArray<ushort>(EventIndexMap, Width * Height, name: nameof(EventIndexMap));
 
             // Serialize next data block, skipping the padding
-            s.DoAt(Offset + 0x1208, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, EventIndexMap.Max(), name: nameof(EventIndexMap)));
+            s.DoAt(offsetTableOffset, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, EventIndexMap.Max(), name: nameof(EventIndexMap)));
 
             if (EventData == null)
                 EventData = new Jaguar_R1_EventInstance[EventOffsetTable.Length][];
@@ -47,7 +51,7 @@ namespace R1Engine
             // Serialize the events based on the offsets
             for (int i = 0; i < EventData.Length; i++)
             {
-                s.DoAt(Offset + 0x1608 + EventOffsetTable[i], () =>
+                s.DoAt(eventTableOffset + EventOffsetTable[i], () =>
                 {
                     if (EventData[i] == null)
                     {

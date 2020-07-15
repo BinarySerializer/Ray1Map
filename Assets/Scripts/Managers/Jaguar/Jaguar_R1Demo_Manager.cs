@@ -7,7 +7,7 @@ using R1Engine.Serialize;
 namespace R1Engine
 {
     /// <summary>
-    /// Game manager for Jaguar
+    /// Game manager for the Jaguar demo
     /// </summary>
     public class Jaguar_R1Demo_Manager : Jaguar_R1_Manager
     {

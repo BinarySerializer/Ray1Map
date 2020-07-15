@@ -1113,7 +1113,7 @@ namespace R1Engine
             var eventIndex = 0;
 
             // Set to true to change the event state to display them correctly, or false to use the original states
-            var correctEventStates = true; // context.Settings.EngineVersion == EngineVersion.RayJaguar;
+            var correctEventStates = context.Settings.EngineVersion != EngineVersion.RayJaguarProto;
 
             Controller.status = $"Loading events & states";
             await Controller.WaitIfNecessary();
@@ -1122,7 +1122,7 @@ namespace R1Engine
             Dictionary<int, Editor_EventData> uniqueEvents = new Dictionary<int, Editor_EventData>();
 
             // Get all event definitions
-            var eventDefs = rom.EventDefinitions.Concat(rom.AdditionalEventDefinitions).ToArray();
+            var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new Jaguar_R1_EventDefinition[0]).ToArray() ?? new Jaguar_R1_EventDefinition[0];
 
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
