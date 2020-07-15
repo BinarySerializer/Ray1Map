@@ -84,7 +84,7 @@ namespace R1Engine
                     var blockRef = refs[i];
                     s.DoAt(blockRef.DataPointer, () =>
                     {
-                        var path = Path.Combine(outputPath, $"{blockRef.String}_{blockRef.DataPointer.StringAbsoluteOffset}");
+                        var path = Path.Combine(outputPath, $"{blockRef.DataPointer.FileOffset}_0x{blockRef.DataPointer.StringAbsoluteOffset}_{blockRef.String}");
                         var length = i != (refs.Length - 1) ? refs[i + 1].DataPointer - blockRef.DataPointer : s.CurrentLength - blockRef.DataPointer.FileOffset;
 
                         var buffer = s.SerializeArray<byte>(default, length, name: blockRef.String);
