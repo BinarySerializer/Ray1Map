@@ -598,7 +598,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="outputPath">The path to extract to</param>
         /// <returns>The task</returns>
-        public async Task ExtractVignetteAsync(GameSettings settings, string outputPath)
+        public virtual async Task ExtractVignetteAsync(GameSettings settings, string outputPath)
         {
             // Create a context
             using (var context = new Context(settings))
