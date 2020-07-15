@@ -319,9 +319,16 @@ namespace R1Engine
             }
             else
             {
-                // TODO: Parse load commands at ml_jun
+                // NOTE: ml_pics also has load commands, but only 1 and it's a duplicate from ml_jun
 
-                // NOTE: We can also get these pointers from the load commands
+                if (LevelLoadCommands == null)
+                    LevelLoadCommands = new Jaguar_R1_LevelLoadCommandCollection[][]
+                    {
+                        new Jaguar_R1_LevelLoadCommandCollection[1], 
+                    };
+
+                // Level load commands
+                s.DoAt(GetProtoDataPointer(Jaguar_R1Proto_References.ml_jun), () => LevelLoadCommands[0][0] = s.SerializeObject<Jaguar_R1_LevelLoadCommandCollection>(LevelLoadCommands[0][0], name: $"{nameof(LevelLoadCommands)}[0][0]"));
 
                 // Palette
                 s.DoAt(GetProtoDataPointer(Jaguar_R1Proto_References.coltable), () => SpritePalette = s.SerializeObjectArray<RGB556Color>(SpritePalette, 256, name: nameof(SpritePalette)));

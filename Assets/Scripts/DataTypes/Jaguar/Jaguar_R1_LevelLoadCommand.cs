@@ -42,11 +42,22 @@ namespace R1Engine
             {
                 case LevelLoadCommandType.End:
                     break;
-                
+
+                case LevelLoadCommandType.PaletteDemo:
+                    PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
+                    UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
+                    Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+                    break;
+
                 case LevelLoadCommandType.LevelMap:
                     UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
                     LevelMapBlockPointer = s.SerializePointer(LevelMapBlockPointer, name: nameof(LevelMapBlockPointer));
-                    LevelEventBlockPointer = s.SerializePointer(LevelEventBlockPointer, name: nameof(LevelEventBlockPointer));
+
+                    if (s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto)
+                        Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+                    else
+                        LevelEventBlockPointer = s.SerializePointer(LevelEventBlockPointer, name: nameof(LevelEventBlockPointer));
+
                     break;
 
                 case LevelLoadCommandType.Graphics:
@@ -58,12 +69,30 @@ namespace R1Engine
                 case LevelLoadCommandType.Unk1:
                     UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
                     UInt2 = s.Serialize<uint>(UInt2, name: nameof(UInt2));
+
+                    if (s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto)
+                        Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+
+                    break;
+
+                case LevelLoadCommandType.SpritesProto:
+                    // Used for sprites and graphics in the prototype
+                    ImageBufferPointer = s.SerializePointer(ImageBufferPointer, name: nameof(ImageBufferPointer));
+                    ImageBufferMemoryPointer = s.Serialize<uint>(ImageBufferMemoryPointer, name: nameof(ImageBufferMemoryPointer));
+                    Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
                     break;
 
                 case LevelLoadCommandType.MoveGraphics:
                     ImageBufferMemoryPointer = s.Serialize<uint>(ImageBufferMemoryPointer, name: nameof(ImageBufferMemoryPointer));
                     TargetImageBufferMemoryPointer = s.Serialize<uint>(TargetImageBufferMemoryPointer, name: nameof(TargetImageBufferMemoryPointer));
                     Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
+
+                    if (s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto)
+                    {
+                        Short2 = s.Serialize<short>(Short2, name: nameof(Short2));
+                        Short3 = s.Serialize<short>(Short3, name: nameof(Short3));
+                    }
+
                     break;
 
                 case LevelLoadCommandType.Unk3:
@@ -100,13 +129,6 @@ namespace R1Engine
                     PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
                     break;
 
-                case LevelLoadCommandType.PaletteDemo:
-                    PalettePointer = s.SerializePointer(PalettePointer, name: nameof(PalettePointer));
-                    UInt1 = s.Serialize<uint>(UInt1, name: nameof(UInt1));
-                    Short1 = s.Serialize<short>(Short1, name: nameof(Short1));
-                    break;
-
-                case LevelLoadCommandType.NotImplemented2:
                 case LevelLoadCommandType.NotImplemented3:
                 case LevelLoadCommandType.NotImplemented4:
                 case LevelLoadCommandType.NotImplemented5:
@@ -122,7 +144,7 @@ namespace R1Engine
             LevelMap = 0x08,
             Graphics = 0x0C,
             Unk1 = 0x10,
-            NotImplemented2 = 0x14,
+            SpritesProto = 0x14,
             MoveGraphics = 0x18,
             Unk3 = 0x1C,
             UnkDES1 = 0x20,
