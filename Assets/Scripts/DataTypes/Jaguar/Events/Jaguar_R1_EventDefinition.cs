@@ -76,7 +76,7 @@ namespace R1Engine
 				UShort_24 = s.Serialize<ushort>(UShort_24, name: nameof(UShort_24));
 				UShort_26 = s.Serialize<ushort>(UShort_26, name: nameof(UShort_26));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
-			} else if (StructType == 6 || StructType == 7 || StructType == 30 || StructType == 31) {
+			} else if (StructType == 6 || StructType == 7 || StructType == 30 || StructType == 31 || (s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto && StructType == 15)) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
 				ComplexDataPointer = s.SerializePointer(ComplexDataPointer, name: nameof(ComplexDataPointer));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
@@ -102,7 +102,7 @@ namespace R1Engine
 				Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
 				Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1C, name: nameof(UnkBytes));
-			} else if (StructType == 111) {
+			} else if (StructType == 111 || StructType == 17) {
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x8, name: nameof(UnkBytes));
 				UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
 				UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
@@ -122,6 +122,17 @@ namespace R1Engine
 				FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
 				Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x10, name: nameof(UnkBytes));
+			} else if(s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto && (StructType == 10 || StructType == 26 || StructType == 19)) {
+				if (StructType == 10) {
+					UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
+					UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
+					CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
+					UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x16, name: nameof(UnkBytes));
+				} else if (StructType == 26 || StructType == 19) {
+					UShort_10 = s.Serialize<ushort>(UShort_10, name: nameof(UShort_10));
+					UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
+					UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1A, name: nameof(UnkBytes));
+				}
 			} else {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
 				UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));

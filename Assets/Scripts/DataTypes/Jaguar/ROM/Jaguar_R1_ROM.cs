@@ -135,15 +135,11 @@ namespace R1Engine
             }
             else
             {
-                // TODO: Remove this - it's only here to avoid a crash temporarily
-                if (s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto)
-                {
-                    var offset = s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto ? GetProtoDataPointer(Jaguar_R1Proto_References.MS_rayman) : pointerTable[Jaguar_R1_Pointer.EventDefinitions];
+                var offset = s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto ? GetProtoDataPointer(Jaguar_R1Proto_References.MS_rayman) : pointerTable[Jaguar_R1_Pointer.EventDefinitions];
 
-                    // Pointers all point to the ROM, not RAM
-                    s.DoAt(offset, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions,
-                        manager.EventCount, name: nameof(EventDefinitions)));
-                }
+                // Pointers all point to the ROM, not RAM
+                s.DoAt(offset, () => EventDefinitions = s.SerializeObjectArray<Jaguar_R1_EventDefinition>(EventDefinitions,
+                    manager.EventCount, name: nameof(EventDefinitions)));
             }
 
             if (AdditionalEventDefinitions == null) 
