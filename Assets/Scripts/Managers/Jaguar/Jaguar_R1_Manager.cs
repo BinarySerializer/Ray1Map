@@ -794,10 +794,19 @@ namespace R1Engine
             }
         }
 
-        public Editor_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<Pointer, Common_Design> eventDesigns, Dictionary<Pointer, Common_EventState[][]> eventETA, bool loadTextures) 
+        public Editor_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<string, Common_Design> eventDesigns, Dictionary<string, Common_EventState[][]> eventETA, bool loadTextures) 
         {
-            if (ed == null) return null;
+            if (ed == null) 
+                return null;
+
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, c);
+
+            // Helper method to get the name for a pointer
+            string GetPointerName(Pointer p) => c.Settings.EngineVersion != EngineVersion.RayJaguarProto ? (p?.ToString() ?? String.Empty) : rom.References.First(x => x.DataPointer == p).String;
+
+            // Get the DES key (normally the offset of the event definition, but in the prototype we have strings we can use)
+            var desKey = GetPointerName(ed.Offset);
+
             int? predeterminedState = null;
 
             /* TODO: Process special event definitions.
@@ -807,7 +816,7 @@ namespace R1Engine
              */
 
             // Add if not found
-            if (!eventDesigns.ContainsKey(ed.Offset)) {
+            if (!eventDesigns.ContainsKey(desKey)) {
                 Common_Design finalDesign = new Common_Design {
                     Sprites = new List<Sprite>(),
                     Animations = new List<Common_Animation>()
@@ -849,24 +858,26 @@ namespace R1Engine
                 }
 
                 // Add to the designs
-                eventDesigns.Add(ed.Offset, finalDesign);
+                eventDesigns.Add(desKey, finalDesign);
             }
 
             // Key for ETAT
             bool usesComplexData = false;
-            Pointer etatKey = null;
+            Pointer etatKeyOffset = null;
             if (ed.AnimationLayers != null) {
-                etatKey = ed.Offset;
+                etatKeyOffset = ed.Offset;
             } if (ed.States != null && ed.States.Length > 0) {
-                etatKey = ed.States[0].Offset;
+                etatKeyOffset = ed.States[0].Offset;
             } else if (ed.ComplexData != null)
             {
                 usesComplexData = true;
-                etatKey = ed.ComplexData.Transitions != null ? ed.ComplexData.Transitions[0].Offset : ed.ComplexData.Offset;
+                etatKeyOffset = ed.ComplexData.Transitions != null ? ed.ComplexData.Transitions[0].Offset : ed.ComplexData.Offset;
             }
 
+            var etatKey = etatKeyOffset != null ? GetPointerName(etatKeyOffset) : String.Empty;
+
             // Add ETAT if not found
-            if (etatKey != null && !eventETA.ContainsKey(etatKey)) {
+            if (etatKeyOffset != null && !eventETA.ContainsKey(etatKey)) {
                 if (!usesComplexData) {
                     if (ed.AnimationLayers != null) {
                         // Create a common state array
@@ -947,7 +958,7 @@ namespace R1Engine
             // Get state index
             int stateIndex = 0;
             int substateIndex = 0;
-            if (etatKey != null) {
+            if (etatKeyOffset != null) {
                 if (!usesComplexData) {
                     if (ed.States != null && ed.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
                         var validStates = ed.States.Where(x => x.Animation != null).ToArray();
@@ -991,8 +1002,8 @@ namespace R1Engine
                 SubEtat = (byte)substateIndex,
             })
             {
-                DESKey = ed.Offset?.ToString() ?? String.Empty,
-                ETAKey = etatKey?.ToString() ?? String.Empty,
+                DESKey = desKey,
+                ETAKey = etatKeyOffset?.ToString() ?? String.Empty,
 
                 Type = EventType.TYPE_BADGUY1,
             };
@@ -1107,8 +1118,8 @@ namespace R1Engine
             // Load tile set and treat black as transparent
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
 
-            var eventDesigns = new Dictionary<Pointer, Common_Design>();
-            var eventETA = new Dictionary<Pointer, Common_EventState[][]>();
+            var eventDesigns = new Dictionary<string, Common_Design>();
+            var eventETA = new Dictionary<string, Common_EventState[][]>();
 
             var eventIndex = 0;
 
@@ -1309,7 +1320,7 @@ namespace R1Engine
                 }
             }*/
 
-            return new PS1EditorManager(commonLev, context, eventDesigns, eventETA, null);
+            return new JaguarEditorManager(commonLev, context, eventDesigns, eventETA);
         }
 
         /// <summary>
