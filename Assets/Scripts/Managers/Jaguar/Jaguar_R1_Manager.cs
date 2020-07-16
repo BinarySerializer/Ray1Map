@@ -1015,7 +1015,7 @@ namespace R1Engine
             })
             {
                 DESKey = desKey,
-                ETAKey = etatKeyOffset?.ToString() ?? String.Empty,
+                ETAKey = etatKey,
 
                 Type = EventType.TYPE_BADGUY1,
             };
