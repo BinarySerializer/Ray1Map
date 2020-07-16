@@ -12,7 +12,7 @@ namespace R1Engine
     {
         public JaguarEditorManager(Common_Lev level, Context context, IDictionary<string, Common_Design> des, IDictionary<string, Common_EventState[][]> eta, IDictionary<string, string[][]> etaNames) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(des), new ReadOnlyDictionary<string, Common_EventState[][]>(eta))
         {
-            ETANames = new ReadOnlyDictionary<string, string[][]>(etaNames);
+            ETANames = etaNames != null ? new ReadOnlyDictionary<string, string[][]>(etaNames) : null;
         }
 
         public override IReadOnlyDictionary<string, string[][]> ETANames { get; }

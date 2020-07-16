@@ -1069,12 +1069,14 @@ namespace R1Engine
                 [SpecialEventType.ScrollFast] = baseOff + 0x00001450,
                 [SpecialEventType.ScrollSlow] = baseOff + 0x00001478,
                 [SpecialEventType.RayOnBzzit] = baseOff + 0x00002760,
+                [SpecialEventType.BzzitDemo] = null,
 
                 [SpecialEventType.RaymanVisual] = baseOff,
                 [SpecialEventType.GendoorVisual] = baseOff + 0x00000A00,
                 [SpecialEventType.PiranhaVisual] = baseOff + 0x000012E8,
                 [SpecialEventType.ScrollVisual] = baseOff + 0x14A0,
                 [SpecialEventType.RayOnBzzitVisual] = baseOff + 0x000000F0,
+                [SpecialEventType.BzzitDemoVisual] = null,
             };
         }
         public virtual uint[] AdditionalEventDefinitionPointers => new uint[] {
