@@ -1218,7 +1218,7 @@ namespace R1Engine
                     if (uniqueEvents.ContainsKey(e.EventIndex)) {
 
                         if (uniqueEvents[e.EventIndex].Data.XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].Data.YPosition != (uint)(mapY + e.OffsetY))
-                            Debug.LogWarning("An event with an existing index which was removed has a different map position");
+                            Debug.LogWarning($"An event with an existing index (index {e.EventIndex} at EventData[{i}][{j}]) which was removed has a different map position");
 
                         continue; // Duplicate
                     }

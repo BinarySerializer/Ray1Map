@@ -43,7 +43,7 @@ namespace R1Engine
             EventIndexMap = s.SerializeArray<ushort>(EventIndexMap, Width * Height, name: nameof(EventIndexMap));
 
             // Serialize next data block, skipping the padding
-            s.DoAt(offsetTableOffset, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, EventIndexMap.Max(), name: nameof(EventIndexMap)));
+            s.DoAt(offsetTableOffset, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, EventIndexMap.Max(), name: nameof(EventOffsetTable)));
 
             if (EventData == null)
                 EventData = new Jaguar_R1_EventInstance[EventOffsetTable.Length][];
