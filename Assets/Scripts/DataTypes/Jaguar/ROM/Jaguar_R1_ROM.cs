@@ -87,6 +87,7 @@ namespace R1Engine
         /// <param name="name">The reference name</param>
         /// <returns>The reference</returns>
         public Jaguar_ReferenceEntry GetProtoDataReference(string name) => References.First(x => x.String.Replace(".", "__") == name);
+        public Jaguar_ReferenceEntry GetProtoDataReference(Jaguar_R1Proto_References reference) => GetProtoDataReference(reference.ToString());
 
         /// <summary>
         /// Handles the data serialization

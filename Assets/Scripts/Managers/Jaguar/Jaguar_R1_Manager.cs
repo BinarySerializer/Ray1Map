@@ -1262,7 +1262,7 @@ namespace R1Engine
 						predeterminedState = e.EventDefinition.UnkBytes[5];
 					}*/
                     // Add the event
-                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures); ;
+                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures);
                     uniqueEvents[e.EventIndex] = eventData;
                     eventData.LinkIndex = linkIndex;
                     eventData.Data.XPosition = (short)(mapX + e.OffsetX);
@@ -1341,6 +1341,25 @@ namespace R1Engine
                     if (!uniqueEvents.ContainsKey(inst.EventIndex))
                         Debug.LogWarning($"Event with index {inst.EventIndex} wasn't loaded!");
                 }
+            }
+            if (context.Settings.EngineVersion == EngineVersion.RayJaguarProto) {
+                var ray = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(Jaguar_R1Proto_References.MS_rayman));
+                if (ray != null) {
+                    var eventData = CreateEventData(context, ray, eventDesigns, eventETA, eventETANames, loadTextures);
+                    //uniqueEvents[e.EventIndex] = eventData;
+                    eventData.Data.XPosition = (int)rom.GetProtoDataReference(Jaguar_R1Proto_References.ray_center_x).DataValue;
+                    eventData.Data.YPosition = (int)rom.GetProtoDataReference(Jaguar_R1Proto_References.ray_center_y).DataValue;
+                    eventData.Data.SubEtat = 7;
+                    commonLev.EventData.Add(eventData);
+                }
+                /*foreach (var ed in eventDefs) {// Add the event
+                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures);
+                    //uniqueEvents[e.EventIndex] = eventData;
+                    eventData.Data.XPosition = xPos;
+                    eventData.Data.YPosition = 5;
+                    xPos += 5;
+                    commonLev.EventData.Add(eventData);
+                }*/
             }
 
             // Use this to load every single event
