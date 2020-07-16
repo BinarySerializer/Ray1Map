@@ -132,7 +132,7 @@ namespace R1Engine
             };
         }
 
-        private class ExportAnim {
+        protected class ExportAnim {
             public Common_Animation Anim;
             public byte AnimationSpeed;
             public Pointer Pointer;
