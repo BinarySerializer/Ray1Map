@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System;
+using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,6 +45,54 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
+        /// Exports every sprite from the game
+        /// </summary>
+        /// <param name="baseGameSettings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <param name="exportAnimFrames">True if animation frames should be exported, false if sprites should be exported</param>
+        /// <returns>The task</returns>
+        public override async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir, bool exportAnimFrames)
+        {
+            if (exportAnimFrames)
+                throw new NotImplementedException();
+
+            // Create the context
+            using (var context = new Context(baseGameSettings))
+            {
+                // Load the game data
+                await LoadFilesAsync(context);
+
+                // Serialize the rom
+                var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
+
+                // Enumerate every graphics
+                foreach (var sprKey in rom.ImageBuffers.Keys)
+                {
+                    // Get data
+                    var imgBuffer = rom.ImageBuffers[sprKey];
+                    var imgDescr = rom.ImageBufferDescriptors[sprKey];
+                    var pal = rom.SpritePalette;
+                    var name = rom.References.Last(x => x.DataValue == sprKey).String.Substring(4);
+
+                    var imgIndex = 0;
+                    foreach (var d in imgDescr)
+                    {
+                        string filename = Path.Combine(outputDir, name, $"{imgIndex}.png");
+
+                        // Get the texture
+                        var tex = GetSpriteTexture(d, pal, imgBuffer);
+
+                        // Export if not null
+                        if (tex != null)
+                            Util.ByteArrayToFile(filename, tex.EncodeToPNG());
+
+                        imgIndex++;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the available game actions
         /// </summary>
         /// <param name="settings">The game settings</param>
@@ -52,12 +101,12 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                //new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output, false)),
+                new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output, false)),
                 //new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllSpritesAsync(settings, output, true)),
                 new GameAction("Extract Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Extract Data Blocks", false, true, (input, output) => ExportDataBlocks(settings, output)),
                 new GameAction("Fix memory dump byte swapping", false, false, (input, output) => FixMemoryDumpByteSwapping(settings)),
-                //new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
+                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
             };
         }
 
@@ -126,6 +175,21 @@ namespace R1Engine
                         Util.ByteArrayToFile(Path.Combine(outputPath, $"{vig.Key}.png"), tex.EncodeToPNG());
                     });
                 }
+            }
+        }
+
+        public override async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load the files
+                await LoadFilesAsync(context);
+
+                // Serialize the rom
+                var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
+
+                // Export
+                PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), rom.SpritePalette, optionalWrap: 256);
             }
         }
 

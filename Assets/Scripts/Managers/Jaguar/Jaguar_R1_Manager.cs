@@ -735,7 +735,7 @@ namespace R1Engine
             }
         }
 
-        public async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        public virtual async Task ExportPaletteImage(GameSettings settings, string outputPath)
         {
             using (var context = new Context(settings))
             {
@@ -823,21 +823,31 @@ namespace R1Engine
                 };
 
                 // Get every sprite
-                void AddImageDescriptors(Common_ImageDescriptor[] imgDesc) {
+                void AddImageDescriptors(Common_ImageDescriptor[] imgDesc, uint key) {
                     if (imgDesc == null) return;
                     foreach (Common_ImageDescriptor img in imgDesc) {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(ed.ImageBufferMemoryPointerPointer) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[ed.ImageBufferMemoryPointerPointer]) : null;
-
+                        Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(key) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[key]) : null;
+                            
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
                     }
                 }
-                if (ed.ImageDescriptors != null)
-                    AddImageDescriptors(ed.ImageDescriptors);
 
-                if (ed.ComplexData != null)
-                    AddImageDescriptors(ed.ComplexData?.ImageDescriptors);
+                if (c.Settings.EngineVersion == EngineVersion.RayJaguarProto)
+                {
+                    var p = ed.ImageBufferMemoryPointerPointer >> 8;
+                    if (rom.ImageBufferDescriptors.ContainsKey(p))
+                        AddImageDescriptors(rom.ImageBufferDescriptors[p], p);
+                }
+                else
+                {
+                    if (ed.ImageDescriptors != null)
+                        AddImageDescriptors(ed.ImageDescriptors, ed.ImageBufferMemoryPointerPointer);
+
+                    if (ed.ComplexData != null)
+                        AddImageDescriptors(ed.ComplexData?.ImageDescriptors, ed.ImageBufferMemoryPointerPointer);
+                }
 
                 // Add animations
                 if (ed.AnimationLayers != null) {
@@ -864,9 +874,11 @@ namespace R1Engine
             // Key for ETAT
             bool usesComplexData = false;
             Pointer etatKeyOffset = null;
-            if (ed.AnimationLayers != null) {
+
+            if (ed.AnimationLayers != null)
                 etatKeyOffset = ed.Offset;
-            } if (ed.States != null && ed.States.Length > 0) {
+
+            if (ed.States != null && ed.States.Length > 0) {
                 etatKeyOffset = ed.States[0].Offset;
             } else if (ed.ComplexData != null)
             {

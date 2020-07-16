@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
-namespace R1Engine {
-	/// <summary>
-	/// Event definition data for Rayman 1 (Jaguar)
-	/// </summary>
-	public class Jaguar_R1_EventDefinition : R1Serializable {
+namespace R1Engine
+{
+    /// <summary>
+    /// Event definition data for Rayman 1 (Jaguar)
+    /// </summary>
+    public class Jaguar_R1_EventDefinition : R1Serializable {
 		#region Event Data
 
 		public short NumLayers { get; set; }
-		public Pointer Pointer_02 { get; set; } // Points to a struct of size 0x26. just some shorts, no pointers
+		public Pointer CarPointer { get; set; } // Points to a struct of size 0x26. just some shorts, no pointers (named car_xxx in prototype)
 		public ushort StructType { get; set; }
 
 		public Pointer CodePointer { get; set; }
@@ -60,7 +60,7 @@ namespace R1Engine {
 		/// <param name="s">The serializer object</param>
 		public override void SerializeImpl(SerializerObject s) {
 			NumLayers = s.Serialize<short>(NumLayers, name: nameof(NumLayers));
-			Pointer_02 = s.SerializePointer(Pointer_02, name: nameof(Pointer_02));
+			CarPointer = s.SerializePointer(CarPointer, name: nameof(CarPointer));
 			StructType = s.Serialize<ushort>(StructType, name: nameof(StructType));
 			if (StructType == 29) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
@@ -93,9 +93,7 @@ namespace R1Engine {
 				Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
 				Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 				Byte_27 = s.Serialize<byte>(Byte_27, name: nameof(Byte_27));
-			} else if (StructType == 23 || StructType == 11 || StructType == 2 || 
-                       // TODO: Is this correct?
-                       (s.GameSettings.EngineVersion == EngineVersion.RayJaguarDemo && StructType == 10)) {
+			} else if (StructType == 23 || StructType == 11 || StructType == 2 || (s.GameSettings.EngineVersion == EngineVersion.RayJaguarDemo && StructType == 10)) {
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 				UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x1c, name: nameof(UnkBytes));
 			} else if (StructType == 36 || StructType == 37 || StructType == 56) {
@@ -208,7 +206,7 @@ namespace R1Engine {
 				});
 			} else if (ComplexDataPointer != null) {
 				// TODO: Why does this not work for the proto?
-				if (!(StructType == 30 && NumLayers == 5) && s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto) { // Different struct in this case, that only has states with code pointers
+				if (!(StructType == 30 && NumLayers == 5) && (s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto || StructType == 29)) { // Different struct in this case, that only has states with code pointers
 					s.DoAt(ComplexDataPointer, () => {
 						ComplexData = s.SerializeObject<Jaguar_R1_EventComplexData>(ComplexData, onPreSerialize: cd => {
 							cd.StructType = StructType;
@@ -224,40 +222,50 @@ namespace R1Engine {
 			});
 
 			// Serialize image descriptors based on the state animations
-			s.DoAt(ImageDescriptorsPointer, () => {
-				if (StructType == 25) {
-					ImageBufferMemoryPointerPointer = s.Serialize<uint>(ImageBufferMemoryPointerPointer, name: nameof(ImageBufferMemoryPointerPointer));
-				}
+			if (s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto)
+            {
+                s.DoAt(ImageDescriptorsPointer, () => {
+                    if (StructType == 25)
+                    {
+                        ImageBufferMemoryPointerPointer = s.Serialize<uint>(ImageBufferMemoryPointerPointer, name: nameof(ImageBufferMemoryPointerPointer));
+                    }
 
-				// TODO: This doesn't seem to work consistently at all - fallback to previous method for now
-				if (AnimationLayers != null) {
-					int maxImageIndex = AnimationLayers.Max(x => UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) : x.ImageIndex);
-					ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
-				} else if (States != null && States.Length > 0) {
-					int maxImageIndex = States
-						.Where(x => x?.Animation != null)
-						.SelectMany(x => x.Animation.Layers)
-						.Max(x => UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) : x.ImageIndex);
-					ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
-					//Debug.Log(ImageDescriptors.Length);
-				} else {
-					var temp = new List<Common_ImageDescriptor>();
+                    // TODO: This doesn't seem to work consistently at all - fallback to previous method for now
+                    if (AnimationLayers != null)
+                    {
+                        int maxImageIndex = AnimationLayers.Max(x => UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) : x.ImageIndex);
+                        ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
+                    }
+                    else if (States != null && States.Length > 0)
+                    {
+                        int maxImageIndex = States
+                            .Where(x => x?.Animation != null)
+                            .SelectMany(x => x.Animation.Layers)
+                            .Max(x => UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) : x.ImageIndex);
+                        ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
+                        //Debug.Log(ImageDescriptors.Length);
+                    }
+                    else
+                    {
+                        var temp = new List<Common_ImageDescriptor>();
 
-					var index = 0;
-					while (true) {
-						var i = s.SerializeObject<Common_ImageDescriptor>(default, name: $"{nameof(ImageDescriptors)}[{index}]");
+                        var index = 0;
+                        while (true)
+                        {
+                            var i = s.SerializeObject<Common_ImageDescriptor>(default, name: $"{nameof(ImageDescriptors)}[{index}]");
 
-						if (temp.Any() && i.Index != 0xFF && i.ImageBufferOffset < temp.Last().ImageBufferOffset)
-							break;
+                            if (temp.Any() && i.Index != 0xFF && i.ImageBufferOffset < temp.Last().ImageBufferOffset)
+                                break;
 
-						temp.Add(i);
+                            temp.Add(i);
 
-						index++;
-					}
+                            index++;
+                        }
 
-					ImageDescriptors = temp.ToArray();
-				}
-			});
+                        ImageDescriptors = temp.ToArray();
+                    }
+                });
+            }
 		}
 
 

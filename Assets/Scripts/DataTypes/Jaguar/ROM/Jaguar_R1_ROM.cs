@@ -63,6 +63,9 @@ namespace R1Engine
         /// </summary>
         public Dictionary<uint, byte[]> ImageBuffers { get; set; }
 
+        // Prototype only
+        public Dictionary<uint, Common_ImageDescriptor[]> ImageBufferDescriptors { get; set; }
+
         #endregion
 
         #region Methods
@@ -77,6 +80,13 @@ namespace R1Engine
             var s = reference.ToString();
             return References.First(x => x.String.Replace(".", "__") == s).DataPointer;
         }
+
+        /// <summary>
+        /// Gets a data block reference for the Jaguar prototype
+        /// </summary>
+        /// <param name="name">The reference name</param>
+        /// <returns>The reference</returns>
+        public Jaguar_ReferenceEntry GetProtoDataReference(string name) => References.First(x => x.String.Replace(".", "__") == name);
 
         /// <summary>
         /// Handles the data serialization
@@ -341,6 +351,49 @@ namespace R1Engine
                 
                 // Tilemap
                 s.DoAt(GetProtoDataPointer(Jaguar_R1Proto_References.jun_block), () => TileData = s.SerializeObjectArray<RGB556Color>(TileData, 440 * (16 * 16), name: nameof(TileData)));
+
+                // Serialize image buffers and descriptors
+                if (ImageBuffers == null)
+                {
+                    var orderedPointers = References.Where(x => x.DataPointer != null).OrderBy(x => x.DataPointer.AbsoluteOffset).Select(x => x.DataPointer).Distinct().ToArray();
+
+                    // Get the sprites to load
+                    var sprites = new string[]
+                    {
+                        "ray", // Rayman
+                        "liv", // Lividstones
+                        "cha", // Hunter
+                        "nen", // Jungle (platforms, scenery etc.)
+                        "bal", // Hunter bullet
+                        "bb1", // Mr Stone
+                        "mag", // Magician
+                        "mst", // Moskito
+                        "div", // Allfix (HUD, photographer etc.)
+                        //"ten", // Tentacle flower (has no img/anim descriptors)
+                    }.Select(x => new
+                    {
+                        RomAdr = GetProtoDataReference($"inc{x}").DataPointer,
+                        MemAdr = GetProtoDataReference($"adr_{x}").DataValue,
+                        Length = GetProtoDataReference($"len_{x}").DataValue,
+                        DescrAdr = GetProtoDataReference($"obj_{(x == "ray" ? "rayman" : x)}").DataPointer,
+                        Name = x
+                    });
+
+                    ImageBuffers = new Dictionary<uint, byte[]>();
+                    ImageBufferDescriptors = new Dictionary<uint, Common_ImageDescriptor[]>();
+
+                    foreach (var spr in sprites)
+                    {
+                        // Serialize the image buffer
+                        s.DoAt(spr.RomAdr, () => ImageBuffers[spr.MemAdr] = s.SerializeArray<byte>(default, spr.Length, name: $"ImageBuffer_{spr.Name}"));
+
+                        // Get length of image descriptor array
+                        var imgDescLen = (orderedPointers[orderedPointers.FindItemIndex(x => x == spr.DescrAdr) + 1].AbsoluteOffset - spr.DescrAdr.AbsoluteOffset) / 0x10;
+
+                        // Serialize image descriptors
+                        s.DoAt(spr.DescrAdr, () => ImageBufferDescriptors[spr.MemAdr] = s.SerializeObjectArray<Common_ImageDescriptor>(default, imgDescLen, name: $"ImageBufferDescriptors_{spr.Name}"));
+                    }
+                }
             }
         }
 

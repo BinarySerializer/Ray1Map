@@ -81,33 +81,41 @@ namespace R1Engine
 
 				States = temp.ToArray();
 			}
-			s.DoAt(ImageDescriptorsPointer, () => {
-				// TODO: This doesn't seem to work consistently at all - fallback to previous method for now
-				if (States != null && States.Length > 0) {
-					int maxImageIndex = States
-						.Where(x => x?.Layers != null)
-						.SelectMany(x => x.Layers)
-						.Max(x => /*UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) :*/ x.ImageIndex);
-					ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
-					//Debug.Log(ImageDescriptors.Length);
-				} else {
-					var temp = new List<Common_ImageDescriptor>();
 
-					var index = 0;
-					while (true) {
-						var i = s.SerializeObject<Common_ImageDescriptor>(default, name: $"{nameof(ImageDescriptors)}[{index}]");
+			if (s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto)
+            {
+                s.DoAt(ImageDescriptorsPointer, () => {
+                    // TODO: This doesn't seem to work consistently at all - fallback to previous method for now
+                    if (States != null && States.Length > 0)
+                    {
+                        int maxImageIndex = States
+                            .Where(x => x?.Layers != null)
+                            .SelectMany(x => x.Layers)
+                            .Max(x => /*UShort_12 == 5 ? BitHelpers.ExtractBits(x.ImageIndex, 7, 0) :*/ x.ImageIndex);
+                        ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, maxImageIndex + 1, name: nameof(ImageDescriptors));
+                        //Debug.Log(ImageDescriptors.Length);
+                    }
+                    else
+                    {
+                        var temp = new List<Common_ImageDescriptor>();
 
-						if (temp.Any() && i.Index != 0xFF && i.ImageBufferOffset < temp.Last().ImageBufferOffset)
-							break;
+                        var index = 0;
+                        while (true)
+                        {
+                            var i = s.SerializeObject<Common_ImageDescriptor>(default, name: $"{nameof(ImageDescriptors)}[{index}]");
 
-						temp.Add(i);
+                            if (temp.Any() && i.Index != 0xFF && i.ImageBufferOffset < temp.Last().ImageBufferOffset)
+                                break;
 
-						index++;
-					}
+                            temp.Add(i);
 
-					ImageDescriptors = temp.ToArray();
-				}
-			});
+                            index++;
+                        }
+
+                        ImageDescriptors = temp.ToArray();
+                    }
+                });
+            }
 		}
     }
 }
