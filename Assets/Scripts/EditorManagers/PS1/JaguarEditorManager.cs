@@ -10,8 +10,12 @@ namespace R1Engine
     /// </summary>
     public class JaguarEditorManager : BaseEditorManager
     {
-        public JaguarEditorManager(Common_Lev level, Context context, IDictionary<string, Common_Design> des, IDictionary<string, Common_EventState[][]> eta) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(des), new ReadOnlyDictionary<string, Common_EventState[][]>(eta))
-        { }
+        public JaguarEditorManager(Common_Lev level, Context context, IDictionary<string, Common_Design> des, IDictionary<string, Common_EventState[][]> eta, IDictionary<string, string[][]> etaNames) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(des), new ReadOnlyDictionary<string, Common_EventState[][]>(eta))
+        {
+            ETANames = new ReadOnlyDictionary<string, string[][]>(etaNames);
+        }
+
+        public override IReadOnlyDictionary<string, string[][]> ETANames { get; }
 
         // NOTE: Jaguar doesn't use commands!
         /// <summary>

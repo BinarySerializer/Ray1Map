@@ -91,6 +91,9 @@ namespace R1Engine
         /// </summary>
         public IReadOnlyDictionary<string, Common_EventState[][]> ETA { get; }
 
+        // Optional names for the states
+        public virtual IReadOnlyDictionary<string, string[][]> ETANames => null;
+
         /// <summary>
         /// The available event type names
         /// </summary>

@@ -217,11 +217,13 @@ namespace R1Engine
 
         private float memoryLoadTimer = 0;
 
+        private Common_EventState[] lastSubEtat;
+
         private void UpdateEventFields()
         {
             // Update Etat and SubEtat drop downs
             var etatLength = SelectedEvent?.Data.ETAKey == null ? 0 : EditorManager.ETA.TryGetItem(SelectedEvent.Data.ETAKey)?.Length ?? 0;
-            var subEtatLength = SelectedEvent == null ? 0 : EditorManager.ETA.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat)?.Length ?? 0;
+            var subEtatArray = SelectedEvent == null ? null : EditorManager.ETA.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat);
 
             if (infoEtat.options.Count != etatLength)
             {
@@ -236,18 +238,25 @@ namespace R1Engine
 
                 //Debug.Log($"Etat array updated to size {etatLength}");
             }
-            if (infoSubEtat.options.Count != subEtatLength)
+            if (lastSubEtat != subEtatArray)
             {
+                var length = subEtatArray?.Length ?? 0;
+
                 // Clear old options
                 infoSubEtat.options.Clear();
 
                 // Set new options
-                infoSubEtat.options.AddRange(Enumerable.Range(0, subEtatLength).Select(x => new Dropdown.OptionData
+                infoSubEtat.options.AddRange(Enumerable.Range(0, length).Select(x => new Dropdown.OptionData
                 {
-                    text = x.ToString()
+                    text = EditorManager.ETANames?.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat)?.ElementAtOrDefault(x) ?? x.ToString()
                 }));
 
-                //Debug.Log($"SubEtat array updated to size {subEtatLength}");
+                lastSubEtat = subEtatArray;
+
+                // Force refresh
+                infoSubEtat.value = -1;
+
+                //Debug.Log($"SubEtat array updated to size {length}");
             }
 
             // Make sure Etat and SubEtat indexes are not out of range
@@ -313,7 +322,12 @@ namespace R1Engine
             updateDropDown<byte>(infoEtat, SelectedEvent?.Data.Data.Etat ?? 0);
 
             // SubEtat
-            updateDropDown<byte>(infoSubEtat, SelectedEvent?.Data.Data.SubEtat ?? 0);
+            var seName = SelectedEvent != null ? EditorManager.ETANames?.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat)?.ElementAtOrDefault(SelectedEvent.Data.Data.SubEtat) : null;
+
+            if (seName != null)
+                updateDropDown<string>(infoSubEtat, seName);
+            else
+                updateDropDown<byte>(infoSubEtat, SelectedEvent?.Data.Data.SubEtat ?? 0);
 
             // OffsetBX
             updateInputField<byte>(infoOffsetBx, SelectedEvent?.Data.Data.OffsetBX ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);

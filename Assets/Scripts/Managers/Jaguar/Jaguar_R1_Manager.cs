@@ -794,7 +794,7 @@ namespace R1Engine
             }
         }
 
-        public Editor_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<string, Common_Design> eventDesigns, Dictionary<string, Common_EventState[][]> eventETA, bool loadTextures) 
+        public Editor_EventData CreateEventData(Context c, Jaguar_R1_EventDefinition ed, Dictionary<string, Common_Design> eventDesigns, Dictionary<string, Common_EventState[][]> eventETA, Dictionary<string, string[][]> eventETANames, bool loadTextures) 
         {
             if (ed == null) 
                 return null;
@@ -802,7 +802,7 @@ namespace R1Engine
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, c);
 
             // Helper method to get the name for a pointer
-            string GetPointerName(Pointer p) => c.Settings.EngineVersion != EngineVersion.RayJaguarProto ? (p?.ToString() ?? String.Empty) : rom.References.First(x => x.DataPointer == p).String;
+            string GetPointerName(Pointer p) => c.Settings.EngineVersion != EngineVersion.RayJaguarProto ? (p?.ToString() ?? String.Empty) : rom.References.FirstOrDefault(x => x.DataPointer == p)?.String ?? (p?.ToString() ?? String.Empty);
 
             // Get the DES key (normally the offset of the event definition, but in the prototype we have strings we can use)
             var desKey = GetPointerName(ed.Offset);
@@ -902,12 +902,21 @@ namespace R1Engine
                                 }
                             }
                         };
+                        var stateNames = new string[][]
+                        {
+                            new string[]
+                            {
+                                GetPointerName(ed.AnimationPointer - 4)
+                            },
+                        };
                         eventETA.Add(etatKey, states);
+                        eventETANames?.Add(etatKey, stateNames);
                     } else {
                         var validStates = ed.States.Where(x => x.Animation != null).ToArray();
 
                         // Create a common state array
                         var states = new Common_EventState[validStates.Length][];
+                        var stateNames = new string[validStates.Length][];
 
                         // Add dummy states
                         for (byte s = 0; s < states.Length; s++) {
@@ -919,25 +928,32 @@ namespace R1Engine
 
                             states[s] = new Common_EventState[]
                             {
-                            new Common_EventState {
-                                AnimationIndex = s,
-                                LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                AnimationSpeed = (byte)(validStates[s].AnimationSpeed & 0b1111),
-                            }
+                                new Common_EventState {
+                                    AnimationIndex = s,
+                                    LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
+                                    AnimationSpeed = (byte)(validStates[s].AnimationSpeed & 0b1111),
+                                }
+                            };
+                            stateNames[s] = new string[]
+                            {
+                                GetPointerName(validStates[s].AnimationPointer)
                             };
                         }
 
                         // Add to the states
                         eventETA.Add(etatKey, states);
+                        eventETANames?.Add(etatKey, stateNames);
                     }
                 } else {
                     List<Jaguar_R1_EventComplexData> cds = new List<Jaguar_R1_EventComplexData>();
                     List<Common_EventState[]> states = new List<Common_EventState[]>();
+                    List<string[]> stateNames = new List<string[]>();
                     void AddComplexData(Jaguar_R1_EventComplexData cd) {
                         if (cd == null || cds.Contains(cd)) return;
                         cds.Add(cd);
                         var validStates = cd.States.Where(x => x.Layers?.Length > 0).ToArray();
                         var substates = new Common_EventState[validStates.Length];
+                        var substateNames = new string[validStates.Length];
                         for (byte s = 0; s < substates.Length; s++) {
                             var stateLinkIndex = -1;
                             if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < cd.States.Length) {
@@ -951,9 +967,12 @@ namespace R1Engine
                                 LinkedSubEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
                                 AnimationSpeed = (byte)(validStates[s].UnkBytes[0] & 0b1111),
                             };
+                            substateNames[s] = GetPointerName(validStates[s].AnimationPointer - 4);
                         }
 
                         states.Add(substates);
+                        stateNames.Add(substateNames);
+                        
                         if (cd.Transitions != null) {
                             foreach (Jaguar_R1_EventComplexDataTransition t in cd.Transitions) {
                                 AddComplexData(t.ComplexData);
@@ -964,6 +983,7 @@ namespace R1Engine
 
                     // Add to the states
                     eventETA.Add(etatKey, states.ToArray());
+                    eventETANames?.Add(etatKey, stateNames.ToArray());
                 }
             }
 
@@ -1132,6 +1152,7 @@ namespace R1Engine
 
             var eventDesigns = new Dictionary<string, Common_Design>();
             var eventETA = new Dictionary<string, Common_EventState[][]>();
+            var eventETANames = context.Settings.EngineVersion == EngineVersion.RayJaguarProto ? new Dictionary<string, string[][]>() : null;
 
             var eventIndex = 0;
 
@@ -1150,12 +1171,12 @@ namespace R1Engine
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
 
-            var rayPos = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman position
-            var gendoor = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, loadTextures) : null; // Gendoor
-            var piranha = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, loadTextures) : null; // Piranha
-            var scroll = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual]), eventDesigns, eventETA, loadTextures) : null; // Scroll
-            var rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, loadTextures) : null; // Rayman on Bzzit
-            var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDesigns, eventETA, loadTextures) : null; // Bzzit (demo)
+            var rayPos = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Rayman position
+            var gendoor = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Gendoor
+            var piranha = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Piranha
+            var scroll = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Scroll
+            var rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Rayman on Bzzit
+            var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Bzzit (demo)
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
@@ -1230,7 +1251,7 @@ namespace R1Engine
 						predeterminedState = e.EventDefinition.UnkBytes[5];
 					}*/
                     // Add the event
-                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, loadTextures); ;
+                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures); ;
                     uniqueEvents[e.EventIndex] = eventData;
                     eventData.LinkIndex = linkIndex;
                     eventData.Data.XPosition = (short)(mapX + e.OffsetX);
@@ -1332,7 +1353,7 @@ namespace R1Engine
                 }
             }*/
 
-            return new JaguarEditorManager(commonLev, context, eventDesigns, eventETA);
+            return new JaguarEditorManager(commonLev, context, eventDesigns, eventETA, eventETANames);
         }
 
         /// <summary>
