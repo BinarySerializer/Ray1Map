@@ -12,6 +12,7 @@ namespace R1Engine
         public ushort StructType { get; set; } // Read from EventDefinition
 		public ushort NumLayers { get; set; }
 
+        public Pointer[] UnkPointers { get; set; }
         public byte[] UnkBytes { get; set; }
         public Pointer ImageDescriptorsPointer { get; set; }
         public Jaguar_R1_EventComplexDataTransition[] Transitions { get; set; }
@@ -27,11 +28,14 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
+            if (s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto && StructType != 29)
+                UnkPointers = s.SerializePointerArray(UnkPointers, 64, allowInvalid: true, name: nameof(UnkPointers));
+
             if (StructType != 29) {
                 UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x10, name: nameof(UnkBytes));
             }
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
-            if (StructType != 29) {
+            if (StructType != 29 && s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto) {
                 Transitions = s.SerializeObjectArray<Jaguar_R1_EventComplexDataTransition>(Transitions, 7, onPreSerialize: g => {
 					g.StructType = StructType;
 					g.NumLayers = NumLayers;

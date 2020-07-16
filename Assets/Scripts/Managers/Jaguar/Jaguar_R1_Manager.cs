@@ -801,8 +801,17 @@ namespace R1Engine
 
             var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, c);
 
+            var usedNames = new List<string>();
             // Helper method to get the name for a pointer
-            string GetPointerName(Pointer p) => c.Settings.EngineVersion != EngineVersion.RayJaguarProto ? (p?.ToString() ?? String.Empty) : rom.References.FirstOrDefault(x => x.DataPointer == p)?.String ?? (p?.ToString() ?? String.Empty);
+            string GetPointerName(Pointer p)
+            {
+                var name = c.Settings.EngineVersion != EngineVersion.RayJaguarProto
+                    ? (p?.ToString() ?? String.Empty)
+                    : rom.References.FirstOrDefault(x => x.DataPointer == p && !usedNames.Contains(x.String))?.String ?? (p?.ToString() ?? String.Empty);
+
+                usedNames.Add(name);
+                return name;
+            }
 
             // Get the DES key (normally the offset of the event definition, but in the prototype we have strings we can use)
             var desKey = GetPointerName(ed.Offset);
@@ -1342,7 +1351,7 @@ namespace R1Engine
             {
                 try
                 {
-                    var eventData = CreateEventData(context, def, eventDesigns, eventETA, loadTextures);
+                    var eventData = CreateEventData(context, def, eventDesigns, eventETA, eventETANames, loadTextures);
                     eventData.LinkIndex = ind;
                     eventData.Data.XPosition = (short)(ind * 20);
                     eventData.DebugText = $"EventDefinitionPointer: {def.Offset}{Environment.NewLine}";
