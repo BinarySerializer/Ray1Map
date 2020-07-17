@@ -192,8 +192,8 @@ namespace R1Engine
 
             // TODO: Allow this to be configured | THIS whole part should be refactored, the foreach after is bad
 
-            // Hide Rayman
-            if (RaymanEvent != null)
+            // Hide Rayman (except in Jaguar proto)
+            if (RaymanEvent != null && Controller.CurrentSettings.EngineVersion != EngineVersion.RayJaguarProto)
                 RaymanEvent.gameObject.SetActive(false);
 
             // Hide unused links and show gendoors
