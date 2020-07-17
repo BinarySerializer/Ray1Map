@@ -1371,7 +1371,7 @@ namespace R1Engine
                     eventData.Data.XPosition = (int)rom.GetProtoDataReference(Jaguar_R1Proto_References.ray_center_x).DataValue;
                     eventData.Data.YPosition = (int)rom.GetProtoDataReference(Jaguar_R1Proto_References.ray_center_y).DataValue;
                     eventData.Data.SubEtat = 7;
-                    commonLev.EventData.Add(eventData);
+                    commonLev.Rayman = eventData;
                 }
                 /*foreach (var ed in eventDefs) {// Add the event
                     var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures);
