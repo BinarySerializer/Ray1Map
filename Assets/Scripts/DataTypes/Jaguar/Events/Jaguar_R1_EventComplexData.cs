@@ -31,11 +31,13 @@ namespace R1Engine
             if (s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto && StructType != 29)
                 UnkPointers = s.SerializePointerArray(UnkPointers, 64, allowInvalid: true, name: nameof(UnkPointers));
 
-            if (StructType != 29) {
+            if (StructType != 29)
                 UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x10, name: nameof(UnkBytes));
-            }
+
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
-            if (StructType != 29 && (s.GameSettings.EngineVersion != EngineVersion.RayJaguarProto || StructType == 6)) {
+
+            if (StructType != 29) 
+            {
                 Transitions = s.SerializeObjectArray<Jaguar_R1_EventComplexDataTransition>(Transitions, s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto ? 5 : 7, onPreSerialize: g => {
 					g.StructType = StructType;
 					g.NumLayers = NumLayers;
@@ -120,6 +122,6 @@ namespace R1Engine
                     }
                 });
             }
-		}
+        }
     }
 }
