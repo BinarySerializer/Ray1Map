@@ -254,7 +254,7 @@ namespace R1Engine
                 lastSubEtat = subEtatArray;
 
                 // Force refresh
-                infoSubEtat.value = -1;
+                //infoSubEtat.value = -1;
 
                 //Debug.Log($"SubEtat array updated to size {length}");
             }
