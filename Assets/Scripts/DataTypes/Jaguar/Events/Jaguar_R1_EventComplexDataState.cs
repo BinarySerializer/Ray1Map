@@ -61,6 +61,8 @@
             // The layer index
             var layer = 0;
 
+            var ignoreYBit = Context.Settings.EngineVersion == EngineVersion.RayJaguarProto && AnimationPointer.AbsoluteOffset == 0x00811DDC;
+
             // Create each frame
             for (int i = 0; i < FrameCount; i++) {
                 // Create the frame
@@ -81,14 +83,14 @@
                             part = new Common_AnimationPart {
                                 ImageIndex = BitHelpers.ExtractBits(animationLayer.ImageIndex, 7, 0),
                                 XPosition = animationLayer.XPosition,
-                                YPosition = animationLayer.YPosition,
+                                YPosition = ignoreYBit ? BitHelpers.ExtractBits(animationLayer.YPosition, 7, 0) : animationLayer.YPosition,
                                 IsFlippedHorizontally = BitHelpers.ExtractBits(animationLayer.ImageIndex, 1, 7) != 0
                             };
                         } else {
                             part = new Common_AnimationPart {
                                 ImageIndex = animationLayer.ImageIndex,
                                 XPosition = BitHelpers.ExtractBits(animationLayer.XPosition, 7, 0),
-                                YPosition = animationLayer.YPosition,
+                                YPosition = ignoreYBit ? BitHelpers.ExtractBits(animationLayer.YPosition, 7, 0) : animationLayer.YPosition,
                                 IsFlippedHorizontally = BitHelpers.ExtractBits(animationLayer.XPosition, 1, 7) != 0
                             };
                         }
