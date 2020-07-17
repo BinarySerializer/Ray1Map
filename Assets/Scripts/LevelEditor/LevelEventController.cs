@@ -254,7 +254,9 @@ namespace R1Engine
                 lastSubEtat = subEtatArray;
 
                 // Force refresh
-                //infoSubEtat.value = -1;
+                int? subEtat = SelectedEvent?.Data.Data.SubEtat;
+                infoSubEtat.value = (subEtat != null && subEtat.Value < subEtatArray.Length ? subEtat.Value : 0);
+                infoSubEtat.RefreshShownValue();
 
                 //Debug.Log($"SubEtat array updated to size {length}");
             }
