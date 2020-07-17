@@ -62,6 +62,18 @@ namespace R1Engine
                 // Serialize the rom
                 var rom = FileFactory.Read<Jaguar_R1_ROM>(GetROMFilePath, context);
 
+                var usedNames = new List<string>();
+                // Helper method to get the name for a pointer
+                string GetPointerName(Pointer p)
+                {
+                    string name = rom.References.FirstOrDefault(x => x.DataPointer == p && !usedNames.Contains(x.String))
+                                   ?.String ?? $"{rom.References.First(x => x.DataPointer == p)?.String}";
+
+                    usedNames.Add(name);
+
+                    return name;
+                }
+
                 // Enumerate every graphics
                 foreach (var sprKey in rom.ImageBuffers.Keys)
                 {
@@ -141,7 +153,7 @@ namespace R1Engine
                             // Export every animation
                             foreach (var anim in animations.Where(x => x.Anim.Frames.Any()))
                             {
-                                var animName = rom.References.First(x => x.DataPointer == anim.Pointer).String;
+                                var animName = GetPointerName(anim.Pointer);
 
                                 // Get the folder
                                 var animFolderPath = Path.Combine(outputDir, "Jungle", desName, $"{animName}-{anim.AnimationSpeed}");
