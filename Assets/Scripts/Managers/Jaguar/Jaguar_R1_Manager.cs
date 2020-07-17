@@ -803,18 +803,30 @@ namespace R1Engine
 
             var usedNames = new List<string>();
             // Helper method to get the name for a pointer
-            string GetPointerName(Pointer p)
+            string GetPointerName(Pointer p, int subEtat = 0, bool desEtaName = false)
             {
-                var name = c.Settings.EngineVersion != EngineVersion.RayJaguarProto
-                    ? (p?.ToString() ?? String.Empty)
-                    : rom.References.FirstOrDefault(x => x.DataPointer == p && !usedNames.Contains(x.String))?.String ?? (p?.ToString() ?? String.Empty);
+                string name;
 
+                if (c.Settings.EngineVersion != EngineVersion.RayJaguarProto)
+                    name = p?.ToString() ?? String.Empty;
+                // Need to do last here to get the correct event name for Rayman
+                else if (desEtaName)
+                    name = rom.References.LastOrDefault(x => x.DataPointer == p && !usedNames.Contains(x.String))
+                               ?.String ?? p?.ToString() ?? String.Empty;
+                // Need to save used names here to avoid getting the same name for animations
+                else
+                    name = rom.References.FirstOrDefault(x => x.DataPointer == p && !usedNames.Contains(x.String))
+                               ?.String ??
+                           $"{rom.References.FirstOrDefault(x => x.DataPointer == p)?.String} [{subEtat}]";
+
+                
                 usedNames.Add(name);
+                
                 return name;
             }
 
             // Get the DES key (normally the offset of the event definition, but in the prototype we have strings we can use)
-            var desKey = GetPointerName(ed.Offset);
+            var desKey = GetPointerName(ed.Offset, 0, true);
 
             int? predeterminedState = null;
 
@@ -895,7 +907,7 @@ namespace R1Engine
                 etatKeyOffset = ed.ComplexData.Transitions != null ? ed.ComplexData.Transitions[0].Offset : ed.ComplexData.Offset;
             }
 
-            var etatKey = etatKeyOffset != null ? GetPointerName(etatKeyOffset) : String.Empty;
+            var etatKey = etatKeyOffset != null ? GetPointerName(etatKeyOffset, 0, true) : String.Empty;
 
             // Add ETAT if not found
             if (etatKeyOffset != null && !eventETA.ContainsKey(etatKey)) {
@@ -945,7 +957,7 @@ namespace R1Engine
                             };
                             stateNames[s] = new string[]
                             {
-                                GetPointerName(validStates[s].AnimationPointer)
+                                GetPointerName(validStates[s].AnimationPointer, s)
                             };
                         }
 
@@ -976,7 +988,7 @@ namespace R1Engine
                                 LinkedSubEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
                                 AnimationSpeed = (byte)(validStates[s].UnkBytes[0] & 0b1111),
                             };
-                            substateNames[s] = GetPointerName(validStates[s].AnimationPointer - 4);
+                            substateNames[s] = GetPointerName(validStates[s].AnimationPointer - 4, s);
                         }
 
                         states.Add(substates);
