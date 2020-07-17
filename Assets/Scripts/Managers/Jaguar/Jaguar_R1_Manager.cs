@@ -877,8 +877,10 @@ namespace R1Engine
                     finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation(ed)));
                 } else if (ed.ComplexData != null) {
                     if (ed.ComplexData.Transitions != null) {
-                        foreach (var graphref in ed.ComplexData.Transitions) {
-                            if (graphref.ComplexData?.States == null) continue;
+                        foreach (var graphref in ed.ComplexData.Transitions) 
+                        {
+                            if (graphref.ComplexData?.States == null || (c.Settings.EngineVersion == EngineVersion.RayJaguarProto && graphref.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset)) 
+                                continue;
                             finalDesign.Animations.AddRange(graphref.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                         }
                     } else {
@@ -971,18 +973,25 @@ namespace R1Engine
                     List<string[]> stateNames = new List<string[]>();
                     void AddComplexData(Jaguar_R1_EventComplexData cd) {
                         if (cd == null || cds.Contains(cd)) return;
+
+                        if ((c.Settings.EngineVersion == EngineVersion.RayJaguarProto && cd.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                            return;
+
                         cds.Add(cd);
                         var validStates = cd.States.Where(x => x.Layers?.Length > 0).ToArray();
                         var substates = new Common_EventState[validStates.Length];
                         var substateNames = new string[validStates.Length];
-                        for (byte s = 0; s < substates.Length; s++) {
+                        for (byte s = 0; s < substates.Length; s++)
+                        {
                             var stateLinkIndex = -1;
-                            if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < cd.States.Length) {
+                            if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < cd.States.Length)
+                            {
                                 var linkedState = cd.States[validStates[s].LinkedStateIndex - 1];
                                 stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
                             }
 
-                            substates[s] = new Common_EventState {
+                            substates[s] = new Common_EventState
+                            {
                                 AnimationIndex = s,
                                 LinkedEtat = (byte)states.Count,
                                 LinkedSubEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
@@ -993,7 +1002,7 @@ namespace R1Engine
 
                         states.Add(substates);
                         stateNames.Add(substateNames);
-                        
+
                         if (cd.Transitions != null) {
                             foreach (Jaguar_R1_EventComplexDataTransition t in cd.Transitions) {
                                 AddComplexData(t.ComplexData);

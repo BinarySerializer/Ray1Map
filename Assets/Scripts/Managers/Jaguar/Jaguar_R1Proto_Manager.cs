@@ -112,7 +112,7 @@ namespace R1Engine
                                     Pointer = x.AnimationPointer - 4
                                 });
 
-                                if (animComplex != null) 
+                                if (animComplex != null && cd.ImageDescriptorsPointer == imgDescr.First().Offset) 
                                     animations.AddRange(animComplex);
 
                                 if (cd.Transitions != null)
