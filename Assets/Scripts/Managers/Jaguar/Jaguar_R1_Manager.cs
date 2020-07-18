@@ -877,11 +877,11 @@ namespace R1Engine
                     finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation(ed)));
                 } else if (ed.ComplexData != null) {
                     if (ed.ComplexData.Transitions != null) {
-                        foreach (var graphref in ed.ComplexData.Transitions) 
+                        foreach (var transition in ed.ComplexData.Transitions) 
                         {
-                            if (graphref.ComplexData?.States == null || (c.Settings.EngineVersion == EngineVersion.RayJaguarProto && graphref.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset)) 
+                            if (transition.ComplexData?.States == null || (c.Settings.EngineVersion == EngineVersion.RayJaguarProto && transition.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset)) 
                                 continue;
-                            finalDesign.Animations.AddRange(graphref.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
+                            finalDesign.Animations.AddRange(transition.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                         }
                     } else {
                         if (ed.ComplexData.States != null) {
@@ -971,6 +971,7 @@ namespace R1Engine
                     List<Jaguar_R1_EventComplexData> cds = new List<Jaguar_R1_EventComplexData>();
                     List<Common_EventState[]> states = new List<Common_EventState[]>();
                     List<string[]> stateNames = new List<string[]>();
+                    int curAnimIndex = 0;
                     void AddComplexData(Jaguar_R1_EventComplexData cd) {
                         if (cd == null || cds.Contains(cd)) return;
 
@@ -992,7 +993,7 @@ namespace R1Engine
 
                             substates[s] = new Common_EventState
                             {
-                                AnimationIndex = s,
+                                AnimationIndex = (byte)curAnimIndex++,
                                 LinkedEtat = (byte)states.Count,
                                 LinkedSubEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
                                 AnimationSpeed = (byte)(validStates[s].UnkBytes[0] & 0b1111),
