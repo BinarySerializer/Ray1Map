@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Asyncoroutine;
 using UnityEditor;
 using UnityEngine;
 
@@ -239,7 +240,7 @@ public class SettingsWindow : UnityWindow
         if (Settings.Log)
             Settings.LogFile = FileField(rect, "Serialization log File", Settings.LogFile, true, "txt", includeLabel: false);
 
-        // Tools
+        // Game Tools
 
         DrawHeader(ref yPos, "Game Tools");
 
@@ -250,7 +251,7 @@ public class SettingsWindow : UnityWindow
             CurrentGameActions = Settings.GetGameManager.GetGameActions(Settings.GetGameSettings);
         }
 
-        // Add every export option
+        // Add every game action
         foreach (GameAction action in CurrentGameActions)
         {
             if (GUI.Button(GetNextRect(ref yPos), action.DisplayName))
@@ -270,6 +271,72 @@ public class SettingsWindow : UnityWindow
                 await action.GameActionFunc(inputDir, outputDir);
             }
         }
+
+        // Global Tools
+
+        DrawHeader(ref yPos, "Global Tools");
+
+        async Task AddGlobalActionAsync(string actionName)
+        {
+            if (GUI.Button(GetNextRect(ref yPos), actionName))
+            {
+                // Get the output directory
+                string outputDir = EditorUtility.OpenFolderPanel("Select output directory", null, "");
+
+                if (string.IsNullOrEmpty(outputDir))
+                    return;
+
+                // Run each action
+                foreach (var mode in EnumHelpers.GetValues<GameModeSelection>())
+                {
+                    // Make sure the mode is valid
+                    if (!Settings.GameDirectories.ContainsKey(mode))
+                    {
+                        Debug.LogWarning($"Mode {mode} was skipped due to not having a valid directory");
+                        continue;
+                    }
+
+                    // Create settings
+                    var settings = new GameSettings(mode, Settings.GameDirectories[mode]);
+
+                    // Get manager
+                    var manager = settings.GetGameManager;
+
+                    // Set to default EDU volume
+                    settings.EduVolume = manager.GetEduVolumes(settings).FirstOrDefault();
+
+                    // Get action
+                    var action = manager.GetGameActions(settings).FirstOrDefault(x => x.DisplayName.Equals(actionName, StringComparison.CurrentCultureIgnoreCase));
+
+                    // Make sure an action was found
+                    if (action == null)
+                    {
+                        Debug.LogWarning($"Mode {mode} was skipped due to not having a matching action");
+                        continue;
+                    }
+
+                    try
+                    {
+                        // Run the action
+                        await action.GameActionFunc(null, Path.Combine(outputDir, mode.ToString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Mode {mode} failed with exception: {ex.Message}");
+                    }
+                    finally
+                    {
+                        // Unload textures
+                        await Resources.UnloadUnusedAssets();
+                    }
+                }
+            }
+        }
+
+        // Add special game actions
+        await AddGlobalActionAsync("Export Sprites");
+        await AddGlobalActionAsync("Export Animation Frames");
+        await AddGlobalActionAsync("Export Vignette");
 
         // Update previous values
         PrevGameActionValues.UpdatePreviousValues();
