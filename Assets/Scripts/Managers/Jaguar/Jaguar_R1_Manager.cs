@@ -1320,7 +1320,7 @@ namespace R1Engine
                             if (context.Settings.EngineVersion == EngineVersion.RayJaguarDemo)
                                 eventData.Data.Etat = 1;
                         }
-                        else if (ed.Offset == specialPointers[SpecialEventType.ScrollFast] || ed.Offset == specialPointers[SpecialEventType.ScrollSlow]) // Scroll fast/slow
+                        else if ((ed.Offset == specialPointers[SpecialEventType.ScrollFast] || ed.Offset == specialPointers[SpecialEventType.ScrollSlow]) && !Settings.ScreenshotEnumeration) // Scroll fast/slow
                         {
                             eventData.DESKey = scroll.DESKey;
                             eventData.ETAKey = scroll.ETAKey;
