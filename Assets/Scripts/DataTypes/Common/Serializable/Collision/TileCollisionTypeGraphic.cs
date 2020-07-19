@@ -1,10 +1,6 @@
 ﻿namespace R1Engine
 {
-    // TODO: Split up between R1 & EDU/KIT
-    /// <summary>
-    /// The tile collision types for Rayman 1
-    /// </summary>
-    public enum R1_TileCollisionType : byte
+    public enum TileCollisionTypeGraphic
     {
         None = 0,
         Reactionary = 1,
@@ -23,6 +19,7 @@
         Passthrough = 14,
         Solid = 15,
         Seed = 16,
+        Unknown0 = 17,
         Slippery_Steep_Left = 18,
         Slippery_Steep_Right = 19,
         Slippery_Slight_Left_1 = 20,
@@ -31,6 +28,10 @@
         Slippery_Slight_Right_1 = 23,
         Spikes = 24,
         Cliff = 25,
+        Unknown1 = 26,
+        Unknown2 = 27,
+        Unknown3 = 28,
+        Unknown4 = 29,
         Slippery = 30
     }
 }
