@@ -20,7 +20,7 @@ namespace R1Engine
         /// <summary>
         /// The tile collision type
         /// </summary>
-        public TileCollisionType CollisionType { get; set; }
+        public byte CollisionType { get; set; }
 
         public byte PC_Unk1 { get; set; }
 
@@ -41,13 +41,13 @@ namespace R1Engine
             {
                 TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 TileMapX = 0;
-                CollisionType = (TileCollisionType)s.Serialize<ushort>((ushort)CollisionType, name: nameof(CollisionType));
+                CollisionType = (byte)s.Serialize<ushort>((ushort)CollisionType, name: nameof(CollisionType));
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PC)
             {
                 TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 TileMapX = 0;
-                CollisionType = s.Serialize<TileCollisionType>(CollisionType, name: nameof(CollisionType));
+                CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
                 PC_Unk1 = s.Serialize<byte>(PC_Unk1, name: nameof(PC_Unk1));
                 PC_TransparencyMode = s.Serialize<PC_MapTileTransparencyMode>(PC_TransparencyMode, name: nameof(PC_TransparencyMode));
                 PC_Unk2 = s.Serialize<byte>(PC_Unk2, name: nameof(PC_Unk2));
@@ -64,7 +64,7 @@ namespace R1Engine
 
                 TileMapX = (ushort)BitHelpers.ExtractBits(value, 10, 0);
                 TileMapY = (ushort)BitHelpers.ExtractBits(value, 6, 10);
-                CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 8, 16);
+                CollisionType = (byte)BitHelpers.ExtractBits(value, 8, 16);
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.RaySaturn)
             {
@@ -78,7 +78,7 @@ namespace R1Engine
                 TileMapX = (ushort)BitHelpers.ExtractBits(value, 4, 0);
                 TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 4);
 
-                CollisionType = (TileCollisionType)s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
+                CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
 
                 // TODO: Serialize this? Is it part of collision type? This appears in other PS1 versions too and is skipped there. It appears to always be 0 though.
                 s.Serialize<byte>(0);
@@ -94,7 +94,7 @@ namespace R1Engine
 
                 TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0);
                 TileMapX = 0;
-                CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 4, 12);
+                CollisionType = (byte)BitHelpers.ExtractBits(value, 4, 12);
             }
             else
             {
@@ -115,13 +115,13 @@ namespace R1Engine
                 {
                     TileMapX = (ushort)BitHelpers.ExtractBits(value, 4, 0);
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, 6, 4);
-                    CollisionType = (TileCollisionType)(BitHelpers.ExtractBits(value, 6, 10));
+                    CollisionType = (byte)(BitHelpers.ExtractBits(value, 6, 10));
                 }
                 else if (s.GameSettings.EngineVersion == EngineVersion.RayPS1JP)
                 {
                     TileMapX = (ushort)BitHelpers.ExtractBits(value, 9, 0);
                     TileMapY = 0;
-                    CollisionType = (TileCollisionType)BitHelpers.ExtractBits(value, 7, 9);
+                    CollisionType = (byte)BitHelpers.ExtractBits(value, 7, 9);
                 }
             }
         }

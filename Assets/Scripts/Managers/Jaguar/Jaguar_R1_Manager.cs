@@ -1405,7 +1405,7 @@ namespace R1Engine
                 }
             }*/
 
-            return new JaguarEditorManager(commonLev, context, eventDesigns, eventETA, eventETANames);
+            return new Jaguar_EditorManager(commonLev, context, eventDesigns, eventETA, eventETANames);
         }
 
         /// <summary>

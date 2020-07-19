@@ -365,7 +365,7 @@ namespace R1Engine
             c.Maps[0].MapTiles = map.Tiles.Select(x => new Editor_MapTile(x)).ToArray();
 
             // Return an editor manager
-            return new PS1EditorManager(c, context, eventDesigns, eventETA, events);
+            return new PS1_EditorManager(c, context, eventDesigns, eventETA, events);
         }
 
         /// <summary>

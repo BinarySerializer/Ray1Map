@@ -47,7 +47,7 @@ namespace R1Engine
         public EditMode currentMode;
         //Current type
         [HideInInspector]
-        public TileCollisionType currentType;
+        public R1_TileCollisionType currentType;
 
         // Current map index
         public int currentMap => lvlController.EditorManager.Level.DefaultMap;
@@ -132,10 +132,6 @@ namespace R1Engine
                 b.normalColor = new Color(0.5f, 0.5f, 0.5f);
             }
             visibilityButtons[which].colors = b;
-        }
-
-        public void SetCurrentType(int type) {
-            currentType = (TileCollisionType)type;
         }
 
         /*
@@ -394,7 +390,7 @@ namespace R1Engine
                                     var t = map.GetMapTile(x, y);
                                     TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, currentType);
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, (byte)currentType);
 
                                     t.HasPendingEdits = true;
 

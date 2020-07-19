@@ -1036,7 +1036,7 @@ namespace R1Engine
                 }
             }
 
-            return new PS1EditorManager(commonLev, context, eventDesigns, eventETA, null);
+            return new PS1_EditorManager(commonLev, context, eventDesigns, eventETA, null);
         }
 
         /// <summary>

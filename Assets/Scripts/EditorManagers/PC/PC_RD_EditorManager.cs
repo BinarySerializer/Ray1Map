@@ -80,5 +80,9 @@ namespace R1Engine
         {
             return eventInfoData.DesKit.ContainsKey(Settings.World) && !String.IsNullOrWhiteSpace(eventInfoData.DesKit[Settings.World]);
         }
+
+        public override Enum GetCollisionTypeAsEnum(byte collisionType) => (R1_TileCollisionType)collisionType;
+
+        public override TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((R1_TileCollisionType)collisionType).GetCollisionTypeGraphic();
     }
 }

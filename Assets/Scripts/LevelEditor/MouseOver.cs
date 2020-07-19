@@ -48,17 +48,18 @@ namespace R1Engine
             // Else Mouse over type
             else {
                 Controller.obj.tempDebugText.text = String.Empty;
-                var t = Controller.obj.levelController.EditorManager?.Level?.Maps?.ElementAtOrDefault(tilemapController.editor.currentMap)?.GetMapTile((int)mousePositionTile.x, -(int)mousePositionTile.y);
+                var editorManager = Controller.obj.levelController.EditorManager;
+                var t = editorManager?.Level?.Maps?.ElementAtOrDefault(tilemapController.editor.currentMap)?.GetMapTile((int)mousePositionTile.x, -(int)mousePositionTile.y);
 
                 if (t != null) {
                     //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);
-                    textCollision.text = $"Collision: {t.Data.CollisionType}";
+                    textCollision.text = $"Collision: {editorManager.GetCollisionTypeAsEnum(t.Data.CollisionType)}";
                     textGraphic.text = $"Graphic tile: {t.Data.TileMapX}, {t.Data.TileMapY}";
 
                     // Set debug text
                     Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
                         ? $"{t.DebugText}{Environment.NewLine}" +
-                          $"Collision: {t.Data.CollisionType}{Environment.NewLine}" +
+                          $"Collision: {editorManager.GetCollisionTypeAsEnum(t.Data.CollisionType)}{Environment.NewLine}" +
                           $"PC_TransparencyMode: {t.Data.PC_TransparencyMode}{Environment.NewLine}" +
                           $"PC_Unk1: {t.Data.PC_Unk1}{Environment.NewLine}" +
                           $"PC_Unk2: {t.Data.PC_Unk2}{Environment.NewLine}" +

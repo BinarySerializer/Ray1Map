@@ -9,12 +9,11 @@ namespace R1Engine
     /// <summary>
     /// The editor manager for PS1
     /// </summary>
-    public class PS1EditorManager : BaseEditorManager
+    public class PS1_EditorManager : BaseEditorManager
     {
-        public PS1EditorManager(Common_Lev level, Context context, IDictionary<Pointer, Common_Design> des, IDictionary<Pointer, Common_EventState[][]> eta, EventData[] events) 
+        public PS1_EditorManager(Common_Lev level, Context context, IDictionary<Pointer, Common_Design> des, IDictionary<Pointer, Common_EventState[][]> eta, EventData[] events) 
             : base(level, context, new ReadOnlyDictionary<string, Common_Design>(des.ToDictionary(x => x.Key.ToString(), x => x.Value)), new ReadOnlyDictionary<string, Common_EventState[][]>(eta.ToDictionary(x => x.Key.ToString(), x => x.Value)))
         {
-            // TODO: Different PS1 versions may use different event object, so for now we need to expect this to be null!
             if (events == null)
                 return;
 
@@ -70,6 +69,10 @@ namespace R1Engine
         {
             return false;
         }
+
+        public override Enum GetCollisionTypeAsEnum(byte collisionType) => (R1_TileCollisionType)collisionType;
+
+        public override TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((R1_TileCollisionType)collisionType).GetCollisionTypeGraphic();
 
         public Dictionary<string, DESData> DESCollection { get; }
         public Dictionary<string, ETAData> ETACollection { get; }

@@ -232,7 +232,7 @@ namespace R1Engine
         /// <param name="editorManager">The editor manager</param>
         public override void SaveLevel(Context context, BaseEditorManager editorManager)
         {
-            var em = (PS1EditorManager)editorManager;
+            var em = (PS1_EditorManager)editorManager;
             var commonLevelData = editorManager.Level;
 
             // Get the level file path

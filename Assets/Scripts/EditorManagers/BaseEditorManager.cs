@@ -282,6 +282,9 @@ namespace R1Engine
         /// <returns>True if it's available, otherwise false</returns>
         public abstract bool IsAvailableInWorld(GeneralEventInfoData eventInfoData);
 
+        public abstract Enum GetCollisionTypeAsEnum(byte collisionType);
+        public abstract TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType);
+
         /// <summary>
         /// Sets up small and bad Rayman's animations
         /// </summary>

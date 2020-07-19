@@ -8,9 +8,9 @@ namespace R1Engine
     /// <summary>
     /// The editor manager for Jaguar
     /// </summary>
-    public class JaguarEditorManager : BaseEditorManager
+    public class Jaguar_EditorManager : BaseEditorManager
     {
-        public JaguarEditorManager(Common_Lev level, Context context, IDictionary<string, Common_Design> des, IDictionary<string, Common_EventState[][]> eta, IDictionary<string, string[][]> etaNames) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(des), new ReadOnlyDictionary<string, Common_EventState[][]>(eta))
+        public Jaguar_EditorManager(Common_Lev level, Context context, IDictionary<string, Common_Design> des, IDictionary<string, Common_EventState[][]> eta, IDictionary<string, string[][]> etaNames) : base(level, context, new ReadOnlyDictionary<string, Common_Design>(des), new ReadOnlyDictionary<string, Common_EventState[][]>(eta))
         {
             ETANames = etaNames != null ? new ReadOnlyDictionary<string, string[][]>(etaNames) : null;
         }
@@ -43,5 +43,9 @@ namespace R1Engine
         /// <param name="eventInfoData">The event info data item</param>
         /// <returns>True if it's available, otherwise false</returns>
         public override bool IsAvailableInWorld(GeneralEventInfoData eventInfoData) => false;
+
+        public override Enum GetCollisionTypeAsEnum(byte collisionType) => (Jaguar_R1_TileCollisionType)collisionType;
+
+        public override TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((Jaguar_R1_TileCollisionType)collisionType).GetCollisionTypeGraphic();
     }
 }

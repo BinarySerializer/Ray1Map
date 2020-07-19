@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using R1Engine.Serialize;
@@ -67,5 +68,9 @@ namespace R1Engine
         {
             return eventInfoData.DesR1.ContainsKey(Settings.World) && eventInfoData.DesR1[Settings.World] != null;
         }
+
+        public override Enum GetCollisionTypeAsEnum(byte collisionType) => (R1_TileCollisionType)collisionType;
+
+        public override TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((R1_TileCollisionType)collisionType).GetCollisionTypeGraphic();
     }
 }
