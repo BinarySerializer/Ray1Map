@@ -63,7 +63,7 @@ namespace R1Engine
         public GBA_R1_WorldMapVignette WorldMapVignette { get; set; }
 
         public Pointer[] StringPointerTable { get; set; }
-        public string[] Strings { get; set; }
+        public string[][] Strings { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -93,15 +93,22 @@ namespace R1Engine
             // Serialize strings
             s.DoAt(pointerTable[DSi_R1_Pointer.StringPointers], () =>
             {
-                StringPointerTable = s.SerializePointerArray(StringPointerTable, 1969, name: nameof(StringPointerTable));
-
+                StringPointerTable = s.SerializePointerArray(StringPointerTable, 5 * 394, name: nameof(StringPointerTable));
+                
                 if (Strings == null)
-                    Strings = new string[StringPointerTable.Length];
+                    Strings = new string[5][];
 
                 for (int i = 0; i < Strings.Length; i++)
-                    s.DoAt(StringPointerTable[i], () => Strings[i] = s.SerializeString(Strings[i],
-                        // TODO: Is this correct?
-                        encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}]"));
+                {
+                    if (Strings[i] == null)
+                        Strings[i] = new string[394];
+
+                    for (int j = 0; j < Strings[i].Length; j++)
+                    {
+                        // TODO: The encoding is wrong!
+                        s.DoAt(StringPointerTable[i * 394 + j], () => Strings[i][j] = s.SerializeString(Strings[i][j], encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}][{j}]"));
+                    }
+                }
             });
         }
 

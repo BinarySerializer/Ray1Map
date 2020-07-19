@@ -28,6 +28,11 @@ namespace R1Engine
         /// </summary>
         public Editor_EventData Rayman { get; set; }
 
+        /// <summary>
+        /// Localization data, currently only for web
+        /// </summary>
+        public Dictionary<string, string[]> Localization { get; set; }
+
         #endregion
 
         #region Public Methods

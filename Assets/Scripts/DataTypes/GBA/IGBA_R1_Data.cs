@@ -42,6 +42,6 @@
         /// <summary>
         /// The strings
         /// </summary>
-        string[] Strings { get; }
+        string[][] Strings { get; }
     }
 }

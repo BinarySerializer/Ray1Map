@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Asyncoroutine;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -239,6 +240,28 @@ public class SettingsWindow : UnityWindow
 
         if (Settings.Log)
             Settings.LogFile = FileField(rect, "Serialization log File", Settings.LogFile, true, "txt", includeLabel: false);
+
+        // Editor Tools
+
+        var em = Controller.obj?.levelController?.EditorManager;
+
+        if (em != null)
+        {
+            DrawHeader(ref yPos, "Editor Tools");
+
+            if (GUI.Button(GetNextRect(ref yPos), "Copy localization"))
+            {
+                if (em.Level.Localization != null)
+                {
+                    TextEditor te = new TextEditor
+                    {
+                        text = JsonConvert.SerializeObject(em.Level.Localization, Formatting.Indented)
+                    };
+                    te.SelectAll();
+                    te.Copy();
+                }
+            }
+        }
 
         // Game Tools
 

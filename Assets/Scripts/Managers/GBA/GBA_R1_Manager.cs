@@ -1036,6 +1036,31 @@ namespace R1Engine
                 }
             }
 
+            if (context.Settings.EngineVersion == EngineVersion.RayGBA)
+            {
+                // Add the localization data
+                commonLev.Localization = new Dictionary<string, string[]>()
+                {
+                    ["English"] = data.Strings[0],
+                    ["French"] = data.Strings[1],
+                    ["German"] = data.Strings[2],
+                    ["Spanish"] = data.Strings[3],
+                    ["Italian"] = data.Strings[4],
+                };
+            }
+            else
+            {
+                // Add the localization data
+                commonLev.Localization = new Dictionary<string, string[]>()
+                {
+                    ["English"] = data.Strings[1],
+                    ["French"] = data.Strings[2],
+                    ["German"] = data.Strings[4],
+                    ["Spanish"] = data.Strings[0],
+                    ["Italian"] = data.Strings[3],
+                };
+            }
+
             return new PS1_EditorManager(commonLev, context, eventDesigns, eventETA, null);
         }
 

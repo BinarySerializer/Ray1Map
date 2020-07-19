@@ -56,7 +56,7 @@ namespace R1Engine
         /// <summary>
         /// The strings
         /// </summary>
-        public string[] Strings { get; set; }
+        public string[][] Strings { get; set; }
 
 
         /// <summary>
@@ -97,15 +97,23 @@ namespace R1Engine
             // Serialize strings
             s.DoAt(pointerTable[GBA_R1_ROMPointer.StringPointers], () =>
             {
-                StringPointerTable = s.SerializePointerArray(StringPointerTable, 1807, name: nameof(StringPointerTable));
+                StringPointerTable = s.SerializePointerArray(StringPointerTable, 5 * 259, name: nameof(StringPointerTable));
 
+                // NOTE: There is data for two leftover languages from the PC version (Japanese and Chinese) but they have incorrect lengths, so we don't parse them
                 if (Strings == null)
-                    Strings = new string[StringPointerTable.Length];
+                    Strings = new string[5][];
 
                 for (int i = 0; i < Strings.Length; i++)
-                    s.DoAt(StringPointerTable[i], () => Strings[i] = s.SerializeString(Strings[i], 
-                        // TODO: Is this correct?
-                        encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}]"));
+                {
+                    if (Strings[i] == null)
+                        Strings[i] = new string[259];
+
+                    for (int j = 0; j < Strings[i].Length; j++)
+                    {
+                        // TODO: The encoding is wrong!
+                        s.DoAt(StringPointerTable[i * 259 + j], () => Strings[i][j] = s.SerializeString(Strings[i][j], encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}][{j}]"));
+                    }
+                }
             });
         }
     }
