@@ -58,6 +58,8 @@ namespace R1Engine
         /// <returns>The world file path</returns>
         public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{(int)settings.World + 1}.WLD";
 
+        public virtual string GetLanguageFilePath() => "RAY.LNG";
+
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
@@ -339,6 +341,26 @@ namespace R1Engine
                 // Return the data
                 yield return new ArchiveData(i.ToString(), fileData.Skip(entry.FileOffset).Take(entry.FileSize).Select(x => (byte)(x ^ entry.XORKey)).ToArray());
             }
+        }
+
+        protected override void LoadLocalization(Context context, Common_Lev level)
+        {
+            // Read the language file
+            var lng = FileFactory.ReadText<PC_R1_LNGFile>(GetLanguageFilePath(), context);
+
+            // Set the common localization
+            level.Localization = new Dictionary<string, string[]>()
+            {
+                ["English"] = lng.Strings[0],
+                ["French"] = lng.Strings[1],
+                ["German"] = lng.Strings[2],
+            };
+
+            // Set extended localization if available
+            if (lng.Strings.Length > 3)
+                level.Localization.Add("Japanese", lng.Strings[3]);
+            if (lng.Strings.Length > 4)
+                level.Localization.Add("Chinese", lng.Strings[4]);
         }
 
         /// <summary>

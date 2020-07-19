@@ -1446,9 +1446,14 @@ namespace R1Engine
                 }
             }
 
+            // Load localization
+            LoadLocalization(context, commonLev);
+
             // Return an editor manager
             return GetEditorManager(commonLev, context, eventDesigns);
         }
+
+        protected abstract void LoadLocalization(Context context, Common_Lev level);
 
         /// <summary>
         /// Gets an editor manager from the specified objects

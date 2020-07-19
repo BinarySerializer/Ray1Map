@@ -145,7 +145,7 @@ namespace R1Engine
             Controller.status = $"Loading Mapper files";
 
             // Read the DES CMD manifest
-            var desCmdManifest = FileFactory.ReadMapper<Mapper_RayLev>(paths["ray.lev"], context).DESManifest;
+            var desCmdManifest = FileFactory.ReadText<Mapper_RayLev>(paths["ray.lev"], context).DESManifest;
 
             // Read the CMD files
             Dictionary<string, Mapper_EventCMD> cmd = new Dictionary<string, Mapper_EventCMD>();
@@ -153,7 +153,7 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
                 string path = basePath + item.Value;
                 await LoadExtraFile(context, path);
-                cmd.Add(item.Key, FileFactory.ReadMapper<Mapper_EventCMD>(path, context));
+                cmd.Add(item.Key, FileFactory.ReadText<Mapper_EventCMD>(path, context));
             }
 
             await Controller.WaitIfNecessary();

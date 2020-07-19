@@ -98,6 +98,11 @@ namespace R1Engine
 
         #region Manager Methods
 
+        protected override void LoadLocalization(Context context, Common_Lev level)
+        {
+            // TODO: Implement
+        }
+
         /// <summary>
         /// Gets an editor manager from the specified objects
         /// </summary>

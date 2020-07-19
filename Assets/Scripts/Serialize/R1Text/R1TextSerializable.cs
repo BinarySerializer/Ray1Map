@@ -4,7 +4,7 @@ using R1Engine.Serialize;
 
 namespace R1Engine
 {
-    public abstract class MapperTextSerializable
+    public abstract class R1TextSerializable
     {
         protected bool isFirstLoad = true;
         public Context Context { get; protected set; }
@@ -22,7 +22,7 @@ namespace R1Engine
                 {
                     OnPreSerialize(path);
                     
-                    using (MapperTextParser parser = new MapperTextParser(s))
+                    using (R1TextParser parser = new R1TextParser(context.Settings, s))
                         Read(parser);
 
                     OnPostSerialize(path);
@@ -38,7 +38,7 @@ namespace R1Engine
         protected virtual void OnPreSerialize(string path) { }
         protected virtual void OnPostSerialize(string path) { }
 
-        public abstract void Read(MapperTextParser parser);
-        public virtual void Write(MapperTextParser parser) => throw new NotImplementedException();
+        public abstract void Read(R1TextParser parser);
+        public virtual void Write(R1TextParser parser) => throw new NotImplementedException();
     }
 }

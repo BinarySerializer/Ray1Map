@@ -3,12 +3,12 @@ using System.Linq;
 
 namespace R1Engine
 {
-    public class Mapper_EventManifest : MapperTextSerializable
+    public class Mapper_EventManifest : R1TextSerializable
     {
         public Mapper_EventDefinition[] EventDefinitions { get; set; }
         public Mapper_AlwaysEventDefinition[] AlwaysEventDefinitions { get; set; }
 
-        public override void Read(MapperTextParser parser)
+        public override void Read(R1TextParser parser)
         {
             var ed = new List<Mapper_EventDefinition>();
             var aed = new List<Mapper_AlwaysEventDefinition>();

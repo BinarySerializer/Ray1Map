@@ -53,8 +53,8 @@ namespace R1Engine
         }
 
         // TODO: Improve this system
-        public static T ReadMapper<T>(string filePath, Context context, Action<T> onPreSerialize = null)
-            where T : MapperTextSerializable, new() 
+        public static T ReadText<T>(string filePath, Context context, Action<T> onPreSerialize = null)
+            where T : R1TextSerializable, new() 
         {
             // Create the data object
             T t = new T();
@@ -94,8 +94,8 @@ namespace R1Engine
             return context.Serializer.SerializeFile<T>(filePath, obj, onPreSerialize: (t) => onPreSerialize?.Invoke(context.Serializer, t), name: filePath);
         }
 
-        public static T WriteMapper<T>(string filePath, T obj, Context context, Action<T> onPreSerialize = null)
-            where T : MapperTextSerializable, new()
+        public static T WriteText<T>(string filePath, T obj, Context context, Action<T> onPreSerialize = null)
+            where T : R1TextSerializable, new()
         {
             // Option pre-serialize action
             onPreSerialize?.Invoke(obj);

@@ -5,14 +5,14 @@ namespace R1Engine
     /// <summary>
     /// RayLev data for the Mapper
     /// </summary>
-    public class Mapper_RayLev : MapperTextSerializable
+    public class Mapper_RayLev : R1TextSerializable
     {
         /// <summary>
         /// The DES CMD manifest
         /// </summary>
         public Dictionary<string, string> DESManifest { get; set; }
 
-        public override void Read(MapperTextParser parser) {
+        public override void Read(R1TextParser parser) {
             // Create the dictionary
             DESManifest = new Dictionary<string, string>();
 

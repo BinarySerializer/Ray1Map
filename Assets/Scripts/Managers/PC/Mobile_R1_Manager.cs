@@ -18,6 +18,9 @@ namespace R1Engine
         /// <returns>The data path</returns>
         public override string GetDataPath() => "Media/PCMAP/";
 
+        // TODO: Also (instead?) read the .csv files - same format as .lng except ; is separator instead of ,
+        public override string GetLanguageFilePath() => "Media/RAY.LNG";
+
         #endregion
 
         #region Manager Methods

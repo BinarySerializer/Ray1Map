@@ -6,12 +6,12 @@ namespace R1Engine
     /// <summary>
     /// Event CMD data for the Mapper
     /// </summary>
-    public class Mapper_EventCMD : MapperTextSerializable
+    public class Mapper_EventCMD : R1TextSerializable
     {
         public Mapper_EventCMDItem[] Events { get; set; }
         public Mapper_AlwaysEventCMDItem[] AlwaysEvents { get; set; }
 
-        public override void Read(MapperTextParser parser)
+        public override void Read(R1TextParser parser)
         {
             var ed = new List<Mapper_EventCMDItem>();
             var aed = new List<Mapper_AlwaysEventCMDItem>();
