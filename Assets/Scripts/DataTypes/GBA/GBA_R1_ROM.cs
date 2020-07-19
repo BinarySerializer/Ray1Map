@@ -74,6 +74,33 @@ namespace R1Engine
             // Get the pointer table
             var pointerTable = PointerTables.GetGBAPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
+            // Hardcode files
+            if (s is BinaryDeserializer && s.GameSettings.World == World.Image && s.GameSettings.Level == 4) {
+                s.DoAt(Offset + 0x55cc, () => {
+                    void CreateFakeFile(int index, int size) {
+                        uint memAddress = s.Serialize<uint>(default, name: nameof(memAddress));
+                        Pointer off_array = s.SerializePointer(default, name: nameof(off_array));
+                        byte[] bytes = null;
+                        s.DoAt(off_array, () => {
+                            bytes = s.SerializeArray<byte>(default, size, name: nameof(bytes));
+                        });
+                        if (bytes != null) {
+                            s.Context.AddFile(new Serialize.MemoryMappedByteArrayFile("ETA_" + index, bytes, s.Context, memAddress));
+                        }
+                    }
+                    CreateFakeFile(0, 0x58);
+                    CreateFakeFile(1, 0x8);
+                    CreateFakeFile(2, 0x78);
+                    CreateFakeFile(3, 0x210);
+                    CreateFakeFile(4, 0x60);
+                    CreateFakeFile(5, 0x110);
+                    CreateFakeFile(6, 0x1a8);
+                    CreateFakeFile(7, 0x70);
+                    CreateFakeFile(8, 0x70);
+                });
+
+            }
+
             // Serialize data from the ROM
             s.DoAt(pointerTable[GBA_R1_ROMPointer.LevelMaps] + (levelIndex * 28), 
                 () => LevelMapData = s.SerializeObject<GBA_R1_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));

@@ -99,8 +99,9 @@ namespace R1Engine
                                         || (off_next != null 
                                         && off_next != ETAPointer
                                         && (off_prev == null 
-                                        || (off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0) 
-                                        && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000))))
+                                        || ((off_next.AbsoluteOffset - off_prev.AbsoluteOffset > 0) && (off_next.AbsoluteOffset - off_prev.AbsoluteOffset < 0x10000))
+                                        || (off_next.file != off_prev.file && off_next.file != Offset.file)
+                                        )))
                                     {
                                         curEtatCount++;
                                         off_prev = off_next;
@@ -146,8 +147,12 @@ namespace R1Engine
                             }
                             else
                             {
-                                Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
-                                count = (int)((nextPointer - EtatPointers[j]) / 8);
+                                if (EtatPointers[j].file is Serialize.MemoryMappedByteArrayFile && EtatPointers[j].FileOffset == 0) {
+                                    count = (int)(((Serialize.MemoryMappedByteArrayFile)(EtatPointers[j].file)).Length / 8);
+                                } else {
+                                    Pointer nextPointer = j < EtatPointers.Length - 1 ? EtatPointers[j + 1] : ETAPointer;
+                                    count = (int)((nextPointer - EtatPointers[j]) / 8);
+                                }
                             }
                         }
                         else
