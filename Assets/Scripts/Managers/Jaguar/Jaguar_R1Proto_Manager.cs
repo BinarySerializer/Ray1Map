@@ -278,7 +278,7 @@ namespace R1Engine
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllSpritesAsync(settings, output, true)),
-                new GameAction("Extract Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Extract Data Blocks", false, true, (input, output) => ExportDataBlocks(settings, output)),
                 new GameAction("Fix memory dump byte swapping", false, false, (input, output) => FixMemoryDumpByteSwapping(settings)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),

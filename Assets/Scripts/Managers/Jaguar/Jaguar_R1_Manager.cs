@@ -123,7 +123,7 @@ namespace R1Engine
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output, false)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllSpritesAsync(settings, output, true)),
-                new GameAction("Extract Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Extract Compressed Data", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, false)),
                 new GameAction("Extract Compressed Data (888)", false, true, (input, output) => ExtractCompressedDataAsync(settings, output, true)),
                 new GameAction("Convert Music to MIDI", false, true, (input, output) => ConvertMusicAsync(settings, output)),

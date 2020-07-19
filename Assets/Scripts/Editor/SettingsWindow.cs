@@ -286,9 +286,20 @@ public class SettingsWindow : UnityWindow
                 if (string.IsNullOrEmpty(outputDir))
                     return;
 
+                //const GameModeSelection start = GameModeSelection.RaymanJaguar;
+                //var reachedStart = false;
+
                 // Run each action
                 foreach (var mode in EnumHelpers.GetValues<GameModeSelection>())
                 {
+                    //if (!reachedStart)
+                    //{
+                    //    if (mode == start)
+                    //        reachedStart = true;
+                    //    else
+                    //        continue;
+                    //}
+
                     // Make sure the mode is valid
                     if (!Settings.GameDirectories.ContainsKey(mode))
                     {
