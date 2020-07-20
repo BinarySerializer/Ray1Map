@@ -70,6 +70,14 @@ namespace R1Engine
         /// <returns>The primary sound manifest file path</returns>
         public override string GetSoundManifestFilePath() => GetDataPath() + $"SNDH8B.DAT";
 
+        public virtual string GetVolumeDirectory(string volume) => GetDataPath() + $"{volume}/";
+        public virtual string GetSamplesArchiveFilePath(string volume) => GetVolumeDirectory(volume) + "SNDSMP.DAT";
+        public virtual string GetSpecialArchiveFilePath(string volume) => GetVolumeDirectory(volume) + "SPECIAL.DAT";
+        public virtual string GetEventLocFilePath(string volume, int index) => GetVolumeDirectory(volume) + $"EVNAME{index:00}.WLD";
+
+        // These are actually treated like the volumes in the EDU games, but since the levels are global we don't treat them as that
+        public string[] GetLanguages(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).ToArray();
+
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
@@ -127,10 +135,10 @@ namespace R1Engine
                 new ArchiveFile($"PCMAP/SNDD8B.DAT"),
                 new ArchiveFile($"PCMAP/SNDH8B.DAT"),
                 new ArchiveFile($"PCMAP/VIGNET.DAT", ".pcx"),
-            }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new ArchiveFile[]
+            }.Concat(GetLanguages(settings).SelectMany(x => new ArchiveFile[]
             {
-                new ArchiveFile($"PCMAP/{x}/SNDSMP.DAT"),
-                new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
+                new ArchiveFile(GetSamplesArchiveFilePath(x)),
+                new ArchiveFile(GetSpecialArchiveFilePath(x)),
             })).ToArray();
         }
 
@@ -232,7 +240,67 @@ namespace R1Engine
 
         protected override void LoadLocalization(Context context, Common_Lev level)
         {
-            // TODO: Implement
+            // Create the dictionary
+            level.Localization = new Dictionary<string, string[]>();
+
+            // Enumerate each language
+            foreach (var lang in GetLanguages(context.Settings))
+            {
+                // Get the file path
+                var specialFilePath = GetSpecialArchiveFilePath(lang);
+
+                // Add the file to the context
+                context.AddFile(new LinearSerializedFile(context)
+                {
+                    filePath = specialFilePath
+                });
+
+                // Read the archive
+                var specialData = FileFactory.Read<PC_EncryptedFileArchive>(specialFilePath, context);
+
+                // Save the localized name
+                string locName;
+
+                // Create a stream for the text data
+                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileNameString == "TEXT")]))
+                {
+                    var key = $"TEXT{lang}";
+
+                    context.AddFile(new StreamFile(key, stream, context));
+
+                    var loc = FileFactory.Read<PC_LocFile>(key, context);
+
+                    locName = loc.LanguageNames[loc.LanguageUtilized];
+
+                    if (String.IsNullOrWhiteSpace(locName))
+                        locName = lang;
+
+                    // Add the localization
+                    level.Localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+                }
+
+                // Add the event localizations (allfix + 6 worlds)
+                for (int i = 0; i < 7; i++)
+                {
+                    // Get the file path
+                    var evLocPath = GetEventLocFilePath(lang, i);
+
+                    if (!FileSystem.FileExists(context.BasePath + evLocPath))
+                        continue;
+
+                    // Add the file to the context
+                    context.AddFile(new LinearSerializedFile(context)
+                    {
+                        filePath = evLocPath
+                    });
+
+                    // Read the file
+                    var evLoc = FileFactory.Read<PC_Mapper_EventLocFile>(evLocPath, context);
+
+                    // Add the localization
+                    level.Localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray());
+                }
+            }
         }
 
         /// <summary>
