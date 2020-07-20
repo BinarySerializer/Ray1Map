@@ -364,6 +364,9 @@ namespace R1Engine
             // Set the tiles
             c.Maps[0].MapTiles = map.Tiles.Select(x => new Editor_MapTile(x)).ToArray();
 
+            // Load localization
+            LoadLocalization(context, c);
+
             // Return an editor manager
             return new PS1_EditorManager(c, context, eventDesigns, eventETA, events);
         }
@@ -833,6 +836,8 @@ namespace R1Engine
                 }
             }
         }
+
+        protected virtual void LoadLocalization(Context context, Common_Lev level) { }
 
         #endregion
 

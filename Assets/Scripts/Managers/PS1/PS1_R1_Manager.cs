@@ -16,6 +16,8 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
+        public virtual string GetLanguageFilePath(string langCode) => GetDataPath() + $"IMA/CRD/RAY{langCode}.TXT";
+
         /// <summary>
         /// Gets the file info to use
         /// </summary>
@@ -293,6 +295,42 @@ namespace R1Engine
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
             FileFactory.Write<PS1_R1_LevFile>(lvlPath, context);
+        }
+
+        protected override void LoadLocalization(Context context, Common_Lev level)
+        {
+            // The localization is compiled in the US/JP releases
+            if (context.Settings.GameModeSelection != GameModeSelection.RaymanPS1EU)
+                return;
+
+            var langs = new[]
+            {
+                new
+                {
+                    LangCode = "US",
+                    Language = "English"
+                },
+                new
+                {
+                    LangCode = "FR",
+                    Language = "French"
+                },
+                new
+                {
+                    LangCode = "GR",
+                    Language = "German"
+                },
+            };
+
+            // Create the dictionary
+            level.Localization = new Dictionary<string, string[]>();
+
+            // Add each language
+            foreach (var lang in langs)
+            {
+                var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context);
+                level.Localization.Add(lang.Language, langFile.Strings);
+            }
         }
     }
 }

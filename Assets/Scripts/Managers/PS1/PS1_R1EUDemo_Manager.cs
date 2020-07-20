@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -15,6 +16,8 @@ namespace R1Engine
         /// <returns>The world folder path</returns>
         public override string GetWorldFolderPath(World world) => String.Empty;
 
+        public override string GetLanguageFilePath(string langCode) => $"IMA/RAY{langCode}.TXT";
+
         /// <summary>
         /// Gets the base path for the game data
         /// </summary>
@@ -26,5 +29,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoPALDemo;
+
+        protected override void LoadLocalization(Context context, Common_Lev level)
+        {
+            // Create the dictionary
+            level.Localization = new Dictionary<string, string[]>()
+            {
+                ["English"] = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath("US"), context).Strings
+            };
+        }
     }
 }
