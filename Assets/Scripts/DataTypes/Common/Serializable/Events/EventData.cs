@@ -36,7 +36,7 @@ namespace R1Engine
         /// </summary>
         public static EventData Rayman => new EventData()
         {
-            XPosition = 0,
+            XPosition = 100,
             YPosition = 0,
             Type = EventType.TYPE_RAYMAN,
             OffsetBX = 80,
