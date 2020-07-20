@@ -279,6 +279,19 @@ namespace R1Engine
                     level.Localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
                 }
 
+                // Create a stream for the general data
+                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileNameString == "GENERAL")]))
+                {
+                    var key = $"GENERAL{lang}";
+
+                    context.AddFile(new StreamFile(key, stream, context));
+
+                    var general = FileFactory.Read<PC_GeneralFile>(key, context);
+
+                    // Add the localization
+                    level.Localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
+                }
+
                 // Add the event localizations (allfix + 6 worlds)
                 for (int i = 0; i < 7; i++)
                 {
