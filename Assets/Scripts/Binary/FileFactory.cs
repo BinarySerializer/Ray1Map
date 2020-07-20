@@ -1,5 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
+using System.Text;
 
 namespace R1Engine
 {
@@ -53,7 +54,7 @@ namespace R1Engine
         }
 
         // TODO: Improve this system
-        public static T ReadText<T>(string filePath, Context context, Action<T> onPreSerialize = null)
+        public static T ReadText<T>(string filePath, Context context, Action<T> onPreSerialize = null, Encoding encoding = null)
             where T : R1TextSerializable, new() 
         {
             // Create the data object
@@ -63,7 +64,7 @@ namespace R1Engine
             onPreSerialize?.Invoke(t);
 
             // Serialize the object
-            t.Serialize(filePath, context, true);
+            t.Serialize(filePath, context, true, encoding);
             
             // Return the object
             return t;
@@ -94,14 +95,14 @@ namespace R1Engine
             return context.Serializer.SerializeFile<T>(filePath, obj, onPreSerialize: (t) => onPreSerialize?.Invoke(context.Serializer, t), name: filePath);
         }
 
-        public static T WriteText<T>(string filePath, T obj, Context context, Action<T> onPreSerialize = null)
+        public static T WriteText<T>(string filePath, T obj, Context context, Action<T> onPreSerialize = null, Encoding encoding = null)
             where T : R1TextSerializable, new()
         {
             // Option pre-serialize action
             onPreSerialize?.Invoke(obj);
 
             // Serialize the object
-            obj.Serialize(filePath, context, false);
+            obj.Serialize(filePath, context, false, encoding);
 
             // Return the object
             return obj;

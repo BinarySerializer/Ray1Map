@@ -1,7 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿using System.Collections.Generic;
+using R1Engine.Serialize;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace R1Engine
 {
@@ -18,8 +20,11 @@ namespace R1Engine
         /// <returns>The data path</returns>
         public override string GetDataPath() => "Media/PCMAP/";
 
-        // TODO: Also (instead?) read the .csv files - same format as .lng except ; is separator instead of ,
+        // We don't use this since it's a leftover file - the game uses the .csv files
         public override string GetLanguageFilePath() => "Media/RAY.LNG";
+
+        public string GetLanguageFilePath(string langCode) => $"Media/LOCALIZATION_STR_{langCode.ToUpper()}.CSV";
+        public string GetExtLanguageFilePath(string langCode) => $"MediaCosmos/Localization/ext_localization_{langCode.ToLower()}.csv";
 
         #endregion
 
@@ -172,6 +177,85 @@ namespace R1Engine
         {
             filePath = filePath
         };
+
+        protected override void LoadLocalization(Context context, Common_Lev level)
+        {
+            // TODO: The encoding for all of these is wrong
+            var langs = new[]
+            {
+                new
+                {
+                    LangCode = "EN",
+                    Language = "English",
+                    Encoding = Encoding.UTF8
+                },
+                new
+                {
+                    LangCode = "FR",
+                    Language = "French",
+                    Encoding = Encoding.UTF8
+                },
+                new
+                {
+                    LangCode = "DE",
+                    Language = "German",
+                    Encoding = Encoding.UTF8
+                },
+                new
+                {
+                    LangCode = "IT",
+                    Language = "Italian",
+                    Encoding = Encoding.UTF8
+                },
+                new
+                {
+                    LangCode = "ES",
+                    Language = "Spanish",
+                    Encoding = Encoding.UTF8
+                },
+                new
+                {
+                    LangCode = "KO",
+                    Language = "Korean",
+                    Encoding = Encoding.Unicode
+                },
+                new
+                {
+                    LangCode = "JA",
+                    Language = "Japanese",
+                    Encoding = Encoding.Unicode
+                },
+                new
+                {
+                    LangCode = "RU",
+                    Language = "Russian",
+                    Encoding = Encoding.Unicode
+                },
+                new
+                {
+                    LangCode = "ZH",
+                    Language = "Chinese (Simplified)",
+                    Encoding = Encoding.Unicode
+                },
+                new
+                {
+                    LangCode = "Zu",
+                    Language = "Chinese (Traditional)",
+                    Encoding = Encoding.Unicode
+                },
+            };
+
+            // Create the dictionary
+            level.Localization = new Dictionary<string, string[]>();
+
+            // Add each language
+            foreach (var lang in langs)
+            {
+                var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context, encoding: lang.Encoding);
+
+                level.Localization.Add(lang.Language, langFile.Strings);
+            }
+        }
 
         #endregion
     }

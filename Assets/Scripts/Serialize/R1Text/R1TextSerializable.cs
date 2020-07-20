@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using R1Engine.Serialize;
 
 namespace R1Engine
@@ -9,7 +10,7 @@ namespace R1Engine
         protected bool isFirstLoad = true;
         public Context Context { get; protected set; }
 
-        public void Serialize(string path, Context context, bool read)
+        public void Serialize(string path, Context context, bool read, Encoding encoding)
         {
             // Set the context
             Context = context;
@@ -22,7 +23,7 @@ namespace R1Engine
                 {
                     OnPreSerialize(path);
                     
-                    using (R1TextParser parser = new R1TextParser(context.Settings, s))
+                    using (R1TextParser parser = new R1TextParser(context.Settings, s, encoding))
                         Read(parser);
 
                     OnPostSerialize(path);

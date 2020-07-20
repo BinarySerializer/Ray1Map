@@ -45,7 +45,7 @@ namespace R1Engine
             return (byte)bi;
         }
 
-        public string ReadValue(bool readAsString = false)
+        public string ReadValue(bool readAsString = false, Encoding encoding = null)
         {
             var buffer = new List<byte>();
 
@@ -70,9 +70,17 @@ namespace R1Engine
                     } while (b != 0x2F);
                 }
 
-                // Stop reading if we reached a value separator (',')
-                if (b == 0x2C)
-                    break;
+                // Stop reading if we reached a value separator (',') or (';') for Classic
+                if (GameSettings.GameModeSelection == GameModeSelection.RaymanClassicMobile)
+                {
+                    if (b == 0x3B)
+                        break;
+                }
+                else
+                {
+                    if (b == 0x2C)
+                        break;
+                }
 
                 // Ignore padding
                 if (!readAsString)
@@ -91,7 +99,7 @@ namespace R1Engine
             }
 
             // Return the value as a string, or null if reached the end
-            return buffer != null ? Encoding.GetString(buffer.ToArray()) : null;
+            return buffer != null ? (encoding ?? Encoding).GetString(buffer.ToArray()) : null;
         }
         public byte ReadByteValue() => Byte.TryParse(ReadValue(), out var b) ? b : (byte)0;
         public short ReadShortValue() => Int16.TryParse(ReadValue(), out var b) ? b : (short)0;

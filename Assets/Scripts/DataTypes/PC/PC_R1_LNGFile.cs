@@ -101,10 +101,7 @@ namespace R1Engine
 
                 // Read values into a temporary list
                 while ((value = parser.ReadValue(true)) != null)
-                {
                     tempStrings.Add(value);
-                    Debug.Log(value);
-                }
 
                 // Set strings
                 Strings[i] = tempStrings.ToArray();
