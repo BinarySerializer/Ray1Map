@@ -137,6 +137,7 @@ namespace R1Engine
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
                 new GameAction("Export GRX", false, true, (input, output) => ExportGRX(settings, output, false)), 
+                new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
             };
         }
 

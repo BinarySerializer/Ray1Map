@@ -1066,6 +1066,7 @@ namespace R1Engine
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
                 new GameAction("Export Sound", false, true, (input, output) => ExtractSound(settings, output)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
+                new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
             };
         }
 
@@ -1704,6 +1705,66 @@ namespace R1Engine
 
             // Get the eta items
             return allfix.Eta.Concat(worldData.Eta).Concat(bigRayData.Eta);
+        }
+
+        public void LogArchives(GameSettings settings)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load every archive
+                var archives = GetArchiveFiles(settings).SelectMany(archiveFile =>
+                {
+                    // Add the file to the context
+                    context.AddFile(new LinearSerializedFile(context)
+                    {
+                        filePath = archiveFile.FilePath
+                    });
+                    
+                    // Read the archive
+                    var data = FileFactory.Read<PC_EncryptedFileArchive>(archiveFile.FilePath, context);
+
+                    // Return files
+                    return data.DecodedFiles.Select((x, i) => new
+                    {
+                        FileData = x,
+                        FileName = data.Entries[i].FileNameString
+                    });
+                }).ToArray();
+
+                // Helper methods for loading an archive file
+                void LogFile<T>(string fileName)
+                    where T : R1Serializable, new()
+                {
+                    // Find the archive file
+                    var file = archives.FirstOrDefault(x => x.FileName == fileName);
+
+                    // Skip if not found
+                    if (file == null)
+                    {
+                        Debug.Log($"File {fileName} not found");
+                        return;
+                    }
+
+                    // Create a stream
+                    using (var stream = new MemoryStream(file.FileData))
+                    {
+                        // Add to context
+                        context.AddFile(new StreamFile(fileName, stream, context));
+
+                        // Read the file
+                        FileFactory.Read<T>(fileName, context);
+                    }
+                }
+
+                // Read all known files
+                LogFile<PC_VersionFile>("VERSION");
+                //LogFile<>("SCRIPT");
+                LogFile<PC_GeneralFile>("GENERAL");
+                LogFile<PC_EDU_MOTFile>("MOT");
+                LogFile<PC_SampleNamesFile>("SMPNAMES");
+                LogFile<PC_LocFile>("TEXT");
+                //LogFile<>("WLDMAP01");
+            }
         }
 
         #endregion
