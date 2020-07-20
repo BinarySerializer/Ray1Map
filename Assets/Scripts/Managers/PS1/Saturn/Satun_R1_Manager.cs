@@ -18,6 +18,8 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 16;
 
+        public virtual string GetLanguageFilePath(string langCode) => $"RAY{langCode}.TXT";
+
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
         /// <summary>
@@ -584,6 +586,42 @@ namespace R1Engine
                 return $"{settings.World}/{settings.World}{settings.Level} - ";
 
             return $"Unknown/";
+        }
+
+        protected override void LoadLocalization(Context context, Common_Lev level)
+        {
+            // The localization is compiled in the US/JP releases
+            if (context.Settings.GameModeSelection != GameModeSelection.RaymanSaturnEU)
+                return;
+
+            var langs = new[]
+            {
+                new
+                {
+                    LangCode = "US",
+                    Language = "English"
+                },
+                new
+                {
+                    LangCode = "FR",
+                    Language = "French"
+                },
+                new
+                {
+                    LangCode = "GR",
+                    Language = "German"
+                },
+            };
+
+            // Create the dictionary
+            level.Localization = new Dictionary<string, string[]>();
+
+            // Add each language
+            foreach (var lang in langs)
+            {
+                var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context);
+                level.Localization.Add(lang.Language, langFile.Strings);
+            }
         }
     }
 }
