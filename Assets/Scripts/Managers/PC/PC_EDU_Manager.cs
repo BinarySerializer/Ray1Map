@@ -18,21 +18,21 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => GetVolumePath(settings) + $"{GetShortWorldName(settings.World)}{settings.Level:00}.lev";
+        public override string GetLevelFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"{GetShortWorldName(settings.World)}{settings.Level:00}.lev";
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings) + $"RAY{((int)settings.World + 1):00}.WLD";
+        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"RAY{((int)settings.World + 1):00}.WLD";
 
         /// <summary>
         /// Gets the file path for the vignette file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The vignette file path</returns>
-        public override string GetVignetteFilePath(GameSettings settings) => GetVolumePath(settings) + $"VIGNET.DAT";
+        public override string GetVignetteFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"VIGNET.DAT";
 
         /// <summary>
         /// Gets the file path for the primary sound file
@@ -49,16 +49,20 @@ namespace R1Engine
         /// <summary>
         /// Gets the volume data path
         /// </summary>
-        /// <param name="settings">The game settings</param>
+        /// <param name="volume">The volume name</param>
         /// <returns>The volume data path</returns>
-        public string GetVolumePath(GameSettings settings) => GetDataPath() + settings.EduVolume + "/";
+        public string GetVolumePath(string volume) => GetDataPath() + volume + "/";
+
+        public virtual string GetSamplesArchiveFilePath(string volume) => GetVolumePath(volume) + "SNDSMP.DAT";
+        public virtual string GetSpecialArchiveFilePath(string volume) => GetVolumePath(volume) + "SPECIAL.DAT";
+        public virtual string GetCommonArchiveFilePath() => GetDataPath() + "COMMON.DAT";
 
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();
@@ -92,7 +96,7 @@ namespace R1Engine
         /// Gets additional sound archives
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetEduVolumes(settings).Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile($"PCMAP/{x}/sndsmp.dat"))).ToArray();
+        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetEduVolumes(settings).Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile(GetSamplesArchiveFilePath(x)))).ToArray();
 
         #endregion
 
@@ -100,7 +104,55 @@ namespace R1Engine
 
         protected override void LoadLocalization(Context context, Common_Lev level)
         {
-            // TODO: Implement
+            // Create the dictionary
+            level.Localization = new Dictionary<string, string[]>();
+
+            // Enumerate each language
+            foreach (var vol in GetEduVolumes(context.Settings))
+            {
+                // Get the file path
+                var specialFilePath = GetSpecialArchiveFilePath(vol);
+
+                // Add the file to the context
+                context.AddFile(new LinearSerializedFile(context)
+                {
+                    filePath = specialFilePath
+                });
+
+                // Read the archive
+                var specialData = FileFactory.Read<PC_EncryptedFileArchive>(specialFilePath, context);
+
+                // Save the localized name
+                string locName;
+
+                // Create a stream for the text data
+                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileNameString == "TEXT")]))
+                {
+                    var key = $"TEXT{vol}";
+
+                    context.AddFile(new StreamFile(key, stream, context));
+
+                    var loc = FileFactory.Read<PC_LocFile>(key, context);
+
+                    locName = $"{loc.LanguageNames[loc.LanguageUtilized]} ({vol})";
+
+                    // Add the localization
+                    level.Localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+                }
+
+                // Create a stream for the MOT data
+                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileNameString == "MOT")]))
+                {
+                    var key = $"MOT{vol}";
+
+                    context.AddFile(new StreamFile(key, stream, context));
+
+                    var loc = FileFactory.Read<PC_EDU_MOTFile>(key, context);
+
+                    // Add the localization
+                    level.Localization.Add($"MOT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+                }
+            }
         }
 
         /// <summary>

@@ -20,28 +20,28 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + $"{GetVolumePath(settings)}{GetShortWorldName(settings.World)}", $"{GetShortWorldName(settings.World)}{settings.Level:00}.NEW", SearchOption.AllDirectories).First().Substring(settings.GameDirectory.Length).Replace('\\', '/');
+        public override string GetLevelFilePath(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + $"{GetVolumePath(settings.EduVolume)}{GetShortWorldName(settings.World)}", $"{GetShortWorldName(settings.World)}{settings.Level:00}.NEW", SearchOption.AllDirectories).First().Substring(settings.GameDirectory.Length).Replace('\\', '/');
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings) + $"RAY{((int)settings.World + 1):00}.NEW";
+        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"RAY{((int)settings.World + 1):00}.NEW";
 
         /// <summary>
         /// Gets the file path for the allfix file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The allfix file path</returns>
-        public override string GetAllfixFilePath(GameSettings settings) => GetVolumePath(settings) + $"ALLFIX.NEW";
+        public override string GetAllfixFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"ALLFIX.NEW";
 
         /// <summary>
         /// Gets the file path for the big ray file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The big ray file path</returns>
-        public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings) + $"BIGRAY.DAT";
+        public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"BIGRAY.DAT";
 
         /// <summary>
         /// Gets the file paths for the .grx bundles
@@ -106,7 +106,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings), $"{GetShortWorldName(w)}??.NEW", SearchOption.AllDirectories)
+        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.NEW", SearchOption.AllDirectories)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();
@@ -417,6 +417,9 @@ namespace R1Engine
             commonLev.Maps[0].TileSet[0] = tileSets[0];
             commonLev.Maps[0].TileSet[1] = tileSets[1];
             commonLev.Maps[0].TileSet[2] = tileSets[2];
+
+            // Load localization
+            LoadLocalization(context, commonLev);
 
             // Return an editor manager
             return GetEditorManager(commonLev, context, eventDesigns);
