@@ -80,7 +80,7 @@ namespace R1Engine
 
                 item.FollowEnabled = parser.ReadByteValue();
                 item.FollowSprite = parser.ReadByteValue();
-                item.HitPoints = parser.ReadByteValue();
+                item.HitPoints = parser.ReadUIntValue();
 
                 item.Type = (EventType)parser.ReadShortValue();
                 item.HitSprite = parser.ReadByteValue();

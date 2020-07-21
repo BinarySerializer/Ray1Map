@@ -226,7 +226,7 @@ namespace R1Engine
                     OffsetBY = e.OffsetBY,
                     OffsetHY = e.OffsetHY,
                     FollowSprite = e.FollowSprite,
-                    HitPoints = e.HitPoints,
+                    ActualHitPoints = e.HitPoints,
                     Layer = e.DisplayPrio,
                     HitSprite = e.HitSprite,
 

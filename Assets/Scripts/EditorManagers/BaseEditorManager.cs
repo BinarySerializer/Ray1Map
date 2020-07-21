@@ -167,17 +167,16 @@ namespace R1Engine
 
             var eventData = new Editor_EventData(new EventData()
             {
-                Etat = (byte)e.Etat,
-                SubEtat = (byte)e.SubEtat,
+                Etat = e.Etat,
+                SubEtat = e.SubEtat,
                 XPosition = xPos,
                 YPosition = yPos,
-                OffsetBX = (byte)e.OffsetBX,
-                OffsetBY = (byte)e.OffsetBY,
-                OffsetHY = (byte)e.OffsetHY,
-                FollowSprite = (byte)e.FollowSprite,
-                HitPoints = (byte)e.HitPoints,
+                OffsetBX = e.OffsetBX,
+                OffsetBY = e.OffsetBY,
+                OffsetHY = e.OffsetHY,
+                FollowSprite = e.FollowSprite,
                 Layer = 0,
-                HitSprite = (byte)e.HitSprite,
+                HitSprite = e.HitSprite,
             })
             {
                 Type = (Enum)Enum.Parse(EventTypeEnumType, e.Type.ToString()),
@@ -192,6 +191,9 @@ namespace R1Engine
 
             if (EventTypeEnumType == typeof(EventType))
                 eventData.Data.Type = (EventType)eventData.Type;
+
+            // We need to set the hit points after the type
+            eventData.Data.ActualHitPoints = e.HitPoints;
 
             return eventData;
         }
@@ -214,7 +216,7 @@ namespace R1Engine
         /// <param name="labelOffsets"></param>
         /// <param name="commands"></param>
         /// <returns></returns>
-        public GeneralEventInfoData GetGeneralEventInfo(int type, int etat, int subEtat, string desKey, string etaKey, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
+        public GeneralEventInfoData GetGeneralEventInfo(ushort type, byte etat, byte subEtat, string desKey, string etaKey, byte offsetBx, byte offsetBy, byte offsetHy, byte followSprite, uint hitPoints, byte hitSprite, bool followEnabled, ushort[] labelOffsets, byte[] commands)
         {
             // Helper method for comparing the commands
             bool compareCommands(GeneralEventInfoData e)
@@ -257,7 +259,7 @@ namespace R1Engine
             var cmds = e.CommandCollection?.ToBytes(Settings);
 
             // Find match
-            var match = GetGeneralEventInfo(e.TypeValue, e.Data.Etat, e.Data.SubEtat, e.DESKey, e.ETAKey, e.Data.OffsetBX, e.Data.OffsetBY, e.Data.OffsetHY, e.Data.FollowSprite, e.Data.HitPoints, e.Data.HitSprite, e.Data.GetFollowEnabled(Settings), e.LabelOffsets, cmds);
+            var match = GetGeneralEventInfo(e.TypeValue, e.Data.Etat, e.Data.SubEtat, e.DESKey, e.ETAKey, e.Data.OffsetBX, e.Data.OffsetBY, e.Data.OffsetHY, e.Data.FollowSprite, e.Data.ActualHitPoints, e.Data.HitSprite, e.Data.GetFollowEnabled(Settings), e.LabelOffsets, cmds);
 
             // Return the editor info
             return match?.Name;

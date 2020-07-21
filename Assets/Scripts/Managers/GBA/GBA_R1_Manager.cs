@@ -1015,7 +1015,7 @@ namespace R1Engine
                         OffsetBY = dat.OffsetBY,
                         OffsetHY = dat.OffsetHY,
                         FollowSprite = dat.FollowSprite,
-                        HitPoints = dat.HitPoints,
+                        ActualHitPoints = dat.HitPoints,
                         Layer = (byte)dat.Layer,
                         HitSprite = dat.HitSprite,
                     })

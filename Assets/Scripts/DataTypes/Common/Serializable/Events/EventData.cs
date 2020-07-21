@@ -111,13 +111,15 @@ namespace R1Engine
 
         public ushort ImageDescriptorCount { get; set; }
 
-        public uint Kit_Unk { get; set; }
-
         public ushort RuntimeCurrentCommandOffset { get; set; }
         public ushort RuntimeCurrentCommandArgument { get; set; }
         public ushort Unk_74 { get; set; }
         public ushort Unk_76 { get; set; }
         public ushort Unk_78 { get; set; }
+
+        // This value is used for voice lines as a replacement of the normal HitPoints value in order to have a sample index higher than 255. When this is used HitPoints is always EDU_ExtHitPoints % 256.
+        public uint EDU_ExtHitPoints { get; set; }
+        
         public ushort Unk_80 { get; set; }
         public ushort Unk_82 { get; set; }
         public ushort Unk_84 { get; set; }
@@ -157,6 +159,18 @@ namespace R1Engine
         /// The sprite index which uses the event collision
         /// </summary>
         public byte FollowSprite { get; set; }
+
+        public uint ActualHitPoints
+        {
+            get => Type == EventType.EDU_VoiceLine ? EDU_ExtHitPoints : HitPoints;
+            set
+            {
+                if (Type == EventType.EDU_VoiceLine)
+                    EDU_ExtHitPoints = value;
+
+                HitPoints = (byte)(value % 256);
+            }
+        }
 
         public byte HitPoints { get; set; }
         public byte RuntimeHitPoints { get; set; }
@@ -356,13 +370,14 @@ namespace R1Engine
             
             RuntimeCurrentCommandArgument = s.Serialize<ushort>(RuntimeCurrentCommandArgument, name: nameof(RuntimeCurrentCommandArgument));
             Unk_74 = s.Serialize<ushort>(Unk_74, name: nameof(Unk_74));
-
-            // NOTE: Kit and edu has 4 more bytes between here and Unk_88 - where does it belong?
-            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPC || s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
-                Kit_Unk = s.Serialize<uint>(Kit_Unk, name: nameof(Kit_Unk));
-
             Unk_76 = s.Serialize<ushort>(Unk_76, name: nameof(Unk_76));
             Unk_78 = s.Serialize<ushort>(Unk_78, name: nameof(Unk_78));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.RayKitPC || 
+                s.GameSettings.EngineVersion == EngineVersion.RayEduPC || 
+                s.GameSettings.EngineVersion == EngineVersion.RayEduPS1)
+                EDU_ExtHitPoints = s.Serialize<uint>(EDU_ExtHitPoints, name: nameof(EDU_ExtHitPoints));
+
             Unk_80 = s.Serialize<ushort>(Unk_80, name: nameof(Unk_80));
             Unk_82 = s.Serialize<ushort>(Unk_82, name: nameof(Unk_82));
             Unk_84 = s.Serialize<ushort>(Unk_84, name: nameof(Unk_84));

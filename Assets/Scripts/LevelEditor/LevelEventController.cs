@@ -98,7 +98,11 @@ namespace R1Engine
         public void FieldOffsetBy() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetBY = x, byte.TryParse(infoOffsetBy.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetBY, "BY");
         public void FieldOffsetHy() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetHY = x, byte.TryParse(infoOffsetHy.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetHY, "HY");
         public void FieldFollowSprite() => FieldUpdated(x => SelectedEvent.Data.Data.FollowSprite = x, byte.TryParse(infoFollowSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.FollowSprite, "FollowSprite");
-        public void FieldHitPoints() => FieldUpdated(x => SelectedEvent.Data.Data.HitPoints = SelectedEvent.Data.Data.RuntimeHitPoints = x, byte.TryParse(infoHitPoints.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.HitPoints, "HitPoints");
+        public void FieldHitPoints() => FieldUpdated(x =>
+        {
+            SelectedEvent.Data.Data.ActualHitPoints = x;
+            SelectedEvent.Data.Data.RuntimeHitPoints = (byte)(x % 256);
+        }, UInt32.TryParse(infoHitPoints.text, out var v) ? v : 0, () => SelectedEvent.Data.Data.ActualHitPoints, "HitPoints");
         public void FieldHitSprite() => FieldUpdated(x => SelectedEvent.Data.Data.HitSprite = x, byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.HitSprite, "HitSprite");
         public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.Data.Data.SetFollowEnabled(Controller.CurrentSettings, x), infoFollow.isOn, () => SelectedEvent.Data.Data.GetFollowEnabled(Controller.CurrentSettings), "FollowEnabled");
 
@@ -344,7 +348,7 @@ namespace R1Engine
             updateInputField<byte>(infoFollowSprite, SelectedEvent?.Data.Data.FollowSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
 
             // HitPoints
-            updateInputField<byte>(infoHitPoints, SelectedEvent?.Data.Data.HitPoints ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+            updateInputField<uint>(infoHitPoints, SelectedEvent?.Data.Data.ActualHitPoints ?? 0, x => UInt32.TryParse(x, out var r) ? r : 0);
 
             // HitSprite
             updateInputField<byte>(infoHitSprite, SelectedEvent?.Data.Data.HitSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);

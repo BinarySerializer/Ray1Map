@@ -103,6 +103,7 @@ namespace R1Engine
         }
         public byte ReadByteValue() => Byte.TryParse(ReadValue(), out var b) ? b : (byte)0;
         public short ReadShortValue() => Int16.TryParse(ReadValue(), out var b) ? b : (short)0;
+        public uint ReadUIntValue() => UInt32.TryParse(ReadValue(), out var b) ? b : 0;
 
         public void WriteString(string value)
         {

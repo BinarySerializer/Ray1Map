@@ -30,7 +30,7 @@
 
         public byte FollowSprite { get; set; }
 
-        public byte HitPoints { get; set; }
+        public uint HitPoints { get; set; }
 
         public EventType Type { get; set; }
 

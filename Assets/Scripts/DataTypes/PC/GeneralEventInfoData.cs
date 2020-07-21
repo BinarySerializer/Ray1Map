@@ -22,7 +22,7 @@ namespace R1Engine
             IDictionary<World, int?> desEdu, IDictionary<World, int?> etaEdu, 
             IDictionary<World, string> desKit, IDictionary<World, string> etaKit,
             byte offsetBx, byte offsetBy, byte offsetHy,
-            byte followSprite, byte hitPoints, byte hitSprite, bool followEnabled, 
+            byte followSprite, uint hitPoints, byte hitSprite, bool followEnabled, 
             string[] connectedEvents, 
             ushort[] labelOffsets, byte[] commands)
         {
@@ -75,7 +75,7 @@ namespace R1Engine
         public byte OffsetHY { get; }
 
         public byte FollowSprite { get; }
-        public byte HitPoints { get; }
+        public uint HitPoints { get; }
         public byte HitSprite { get; }
         public bool FollowEnabled { get; }
 
@@ -124,6 +124,7 @@ namespace R1Engine
                         string nextValue() => line[index++];
                         bool nextBoolValue() => Boolean.Parse(line[index++]);
                         ushort nextUShortValue() => UInt16.Parse(nextValue());
+                        uint nextUIntValue() => UInt32.Parse(nextValue());
                         byte nextByteValue() => Byte.Parse(nextValue());
                         //T? nextEnumValue<T>() where T : struct => Enum.TryParse(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
                         ushort[] next16ArrayValue() => nextValue().Split('-').Where(x => !String.IsNullOrWhiteSpace(x)).Select(UInt16.Parse).ToArray();
@@ -149,7 +150,7 @@ namespace R1Engine
                             desEdu: toDictionary(next32NullableArrayValue()), etaEdu: toDictionary(next32NullableArrayValue()), 
                             desKit: toDictionary(nextStringArrayValue()), etaKit: toDictionary(nextStringArrayValue()), 
                             offsetBx: nextByteValue(), offsetBy: nextByteValue(), offsetHy: nextByteValue(), 
-                            followSprite: nextByteValue(), hitPoints: nextByteValue(), hitSprite: nextByteValue(), followEnabled: nextBoolValue(), 
+                            followSprite: nextByteValue(), hitPoints: nextUIntValue(), hitSprite: nextByteValue(), followEnabled: nextBoolValue(), 
                             connectedEvents: nextStringArrayValue(), 
                             labelOffsets: next16ArrayValue(), commands: next8ArrayValue()));
                     }
