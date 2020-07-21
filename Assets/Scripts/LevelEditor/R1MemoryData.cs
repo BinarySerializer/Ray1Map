@@ -36,6 +36,17 @@ namespace R1Engine
                 //BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
             }
 
+            // Rayman EDU (PC)
+            else if (s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
+            {
+                EventArrayOffset = s.DoAt(gameMemoryOffset + 0x16E338, () => s.SerializePointer(EventArrayOffset, name: nameof(EventArrayOffset)));
+
+                // TODO: Find these
+                //RayEventOffset = gameMemoryOffset + 0x14A4E8;
+                //TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, name: nameof(TileArrayOffset)));
+                //BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
+            }
+
             // Rayman Advance (GBA)
             else if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
             {
