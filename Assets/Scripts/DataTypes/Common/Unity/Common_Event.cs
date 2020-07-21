@@ -44,7 +44,7 @@ namespace R1Engine {
             Data.Data.RuntimeLayer = Data.Data.Layer;
             Data.Data.RuntimeXPosition = (ushort)Data.Data.XPosition;
             Data.Data.RuntimeYPosition = (ushort)Data.Data.YPosition;
-            Data.Data.RuntimeCurrentAnimFrame = 0;
+            //Data.Data.RuntimeCurrentAnimFrame = 0;
             Data.Data.RuntimeCurrentAnimIndex = 0;
             Data.Data.RuntimeHitPoints = Data.Data.HitPoints;
 
@@ -116,6 +116,10 @@ namespace R1Engine {
                 {
                     Data.Data.RuntimeCurrentAnimFrame = Data.Data.HitPoints;
                     EditorAnimFrame = Data.Data.HitPoints;
+                }
+                else if (Data.Type is EventType et2 && (et2 == EventType.TYPE_EDU_LETTRE))
+                {
+                    EditorAnimFrame = Data.Data.RuntimeCurrentAnimFrame;
                 }
                 else
                 {
@@ -192,8 +196,11 @@ namespace R1Engine {
                     // Reset the current frame
                     if (!Settings.LoadFromMemory)
                     {
-                        Data.Data.RuntimeCurrentAnimFrame = 0;
-                        EditorAnimFrame = 0;
+                        if (Data.Data.Type != EventType.TYPE_EDU_LETTRE)
+                        {
+                            Data.Data.RuntimeCurrentAnimFrame = 0;
+                            EditorAnimFrame = 0;
+                        }
                     }
 
                     // Get the amount of layers per frame
