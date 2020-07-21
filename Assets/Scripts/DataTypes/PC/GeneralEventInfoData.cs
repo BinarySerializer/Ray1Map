@@ -94,7 +94,7 @@ namespace R1Engine
         /// <param name="fileStream">The file stream to read from</param>
         /// <param name="sort">Indicates if the items should be sorted</param>
         /// <returns>The read data</returns>
-        public static IList<GeneralEventInfoData> ReadCSV(Stream fileStream, bool sort = true)
+        public static GeneralEventInfoData[] ReadCSV(Stream fileStream, bool sort = true)
         {
             // Use a reader
             using (var reader = new StreamReader(fileStream))

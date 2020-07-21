@@ -74,6 +74,8 @@ namespace R1Engine
             new AdditionalSoundArchive("VIG", new ArchiveFile("SNDVIG.DAT"), 16),
         };
 
+        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesR1[context.Settings.World] == desIndex && BaseEditorManager.MultiColoredEvents.Contains((EventType)x.Type));
+
         /// <summary>
         /// Gets the available game actions
         /// </summary>

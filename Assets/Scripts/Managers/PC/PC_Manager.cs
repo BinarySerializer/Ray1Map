@@ -141,6 +141,8 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         public abstract AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings);
 
+        public abstract bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents);
+
         #endregion
 
         #region Texture Methods
@@ -309,13 +311,8 @@ namespace R1Engine
                 // Add all files
                 AddAllFiles(context);
 
-                // Get the event info
-                IList<GeneralEventInfoData> eventInfo;
-
-                // TODO: Generalize this with helper method
                 // Load the event info data
-                using (var csvFile = File.OpenRead("Events.csv"))
-                    eventInfo = GeneralEventInfoData.ReadCSV(csvFile);
+                var eventInfo = BaseEditorManager.AllEventInfoData;
 
                 // Get the DES names for every world
                 var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, world => {
@@ -899,6 +896,9 @@ namespace R1Engine
         /// <returns>The common design</returns>
         public virtual Common_Design GetCommonDesign(Context context, PC_DES des, IList<ARGBColor> palette, int desIndex)
         {
+            // Check if the DES is used for multi-colored events
+            var isMultiColored = IsDESMultiColored(context, desIndex + 1, BaseEditorManager.AllEventInfoData);
+
             // Create the common design
             Common_Design commonDesign = new Common_Design
             {
@@ -909,14 +909,41 @@ namespace R1Engine
             // Process the image data
             var processedImageData = des.RequiresBackgroundClearing ? ProcessImageData(des.ImageData) : des.ImageData;
 
-            // Sprites
-            foreach (var s in des.ImageDescriptors)
+            if (!isMultiColored)
             {
-                // Get the texture
-                Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
+                // Sprites
+                foreach (var s in des.ImageDescriptors)
+                {
+                    // Get the texture
+                    Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
 
-                // Add it to the array
-                commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    // Add it to the array
+                    commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                }
+            }
+            else
+            {
+                // Add sprites for each color
+                for (int i = 0; i < 6; i++)
+                {
+                    // Hack to get correct colors
+                    var p = palette.Skip(i * 8 + 1).ToList();
+
+                    p.Insert(0, new ARGBColor(0, 0, 0));
+
+                    if (i % 2 != 0)
+                        p[8] = palette[i * 8];
+
+                    // Sprites
+                    foreach (var s in des.ImageDescriptors)
+                    {
+                        // Get the texture
+                        Texture2D tex = GetSpriteTexture(s, p, processedImageData);
+
+                        // Add it to the array
+                        commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    }
+                }
             }
 
             // Animations

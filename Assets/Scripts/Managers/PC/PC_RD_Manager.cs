@@ -12,29 +12,6 @@ namespace R1Engine
     /// </summary>
     public class PC_RD_Manager : PC_Manager
     {
-        #region Static Properties
-
-        /// <summary>
-        /// The events which are multi-colored
-        /// </summary>
-        public static EventType[] MultiColoredEvents => new[]
-        {
-            EventType.MS_compteur,
-            EventType.MS_wiz_comptage,
-            EventType.MS_pap,
-        };
-
-        /// <summary>
-        /// The DES which are multi-colored
-        /// </summary>
-        public static string[] MultiColoredDES => new[]
-        {
-            "WIZCOMPT",
-            "PCH",
-        };
-
-        #endregion
-
         #region Values and paths
 
         /// <summary>
@@ -151,92 +128,18 @@ namespace R1Engine
                 Select(Path.GetFileName).
                 Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile($"PCMAP/{x}/SNDSMP.DAT"))).ToArray();
 
+        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents)
+        {
+            var name = GetDESFileName(context, desIndex);
+
+            var nameWithoutExt = name.Length > 4 ? name.Substring(0, name.Length - 4) : name;
+
+            return generalEvents.Any(x => x.DesKit[context.Settings.World] == nameWithoutExt && BaseEditorManager.MultiColoredEvents.Contains((EventType) x.Type));
+        }
+
         #endregion
 
         #region Manager Methods
-
-        /// <summary>
-        /// Gets a common design
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="des">The DES</param>
-        /// <param name="palette">The palette to use</param>
-        /// <param name="desIndex">The DES index</param>
-        /// <returns>The common design</returns>
-        public override Common_Design GetCommonDesign(Context context, PC_DES des, IList<ARGBColor> palette, int desIndex)
-        {
-            // Check if the DES is multi-colored
-            var desName = GetDESFileName(context, desIndex + 1);
-
-            if (!MultiColoredDES.Contains(desName.Substring(0, desName.Length > 4? desName.Length - 4 : 0)))
-                return base.GetCommonDesign(context, des, palette, desIndex);
-
-            // Create the common design
-            Common_Design commonDesign = new Common_Design
-            {
-                Sprites = new List<Sprite>(),
-                Animations = new List<Common_Animation>()
-            };
-
-            // Process the image data
-            var processedImageData = des.RequiresBackgroundClearing ? ProcessImageData(des.ImageData) : des.ImageData;
-
-            // Add sprites for each color
-            for (int i = 0; i < 6; i++)
-            {
-                // Hack to get correct colors
-                var p = palette.Skip(i * 8 + 1).ToList();
-                
-                p.Insert(0, new ARGBColor(0, 0, 0));
-
-                if (i % 2 != 0)
-                {
-                    p[8] = palette[i * 8];
-                }
-                    
-                // Sprites
-                foreach (var s in des.ImageDescriptors)
-                {
-                    // Get the texture
-                    Texture2D tex = GetSpriteTexture(s, p, processedImageData);
-
-                    // Add it to the array
-                    commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
-                }
-            }
-
-            // Add animations for each color
-            for (int i = 0; i < 6; i++)
-            {
-                // Animations
-                foreach (var a in des.AnimationDescriptors)
-                {
-                    // Create a clone animation
-                    var ca = new PC_AnimationDescriptor
-                    {
-                        LayersPerFrame = a.LayersPerFrame,
-                        Unknown1 = a.Unknown1,
-                        FrameCount = a.FrameCount,
-                        Unknown2 = a.Unknown2,
-                        Unknown3 = a.Unknown3,
-                        AnimationDataLength = a.AnimationDataLength,
-                        Layers = a.Layers.Select(x => new Common_AnimationLayer
-                        {
-                            IsFlippedHorizontally = x.IsFlippedHorizontally,
-                            XPosition = x.XPosition,
-                            YPosition = x.YPosition,
-                            ImageIndex = (byte)(x.ImageIndex + (des.ImageDescriptors.Length * i))
-                        }).ToArray(),
-                        Frames = a.Frames
-                    };
-
-                    // Add the animation to list
-                    commonDesign.Animations.Add(ca.ToCommonAnimation());
-                }
-            }
-
-            return commonDesign;
-        }
 
         protected override void LoadLocalization(Context context, Common_Lev level)
         {

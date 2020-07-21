@@ -12,7 +12,14 @@ namespace R1Engine
     /// </summary>
     public abstract class BaseEditorManager
     {
-        #region Constructor
+        #region Constructors
+
+        static BaseEditorManager()
+        {
+            // Load the event info data
+            using (var csvFile = File.OpenRead("Events.csv"))
+                AllEventInfoData = GeneralEventInfoData.ReadCSV(csvFile);
+        }
 
         /// <summary>
         /// Default constructor
@@ -52,14 +59,30 @@ namespace R1Engine
             // Set the available event types
             EventTypes = getEventTypeNames();
 
-            // Load the event info data
-            using (var csvFile = File.OpenRead("Events.csv"))
-                EventInfoData = GeneralEventInfoData.ReadCSV(csvFile).Where(IsAvailableInWorld).ToArray();
+            // Get the event info data
+            EventInfoData = AllEventInfoData.Where(IsAvailableInWorld).ToArray();
         }
 
         #endregion
 
-        #region Properties
+        #region Public Static Properties
+
+        /// <summary>
+        /// All loaded event info
+        /// </summary>
+        public static GeneralEventInfoData[] AllEventInfoData { get; }
+
+        public static EventType[] MultiColoredEvents => new EventType[]
+        {
+            EventType.TYPE_EDU_LETTRE,
+            EventType.MS_compteur,
+            EventType.MS_wiz_comptage,
+            EventType.MS_pap,
+        };
+
+        #endregion
+
+        #region Public Properties
 
         /// <summary>
         /// Indicates if the game has 3 palettes it swaps between
@@ -67,7 +90,7 @@ namespace R1Engine
         public virtual bool Has3Palettes => false;
 
         /// <summary>
-        /// The loaded event info
+        /// The loaded event info for this level
         /// </summary>
         protected GeneralEventInfoData[] EventInfoData { get; }
 

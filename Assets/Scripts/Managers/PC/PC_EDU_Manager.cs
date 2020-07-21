@@ -98,6 +98,8 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetEduVolumes(settings).Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile(GetSamplesArchiveFilePath(x)))).ToArray();
 
+        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesEdu[context.Settings.World] == desIndex && BaseEditorManager.MultiColoredEvents.Contains((EventType)x.Type));
+
         #endregion
 
         #region Manager Methods

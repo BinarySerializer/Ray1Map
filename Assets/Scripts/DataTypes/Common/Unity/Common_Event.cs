@@ -169,13 +169,7 @@ namespace R1Engine {
 
             // Update the animation index if not loading from memory
             if (!Settings.LoadFromMemory)
-            {
                 Data.Data.RuntimeCurrentAnimIndex = State?.AnimationIndex ?? 0;
-
-                // Hack for multi-colored events
-                if (Data.Type is EventType et && PC_RD_Manager.MultiColoredEvents.Contains(et))
-                    Data.Data.RuntimeCurrentAnimIndex = (byte)(Data.Data.RuntimeCurrentAnimIndex + ((EditorManager.DES[Data.DESKey].Animations.Count / 6) * Data.Data.HitPoints));
-            }
 
             // Check if the animation has changed
             if (PrevAnimIndex != Data.Data.RuntimeCurrentAnimIndex)
@@ -254,8 +248,15 @@ namespace R1Engine {
 
                 for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
                 {
+                    // Get the sprite index
+                    var spriteIndex = anim.Frames[frame].Layers[i].ImageIndex;
+
+                    // Change it if the event is multi-colored
+                    if (Data.Type is EventType et && BaseEditorManager.MultiColoredEvents.Contains(et))
+                        spriteIndex += ((sprites.Count / 6) * Data.Data.HitPoints);
+
                     // Set the sprite, skipping sprites which are out of bounds
-                    prefabRendereds[i].sprite = anim.Frames[frame].Layers[i].ImageIndex >= sprites.Count ? null : sprites[anim.Frames[frame].Layers[i].ImageIndex];
+                    prefabRendereds[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 
                     var isFlippedHor = anim.Frames[frame].Layers[i].IsFlippedHorizontally;
 
