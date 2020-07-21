@@ -33,8 +33,8 @@ namespace R1Engine
             SubEtat = subEtat;
             DesR1 = new ReadOnlyDictionary<World, int?>(desR1);
             EtaR1 = new ReadOnlyDictionary<World, int?>(etaR1);
-            DesEdu = new Dictionary<World, int?>(desEdu);
-            EtaEdu = new Dictionary<World, int?>(etaEdu);
+            DesEdu = new ReadOnlyDictionary<World, int?>(desEdu);
+            EtaEdu = new ReadOnlyDictionary<World, int?>(etaEdu);
             DesKit = new ReadOnlyDictionary<World, string>(desKit);
             EtaKit = new ReadOnlyDictionary<World, string>(etaKit);
             OffsetBX = offsetBx;
@@ -64,8 +64,8 @@ namespace R1Engine
         public IReadOnlyDictionary<World, int?> DesR1 { get; }
         public IReadOnlyDictionary<World, int?> EtaR1 { get; }
 
-        public IDictionary<World, int?> DesEdu { get; set; }
-        public IDictionary<World, int?> EtaEdu { get; set; }
+        public IReadOnlyDictionary<World, int?> DesEdu { get; }
+        public IReadOnlyDictionary<World, int?> EtaEdu { get; }
 
         public IReadOnlyDictionary<World, string> DesKit { get; }
         public IReadOnlyDictionary<World, string> EtaKit { get; }
@@ -81,8 +81,8 @@ namespace R1Engine
 
         public string[] ConnectedEvents { get; }
 
-        public ushort[] LabelOffsets { get; set; }
-        public byte[] Commands { get; set; }
+        public ushort[] LabelOffsets { get; }
+        public byte[] Commands { get; }
 
         #endregion
 
