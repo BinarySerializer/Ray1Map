@@ -1,6 +1,5 @@
-﻿using System;
+﻿using R1Engine.Serialize;
 using System.Collections.Generic;
-using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -31,7 +30,7 @@ namespace R1Engine
         /// <returns>The DES key</returns>
         public override string GetDesKey(GeneralEventInfoData eventInfoData)
         {
-            throw new NotImplementedException();
+            return eventInfoData.DesEdu[Settings.World]?.ToString();
         }
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace R1Engine
         /// <returns>The ETA key</returns>
         public override string GetEtaKey(GeneralEventInfoData eventInfoData)
         {
-            throw new NotImplementedException();
+            return eventInfoData.EtaEdu[Settings.World]?.ToString();
         }
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace R1Engine
         /// <returns>True if it's available, otherwise false</returns>
         public override bool IsAvailableInWorld(GeneralEventInfoData eventInfoData)
         {
-            return false;
+            return eventInfoData.DesEdu.ContainsKey(Settings.World) && eventInfoData.DesEdu[Settings.World] != null;
         }
     }
 }

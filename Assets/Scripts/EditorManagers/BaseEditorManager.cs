@@ -143,9 +143,7 @@ namespace R1Engine
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
-                cmds = e.LocalCommands.Any()
-                    ? Common_EventCommandCollection.FromBytes(e.LocalCommands, Settings)
-                    : EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(Common_EventCommandCollection.FromBytes(e.Commands, Settings), e.LabelOffsets), e.Commands);
+                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(Common_EventCommandCollection.FromBytes(e.Commands, Settings), e.LabelOffsets), e.Commands);
 
                 // Local commands don't use label offsets
                 labelOffsets = new ushort[0];
@@ -159,9 +157,11 @@ namespace R1Engine
                 }
                 else
                 {
-                    var cmdData = EventCommandCompiler.Compile(Common_EventCommandCollection.FromBytes(e.LocalCommands, Settings), e.LocalCommands);
-                    cmds = cmdData.Commands;
-                    labelOffsets = cmdData.LabelOffsets;
+                    cmds = new Common_EventCommandCollection()
+                    {
+                        Commands = new Common_EventCommand[0]
+                    };
+                    labelOffsets = new ushort[0];
                 }
             }
 
@@ -220,7 +220,8 @@ namespace R1Engine
             bool compareCommands(GeneralEventInfoData e)
             {
                 if (UsesLocalCommands)
-                    return e.LocalCommands.SequenceEqual(commands);
+                    // TODO: Compile commands and compare them!
+                    return false;
                 else
                     return e.LabelOffsets.SequenceEqual(labelOffsets ?? new ushort[0]) &&
                            e.Commands.SequenceEqual(commands ?? new byte[0]);

@@ -15,30 +15,16 @@ namespace R1Engine
     {
         #region Constructor
 
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="type"></param>
-        /// <param name="typeName"></param>
-        /// <param name="etat"></param>
-        /// <param name="subEtat"></param>
-        /// <param name="desR1"></param>
-        /// <param name="etaR1"></param>
-        /// <param name="desKit"></param>
-        /// <param name="etaKit"></param>
-        /// <param name="offsetBx"></param>
-        /// <param name="offsetBy"></param>
-        /// <param name="offsetHy"></param>
-        /// <param name="followSprite"></param>
-        /// <param name="hitPoints"></param>
-        /// <param name="hitSprite"></param>
-        /// <param name="followEnabled"></param>
-        /// <param name="connectedEvents"></param>
-        /// <param name="labelOffsets"></param>
-        /// <param name="commands"></param>
-        /// <param name="localCommands"></param>
-        public GeneralEventInfoData(string name, int type, string typeName, int etat, int subEtat, IDictionary<World, int?> desR1, IDictionary<World, int?> etaR1, IDictionary<World, string> desKit, IDictionary<World, string> etaKit, int offsetBx, int offsetBy, int offsetHy, int followSprite, int hitPoints, int hitSprite, bool followEnabled, string[] connectedEvents, ushort[] labelOffsets, byte[] commands, byte[] localCommands)
+        public GeneralEventInfoData(string name, 
+            ushort type, string typeName, 
+            byte etat, byte subEtat, 
+            IDictionary<World, int?> desR1, IDictionary<World, int?> etaR1, 
+            IDictionary<World, int?> desEdu, IDictionary<World, int?> etaEdu, 
+            IDictionary<World, string> desKit, IDictionary<World, string> etaKit,
+            byte offsetBx, byte offsetBy, byte offsetHy,
+            byte followSprite, byte hitPoints, byte hitSprite, bool followEnabled, 
+            string[] connectedEvents, 
+            ushort[] labelOffsets, byte[] commands)
         {
             Name = name;
             Type = type;
@@ -47,6 +33,8 @@ namespace R1Engine
             SubEtat = subEtat;
             DesR1 = new ReadOnlyDictionary<World, int?>(desR1);
             EtaR1 = new ReadOnlyDictionary<World, int?>(etaR1);
+            DesEdu = new Dictionary<World, int?>(desEdu);
+            EtaEdu = new Dictionary<World, int?>(etaEdu);
             DesKit = new ReadOnlyDictionary<World, string>(desKit);
             EtaKit = new ReadOnlyDictionary<World, string>(etaKit);
             OffsetBX = offsetBx;
@@ -59,7 +47,6 @@ namespace R1Engine
             ConnectedEvents = connectedEvents;
             LabelOffsets = labelOffsets;
             Commands = commands;
-            LocalCommands = localCommands;
         }
 
         #endregion
@@ -68,43 +55,34 @@ namespace R1Engine
 
         public string Name { get; }
 
-        public int Type { get; }
-
+        public ushort Type { get; }
         public string TypeName { get; }
 
-        public int Etat { get; }
-
-        public int SubEtat { get; }
+        public byte Etat { get; }
+        public byte SubEtat { get; }
 
         public IReadOnlyDictionary<World, int?> DesR1 { get; }
-
         public IReadOnlyDictionary<World, int?> EtaR1 { get; }
 
-        public IReadOnlyDictionary<World, string> DesKit { get; }
+        public IDictionary<World, int?> DesEdu { get; set; }
+        public IDictionary<World, int?> EtaEdu { get; set; }
 
+        public IReadOnlyDictionary<World, string> DesKit { get; }
         public IReadOnlyDictionary<World, string> EtaKit { get; }
 
-        public int OffsetBX { get; }
+        public byte OffsetBX { get; }
+        public byte OffsetBY { get; }
+        public byte OffsetHY { get; }
 
-        public int OffsetBY { get; }
-
-        public int OffsetHY { get; }
-
-        public int FollowSprite { get; }
-
-        public int HitPoints { get; }
-
-        public int HitSprite { get; }
-
+        public byte FollowSprite { get; }
+        public byte HitPoints { get; }
+        public byte HitSprite { get; }
         public bool FollowEnabled { get; }
 
         public string[] ConnectedEvents { get; }
 
-        public ushort[] LabelOffsets { get; }
-
-        public byte[] Commands { get; }
-
-        public byte[] LocalCommands { get; }
+        public ushort[] LabelOffsets { get; set; }
+        public byte[] Commands { get; set; }
 
         #endregion
 
@@ -145,7 +123,8 @@ namespace R1Engine
                         // Helper methods for parsing values
                         string nextValue() => line[index++];
                         bool nextBoolValue() => Boolean.Parse(line[index++]);
-                        int nextIntValue() => Int32.Parse(nextValue());
+                        ushort nextUShortValue() => UInt16.Parse(nextValue());
+                        byte nextByteValue() => Byte.Parse(nextValue());
                         //T? nextEnumValue<T>() where T : struct => Enum.TryParse(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
                         ushort[] next16ArrayValue() => nextValue().Split('-').Where(x => !String.IsNullOrWhiteSpace(x)).Select(UInt16.Parse).ToArray();
                         int?[] next32NullableArrayValue() => nextValue().Split('-').Select(x => String.IsNullOrWhiteSpace(x) ? null : (int?)Int32.Parse(x)).ToArray();
@@ -163,7 +142,16 @@ namespace R1Engine
                         }
 
                         // Add the item to the output
-                        output.Add(new GeneralEventInfoData(nextValue(), nextIntValue(), nextValue(), nextIntValue(), nextIntValue(), toDictionary(next32NullableArrayValue()), toDictionary(next32NullableArrayValue()), toDictionary(nextStringArrayValue()), toDictionary(nextStringArrayValue()), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextIntValue(), nextBoolValue(), nextStringArrayValue(), next16ArrayValue(), next8ArrayValue(), next8ArrayValue()));
+                        output.Add(new GeneralEventInfoData(name: nextValue(), 
+                            type: nextUShortValue(), typeName: nextValue(), 
+                            etat: nextByteValue(), subEtat: nextByteValue(), 
+                            desR1: toDictionary(next32NullableArrayValue()), etaR1: toDictionary(next32NullableArrayValue()), 
+                            desEdu: toDictionary(next32NullableArrayValue()), etaEdu: toDictionary(next32NullableArrayValue()), 
+                            desKit: toDictionary(nextStringArrayValue()), etaKit: toDictionary(nextStringArrayValue()), 
+                            offsetBx: nextByteValue(), offsetBy: nextByteValue(), offsetHy: nextByteValue(), 
+                            followSprite: nextByteValue(), hitPoints: nextByteValue(), hitSprite: nextByteValue(), followEnabled: nextBoolValue(), 
+                            connectedEvents: nextStringArrayValue(), 
+                            labelOffsets: next16ArrayValue(), commands: next8ArrayValue()));
                     }
                     catch (Exception ex)
                     {
@@ -230,15 +218,33 @@ namespace R1Engine
                 }
 
                 // Write header
-                WriteLine("Name", "Type", "TypeName", "Etat", "SubEtat", "DesR1", "EtaR1", "DesKit", "EtaKit", "OffsetBX", "OffsetBY", "OffsetHY", "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", "ConnectedEvents", "LabelOffsets", "Commands", "LocalCommands");
+                WriteLine("Name", 
+                    "Type", "TypeName", 
+                    "Etat", "SubEtat", 
+                    "DesR1", "EtaR1", 
+                    "DesEdu", "EtaEdu", 
+                    "DesKit", "EtaKit", 
+                    "OffsetBX", "OffsetBY", "OffsetHY", 
+                    "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", 
+                    "ConnectedEvents", 
+                    "LabelOffsets", "Commands");
 
                 // Get the enumerable
-                var collection = sort ? eventInfoDatas.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat) : eventInfoDatas;
+                var collection = sort ? eventInfoDatas.OrderBy(x => x.Type).ThenBy(x => x.Etat).ThenBy(x => x.SubEtat).ThenBy(x => x.HitPoints).ThenBy(x => x.Commands?.Length ?? 0) : eventInfoDatas;
 
                 // Write every item on a new line
                 foreach (var e in collection)
                 {
-                    WriteLine(e.Name, e.Type, e.TypeName, e.Etat, e.SubEtat, e.DesR1, e.EtaR1, e.DesKit, e.EtaKit, e.OffsetBX, e.OffsetBY, e.OffsetHY, e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, e.ConnectedEvents, e.LabelOffsets, e.Commands, e.LocalCommands);
+                    WriteLine(e.Name, 
+                        e.Type, e.TypeName, 
+                        e.Etat, e.SubEtat, 
+                        e.DesR1, e.EtaR1, 
+                        e.DesEdu, e.EtaEdu, 
+                        e.DesKit, e.EtaKit, 
+                        e.OffsetBX, e.OffsetBY, e.OffsetHY, 
+                        e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, 
+                        e.ConnectedEvents, 
+                        e.LabelOffsets, e.Commands);
                 }
             }
         }
