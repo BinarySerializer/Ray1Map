@@ -22,12 +22,13 @@ namespace R1Engine
             var labelOffsets = new List<ushort>();
             
             // Keep track of the command byte index
+            var commandByteIndex = 0;
             var commandIndex = 0;
 
             foreach (var command in commands.Commands)
             {
                 // Increment the index for the command declaration
-                commandIndex++;
+                commandByteIndex++;
 
                 EventCommand GetCompiledVersion()
                 {
@@ -67,11 +68,17 @@ namespace R1Engine
                     case EventCommand.GO_BRANCHTRUE:
                     case EventCommand.GO_BRANCHFALSE:
 
-                        // Get the offset
-                        var offset = command.Arguments[0];
+                        // Get the label
+                        var label = command.Arguments[0];
+
+                        // Find the matching commands
+                        var labelCmdIndex = commands.Commands.FindItemIndex(x => x.Command == EventCommand.GO_LABEL && x.Arguments.FirstOrDefault() == label);
+
+                        // Get the offset 
+                        var offset = commands.Commands.Take(labelCmdIndex).Sum(x => x.Length) + 1;
 
                         // Add the offset to the label offsets
-                        labelOffsets.Add(offset);
+                        labelOffsets.Add((ushort)offset);
 
                         // Add the command
                         compiledCommands.Add(new Common_EventCommand()
@@ -90,11 +97,35 @@ namespace R1Engine
                     case EventCommand.GO_SKIPTRUE:
                     case EventCommand.GO_SKIPFALSE:
 
-                        // Get the number of bytes to skip
+                        // Get the number of cmds to skip
                         var toSkip = command.Arguments[0];
 
-                        // Get the offset to skip to (based on current index, the argument length and the to skip value)
-                        var skipToOffset = commandIndex + 1 + toSkip;
+                        // Get the offset to skip to, starting at the next command index
+                        var skipToOffset = commandByteIndex + 1;
+
+                        int curCmd = commandIndex + 1;
+                        for (int i = 0; i < toSkip; i++)
+                        {
+                            var cmd = commands.Commands[curCmd % commands.Commands.Length];
+                            skipToOffset += cmd.Length;
+                            if (cmd.Command == EventCommand.INVALID_CMD)
+                            {
+                                curCmd = 0;
+                                skipToOffset = commands.Commands[curCmd].Length;
+                            }
+                            curCmd++;
+                        }
+
+                        if (commands.Commands[curCmd % commands.Commands.Length].Command == EventCommand.GO_LABEL)
+                        {
+                            skipToOffset += 2;
+                            curCmd++;
+                        }
+
+                        skipToOffset -= 1;
+
+                        // Overflow
+                        skipToOffset %= commands.Commands.Sum(x => x.Length);
 
                         // Add the offset to the label offsets
                         labelOffsets.Add((byte)skipToOffset);
@@ -125,7 +156,8 @@ namespace R1Engine
                 }
 
                 // Increment the index for every argument
-                commandIndex += command.Arguments.Length;
+                commandByteIndex += command.Arguments.Length;
+                commandIndex++;
             }
 
             // Return the compiled commands

@@ -21,7 +21,7 @@
         GO_SUBSTATE = 0x5,
 
         /// <summary>
-        /// Skips {arg1} bytes
+        /// Skips {arg1} arguments
         /// </summary>
         GO_SKIP = 0x6,
 
@@ -44,12 +44,12 @@
         GO_LABEL = 0xB,
 
         /// <summary>
-        /// Skips to {arg1}
+        /// Skips to label {arg1}
         /// </summary>
         GO_GOTO = 0xC,
 
         /// <summary>
-        /// Saves the current position and starts executing from {arg1} until GO_RETURN
+        /// Saves the current position and starts executing from label {arg1} until GO_RETURN
         /// </summary>
         GO_GOSUB = 0xD,
 
@@ -59,12 +59,12 @@
         GO_RETURN = 0xE,
 
         /// <summary>
-        /// Skips to {arg1} if true
+        /// Skips to label {arg1} if true
         /// </summary>
         GO_BRANCHTRUE = 0xF,
 
         /// <summary>
-        /// Skips to {arg1} if false
+        /// Skips to label {arg1} if false
         /// </summary>
         GO_BRANCHFALSE = 0x10,
         
@@ -132,12 +132,12 @@
         GO_NOP = 0x1E,
 
         /// <summary>
-        /// Skips {arg1} bytes if true
+        /// Skips {arg1} commands if true
         /// </summary>
         GO_SKIPTRUE = 0x1F,
 
         /// <summary>
-        /// Skips {arg1} bytes if false
+        /// Skips {arg1} commands if false
         /// </summary>
         GO_SKIPFALSE = 0x20,
 
