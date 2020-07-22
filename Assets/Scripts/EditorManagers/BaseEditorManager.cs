@@ -72,14 +72,6 @@ namespace R1Engine
         /// </summary>
         public static GeneralEventInfoData[] AllEventInfoData { get; }
 
-        public static EventType[] MultiColoredEvents => new EventType[]
-        {
-            EventType.TYPE_EDU_LETTRE,
-            EventType.MS_compteur,
-            EventType.MS_wiz_comptage,
-            EventType.MS_pap,
-        };
-
         #endregion
 
         #region Public Properties

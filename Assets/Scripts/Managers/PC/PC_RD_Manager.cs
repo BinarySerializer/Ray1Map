@@ -134,7 +134,7 @@ namespace R1Engine
 
             var nameWithoutExt = name.Length > 4 ? name.Substring(0, name.Length - 4) : name;
 
-            return generalEvents.Any(x => x.DesKit[context.Settings.World] == nameWithoutExt && BaseEditorManager.MultiColoredEvents.Contains((EventType) x.Type));
+            return generalEvents.Any(x => x.DesKit[context.Settings.World] == nameWithoutExt && ((EventType)x.Type).IsMultiColored());
         }
 
         #endregion

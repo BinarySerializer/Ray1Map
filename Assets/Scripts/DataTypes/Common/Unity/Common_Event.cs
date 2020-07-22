@@ -16,7 +16,7 @@ namespace R1Engine {
         public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
         public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Data.RuntimeEtat)?.ElementAtOrDefault(Data.Data.RuntimeSubEtat);
         public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.Data.RuntimeCurrentAnimIndex);
-        public int AnimSpeed => Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON) ? 0 : State?.AnimationSpeed ?? 0;
+        public int AnimSpeed => Data.Type is EventType et && et.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0;
 
         public byte? PrevAnimIndex { get; set; }
         public float EditorAnimFrame { get; set; }
@@ -112,12 +112,12 @@ namespace R1Engine {
             if (CurrentAnimation != null && !Settings.LoadFromMemory) 
             {
                 // Set frame based on hit points for special events
-                if (Data.Type is EventType et && (et == EventType.TYPE_PUNAISE4 || et == EventType.TYPE_FALLING_CRAYON))
+                if (Data.Type is EventType et && et.IsHPFrame())
                 {
                     Data.Data.RuntimeCurrentAnimFrame = Data.Data.HitPoints;
                     EditorAnimFrame = Data.Data.HitPoints;
                 }
-                else if (Data.Type is EventType et2 && (et2 == EventType.TYPE_EDU_LETTRE))
+                else if (Data.Type is EventType et2 && et2.UsesEditorFrame())
                 {
                     EditorAnimFrame = Data.Data.RuntimeCurrentAnimFrame;
                 }
@@ -190,7 +190,7 @@ namespace R1Engine {
                     // Reset the current frame
                     if (!Settings.LoadFromMemory)
                     {
-                        if (Data.Data.Type != EventType.TYPE_EDU_LETTRE)
+                        if (!Data.Data.Type.UsesEditorFrame())
                         {
                             Data.Data.RuntimeCurrentAnimFrame = 0;
                             EditorAnimFrame = 0;
@@ -252,7 +252,7 @@ namespace R1Engine {
                     var spriteIndex = anim.Frames[frame].Layers[i].ImageIndex;
 
                     // Change it if the event is multi-colored
-                    if (Data.Type is EventType et && BaseEditorManager.MultiColoredEvents.Contains(et))
+                    if (Data.Type is EventType et && et.IsMultiColored())
                         spriteIndex += ((sprites.Count / 6) * Data.Data.HitPoints);
 
                     // Set the sprite, skipping sprites which are out of bounds
