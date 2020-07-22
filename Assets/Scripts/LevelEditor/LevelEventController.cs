@@ -639,7 +639,7 @@ namespace R1Engine
                                    $"Unk_86: {ed.Data.Unk_86}{Environment.NewLine}" +
                                    $"Unk_88: {ed.Data.Unk_88}{Environment.NewLine}" +
                                    $"Unk_90: {ed.Data.Unk_90}{Environment.NewLine}" +
-                                   $"Unk_92: {ed.Data.Unk_92}{Environment.NewLine}" +
+                                   $"Runtime_ZdcIndex: {ed.Data.Runtime_ZdcIndex}{Environment.NewLine}" +
                                    $"Unk_94: {ed.Data.Unk_94}{Environment.NewLine}" +
                                    $"{Environment.NewLine}" +
                                    $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";

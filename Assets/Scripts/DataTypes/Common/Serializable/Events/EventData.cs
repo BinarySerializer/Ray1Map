@@ -126,7 +126,10 @@ namespace R1Engine
         public ushort Unk_86 { get; set; }
         public ushort Unk_88 { get; set; }
         public ushort Unk_90 { get; set; }
-        public ushort Unk_92 { get; set; }
+
+        // TODO: How does this value get set? Appears to be from the type_zdc table, but doesn't always match
+        // This, ignoring the last bit, is the index for the collision to use in the hard-coded zdc_tab table (with the structure of x, y, width, height, unk1, unk2)
+        public ushort Runtime_ZdcIndex { get; set; }
         public ushort Unk_94 { get; set; }
 
         public ushort PS1_Unk2 { get; set; }
@@ -385,7 +388,7 @@ namespace R1Engine
             
             Unk_88 = s.Serialize<ushort>(Unk_88, name: nameof(Unk_88));
             Unk_90 = s.Serialize<ushort>(Unk_90, name: nameof(Unk_90));
-            Unk_92 = s.Serialize<ushort>(Unk_92, name: nameof(Unk_92));
+            Runtime_ZdcIndex = s.Serialize<ushort>(Runtime_ZdcIndex, name: nameof(Runtime_ZdcIndex));
             Unk_94 = s.Serialize<ushort>(Unk_94, name: nameof(Unk_94));
 
             if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.PS1)
