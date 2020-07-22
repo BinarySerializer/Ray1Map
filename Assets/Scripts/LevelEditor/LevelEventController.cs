@@ -523,6 +523,30 @@ namespace R1Engine
                     currentId++;
                 }
 
+                // Change frame with right and left arrows if not animation and not loading from memory
+                if (SelectedEvent != null && !Settings.LoadFromMemory && !Settings.AnimateSprites)
+                {
+                    if (Input.GetKeyDown(KeyCode.O))
+                    {
+                        var frame = SelectedEvent.EditorAnimFrame - 1;
+
+                        if (frame < 0)
+                            frame = SelectedEvent.CurrentAnimation.Frames.Length - 1;
+
+                        SelectedEvent.EditorAnimFrame = SelectedEvent.Data.Data.RuntimeCurrentAnimFrame = (byte)frame;
+                    }
+
+                    if (Input.GetKeyDown(KeyCode.P))
+                    {
+                        var frame = SelectedEvent.EditorAnimFrame + 1;
+
+                        if (frame >= SelectedEvent.CurrentAnimation.Frames.Length)
+                            frame = 0;
+
+                        SelectedEvent.EditorAnimFrame = SelectedEvent.Data.Data.RuntimeCurrentAnimFrame = (byte)frame;
+                    }
+                }
+
                 // Delete selected event
                 if (Input.GetKeyDown(KeyCode.Delete) && modeEvents && SelectedEvent != null)
                 {
