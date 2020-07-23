@@ -16,7 +16,7 @@ namespace R1Engine {
         public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
         public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Data.RuntimeEtat)?.ElementAtOrDefault(Data.Data.RuntimeSubEtat);
         public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.Data.RuntimeCurrentAnimIndex);
-        public int AnimSpeed => Data.Type is EventType et && et.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0;
+        public int AnimSpeed => (Data.ForceNoAnimation || (Data.Type is EventType et && et.IsHPFrame())) ? 0 : State?.AnimationSpeed ?? 0;
 
         public byte? PrevAnimIndex { get; set; }
         public float EditorAnimFrame { get; set; }
@@ -116,6 +116,10 @@ namespace R1Engine {
                 {
                     Data.Data.RuntimeCurrentAnimFrame = Data.Data.HitPoints;
                     EditorAnimFrame = Data.Data.HitPoints;
+                }
+                else if (Data.ForceFrame != null && Data.ForceNoAnimation)
+                {
+                    EditorAnimFrame = Data.Data.RuntimeCurrentAnimFrame = Data.ForceFrame.Value;
                 }
                 else if (Data.Type is EventType et2 && et2.UsesEditorFrame())
                 {

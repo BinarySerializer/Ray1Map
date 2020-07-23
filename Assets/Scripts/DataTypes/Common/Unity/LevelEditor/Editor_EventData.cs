@@ -62,6 +62,16 @@ namespace R1Engine
         /// </summary>
         public bool ForceAlways { get; set; }
 
+        /// <summary>
+        /// True if the event is forced to have its animation speed to 0
+        /// </summary>
+        public bool ForceNoAnimation { get; set; }
+        
+        /// <summary>
+        /// Optional frame to freeze at if <see cref="ForceNoAnimation"/> is true
+        /// </summary>
+        public byte? ForceFrame { get; set; }
+
         #endregion
 
         #region Methods

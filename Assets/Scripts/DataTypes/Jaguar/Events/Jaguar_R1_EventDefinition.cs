@@ -28,12 +28,13 @@ namespace R1Engine
 		public byte Byte_22 { get; set; }
 		public byte Byte_23 { get; set; }
 		public ushort UShort_24 { get; set; }
-		public ushort UShort_26 { get; set; }
 
 		public byte[] UnkBytes { get; set; }
 		public byte Byte_24 { get; set; }
+
 		public byte Byte_25 { get; set; }
-		public byte Byte_26 { get; set; }
+        public byte Byte_26 { get; set; }
+
 		public byte Byte_27 { get; set; }
 		public Pointer UnkPointer1 { get; set; }
 		public Pointer UnkPointer2 { get; set; }
@@ -74,7 +75,8 @@ namespace R1Engine
 				Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
 				Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 				UShort_24 = s.Serialize<ushort>(UShort_24, name: nameof(UShort_24));
-				UShort_26 = s.Serialize<ushort>(UShort_26, name: nameof(UShort_26));
+                Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
+                Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 				CodePointer = s.SerializePointer(CodePointer, name: nameof(CodePointer));
 			} else if (StructType == 6 || StructType == 7 || StructType == 30 || StructType == 31 || (s.GameSettings.EngineVersion == EngineVersion.RayJaguarProto && StructType == 15)) {
 				CurrentStatePointer = s.SerializePointer(CurrentStatePointer, name: nameof(CurrentStatePointer));
@@ -84,7 +86,8 @@ namespace R1Engine
 				ImageBufferMemoryPointerPointer = s.Serialize<uint>(ImageBufferMemoryPointerPointer, name: nameof(ImageBufferMemoryPointerPointer));
 				UInt_1C = s.Serialize<uint>(UInt_1C, name: nameof(UInt_1C));
 				UShort_24 = s.Serialize<ushort>(UShort_24, name: nameof(UShort_24));
-				UShort_26 = s.Serialize<ushort>(UShort_26, name: nameof(UShort_26));
+                Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
+                Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 				Byte_20 = s.Serialize<byte>(Byte_20, name: nameof(Byte_20));
 				Byte_21 = s.Serialize<byte>(Byte_21, name: nameof(Byte_21));
 				Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
@@ -146,7 +149,8 @@ namespace R1Engine
 				Byte_22 = s.Serialize<byte>(Byte_22, name: nameof(Byte_22));
 				Byte_23 = s.Serialize<byte>(Byte_23, name: nameof(Byte_23));
 				UShort_24 = s.Serialize<ushort>(UShort_24, name: nameof(UShort_24));
-				UShort_26 = s.Serialize<ushort>(UShort_26, name: nameof(UShort_26));
+                Byte_25 = s.Serialize<byte>(Byte_25, name: nameof(Byte_25));
+                Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 			}
 
 			// Serialize event states

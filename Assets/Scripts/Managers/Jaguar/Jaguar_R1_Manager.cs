@@ -1058,6 +1058,41 @@ namespace R1Engine
                 }
             }
 
+            var forceNoAnimation = new uint[]
+            {
+                // Pencils
+                0x00003A98,
+                0x00003AC0,
+                0x00003AE8,
+            };
+
+            var forceFrame1 = new uint[]
+            {
+                // Pins
+                0x000038E0,
+                0x00003908,
+                0x00003930,
+                0x00003958,
+                0x00003980,
+                0x000039A8,
+                0x000039D0,
+                0x000039F8,
+                0x00003A20,
+                0x00003A48
+            };
+            var forceFrame2 = new uint[]
+            {
+                // Falling pencils
+                0x00003E80,
+                0x00003EA8,
+                0x00003ED0,
+                0x00003EF8,
+                0x00003F20,
+                0x00003F48,
+                0x00003F70,
+                0x00003F98,
+            };
+
             // Add the event
             return new Editor_EventData(new EventData()
             {
@@ -1069,6 +1104,11 @@ namespace R1Engine
                 ETAKey = etatKey,
 
                 Type = EventType.TYPE_BADGUY1,
+
+                ForceNoAnimation = forceNoAnimation.Contains(ed.Offset.FileOffset) || 
+                                   forceFrame1.Contains(ed.Offset.FileOffset) ||
+                                   forceFrame2.Contains(ed.Offset.FileOffset),
+                ForceFrame = forceFrame1.Contains(ed.Offset.FileOffset) ? (byte?)ed.Byte_25 : forceFrame2.Contains(ed.Offset.FileOffset) ? (byte?)ed.Byte_26 : null
             };
         }
         protected enum SpecialEventType {
@@ -1295,6 +1335,8 @@ namespace R1Engine
                                           $"MapPos: {mapPos}{Environment.NewLine}" +
                                           $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
                                           $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
+                                          $"Byte_25: {e.EventDefinition.Byte_25}{Environment.NewLine}" +
+                                          $"Byte_26: {e.EventDefinition.Byte_26}{Environment.NewLine}" +
                                           $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
                                           $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}";
 
