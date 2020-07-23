@@ -98,6 +98,22 @@ namespace R1Engine
             filePath = filePath
         };
 
+        protected override void LoadLocalization(Context context, Common_Lev level)
+        {
+            // Read the language file
+            var lng = FileFactory.ReadText<PC_R1_LNGFile>(GetLanguageFilePath(), context);
+
+            // Set the common localization
+            level.Localization = new Dictionary<string, string[]>()
+            {
+                ["English1"] = lng.Strings[0],
+                ["English2"] = lng.Strings[1],
+                ["English3"] = lng.Strings[2],
+                ["French"] = lng.Strings[3],
+                ["German"] = lng.Strings[4],
+            };
+        }
+
         #endregion
     }
 }
