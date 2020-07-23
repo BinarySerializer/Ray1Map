@@ -171,6 +171,10 @@ namespace R1Engine
             SetLayerVisibility(1);
         }
 
+        public void SetCurrentType(int type)
+        {
+            currentType = (R1_TileCollisionType)type;
+        }
         public void ClearSelection() {
             selection = null;
             tileSelectSquare.Clear();
