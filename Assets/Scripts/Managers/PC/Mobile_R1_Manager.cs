@@ -180,26 +180,25 @@ namespace R1Engine
 
         protected override void LoadLocalization(Context context, Common_Lev level)
         {
-            // TODO: The encoding for all of these is wrong
             var langs = new[]
             {
                 new
                 {
                     LangCode = "EN",
                     Language = "English",
-                    Encoding = Encoding.UTF8
+                    Encoding = Settings.StringEncoding
                 },
                 new
                 {
                     LangCode = "FR",
                     Language = "French",
-                    Encoding = Encoding.UTF8
+                    Encoding = Settings.StringEncoding
                 },
                 new
                 {
                     LangCode = "DE",
                     Language = "German",
-                    Encoding = Encoding.UTF8
+                    Encoding = Settings.StringEncoding
                 },
                 new
                 {
@@ -217,31 +216,31 @@ namespace R1Engine
                 {
                     LangCode = "KO",
                     Language = "Korean",
-                    Encoding = Encoding.Unicode
+                    Encoding = Encoding.UTF8
                 },
                 new
                 {
                     LangCode = "JA",
                     Language = "Japanese",
-                    Encoding = Encoding.Unicode
+                    Encoding = Encoding.UTF8
                 },
                 new
                 {
                     LangCode = "RU",
                     Language = "Russian",
-                    Encoding = Encoding.Unicode
+                    Encoding = Encoding.UTF8
                 },
                 new
                 {
                     LangCode = "ZH",
                     Language = "Chinese (Simplified)",
-                    Encoding = Encoding.Unicode
+                    Encoding = Encoding.UTF8
                 },
                 new
                 {
                     LangCode = "Zu",
                     Language = "Chinese (Traditional)",
-                    Encoding = Encoding.Unicode
+                    Encoding = Encoding.UTF8
                 },
             };
 

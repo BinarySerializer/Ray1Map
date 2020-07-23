@@ -130,6 +130,20 @@ namespace R1Engine
                 if (Strings == null)
                     Strings = new string[5][];
 
+                var enc = new Encoding[]
+                {
+                    // English
+                    Encoding.GetEncoding(437),
+                    // French
+                    Encoding.GetEncoding(1252),
+                    // German
+                    Encoding.GetEncoding(437),
+                    // Spanish
+                    Encoding.GetEncoding(1252),
+                    // Italian
+                    Encoding.GetEncoding(1252),
+                };
+
                 for (int i = 0; i < Strings.Length; i++)
                 {
                     if (Strings[i] == null)
@@ -137,8 +151,7 @@ namespace R1Engine
 
                     for (int j = 0; j < Strings[i].Length; j++)
                     {
-                        // TODO: The encoding is wrong!
-                        s.DoAt(StringPointerTable[i * 259 + j], () => Strings[i][j] = s.SerializeString(Strings[i][j], encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}][{j}]"));
+                        s.DoAt(StringPointerTable[i * 259 + j], () => Strings[i][j] = s.SerializeString(Strings[i][j], encoding: enc[i], name: $"{nameof(Strings)}[{i}][{j}]"));
                     }
                 }
             });
