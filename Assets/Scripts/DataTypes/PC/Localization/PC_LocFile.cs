@@ -31,7 +31,7 @@
             LanguageUtilized = s.Serialize<byte>(LanguageUtilized, name: nameof(LanguageUtilized));
             KeyboardType = s.Serialize<KeyboardTypes>(KeyboardType, name: nameof(KeyboardType));
 
-            LanguageNames = s.SerializeStringArray(LanguageNames, NumberOfLanguages, 11, name: nameof(LanguageNames));
+            LanguageNames = s.SerializeStringArray(LanguageNames, 3, 11, name: nameof(LanguageNames));
 
             TextDefineCount = s.Serialize<uint>(TextDefineCount, name: nameof(TextDefineCount));
             Unk1 = s.Serialize<ushort>(Unk1, name: nameof(Unk1));
