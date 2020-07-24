@@ -2,9 +2,15 @@
 {
     public class PC_SampleName : R1Serializable
     {
+        /// <summary>
+        /// The name of the sample
+        /// </summary>
         public string SampleName { get; set; }
 
-        public ushort Value { get; set; }
+        /// <summary>
+        /// The time before the sample can be repeated, in seconds
+        /// </summary>
+        public ushort RepeatTime { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -13,7 +19,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             SampleName = s.SerializeString(SampleName, 9, name: nameof(SampleName));
-            Value = s.Serialize<ushort>(Value, name: nameof(Value));
+            RepeatTime = s.Serialize<ushort>(RepeatTime, name: nameof(RepeatTime));
         }
     }
 }
