@@ -28,12 +28,7 @@
         /// <summary>
         /// The file name
         /// </summary>
-        public byte[] FileName { get; set; }
-
-        /// <summary>
-        /// The file name as a string
-        /// </summary>
-        public string FileNameString => Settings.StringEncoding.GetString(FileName).TrimEnd('\0');
+        public string FileName { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -46,7 +41,7 @@
             FileOffset = s.Serialize<uint>(FileOffset, name: nameof(FileOffset));
             FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
 
-            s.DoXOR(XORKey, () => FileName = s.SerializeArray<byte>(FileName, 9, name: nameof(FileName)));
+            s.DoXOR(XORKey, () => FileName = s.SerializeString(FileName, 9, name: nameof(FileName)));
         }
     }
 }

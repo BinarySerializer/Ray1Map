@@ -977,7 +977,7 @@ namespace R1Engine
 
             // Return the data
             for (int i = 0; i < data.DecodedFiles.Length; i++)
-                yield return new ArchiveData(data.Entries[i].FileNameString, data.DecodedFiles[i]);
+                yield return new ArchiveData(data.Entries[i].FileName, data.DecodedFiles[i]);
         }
 
         /// <summary>
@@ -1754,7 +1754,7 @@ namespace R1Engine
                     return data.DecodedFiles.Select((x, i) => new
                     {
                         FileData = x,
-                        FileName = data.Entries[i].FileNameString
+                        FileName = data.Entries[i].FileName
                     });
                 }).ToArray();
 

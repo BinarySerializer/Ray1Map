@@ -165,7 +165,7 @@ namespace R1Engine
                 string locName;
 
                 // Create a stream for the text data
-                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileNameString == "TEXT")]))
+                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileName == "TEXT")]))
                 {
                     var key = $"TEXT{lang}";
 
@@ -183,7 +183,7 @@ namespace R1Engine
                 }
 
                 // Create a stream for the general data
-                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileNameString == "GENERAL")]))
+                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileName == "GENERAL")]))
                 {
                     var key = $"GENERAL{lang}";
 
