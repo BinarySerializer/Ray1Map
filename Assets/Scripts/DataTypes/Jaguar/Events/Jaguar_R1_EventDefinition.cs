@@ -47,6 +47,7 @@ namespace R1Engine
 
 		#region Parsed from Pointers
 
+		public byte[] CarData { get; set; }
 		public Common_ImageDescriptor[] ImageDescriptors { get; set; }
 		public Jaguar_R1_EventState[] States { get; set; }
 		public Jaguar_R1_EventComplexData ComplexData { get; set; }
@@ -281,6 +282,8 @@ namespace R1Engine
                     }
                 });
             }
+
+			s.DoAt(CarPointer, () => CarData = s.SerializeArray<byte>(CarData, 0x26, name: nameof(CarData)));
 		}
 
 

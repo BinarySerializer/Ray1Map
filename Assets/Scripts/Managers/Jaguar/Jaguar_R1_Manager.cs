@@ -1335,6 +1335,7 @@ namespace R1Engine
                                           $"MapPos: {mapPos}{Environment.NewLine}" +
                                           $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
                                           $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
+                                          $"CAR: {String.Join("-", e.EventDefinition.CarData ?? new byte[0])}{Environment.NewLine}" +
                                           $"Byte_25: {e.EventDefinition.Byte_25}{Environment.NewLine}" +
                                           $"Byte_26: {e.EventDefinition.Byte_26}{Environment.NewLine}" +
                                           $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
