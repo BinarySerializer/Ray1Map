@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using UnityEngine;
+
+namespace R1Engine
 {
     public class PC_LocFile : R1Serializable
     {
@@ -11,6 +13,8 @@
         public KeyboardTypes KeyboardType { get; set; }
 
         public string[] LanguageNames { get; set; }
+
+        public ushort Unk0 { get; set; }
 
         public uint TextDefineCount { get; set; }
         
@@ -31,7 +35,13 @@
             LanguageUtilized = s.Serialize<byte>(LanguageUtilized, name: nameof(LanguageUtilized));
             KeyboardType = s.Serialize<KeyboardTypes>(KeyboardType, name: nameof(KeyboardType));
 
-            LanguageNames = s.SerializeStringArray(LanguageNames, 3, 11, name: nameof(LanguageNames));
+            LanguageNames = s.SerializeStringArray(LanguageNames,
+                // Most versions have 3 languages, but sometimes the NumberOfLanguages is set to 1 because only 1 is available. Other versions may have up to 5.
+                Mathf.Clamp(NumberOfLanguages, 3, 5), 11, name: nameof(LanguageNames));
+
+            // Hack since the Scandinavian release has an extra value here and it has 5 languages
+            if (NumberOfLanguages == 5)
+                Unk0 = s.Serialize<ushort>(Unk0, name: nameof(Unk0));
 
             TextDefineCount = s.Serialize<uint>(TextDefineCount, name: nameof(TextDefineCount));
             Unk1 = s.Serialize<ushort>(Unk1, name: nameof(Unk1));
