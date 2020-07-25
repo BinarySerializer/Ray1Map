@@ -471,7 +471,6 @@
         TYPE_PLANCHES = 253,
         TYPE_SLOPEY_PLAT = 254,
 
-        // This type appears between TYPE_VAGUE_DERRIERE and TYPE_CB_BRIK
         UnknownType = 255,
 
         TYPE_CB_BRIK = 256,
