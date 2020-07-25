@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
-using Newtonsoft.Json;
 
 namespace R1Engine
 {
@@ -15,10 +15,18 @@ namespace R1Engine
         /// <typeparam name="T">The type of file to serialize</typeparam>
         /// <param name="obj">The object to serialize</param>
         /// <param name="filePath">The file to serialize to</param>
-        public static void SerializeToFile<T>(T obj, string filePath)
+        public static void SerializeToFile<T>(T obj, string filePath, NullValueHandling nullValueHandling = NullValueHandling.Include)
         {
             // Serialize to JSON
-            var json = JsonConvert.SerializeObject(obj, Formatting.Indented, new ByteArrayHexConverter());
+            var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+            {
+                NullValueHandling = nullValueHandling,
+                Formatting = Formatting.Indented,
+                Converters = new JsonConverter[]
+                {
+                    new ByteArrayHexConverter()
+                }
+            });
 
             // Write to output
             File.WriteAllText(filePath, json);

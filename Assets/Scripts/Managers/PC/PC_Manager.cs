@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Asyncoroutine;
+using Newtonsoft.Json;
 using R1Engine.Serialize;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -1094,6 +1095,8 @@ namespace R1Engine
                 new GameAction("Export Sound", false, true, (input, output) => ExtractSound(settings, output)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
                 new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
+                new GameAction("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
+                new GameAction("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
             };
         }
 
@@ -1794,9 +1797,103 @@ namespace R1Engine
             }
         }
 
+        public void ExportETAInfo(GameSettings settings, string outputDir, bool includeStates)
+        {
+            using (var context = new Context(settings))
+            {
+                AddAllFiles(context);
+
+                var output = new List<KeyValuePair<string, ETAInfo[]>>();
+                var events = BaseEditorManager.AllEventInfoData;
+                BaseEditorManager editor;
+
+                if (this is PC_R1_Manager)
+                    editor = new PC_R1_EditorManager(new Common_Lev(), context, this, new Common_Design[0]);
+                else if (this is PC_RD_Manager rd)
+                    editor = new PC_RD_EditorManager(new Common_Lev(), context, rd, new Common_Design[0]);
+                else if (this is PC_EDU_Manager)
+                    editor = new PC_EDU_EditorManager(new Common_Lev(), context, this, new Common_Design[0]);
+                else
+                    throw new Exception("PC version is not supported for this operation");
+
+                void AddToOutput(string name, PC_BaseWorldFile world, int baseIndex)
+                {
+                    // Read the world data and get the ETA file names
+                    var fileNames = FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context).ETAFileNames;
+
+                    var availableEvents = events.Where(x => editor.IsAvailableInWorld(x)).ToArray();
+
+                    output.Add(new KeyValuePair<string, ETAInfo[]>(name, world.Eta.Select((x, i) =>
+                    {
+                        var index = baseIndex + i;
+                        var fileName = fileNames?.ElementAtOrDefault(index) ?? String.Empty;
+                        var key = String.IsNullOrWhiteSpace(fileName) ? index.ToString() : fileName;
+
+                        return new ETAInfo()
+                        {
+                            GlobalIndex = index,
+                            FileName = fileName,
+                            SubEtatLengths = x.States.Select(s => s.Length).ToArray(),
+                            Events = String.Join(", ", availableEvents.Where(e => editor.GetEtaKey(e) == key).Select(e => e.Name)),
+                            EventStates = !includeStates ? null : x.States.Select(s => s.Select(se => new ETAInfo.StateInfo
+                            {
+                                RightSpeed = se.RightSpeed,
+                                LeftSpeed = se.LeftSpeed,
+                                AnimationIndex = se.AnimationIndex,
+                                AnimationSpeed = se.AnimationSpeed,
+                                LinkedEtat = se.LinkedEtat,
+                                LinkedSubEtat = se.LinkedSubEtat,
+                                SoundIndex = se.SoundIndex,
+                                InteractionType = se.InteractionType
+                            }).ToArray()).ToArray()
+                        };
+                    }).ToArray()));
+                }
+
+                var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+                AddToOutput("Allfix", allfix, 0);
+
+                foreach (var w in EnumHelpers.GetValues<World>())
+                {
+                    context.Settings.World = w;
+                    AddToOutput(w.ToString(), FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context), allfix.Eta.Length);
+                }
+
+                JsonHelpers.SerializeToFile(output, Path.Combine(outputDir, $"ETA{(includeStates ? "ex" : String.Empty)} - {context.Settings.GameModeSelection}.json"), NullValueHandling.Ignore);
+            }
+        }
+
         #endregion
 
         #region Classes
+
+        protected class ETAInfo
+        {
+            public string FileName { get; set; }
+
+            public int GlobalIndex { get; set; }
+
+            public string Events { get; set; }
+
+            public int[] SubEtatLengths { get; set; }
+
+            public StateInfo[][] EventStates { get; set; }
+
+            public class StateInfo
+            {
+                public sbyte RightSpeed { get; set; }
+                public sbyte LeftSpeed { get; set; }
+
+                public byte AnimationIndex { get; set; }
+                public byte AnimationSpeed { get; set; }
+
+                public byte LinkedEtat { get; set; }
+                public byte LinkedSubEtat { get; set; }
+
+                public byte SoundIndex { get; set; }
+                public byte InteractionType { get; set; }
+            }
+        }
 
         /// <summary>
         /// Archive file info
