@@ -14,8 +14,6 @@ namespace R1Engine
 
         public string[] LanguageNames { get; set; }
 
-        public ushort Unk0 { get; set; }
-
         public uint TextDefineCount { get; set; }
         
         // Different for each language
@@ -39,9 +37,10 @@ namespace R1Engine
                 // Most versions have 3 languages, but sometimes the NumberOfLanguages is set to 1 because only 1 is available. Other versions may have up to 5.
                 Mathf.Clamp(NumberOfLanguages, 3, 5), 11, name: nameof(LanguageNames));
 
-            // Hack since the Scandinavian release has an extra value here and it has 5 languages
-            if (NumberOfLanguages == 5)
-                Unk0 = s.Serialize<ushort>(Unk0, name: nameof(Unk0));
+            var align = 3 + LanguageNames.Length * 11 + 8;
+
+            if (align % 4 != 0)
+                s.SerializeArray<byte>(new byte[align % 4], align % 4, name: "Align");
 
             TextDefineCount = s.Serialize<uint>(TextDefineCount, name: nameof(TextDefineCount));
             Unk1 = s.Serialize<ushort>(Unk1, name: nameof(Unk1));
