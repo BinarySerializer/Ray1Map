@@ -1,5 +1,5 @@
 ﻿## Ray1Map
-Ray1Map is a Rayman 1 map viewer/editor. The goal of the project is to support map viewing for all Rayman 1 versions and editing for the PC and PS1 versions.
+Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, with special thanks to PluMGMK for helping out with the project. The goal of the project is to support map viewing for all tile-based Rayman games.
 
 ### Features
 * Tile viewing and editing
@@ -7,7 +7,6 @@ Ray1Map is a Rayman 1 map viewer/editor. The goal of the project is to support m
 * Object viewing and editing, including displaying real-time animations, object states, follow hitboxes and offsets
 * Object linking viewing and editing
 * Game tools for exporting assets
-* Level randomizer (work in process)
 
 ### Supported Games
 Below is a list of every game running in the Rayman 1 engine, and which aspects are currently supported in Ray1Map.
