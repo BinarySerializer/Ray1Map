@@ -268,13 +268,14 @@ namespace R1Engine
             var palette = pal.Value;
             var paletteOffset = img.PaletteInfo;
 
+            var isBigRay = img.Offset.file.filePath == GetBigRayFilePath();
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
             if (img.ImageType == 3) {
                 //paletteOffset = 20 * 256;
-                paletteOffset = (ushort)((GetPaletteIndex(context) * 256));
+                paletteOffset = isBigRay ? (ushort)(21 * 256) : (ushort)((GetPaletteIndex(context) * 256));
             } else {
-                paletteOffset = (ushort)((GetPaletteIndex(context) * 256) + ((img.PaletteInfo >> 8)) * 16);
+                paletteOffset = isBigRay ? (ushort)(21 * 256) : (ushort)((GetPaletteIndex(context) * 256) + ((img.PaletteInfo >> 8)) * 16);
                 //paletteOffset = (ushort)((GetPaletteIndex(context) * 256) + ((img.Unknown2 >> 4) - 1) * 16);
                 //paletteOffset = (ushort)(19 * 256 + ((img.Unknown2 >> 4) - 1) * 16);
             }
