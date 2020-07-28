@@ -138,6 +138,8 @@ namespace R1Engine
         /// <returns>The filled v-ram</returns>
         protected override void FillVRAM(Context context, VRAMMode mode)
         {
+            // TODO: Support BigRay + font for US version
+
             // Read the files
             var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context) : null;
             var world = mode == VRAMMode.Level ? FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context) : null;

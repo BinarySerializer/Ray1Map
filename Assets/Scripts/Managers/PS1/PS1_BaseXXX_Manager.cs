@@ -255,6 +255,9 @@ namespace R1Engine
 
         public async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
+            if (settings.GameModeSelection != GameModeSelection.RaymanPS1EU)
+                throw new NotImplementedException("This export currently only works for the PAL version");
+
             using (var context = new Context(settings)) {
                 // Read the allfix file
                 await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
