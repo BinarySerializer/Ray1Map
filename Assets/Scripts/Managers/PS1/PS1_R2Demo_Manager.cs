@@ -101,8 +101,10 @@ namespace R1Engine
         /// Fills the PS1 v-ram and returns it
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        public override void FillVRAM(Context context) {
+        protected override void FillVRAM(Context context, VRAMMode mode)
+        {
             // Read the files
             var fixGraphics = FileFactory.Read<Array<byte>>(FixGraphicsPath, context, onPreSerialize: (s,a) => a.Length = s.CurrentLength);
             var lvlGraphics = FileFactory.Read<Array<byte>>(GetLevelGraphicsPath(context.Settings), context, onPreSerialize: (s, a) => a.Length = s.CurrentLength);
@@ -245,7 +247,7 @@ namespace R1Engine
 
             if (loadTextures)
                 // Get the v-ram
-                FillVRAM(context);
+                FillVRAM(context, VRAMMode.Level);
 
             // Create the global design list
             var globalDesigns = new List<Sprite>();

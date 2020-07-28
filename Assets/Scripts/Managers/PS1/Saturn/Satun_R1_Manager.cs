@@ -221,14 +221,17 @@ namespace R1Engine
         /// Fills the PS1 v-ram and returns it
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        public override void FillVRAM(Context context) {
+        protected override void FillVRAM(Context context, VRAMMode mode)
+        {
             string fixPath = GetFixImageFilePath();
             string worldPath = GetWorldImageFilePath(context);
             string levelPath = GetLevelImageFilePath(context);
+
             var fixImg = context.FileExists(fixPath) ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
-            var worldImg = context.FileExists(worldPath) ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
-            var levelImg = context.FileExists(levelPath) ? FileFactory.Read<Array<byte>>(levelPath, context, (y, x) => x.Length = y.CurrentLength) : null;
+            var worldImg = context.FileExists(worldPath) && mode == VRAMMode.Level ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
+            var levelImg = context.FileExists(levelPath) && mode == VRAMMode.Level ? FileFactory.Read<Array<byte>>(levelPath, context, (y, x) => x.Length = y.CurrentLength) : null;
             
             ImageBuffer buf = new ImageBuffer();
             if (fixImg != null) buf.AddData(fixImg.Value);

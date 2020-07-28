@@ -291,7 +291,7 @@ namespace R1Engine
             {
                 ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
                 AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
-                ImageBufferPointer = s.SerializePointer(ImageBufferPointer, name: nameof(ImageBufferPointer));
+                ImageBufferPointer = s.SerializePointer(ImageBufferPointer, allowInvalid: true, name: nameof(ImageBufferPointer));
                 ETAPointer = s.SerializePointer(ETAPointer, name: nameof(ETAPointer));
 
                 CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));

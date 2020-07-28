@@ -99,8 +99,9 @@ namespace R1Engine
         /// Fills the PS1 v-ram and returns it
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        public abstract void FillVRAM(Context context);
+        protected abstract void FillVRAM(Context context, VRAMMode mode);
 
         /// <summary>
         /// Gets the sprite texture for an event
@@ -249,7 +250,7 @@ namespace R1Engine
             // Only load the v-ram if we're loading textures
             if (loadTextures)
                 // Get the v-ram
-                FillVRAM(context);
+                FillVRAM(context, VRAMMode.Level);
 
             // Load background sprites
             if (bg != null && loadTextures)
@@ -493,8 +494,6 @@ namespace R1Engine
         /// <returns>The task</returns>
         public async Task ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
         {
-            // TODO: Extract BigRay from INI
-
             // Keep track of the hash for every DES
             var hashList = new List<string>();
 
@@ -883,6 +882,12 @@ namespace R1Engine
             Blocked,
             BlockedXXX,
             MultiXXX
+        }
+
+        protected enum VRAMMode
+        {
+            Level,
+            Menu
         }
 
         #endregion

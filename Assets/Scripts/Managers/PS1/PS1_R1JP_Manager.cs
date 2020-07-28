@@ -72,13 +72,16 @@ namespace R1Engine
         /// Fills the PS1 v-ram and returns it
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        public override void FillVRAM(Context context)
+        protected override void FillVRAM(Context context, VRAMMode mode)
         {
             // Read the files
             var allFix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
-            var world = FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context);
-            var levelTextureBlock = FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock;
+            var world = mode == VRAMMode.Level ? FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context) : null;
+            var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock : null;
+            var bigRay = mode == VRAMMode.Menu ? FileFactory.Read<PS1_R1_BigRayFile>(GetBigRayFilePath(context.Settings), context).TextureBlock : null;
+            var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.Settings), context, (s, o) => o.Length = s.CurrentLength) : null;
 
             PS1_VRAM vram = new PS1_VRAM();
 
@@ -108,8 +111,11 @@ namespace R1Engine
             vram.AddData(cageSprites, (128 * 3));
             vram.AddData(allFixSprites, 256);
 
-            vram.AddData(world.TextureBlock, 256);
-            vram.AddData(levelTextureBlock, 256);
+            if (mode == VRAMMode.Level)
+            {
+                vram.AddData(world.TextureBlock, 256);
+                vram.AddData(levelTextureBlock, 256);
+            }
 
             int paletteY = 224; // 480 - 1 page height
             vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
@@ -118,8 +124,17 @@ namespace R1Engine
 
             paletteY += 26;
             vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+
+            if (mode == VRAMMode.Level)
+            {
+                vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            }
+            else
+            {
+                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            }
 
             context.StoreObject("vram", vram);
         }

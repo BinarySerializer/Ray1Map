@@ -95,8 +95,10 @@ namespace R1Engine
         /// Fills the PS1 v-ram and returns it
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        public override void FillVRAM(Context context) {
+        protected override void FillVRAM(Context context, VRAMMode mode)
+        {
             // Read palettes
             var pal4 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 4), context, (y, x) => x.Length = y.CurrentLength / 2);
             var pal8 = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetPalettePath(context.Settings, 8), context, (y, x) => x.Length = y.CurrentLength / 2);

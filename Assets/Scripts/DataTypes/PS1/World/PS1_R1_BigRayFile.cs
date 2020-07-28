@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Allfix data for Rayman 1 (PS1)
+    /// BigRay data for Rayman 1 (PS1)
     /// </summary>
-    public class PS1_R1_AllfixFile : PS1_R1_BaseFile
+    public class PS1_R1_BigRayFile : PS1_R1_BaseFile
     {
         #region File Pointers
 
@@ -15,22 +15,11 @@
 
         public Pointer Palette2Pointer => BlockPointers[3];
 
-        public Pointer Palette3Pointer => BlockPointers[4];
-
-        public Pointer Palette4Pointer => BlockPointers[5];
-
-        public Pointer Palette5Pointer => BlockPointers[6];
-
-        public Pointer Palette6Pointer => BlockPointers[7];
-
         #endregion
 
         #region Block Data
 
-        public PS1_FontData[] FontData { get; set; }
-
-        // Things like Rayman, the fist, game over clock etc.
-        public EventData[] MenuEvents { get; set; }
+        public EventData BigRay { get; set; }
 
         /// <summary>
         /// The data block
@@ -45,14 +34,6 @@
         public ARGB1555Color[] Palette1 { get; set; }
 
         public ARGB1555Color[] Palette2 { get; set; }
-
-        public ARGB1555Color[] Palette3 { get; set; }
-
-        public ARGB1555Color[] Palette4 { get; set; }
-
-        public ARGB1555Color[] Palette5 { get; set; }
-
-        public ARGB1555Color[] Palette6 { get; set; }
 
         #endregion
 
@@ -70,9 +51,7 @@
             // DATA BLOCK
             s.DoAt(DataBlockPointer, () => 
             {
-                FontData = s.SerializeObjectArray<PS1_FontData>(FontData, 2, name: nameof(FontData));
-                MenuEvents = s.SerializeObjectArray<EventData>(MenuEvents, 28, name: nameof(MenuEvents));
-
+                BigRay = s.SerializeObject<EventData>(BigRay, name: nameof(BigRay));
                 DataBlock = s.SerializeArray<byte>(DataBlock, TextureBlockPointer - s.CurrentPointer, name: nameof(DataBlock));
             });
 
@@ -89,26 +68,6 @@
             // PALETTE 2
             s.DoAt(Palette2Pointer, () => {
                 Palette2 = s.SerializeObjectArray<ARGB1555Color>(Palette2, 256, name: nameof(Palette2));
-            });
-
-            // PALETTE 3
-            s.DoAt(Palette3Pointer, () => {
-                Palette3 = s.SerializeObjectArray<ARGB1555Color>(Palette3, 256, name: nameof(Palette3));
-            });
-
-            // PALETTE 4
-            s.DoAt(Palette4Pointer, () => {
-                Palette4 = s.SerializeObjectArray<ARGB1555Color>(Palette4, 256, name: nameof(Palette4));
-            });
-
-            // PALETTE 5
-            s.DoAt(Palette5Pointer, () => {
-                Palette5 = s.SerializeObjectArray<ARGB1555Color>(Palette5, 256, name: nameof(Palette5));
-            });
-
-            // PALETTE 6
-            s.DoAt(Palette6Pointer, () => {
-                Palette6 = s.SerializeObjectArray<ARGB1555Color>(Palette6, 256, name: nameof(Palette6));
             });
         }
 

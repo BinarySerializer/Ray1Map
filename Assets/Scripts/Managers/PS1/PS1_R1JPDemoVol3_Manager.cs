@@ -97,8 +97,9 @@ namespace R1Engine
         /// Fills the PS1 v-ram and returns it
         /// </summary>
         /// <param name="context">The context</param>
+        /// <param name="mode">The blocks to fill</param>
         /// <returns>The filled v-ram</returns>
-        public override void FillVRAM(Context context)
+        protected override void FillVRAM(Context context, VRAMMode mode)
         {
             // We don't need to emulate the v-ram for this version
             return;// null;
