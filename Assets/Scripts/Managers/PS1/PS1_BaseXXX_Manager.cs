@@ -269,6 +269,17 @@ namespace R1Engine
                     await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.Settings));
                     var br = FileFactory.Read<PS1_R1_BigRayFile>(GetBigRayFilePath(bigRayContext.Settings), bigRayContext);
 
+                    // Correct font palette
+                    foreach (PS1_FontData font in fix.AllfixData.FontData)
+                    {
+                        foreach (Common_ImageDescriptor imgDescr in font.ImageDescriptors)
+                        {
+                            var paletteInfo = imgDescr.PaletteInfo;
+                            paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 492, 10, 6);
+                            imgDescr.PaletteInfo = paletteInfo;
+                        }
+                    }
+
                     // Export
                     await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData, br.BigRayData);
                 }

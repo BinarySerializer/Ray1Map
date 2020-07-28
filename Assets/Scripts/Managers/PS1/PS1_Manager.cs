@@ -858,13 +858,6 @@ namespace R1Engine
                     // Export every sprite
                     for (int spriteIndex = 0; spriteIndex < fix.FontData[fontIndex].ImageDescriptorsCount; spriteIndex++)
                     {
-                        // Correct palette
-                        var paletteInfo = fix.FontData[fontIndex].ImageDescriptors[spriteIndex].PaletteInfo;
-                        int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
-                        int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
-                        paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 492, 10, 6);
-                        fix.FontData[fontIndex].ImageDescriptors[spriteIndex].PaletteInfo = paletteInfo;
-
                         // Get the sprite texture
                         var tex = GetSpriteTexture(menuContext, null, fix.FontData[fontIndex].ImageDescriptors[spriteIndex]);
 
