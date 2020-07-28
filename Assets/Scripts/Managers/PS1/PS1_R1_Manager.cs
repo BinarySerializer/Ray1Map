@@ -139,10 +139,10 @@ namespace R1Engine
         protected override void FillVRAM(Context context, VRAMMode mode)
         {
             // Read the files
-            var allFix = FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+            var allFix = mode != VRAMMode.BigRay ? FileFactory.Read<PS1_R1_AllfixFile>(GetAllfixFilePath(context.Settings), context) : null;
             var world = mode == VRAMMode.Level ? FileFactory.Read<PS1_R1_WorldFile>(GetWorldFilePath(context.Settings), context) : null;
             var levelTextureBlock = mode == VRAMMode.Level ? FileFactory.Read<PS1_R1_LevFile>(GetLevelFilePath(context.Settings), context).TextureBlock : null;
-            var bigRay = mode == VRAMMode.Menu ? FileFactory.Read<PS1_R1_BigRayFile>(GetBigRayFilePath(context.Settings), context) : null;
+            var bigRay = mode == VRAMMode.BigRay ? FileFactory.Read<PS1_R1_BigRayFile>(GetBigRayFilePath(context.Settings), context) : null;
             var font = mode == VRAMMode.Menu ? FileFactory.Read<Array<byte>>(GetFontFilePath(context.Settings), context, (s, o) => o.Length = s.CurrentLength) : null;
 
             //var bgPath = GetLevelBackgroundFilePath(context.Settings, true);
@@ -156,54 +156,62 @@ namespace R1Engine
             // 2 backgrounds are stored underneath each other vertically, so this takes up 10 pages in total
             vram.currentXPage = 5;
 
-            // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
-            // storing the first bit of sprites we load as 1x2
-            byte[] cageSprites = new byte[128 * (256 * 2 - 8)];
-            Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
-            byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
-            Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
-            byte[] unknown = new byte[128 * 8];
-            vram.AddData(unknown, 128);
-            vram.AddData(cageSprites, 128);
-            vram.AddData(allFixSprites, 256);
+            if (mode != VRAMMode.BigRay) {
+                // Since skippedPagesX is uneven, and all other data takes up 2x2 pages, the game corrects this by
+                // storing the first bit of sprites we load as 1x2
+                byte[] cageSprites = new byte[128 * (256 * 2 - 8)];
+                Array.Copy(allFix.TextureBlock, 0, cageSprites, 0, cageSprites.Length);
+                byte[] allFixSprites = new byte[allFix.TextureBlock.Length - cageSprites.Length];
+                Array.Copy(allFix.TextureBlock, cageSprites.Length, allFixSprites, 0, allFixSprites.Length);
+                byte[] unknown = new byte[128 * 8];
+                vram.AddData(unknown, 128);
+                vram.AddData(cageSprites, 128);
+                vram.AddData(allFixSprites, 256);
+            }
 
-            if (mode == VRAMMode.Level)
-            {
+            if (mode == VRAMMode.Level) {
                 vram.AddData(world.TextureBlock, 256);
                 vram.AddData(levelTextureBlock, 256);
+            } else if (mode == VRAMMode.Menu) {
+                vram.AddDataAt(10, 0, 0, 226, font.Value, 256);
+                //vram.AddDataAt(10, 1, 0, 0, font.Value, 256);
+            } else if (mode == VRAMMode.BigRay) {
+                vram.AddDataAt(10, 0, 0, 0, bigRay.TextureBlock, 256);
             }
 
             // Palettes start at y = 256 + 234 (= 490), so page 1 and y=234
             int paletteY = 234;
-            /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
-            if (mode == VRAMMode.Level)
-            {
-                vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            }
-            else
-            {
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            }
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+            if (mode != VRAMMode.BigRay) {
+                /*vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);*/
+                if (mode == VRAMMode.Level) {
+                    vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                    vram.AddDataAt(12, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                } else {
+                    vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                    vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                }
+                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette5.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette6.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(12, 1, 0, paletteY++, allFix.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
 
-            // TODO: How are these aligned? Seems different for every background...
-            //// Add background parallax palettes
-            //foreach (var p in bgPalette.Reverse())
-            //    vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-            
-            if (mode == VRAMMode.Level)
-            {
-                paletteY += 13 - world.TilePalettes.Length;
+                // TODO: How are these aligned? Seems different for every background...
+                //// Add background parallax palettes
+                //foreach (var p in bgPalette.Reverse())
+                //    vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
 
-                // Add tile palettes
-                foreach (var p in world.TilePalettes)
-                    vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                if (mode == VRAMMode.Level) {
+                    paletteY += 13 - world.TilePalettes.Length;
+
+                    // Add tile palettes
+                    foreach (var p in world.TilePalettes)
+                        vram.AddDataAt(12, 1, 0, paletteY++, p.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                }
+            } else {
+                // BigRay
+                vram.AddDataAt(12, 1, 0, paletteY++, bigRay.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(12, 1, 0, paletteY++, bigRay.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             }
 
             context.StoreObject("vram", vram);

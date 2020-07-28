@@ -887,7 +887,8 @@ namespace R1Engine
         protected enum VRAMMode
         {
             Level,
-            Menu
+            Menu,
+            BigRay
         }
 
         #endregion
