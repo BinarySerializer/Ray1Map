@@ -19,12 +19,7 @@
 
         #region Block Data
 
-        public EventData BigRay { get; set; }
-
-        /// <summary>
-        /// The data block
-        /// </summary>
-        public byte[] DataBlock { get; set; }
+        public PS1_R1_BigRayBlock BigRayData { get; set; }
 
         /// <summary>
         /// The texture block
@@ -49,26 +44,16 @@
             base.SerializeImpl(s);
 
             // DATA BLOCK
-            s.DoAt(DataBlockPointer, () => 
-            {
-                BigRay = s.SerializeObject<EventData>(BigRay, name: nameof(BigRay));
-                DataBlock = s.SerializeArray<byte>(DataBlock, TextureBlockPointer - s.CurrentPointer, name: nameof(DataBlock));
-            });
+            s.DoAt(DataBlockPointer, () => BigRayData = s.SerializeObject<PS1_R1_BigRayBlock>(BigRayData, x => x.Length = TextureBlockPointer - s.CurrentPointer, name: nameof(BigRayData)));
 
             // TEXTURE BLOCK
-            s.DoAt(TextureBlockPointer, () => {
-                TextureBlock = s.SerializeArray<byte>(TextureBlock, Palette1Pointer - s.CurrentPointer, name: nameof(TextureBlock));
-            });
+            s.DoAt(TextureBlockPointer, () => TextureBlock = s.SerializeArray<byte>(TextureBlock, Palette1Pointer - s.CurrentPointer, name: nameof(TextureBlock)));
 
             // PALETTE 1
-            s.DoAt(Palette1Pointer, () => {
-                Palette1 = s.SerializeObjectArray<ARGB1555Color>(Palette1, 256, name: nameof(Palette1));
-            });
+            s.DoAt(Palette1Pointer, () => Palette1 = s.SerializeObjectArray<ARGB1555Color>(Palette1, 256, name: nameof(Palette1)));
 
             // PALETTE 2
-            s.DoAt(Palette2Pointer, () => {
-                Palette2 = s.SerializeObjectArray<ARGB1555Color>(Palette2, 256, name: nameof(Palette2));
-            });
+            s.DoAt(Palette2Pointer, () => Palette2 = s.SerializeObjectArray<ARGB1555Color>(Palette2, 256, name: nameof(Palette2)));
         }
 
         #endregion

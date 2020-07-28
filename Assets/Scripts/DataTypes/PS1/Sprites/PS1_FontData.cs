@@ -4,7 +4,7 @@
     {
         public Pointer ImageDescriptorsPointer { get; set; }
         public Pointer ImageBufferPointer { get; set; }
-        public uint ImageDescriptorsCount { get; set; }
+        public byte ImageDescriptorsCount { get; set; }
 
         public Common_ImageDescriptor[] ImageDescriptors { get; set; }
 
@@ -16,7 +16,8 @@
         {
             ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
             ImageBufferPointer = s.SerializePointer(ImageBufferPointer, allowInvalid: true, name: nameof(ImageBufferPointer));
-            ImageDescriptorsCount = s.Serialize<uint>(ImageDescriptorsCount, name: nameof(ImageDescriptorsCount));
+            ImageDescriptorsCount = s.Serialize<byte>(ImageDescriptorsCount, name: nameof(ImageDescriptorsCount));
+            s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
 
             s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<Common_ImageDescriptor>(ImageDescriptors, ImageDescriptorsCount, name: nameof(ImageDescriptors)));
         }

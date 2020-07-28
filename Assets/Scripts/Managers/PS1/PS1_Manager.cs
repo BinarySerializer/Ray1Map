@@ -85,6 +85,8 @@ namespace R1Engine
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportAllAnimationFramesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExportVignetteTextures(settings, output)),
+                new GameAction("Export Menu Sprites", false, true, (input, output) => ExportMenuSpritesAsync(settings, output, false)),
+                new GameAction("Export Menu Animation Frames", false, true, (input, output) => ExportMenuSpritesAsync(settings, output, true)),
             };
         }
 
@@ -837,6 +839,185 @@ namespace R1Engine
         }
 
         protected virtual void LoadLocalization(Context context, Common_Lev level) { }
+
+        public abstract Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
+
+        protected async Task ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_R1_AllfixBlock fix, PS1_R1_BigRayBlock bigRay)
+        {
+            // Fill the v-ram for each context
+            FillVRAM(menuContext, VRAMMode.Menu);
+
+            if (bigRayContext != null)
+                FillVRAM(bigRayContext, VRAMMode.BigRay);
+
+            // Export each font DES
+            if (!exportAnimFrames)
+            {
+                for (int fontIndex = 0; fontIndex < fix.FontData.Length; fontIndex++)
+                {
+                    // Export every sprite
+                    for (int spriteIndex = 0; spriteIndex < fix.FontData[fontIndex].ImageDescriptorsCount; spriteIndex++)
+                    {
+                        // Correct palette
+                        var paletteInfo = fix.FontData[fontIndex].ImageDescriptors[spriteIndex].PaletteInfo;
+                        int paletteX = BitHelpers.ExtractBits(paletteInfo, 6, 0);
+                        int paletteY = BitHelpers.ExtractBits(paletteInfo, 10, 6);
+                        paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 492, 10, 6);
+                        fix.FontData[fontIndex].ImageDescriptors[spriteIndex].PaletteInfo = paletteInfo;
+
+                        // Get the sprite texture
+                        var tex = GetSpriteTexture(menuContext, null, fix.FontData[fontIndex].ImageDescriptors[spriteIndex]);
+
+                        // Make sure it's not null
+                        if (tex == null)
+                            continue;
+
+                        // Export the font sprite
+                        Util.ByteArrayToFile(Path.Combine(outputPath, "Font", $"{fontIndex} - {spriteIndex}.png"), tex.EncodeToPNG());
+                    }
+                }
+            }
+
+            // Export menu sprites from allfix
+            var exportedImgDescr = new List<Pointer>();
+            var index = 0;
+
+            foreach (EventData t in fix.MenuEvents)
+            {
+                if (exportedImgDescr.Contains(t.ImageDescriptorsPointer))
+                    continue;
+
+                exportedImgDescr.Add(t.ImageDescriptorsPointer);
+
+                await ExportEventSpritesAsync(menuContext, t, Path.Combine(outputPath, "Menu"), index);
+
+                index++;
+            }
+
+            // Export BigRay
+            if (bigRay != null)
+                await ExportEventSpritesAsync(bigRayContext, bigRay.BigRay, Path.Combine(outputPath, "BigRay"), 0);
+
+            async Task ExportEventSpritesAsync(Context context, EventData e, string eventOutputDir, int desIndex)
+            {
+                var sprites = e.ImageDescriptors.Select(x => GetSpriteTexture(context, e, x)).ToArray();
+
+                if (!exportAnimFrames)
+                {
+                    for (int i = 0; i < sprites.Length; i++)
+                    {
+                        if (sprites[i] == null)
+                            continue;
+
+                        Util.ByteArrayToFile(Path.Combine(eventOutputDir, $"{desIndex} - {i}.png"), sprites[i].EncodeToPNG());
+                    }
+                }
+                else
+                {
+                    // Enumerate the animations
+                    for (var j = 0; j < e.AnimDescriptors.Length; j++)
+                    {
+                        // Get the animation descriptor
+                        var anim = e.AnimDescriptors[j];
+
+                        // Get the speed
+                        var speed = String.Join("-", e.ETA.EventStates.SelectMany(x => x).Where(x => x.AnimationIndex == j).Select(x => x.AnimationSpeed).Distinct());
+
+                        // Get the folder
+                        var animFolderPath = Path.Combine(eventOutputDir, desIndex.ToString(), $"{j}-{speed}");
+
+                        int? frameWidth = null;
+                        int? frameHeight = null;
+
+                        for (int dummyFrame = 0; dummyFrame < anim.FrameCount; dummyFrame++)
+                        {
+                            for (int dummyLayer = 0; dummyLayer < anim.LayersPerFrame; dummyLayer++)
+                            {
+                                var l = anim.Layers[dummyFrame * anim.LayersPerFrame + dummyLayer];
+
+                                if (l.ImageIndex < sprites.Length)
+                                {
+                                    var s = sprites[l.ImageIndex];
+
+                                    if (s != null)
+                                    {
+                                        var w = s.width + l.XPosition;
+                                        var h = s.height + l.YPosition;
+
+                                        if (frameWidth == null || frameWidth < w)
+                                            frameWidth = w;
+
+                                        if (frameHeight == null || frameHeight < h)
+                                            frameHeight = h;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Create each animation frame
+                        for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
+                        {
+                            Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
+                            {
+                                filterMode = FilterMode.Point,
+                                wrapMode = TextureWrapMode.Clamp
+                            };
+
+                            // Default to fully transparent
+                            tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+
+                            bool hasLayers = false;
+
+                            // Write each layer
+                            for (var layerIndex = 0; layerIndex < anim.LayersPerFrame; layerIndex++)
+                            {
+                                var animationLayer = anim.Layers[frameIndex * anim.LayersPerFrame + layerIndex];
+
+                                if (animationLayer.ImageIndex >= sprites.Length)
+                                    continue;
+
+                                // Get the sprite
+                                var sprite = sprites[animationLayer.ImageIndex];
+
+                                if (sprite == null)
+                                    continue;
+
+                                // Set every pixel
+                                for (int y = 0; y < sprite.height; y++)
+                                {
+                                    for (int x = 0; x < sprite.width; x++)
+                                    {
+                                        var c = sprite.GetPixel(x, sprite.height - y - 1);
+
+                                        var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
+                                        var yPosition = y + animationLayer.YPosition;
+
+                                        if (xPosition >= tex.width)
+                                            throw new Exception("Horizontal overflow!");
+
+                                        if (c.a != 0)
+                                            tex.SetPixel(xPosition, tex.height - 1 - yPosition, c);
+                                    }
+                                }
+
+                                hasLayers = true;
+                            }
+
+                            tex.Apply();
+
+                            if (!hasLayers)
+                                continue;
+
+                            // Save the file
+                            Util.ByteArrayToFile(Path.Combine(animFolderPath, $"{frameIndex}.png"), tex.EncodeToPNG());
+                        }
+                    }
+                }
+
+                // Unload textures
+                await Resources.UnloadUnusedAssets();
+            }
+        }
 
         #endregion
 

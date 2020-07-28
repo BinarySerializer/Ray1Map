@@ -28,6 +28,8 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => null;
 
+        public uint BaseAddress => 0x00200000;
+
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
@@ -64,6 +66,8 @@ namespace R1Engine
         /// </summary>
         /// <returns>The allfix file path</returns>
         public string GetAllfixFilePath() => "RAY.DTA";
+
+        public string GetBigRayFilePath() => "BIG.DTA";
 
         /// <summary>
         /// Gets the world data file path
@@ -107,6 +111,7 @@ namespace R1Engine
         /// <returns>The tile-set file path</returns>
         public string GetTileSetFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}_01.BIT";
 
+        public string GetBigRayImageFilePath() => "BIG.IMG";
         public string GetFixImageFilePath() => "RAY.IMG";
         public string GetWorldImageFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}.IMG";
         public string GetLevelImageFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}{context.Settings.Level:00}.IMG";
@@ -228,15 +233,18 @@ namespace R1Engine
             string fixPath = GetFixImageFilePath();
             string worldPath = GetWorldImageFilePath(context);
             string levelPath = GetLevelImageFilePath(context);
+            string bigRayPath = GetBigRayImageFilePath();
 
-            var fixImg = context.FileExists(fixPath) ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
+            var fixImg = context.FileExists(fixPath) && mode != VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
             var worldImg = context.FileExists(worldPath) && mode == VRAMMode.Level ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
             var levelImg = context.FileExists(levelPath) && mode == VRAMMode.Level ? FileFactory.Read<Array<byte>>(levelPath, context, (y, x) => x.Length = y.CurrentLength) : null;
-            
+            var bigRayImg = context.FileExists(bigRayPath) && mode == VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(bigRayPath, context, (y, x) => x.Length = y.CurrentLength) : null;
+
             ImageBuffer buf = new ImageBuffer();
             if (fixImg != null) buf.AddData(fixImg.Value);
             if (worldImg != null) buf.AddData(worldImg.Value);
             if (levelImg != null) buf.AddData(levelImg.Value);
+            if (bigRayImg != null) buf.AddData(bigRayImg.Value);
             context.StoreObject("vram", buf);
         }
 
@@ -332,7 +340,7 @@ namespace R1Engine
             var tileSetFilePath = GetTileSetFilePath(context);
             var mapFilePath = GetMapFilePath(context);
 
-            uint baseAddress = 0x00200000;
+            uint baseAddress = BaseAddress;
 
             // Load the memory mapped files
             baseAddress += await LoadFile(context, allfixFilePath, baseAddress);
@@ -624,6 +632,32 @@ namespace R1Engine
             {
                 var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context);
                 level.Localization.Add(lang.Language, langFile.Strings);
+            }
+        }
+
+        public override async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
+        {
+            using (var menuContext = new Context(settings))
+            {
+                using (var bigRayContext = new Context(settings))
+                {
+                    // Load allfix
+                    await LoadFile(menuContext, GetAllfixFilePath(), BaseAddress);
+                    var fix = FileFactory.Read<PS1_R1_AllfixBlock>(GetAllfixFilePath(), menuContext, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
+                    await LoadFile(menuContext, GetFixImageFilePath());
+                    
+                    // Load exe
+                    await LoadFile(menuContext, GetExeFilePath());
+                    await LoadFile(bigRayContext, GetExeFilePath());
+
+                    // Read the BigRay file
+                    await LoadFile(bigRayContext, GetBigRayFilePath(), 0x00280000);
+                    await LoadFile(bigRayContext, GetBigRayImageFilePath());
+                    var br = FileFactory.Read<PS1_R1_BigRayBlock>(GetBigRayFilePath(), bigRayContext, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
+
+                    // Export
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix, br);
+                }
             }
         }
     }

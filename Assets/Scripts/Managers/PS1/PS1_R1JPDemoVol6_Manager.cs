@@ -209,5 +209,7 @@ namespace R1Engine
 
             return $"Unknown/";
         }
+
+        public override Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotImplementedException();
     }
 }

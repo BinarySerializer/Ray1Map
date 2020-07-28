@@ -418,5 +418,7 @@ namespace R1Engine
             // Since all paths are in allfix, we return an empty path
             return String.Empty;
         }
+
+        public override Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotImplementedException();
     }
 }
