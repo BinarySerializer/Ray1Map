@@ -269,13 +269,14 @@ namespace R1Engine
             var paletteOffset = img.PaletteInfo;
 
             var isBigRay = img.Offset.file.filePath == GetBigRayFilePath();
+            var isFont = context.GetStoredObject<PS1_FontData[]>("Font")?.SelectMany(x => x.ImageDescriptors).Contains(img) == true;
             
             //paletteOffset = (ushort)(256 * (img.Unknown2 >> 4));
             if (img.ImageType == 3) {
                 //paletteOffset = 20 * 256;
-                paletteOffset = isBigRay ? (ushort)(21 * 256) : (ushort)((GetPaletteIndex(context) * 256));
+                paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256));
             } else {
-                paletteOffset = isBigRay ? (ushort)(21 * 256) : (ushort)((GetPaletteIndex(context) * 256) + ((img.PaletteInfo >> 8)) * 16);
+                paletteOffset = isBigRay ? (ushort)(21 * 256) : isFont ? (ushort)(19 * 256) : (ushort)((GetPaletteIndex(context) * 256) + ((img.PaletteInfo >> 8)) * 16);
                 //paletteOffset = (ushort)((GetPaletteIndex(context) * 256) + ((img.Unknown2 >> 4) - 1) * 16);
                 //paletteOffset = (ushort)(19 * 256 + ((img.Unknown2 >> 4) - 1) * 16);
             }
@@ -650,6 +651,9 @@ namespace R1Engine
                     // Load exe
                     await LoadFile(menuContext, GetExeFilePath());
                     await LoadFile(bigRayContext, GetExeFilePath());
+
+                    // Save font
+                    menuContext.StoreObject("Font", fix.FontData);
 
                     // Read the BigRay file
                     await LoadFile(bigRayContext, GetBigRayFilePath(), 0x00280000);
