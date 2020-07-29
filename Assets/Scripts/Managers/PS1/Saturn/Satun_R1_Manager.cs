@@ -248,7 +248,15 @@ namespace R1Engine
             context.StoreObject("vram", buf);
         }
 
-        public override Texture2D GetSpriteTexture(Context context, EventData e, Common_ImageDescriptor img) {
+        /// <summary>
+        /// Gets the sprite texture for an event
+        /// </summary>
+        /// <param name="context">The context</param>
+        /// <param name="imgBuffer">The image buffer, if available</param>
+        /// <param name="s">The image descriptor to use</param>
+        /// <returns>The texture</returns>
+        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Common_ImageDescriptor img)
+        {
             if (img.ImageType != 2 && img.ImageType != 3) return null;
             if (img.Unknown2 == 0) return null;
             ImageBuffer buf = context.GetStoredObject<ImageBuffer>("vram");
@@ -661,7 +669,7 @@ namespace R1Engine
                     var br = FileFactory.Read<PS1_R1_BigRayBlock>(GetBigRayFilePath(), bigRayContext, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
 
                     // Export
-                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix, br);
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.FontData, fix.MenuEvents, br);
                 }
             }
         }

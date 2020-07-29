@@ -145,6 +145,20 @@ namespace R1Engine
         public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Get the file paths
+            var mapPath = GetMapFilePath(context.Settings);
+            var levelPath = GetLevelFilePath(context.Settings);
+
+            // Read the files
+            var map = FileFactory.Read<MapData>(mapPath, context);
+            var level = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
+
+            // Load the level
+            return await LoadAsync(context, map, level.Events, level.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
+        }
+
+        public override async Task LoadFilesAsync(Context context)
+        {
+            // Get the file paths
             var allfixPath = GetAllfixFilePath();
             var worldPath = GetWorldFilePath(context.Settings);
             var levelPath = GetLevelFilePath(context.Settings);
@@ -165,13 +179,6 @@ namespace R1Engine
             await LoadExtraFile(context, levelPath);
             await LoadExtraFile(context, mapPath);
             await LoadExtraFile(context, tileSetPath);
-
-            // Read the files
-            var map = FileFactory.Read<MapData>(mapPath, context);
-            var level = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
-
-            // Load the level
-            return await LoadAsync(context, map, level.Events, level.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
         /// <summary>
@@ -210,6 +217,25 @@ namespace R1Engine
             return $"Unknown/";
         }
 
-        public override Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotImplementedException();
+        public override async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load files
+                await LoadFilesAsync(context);
+
+                // Read level file
+                var level = FileFactory.Read<PS1_R1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context);
+
+                // Export
+                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_FontData[]
+                {
+                    level.FontData
+                }, new EventData[]
+                {
+                    level.RaymanEvent
+                }, null);
+            }
+        }
     }
 }

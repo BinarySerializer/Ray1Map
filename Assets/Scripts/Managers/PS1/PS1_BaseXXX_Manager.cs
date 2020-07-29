@@ -293,7 +293,7 @@ namespace R1Engine
                     }
 
                     // Export
-                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData, br.BigRayData);
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData.FontData, fix.AllfixData.MenuEvents, br.BigRayData);
                 }
             }
         }

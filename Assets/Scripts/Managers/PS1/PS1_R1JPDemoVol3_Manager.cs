@@ -1,9 +1,9 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using R1Engine.Serialize;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace R1Engine
@@ -109,11 +109,10 @@ namespace R1Engine
         /// Gets the sprite texture for an event
         /// </summary>
         /// <param name="context">The context</param>
-        /// <param name="e">The event</param>
-        /// <param name="vram">The filled v-ram</param>
+        /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public override Texture2D GetSpriteTexture(Context context, EventData e, Common_ImageDescriptor s)
+        public override Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Common_ImageDescriptor s)
         {
             if (s.ImageType != 2 && s.ImageType != 3) 
                 return null;
@@ -149,7 +148,7 @@ namespace R1Engine
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        var paletteIndex = e.ImageBuffer[offset + width * y + x];
+                        var paletteIndex = imgBuffer[offset + width * y + x];
 
                         // Set the pixel
                         tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
@@ -163,7 +162,7 @@ namespace R1Engine
                     for (int x = 0; x < width; x++)
                     {
                         int actualX = (s.ImageOffsetInPageX + x) / 2;
-                        var paletteIndex = e.ImageBuffer[offset + (width * y + x) / 2];
+                        var paletteIndex = imgBuffer[offset + (width * y + x) / 2];
                         if (x % 2 == 0)
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
                         else
@@ -191,6 +190,23 @@ namespace R1Engine
         public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Get the file paths
+            var levelPath = GetLevelFilePath(context.Settings);
+            var mapPath = GetMapFilePath(context.Settings);
+
+            // Load the files
+            await LoadFilesAsync(context);
+
+            // Read the files
+            var map = FileFactory.Read<MapData>(mapPath, context);
+            var lvl = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
+
+            // Load the level
+            return await LoadAsync(context, map, lvl.Events, lvl.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
+        }
+
+        public override async Task LoadFilesAsync(Context context)
+        {
+            // Get the file paths
             var allfixPath = GetAllfixFilePath();
             var worldPath = GetWorldFilePath(context.Settings);
             var levelPath = GetLevelFilePath(context.Settings);
@@ -207,13 +223,6 @@ namespace R1Engine
             await LoadExtraFile(context, tileSetPath);
             await LoadExtraFile(context, pal4Path);
             await LoadExtraFile(context, pal8Path);
-
-            // Read the files
-            var map = FileFactory.Read<MapData>(mapPath, context);
-            var lvl = FileFactory.Read<PS1_R1JPDemo_LevFile>(levelPath, context);
-
-            // Load the level
-            return await LoadAsync(context, map, lvl.Events, lvl.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
         /// <summary>
@@ -255,6 +264,25 @@ namespace R1Engine
             return $"Unknown/";
         }
 
-        public override Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotImplementedException();
+        public override async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
+        {
+            using (var context = new Context(settings))
+            {
+                // Load files
+                await LoadFilesAsync(context);
+
+                // Read level file
+                var level = FileFactory.Read<PS1_R1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context);
+
+                // Export
+                await ExportMenuSpritesAsync(context, null, outputPath, exportAnimFrames, new PS1_FontData[]
+                {
+                    level.FontData
+                }, new EventData[]
+                {
+                    level.RaymanEvent
+                }, null);
+            }
+        }
     }
 }

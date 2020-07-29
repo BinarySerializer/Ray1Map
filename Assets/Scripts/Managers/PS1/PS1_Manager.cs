@@ -109,10 +109,10 @@ namespace R1Engine
         /// Gets the sprite texture for an event
         /// </summary>
         /// <param name="context">The context</param>
-        /// <param name="e">The event</param>
+        /// <param name="imgBuffer">The image buffer, if available</param>
         /// <param name="s">The image descriptor to use</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, EventData e, Common_ImageDescriptor s)
+        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, Common_ImageDescriptor s)
         {
             // Get the loaded v-ram
             PS1_VRAM vram = context.GetStoredObject<PS1_VRAM>("vram");
@@ -301,7 +301,7 @@ namespace R1Engine
                     foreach (Common_ImageDescriptor i in e.ImageDescriptors)
                     {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(context, e, i) : null;
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, e.ImageBuffer, i) : null;
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
@@ -842,7 +842,7 @@ namespace R1Engine
 
         public abstract Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 
-        protected async Task ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_R1_AllfixBlock fix, PS1_R1_BigRayBlock bigRay)
+        protected async Task ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_FontData[] fontData, EventData[] fixEvents, PS1_R1_BigRayBlock bigRay)
         {
             // Fill the v-ram for each context
             FillVRAM(menuContext, VRAMMode.Menu);
@@ -853,13 +853,13 @@ namespace R1Engine
             // Export each font DES
             if (!exportAnimFrames)
             {
-                for (int fontIndex = 0; fontIndex < fix.FontData.Length; fontIndex++)
+                for (int fontIndex = 0; fontIndex < fontData.Length; fontIndex++)
                 {
                     // Export every sprite
-                    for (int spriteIndex = 0; spriteIndex < fix.FontData[fontIndex].ImageDescriptorsCount; spriteIndex++)
+                    for (int spriteIndex = 0; spriteIndex < fontData[fontIndex].ImageDescriptorsCount; spriteIndex++)
                     {
                         // Get the sprite texture
-                        var tex = GetSpriteTexture(menuContext, null, fix.FontData[fontIndex].ImageDescriptors[spriteIndex]);
+                        var tex = GetSpriteTexture(menuContext, fontData[fontIndex].ImageBuffer, fontData[fontIndex].ImageDescriptors[spriteIndex]);
 
                         // Make sure it's not null
                         if (tex == null)
@@ -875,7 +875,7 @@ namespace R1Engine
             var exportedImgDescr = new List<Pointer>();
             var index = 0;
 
-            foreach (EventData t in fix.MenuEvents)
+            foreach (EventData t in fixEvents)
             {
                 if (exportedImgDescr.Contains(t.ImageDescriptorsPointer))
                     continue;
@@ -893,7 +893,7 @@ namespace R1Engine
 
             async Task ExportEventSpritesAsync(Context context, EventData e, string eventOutputDir, int desIndex)
             {
-                var sprites = e.ImageDescriptors.Select(x => GetSpriteTexture(context, e, x)).ToArray();
+                var sprites = e.ImageDescriptors.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
 
                 if (!exportAnimFrames)
                 {
