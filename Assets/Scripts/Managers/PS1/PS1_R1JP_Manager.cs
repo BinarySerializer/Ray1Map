@@ -92,16 +92,19 @@ namespace R1Engine
             vram.currentXPage = 5;
 
             // Reserve spot for tiles in vram
-            IList<ARGBColor> tiles = GetTileSetColors(context);
-            int tilesetHeight = tiles.Count / 256;
-            const int tilesetWidth = 4 * 128;
-            int tilesetPage = (16 - 4); // Max pages - tileset width
-            while (tilesetHeight > 0)
+            if (mode == VRAMMode.Level)
             {
-                int thisPageHeight = Math.Min(tilesetHeight, 2 * 256);
-                vram.ReserveBlock(tilesetPage * 128, (2 * 256) - thisPageHeight, tilesetWidth, thisPageHeight);
-                tilesetHeight -= thisPageHeight;
-                tilesetPage -= 4;
+                IList<ARGBColor> tiles = GetTileSetColors(context);
+                int tilesetHeight = tiles.Count / 256;
+                const int tilesetWidth = 4 * 128;
+                int tilesetPage = (16 - 4); // Max pages - tileset width
+                while (tilesetHeight > 0)
+                {
+                    int thisPageHeight = Math.Min(tilesetHeight, 2 * 256);
+                    vram.ReserveBlock(tilesetPage * 128, (2 * 256) - thisPageHeight, tilesetWidth, thisPageHeight);
+                    tilesetHeight -= thisPageHeight;
+                    tilesetPage -= 4;
+                }
             }
 
             if (mode != VRAMMode.BigRay)
@@ -123,11 +126,11 @@ namespace R1Engine
             }
             else if (mode == VRAMMode.Menu)
             {
-                //vram.AddDataAt(10, 0, 0, 226, font.Value, 256);
+                vram.AddDataAt(10, 1, 0, 80, font.Value, 256);
             }
             else if (mode == VRAMMode.BigRay)
             {
-                //vram.AddDataAt(10, 0, 0, 0, bigRay.TextureBlock, 256);
+                vram.AddDataAt(10, 0, 0, 0, bigRay.TextureBlock, 256);
             }
 
             int paletteY = 224; // 480 - 1 page height
@@ -145,12 +148,19 @@ namespace R1Engine
                     vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
                     vram.AddDataAt(1, 1, 0, paletteY++, world.EventPalette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
                 }
+                else
+                {
+                    vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette4.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                    vram.AddDataAt(1, 1, 0, paletteY++, allFix.Palette3.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                }
             }
             else
             {
+                paletteY += 31;
+
                 // BigRay
-                //vram.AddDataAt(12, 1, 0, paletteY++, bigRay.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
-                //vram.AddDataAt(12, 1, 0, paletteY++, bigRay.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, bigRay.Palette1.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
+                vram.AddDataAt(1, 1, 0, paletteY++, bigRay.Palette2.SelectMany(c => BitConverter.GetBytes(c.Color1555)).ToArray(), 512);
             }
 
             context.StoreObject("vram", vram);

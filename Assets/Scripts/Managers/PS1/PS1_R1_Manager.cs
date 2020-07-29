@@ -174,9 +174,13 @@ namespace R1Engine
             if (mode == VRAMMode.Level) {
                 vram.AddData(world.TextureBlock, 256);
                 vram.AddData(levelTextureBlock, 256);
-            } else if (mode == VRAMMode.Menu) {
-                vram.AddDataAt(10, 0, 0, 226, font.Value, 256);
-                //vram.AddDataAt(10, 1, 0, 0, font.Value, 256);
+            } 
+            else if (mode == VRAMMode.Menu) 
+            {
+                if (context.Settings.GameModeSelection == GameModeSelection.RaymanPS1US)
+                    vram.AddDataAt(10, 1, 0, 80, font.Value, 256);
+                else 
+                    vram.AddDataAt(10, 0, 0, 226, font.Value, 256);
             } else if (mode == VRAMMode.BigRay) {
                 vram.AddDataAt(10, 0, 0, 0, bigRay.TextureBlock, 256);
             }

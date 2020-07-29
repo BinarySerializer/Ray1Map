@@ -253,9 +253,6 @@ namespace R1Engine
 
         public override async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
-            if (settings.GameModeSelection == GameModeSelection.RaymanPS1US || settings.GameModeSelection == GameModeSelection.RaymanPS1Japan)
-                throw new NotImplementedException("This export is currently not supported for the selected game mode");
-
             using (var menuContext = new Context(settings)) 
             {
                 using (var bigRayContext = new Context(settings))
@@ -270,13 +267,28 @@ namespace R1Engine
                     var br = FileFactory.Read<PS1_R1_BigRayFile>(GetBigRayFilePath(bigRayContext.Settings), bigRayContext);
 
                     // Correct font palette
-                    foreach (PS1_FontData font in fix.AllfixData.FontData)
+                    if (settings.EngineVersion == EngineVersion.RayPS1JP)
                     {
-                        foreach (Common_ImageDescriptor imgDescr in font.ImageDescriptors)
+                        foreach (PS1_FontData font in fix.AllfixData.FontData)
                         {
-                            var paletteInfo = imgDescr.PaletteInfo;
-                            paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 492, 10, 6);
-                            imgDescr.PaletteInfo = paletteInfo;
+                            foreach (Common_ImageDescriptor imgDescr in font.ImageDescriptors)
+                            {
+                                var paletteInfo = imgDescr.PaletteInfo;
+                                paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 509, 10, 6);
+                                imgDescr.PaletteInfo = paletteInfo;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (PS1_FontData font in fix.AllfixData.FontData)
+                        {
+                            foreach (Common_ImageDescriptor imgDescr in font.ImageDescriptors)
+                            {
+                                var paletteInfo = imgDescr.PaletteInfo;
+                                paletteInfo = (ushort)BitHelpers.SetBits(paletteInfo, 492, 10, 6);
+                                imgDescr.PaletteInfo = paletteInfo;
+                            }
                         }
                     }
 
