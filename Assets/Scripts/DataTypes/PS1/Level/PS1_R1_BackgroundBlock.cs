@@ -32,9 +32,7 @@
 
             BackgroundLayerInfos = s.SerializeObjectArray<Common_ImageDescriptor>(BackgroundLayerInfos, 12, name: nameof(BackgroundLayerInfos));
 
-            Unknown4 = s.SerializeArray<byte>(Unknown4, 80, name: nameof(Unknown4));
-
-            // TODO: NTSC-J has more values here!
+            Unknown4 = s.SerializeArray<byte>(Unknown4, s.GameSettings.EngineVersion == EngineVersion.RayPS1JP ? 208 : 80, name: nameof(Unknown4));
         }
     }
 }
