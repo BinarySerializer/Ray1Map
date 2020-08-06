@@ -8,8 +8,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 * Object linking viewing and editing
 * Game tools for exporting assets
 
-### Supported Games
-Below is a list of every game running in the Rayman 1 engine, and which aspects are currently supported in Ray1Map.
+### Supported Games (Rayman 1)
 
 <table class="tg">
   <tr>
@@ -74,15 +73,6 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 2 (PS1 - Demo)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Currently each map layer has to be loaded separately</td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Saturn - US)</td>
@@ -326,6 +316,176 @@ Below is a list of every game running in the Rayman 1 engine, and which aspects 
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">The correct number of states does not get read</td>
+  </tr>
+</table>
+
+### Supported Games (Rayman 1 Jaguar)
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Memory Loading</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (Jaguar)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+    <tr>
+    <td class="tg-yw4l">Rayman 1 (Jaguar - Prototype)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+    <tr>
+    <td class="tg-yw4l">Rayman 1 (Jaguar - Demo)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
+
+### Supported Games (Rayman 2)
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Memory Loading</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
+  </tr>
+    <tr>
+    <td class="tg-yw4l">Rayman 2 (PS1 - Demo)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Currently each map layer has to be loaded separately</td>
+  </tr>
+</table>
+
+### Supported Games (SNES)
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Memory Loading</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
+  </tr>
+    <tr>
+    <td class="tg-yw4l">Rayman (SNES - Prototype)</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
+
+### Supported Games (GBC)
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Memory Loading</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (GBC)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 2 (GBC)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
+
+### Supported Games (GBA)
+There are other games using the same engine, such as "Sabrina the Teenage Witch: Potion Commotion" which might be added in the future.
+
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+    <th class="tg-yw4l"><b>Memory Loading</b></th>
+    <th class="tg-yw4l"><b>Notes</b></th>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 3 (GBA)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 3 (N-Gage)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 3 (DigiBlast)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman Raving Rabbids (GBA)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
   </tr>
 </table>
 
