@@ -88,5 +88,7 @@ namespace R1Engine
         /// Rayman 1 (DSi)
         /// </summary>
         RayDSi,
+
+        RaySNES
     }
 }

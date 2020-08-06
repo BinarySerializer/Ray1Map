@@ -5,6 +5,7 @@
     /// </summary>
     public enum Game
     {
+        RaymanSNESPrototype,
         Rayman1,
         Rayman1DemoPrototype,
         RaymanDesigner,

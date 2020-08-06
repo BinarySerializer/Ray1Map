@@ -18,6 +18,8 @@
         /// <summary>
         /// PS1 and Saturn
         /// </summary>
-        PS1
+        PS1,
+
+        SNES
     }
 }

@@ -31,6 +31,9 @@ namespace R1Engine
 
         public byte PC_Unk2 { get; set; }
 
+        public bool HorizontalFlip { get; set; }
+        public bool VerticalFlip { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -94,6 +97,23 @@ namespace R1Engine
 
                 TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0);
                 TileMapX = 0;
+                CollisionType = (byte)BitHelpers.ExtractBits(value, 4, 12);
+            }
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
+            {
+                ushort value = 0;
+
+                value = (ushort)BitHelpers.SetBits(value, TileMapY, 10, 0);
+                value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, 10);
+                value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, 11);
+                value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 4, 12);
+
+                value = s.Serialize<ushort>(value, name: nameof(value));
+
+                TileMapY = (ushort)BitHelpers.ExtractBits(value, 10, 0);
+                TileMapX = 0;
+                HorizontalFlip = BitHelpers.ExtractBits(value, 1, 10) == 1;
+                VerticalFlip = BitHelpers.ExtractBits(value, 1, 11) == 1;
                 CollisionType = (byte)BitHelpers.ExtractBits(value, 4, 12);
             }
             else

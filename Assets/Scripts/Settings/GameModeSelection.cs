@@ -110,5 +110,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.PS1, EngineVersion.Ray2PS1, Game.Rayman2, "Rayman 2 (PS1 - Demo)", typeof(PS1_R2Demo_Manager))]
         Rayman2PS1Demo,
+
+        [GameMode(MajorEngineVersion.SNES, EngineVersion.RaySNES, Game.RaymanSNESPrototype, "Rayman (SNES - Prototype)", typeof(SNES_Prototype_Manager))]
+        RaymanSNES,
     }
 }
