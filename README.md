@@ -213,7 +213,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">Rayman Educational (PC)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -222,7 +222,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">Rayman Educational (PS1)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -231,7 +231,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">Rayman Quiz (PC)</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
