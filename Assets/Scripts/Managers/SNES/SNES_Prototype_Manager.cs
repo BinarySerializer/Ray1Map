@@ -87,8 +87,8 @@ namespace R1Engine
                 var tileIndex = BitHelpers.ExtractBits(descriptor, 10, 0);
                 var pal = BitHelpers.ExtractBits(descriptor, 3, 10);
                 
-                // Drawing priority? Animation related?
-                var unk = BitHelpers.ExtractBits(descriptor, 1, 13);
+                // This is set to 1 for anything which should be drawn in front of Rayman, such as the pipe
+                var isForeground = BitHelpers.ExtractBits(descriptor, 1, 13) == 1;
                 
                 var flipX = BitHelpers.ExtractBits(descriptor, 1, 14) == 1;
                 var flipY = BitHelpers.ExtractBits(descriptor, 1, 15) == 1;
@@ -132,7 +132,7 @@ namespace R1Engine
                     b = BitHelpers.SetBits(b, bit2, 1, 2);
                     b = BitHelpers.SetBits(b, bit3, 1, 3);
                     
-                    Color c = pal[(paletteInd * 0x10 + b) % pal.Count].GetColor();
+                    Color c = pal[paletteInd * 0x10 + b].GetColor();
 
                     if (b != 0)
                         c = new Color(c.r, c.g, c.b, 1f);
