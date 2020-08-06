@@ -84,16 +84,21 @@ namespace R1Engine
             {
                 ushort descriptor = rom.TileDescriptors[i];
 
-                // TODO: Remaining 3 bytes seem to be animation related (tile links?)
-                var pal = BitHelpers.ExtractBits(descriptor, 3, 10);
                 var tileIndex = BitHelpers.ExtractBits(descriptor, 10, 0);
+                var pal = BitHelpers.ExtractBits(descriptor, 3, 10);
+                
+                // Drawing priority? Animation related?
+                var unk = BitHelpers.ExtractBits(descriptor, 1, 13);
+                
+                var flipX = BitHelpers.ExtractBits(descriptor, 1, 14) == 1;
+                var flipY = BitHelpers.ExtractBits(descriptor, 1, 15) == 1;
 
                 var x = ((i / 4) * 2) % (256 / 8) + ((i % 2) == 0 ? 0 : 1);
                 var y = (((i / 4) * 2) / (256 / 8)) * 2 + ((i % 4) < 2 ? 0 : 1);
 
                 var curOff = block_size * tileIndex;
 
-                FillTextureBlock(tex, 0, 0, x, y, rom.TileMap, curOff, rom.Palettes, pal);
+                FillTextureBlock(tex, 0, 0, x, y, rom.TileMap, curOff, rom.Palettes, pal, flipX, flipY);
             }
 
             tex.Apply();
@@ -101,7 +106,7 @@ namespace R1Engine
             return new Common_Tileset(tex, Settings.CellSize);
         }
 
-        public void FillTextureBlock(Texture2D tex, int blockX, int blockY, int relX, int relY, byte[] imageBuffer, int imageBufferOffset, IList<ARGB1555Color> pal, int paletteInd)
+        public void FillTextureBlock(Texture2D tex, int blockX, int blockY, int relX, int relY, byte[] imageBuffer, int imageBufferOffset, IList<ARGB1555Color> pal, int paletteInd, bool flipX, bool flipY)
         {
             var offset1 = imageBufferOffset;
             var offset2 = imageBufferOffset + 16;
@@ -110,8 +115,8 @@ namespace R1Engine
             {
                 for (int x = 0; x < 8; x++)
                 {
-                    int actualX = blockX + relX * 8 + x;
-                    int actualY = blockY + relY * 8 + y;
+                    int actualX = blockX + relX * 8 + (flipX ? (8 - x - 1) : x);
+                    int actualY = blockY + relY * 8 + (flipY ? (8 - y - 1) : y);
 
                     int off = y * 8 + (8 - x - 1);
 
