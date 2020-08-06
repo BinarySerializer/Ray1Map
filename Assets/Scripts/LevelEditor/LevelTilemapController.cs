@@ -121,6 +121,7 @@ namespace R1Engine
                         t.PaletteIndex = palette;
 
                     Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, Controller.obj.levelController.EditorManager.Settings));
+                    Tilemaps[1].SetTransformMatrix(new Vector3Int(x, y, 0), Tilemaps[1].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));
                 }
             }
 
