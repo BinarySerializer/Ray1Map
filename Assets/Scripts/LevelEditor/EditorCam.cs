@@ -44,10 +44,16 @@ namespace R1Engine {
             if (Controller.obj.levelController.currentLevel != null) {
                 // RMB scroling
                 if (GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {
-                    vel = 0.8f * Vector3.Lerp(vel, Vector3.ClampMagnitude(mousePosPrev - mousePosition, 50) * fov,
-                        inertia <= 0 ? 1 : Time.deltaTime * 1f / inertia);
+                    float xFactor = Camera.main.orthographicSize * 2.0f / Camera.main.pixelHeight;
+                    float yFactor = Camera.main.orthographicSize * 2.0f / Camera.main.pixelHeight;
+
+                    /*vel = 0.8f * Vector3.Lerp(vel, Vector3.ClampMagnitude(mousePosPrev - mousePosition, 50) * fov,
+                        inertia <= 0 ? 1 : Time.deltaTime * 1f / inertia);*/
                     friction = fricStart;
+                    Vector3 mouseDeltaOrtho = mousePosition - mousePosPrev;
+                    pos += new Vector3(-mouseDeltaOrtho.x * xFactor, -mouseDeltaOrtho.y * yFactor);
                 }
+                mousePosPrev = mousePosition;
 
                 // Mouse wheel zooming
                 if (!EventSystem.current.IsPointerOverGameObject())
@@ -82,7 +88,6 @@ namespace R1Engine {
                     transform.position = pos;
                 }
                 Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, fov, Time.deltaTime * 8);
-                mousePosPrev = mousePosition;
             }
         }
     }
