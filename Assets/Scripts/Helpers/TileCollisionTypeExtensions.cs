@@ -208,5 +208,43 @@
                     return TileCollisionTypeGraphic.Unknown0;
             }
         }
+
+        public static TileCollisionTypeGraphic GetCollisionTypeGraphic(this GBA_TileCollisionType collisionType)
+        {
+            switch (collisionType)
+            {
+                case GBA_TileCollisionType.Empty:
+                    return TileCollisionTypeGraphic.None;
+
+                case GBA_TileCollisionType.Solid:
+                    return TileCollisionTypeGraphic.Solid;
+
+                case GBA_TileCollisionType.Climb:
+                case GBA_TileCollisionType.Hang:
+                    return TileCollisionTypeGraphic.Climb;
+
+                case GBA_TileCollisionType.Hill_Slight_Right_2:
+                    return TileCollisionTypeGraphic.Hill_Slight_Right_2;
+
+                case GBA_TileCollisionType.Hill_Slight_Right_1:
+                    return TileCollisionTypeGraphic.Hill_Slight_Right_1;
+
+                case GBA_TileCollisionType.Hill_Slight_Left_2:
+                    return TileCollisionTypeGraphic.Hill_Slight_Left_2;
+
+                case GBA_TileCollisionType.Hill_Slight_Left_1:
+                    return TileCollisionTypeGraphic.Hill_Slight_Left_1;
+
+                case GBA_TileCollisionType.Reactionary_Up:
+                case GBA_TileCollisionType.Reactionary_Down:
+                    return TileCollisionTypeGraphic.Reactionary;
+
+                case GBA_TileCollisionType.Water:
+                    return TileCollisionTypeGraphic.Water;
+
+                default:
+                    return TileCollisionTypeGraphic.Unknown0;
+            }
+        }
     }
 }

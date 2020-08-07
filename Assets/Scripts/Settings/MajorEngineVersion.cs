@@ -20,6 +20,8 @@
         /// </summary>
         PS1,
 
-        SNES
+        SNES,
+
+        GBA
     }
 }

@@ -89,6 +89,8 @@ namespace R1Engine
         /// </summary>
         RayDSi,
 
-        RaySNES
+        RaySNES,
+
+        Ray3GBA
     }
 }

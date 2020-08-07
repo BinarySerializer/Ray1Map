@@ -15,5 +15,6 @@
         RaymanEducational,
         RaymanQuiz,
         Rayman2,
+        Rayman3GBA
     }
 }

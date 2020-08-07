@@ -113,5 +113,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.SNES, EngineVersion.RaySNES, Game.RaymanSNESPrototype, "Rayman (SNES - Prototype)", typeof(SNES_Prototype_Manager))]
         RaymanSNES,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (GBA)", typeof(GBA_R3_Manager))]
+        Rayman3GBA,
     }
 }
