@@ -81,6 +81,7 @@
             Unk6 = s.Serialize<byte>(Unk6, name: nameof(Unk6));
             LevelIndex = s.Serialize<ushort>(LevelIndex, name: nameof(LevelIndex));
             Unk7 = s.Serialize<ushort>(Unk7, name: nameof(Unk7));
+            s.Serialize<ushort>(0, name: "Padding");
         }
     }
 
