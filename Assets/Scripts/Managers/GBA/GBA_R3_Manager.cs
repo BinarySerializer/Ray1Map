@@ -90,7 +90,7 @@ namespace R1Engine
                             var b = rom.Tilemap[(i * tileSize) + ((y * tileWidth + x) / 2)];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                            var c = rom.Palette[p * paletteSize + v].GetColor();
+                            var c = rom.BGPalette[p * paletteSize + v].GetColor();
 
                             if (v != 0 && i != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);
@@ -115,7 +115,7 @@ namespace R1Engine
 
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
 
-            commonLev.EventData = rom.Obj.MapObjects.Select(x => new Editor_EventData(new EventData()
+            commonLev.EventData = rom.ObjBlocks[0].MapObjects.Select(x => new Editor_EventData(new EventData()
             {
                 XPosition = x.XPos * 2,
                 YPosition = x.YPos * 2

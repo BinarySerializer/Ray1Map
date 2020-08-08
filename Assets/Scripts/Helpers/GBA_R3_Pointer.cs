@@ -5,7 +5,7 @@
     /// </summary>
     public enum GBA_R3_Pointer
     {
-        UnkOffsetTable,
+        ObjBlocksOffsetTable,
         UnkPointerTable,
         LevelInfo
     }

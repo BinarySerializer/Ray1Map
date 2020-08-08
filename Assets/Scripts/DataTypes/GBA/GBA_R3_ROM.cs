@@ -4,19 +4,16 @@ namespace R1Engine
 {
     public class GBA_R3_ROM : GBA_ROM
     {
-        // Related the level maps
-        public uint UnkOffsetTableCount { get; set; }
-        public uint[] UnkOffsetTable { get; set; }
-        public Pointer[] UnkOffsetTablePointers { get; set; }
+        public uint ObjBlocksOffsetTableCount { get; set; }
+        public uint[] ObjBlocksOffsetTable { get; set; }
+        public GBA_R3_MapObjBlock[] ObjBlocks { get; set; }
+
 
         // Each pointer leads to a small index list. They all begin with 0x00, so read until next 0x00?
         public Pointer[] UnkPointerTable { get; set; }
 
         // Contains general info about levels, but not anything map related
         public GBA_R3_LevelMapInfo[] LevelInfo { get; set; }
-
-
-        public GBA_R3_MapObjBlock Obj { get; set; }
 
 
         // The background (usually clouds, the sky etc.)
@@ -36,7 +33,7 @@ namespace R1Engine
 
 
         public byte[] Tilemap { get; set; }
-        public ARGB1555Color[] Palette { get; set; }
+        public ARGB1555Color[] BGPalette { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -50,27 +47,38 @@ namespace R1Engine
             // Get the pointer table
             var pointerTable = PointerTables.GetGBAR3PointerTable(Offset.file);
 
-            s.DoAt(pointerTable[GBA_R3_Pointer.UnkOffsetTable], () =>
+            // Serialize the object blocks offset table
+            s.DoAt(pointerTable[GBA_R3_Pointer.ObjBlocksOffsetTable], () =>
             {
-                UnkOffsetTableCount = s.Serialize<uint>(UnkOffsetTableCount, name: nameof(UnkOffsetTableCount));
-                UnkOffsetTable = s.SerializeArray<uint>(UnkOffsetTable, UnkOffsetTableCount, name: nameof(UnkOffsetTable));
+                ObjBlocksOffsetTableCount = s.Serialize<uint>(ObjBlocksOffsetTableCount, name: nameof(ObjBlocksOffsetTableCount));
+                ObjBlocksOffsetTable = s.SerializeArray<uint>(ObjBlocksOffsetTable, ObjBlocksOffsetTableCount, name: nameof(ObjBlocksOffsetTable));
             });
+
+            if (ObjBlocks == null)
+                ObjBlocks = new GBA_R3_MapObjBlock[ObjBlocksOffsetTable.Length];
+
+            // Serialize the object blocks
+            for (int i = 0; i < ObjBlocks.Length; i++)
+                ObjBlocks[i] = s.DoAt(pointerTable[GBA_R3_Pointer.ObjBlocksOffsetTable] + 4 + (ObjBlocksOffsetTable[i] * 4), () => s.SerializeObject<GBA_R3_MapObjBlock>(ObjBlocks[i], name: $"{nameof(ObjBlocks)}[{i}]"));
+
+            // Serialize unknown pointer table
             UnkPointerTable = s.DoAt(pointerTable[GBA_R3_Pointer.UnkPointerTable], () => s.SerializePointerArray(UnkPointerTable, 252, name: nameof(UnkPointerTable)));
+
+            // Serialize level info
             LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, 65, name: nameof(LevelInfo)));
 
-            Obj = s.DoAt(Offset + 0x29C0F4, () => s.SerializeObject<GBA_R3_MapObjBlock>(Obj, name: nameof(Obj)));
-
+            // Serialize current level maps
             BG_0 = s.DoAt(Offset + 0x2E7308, () => s.SerializeObject<GBA_R3_MapBlock>(BG_0, name: nameof(BG_0)));
             BG_1 = s.DoAt(Offset + 0x2E8094, () => s.SerializeObject<GBA_R3_MapBlock>(BG_1, name: nameof(BG_1)));
             BG_2 = s.DoAt(Offset + 0x2E86DC, () => s.SerializeObject<GBA_R3_MapBlock>(BG_2, name: nameof(BG_2)));
             BG_3 = s.DoAt(Offset + 0x2EB258, () => s.SerializeObject<GBA_R3_MapBlock>(BG_3, name: nameof(BG_3)));
             CollisionMap = s.DoAt(Offset + 0x2EC7BC, () => s.SerializeObject<GBA_R3_CollisionMapBlock>(CollisionMap, name: nameof(CollisionMap)));
 
+            // Serialize current level tilemap
             Tilemap = s.DoAt(Offset + 0x2ED078, () => s.SerializeArray<byte>(Tilemap, 32 * (BG_2.MapData.Max(x => BitHelpers.ExtractBits(x, 11, 0)) + 1), name: nameof(Tilemap)));
-            Palette = s.DoAt(Offset + 0x30AFF0, () => s.SerializeObjectArray<ARGB1555Color>(Palette, 16 * 16, name: nameof(Palette)));
 
-            // Parse the offset table
-            UnkOffsetTablePointers = UnkOffsetTable.Select(x => pointerTable[GBA_R3_Pointer.UnkOffsetTable] + 4 + (x * 4)).ToArray();
+            // Serialize current level palettes
+            BGPalette = s.DoAt(Offset + 0x30AFF0, () => s.SerializeObjectArray<ARGB1555Color>(BGPalette, 16 * 16, name: nameof(BGPalette)));
         }
     }
 
@@ -119,18 +127,12 @@ namespace R1Engine
 
     public class GBA_R3_MapObjBlock : R1Serializable
     {
-        public uint BlockLength { get; set; }
-
-        public byte Unk_04 { get; set; }
-        public byte Unk_05 { get; set; }
-        public byte Unk_06 { get; set; }
-        public byte Unk_07 { get; set; }
         public byte ObjectsCount { get; set; }
-        public byte Unk_09 { get; set; }
-        public byte Unk_0A { get; set; }
-        public byte Unk_0B { get; set; }
+        public byte Unk_01 { get; set; }
+        public byte Unk_02 { get; set; }
+        public byte Unk_03 { get; set; }
 
-        public byte[] Unk_0C { get; set; }
+        public byte[] Unk_04 { get; set; }
 
         public GBA_R3_MapObj[] MapObjects { get; set; }
 
@@ -138,17 +140,12 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            BlockLength = s.Serialize<uint>(BlockLength, name: nameof(BlockLength));
-            Unk_04 = s.Serialize<byte>(Unk_04, name: nameof(Unk_04));
-            Unk_05 = s.Serialize<byte>(Unk_05, name: nameof(Unk_05));
-            Unk_06 = s.Serialize<byte>(Unk_06, name: nameof(Unk_06));
-            Unk_07 = s.Serialize<byte>(Unk_07, name: nameof(Unk_07));
             ObjectsCount = s.Serialize<byte>(ObjectsCount, name: nameof(ObjectsCount));
-            Unk_09 = s.Serialize<byte>(Unk_09, name: nameof(Unk_09));
-            Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
-            Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
+            Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
+            Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
+            Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
 
-            Unk_0C = s.SerializeArray<byte>(Unk_0C, 12, name: nameof(Unk_0C));
+            Unk_04 = s.SerializeArray<byte>(Unk_04, 12, name: nameof(Unk_04));
 
             MapObjects = s.SerializeObjectArray<GBA_R3_MapObj>(MapObjects, ObjectsCount, name: nameof(MapObjects));
         }
@@ -188,7 +185,7 @@ namespace R1Engine
     Structure of a DLC level (number of blocks might depend on GBA_R3_Level):
 
     uint: BlockLength
-    byte[]: UnkBlock (same block type which UnkOffsetTable leads to!)
+    byte[]: GBA_R3_MapObjBlock
     uint: BlockLength ?
     byte[]: GBA_R3_Level (88 bytes?)
     uint: BlockLength
@@ -200,7 +197,7 @@ namespace R1Engine
     uint: BlockLength
     byte[]: GBA_R3_CollisionMapBlock
 
-    First DLC level is 800x40 (20 03 28 00)
+    First DLC map is 800x40 (20 03 28 00)
      
      */
 }
