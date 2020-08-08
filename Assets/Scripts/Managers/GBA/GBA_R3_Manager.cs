@@ -51,9 +51,12 @@ namespace R1Engine
                         MapTiles = map.MapData.Select((x, i) => new Editor_MapTile(new MapTile()
                         {
                             CollisionType = (byte)rom.CollisionMap.CollisionData[i],
-                            TileMapY = (ushort)(BitHelpers.ExtractBits(x, 12, 0) + (BitHelpers.ExtractBits(x, 3, 12) * tilemapLength)),
-                            HorizontalFlip = BitHelpers.ExtractBits(x, 1, 15) == 1,
-                        })).ToArray(),
+                            TileMapY = (ushort)(BitHelpers.ExtractBits(x, 11, 0) + (BitHelpers.ExtractBits(x, 4, 12) * tilemapLength)),
+                            HorizontalFlip = BitHelpers.ExtractBits(x, 1, 11) == 1,
+                        })
+                        {
+                            DebugText = Convert.ToString(x, 2).PadLeft(16, '0')
+                        }).ToArray(),
                         TileSetWidth = 1
                     }
                 },
@@ -62,23 +65,28 @@ namespace R1Engine
                 EventData = new List<Editor_EventData>(),
             };
 
-            var tiles = new Tile[tilemapLength * 8];
+            const int numPalettes = 16;
+            const int paletteSize = 16;
+            const int tileWidth = 8;
+            const int tileSize = (tileWidth * tileWidth) / 2;
+
+            var tiles = new Tile[tilemapLength * numPalettes];
 
             // Hack: Create a tilemap for each palette
-            for (int p = 0; p < 8; p++)
+            for (int p = 0; p < numPalettes; p++)
             {
                 for (int i = 0; i < tilemapLength; i++)
                 {
-                    var tex = new Texture2D(16, 16);
+                    var tex = new Texture2D(Settings.CellSize, Settings.CellSize);
 
-                    for (int y = 0; y < 8; y++)
+                    for (int y = 0; y < tileWidth; y++)
                     {
-                        for (int x = 0; x < 8; x++)
+                        for (int x = 0; x < tileWidth; x++)
                         {
-                            var b = rom.Tilemap[(i * 32) + ((y * 8 + x) / 2)];
+                            var b = rom.Tilemap[(i * tileSize) + ((y * tileWidth + x) / 2)];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                            var c = rom.Palette[p * 16 + v].GetColor();
+                            var c = rom.Palette[p * paletteSize + v].GetColor();
 
                             if (v != 0 && i != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);
@@ -95,7 +103,7 @@ namespace R1Engine
 
                     // Create a tile
                     Tile t = ScriptableObject.CreateInstance<Tile>();
-                    t.sprite = Sprite.Create(tex, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16, 20);
+                    t.sprite = Sprite.Create(tex, new Rect(0, 0, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), Settings.CellSize, 20);
 
                     tiles[p * tilemapLength + i] = t;
                 }
