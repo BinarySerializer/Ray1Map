@@ -95,7 +95,8 @@ namespace R1Engine
         public byte Unk_02 { get; set; }
         public byte Unk_03 { get; set; }
 
-        public byte[] Unk_04 { get; set; }
+        // Might not be the exact same struct, but seems to match
+        public GBA_R3_MapObj StartPosObj { get; set; }
 
         public GBA_R3_MapObj[] MapObjects { get; set; }
 
@@ -108,7 +109,7 @@ namespace R1Engine
             Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
             Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
 
-            Unk_04 = s.SerializeArray<byte>(Unk_04, 12, name: nameof(Unk_04));
+            StartPosObj = s.SerializeObject<GBA_R3_MapObj>(StartPosObj, name: nameof(StartPosObj));
 
             MapObjects = s.SerializeObjectArray<GBA_R3_MapObj>(MapObjects, ObjectsCount, name: nameof(MapObjects));
         }
