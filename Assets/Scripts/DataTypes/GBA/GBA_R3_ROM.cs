@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -32,9 +33,9 @@ namespace R1Engine
             });
             LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, 65, name: nameof(LevelInfo)));
 
-            BackgroundMap = s.DoAt(s.CurrentPointer + 0x2E86DC, () => s.SerializeObject<GBA_R3_MapBlock>(BackgroundMap, name: nameof(BackgroundMap)));
-            ForegroundMap = s.DoAt(s.CurrentPointer + 0x2EB258, () => s.SerializeObject<GBA_R3_MapBlock>(ForegroundMap, name: nameof(ForegroundMap)));
-            CollisionMap = s.DoAt(s.CurrentPointer + 0x2EC7BC, () => s.SerializeObject<GBA_R3_CollisionMapBlock>(CollisionMap, name: nameof(CollisionMap)));
+            BackgroundMap = s.DoAt(Offset + 0x2E86DC, () => s.SerializeObject<GBA_R3_MapBlock>(BackgroundMap, name: nameof(BackgroundMap)));
+            ForegroundMap = s.DoAt(Offset + 0x2EB258, () => s.SerializeObject<GBA_R3_MapBlock>(ForegroundMap, name: nameof(ForegroundMap)));
+            CollisionMap = s.DoAt(Offset + 0x2EC7BC, () => s.SerializeObject<GBA_R3_CollisionMapBlock>(CollisionMap, name: nameof(CollisionMap)));
 
             // Parse the offset table
             UnkOffsetTablePointers = UnkOffsetTable.Select(x => pointerTable[GBA_R3_Pointer.UnkOffsetTable] + 4 + (x * 4)).ToArray();
