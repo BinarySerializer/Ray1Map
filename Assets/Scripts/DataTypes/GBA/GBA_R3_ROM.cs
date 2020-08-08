@@ -62,4 +62,33 @@ namespace R1Engine
             UnkOffsetTablePointers = UnkOffsetTable.Select(x => pointerTable[GBA_R3_Pointer.UnkOffsetTable] + 4 + (x * 4)).ToArray();
         }
     }
+
+    // First  level is at 0x082E7288
+    // Second level is at 0x08362544
+    // 0x03000e20 has pointer to this struct for the current level during runtime
+    public class GBA_R3_Level : R1Serializable
+    {
+        // This determines how the level gets loaded (false == normal map, true == ?)
+        public bool Unk_00 { get; set; }
+
+        public byte Unk_01 { get; set; }
+        public byte Unk_02 { get; set; }
+        public byte Unk_03 { get; set; }
+        public byte Unk_04 { get; set; }
+        public byte MapCount { get; set; }
+        public byte Unk_06 { get; set; }
+        public byte Unk_07 { get; set; }
+        public byte Unk_08 { get; set; }
+        public byte Unk_09 { get; set; }
+        public byte[] MapIndexes { get; set; }
+
+        /// <summary>
+        /// Handles the data serialization
+        /// </summary>
+        /// <param name="s">The serializer object</param>
+        public override void SerializeImpl(SerializerObject s)
+        {
+            
+        }
+    }
 }
