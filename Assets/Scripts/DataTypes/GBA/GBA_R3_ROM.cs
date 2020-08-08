@@ -1,13 +1,18 @@
-﻿using System.IO;
-using System.Linq;
+﻿using System.Linq;
 
 namespace R1Engine
 {
     public class GBA_R3_ROM : GBA_ROM
     {
+        // Related the level maps
         public uint UnkOffsetTableCount { get; set; }
         public uint[] UnkOffsetTable { get; set; }
         public Pointer[] UnkOffsetTablePointers { get; set; }
+
+        // Each pointer leads to a small index list. They all begin with 0x00, so read until next 0x00?
+        public Pointer[] UnkPointerTable { get; set; }
+
+        // Contains general info about levels, but not anything map related
         public GBA_R3_LevelMapInfo[] LevelInfo { get; set; }
 
         public GBA_R3_MapBlock BackgroundMap { get; set; }
@@ -31,6 +36,7 @@ namespace R1Engine
                 UnkOffsetTableCount = s.Serialize<uint>(UnkOffsetTableCount, name: nameof(UnkOffsetTableCount));
                 UnkOffsetTable = s.SerializeArray<uint>(UnkOffsetTable, UnkOffsetTableCount, name: nameof(UnkOffsetTable));
             });
+            UnkPointerTable = s.DoAt(pointerTable[GBA_R3_Pointer.UnkPointerTable], () => s.SerializePointerArray(UnkPointerTable, 252, name: nameof(UnkPointerTable)));
             LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, 65, name: nameof(LevelInfo)));
 
             BackgroundMap = s.DoAt(Offset + 0x2E86DC, () => s.SerializeObject<GBA_R3_MapBlock>(BackgroundMap, name: nameof(BackgroundMap)));

@@ -6,6 +6,7 @@
     public enum GBA_R3_Pointer
     {
         UnkOffsetTable,
+        UnkPointerTable,
         LevelInfo
     }
 }
