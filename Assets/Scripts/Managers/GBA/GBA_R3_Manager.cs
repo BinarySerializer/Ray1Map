@@ -28,8 +28,8 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
 
-            // Get the background map
-            var map = rom.BackgroundMap;
+            // Get the primary map
+            var map = rom.BG_2;
             
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
