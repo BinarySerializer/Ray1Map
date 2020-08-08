@@ -69,6 +69,9 @@ namespace R1Engine
         }
     }
 
+    // TODO: Move to separate files
+
+    // FUN_080c5378 in proto uses this to load map layers
 
     // First  level is at 0x082E7288
     // Second level is at 0x08362544
@@ -83,13 +86,12 @@ namespace R1Engine
         public byte Unk_01 { get; set; }
         public byte Unk_02 { get; set; }
         public byte Unk_03 { get; set; }
-        public byte Unk_04 { get; set; }
-        public byte MapCount { get; set; }
-        public byte Unk_06 { get; set; }
-        public byte Unk_07 { get; set; }
-        public byte Unk_08 { get; set; }
-        public byte Unk_09 { get; set; }
-        public byte[] MapIndexes { get; set; }
+
+        public byte TileLayersCount { get; set; }
+        public byte UnkIndexesCount { get; set; }
+        
+        public byte[] TileLayerIDs { get; set; }
+        public byte[] UnkIndexes { get; set; }
 
         // More data - part of the same struct?
 
@@ -99,7 +101,35 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            
+            Unk_00 = s.Serialize<bool>(Unk_00, name: nameof(Unk_00));
+            Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
+            Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
+            Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+            TileLayersCount = s.Serialize<byte>(TileLayersCount, name: nameof(TileLayersCount));
+            UnkIndexesCount = s.Serialize<byte>(UnkIndexesCount, name: nameof(UnkIndexesCount));
+            TileLayerIDs = s.SerializeArray<byte>(TileLayerIDs, 4, name: nameof(TileLayerIDs));
+            UnkIndexes = s.SerializeArray<byte>(UnkIndexes, 6, name: nameof(UnkIndexes));
         }
     }
+
+    /*
+     
+    Structure of a DLC level (number of blocks might depend on GBA_R3_Level):
+
+    uint: BlockLength
+    byte[]: UnkBlock (same block type which UnkOffsetTable leads to!)
+    uint: BlockLength ?
+    byte[]: GBA_R3_Level (88 bytes?)
+    uint: BlockLength
+    byte[]: GBA_R3_MapBlock
+    uint: BlockLength
+    byte[]: GBA_R3_MapBlock
+    uint: BlockLength
+    byte[]: GBA_R3_MapBlock
+    uint: BlockLength
+    byte[]: GBA_R3_CollisionMapBlock
+
+    First DLC level is 800x40 (20 03 28 00)
+     
+     */
 }
