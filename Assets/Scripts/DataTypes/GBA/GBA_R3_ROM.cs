@@ -1,10 +1,12 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBA_R3_ROM : GBA_ROM
     {
-        public const int LevelCount = 65;
-
+        public uint UnkOffsetTableCount { get; set; }
         public uint[] UnkOffsetTable { get; set; }
+        public Pointer[] UnkOffsetTablePointers { get; set; }
         public GBA_R3_LevelMapInfo[] LevelInfo { get; set; }
 
         public GBA_R3_MapBlock BackgroundMap { get; set; }
@@ -17,14 +19,22 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            s.Goto(Offset);
+            // Get the pointer table
+            var pointerTable = PointerTables.GetGBAR3PointerTable(Offset.file);
 
-            UnkOffsetTable = s.DoAt(s.CurrentPointer + 0x29BEEC, () => s.SerializeArray<uint>(UnkOffsetTable, LevelCount * 2, name: nameof(UnkOffsetTable)));
-            LevelInfo = s.DoAt(s.CurrentPointer + 0x0D4080, () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, LevelCount, name: nameof(LevelInfo)));
+            s.DoAt(pointerTable[GBA_R3_Pointer.UnkOffsetTable], () =>
+            {
+                UnkOffsetTableCount = s.Serialize<uint>(UnkOffsetTableCount, name: nameof(UnkOffsetTableCount));
+                UnkOffsetTable = s.SerializeArray<uint>(UnkOffsetTable, UnkOffsetTableCount, name: nameof(UnkOffsetTable));
+            });
+            LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, 65, name: nameof(LevelInfo)));
 
             BackgroundMap = s.DoAt(s.CurrentPointer + 0x2E86DC, () => s.SerializeObject<GBA_R3_MapBlock>(BackgroundMap, name: nameof(BackgroundMap)));
             ForegroundMap = s.DoAt(s.CurrentPointer + 0x2EB258, () => s.SerializeObject<GBA_R3_MapBlock>(ForegroundMap, name: nameof(ForegroundMap)));
             CollisionMap = s.DoAt(s.CurrentPointer + 0x2EC7BC, () => s.SerializeObject<GBA_R3_CollisionMapBlock>(CollisionMap, name: nameof(CollisionMap)));
+
+            // Parse the offset table
+            UnkOffsetTablePointers = UnkOffsetTable.Select(x => pointerTable[GBA_R3_Pointer.UnkOffsetTable] + 4 + (x * 4)).ToArray();
         }
     }
 

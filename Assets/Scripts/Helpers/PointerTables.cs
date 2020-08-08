@@ -150,5 +150,19 @@ namespace R1Engine
                 throw new ArgumentOutOfRangeException(nameof(engine), engine, null);
             }
         }
+
+        /// <summary>
+        /// Gets the pointer table for the GBA version of Rayman 3
+        /// </summary>
+        /// <param name="romFile">The rom file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<GBA_R3_Pointer, Pointer> GetGBAR3PointerTable(BinaryFile romFile)
+        {
+            return new Dictionary<GBA_R3_Pointer, uint>()
+            {
+                [GBA_R3_Pointer.UnkOffsetTable] = 0x0829BEEC,
+                [GBA_R3_Pointer.LevelInfo] = 0x080D4080,
+            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+        }
     }
 }
