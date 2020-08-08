@@ -32,6 +32,9 @@ namespace R1Engine
         public GBA_R3_CollisionMapBlock CollisionMap { get; set; }
 
 
+        public byte[] Tilemap { get; set; }
+        public ARGB1555Color[] Palette { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -58,14 +61,20 @@ namespace R1Engine
             BG_3 = s.DoAt(Offset + 0x2EB258, () => s.SerializeObject<GBA_R3_MapBlock>(BG_3, name: nameof(BG_3)));
             CollisionMap = s.DoAt(Offset + 0x2EC7BC, () => s.SerializeObject<GBA_R3_CollisionMapBlock>(CollisionMap, name: nameof(CollisionMap)));
 
+            Tilemap = s.DoAt(Offset + 0x2ED098, () => s.SerializeArray<byte>(Tilemap, 32 * (BG_2.MapData.Max(x => BitHelpers.ExtractBits(x, 12, 0)) + 1), name: nameof(Tilemap)));
+            Palette = s.DoAt(Offset + 0x30AFF0, () => s.SerializeObjectArray<ARGB1555Color>(Palette, 16 * 16, name: nameof(Palette)));
+
             // Parse the offset table
             UnkOffsetTablePointers = UnkOffsetTable.Select(x => pointerTable[GBA_R3_Pointer.UnkOffsetTable] + 4 + (x * 4)).ToArray();
         }
     }
 
+
     // First  level is at 0x082E7288
     // Second level is at 0x08362544
     // 0x03000e20 has pointer to this struct for the current level during runtime
+
+    // Always 128 bytes long - appears right before BG_0 for a map
     public class GBA_R3_Level : R1Serializable
     {
         // This determines how the level gets loaded (false == normal map, true == ?)
@@ -81,6 +90,8 @@ namespace R1Engine
         public byte Unk_08 { get; set; }
         public byte Unk_09 { get; set; }
         public byte[] MapIndexes { get; set; }
+
+        // More data - part of the same struct?
 
         /// <summary>
         /// Handles the data serialization
