@@ -77,7 +77,11 @@ namespace R1Engine
             {
                 for (int i = 0; i < tilemapLength; i++)
                 {
-                    var tex = new Texture2D(Settings.CellSize, Settings.CellSize);
+                    var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
+                    {
+                        filterMode = FilterMode.Point,
+                        wrapMode = TextureWrapMode.Clamp
+                    };
 
                     for (int y = 0; y < tileWidth; y++)
                     {
