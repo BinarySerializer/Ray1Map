@@ -19,6 +19,9 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
+            // Serialize ROM header
+            base.SerializeImpl(s);
+
             // Get the pointer table
             var pointerTable = PointerTables.GetGBAR3PointerTable(Offset.file);
 
