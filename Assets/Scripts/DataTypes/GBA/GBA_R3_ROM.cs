@@ -16,6 +16,9 @@ namespace R1Engine
         public GBA_R3_LevelMapInfo[] LevelInfo { get; set; }
 
 
+        public GBA_R3_MapObjBlock Obj { get; set; }
+
+
         // The background (usually clouds, the sky etc.)
         public GBA_R3_MapBlock BG_0 { get; set; }
         
@@ -54,6 +57,8 @@ namespace R1Engine
             });
             UnkPointerTable = s.DoAt(pointerTable[GBA_R3_Pointer.UnkPointerTable], () => s.SerializePointerArray(UnkPointerTable, 252, name: nameof(UnkPointerTable)));
             LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, 65, name: nameof(LevelInfo)));
+
+            Obj = s.DoAt(Offset + 0x29C0F4, () => s.SerializeObject<GBA_R3_MapObjBlock>(Obj, name: nameof(Obj)));
 
             BG_0 = s.DoAt(Offset + 0x2E7308, () => s.SerializeObject<GBA_R3_MapBlock>(BG_0, name: nameof(BG_0)));
             BG_1 = s.DoAt(Offset + 0x2E8094, () => s.SerializeObject<GBA_R3_MapBlock>(BG_1, name: nameof(BG_1)));
@@ -109,6 +114,72 @@ namespace R1Engine
             UnkIndexesCount = s.Serialize<byte>(UnkIndexesCount, name: nameof(UnkIndexesCount));
             TileLayerIDs = s.SerializeArray<byte>(TileLayerIDs, 4, name: nameof(TileLayerIDs));
             UnkIndexes = s.SerializeArray<byte>(UnkIndexes, 6, name: nameof(UnkIndexes));
+        }
+    }
+
+    public class GBA_R3_MapObjBlock : R1Serializable
+    {
+        public uint BlockLength { get; set; }
+
+        public byte Unk_04 { get; set; }
+        public byte Unk_05 { get; set; }
+        public byte Unk_06 { get; set; }
+        public byte Unk_07 { get; set; }
+        public byte ObjectsCount { get; set; }
+        public byte Unk_09 { get; set; }
+        public byte Unk_0A { get; set; }
+        public byte Unk_0B { get; set; }
+
+        public byte[] Unk_0C { get; set; }
+
+        public GBA_R3_MapObj[] MapObjects { get; set; }
+
+        // There are more bytes after this. Count seems to match ObjectsCount*4, but the data doesn't.
+
+        public override void SerializeImpl(SerializerObject s)
+        {
+            BlockLength = s.Serialize<uint>(BlockLength, name: nameof(BlockLength));
+            Unk_04 = s.Serialize<byte>(Unk_04, name: nameof(Unk_04));
+            Unk_05 = s.Serialize<byte>(Unk_05, name: nameof(Unk_05));
+            Unk_06 = s.Serialize<byte>(Unk_06, name: nameof(Unk_06));
+            Unk_07 = s.Serialize<byte>(Unk_07, name: nameof(Unk_07));
+            ObjectsCount = s.Serialize<byte>(ObjectsCount, name: nameof(ObjectsCount));
+            Unk_09 = s.Serialize<byte>(Unk_09, name: nameof(Unk_09));
+            Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
+            Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
+
+            Unk_0C = s.SerializeArray<byte>(Unk_0C, 12, name: nameof(Unk_0C));
+
+            MapObjects = s.SerializeObjectArray<GBA_R3_MapObj>(MapObjects, ObjectsCount, name: nameof(MapObjects));
+        }
+    }
+
+    public class GBA_R3_MapObj : R1Serializable
+    {
+        // Almost always -1
+        public int Unk_00 { get; set; }
+
+        public ushort XPos { get; set; }
+        public ushort YPos { get; set; }
+
+        public byte Unk_08 { get; set; }
+        public byte Unk_09 { get; set; }
+        public byte Unk_0A { get; set; }
+
+        // Seems to determine the state/animation/palette
+        public byte Unk_0B { get; set; }
+
+        public override void SerializeImpl(SerializerObject s)
+        {
+            Unk_00 = s.Serialize<int>(Unk_00, name: nameof(Unk_00));
+
+            XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
+            YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
+
+            Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
+            Unk_09 = s.Serialize<byte>(Unk_09, name: nameof(Unk_09));
+            Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
+            Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
         }
     }
 

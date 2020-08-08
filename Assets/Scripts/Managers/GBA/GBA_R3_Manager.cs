@@ -115,6 +115,22 @@ namespace R1Engine
 
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
 
+            commonLev.EventData = rom.Obj.MapObjects.Select(x => new Editor_EventData(new EventData()
+            {
+                XPosition = x.XPos * 2,
+                YPosition = x.YPos * 2
+            })
+            {
+                DESKey = String.Empty,
+                ETAKey = String.Empty,
+                DebugText = $"{nameof(GBA_R3_MapObj.Unk_00)}: {x.Unk_00}{Environment.NewLine}" +
+                            $"{nameof(GBA_R3_MapObj.Unk_08)}: {x.Unk_08}{Environment.NewLine}" +
+                            $"{nameof(GBA_R3_MapObj.Unk_09)}: {x.Unk_09}{Environment.NewLine}" +
+                            $"{nameof(GBA_R3_MapObj.Unk_0A)}: {x.Unk_0A}{Environment.NewLine}" +
+                            $"{nameof(GBA_R3_MapObj.Unk_0B)}: {x.Unk_0B}{Environment.NewLine}"
+            }).ToList();
+
+
             return new GBA_EditorManager(commonLev, context);
         }
 
