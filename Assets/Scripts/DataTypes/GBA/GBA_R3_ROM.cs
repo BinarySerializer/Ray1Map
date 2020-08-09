@@ -80,7 +80,7 @@ namespace R1Engine
                     ObjBlocks[i] = s.SerializeObject<GBA_R3_MapObjBlock>(ObjBlocks[i], name: $"{nameof(ObjBlocks)}[{i}]");
 
                     // Align
-                    s.Goto(s.CurrentPointer + s.CurrentPointer.AbsoluteOffset % 4);
+                    s.Align();
 
                     // TODO: Sometimes there seems to be another block here
                     // Serialize unknown obj block
@@ -97,16 +97,20 @@ namespace R1Engine
             // Serialize current level maps
             var offset = getPointer(128, true);
 
+            // Serialize unknown block
+            updateOffset(UnkBlock = s.DoAt(offset, () => s.SerializeObject<GBA_R3_UnkLevelBlock>(UnkBlock, name: nameof(UnkBlock))));
+
             // TODO: Not sure if all levels are in this structure and one after another like this - works for the first few
             void updateOffset(GBA_R3_BaseBlock block)
             {
                 offset += block.BlockSize + 4;
-                offset += offset.AbsoluteOffset % 4;
+                
+                // Align
+                if (offset.AbsoluteOffset % 4 != 0)
+                    offset += 4 - (offset.AbsoluteOffset % 4);
+                
                 offset += 0x04;
             }
-
-            // Serialize unknown block
-            updateOffset(UnkBlock = s.DoAt(offset, () => s.SerializeObject<GBA_R3_UnkLevelBlock>(UnkBlock, name: nameof(UnkBlock))));
 
             // Serialize parallax info
             updateOffset(BG_0_Parallax = s.DoAt(offset, () => s.SerializeObject<GBA_R3_BGParallax>(BG_0_Parallax, name: nameof(BG_0_Parallax))));
