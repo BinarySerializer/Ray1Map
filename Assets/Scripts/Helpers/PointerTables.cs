@@ -160,7 +160,7 @@ namespace R1Engine
         {
             return new Dictionary<GBA_R3_Pointer, uint>()
             {
-                [GBA_R3_Pointer.ObjBlocksOffsetTable] = 0x0829BEEC,
+                [GBA_R3_Pointer.OffsetTable] = 0x0829BEEC,
                 [GBA_R3_Pointer.UnkPointerTable] = 0x0820E9A4,
                 [GBA_R3_Pointer.LevelInfo] = 0x080D4080,
             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));

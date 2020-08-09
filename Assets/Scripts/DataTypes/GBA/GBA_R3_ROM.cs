@@ -4,10 +4,12 @@ namespace R1Engine
 {
     public class GBA_R3_ROM : GBA_ROM
     {
-        // TODO: Only around the first half of the items are obj! What are the rest?
-        public uint ObjBlocksOffsetTableCount { get; set; }
-        public uint[] ObjBlocksOffsetTable { get; set; }
+        // Consists of 129 offsets. First 65 are for obj blocks for each map. Very last on is the start of 
+        public uint OffsetTableCount { get; set; }
+        public uint[] OffsetTable { get; set; }
+
         public GBA_R3_MapObjBlock[] ObjBlocks { get; set; }
+        public GBA_R3_UnkObjBlock[] UnkObjBlocks { get; set; }
 
 
         // Each pointer leads to a small index list. They all begin with 0x00, so read until next 0x00?
@@ -49,31 +51,51 @@ namespace R1Engine
             // Serialize ROM header
             base.SerializeImpl(s);
 
+            const int levelCount = 65;
+            
             // Get the pointer table
             var pointerTable = PointerTables.GetGBAR3PointerTable(Offset.file);
 
-            // Serialize the object blocks offset table
-            s.DoAt(pointerTable[GBA_R3_Pointer.ObjBlocksOffsetTable], () =>
+            // Helper for getting a pointer from the offset table
+            Pointer getPointer(byte index, bool includeHeader) => pointerTable[GBA_R3_Pointer.OffsetTable] + (OffsetTable[index] * 4) - (includeHeader ? 4 : 0);
+
+            // Serialize the offset table
+            s.DoAt(pointerTable[GBA_R3_Pointer.OffsetTable], () =>
             {
-                ObjBlocksOffsetTableCount = s.Serialize<uint>(ObjBlocksOffsetTableCount, name: nameof(ObjBlocksOffsetTableCount));
-                ObjBlocksOffsetTable = s.SerializeArray<uint>(ObjBlocksOffsetTable, ObjBlocksOffsetTableCount, name: nameof(ObjBlocksOffsetTable));
+                OffsetTableCount = s.Serialize<uint>(OffsetTableCount, name: nameof(OffsetTableCount));
+                OffsetTable = s.SerializeArray<uint>(OffsetTable, OffsetTableCount, name: nameof(OffsetTable));
             });
 
             if (ObjBlocks == null)
-                ObjBlocks = new GBA_R3_MapObjBlock[ObjBlocksOffsetTable.Length];
+                ObjBlocks = new GBA_R3_MapObjBlock[levelCount];
+            if (UnkObjBlocks == null)
+                UnkObjBlocks = new GBA_R3_UnkObjBlock[levelCount];
 
             // Serialize the object blocks
-            for (int i = 0; i < ObjBlocks.Length; i++)
-                ObjBlocks[i] = s.DoAt(pointerTable[GBA_R3_Pointer.ObjBlocksOffsetTable] + 4 + (ObjBlocksOffsetTable[i] * 4), () => s.SerializeObject<GBA_R3_MapObjBlock>(ObjBlocks[i], name: $"{nameof(ObjBlocks)}[{i}]"));
+            for (byte i = 0; i < levelCount; i++)
+            {
+                s.DoAt(getPointer(i, true), () =>
+                {
+                    // Serialize obj block
+                    ObjBlocks[i] = s.SerializeObject<GBA_R3_MapObjBlock>(ObjBlocks[i], name: $"{nameof(ObjBlocks)}[{i}]");
+
+                    // Align
+                    s.Goto(s.CurrentPointer + s.CurrentPointer.AbsoluteOffset % 4);
+
+                    // TODO: Sometimes there seems to be another block here
+                    // Serialize unknown obj block
+                    //UnkObjBlocks[i] = s.SerializeObject<GBA_R3_UnkObjBlock>(UnkObjBlocks[i], name: $"{nameof(UnkObjBlocks)}[{i}]");
+                });
+            }
 
             // Serialize unknown pointer table
             UnkPointerTable = s.DoAt(pointerTable[GBA_R3_Pointer.UnkPointerTable], () => s.SerializePointerArray(UnkPointerTable, 252, name: nameof(UnkPointerTable)));
 
             // Serialize level info
-            LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, 65, name: nameof(LevelInfo)));
+            LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, levelCount, name: nameof(LevelInfo)));
 
             // Serialize current level maps
-            var offset = Offset + 0x2E7074;
+            var offset = getPointer(128, true);
 
             // TODO: Not sure if all levels are in this structure and one after another like this - works for the first few
             void updateOffset(GBA_R3_BaseBlock block)
@@ -124,8 +146,23 @@ namespace R1Engine
         }
     }
 
-    public class GBA_R3_MapObjBlock : R1Serializable
+    public class GBA_R3_UnkObjBlock : GBA_R3_BaseBlock
     {
+        public byte[] Data { get; set; }
+
+        public override void SerializeImpl(SerializerObject s)
+        {
+            // Serialize block header
+            base.SerializeImpl(s);
+
+            Data = s.SerializeArray<byte>(Data, BlockSize, name: nameof(Data));
+        }
+    }
+
+    public class GBA_R3_MapObjBlock : GBA_R3_BaseBlock
+    {
+        public uint Unk_00 { get; set; }
+
         public byte ObjectsCount { get; set; }
         public byte Unk_01 { get; set; }
         public byte Unk_02 { get; set; }
@@ -140,6 +177,11 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
+            // Serialize block header
+            base.SerializeImpl(s);
+
+            Unk_00 = s.Serialize<uint>(Unk_00, name: nameof(Unk_00));
+            
             ObjectsCount = s.Serialize<byte>(ObjectsCount, name: nameof(ObjectsCount));
             Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
             Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
