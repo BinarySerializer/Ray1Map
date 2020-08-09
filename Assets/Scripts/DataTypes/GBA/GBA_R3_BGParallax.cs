@@ -11,7 +11,6 @@
 
         public byte Unk_01 { get; set; }
 
-        // This includes the palette
         public byte TilemapIndex { get; set; }
         
         public byte Unk_03 { get; set; }

@@ -5,9 +5,6 @@
     /// </summary>
     public class GBA_R3_CollisionMapBlock : R1Serializable
     {
-        // Always 0?
-        public uint Unk1 { get; set; }
-
         public uint BlockSize { get; set; }
 
         // Flags?
@@ -24,7 +21,6 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            Unk1 = s.Serialize<uint>(Unk1, name: nameof(Unk1));
             BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
             Unk2 = s.Serialize<uint>(Unk2, name: nameof(Unk2));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
