@@ -33,6 +33,13 @@ namespace R1Engine
         public int Depth { get; protected set; } = 0;
 
         public abstract void Goto(Pointer offset);
+
+        public void Align()
+        {
+            if (CurrentPointer.AbsoluteOffset % 4 != 0)
+                Goto(CurrentPointer + (4 - CurrentPointer.AbsoluteOffset % 4));
+        }
+
         public void DoAt(Pointer offset, Action action) {
             if (offset != null) {
                 Pointer off_current = CurrentPointer;
