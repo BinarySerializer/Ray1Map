@@ -3,12 +3,10 @@
     /// <summary>
     /// Collision map data for Rayman 3 (GBA)
     /// </summary>
-    public class GBA_R3_CollisionMapBlock : R1Serializable
+    public class GBA_R3_CollisionMapBlock : GBA_R3_BaseBlock
     {
-        public uint BlockSize { get; set; }
-
         // Flags?
-        public uint Unk2 { get; set; }
+        public uint Unk { get; set; }
 
         public ushort Width { get; set; }
         public ushort Height { get; set; }
@@ -21,8 +19,10 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
-            Unk2 = s.Serialize<uint>(Unk2, name: nameof(Unk2));
+            // Serialize block header
+            base.SerializeImpl(s);
+
+            Unk = s.Serialize<uint>(Unk, name: nameof(Unk));
             Width = s.Serialize<ushort>(Width, name: nameof(Width));
             Height = s.Serialize<ushort>(Height, name: nameof(Height));
 

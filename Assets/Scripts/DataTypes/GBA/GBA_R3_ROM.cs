@@ -17,6 +17,8 @@ namespace R1Engine
         public GBA_R3_LevelMapInfo[] LevelInfo { get; set; }
 
 
+        public GBA_R3_UnkLevelBlock UnkBlock { get; set; }
+
         public GBA_R3_BGParallax BG_0_Parallax { get; set; }
 
         // The background (usually clouds, the sky etc.)
@@ -71,26 +73,32 @@ namespace R1Engine
             LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, 65, name: nameof(LevelInfo)));
 
             // Serialize current level maps
-            var offset = Offset + 0x2E7288;
+            var offset = Offset + 0x2E7074;
 
             // TODO: Not sure if all levels are in this structure and one after another like this - works for the first few
-            void updateOffset(GBA_R3_MapBlock block)
+            void updateOffset(GBA_R3_BaseBlock block)
             {
                 offset += block.BlockSize + 4;
                 offset += offset.AbsoluteOffset % 4;
                 offset += 0x04;
             }
 
-            BG_0_Parallax = s.DoAt(offset, () => s.SerializeObject<GBA_R3_BGParallax>(BG_0_Parallax, name: nameof(BG_0_Parallax)));
-            offset += 0x80;
-            offset += offset.AbsoluteOffset % 4;
+            // Serialize unknown block
+            updateOffset(UnkBlock = s.DoAt(offset, () => s.SerializeObject<GBA_R3_UnkLevelBlock>(UnkBlock, name: nameof(UnkBlock))));
+
+            // Serialize parallax info
+            updateOffset(BG_0_Parallax = s.DoAt(offset, () => s.SerializeObject<GBA_R3_BGParallax>(BG_0_Parallax, name: nameof(BG_0_Parallax))));
+
+            offset += 0x6C;
             offset += 0x04;
 
+            // Serialize maps
             updateOffset(BG_0 = s.DoAt(offset, () => s.SerializeObject<GBA_R3_MapBlock>(BG_0, name: nameof(BG_0))));
             updateOffset(BG_1 = s.DoAt(offset, () => s.SerializeObject<GBA_R3_MapBlock>(BG_1, name: nameof(BG_1))));
             updateOffset(BG_2 = s.DoAt(offset, () => s.SerializeObject<GBA_R3_MapBlock>(BG_2, name: nameof(BG_2))));
             updateOffset(BG_3 = s.DoAt(offset, () => s.SerializeObject<GBA_R3_MapBlock>(BG_3, name: nameof(BG_3))));
 
+            // Serialize collision
             CollisionMap = s.DoAt(offset, () => s.SerializeObject<GBA_R3_CollisionMapBlock>(CollisionMap, name: nameof(CollisionMap)));
 
             // Serialize current level tilemap
@@ -102,6 +110,19 @@ namespace R1Engine
     }
 
     // TODO: Move to separate files
+
+    public class GBA_R3_UnkLevelBlock : GBA_R3_BaseBlock
+    {
+        public byte[] Data { get; set; }
+
+        public override void SerializeImpl(SerializerObject s)
+        {
+            // Serialize block header
+            base.SerializeImpl(s);
+
+            Data = s.SerializeArray<byte>(Data, BlockSize, name: nameof(Data));
+        }
+    }
 
     public class GBA_R3_MapObjBlock : R1Serializable
     {
