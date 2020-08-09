@@ -41,9 +41,13 @@ namespace R1Engine
                 // Get the deserialize
                 var s = context.Deserializer;
 
-                const int vigCount = 20;
-                const uint palOffset = 0x0B37C0;
-                const uint vigOffset = 0x20ED94;
+                // TODO: Base this off of game mode selection once it gets added - also find scrolling vignette for proto
+                var isPrototype = false;
+
+                // TODO: Move pointers to pointer table
+                int vigCount = isPrototype ? 18 : 20;
+                uint palOffset = (uint)(isPrototype ? 0x0DC46A : 0x0B37C0);
+                uint vigOffset = (uint)(isPrototype ? 0x45FE3C : 0x20ED94);
 
                 var palettes = new ARGB1555Color[vigCount][];
 
@@ -63,16 +67,48 @@ namespace R1Engine
                     byte[] data = null;
                     s.DoEncoded(new LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
 
+                    int width;
+                    int height;
+
+                    switch (data.Length)
+                    {
+                        case 0x9600:
+                            width = 240;
+                            height = 160;
+                            break;
+
+                        case 0x5A00:
+                            width = 192;
+                            height = 120;
+                            break;
+
+                        // TODO: Support scrolling vignette
+
+                        default:
+                            throw new Exception("Vignette length is not supported");
+                    }
+
                     // Create a texture
-                    var tex = new Texture2D(240, 160);
+                    var tex = new Texture2D(width, height); ;
 
                     var palIndex = i;
 
-                    // Palettes for 6 and 7 are swapped
-                    if (palIndex == 6)
-                        palIndex = 7;
-                    else if (palIndex == 7)
-                        palIndex = 6;
+                    if (isPrototype)
+                    {
+                        // Palettes for 5 and 6 are swapped
+                        if (palIndex == 5)
+                            palIndex = 6;
+                        else if (palIndex == 6)
+                            palIndex = 5;
+                    }
+                    else
+                    {
+                        // Palettes for 6 and 7 are swapped
+                        if (palIndex == 6)
+                            palIndex = 7;
+                        else if (palIndex == 7)
+                            palIndex = 6;
+                    }
 
                     // Set pixels
                     for (int y = 0; y < tex.height; y++)
