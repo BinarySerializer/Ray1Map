@@ -232,7 +232,8 @@ namespace R1Engine
 
             // Get the primary map (BG_2)
             var map = playField.Layers.FirstOrDefault(x => x.LayerID == 2);
-            if (map == null) map = playField.Layers.OrderByDescending(x => x.LayerID).First();
+            if (map == null) 
+                map = playField.Layers.First(x => !x.Unk_0D);
             //if (map == null) map = playField.Layers.FirstOrDefault(x => x.LayerID == 0); // enable to display bg
             var cMap = playField.Layers.First(x => x.IsCollisionBlock);
 
