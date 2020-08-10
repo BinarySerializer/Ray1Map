@@ -227,11 +227,14 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
 
-            // Get the primary map
-            var map = rom.Maps[2];
-            var cMap = rom.Maps.First(x => x.IsCollisionBlock);
+            // Get the play field
+            var playField = rom.LevelBlock.PlayField;
 
-            var tilemapLength = (rom.Tilemap.TileMapData.Length / 32) + 1;
+            // Get the primary map (BG_2)
+            var map = playField.Layers.First(x => x.LayerID == 2);
+            var cMap = playField.Layers.First(x => x.IsCollisionBlock);
+
+            var tilemapLength = (playField.Tilemap.TileMapData.Length / 32) + 1;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
@@ -305,7 +308,7 @@ namespace R1Engine
                 {
                     for (int x = 0; x < tileWidth; x++)
                     {
-                        var b = rom.Tilemap.TileMapData[((i - 1) * tileSize) + ((y * tileWidth + x) / 2)];
+                        var b = playField.Tilemap.TileMapData[((i - 1) * tileSize) + ((y * tileWidth + x) / 2)];
                         var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
                         var c = rom.BGPalette[p * paletteSize + v].GetColor();
@@ -332,7 +335,7 @@ namespace R1Engine
 
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
 
-            commonLev.EventData = rom.ActorBlocks[0].Actors.Append(rom.ActorBlocks[0].StartPosActor).Select(x => new Editor_EventData(new EventData()
+            commonLev.EventData = rom.LevelBlock.Actors.Append(rom.LevelBlock.StartPosActor).Select(x => new Editor_EventData(new EventData()
             {
                 XPosition = x.XPos * 2,
                 YPosition = x.YPos * 2
