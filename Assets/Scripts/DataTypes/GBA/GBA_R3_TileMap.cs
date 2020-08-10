@@ -10,7 +10,7 @@ namespace R1Engine
         public ushort BGMapSize { get; set; }
         public byte[] UnkData { get; set; }
         public byte TilePaletteIndex { get; set; }
-        public byte BGBlockIndex { get; set; }
+        public byte UnknownIndex { get; set; }
 
         public byte[] TileMapData { get; set; }
         public byte[] BGMapData { get; set; }
@@ -18,15 +18,17 @@ namespace R1Engine
 		#region Parsed
 		public GBA_R3_OffsetTable OffsetTable { get; set; }
         public GBA_R3_Palette TilePalette { get; set; }
-		#endregion
+        #endregion
 
-		public override void SerializeImpl(SerializerObject s) {
+        public override void SerializeImpl(SerializerObject s) {
             // Serialize block header
             base.SerializeImpl(s);
 
             TileMapSize = s.Serialize<ushort>(TileMapSize, name: nameof(TileMapSize));
             BGMapSize = s.Serialize<ushort>(BGMapSize, name: nameof(BGMapSize));
-            UnkData = s.SerializeArray<byte>(UnkData, 8, name: nameof(UnkData));
+            TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
+            UnknownIndex = s.Serialize<byte>(UnknownIndex, name: nameof(UnknownIndex)); // Can be 0xFF which means this block doesn't exist
+            UnkData = s.SerializeArray<byte>(UnkData, 6, name: nameof(UnkData));
 
             // Serialize tilemap data
             TileMapData = s.SerializeArray<byte>(TileMapData, TileMapSize * 0x20, name: nameof(TileMapData));

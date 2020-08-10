@@ -237,7 +237,7 @@ namespace R1Engine
             //if (map == null) map = playField.Layers.FirstOrDefault(x => x.LayerID == 0); // enable to display bg
             var cMap = playField.Layers.First(x => x.IsCollisionBlock);
 
-            var tilemapLength = (playField.Tilemap.TileMapData.Length / 32) + 1;
+            var tilemapLength = ((playField.Tilemap.TileMapData.Length + (playField.Tilemap.BGMapData.Length / 2)) / 32) + 1;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
@@ -311,13 +311,23 @@ namespace R1Engine
                 {
                     for (int x = 0; x < tileWidth; x++)
                     {
-                        var b = playField.Tilemap.TileMapData[((i - 1) * tileSize) + ((y * tileWidth + x) / 2)];
-                        var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                        Color c;
+                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / 2);
+                        if (index >= playField.Tilemap.TileMapData.Length) {
+                            var b = playField.Tilemap.BGMapData[(index - playField.Tilemap.TileMapData.Length) * 2 + (x % 2)];
 
-                        var c = playField.Tilemap.TilePalette.Palette[p * paletteSize + v].GetColor();
+                            c = playField.Tilemap.TilePalette.Palette[b].GetColor();
+                            if(b != 0)
+                                c = new Color(c.r, c.g, c.b, 1f);
+                        } else {
+                            var b = playField.Tilemap.TileMapData[index];
+                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                        if (v != 0)
-                            c = new Color(c.r, c.g, c.b, 1f);
+                            c = playField.Tilemap.TilePalette.Palette[p * paletteSize + v].GetColor();
+
+                            if (v != 0)
+                                c = new Color(c.r, c.g, c.b, 1f);
+                        }
 
                         // Upscale to 16x16 for now...
                         tex.SetPixel(x * 2, y * 2, c);
