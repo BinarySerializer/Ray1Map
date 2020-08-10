@@ -22,21 +22,16 @@
 
         public GBA_R3_OffsetTable MapOffsetTable { get; set; }
 
-        // The background (usually clouds, the sky etc.)
-        public GBA_R3_MapBlock BG_0 { get; set; }
-        
-        // The secondary background (in the first level it's the island and mountains)
-        public GBA_R3_MapBlock BG_1 { get; set; }
-
-        // The actual level map (background)
-        public GBA_R3_MapBlock BG_2 { get; set; }
-
-        // The actual level map (foreground)
-        public GBA_R3_MapBlock BG_3 { get; set; }
-
-        // The map collision
-        public GBA_R3_CollisionMapBlock CollisionMap { get; set; }
-
+        /*
+         
+        Maps:
+        BG_0 - The background (usually clouds, the sky etc.)
+        BG_1 - The secondary background (in the first level it's the island and mountains)
+        BG_2 - The actual level map (background)
+        BG_3 - The actual level map (foreground)
+         
+         */
+        public GBA_R3_MapBlock[] Maps { get; set; }
 
         public GBA_R3_TileMap Tilemap { get; set; }
         public ARGB1555Color[] BGPalette { get; set; }
@@ -108,14 +103,14 @@
                 // Serialize map offset table
                 MapOffsetTable = s.SerializeObject<GBA_R3_OffsetTable>(MapOffsetTable, name: nameof(MapOffsetTable));
 
-                // Serialize maps
-                BG_0 = s.DoAt(getPointer(MapOffsetTable, MapHeader.UnkIndexes[0], true), () => s.SerializeObject<GBA_R3_MapBlock>(BG_0, name: nameof(BG_0)));
-                BG_1 = s.DoAt(getPointer(MapOffsetTable, MapHeader.UnkIndexes[1], true), () => s.SerializeObject<GBA_R3_MapBlock>(BG_1, name: nameof(BG_1)));
-                BG_2 = s.DoAt(getPointer(MapOffsetTable, MapHeader.UnkIndexes[2], true), () => s.SerializeObject<GBA_R3_MapBlock>(BG_2, name: nameof(BG_2)));
-                BG_3 = s.DoAt(getPointer(MapOffsetTable, MapHeader.UnkIndexes[3], true), () => s.SerializeObject<GBA_R3_MapBlock>(BG_3, name: nameof(BG_3)));
+                // TODO: Before the map blocks are 3 16-byte blocks
 
-                // Serialize collision
-                CollisionMap = s.DoAt(getPointer(MapOffsetTable, MapHeader.UnkIndexes[4], true), () => s.SerializeObject<GBA_R3_CollisionMapBlock>(CollisionMap, name: nameof(CollisionMap)));
+                if (Maps == null)
+                    Maps = new GBA_R3_MapBlock[MapHeader.MapCount];
+
+                // Serialize maps
+                for (int i = 0; i < MapHeader.MapCount; i++)
+                    Maps[i] = s.DoAt(getPointer(MapOffsetTable, MapHeader.MapIndexes[i], true), () => s.SerializeObject<GBA_R3_MapBlock>(Maps[i], name: $"{nameof(Maps)}[{i}]"));
 
                 // Serialize tilemap
                 Tilemap = s.DoAt(getPointer(MapOffsetTable, 9, true), () => s.SerializeObject<GBA_R3_TileMap>(Tilemap, name: nameof(Tilemap)));

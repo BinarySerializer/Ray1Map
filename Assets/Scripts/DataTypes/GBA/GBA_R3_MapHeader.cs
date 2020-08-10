@@ -16,11 +16,10 @@
 
         // For BG_0 parallax scrolling
         public byte TileLayersCount { get; set; }
-        
-        public byte UnkIndexesCount { get; set; }
+        public byte MapCount { get; set; }
         
         public byte[] TileLayerIDs { get; set; }
-        public byte[] UnkIndexes { get; set; }
+        public byte[] MapIndexes { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -36,9 +35,9 @@
             BG_0_TilemapIndex = s.Serialize<byte>(BG_0_TilemapIndex, name: nameof(BG_0_TilemapIndex));
             Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
             TileLayersCount = s.Serialize<byte>(TileLayersCount, name: nameof(TileLayersCount));
-            UnkIndexesCount = s.Serialize<byte>(UnkIndexesCount, name: nameof(UnkIndexesCount));
+            MapCount = s.Serialize<byte>(MapCount, name: nameof(MapCount));
             TileLayerIDs = s.SerializeArray<byte>(TileLayerIDs, 4, name: nameof(TileLayerIDs));
-            UnkIndexes = s.SerializeArray<byte>(UnkIndexes, 6, name: nameof(UnkIndexes));
+            MapIndexes = s.SerializeArray<byte>(MapIndexes, 6, name: nameof(MapIndexes));
         }
     }
 }

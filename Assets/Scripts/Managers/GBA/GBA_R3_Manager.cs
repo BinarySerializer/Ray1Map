@@ -228,7 +228,8 @@ namespace R1Engine
             var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
 
             // Get the primary map
-            var map = rom.BG_2;
+            var map = rom.Maps[2];
+            var cMap = rom.Maps.First(x => x.IsCollisionBlock);
 
             var tilemapLength = (rom.Tilemap.TileMapData.Length / 32) + 1;
 
@@ -248,7 +249,7 @@ namespace R1Engine
                         TileSet = new Common_Tileset[3],
                         MapTiles = map.MapData.Select((x, i) => new Editor_MapTile(new MapTile()
                         {
-                            CollisionType = (byte)rom.CollisionMap.CollisionData[i],
+                            CollisionType = (byte)cMap.CollisionData[i],
                             TileMapY = (ushort)(BitHelpers.ExtractBits(x, 11, 0)),
                             HorizontalFlip = BitHelpers.ExtractBits(x, 1, 11) == 1,
                         })
