@@ -17,9 +17,7 @@
         // Seems to determine the state/animation/palette - this value determines the color of a butterfly for example
         public byte Unk_0B { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
-        {
-            Unk_00 = s.Serialize<int>(Unk_00, name: nameof(Unk_00));
+        public override void SerializeImpl(SerializerObject s) {
 
             XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
             YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
@@ -28,6 +26,8 @@
             ActorID = (GBA_R3_ActorID)s.Serialize<byte>((byte)ActorID, name: nameof(ActorID));
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
+
+            Unk_00 = s.Serialize<int>(Unk_00, name: nameof(Unk_00));
         }
     }
 }

@@ -231,7 +231,9 @@ namespace R1Engine
             var playField = rom.LevelBlock.PlayField;
 
             // Get the primary map (BG_2)
-            var map = playField.Layers.First(x => x.LayerID == 2);
+            var map = playField.Layers.FirstOrDefault(x => x.LayerID == 2);
+            if (map == null) map = playField.Layers.OrderByDescending(x => x.LayerID).First();
+            //if (map == null) map = playField.Layers.FirstOrDefault(x => x.LayerID == 0); // enable to display bg
             var cMap = playField.Layers.First(x => x.IsCollisionBlock);
 
             var tilemapLength = (playField.Tilemap.TileMapData.Length / 32) + 1;
@@ -311,7 +313,7 @@ namespace R1Engine
                         var b = playField.Tilemap.TileMapData[((i - 1) * tileSize) + ((y * tileWidth + x) / 2)];
                         var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                        var c = rom.BGPalette[p * paletteSize + v].GetColor();
+                        var c = playField.Tilemap.TilePalette.Palette[p * paletteSize + v].GetColor();
 
                         if (v != 0)
                             c = new Color(c.r, c.g, c.b, 1f);
@@ -335,7 +337,7 @@ namespace R1Engine
 
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
 
-            commonLev.EventData = rom.LevelBlock.Actors.Append(rom.LevelBlock.StartPosActor).Select(x => new Editor_EventData(new EventData()
+            commonLev.EventData = rom.LevelBlock.Actors.Select(x => new Editor_EventData(new EventData()
             {
                 XPosition = x.XPos * 2,
                 YPosition = x.YPos * 2

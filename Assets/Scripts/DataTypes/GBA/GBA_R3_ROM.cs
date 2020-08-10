@@ -47,8 +47,6 @@
             // Serialize unknown block
             UnkBlock = s.DoAt(UiOffsetTable.GetPointer(128, true), () => s.SerializeObject<GBA_R3_UnkBlock>(UnkBlock, name: nameof(UnkBlock)));
 
-            // TODO: Get palette for current tilemap/level
-            BGPalette = s.DoAt(Offset + 0x30AFF0, () => s.SerializeObjectArray<ARGB1555Color>(BGPalette, 16 * 16, name: nameof(BGPalette)));
         }
     }
 
@@ -63,25 +61,6 @@
      */
 
     // TODO: Move to separate files
-
-    public class GBA_R3_TileMap : GBA_R3_BaseBlock
-    {
-        public byte[] UnkData { get; set; }
-
-        public byte[] TileMapData { get; set; }
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            // Serialize block header
-            base.SerializeImpl(s);
-
-            UnkData = s.SerializeArray<byte>(UnkData, 12, name: nameof(UnkData));
-
-            // Serialize tilemap data
-            TileMapData = s.SerializeArray<byte>(TileMapData, (2048 - 1) * 32, name: nameof(TileMapData));
-        }
-
-    }
 
     public class GBA_R3_OffsetTable : R1Serializable
     {
