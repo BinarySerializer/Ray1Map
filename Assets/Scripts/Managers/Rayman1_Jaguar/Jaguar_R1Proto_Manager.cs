@@ -3,7 +3,7 @@ using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -51,7 +51,7 @@ namespace R1Engine
         /// <param name="outputDir">The output directory</param>
         /// <param name="exportAnimFrames">True if animation frames should be exported, false if sprites should be exported</param>
         /// <returns>The task</returns>
-        public override async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir, bool exportAnimFrames)
+        public override async UniTask ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir, bool exportAnimFrames)
         {
             // Create the context
             using (var context = new Context(baseGameSettings))
@@ -291,7 +291,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="outputPath">The path to extract to</param>
         /// <returns>The task</returns>
-        public override async Task ExtractVignetteAsync(GameSettings settings, string outputPath)
+        public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputPath)
         {
             // Create a context
             using (var context = new Context(settings))
@@ -353,7 +353,7 @@ namespace R1Engine
             }
         }
 
-        public override async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        public override async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
         {
             using (var context = new Context(settings))
             {
@@ -368,7 +368,7 @@ namespace R1Engine
             }
         }
 
-        public async Task ExportDataBlocks(GameSettings settings, string outputPath)
+        public async UniTask ExportDataBlocks(GameSettings settings, string outputPath)
         {
             // Create the context
             using (var context = new Context(settings))

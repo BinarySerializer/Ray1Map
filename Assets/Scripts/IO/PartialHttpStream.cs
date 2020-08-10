@@ -1,11 +1,10 @@
-﻿using Asyncoroutine;
+﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -227,12 +226,12 @@ namespace R1Engine {
 			bool checkIfCanAddCache = true;
 			while (checkIfCanAddCache) {
 				checkIfCanAddCache = false;
-				for(int i = 0; i < caches.Count; i++) {
+				for (int i = 0; i < caches.Count; i++) {
 					byte[] curCache = caches.Values[i];
 					long curPos = caches.Keys[i];
 					if (curPos == position + cache.Length) {
 						int currentLength = cache.Length;
-						Array.Resize<byte>(ref cache, cache.Length + curCache.Length);
+						Array.Resize(ref cache, cache.Length + curCache.Length);
 						Array.Copy(curCache, 0, cache, currentLength, curCache.Length);
 						caches.Remove(curPos);
 						checkIfCanAddCache = true;
@@ -248,7 +247,7 @@ namespace R1Engine {
 					long curPos = caches.Keys[i];
 					if (position == curPos + curCache.Length) {
 						int currentLength = curCache.Length;
-						Array.Resize<byte>(ref curCache, cache.Length + curCache.Length);
+						Array.Resize(ref curCache, cache.Length + curCache.Length);
 						Array.Copy(cache, 0, curCache, currentLength, cache.Length);
 						cache = curCache;
 						position = curPos;
@@ -261,7 +260,7 @@ namespace R1Engine {
 			caches.Add(position, cache);
 		}
 
-		public async Task FillCacheForRead(int count) {
+		public async UniTask FillCacheForRead(int count) {
 			if (count <= 0) return;
 			await Controller.WaitIfNecessary();
 
@@ -308,8 +307,8 @@ namespace R1Engine {
 				// Need to request from web
 				SortedList<int, int> downloadRanges = new SortedList<int, int>(); // range start relative to Position, range length
 				if (filledRanges.Count > 0) {
-					downloadRanges.Add(0, filledRanges.First<KeyValuePair<int, int>>().Key);
-					KeyValuePair<int, int> lastFilledRange = filledRanges.Last<KeyValuePair<int, int>>();
+					downloadRanges.Add(0, filledRanges.First().Key);
+					KeyValuePair<int, int> lastFilledRange = filledRanges.Last();
 					if (lastFilledRange.Key + lastFilledRange.Value < count) {
 						downloadRanges.Add(lastFilledRange.Key + lastFilledRange.Value, count);
 					}
@@ -327,18 +326,18 @@ namespace R1Engine {
 					//UnityEngine.Debug.Log("Download range: " + range.Key + " - " + range.Value);
 					if (range.Value > cacheLen) cacheLen = range.Value;
 					long rangePos = Position + range.Key;
-					IEnumerable<KeyValuePair<long, byte[]>> biggerCache = caches.Where<KeyValuePair<long, byte[]>>(c => (c.Key >= rangePos + range.Value));
-					IEnumerable<KeyValuePair<long, byte[]>> smallerCache = caches.Where<KeyValuePair<long, byte[]>>(c => (c.Key + c.Value.Length <= rangePos));
+					IEnumerable<KeyValuePair<long, byte[]>> biggerCache = caches.Where(c => (c.Key >= rangePos + range.Value));
+					IEnumerable<KeyValuePair<long, byte[]>> smallerCache = caches.Where(c => (c.Key + c.Value.Length <= rangePos));
 					long newDataLength = Math.Min(cacheLen, Length - rangePos);
 					long startPosition = rangePos;
 					long addLengthBefore = 0;
-					if (biggerCache.Count<KeyValuePair<long, byte[]>>() > 0) {
-						newDataLength = Math.Min(cacheLen, biggerCache.First<KeyValuePair<long, byte[]>>().Key - rangePos);
+					if (biggerCache.Count() > 0) {
+						newDataLength = Math.Min(cacheLen, biggerCache.First().Key - rangePos);
 					}
 					long addLengthAfter = newDataLength - range.Value;
 					if (newDataLength < cacheLen && rangePos > 0) {
-						if (smallerCache.Count<KeyValuePair<long, byte[]>>() > 0) {
-							addLengthBefore = Math.Min(cacheLen, rangePos - (smallerCache.Last<KeyValuePair<long, byte[]>>().Key + smallerCache.Last<KeyValuePair<long, byte[]>>().Value.Length));
+						if (smallerCache.Count() > 0) {
+							addLengthBefore = Math.Min(cacheLen, rangePos - (smallerCache.Last().Key + smallerCache.Last().Value.Length));
 						} else {
 							addLengthBefore = Math.Min(cacheLen, rangePos);
 						}
@@ -349,7 +348,7 @@ namespace R1Engine {
 					byte[] newData = new byte[newDataLength];
 					await HttpRead(newData, 0, (int)newDataLength, startPosition);
 					int dataRead = lastRequestRead;
-					Array.Resize<byte>(ref newData, dataRead);
+					Array.Resize(ref newData, dataRead);
 					int numReadLocal = (int)Math.Min(range.Value, dataRead - addLengthBefore);
 					//Array.Copy(newData, addLengthBefore, buffer, offset + range.Key, numReadLocal);
 					AddCache(startPosition, newData);
@@ -365,25 +364,29 @@ namespace R1Engine {
 			return (int)(Position - lastPosition);*/
 		}
 
-		private async Task HttpRead(byte[] buffer, int offset, int count, long startPosition) {
+		private async UniTask HttpRead(byte[] buffer, int offset, int count, long startPosition) {
 			HttpRequestsCount++;
 			UnityWebRequest www = UnityWebRequest.Get(Url);
 			string state = Controller.status;
-			int totalSize = caches.Sum<KeyValuePair<long, byte[]>>(c => c.Value.Length);
-			Controller.status = state + "\nDownloading part of bigfile: " + Url.Replace(FileSystem.serverAddress, "") + " (New size: " + Util.SizeSuffix(totalSize + count,0) + "/" + Util.SizeSuffix(Length, 0) + ")";
+			int totalSize = caches.Sum(c => c.Value.Length);
+			Controller.status = state + "\nDownloading part of bigfile: " + Url.Replace(FileSystem.serverAddress, "") + " (New size: " + Util.SizeSuffix(totalSize + count, 0) + "/" + Util.SizeSuffix(Length, 0) + ")";
 			UnityEngine.Debug.Log("Requesting range: " + string.Format("bytes={0}-{1}", startPosition, startPosition + count - 1) + " - " + Url);
 			www.SetRequestHeader("Range", string.Format("bytes={0}-{1}", startPosition, startPosition + count - 1));
-			await www.SendWebRequest();
-			while (!www.isDone) {
-				await new WaitForEndOfFrame();
-			}
-			if (!www.isHttpError && !www.isNetworkError) {
-				byte[] data = www.downloadHandler.data;
-				int nread = Math.Min(data.Length, count);
-				Array.Copy(data, 0, buffer, offset, nread);
-				lastRequestRead = nread;
-			} else {
-				lastRequestRead = 0;
+			try {
+				await www.SendWebRequest();
+				while (!www.isDone) {
+					await UniTask.WaitForEndOfFrame();
+				}
+			} catch (UnityWebRequestException) {
+			} finally {
+				if (!www.isHttpError && !www.isNetworkError) {
+					byte[] data = www.downloadHandler.data;
+					int nread = Math.Min(data.Length, count);
+					Array.Copy(data, 0, buffer, offset, nread);
+					lastRequestRead = nread;
+				} else {
+					lastRequestRead = 0;
+				}
 			}
 
 			Controller.status = state;

@@ -3,8 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Asyncoroutine;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -148,7 +147,7 @@ namespace R1Engine
         /// <param name="outputDir">The output directory</param>
         /// <param name="exportAnimFrames">True if animation frames should be exported, false if sprites should be exported</param>
         /// <returns>The task</returns>
-        public virtual async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir, bool exportAnimFrames)
+        public virtual async UniTask ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir, bool exportAnimFrames)
         {
             var includeFinalSpritesForDemo = Settings.GameDirectories.ContainsKey(GameModeSelection.RaymanJaguar) && baseGameSettings.EngineVersion == EngineVersion.RayJaguarDemo && exportAnimFrames;
 
@@ -204,7 +203,7 @@ namespace R1Engine
                     await ExportWorldAsync(6, "Extra");
 
                     // Helper method for exporting a world
-                    async Task ExportWorldAsync(int worldIndex, string name)
+                    async UniTask ExportWorldAsync(int worldIndex, string name)
                     {
                         // Get the level load commands
                         var lvlCmds = rom.LevelLoadCommands[worldIndex];
@@ -248,7 +247,7 @@ namespace R1Engine
                     }
 
                     // Helper method for exporting a collection of DES
-                    async Task ExportGroupAsync(IReadOnlyList<Jaguar_R1_LevelLoadCommand> cmds, IReadOnlyList<RGB556Color[]> palettes, string name)
+                    async UniTask ExportGroupAsync(IReadOnlyList<Jaguar_R1_LevelLoadCommand> cmds, IReadOnlyList<RGB556Color[]> palettes, string name)
                     {
                         // Enumerate every graphics
                         for (var desIndex = 0; desIndex < cmds.Count; desIndex++)
@@ -598,7 +597,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="outputPath">The path to extract to</param>
         /// <returns>The task</returns>
-        public virtual async Task ExtractVignetteAsync(GameSettings settings, string outputPath)
+        public virtual async UniTask ExtractVignetteAsync(GameSettings settings, string outputPath)
         {
             // Create a context
             using (var context = new Context(settings))
@@ -647,7 +646,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="outputPath">The path to extract to</param>
         /// <param name="as888">Indicates if the blocks should be converted to RGB-888</param>
-        public async Task ExtractCompressedDataAsync(GameSettings settings, string outputPath, bool as888)
+        public async UniTask ExtractCompressedDataAsync(GameSettings settings, string outputPath, bool as888)
         {
             // Create a context
             using (var context = new Context(settings))
@@ -710,7 +709,7 @@ namespace R1Engine
             }
         }
 
-        public async Task ConvertMusicAsync(GameSettings settings, string outputPath) {
+        public async UniTask ConvertMusicAsync(GameSettings settings, string outputPath) {
             // Create a context
             using (var context = new Context(settings)) {
                 // Get a deserializer
@@ -735,7 +734,7 @@ namespace R1Engine
             }
         }
 
-        public virtual async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        public virtual async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
         {
             using (var context = new Context(settings))
             {
@@ -1183,7 +1182,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -1462,9 +1461,9 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public async Task LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+        public async UniTask LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
 
-        public virtual async Task<MemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
+        public virtual async UniTask<MemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {
             await FileSystem.PrepareFile(context.BasePath + path);
 

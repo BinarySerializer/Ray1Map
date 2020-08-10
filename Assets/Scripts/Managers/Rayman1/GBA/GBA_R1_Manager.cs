@@ -1,10 +1,9 @@
-﻿using Asyncoroutine;
+﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -205,7 +204,7 @@ namespace R1Engine
         /// <param name="baseGameSettings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
         /// <returns>The task</returns>
-        public virtual async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        public virtual async UniTask ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Lazy check if we're on GBA or DSi
             var isGBA = baseGameSettings.EngineVersion == EngineVersion.RayGBA;
@@ -313,7 +312,7 @@ namespace R1Engine
         }
 
         // Hacky method for finding unused sprites - make sure you uncomment the code in GBA_R1_EventGraphicsData!
-        public virtual async Task ExportUnusedSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        public virtual async UniTask ExportUnusedSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Lazy check if we're on GBA or DSi
             var isGBA = baseGameSettings.EngineVersion == EngineVersion.RayGBA;
@@ -410,7 +409,7 @@ namespace R1Engine
             }
         }
 
-        public virtual async Task ExtractVignetteAsync(GameSettings settings, string outputDir)
+        public virtual async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context
             using (var context = new Context(settings))
@@ -471,7 +470,7 @@ namespace R1Engine
             }
         }
 
-        public async Task ExportPaletteImage(GameSettings settings, string outputPath)
+        public async UniTask ExportPaletteImage(GameSettings settings, string outputPath)
         {
             var spritePals = new List<ARGB1555Color[]>();
             var tilePals = new List<ARGB1555Color[]>();
@@ -853,7 +852,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -1075,9 +1074,9 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public async Task LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
+        public async UniTask LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
 
-        public virtual async Task<GBAMemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
+        public virtual async UniTask<GBAMemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {
             await FileSystem.PrepareFile(context.BasePath + path);
 

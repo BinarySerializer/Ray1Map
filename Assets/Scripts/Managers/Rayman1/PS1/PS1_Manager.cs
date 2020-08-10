@@ -1,11 +1,10 @@
-﻿using Asyncoroutine;
-using R1Engine.Serialize;
+﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -220,7 +219,7 @@ namespace R1Engine
             return tex;
         }
 
-        public virtual async Task LoadExtraFile(Context context, string path) {
+        public virtual async UniTask LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
             Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
@@ -241,7 +240,7 @@ namespace R1Engine
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
         /// <returns>The editor manager</returns>
-        public async Task<BaseEditorManager> LoadAsync(Context context, MapData map, EventData[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
+        public async UniTask<BaseEditorManager> LoadAsync(Context context, MapData map, EventData[] events, ushort[] eventLinkingTable, bool loadTextures, PS1_R1_BackgroundBlock bg = null)
         {
             Common_Tileset tileSet = GetTileSet(context);
 
@@ -380,7 +379,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public abstract Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures);
+        public abstract UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures);
 
         /// <summary>
         /// Saves the specified level
@@ -393,9 +392,9 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public virtual async Task LoadFilesAsync(Context context) {
+        public virtual async UniTask LoadFilesAsync(Context context) {
             // PS1 loads files in order. We can't really load anything here
-            await Task.CompletedTask;
+            await UniTask.CompletedTask;
         }
 
         /// <summary>
@@ -412,7 +411,7 @@ namespace R1Engine
         /// <param name="baseGameSettings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
         /// <returns>The task</returns>
-        public async Task ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
+        public async UniTask ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // TODO: Extract BigRay from INI
 
@@ -494,7 +493,7 @@ namespace R1Engine
         /// <param name="baseGameSettings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
         /// <returns>The task</returns>
-        public async Task ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
+        public async UniTask ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Keep track of the hash for every DES
             var hashList = new List<string>();
@@ -565,7 +564,7 @@ namespace R1Engine
         /// <param name="desValuePair">The common design and its key</param>
         /// <param name="outputDir">The output directory to export to</param>
         /// <returns>The task</returns>
-        public async Task ExportAnimationFramesAsync(GameSettings settings, BaseEditorManager editorManager, KeyValuePair<string, Common_Design> desValuePair, string outputDir)
+        public async UniTask ExportAnimationFramesAsync(GameSettings settings, BaseEditorManager editorManager, KeyValuePair<string, Common_Design> desValuePair, string outputDir)
         {
             // Find all events where this DES is used
             var matchingEvents = editorManager.Level.EventData.Where(x => x.DESKey == desValuePair.Key);
@@ -840,9 +839,9 @@ namespace R1Engine
 
         protected virtual void LoadLocalization(Context context, Common_Lev level) { }
 
-        public abstract Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
+        public abstract UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 
-        protected async Task ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_FontData[] fontData, EventData[] fixEvents, PS1_R1_BigRayBlock bigRay)
+        protected async UniTask ExportMenuSpritesAsync(Context menuContext, Context bigRayContext, string outputPath, bool exportAnimFrames, PS1_FontData[] fontData, EventData[] fixEvents, PS1_R1_BigRayBlock bigRay)
         {
             // Fill the v-ram for each context
             FillVRAM(menuContext, VRAMMode.Menu);
@@ -891,7 +890,7 @@ namespace R1Engine
             if (bigRay != null)
                 await ExportEventSpritesAsync(bigRayContext, bigRay.BigRay, Path.Combine(outputPath, "BigRay"), 0);
 
-            async Task ExportEventSpritesAsync(Context context, EventData e, string eventOutputDir, int desIndex)
+            async UniTask ExportEventSpritesAsync(Context context, EventData e, string eventOutputDir, int desIndex)
             {
                 var sprites = e.ImageDescriptors.Select(x => GetSpriteTexture(context, e.ImageBuffer, x)).ToArray();
 

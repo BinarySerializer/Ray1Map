@@ -4,8 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Asyncoroutine;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
@@ -45,7 +44,7 @@ public class SettingsWindow : UnityWindow
     public int DefaultMemoryOptionsIndex { get; set; }
     public int PreviousDefaultMemoryOptionsIndex { get; set; } = -1;
 
-    public async void OnGUI()
+    public async UniTaskVoid OnGUI()
 	{
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
@@ -299,7 +298,7 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader(ref yPos, "Global Tools");
 
-        async Task AddGlobalActionAsync(string actionName)
+        async UniTask AddGlobalActionAsync(string actionName)
         {
             if (GUI.Button(GetNextRect(ref yPos), actionName))
             {
@@ -398,7 +397,7 @@ public class SettingsWindow : UnityWindow
 
     #region Randomizer
 
-    private async Task BatchRandomizeAsync()
+    private async UniTask BatchRandomizeAsync()
     {
         // Get the settings
         var settings = Settings.GetGameSettings;

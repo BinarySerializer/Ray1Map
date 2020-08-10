@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Asyncoroutine;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using R1Engine.Serialize;
 using UnityEngine;
@@ -305,7 +304,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
         /// <param name="exportAnimFrames">Indicates if the textures should be exported as animation frames</param>
-        public async Task ExportSpriteTexturesAsync(GameSettings settings, string outputDir, bool exportAnimFrames) 
+        public async UniTask ExportSpriteTexturesAsync(GameSettings settings, string outputDir, bool exportAnimFrames) 
         {
             // Create the context
             using (Context context = new Context(settings)) {
@@ -352,7 +351,7 @@ namespace R1Engine
                 PC_AnimationDescriptor[] rayAnim = null;
 
                 // Helper method for exporting textures
-                async Task<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<ARGBColor> palette = null)
+                async UniTask<Wld> ExportTexturesAsync<Wld>(string filePath, string name, int desOffset, IEnumerable<PC_ETA> baseEta, string[] desFileNames, string[] etaFileNames, IList<ARGBColor> palette = null)
                     where Wld : PC_BaseWorldFile, new()
                 {
                     // Read the file
@@ -536,7 +535,7 @@ namespace R1Engine
         /// <param name="eventInfo">The event info</param>
         /// <param name="rayAnim">Rayman's animation</param>
         /// <param name="palette">Optional palette to use</param>
-        public async Task ExportAnimationFramesAsync(Context context, PC_BaseWorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_AnimationDescriptor[] rayAnim, IList<ARGBColor> palette = null)
+        public async UniTask ExportAnimationFramesAsync(Context context, PC_BaseWorldFile worldFile, string outputDir, int desOffset, PC_ETA[] eta, string[] desNames, string[] etaNames, IList<GeneralEventInfoData> eventInfo, PC_AnimationDescriptor[] rayAnim, IList<ARGBColor> palette = null)
         {
             // Create the directory
             Directory.CreateDirectory(outputDir);
@@ -1299,7 +1298,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="palette">The palette to use</param>
         /// <returns>The common event designs</returns>
-        public async Task<Common_Design[]> LoadSpritesAsync(Context context, IList<ARGBColor> palette)
+        public async UniTask<Common_Design[]> LoadSpritesAsync(Context context, IList<ARGBColor> palette)
         {
             // Create the output list
             List<Common_Design> eventDesigns = new List<Common_Design>();
@@ -1363,7 +1362,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public virtual async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
 
@@ -1656,7 +1655,7 @@ namespace R1Engine
             FileFactory.Write<PC_LevFile>(lvlPath, context);
         }
 
-        public virtual async Task LoadFilesAsync(Context context) 
+        public virtual async UniTask LoadFilesAsync(Context context) 
         {
             Dictionary<string, string> paths = new Dictionary<string, string>
             {

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -126,7 +126,7 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(5)))
             .ToArray())).ToArray();
 
-        public async Task<uint> LoadFile(Context context, string path, uint baseAddress = 0)
+        public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress = 0)
         {
             await FileSystem.PrepareFile(context.BasePath + path);
             if (!FileSystem.FileExists(context.BasePath + path)) {
@@ -339,7 +339,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Get the paths
             var allfixFilePath = GetAllfixFilePath();
@@ -645,7 +645,7 @@ namespace R1Engine
             }
         }
 
-        public override async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
+        public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
             using (var menuContext = new Context(settings))
             {

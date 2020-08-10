@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Asyncoroutine;
+using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using UnityEngine;
 
@@ -199,7 +198,7 @@ namespace R1Engine
             return $"Unknown/";
         }
 
-        public async Task ExportPaletteImageAsync(GameSettings settings, string outputPath)
+        public async UniTask ExportPaletteImageAsync(GameSettings settings, string outputPath)
         {
             var spritePals = new List<ARGB1555Color[]>();
             var tilePals = new List<ARGB1555Color[]>();
@@ -251,7 +250,7 @@ namespace R1Engine
             PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), spritePals.Concat(tilePals).SelectMany(x => x).ToArray(), optionalWrap: 256);
         }
 
-        public override async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
+        public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
             using (var menuContext = new Context(settings)) 
             {

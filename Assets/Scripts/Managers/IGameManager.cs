@@ -1,6 +1,6 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -36,7 +36,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures);
+        UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures);
 
         /// <summary>
         /// Saves the specified level
@@ -49,6 +49,6 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        Task LoadFilesAsync(Context context);
+        UniTask LoadFilesAsync(Context context);
     }
 }

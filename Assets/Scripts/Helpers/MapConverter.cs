@@ -1,12 +1,12 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 
 namespace R1Engine
 {
     public static class MapConverter
     {
-        public static async Task MapperToRDAsync(GameSettings inputSettings, GameSettings outputSettings)
+        public static async UniTask MapperToRDAsync(GameSettings inputSettings, GameSettings outputSettings)
         {
             using (var inputContext = new Context(inputSettings))
             {

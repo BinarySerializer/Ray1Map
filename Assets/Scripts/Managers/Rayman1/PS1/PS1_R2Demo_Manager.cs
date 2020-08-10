@@ -1,8 +1,8 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -165,7 +165,7 @@ namespace R1Engine
             //PaletteHelpers.ExportVram(context.Settings.GameDirectory + "vram.png", vram);
         }
 
-        public async Task<uint> LoadFile(Context context, string path, uint baseAddress) {
+        public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
             Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
@@ -193,7 +193,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             await Controller.WaitIfNecessary();
             Controller.status = $"Loading files";
@@ -419,6 +419,6 @@ namespace R1Engine
             return String.Empty;
         }
 
-        public override Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotImplementedException();
+        public override UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotImplementedException();
     }
 }

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -207,7 +207,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The common event designs</returns>
-        public async Task<Common_Design[]> LoadSpritesAsync(Context context)
+        public async UniTask<Common_Design[]> LoadSpritesAsync(Context context)
         {
             Controller.status = $"Loading sprites";
             await Controller.WaitIfNecessary();
@@ -349,7 +349,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading map data for {context.Settings.EduVolume}: {context.Settings.World} {context.Settings.Level}";
 
@@ -465,7 +465,7 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public override async Task LoadFilesAsync(Context context)
+        public override async UniTask LoadFilesAsync(Context context)
         {
             // Load base files
             await base.LoadFilesAsync(context);
@@ -474,7 +474,7 @@ namespace R1Engine
             foreach (var g in GetAllGRX(context.Settings))
                 await LoadFileAsync(g);
 
-            async Task LoadFileAsync(string filePath)
+            async UniTask LoadFileAsync(string filePath)
             {
                 await FileSystem.PrepareFile(context.BasePath + filePath);
                 context.AddFile(GetFile(context, filePath));

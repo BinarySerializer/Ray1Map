@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -187,7 +187,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             // Get the file paths
             var levelPath = GetLevelFilePath(context.Settings);
@@ -204,7 +204,7 @@ namespace R1Engine
             return await LoadAsync(context, map, lvl.Events, lvl.EventLinkTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
-        public override async Task LoadFilesAsync(Context context)
+        public override async UniTask LoadFilesAsync(Context context)
         {
             // Get the file paths
             var allfixPath = GetAllfixFilePath();
@@ -264,7 +264,7 @@ namespace R1Engine
             return $"Unknown/";
         }
 
-        public override async Task ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
+        public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
             using (var context = new Context(settings))
             {

@@ -1,4 +1,4 @@
-﻿using Asyncoroutine;
+﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -28,7 +27,7 @@ namespace R1Engine {
 		private static Dictionary<string, byte[]> virtualFiles = new Dictionary<string, byte[]>();
 		private static Dictionary<string, BigFileEntry> virtualBigFiles = new Dictionary<string, BigFileEntry>();
 		private static Dictionary<string, bool> existingDirectories = new Dictionary<string, bool>();
-        public static string serverAddress = "https://raym.app/maps/data/";
+        public static string serverAddress = "https://raym.app/data/ray1map/";
 
         public static bool DirectoryExists(string path) {
 			if (path == null || path.Trim() == "") return false;
@@ -45,7 +44,8 @@ namespace R1Engine {
             if (FileSystem.mode == FileSystem.Mode.Web) { // || (Application.isEditor && UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.WebGL)) {
                 return ((virtualFiles.ContainsKey(path) && virtualFiles[path] != null) || (virtualBigFiles.ContainsKey(path)));
             } else {
-                return File.Exists(path);
+				if (virtualFiles.ContainsKey(path) && virtualFiles[path] != null) return true;
+				return File.Exists(path);
             }
         }
 
@@ -78,48 +78,68 @@ namespace R1Engine {
 			}
 		}
 
-        public static async Task DownloadFile(string path) {
+        public static async UniTask DownloadFile(string path) {
 			if (virtualFiles.ContainsKey(path) && virtualFiles[path] != null) return;
 			Debug.Log("Downloading " + path);
 			await Controller.WaitIfNecessary();
 			UnityWebRequest www = UnityWebRequest.Get(serverAddress + path);
-            await www.SendWebRequest();
 
-            if (www.isNetworkError || www.isHttpError) {
-                Debug.Log(www.error);
-                virtualFiles[path] = null;
-            } else {
-                // Or retrieve results as binary data
-                AddVirtualFile(path, www.downloadHandler.data);
-            }
-        }
-
-		public static async Task CheckDirectory(string path) {
-			if (existingDirectories.ContainsKey(path)) return;
-			await Controller.WaitIfNecessary();
-			UnityWebRequest www = UnityWebRequest.Head(serverAddress + path + "/");
-			await www.SendWebRequest();
-			while (!www.isDone) {
-				await new WaitForEndOfFrame();
-			}
-			if (!www.isHttpError && !www.isNetworkError) {
-				existingDirectories.Add(path, true);
-			} else {
-				existingDirectories.Add(path, false);
+			try {
+				await www.SendWebRequest();
+			} catch (UnityWebRequestException) {
+			} finally {
+				if (www.isNetworkError || www.isHttpError) {
+					Debug.Log(www.error);
+					virtualFiles[path] = null;
+				} else {
+					// Or retrieve results as binary data
+					AddVirtualFile(path, www.downloadHandler.data);
+				}
 			}
 		}
 
-		public static async Task InitBigFile(string path, int cacheLength) {
+		public static async UniTask CheckDirectory(string path) {
+			if (existingDirectories.ContainsKey(path)) return;
+			await Controller.WaitIfNecessary();
+			if (FileSystem.mode == FileSystem.Mode.Web) {
+				UnityWebRequest www = UnityWebRequest.Head(serverAddress + path + "/");
+				try {
+					await www.SendWebRequest();
+					while (!www.isDone) {
+						await UniTask.WaitForEndOfFrame();
+					}
+				} catch (UnityWebRequestException) {
+				} finally {
+					if (!www.isHttpError && !www.isNetworkError) {
+						existingDirectories.Add(path, true);
+					} else {
+						existingDirectories.Add(path, false);
+					}
+				}
+			} else {
+				if (Directory.Exists(path)) {
+					existingDirectories.Add(path, true);
+				} else {
+					existingDirectories.Add(path, false);
+				}
+			}
+		}
+
+		public static async UniTask InitBigFile(string path, int cacheLength) {
 			UnityWebRequest www = UnityWebRequest.Head(serverAddress + path);
 			await Controller.WaitIfNecessary();
-			await www.SendWebRequest();
-			while (!www.isDone) {
-				await new WaitForEndOfFrame();
-			}
-			if (!www.isHttpError && !www.isNetworkError) {
-				long contentLength;
-				if (long.TryParse(www.GetResponseHeader("Content-Length"), out contentLength)) {
-					AddVirtualBigFile(path, contentLength, cacheLength);
+			try {
+				await www.SendWebRequest();
+				while (!www.isDone) {
+					await UniTask.WaitForEndOfFrame();
+				}
+			} catch (UnityWebRequestException) {
+			} finally {
+				if (!www.isHttpError && !www.isNetworkError) {
+					long contentLength;
+					if (long.TryParse(www.GetResponseHeader("Content-Length"), out contentLength)) {
+						AddVirtualBigFile(path, contentLength, cacheLength);
+					}
 				}
 			}
 		}
@@ -133,14 +153,18 @@ namespace R1Engine {
 						return virtualBigFiles[path].fileLength;
 					} else return 0;
                 } else {
-                    return new System.IO.FileInfo(path).Length;
-                }
+					if (virtualFiles.ContainsKey(path)) {
+						return virtualFiles[path].Length;
+					} else {
+						return new FileInfo(path).Length;
+					}
+				}
             } else {
                 return 0;
             }
         }
 
-		public static async Task PrepareFile(string path) {
+		public static async UniTask PrepareFile(string path) {
 			if (FileSystem.mode == FileSystem.Mode.Web && !string.IsNullOrEmpty(path)) {
 				string state = Controller.status;
 				Controller.status = state + "\nDownloading file: " + path;
@@ -150,7 +174,7 @@ namespace R1Engine {
 			}
 		}
 
-		public static async Task PrepareBigFile(string path, int cacheLength) {
+		public static async UniTask PrepareBigFile(string path, int cacheLength) {
 			if (FileSystem.mode == FileSystem.Mode.Web) {
 				string state = Controller.status;
 				Controller.status = state + "\nInitializing bigfile: " + path + " (Cache size: " + Util.SizeSuffix(cacheLength, 0) + ")";

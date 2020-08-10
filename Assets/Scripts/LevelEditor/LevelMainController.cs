@@ -1,9 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -54,7 +54,7 @@ namespace R1Engine
         /// </summary>
         public EditorHistory<Ray1MapEditorHistoryItem> History { get; set; }
 
-        public async Task LoadLevelAsync(IGameManager manager, Context context) 
+        public async UniTask LoadLevelAsync(IGameManager manager, Context context) 
         {
             // Create the context
             serializeContext = context;

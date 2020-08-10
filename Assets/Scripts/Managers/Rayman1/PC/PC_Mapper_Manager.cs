@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -20,7 +20,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The level file path</returns>
-        public async Task<string> GetLevelFolderPath(Context context) {
+        public async UniTask<string> GetLevelFolderPath(Context context) {
             var custom = GetWorldName(context.Settings.World) + "/" + $"MAP{context.Settings.Level}" + "/";
             await FileSystem.CheckDirectory(context.BasePath + custom); // check this and await, since it's a request in WebGL
             if (FileSystem.DirectoryExists(context.BasePath + custom))
@@ -84,7 +84,7 @@ namespace R1Engine
             return output;
         }
 
-        public async Task LoadExtraFile(Context context, string path) {
+        public async UniTask LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);
             context.AddFile(GetFile(context, path));
         }
@@ -95,7 +95,7 @@ namespace R1Engine
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <returns>The editor manager</returns>
-        public override async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -23,7 +23,7 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[0];
 
-        public async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -144,7 +144,7 @@ namespace R1Engine
 
         public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
 
-        public async Task LoadFilesAsync(Context context)
+        public async UniTask LoadFilesAsync(Context context)
         {
             await FileSystem.PrepareFile(context.BasePath + GetROMFilePath);
 

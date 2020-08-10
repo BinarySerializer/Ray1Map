@@ -1,9 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -27,7 +27,7 @@ namespace R1Engine
         };
 
         // TODO: Find the way the game gets the vignette offsets and find remaining vignettes
-        public async Task ExtractVignetteAsync(GameSettings settings, string outputDir)
+        public async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context
             using (var context = new Context(settings))
@@ -136,7 +136,7 @@ namespace R1Engine
             }
         }
 
-        public async Task ExportAllCompressedBlocksAsync(GameSettings settings, string outputDir)
+        public async UniTask ExportAllCompressedBlocksAsync(GameSettings settings, string outputDir)
         {
             // Create a context
             using (var context = new Context(settings))
@@ -219,7 +219,7 @@ namespace R1Engine
             }
         }
 
-        public async Task<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -333,7 +333,7 @@ namespace R1Engine
 
         public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
 
-        public async Task LoadFilesAsync(Context context)
+        public async UniTask LoadFilesAsync(Context context)
         {
             await FileSystem.PrepareFile(context.BasePath + GetROMFilePath);
 

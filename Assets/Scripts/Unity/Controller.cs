@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Asyncoroutine;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
@@ -40,15 +39,15 @@ namespace R1Engine
             }
         }
 
-        public async Task WaitFrame()
+        public async UniTask WaitFrame()
         {
-            await new WaitForEndOfFrame();
+            await UniTask.WaitForEndOfFrame();
 
             if (stopwatch.IsRunning)
                 stopwatch.Restart();
         }
 
-        public static async Task WaitIfNecessary()
+        public static async UniTask WaitIfNecessary()
         {
             if (obj == null)
                 return;
@@ -65,7 +64,7 @@ namespace R1Engine
             levelEventController = GameObject.Find("Level").GetComponent<LevelEventController>();
         }
 
-        async void Start()
+        async UniTaskVoid Start()
         {
             var loadTimer = new Stopwatch();
             stopwatch.Start();

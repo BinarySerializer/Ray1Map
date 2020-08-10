@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -15,7 +15,7 @@ namespace R1Engine
         /// <param name="requiresInputDir">Indicates if the action requires an input directory</param>
         /// <param name="requiresOutputDir">Indicates if the action requires an output directory</param>
         /// <param name="gameActionFunc">The game action function</param>
-        public GameAction(string displayName, bool requiresInputDir, bool requiresOutputDir, Func<string, string, Task> gameActionFunc)
+        public GameAction(string displayName, bool requiresInputDir, bool requiresOutputDir, Func<string, string, UniTask> gameActionFunc)
         {
             DisplayName = displayName;
             RequiresInputDir = requiresInputDir;
@@ -38,7 +38,7 @@ namespace R1Engine
             GameActionFunc = (input, output) =>
             {
                 gameActionFunc(input, output);
-                return Task.CompletedTask;
+                return UniTask.CompletedTask;
             };
         }
 
@@ -60,6 +60,6 @@ namespace R1Engine
         /// <summary>
         /// The game action function
         /// </summary>
-        public Func<string, string, Task> GameActionFunc { get; }
+        public Func<string, string, UniTask> GameActionFunc { get; }
     }
 }
