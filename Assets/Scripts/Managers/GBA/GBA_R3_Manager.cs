@@ -230,7 +230,7 @@ namespace R1Engine
             // Get the primary map
             var map = rom.BG_2;
 
-            var tilemapLength = (rom.Tilemap.Length / 32);
+            var tilemapLength = (rom.Tilemap.TileMapData.Length / 32) + 1;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
@@ -269,13 +269,27 @@ namespace R1Engine
 
             var tiles = new Tile[tilemapLength];
 
+            // Create empty tile
+            var emptyTileTex = new Texture2D(Settings.CellSize, Settings.CellSize)
+            {
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            emptyTileTex.SetPixels(Enumerable.Repeat(Color.clear, Settings.CellSize * Settings.CellSize).ToArray());
+            emptyTileTex.Apply();
+            Tile emptyTile = ScriptableObject.CreateInstance<Tile>();
+            emptyTile.sprite = Sprite.Create(emptyTileTex, new Rect(0, 0, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), Settings.CellSize, 20);
+
+            tiles[0] = emptyTile;
+
             // Hack: Create a tilemap for each palette
-            for (int i = 0; i < tilemapLength; i++)
+            for (int i = 1; i < tilemapLength; i++)
             {
                 // Get the palette to use
                 var pals = map.MapData.Where(x => BitHelpers.ExtractBits(x, 11, 0) == i).Select(x => BitHelpers.ExtractBits(x, 4, 12)).Distinct().ToArray();
 
-                if (pals.Length > 1 && i != 0)
+                if (pals.Length > 1)
                     Debug.LogWarning($"Tile {i} has several possible palettes!");
 
                 var p = pals.FirstOrDefault();
@@ -290,12 +304,12 @@ namespace R1Engine
                 {
                     for (int x = 0; x < tileWidth; x++)
                     {
-                        var b = rom.Tilemap[(i * tileSize) + ((y * tileWidth + x) / 2)];
+                        var b = rom.Tilemap.TileMapData[((i - 1) * tileSize) + ((y * tileWidth + x) / 2)];
                         var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
                         var c = rom.BGPalette[p * paletteSize + v].GetColor();
 
-                        if (v != 0 && i != 0)
+                        if (v != 0)
                             c = new Color(c.r, c.g, c.b, 1f);
 
                         // Upscale to 16x16 for now...
