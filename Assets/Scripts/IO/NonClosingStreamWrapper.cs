@@ -1,7 +1,9 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
+#if ISWINDOWS
 using System.Runtime.Remoting;
-
+#endif
 namespace R1Engine {
 	/// <summary>
 	/// Wraps a stream for all operations except Close and Dispose, which
@@ -9,7 +11,8 @@ namespace R1Engine {
 	/// carried out using this wrapper.
 	/// </summary>
 	public sealed class NonClosingStreamWrapper : Stream {
-		#region Members specific to this wrapper class
+#if ISWINDOWS
+#region Members specific to this wrapper class
 		/// <summary>
 		/// Creates a new instance of the class, wrapping the specified stream.
 		/// </summary>
@@ -43,9 +46,9 @@ namespace R1Engine {
 				throw new InvalidOperationException("Wrapper has been closed or disposed");
 			}
 		}
-		#endregion
+#endregion
 
-		#region Overrides of Stream methods and properties
+#region Overrides of Stream methods and properties
 		/// <summary>
 		/// Begins an asynchronous read operation.
 		/// </summary>
@@ -289,6 +292,40 @@ namespace R1Engine {
 			CheckClosed();
 			stream.WriteByte(value);
 		}
-		#endregion
+#endregion
+#else
+		public NonClosingStreamWrapper(Stream stream) {
+		}
+
+		public override bool CanRead => throw new NotImplementedException();
+
+		public override bool CanSeek => throw new NotImplementedException();
+
+		public override bool CanWrite => throw new NotImplementedException();
+
+		public override long Length => throw new NotImplementedException();
+
+		public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+		public override void Flush() {
+			throw new NotImplementedException();
+		}
+
+		public override int Read(byte[] buffer, int offset, int count) {
+			throw new NotImplementedException();
+		}
+
+		public override long Seek(long offset, SeekOrigin origin) {
+			throw new NotImplementedException();
+		}
+
+		public override void SetLength(long value) {
+			throw new NotImplementedException();
+		}
+
+		public override void Write(byte[] buffer, int offset, int count) {
+			throw new NotImplementedException();
+		}
+#endif
 	}
 }

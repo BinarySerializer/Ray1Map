@@ -399,11 +399,11 @@ namespace R1Engine {
             if (Application.platform == RuntimePlatform.WebGLPlayer) {
                 // Read URL arguments
                 ISerializer s = new WebArgumentsReadSerializer();
-                SerializeSettings(s);
+                SerializeSettings(s, cmdLine: true);
             } else {
                 // Read command line arguments
                 ISerializer s = new CmdLineReadSerializer();
-                SerializeSettings(s);
+                SerializeSettings(s, cmdLine: true);
             }
         }
 
