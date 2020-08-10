@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using UnityEngine;
 
@@ -13,13 +14,6 @@ namespace R1Engine
     public abstract class BaseEditorManager
     {
         #region Constructors
-
-        static BaseEditorManager()
-        {
-            // Load the event info data
-            using (var csvFile = File.OpenRead("Events.csv"))
-                AllEventInfoData = GeneralEventInfoData.ReadCSV(csvFile);
-        }
 
         /// <summary>
         /// Default constructor
@@ -70,7 +64,7 @@ namespace R1Engine
         /// <summary>
         /// All loaded event info
         /// </summary>
-        public static GeneralEventInfoData[] AllEventInfoData { get; }
+        public static GeneralEventInfoData[] AllEventInfoData { get; private set; }
 
         #endregion
 
@@ -138,6 +132,17 @@ namespace R1Engine
         #endregion
 
         #region Methods
+
+        public static async UniTask Init(Context context)
+        {
+            const string file = "Events.csv";
+
+            await FileSystem.PrepareFile(file);
+
+            // Load the event info data
+            using (var csvFile =  FileSystem.GetFileReadStream(file))
+                AllEventInfoData = GeneralEventInfoData.ReadCSV(csvFile);
+        }
 
         /// <summary>
         /// Adds a new event to the controller and returns it

@@ -63,6 +63,9 @@ namespace R1Engine
             await manager.LoadFilesAsync(serializeContext);
 
             using (serializeContext) {
+                // Init editor data
+                await BaseEditorManager.Init(context);
+
                 // Load the level
                 EditorManager = await manager.LoadAsync(serializeContext, true);
 
