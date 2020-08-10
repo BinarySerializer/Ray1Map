@@ -13,7 +13,7 @@ namespace R1Engine
     {
         public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<World, int[]>[]
         {
-            new KeyValuePair<World, int[]>(World.Jungle, Enumerable.Range(1, 65).ToArray()), 
+            new KeyValuePair<World, int[]>(World.Jungle, Enumerable.Range(0, 65).ToArray()), 
         };
 
         public string[] GetEduVolumes(GameSettings settings) => new string[0];

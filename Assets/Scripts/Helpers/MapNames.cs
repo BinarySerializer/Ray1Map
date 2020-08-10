@@ -25,6 +25,9 @@ namespace R1Engine
                 case Game.RaymanDesigner:
                     return RaymanDesignerMapNames;
 
+                case Game.Rayman3GBA:
+                    return Rayman3GBAMapNames;
+
                 case Game.RaymanMapper:
                 case Game.RaymanByHisFans:
                 case Game.Rayman60Levels:
@@ -217,6 +220,82 @@ namespace R1Engine
                 [2] = "Crazy Candy",
                 [3] = "Bonbon-a-rama",
                 [4] = "Whipped Cream Challenge",
+            },
+        };
+
+        /// <summary>
+        /// The Rayman Designer map names
+        /// </summary>
+        private static Dictionary<World, Dictionary<int, string>> Rayman3GBAMapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
+        {
+            [World.Jungle] = new Dictionary<int, string>()
+            {
+                [0] = "Wanderwood Forest 1",
+                [1] = "Wanderwood Forest 2",
+                [2] = "Shining Glade 1",
+                [3] = "Shining Glade 2",
+                [4] = "Swamp of Bégoniax",
+                [5] = "Garish Gears",
+                [6] = "Hoodlum Hideout 1",
+                [7] = "Hoodlum Hideout 2",
+                [8] = "Magma Mayhem",
+                [9] = "Vertigo Wasters 1",
+                [10] = "Vertigo Wasters 2",
+                [11] = "Void of Bones 1",
+                [12] = "Void of Bones 2",
+                [13] = "Jano's Nest",
+                [14] = "Prickly Passage 1",
+                [15] = "Prickly Passage 2",
+                [16] = "Swamp of Bégoniax 2",
+                [17] = "River of Fire 1",
+                [18] = "River of Fire 2",
+                [19] = "River of Fire 3",
+                [20] = "The Underlands 1",
+                [21] = "The Underlands 2",
+                [22] = "Boulder Brink 1",
+                [23] = "Boulder Brink 2",
+                [24] = "Den of Rocky",
+                [25] = "Wretched Ruins 1",
+                [26] = "Wretched Ruins 2 ",
+                [27] = "Wicked Flow 1",
+                [28] = "Wicked Flow 2",
+                [29] = "Wicked Flow 3",
+                [30] = "Creeping Chaos 1",
+                [31] = "Creeping Chaos 2",
+                [32] = "Scaleman's Keep",
+                [33] = "The Mettleworks 1",
+                [34] = "The Mettleworks 2",
+                [35] = "Magma Mayhem 2",
+                [36] = "Razor Slide 1",
+                [37] = "Razor Slide 2",
+                [38] = "Heart of the Ancients 1",
+                [39] = "Heart of the Ancients 2",
+                [40] = "Mega Havoc 1",
+                [41] = "Mega Havoc 2",
+                [42] = "Mega Havoc 3",
+                [43] = "Mega Havoc 4",
+                [44] = "Lum Challenge",
+                [45] = "Ly's Punch Challenge 1",
+                [46] = "Ly's Punch Challenge 2",
+                [47] = "Ly's Punch Challenge 3",
+                [48] = "Ly Power 1 (Wanderwood Forest)",
+                [49] = "Ly Power 2 (Garish Gears)",
+                [50] = "Ly Power 3 (Vertigo Wasters)",
+                [51] = "Ly Power 4 (River of Fire)",
+                [52] = "Ly Power 5 (Den of Rocky)",
+                [53] = "Ly Power 6 (Scaleman's Keep)",
+                [54] = "Forgotten Forests",
+                [55] = "Haunted Dreams",
+                [56] = "Magmacosm",
+                [57] = "Pirate Stronghold",
+                [58] = "Worldmap",
+                [59] = "Multiplayer (Magma Mayhem)",
+                [60] = "Multiplayer (Magma Mayhem)",
+                [61] = "Multiplayer (?)",
+                [62] = "Multiplayer (?)",
+                [63] = "Multiplayer (Ly's Punch Challenge)",
+                [64] = "Multiplayer (Magma Mayhem)",
+
             },
         };
     }
