@@ -141,21 +141,27 @@ public class SettingsWindow : UnityWindow
             Debug.LogWarning(ex.Message);
         }
 
-		var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<World, KeyValuePair<int, string>[]>[0];
+        if (fileMode == FileSystem.Mode.Web) {
+            var lvlIndex = EditorGUI.IntField(GetNextRect(ref yPos), "Map", Settings.Level);
 
-        var currentLevels = levels.FindItem(x => x.Key == Settings.World).Value ?? new KeyValuePair<int, string>[0];
+            if (lvlIndex >= 0)
+                Settings.Level = lvlIndex;
+        } else {
+            var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<World, KeyValuePair<int, string>[]>[0];
 
-        if (currentLevels.All(x => x.Key != Settings.Level))
-			Settings.Level = currentLevels.FirstOrDefault().Key;
+            var currentLevels = levels.FindItem(x => x.Key == Settings.World).Value ?? new KeyValuePair<int, string>[0];
 
-        // Helper method for getting the level name
-        string GetLvlName(int lvlNum, string lvlName) => lvlName != null ? $"{lvlNum:00} - {lvlName}" : $"{lvlNum}";
+            if (currentLevels.All(x => x.Key != Settings.Level))
+                Settings.Level = currentLevels.FirstOrDefault().Key;
 
-        var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
+            // Helper method for getting the level name
+            string GetLvlName(int lvlNum, string lvlName) => lvlName != null ? $"{lvlNum:00} - {lvlName}" : $"{lvlNum}";
 
-        if (currentLevels.Length > lvlIndex && lvlIndex != -1)
-            Settings.Level = currentLevels[lvlIndex].Key;
+            var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
 
+            if (currentLevels.Length > lvlIndex && lvlIndex != -1)
+                Settings.Level = currentLevels[lvlIndex].Key;
+        }
         // Update previous values
         PrevLvlValues.UpdatePreviousValues();
 
