@@ -249,7 +249,7 @@ namespace R1Engine
                         MapTiles = map.MapData.Select((x, i) => new Editor_MapTile(new MapTile()
                         {
                             CollisionType = (byte)rom.CollisionMap.CollisionData[i],
-                            TileMapY = (ushort)(BitHelpers.ExtractBits(x, 11, 0) + (BitHelpers.ExtractBits(x, 4, 12) * tilemapLength)),
+                            TileMapY = (ushort)(BitHelpers.ExtractBits(x, 11, 0)),
                             HorizontalFlip = BitHelpers.ExtractBits(x, 1, 11) == 1,
                         })
                         {
@@ -263,52 +263,56 @@ namespace R1Engine
                 EventData = new List<Editor_EventData>(),
             };
 
-            const int numPalettes = 16;
             const int paletteSize = 16;
             const int tileWidth = 8;
             const int tileSize = (tileWidth * tileWidth) / 2;
 
-            var tiles = new Tile[tilemapLength * numPalettes];
+            var tiles = new Tile[tilemapLength];
 
             // Hack: Create a tilemap for each palette
-            for (int p = 0; p < numPalettes; p++)
+            for (int i = 0; i < tilemapLength; i++)
             {
-                for (int i = 0; i < tilemapLength; i++)
+                // Get the palette to use
+                var pals = map.MapData.Where(x => BitHelpers.ExtractBits(x, 11, 0) == i).Select(x => BitHelpers.ExtractBits(x, 4, 12)).Distinct().ToArray();
+
+                if (pals.Length > 1 && i != 0)
+                    Debug.LogWarning($"Tile {i} has several possible palettes!");
+
+                var p = pals.FirstOrDefault();
+
+                var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
                 {
-                    var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+
+                for (int y = 0; y < tileWidth; y++)
+                {
+                    for (int x = 0; x < tileWidth; x++)
                     {
-                        filterMode = FilterMode.Point,
-                        wrapMode = TextureWrapMode.Clamp
-                    };
+                        var b = rom.Tilemap[(i * tileSize) + ((y * tileWidth + x) / 2)];
+                        var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                    for (int y = 0; y < tileWidth; y++)
-                    {
-                        for (int x = 0; x < tileWidth; x++)
-                        {
-                            var b = rom.Tilemap[(i * tileSize) + ((y * tileWidth + x) / 2)];
-                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                        var c = rom.BGPalette[p * paletteSize + v].GetColor();
 
-                            var c = rom.BGPalette[p * paletteSize + v].GetColor();
+                        if (v != 0 && i != 0)
+                            c = new Color(c.r, c.g, c.b, 1f);
 
-                            if (v != 0 && i != 0)
-                                c = new Color(c.r, c.g, c.b, 1f);
-
-                            // Upscale to 16x16 for now...
-                            tex.SetPixel(x * 2, y * 2, c);
-                            tex.SetPixel(x * 2 + 1, y * 2, c);
-                            tex.SetPixel(x * 2 + 1, y * 2 + 1, c);
-                            tex.SetPixel(x * 2, y * 2 + 1, c);
-                        }
+                        // Upscale to 16x16 for now...
+                        tex.SetPixel(x * 2, y * 2, c);
+                        tex.SetPixel(x * 2 + 1, y * 2, c);
+                        tex.SetPixel(x * 2 + 1, y * 2 + 1, c);
+                        tex.SetPixel(x * 2, y * 2 + 1, c);
                     }
-
-                    tex.Apply();
-
-                    // Create a tile
-                    Tile t = ScriptableObject.CreateInstance<Tile>();
-                    t.sprite = Sprite.Create(tex, new Rect(0, 0, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), Settings.CellSize, 20);
-
-                    tiles[p * tilemapLength + i] = t;
                 }
+
+                tex.Apply();
+
+                // Create a tile
+                Tile t = ScriptableObject.CreateInstance<Tile>();
+                t.sprite = Sprite.Create(tex, new Rect(0, 0, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), Settings.CellSize, 20);
+
+                tiles[i] = t;
             }
 
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
