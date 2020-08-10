@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UnityEngine;
 
 namespace R1Engine {
 #if UNITY_EDITOR
@@ -293,25 +294,36 @@ namespace R1Engine {
 
         #region Public Methods
 
-        private static void SerializeSettings(ISerializer s) {
-            GameModeSelection[] modes = EnumHelpers.GetValues<GameModeSelection>();
-            foreach (GameModeSelection mode in modes) {
-                string dir = GameDirectories.ContainsKey(mode) ? GameDirectories[mode] : "";
-                GameDirectories[mode] = s.SerializeString("Directory" + mode.ToString(), dir);
-            }
-            if (UnityEngine.Application.isEditor) {
+        private static void SerializeSettings(ISerializer s, bool cmdLine = false) {
+            if (!cmdLine) {
+                GameModeSelection[] modes = EnumHelpers.GetValues<GameModeSelection>();
                 foreach (GameModeSelection mode in modes) {
-                    string dir = GameDirectoriesWeb.ContainsKey(mode) ? GameDirectoriesWeb[mode] : "";
-                    GameDirectoriesWeb[mode] = s.SerializeString("WebDirectory" + mode.ToString(), dir);
+                    string dir = GameDirectories.ContainsKey(mode) ? GameDirectories[mode] : "";
+                    GameDirectories[mode] = s.SerializeString("Directory" + mode.ToString(), dir);
+                }
+                if (UnityEngine.Application.isEditor) {
+                    foreach (GameModeSelection mode in modes) {
+                        string dir = GameDirectoriesWeb.ContainsKey(mode) ? GameDirectoriesWeb[mode] : "";
+                        GameDirectoriesWeb[mode] = s.SerializeString("WebDirectory" + mode.ToString(), dir);
+                    }
                 }
             }
-            string modeString = s.SerializeString("GameMode", SelectedGameMode.ToString());
+            string modeString = s.SerializeString("GameMode", SelectedGameMode.ToString(), "mode", "m");
             SelectedGameMode = Enum.TryParse<GameModeSelection>(modeString, out GameModeSelection gameMode) ? gameMode : SelectedGameMode;
-            string worldString = s.SerializeString("World", World.ToString());
+            if (cmdLine) {
+                if (FileSystem.mode == FileSystem.Mode.Web) {
+                    string dir = GameDirectoriesWeb.ContainsKey(SelectedGameMode) ? GameDirectoriesWeb[SelectedGameMode] : "";
+                    GameDirectoriesWeb[SelectedGameMode] = s.SerializeString("Directory", dir, "dir", "directory", "folder", "f", "d");
+                } else {
+                    string dir = GameDirectories.ContainsKey(SelectedGameMode) ? GameDirectories[SelectedGameMode] : "";
+                    GameDirectories[SelectedGameMode] = s.SerializeString("Directory", dir, "dir", "directory", "folder", "f", "d");
+                }
+            }
+            string worldString = s.SerializeString("World", World.ToString(), "world", "wld", "w");
             World = Enum.TryParse<World>(worldString, out World world) ? world : World;
 
-            EduVolume = s.SerializeString("EduVolume", EduVolume);
-            Level = s.SerializeInt("SelectedLevelFile", Level);
+            EduVolume = s.SerializeString("EduVolume", EduVolume, "volume", "vol");
+            Level = s.SerializeInt("SelectedLevelFile", Level, "level", "lvl", "map");
             LoadFromMemory = s.SerializeBool("LoadFromMemory", LoadFromMemory);
             ProcessName = s.SerializeString("ProcessName", ProcessName);
             GameBasePointer = s.SerializeInt("GameBasePointer", GameBasePointer);
@@ -365,50 +377,206 @@ namespace R1Engine {
                 ISerializer s = new SettingsFileReadSerializer(settingsFile);
                 SerializeSettings(s);
             }
+            ConfigureFileSystem();
+            if (!UnityEngine.Application.isEditor) {
+                ParseCommandLineArguments();
+            }
         }
-        
+
+        static void ConfigureFileSystem() {
+
+            if (Application.platform == RuntimePlatform.WebGLPlayer) {
+                FileSystem.mode = FileSystem.Mode.Web;
+            }
+#if UNITY_EDITOR
+            if (Application.isEditor && UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.WebGL) {
+                FileSystem.mode = FileSystem.Mode.Web;
+            }
+#endif
+        }
+
+        static void ParseCommandLineArguments() {
+            if (Application.platform == RuntimePlatform.WebGLPlayer) {
+                // Read URL arguments
+                ISerializer s = new WebArgumentsReadSerializer();
+                SerializeSettings(s);
+            } else {
+                // Read command line arguments
+                ISerializer s = new CmdLineReadSerializer();
+                SerializeSettings(s);
+            }
+        }
+
         #endregion
 
         #region Subclasses (Settings serialization)
-        
+
         private interface ISerializer {
-            string SerializeString(string key, string value);
-            bool SerializeBool(string key, bool value);
-            int SerializeInt(string key, int value);
+            string SerializeString(string key, string value, params string[] cmdlineKeys);
+            bool SerializeBool(string key, bool value, params string[] cmdlineKeys);
+            int SerializeInt(string key, int value, params string[] cmdlineKeys);
         }
 
 #if UNITY_EDITOR
         private class EditorReadSerializer : ISerializer {
-            public bool SerializeBool(string key, bool value) {
+            public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {
                 return UnityEditor.EditorPrefs.GetBool(editorPrefsPrefix + key, value);
             }
 
-            public string SerializeString(string key, string value) {
+            public string SerializeString(string key, string value, params string[] cmdlineKeys) {
                 return UnityEditor.EditorPrefs.GetString(editorPrefsPrefix + key, value);
             }
 
-            public int SerializeInt(string key, int value) {
+            public int SerializeInt(string key, int value, params string[] cmdlineKeys) {
                 return UnityEditor.EditorPrefs.GetInt(editorPrefsPrefix + key, value);
             }
         }
 
         private class EditorWriteSerializer : ISerializer {
-            public bool SerializeBool(string key, bool value) {
+            public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {
                 UnityEditor.EditorPrefs.SetBool(editorPrefsPrefix + key, value);
                 return value;
             }
 
-            public string SerializeString(string key, string value) {
+            public string SerializeString(string key, string value, params string[] cmdlineKeys) {
                 UnityEditor.EditorPrefs.SetString(editorPrefsPrefix + key, value);
                 return value;
             }
 
-            public int SerializeInt(string key, int value) {
+            public int SerializeInt(string key, int value, params string[] cmdlineKeys) {
                 UnityEditor.EditorPrefs.SetInt(editorPrefsPrefix + key, value);
                 return value;
             }
         }
 #endif
+
+        private class CmdLineReadSerializer : ISerializer {
+            string[] args;
+            public CmdLineReadSerializer() {
+                args = System.Environment.GetCommandLineArgs();
+            }
+
+            public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {
+                if (args == null || args.Length == 0 || cmdlineKeys == null || cmdlineKeys.Length == 0) return value;
+                for(int c = 0; c < cmdlineKeys.Length; c++) {
+                    string cmdKey = cmdlineKeys[c];
+                    if (cmdKey.Length == 1) {
+                        cmdKey = "-" + cmdKey;
+                    } else {
+                        cmdKey = "--" + cmdKey;
+                    }
+                    int ind = Array.IndexOf(args, cmdKey);
+                    if (ind > -1 && ind+1 < args.Length) {
+                        if (bool.TryParse(args[ind+1], out bool b)) {
+                            return b;
+                        }
+                    }
+                }
+                return value;
+            }
+
+            public string SerializeString(string key, string value, params string[] cmdlineKeys) {
+                if (args == null || args.Length == 0 || cmdlineKeys == null || cmdlineKeys.Length == 0) return value;
+                for (int c = 0; c < cmdlineKeys.Length; c++) {
+                    string cmdKey = cmdlineKeys[c];
+                    if (cmdKey.Length == 1) {
+                        cmdKey = "-" + cmdKey;
+                    } else {
+                        cmdKey = "--" + cmdKey;
+                    }
+                    int ind = Array.IndexOf(args, cmdKey);
+                    if (ind > -1 && ind + 1 < args.Length) {
+                        return args[ind + 1];
+                    }
+                }
+                return value;
+            }
+
+            public int SerializeInt(string key, int value, params string[] cmdlineKeys) {
+                if (args == null || args.Length == 0 || cmdlineKeys == null || cmdlineKeys.Length == 0) return value;
+                for (int c = 0; c < cmdlineKeys.Length; c++) {
+                    string cmdKey = cmdlineKeys[c];
+                    if (cmdKey.Length == 1) {
+                        cmdKey = "-" + cmdKey;
+                    } else {
+                        cmdKey = "--" + cmdKey;
+                    }
+                    int ind = Array.IndexOf(args, cmdKey);
+                    if (ind > -1 && ind + 1 < args.Length) {
+                        if (int.TryParse(args[ind + 1], out int val)) {
+                            return val;
+                        }
+                    }
+                }
+                return value;
+            }
+        }
+
+        private class WebArgumentsReadSerializer : ISerializer {
+            Dictionary<string, string> settings = new Dictionary<string, string>();
+            public WebArgumentsReadSerializer() {
+                string url = Application.absoluteURL;
+                if (url.IndexOf('?') > 0) {
+                    string urlArgsStr = url.Split('?')[1].Split('#')[0];
+                    if (urlArgsStr.Length > 0) {
+                        string[] urlArgs = urlArgsStr.Split('&');
+                        foreach (string arg in urlArgs) {
+                            string[] argKeyVal = arg.Split('=');
+                            if (argKeyVal.Length > 1) {
+                                settings.Add(argKeyVal[0], argKeyVal[1]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {
+                if (settings.ContainsKey(key)) {
+                    if (bool.TryParse(settings[key], out bool b)) {
+                        return b;
+                    }
+                }
+                if (cmdlineKeys == null || cmdlineKeys.Length == 0) return value;
+                foreach (string cmdKey in cmdlineKeys) {
+                    if (settings.ContainsKey(cmdKey)) {
+                        if (bool.TryParse(settings[cmdKey], out bool b)) {
+                            return b;
+                        }
+                    }
+                }
+                return value;
+            }
+
+            public string SerializeString(string key, string value, params string[] cmdlineKeys) {
+                if (settings.ContainsKey(key)) {
+                    return settings[key];
+                }
+                if (cmdlineKeys == null || cmdlineKeys.Length == 0) return value;
+                foreach (string cmdKey in cmdlineKeys) {
+                    if (settings.ContainsKey(cmdKey)) {
+                        return settings[cmdKey];
+                    }
+                }
+                return value;
+            }
+
+            public int SerializeInt(string key, int value, params string[] cmdlineKeys) {
+                if (settings.ContainsKey(key)) {
+                    if (int.TryParse(settings[key], out int i)) {
+                        return i;
+                    }
+                }
+                if (cmdlineKeys == null || cmdlineKeys.Length == 0) return value;
+                foreach (string cmdKey in cmdlineKeys) {
+                    if (settings.ContainsKey(cmdKey)) {
+                        if (int.TryParse(settings[cmdKey], out int i)) {
+                            return i;
+                        }
+                    }
+                }
+                return value;
+            }
+        }
 
         private class SettingsFileWriteSerializer : ISerializer, IDisposable {
             StreamWriter writer;
@@ -421,17 +589,17 @@ namespace R1Engine {
                 ((IDisposable)writer).Dispose();
             }
 
-            public bool SerializeBool(string key, bool value) {
+            public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {
                 writer.WriteLine(key + "=" + value.ToString());
                 return value;
             }
 
-            public string SerializeString(string key, string value) {
+            public string SerializeString(string key, string value, params string[] cmdlineKeys) {
                 writer.WriteLine(key + "=" + value.ToString());
                 return value;
             }
 
-            public int SerializeInt(string key, int value) {
+            public int SerializeInt(string key, int value, params string[] cmdlineKeys) {
                 writer.WriteLine(key + "=" + value.ToString());
                 return value;
             }
@@ -450,7 +618,7 @@ namespace R1Engine {
                 }
             }
 
-            public bool SerializeBool(string key, bool value) {
+            public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {
                 if (settings.ContainsKey(key)) {
                     if (bool.TryParse(settings[key], out bool b)) {
                         return b;
@@ -459,14 +627,14 @@ namespace R1Engine {
                 return value;
             }
 
-            public string SerializeString(string key, string value) {
+            public string SerializeString(string key, string value, params string[] cmdlineKeys) {
                 if (settings.ContainsKey(key)) {
                     return settings[key];
                 }
                 return value;
             }
 
-            public int SerializeInt(string key, int value) {
+            public int SerializeInt(string key, int value, params string[] cmdlineKeys) {
                 if (settings.ContainsKey(key)) {
                     if (int.TryParse(settings[key], out int i)) {
                         return i;
