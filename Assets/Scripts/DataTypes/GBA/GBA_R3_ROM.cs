@@ -8,8 +8,8 @@ namespace R1Engine
         public uint OffsetTableCount { get; set; }
         public uint[] OffsetTable { get; set; }
 
-        public GBA_R3_MapObjBlock[] ObjBlocks { get; set; }
-        public GBA_R3_UnkObjBlock[] UnkObjBlocks { get; set; }
+        public GBA_R3_MapActorsBlock[] ActorBlocks { get; set; }
+        public GBA_R3_UnkObjBlock[] UnkActorBlocks { get; set; }
 
 
         // Each pointer leads to a small index list. They all begin with 0x00, so read until next 0x00?
@@ -66,24 +66,24 @@ namespace R1Engine
                 OffsetTable = s.SerializeArray<uint>(OffsetTable, OffsetTableCount, name: nameof(OffsetTable));
             });
 
-            if (ObjBlocks == null)
-                ObjBlocks = new GBA_R3_MapObjBlock[levelCount];
-            if (UnkObjBlocks == null)
-                UnkObjBlocks = new GBA_R3_UnkObjBlock[levelCount];
+            if (ActorBlocks == null)
+                ActorBlocks = new GBA_R3_MapActorsBlock[levelCount];
+            if (UnkActorBlocks == null)
+                UnkActorBlocks = new GBA_R3_UnkObjBlock[levelCount];
 
-            // Serialize the object blocks
+            // Serialize the actor blocks
             for (byte i = 0; i < levelCount; i++)
             {
                 s.DoAt(getPointer(i, true), () =>
                 {
-                    // Serialize obj block
-                    ObjBlocks[i] = s.SerializeObject<GBA_R3_MapObjBlock>(ObjBlocks[i], name: $"{nameof(ObjBlocks)}[{i}]");
+                    // Serialize actor block
+                    ActorBlocks[i] = s.SerializeObject<GBA_R3_MapActorsBlock>(ActorBlocks[i], name: $"{nameof(ActorBlocks)}[{i}]");
 
                     // Align
                     s.Align();
 
                     // TODO: Sometimes there seems to be another block here
-                    // Serialize unknown obj block
+                    // Serialize unknown actor block
                     //UnkObjBlocks[i] = s.SerializeObject<GBA_R3_UnkObjBlock>(UnkObjBlocks[i], name: $"{nameof(UnkObjBlocks)}[{i}]");
                 });
             }
@@ -163,67 +163,15 @@ namespace R1Engine
         }
     }
 
-    public class GBA_R3_MapObjBlock : GBA_R3_BaseBlock
+    public enum GBA_R3_ActorID : byte
     {
-        public uint Unk_00 { get; set; }
-
-        public byte ObjectsCount { get; set; }
-        public byte Unk_01 { get; set; }
-        public byte Unk_02 { get; set; }
-        public byte Unk_03 { get; set; }
-
-        // Might not be the exact same struct, but seems to match
-        public GBA_R3_MapObj StartPosObj { get; set; }
-
-        public GBA_R3_MapObj[] MapObjects { get; set; }
-
-        // There are more bytes after this. Count seems to match ObjectsCount*4, but the data doesn't.
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            // Serialize block header
-            base.SerializeImpl(s);
-
-            Unk_00 = s.Serialize<uint>(Unk_00, name: nameof(Unk_00));
-            
-            ObjectsCount = s.Serialize<byte>(ObjectsCount, name: nameof(ObjectsCount));
-            Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
-            Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
-            Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
-
-            StartPosObj = s.SerializeObject<GBA_R3_MapObj>(StartPosObj, name: nameof(StartPosObj));
-
-            MapObjects = s.SerializeObjectArray<GBA_R3_MapObj>(MapObjects, ObjectsCount, name: nameof(MapObjects));
-        }
-    }
-
-    public class GBA_R3_MapObj : R1Serializable
-    {
-        // Almost always -1
-        public int Unk_00 { get; set; }
-
-        public ushort XPos { get; set; }
-        public ushort YPos { get; set; }
-
-        public byte Unk_08 { get; set; }
-        public byte Unk_09 { get; set; }
-        public byte Unk_0A { get; set; }
-
-        // Seems to determine the state/animation/palette
-        public byte Unk_0B { get; set; }
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            Unk_00 = s.Serialize<int>(Unk_00, name: nameof(Unk_00));
-
-            XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
-            YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
-
-            Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
-            Unk_09 = s.Serialize<byte>(Unk_09, name: nameof(Unk_09));
-            Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
-            Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
-        }
+        StartPos = 0,
+        MovingPlatform_Vertical = 8,
+        Switch = 10,
+        YellowLum = 12,
+        LevelExit_Back = 30,
+        Butterfly = 37,
+        LevelExit_Next = 101
     }
 
     /*
