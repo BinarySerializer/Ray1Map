@@ -69,13 +69,13 @@ namespace R1Engine {
         #region Private Fields
 
         private static GameModeSelection _selectedGameMode;
-        private static World _world;
-        private static int _level;
+        private static World _world = World.Jungle;
+        private static int _level = 1;
         private static string _eduVolume;
         private static bool _useHdCollisionSheet;
-        private static bool _animateSprites;
+        private static bool _animateSprites = true;
         private static bool _showAlwaysEvents;
-        private static bool _showEditorEvents;
+        private static bool _showEditorEvents = true;
 
         #endregion
 
@@ -226,7 +226,7 @@ namespace R1Engine {
         /// </summary>
         public static bool BackupFiles { get; set; }
 
-        public static StateSwitchingMode StateSwitchingMode { get; set; }
+        public static StateSwitchingMode StateSwitchingMode { get; set; } = StateSwitchingMode.Loop;
 
         /// <summary>
         /// Indicates if debug info should be shown on event mouse hovering
