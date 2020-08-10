@@ -88,7 +88,7 @@ namespace R1Engine
         /// <summary>
         /// The type of enum for the event types
         /// </summary>
-        public Type EventTypeEnumType => Settings.Game == Game.Rayman2 ? typeof(PS1_R2Demo_EventType) : typeof(EventType);
+        public Type EventTypeEnumType => Settings.Game == Game.Rayman2 ? typeof(PS1_R2Demo_EventType) : Settings.Game == Game.Rayman3GBA ? typeof(GBA_R3_ActorID) : typeof(EventType);
 
         /// <summary>
         /// The event designs

@@ -163,14 +163,15 @@ namespace R1Engine
         }
     }
 
-    public enum GBA_R3_ActorID : byte
+    // Event types have to be ushorts right now even though this is a byte
+    public enum GBA_R3_ActorID : ushort
     {
-        StartPos = 0,
         MovingPlatform_Vertical = 8,
         Switch = 10,
         YellowLum = 12,
         LevelExit_Back = 30,
         Butterfly = 37,
+        MurfyStone = 92,
         LevelExit_Next = 101
     }
 

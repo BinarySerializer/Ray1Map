@@ -323,6 +323,7 @@ namespace R1Engine
                 YPosition = x.YPos * 2
             })
             {
+                Type = x.ActorID,
                 DESKey = String.Empty,
                 ETAKey = String.Empty,
                 DebugText = $"{nameof(GBA_R3_Actor.Unk_00)}: {x.Unk_00}{Environment.NewLine}" +

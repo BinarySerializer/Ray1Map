@@ -25,7 +25,7 @@
             YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
 
             Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
-            ActorID = s.Serialize<GBA_R3_ActorID>(ActorID, name: nameof(ActorID));
+            ActorID = (GBA_R3_ActorID)s.Serialize<byte>((byte)ActorID, name: nameof(ActorID));
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
         }
