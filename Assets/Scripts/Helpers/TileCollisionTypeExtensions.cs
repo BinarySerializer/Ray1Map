@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using UnityEngine;
+
+namespace R1Engine
 {
     public static class TileCollisionTypeExtensions
     {
@@ -221,6 +223,7 @@
 
                 case GBA_TileCollisionType.Climb:
                 case GBA_TileCollisionType.Hang:
+                case GBA_TileCollisionType.ClimbableWalls:
                     return TileCollisionTypeGraphic.Climb;
 
                 case GBA_TileCollisionType.Hill_Slight_Right_2:
@@ -242,7 +245,11 @@
                 case GBA_TileCollisionType.Water:
                     return TileCollisionTypeGraphic.Water;
 
+                case GBA_TileCollisionType.InstaKill:
+                    return TileCollisionTypeGraphic.Spikes;
+
                 default:
+                    Debug.LogWarning($"Collision type {collisionType} is not supported");
                     return TileCollisionTypeGraphic.Unknown0;
             }
         }
