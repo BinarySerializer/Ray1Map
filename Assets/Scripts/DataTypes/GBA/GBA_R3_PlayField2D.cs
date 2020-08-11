@@ -27,6 +27,9 @@
         public byte[] ClusterTable { get; set; }
         public byte[] LayerTable { get; set; }
 
+        // Prince of Persia
+        public byte[] UnkBytes1 { get; set; }
+        public byte[] UnkBytes2 { get; set; }
         #endregion
 
         #region Parsed
@@ -50,15 +53,23 @@
             // Serialize block header
             base.SerializeImpl(s);
 
-            IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
+            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA) {
+                UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
+                TileMap = s.Serialize<byte>(TileMap, name: nameof(TileMap));
+                Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
+                Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+                UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 3, name: nameof(UnkBytes2));
+            } else {
+                IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
 
-            // Mode7 maps have a different structure
-            if (IsMode7)
-                return;
+                // Mode7 maps have a different structure
+                if (IsMode7)
+                    return;
 
-            TileMap = s.Serialize<byte>(TileMap, name: nameof(TileMap));
-            Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
-            Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+                TileMap = s.Serialize<byte>(TileMap, name: nameof(TileMap));
+                Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
+                Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+            }
             ClusterCount = s.Serialize<byte>(ClusterCount, name: nameof(ClusterCount));
             LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
             ClusterTable = s.SerializeArray<byte>(ClusterTable, 4, name: nameof(ClusterTable));

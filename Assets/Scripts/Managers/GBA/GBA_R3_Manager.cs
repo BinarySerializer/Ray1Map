@@ -219,20 +219,13 @@ namespace R1Engine
             }
         }
 
-        public async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
-        {
-            Controller.status = $"Loading data";
-            await Controller.WaitIfNecessary();
-
-            // Read the rom
-            var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
-
+        public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_R3_LevelBlock levelBlock) {
             // Get the play field
-            var playField = rom.LevelBlock.PlayField;
+            var playField = levelBlock.PlayField;
 
             // Get the primary map (BG_2)
             var map = playField.Layers.FirstOrDefault(x => x.LayerID == 2);
-            if (map == null) 
+            if (map == null)
                 map = playField.Layers.First(x => !x.Unk_0D);
             //if (map == null) map = playField.Layers.FirstOrDefault(x => x.LayerID == 0); // enable to display bg
             var cMap = playField.Layers.First(x => x.IsCollisionBlock);
@@ -240,8 +233,7 @@ namespace R1Engine
             var tilemapLength = ((playField.Tilemap.TileMapData.Length + (playField.Tilemap.BGMapData.Length / 2)) / 32) + 1;
 
             // Convert levelData to common level format
-            Common_Lev commonLev = new Common_Lev
-            {
+            Common_Lev commonLev = new Common_Lev {
                 // Create the map
                 Maps = new Common_LevelMap[]
                 {
@@ -277,8 +269,7 @@ namespace R1Engine
             var tiles = new Tile[tilemapLength];
 
             // Create empty tile
-            var emptyTileTex = new Texture2D(Settings.CellSize, Settings.CellSize)
-            {
+            var emptyTileTex = new Texture2D(Settings.CellSize, Settings.CellSize) {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
@@ -291,8 +282,7 @@ namespace R1Engine
             tiles[0] = emptyTile;
 
             // Hack: Create a tilemap for each palette
-            for (int i = 1; i < tilemapLength; i++)
-            {
+            for (int i = 1; i < tilemapLength; i++) {
                 // Get the palette to use
                 var pals = map.MapData.Where(x => BitHelpers.ExtractBits(x, 11, 0) == i).Select(x => BitHelpers.ExtractBits(x, 4, 12)).Distinct().ToArray();
 
@@ -301,23 +291,20 @@ namespace R1Engine
 
                 var p = pals.FirstOrDefault();
 
-                var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
-                {
+                var tex = new Texture2D(Settings.CellSize, Settings.CellSize) {
                     filterMode = FilterMode.Point,
                     wrapMode = TextureWrapMode.Clamp
                 };
 
-                for (int y = 0; y < tileWidth; y++)
-                {
-                    for (int x = 0; x < tileWidth; x++)
-                    {
+                for (int y = 0; y < tileWidth; y++) {
+                    for (int x = 0; x < tileWidth; x++) {
                         Color c;
                         int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / 2);
                         if (index >= playField.Tilemap.TileMapData.Length) {
                             var b = playField.Tilemap.BGMapData[(index - playField.Tilemap.TileMapData.Length) * 2 + (x % 2)];
 
                             c = playField.Tilemap.TilePalette.Palette[b].GetColor();
-                            if(b != 0)
+                            if (b != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);
                         } else {
                             var b = playField.Tilemap.TileMapData[index];
@@ -348,28 +335,40 @@ namespace R1Engine
 
             commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
 
-            commonLev.EventData = rom.LevelBlock.Actors.Select(x => new Editor_EventData(new EventData()
-            {
+            commonLev.EventData = levelBlock.Actors.Select(x => new Editor_EventData(new EventData() {
                 XPosition = x.XPos * 2,
                 YPosition = x.YPos * 2
-            })
-            {
+            }) {
                 Type = x.ActorID,
                 DESKey = String.Empty,
                 ETAKey = String.Empty,
-                DebugText = $"{nameof(GBA_R3_Actor.Unk_00)}: {x.Unk_00}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.Unk_08)}: {x.Unk_08}{Environment.NewLine}" +
+                DebugText = $"{nameof(GBA_R3_Actor.Int_08)}: {x.Int_08}{Environment.NewLine}" +
+                            $"{nameof(GBA_R3_Actor.Byte_04)}: {x.Byte_04}{Environment.NewLine}" +
                             $"{nameof(GBA_R3_Actor.ActorID)}: {x.ActorID}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.Unk_0A)}: {x.Unk_0A}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.Unk_0B)}: {x.Unk_0B}{Environment.NewLine}"
+                            $"{nameof(GBA_R3_Actor.Byte_06)}: {x.Byte_06}{Environment.NewLine}" +
+                            $"{nameof(GBA_R3_Actor.Byte_07)}: {x.Byte_07}{Environment.NewLine}"
             }).ToList();
+
+            await UniTask.CompletedTask;
+            return commonLev;
+        }
+
+        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        {
+            Controller.status = $"Loading data";
+            await Controller.WaitIfNecessary();
+
+            // Read the rom
+            var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
+
+            var commonLev = await CreateCommonLev(context, rom.Data.LevelBlock);
 
             return new GBA_EditorManager(commonLev, context);
         }
 
         public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
 
-        public async UniTask LoadFilesAsync(Context context)
+        public virtual async UniTask LoadFilesAsync(Context context)
         {
             await FileSystem.PrepareFile(context.BasePath + GetROMFilePath);
 

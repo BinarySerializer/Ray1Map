@@ -9,7 +9,7 @@ namespace R1Engine
         public ushort TileMapSize { get; set; }
         public ushort BGMapSize { get; set; }
         public byte[] UnkData { get; set; }
-        public byte TilePaletteIndex { get; set; }
+        public byte TilePaletteIndex { get; set; } // Not used. Always 0 in R3GBA, but not in N-Gage (but tile block is always offset 0).
         public byte UnknownIndex { get; set; }
 
         public byte[] TileMapData { get; set; }
@@ -40,7 +40,7 @@ namespace R1Engine
             OffsetTable = s.SerializeObject<GBA_R3_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
 
             // Serialize tile palette
-            TilePalette = s.DoAt(OffsetTable.GetPointer(TilePaletteIndex, true), () => s.SerializeObject<GBA_R3_Palette>(TilePalette, name: nameof(TilePalette)));
+            TilePalette = s.DoAt(OffsetTable.GetPointer(0, true), () => s.SerializeObject<GBA_R3_Palette>(TilePalette, name: nameof(TilePalette)));
         }
 
     }

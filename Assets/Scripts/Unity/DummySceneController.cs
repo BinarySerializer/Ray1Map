@@ -15,6 +15,7 @@ public class DummySceneController : MonoBehaviour
             Manager = (IGameManager)Activator.CreateInstance(x.GetAttribute<GameModeAttribute>().ManagerType),
         }).
             Where(x => Directory.Exists(Settings.GameDirectories.TryGetItem(x.Mode))).
+            OrderBy(m => m.Mode == Settings.SelectedGameMode ? -1 : 0).
             SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode])
                 {
                     EduVolume = x.Manager.GetEduVolumes(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode])).Contains(Settings.EduVolume) ? Settings.EduVolume : null

@@ -15,6 +15,8 @@
         RaymanEducational,
         RaymanQuiz,
         Rayman2,
-        Rayman3GBA
+        Rayman3GBA,
+        PrinceOfPersiaTheSandsOfTimeGBA,
+        SabrinaTheTeenageWitchPotionCommotionGBA,
     }
 }

@@ -91,6 +91,10 @@ namespace R1Engine
 
         RaySNES,
 
-        Ray3GBA
+        Ray3GBA,
+
+        Ray3NGage,
+
+        PrinceOfPersiaGBA,
     }
 }

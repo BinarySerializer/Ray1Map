@@ -156,14 +156,24 @@ namespace R1Engine
         /// </summary>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<GBA_R3_Pointer, Pointer> GetGBAR3PointerTable(BinaryFile romFile)
+        public static Dictionary<GBA_R3_Pointer, Pointer> GetGBAR3PointerTable(GameModeSelection gameMode, BinaryFile romFile)
         {
-            return new Dictionary<GBA_R3_Pointer, uint>()
-            {
-                [GBA_R3_Pointer.UiOffsetTable] = 0x0829BEEC,
-                [GBA_R3_Pointer.UnkPointerTable] = 0x0820E9A4,
-                [GBA_R3_Pointer.LevelInfo] = 0x080D4080,
-            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+            if (gameMode == GameModeSelection.Rayman3GBA) {
+                return new Dictionary<GBA_R3_Pointer, uint>() {
+                    [GBA_R3_Pointer.UiOffsetTable] = 0x0829BEEC,
+                    [GBA_R3_Pointer.UnkPointerTable] = 0x0820E9A4,
+                    [GBA_R3_Pointer.LevelInfo] = 0x080D4080,
+                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+            } else if (gameMode == GameModeSelection.Rayman3NGage) {
+                return new Dictionary<GBA_R3_Pointer, uint>() {
+                    [GBA_R3_Pointer.UiOffsetTable] = 0x0
+                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+            } else if(gameMode == GameModeSelection.PrinceOfPersiaGBA) {
+                return new Dictionary<GBA_R3_Pointer, uint>() {
+                    [GBA_R3_Pointer.UiOffsetTable] = 0x08165890,
+                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+            } else return null;
         }
     }
 }

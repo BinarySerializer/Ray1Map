@@ -116,5 +116,11 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (GBA)", typeof(GBA_R3_Manager))]
         Rayman3GBA,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (N-Gage)", typeof(NGage_R3_Manager))]
+        Rayman3NGage,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.PrinceOfPersiaGBA, Game.PrinceOfPersiaTheSandsOfTimeGBA, "Prince of Persia: The Sands of Time (GBA)", typeof(GBA_PoPSoT_Manager))]
+        PrinceOfPersiaGBA,
     }
 }
