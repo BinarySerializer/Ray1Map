@@ -158,26 +158,43 @@ namespace R1Engine
         /// <returns>The pointer table</returns>
         public static Dictionary<GBA_R3_Pointer, Pointer> GetGBAR3PointerTable(GameModeSelection gameMode, BinaryFile romFile)
         {
+            switch (gameMode)
+            {
+                case GameModeSelection.Rayman3GBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x0829BEEC,
+                        [GBA_R3_Pointer.UnkPointerTable] = 0x0820E9A4,
+                        [GBA_R3_Pointer.LevelInfo] = 0x080D4080,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
-            if (gameMode == GameModeSelection.Rayman3GBAEU) {
-                return new Dictionary<GBA_R3_Pointer, uint>() {
-                    [GBA_R3_Pointer.UiOffsetTable] = 0x0829BEEC,
-                    [GBA_R3_Pointer.UnkPointerTable] = 0x0820E9A4,
-                    [GBA_R3_Pointer.LevelInfo] = 0x080D4080,
-                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
-            } else if (gameMode == GameModeSelection.Rayman3NGage) {
-                return new Dictionary<GBA_R3_Pointer, uint>() {
-                    [GBA_R3_Pointer.UiOffsetTable] = 0x0
-                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
-            } else if(gameMode == GameModeSelection.PrinceOfPersiaGBA) {
-                return new Dictionary<GBA_R3_Pointer, uint>() {
-                    [GBA_R3_Pointer.UiOffsetTable] = 0x08165890,
-                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
-            } else if(gameMode == GameModeSelection.SabrinaTheTeenageWitchPotionCommotionGBAUS) {
-                return new Dictionary<GBA_R3_Pointer, uint>() {
-                    [GBA_R3_Pointer.UiOffsetTable] = 0x081A0468,
-                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
-            } else return null;
+                case GameModeSelection.Rayman3GBAUS:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x0829BE54
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.Rayman3NGage:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x0
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.PrinceOfPersiaGBAUS:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x08165890,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SabrinaTheTeenageWitchPotionCommotionGBAUS:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x081A0468,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.StarWarsTrilogyApprenticeOfTheForceGBAUS:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x08286274,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                default:
+                    return null;
+            }
         }
     }
 }

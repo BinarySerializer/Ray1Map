@@ -462,7 +462,7 @@ There are other games using the same engine, such as "Sabrina the Teenage Witch:
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 3 (GBA - US)</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -534,6 +534,24 @@ There are other games using the same engine, such as "Sabrina the Teenage Witch:
   </tr>
   <tr>
     <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA - US)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA - EU)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA - US)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>

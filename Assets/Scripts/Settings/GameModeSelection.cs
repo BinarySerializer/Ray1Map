@@ -117,17 +117,28 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (GBA - EU)", typeof(GBA_R3_Manager))]
         Rayman3GBAEU,
 
-        // TODO: Support
-        //[GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (GBA - US)", typeof(GBA_R3_Manager))]
-        //Rayman3GBAUS,
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (GBA - US)", typeof(GBA_R3_Manager))]
+        Rayman3GBAUS,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (N-Gage)", typeof(NGage_R3_Manager))]
         Rayman3NGage,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.PrinceOfPersiaGBA, Game.PrinceOfPersiaTheSandsOfTimeGBA, "Prince of Persia: The Sands of Time (GBA)", typeof(GBA_PoPSoT_Manager))]
-        PrinceOfPersiaGBA,
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.PrinceOfPersiaGBA, Game.PrinceOfPersiaTheSandsOfTimeGBA, "Prince of Persia: The Sands of Time (GBA - EU)", typeof(GBA_PoPSoT_Manager))]
+        //PrinceOfPersiaGBAEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.PrinceOfPersiaGBA, Game.PrinceOfPersiaTheSandsOfTimeGBA, "Prince of Persia: The Sands of Time (GBA - US)", typeof(GBA_PoPSoT_Manager))]
+        PrinceOfPersiaGBAUS,
+
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Sabrina - The Teenage Witch - Potion Commotion (GBA - EU)", typeof(GBA_Sabrina_Manager))]
+        //SabrinaTheTeenageWitchPotionCommotionGBAEU,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Sabrina - The Teenage Witch - Potion Commotion (GBA - US)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAUS,
+
+        //[GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Star Wars Trilogy - Apprentice of the Force (GBA - EU)", typeof(GBA_StarWarsApprentice_Manager))]
+        //StarWarsTrilogyApprenticeOfTheForceGBAEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsApprentice_Manager))]
+        StarWarsTrilogyApprenticeOfTheForceGBAUS,
     }
 }
