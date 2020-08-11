@@ -3,33 +3,36 @@
     /// <summary>
     /// The collision types for GBA
     /// </summary>
-    public enum GBA_TileCollisionType : byte
+    public enum GBA_TileCollisionType : sbyte
     {
-        Solid = 0x00,
+        Empty = -1,
+
+        Solid = 0,
 
         // Indicates that you can hang off of the ledge
-        Ledge = 0x02,
+        Ledge = 2,
         
-        Hill_Slight_Left_1 = 0x12,
-        Hill_Slight_Left_2 = 0x13,
-        Hill_Slight_Right_2 = 0x14,
-        Hill_Slight_Right_1 = 0x15,
+        Hill_Slight_Left_1 = 18,
+        Hill_Slight_Left_2 = 19,
+        Hill_Slight_Right_2 = 20,
+        Hill_Slight_Right_1 = 21,
 
-        InstaKill = 0x20,
+        InstaKill = 32,
 
-        // 38 and 39 might be camera locks
+        // 35 and 36 might be vertical camera locks
+        // 38 and 39 might be horizontal camera locks
 
         // Acts as triggers for moving platforms
-        Reactionary_Up = 0x28,
-        Reactionary_Down = 0x29,
+        Reactionary_Up = 40,
+        Reactionary_Down = 41,
 
-        Hang = 0x2E,
-        Climb = 0x2F,
+        Hang = 46,
+        Climb = 47,
 
-        Water = 0x30,
+        Water = 48,
         
-        ClimbableWalls = 0x31,
-        
-        Empty = 0xFF
+        ClimbableWalls = 49,
+
+        Lava = 74,
     }
 }
