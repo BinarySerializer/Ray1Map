@@ -43,7 +43,7 @@
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }
         public byte UnkOffsetIndex { get; set; }
-        public byte PaletteOffsetIndex { get; set; }
+        public byte UnkOffsetIndex2 { get; set; }
         public byte Byte_04 { get; set; }
         public byte SpritesCount { get; set; }
         public byte Byte_06 { get; set; }
@@ -66,7 +66,7 @@
             Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
-            PaletteOffsetIndex = s.Serialize<byte>(PaletteOffsetIndex, name: nameof(PaletteOffsetIndex));
+            UnkOffsetIndex2 = s.Serialize<byte>(UnkOffsetIndex2, name: nameof(UnkOffsetIndex2));
             Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
             SpritesCount = s.Serialize<byte>(SpritesCount, name: nameof(SpritesCount));
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
