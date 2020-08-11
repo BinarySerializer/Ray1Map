@@ -1,10 +1,8 @@
 ﻿namespace R1Engine
 {
-    // First  level is at 0x082E7288
-    // Second level is at 0x08362544
     // 0x03000e20 has pointer to this struct for the current level during runtime
 
-    public class GBA_R3_PlayField2D : GBA_R3_BaseBlock
+    public class GBA_PlayField2D : GBA_BaseBlock
     {
         #region PlayField Data
 
@@ -34,9 +32,9 @@
 
         #region Parsed
 
-        public GBA_R3_Cluster[] Clusters { get; set; }
-        public GBA_R3_TileLayer[] Layers { get; set; }
-        public GBA_R3_TileMap Tilemap { get; set; }
+        public GBA_Cluster[] Clusters { get; set; }
+        public GBA_TileLayer[] Layers { get; set; }
+        public GBA_TileMap Tilemap { get; set; }
 
         #endregion
 
@@ -71,21 +69,21 @@
         public override void SerializeOffsetData(SerializerObject s)
         {
             if (Clusters == null)
-                Clusters = new GBA_R3_Cluster[ClusterCount];
+                Clusters = new GBA_Cluster[ClusterCount];
 
             // Serialize layers
             for (int i = 0; i < ClusterCount; i++)
-                Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i], true), () => s.SerializeObject<GBA_R3_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
+                Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i], true), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
 
             if (Layers == null)
-                Layers = new GBA_R3_TileLayer[LayerCount];
+                Layers = new GBA_TileLayer[LayerCount];
 
             // Serialize layers
             for (int i = 0; i < LayerCount; i++)
-                Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i], true), () => s.SerializeObject<GBA_R3_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
+                Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i], true), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
 
             // Serialize tilemap
-            Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapIndex, true), () => s.SerializeObject<GBA_R3_TileMap>(Tilemap, name: nameof(Tilemap)));
+            Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapIndex, true), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_R3_Actor : R1Serializable
+    public class GBA_Actor : R1Serializable
     {
         #region Actor Data
 

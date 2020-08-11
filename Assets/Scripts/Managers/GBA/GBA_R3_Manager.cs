@@ -219,7 +219,7 @@ namespace R1Engine
             }
         }
 
-        public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_R3_LevelBlock levelBlock) {
+        public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_LevelBlock levelBlock) {
             // Get the play field
             var playField = levelBlock.PlayField;
 
@@ -385,11 +385,11 @@ namespace R1Engine
                 Type = x.ActorID,
                 DESKey = String.Empty,
                 ETAKey = String.Empty,
-                DebugText = $"{nameof(GBA_R3_Actor.Int_08)}: {x.Int_08}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.Byte_04)}: {x.Byte_04}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.ActorID)}: {x.ActorID}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.GraphicsDataIndex)}: {x.GraphicsDataIndex}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.Byte_07)}: {x.Byte_07}{Environment.NewLine}"
+                DebugText = $"{nameof(GBA_Actor.Int_08)}: {x.Int_08}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.Byte_04)}: {x.Byte_04}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.ActorID)}: {x.ActorID}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.GraphicsDataIndex)}: {x.GraphicsDataIndex}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.Byte_07)}: {x.Byte_07}{Environment.NewLine}"
             }).ToList();
 
             await UniTask.CompletedTask;

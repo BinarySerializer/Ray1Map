@@ -5,7 +5,7 @@ namespace R1Engine
     /// <summary>
     /// A map block for Rayman 3 (GBA)
     /// </summary>
-    public class GBA_R3_TileLayer : GBA_R3_BaseBlock
+    public class GBA_TileLayer : GBA_BaseBlock
     {
         public bool IsCollisionBlock { get; set; }
 

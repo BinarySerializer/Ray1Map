@@ -2,7 +2,7 @@
 {
     public class GBA_R3_ROM : GBA_ROM
     {
-        public GBA_R3_Data Data { get; set; }
+        public GBA_Data Data { get; set; }
 
         // Each pointer leads to a small index list. They all begin with 0x00, so read until next 0x00? - probably irrelevant
         public Pointer[] UnkPointerTable { get; set; }
@@ -26,7 +26,7 @@
             var pointerTable = PointerTables.GetGBAR3PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
             // Serialize the offset table
-            s.DoAt(pointerTable[GBA_R3_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_R3_Data>(Data, name: nameof(Data)));
+            s.DoAt(pointerTable[GBA_R3_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));
 
             // Serialize unknown pointer table
             if (pointerTable.ContainsKey(GBA_R3_Pointer.UnkPointerTable))

@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Palette block for Rayman 3 (GBA)
+    /// Palette block for GBA
     /// </summary>
-    public class GBA_R3_Palette : GBA_R3_BaseBlock {
+    public class GBA_Palette : GBA_BaseBlock {
         public uint Length { get; set; }
         public ARGB1555Color[] Palette { get; set; }
 

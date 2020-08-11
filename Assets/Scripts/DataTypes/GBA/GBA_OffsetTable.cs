@@ -3,7 +3,7 @@
     /// <summary>
     /// An offset table for GBA
     /// </summary>
-    public class GBA_R3_OffsetTable : R1Serializable
+    public class GBA_OffsetTable : R1Serializable
     {
         public uint OffsetsCount { get; set; }
         public uint[] Offsets { get; set; }

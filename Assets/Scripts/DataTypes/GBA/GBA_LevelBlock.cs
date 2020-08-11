@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
-    public class GBA_R3_LevelBlock : GBA_R3_BaseBlock
+    public class GBA_LevelBlock : GBA_BaseBlock
     {
         #region Level Data
 
@@ -19,7 +17,7 @@ namespace R1Engine
         public byte Unk_0A { get; set; }
         public byte Unk_0B { get; set; }
 
-        public GBA_R3_Actor[] Actors { get; set; }
+        public GBA_Actor[] Actors { get; set; }
 
         public byte[] UnkData { get; set; }
 
@@ -27,7 +25,7 @@ namespace R1Engine
 
         #region Parsed
 
-        public GBA_R3_PlayField2D PlayField { get; set; }
+        public GBA_PlayField2D PlayField { get; set; }
 
         #endregion
 
@@ -49,7 +47,7 @@ namespace R1Engine
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            Actors = s.SerializeObjectArray<GBA_R3_Actor>(Actors, ObjectsCount, name: nameof(Actors));
+            Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCount, name: nameof(Actors));
 
             // TODO: What is this data?
             //Controller.print(Actors.Sum(a => a.Unk_0B));
@@ -60,13 +58,13 @@ namespace R1Engine
         public override void SerializeOffsetData(SerializerObject s)
         {
             // Parse level block data
-            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex, true), () => s.SerializeObject<GBA_R3_PlayField2D>(PlayField, name: nameof(PlayField)));
+            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex, true), () => s.SerializeObject<GBA_PlayField2D>(PlayField, name: nameof(PlayField)));
 
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
                 Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex, true),
                     () => s.SerializeObject<GBA_ActorGraphicData>(Actors[i].GraphicData,
-                        name: $"{nameof(GBA_R3_Actor.GraphicData)}[{i}]"));
+                        name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));
         }
 
         #endregion

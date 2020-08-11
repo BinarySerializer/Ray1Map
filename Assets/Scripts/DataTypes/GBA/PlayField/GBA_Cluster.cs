@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_R3_Cluster : GBA_R3_BaseBlock
+    public class GBA_Cluster : GBA_BaseBlock
     {
         public byte[] UnknownData { get; set; }
 

@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// A base Rayman 3 (GBA) block
+    /// A base GBA block
     /// </summary>
-    public abstract class GBA_R3_BaseBlock : R1Serializable
+    public abstract class GBA_BaseBlock : R1Serializable
     {
         /// <summary>
         /// The size of the block in bytes, not counting this value
@@ -13,7 +13,7 @@
         /// <summary>
         /// The block offset table
         /// </summary>
-        public GBA_R3_OffsetTable OffsetTable { get; set; }
+        public GBA_OffsetTable OffsetTable { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -31,7 +31,7 @@
             s.Align();
 
             // Serialize the offset table
-            OffsetTable = s.SerializeObject<GBA_R3_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
+            OffsetTable = s.SerializeObject<GBA_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
 
             // Serialize data from the offset table
             SerializeOffsetData(s);

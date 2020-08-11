@@ -19,7 +19,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Read the rom
-            var rom = FileFactory.Read<GBA_R3_Data>(GetROMFilePath, context);
+            var rom = FileFactory.Read<GBA_Data>(GetROMFilePath, context);
 
             var commonLev = await CreateCommonLev(context, rom.LevelBlock);
 

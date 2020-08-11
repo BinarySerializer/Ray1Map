@@ -2,7 +2,7 @@
 {
     // TODO: Clean up, move to separate files, rename classes
 
-    public class GBA_ActorGraphicData : GBA_R3_BaseBlock
+    public class GBA_ActorGraphicData : GBA_BaseBlock
     {
         public byte[] UnkData { get; set; }
         public GBA_ActorGraphicDataEntry[] Entries { get; set; }
@@ -36,7 +36,7 @@
         }
     }
 
-    public class GBA_ActorGraphicSpriteGroup : GBA_R3_BaseBlock
+    public class GBA_ActorGraphicSpriteGroup : GBA_BaseBlock
     {
         #region Data
 
@@ -54,7 +54,7 @@
 
         #region Parsed
 
-        public GBA_R3_Palette Palette { get; set; }
+        public GBA_Palette Palette { get; set; }
         public GBA_Sprite[] Sprites { get; set; }
 
         #endregion
@@ -87,7 +87,7 @@
     }
 
     // Sprites have tilemaps and are 4bpp
-    public class GBA_Sprite : GBA_R3_BaseBlock
+    public class GBA_Sprite : GBA_BaseBlock
     {
         public byte[] UnkData { get; set; }
 
