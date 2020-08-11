@@ -11,6 +11,8 @@
 
         // Indicates that you can hang off of the ledge
         Ledge = 2,
+
+        Solid2 = 15,
         
         Hill_Slight_Left_1 = 18,
         Hill_Slight_Left_2 = 19,

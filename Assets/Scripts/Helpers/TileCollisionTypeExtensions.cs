@@ -222,6 +222,7 @@ namespace R1Engine
                     return TileCollisionTypeGraphic.Passthrough;
 
                 case GBA_TileCollisionType.Solid:
+                case GBA_TileCollisionType.Solid2:
                     return TileCollisionTypeGraphic.Solid;
 
                 case GBA_TileCollisionType.Climb:
