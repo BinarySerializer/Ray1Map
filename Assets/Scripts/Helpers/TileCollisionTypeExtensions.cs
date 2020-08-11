@@ -244,6 +244,10 @@ namespace R1Engine
 
                 case GBA_TileCollisionType.Reactionary_Up:
                 case GBA_TileCollisionType.Reactionary_Down:
+                case GBA_TileCollisionType.Reactionary_Left:
+                case GBA_TileCollisionType.Reactionary_Right:
+                case GBA_TileCollisionType.Reactionary_DownRight:
+                case GBA_TileCollisionType.Reactionary_UpRight:
                     return TileCollisionTypeGraphic.Reactionary;
 
                 case GBA_TileCollisionType.Water:
@@ -251,6 +255,7 @@ namespace R1Engine
                     return TileCollisionTypeGraphic.Water;
 
                 case GBA_TileCollisionType.InstaKill:
+                case GBA_TileCollisionType.InstaKill2:
                     return TileCollisionTypeGraphic.Spikes;
 
                 default:

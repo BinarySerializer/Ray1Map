@@ -259,7 +259,7 @@ namespace R1Engine
             }
 
             // Get the primary map (BG_2)
-            var map = playField.Layers.FirstOrDefault(x => x.LayerID == 2) ?? playField.Layers.First(x => !x.Is8bpp);
+            var map = playField.Layers.FirstOrDefault(x => x.LayerID == 1) ?? playField.Layers.First(x => !x.Is8bpp);
 
             // Get the collision data
             var cMap = playField.Layers.First(x => x.IsCollisionBlock);

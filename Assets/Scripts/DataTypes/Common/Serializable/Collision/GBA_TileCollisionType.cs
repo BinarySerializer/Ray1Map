@@ -21,12 +21,17 @@
 
         InstaKill = 32,
 
-        // 35 and 36 might be vertical camera locks
+        // 34, 35 and 36 might be vertical camera locks
         // 38 and 39 might be horizontal camera locks
 
         // Acts as triggers for moving platforms
+        Reactionary_Left = 38,
+        Reactionary_Right = 39,
         Reactionary_Up = 40,
         Reactionary_Down = 41,
+
+        Reactionary_DownRight = 43,
+        Reactionary_UpRight = 44,
 
         Hang = 46,
         Climb = 47,
@@ -36,5 +41,9 @@
         ClimbableWalls = 49,
 
         Lava = 74,
+
+        // 81, 86 and 87 seems to change speed of moving platform
+
+        InstaKill2 = 90,
     }
 }

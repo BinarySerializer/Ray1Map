@@ -9,6 +9,7 @@
         Pirate = 25,
         LevelExit_Back = 30,
         Butterfly = 37,
+        Jano = 39,
         BreakableGround = 50,
         MurfyStone = 92,
         LevelExit_Next = 101
