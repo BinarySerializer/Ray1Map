@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class GBA_R3_LevelBlock : GBA_R3_BaseBlock
     {
@@ -27,19 +25,14 @@ namespace R1Engine
 
         #region Parsed
 
-        public GBA_R3_OffsetTable OffsetTable { get; set; }
-
         public GBA_R3_PlayField2D PlayField { get; set; }
 
         #endregion
 
         #region Public Methods
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize block header
-            base.SerializeImpl(s);
-
             PlayFieldIndex = s.Serialize<ushort>(PlayFieldIndex, name: nameof(PlayFieldIndex));
             Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
             Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
@@ -60,13 +53,11 @@ namespace R1Engine
             //Controller.print(Actors.Sum(a => a.Unk_0B));
             Controller.print("Length of unknown data: " + (BlockSize - (s.CurrentPointer - (Offset + 4))));
             UnkData = s.SerializeArray<byte>(UnkData, BlockSize - (s.CurrentPointer - (Offset + 4)), name: nameof(UnkData));
+        }
 
-            s.Align();
-
-            // Serialize offset table
-            OffsetTable = s.SerializeObject<GBA_R3_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
-
-            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex, true), () =>  s.SerializeObject<GBA_R3_PlayField2D>(PlayField, name: nameof(PlayField)));
+        public override void SerializeOffsetData(SerializerObject s)
+        {
+            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex, true), () => s.SerializeObject<GBA_R3_PlayField2D>(PlayField, name: nameof(PlayField)));
         }
 
         #endregion

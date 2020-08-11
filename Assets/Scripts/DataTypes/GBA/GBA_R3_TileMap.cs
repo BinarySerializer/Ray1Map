@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     /// <summary>
     /// A map block for Rayman 3 (GBA)
@@ -16,14 +14,10 @@ namespace R1Engine
         public byte[] TileMap8bpp { get; set; }
 
 		#region Parsed
-		public GBA_R3_OffsetTable OffsetTable { get; set; }
         public GBA_R3_Palette TilePalette { get; set; }
         #endregion
 
-        public override void SerializeImpl(SerializerObject s) {
-            // Serialize block header
-            base.SerializeImpl(s);
-
+        public override void SerializeBlock(SerializerObject s) {
             TileMapSize = s.Serialize<ushort>(TileMapSize, name: nameof(TileMapSize));
             BGMapSize = s.Serialize<ushort>(BGMapSize, name: nameof(BGMapSize));
             TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
@@ -33,15 +27,12 @@ namespace R1Engine
             // Serialize tilemap data
             TileMap4bpp = s.SerializeArray<byte>(TileMap4bpp, TileMapSize * 0x20, name: nameof(TileMap4bpp));
             TileMap8bpp = s.SerializeArray<byte>(TileMap8bpp, BGMapSize * 0x40, name: nameof(TileMap8bpp));
+        }
 
-            s.Align();
-
-            // Serialize offset table
-            OffsetTable = s.SerializeObject<GBA_R3_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
-
+        public override void SerializeOffsetData(SerializerObject s)
+        {
             // Serialize tile palette
             TilePalette = s.DoAt(OffsetTable.GetPointer(0, true), () => s.SerializeObject<GBA_R3_Palette>(TilePalette, name: nameof(TilePalette)));
         }
-
     }
 }

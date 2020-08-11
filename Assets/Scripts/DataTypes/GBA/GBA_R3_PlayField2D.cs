@@ -34,8 +34,6 @@
 
         #region Parsed
 
-        public GBA_R3_OffsetTable OffsetTable { get; set; }
-
         public GBA_R3_Cluster[] Clusters { get; set; }
         public GBA_R3_TileLayer[] Layers { get; set; }
         public GBA_R3_TileMap Tilemap { get; set; }
@@ -44,15 +42,8 @@
 
         #region Public Methods
 
-        /// <summary>
-        /// Handles the data serialization
-        /// </summary>
-        /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize block header
-            base.SerializeImpl(s);
-
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
                 TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
@@ -75,12 +66,10 @@
             LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
             ClusterTable = s.SerializeArray<byte>(ClusterTable, 4, name: nameof(ClusterTable));
             LayerTable = s.SerializeArray<byte>(LayerTable, 6, name: nameof(LayerTable));
+        }
 
-            s.Align();
-
-            // Serialize offset table
-            OffsetTable = s.SerializeObject<GBA_R3_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
-
+        public override void SerializeOffsetData(SerializerObject s)
+        {
             if (Clusters == null)
                 Clusters = new GBA_R3_Cluster[ClusterCount];
 

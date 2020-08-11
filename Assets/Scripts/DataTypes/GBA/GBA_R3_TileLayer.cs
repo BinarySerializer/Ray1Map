@@ -37,15 +37,8 @@ namespace R1Engine
         public ushort[] MapData { get; set; }
         public GBA_TileCollisionType[] CollisionData { get; set; }
 
-        /// <summary>
-        /// Handles the data serialization
-        /// </summary>
-        /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
-            // Serialize block header
-            base.SerializeImpl(s);
-
             IsCollisionBlock = s.Serialize<bool>(IsCollisionBlock, name: nameof(IsCollisionBlock));
             IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
 
