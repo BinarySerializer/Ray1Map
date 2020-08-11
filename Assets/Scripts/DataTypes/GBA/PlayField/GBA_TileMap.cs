@@ -32,7 +32,7 @@
         public override void SerializeOffsetData(SerializerObject s)
         {
             // Serialize tile palette
-            TilePalette = s.DoAt(OffsetTable.GetPointer(0, true), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
+            TilePalette = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
         }
     }
 }

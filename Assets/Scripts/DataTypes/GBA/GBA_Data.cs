@@ -19,7 +19,7 @@
             s.DoAt(pointerTable[GBA_R3_Pointer.UiOffsetTable], () => UiOffsetTable = s.SerializeObject<GBA_OffsetTable>(UiOffsetTable, name: nameof(UiOffsetTable)));
 
             // Serialize the level block for the current level
-            LevelBlock = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level, true), () => s.SerializeObject<GBA_LevelBlock>(LevelBlock, name: nameof(LevelBlock)));
+            LevelBlock = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_LevelBlock>(LevelBlock, name: nameof(LevelBlock)));
 
         }
     }

@@ -20,7 +20,7 @@
         {
             // TODO: Serialize sprite group from offset table
             if (OffsetTable.OffsetsCount == 1)
-                SpriteGroup = s.DoAt(OffsetTable.GetPointer(0, true), () => s.SerializeObject<GBA_ActorGraphicSpriteGroup>(SpriteGroup, name: nameof(SpriteGroup)));
+                SpriteGroup = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_ActorGraphicSpriteGroup>(SpriteGroup, name: nameof(SpriteGroup)));
         }
     }
 
@@ -80,7 +80,7 @@
                 Sprites = new GBA_Sprite[SpritesCount];
 
             for (int i = 0; i < Sprites.Length; i++)
-                Sprites[i] = s.DoAt(OffsetTable.GetPointer(SpritesIndexTable[i], true), () => s.SerializeObject<GBA_Sprite>(Sprites[i], name: $"{nameof(Sprites)}[{i}]"));
+                Sprites[i] = s.DoAt(OffsetTable.GetPointer(SpritesIndexTable[i]), () => s.SerializeObject<GBA_Sprite>(Sprites[i], name: $"{nameof(Sprites)}[{i}]"));
         }
 
         #endregion

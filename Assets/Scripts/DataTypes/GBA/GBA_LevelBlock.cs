@@ -58,13 +58,13 @@
         public override void SerializeOffsetData(SerializerObject s)
         {
             // Parse level block data
-            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex, true), () => s.SerializeObject<GBA_PlayField2D>(PlayField, name: nameof(PlayField)));
+            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField2D>(PlayField, name: nameof(PlayField)));
 
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
             {
                 if (Actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
-                    Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex, true),
+                    Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex),
                         () => s.SerializeObject<GBA_ActorGraphicData>(Actors[i].GraphicData,
                             name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));
             }

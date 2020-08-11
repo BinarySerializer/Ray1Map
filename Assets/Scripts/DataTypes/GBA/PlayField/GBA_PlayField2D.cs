@@ -73,17 +73,17 @@
 
             // Serialize layers
             for (int i = 0; i < ClusterCount; i++)
-                Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i], true), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
+                Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i]), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
 
             if (Layers == null)
                 Layers = new GBA_TileLayer[LayerCount];
 
             // Serialize layers
             for (int i = 0; i < LayerCount; i++)
-                Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i], true), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
+                Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
 
             // Serialize tilemap
-            Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapIndex, true), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
+            Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapIndex), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
         }
 
         #endregion
