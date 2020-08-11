@@ -13,7 +13,7 @@
         {
             // TODO: Get number of entries - this doesn't always work
             UnkData = s.SerializeArray<byte>(UnkData, 12, name: nameof(UnkData));
-            Entries = s.SerializeObjectArray<GBA_ActorGraphicDataEntry>(Entries, (BlockSize - 8) / 8, name: nameof(Entries));
+            Entries = s.SerializeObjectArray<GBA_ActorGraphicDataEntry>(Entries, (BlockSize - 12) / 8, name: nameof(Entries));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
@@ -44,6 +44,7 @@
         public byte Byte_01 { get; set; }
         public byte UnkOffsetIndex { get; set; }
         public byte UnkOffsetIndex2 { get; set; }
+        public byte UnkOffsetIndex3 { get; set; }
         public byte Byte_04 { get; set; }
         public byte SpritesCount { get; set; }
         public byte Byte_06 { get; set; }
@@ -67,6 +68,9 @@
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
             UnkOffsetIndex2 = s.Serialize<byte>(UnkOffsetIndex2, name: nameof(UnkOffsetIndex2));
+            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
+                UnkOffsetIndex3 = s.Serialize<byte>(UnkOffsetIndex3, name: nameof(UnkOffsetIndex3));
+            }
             Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
             SpritesCount = s.Serialize<byte>(SpritesCount, name: nameof(SpritesCount));
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));

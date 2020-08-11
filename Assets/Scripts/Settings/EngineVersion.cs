@@ -98,6 +98,8 @@ namespace R1Engine
 
         PrinceOfPersiaGBA,
 
-        SabrinaGBA
+        SabrinaGBA,
+
+        StarWarsGBA,
     }
 }

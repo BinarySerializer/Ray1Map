@@ -18,5 +18,6 @@
         Rayman3GBA,
         PrinceOfPersiaTheSandsOfTimeGBA,
         SabrinaTheTeenageWitchPotionCommotionGBA,
+        StarWarsTrilogyApprenticeOfTheForceGBA,
     }
 }

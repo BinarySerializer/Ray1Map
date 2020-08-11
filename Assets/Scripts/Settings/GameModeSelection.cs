@@ -141,7 +141,7 @@ namespace R1Engine
         //[GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Star Wars Trilogy - Apprentice of the Force (GBA - EU)", typeof(GBA_StarWarsApprentice_Manager))]
         //StarWarsTrilogyApprenticeOfTheForceGBAEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsApprentice_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.StarWarsGBA, Game.StarWarsTrilogyApprenticeOfTheForceGBA, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsApprentice_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAUS,
     }
 }

@@ -42,12 +42,13 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA) {
-                UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
+            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || 
+                s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
+                UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 3, name: nameof(UnkBytes1));
                 TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
                 Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
-                UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 3, name: nameof(UnkBytes2));
+                UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 2, name: nameof(UnkBytes2));
             } else {
                 IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
 

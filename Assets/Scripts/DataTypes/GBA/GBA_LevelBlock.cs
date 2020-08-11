@@ -47,7 +47,11 @@
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCount, name: nameof(Actors));
+            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA) {
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, Unk_05 + Unk_06, name: nameof(Actors));
+            } else {
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCount, name: nameof(Actors));
+            }
 
             // TODO: What is this data?
             //Controller.print(Actors.Sum(a => a.Unk_0B));
@@ -60,6 +64,7 @@
             // Parse level block data
             PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField2D>(PlayField, name: nameof(PlayField)));
 
+            if (s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) return;
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
             {
