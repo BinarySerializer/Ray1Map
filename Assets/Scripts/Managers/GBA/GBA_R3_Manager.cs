@@ -41,8 +41,8 @@ namespace R1Engine
                 // Get the deserialize
                 var s = context.Deserializer;
 
-                // TODO: Base this off of game mode selection once it gets added - also find scrolling vignette for proto
-                var isPrototype = false;
+                // TODO: Find scrolling vignette for proto
+                var isPrototype = settings.GameModeSelection == GameModeSelection.Rayman3GBAUSPrototype;
 
                 // TODO: Move pointers to pointer table
                 int vigCount = isPrototype ? 18 : 20;
@@ -223,6 +223,41 @@ namespace R1Engine
             // Get the play field
             var playField = levelBlock.PlayField;
 
+            if (playField.IsMode7)
+            {
+                // For now we return a dummy map to not break screenshot enumeration
+                return new Common_Lev()
+                {
+                    // Create the map
+                    Maps = new Common_LevelMap[]
+                    {
+                        new Common_LevelMap()
+                        {
+                            // Set the dimensions
+                            Width = 1,
+                            Height = 1,
+
+                            // Create the tile arrays
+                            TileSet = new Common_Tileset[]
+                            {
+                                new Common_Tileset(new Tile[]
+                                {
+                                    new Tile()
+                                }), 
+                            },
+                            MapTiles = new Editor_MapTile[]
+                            {
+                                new Editor_MapTile(new MapTile()), 
+                            },
+                            TileSetWidth = 1
+                        }
+                    },
+
+                    // Create the events list
+                    EventData = new List<Editor_EventData>(),
+                };
+            }
+
             // Get the primary map (BG_2)
             var map = playField.Layers.FirstOrDefault(x => x.LayerID == 2) ?? playField.Layers.First(x => !x.Is8bpp);
 
@@ -249,7 +284,7 @@ namespace R1Engine
                         TileSet = new Common_Tileset[3],
                         MapTiles = map.MapData.Select((x, i) => new Editor_MapTile(new MapTile()
                         {
-                            CollisionType = (byte)cMap.CollisionData[i],
+                            CollisionType = (byte)cMap.CollisionData.ElementAtOrDefault(i),
                             TileMapY = (ushort)(BitHelpers.ExtractBits(x, 11, 0)),
                             HorizontalFlip = BitHelpers.ExtractBits(x, 1, 11) == 1,
                         })

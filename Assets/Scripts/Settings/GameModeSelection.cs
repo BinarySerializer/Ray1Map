@@ -120,6 +120,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (GBA - US)", typeof(GBA_R3_Manager))]
         Rayman3GBAUS,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBAProto, Game.Rayman3GBA, "Rayman 3 (GBA - US Prototype)", typeof(GBA_R3_Manager))]
+        Rayman3GBAUSPrototype,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (N-Gage)", typeof(NGage_R3_Manager))]
         Rayman3NGage,
 

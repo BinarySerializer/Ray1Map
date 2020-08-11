@@ -92,6 +92,7 @@ namespace R1Engine
         RaySNES,
 
         Ray3GBA,
+        Ray3GBAProto,
 
         Ray3NGage,
 
