@@ -10,7 +10,7 @@
 
         public bool IsMode7 { get; set; }
 
-        public byte TileMap { get; set; }
+        public byte TileMapIndex { get; set; }
 
         // Seems to determine the tilemap for BG_0
         public byte Unk_02 { get; set; }
@@ -55,7 +55,7 @@
 
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
-                TileMap = s.Serialize<byte>(TileMap, name: nameof(TileMap));
+                TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
                 Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
                 UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 3, name: nameof(UnkBytes2));
@@ -66,10 +66,11 @@
                 if (IsMode7)
                     return;
 
-                TileMap = s.Serialize<byte>(TileMap, name: nameof(TileMap));
+                TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
                 Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
             }
+
             ClusterCount = s.Serialize<byte>(ClusterCount, name: nameof(ClusterCount));
             LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
             ClusterTable = s.SerializeArray<byte>(ClusterTable, 4, name: nameof(ClusterTable));
@@ -95,7 +96,7 @@
                 Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i], true), () => s.SerializeObject<GBA_R3_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
 
             // Serialize tilemap
-            Tilemap = s.DoAt(OffsetTable.GetPointer(TileMap, true), () => s.SerializeObject<GBA_R3_TileMap>(Tilemap, name: nameof(Tilemap)));
+            Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapIndex, true), () => s.SerializeObject<GBA_R3_TileMap>(Tilemap, name: nameof(Tilemap)));
         }
 
         #endregion

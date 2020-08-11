@@ -224,13 +224,15 @@ namespace R1Engine
             var playField = levelBlock.PlayField;
 
             // Get the primary map (BG_2)
-            var map = playField.Layers.FirstOrDefault(x => x.LayerID == 2);
-            if (map == null)
-                map = playField.Layers.First(x => !x.Unk_0D);
-            //if (map == null) map = playField.Layers.FirstOrDefault(x => x.LayerID == 0); // enable to display bg
+            var map = playField.Layers.FirstOrDefault(x => x.LayerID == 2) ?? playField.Layers.First(x => !x.Is8bpp);
+
+            // Get the collision data
             var cMap = playField.Layers.First(x => x.IsCollisionBlock);
 
-            var tilemapLength = ((playField.Tilemap.TileMapData.Length + (playField.Tilemap.BGMapData.Length / 2)) / 32) + 1;
+            // Get the tilemap to use
+            var tileMap = map.Is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
+
+            var tilemapLength = (tileMap.Length / (map.Is8bpp ? 64 : 32)) + 1;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev {
@@ -264,7 +266,7 @@ namespace R1Engine
 
             const int paletteSize = 16;
             const int tileWidth = 8;
-            const int tileSize = (tileWidth * tileWidth) / 2;
+            int tileSize = map.Is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2;
 
             var tiles = new Tile[tilemapLength];
 
@@ -299,15 +301,21 @@ namespace R1Engine
                 for (int y = 0; y < tileWidth; y++) {
                     for (int x = 0; x < tileWidth; x++) {
                         Color c;
-                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / 2);
-                        if (index >= playField.Tilemap.TileMapData.Length) {
-                            var b = playField.Tilemap.BGMapData[(index - playField.Tilemap.TileMapData.Length) * 2 + (x % 2)];
+
+                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / (map.Is8bpp ? 1 : 2));
+                        
+                        if (map.Is8bpp) 
+                        {
+                            var b = tileMap[index];
 
                             c = playField.Tilemap.TilePalette.Palette[b].GetColor();
+
                             if (b != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);
-                        } else {
-                            var b = playField.Tilemap.TileMapData[index];
+                        } 
+                        else 
+                        {
+                            var b = tileMap[index];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
                             c = playField.Tilemap.TilePalette.Palette[p * paletteSize + v].GetColor();

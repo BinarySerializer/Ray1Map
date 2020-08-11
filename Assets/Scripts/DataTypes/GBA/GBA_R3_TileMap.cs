@@ -12,8 +12,8 @@ namespace R1Engine
         public byte TilePaletteIndex { get; set; } // Not used. Always 0 in R3GBA, but not in N-Gage (but tile block is always offset 0).
         public byte UnknownIndex { get; set; }
 
-        public byte[] TileMapData { get; set; }
-        public byte[] BGMapData { get; set; }
+        public byte[] TileMap4bpp { get; set; }
+        public byte[] TileMap8bpp { get; set; }
 
 		#region Parsed
 		public GBA_R3_OffsetTable OffsetTable { get; set; }
@@ -31,8 +31,8 @@ namespace R1Engine
             UnkData = s.SerializeArray<byte>(UnkData, 6, name: nameof(UnkData));
 
             // Serialize tilemap data
-            TileMapData = s.SerializeArray<byte>(TileMapData, TileMapSize * 0x20, name: nameof(TileMapData));
-            BGMapData = s.SerializeArray<byte>(BGMapData, BGMapSize * 0x40, name: nameof(BGMapData));
+            TileMap4bpp = s.SerializeArray<byte>(TileMap4bpp, TileMapSize * 0x20, name: nameof(TileMap4bpp));
+            TileMap8bpp = s.SerializeArray<byte>(TileMap8bpp, BGMapSize * 0x40, name: nameof(TileMap8bpp));
 
             s.Align();
 
