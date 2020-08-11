@@ -62,9 +62,12 @@
 
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
-                Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex, true),
-                    () => s.SerializeObject<GBA_ActorGraphicData>(Actors[i].GraphicData,
-                        name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));
+            {
+                if (Actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
+                    Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex, true),
+                        () => s.SerializeObject<GBA_ActorGraphicData>(Actors[i].GraphicData,
+                            name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));
+            }
         }
 
         #endregion

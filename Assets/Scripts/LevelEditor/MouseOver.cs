@@ -63,6 +63,8 @@ namespace R1Engine
                           $"PC_TransparencyMode: {t.Data.PC_TransparencyMode}{Environment.NewLine}" +
                           $"PC_Unk1: {t.Data.PC_Unk1}{Environment.NewLine}" +
                           $"PC_Unk2: {t.Data.PC_Unk2}{Environment.NewLine}" +
+                          $"HorizontalFlip: {t.Data.HorizontalFlip}{Environment.NewLine}" +
+                          $"VerticalFlip: {t.Data.VerticalFlip}{Environment.NewLine}" +
                           $"PaletteIndex: {t.PaletteIndex}{Environment.NewLine}"
                         : String.Empty;
                 }
