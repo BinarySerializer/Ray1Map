@@ -15,16 +15,20 @@
         Hill_Slight_Right_2 = 0x14,
         Hill_Slight_Right_1 = 0x15,
 
+        InstaKill = 0x20,
+
         // 38 and 39 might be camera locks
 
         // Acts as triggers for moving platforms
         Reactionary_Up = 0x28,
         Reactionary_Down = 0x29,
-        
+
         Hang = 0x2E,
         Climb = 0x2F,
-        
+
         Water = 0x30,
+        
+        ClimbableWalls = 0x31,
         
         Empty = 0xFF
     }
