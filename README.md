@@ -439,7 +439,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 </table>
 
 ### Supported Games (GBA)
-There are other games using the same engine, such as "Sabrina the Teenage Witch: Potion Commotion" which might be added in the future.
 
 <table class="tg">
   <tr>
