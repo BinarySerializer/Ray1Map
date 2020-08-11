@@ -388,7 +388,7 @@ namespace R1Engine
                 DebugText = $"{nameof(GBA_R3_Actor.Int_08)}: {x.Int_08}{Environment.NewLine}" +
                             $"{nameof(GBA_R3_Actor.Byte_04)}: {x.Byte_04}{Environment.NewLine}" +
                             $"{nameof(GBA_R3_Actor.ActorID)}: {x.ActorID}{Environment.NewLine}" +
-                            $"{nameof(GBA_R3_Actor.Byte_06)}: {x.Byte_06}{Environment.NewLine}" +
+                            $"{nameof(GBA_R3_Actor.GraphicsDataIndex)}: {x.GraphicsDataIndex}{Environment.NewLine}" +
                             $"{nameof(GBA_R3_Actor.Byte_07)}: {x.Byte_07}{Environment.NewLine}"
             }).ToList();
 

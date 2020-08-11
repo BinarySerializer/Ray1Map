@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     public class GBA_R3_LevelBlock : GBA_R3_BaseBlock
     {
@@ -57,7 +59,14 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
+            // Parse level block data
             PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex, true), () => s.SerializeObject<GBA_R3_PlayField2D>(PlayField, name: nameof(PlayField)));
+
+            // Parse actor data
+            for (var i = 0; i < Actors.Length; i++)
+                Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex, true),
+                    () => s.SerializeObject<GBA_ActorGraphicData>(Actors[i].GraphicData,
+                        name: $"{nameof(GBA_R3_Actor.GraphicData)}[{i}]"));
         }
 
         #endregion
