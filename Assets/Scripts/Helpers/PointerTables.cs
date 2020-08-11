@@ -159,7 +159,7 @@ namespace R1Engine
         public static Dictionary<GBA_R3_Pointer, Pointer> GetGBAR3PointerTable(GameModeSelection gameMode, BinaryFile romFile)
         {
 
-            if (gameMode == GameModeSelection.Rayman3GBA) {
+            if (gameMode == GameModeSelection.Rayman3GBAEU) {
                 return new Dictionary<GBA_R3_Pointer, uint>() {
                     [GBA_R3_Pointer.UiOffsetTable] = 0x0829BEEC,
                     [GBA_R3_Pointer.UnkPointerTable] = 0x0820E9A4,
@@ -172,6 +172,10 @@ namespace R1Engine
             } else if(gameMode == GameModeSelection.PrinceOfPersiaGBA) {
                 return new Dictionary<GBA_R3_Pointer, uint>() {
                     [GBA_R3_Pointer.UiOffsetTable] = 0x08165890,
+                }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+            } else if(gameMode == GameModeSelection.SabrinaTheTeenageWitchPotionCommotionGBAUS) {
+                return new Dictionary<GBA_R3_Pointer, uint>() {
+                    [GBA_R3_Pointer.UiOffsetTable] = 0x081A0468,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             } else return null;
         }

@@ -96,5 +96,7 @@ namespace R1Engine
         Ray3NGage,
 
         PrinceOfPersiaGBA,
+
+        SabrinaGBA
     }
 }
