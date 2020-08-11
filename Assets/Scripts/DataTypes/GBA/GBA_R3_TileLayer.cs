@@ -27,8 +27,8 @@ namespace R1Engine
 
         public byte Unk_0C { get; set; }
 
-        // Seems to be a bool for if it's the background
-        public bool Unk_0D { get; set; }
+        // Backgrounds are 8bpp, tilemaps are 4bpp
+        public bool Is8bpp { get; set; }
 
         // Always 0? Padding?
         public ushort Unk5 { get; set; }
@@ -65,7 +65,7 @@ namespace R1Engine
                 ShouldSetBGAlphaBlending = s.Serialize<bool>(ShouldSetBGAlphaBlending, name: nameof(ShouldSetBGAlphaBlending));
                 Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
                 Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
-                Unk_0D = s.Serialize<bool>(Unk_0D, name: nameof(Unk_0D));
+                Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
                 Unk5 = s.Serialize<ushort>(Unk5, name: nameof(Unk5));
 
                 // TODO: It seems the compressed block contains more data than just the tile indexes for BG_2 & 3?
