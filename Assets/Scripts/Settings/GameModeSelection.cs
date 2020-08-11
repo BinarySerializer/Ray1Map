@@ -129,8 +129,8 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.PrinceOfPersiaGBA, Game.PrinceOfPersiaTheSandsOfTimeGBA, "Prince of Persia: The Sands of Time (GBA - US)", typeof(GBA_PoPSoT_Manager))]
         PrinceOfPersiaGBAUS,
 
-        //[GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Sabrina - The Teenage Witch - Potion Commotion (GBA - EU)", typeof(GBA_Sabrina_Manager))]
-        //SabrinaTheTeenageWitchPotionCommotionGBAEU,
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Sabrina - The Teenage Witch - Potion Commotion (GBA - EU)", typeof(GBA_Sabrina_Manager))]
+        SabrinaTheTeenageWitchPotionCommotionGBAEU,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.SabrinaGBA, Game.SabrinaTheTeenageWitchPotionCommotionGBA, "Sabrina - The Teenage Witch - Potion Commotion (GBA - US)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAUS,

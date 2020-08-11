@@ -182,6 +182,11 @@ namespace R1Engine
                         [GBA_R3_Pointer.UiOffsetTable] = 0x08165890,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SabrinaTheTeenageWitchPotionCommotionGBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x081A0D54,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.SabrinaTheTeenageWitchPotionCommotionGBAUS:
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x081A0468,

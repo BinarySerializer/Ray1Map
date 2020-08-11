@@ -507,7 +507,7 @@ There are other games using the same engine, such as "Sabrina the Teenage Witch:
   </tr>
   <tr>
     <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA - EU)</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
