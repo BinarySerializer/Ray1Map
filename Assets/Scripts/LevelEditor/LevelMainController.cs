@@ -265,7 +265,9 @@ namespace R1Engine
                 }
             }
 
-            RenderTexture renderTex = new RenderTexture(currentLevel.Maps[editor.currentMap].Width*16, currentLevel.Maps[editor.currentMap].Height*16, 24);
+            bool half = Controller.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA;
+
+            RenderTexture renderTex = new RenderTexture(currentLevel.Maps[editor.currentMap].Width*16 / (half ? 2 : 1), currentLevel.Maps[editor.currentMap].Height*16 / (half ? 2 : 1), 24);
             renderCamera.targetTexture = renderTex;
             //Set camera pos
             renderCamera.transform.position = new Vector3((currentLevel.Maps[editor.currentMap].Width) / 2f, -(currentLevel.Maps[editor.currentMap].Height) / 2f, renderCamera.transform.position.z);
