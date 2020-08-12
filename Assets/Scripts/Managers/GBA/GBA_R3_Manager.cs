@@ -298,8 +298,16 @@ namespace R1Engine
             }
         }
 
-        public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_LevelBlock levelBlock) 
+        public virtual GBA_LevelBlock LoadLevelBlock(Context context) => FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context).Data.LevelBlock;
+
+        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
+            Controller.status = $"Loading data";
+            await Controller.WaitIfNecessary();
+
+            // Load the level block
+            var levelBlock = LoadLevelBlock(context);
+
             // Get the current play field
             var playField = levelBlock.PlayField;
 
@@ -314,29 +322,9 @@ namespace R1Engine
             // Get the collision data
             GBA_TileLayer cMap = playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
 
-            // Get the tilemap to use
-            byte[] tileMap;
-            bool is8bpp;
-            GBA_Palette tilePalette;
-            int numBits = 11;
-            if (context.Settings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
-                is8bpp = map.Tilemap.Is8bpp;
-                tileMap = is8bpp ? map.Tilemap.TileMap8bpp : map.Tilemap.TileMap4bpp;
-                tilePalette = playField.TilePalette;
-                numBits = 10;
-            } else {
-                is8bpp = map.Is8bpp;
-                tileMap = is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
-                tilePalette = playField.Tilemap.TilePalette;
-                if (context.Settings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || context.Settings.EngineVersion == EngineVersion.StarWarsGBA) {
-                    numBits = 14;
-                }
-            }
-
-            int tilemapLength = (tileMap.Length / (is8bpp ? 64 : 32)) + 1;
-
             // Convert levelData to common level format
-            Common_Lev commonLev = new Common_Lev {
+            Common_Lev commonLev = new Common_Lev
+            {
                 // Create the map
                 Maps = new Common_LevelMap[]
                 {
@@ -348,14 +336,10 @@ namespace R1Engine
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[1],
-                        MapTiles = mapData.Select((x, i) => new Editor_MapTile(new MapTile()
+                        MapTiles = mapData.Select((x, i) =>
                         {
-                            CollisionType = (byte)cMap.CollisionData.ElementAtOrDefault(i),
-                            TileMapY = (ushort)(BitHelpers.ExtractBits(x, numBits, 0)),
-                            HorizontalFlip = BitHelpers.ExtractBits(x, 1, numBits) == 1,
-                        })
-                        {
-                            DebugText = Convert.ToString(x, 2).PadLeft(16, '0')
+                            x.CollisionType = (byte)cMap.CollisionData[i];
+                            return new Editor_MapTile(x);
                         }).ToArray(),
                         TileSetWidth = 1
                     }
@@ -365,6 +349,53 @@ namespace R1Engine
                 EventData = new List<Editor_EventData>(),
             };
 
+            Controller.status = $"Loading tilemap";
+            await Controller.WaitIfNecessary();
+
+
+            commonLev.Maps[0].TileSet[0] = LoadTileset(context, playField, map, mapData);
+
+            commonLev.EventData = levelBlock.Actors.Select(x => new Editor_EventData(new EventData()
+            {
+                XPosition = x.XPos * 2,
+                YPosition = x.YPos * 2
+            })
+            {
+                Type = x.ActorID,
+                DESKey = String.Empty,
+                ETAKey = String.Empty,
+                DebugText = $"{nameof(GBA_Actor.Int_08)}: {x.Int_08}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.Byte_04)}: {x.Byte_04}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.ActorID)}: {x.ActorID}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.GraphicsDataIndex)}: {x.GraphicsDataIndex}{Environment.NewLine}" +
+                            $"{nameof(GBA_Actor.Byte_07)}: {x.Byte_07}{Environment.NewLine}"
+            }).ToList();
+
+            return new GBA_EditorManager(commonLev, context);
+        }
+
+        public Common_Tileset LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData)
+        {
+            // Get the tilemap to use
+            byte[] tileMap;
+            bool is8bpp;
+            GBA_Palette tilePalette;
+            if (context.Settings.EngineVersion == EngineVersion.BatmanVengeanceGBA)
+            {
+                is8bpp = map.Tilemap.Is8bpp;
+                tileMap = is8bpp ? map.Tilemap.TileMap8bpp : map.Tilemap.TileMap4bpp;
+                tilePalette = playField.TilePalette;
+            }
+            else
+            {
+                is8bpp = map.Is8bpp;
+                tileMap = is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
+                tilePalette = playField.Tilemap.TilePalette;
+            }
+
+            int tilemapLength = (tileMap.Length / (is8bpp ? 64 : 32)) + 1;
+
+
             const int paletteSize = 16;
             const int tileWidth = 8;
             int tileSize = is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2;
@@ -372,7 +403,8 @@ namespace R1Engine
             var tiles = new Tile[tilemapLength];
 
             // Create empty tile
-            var emptyTileTex = new Texture2D(Settings.CellSize, Settings.CellSize) {
+            var emptyTileTex = new Texture2D(Settings.CellSize, Settings.CellSize)
+            {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
@@ -384,27 +416,31 @@ namespace R1Engine
 
             tiles[0] = emptyTile;
 
-            for (int i = 1; i < tilemapLength; i++) {
+            for (int i = 1; i < tilemapLength; i++)
+            {
                 // Get the palette to use
-                var pals = mapData.Where(x => BitHelpers.ExtractBits(x, 11, 0) == i).Select(x => BitHelpers.ExtractBits(x, 4, 12)).Distinct().ToArray();
+                var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
 
                 if (pals.Length > 1)
                     Debug.LogWarning($"Tile {i} has several possible palettes!");
 
                 var p = pals.FirstOrDefault();
 
-                var tex = new Texture2D(Settings.CellSize, Settings.CellSize) {
+                var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
+                {
                     filterMode = FilterMode.Point,
                     wrapMode = TextureWrapMode.Clamp
                 };
 
-                for (int y = 0; y < tileWidth; y++) {
-                    for (int x = 0; x < tileWidth; x++) {
+                for (int y = 0; y < tileWidth; y++)
+                {
+                    for (int x = 0; x < tileWidth; x++)
+                    {
                         Color c;
 
                         int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
-                        
-                        if (is8bpp) 
+
+                        if (is8bpp)
                         {
                             var b = tileMap[index];
 
@@ -412,8 +448,8 @@ namespace R1Engine
 
                             if (b != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);
-                        } 
-                        else 
+                        }
+                        else
                         {
                             var b = tileMap[index];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
@@ -441,37 +477,7 @@ namespace R1Engine
                 tiles[i] = t;
             }
 
-            commonLev.Maps[0].TileSet[0] = new Common_Tileset(tiles);
-
-            commonLev.EventData = levelBlock.Actors.Select(x => new Editor_EventData(new EventData() {
-                XPosition = x.XPos * 2,
-                YPosition = x.YPos * 2
-            }) {
-                Type = x.ActorID,
-                DESKey = String.Empty,
-                ETAKey = String.Empty,
-                DebugText = $"{nameof(GBA_Actor.Int_08)}: {x.Int_08}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.Byte_04)}: {x.Byte_04}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.ActorID)}: {x.ActorID}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.GraphicsDataIndex)}: {x.GraphicsDataIndex}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.Byte_07)}: {x.Byte_07}{Environment.NewLine}"
-            }).ToList();
-
-            await UniTask.CompletedTask;
-            return commonLev;
-        }
-
-        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
-        {
-            Controller.status = $"Loading data";
-            await Controller.WaitIfNecessary();
-
-            // Read the rom
-            var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
-
-            var commonLev = await CreateCommonLev(context, rom.Data.LevelBlock);
-
-            return new GBA_EditorManager(commonLev, context);
+            return new Common_Tileset(tiles);
         }
 
         public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();

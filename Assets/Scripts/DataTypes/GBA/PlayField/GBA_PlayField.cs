@@ -39,7 +39,7 @@
 
         public GBA_TileMap Tilemap { get; set; }
 
-        // For Mode7 maps the count seems to match the TileMap size
+        // For Mode7 maps this creates the main tilemap
         public GBA_UnkBGData UnkBGData { get; set; }
 
         public GBA_Cluster[] Clusters { get; set; }

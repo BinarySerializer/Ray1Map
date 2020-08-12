@@ -11,9 +11,9 @@
         public byte Byte_0A { get; set; }
         public byte Byte_0B { get; set; }
 
-        public GBA_ActorGraphicDataEntry[] Entries { get; set; }
+        public GBA_ActorState[] States { get; set; }
 
-        public GBA_ActorGraphicSpriteGroup SpriteGroup { get; set; }
+        public GBA_DES SpriteGroup { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -25,19 +25,21 @@
             Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
 
             // TODO: Get number of entries - this doesn't always work
-            Entries = s.SerializeObjectArray<GBA_ActorGraphicDataEntry>(Entries, (BlockSize - 12) / 8, name: nameof(Entries));
+            States = s.SerializeObjectArray<GBA_ActorState>(States, (BlockSize - 12) / 8, name: nameof(States));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            SpriteGroup = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_ActorGraphicSpriteGroup>(SpriteGroup, name: nameof(SpriteGroup)));
+            SpriteGroup = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_DES>(SpriteGroup, name: nameof(SpriteGroup)));
+
+            // TODO: Parse data for each state
         }
     }
 
-    public class GBA_ActorGraphicDataEntry : R1Serializable
+    public class GBA_ActorState : R1Serializable
     {
         // Byte_07 seems to be offset index (it's not used if Byte_06 is -1)
-        // Byte_06 seems to determine how the data structure from the offset should look like
+        // Byte_06 seems to determine how the data structure from the offset should look like - struct type?
         public byte[] UnkData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -46,17 +48,17 @@
         }
     }
 
-    public class GBA_ActorGraphicSpriteGroup : GBA_BaseBlock
+    public class GBA_DES : GBA_BaseBlock
     {
         #region Data
 
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }
-        public byte UnkOffsetIndex { get; set; }
+        public byte TileMapOffsetIndex { get; set; }
         public byte PaletteOffsetIndex { get; set; }
         public byte UnkOffsetIndex3 { get; set; }
         public byte Byte_04 { get; set; }
-        public byte SpritesCount { get; set; }
+        public byte AnimationsCount { get; set; }
         public byte Byte_06 { get; set; }
 
         public byte[] SpritesIndexTable { get; set; }
@@ -66,7 +68,8 @@
         #region Parsed
 
         public GBA_SpritePalette Palette { get; set; }
-        public GBA_Sprite[] Sprites { get; set; }
+        public GBA_SpriteTileMap TileMap { get; set; }
+        public GBA_Animation[] Animations { get; set; }
 
         #endregion
 
@@ -76,50 +79,45 @@
         {
             Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-            UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
+            TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
             PaletteOffsetIndex = s.Serialize<byte>(PaletteOffsetIndex, name: nameof(PaletteOffsetIndex));
-            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
+            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA)
+            {
                 UnkOffsetIndex3 = s.Serialize<byte>(UnkOffsetIndex3, name: nameof(UnkOffsetIndex3));
             }
             Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-            SpritesCount = s.Serialize<byte>(SpritesCount, name: nameof(SpritesCount));
+            AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
 
-            SpritesIndexTable = s.SerializeArray<byte>(SpritesIndexTable, SpritesCount, name: nameof(SpritesIndexTable));
+            SpritesIndexTable = s.SerializeArray<byte>(SpritesIndexTable, AnimationsCount, name: nameof(SpritesIndexTable));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
         {
             Palette = s.DoAt(OffsetTable.GetPointer(PaletteOffsetIndex), () => s.SerializeObject<GBA_SpritePalette>(Palette, name: nameof(Palette)));
+            TileMap = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_SpriteTileMap>(TileMap, name: nameof(TileMap)));
 
-            if (Sprites == null)
-                Sprites = new GBA_Sprite[SpritesCount];
+            if (Animations == null)
+                Animations = new GBA_Animation[AnimationsCount];
 
-            for (int i = 0; i < Sprites.Length; i++)
-                Sprites[i] = s.DoAt(OffsetTable.GetPointer(SpritesIndexTable[i]), () => s.SerializeObject<GBA_Sprite>(Sprites[i], name: $"{nameof(Sprites)}[{i}]"));
+            for (int i = 0; i < Animations.Length; i++)
+                Animations[i] = s.DoAt(OffsetTable.GetPointer(SpritesIndexTable[i]), () => s.SerializeObject<GBA_Animation>(Animations[i], name: $"{nameof(Animations)}[{i}]"));
         }
 
         #endregion
     }
 
-    // Sprites have tilemaps and are 4bpp
-    public class GBA_Sprite : GBA_BaseBlock
+
+    // Not sure this is an animation
+    public class GBA_Animation : GBA_BaseBlock
     {
+        // First byte is struct type?
+
         public byte[] UnkData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
             UnkData = s.SerializeArray<byte>(UnkData, BlockSize, name: nameof(UnkData));
-        }
-    }
-
-    public class GBA_SpritePalette : GBA_BaseBlock
-    {
-        public ARGB1555Color[] Palette { get; set; }
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, BlockSize / 2, name: nameof(Palette));
         }
     }
 }

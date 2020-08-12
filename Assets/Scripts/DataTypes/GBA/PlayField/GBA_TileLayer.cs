@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -49,7 +48,7 @@ namespace R1Engine
         public byte Mode7_14 { get; set; }
 
         public byte[] Mode7Data { get; set; }
-        public ushort[] MapData { get; set; }
+        public MapTile[] MapData { get; set; }
         public GBA_TileCollisionType[] CollisionData { get; set; }
 
         // Batman
@@ -76,9 +75,9 @@ namespace R1Engine
                     Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
 
                     if (IsCompressed) {
-                        s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData)));
+                        s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
                     } else {
-                        MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData));
+                        MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
                     }
                     // Serialize tilemap
                     Tilemap = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
@@ -142,12 +141,12 @@ namespace R1Engine
 
                     // TODO: It seems the compressed block contains more data than just the tile indexes for BG_2 & 3?
                     if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
-                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData))));
+                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData))));
                     } else {
                         s.DoEncoded(new LZSSEncoder(), () =>
                         {
                             if (StructType == TileLayerStructTypes.Map2D)
-                                MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData));
+                                MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
                             else
                                 Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
                         });
