@@ -20,6 +20,7 @@
         Hill_Slight_Right_1 = 21,
 
         InstaKill = 32,
+        Damage = 33,
 
         // 34, 35 and 36 might be vertical camera locks
         // 38 and 39 might be horizontal camera locks
@@ -30,8 +31,10 @@
         Reactionary_Up = 40,
         Reactionary_Down = 41,
 
+        Reactionary_DownLeft = 42,
         Reactionary_DownRight = 43,
         Reactionary_UpRight = 44,
+        Reactionary_UpLeft = 45,
 
         Hang = 46,
         Climb = 47,

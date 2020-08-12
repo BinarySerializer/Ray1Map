@@ -218,6 +218,9 @@ namespace R1Engine
                 case GBA_TileCollisionType.Empty:
                     return TileCollisionTypeGraphic.None;
 
+                case GBA_TileCollisionType.Damage:
+                    return TileCollisionTypeGraphic.Damage;
+
                 case GBA_TileCollisionType.Ledge:
                     return TileCollisionTypeGraphic.Passthrough;
 
@@ -248,6 +251,8 @@ namespace R1Engine
                 case GBA_TileCollisionType.Reactionary_Right:
                 case GBA_TileCollisionType.Reactionary_DownRight:
                 case GBA_TileCollisionType.Reactionary_UpRight:
+                case GBA_TileCollisionType.Reactionary_DownLeft:
+                case GBA_TileCollisionType.Reactionary_UpLeft:
                     return TileCollisionTypeGraphic.Reactionary;
 
                 case GBA_TileCollisionType.Water:
