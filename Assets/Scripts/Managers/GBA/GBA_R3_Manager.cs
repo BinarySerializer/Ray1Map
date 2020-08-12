@@ -23,6 +23,8 @@ namespace R1Engine
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Compressed Blocks", false, true, (input, output) => ExportAllCompressedBlocksAsync(settings, output)),
+            new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
+            //new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
             new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
         };
 
@@ -216,6 +218,83 @@ namespace R1Engine
                 }
 
                 File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
+            }
+        }
+
+        public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
+        {
+            // TODO: Allow blocks to be read and exported as files
+            if (export)
+                throw new NotImplementedException();
+
+            using (var context = new Context(settings))
+            {
+                // Get the deserializer
+                var s = context.Deserializer;
+
+                var references = new Dictionary<Pointer, HashSet<Pointer>>();
+
+                using (var logFile = File.Create(Path.Combine(outputDir, "GBA_Blocks_Log-Map.txt")))
+                {
+                    using (var writer = new StreamWriter(logFile))
+                    {
+                        // Load the ROM
+                        await LoadFilesAsync(context);
+
+                        // Read the rom
+                        var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
+
+                        var indentLevel = 0;
+
+                        void ExportBlocks(Pointer blockPointer, int blockSize, GBA_OffsetTable table)
+                        {
+                            indentLevel++;
+
+                            writer.WriteLine($"{blockPointer}:{new string(' ', indentLevel * 2)}Offsets: {table.OffsetsCount} - BlockSize: {blockSize}");
+
+                            // Handle every block offset in the table
+                            for (int i = 0; i < table.OffsetsCount; i++)
+                            {
+                                var pointer = table.GetPointer(i);
+                                var length = s.DoAt(pointer - 4, () => s.Serialize<int>(default));
+                                
+                                var newOffsetTable = s.DoAt(pointer + length, () => 
+                                {
+                                    // Align
+                                    s.Align();
+
+                                    // Serialize the offset table
+                                    return s.SerializeObject<GBA_OffsetTable>(default);
+                                });
+
+                                if (!references.ContainsKey(pointer))
+                                    references[pointer] = new HashSet<Pointer>();
+
+                                references[pointer].Add(blockPointer);
+
+                                // Export
+                                ExportBlocks(pointer, length, newOffsetTable);
+                            }
+
+                            indentLevel--;
+                        }
+
+                        // Recursively export the blocks
+                        ExportBlocks(rom.Data.UiOffsetTable.Offset, 0, rom.Data.UiOffsetTable);
+                    }
+                }
+
+                // Log references
+                using (var logFile = File.Create(Path.Combine(outputDir, "GBA_Blocks_Log-References.txt")))
+                {
+                    using (var writer = new StreamWriter(logFile))
+                    {
+                        foreach (var r in references.OrderBy(x => x.Key))
+                        {
+                            writer.WriteLine($"{r.Key}: {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
+                        }
+                    }
+                }
             }
         }
 

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 
 namespace R1Engine {
-    public class Pointer : IEquatable<Pointer> {
+    public class Pointer : IEquatable<Pointer>, IComparable<Pointer> {
         public uint AbsoluteOffset { get; }
         public Context Context { get; }
         public Pointer Anchor { get; private set; }
@@ -98,6 +98,13 @@ namespace R1Engine {
             } else {
                 return file.filePath + "|" + String.Format("0x{0:X8}", AbsoluteOffset);
             }
+        }
+
+        public int CompareTo(Pointer other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            return AbsoluteOffset.CompareTo(other.AbsoluteOffset);
         }
     }
 
