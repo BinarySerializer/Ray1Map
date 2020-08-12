@@ -15,29 +15,31 @@
         /// </summary>
         public GBA_OffsetTable OffsetTable { get; set; }
 
-        /// <summary>
-        /// Handles the data serialization
-        /// </summary>
-        /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s)
-        {
-            // Serialize the size
-            BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
+		protected override void OnPreSerialize(SerializerObject s) {
+			base.OnPreSerialize(s);
+            s.DoAt(Offset - 4, () => {
+                // Serialize the size
+                BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
+            });
+            s.DoAt(Offset + BlockSize, () => {
+                // Align
+                s.Align();
+                // Serialize the offset table
+                OffsetTable = s.SerializeObject<GBA_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
+            });
+		}
 
-            // Serialize the block
-            SerializeBlock(s);
+		protected override void OnPostSerialize(SerializerObject s) {
+			base.OnPostSerialize(s);
 
-            // Align
-            s.Align();
-
-            // Serialize the offset table
-            OffsetTable = s.SerializeObject<GBA_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
+            if (Offset + BlockSize != s.CurrentPointer) {
+                UnityEngine.Debug.LogWarning($"{GetType()} @ {Offset}: Serialized size did not match block size! Serialized size: {(s.CurrentPointer  - Offset)} - BlockSize: {BlockSize}");
+            }
 
             // Serialize data from the offset table
             SerializeOffsetData(s);
         }
-
-        public abstract void SerializeBlock(SerializerObject s);
+        
         public virtual void SerializeOffsetData(SerializerObject s) { }
     }
 }

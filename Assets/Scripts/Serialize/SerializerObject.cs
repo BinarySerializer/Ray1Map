@@ -34,10 +34,11 @@ namespace R1Engine
 
         public abstract void Goto(Pointer offset);
 
-        public void Align()
+        public void Align(int alignBytes = 4)
         {
-            if (CurrentPointer.AbsoluteOffset % 4 != 0)
-                Goto(CurrentPointer + (4 - CurrentPointer.AbsoluteOffset % 4));
+            Pointer ptr = CurrentPointer;
+            if (ptr.AbsoluteOffset % alignBytes != 0)
+                Goto(ptr + (alignBytes - ptr.AbsoluteOffset % alignBytes));
         }
 
         public void DoAt(Pointer offset, Action action) {

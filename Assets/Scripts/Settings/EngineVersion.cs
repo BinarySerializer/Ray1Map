@@ -101,5 +101,7 @@ namespace R1Engine
         SabrinaGBA,
 
         StarWarsGBA,
+        
+        BatmanVengeanceGBA,
     }
 }

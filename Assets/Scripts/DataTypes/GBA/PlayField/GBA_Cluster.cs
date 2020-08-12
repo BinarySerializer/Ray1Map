@@ -4,7 +4,7 @@
     {
         public byte[] UnknownData { get; set; }
 
-        public override void SerializeBlock(SerializerObject s)
+        public override void SerializeImpl(SerializerObject s)
         {
             UnknownData = s.SerializeArray<byte>(UnknownData, BlockSize, name: nameof(UnknownData));
         }

@@ -143,5 +143,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.StarWarsGBA, Game.StarWarsTrilogyApprenticeOfTheForceGBA, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsApprentice_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAUS,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.BatmanVengeanceGBA, Game.BatmanVengeanceGBA, "Batman Vengeance (GBA - US)", typeof(GBA_R3_Manager))]
+        BatmanVengeanceGBAUS,
     }
 }

@@ -9,7 +9,7 @@
 
         public GBA_ActorGraphicSpriteGroup SpriteGroup { get; set; }
 
-        public override void SerializeBlock(SerializerObject s)
+        public override void SerializeImpl(SerializerObject s)
         {
             // TODO: Get number of entries - this doesn't always work
             UnkData = s.SerializeArray<byte>(UnkData, 12, name: nameof(UnkData));
@@ -62,7 +62,7 @@
 
         #region Public Methods
 
-        public override void SerializeBlock(SerializerObject s)
+        public override void SerializeImpl(SerializerObject s)
         {
             Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
@@ -95,7 +95,7 @@
     {
         public byte[] UnkData { get; set; }
 
-        public override void SerializeBlock(SerializerObject s)
+        public override void SerializeImpl(SerializerObject s)
         {
             UnkData = s.SerializeArray<byte>(UnkData, BlockSize, name: nameof(UnkData));
         }

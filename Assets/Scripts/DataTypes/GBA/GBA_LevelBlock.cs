@@ -8,9 +8,9 @@
         public byte Unk_02 { get; set; }
         public byte Unk_03 { get; set; }
 
-        public byte ObjectsCount { get; set; }
-        public byte Unk_05 { get; set; }
-        public byte Unk_06 { get; set; }
+        public byte ObjectsCountTotal { get; set; }
+        public byte ObjectsCount1 { get; set; }
+        public byte ObjectsCount2 { get; set; }
         public byte Unk_07 { get; set; }
         public byte Unk_08 { get; set; }
         public byte Unk_09 { get; set; }
@@ -31,15 +31,15 @@
 
         #region Public Methods
 
-        public override void SerializeBlock(SerializerObject s)
+        public override void SerializeImpl(SerializerObject s)
         {
             PlayFieldIndex = s.Serialize<ushort>(PlayFieldIndex, name: nameof(PlayFieldIndex));
             Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
             Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
 
-            ObjectsCount = s.Serialize<byte>(ObjectsCount, name: nameof(ObjectsCount));
-            Unk_05 = s.Serialize<byte>(Unk_05, name: nameof(Unk_05));
-            Unk_06 = s.Serialize<byte>(Unk_06, name: nameof(Unk_06));
+            ObjectsCountTotal = s.Serialize<byte>(ObjectsCountTotal, name: nameof(ObjectsCountTotal));
+            ObjectsCount1 = s.Serialize<byte>(ObjectsCount1, name: nameof(ObjectsCount1));
+            ObjectsCount2 = s.Serialize<byte>(ObjectsCount2, name: nameof(ObjectsCount2));
             Unk_07 = s.Serialize<byte>(Unk_07, name: nameof(Unk_07));
 
             Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
@@ -47,10 +47,10 @@
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA) {
-                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, Unk_05 + Unk_06, name: nameof(Actors));
+            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.Ray3GBA) {
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCount1 + ObjectsCount2, name: nameof(Actors));
             } else {
-                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCount, name: nameof(Actors));
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCountTotal, name: nameof(Actors));
             }
 
             // TODO: What is this data?
@@ -64,7 +64,7 @@
             // Parse level block data
             PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField2D>(PlayField, name: nameof(PlayField)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) return;
+            if (s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA || s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) return;
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
             {

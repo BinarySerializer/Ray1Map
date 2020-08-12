@@ -13,7 +13,7 @@
         /// </summary>
         /// <param name="index">The offset index</param>
         /// <returns>The pointer</returns>
-        public Pointer GetPointer(int index) => PointerTables.GetGBAR3PointerTable(Offset.Context.Settings.GameModeSelection, Offset.file)[GBA_R3_Pointer.UiOffsetTable] + (Offsets[index] * 4) - 4;
+        public Pointer GetPointer(int index) => PointerTables.GetGBAR3PointerTable(Offset.Context.Settings.GameModeSelection, Offset.file)[GBA_R3_Pointer.UiOffsetTable] + (Offsets[index] * 4);
 
         public override void SerializeImpl(SerializerObject s)
         {

@@ -45,7 +45,9 @@
             GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
             Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
 
-            Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+            if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA) {
+                Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+            }
 
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA)
             {

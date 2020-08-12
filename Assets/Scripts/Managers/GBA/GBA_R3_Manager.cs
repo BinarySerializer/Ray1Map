@@ -265,9 +265,20 @@ namespace R1Engine
             var cMap = playField.Layers.First(x => x.IsCollisionBlock);
 
             // Get the tilemap to use
-            var tileMap = map.Is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
+            byte[] tileMap;
+            bool is8bpp;
+            GBA_Palette tilePalette;
+            if (context.Settings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
+                is8bpp = map.Tilemap.Is8bpp;
+                tileMap = is8bpp ? map.Tilemap.TileMap8bpp : map.Tilemap.TileMap4bpp;
+                tilePalette = playField.TilePalette;
+            } else {
+                is8bpp = map.Is8bpp;
+                tileMap = is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
+                tilePalette = playField.Tilemap.TilePalette;
+            }
 
-            var tilemapLength = (tileMap.Length / (map.Is8bpp ? 64 : 32)) + 1;
+            int tilemapLength = (tileMap.Length / (is8bpp ? 64 : 32)) + 1;
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev {
@@ -301,7 +312,7 @@ namespace R1Engine
 
             const int paletteSize = 16;
             const int tileWidth = 8;
-            int tileSize = map.Is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2;
+            int tileSize = is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2;
 
             var tiles = new Tile[tilemapLength];
 
@@ -337,13 +348,13 @@ namespace R1Engine
                     for (int x = 0; x < tileWidth; x++) {
                         Color c;
 
-                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / (map.Is8bpp ? 1 : 2));
+                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
                         
-                        if (map.Is8bpp) 
+                        if (is8bpp) 
                         {
                             var b = tileMap[index];
 
-                            c = playField.Tilemap.TilePalette.Palette[b].GetColor();
+                            c = tilePalette.Palette[b].GetColor();
 
                             if (b != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);
@@ -353,7 +364,7 @@ namespace R1Engine
                             var b = tileMap[index];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                            c = playField.Tilemap.TilePalette.Palette[p * paletteSize + v].GetColor();
+                            c = tilePalette.Palette[p * paletteSize + v].GetColor();
 
                             if (v != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);

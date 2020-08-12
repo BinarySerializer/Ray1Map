@@ -202,7 +202,10 @@ namespace R1Engine
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x08286274,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
-
+                case GameModeSelection.BatmanVengeanceGBAUS:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x084FD44C,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
                 default:
                     return null;
             }

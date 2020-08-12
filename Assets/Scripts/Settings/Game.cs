@@ -19,5 +19,6 @@
         PrinceOfPersiaTheSandsOfTimeGBA,
         SabrinaTheTeenageWitchPotionCommotionGBA,
         StarWarsTrilogyApprenticeOfTheForceGBA,
+        BatmanVengeanceGBA,
     }
 }
