@@ -13,6 +13,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 <table class="tg">
   <tr>
     <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
@@ -21,16 +22,8 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman 1 (PS1 - US)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (PS1 - EU)</td>
+    <td class="tg-yw4l">Rayman 1 (PS1)</td>
+    <td class="tg-yw4l">US, EU</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -40,6 +33,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - JP)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -49,6 +43,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - JP Demo Vol3)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -58,6 +53,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - JP Demo Vol6)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -67,6 +63,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - EU Demo)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -75,25 +72,8 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman 1 (Saturn - US)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (Saturn - EU)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (Saturn - JP)</td>
+    <td class="tg-yw4l">Rayman 1 (Saturn)</td>
+    <td class="tg-yw4l">US, EU, JP</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -103,6 +83,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Saturn - Prototype)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -111,61 +92,18 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman 1 (PC - 1.00)</td>
+    <td class="tg-yw4l">Rayman 1 (PC)</td>
+    <td class="tg-yw4l">1.00, 1.10, 1.12, 1.20, 1.21, 1.21 JP</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (PC - 1.10)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (PC - 1.12)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (PC - 1.20)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (PC - 1.21 JP)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (PC - 1.21)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Gold (PC - Demo)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -175,6 +113,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Designer (PC)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -184,6 +123,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Mapper (PC)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -193,6 +133,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman by his Fans (PC)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -202,6 +143,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 60 Levels (PC)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -211,6 +153,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Educational (PC)</td>
+    <td class="tg-yw4l">EDU, QUIZ</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -220,24 +163,17 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Educational (PS1)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman Quiz (PC)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Ultimate (Pocket PC)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -247,6 +183,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Classic (Mobile)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -255,52 +192,8 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman 1 (Jaguar)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-    <tr>
-    <td class="tg-yw4l">Rayman 1 (Jaguar - Prototype)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-    <tr>
-    <td class="tg-yw4l">Rayman 1 (Jaguar - Demo)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (GBA - EU)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-    <tr>
-    <td class="tg-yw4l">Rayman 1 (GBA - US)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 1 (GBA - EU Beta)</td>
+    <td class="tg-yw4l">Rayman 1 (GBA)</td>
+    <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -310,6 +203,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (DSi)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -324,6 +218,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 <table class="tg">
   <tr>
     <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
@@ -333,6 +228,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Jaguar)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -342,6 +238,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman 1 (Jaguar - Prototype)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -351,6 +248,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman 1 (Jaguar - Demo)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -365,6 +263,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 <table class="tg">
   <tr>
     <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
@@ -374,6 +273,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman 2 (PS1 - Demo)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -388,6 +288,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 <table class="tg">
   <tr>
     <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
@@ -397,6 +298,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman (SNES - Prototype)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -411,6 +313,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 <table class="tg">
   <tr>
     <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
@@ -426,9 +329,11 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 2 (GBC)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -443,6 +348,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 <table class="tg">
   <tr>
     <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
     <th class="tg-yw4l"><b>Map Viewing</b></th>
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
@@ -451,25 +357,8 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman 3 (GBA - EU)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 3 (GBA - US)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman 3 (GBA - EU Beta)</td>
+    <td class="tg-yw4l">Rayman 3 (GBA)</td>
+    <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -479,6 +368,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 3 (GBA - US Prototype)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -488,6 +378,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 3 (N-Gage)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -503,18 +394,11 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Raving Rabbids (GBA - EU)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Rayman Raving Rabbids (GBA - US)</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -524,15 +408,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA - EU)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA - US)</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -542,15 +418,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA - EU)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA - US)</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -560,15 +428,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA - EU)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA - US)</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -578,15 +438,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Batman Vengeance (GBA - EU)</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Batman Vengeance (GBA - US)</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -596,15 +448,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Star Wars Episode III - Revenge of the Sith (GBA - EU)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Star Wars Episode III - Revenge of the Sith (GBA - US)</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
