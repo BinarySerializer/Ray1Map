@@ -278,6 +278,9 @@ namespace R1Engine
                 is8bpp = map.Is8bpp;
                 tileMap = is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
                 tilePalette = playField.Tilemap.TilePalette;
+                if (context.Settings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || context.Settings.EngineVersion == EngineVersion.StarWarsGBA) {
+                    numBits = 14;
+                }
             }
 
             int tilemapLength = (tileMap.Length / (is8bpp ? 64 : 32)) + 1;
