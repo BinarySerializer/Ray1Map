@@ -79,8 +79,7 @@
                 LayerTable = s.SerializeArray<byte>(LayerTable, 6, name: nameof(LayerTable));
             } else {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 1, name: nameof(UnkBytes1));
-                ClusterData = s.SerializeArray<byte>(ClusterData, 0x10 * ClusterCount, name: nameof(ClusterData));
-                ClusterData = s.SerializeArray<byte>(ClusterData, 0x10 * ClusterCount, name: nameof(ClusterData));
+                ClusterData = s.SerializeArray<byte>(ClusterData, 0x40, name: nameof(ClusterData)); // 4 of 0x10
                 BatmanLayers = s.SerializeObjectArray<GBA_Batman_TileLayer>(BatmanLayers, LayerCount, name: nameof(BatmanLayers));
             }
         }

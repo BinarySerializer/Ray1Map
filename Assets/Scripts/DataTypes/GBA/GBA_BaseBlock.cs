@@ -33,7 +33,7 @@
 			base.OnPostSerialize(s);
 
             if (Offset + BlockSize != s.CurrentPointer) {
-                UnityEngine.Debug.LogWarning($"{GetType()} @ {Offset}: Serialized size did not match block size! Serialized size: {(s.CurrentPointer  - Offset)} - BlockSize: {BlockSize}");
+                UnityEngine.Debug.LogWarning($"{GetType()} @ {Offset}: Serialized size: {(s.CurrentPointer  - Offset)} != BlockSize: {BlockSize}");
             }
 
             // Serialize data from the offset table
