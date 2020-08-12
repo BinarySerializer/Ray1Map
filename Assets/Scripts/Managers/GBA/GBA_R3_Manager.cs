@@ -220,10 +220,7 @@ namespace R1Engine
         }
 
         public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_LevelBlock levelBlock) {
-            // Get the play field
-            var playField = levelBlock.PlayField;
-
-            if (playField.IsMode7)
+            if (levelBlock.PlayField.IsMode7)
             {
                 // For now we return a dummy map to not break screenshot enumeration
                 return new Common_Lev()
@@ -257,6 +254,9 @@ namespace R1Engine
                     EventData = new List<Editor_EventData>(),
                 };
             }
+
+            // Get the play field
+            var playField = levelBlock.PlayField.PlayField2D;
 
             // Get the primary map (BG_2)
             var map = playField.Layers.FirstOrDefault(x => x.LayerID == 1) ?? playField.Layers.First(x => !x.Is8bpp);
