@@ -397,7 +397,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman Raving Rabbids (GBA - EU)</td>
+    <td class="tg-yw4l">Rayman Raving Rabbids (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -407,17 +407,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA - EU)</td>
-    <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA - EU)</td>
+    <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -427,7 +417,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA - EU)</td>
+    <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -437,7 +427,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Batman Vengeance (GBA - EU)</td>
+    <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -447,7 +437,17 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Star Wars Episode III - Revenge of the Sith (GBA - EU)</td>
+    <td class="tg-yw4l">Batman Vengeance (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Star Wars Episode III - Revenge of the Sith (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
