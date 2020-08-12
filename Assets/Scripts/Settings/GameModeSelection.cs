@@ -123,7 +123,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (GBA - EU Beta)", typeof(GBA_R3_Manager))]
         Rayman3GBAEUBeta,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBAProto, Game.Rayman3GBA, "Rayman 3 (GBA - US Prototype)", typeof(GBA_R3_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBAProto, Game.Rayman3GBA, "Rayman 3 (GBA - US Prototype)", typeof(GBA_R3Proto_Manager))]
         Rayman3GBAUSPrototype,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (N-Gage)", typeof(NGage_R3_Manager))]
@@ -147,10 +147,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.StarWarsGBA, Game.StarWarsTrilogyApprenticeOfTheForceGBA, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsApprentice_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.BatmanVengeanceGBA, Game.BatmanVengeanceGBA, "Batman Vengeance (GBA - EU)", typeof(GBA_R3_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.BatmanVengeanceGBA, Game.BatmanVengeanceGBA, "Batman Vengeance (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]
         BatmanVengeanceGBAEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.BatmanVengeanceGBA, Game.BatmanVengeanceGBA, "Batman Vengeance (GBA - US)", typeof(GBA_R3_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.BatmanVengeanceGBA, Game.BatmanVengeanceGBA, "Batman Vengeance (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
         BatmanVengeanceGBAUS,
     }
 }

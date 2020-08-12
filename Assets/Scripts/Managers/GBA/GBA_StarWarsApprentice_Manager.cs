@@ -1,5 +1,11 @@
-﻿namespace R1Engine
+﻿using Cysharp.Threading.Tasks;
+
+namespace R1Engine
 {
-    public class GBA_StarWarsApprentice_Manager : GBA_R3_Manager
-    { }
+    public class GBA_StarWarsApprentice_Manager : GBA_Manager
+    {
+        // TODO: Get count
+        public override int LevelCount => 1;
+        public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
+    }
 }

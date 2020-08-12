@@ -2,9 +2,10 @@
 
 namespace R1Engine
 {
-    public class GBA_Sabrina_Manager : GBA_Manager
+    public class GBA_BatmanVengeance_Manager : GBA_Manager
     {
-        public override int LevelCount => 50;
+        // TODO: Get count
+        public override int LevelCount => 1;
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
     }
 }

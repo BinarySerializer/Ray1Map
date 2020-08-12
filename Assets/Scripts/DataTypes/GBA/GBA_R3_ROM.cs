@@ -19,8 +19,7 @@
             // Serialize ROM header
             base.SerializeImpl(s);
 
-            // TODO: Prototype has 64 maps
-            const int levelCount = 65;
+            var levelCount = ((GBA_Manager)s.Context.Settings.GetGameManager).LevelCount;
 
             // Get the pointer table
             var pointerTable = PointerTables.GetGBAR3PointerTable(s.GameSettings.GameModeSelection, Offset.file);
