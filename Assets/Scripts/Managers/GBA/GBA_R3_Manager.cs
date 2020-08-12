@@ -219,52 +219,22 @@ namespace R1Engine
             }
         }
 
-        public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_LevelBlock levelBlock) {
-            if (levelBlock.PlayField.IsMode7)
-            {
-                var cMap7 = levelBlock.PlayField.PlayFieldMode7.RotScaleLayers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
+        public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_LevelBlock levelBlock) 
+        {
+            // Get the current play field
+            var playField = levelBlock.PlayField;
 
-                // For now we return a dummy map to not break screenshot enumeration
-                return new Common_Lev()
-                {
-                    // Create the map
-                    Maps = new Common_LevelMap[]
-                    {
-                        new Common_LevelMap()
-                        {
-                            // Set the dimensions
-                            Width = cMap7.Width,
-                            Height = cMap7.Height,
+            // Get the map
+            GBA_TileLayer map = playField.IsMode7
+                ? playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
+                : playField.Layers.FirstOrDefault(x => x.LayerID == 1) ?? playField.Layers.First(x => !x.Is8bpp);
 
-                            // Create the tile arrays
-                            TileSet = new Common_Tileset[]
-                            {
-                                new Common_Tileset(new Tile[]
-                                {
-                                    new Tile()
-                                }), 
-                            },
-                            MapTiles = cMap7.CollisionData.Select((x, i) => new Editor_MapTile(new MapTile()
-                            {
-                                CollisionType = (byte)x,
-                            })).ToArray(),
-                            TileSetWidth = 1
-                        }
-                    },
-
-                    // Create the events list
-                    EventData = new List<Editor_EventData>(),
-                };
-            }
-
-            // Get the play field
-            var playField = levelBlock.PlayField.PlayField2D;
-
-            // Get the primary map (BG_2)
-            var map = playField.Layers.FirstOrDefault(x => x.LayerID == 1) ?? playField.Layers.First(x => !x.Is8bpp);
+            // TODO: Temp hack to show some tile graphics for Mode7...
+            if (playField.IsMode7)
+                map.MapData = map.Mode7Data?.Select(x => (ushort)(x * 4)).ToArray();
 
             // Get the collision data
-            var cMap = playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
+            GBA_TileLayer cMap = playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
 
             // Get the tilemap to use
             byte[] tileMap;
@@ -336,7 +306,6 @@ namespace R1Engine
 
             tiles[0] = emptyTile;
 
-            // Hack: Create a tilemap for each palette
             for (int i = 1; i < tilemapLength; i++) {
                 // Get the palette to use
                 var pals = map.MapData.Where(x => BitHelpers.ExtractBits(x, 11, 0) == i).Select(x => BitHelpers.ExtractBits(x, 4, 12)).Distinct().ToArray();

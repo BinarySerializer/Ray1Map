@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -47,8 +48,7 @@ namespace R1Engine
         public byte Mode7_13 { get; set; }
         public byte Mode7_14 { get; set; }
 
-        // The tile indexes
-        public byte[] Mode7MapData { get; set; }
+        public byte[] Mode7Data { get; set; }
         public ushort[] MapData { get; set; }
         public GBA_TileCollisionType[] CollisionData { get; set; }
 
@@ -121,7 +121,10 @@ namespace R1Engine
                     Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
 
                     if (StructType == TileLayerStructTypes.Mode7)
+                    {
                         Priority = s.Serialize<byte>(Priority, name: nameof(Priority));
+                        Is8bpp = true;
+                    }
                     else
                         Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
 
@@ -146,7 +149,7 @@ namespace R1Engine
                             if (StructType == TileLayerStructTypes.Map2D)
                                 MapData = s.SerializeArray<ushort>(MapData, Width * Height, name: nameof(MapData));
                             else
-                                Mode7MapData = s.SerializeArray<byte>(Mode7MapData, Width * Height, name: nameof(Mode7MapData));
+                                Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
                         });
                     }
                 } else {
