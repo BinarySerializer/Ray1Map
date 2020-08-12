@@ -183,6 +183,11 @@ namespace R1Engine
                         [GBA_R3_Pointer.UiOffsetTable] = 0x0
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.PrinceOfPersiaGBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x08165920,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.PrinceOfPersiaGBAUS:
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x08165890,
@@ -198,14 +203,27 @@ namespace R1Engine
                         [GBA_R3_Pointer.UiOffsetTable] = 0x081A0468,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.StarWarsTrilogyApprenticeOfTheForceGBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>()
+                    {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x08286208,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.StarWarsTrilogyApprenticeOfTheForceGBAUS:
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x08286274,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.BatmanVengeanceGBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x084FCB9C,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.BatmanVengeanceGBAUS:
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x084FD44C,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }
