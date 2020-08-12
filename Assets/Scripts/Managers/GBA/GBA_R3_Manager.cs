@@ -25,6 +25,7 @@ namespace R1Engine
             new GameAction("Export Compressed Blocks", false, true, (input, output) => ExportAllCompressedBlocksAsync(settings, output)),
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
             //new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
+            new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteSetsAsync(settings, output)),
             new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
         };
 
@@ -293,6 +294,89 @@ namespace R1Engine
                         {
                             writer.WriteLine($"{r.Key}: {String.Join(", ", r.Value.Select(x => $"{x.AbsoluteOffset:X8}"))}");
                         }
+                    }
+                }
+            }
+        }
+
+        public async UniTask ExportSpriteSetsAsync(GameSettings settings, string outputDir)
+        {
+            // TODO: Get from manager
+            var lvlCount = 65;
+
+            var exported = new HashSet<Pointer>();
+
+            // Enumerate every level
+            for (int lev = 0; lev < lvlCount; lev++)
+            {
+                settings.Level = lev;
+
+                using (var context = new Context(settings))
+                {
+                    // Load the ROM
+                    await LoadFilesAsync(context);
+
+                    GBA_LevelBlock lvl;
+
+                    try
+                    {
+                        // Read the level
+                        lvl = LoadLevelBlock(context);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"Error loading level {lev}: {ex.Message}");
+                        continue;
+                    }
+
+                    // Enumerate every graphic group
+                    foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
+                    {
+                        if (exported.Contains(spr.Offset))
+                            return;
+
+                        exported.Add(spr.Offset);
+
+                        var length = spr.TileMap.TileMapLength;
+                        const int wrap = 16;
+                        const int tileWidth = 8;
+                        const int tileSize = (tileWidth * tileWidth) / 2;
+
+                        // Create a texture for the tileset
+                        var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
+                        {
+                            filterMode = FilterMode.Point,
+                        };
+
+                        // Default to transparent
+                        tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
+
+                        // Add each tile
+                        for (int i = 0; i < length; i++)
+                        {
+                            int mainY = tex.height - 1 - (i / wrap);
+                            int mainX = i % wrap;
+
+                            for (int y = 0; y < tileWidth; y++)
+                            {
+                                for (int x = 0; x < tileWidth; x++)
+                                {
+                                    int index = (i * tileSize) + ((y * tileWidth + x) / 2);
+                                    var v = BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
+
+                                    Color c = spr.Palette.Palette[v].GetColor();
+
+                                    if (v != 0)
+                                        c = new Color(c.r, c.g, c.b, 1f);
+
+                                    tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
+                                }
+                            }
+                        }
+
+                        tex.Apply();
+
+                        Util.ByteArrayToFile(Path.Combine(outputDir, $"Sprites_{spr.Offset.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
                     }
                 }
             }
