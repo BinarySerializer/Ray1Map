@@ -1,6 +1,7 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace R1Engine
 {
@@ -9,7 +10,7 @@ namespace R1Engine
     /// </summary>
     public class GBA_EditorManager : BaseEditorManager
     {
-        public GBA_EditorManager(Common_Lev level, Context context) : base(level, context, new Dictionary<string, Common_Design>(), new Dictionary<string, Common_EventState[][]>())
+        public GBA_EditorManager(Common_Lev level, Context context, IDictionary<int, Common_Design> des) : base(level, context, des.ToDictionary(x => x.Key.ToString(), x => x.Value), new Dictionary<string, Common_EventState[][]>())
         { }
 
         /// <summary>

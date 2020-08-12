@@ -111,13 +111,28 @@
     // Not sure this is an animation
     public class GBA_Animation : GBA_BaseBlock
     {
-        // First byte is struct type?
+        public byte[] Header { get; set; }
 
-        public byte[] UnkData { get; set; }
+        public GBA_AnimationLayer[] Layers { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
-            UnkData = s.SerializeArray<byte>(UnkData, BlockSize, name: nameof(UnkData));
+            Header = s.SerializeArray<byte>(Header, 12, name: nameof(Header));
+         
+            if (Header[4] != 0)
+                Layers = s.SerializeObjectArray<GBA_AnimationLayer>(Layers, (BlockSize - 12) / 6, name: nameof(Layers));
+            else
+                Layers = new GBA_AnimationLayer[0];
+        }
+    }
+
+    public class GBA_AnimationLayer : R1Serializable
+    {
+        public byte[] Data { get; set; }
+
+        public override void SerializeImpl(SerializerObject s)
+        {
+            Data = s.SerializeArray<byte>(Data, 6, name: nameof(Data));
         }
     }
 }

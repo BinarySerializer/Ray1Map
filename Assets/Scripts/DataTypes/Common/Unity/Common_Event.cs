@@ -339,7 +339,7 @@ namespace R1Engine {
             {
                 offsetCrossBX.localPosition = new Vector2(Data.Data.OffsetBX / 16f, 0f);
                 offsetCrossBY.localPosition = new Vector2(Data.Data.OffsetBX / 16f, -(Data.Data.OffsetBY / 16f));
-                offsetCrossHY.localPosition = new Vector2(Data.Data.OffsetBX / 16f, -((Data.Data.OffsetHY / 16f) + (CurrentAnimation.Frames[0].FrameData.YPosition / 16f)));
+                offsetCrossHY.localPosition = new Vector2(Data.Data.OffsetBX / 16f, -((Data.Data.OffsetHY / 16f) + ((CurrentAnimation?.Frames?.ElementAtOrDefault(0)?.FrameData?.YPosition ?? 1) / 16f)));
             }
 
             // Update visibility

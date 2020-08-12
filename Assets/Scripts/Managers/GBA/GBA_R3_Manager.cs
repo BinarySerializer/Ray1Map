@@ -314,7 +314,7 @@ namespace R1Engine
             // Get the map
             GBA_TileLayer map = playField.IsMode7
                 ? playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
-                : playField.Layers.FirstOrDefault(x => x.LayerID == 1) ?? playField.Layers.First(x => !x.Is8bpp);
+                : playField.Layers.FirstOrDefault(x => x.LayerID == 2) ?? playField.Layers.First(x => !x.Is8bpp);
 
             // Get the map data to use
             var mapData = !playField.IsMode7 ? map.MapData : map.Mode7Data?.Select(x => playField.UnkBGData.Data[x - 1]).ToArray();
@@ -349,29 +349,113 @@ namespace R1Engine
                 EventData = new List<Editor_EventData>(),
             };
 
+            Controller.status = $"Loading actors";
+            await Controller.WaitIfNecessary();
+
+            commonLev.EventData = new List<Editor_EventData>();
+
+            var des = new Dictionary<int, Common_Design>();
+
+            // Add actors
+            foreach (var actor in levelBlock.Actors)
+            {
+                if (!des.ContainsKey(actor.GraphicsDataIndex))
+                    des.Add(actor.GraphicsDataIndex, GetCommonDesign(actor.GraphicData));
+
+                commonLev.EventData.Add(new Editor_EventData(new EventData()
+                {
+                    XPosition = actor.XPos * 2,
+                    YPosition = actor.YPos * 2
+                })
+                {
+                    Type = actor.ActorID,
+                    DESKey = actor.GraphicsDataIndex.ToString(),
+                    ETAKey = String.Empty,
+                    DebugText = $"{nameof(GBA_Actor.Int_08)}: {actor.Int_08}{Environment.NewLine}" +
+                                $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
+                                $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
+                                $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
+                                $"{nameof(GBA_Actor.Byte_07)}: {actor.Byte_07}{Environment.NewLine}"
+                });
+            }
+
             Controller.status = $"Loading tilemap";
             await Controller.WaitIfNecessary();
 
-
+            // Set tile set
             commonLev.Maps[0].TileSet[0] = LoadTileset(context, playField, map, mapData);
 
-            commonLev.EventData = levelBlock.Actors.Select(x => new Editor_EventData(new EventData()
-            {
-                XPosition = x.XPos * 2,
-                YPosition = x.YPos * 2
-            })
-            {
-                Type = x.ActorID,
-                DESKey = String.Empty,
-                ETAKey = String.Empty,
-                DebugText = $"{nameof(GBA_Actor.Int_08)}: {x.Int_08}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.Byte_04)}: {x.Byte_04}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.ActorID)}: {x.ActorID}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.GraphicsDataIndex)}: {x.GraphicsDataIndex}{Environment.NewLine}" +
-                            $"{nameof(GBA_Actor.Byte_07)}: {x.Byte_07}{Environment.NewLine}"
-            }).ToList();
+            return new GBA_EditorManager(commonLev, context, des);
+        }
 
-            return new GBA_EditorManager(commonLev, context);
+        public Common_Design GetCommonDesign(GBA_ActorGraphicData graphicData)
+        {
+            // Create the design
+            var des = new Common_Design
+            {
+                Sprites = new List<Sprite>(),
+                Animations = new List<Common_Animation>(),
+            };
+
+            var tileMap = graphicData.SpriteGroup.TileMap;
+            var pal = graphicData.SpriteGroup.Palette.Palette;
+            const int tileWidth = 8;
+            const int tileSize = (tileWidth * tileWidth) / 2;
+
+            // Add sprites
+            for (int i = 0; i < tileMap.TileMapLength; i++)
+            {
+                var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
+                {
+                    filterMode = FilterMode.Point,
+                    wrapMode = TextureWrapMode.Clamp
+                };
+
+                for (int y = 0; y < tileWidth; y++)
+                {
+                    for (int x = 0; x < tileWidth; x++)
+                    {
+                        int index = (i * tileSize) + ((y * tileWidth + x) / 2);
+
+                        var b = tileMap.TileMap[index];
+                        var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+
+                        Color c = pal[v].GetColor();
+
+                        if (v != 0)
+                            c = new Color(c.r, c.g, c.b, 1f);
+
+                        // Upscale to 16x16 for now...
+                        tex.SetPixel(x * 2, y * 2, c);
+                        tex.SetPixel(x * 2 + 1, y * 2, c);
+                        tex.SetPixel(x * 2 + 1, y * 2 + 1, c);
+                        tex.SetPixel(x * 2, y * 2 + 1, c);
+                    }
+                }
+
+                tex.Apply();
+
+                des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+            }
+
+            // Add first animation for now
+            des.Animations.Add(new Common_Animation()
+            {
+                Frames = new Common_AnimFrame[]
+                {
+                    new Common_AnimFrame
+                    {
+                        Layers = graphicData.SpriteGroup.Animations[0].Layers.Take(graphicData.SpriteGroup.Animations[0].Header[5]).Select(x => new Common_AnimationPart
+                        {
+                            ImageIndex = x.Data[2],
+                            XPosition = x.Data[4] * 2,
+                            YPosition = x.Data[5] * 2,
+                        }).ToArray()
+                    }
+                }
+            });
+
+            return des;
         }
 
         public Common_Tileset LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData)
