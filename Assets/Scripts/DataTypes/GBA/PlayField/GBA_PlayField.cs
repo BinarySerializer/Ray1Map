@@ -7,10 +7,9 @@
         // Indicates if the PlayField is of type 2D or Mode7
         public bool IsMode7 { get; set; }
 
-        public byte TileMapIndex { get; set; }
+        public byte TileMapOffsetIndex { get; set; }
 
-        // Seems to determine the tilemap for BG_0
-        public byte UnkOffsetIndex { get; set; }
+        public byte UnkBGDataOffsetIndex { get; set; }
         
         public byte Unk_03 { get; set; }
 
@@ -33,13 +32,18 @@
 
         // Batman: Vengeance
         public byte TilePaletteIndex { get; set; }
+
         #endregion
 
         #region Parsed
 
+        public GBA_TileMap Tilemap { get; set; }
+
+        // For Mode7 maps the count seems to match the TileMap size
+        public GBA_UnkBGData UnkBGData { get; set; }
+
         public GBA_Cluster[] Clusters { get; set; }
         public GBA_TileLayer[] Layers { get; set; }
-        public GBA_TileMap Tilemap { get; set; }
 
         public byte[] ClusterData { get; set; }
         public GBA_Batman_TileLayer[] BatmanLayers { get; set; }
@@ -56,16 +60,16 @@
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA ||
                 s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 3, name: nameof(UnkBytes1));
-                TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
-                UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
+                TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
+                UnkBGDataOffsetIndex = s.Serialize<byte>(UnkBGDataOffsetIndex, name: nameof(UnkBGDataOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
                 UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 2, name: nameof(UnkBytes2));
             } else if(s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } else {
                 IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
-                TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
-                UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
+                TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
+                UnkBGDataOffsetIndex = s.Serialize<byte>(UnkBGDataOffsetIndex, name: nameof(UnkBGDataOffsetIndex));
 
                 if (!IsMode7)
                     Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
@@ -113,7 +117,10 @@
 
 
                 // Serialize tilemap
-                Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapIndex), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
+                Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
+
+                // Serialize tilemap
+                UnkBGData = s.DoAt(OffsetTable.GetPointer(UnkBGDataOffsetIndex), () => s.SerializeObject<GBA_UnkBGData>(UnkBGData, name: nameof(UnkBGData)));
             }
             else
             {

@@ -5,22 +5,32 @@
     public class GBA_ActorGraphicData : GBA_BaseBlock
     {
         public byte[] UnkData { get; set; }
+
+        public byte SpriteGroupOffsetIndex { get; set; }
+        public byte Byte_09 { get; set; }
+        public byte Byte_0A { get; set; }
+        public byte Byte_0B { get; set; }
+
         public GBA_ActorGraphicDataEntry[] Entries { get; set; }
 
         public GBA_ActorGraphicSpriteGroup SpriteGroup { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
+            UnkData = s.SerializeArray<byte>(UnkData, 8, name: nameof(UnkData));
+
+            SpriteGroupOffsetIndex = s.Serialize<byte>(SpriteGroupOffsetIndex, name: nameof(SpriteGroupOffsetIndex));
+            Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
+            Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
+            Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
+
             // TODO: Get number of entries - this doesn't always work
-            UnkData = s.SerializeArray<byte>(UnkData, 12, name: nameof(UnkData));
             Entries = s.SerializeObjectArray<GBA_ActorGraphicDataEntry>(Entries, (BlockSize - 12) / 8, name: nameof(Entries));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            // TODO: Serialize sprite group from offset table
-            if (OffsetTable.OffsetsCount == 1)
-                SpriteGroup = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_ActorGraphicSpriteGroup>(SpriteGroup, name: nameof(SpriteGroup)));
+            SpriteGroup = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_ActorGraphicSpriteGroup>(SpriteGroup, name: nameof(SpriteGroup)));
         }
     }
 
@@ -43,7 +53,7 @@
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }
         public byte UnkOffsetIndex { get; set; }
-        public byte UnkOffsetIndex2 { get; set; }
+        public byte PaletteOffsetIndex { get; set; }
         public byte UnkOffsetIndex3 { get; set; }
         public byte Byte_04 { get; set; }
         public byte SpritesCount { get; set; }
@@ -55,7 +65,7 @@
 
         #region Parsed
 
-        public GBA_Palette Palette { get; set; }
+        public GBA_SpritePalette Palette { get; set; }
         public GBA_Sprite[] Sprites { get; set; }
 
         #endregion
@@ -67,7 +77,7 @@
             Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
-            UnkOffsetIndex2 = s.Serialize<byte>(UnkOffsetIndex2, name: nameof(UnkOffsetIndex2));
+            PaletteOffsetIndex = s.Serialize<byte>(PaletteOffsetIndex, name: nameof(PaletteOffsetIndex));
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
                 UnkOffsetIndex3 = s.Serialize<byte>(UnkOffsetIndex3, name: nameof(UnkOffsetIndex3));
             }
@@ -80,6 +90,8 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
+            Palette = s.DoAt(OffsetTable.GetPointer(PaletteOffsetIndex), () => s.SerializeObject<GBA_SpritePalette>(Palette, name: nameof(Palette)));
+
             if (Sprites == null)
                 Sprites = new GBA_Sprite[SpritesCount];
 
@@ -98,6 +110,16 @@
         public override void SerializeImpl(SerializerObject s)
         {
             UnkData = s.SerializeArray<byte>(UnkData, BlockSize, name: nameof(UnkData));
+        }
+    }
+
+    public class GBA_SpritePalette : GBA_BaseBlock
+    {
+        public ARGB1555Color[] Palette { get; set; }
+
+        public override void SerializeImpl(SerializerObject s)
+        {
+            Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, BlockSize / 2, name: nameof(Palette));
         }
     }
 }

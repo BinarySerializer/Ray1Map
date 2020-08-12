@@ -246,11 +246,11 @@ namespace R1Engine
 
                         var indentLevel = 0;
 
-                        void ExportBlocks(Pointer blockPointer, int blockSize, GBA_OffsetTable table)
+                        void ExportBlocks(Pointer blockPointer, int blockSize, int index, GBA_OffsetTable table)
                         {
                             indentLevel++;
 
-                            writer.WriteLine($"{blockPointer}:{new string(' ', indentLevel * 2)}Offsets: {table.OffsetsCount} - BlockSize: {blockSize}");
+                            writer.WriteLine($"{blockPointer}:{new string(' ', indentLevel * 2)}[{index}] Offsets: {table.OffsetsCount} - BlockSize: {blockSize}");
 
                             // Handle every block offset in the table
                             for (int i = 0; i < table.OffsetsCount; i++)
@@ -273,14 +273,14 @@ namespace R1Engine
                                 references[pointer].Add(blockPointer);
 
                                 // Export
-                                ExportBlocks(pointer, length, newOffsetTable);
+                                ExportBlocks(pointer, length, i, newOffsetTable);
                             }
 
                             indentLevel--;
                         }
 
                         // Recursively export the blocks
-                        ExportBlocks(rom.Data.UiOffsetTable.Offset, 0, rom.Data.UiOffsetTable);
+                        ExportBlocks(rom.Data.UiOffsetTable.Offset, 0, 0, rom.Data.UiOffsetTable);
                     }
                 }
 
@@ -308,9 +308,8 @@ namespace R1Engine
                 ? playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
                 : playField.Layers.FirstOrDefault(x => x.LayerID == 1) ?? playField.Layers.First(x => !x.Is8bpp);
 
-            // TODO: Temp hack to show some tile graphics for Mode7...
-            if (playField.IsMode7)
-                map.MapData = map.Mode7Data?.Select(x => (ushort)(x * 4)).ToArray();
+            // Get the map data to use
+            var mapData = !playField.IsMode7 ? map.MapData : map.Mode7Data?.Select(x => playField.UnkBGData.Data[x]).ToArray();
 
             // Get the collision data
             GBA_TileLayer cMap = playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
@@ -349,7 +348,7 @@ namespace R1Engine
 
                         // Create the tile arrays
                         TileSet = new Common_Tileset[1],
-                        MapTiles = map.MapData.Select((x, i) => new Editor_MapTile(new MapTile()
+                        MapTiles = mapData.Select((x, i) => new Editor_MapTile(new MapTile()
                         {
                             CollisionType = (byte)cMap.CollisionData.ElementAtOrDefault(i),
                             TileMapY = (ushort)(BitHelpers.ExtractBits(x, numBits, 0)),
@@ -387,7 +386,7 @@ namespace R1Engine
 
             for (int i = 1; i < tilemapLength; i++) {
                 // Get the palette to use
-                var pals = map.MapData.Where(x => BitHelpers.ExtractBits(x, 11, 0) == i).Select(x => BitHelpers.ExtractBits(x, 4, 12)).Distinct().ToArray();
+                var pals = mapData.Where(x => BitHelpers.ExtractBits(x, 11, 0) == i).Select(x => BitHelpers.ExtractBits(x, 4, 12)).Distinct().ToArray();
 
                 if (pals.Length > 1)
                     Debug.LogWarning($"Tile {i} has several possible palettes!");
