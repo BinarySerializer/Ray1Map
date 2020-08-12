@@ -222,6 +222,8 @@ namespace R1Engine
         public virtual async UniTask<Common_Lev> CreateCommonLev(Context context, GBA_LevelBlock levelBlock) {
             if (levelBlock.PlayField.IsMode7)
             {
+                var cMap7 = levelBlock.PlayField.PlayFieldMode7.RotScaleLayers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
+
                 // For now we return a dummy map to not break screenshot enumeration
                 return new Common_Lev()
                 {
@@ -231,8 +233,8 @@ namespace R1Engine
                         new Common_LevelMap()
                         {
                             // Set the dimensions
-                            Width = 1,
-                            Height = 1,
+                            Width = cMap7.Width,
+                            Height = cMap7.Height,
 
                             // Create the tile arrays
                             TileSet = new Common_Tileset[]
@@ -242,10 +244,10 @@ namespace R1Engine
                                     new Tile()
                                 }), 
                             },
-                            MapTiles = new Editor_MapTile[]
+                            MapTiles = cMap7.CollisionData.Select((x, i) => new Editor_MapTile(new MapTile()
                             {
-                                new Editor_MapTile(new MapTile()), 
-                            },
+                                CollisionType = (byte)x,
+                            })).ToArray(),
                             TileSetWidth = 1
                         }
                     },
@@ -262,7 +264,7 @@ namespace R1Engine
             var map = playField.Layers.FirstOrDefault(x => x.LayerID == 1) ?? playField.Layers.First(x => !x.Is8bpp);
 
             // Get the collision data
-            var cMap = playField.Layers.First(x => x.IsCollisionBlock);
+            var cMap = playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
 
             // Get the tilemap to use
             byte[] tileMap;
@@ -294,7 +296,7 @@ namespace R1Engine
                         Height = map.Height,
 
                         // Create the tile arrays
-                        TileSet = new Common_Tileset[3],
+                        TileSet = new Common_Tileset[1],
                         MapTiles = map.MapData.Select((x, i) => new Editor_MapTile(new MapTile()
                         {
                             CollisionType = (byte)cMap.CollisionData.ElementAtOrDefault(i),

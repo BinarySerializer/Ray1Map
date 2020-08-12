@@ -22,6 +22,14 @@ namespace R1Engine
 
         #endregion
 
+        #region Parsed
+
+        // There are text layers too
+
+        public GBA_TileLayer[] RotScaleLayers { get; set; }
+
+        #endregion
+
         #region Public Methods
 
         public override void SerializeImpl(SerializerObject s)
@@ -38,42 +46,14 @@ namespace R1Engine
 
         public void SerializeOffsetData(SerializerObject s, GBA_OffsetTable offsetTable)
         {
-            // TODO: Implement
+            if (RotScaleLayers == null)
+                RotScaleLayers = new GBA_TileLayer[LayerCount];
+
+            // Serialize layers
+            for (int i = 0; i < LayerCount; i++)
+                RotScaleLayers[i] = s.DoAt(offsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(RotScaleLayers[i], name: $"{nameof(RotScaleLayers)}[{i}]"));
         }
 
         #endregion
-    }
-
-    public class GBA_RotScaleLayerMode7 : GBA_BaseBlock
-    {
-        /*
-        
-        Bool_01: IsCompressed
-        Byte_08: LayerId (0-1)
-        Bool_09: ShouldSetBGAlphaBlending
-        Byte_0A: Related to BG Alpha Blending
-        UInt_14: Map?
-         */
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public class GBA_TextLayerMode7 : GBA_BaseBlock
-    {
-        /*
-        
-        Byte_08: LayerId (0-1)
-        Bool_09: ShouldSetBGAlphaBlending
-        Byte_0A: Related to BG Alpha Blending
-        Bool_1D: Priority (0-3)
-        Bool_1f: ColorMode
-         */
-
-        public override void SerializeImpl(SerializerObject s)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

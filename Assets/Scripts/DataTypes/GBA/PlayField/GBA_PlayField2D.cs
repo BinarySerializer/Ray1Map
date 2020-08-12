@@ -109,7 +109,7 @@
                     s.DoAt(offsetTable.GetPointer(BatmanLayers[i].LayerID), () => {
                         Layers[i] = s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => {
                             l.IsCompressed = BatmanLayers[i].IsCompressed;
-                            l.IsCollisionBlock = BatmanLayers[i].IsCollisionBlock;
+                            l.StructType = BatmanLayers[i].IsCollisionBlock ? GBA_TileLayer.TileLayerStructTypes.Collision : GBA_TileLayer.TileLayerStructTypes.Map2D;
                             l.Width = BatmanLayers[i].Width;
                             l.Height = BatmanLayers[i].Height;
                         }, name: $"{nameof(Layers)}[{i}]");
