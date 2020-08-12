@@ -25,7 +25,7 @@
 
         #region Parsed
 
-        public GBA_PlayField2D PlayField { get; set; }
+        public GBA_PlayField PlayField { get; set; }
 
         #endregion
 
@@ -62,7 +62,7 @@
         public override void SerializeOffsetData(SerializerObject s)
         {
             // Parse level block data
-            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField2D>(PlayField, name: nameof(PlayField)));
+            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
             if (s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA || s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) return;
             // Parse actor data

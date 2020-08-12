@@ -1,17 +1,16 @@
 ﻿namespace R1Engine
 {
-    // 0x03000e20 has pointer to this struct for the current level during runtime
-
-    public class GBA_PlayField2D : GBA_BaseBlock
+    /// <summary>
+    /// A 2D tile-based PlayField for GBA
+    /// </summary>
+    public class GBA_PlayField2D : R1Serializable
     {
         #region PlayField Data
-
-        public bool IsMode7 { get; set; }
 
         public byte TileMapIndex { get; set; }
 
         // Seems to determine the tilemap for BG_0
-        public byte Unk_02 { get; set; }
+        public byte UnkOffsetIndex { get; set; }
         
         public byte Unk_03 { get; set; }
 
@@ -54,20 +53,14 @@
                 s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 3, name: nameof(UnkBytes1));
                 TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
-                Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
+                UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
                 UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 2, name: nameof(UnkBytes2));
             } else if(s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } else {
-                IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
-
-                // Mode7 maps have a different structure
-                if (IsMode7)
-                    return;
-
                 TileMapIndex = s.Serialize<byte>(TileMapIndex, name: nameof(TileMapIndex));
-                Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
+                UnkOffsetIndex = s.Serialize<byte>(UnkOffsetIndex, name: nameof(UnkOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
             }
 
@@ -84,7 +77,7 @@
             }
         }
 
-        public override void SerializeOffsetData(SerializerObject s)
+        public void SerializeOffsetData(SerializerObject s, GBA_OffsetTable offsetTable)
         {
             if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA) {
                 if (Clusters == null)
@@ -92,28 +85,28 @@
 
                 // Serialize layers
                 for (int i = 0; i < ClusterCount; i++)
-                    Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i]), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
+                    Clusters[i] = s.DoAt(offsetTable.GetPointer(ClusterTable[i]), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
 
                 if (Layers == null)
                     Layers = new GBA_TileLayer[LayerCount];
 
                 // Serialize layers
                 for (int i = 0; i < LayerCount; i++)
-                    Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
+                    Layers[i] = s.DoAt(offsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
 
 
                 // Serialize tilemap
-                Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapIndex), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
+                Tilemap = s.DoAt(offsetTable.GetPointer(TileMapIndex), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
             } else {
                 // Serialize tile palette
-                TilePalette = s.DoAt(OffsetTable.GetPointer(TilePaletteIndex), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
+                TilePalette = s.DoAt(offsetTable.GetPointer(TilePaletteIndex), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
 
                 if (Layers == null)
                     Layers = new GBA_TileLayer[LayerCount];
 
                 // Serialize layers
                 for (int i = 0; i < LayerCount; i++)
-                    s.DoAt(OffsetTable.GetPointer(BatmanLayers[i].LayerID), () => {
+                    s.DoAt(offsetTable.GetPointer(BatmanLayers[i].LayerID), () => {
                         Layers[i] = s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => {
                             l.IsCompressed = BatmanLayers[i].IsCompressed;
                             l.IsCollisionBlock = BatmanLayers[i].IsCollisionBlock;
