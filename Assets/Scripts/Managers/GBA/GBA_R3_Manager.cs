@@ -268,10 +268,12 @@ namespace R1Engine
             byte[] tileMap;
             bool is8bpp;
             GBA_Palette tilePalette;
+            int numBits = 11;
             if (context.Settings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
                 is8bpp = map.Tilemap.Is8bpp;
                 tileMap = is8bpp ? map.Tilemap.TileMap8bpp : map.Tilemap.TileMap4bpp;
                 tilePalette = playField.TilePalette;
+                numBits = 10;
             } else {
                 is8bpp = map.Is8bpp;
                 tileMap = is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
@@ -296,8 +298,8 @@ namespace R1Engine
                         MapTiles = map.MapData.Select((x, i) => new Editor_MapTile(new MapTile()
                         {
                             CollisionType = (byte)cMap.CollisionData.ElementAtOrDefault(i),
-                            TileMapY = (ushort)(BitHelpers.ExtractBits(x, 11, 0)),
-                            HorizontalFlip = BitHelpers.ExtractBits(x, 1, 11) == 1,
+                            TileMapY = (ushort)(BitHelpers.ExtractBits(x, numBits, 0)),
+                            HorizontalFlip = BitHelpers.ExtractBits(x, 1, numBits) == 1,
                         })
                         {
                             DebugText = Convert.ToString(x, 2).PadLeft(16, '0')
