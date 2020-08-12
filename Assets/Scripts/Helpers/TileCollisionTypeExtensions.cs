@@ -259,7 +259,6 @@ namespace R1Engine
                     return TileCollisionTypeGraphic.Spikes;
 
                 default:
-                    Debug.LogWarning($"Collision type {collisionType} is not supported");
                     return TileCollisionTypeGraphic.Unknown0;
             }
         }

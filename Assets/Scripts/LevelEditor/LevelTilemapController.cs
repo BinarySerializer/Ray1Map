@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
@@ -63,25 +65,35 @@ namespace R1Engine
             var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
             var collisionTileSet = Settings.UseHDCollisionSheet ? TypeCollisionTilesHD : TypeCollisionTiles;
 
+            var unsupportedTiles = new HashSet<int>();
+
             // Fill out types first
             for (int y = 0; y < map.Height; y++)
             {
                 for (int x = 0; x < map.Width; x++)
                 {
                     // Get the collision index
-                    var collisionTypeIndex = (int)editorManager.GetCollisionTypeGraphic(map.MapTiles[y * map.Width + x].Data.CollisionType);
+                    var collisionType = editorManager.GetCollisionTypeGraphic(map.MapTiles[y * map.Width + x].Data.CollisionType);
+                    var collisionTypeIndex = (int)collisionType;
 
                     // Make sure it's not out of bounds
                     if (collisionTypeIndex >= collisionTileSet.Length)
                     {
-                        Debug.LogWarning($"Collision type {collisionTypeIndex} is not supported");
+                        unsupportedTiles.Add(collisionTypeIndex);
                         collisionTypeIndex = 0;
                     }
+
+                    // Add to list of unsupported if it doesn't have a graphic
+                    if (collisionType.ToString().Contains("Unknown"))
+                        unsupportedTiles.Add(collisionTypeIndex);
 
                     // Set the collision tile
                     Tilemaps[0].SetTile(new Vector3Int(x, y, 0), collisionTileSet[collisionTypeIndex]);
                 }
             }
+
+            if (unsupportedTiles.Count > 0)
+                Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
 
             // Fill out tiles
             RefreshTiles(Controller.obj.levelController.EditorManager.Has3Palettes ? 0 : 1);
