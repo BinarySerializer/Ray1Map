@@ -172,6 +172,12 @@ namespace R1Engine
                         [GBA_R3_Pointer.UiOffsetTable] = 0x0829BE54
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.Rayman3GBAEUBeta:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x0829BC1C,
+                        [GBA_R3_Pointer.LevelInfo] = 0x080D3DB0,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.Rayman3GBAUSPrototype:
                     return new Dictionary<GBA_R3_Pointer, uint>()
                     {
@@ -181,6 +187,11 @@ namespace R1Engine
                 case GameModeSelection.Rayman3NGage:
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x0
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.PrinceOfPersiaGBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x08165920,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.PrinceOfPersiaGBAUS:
@@ -198,14 +209,27 @@ namespace R1Engine
                         [GBA_R3_Pointer.UiOffsetTable] = 0x081A0468,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.StarWarsTrilogyApprenticeOfTheForceGBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>()
+                    {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x08286208,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.StarWarsTrilogyApprenticeOfTheForceGBAUS:
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x08286274,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.BatmanVengeanceGBAEU:
+                    return new Dictionary<GBA_R3_Pointer, uint>() {
+                        [GBA_R3_Pointer.UiOffsetTable] = 0x084FCB9C,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.BatmanVengeanceGBAUS:
                     return new Dictionary<GBA_R3_Pointer, uint>() {
                         [GBA_R3_Pointer.UiOffsetTable] = 0x084FD44C,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }
