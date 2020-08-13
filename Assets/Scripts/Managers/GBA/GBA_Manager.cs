@@ -209,11 +209,14 @@ namespace R1Engine
                     await LoadFilesAsync(context);
 
                     GBA_LevelBlock lvl;
+                    Pointer baseOffset;
 
                     try
                     {
                         // Read the level
-                        lvl = LoadLevelBlock(context);
+                        var data = LoadLevelBlock(context);
+                        lvl = data.LevelBlock;
+                        baseOffset = data.UiOffsetTable.Offset;
                     }
                     catch (Exception ex)
                     {
@@ -229,52 +232,59 @@ namespace R1Engine
 
                         exported.Add(spr.Offset);
 
-                        var length = spr.TileMap.TileMapLength;
-                        const int wrap = 16;
-                        const int tileWidth = 8;
-                        const int tileSize = (tileWidth * tileWidth) / 2;
+                        var paletteCount = spr.Palette.Palette.Length / 16;
 
-                        // Create a texture for the tileset
-                        var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
+                        for (int palIndex = 0; palIndex < paletteCount; palIndex++)
                         {
-                            filterMode = FilterMode.Point,
-                        };
+                            var length = spr.TileMap.TileMapLength;
+                            const int wrap = 16;
+                            const int tileWidth = 8;
+                            const int tileSize = (tileWidth * tileWidth) / 2;
 
-                        // Default to transparent
-                        tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
-
-                        // Add each tile
-                        for (int i = 0; i < length; i++)
-                        {
-                            int mainY = tex.height - 1 - (i / wrap);
-                            int mainX = i % wrap;
-
-                            for (int y = 0; y < tileWidth; y++)
+                            // Create a texture for the tileset
+                            var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
                             {
-                                for (int x = 0; x < tileWidth; x++)
+                                filterMode = FilterMode.Point,
+                            };
+
+                            // Default to transparent
+                            tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
+
+                            // Add each tile
+                            for (int i = 0; i < length; i++)
+                            {
+                                int mainY = tex.height - 1 - (i / wrap);
+                                int mainX = i % wrap;
+
+                                for (int y = 0; y < tileWidth; y++)
                                 {
-                                    int index = (i * tileSize) + ((y * tileWidth + x) / 2);
-                                    var v = BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
+                                    for (int x = 0; x < tileWidth; x++)
+                                    {
+                                        int index = (i * tileSize) + ((y * tileWidth + x) / 2);
+                                        var v = BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
 
-                                    Color c = spr.Palette.Palette[v].GetColor();
+                                        Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
 
-                                    if (v != 0)
-                                        c = new Color(c.r, c.g, c.b, 1f);
+                                        if (v != 0)
+                                            c = new Color(c.r, c.g, c.b, 1f);
 
-                                    tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
+                                        tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
+                                    }
                                 }
                             }
+
+                            tex.Apply();
+
+                            var fileName = $"Sprites_{(spr.Offset.AbsoluteOffset - baseOffset.AbsoluteOffset):X8}_Pal{palIndex}.png";
+
+                            Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                         }
-
-                        tex.Apply();
-
-                        Util.ByteArrayToFile(Path.Combine(outputDir, $"Sprites_{spr.Offset.AbsoluteOffset:X8}.png"), tex.EncodeToPNG());
                     }
                 }
             }
         }
 
-        public virtual GBA_LevelBlock LoadLevelBlock(Context context) => FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context).Data.LevelBlock;
+        public virtual GBA_Data LoadLevelBlock(Context context) => FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context).Data;
 
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
@@ -282,7 +292,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the level block
-            var levelBlock = LoadLevelBlock(context);
+            var levelBlock = LoadLevelBlock(context).LevelBlock;
 
             // Get the current play field
             var playField = levelBlock.PlayField;
@@ -314,7 +324,7 @@ namespace R1Engine
                         TileSet = new Common_Tileset[1],
                         MapTiles = mapData.Select((x, i) =>
                         {
-                            x.CollisionType = (byte)cMap.CollisionData[i];
+                            x.CollisionType = (byte)cMap.CollisionData.ElementAtOrDefault(i);
                             return new Editor_MapTile(x);
                         }).ToArray(),
                         TileSetWidth = 1

@@ -10,7 +10,7 @@ namespace R1Engine
         public override int LevelCount => 65;
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
-        public override GBA_LevelBlock LoadLevelBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context).LevelBlock;
+        public override GBA_Data LoadLevelBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);
 
         public override async UniTask LoadFilesAsync(Context context)
         {
