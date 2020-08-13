@@ -13,8 +13,7 @@
         
         public byte GraphicsDataIndex { get; set; }
 
-        // Seems to determine the state/animation/palette - this value determines the color of a butterfly for example
-        public byte Byte_07 { get; set; }
+        public byte StateIndex { get; set; }
 
         // Almost always -1
         public int Int_08 { get; set; }
@@ -43,7 +42,7 @@
             Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
             ActorID = (GBA_R3_ActorID)s.Serialize<byte>((byte)ActorID, name: nameof(ActorID));
             GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
-            Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+            StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
 
             if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA) {
                 Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));

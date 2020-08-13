@@ -334,9 +334,14 @@ namespace R1Engine
 
             var eta = new Dictionary<string, Common_EventState[][]>();
 
+            var actorIndex = 0;
+
             // Add actors
             foreach (var actor in levelBlock.Actors)
             {
+                Controller.status = $"Loading actor {actorIndex + 1}/{levelBlock.Actors.Length}";
+                await Controller.WaitIfNecessary();
+
                 if (!des.ContainsKey(actor.GraphicsDataIndex))
                     des.Add(actor.GraphicsDataIndex, GetCommonDesign(actor.GraphicData));
 
@@ -348,8 +353,8 @@ namespace R1Engine
                     XPosition = actor.XPos * 2,
                     YPosition = actor.YPos * 2,
                     Etat = 0,
-                    SubEtat = actor.Byte_07,
-                    RuntimeSubEtat = actor.Byte_07
+                    SubEtat = actor.StateIndex,
+                    RuntimeSubEtat = actor.StateIndex
                 })
                 {
                     Type = actor.ActorID,
@@ -359,8 +364,10 @@ namespace R1Engine
                                 $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
                                 $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
                                 $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
-                                $"{nameof(GBA_Actor.Byte_07)}: {actor.Byte_07}{Environment.NewLine}"
+                                $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}"
                 });
+
+                actorIndex++;
             }
 
             Controller.status = $"Loading tilemap";
