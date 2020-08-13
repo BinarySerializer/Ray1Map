@@ -26,7 +26,7 @@ namespace R1Engine
         {
             new GameAction("Export Compressed Blocks", false, true, (input, output) => ExportAllCompressedBlocksAsync(settings, output)),
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
-            //new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
+            new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
             new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteSetsAsync(settings, output)),
             new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
         };
@@ -119,10 +119,6 @@ namespace R1Engine
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputDir, bool export)
         {
-            // TODO: Allow blocks to be read and exported as files
-            if (export)
-                throw new NotImplementedException();
-
             using (var context = new Context(settings))
             {
                 // Get the deserializer
@@ -141,42 +137,45 @@ namespace R1Engine
                         var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
 
                         var indentLevel = 0;
+                        GBA_OffsetTable offsetTable = rom.Data.UiOffsetTable;
+                        GBA_DummyBlock[] blocks = new GBA_DummyBlock[offsetTable.OffsetsCount];
 
-                        void ExportBlocks(Pointer blockPointer, int blockSize, int index, GBA_OffsetTable table)
+                        for (int i = 0; i < blocks.Length; i++) {
+                            s.DoAt(offsetTable.GetPointer(i), () => {
+                                blocks[i] = s.SerializeObject<GBA_DummyBlock>(blocks[i], name: $"{nameof(blocks)}[{i}]");
+                            });
+                        }
+
+                        void ExportBlocks(GBA_DummyBlock block, int index, string path)
                         {
                             indentLevel++;
 
-                            writer.WriteLine($"{blockPointer}:{new string(' ', indentLevel * 2)}[{index}] Offsets: {table.OffsetsCount} - BlockSize: {blockSize}");
+                            if (export) {
+                                Util.ByteArrayToFile(outputDir + "/blocks/" + path + "/" + block.Offset.StringFileOffset + ".bin", block.Data);
+                            }
+
+                            writer.WriteLine($"{block.Offset}:{new string(' ', indentLevel * 2)}[{index}] Offsets: {block.OffsetTable.OffsetsCount} - BlockSize: {block.BlockSize}");
 
                             // Handle every block offset in the table
-                            for (int i = 0; i < table.OffsetsCount; i++)
+                            for (int i = 0; i < block.SubBlocks.Length; i++)
                             {
-                                var pointer = table.GetPointer(i);
-                                var length = s.DoAt(pointer - 4, () => s.Serialize<int>(default));
-                                
-                                var newOffsetTable = s.DoAt(pointer + length, () => 
-                                {
-                                    // Align
-                                    s.Align();
 
-                                    // Serialize the offset table
-                                    return s.SerializeObject<GBA_OffsetTable>(default);
-                                });
+                                if (!references.ContainsKey(block.SubBlocks[i].Offset))
+                                    references[block.SubBlocks[i].Offset] = new HashSet<Pointer>();
 
-                                if (!references.ContainsKey(pointer))
-                                    references[pointer] = new HashSet<Pointer>();
-
-                                references[pointer].Add(blockPointer);
+                                references[block.SubBlocks[i].Offset].Add(block.Offset);
 
                                 // Export
-                                ExportBlocks(pointer, length, i, newOffsetTable);
+                                ExportBlocks(block.SubBlocks[i], i, path + "/" + (i + " - " + block.SubBlocks[i].Offset.StringFileOffset));
                             }
 
                             indentLevel--;
                         }
 
-                        // Recursively export the blocks
-                        ExportBlocks(rom.Data.UiOffsetTable.Offset, 0, 0, rom.Data.UiOffsetTable);
+                        for (int i = 0; i < blocks.Length; i++) {
+                            await UniTask.WaitForEndOfFrame();
+                            ExportBlocks(blocks[i], i, (i + " - " + blocks[i].Offset.StringFileOffset));
+                        }
                     }
                 }
 
