@@ -1206,7 +1206,7 @@ namespace R1Engine
                         Height = map.Height,
 
                         // Create the tile arrays
-                        TileSet = new Common_Tileset[3],
+                        TileSet = new Common_Tileset[1],
                         MapTiles = map.Tiles.Select(x => new Editor_MapTile(x)).ToArray(),
                         TileSetWidth = 1
                     }
