@@ -450,7 +450,7 @@ namespace R1Engine
             // Add first animation for now
             des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Common_Animation() {
                 Frames = a.Layers.Select(f => new Common_AnimFrame {
-                    Layers = f.SelectMany(l => GetPartsForLayer(l)).ToArray()
+                    Layers = f.SelectMany(GetPartsForLayer).Reverse().ToArray()
                 }).ToArray()
             }));
 
