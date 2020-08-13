@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -19,14 +18,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => GetDataPath() + $"{GetShortWorldName(settings.World)}{settings.Level:00}.LEV";
+        public override string GetLevelFilePath(GameSettings settings) => GetDataPath() + $"{GetShortWorldName(settings.R1_World)}{settings.Level:00}.LEV";
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{((int)settings.World + 1):00}.WLD";
+        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{settings.World:00}.WLD";
 
         /// <summary>
         /// Gets the file path for the vignette file
@@ -60,7 +59,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetDataPath(), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetDataPath(), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();
@@ -134,7 +133,7 @@ namespace R1Engine
 
             var nameWithoutExt = name.Length > 4 ? name.Substring(0, name.Length - 4) : name;
 
-            return generalEvents.Any(x => x.DesKit[context.Settings.World] == nameWithoutExt && ((EventType)x.Type).IsMultiColored());
+            return generalEvents.Any(x => x.DesKit[context.Settings.R1_World] == nameWithoutExt && ((EventType)x.Type).IsMultiColored());
         }
 
         #endregion

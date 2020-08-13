@@ -26,19 +26,19 @@ namespace R1Engine
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public string GetWorldName(World world) {
+        public string GetWorldName(R1_World world) {
             switch (world) {
-                case World.Jungle:
+                case R1_World.Jungle:
                     return "JUNGLE";
-                case World.Music:
+                case R1_World.Music:
                     return "MUSIC";
-                case World.Mountain:
+                case R1_World.Mountain:
                     return "MOUNTAIN";
-                case World.Image:
+                case R1_World.Image:
                     return "IMAGE";
-                case World.Cave:
+                case R1_World.Cave:
                     return "CAVE";
-                case World.Cake:
+                case R1_World.Cake:
                     return "CAKE";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
@@ -49,19 +49,19 @@ namespace R1Engine
         /// Gets the short name for the world
         /// </summary>
         /// <returns>The short world name</returns>
-        public virtual string GetShortWorldName(World world) {
+        public virtual string GetShortWorldName(R1_World world) {
             switch (world) {
-                case World.Jungle:
+                case R1_World.Jungle:
                     return "JUN";
-                case World.Music:
+                case R1_World.Music:
                     return "MUS";
-                case World.Mountain:
+                case R1_World.Mountain:
                     return "MON";
-                case World.Image:
+                case R1_World.Image:
                     return "IMA";
-                case World.Cave:
+                case R1_World.Cave:
                     return "CAV";
-                case World.Cake:
+                case R1_World.Cake:
                     return "CAK";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
@@ -120,7 +120,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public abstract KeyValuePair<World, int[]>[] GetLevels(GameSettings settings);
+        public abstract KeyValuePair<int, int[]>[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available educational volumes
@@ -315,9 +315,9 @@ namespace R1Engine
                 var eventInfo = BaseEditorManager.AllEventInfoData;
 
                 // Get the DES names for every world
-                var desNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, world => {
+                var desNames = WorldHelpers.GetR1Worlds().ToDictionary(x => x, world => {
                     // Set the world
-                    context.Settings.World = world;
+                    context.Settings.R1_World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.Settings);
@@ -332,9 +332,9 @@ namespace R1Engine
                 });
 
                 // Get the ETA names for every world
-                var etaNames = EnumHelpers.GetValues<World>().ToDictionary(x => x, world => {
+                var etaNames = WorldHelpers.GetR1Worlds().ToDictionary(x => x, world => {
                     // Set the world
-                    context.Settings.World = world;
+                    context.Settings.R1_World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.Settings);
@@ -377,9 +377,9 @@ namespace R1Engine
                 var allfix = await ExportTexturesAsync<PC_AllfixFile>(GetAllfixFilePath(context.Settings), "Allfix", 0, new PC_ETA[0], desNames.Values.FirstOrDefault(), etaNames.Values.FirstOrDefault());
 
                 // Enumerate every world
-                foreach (World world in EnumHelpers.GetValues<World>()) {
+                foreach (R1_World world in WorldHelpers.GetR1Worlds()) {
                     // Set the world
-                    context.Settings.World = world;
+                    context.Settings.R1_World = world;
 
                     // Get the world file path
                     var worldPath = GetWorldFilePath(context.Settings);
@@ -565,22 +565,22 @@ namespace R1Engine
                 var ei = eventInfo.FindItem(x => x.Type == (int)EventType.TYPE_DEMI_RAYMAN);
 
                 if (context.Settings.EngineVersion == EngineVersion.RayPC)
-                    smallRayDES = ei.DesR1[World.Jungle];
+                    smallRayDES = ei.DesR1[R1_World.Jungle];
                 else if (context.Settings.EngineVersion == EngineVersion.RayKitPC)
-                    smallRayDES = desNames.FindItemIndex(x => ei.DesKit[World.Jungle] == x.Substring(0, x.Length - 4)) + 1;
+                    smallRayDES = desNames.FindItemIndex(x => ei.DesKit[R1_World.Jungle] == x.Substring(0, x.Length - 4)) + 1;
                 else
                     throw new NotImplementedException();
             }
 
             // Get the Dark Rayman DES if Cake
-            if (worldFile is PC_WorldFile && context.Settings.World == World.Cake)
+            if (worldFile is PC_WorldFile && context.Settings.World == (int)R1_World.Cake)
             {
                 var ei = eventInfo.FindItem(x => x.Type == (int)EventType.TYPE_BLACK_RAY);
 
                 if (context.Settings.EngineVersion == EngineVersion.RayPC)
-                    darkRayDES = ei.DesR1[World.Cake];
+                    darkRayDES = ei.DesR1[R1_World.Cake];
                 else if (context.Settings.EngineVersion == EngineVersion.RayKitPC)
-                    darkRayDES = desNames.FindItemIndex(x => ei.DesKit[World.Cake] == x.Substring(0, x.Length - 4)) + 1;
+                    darkRayDES = desNames.FindItemIndex(x => ei.DesKit[R1_World.Cake] == x.Substring(0, x.Length - 4)) + 1;
                 else
                     throw new NotImplementedException();
             }
@@ -613,13 +613,13 @@ namespace R1Engine
 
                         if (context.Settings.EngineVersion == EngineVersion.RayPC)
                         {
-                            if (ei.DesR1.TryGetValue(context.Settings.World, out int? desR1) && desR1 == desIndex)
-                                matchingEta = eta[ei.EtaR1[context.Settings.World].Value];
+                            if (ei.DesR1.TryGetValue(context.Settings.R1_World, out int? desR1) && desR1 == desIndex)
+                                matchingEta = eta[ei.EtaR1[context.Settings.R1_World].Value];
                         }
                         else if (context.Settings.EngineVersion == EngineVersion.RayKitPC)
                         {
-                            if (ei.DesKit.TryGetValue(context.Settings.World, out string desKit) && desKit == desName.Substring(0, desName.Length - 4))
-                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaKit[context.Settings.World])];
+                            if (ei.DesKit.TryGetValue(context.Settings.R1_World, out string desKit) && desKit == desName.Substring(0, desName.Length - 4))
+                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaKit[context.Settings.R1_World])];
                         }
                         else
                         {
@@ -1685,7 +1685,7 @@ namespace R1Engine
             context.AddFile(GetFile(context, GetAllfixFilePath(context.Settings)));
 
             // Add for every world
-            foreach (World world in EnumHelpers.GetValues<World>())
+            for (int world = 1; world < 7; world++)
             {
                 // Set the world
                 context.Settings.World = world;
@@ -1852,7 +1852,7 @@ namespace R1Engine
                 var allfix = FileFactory.Read<PC_AllfixFile>(GetAllfixFilePath(context.Settings), context);
                 AddToOutput("Allfix", allfix, 0);
 
-                foreach (var w in EnumHelpers.GetValues<World>())
+                for (int w = 1; w < 7; w++)
                 {
                     context.Settings.World = w;
                     AddToOutput(w.ToString(), FileFactory.Read<PC_WorldFile>(GetWorldFilePath(context.Settings), context), allfix.Eta.Length);

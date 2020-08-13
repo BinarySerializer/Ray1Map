@@ -40,6 +40,12 @@
 
 
         /// <summary>
+        /// World level index offset table for global level array
+        /// </summary>
+        byte[] WorldLevelOffsetTable { get; }
+
+
+        /// <summary>
         /// The strings
         /// </summary>
         string[][] Strings { get; }

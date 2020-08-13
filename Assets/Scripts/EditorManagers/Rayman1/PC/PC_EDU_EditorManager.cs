@@ -30,7 +30,7 @@ namespace R1Engine
         /// <returns>The DES key</returns>
         public override string GetDesKey(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.DesEdu[Settings.World]?.ToString();
+            return eventInfoData.DesEdu[Settings.R1_World]?.ToString();
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace R1Engine
         /// <returns>The ETA key</returns>
         public override string GetEtaKey(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.EtaEdu[Settings.World]?.ToString();
+            return eventInfoData.EtaEdu[Settings.R1_World]?.ToString();
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace R1Engine
         /// <returns>True if it's available, otherwise false</returns>
         public override bool IsAvailableInWorld(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.DesEdu.ContainsKey(Settings.World) && eventInfoData.DesEdu[Settings.World] != null;
+            return eventInfoData.DesEdu.ContainsKey(Settings.R1_World) && eventInfoData.DesEdu[Settings.R1_World] != null;
         }
     }
 }

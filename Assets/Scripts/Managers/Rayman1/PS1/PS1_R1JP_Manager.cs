@@ -31,7 +31,7 @@ namespace R1Engine
         /// <returns></returns>
         public string GetSpecialTileSetPathIfExists(Context context)
         {
-            var path = GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}{context.Settings.Level:00}.BLC";
+            var path = GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}{context.Settings.Level:00}.BLC";
 
             return FileSystem.FileExists(context.BasePath + path) ? path : null;
         }

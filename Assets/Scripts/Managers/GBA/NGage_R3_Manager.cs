@@ -3,11 +3,12 @@ using R1Engine.Serialize;
 
 namespace R1Engine
 {
-    public class NGage_R3_Manager : GBA_Manager
+    public class NGage_R3_Manager : GBA_R3_Manager
     {
         public override string GetROMFilePath => $"rayman3.dat";
 
-        public override int LevelCount => 65;
+        public override int DLCLevelCount => 0;
+
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
         public override GBA_Data LoadLevelBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);

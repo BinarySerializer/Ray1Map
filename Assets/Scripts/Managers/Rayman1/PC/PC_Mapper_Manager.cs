@@ -21,12 +21,12 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <returns>The level file path</returns>
         public async UniTask<string> GetLevelFolderPath(Context context) {
-            var custom = GetWorldName(context.Settings.World) + "/" + $"MAP{context.Settings.Level}" + "/";
+            var custom = GetWorldName(context.Settings.R1_World) + "/" + $"MAP{context.Settings.Level}" + "/";
             await FileSystem.CheckDirectory(context.BasePath + custom); // check this and await, since it's a request in WebGL
             if (FileSystem.DirectoryExists(context.BasePath + custom))
                 return custom;
 
-            return GetWorldName(context.Settings.World) + "/" + $"MAP_{context.Settings.Level}" + "/";
+            return GetWorldName(context.Settings.R1_World) + "/" + $"MAP_{context.Settings.Level}" + "/";
         }
 
         /// <summary>
@@ -34,21 +34,21 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
+        public string GetWorldFolderPath(R1_World world) => GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the file path for the PCX tile map
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The PCX tile map file path</returns>
-        public string GetPCXFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetShortWorldName(settings.World)}.PCX";
+        public string GetPCXFilePath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetShortWorldName(settings.R1_World)}.PCX";
 
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(w), "MAP???", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(w), "MAP???", SearchOption.TopDirectoryOnly)
                 .Select(Path.GetFileName)
                 .Where(x => x.Length < 7)
                 .Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3)))
@@ -57,32 +57,6 @@ namespace R1Engine
         #endregion
 
         #region Manager Methods
-
-        /// <summary>
-        /// Gets the localization files for each event, with the language tag as the key
-        /// </summary>
-        /// <param name="basePath">The base game path</param>
-        /// <returns>The localization files</returns>
-        public Dictionary<string, PC_Mapper_EventLocFile[]> GetEventLocFiles(string basePath)
-        {
-            var pcDataDir = Path.Combine(basePath, GetDataPath());
-
-            var output = new Dictionary<string, PC_Mapper_EventLocFile[]>();
-
-            foreach (var langDir in Directory.GetDirectories(pcDataDir, "???", SearchOption.TopDirectoryOnly))
-            {
-                string[] locFiles = Directory.GetFiles(langDir, "*.wld", SearchOption.TopDirectoryOnly);
-                output.Add(Path.GetFileName(langDir), locFiles.Select(locFile => {
-                    var locFileRelative = locFile.Substring(basePath.Length);
-                    using (Context c = new Context(new GameSettings(GameModeSelection.MapperPC, basePath))) {
-                        c.AddFile(GetFile(c, locFileRelative));
-                        return FileFactory.Read<PC_Mapper_EventLocFile>(locFileRelative, c);
-                    }
-                }).ToArray());
-            }
-
-            return output;
-        }
 
         public async UniTask LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);

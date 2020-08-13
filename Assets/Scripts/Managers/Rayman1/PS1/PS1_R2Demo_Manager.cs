@@ -25,9 +25,9 @@ namespace R1Engine
         public string FixDataPath => $"RAY.DTA";
         public string FixGraphicsPath => "RAY.GRP";
         public string SpritePalettesPath => "SPR.PLS";
-        public string GetLevelGraphicsPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.GRP";
-        public string GetLevelImageDescriptorsPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.SPR";
-        public string GetLevelDataPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.World)}01.DTA";
+        public string GetLevelGraphicsPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.R1_World)}01.GRP";
+        public string GetLevelImageDescriptorsPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.R1_World)}01.SPR";
+        public string GetLevelDataPath(GameSettings s) => $"JUNGLE/{GetWorldName(s.R1_World)}01.DTA";
 
         public string GetSubMapTilesetPath(int level) => $"JUNGLE/{GetMapName(level)}.RAW";
         public string GetSubMapPalettePath(int level) => $"JUNGLE/{GetMapName(level)}.PAL";
@@ -47,7 +47,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Enumerable.Range(0, w == World.Jungle ? MapCount : 0).ToArray())).ToArray();
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Enumerable.Range(0, w == R1_World.Jungle ? MapCount : 0).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the name for the specified map

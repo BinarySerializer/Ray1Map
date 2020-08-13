@@ -18,9 +18,9 @@ namespace R1Engine
         public GeneralEventInfoData(string name, 
             ushort type, string typeName, 
             byte etat, byte subEtat, 
-            IDictionary<World, int?> desR1, IDictionary<World, int?> etaR1, 
-            IDictionary<World, int?> desEdu, IDictionary<World, int?> etaEdu, 
-            IDictionary<World, string> desKit, IDictionary<World, string> etaKit,
+            IDictionary<R1_World, int?> desR1, IDictionary<R1_World, int?> etaR1, 
+            IDictionary<R1_World, int?> desEdu, IDictionary<R1_World, int?> etaEdu, 
+            IDictionary<R1_World, string> desKit, IDictionary<R1_World, string> etaKit,
             byte offsetBx, byte offsetBy, byte offsetHy,
             byte followSprite, uint hitPoints, byte hitSprite, bool followEnabled, 
             string[] connectedEvents, 
@@ -31,12 +31,12 @@ namespace R1Engine
             TypeName = typeName;
             Etat = etat;
             SubEtat = subEtat;
-            DesR1 = new ReadOnlyDictionary<World, int?>(desR1);
-            EtaR1 = new ReadOnlyDictionary<World, int?>(etaR1);
-            DesEdu = new ReadOnlyDictionary<World, int?>(desEdu);
-            EtaEdu = new ReadOnlyDictionary<World, int?>(etaEdu);
-            DesKit = new ReadOnlyDictionary<World, string>(desKit);
-            EtaKit = new ReadOnlyDictionary<World, string>(etaKit);
+            DesR1 = new ReadOnlyDictionary<R1_World, int?>(desR1);
+            EtaR1 = new ReadOnlyDictionary<R1_World, int?>(etaR1);
+            DesEdu = new ReadOnlyDictionary<R1_World, int?>(desEdu);
+            EtaEdu = new ReadOnlyDictionary<R1_World, int?>(etaEdu);
+            DesKit = new ReadOnlyDictionary<R1_World, string>(desKit);
+            EtaKit = new ReadOnlyDictionary<R1_World, string>(etaKit);
             OffsetBX = offsetBx;
             OffsetBY = offsetBy;
             OffsetHY = offsetHy;
@@ -61,14 +61,14 @@ namespace R1Engine
         public byte Etat { get; }
         public byte SubEtat { get; }
 
-        public IReadOnlyDictionary<World, int?> DesR1 { get; }
-        public IReadOnlyDictionary<World, int?> EtaR1 { get; }
+        public IReadOnlyDictionary<R1_World, int?> DesR1 { get; }
+        public IReadOnlyDictionary<R1_World, int?> EtaR1 { get; }
 
-        public IReadOnlyDictionary<World, int?> DesEdu { get; }
-        public IReadOnlyDictionary<World, int?> EtaEdu { get; }
+        public IReadOnlyDictionary<R1_World, int?> DesEdu { get; }
+        public IReadOnlyDictionary<R1_World, int?> EtaEdu { get; }
 
-        public IReadOnlyDictionary<World, string> DesKit { get; }
-        public IReadOnlyDictionary<World, string> EtaKit { get; }
+        public IReadOnlyDictionary<R1_World, string> DesKit { get; }
+        public IReadOnlyDictionary<R1_World, string> EtaKit { get; }
 
         public byte OffsetBX { get; }
         public byte OffsetBY { get; }
@@ -132,12 +132,12 @@ namespace R1Engine
                         byte[] next8ArrayValue() => nextValue().Split('-').Where(x => !String.IsNullOrWhiteSpace(x)).Select(Byte.Parse).ToArray();
                         string[] nextStringArrayValue() => nextValue().Split('-').ToArray();
 
-                        IDictionary<World, T> toDictionary<T>(IList<T> values)
+                        IDictionary<R1_World, T> toDictionary<T>(IList<T> values)
                         {
-                            var dict = EnumHelpers.GetValues<World>().ToDictionary(x => x, x => default(T));
+                            var dict = WorldHelpers.GetR1Worlds().ToDictionary(x => x, x => default(T));
 
-                            for (int i = 0; i < values.Count; i++)
-                                dict[(World)i] = values[i];
+                            for (int i = 1; i < values.Count + 1; i++)
+                                dict[(R1_World)i] = values[i - 1];
 
                             return dict;
                         }

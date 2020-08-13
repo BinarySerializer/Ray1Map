@@ -30,48 +30,48 @@ namespace R1Engine
         /// <returns>The allfix file path</returns>
         public virtual string GetAllfixFilePath() => $"RAY.FXS";
 
-        public string GetPalettePath(GameSettings settings, int i) => $"RAY{i}_{(settings.World == World.Jungle ? 1 : 2)}.PAL";
+        public string GetPalettePath(GameSettings settings, int i) => $"RAY{i}_{(settings.R1_World == R1_World.Jungle ? 1 : 2)}.PAL";
 
         /// <summary>
         /// Gets the file path for the world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public virtual string GetWorldFilePath(GameSettings settings) => $"RAY.WL{(settings.World == World.Jungle ? 1 : 2)}";
+        public virtual string GetWorldFilePath(GameSettings settings) => $"RAY.WL{(settings.R1_World == R1_World.Jungle ? 1 : 2)}";
 
         /// <summary>
         /// Gets the file path for the level file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public virtual string GetLevelFilePath(GameSettings settings) => $"RAY.LV{(settings.World == World.Jungle ? 1 : 2)}";
+        public virtual string GetLevelFilePath(GameSettings settings) => $"RAY.LV{(settings.R1_World == R1_World.Jungle ? 1 : 2)}";
         
         /// <summary>
         /// Gets the file path for the level tile set file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level tile set file path</returns>
-        public virtual string GetTileSetFilePath(GameSettings settings) => $"_{GetWorldName(settings.World)}_{settings.Level:00}.R16";
+        public virtual string GetTileSetFilePath(GameSettings settings) => $"_{GetWorldName(settings.R1_World)}_{settings.Level:00}.R16";
 
         /// <summary>
         /// Gets the file path for the level map file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level map file path</returns>
-        public virtual string GetMapFilePath(GameSettings settings) => $"_{GetWorldName(settings.World)}_{settings.Level:00}.MAP";
+        public virtual string GetMapFilePath(GameSettings settings) => $"_{GetWorldName(settings.R1_World)}_{settings.Level:00}.MAP";
 
         /// <summary>
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public override string GetWorldName(World world) => base.GetWorldName(world).Substring(1);
+        public override string GetWorldName(R1_World world) => base.GetWorldName(world).Substring(1);
 
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory, $"_{GetWorldName(w)}_*.MAP", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory, $"_{GetWorldName(w)}_*.MAP", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(4)))
             .ToArray())).ToArray();

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -15,7 +12,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="game">The game</param>
         /// <returns>The map names</returns>
-        public static Dictionary<World, Dictionary<int, string>> GetMapNames(Game game)
+        public static Dictionary<int, Dictionary<int, string>> GetMapNames(Game game)
         {
             switch (game)
             {
@@ -38,12 +35,69 @@ namespace R1Engine
             }
         }
 
+        public static Dictionary<int, string> GetWorldNames(Game game)
+        {
+            switch (game)
+            {
+                case Game.Rayman1:
+                case Game.Rayman1DemoPrototype:
+                case Game.RaymanDesigner:
+                case Game.RaymanMapper:
+                case Game.RaymanByHisFans:
+                case Game.Rayman60Levels:
+                case Game.RaymanEducational:
+                case Game.RaymanQuiz:
+                case Game.Rayman2:
+                    return new Dictionary<int, string>()
+                    {
+                        [1] = "Jungle",
+                        [2] = "Music",
+                        [3] = "Mountain",
+                        [4] = "Image",
+                        [5] = "Cave",
+                        [6] = "Cake",
+                        [7] = "Menu",
+                        [8] = "Multiplayer",
+                    };
+
+                case Game.Rayman3GBA:
+                    return new Dictionary<int, string>()
+                    {
+                        [0] = "Forgotten Forests",
+                        [1] = "Haunted Dreams",
+                        [2] = "Magmacosm",
+                        [3] = "Pirate Stronghold",
+                        [4] = "Bonus",
+                        [5] = "World",
+                        [6] = "Multiplayer",
+                        
+                        [7] = "Menu",
+                        [8] = "DLC",
+                    };
+
+                case Game.PrinceOfPersiaTheSandsOfTimeGBA:
+                case Game.SabrinaTheTeenageWitchPotionCommotionGBA:
+                case Game.StarWarsTrilogyApprenticeOfTheForceGBA:
+                case Game.BatmanVengeanceGBA:
+                    return new Dictionary<int, string>()
+                    {
+                        [0] = "Game",
+                        [1] = "Menu",
+                        [2] = "DLC",
+                    };
+
+                case Game.RaymanSNESPrototype:
+                default:
+                    return null;
+            }
+        }
+
         /// <summary>
         /// The Rayman 1 map names
         /// </summary>
-        private static Dictionary<World, Dictionary<int, string>> Rayman1MapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
+        private static Dictionary<int, Dictionary<int, string>> Rayman1MapNames { get; } = new Dictionary<int, Dictionary<int, string>>()
         {
-            [World.Jungle] = new Dictionary<int, string>()
+            [1] = new Dictionary<int, string>()
             {
                 [1] = "Pink Plant Woods 1",
                 [2] = "Pink Plant Woods 2",
@@ -72,9 +126,8 @@ namespace R1Engine
                 [21] = "Magician Bonus 4",
 
                 [22] = "Ray Breakout",
-                [23] = "Multiplayer",
             },
-            [World.Music] = new Dictionary<int, string>()
+            [2] = new Dictionary<int, string>()
             {
                 [1] = "Bongo Hills 1",
                 [2] = "Bongo Hills 2",
@@ -98,10 +151,8 @@ namespace R1Engine
 
                 [17] = "Magician Bonus 1",
                 [18] = "Magician Bonus 2",
-
-                [19] = "Multiplayer",
             },
-            [World.Mountain] = new Dictionary<int, string>()
+            [3] = new Dictionary<int, string>()
             {
                 [1] = "Twilight Gulch 1",
                 [2] = "Twilight Gulch 2",
@@ -119,10 +170,8 @@ namespace R1Engine
 
                 [12] = "Magician Bonus 1",
                 [13] = "Magician Bonus 2",
-
-                [14] = "Multiplayer",
             },
-            [World.Image] = new Dictionary<int, string>()
+            [4] = new Dictionary<int, string>()
             {
                 [1] = "Eraser Plains 1",
                 [2] = "Eraser Plains 2",
@@ -140,10 +189,8 @@ namespace R1Engine
 
                 [12] = "Magician Bonus 1",
                 [13] = "Magician Bonus 2",
-
-                [14] = "Multiplayer",
             },
-            [World.Cave] = new Dictionary<int, string>()
+            [5] = new Dictionary<int, string>()
             {
                 [1] = "Crystal Palace 1",
                 [2] = "Crystal Palace 2",
@@ -160,61 +207,66 @@ namespace R1Engine
                 [11] = "Mr Skops' Stalactites 3 - Boss",
 
                 [12] = "Magician Bonus 1",
-
-                [13] = "Multiplayer",
             },
-            [World.Cake] = new Dictionary<int, string>()
+            [6] = new Dictionary<int, string>()
             {
                 [1] = "Mr Dark's Dare 1",
                 [2] = "Mr Dark's Dare 2",
                 [3] = "Mr Dark's Dare 3",
                 [4] = "Mr Dark's Dare 4 - Boss",
-
-                [5] = "Multiplayer",
+            },
+            [8] = new Dictionary<int, string>()
+            {
+                [1] = "Multiplayer (Jungle)",
+                [2] = "Multiplayer (Music)",
+                [3] = "Multiplayer (Mountain)",
+                [4] = "Multiplayer (Image)",
+                [5] = "Multiplayer (Cave)",
+                [6] = "Multiplayer (Cake)",
             },
         };
 
         /// <summary>
         /// The Rayman Designer map names
         /// </summary>
-        private static Dictionary<World, Dictionary<int, string>> RaymanDesignerMapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
+        private static Dictionary<int, Dictionary<int, string>> RaymanDesignerMapNames { get; } = new Dictionary<int, Dictionary<int, string>>()
         {
-            [World.Jungle] = new Dictionary<int, string>()
+            [1] = new Dictionary<int, string>()
             {
                 [1] = "The Sky's the Limit",
                 [2] = "Fruity Fun",
                 [3] = "Junglemania",
                 [4] = "Ring a Ling",
             },
-            [World.Music] = new Dictionary<int, string>()
+            [2] = new Dictionary<int, string>()
             {
                 [1] = "Gone with the Wind",
                 [2] = "Scale the Scales",
                 [3] = "Music Lessons",
                 [4] = "Melodic Maracas",
             },
-            [World.Mountain] = new Dictionary<int, string>()
+            [3] = new Dictionary<int, string>()
             {
                 [1] = "Treetop Adventure",
                 [2] = "Tough Climb",
                 [3] = "Tip-Top Tempest",
                 [4] = "The Diabolical Pursuit",
             },
-            [World.Image] = new Dictionary<int, string>()
+            [4] = new Dictionary<int, string>()
             {
                 [1] = "The Five Doors",
                 [2] = "Pencil Pentathalon",
                 [3] = "Eraser Mania",
                 [4] = "Tic Tack Toe",
             },
-            [World.Cave] = new Dictionary<int, string>()
+            [5] = new Dictionary<int, string>()
             {
                 [1] = "Peaks and Rocks",
                 [2] = "Dark Journey",
                 [3] = "Dreaded Caves",
                 [4] = "Dire Darkness",
             },
-            [World.Cake] = new Dictionary<int, string>()
+            [6] = new Dictionary<int, string>()
             {
                 [1] = "Chocolate Trap",
                 [2] = "Crazy Candy",
@@ -226,9 +278,9 @@ namespace R1Engine
         /// <summary>
         /// The Rayman Designer map names
         /// </summary>
-        private static Dictionary<World, Dictionary<int, string>> Rayman3GBAMapNames { get; } = new Dictionary<World, Dictionary<int, string>>()
+        private static Dictionary<int, Dictionary<int, string>> Rayman3GBAMapNames { get; } = new Dictionary<int, Dictionary<int, string>>()
         {
-            [World.Jungle] = new Dictionary<int, string>()
+            [0] = new Dictionary<int, string>()
             {
                 [0] = "Wanderwood Forest 1",
                 [1] = "Wanderwood Forest 2",
@@ -238,6 +290,9 @@ namespace R1Engine
                 [5] = "Garish Gears",
                 [6] = "Hoodlum Hideout 1",
                 [7] = "Hoodlum Hideout 2",
+            },
+            [1] = new Dictionary<int, string>()
+            {
                 [8] = "Magma Mayhem",
                 [9] = "Vertigo Wastes 1",
                 [10] = "Vertigo Wastes 2",
@@ -247,6 +302,9 @@ namespace R1Engine
                 [14] = "Prickly Passage 1",
                 [15] = "Prickly Passage 2",
                 [16] = "Swamp of Bégoniax 2",
+            },
+            [2] = new Dictionary<int, string>()
+            {
                 [17] = "River of Fire 1",
                 [18] = "River of Fire 2",
                 [19] = "River of Fire 3",
@@ -260,6 +318,9 @@ namespace R1Engine
                 [27] = "Wicked Flow 1",
                 [28] = "Wicked Flow 2",
                 [29] = "Wicked Flow 3",
+            },
+            [3] = new Dictionary<int, string>()
+            {
                 [30] = "Creeping Chaos 1",
                 [31] = "Creeping Chaos 2",
                 [32] = "Scaleman's Keep",
@@ -270,32 +331,43 @@ namespace R1Engine
                 [37] = "Razor Slide 2",
                 [38] = "Heart of the Ancients 1",
                 [39] = "Heart of the Ancients 2",
+            },
+            [4] = new Dictionary<int, string>()
+            {
                 [40] = "Mega Havoc 1",
                 [41] = "Mega Havoc 2",
                 [42] = "Mega Havoc 3",
                 [43] = "Mega Havoc 4",
+                
                 [44] = "Lum Challenge",
+                
                 [45] = "Ly's Punch Challenge 1",
                 [46] = "Ly's Punch Challenge 2",
                 [47] = "Ly's Punch Challenge 3",
+                
                 [48] = "Ly Power 1 (Wanderwood Forest)",
                 [49] = "Ly Power 2 (Garish Gears)",
                 [50] = "Ly Power 3 (Vertigo Wasters)",
                 [51] = "Ly Power 4 (River of Fire)",
                 [52] = "Ly Power 5 (Den of Rocky)",
                 [53] = "Ly Power 6 (Scaleman's Keep)",
+            },
+            [5] = new Dictionary<int, string>()
+            {
                 [54] = "Forgotten Forests",
                 [55] = "Haunted Dreams",
                 [56] = "Magmacosm",
                 [57] = "Pirate Stronghold",
                 [58] = "Worldmap",
+            },
+            [6] = new Dictionary<int, string>()
+            {
                 [59] = "Multiplayer (Magma Mayhem)",
                 [60] = "Multiplayer (Magma Mayhem)",
                 [61] = "Multiplayer (?)",
                 [62] = "Multiplayer (?)",
                 [63] = "Multiplayer (Ly's Punch Challenge)",
                 [64] = "Multiplayer (Magma Mayhem)",
-
             },
         };
     }

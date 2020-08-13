@@ -265,8 +265,8 @@ namespace R1Engine
                 });
 
                 // Get the current map load commands
-                var wldCommands = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)];
-                var mapCommands = LevelLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)][s.GameSettings.Level - 1].Commands;
+                var wldCommands = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)];
+                var mapCommands = LevelLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)][s.GameSettings.Level - 1].Commands;
 
                 // Get pointers
                 var mapPointer = mapCommands.FindItem(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.LevelMap).LevelMapBlockPointer;
@@ -276,9 +276,9 @@ namespace R1Engine
                 Pointer tilesPointer;
 
                 if (s.GameSettings.EngineVersion == EngineVersion.RayJaguar)
-                    tilesPointer = mapCommands.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
+                    tilesPointer = mapCommands.LastOrDefault(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68)?.ImageBufferPointer ?? WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)].Commands.First(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001B3B68).ImageBufferPointer;
                 else
-                    tilesPointer = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.World)].Commands.Last(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001BD800).ImageBufferPointer;
+                    tilesPointer = WorldLoadCommands[levels.FindItemIndex(x => x.Key == s.GameSettings.R1_World)].Commands.Last(x => x.Type == Jaguar_R1_LevelLoadCommand.LevelLoadCommandType.Graphics && x.ImageBufferMemoryPointer == 0x001BD800).ImageBufferPointer;
 
                 // Serialize map and event data
                 s.DoAt(mapPointer, () => s.DoEncoded(new RNCEncoder(), () => MapData = s.SerializeObject<MapData>(MapData, name: nameof(MapData))));

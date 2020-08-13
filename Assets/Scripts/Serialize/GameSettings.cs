@@ -14,7 +14,7 @@ namespace R1Engine
         /// <param name="gameDirectory">The game directory</param>
         /// <param name="world">The game world</param>
         /// <param name="level">The game level, starting at 1</param>
-        public GameSettings(GameModeSelection gameModeSelection, string gameDirectory, World world = World.Jungle, int level = 1)
+        public GameSettings(GameModeSelection gameModeSelection, string gameDirectory, int world, int level)
         {
             // Get the attribute data
             var atr = gameModeSelection.GetAttribute<GameModeAttribute>();
@@ -56,7 +56,13 @@ namespace R1Engine
         /// <summary>
         /// The game world
         /// </summary>
-        public World World { get; set; }
+        public int World { get; set; }
+
+        public R1_World R1_World
+        {
+            get => (R1_World) World;
+            set => World = (int)value;
+        }
 
         /// <summary>
         /// The game level, starting at 1

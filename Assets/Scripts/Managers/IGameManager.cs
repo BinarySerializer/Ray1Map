@@ -14,7 +14,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        KeyValuePair<World, int[]>[] GetLevels(GameSettings settings);
+        KeyValuePair<int, int[]>[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available educational volumes

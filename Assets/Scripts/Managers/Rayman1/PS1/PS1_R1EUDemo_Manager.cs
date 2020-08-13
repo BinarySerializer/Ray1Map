@@ -14,7 +14,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public override string GetWorldFolderPath(World world) => String.Empty;
+        public override string GetWorldFolderPath(R1_World world) => String.Empty;
 
         public override string GetLanguageFilePath(string langCode) => $"IMA/RAY{langCode}.TXT";
 

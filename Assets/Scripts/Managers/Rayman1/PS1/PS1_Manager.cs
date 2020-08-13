@@ -33,21 +33,21 @@ namespace R1Engine
         /// Gets the name for the world
         /// </summary>
         /// <returns>The world name</returns>
-        public virtual string GetWorldName(World world)
+        public virtual string GetWorldName(R1_World world)
         {
             switch (world)
             {
-                case World.Jungle:
+                case R1_World.Jungle:
                     return "JUN";
-                case World.Music:
+                case R1_World.Music:
                     return "MUS";
-                case World.Mountain:
+                case R1_World.Mountain:
                     return "MON";
-                case World.Image:
+                case R1_World.Image:
                     return "IMG";
-                case World.Cave:
+                case R1_World.Cave:
                     return "CAV";
-                case World.Cake:
+                case R1_World.Cake:
                     return "CAK";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);
@@ -59,7 +59,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public abstract KeyValuePair<World, int[]>[] GetLevels(GameSettings settings);
+        public abstract KeyValuePair<int, int[]>[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available educational volumes

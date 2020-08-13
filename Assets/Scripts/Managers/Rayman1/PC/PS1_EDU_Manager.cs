@@ -20,14 +20,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + $"{GetVolumePath(settings.EduVolume)}{GetShortWorldName(settings.World)}", $"{GetShortWorldName(settings.World)}{settings.Level:00}.NEW", SearchOption.AllDirectories).First().Substring(settings.GameDirectory.Length).Replace('\\', '/');
+        public override string GetLevelFilePath(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + $"{GetVolumePath(settings.EduVolume)}{GetShortWorldName(settings.R1_World)}", $"{GetShortWorldName(settings.R1_World)}{settings.Level:00}.NEW", SearchOption.AllDirectories).First().Substring(settings.GameDirectory.Length).Replace('\\', '/');
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"RAY{((int)settings.World + 1):00}.NEW";
+        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"RAY{settings.World:00}.NEW";
 
         /// <summary>
         /// Gets the file path for the allfix file
@@ -99,14 +99,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The name</returns>
-        public string GetGRXLevelName(GameSettings settings) => $"{GetShortVolName(settings).Substring(0, 1)}W{((int)settings.World) + 1}L{settings.Level}";
+        public string GetGRXLevelName(GameSettings settings) => $"{GetShortVolName(settings).Substring(0, 1)}W{settings.World}L{settings.Level}";
 
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.NEW", SearchOption.AllDirectories)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.NEW", SearchOption.AllDirectories)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();

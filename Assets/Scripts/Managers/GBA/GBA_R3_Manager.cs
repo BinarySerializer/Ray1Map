@@ -1,14 +1,29 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
 {
     public class GBA_R3_Manager : GBA_Manager
     {
-        public override int LevelCount => 65;
+        public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
+        {
+            Enumerable.Range(0, 8),
+            Enumerable.Range(8, 9),
+            Enumerable.Range(17, 13),
+            Enumerable.Range(30, 10),
+            Enumerable.Range(40, 14),
+            Enumerable.Range(54, 5),
+            Enumerable.Range(59, 6),
+        };
+
+        // TODO: Get values
+        public override int[] MenuLevels => new int[0];
+        public override int DLCLevelCount => 10;
 
         // TODO: Find the way the game gets the vignette offsets and find remaining vignettes
         public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)

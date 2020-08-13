@@ -35,7 +35,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(World world) => GetWorldName(world) + "/";
+        public string GetWorldFolderPath(R1_World world) => GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the offset for the palettes in the game executable
@@ -74,54 +74,54 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world data file path</returns>
-        public string GetWorldFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}.DTA";
+        public string GetWorldFilePath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetWorldName(settings.R1_World)}.DTA";
 
         /// <summary>
         /// Gets the level data file path
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level data file path</returns>
-        public string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetWorldName(settings.World)}{settings.Level:00}.DTA";
+        public string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetWorldName(settings.R1_World)}{settings.Level:00}.DTA";
 
         /// <summary>
         /// Gets the map file path
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The map file path</returns>
-        public string GetMapFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}00{context.Settings.Level}.XMP";
+        public string GetMapFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}00{context.Settings.Level}.XMP";
 
         /// <summary>
         /// Gets the tile-set palette file path
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile-set palette file path</returns>
-        public string GetTileSetPaletteFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}.PAL";
+        public string GetTileSetPaletteFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}.PAL";
 
         /// <summary>
         /// Gets the tile-set palette index table file path
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile-set palette index table file path</returns>
-        public string GetTileSetPaletteIndexTableFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}_01.PLT";
+        public string GetTileSetPaletteIndexTableFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}_01.PLT";
 
         /// <summary>
         /// Gets the tile-set file path
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile-set file path</returns>
-        public string GetTileSetFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}_01.BIT";
+        public string GetTileSetFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}_01.BIT";
 
         public string GetBigRayImageFilePath() => "BIG.IMG";
         public string GetFixImageFilePath() => "RAY.IMG";
-        public string GetWorldImageFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}.IMG";
-        public string GetLevelImageFilePath(Context context) => GetWorldFolderPath(context.Settings.World) + $"{GetWorldName(context.Settings.World)}{context.Settings.Level:00}.IMG";
+        public string GetWorldImageFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}.IMG";
+        public string GetLevelImageFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}{context.Settings.Level:00}.IMG";
 
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"*.XMP", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"*.XMP", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(5)))
             .ToArray())).ToArray();
@@ -196,26 +196,26 @@ namespace R1Engine
             // After tile palettes: 19
             int part2 = 19;
             int level = context.Settings.Level;
-            switch (context.Settings.World) {
-                case World.Jungle:
+            switch (context.Settings.R1_World) {
+                case R1_World.Jungle:
                     if (level == 9 || level == 16) { // Different palette for Moskito boss, but why Swamp 1?
                         return part2 + 1;
                     } else {
                         return 2;
                     }
-                case World.Music:
+                case R1_World.Music:
                     return 0;
-                case World.Mountain:
+                case R1_World.Mountain:
                     return 4;
-                case World.Image:
+                case R1_World.Image:
                     if (level == 4 || level == 11) { // Different palette for the boss levels
                         return part2 + 4;
                     } else {
                         return 3;
                     }
-                case World.Cave:
+                case R1_World.Cave:
                     return 1;
-                case World.Cake:
+                case R1_World.Cake:
                     return part2 + 3;
                 default:
                     return 0;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -74,7 +73,7 @@ namespace R1Engine
             if (tileIndex >= tiles.Length)
             {
                 // If it's out of bounds and the level is Jungle 27 in PS1 EDU, hard-code to 509, which is what the game uses there
-                if (settings.EngineVersion == EngineVersion.RayEduPS1 && settings.World == World.Jungle && settings.Level == 27)
+                if (settings.EngineVersion == EngineVersion.RayEduPS1 && settings.R1_World == R1_World.Jungle && settings.Level == 27)
                 {
                     tileIndex = 509;
                 }

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -18,14 +18,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"{GetShortWorldName(settings.World)}{settings.Level:00}.lev";
+        public override string GetLevelFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"{GetShortWorldName(settings.R1_World)}{settings.Level:00}.lev";
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"RAY{((int)settings.World + 1):00}.WLD";
+        public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"RAY{settings.World:00}.WLD";
 
         /// <summary>
         /// Gets the file path for the vignette file
@@ -62,7 +62,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();
@@ -98,7 +98,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetEduVolumes(settings).Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile(GetSamplesArchiveFilePath(x)))).ToArray();
 
-        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesEdu[context.Settings.World] == desIndex && ((EventType)x.Type).IsMultiColored());
+        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesEdu[context.Settings.R1_World] == desIndex && ((EventType)x.Type).IsMultiColored());
 
         #endregion
 

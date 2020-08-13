@@ -16,9 +16,9 @@ public class DummySceneController : MonoBehaviour
         }).
             Where(x => Directory.Exists(Settings.GameDirectories.TryGetItem(x.Mode))).
             OrderBy(m => m.Mode == Settings.SelectedGameMode ? -1 : 0).
-            SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode])
+            SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode], 1, 1)
                 {
-                    EduVolume = x.Manager.GetEduVolumes(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode])).Contains(Settings.EduVolume) ? Settings.EduVolume : null
+                    EduVolume = x.Manager.GetEduVolumes(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode], 1, 1)).Contains(Settings.EduVolume) ? Settings.EduVolume : null
                 }).
                 SelectMany(y => y.Value.Select(z => new SettingsData(x.Mode, y.Key, z)))).
             ToArray();
@@ -42,7 +42,7 @@ public class DummySceneController : MonoBehaviour
 
     private class SettingsData
     {
-        public SettingsData(GameModeSelection gameModeSelection, World world, int level)
+        public SettingsData(GameModeSelection gameModeSelection, int world, int level)
         {
             GameModeSelection = gameModeSelection;
             World = world;
@@ -51,7 +51,7 @@ public class DummySceneController : MonoBehaviour
 
         public GameModeSelection GameModeSelection { get; }
 
-        public World World { get; }
+        public int World { get; }
 
         public int Level { get; }
     }

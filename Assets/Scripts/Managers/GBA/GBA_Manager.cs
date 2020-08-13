@@ -1,27 +1,41 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.UIElements;
 
 namespace R1Engine
 {
     public abstract class GBA_Manager : IGameManager
     {
-        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<World, int[]>[]
+        public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings)
         {
-            new KeyValuePair<World, int[]>(World.Jungle, Enumerable.Range(0, LevelCount).ToArray()), 
-        };
+            var output = new List<KeyValuePair<int, int[]>>();
+
+            // Add normal levels
+            output.AddRange(WorldLevels.Select((x, i) => new KeyValuePair<int, int[]>(i, x.ToArray())));
+
+            // Add menu maps
+            output.Add(new KeyValuePair<int, int[]>(output.Count, MenuLevels));
+
+            // Add DLC maps if available
+            if (DLCLevelCount > 0)
+                output.Add(new KeyValuePair<int, int[]>(output.Count, Enumerable.Range(0, DLCLevelCount).ToArray()));
+
+            return output.ToArray();
+        }
 
         public string[] GetEduVolumes(GameSettings settings) => new string[0];
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
-        public abstract int LevelCount { get; }
+        public abstract IEnumerable<int>[] WorldLevels { get; }
+        public int LevelCount => WorldLevels.Select(x => x.Count()).Sum();
+        public abstract int[] MenuLevels { get; }
+        public abstract int DLCLevelCount { get; }
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {

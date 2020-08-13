@@ -18,7 +18,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"{GetShortWorldName(w)}??.lev.gz", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"{GetShortWorldName(w)}??.lev.gz", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();
@@ -49,34 +49,34 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"{GetShortWorldName(settings.World)}{settings.Level}.lev.gz";
+        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetShortWorldName(settings.R1_World)}{settings.Level}.lev.gz";
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"ray{(int)settings.World + 1}.wld.gz";
+        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"ray{settings.World}.wld.gz";
 
         /// <summary>
         /// Gets the short name for the world
         /// </summary>
         /// <returns>The short world name</returns>
-        public override string GetShortWorldName(World world)
+        public override string GetShortWorldName(R1_World world)
         {
             switch (world)
             {
-                case World.Jungle:
+                case R1_World.Jungle:
                     return "JUN";
-                case World.Music:
+                case R1_World.Music:
                     return "MUS";
-                case World.Mountain:
+                case R1_World.Mountain:
                     return "MON";
-                case World.Image:
+                case R1_World.Image:
                     return "IMG";
-                case World.Cave:
+                case R1_World.Cave:
                     return "CAV";
-                case World.Cake:
+                case R1_World.Cake:
                     return "CAK";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(world), world, null);

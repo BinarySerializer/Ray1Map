@@ -18,14 +18,10 @@
         public Pointer[] EventDataPointers { get; set; }
         public GBA_R1_EventData[][] EventData { get; set; }
 
-        /// <summary>
-        /// Handles the data serialization
-        /// </summary>
-        /// <param name="s">The serializer object</param>
         public void SerializeData(SerializerObject s, Pointer eventGraphicsPointers, Pointer eventDataPointers, Pointer eventGraphicsGroupCountTablePointers, Pointer levelEventGraphicsGroupCounts)
         {
             // Get the global level index
-            var levelIndex = new GBA_R1_Manager().GetGlobalLevelIndex(s.GameSettings.World, s.GameSettings.Level);
+            var levelIndex = ((GBA_R1_Manager)s.Context.Settings.GetGameManager).LoadData(s.Context).WorldLevelOffsetTable[s.GameSettings.World] + (s.GameSettings.Level - 1);
 
             // Serialize data
             s.DoAt(eventGraphicsPointers + (uint)(4 * levelIndex), 

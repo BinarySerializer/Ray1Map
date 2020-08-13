@@ -69,7 +69,7 @@ namespace R1Engine {
         #region Private Fields
 
         private static GameModeSelection _selectedGameMode;
-        private static World _world = World.Jungle;
+        private static int _world = 1;
         private static int _level = 1;
         private static string _eduVolume;
         private static bool _useHdCollisionSheet;
@@ -100,7 +100,7 @@ namespace R1Engine {
         /// <summary>
         /// The selected game world
         /// </summary>
-        public static World World
+        public static int World
         {
             get => _world;
             set
@@ -247,7 +247,8 @@ namespace R1Engine {
         /// Serialization log file
         /// </summary>
         public static string LogFile { get; set; }
-        
+
+        /// <summary>
         /// Whether to log to the serialization log file
         /// </summary>
         public static bool Log { get; set; }
@@ -301,7 +302,7 @@ namespace R1Engine {
                     string dir = GameDirectories.ContainsKey(mode) ? GameDirectories[mode] : "";
                     GameDirectories[mode] = s.SerializeString("Directory" + mode.ToString(), dir);
                 }
-                if (UnityEngine.Application.isEditor) {
+                if (Application.isEditor) {
                     foreach (GameModeSelection mode in modes) {
                         string dir = GameDirectoriesWeb.ContainsKey(mode) ? GameDirectoriesWeb[mode] : "";
                         GameDirectoriesWeb[mode] = s.SerializeString("WebDirectory" + mode.ToString(), dir);
@@ -319,9 +320,8 @@ namespace R1Engine {
                     GameDirectories[SelectedGameMode] = s.SerializeString("Directory", dir, "dir", "directory", "folder", "f", "d");
                 }
             }
-            string worldString = s.SerializeString("World", World.ToString(), "world", "wld", "w");
-            World = Enum.TryParse<World>(worldString, out World world) ? world : World;
 
+            World = s.SerializeInt("WorldIndex", World, "wld", "w");
             EduVolume = s.SerializeString("EduVolume", EduVolume, "volume", "vol");
             Level = s.SerializeInt("SelectedLevelFile", Level, "level", "lvl", "map");
             LoadFromMemory = s.SerializeBool("LoadFromMemory", LoadFromMemory);
@@ -349,12 +349,12 @@ namespace R1Engine {
         /// Saves the settings
         /// </summary>
         public static void Save() {
-            if (UnityEngine.Application.isEditor) {
+            if (Application.isEditor) {
 #if UNITY_EDITOR
                 ISerializer s = new EditorWriteSerializer();
                 SerializeSettings(s);
 #endif
-            } else if (UnityEngine.Application.platform != UnityEngine.RuntimePlatform.WebGLPlayer) {
+            } else if (Application.platform != RuntimePlatform.WebGLPlayer) {
                 using (SettingsFileWriteSerializer s = new SettingsFileWriteSerializer(settingsFile)) {
                     SerializeSettings(s);
                 }
@@ -365,12 +365,12 @@ namespace R1Engine {
         /// Loads the settings
         /// </summary>
         public static void Load() {
-            if (UnityEngine.Application.isEditor) {
+            if (Application.isEditor) {
 #if UNITY_EDITOR
                 ISerializer s = new EditorReadSerializer();
                 SerializeSettings(s);
 #endif
-            } else if (UnityEngine.Application.platform != UnityEngine.RuntimePlatform.WebGLPlayer) {
+            } else if (Application.platform != RuntimePlatform.WebGLPlayer) {
                 if (!File.Exists(settingsFile)) {
                     Save();
                 }
@@ -378,7 +378,7 @@ namespace R1Engine {
                 SerializeSettings(s);
             }
             ConfigureFileSystem();
-            if (!UnityEngine.Application.isEditor) {
+            if (!Application.isEditor) {
                 ParseCommandLineArguments();
             }
         }
@@ -453,7 +453,7 @@ namespace R1Engine {
         private class CmdLineReadSerializer : ISerializer {
             string[] args;
             public CmdLineReadSerializer() {
-                args = System.Environment.GetCommandLineArgs();
+                args = Environment.GetCommandLineArgs();
             }
 
             public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {
@@ -586,7 +586,7 @@ namespace R1Engine {
 
             public void Dispose() {
                 writer?.Flush();
-                ((IDisposable)writer).Dispose();
+                ((IDisposable)writer)?.Dispose();
             }
 
             public bool SerializeBool(string key, bool value, params string[] cmdlineKeys) {

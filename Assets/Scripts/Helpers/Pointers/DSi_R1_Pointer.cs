@@ -13,6 +13,8 @@
 
         StringPointers,
 
+        WorldLevelOffsetTable,
+
         EventGraphicsPointers,
         EventDataPointers,
         EventGraphicsGroupCountTablePointers,

@@ -28,25 +28,25 @@ namespace R1Engine
         public ARGB1555Color[] GetSpritePalettes(GameSettings settings)
         {
             DSi_R1_PaletteReference palRef = null;
-            switch (settings.World)
+            switch (settings.R1_World)
             {
-                case World.Jungle:
+                case R1_World.Jungle:
                     palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_ray");
                     break;
-                case World.Music:
+                case R1_World.Music:
                     palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_mus");
                     break;
-                case World.Mountain:
+                case R1_World.Mountain:
                     palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_mnt");
                     // NOTE: There's a mnt2. It appears to be unused?
                     break;
-                case World.Image:
+                case R1_World.Image:
                     palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_img");
                     break;
-                case World.Cave:
+                case R1_World.Cave:
                     palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_cav");
                     break;
-                case World.Cake:
+                case R1_World.Cake:
                     palRef = Palettes.FirstOrDefault(p => p.Name == "PALETTE_ray");
                     break;
             }
@@ -62,6 +62,8 @@ namespace R1Engine
         public GBA_R1_IntroVignette[] IntroVignettes => null;
         public GBA_R1_WorldMapVignette WorldMapVignette { get; set; }
 
+        public byte[] WorldLevelOffsetTable { get; set; }
+
         public Pointer[] StringPointerTable { get; set; }
         public string[][] Strings { get; set; }
 
@@ -71,14 +73,17 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            // Get the global level index
-            var levelIndex = new DSi_R1_Manager().GetGlobalLevelIndex(s.GameSettings.World, s.GameSettings.Level);
-
             // Get the pointer table
             var pointerTable = PointerTables.GetDSiPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
+            s.DoAt(pointerTable[DSi_R1_Pointer.WorldLevelOffsetTable],
+                () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 8, name: nameof(WorldLevelOffsetTable)));
+
+            // Get the global level index
+            var levelIndex = WorldLevelOffsetTable[s.GameSettings.World] + (s.GameSettings.Level - 1);
+
             // Serialize data from the ROM
-            s.DoAt((s.GameSettings.World == World.Jungle ? pointerTable[DSi_R1_Pointer.JungleMaps] : pointerTable[DSi_R1_Pointer.LevelMaps]) + (levelIndex * 32), 
+            s.DoAt((s.GameSettings.R1_World == R1_World.Jungle ? pointerTable[DSi_R1_Pointer.JungleMaps] : pointerTable[DSi_R1_Pointer.LevelMaps]) + (levelIndex * 32), 
                 () => LevelMapData = s.SerializeObject<GBA_R1_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
             s.DoAt(pointerTable[DSi_R1_Pointer.BackgroundVignette],
                 () => BackgroundVignettes = s.SerializeObjectArray<GBA_R1_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));

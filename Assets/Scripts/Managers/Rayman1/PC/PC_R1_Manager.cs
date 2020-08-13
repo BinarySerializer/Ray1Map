@@ -18,7 +18,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();
@@ -28,7 +28,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="world">The world</param>
         /// <returns>The world folder path</returns>
-        public string GetWorldFolderPath(World world) => GetDataPath() + GetWorldName(world) + "/";
+        public string GetWorldFolderPath(R1_World world) => GetDataPath() + GetWorldName(world) + "/";
 
         /// <summary>
         /// Gets the file path for the big ray file
@@ -49,14 +49,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.World) + $"RAY{settings.Level}.LEV";
+        public override string GetLevelFilePath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"RAY{settings.Level}.LEV";
 
         /// <summary>
         /// Gets the file path for the specified world file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{(int)settings.World + 1}.WLD";
+        public override string GetWorldFilePath(GameSettings settings) => GetDataPath() + $"RAY{settings.World}.WLD";
 
         public virtual string GetLanguageFilePath() => "RAY.LNG";
 
@@ -74,7 +74,7 @@ namespace R1Engine
             new AdditionalSoundArchive("VIG", new ArchiveFile("SNDVIG.DAT"), 16),
         };
 
-        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesR1[context.Settings.World] == desIndex && ((EventType)x.Type).IsMultiColored());
+        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesR1[context.Settings.R1_World] == desIndex && ((EventType)x.Type).IsMultiColored());
 
         /// <summary>
         /// Gets the available game actions

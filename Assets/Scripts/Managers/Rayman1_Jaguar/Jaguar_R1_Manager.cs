@@ -19,7 +19,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public virtual KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetNumLevels.OrderBy(x => x.Key).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray();
+        public virtual KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => GetNumLevels.OrderBy(x => x.Key).Select(x => new KeyValuePair<int, int[]>((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes
@@ -41,14 +41,14 @@ namespace R1Engine
         /// <summary>
         /// Gets the available levels ordered based on the global level array
         /// </summary>
-        public virtual KeyValuePair<World, int>[] GetNumLevels => new KeyValuePair<World, int>[]
+        public virtual KeyValuePair<R1_World, int>[] GetNumLevels => new KeyValuePair<R1_World, int>[]
         {
-            new KeyValuePair<World, int>(World.Jungle, 21),
-            new KeyValuePair<World, int>(World.Mountain, 14),
-            new KeyValuePair<World, int>(World.Cave, 13),
-            new KeyValuePair<World, int>(World.Music, 19),
-            new KeyValuePair<World, int>(World.Image, 14),
-            new KeyValuePair<World, int>(World.Cake, 4)
+            new KeyValuePair<R1_World, int>(R1_World.Jungle, 21),
+            new KeyValuePair<R1_World, int>(R1_World.Mountain, 14),
+            new KeyValuePair<R1_World, int>(R1_World.Cave, 13),
+            new KeyValuePair<R1_World, int>(R1_World.Music, 19),
+            new KeyValuePair<R1_World, int>(R1_World.Image, 14),
+            new KeyValuePair<R1_World, int>(R1_World.Cake, 4)
         };
 
         public virtual int[] ExtraMapCommands => new int[] {
@@ -158,7 +158,7 @@ namespace R1Engine
             {
                 if (includeFinalSpritesForDemo)
                 {
-                    var mainRomSettings = new GameSettings(GameModeSelection.RaymanJaguar, Settings.GameDirectories[GameModeSelection.RaymanJaguar]);
+                    var mainRomSettings = new GameSettings(GameModeSelection.RaymanJaguar, Settings.GameDirectories[GameModeSelection.RaymanJaguar], 1, 1);
 
                     mainRomContext = new Context(mainRomSettings);
 
@@ -1247,7 +1247,7 @@ namespace R1Engine
             var gendoor = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Gendoor
             var piranha = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Piranha
             var scroll = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Scroll
-            var rayBzzit = (correctEventStates && context.Settings.World == World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Rayman on Bzzit
+            var rayBzzit = (correctEventStates && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Rayman on Bzzit
             var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Bzzit (demo)
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
@@ -1373,7 +1373,7 @@ namespace R1Engine
                             else
                                 eventData.Data.Etat = 2;
                         }
-                        else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.Settings.World == World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
+                        else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
                             if (rayBzzit != null) {
                                 eventData.DESKey = rayBzzit.DESKey;

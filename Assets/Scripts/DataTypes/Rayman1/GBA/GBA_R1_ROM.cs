@@ -45,6 +45,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         public ARGB1555Color[] GetSpritePalettes(GameSettings settings) => SpritePalettes; 
 
+
         /// <summary>
         /// World level index offset table for global level array
         /// </summary>
@@ -68,14 +69,17 @@ namespace R1Engine
             // Serialize ROM header
             base.SerializeImpl(s);
 
-            // Get the global level index
-            var levelIndex = new GBA_R1_Manager().GetGlobalLevelIndex(s.GameSettings.World, s.GameSettings.Level);
-
             // Get the pointer table
             var pointerTable = PointerTables.GetGBAPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
+            s.DoAt(pointerTable[GBA_R1_ROMPointer.WorldLevelOffsetTable],
+                () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 12, name: nameof(WorldLevelOffsetTable)));
+
+            // Get the global level index
+            var levelIndex = WorldLevelOffsetTable[s.GameSettings.World] + (s.GameSettings.Level - 1);
+
             // Hardcode files
-            if (s is BinaryDeserializer && s.GameSettings.World == World.Image && s.GameSettings.Level == 4) {
+            if (s is BinaryDeserializer && s.GameSettings.R1_World == R1_World.Image && s.GameSettings.Level == 4) {
                 s.DoAt(Offset + 0x55cc, () => {
                     void CreateFakeFile(int index, int size) {
                         uint memAddress = s.Serialize<uint>(default, name: nameof(memAddress));
@@ -113,9 +117,6 @@ namespace R1Engine
 
             s.DoAt(pointerTable[GBA_R1_ROMPointer.SpritePalettes], 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16, name: nameof(SpritePalettes)));
-
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.WorldLevelOffsetTable],
-                () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 12, name: nameof(WorldLevelOffsetTable)));
 
             // Serialize the level event data
             LevelEventData = new GBA_R1_LevelEventData();

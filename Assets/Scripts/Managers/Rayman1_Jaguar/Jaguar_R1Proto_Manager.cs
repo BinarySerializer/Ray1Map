@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -20,10 +19,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) =>
-            new KeyValuePair<World, int[]>[]
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) =>
+            new KeyValuePair<int, int[]>[]
             {
-                new KeyValuePair<World, int[]>(World.Jungle, new int[]
+                new KeyValuePair<int, int[]>(1, new int[]
                 {
                     1
                 }), 

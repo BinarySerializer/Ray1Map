@@ -1,11 +1,11 @@
-﻿using R1Engine;
+﻿using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
+using R1Engine;
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
-using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -115,7 +115,10 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader(ref yPos, "Map");
 
-        Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames));
+        // Helper method for getting the world name
+        string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
+
+        Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames.Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray()));
 
         try
         {
@@ -127,13 +130,16 @@ public class SettingsWindow : UnityWindow
                 var manager = Settings.GetGameManager;
                 var settings = Settings.GetGameSettings;
 
+                var mapNames = MapNames.GetMapNames(settings.Game);
+                var worldNames = MapNames.GetWorldNames(settings.Game);
+
                 CurrentLevels = manager.GetLevels(settings)
-                    .Select(x => new KeyValuePair<World, KeyValuePair<int, string>[]>(x.Key, x.Value.OrderBy(i => i)
-                        .Select(i => new KeyValuePair<int, string>(i, MapNames.GetMapNames(settings.Game)?.TryGetItem(Settings.World)?.TryGetItem(i)))
+                    .Select(x => new KeyValuePair<int, KeyValuePair<int, string>[]>(x.Key, x.Value.OrderBy(i => i)
+                        .Select(i => new KeyValuePair<int, string>(i, mapNames?.TryGetItem(Settings.World)?.TryGetItem(i)))
                         .ToArray()))
                     .ToArray();
                 AvailableWorlds = CurrentLevels.Where(x => x.Value.Any()).Select(x => x.Key).ToArray();
-                AvailableWorldNames = AvailableWorlds.Select(x => x.ToString()).ToArray();
+                AvailableWorldNames = AvailableWorlds.Select(x => worldNames?.TryGetItem(x)).ToArray();
             }
         }
         catch (Exception ex)
@@ -147,7 +153,7 @@ public class SettingsWindow : UnityWindow
             if (lvlIndex >= 0)
                 Settings.Level = lvlIndex;
         } else {
-            var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<World, KeyValuePair<int, string>[]>[0];
+            var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<int, KeyValuePair<int, string>[]>[0];
 
             var currentLevels = levels.FindItem(x => x.Key == Settings.World).Value ?? new KeyValuePair<int, string>[0];
 
@@ -336,7 +342,7 @@ public class SettingsWindow : UnityWindow
                     }
 
                     // Create settings
-                    var settings = new GameSettings(mode, Settings.GameDirectories[mode]);
+                    var settings = new GameSettings(mode, Settings.GameDirectories[mode], Settings.World, Settings.Level);
 
                     // Get manager
                     var manager = settings.GetGameManager;
@@ -458,11 +464,11 @@ public class SettingsWindow : UnityWindow
 
     private string[] GameModeNames { get; } = EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray();
 
-    private World[] AvailableWorlds { get; set; } = EnumHelpers.GetValues<World>();
+    private int[] AvailableWorlds { get; set; } = new int[0];
 
-    private string[] AvailableWorldNames { get; set; } = EnumHelpers.GetValues<World>().Select(x => x.ToString()).ToArray();
+    private string[] AvailableWorldNames { get; set; } = new string[0];
 
-    private KeyValuePair<World, KeyValuePair<int, string>[]>[] CurrentLevels { get; set; } = new KeyValuePair<World, KeyValuePair<int, string>[]>[0];
+    private KeyValuePair<int, KeyValuePair<int, string>[]>[] CurrentLevels { get; set; } = new KeyValuePair<int, KeyValuePair<int, string>[]>[0];
 
 	private string[] CurrentEduVolumes { get; set; } = new string[0];
 
@@ -501,7 +507,7 @@ public class SettingsWindow : UnityWindow
         /// <summary>
         /// The previously saved world
         /// </summary>
-        private World PrevWorld { get; set; } = World.Jungle;
+        private int PrevWorld { get; set; } = 1;
 
         private string PrevEduVolume { get; set; } = String.Empty;
     }

@@ -37,24 +37,24 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The world file path</returns>
-        public virtual string GetWorldFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}.DTA";
-        public string GetWorldSpritePath(GameSettings settings) => $"{GetWorldName(settings.World)}.IMG";
+        public virtual string GetWorldFilePath(GameSettings settings) => $"{GetWorldName(settings.R1_World)}.DTA";
+        public string GetWorldSpritePath(GameSettings settings) => $"{GetWorldName(settings.R1_World)}.IMG";
 
         /// <summary>
         /// Gets the file path for the level tile set file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level tile set file path</returns>
-        public string GetTileSetFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}_OPT.R16";
+        public string GetTileSetFilePath(GameSettings settings) => $"{GetWorldName(settings.R1_World)}_OPT.R16";
 
         /// <summary>
         /// Gets the file path for the level file
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public string GetLevelFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}{settings.Level:00}.DTA";
-        public string GetLevelSpritePath(GameSettings settings) => $"{GetWorldName(settings.World)}{settings.Level:00}.IMG";
-        public string GetPalettePath(GameSettings settings, int i) => $"{GetWorldName(settings.World)}{i}.PAL";
+        public string GetLevelFilePath(GameSettings settings) => $"{GetWorldName(settings.R1_World)}{settings.Level:00}.DTA";
+        public string GetLevelSpritePath(GameSettings settings) => $"{GetWorldName(settings.R1_World)}{settings.Level:00}.IMG";
+        public string GetPalettePath(GameSettings settings, int i) => $"{GetWorldName(settings.R1_World)}{i}.PAL";
         public string GetFontPalettePath() => $"LETTRE.PAL";
 
         /// <summary>
@@ -62,14 +62,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level map file path</returns>
-        public string GetMapFilePath(GameSettings settings) => $"{GetWorldName(settings.World)}{settings.Level:00}.MAP";
+        public string GetMapFilePath(GameSettings settings) => $"{GetWorldName(settings.R1_World)}{settings.Level:00}.MAP";
 
         /// <summary>
         /// Gets the levels for each world
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => EnumHelpers.GetValues<World>().Select(w => new KeyValuePair<World, int[]>(w, Directory.EnumerateFiles(settings.GameDirectory, $"{GetWorldName(w)}*.MAP", SearchOption.TopDirectoryOnly)
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory, $"{GetWorldName(w)}*.MAP", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray();

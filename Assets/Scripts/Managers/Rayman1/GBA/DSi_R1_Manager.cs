@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using System.Collections.Generic;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -14,93 +15,14 @@ namespace R1Engine
         /// </summary>
         public new const int LevelCount = 22 + 18 + 13 + 13 + 12 + 4;
 
-        /// <summary>
-        /// Gets the available levels ordered based on the global level array
-        /// </summary>
-        public override World[] GetGlobalLevels => new World[]
+        public override KeyValuePair<R1_World, int>[] GetLevelCounts => new KeyValuePair<R1_World, int>[]
         {
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cake,
-            World.Cake,
-            World.Cake,
-            World.Cake,
+            new KeyValuePair<R1_World, int>(R1_World.Jungle, 22),
+            new KeyValuePair<R1_World, int>(R1_World.Music, 18),
+            new KeyValuePair<R1_World, int>(R1_World.Mountain, 13),
+            new KeyValuePair<R1_World, int>(R1_World.Image, 13),
+            new KeyValuePair<R1_World, int>(R1_World.Cave, 12),
+            new KeyValuePair<R1_World, int>(R1_World.Cake, 4),
         };
 
         /// <summary>
@@ -132,7 +54,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The game data</returns>
-        protected override IGBA_R1_Data LoadData(Context context) => FileFactory.Read<DSi_R1_DataFile>(GetROMFilePath, context);
+        public override IGBA_R1_Data LoadData(Context context) => FileFactory.Read<DSi_R1_DataFile>(GetROMFilePath, context);
 
         #endregion
     }

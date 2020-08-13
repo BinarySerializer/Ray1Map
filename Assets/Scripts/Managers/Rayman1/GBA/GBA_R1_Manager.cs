@@ -24,7 +24,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => GetGlobalLevels.GroupBy(x => x).Select(x => new KeyValuePair<World, int[]>(x.Key, Enumerable.Range(1, x.Count()).ToArray())).ToArray();
+        public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => GetLevelCounts.Select(x => new KeyValuePair<int, int[]>((int)x.Key, Enumerable.Range(0, x.Value).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the available educational volumes
@@ -33,99 +33,15 @@ namespace R1Engine
         /// <returns>The available educational volumes</returns>
         public string[] GetEduVolumes(GameSettings settings) => new string[0];
 
-        /// <summary>
-        /// Gets the available levels ordered based on the global level array
-        /// </summary>
-        public virtual World[] GetGlobalLevels => new World[]
+        public virtual KeyValuePair<R1_World, int>[] GetLevelCounts => new KeyValuePair<R1_World, int>[]
         {
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Jungle,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Music,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Mountain,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Image,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cave,
-            World.Cake,
-            World.Cake,
-            World.Cake,
-            World.Cake,
-            World.Jungle,
-            World.Music,
-            World.Mountain,
-            World.Image,
-            World.Cave,
-            World.Cake,
+            new KeyValuePair<R1_World, int>(R1_World.Jungle, 22), 
+            new KeyValuePair<R1_World, int>(R1_World.Music, 18), 
+            new KeyValuePair<R1_World, int>(R1_World.Mountain, 13), 
+            new KeyValuePair<R1_World, int>(R1_World.Image, 13), 
+            new KeyValuePair<R1_World, int>(R1_World.Cave, 12), 
+            new KeyValuePair<R1_World, int>(R1_World.Cake, 4), 
+            new KeyValuePair<R1_World, int>(R1_World.Multiplayer, 6),
         };
 
         /// <summary>
@@ -137,30 +53,6 @@ namespace R1Engine
         /// Gets the base address for the ROM file
         /// </summary>
         protected virtual uint GetROMBaseAddress => 0x08000000;
-
-        /// <summary>
-        /// Gets the global level index from the world and level
-        /// </summary>
-        /// <param name="world">The world</param>
-        /// <param name="lvl">The level</param>
-        /// <returns>The global index</returns>
-        public int GetGlobalLevelIndex(World world, int lvl)
-        {
-            var lvls = GetGlobalLevels;
-            var worldIndex = 0;
-            for (int i = 0; i < lvls.Length; i++)
-            {
-                if (lvls[i] == world)
-                {
-                    if (worldIndex == lvl - 1)
-                        return i;
-
-                    worldIndex++;
-                }
-            }
-
-            return -1;
-        }
 
         /// <summary>
         /// True if colors are 4-bit, false if they're 8-bit
@@ -181,7 +73,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The game data</returns>
-        protected virtual IGBA_R1_Data LoadData(Context context) => FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
+        public virtual IGBA_R1_Data LoadData(Context context) => FileFactory.Read<GBA_R1_ROM>(GetROMFilePath, context);
 
         /// <summary>
         /// Gets the available game actions
@@ -222,7 +114,7 @@ namespace R1Engine
                 var gbaPointerTable = isGBA ? PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
                 var dsiPointerTable = !isGBA ? PointerTables.GetDSiPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
 
-                var graphics = new Dictionary<Pointer, List<KeyValuePair<World, ARGB1555Color[]>>>();
+                var graphics = new Dictionary<Pointer, List<KeyValuePair<R1_World, ARGB1555Color[]>>>();
 
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings))
@@ -248,10 +140,10 @@ namespace R1Engine
                             var key = eventData.GraphicDataPointers[i];
 
                             if (!graphics.ContainsKey(key))
-                                graphics.Add(key, new List<KeyValuePair<World, ARGB1555Color[]>>());
+                                graphics.Add(key, new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
 
-                            if (graphics[key].All(x => x.Key != world.Key))
-                                graphics[key].Add(new KeyValuePair<World, ARGB1555Color[]>(world.Key, data.GetSpritePalettes(baseGameSettings)));
+                            if (graphics[key].All(x => x.Key != (R1_World)world.Key))
+                                graphics[key].Add(new KeyValuePair<R1_World, ARGB1555Color[]>((R1_World)world.Key, data.GetSpritePalettes(baseGameSettings)));
                         }
                     }
                 }
@@ -259,17 +151,17 @@ namespace R1Engine
                 // Add unused graphics
                 if (isGBA)
                 {
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.DrumWalkerGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.ClockGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.InkGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontSmallGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontLargeGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.PinsGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.DrumWalkerGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.InkGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontSmallGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontLargeGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.PinsGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
                 }
                 else
                 {
                     // TODO: Where is the font?
-                    graphics.Add(dsiPointerTable[DSi_R1_Pointer.ClockGraphics], new List<KeyValuePair<World, ARGB1555Color[]>>());
+                    graphics.Add(dsiPointerTable[DSi_R1_Pointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
                 }
 
                 var desIndex = 0;

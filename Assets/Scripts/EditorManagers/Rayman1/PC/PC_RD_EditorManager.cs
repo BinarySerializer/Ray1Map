@@ -58,7 +58,7 @@ namespace R1Engine
         /// <returns>The DES key</returns>
         public override string GetDesKey(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.DesKit[Settings.World] + ".DES";
+            return eventInfoData.DesKit[Settings.R1_World] + ".DES";
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace R1Engine
         /// <returns>The ETA key</returns>
         public override string GetEtaKey(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.EtaKit[Settings.World] + ".ETA";
+            return eventInfoData.EtaKit[Settings.R1_World] + ".ETA";
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace R1Engine
         /// <returns>True if it's available, otherwise false</returns>
         public override bool IsAvailableInWorld(GeneralEventInfoData eventInfoData)
         {
-            return eventInfoData.DesKit.ContainsKey(Settings.World) && !String.IsNullOrWhiteSpace(eventInfoData.DesKit[Settings.World]);
+            return eventInfoData.DesKit.ContainsKey(Settings.R1_World) && !String.IsNullOrWhiteSpace(eventInfoData.DesKit[Settings.R1_World]);
         }
 
         public override Enum GetCollisionTypeAsEnum(byte collisionType) => (R1_TileCollisionType)collisionType;

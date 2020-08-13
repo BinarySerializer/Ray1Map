@@ -1,8 +1,6 @@
-﻿using System;
+﻿using R1Engine.Serialize;
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -18,11 +16,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<World, int[]>[]
+        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<int, int[]>[]
         {
             // Hard-code this since most levels don't have maps we can load
-            new KeyValuePair<World, int[]>(World.Jungle, Enumerable.Range(1, 14).ToArray()), 
-            new KeyValuePair<World, int[]>(World.Music, Enumerable.Range(1, 5).ToArray()), 
+            new KeyValuePair<int, int[]>(1, Enumerable.Range(1, 14).ToArray()), 
+            new KeyValuePair<int, int[]>(2, Enumerable.Range(1, 5).ToArray()), 
         };
 
         /// <summary>
@@ -38,14 +36,14 @@ namespace R1Engine
         /// <summary>
         /// Gets the available levels ordered based on the global level array
         /// </summary>
-        public override KeyValuePair<World, int>[] GetNumLevels => new KeyValuePair<World, int>[]
+        public override KeyValuePair<R1_World, int>[] GetNumLevels => new KeyValuePair<R1_World, int>[]
         {
-            new KeyValuePair<World, int>(World.Jungle, 14),
-            new KeyValuePair<World, int>(World.Mountain, 4),
-            new KeyValuePair<World, int>(World.Cave, 2),
-            new KeyValuePair<World, int>(World.Music, 5),
-            new KeyValuePair<World, int>(World.Image, 2),
-            new KeyValuePair<World, int>(World.Cake, 2)
+            new KeyValuePair<R1_World, int>(R1_World.Jungle, 14),
+            new KeyValuePair<R1_World, int>(R1_World.Mountain, 4),
+            new KeyValuePair<R1_World, int>(R1_World.Cave, 2),
+            new KeyValuePair<R1_World, int>(R1_World.Music, 5),
+            new KeyValuePair<R1_World, int>(R1_World.Image, 2),
+            new KeyValuePair<R1_World, int>(R1_World.Cake, 2)
         };
 
         public override int[] ExtraMapCommands => new int[] {

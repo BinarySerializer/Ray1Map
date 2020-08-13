@@ -9,9 +9,9 @@ namespace R1Engine
 {
     public class SNES_Prototype_Manager : IGameManager
     {
-        public KeyValuePair<World, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<World, int[]>[]
+        public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<int, int[]>[]
         {
-            new KeyValuePair<World, int[]>(World.Jungle, new int[]
+            new KeyValuePair<int, int[]>(0, new int[]
             {
                 0
             }), 
