@@ -3,7 +3,7 @@
     /// <summary>
     /// A map block for GBA
     /// </summary>
-    public class GBA_TileMap : GBA_BaseBlock {
+    public class GBA_TileKit : GBA_BaseBlock {
         public ushort TileMap4bppSize { get; set; }
         public ushort TileMap8bppSize { get; set; }
         public byte[] UnkData { get; set; }

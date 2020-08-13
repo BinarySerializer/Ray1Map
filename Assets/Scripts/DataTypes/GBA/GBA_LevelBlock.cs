@@ -55,8 +55,8 @@
 
             // TODO: What is this data?
             //Controller.print(Actors.Sum(a => a.Unk_0B));
-            Controller.print("Length of unknown data: " + (BlockSize - (s.CurrentPointer - (Offset + 4))));
-            UnkData = s.SerializeArray<byte>(UnkData, BlockSize - (s.CurrentPointer - (Offset + 4)), name: nameof(UnkData));
+            Controller.print("Length of unknown data: " + (BlockSize - (s.CurrentPointer - Offset)));
+            UnkData = s.SerializeArray<byte>(UnkData, BlockSize - (s.CurrentPointer - Offset), name: nameof(UnkData));
         }
 
         public override void SerializeOffsetData(SerializerObject s)

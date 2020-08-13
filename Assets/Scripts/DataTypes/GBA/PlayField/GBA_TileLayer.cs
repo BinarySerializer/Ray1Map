@@ -52,7 +52,7 @@ namespace R1Engine
         public GBA_TileCollisionType[] CollisionData { get; set; }
 
         // Batman
-        public GBA_TileMap Tilemap { get; set; }
+        public GBA_TileKit Tilemap { get; set; }
 
 
         public override void SerializeImpl(SerializerObject s) {
@@ -80,7 +80,7 @@ namespace R1Engine
                         MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
                     }
                     // Serialize tilemap
-                    Tilemap = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
+                    Tilemap = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileKit>(Tilemap, name: nameof(Tilemap)));
 
                 } else {
                     if (IsCompressed) {

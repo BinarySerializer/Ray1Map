@@ -7,7 +7,7 @@
         // Indicates if the PlayField is of type 2D or Mode7
         public bool IsMode7 { get; set; }
 
-        public byte TileMapOffsetIndex { get; set; }
+        public byte TileKitIndex { get; set; }
 
         public byte UnkBGDataOffsetIndex { get; set; }
         
@@ -37,7 +37,7 @@
 
         #region Parsed
 
-        public GBA_TileMap Tilemap { get; set; }
+        public GBA_TileKit TileKit { get; set; }
 
         // For Mode7 maps this creates the main tilemap
         public GBA_UnkBGData UnkBGData { get; set; }
@@ -60,7 +60,7 @@
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA ||
                 s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 3, name: nameof(UnkBytes1));
-                TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
+                TileKitIndex = s.Serialize<byte>(TileKitIndex, name: nameof(TileKitIndex));
                 UnkBGDataOffsetIndex = s.Serialize<byte>(UnkBGDataOffsetIndex, name: nameof(UnkBGDataOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
                 UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 2, name: nameof(UnkBytes2));
@@ -68,7 +68,7 @@
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } else {
                 IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
-                TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
+                TileKitIndex = s.Serialize<byte>(TileKitIndex, name: nameof(TileKitIndex));
                 UnkBGDataOffsetIndex = s.Serialize<byte>(UnkBGDataOffsetIndex, name: nameof(UnkBGDataOffsetIndex));
 
                 if (!IsMode7)
@@ -117,7 +117,7 @@
 
 
                 // Serialize tilemap
-                Tilemap = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_TileMap>(Tilemap, name: nameof(Tilemap)));
+                TileKit = s.DoAt(OffsetTable.GetPointer(TileKitIndex), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
 
                 // Serialize tilemap
                 UnkBGData = s.DoAt(OffsetTable.GetPointer(UnkBGDataOffsetIndex), () => s.SerializeObject<GBA_UnkBGData>(UnkBGData, name: nameof(UnkBGData)));

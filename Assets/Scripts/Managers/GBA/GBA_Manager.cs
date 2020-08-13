@@ -292,7 +292,7 @@ namespace R1Engine
                 : playField.Layers.FirstOrDefault(x => x.LayerID == 2) ?? playField.Layers.First(x => !x.Is8bpp);
 
             // Get the map data to use
-            var mapData = !playField.IsMode7 ? map.MapData : map.Mode7Data?.Select(x => playField.UnkBGData.Data[x - 1]).ToArray();
+            var mapData = !playField.IsMode7 ? map.MapData : map.Mode7Data?.Select(x => playField.UnkBGData.Data1[x - 1]).ToArray();
 
             // Get the collision data
             GBA_TileLayer cMap = playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
@@ -414,21 +414,16 @@ namespace R1Engine
             }
 
             // Add first animation for now
-            des.Animations.Add(new Common_Animation()
-            {
-                Frames = new Common_AnimFrame[]
-                {
-                    new Common_AnimFrame
+            des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Common_Animation() {
+                Frames = a.Layers.Select(f => new Common_AnimFrame {
+                    Layers = f.Select(l => new Common_AnimationPart
                     {
-                        Layers = graphicData.SpriteGroup.Animations[0].Layers.Take(graphicData.SpriteGroup.Animations[0].Header[5]).Select(x => new Common_AnimationPart
-                        {
-                            ImageIndex = x.Data[2],
-                            XPosition = x.Data[4] * 2,
-                            YPosition = x.Data[5] * 2,
-                        }).ToArray()
-                    }
-                }
-            });
+                        ImageIndex = l.Data[2],
+                        XPosition = l.Data[4] * 2,
+                        YPosition = l.Data[5] * 2
+                    }).ToArray()
+                }).ToArray()
+            }));
 
             return des;
         }
@@ -448,8 +443,8 @@ namespace R1Engine
             else
             {
                 is8bpp = map.Is8bpp;
-                tileMap = is8bpp ? playField.Tilemap.TileMap8bpp : playField.Tilemap.TileMap4bpp;
-                tilePalette = playField.Tilemap.TilePalette;
+                tileMap = is8bpp ? playField.TileKit.TileMap8bpp : playField.TileKit.TileMap4bpp;
+                tilePalette = playField.TileKit.TilePalette;
             }
 
             int tilemapLength = (tileMap.Length / (is8bpp ? 64 : 32)) + 1;

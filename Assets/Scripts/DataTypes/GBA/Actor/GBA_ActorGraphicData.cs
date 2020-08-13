@@ -61,7 +61,7 @@
         public byte AnimationsCount { get; set; }
         public byte Byte_06 { get; set; }
 
-        public byte[] SpritesIndexTable { get; set; }
+        public byte[] AnimationIndexTable { get; set; }
 
         #endregion
 
@@ -89,7 +89,7 @@
             AnimationsCount = s.Serialize<byte>(AnimationsCount, name: nameof(AnimationsCount));
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
 
-            SpritesIndexTable = s.SerializeArray<byte>(SpritesIndexTable, AnimationsCount, name: nameof(SpritesIndexTable));
+            AnimationIndexTable = s.SerializeArray<byte>(AnimationIndexTable, AnimationsCount, name: nameof(AnimationIndexTable));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
@@ -101,28 +101,42 @@
                 Animations = new GBA_Animation[AnimationsCount];
 
             for (int i = 0; i < Animations.Length; i++)
-                Animations[i] = s.DoAt(OffsetTable.GetPointer(SpritesIndexTable[i]), () => s.SerializeObject<GBA_Animation>(Animations[i], name: $"{nameof(Animations)}[{i}]"));
+                Animations[i] = s.DoAt(OffsetTable.GetPointer(AnimationIndexTable[i]), () => s.SerializeObject<GBA_Animation>(Animations[i], name: $"{nameof(Animations)}[{i}]"));
         }
 
         #endregion
     }
 
 
-    // Not sure this is an animation
     public class GBA_Animation : GBA_BaseBlock
     {
-        public byte[] Header { get; set; }
+        public byte Flags { get; set; }
+        public byte Byte_01 { get; set; }
+        public byte Byte_02 { get; set; }
+        public byte Byte_03 { get; set; }
+        public byte[] LayersPerFrame { get; set; }
 
-        public GBA_AnimationLayer[] Layers { get; set; }
+        // Parsed
+        public int FrameCount { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
-        {
-            Header = s.SerializeArray<byte>(Header, 12, name: nameof(Header));
-         
-            if (Header[4] != 0)
-                Layers = s.SerializeObjectArray<GBA_AnimationLayer>(Layers, (BlockSize - 12) / 6, name: nameof(Layers));
-            else
-                Layers = new GBA_AnimationLayer[0];
+        public GBA_AnimationLayer[][] Layers { get; set; }
+
+        public override void SerializeImpl(SerializerObject s) {
+            Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
+            Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+            Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+            Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+            FrameCount = Byte_03 & 0x3F;
+
+            LayersPerFrame = s.SerializeArray<byte>(LayersPerFrame, FrameCount, name: nameof(LayersPerFrame));
+
+            s.Align();
+
+            if (Layers == null) Layers = new GBA_AnimationLayer[FrameCount][];
+
+            for (int i = 0; i < FrameCount; i++) {
+                Layers[i] = s.SerializeObjectArray<GBA_AnimationLayer>(Layers[i], LayersPerFrame[i], name: $"{nameof(Layers)}[{i}]");
+            }
         }
     }
 
