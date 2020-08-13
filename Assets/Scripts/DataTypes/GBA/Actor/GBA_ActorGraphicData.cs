@@ -141,15 +141,13 @@
     }
 
     public class GBA_AnimationLayer : R1Serializable {
-        public byte YPositionByte { get; set; }
+        public sbyte YPosition { get; set; }
         public byte Flags0 { get; set; }
-        public byte XPositionByte { get; set; }
+        public sbyte XPosition { get; set; }
         public byte LayerSize { get; set; }
         public ushort UShort_04 { get; set; }
 
         // Parsed
-        public short XPosition { get; set; }
-        public short YPosition { get; set; }
         public short ImageIndex { get; set; }
         public int PaletteIndex { get; set; }
         public int XSize { get; set; }
@@ -158,23 +156,16 @@
 
 
         public override void SerializeImpl(SerializerObject s) {
-            YPositionByte = s.Serialize<byte>(YPositionByte, name: nameof(YPositionByte));
+            YPosition = s.Serialize<sbyte>(YPosition, name: nameof(YPosition));
             Flags0 = s.Serialize<byte>(Flags0, name: nameof(Flags0));
-            XPositionByte = s.Serialize<byte>(XPositionByte, name: nameof(XPositionByte));
+            XPosition = s.Serialize<sbyte>(XPosition, name: nameof(XPosition));
             LayerSize = s.Serialize<byte>(LayerSize, name: nameof(LayerSize));
             UShort_04 = s.Serialize<ushort>(UShort_04, name: nameof(UShort_04));
 
             // Parse
             ImageIndex = (short)BitHelpers.ExtractBits(UShort_04, 11, 0);
             PaletteIndex = BitHelpers.ExtractBits(UShort_04, 4, 12);
-            XPosition = XPositionByte;
-            if (XPosition > 0x80) {
-                XPosition -= 0x100;
-            }
-            YPosition = YPositionByte;
-            if (YPosition > 0x80) {
-                YPosition -= 0x100;
-            }
+
             /*XSize = 1 + BitHelpers.ExtractBits(LayerSize, 4, 0);
             YSize = 1 + BitHelpers.ExtractBits(LayerSize, 2, 6);*/
             XSize = 1;
