@@ -418,21 +418,28 @@ namespace R1Engine
                 }
 
                 tex.Apply();
-
                 des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+            }
+
+            Common_AnimationPart[] GetPartsForLayer(GBA_AnimationLayer l) {
+                if (!l.IsVisible) return new Common_AnimationPart[0];
+                Common_AnimationPart[] parts = new Common_AnimationPart[l.XSize * l.YSize];
+                for (int y = 0; y < l.YSize; y++) {
+                    for (int x = 0; x < l.XSize; x++) {
+                        parts[y * l.XSize + x] = new Common_AnimationPart {
+                            ImageIndex = l.ImageIndex + y * l.XSize + x,
+                            XPosition = (l.XPosition + x * 8) * 2,
+                            YPosition = (l.YPosition + y * 8) * 2,
+                        };
+                    }
+                }
+                return parts;
             }
 
             // Add first animation for now
             des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Common_Animation() {
                 Frames = a.Layers.Select(f => new Common_AnimFrame {
-                    Layers = f.SelectMany(l => l.IsVisible ? new Common_AnimationPart[] { new Common_AnimationPart
-                    {
-                        ImageIndex = l.ImageIndex,
-                        XPosition = l.XPosition * 2,
-                        YPosition = l.YPosition * 2,
-
-                    }
-                    } : new Common_AnimationPart[0]).ToArray()
+                    Layers = f.SelectMany(l => GetPartsForLayer(l)).ToArray()
                 }).ToArray()
             }));
 
