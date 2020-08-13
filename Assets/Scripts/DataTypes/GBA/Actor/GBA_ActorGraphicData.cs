@@ -166,7 +166,7 @@
 
             // Parse
             ImageIndex = (short)BitHelpers.ExtractBits(UShort_04, 11, 0);
-            PaletteIndex = BitHelpers.ExtractBits(UShort_04, 5, 11);
+            PaletteIndex = BitHelpers.ExtractBits(UShort_04, 4, 12);
             XPosition = XPositionByte;
             if (XPosition > 0x80) {
                 XPosition -= 0x100;

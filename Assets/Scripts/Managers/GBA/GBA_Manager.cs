@@ -392,40 +392,44 @@ namespace R1Engine
             var pal = graphicData.SpriteGroup.Palette.Palette;
             const int tileWidth = 8;
             const int tileSize = (tileWidth * tileWidth) / 2;
+            var numPalettes = graphicData.SpriteGroup.Palette.Palette.Length / 16;
 
-            // Add sprites
-            for (int i = 0; i < tileMap.TileMapLength; i++)
+            // Add sprites for each palette
+            for (int palIndex = 0; palIndex < numPalettes; palIndex++)
             {
-                var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
+                for (int i = 0; i < tileMap.TileMapLength; i++)
                 {
-                    filterMode = FilterMode.Point,
-                    wrapMode = TextureWrapMode.Clamp
-                };
-
-                for (int y = 0; y < tileWidth; y++)
-                {
-                    for (int x = 0; x < tileWidth; x++)
+                    var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
                     {
-                        int index = (i * tileSize) + ((y * tileWidth + x) / 2);
+                        filterMode = FilterMode.Point,
+                        wrapMode = TextureWrapMode.Clamp
+                    };
 
-                        var b = tileMap.TileMap[index];
-                        var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                    for (int y = 0; y < tileWidth; y++)
+                    {
+                        for (int x = 0; x < tileWidth; x++)
+                        {
+                            int index = (i * tileSize) + ((y * tileWidth + x) / 2);
 
-                        Color c = pal[v].GetColor();
+                            var b = tileMap.TileMap[index];
+                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
-                        if (v != 0)
-                            c = new Color(c.r, c.g, c.b, 1f);
+                            Color c = pal[palIndex * 16 + v].GetColor();
 
-                        // Upscale to 16x16 for now...
-                        tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2, c);
-                        tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2, c);
-                        tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2 + 1, c);
-                        tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2 + 1, c);
+                            if (v != 0)
+                                c = new Color(c.r, c.g, c.b, 1f);
+
+                            // Upscale to 16x16 for now...
+                            tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2, c);
+                            tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2, c);
+                            tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2 + 1, c);
+                            tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2 + 1, c);
+                        }
                     }
-                }
 
-                tex.Apply();
-                des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    tex.Apply();
+                    des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                }
             }
 
             Common_AnimationPart[] GetPartsForLayer(GBA_AnimationLayer l) {
@@ -434,7 +438,7 @@ namespace R1Engine
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Common_AnimationPart {
-                            ImageIndex = l.ImageIndex + y * l.XSize + x,
+                            ImageIndex = tileMap.TileMapLength * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
                             XPosition = (l.XPosition + x * 8) * 2,
                             YPosition = (l.YPosition + y * 8) * 2,
                         };
