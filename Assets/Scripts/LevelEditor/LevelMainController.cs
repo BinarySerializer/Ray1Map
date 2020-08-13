@@ -69,6 +69,11 @@ namespace R1Engine
                 // Load the level
                 EditorManager = await manager.LoadAsync(serializeContext, true);
 
+                var notSupportedEventTypes = EditorManager.Level.EventData.Where(x => !Enum.IsDefined(EditorManager.EventTypeEnumType, x.TypeValue)).Select(x => x.TypeValue).Distinct().OrderBy(x => x).ToArray();
+
+                if (notSupportedEventTypes.Any())
+                    Debug.LogWarning($"The following event types are not supported: {String.Join(", ", notSupportedEventTypes)}");
+
                 await Controller.WaitIfNecessary();
 
                 Controller.status = $"Initializing tile maps";
