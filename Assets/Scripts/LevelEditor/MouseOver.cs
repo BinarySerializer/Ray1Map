@@ -48,8 +48,8 @@ namespace R1Engine
             // Else Mouse over type
             else {
                 Controller.obj.tempDebugText.text = String.Empty;
-                var editorManager = Controller.obj.levelController.EditorManager;
-                var t = editorManager?.Level?.Maps?.ElementAtOrDefault(tilemapController.editor.currentMap)?.GetMapTile((int)mousePositionTile.x, -(int)mousePositionTile.y);
+                var editorManager = LevelEditorData.EditorManager;
+                var t = editorManager?.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentMap)?.GetMapTile((int)mousePositionTile.x, -(int)mousePositionTile.y);
 
                 if (t != null) {
                     //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);

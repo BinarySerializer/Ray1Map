@@ -49,9 +49,6 @@ namespace R1Engine
         [HideInInspector]
         public R1_TileCollisionType currentType;
 
-        // Current map index
-        public int currentMap => lvlController.EditorManager.Level.DefaultMap;
-
         //Selected tiles
         public Editor_MapTile[,] selection;
 
@@ -184,10 +181,10 @@ namespace R1Engine
 
         void Update() 
         {
-            if (Controller.obj.levelController.currentLevel == null)
+            if (LevelEditorData.EditorManager == null)
                 return;
 
-            var map = Controller.obj.levelController.currentLevel.Maps[currentMap];
+            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
         
             //Tile editing
             if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
@@ -239,7 +236,7 @@ namespace R1Engine
                                 {
                                     for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
                                     {
-                                        previewTilemap.SetTile(new Vector3Int(x - (int)tileSelectSquare.XStart, y - (int)tileSelectSquare.YStart, 0), map.GetTile(selection[xi, yi], Controller.obj.levelController.EditorManager.Settings));
+                                        previewTilemap.SetTile(new Vector3Int(x - (int)tileSelectSquare.XStart, y - (int)tileSelectSquare.YStart, 0), map.GetTile(selection[xi, yi], LevelEditorData.CurrentSettings));
 
                                         xi++;
 
@@ -307,7 +304,7 @@ namespace R1Engine
 
                                     // Also fill out preview tilemap
                                     if (currentMode == EditMode.Tiles)
-                                        previewTilemap.SetTile(new Vector3Int(xi, yi, 0), map.GetTile(t, Controller.obj.levelController.EditorManager.Settings));
+                                        previewTilemap.SetTile(new Vector3Int(xi, yi, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
 
                                     xi++;
                                 }
@@ -355,7 +352,7 @@ namespace R1Engine
                                     {
                                         for (int x = 0; x <= selection.GetLength(0) - 1; x++) 
                                         {
-                                            previewTilemap.SetTile(new Vector3Int(x, y, 0), map.GetTile(selection[x, y], Controller.obj.levelController.EditorManager.Settings));
+                                            previewTilemap.SetTile(new Vector3Int(x, y, 0), map.GetTile(selection[x, y], LevelEditorData.CurrentSettings));
                                         }
                                     }
                                 }
@@ -410,8 +407,8 @@ namespace R1Engine
                     if (selection != null && !lvlTilemapController.focusedOnTemplate) {
                         int xi = 0;
                         int yi = 0;
-                        int w = Controller.obj.levelController.currentLevel.Maps[currentMap].Width;
-                        int h = Controller.obj.levelController.currentLevel.Maps[currentMap].Height;
+                        int w = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].Width;
+                        int h = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].Height;
                         int my = -(int)mousePositionTile.y;
                         int mx = (int)mousePositionTile.x;
                         // "Paste" the selection

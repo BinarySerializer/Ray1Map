@@ -18,11 +18,6 @@ namespace R1Engine
     public class LevelMainController : MonoBehaviour {
 
         /// <summary>
-        /// The editor manager
-        /// </summary>
-        public BaseEditorManager EditorManager;
-
-        /// <summary>
         /// The events
         /// </summary>
         public List<Common_Event> Events { get; set; }
@@ -31,8 +26,6 @@ namespace R1Engine
 
         public IEnumerable<Common_Event> GetAllEvents => RaymanEvent != null ? Events.Append(RaymanEvent) : Events;
 
-        // The current level we are operating with
-        public Common_Lev currentLevel => EditorManager?.Level;
         public Editor editor => controllerEvents.editor;
 
         // The context, to reuse when writing
@@ -67,9 +60,10 @@ namespace R1Engine
                 await BaseEditorManager.Init(context);
 
                 // Load the level
-                EditorManager = await manager.LoadAsync(serializeContext, true);
+                LevelEditorData.EditorManager = await manager.LoadAsync(serializeContext, true);
+                LevelEditorData.CurrentMap = LevelEditorData.CurrentCollisionMap = LevelEditorData.EditorManager.Level.DefaultMap;
 
-                var notSupportedEventTypes = EditorManager.Level.EventData.Where(x => !Enum.IsDefined(EditorManager.EventTypeEnumType, x.TypeValue)).Select(x => x.TypeValue).Distinct().OrderBy(x => x).ToArray();
+                var notSupportedEventTypes = LevelEditorData.Level.EventData.Where(x => !Enum.IsDefined(LevelEditorData.EditorManager.EventTypeEnumType, x.TypeValue)).Select(x => x.TypeValue).Distinct().OrderBy(x => x).ToArray();
 
                 if (notSupportedEventTypes.Any())
                     Debug.LogWarning($"The following event types are not supported: {String.Join(", ", notSupportedEventTypes)}");
@@ -79,7 +73,7 @@ namespace R1Engine
                 Controller.status = $"Initializing tile maps";
 
                 // Resize the background tint
-                controllerTilemap.ResizeBackgroundTint(currentLevel.Maps[editor.currentMap].Width, currentLevel.Maps[editor.currentMap].Height);
+                controllerTilemap.ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
 
                 // Init tilemaps
                 controllerTilemap.InitializeTilemaps();
@@ -89,10 +83,10 @@ namespace R1Engine
                 Controller.status = $"Initializing events";
 
                 // Add events
-                Events = currentLevel.EventData.Select(x => controllerEvents.AddEvent(x)).ToList();
+                Events = LevelEditorData.Level.EventData.Select(x => controllerEvents.AddEvent(x)).ToList();
 
-                if (currentLevel.Rayman != null)
-                    RaymanEvent = controllerEvents.AddEvent(currentLevel.Rayman);
+                if (LevelEditorData.Level.Rayman != null)
+                    RaymanEvent = controllerEvents.AddEvent(LevelEditorData.Level.Rayman);
 
                 // Init event things
                 controllerEvents.InitializeEvents();
@@ -117,7 +111,7 @@ namespace R1Engine
             Controller.obj.levelEventController.CalculateLinkIndexes();
 
             using (serializeContext)
-                Settings.GetGameManager.SaveLevel(serializeContext, EditorManager);
+                Settings.GetGameManager.SaveLevel(serializeContext, LevelEditorData.EditorManager);
 
             Debug.Log("Saved.");
         }
@@ -127,7 +121,7 @@ namespace R1Engine
             var tileSetIndex = 0;
 
             // Export every tile set
-            foreach (var tileSet in currentLevel.Maps[editor.currentMap].TileSet.Where(x => x?.Tiles?.Any(y => y != null) == true))
+            foreach (var tileSet in LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].TileSet.Where(x => x?.Tiles?.Any(y => y != null) == true))
             {
                 // Get values
                 var tileCount = tileSet.Tiles.Length;
@@ -167,7 +161,7 @@ namespace R1Engine
 
                 tileTex.Apply();
 
-                var destPath = $@"Tilemaps\{Controller.CurrentSettings.GameModeSelection}\{Controller.CurrentSettings.GameModeSelection} - {Controller.CurrentSettings.World} {Controller.CurrentSettings.Level:00} ({tileSetIndex}).png";
+                var destPath = $@"Tilemaps\{LevelEditorData.CurrentSettings.GameModeSelection}\{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00} ({tileSetIndex}).png";
 
                 Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
@@ -181,7 +175,7 @@ namespace R1Engine
         public void ConvertLevelToPNG() {
 
             // Get the path to save to
-            var destPath = $@"Screenshots\{Controller.CurrentSettings.GameModeSelection}\{Controller.CurrentSettings.GameModeSelection} - {Controller.CurrentSettings.World} {Controller.CurrentSettings.Level:00}.png";
+            var destPath = $@"Screenshots\{LevelEditorData.CurrentSettings.GameModeSelection}\{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00}.png";
 
             // Create the directory
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
@@ -201,7 +195,7 @@ namespace R1Engine
             // TODO: Allow this to be configured | THIS whole part should be refactored, the foreach after is bad
 
             // Hide Rayman (except in Jaguar proto)
-            if (RaymanEvent != null && Controller.CurrentSettings.EngineVersion != EngineVersion.RayJaguarProto)
+            if (RaymanEvent != null && LevelEditorData.CurrentSettings.EngineVersion != EngineVersion.RayJaguarProto)
                 RaymanEvent.gameObject.SetActive(false);
 
             // Hide unused links and show gendoors
@@ -220,7 +214,7 @@ namespace R1Engine
                     e.gameObject.SetActive(false);
 
                 // Hide events from other layers
-                if (e.Data.MapLayer != null && e.Data.MapLayer - 1 != editor.currentMap)
+                if (e.Data.MapLayer != null && e.Data.MapLayer - 1 != LevelEditorData.CurrentMap)
                     e.gameObject.SetActive(false);
 
                 // TODO: Find solution to this
@@ -231,7 +225,7 @@ namespace R1Engine
                 // Helper method
                 bool isGendoor(Common_Event ee)
                 {
-                    if (Controller.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Jaguar)
+                    if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Jaguar)
                         return ee.LinkID != 0;
                     else
                         return ee.Data.Type is EventType et &&
@@ -270,13 +264,13 @@ namespace R1Engine
                 }
             }
 
-            bool half = Controller.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA;
+            bool half = LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA;
 
-            RenderTexture renderTex = new RenderTexture(currentLevel.Maps[editor.currentMap].Width*16 / (half ? 2 : 1), currentLevel.Maps[editor.currentMap].Height*16 / (half ? 2 : 1), 24);
+            RenderTexture renderTex = new RenderTexture(LevelEditorData.MaxWidth*16 / (half ? 2 : 1), LevelEditorData.MaxHeight*16 / (half ? 2 : 1), 24);
             renderCamera.targetTexture = renderTex;
             //Set camera pos
-            renderCamera.transform.position = new Vector3((currentLevel.Maps[editor.currentMap].Width) / 2f, -(currentLevel.Maps[editor.currentMap].Height) / 2f, renderCamera.transform.position.z);
-            renderCamera.orthographicSize = (currentLevel.Maps[editor.currentMap].Height / 2f);
+            renderCamera.transform.position = new Vector3((LevelEditorData.MaxWidth) / 2f, -(LevelEditorData.MaxHeight) / 2f, renderCamera.transform.position.z);
+            renderCamera.orthographicSize = (LevelEditorData.MaxHeight / 2f);
             renderCamera.rect = new Rect(0, 0, 1, 1);
             renderCamera.Render();
 

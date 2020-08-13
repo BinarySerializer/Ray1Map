@@ -34,14 +34,14 @@ namespace R1Engine {
 
             if (Settings.LoadFromMemory && Controller.obj.levelEventController.hasLoaded && Settings.FollowRaymanInMemoryMode)
             {
-                var rayman = Controller.obj.levelController.currentLevel.Rayman;
+                var rayman = LevelEditorData.Level.Rayman;
 
                 if (rayman != null)
                     pos = new Vector3(rayman.Data.XPosition / 16f, -(rayman.Data.YPosition / 16f));
             }
 
 
-            if (Controller.obj.levelController.currentLevel != null) {
+            if (LevelEditorData.Level != null) {
                 // RMB scroling
                 if (GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {
                     float xFactor = Camera.main.orthographicSize * 2.0f / Camera.main.pixelHeight;

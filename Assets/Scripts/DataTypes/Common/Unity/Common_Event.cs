@@ -13,7 +13,7 @@ namespace R1Engine {
         public string DisplayName { get; set; }
         public Editor_EventData Data { get; set; }
 
-        public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
+        public BaseEditorManager EditorManager => LevelEditorData.EditorManager;
         public Common_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Data.RuntimeEtat)?.ElementAtOrDefault(Data.Data.RuntimeSubEtat);
         public Common_Animation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.Data.RuntimeCurrentAnimIndex);
         public int AnimSpeed => (Data.ForceNoAnimation || (Data.Type is EventType et && et.IsHPFrame())) ? 0 : State?.AnimationSpeed ?? 0;
@@ -37,7 +37,7 @@ namespace R1Engine {
         public void InitialSetup()
         {
             if (Data.MapLayer != null && Data.MapLayer.Value > 0)
-                Scale = Controller.obj.levelController.EditorManager.Level.Maps[Data.MapLayer.Value - 1].ScaleFactor;
+                Scale = EditorManager.Level.Maps[Data.MapLayer.Value - 1].ScaleFactor;
 
             Data.Data.RuntimeEtat = Data.Data.Etat;
             Data.Data.RuntimeSubEtat = Data.Data.SubEtat;
@@ -402,7 +402,7 @@ namespace R1Engine {
             // Remove this from the event list
             Controller.obj.levelController.Events.Remove(this);
             // Remove the data
-            Controller.obj.levelController.currentLevel.EventData.Remove(Data);
+            EditorManager.Level.EventData.Remove(Data);
             // Remove all children
             ClearChildren();
             // Remove self

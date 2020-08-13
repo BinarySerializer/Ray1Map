@@ -65,7 +65,7 @@ namespace R1Engine
 
         public bool hasLoaded;
 
-        public BaseEditorManager EditorManager => Controller.obj.levelController.EditorManager;
+        public BaseEditorManager EditorManager => LevelEditorData.EditorManager;
         public bool LogModifications => false;
 
         #endregion
@@ -104,7 +104,7 @@ namespace R1Engine
             SelectedEvent.Data.Data.RuntimeHitPoints = (byte)(x % 256);
         }, UInt32.TryParse(infoHitPoints.text, out var v) ? v : 0, () => SelectedEvent.Data.Data.ActualHitPoints, "HitPoints");
         public void FieldHitSprite() => FieldUpdated(x => SelectedEvent.Data.Data.HitSprite = x, byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.HitSprite, "HitSprite");
-        public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.Data.Data.SetFollowEnabled(Controller.CurrentSettings, x), infoFollow.isOn, () => SelectedEvent.Data.Data.GetFollowEnabled(Controller.CurrentSettings), "FollowEnabled");
+        public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.Data.Data.SetFollowEnabled(LevelEditorData.CurrentSettings, x), infoFollow.isOn, () => SelectedEvent.Data.Data.GetFollowEnabled(LevelEditorData.CurrentSettings), "FollowEnabled");
 
         public void FieldType() => FieldUpdated(x =>
         {
@@ -112,7 +112,7 @@ namespace R1Engine
 
             if (x is EventType et)
                 SelectedEvent.Data.Data.Type = et;
-        }, (Enum)Enum.Parse(Controller.obj.levelController.EditorManager.EventTypeEnumType, infoType.value.ToString()), () => SelectedEvent.Data.Type, "Type");
+        }, (Enum)Enum.Parse(LevelEditorData.EditorManager.EventTypeEnumType, infoType.value.ToString()), () => SelectedEvent.Data.Type, "Type");
 
         public void FieldAnimIndex() => throw new NotImplementedException("The animation index can not be updated");
      
@@ -163,11 +163,14 @@ namespace R1Engine
                 const int allowedBorder = 200;
                 const int border = 10;
 
-                if (eventList[i].Data.Data.XPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + allowedBorder || eventList[i].Data.Data.XPosition < -allowedBorder)
-                    eventList[i].Data.Data.XPosition = (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width * 16) + border;
+                var maxWidth = LevelEditorData.MaxWidth;
+                var maxHeight = LevelEditorData.MaxHeight;
 
-                if (eventList[i].Data.Data.YPosition > (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + allowedBorder || eventList[i].Data.Data.YPosition < -allowedBorder)
-                    eventList[i].Data.Data.YPosition = (Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height * 16) + border;
+                if (eventList[i].Data.Data.XPosition > (maxWidth * 16) + allowedBorder || eventList[i].Data.Data.XPosition < -allowedBorder)
+                    eventList[i].Data.Data.XPosition = (maxWidth * 16) + border;
+
+                if (eventList[i].Data.Data.YPosition > (maxHeight * 16) + allowedBorder || eventList[i].Data.Data.YPosition < -allowedBorder)
+                    eventList[i].Data.Data.YPosition = (maxHeight * 16) + border;
 
                 // No link
                 if (eventList[i].Data.LinkIndex == i)
@@ -211,7 +214,7 @@ namespace R1Engine
         }
 
         public void ChangeEventsVisibility(object o, EventArgs e) {
-            if (Controller.obj.levelController.currentLevel != null) {
+            if (LevelEditorData.Level != null) {
                 foreach (var eve in Controller.obj.levelController.GetAllEvents) {
                     if (editor.currentMode == Editor.EditMode.Links)
                         eve.ChangeLinksVisibility(true);
@@ -403,13 +406,16 @@ namespace R1Engine
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     var mox = mousepo.x * 16;
                     var moy = mousepo.y * 16;
-                    
-                    // Don't add if clicked outside of the level bounds
-                    if (mox > 0 && -moy > 0 && mox < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width*16 && -moy < Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height*16) 
-                    {
-                        var eventData = Controller.obj.levelController.EditorManager.AddEvent(eventDropdown.value, (short)mox, (short)-moy);
 
-                        Controller.obj.levelController.currentLevel.EventData.Add(eventData);
+                    var maxWidth = LevelEditorData.MaxWidth;
+                    var maxHeight = LevelEditorData.MaxHeight;
+
+                    // Don't add if clicked outside of the level bounds
+                    if (mox > 0 && -moy > 0 && mox < maxWidth * 16 && -moy < maxHeight * 16) 
+                    {
+                        var eventData = LevelEditorData.EditorManager.AddEvent(eventDropdown.value, (short)mox, (short)-moy);
+
+                        LevelEditorData.Level.EventData.Add(eventData);
                         var eve = AddEvent(eventData);
 
                         // Refresh the event
@@ -570,13 +576,13 @@ namespace R1Engine
         // TODO: Move this to some main controller since we do tile stuff here too
         public bool UpdateFromMemory()
         {
-            var lvl = Controller.obj.levelController.EditorManager.Level;
+            var lvl = LevelEditorData.Level;
             bool madeEdits = false;
 
             // TODO: Dispose when we stop program?
             if (GameMemoryContext == null)
             {
-                GameMemoryContext = new Context(Controller.CurrentSettings);
+                GameMemoryContext = new Context(LevelEditorData.CurrentSettings);
 
                 try
                 {
@@ -754,7 +760,7 @@ namespace R1Engine
 
         // Show/Hide links
         public void ToggleLinks(bool t) {
-            if (Controller.obj.levelController.currentLevel != null && areLinksVisible != t) {
+            if (LevelEditorData.Level != null && areLinksVisible != t) {
                 areLinksVisible = t;
                 foreach (var e in Controller.obj.levelController.Events) {
                     e.ChangeLinksVisibility(t);

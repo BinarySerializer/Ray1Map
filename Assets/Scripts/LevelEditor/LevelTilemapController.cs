@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -50,7 +51,8 @@ namespace R1Engine
 
 
         public void InitializeTilemaps() {
-            var editorManager = Controller.obj.levelController.EditorManager;
+            var editorManager = LevelEditorData.EditorManager;
+            var level = LevelEditorData.Level;
 
             // Disable palette buttons based on if there are 3 palettes or not
             if (!editorManager.Has3Palettes)
@@ -62,18 +64,21 @@ namespace R1Engine
                 paletteButtons[3].gameObject.SetActive(false);
             }
 
-            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+            // Get the current collision map
+            var collisionMap = level.Maps[LevelEditorData.CurrentCollisionMap];
+
+            // Set collision tiles
             var collisionTileSet = Settings.UseHDCollisionSheet ? TypeCollisionTilesHD : TypeCollisionTiles;
 
             var unsupportedTiles = new HashSet<int>();
 
             // Fill out types first
-            for (int y = 0; y < map.Height; y++)
+            for (int y = 0; y < collisionMap.Height; y++)
             {
-                for (int x = 0; x < map.Width; x++)
+                for (int x = 0; x < collisionMap.Width; x++)
                 {
                     // Get the collision index
-                    var collisionType = editorManager.GetCollisionTypeGraphic(map.MapTiles[y * map.Width + x].Data.CollisionType);
+                    var collisionType = editorManager.GetCollisionTypeGraphic(collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType);
                     var collisionTypeIndex = (int)collisionType;
 
                     // Make sure it's not out of bounds
@@ -96,11 +101,14 @@ namespace R1Engine
                 Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
 
             // Fill out tiles
-            RefreshTiles(Controller.obj.levelController.EditorManager.Has3Palettes ? 0 : 1);
+            RefreshTiles(editorManager.Has3Palettes ? 0 : 1);
 
-            //Set max cam sizes
-            camMaxX = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Width;
-            camMaxY = Controller.obj.levelController.currentLevel.Maps[editor.currentMap].Height;
+            var maxWidth = LevelEditorData.MaxWidth;
+            var maxHeight = LevelEditorData.MaxHeight;
+
+            // Set max cam sizes
+            camMaxX = maxWidth;
+            camMaxY = maxHeight;
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
@@ -115,14 +123,16 @@ namespace R1Engine
             }
 
             // Get the current level and map
-            var lvl = Controller.obj.levelController.currentLevel;
-            var map = lvl.Maps[editor.currentMap];
+            var lvl = LevelEditorData.Level;
 
             // If auto, refresh indexes
             if (palette == 0)
                 lvl.AutoApplyPalette();
 
-            // Refresh tiles
+            // Refresh tiles for every map
+            var mapIndex = LevelEditorData.CurrentMap;
+            var map = lvl.Maps[mapIndex];
+
             for (int y = 0; y < map.Height; y++)
             {
                 for (int x = 0; x < map.Width; x++)
@@ -132,19 +142,21 @@ namespace R1Engine
                     if (palette != 0)
                         t.PaletteIndex = palette;
 
-                    Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, Controller.obj.levelController.EditorManager.Settings));
+                    Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
                     Tilemaps[1].SetTransformMatrix(new Vector3Int(x, y, 0), Tilemaps[1].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));
                 }
             }
 
-            // Refresh the full tilemap template
+            // Refresh the full tilemap template for current map
             int xx = 0;
             int yy = 0;
-            foreach(Tile t in lvl.Maps[editor.currentMap].TileSet[0].Tiles) 
+
+            foreach (Tile t in lvl.Maps[LevelEditorData.CurrentMap].TileSet[0].Tiles)
             {
                 tilemapFull.SetTile(new Vector3Int(xx, yy, 0), t);
                 xx++;
-                if (xx == 16) {
+                if (xx == 16)
+                {
                     xx = 0;
                     yy++;
                 }
@@ -181,12 +193,15 @@ namespace R1Engine
                 //Set camera back
                 previousCameraPosTemplate = Camera.main.transform.position;
                 Camera.main.GetComponent<EditorCam>().pos = previousCameraPosNormal;
-                //Resize background tint
-                var lvl = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
-                ResizeBackgroundTint(lvl.Width, lvl.Height);
-                //Set max cam sizes
-                camMaxX = lvl.Width;
-                camMaxY = lvl.Height;
+
+                var maxWidth = LevelEditorData.MaxWidth;
+                var maxHeight = LevelEditorData.MaxHeight;
+
+                // Resize background tint
+                ResizeBackgroundTint(maxWidth, maxHeight);
+                // Set max cam sizes
+                camMaxX = maxWidth;
+                camMaxY = maxHeight;
             }
         }
 
@@ -199,10 +214,10 @@ namespace R1Engine
         // Get one common tile at given position
         public Editor_MapTile GetTileAtPos(int x, int y) 
         {
-            if (Controller.obj.levelController.currentLevel == null)
+            if (LevelEditorData.Level == null)
                 return null;
 
-            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
 
             if (focusedOnTemplate)
             {
@@ -225,13 +240,13 @@ namespace R1Engine
 
         public void SetTileAtPos(int x, int y, Editor_MapTile newTile) 
         {
-            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
 
             // Update tile graphics
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)Controller.obj.levelController.EditorManager.GetCollisionTypeGraphic(newTile.Data.CollisionType)]);
-            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(newTile, Controller.obj.levelController.EditorManager.Settings));
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)LevelEditorData.EditorManager.GetCollisionTypeGraphic(newTile.Data.CollisionType)]);
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(newTile, LevelEditorData.CurrentSettings));
 
             // Get the tile to set
             var destTile = map.MapTiles[y * map.Width + x];
@@ -251,11 +266,11 @@ namespace R1Engine
 
         public Editor_MapTile SetTypeAtPos(int x, int y, byte collisionType) 
         {
-            var map = Controller.obj.levelController.currentLevel.Maps[editor.currentMap];
+            var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
 
             // Update tile graphics
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
-            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)Controller.obj.levelController.EditorManager.GetCollisionTypeGraphic(collisionType)]);
+            Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)LevelEditorData.EditorManager.GetCollisionTypeGraphic(collisionType)]);
 
             // Get the tile to set
             var destTile = map.MapTiles[y * map.Width + x];

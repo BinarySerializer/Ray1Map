@@ -254,7 +254,7 @@ public class SettingsWindow : UnityWindow
 
         // Editor Tools
 
-        var em = Controller.obj?.levelController?.EditorManager;
+        var em = LevelEditorData.EditorManager;
 
         if (em != null)
         {

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
-using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -25,9 +25,6 @@ namespace R1Engine
         public Text tempDebugText;
 
         private Stopwatch stopwatch;
-        public static Context MainContext { get; private set; }
-
-        public static GameSettings CurrentSettings => MainContext?.Settings;
 
         public static string status
         {
@@ -73,15 +70,15 @@ namespace R1Engine
             status = "Starting...";
 
             // Create the context
-            MainContext = new Context(Settings.GetGameSettings);
-            await levelController.LoadLevelAsync(Settings.GetGameManager, MainContext);
+            LevelEditorData.MainContext = new Context(Settings.GetGameSettings);
+            await levelController.LoadLevelAsync(Settings.GetGameManager, LevelEditorData.MainContext);
 
             status = String.Empty;
 
             stopwatch.Stop();
             loadTimer.Stop();
 
-            var startEvent = levelController.EditorManager.Level.Rayman?.Data ?? levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE))?.Data.Data;
+            var startEvent = LevelEditorData.Level.Rayman?.Data ?? levelController.Events.FindItem(x => x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE))?.Data.Data;
 
             if (startEvent != null)
                 Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition, -10f);
