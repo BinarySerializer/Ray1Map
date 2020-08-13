@@ -259,6 +259,9 @@ namespace R1Engine {
                     if (Data.Type is EventType et && et.IsMultiColored())
                         spriteIndex += ((sprites.Count / 6) * Data.Data.HitPoints);
 
+                    if (prefabRendereds.Length <= i)
+                        continue;
+
                     // Set the sprite, skipping sprites which are out of bounds
                     prefabRendereds[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 
@@ -284,7 +287,7 @@ namespace R1Engine {
                     prefabRendereds[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
                     prefabRendereds[i].transform.localScale = Vector3.one * Scale;
 
-                    // Get visiblity
+                    // Get visibility
                     prefabRendereds[i].enabled = Data.GetIsVisible();
                     prefabRendereds[i].color = Data.GetIsFaded() ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
