@@ -520,8 +520,8 @@ namespace R1Engine
             // Create the design
             var eta = new Common_EventState[1][];
             eta[0] = graphicData.States.Select(s => new Common_EventState() {
-                AnimationIndex = s.UnkData[4],
-                AnimationSpeed = s.UnkData[6] != 0 ? s.UnkData[6] : (byte)1
+                AnimationIndex = s.AnimationIndex,
+                AnimationSpeed = s.Byte_06 != 0 ? (byte)s.Byte_06 : (byte)1
             }).ToArray();
 
             return eta;
