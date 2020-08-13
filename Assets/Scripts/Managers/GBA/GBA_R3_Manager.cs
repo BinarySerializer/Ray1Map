@@ -22,7 +22,11 @@ namespace R1Engine
         };
 
         // TODO: Get values
-        public override int[] MenuLevels => new int[0];
+        public override int[] MenuLevels => new int[]
+        {
+            117
+        };
+
         public override int DLCLevelCount => 10;
 
         // TODO: Find the way the game gets the vignette offsets and find remaining vignettes

@@ -369,6 +369,10 @@ namespace R1Engine
                 [63] = "Multiplayer (Ly's Punch Challenge)",
                 [64] = "Multiplayer (Magma Mayhem)",
             },
+            [7] = new Dictionary<int, string>()
+            {
+                [117] = "Ubisoft Logo",
+            },
         };
     }
 }

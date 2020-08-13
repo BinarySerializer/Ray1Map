@@ -11,7 +11,7 @@ namespace R1Engine
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
-        public override GBA_Data LoadLevelBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);
+        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);
 
         public override async UniTask LoadFilesAsync(Context context)
         {

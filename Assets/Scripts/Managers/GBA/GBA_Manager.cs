@@ -28,6 +28,19 @@ namespace R1Engine
             return output.ToArray();
         }
 
+        public LevelType GetLevelType(int world)
+        {
+            var worlds = WorldLevels.Length;
+
+            if (world == worlds)
+                return LevelType.Menu;
+
+            if (world == (worlds + 1))
+                return LevelType.DLC;
+
+            return LevelType.Game;
+        }
+
         public string[] GetEduVolumes(GameSettings settings) => new string[0];
 
         public virtual string GetROMFilePath => $"ROM.gba";
@@ -228,7 +241,7 @@ namespace R1Engine
                     try
                     {
                         // Read the level
-                        var data = LoadLevelBlock(context);
+                        var data = LoadDataBlock(context);
                         lvl = data.LevelBlock;
                         baseOffset = data.UiOffsetTable.Offset;
                     }
@@ -298,18 +311,35 @@ namespace R1Engine
             }
         }
 
-        public virtual GBA_Data LoadLevelBlock(Context context) => FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context).Data;
+        public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context).Data;
 
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             Controller.status = $"Loading data";
             await Controller.WaitIfNecessary();
 
-            // Load the level block
-            var levelBlock = LoadLevelBlock(context).LevelBlock;
+            var lvlType = GetLevelType(context.Settings.World);
+
+            // Load the data block
+            var dataBlock = LoadDataBlock(context);
 
             // Get the current play field
-            var playField = levelBlock.PlayField;
+            GBA_PlayField playField;
+
+            switch (lvlType)
+            {
+                case LevelType.Game:
+                    playField = dataBlock.LevelBlock.PlayField;
+                    break;
+
+                case LevelType.Menu:
+                    playField = dataBlock.MenuLevelPlayfield;
+                    break;
+                
+                case LevelType.DLC:
+                default:
+                    throw new NotImplementedException();
+            }
 
             // Get the map
             GBA_TileLayer map = playField.IsMode7
@@ -358,40 +388,43 @@ namespace R1Engine
 
             var eta = new Dictionary<string, Common_EventState[][]>();
 
-            var actorIndex = 0;
-
             // Add actors
-            foreach (var actor in levelBlock.Actors)
+            if (lvlType != LevelType.Menu)
             {
-                Controller.status = $"Loading actor {actorIndex + 1}/{levelBlock.Actors.Length}";
-                await Controller.WaitIfNecessary();
+                var actorIndex = 0;
 
-                if (!des.ContainsKey(actor.GraphicsDataIndex))
-                    des.Add(actor.GraphicsDataIndex, GetCommonDesign(actor.GraphicData));
-
-                if (!eta.ContainsKey(actor.GraphicsDataIndex.ToString()))
-                    eta.Add(actor.GraphicsDataIndex.ToString(), GetCommonEventStates(actor.GraphicData));
-
-                commonLev.EventData.Add(new Editor_EventData(new EventData()
+                foreach (var actor in dataBlock.LevelBlock.Actors)
                 {
-                    XPosition = actor.XPos * 2,
-                    YPosition = actor.YPos * 2,
-                    Etat = 0,
-                    SubEtat = actor.StateIndex,
-                    RuntimeSubEtat = actor.StateIndex
-                })
-                {
-                    Type = actor.ActorID,
-                    DESKey = actor.GraphicsDataIndex.ToString(),
-                    ETAKey = actor.GraphicsDataIndex.ToString(),
-                    DebugText = $"{nameof(GBA_Actor.Int_08)}: {actor.Int_08}{Environment.NewLine}" +
-                                $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
-                                $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
-                                $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
-                                $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}"
-                });
+                    Controller.status = $"Loading actor {actorIndex + 1}/{dataBlock.LevelBlock.Actors.Length}";
+                    await Controller.WaitIfNecessary();
 
-                actorIndex++;
+                    if (!des.ContainsKey(actor.GraphicsDataIndex))
+                        des.Add(actor.GraphicsDataIndex, GetCommonDesign(actor.GraphicData));
+
+                    if (!eta.ContainsKey(actor.GraphicsDataIndex.ToString()))
+                        eta.Add(actor.GraphicsDataIndex.ToString(), GetCommonEventStates(actor.GraphicData));
+
+                    commonLev.EventData.Add(new Editor_EventData(new EventData()
+                    {
+                        XPosition = actor.XPos * 2,
+                        YPosition = actor.YPos * 2,
+                        Etat = 0,
+                        SubEtat = actor.StateIndex,
+                        RuntimeSubEtat = actor.StateIndex
+                    })
+                    {
+                        Type = actor.ActorID,
+                        DESKey = actor.GraphicsDataIndex.ToString(),
+                        ETAKey = actor.GraphicsDataIndex.ToString(),
+                        DebugText = $"{nameof(GBA_Actor.Int_08)}: {actor.Int_08}{Environment.NewLine}" +
+                                    $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
+                                    $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
+                                    $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
+                                    $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}"
+                    });
+
+                    actorIndex++;
+                }
             }
 
             Controller.status = $"Loading tilemap";
@@ -611,6 +644,13 @@ namespace R1Engine
                 filePath = GetROMFilePath,
             };
             context.AddFile(file);
+        }
+
+        public enum LevelType
+        {
+            Game,
+            Menu,
+            DLC
         }
     }
 }
