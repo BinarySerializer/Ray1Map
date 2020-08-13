@@ -425,12 +425,14 @@ namespace R1Engine
             // Add first animation for now
             des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Common_Animation() {
                 Frames = a.Layers.Select(f => new Common_AnimFrame {
-                    Layers = f.Select(l => new Common_AnimationPart
+                    Layers = f.SelectMany(l => l.IsVisible ? new Common_AnimationPart[] { new Common_AnimationPart
                     {
                         ImageIndex = l.ImageIndex,
                         XPosition = l.XPosition * 2,
-                        YPosition = l.YPosition * 2
-                    }).ToArray()
+                        YPosition = l.YPosition * 2,
+
+                    }
+                    } : new Common_AnimationPart[0]).ToArray()
                 }).ToArray()
             }));
 

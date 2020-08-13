@@ -140,38 +140,38 @@
         }
     }
 
-    public class GBA_AnimationLayer : R1Serializable
-    {
-        public short Short_00 { get; set; }
-        public short Short_02 { get; set; }
-        public short Short_04 { get; set; }
+    public class GBA_AnimationLayer : R1Serializable {
+        public byte YPositionByte { get; set; }
+        public byte Flags0 { get; set; }
+        public byte XPositionByte { get; set; }
+        public byte Flags1 { get; set; }
+        public ushort UShort_04 { get; set; }
 
         // Parsed
         public short XPosition { get; set; }
         public short YPosition { get; set; }
         public short ImageIndex { get; set; }
+        public bool IsVisible { get; set; }
 
 
         public override void SerializeImpl(SerializerObject s) {
-            Short_00 = s.Serialize<short>(Short_00, name: nameof(Short_00));
-            Short_02 = s.Serialize<short>(Short_02, name: nameof(Short_02));
-            Short_04 = s.Serialize<short>(Short_04, name: nameof(Short_04));
+            YPositionByte = s.Serialize<byte>(YPositionByte, name: nameof(YPositionByte));
+            Flags0 = s.Serialize<byte>(Flags0, name: nameof(Flags0));
+            XPositionByte = s.Serialize<byte>(XPositionByte, name: nameof(XPositionByte));
+            Flags1 = s.Serialize<byte>(Flags1, name: nameof(Flags1));
+            UShort_04 = s.Serialize<ushort>(UShort_04, name: nameof(UShort_04));
 
-            ImageIndex = (short)BitHelpers.ExtractBits(Short_04, 10, 0);
-            XPosition = (short)BitHelpers.ExtractBits(Short_02, 6, 0);
-            if (XPosition > 0x20) {
-                XPosition -= 0x40;
+            // Parse
+            ImageIndex = (short)BitHelpers.ExtractBits(UShort_04, 9, 0);
+            XPosition = XPositionByte;
+            if (XPosition > 0x80) {
+                XPosition -= 0x100;
             }
-            /*if (BitHelpers.ExtractBits(Short_02, 1, 5) == 1) {
-                XPosition = (short)~XPosition;
-            }*/
-            YPosition = (short)BitHelpers.ExtractBits(Short_00, 7, 0);
-            if (YPosition > 0x40) {
-                YPosition -= 0x80;
+            YPosition = YPositionByte;
+            if (YPosition > 0x80) {
+                YPosition -= 0x100;
             }
-            /*if (BitHelpers.ExtractBits(Short_00, 1, 14) == 1) {
-                YPosition = (short)~YPosition;
-            }*/
+            IsVisible = Flags0 != 0;
         }
     }
 }
