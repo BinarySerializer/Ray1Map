@@ -144,13 +144,16 @@
         public byte YPositionByte { get; set; }
         public byte Flags0 { get; set; }
         public byte XPositionByte { get; set; }
-        public byte Flags1 { get; set; }
+        public byte LayerSize { get; set; }
         public ushort UShort_04 { get; set; }
 
         // Parsed
         public short XPosition { get; set; }
         public short YPosition { get; set; }
         public short ImageIndex { get; set; }
+        public int PaletteIndex { get; set; }
+        public int XSize { get; set; }
+        public int YSize { get; set; }
         public bool IsVisible { get; set; }
 
 
@@ -158,11 +161,12 @@
             YPositionByte = s.Serialize<byte>(YPositionByte, name: nameof(YPositionByte));
             Flags0 = s.Serialize<byte>(Flags0, name: nameof(Flags0));
             XPositionByte = s.Serialize<byte>(XPositionByte, name: nameof(XPositionByte));
-            Flags1 = s.Serialize<byte>(Flags1, name: nameof(Flags1));
+            LayerSize = s.Serialize<byte>(LayerSize, name: nameof(LayerSize));
             UShort_04 = s.Serialize<ushort>(UShort_04, name: nameof(UShort_04));
 
             // Parse
-            ImageIndex = (short)BitHelpers.ExtractBits(UShort_04, 9, 0);
+            ImageIndex = (short)BitHelpers.ExtractBits(UShort_04, 11, 0);
+            PaletteIndex = BitHelpers.ExtractBits(UShort_04, 5, 11);
             XPosition = XPositionByte;
             if (XPosition > 0x80) {
                 XPosition -= 0x100;
@@ -171,6 +175,8 @@
             if (YPosition > 0x80) {
                 YPosition -= 0x100;
             }
+            XSize = 1 + BitHelpers.ExtractBits(LayerSize, 4, 0);
+            YSize = 1 + BitHelpers.ExtractBits(LayerSize, 2, 6);
             IsVisible = Flags0 != 0;
         }
     }
