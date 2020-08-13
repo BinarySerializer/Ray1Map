@@ -346,7 +346,10 @@ namespace R1Engine
                 commonLev.EventData.Add(new Editor_EventData(new EventData()
                 {
                     XPosition = actor.XPos * 2,
-                    YPosition = actor.YPos * 2
+                    YPosition = actor.YPos * 2,
+                    Etat = 0,
+                    SubEtat = actor.Byte_07,
+                    RuntimeSubEtat = actor.Byte_07
                 })
                 {
                     Type = actor.ActorID,

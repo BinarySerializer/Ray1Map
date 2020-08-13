@@ -159,10 +159,16 @@
 
             ImageIndex = (short)BitHelpers.ExtractBits(Short_04, 10, 0);
             XPosition = (short)BitHelpers.ExtractBits(Short_02, 6, 0);
-            /*if (BitHelpers.ExtractBits(Short_02, 1, 14) == 1) {
+            if (XPosition > 0x20) {
+                XPosition -= 0x40;
+            }
+            /*if (BitHelpers.ExtractBits(Short_02, 1, 5) == 1) {
                 XPosition = (short)~XPosition;
             }*/
-            YPosition = (short)BitHelpers.ExtractBits(Short_00, 6, 0);
+            YPosition = (short)BitHelpers.ExtractBits(Short_00, 7, 0);
+            if (YPosition > 0x40) {
+                YPosition -= 0x80;
+            }
             /*if (BitHelpers.ExtractBits(Short_00, 1, 14) == 1) {
                 YPosition = (short)~YPosition;
             }*/
