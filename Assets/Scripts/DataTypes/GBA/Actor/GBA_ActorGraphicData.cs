@@ -175,8 +175,30 @@
             if (YPosition > 0x80) {
                 YPosition -= 0x100;
             }
-            XSize = 1 + BitHelpers.ExtractBits(LayerSize, 4, 0);
-            YSize = 1 + BitHelpers.ExtractBits(LayerSize, 2, 6);
+            /*XSize = 1 + BitHelpers.ExtractBits(LayerSize, 4, 0);
+            YSize = 1 + BitHelpers.ExtractBits(LayerSize, 2, 6);*/
+            XSize = 1;
+            YSize = 1;
+            int Size0 = BitHelpers.ExtractBits(Flags0, 4, 4);
+            int Size1 = BitHelpers.ExtractBits(LayerSize, 4, 4);
+            int calc = Size0 + Size1 / 4;
+            switch (calc) {
+                case 0: break;
+                case 1: XSize = 2; YSize = 2; break;
+                case 2: XSize = 4; YSize = 4; break;
+                case 3: XSize = 8; YSize = 8; break;
+
+                case 4: XSize = 2; YSize = 1; break;
+                case 5: XSize = 4; YSize = 1; break;
+                case 6: XSize = 4; YSize = 2; break;
+                case 7: XSize = 8; YSize = 4; break;
+
+                case 8: XSize = 1; YSize = 2; break;
+                case 9: XSize = 1; YSize = 4; break;
+                case 10: XSize = 2; YSize = 4; break;
+                case 11: XSize = 4; YSize = 8; break;
+            }
+
             IsVisible = Flags0 != 0;
         }
     }
