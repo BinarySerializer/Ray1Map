@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 namespace R1Engine
 {
@@ -331,11 +332,16 @@ namespace R1Engine
 
             var des = new Dictionary<int, Common_Design>();
 
+            var eta = new Dictionary<string, Common_EventState[][]>();
+
             // Add actors
             foreach (var actor in levelBlock.Actors)
             {
                 if (!des.ContainsKey(actor.GraphicsDataIndex))
                     des.Add(actor.GraphicsDataIndex, GetCommonDesign(actor.GraphicData));
+
+                if (!eta.ContainsKey(actor.GraphicsDataIndex.ToString()))
+                    eta.Add(actor.GraphicsDataIndex.ToString(), GetCommonEventStates(actor.GraphicData));
 
                 commonLev.EventData.Add(new Editor_EventData(new EventData()
                 {
@@ -345,7 +351,7 @@ namespace R1Engine
                 {
                     Type = actor.ActorID,
                     DESKey = actor.GraphicsDataIndex.ToString(),
-                    ETAKey = String.Empty,
+                    ETAKey = actor.GraphicsDataIndex.ToString(),
                     DebugText = $"{nameof(GBA_Actor.Int_08)}: {actor.Int_08}{Environment.NewLine}" +
                                 $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
                                 $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
@@ -360,7 +366,7 @@ namespace R1Engine
             // Set tile set
             commonLev.Maps[0].TileSet[0] = LoadTileset(context, playField, map, mapData);
 
-            return new GBA_EditorManager(commonLev, context, des);
+            return new GBA_EditorManager(commonLev, context, des, eta);
         }
 
         public Common_Design GetCommonDesign(GBA_ActorGraphicData graphicData)
@@ -401,10 +407,10 @@ namespace R1Engine
                             c = new Color(c.r, c.g, c.b, 1f);
 
                         // Upscale to 16x16 for now...
-                        tex.SetPixel(x * 2, y * 2, c);
-                        tex.SetPixel(x * 2 + 1, y * 2, c);
-                        tex.SetPixel(x * 2 + 1, y * 2 + 1, c);
-                        tex.SetPixel(x * 2, y * 2 + 1, c);
+                        tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2, c);
+                        tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2, c);
+                        tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2 + 1, c);
+                        tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2 + 1, c);
                     }
                 }
 
@@ -418,14 +424,27 @@ namespace R1Engine
                 Frames = a.Layers.Select(f => new Common_AnimFrame {
                     Layers = f.Select(l => new Common_AnimationPart
                     {
-                        ImageIndex = l.Data[2],
-                        XPosition = l.Data[4] * 2,
-                        YPosition = l.Data[5] * 2
+                        ImageIndex = l.ImageIndex,
+                        XPosition = l.XPosition * 2,
+                        YPosition = l.YPosition * 2
                     }).ToArray()
                 }).ToArray()
             }));
 
             return des;
+        }
+
+
+
+        public Common_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
+            // Create the design
+            var eta = new Common_EventState[1][];
+            eta[0] = graphicData.States.Select(s => new Common_EventState() {
+                AnimationIndex = s.UnkData[4],
+                AnimationSpeed = s.UnkData[6] != 0 ? s.UnkData[6] : (byte)1
+            }).ToArray();
+
+            return eta;
         }
 
         public Common_Tileset LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData)

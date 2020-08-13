@@ -142,11 +142,30 @@
 
     public class GBA_AnimationLayer : R1Serializable
     {
-        public byte[] Data { get; set; }
+        public short Short_00 { get; set; }
+        public short Short_02 { get; set; }
+        public short Short_04 { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
-        {
-            Data = s.SerializeArray<byte>(Data, 6, name: nameof(Data));
+        // Parsed
+        public short XPosition { get; set; }
+        public short YPosition { get; set; }
+        public short ImageIndex { get; set; }
+
+
+        public override void SerializeImpl(SerializerObject s) {
+            Short_00 = s.Serialize<short>(Short_00, name: nameof(Short_00));
+            Short_02 = s.Serialize<short>(Short_02, name: nameof(Short_02));
+            Short_04 = s.Serialize<short>(Short_04, name: nameof(Short_04));
+
+            ImageIndex = (short)BitHelpers.ExtractBits(Short_04, 10, 0);
+            XPosition = (short)BitHelpers.ExtractBits(Short_02, 6, 0);
+            /*if (BitHelpers.ExtractBits(Short_02, 1, 14) == 1) {
+                XPosition = (short)~XPosition;
+            }*/
+            YPosition = (short)BitHelpers.ExtractBits(Short_00, 6, 0);
+            /*if (BitHelpers.ExtractBits(Short_00, 1, 14) == 1) {
+                YPosition = (short)~YPosition;
+            }*/
         }
     }
 }
