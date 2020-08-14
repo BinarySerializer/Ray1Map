@@ -263,6 +263,9 @@ namespace R1Engine {
                         continue;
 
                     // Set the sprite, skipping sprites which are out of bounds
+                    if (spriteIndex >= sprites.Count) {
+                        print("Sprite index too high: " + Data.Type + ": " + spriteIndex + " >= " + sprites.Count);
+                    }
                     prefabRendereds[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 
                     var isFlippedHor = anim.Frames[frame].Layers[i].IsFlippedHorizontally;

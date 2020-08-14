@@ -490,8 +490,14 @@ namespace R1Engine
             }
 
             Common_AnimationPart[] GetPartsForLayer(GBA_AnimationLayer l) {
-                if (!l.IsVisible) return new Common_AnimationPart[0];
+                if (!l.IsSprite || l.IsScaled) return new Common_AnimationPart[0];
                 Common_AnimationPart[] parts = new Common_AnimationPart[l.XSize * l.YSize];
+                if (l.ImageIndex > graphicData.SpriteGroup.TileMap.TileMapLength) {
+                    Controller.print("Image index too high: " + graphicData.Offset + " - " + l.Offset);
+                }
+                if (l.PaletteIndex > graphicData.SpriteGroup.Palette.Palette.Length / 16) {
+                    Controller.print("Palette index too high: " + graphicData.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (graphicData.SpriteGroup.Palette.Palette.Length / 16));
+                }
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Common_AnimationPart {

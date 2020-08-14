@@ -12,8 +12,9 @@
         public int PaletteIndex { get; set; }
         public int XSize { get; set; }
         public int YSize { get; set; }
-        public bool IsVisible { get; set; }
+        public bool IsSprite { get; set; }
         public bool IsRotated { get; set; }
+        public bool IsScaled { get; set; }
         public bool IsFlippedHorizontally { get; set; }
         public bool IsFlippedVertically { get; set; }
 
@@ -27,8 +28,8 @@
 
             // Parse
             ImageIndex = (short)BitHelpers.ExtractBits(UShort_04, 11, 0);
-            PaletteIndex = BitHelpers.ExtractBits(UShort_04, 4, 12);
-            IsFlippedHorizontally = BitHelpers.ExtractBits(LayerSize, 1, 4) == 1;
+            PaletteIndex = BitHelpers.ExtractBits(UShort_04, 3, 12);
+            // Unknown flag at the top of this
 
             /*XSize = 1 + BitHelpers.ExtractBits(LayerSize, 4, 0);
             YSize = 1 + BitHelpers.ExtractBits(LayerSize, 2, 6);*/
@@ -54,9 +55,11 @@
                 case 11: XSize = 4; YSize = 8; break;
             }
 
-            IsVisible = BitHelpers.ExtractBits(Flags0, 1, 2) == 1;
             IsRotated = BitHelpers.ExtractBits(Flags0, 2, 0) == 3; // 2 bits? so 2 different flags
-            IsFlippedVertically = BitHelpers.ExtractBits(LayerSize, 1, 5) == 1;
+            IsSprite = BitHelpers.ExtractBits(Flags0, 1, 2) == 1;
+            IsScaled = BitHelpers.ExtractBits(Flags0, 1, 4) == 1;
+            IsFlippedHorizontally = BitHelpers.ExtractBits(LayerSize, 1, 4) == 1;
+            IsFlippedVertically = !IsRotated && (BitHelpers.ExtractBits(LayerSize, 1, 5) == 1);
             //IsFlippedVertically = BitHelpers.ExtractBits(Flags0, 1, 4) == 1;
 
         }
