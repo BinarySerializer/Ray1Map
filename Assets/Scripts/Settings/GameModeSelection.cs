@@ -129,7 +129,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman 3 (N-Gage)", typeof(NGage_R3_Manager))]
         Rayman3NGage,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman Raving Rabbids (N-Gage)", typeof(GBA_RRR_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.Ray3GBA, Game.Rayman3GBA, "Rayman Raving Rabbids (GBA)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBA,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.PrinceOfPersiaGBA, Game.PrinceOfPersiaTheSandsOfTimeGBA, "Prince of Persia: The Sands of Time (GBA - EU)", typeof(GBA_PoPSoT_Manager))]
