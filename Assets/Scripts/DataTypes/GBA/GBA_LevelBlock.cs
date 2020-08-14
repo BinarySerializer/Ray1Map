@@ -9,8 +9,8 @@
         public byte Unk_03 { get; set; }
 
         public byte ObjectsCountTotal { get; set; }
-        public byte ObjectsCount1 { get; set; }
-        public byte ObjectsCount2 { get; set; }
+        public byte AlwaysActorsCount { get; set; }
+        public byte NormalActorsCount { get; set; }
         public byte Unk_07 { get; set; }
         public byte Unk_08 { get; set; }
         public byte Unk_09 { get; set; }
@@ -38,8 +38,8 @@
             Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
 
             ObjectsCountTotal = s.Serialize<byte>(ObjectsCountTotal, name: nameof(ObjectsCountTotal));
-            ObjectsCount1 = s.Serialize<byte>(ObjectsCount1, name: nameof(ObjectsCount1));
-            ObjectsCount2 = s.Serialize<byte>(ObjectsCount2, name: nameof(ObjectsCount2));
+            AlwaysActorsCount = s.Serialize<byte>(AlwaysActorsCount, name: nameof(AlwaysActorsCount));
+            NormalActorsCount = s.Serialize<byte>(NormalActorsCount, name: nameof(NormalActorsCount));
             Unk_07 = s.Serialize<byte>(Unk_07, name: nameof(Unk_07));
 
             Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
@@ -48,7 +48,7 @@
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.Ray3GBA) {
-                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCount1 + ObjectsCount2, name: nameof(Actors));
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
             } else {
                 Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCountTotal, name: nameof(Actors));
             }

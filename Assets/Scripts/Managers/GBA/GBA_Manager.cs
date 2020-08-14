@@ -415,6 +415,7 @@ namespace R1Engine
                     {
                         Type = actor.ActorID,
                         LinkIndex = actor.Link_0,
+                        ForceAlways = actorIndex < dataBlock.LevelBlock.ObjectsCount1,
                         DESKey = actor.GraphicsDataIndex.ToString(),
                         ETAKey = actor.GraphicsDataIndex.ToString(),
                         DebugText = $"{nameof(GBA_Actor.Link_0)}: {actor.Link_0}{Environment.NewLine}" +
