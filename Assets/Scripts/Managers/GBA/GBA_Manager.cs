@@ -414,9 +414,15 @@ namespace R1Engine
                     })
                     {
                         Type = actor.ActorID,
+                        LinkIndex = actor.Link_0,
+                        ForceAlways = actorIndex < dataBlock.LevelBlock.AlwaysActorsCount,
                         DESKey = actor.GraphicsDataIndex.ToString(),
                         ETAKey = actor.GraphicsDataIndex.ToString(),
-                        DebugText = $"{nameof(GBA_Actor.Int_08)}: {actor.Int_08}{Environment.NewLine}" +
+                        DebugText = $"{nameof(GBA_Actor.Link_0)}: {actor.Link_0}{Environment.NewLine}" +
+                                    $"{nameof(GBA_Actor.Link_1)}: {actor.Link_1}{Environment.NewLine}" +
+                                    $"{nameof(GBA_Actor.Link_2)}: {actor.Link_2}{Environment.NewLine}" +
+                                    $"{nameof(GBA_Actor.Link_3)}: {actor.Link_3}{Environment.NewLine}" +
+                                    $"Index: {actorIndex}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +

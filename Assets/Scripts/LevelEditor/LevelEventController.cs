@@ -172,34 +172,52 @@ namespace R1Engine
                 if (eventList[i].Data.Data.YPosition > (maxHeight * 16) + allowedBorder || eventList[i].Data.Data.YPosition < -allowedBorder)
                     eventList[i].Data.Data.YPosition = (maxHeight * 16) + border;
 
-                // No link
-                if (eventList[i].Data.LinkIndex == i)
+                if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
                 {
-                    eventList[i].LinkID = 0;
+                    var linkIndex = eventList[i].Data.LinkIndex;
+
+                    // Ignore already assigned ones
+                    if (eventList[i].LinkID != 0)
+                        continue;
+
+                    // No link
+                    if (linkIndex == 0xFF)
+                        eventList[i].LinkID = 0;
+                    // Link
+                    else
+                        eventList[i].LinkID = eventList[linkIndex].LinkID = linkIndex;
                 }
                 else
                 {
-                    // Ignore already assigned ones
-                    if (eventList[i].LinkID != 0) 
-                        continue;
-                    
-                    // Link found, loop through everyone on the link chain
-                    int nextEvent = eventList[i].Data.LinkIndex;
-                    eventList[i].LinkID = currentId;
-                    eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
-                    int prevEvent = i;
-                    while (nextEvent != i && nextEvent != prevEvent)
+                    // No link
+                    if (eventList[i].Data.LinkIndex == i)
                     {
-                        prevEvent = nextEvent;
-                        eventList[nextEvent].LinkID = currentId;
-
-                        // Stack the link cubes
-                        eventList[nextEvent].linkCube.position = eventList[i].linkCube.position;
-                        eventList[nextEvent].linkCubeLockPosition = eventList[nextEvent].linkCube.position;
-
-                        nextEvent = eventList[nextEvent].Data.LinkIndex;
+                        eventList[i].LinkID = 0;
                     }
-                    currentId++;
+                    else
+                    {
+                        // Ignore already assigned ones
+                        if (eventList[i].LinkID != 0)
+                            continue;
+
+                        // Link found, loop through everyone on the link chain
+                        int nextEvent = eventList[i].Data.LinkIndex;
+                        eventList[i].LinkID = currentId;
+                        eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
+                        int prevEvent = i;
+                        while (nextEvent != i && nextEvent != prevEvent)
+                        {
+                            prevEvent = nextEvent;
+                            eventList[nextEvent].LinkID = currentId;
+
+                            // Stack the link cubes
+                            eventList[nextEvent].linkCube.position = eventList[i].linkCube.position;
+                            eventList[nextEvent].linkCubeLockPosition = eventList[nextEvent].linkCube.position;
+
+                            nextEvent = eventList[nextEvent].Data.LinkIndex;
+                        }
+                        currentId++;
+                    }
                 }
             }
         }

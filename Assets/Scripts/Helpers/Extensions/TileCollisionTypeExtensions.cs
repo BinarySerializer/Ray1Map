@@ -253,6 +253,7 @@ namespace R1Engine
                 case GBA_TileCollisionType.Reactionary_UpRight:
                 case GBA_TileCollisionType.Reactionary_DownLeft:
                 case GBA_TileCollisionType.Reactionary_UpLeft:
+                case GBA_TileCollisionType.ShellLoop:
                     return TileCollisionTypeGraphic.Reactionary;
 
                 case GBA_TileCollisionType.Water:
