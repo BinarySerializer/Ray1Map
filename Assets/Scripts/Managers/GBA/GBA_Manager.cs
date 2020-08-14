@@ -161,11 +161,11 @@ namespace R1Engine
                         // Load the ROM
                         await LoadFilesAsync(context);
 
-                        // Read the rom
-                        var rom = FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context);
+                        // Load the data block
+                        var dataBlock = LoadDataBlock(context);
 
                         var indentLevel = 0;
-                        GBA_OffsetTable offsetTable = rom.Data.UiOffsetTable;
+                        GBA_OffsetTable offsetTable = dataBlock.UiOffsetTable;
                         GBA_DummyBlock[] blocks = new GBA_DummyBlock[offsetTable.OffsetsCount];
 
                         for (int i = 0; i < blocks.Length; i++) {
@@ -496,8 +496,10 @@ namespace R1Engine
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Common_AnimationPart {
                             ImageIndex = tileMap.TileMapLength * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
-                            XPosition = (l.XPosition + x * 8) * 2,
-                            YPosition = (l.YPosition + y * 8) * 2,
+                            IsFlippedHorizontally = l.IsFlippedHorizontally,
+                            IsFlippedVertically = l.IsFlippedVertically,
+                            XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * 8) * 2,
+                            YPosition = (l.YPosition + (l.IsFlippedVertically ? (l.YSize - 1 - y) : y) * 8) * 2,
                         };
                     }
                 }
@@ -521,7 +523,7 @@ namespace R1Engine
             var eta = new Common_EventState[1][];
             eta[0] = graphicData.States.Select(s => new Common_EventState() {
                 AnimationIndex = s.AnimationIndex,
-                AnimationSpeed = s.Byte_06 != 0 ? (byte)s.Byte_06 : (byte)1
+                AnimationSpeed = BitHelpers.ExtractBits(s.Byte_06, 4, 0) != 0 ? (byte)(BitHelpers.ExtractBits(s.Byte_06, 4, 0)) : (byte)2
             }).ToArray();
 
             return eta;
