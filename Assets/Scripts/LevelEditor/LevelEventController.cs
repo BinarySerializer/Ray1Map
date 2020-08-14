@@ -182,10 +182,15 @@ namespace R1Engine
 
                     // No link
                     if (linkIndex == 0xFF)
+                    {
                         eventList[i].LinkID = 0;
+                    }
                     // Link
                     else
+                    {
                         eventList[i].LinkID = eventList[linkIndex].LinkID = linkIndex;
+                        eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
+                    }
                 }
                 else
                 {
@@ -217,6 +222,21 @@ namespace R1Engine
                             nextEvent = eventList[nextEvent].Data.LinkIndex;
                         }
                         currentId++;
+                    }
+                }
+            }
+
+            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
+            {
+                foreach (var linkedEvents in eventList.Where(x => x.LinkID != 0).GroupBy(x => x.LinkID))
+                {
+                    var prev = linkedEvents.Last();
+
+                    foreach (var e in linkedEvents)
+                    {
+                        e.linkCube.position = prev.linkCube.position;
+                        e.linkCubeLockPosition = e.linkCube.position;
+                        prev = e; 
                     }
                 }
             }
