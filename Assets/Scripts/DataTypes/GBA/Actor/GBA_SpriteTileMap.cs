@@ -18,11 +18,7 @@
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
 
             if (IsCompressed) {
-                if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
-                    s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new LZSSEncoder(), () => TileMap = s.SerializeArray<byte>(TileMap, TileMapLength * 32, name: nameof(TileMap))));
-                } else {
-                    s.DoEncoded(new LZSSEncoder(), () => TileMap = s.SerializeArray<byte>(TileMap, TileMapLength * 32, name: nameof(TileMap)));
-                }
+                s.DoEncoded(new LZSSEncoder(), () => TileMap = s.SerializeArray<byte>(TileMap, TileMapLength * 32, name: nameof(TileMap)));
                 s.Align();
             } else {
                 TileMap = s.SerializeArray<byte>(TileMap, TileMapLength * 32, name: nameof(TileMap));

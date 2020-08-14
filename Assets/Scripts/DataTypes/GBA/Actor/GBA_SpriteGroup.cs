@@ -29,11 +29,15 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
-            Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+            if (s.GameSettings.EngineVersion != EngineVersion.SabrinaGBA)
+            {
+                Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
+                Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+            }
+
             TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
             PaletteOffsetIndex = s.Serialize<byte>(PaletteOffsetIndex, name: nameof(PaletteOffsetIndex));
-            
+
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA)
                 UnkOffsetIndex3 = s.Serialize<byte>(UnkOffsetIndex3, name: nameof(UnkOffsetIndex3));
 

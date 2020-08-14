@@ -52,15 +52,12 @@ namespace R1Engine
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.Ray3GBA) 
-            {
-                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
+            Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
 
-                if (Unk_07 != 0 || Unk_08 != 0)
-                    Debug.LogWarning($"Potentially missed data");
+            if (Unk_07 != 0 || Unk_08 != 0)
+                Debug.LogWarning($"Potentially missed data");
 
-                UnkStructs = s.SerializeObjectArray<GBA_UnkLevelBlockStruct>(UnkStructs, UnkStructsCount, name: nameof(UnkStructs));
-            }
+            UnkStructs = s.SerializeObjectArray<GBA_UnkLevelBlockStruct>(UnkStructs, UnkStructsCount, name: nameof(UnkStructs));
 
             // TODO: What is this data?
             //Controller.print(Actors.Sum(a => a.Unk_0B));
@@ -73,7 +70,6 @@ namespace R1Engine
             // Parse level block data
             PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA || s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) return;
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
             {
