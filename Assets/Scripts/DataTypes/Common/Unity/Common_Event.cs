@@ -309,11 +309,11 @@ namespace R1Engine {
             if (anim != null)
             {
                 // Set box collider size to be the combination of all parts
-                float leftX = 0, topY = 0, rightX = 0, bottomY = 0;
+                float leftX = 0, bottomY = 0, rightX = 0, topY = 0;
                 bool first = true;
                 foreach (SpriteRenderer part in prefabRendereds)
                 {
-                    var pos = new Vector2(Mathf.Abs(part.transform.localPosition.x) * 16, Mathf.Abs(part.transform.localPosition.y) * 16);
+                    var pos = new Vector2(part.transform.localPosition.x * 16, part.transform.localPosition.y * 16);
 
                     if (part.sprite == null)
                         continue;
@@ -322,10 +322,10 @@ namespace R1Engine {
                         leftX = pos.x - (part.flipX ? part.sprite.texture.width : 0);
                     if (pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0) > rightX || first)
                         rightX = pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0);
-                    if (pos.y < topY || first)
+                    if (pos.y - part.sprite.texture.height < bottomY || first)
+                        bottomY = pos.y - part.sprite.texture.height;
+                    if (pos.y > topY || first)
                         topY = pos.y;
-                    if (pos.y + part.sprite.texture.height > bottomY || first)
-                        bottomY = pos.y + part.sprite.texture.height;
 
                     if (first)
                         first = false;
@@ -334,9 +334,9 @@ namespace R1Engine {
                 if (!first)
                 {
                     var w = (rightX - leftX) / 16f;
-                    var h = (bottomY - topY) / 16f;
+                    var h = (topY - bottomY) / 16f;
                     boxCollider.size = new Vector2(w, h);
-                    boxCollider.offset = new Vector2(leftX / 16f + w / 2f, -(topY / 16f + h / 2f));
+                    boxCollider.offset = new Vector2(leftX / 16f + w / 2f, (topY / 16f - h / 2f));
                 }
             }
 
