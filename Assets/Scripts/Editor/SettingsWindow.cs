@@ -44,6 +44,8 @@ public class SettingsWindow : UnityWindow
     public int DefaultMemoryOptionsIndex { get; set; }
     public int PreviousDefaultMemoryOptionsIndex { get; set; } = -1;
 
+    bool isFirstRun = true;
+
     public async UniTaskVoid OnGUI()
 	{
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
@@ -115,12 +117,18 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader(ref yPos, "Map");
 
+        // Helper method for getting the world name
+        string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
+
+        if (!isFirstRun)
+            Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames.Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray()));
+
         try
         {
 			// Only update if previous values don't match
 			if (!PrevLvlValues.ComparePreviousValues())
             {
-                Debug.Log("Updated levels");
+                Debug.Log($"Updated levels for world {Settings.World}");
 
                 var manager = Settings.GetGameManager;
                 var settings = Settings.GetGameSettings;
@@ -141,11 +149,6 @@ public class SettingsWindow : UnityWindow
         {
             Debug.LogWarning(ex.Message);
         }
-
-        // Helper method for getting the world name
-        string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
-
-        Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames.Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray()));
 
         if (fileMode == FileSystem.Mode.Web) {
             var lvlIndex = EditorGUI.IntField(GetNextRect(ref yPos), "Map", Settings.Level);
@@ -405,7 +408,9 @@ public class SettingsWindow : UnityWindow
 			Settings.Save();
 			Dirty = false;
 		}
-	}
+
+        isFirstRun = false;
+    }
 
     #region Randomizer
 
