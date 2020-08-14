@@ -15,8 +15,10 @@
 
         public byte StateIndex { get; set; }
 
-        // Almost always -1
-        public int Int_08 { get; set; }
+        public byte Link_0 { get; set; }
+        public byte Link_1 { get; set; }
+        public byte Link_2 { get; set; }
+        public byte Link_3 { get; set; }
 
         // Only in Prince of Persia
         public short Short_0C { get; set; }
@@ -45,7 +47,10 @@
             StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
 
             if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA) {
-                Int_08 = s.Serialize<int>(Int_08, name: nameof(Int_08));
+                Link_0 = s.Serialize<byte>(Link_0, name: nameof(Link_0));
+                Link_1 = s.Serialize<byte>(Link_1, name: nameof(Link_1));
+                Link_2 = s.Serialize<byte>(Link_2, name: nameof(Link_2));
+                Link_3 = s.Serialize<byte>(Link_3, name: nameof(Link_3));
             }
 
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA)

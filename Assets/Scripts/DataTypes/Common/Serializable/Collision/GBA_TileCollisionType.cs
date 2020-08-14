@@ -43,6 +43,8 @@
         
         ClimbableWalls = 49,
 
+        ShellLoop = 50,
+
         Lava = 74,
 
         // 81, 86 and 87 seems to change speed of moving platform
