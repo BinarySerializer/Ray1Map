@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using UnityEngine;
+
+namespace R1Engine
 {
     public class GBA_LevelBlock : GBA_BaseBlock
     {
@@ -13,11 +15,14 @@
         public byte NormalActorsCount { get; set; }
         public byte Unk_07 { get; set; }
         public byte Unk_08 { get; set; }
-        public byte Unk_09 { get; set; }
+
+        public byte UnkStructsCount { get; set; }
+
         public byte Unk_0A { get; set; }
         public byte Unk_0B { get; set; }
 
         public GBA_Actor[] Actors { get; set; }
+        public GBA_UnkLevelBlockStruct[] UnkStructs { get; set; }
 
         public byte[] UnkData { get; set; }
 
@@ -43,14 +48,18 @@
             Unk_07 = s.Serialize<byte>(Unk_07, name: nameof(Unk_07));
 
             Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
-            Unk_09 = s.Serialize<byte>(Unk_09, name: nameof(Unk_09));
+            UnkStructsCount = s.Serialize<byte>(UnkStructsCount, name: nameof(UnkStructsCount));
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.Ray3GBA) {
+            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.Ray3GBA) 
+            {
                 Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
-            } else {
-                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, ObjectsCountTotal, name: nameof(Actors));
+
+                if (Unk_07 != 0 || Unk_08 != 0)
+                    Debug.LogWarning($"Potentially missed data");
+
+                UnkStructs = s.SerializeObjectArray<GBA_UnkLevelBlockStruct>(UnkStructs, UnkStructsCount, name: nameof(UnkStructs));
             }
 
             // TODO: What is this data?
