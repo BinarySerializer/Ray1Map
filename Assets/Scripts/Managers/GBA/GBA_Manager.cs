@@ -523,8 +523,15 @@ namespace R1Engine
             var eta = new Common_EventState[1][];
             eta[0] = graphicData.States.Select(s => new Common_EventState() {
                 AnimationIndex = s.AnimationIndex,
-                AnimationSpeed = BitHelpers.ExtractBits(s.Byte_06, 4, 0) != 0 ? (byte)(BitHelpers.ExtractBits(s.Byte_06, 4, 0)) : (byte)2
+                AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF))
             }).ToArray();
+            int numAnims = graphicData.SpriteGroup.Animations.Length;
+            if (eta[0].Length == 0 && numAnims > 0) {
+                eta[0] = Enumerable.Range(0, numAnims).Select(i => new Common_EventState() {
+                    AnimationIndex = (byte)i,
+                    AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[i].Flags & 0xF))
+                }).ToArray();
+            }
 
             return eta;
         }
