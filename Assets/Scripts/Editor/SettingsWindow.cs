@@ -115,11 +115,6 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader(ref yPos, "Map");
 
-        // Helper method for getting the world name
-        string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
-
-        Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames.Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray()));
-
         try
         {
 			// Only update if previous values don't match
@@ -146,6 +141,11 @@ public class SettingsWindow : UnityWindow
         {
             Debug.LogWarning(ex.Message);
         }
+
+        // Helper method for getting the world name
+        string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
+
+        Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames.Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray()));
 
         if (fileMode == FileSystem.Mode.Web) {
             var lvlIndex = EditorGUI.IntField(GetNextRect(ref yPos), "Map", Settings.Level);
