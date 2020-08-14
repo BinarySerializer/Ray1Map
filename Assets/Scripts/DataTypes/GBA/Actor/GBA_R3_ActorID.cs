@@ -44,6 +44,7 @@
         Effect_49 = 49,
         Breakable_Ground = 50,
 
+        Platform_Moving_Burn = 53,
         Plum = 54,
 
         DarkLum = 57,
@@ -64,6 +65,8 @@
 
         Boss_Machine = 84,
 
+        balloon = 85,
+
         Rayman_FlyingShell = 88,
         MovingSkull = 89,
 
@@ -78,5 +81,7 @@
         LevelExit_Next = 101,
 
         Rayman_WorldMap = 103,
+
+        Effect_JanoShot = 109,
     }
 }
