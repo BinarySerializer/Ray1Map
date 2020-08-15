@@ -1,7 +1,11 @@
 ﻿
+#if (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
+#define ISLINUX
+#endif
+
 using System;
 using System.IO;
-#if ISWINDOWS
+#if (ISWINDOWS || ISLINUX)
 using System.Runtime.Remoting;
 #endif
 namespace R1Engine {
@@ -11,7 +15,7 @@ namespace R1Engine {
 	/// carried out using this wrapper.
 	/// </summary>
 	public sealed class NonClosingStreamWrapper : Stream {
-#if ISWINDOWS
+#if (ISWINDOWS || ISLINUX)
 #region Members specific to this wrapper class
 		/// <summary>
 		/// Creates a new instance of the class, wrapping the specified stream.
