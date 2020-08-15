@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+﻿using UnityEngine;
 
 namespace R1Engine
 {
@@ -18,7 +18,8 @@ namespace R1Engine
         /// </summary>
         public int YPosition { get; set; }
 
-        public float Rotation { get; set; }
+        public float? Rotation { get; set; }
+        public Vector2? Scale { get; set; }
         public float TransformOriginX { get; set; }
         public float TransformOriginY { get; set; }
 

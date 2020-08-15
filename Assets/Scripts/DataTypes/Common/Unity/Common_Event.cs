@@ -292,19 +292,31 @@ namespace R1Engine {
                     prefabRenderers[i].transform.localScale = Vector3.one * Scale;
 
                     prefabRenderers[i].transform.localRotation = Quaternion.Euler(0, 0, 0);
-                    if (layer.Rotation != 0) {
-                        /*Quaternion rotation = Quaternion.Euler(0, 0, layer.Rotation * 180f);*/
-                        Vector3 rotationOrigin = new Vector3(
+                    if ((layer.Rotation.HasValue && layer.Rotation.Value != 0) || (layer.Scale.HasValue && layer.Scale.Value != Vector2.one)) {
+
+                        Vector3 transformOrigin = new Vector3(
                             (((layer.TransformOriginX - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / 16f),
                             ((-layer.TransformOriginY - pivot.y) * Scale + pivot.y) / 16f,
                             prefabRenderers[i].transform.localPosition.z);
-                        //Vector3 rotationOrigin = Vector3.zero;
 
-                        prefabRenderers[i].transform.RotateAround(transform.TransformPoint(rotationOrigin), new Vector3(0, 0, 1), layer.Rotation * 180f);
-                        /*    Vector2 relativePos = pos - rotationOrigin;
-                        Vector2 rotatedPos = rotation * relativePos;
-                        prefabRenderers[i].transform.localRotation = rotation;
-                        prefabRenderers[i].transform.localPosition = new Vector3(relativePos.x + rotatedPos.x, relativePos.y + rotatedPos.y, prefabRenderers[i].transform.localPosition.z);*/
+                        // Scale first
+                        if (layer.Scale.HasValue && layer.Scale.Value != Vector2.one) {
+                            Vector3 scaleValue = new Vector3(layer.Scale.Value.x, layer.Scale.Value.y, 1f);
+                            prefabRenderers[i].transform.localScale = Vector3.Scale(Vector3.one * Scale, scaleValue);
+                            Vector3 scaledPos = Vector3.Scale(prefabRenderers[i].transform.localPosition - transformOrigin, scaleValue);
+                            prefabRenderers[i].transform.localPosition = transformOrigin + scaledPos;
+                        }
+                        // Then rotate
+                        if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
+                            /*Quaternion rotation = Quaternion.Euler(0, 0, layer.Rotation * 180f);*/
+                            //Vector3 rotationOrigin = Vector3.zero;
+
+                            prefabRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), layer.Rotation.Value * (mirrored ? -1f : 1f));
+                            /*    Vector2 relativePos = pos - rotationOrigin;
+                            Vector2 rotatedPos = rotation * relativePos;
+                            prefabRenderers[i].transform.localRotation = rotation;
+                            prefabRenderers[i].transform.localPosition = new Vector3(relativePos.x + rotatedPos.x, relativePos.y + rotatedPos.y, prefabRenderers[i].transform.localPosition.z);*/
+                        }
                     }
 
                     // Get visibility

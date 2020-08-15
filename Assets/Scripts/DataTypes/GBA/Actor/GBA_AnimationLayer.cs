@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -117,7 +118,33 @@ namespace R1Engine
                     var matrices = spriteGroup.Matrices[anim.AffineMatricesIndex].Matrices;
                     if (matrices.Length > AffineMatrixIndex) {
                         var m = matrices[AffineMatrixIndex];
-                        Vector4 v = m.ToFloat();
+                        Matrix3x2 mat = m.ToMatrix3x2();
+                        var a = mat.M11;
+                        var b = mat.M12;
+                        var c = mat.M21;
+                        var d = mat.M22;
+                        var delta = a * d - b * c;
+
+                        var rotation = 0f;
+                        var scale = UnityEngine.Vector2.zero;
+                        var skew = UnityEngine.Vector2.zero;
+                        // Apply the QR-like decomposition.
+                        if (a != 0 || b != 0) {
+                            var r = Mathf.Sqrt(a * a + b * b);
+                            rotation = b > 0 ? Mathf.Acos(a / r) : -Mathf.Acos(a / r);
+                            scale = new UnityEngine.Vector2(r, delta / r);
+                            skew = new UnityEngine.Vector2(Mathf.Atan((a * c + b * d) / (r * r)), 0);
+                        } else if (c != 0 || d != 0) {
+                            var s = Mathf.Sqrt(c * c + d * d);
+                            rotation =
+                              Mathf.PI / 2 - (d > 0 ? Mathf.Acos(-c / s) : -Mathf.Acos(c / s));
+                            scale = new UnityEngine.Vector2(delta / s, s);
+                            skew = new UnityEngine.Vector2(0, Mathf.Atan((a * c + b * d) / (s * s)));
+                        } else {
+                            // a = b = c = d = 0
+                        }
+                        return rotation * -Mathf.Rad2Deg;// * Mathf.PI / 32768;
+                        //Vector2 scl = m.p
                         // TODO: using this Vector4 of Pa, Pb, Pc, Pd: get the rotation and scale values
                         // Resources: 
                         // https://wiki.nycresistor.com/wiki/GB101:Affine_Sprites
@@ -127,6 +154,53 @@ namespace R1Engine
                 }
             }
             return 0f;
+        }
+
+        public UnityEngine.Vector2 GetScale(GBA_Animation anim, GBA_SpriteGroup spriteGroup) {
+            if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
+                if (spriteGroup.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
+                    var matrices = spriteGroup.Matrices[anim.AffineMatricesIndex].Matrices;
+                    if (matrices.Length > AffineMatrixIndex) {
+                        var m = matrices[AffineMatrixIndex];
+                        Matrix3x2 mat = m.ToMatrix3x2();
+                        var a = mat.M11;
+                        var b = mat.M12;
+                        var c = mat.M21;
+                        var d = mat.M22;
+                        var delta = a * d - b * c;
+
+                        var rotation = 0f;
+                        var scale = UnityEngine.Vector2.zero;
+                        var skew = UnityEngine.Vector2.zero;
+                        // Apply the QR-like decomposition.
+                        if (a != 0 || b != 0) {
+                            var r = Mathf.Sqrt(a * a + b * b);
+                            rotation = b > 0 ? Mathf.Acos(a / r) : -Mathf.Acos(a / r);
+                            scale = new UnityEngine.Vector2(r, delta / r);
+                            skew = new UnityEngine.Vector2(Mathf.Atan((a * c + b * d) / (r * r)), 0);
+                        } else if (c != 0 || d != 0) {
+                            var s = Mathf.Sqrt(c * c + d * d);
+                            rotation =
+                              Mathf.PI / 2 - (d > 0 ? Mathf.Acos(-c / s) : -Mathf.Acos(c / s));
+                            scale = new UnityEngine.Vector2(delta / s, s);
+                            skew = new UnityEngine.Vector2(0, Mathf.Atan((a * c + b * d) / (s * s)));
+                        } else {
+                            // a = b = c = d = 0
+                        }
+                        if (scale.x != 0) scale.x = 1f / scale.x;
+                        if (scale.y != 0) scale.y = 1f / scale.y;
+
+                        return scale;
+                        //Vector2 scl = m.p
+                        // TODO: using this Vector4 of Pa, Pb, Pc, Pd: get the rotation and scale values
+                        // Resources: 
+                        // https://wiki.nycresistor.com/wiki/GB101:Affine_Sprites
+                        // https://www.coranac.com/tonc/text/affine.htm
+                        // https://www.coranac.com/tonc/text/affobj.htm
+                    }
+                }
+            }
+            return UnityEngine.Vector2.one;
         }
     }
 }

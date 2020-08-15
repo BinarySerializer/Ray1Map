@@ -517,6 +517,7 @@ namespace R1Engine
                             XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * 8) * 2,
                             YPosition = (l.YPosition + (l.IsFlippedVertically ? (l.YSize - 1 - y) : y) * 8) * 2,
                             Rotation = l.GetRotation(a, s),
+                            Scale = l.GetScale(a, s),
                             TransformOriginX = (l.XPosition + l.XSize * 8f / 2f) * 2,
                             TransformOriginY = (l.YPosition + l.YSize * 8f / 2f) * 2
                         };

@@ -17,8 +17,8 @@ namespace R1Engine
             Pd = s.Serialize<short>(Pd, name: nameof(Pd));
         }
 
-        public Vector4 ToFloat() {
-            return new Vector4(Pa / 256f, Pb / 256f, Pc / 256f, Pd / 256f);
+        public Matrix3x2 ToMatrix3x2() {
+            return new Matrix3x2(Pa / 256f, Pc / 256f, Pb / 256f, Pd / 256f, 0f, 0f);
         }
     }
 }
