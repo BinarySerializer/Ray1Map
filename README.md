@@ -482,4 +482,4 @@ Editor tutorial: https://github.com/Adsolution/Ray1Map/wiki/Editor-(tutorial)
 </div>
 
 ## Attributions
-For finding pointers in EXE files for memory loading, Ray1Map uses (BinaryTools.Elf)[https://github.com/fjeremic/BinaryTools.Elf], Copyright (c) 2019 Filip Jeremic under the MIT Licence, and (PE)[https://github.com/Kittyfisto/PE/], Copyright (c) 2017 Kittyfisto under the MIT Licence.
+For finding pointers in EXE files for memory loading, Ray1Map uses [BinaryTools.Elf](https://github.com/fjeremic/BinaryTools.Elf), Copyright (c) 2019 Filip Jeremic under the MIT Licence, and [PE](https://github.com/Kittyfisto/PE/), Copyright (c) 2017 Kittyfisto under the MIT Licence.
