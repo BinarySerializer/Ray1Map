@@ -17,9 +17,6 @@
         // 0-4 (isn't it 0-3?)
         public byte ClusterCount { get; set; }
 
-        // (0-4) - is it this byte?
-        public byte TextLayerCount { get; set; }
-
         // 0-5
         public byte LayerCount { get; set; }
         
@@ -70,11 +67,7 @@
                 IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
                 TileKitIndex = s.Serialize<byte>(TileKitIndex, name: nameof(TileKitIndex));
                 UnkBGDataOffsetIndex = s.Serialize<byte>(UnkBGDataOffsetIndex, name: nameof(UnkBGDataOffsetIndex));
-
-                if (!IsMode7)
-                    Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
-                else
-                    TextLayerCount = s.Serialize<byte>(TextLayerCount, name: nameof(TextLayerCount));
+                Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
             }
 
             if (!IsMode7)
@@ -87,7 +80,7 @@
                 if (!IsMode7)
                     ClusterTable = s.SerializeArray<byte>(ClusterTable, 4, name: nameof(ClusterTable));
                 
-                LayerTable = s.SerializeArray<byte>(LayerTable, IsMode7 ? 8: 6, name: nameof(LayerTable));
+                LayerTable = s.SerializeArray<byte>(LayerTable, IsMode7 ? 8 : 6, name: nameof(LayerTable));
 
                 // TODO: Mode7 has more data
             } else {

@@ -80,7 +80,7 @@ namespace R1Engine
         // Unk_28 is also some active flag, but it's 0 for Rayman
         protected bool IsActive() => Data.PC_Flags.HasFlag(EventData.PC_EventFlags.SwitchedOn) && Data.Unk_36 == 1;
 
-        public bool GetIsFlippedHorizontally()
+        public bool GetIsFlippedHorizontally(Common_EventState state)
         {
             // If loading from memory, check runtime flags
             if (Settings.LoadFromMemory)
@@ -104,6 +104,10 @@ namespace R1Engine
             // If the first command changes its direction to right, flip the event (a bit hacky, but works for trumpets etc.)
             if (CommandCollection?.Commands?.FirstOrDefault()?.Command == EventCommand.GO_RIGHT)
                 return true;
+
+            // If we're on GBA, check the state
+            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
+                return state?.IsFlipped ?? false;
 
             return false;
         }

@@ -538,17 +538,18 @@ namespace R1Engine
 
 
         public Common_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
-            // Create the design
+            // Create the states
             var eta = new Common_EventState[1][];
             eta[0] = graphicData.States.Select(s => new Common_EventState() {
                 AnimationIndex = s.AnimationIndex,
-                AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF))
+                AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF)),
+                IsFlipped = s.IsFlipped
             }).ToArray();
             int numAnims = graphicData.SpriteGroup.Animations.Length;
             if (eta[0].Length == 0 && numAnims > 0) {
                 eta[0] = Enumerable.Range(0, numAnims).Select(i => new Common_EventState() {
                     AnimationIndex = (byte)i,
-                    AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[i].Flags & 0xF))
+                    AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[i].Flags & 0xF)),
                 }).ToArray();
             }
 

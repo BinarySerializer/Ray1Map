@@ -69,6 +69,9 @@
         /// </summary>
         public byte InteractionType { get; set; }
 
+        // For GBA
+        public bool IsFlipped { get; set; }
+
         /// <summary>
         /// Serializes the data
         /// </summary>

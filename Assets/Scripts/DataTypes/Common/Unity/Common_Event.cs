@@ -248,7 +248,7 @@ namespace R1Engine {
 
                 var pivot = new Vector2(Data.Data.OffsetBX, -(Data.Data.OffsetBY));
 
-                var mirrored = Data.GetIsFlippedHorizontally();
+                var mirrored = Data.GetIsFlippedHorizontally(State);
 
                 for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
                 {
