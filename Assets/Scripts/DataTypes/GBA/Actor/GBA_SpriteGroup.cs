@@ -1,7 +1,8 @@
-﻿namespace R1Engine
+﻿using System.Collections.Generic;
+
+namespace R1Engine
 {
-    public class GBA_SpriteGroup : GBA_BaseBlock
-    {
+    public class GBA_SpriteGroup : GBA_BaseBlock {
         #region Data
 
         public byte Byte_00 { get; set; }
@@ -22,6 +23,7 @@
         public GBA_SpritePalette Palette { get; set; }
         public GBA_SpriteTileMap TileMap { get; set; }
         public GBA_Animation[] Animations { get; set; }
+        public Dictionary<int, GBA_AffineMatrixList> Matrices { get; set; } = new Dictionary<int, GBA_AffineMatrixList>();
 
         #endregion
 
@@ -58,6 +60,15 @@
 
             for (int i = 0; i < Animations.Length; i++)
                 Animations[i] = s.DoAt(OffsetTable.GetPointer(AnimationIndexTable[i]), () => s.SerializeObject<GBA_Animation>(Animations[i], name: $"{nameof(Animations)}[{i}]"));
+
+            for (int i = 0; i < Animations.Length; i++) {
+                if (Animations[i] == null) continue;
+                int matrixIndex = Animations[i].AffineMatricesIndex;
+                if (matrixIndex != 0) {
+
+                    Matrices[matrixIndex] = s.DoAt(OffsetTable.GetPointer(matrixIndex), () => s.SerializeObject<GBA_AffineMatrixList>(Matrices.ContainsKey(matrixIndex) ? Matrices[matrixIndex] : null, name: $"{nameof(Matrices)}[{matrixIndex}]"));
+                }
+            }
         }
 
         #endregion

@@ -70,7 +70,7 @@ namespace R1Engine {
         // Reference to spritepart prefab
         public GameObject prefabSpritepart;
         // Reference to the created renderers
-        public SpriteRenderer[] prefabRendereds;
+        public SpriteRenderer[] prefabRenderers;
         // Reference to box collider
         public BoxCollider2D boxCollider;
         // Reference to line renderer
@@ -202,13 +202,13 @@ namespace R1Engine {
                     }
 
                     // Get the amount of layers per frame
-                    var len = CurrentAnimation.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers.Length;
+                    var len = CurrentAnimation.Frames.Max(f => f.Layers.Length);
 
                     // Clear old array
                     ClearChildren();
 
                     // Create array
-                    prefabRendereds = new SpriteRenderer[len];
+                    prefabRenderers = new SpriteRenderer[len];
 
                     // Populate it with empty ones
                     for (int i = 0; i < len; i++)
@@ -221,7 +221,7 @@ namespace R1Engine {
                         newRenderer.gameObject.transform.parent = transform;
                         newRenderer.gameObject.transform.localScale = Vector3.one * Scale;
                         // Add to list
-                        prefabRendereds[i] = newRenderer;
+                        prefabRenderers[i] = newRenderer;
                     }
                 }
             }
@@ -252,47 +252,68 @@ namespace R1Engine {
 
                 for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
                 {
+                    var layer = anim.Frames[frame].Layers[i];
                     // Get the sprite index
-                    var spriteIndex = anim.Frames[frame].Layers[i].ImageIndex;
+                    var spriteIndex = layer.ImageIndex;
 
                     // Change it if the event is multi-colored
                     if (Data.Type is EventType et && et.IsMultiColored())
                         spriteIndex += ((sprites.Count / 6) * Data.Data.HitPoints);
 
-                    if (prefabRendereds.Length <= i)
+                    if (prefabRenderers.Length <= i)
                         continue;
 
                     // Set the sprite, skipping sprites which are out of bounds
                     if (spriteIndex >= sprites.Count) {
                         print("Sprite index too high: " + Data.Type + ": " + spriteIndex + " >= " + sprites.Count);
                     }
-                    prefabRendereds[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
+                    prefabRenderers[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 
-                    var isFlippedHor = anim.Frames[frame].Layers[i].IsFlippedHorizontally;
+                    var isFlippedHor = layer.IsFlippedHorizontally;
 
                     // Indicate if the sprites should be flipped
-                    prefabRendereds[i].flipX = (isFlippedHor ^ mirrored);
-                    prefabRendereds[i].flipY = anim.Frames[frame].Layers[i].IsFlippedVertically;
+                    prefabRenderers[i].flipX = (isFlippedHor ^ mirrored);
+                    prefabRenderers[i].flipY = layer.IsFlippedVertically;
 
                     // Get the dimensions
-                    var w = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.width;
-                    var h = prefabRendereds[i].sprite == null ? 0 : prefabRendereds[i].sprite.texture.height;
+                    var w = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.texture.width;
+                    var h = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.texture.height;
                     
-                    var xx = anim.Frames[frame].Layers[i].XPosition + (isFlippedHor ? w : 0);
+                    var xx = layer.XPosition + (isFlippedHor ? w : 0);
 
-                    var yy = -(anim.Frames[frame].Layers[i].YPosition + (anim.Frames[frame].Layers[i].IsFlippedVertically ? h : 0));
+                    var yy = -(layer.YPosition + (layer.IsFlippedVertically ? h : 0));
 
                     // scale
                     Vector2 pos = new Vector2(
                         ((xx - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / 16f,
                         ((yy - pivot.y) * Scale + pivot.y) / 16f);
 
-                    prefabRendereds[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRendereds[i].transform.localPosition.z);
-                    prefabRendereds[i].transform.localScale = Vector3.one * Scale;
+                    prefabRenderers[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRenderers[i].transform.localPosition.z);
+                    prefabRenderers[i].transform.localScale = Vector3.one * Scale;
+
+                    prefabRenderers[i].transform.localRotation = Quaternion.Euler(0, 0, 0);
+                    if (layer.Rotation != 0) {
+                        /*Quaternion rotation = Quaternion.Euler(0, 0, layer.Rotation * 180f);*/
+                        Vector3 rotationOrigin = new Vector3(
+                            (((layer.TransformOriginX - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / 16f),
+                            ((-layer.TransformOriginY - pivot.y) * Scale + pivot.y) / 16f,
+                            prefabRenderers[i].transform.localPosition.z);
+                        //Vector3 rotationOrigin = Vector3.zero;
+
+                        prefabRenderers[i].transform.RotateAround(transform.TransformPoint(rotationOrigin), new Vector3(0, 0, 1), layer.Rotation * 180f);
+                        /*    Vector2 relativePos = pos - rotationOrigin;
+                        Vector2 rotatedPos = rotation * relativePos;
+                        prefabRenderers[i].transform.localRotation = rotation;
+                        prefabRenderers[i].transform.localPosition = new Vector3(relativePos.x + rotatedPos.x, relativePos.y + rotatedPos.y, prefabRenderers[i].transform.localPosition.z);*/
+                    }
 
                     // Get visibility
-                    prefabRendereds[i].enabled = Data.GetIsVisible();
-                    prefabRendereds[i].color = Data.GetIsFaded() ? new Color(1, 1, 1, 0.5f) : Color.white;
+                    prefabRenderers[i].enabled = Data.GetIsVisible();
+                    prefabRenderers[i].color = Data.GetIsFaded() ? new Color(1, 1, 1, 0.5f) : Color.white;
+                }
+                for(int i = anim.Frames[frame].Layers.Length; i < prefabRenderers.Length; i++) {
+                    prefabRenderers[i].sprite = null;
+                    prefabRenderers[i].enabled = false;
                 }
             }
 
@@ -301,7 +322,7 @@ namespace R1Engine {
             {
                 followSpriteLine.localPosition = new Vector2(anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].XPosition / 16f, -anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].YPosition / 16f - (Data.Data.OffsetHY / 16f));
 
-                var w = (prefabRendereds[Data.Data.FollowSprite].sprite == null) ? 0 : prefabRendereds[Data.Data.FollowSprite].sprite.texture.width;
+                var w = (prefabRenderers[Data.Data.FollowSprite].sprite == null) ? 0 : prefabRenderers[Data.Data.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
             }
 
@@ -311,7 +332,7 @@ namespace R1Engine {
                 // Set box collider size to be the combination of all parts
                 float leftX = 0, bottomY = 0, rightX = 0, topY = 0;
                 bool first = true;
-                foreach (SpriteRenderer part in prefabRendereds)
+                foreach (SpriteRenderer part in prefabRenderers)
                 {
                     var pos = new Vector2(part.transform.localPosition.x * 16, part.transform.localPosition.y * 16);
 
@@ -388,15 +409,15 @@ namespace R1Engine {
 
         private void ClearChildren() {
             // Clear old array
-            if (prefabRendereds != null) {
-                foreach (SpriteRenderer t in prefabRendereds) {
+            if (prefabRenderers != null) {
+                foreach (SpriteRenderer t in prefabRenderers) {
                     GameObject g = t.gameObject;
                     Destroy(t);
                     Destroy(g);
                 }
 
-                Array.Clear(prefabRendereds, 0, prefabRendereds.Length);
-                prefabRendereds = null;
+                Array.Clear(prefabRenderers, 0, prefabRenderers.Length);
+                prefabRenderers = null;
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Numerics;
+
+namespace R1Engine
 {
     public class Common_AnimationPart {
         /// <summary>
@@ -15,6 +17,10 @@
         /// The y position
         /// </summary>
         public int YPosition { get; set; }
+
+        public float Rotation { get; set; }
+        public float TransformOriginX { get; set; }
+        public float TransformOriginY { get; set; }
 
         /// <summary>
         /// Indicates if the layer is flipped horizontally

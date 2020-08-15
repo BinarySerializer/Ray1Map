@@ -495,8 +495,12 @@ namespace R1Engine
                 }
             }
 
-            Common_AnimationPart[] GetPartsForLayer(GBA_AnimationLayer l) {
-                if (!l.IsSprite || l.IsScaled) return new Common_AnimationPart[0];
+            Common_AnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, GBA_AnimationLayer l) {
+                if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
+                    || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
+                    || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular
+                    || l.Mosaic
+                    || l.Color == GBA_AnimationLayer.ColorMode.Color8bpp) return new Common_AnimationPart[0];
                 Common_AnimationPart[] parts = new Common_AnimationPart[l.XSize * l.YSize];
                 if (l.ImageIndex > graphicData.SpriteGroup.TileMap.TileMapLength) {
                     Controller.print("Image index too high: " + graphicData.Offset + " - " + l.Offset);
@@ -512,6 +516,9 @@ namespace R1Engine
                             IsFlippedVertically = l.IsFlippedVertically,
                             XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * 8) * 2,
                             YPosition = (l.YPosition + (l.IsFlippedVertically ? (l.YSize - 1 - y) : y) * 8) * 2,
+                            Rotation = l.GetRotation(a, s),
+                            TransformOriginX = (l.XPosition + l.XSize * 8f / 2f) * 2,
+                            TransformOriginY = (l.YPosition + l.YSize * 8f / 2f) * 2
                         };
                     }
                 }
@@ -521,7 +528,7 @@ namespace R1Engine
             // Add first animation for now
             des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Common_Animation() {
                 Frames = a.Layers.Select(f => new Common_AnimFrame {
-                    Layers = f.SelectMany(GetPartsForLayer).Reverse().ToArray()
+                    Layers = f.SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup, a, l)).Reverse().ToArray()
                 }).ToArray()
             }));
 

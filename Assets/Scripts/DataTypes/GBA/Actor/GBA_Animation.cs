@@ -4,7 +4,7 @@
     {
         public byte Flags { get; set; }
         public byte Byte_01 { get; set; }
-        public byte Byte_02 { get; set; }
+        public byte AffineMatricesIndex { get; set; }
         public byte Byte_03 { get; set; }
         public byte[] LayersPerFrame { get; set; }
 
@@ -16,7 +16,7 @@
         public override void SerializeImpl(SerializerObject s) {
             Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-            Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+            AffineMatricesIndex = s.Serialize<byte>(AffineMatricesIndex, name: nameof(AffineMatricesIndex));
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
             FrameCount = Byte_03 & 0x3F;
 
