@@ -1,4 +1,7 @@
-﻿
+﻿#if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+#define ISWINDOWS
+#endif
+
 using System;
 using System.IO;
 #if ISWINDOWS
