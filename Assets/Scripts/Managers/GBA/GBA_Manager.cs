@@ -373,7 +373,7 @@ namespace R1Engine
                         {
                             new Common_Tileset(new Tile[]
                             {
-                                new Tile(),
+                                ScriptableObject.CreateInstance<Tile>(),
                             }), 
                         },
                         MapTiles = map.CollisionData.Select((x, i) => new Editor_MapTile(new MapTile()
@@ -387,12 +387,12 @@ namespace R1Engine
                 else
                 {
                     MapTile[] mapData = map.MapData;
-
+                    MapTile[] bgData = playField.BGTileTable.Data1.Concat(playField.BGTileTable.Data2).ToArray();
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
-                        mapData = map.Mode7Data?.Select(x => playField.BGTileTable.Data1[x - 1].CloneObj()).ToArray();
+                        mapData = map.Mode7Data?.Select(x => bgData[x - 1].CloneObj()).ToArray();
                     else if (map.Unk_0C == 0)
                         // TODO: Avoid having to clamp here - why are the values too big?
-                        mapData = map.MapData?.Select(x => playField.BGTileTable.Data1[Mathf.Clamp(x.TileMapY - 1, 0, playField.BGTileTable.Data1.Length - 1)].CloneObj()).ToArray();
+                        mapData = map.MapData?.Select(x => bgData[Mathf.Clamp(x.TileMapY - 1, 0, bgData.Length - 1)].CloneObj()).ToArray();
 
                     commonLev.Maps[layer] = new Common_LevelMap
                     {

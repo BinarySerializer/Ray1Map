@@ -57,12 +57,12 @@ namespace R1Engine
             }
             SpriteSize = BitHelpers.ExtractBits(Attr1, 2, 14);
 
-            ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 10, 0);
-            Priority = BitHelpers.ExtractBits(Attr2, 2, 10);
+            ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 11, 0);
+            Priority = BitHelpers.ExtractBits(Attr2, 1, 11);
             PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
             bool paletteFlag = BitHelpers.ExtractBits(Attr2, 1, 15) == 1;
 
-            /*s.Log($"{nameof(XPosition)}: {XPosition}");
+            s.Log($"{nameof(XPosition)}: {XPosition}");
             s.Log($"{nameof(YPosition)}: {YPosition}");
             s.Log($"{nameof(TransformMode)}: {TransformMode}");
             s.Log($"{nameof(RenderMode)}: {RenderMode}");
@@ -74,7 +74,7 @@ namespace R1Engine
             s.Log($"{nameof(ImageIndex)}: {ImageIndex}");
             s.Log($"{nameof(Priority)}: {Priority}");
             s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
-            s.Log($"{nameof(paletteFlag)}: {paletteFlag}");*/
+            s.Log($"{nameof(paletteFlag)}: {paletteFlag}");
 
             // Calculate size
             XSize = 1;
