@@ -46,7 +46,7 @@ public class SettingsWindow : UnityWindow
 
     bool isFirstRun = true;
 
-    public async UniTaskVoid OnGUI()
+    protected override async UniTask UpdateEditorFields()
 	{
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
@@ -55,8 +55,6 @@ public class SettingsWindow : UnityWindow
 
         // Increase label width due to it being cut off otherwise
         EditorGUIUtility.labelWidth = 192;
-
-		float yPos = 0f;
 
 		if (TotalyPos == 0f)
             TotalyPos = position.height;
@@ -67,24 +65,24 @@ public class SettingsWindow : UnityWindow
 		EditorGUI.BeginChangeCheck();
 
         if (fileMode == FileSystem.Mode.Web) {
-            EditorGUI.HelpBox(GetNextRect(ref yPos, height: 40f), "Your build target is configured as WebGL. Ray1Map will attempt to load from the server.", MessageType.Warning);
+            EditorGUI.HelpBox(GetNextRect(ref YPos, height: 40f), "Your build target is configured as WebGL. Ray1Map will attempt to load from the server.", MessageType.Warning);
         }
 
         // Mode
 
-        DrawHeader(ref yPos, "Mode");
+        DrawHeader("Mode");
 
-		Settings.SelectedGameMode = (GameModeSelection)EditorGUI.Popup(GetNextRect(ref yPos), "Game", (int)Settings.SelectedGameMode, GameModeNames);
+        Settings.SelectedGameMode = EditorField("Game", Settings.SelectedGameMode, getEnumOptions: () => EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray());
         
-        Settings.LoadFromMemory = EditorGUI.Toggle(GetNextRect(ref yPos), "Load from memory", Settings.LoadFromMemory);
+        Settings.LoadFromMemory = EditorField("Load from memory", Settings.LoadFromMemory);
         
         // Memory
         
         if (Settings.LoadFromMemory)
         {
-            DrawHeader(ref yPos, "Memory");
+            DrawHeader("Memory");
 
-            DefaultMemoryOptionsIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Default memory options", DefaultMemoryOptionsIndex, DefaultMemoryOptionNames);
+            DefaultMemoryOptionsIndex = EditorField("Default memory options", DefaultMemoryOptionsIndex, DefaultMemoryOptionNames);
 
             if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex)
             {
@@ -107,23 +105,20 @@ public class SettingsWindow : UnityWindow
 
             EditorGUI.BeginDisabledGroup(DefaultMemoryOptionsIndex != 0);
 
-            Settings.ProcessName = EditorGUI.TextField(GetNextRect(ref yPos), "Process name", Settings.ProcessName);
-            Settings.GameBasePointer = EditorGUI.IntField(GetNextRect(ref yPos), "Game memory pointer", Settings.GameBasePointer);
+            Settings.ProcessName = EditorField("Process name", Settings.ProcessName);
+            Settings.GameBasePointer = EditorField("Game memory pointer", Settings.GameBasePointer);
          
             EditorGUI.EndDisabledGroup();
 
-            Settings.FindPointerAutomatically = EditorGUI.Toggle(GetNextRect(ref yPos), "Find pointer automatically", Settings.FindPointerAutomatically);
+            Settings.FindPointerAutomatically = EditorField("Find pointer automatically", Settings.FindPointerAutomatically);
         }
 
         // Map
 
-        DrawHeader(ref yPos, "Map");
-
-        // Helper method for getting the world name
-        string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
+        DrawHeader("Map");
 
         if (!isFirstRun)
-            Settings.World = AvailableWorlds.ElementAtOrDefault(EditorGUI.Popup(GetNextRect(ref yPos), "World", AvailableWorlds.FindItemIndex(x => x == Settings.World), AvailableWorldNames.Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray()));
+            Settings.World = AvailableWorlds.ElementAtOrDefault(EditorField("World", AvailableWorlds.FindItemIndex(x => x == Settings.World), WorldOptions));
 
         try
         {
@@ -144,7 +139,11 @@ public class SettingsWindow : UnityWindow
                         .ToArray()))
                     .ToArray();
                 AvailableWorlds = CurrentLevels.Where(x => x.Value.Any()).Select(x => x.Key).ToArray();
-                AvailableWorldNames = AvailableWorlds.Select(x => worldNames?.TryGetItem(x)).ToArray();
+
+                // Helper method for getting the world name
+                string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
+
+                WorldOptions = AvailableWorlds.Select(x => worldNames?.TryGetItem(x)).Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray();
             }
         }
         catch (Exception ex)
@@ -153,7 +152,7 @@ public class SettingsWindow : UnityWindow
         }
 
         if (fileMode == FileSystem.Mode.Web) {
-            var lvlIndex = EditorGUI.IntField(GetNextRect(ref yPos), "Map", Settings.Level);
+            var lvlIndex = EditorField("Map", Settings.Level);
 
             if (lvlIndex >= 0)
                 Settings.Level = lvlIndex;
@@ -168,7 +167,7 @@ public class SettingsWindow : UnityWindow
             // Helper method for getting the level name
             string GetLvlName(int lvlNum, string lvlName) => lvlName != null ? $"{lvlNum:00} - {lvlName}" : $"{lvlNum}";
 
-            var lvlIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
+            var lvlIndex = EditorField("Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
 
             if (currentLevels.Length > lvlIndex && lvlIndex != -1)
                 Settings.Level = currentLevels[lvlIndex].Key;
@@ -192,7 +191,7 @@ public class SettingsWindow : UnityWindow
             Debug.LogWarning(ex.Message);
         }
 
-		var eduIndex = EditorGUI.Popup(GetNextRect(ref yPos), "Volume", CurrentEduVolumes.FindItemIndex(x => x == Settings.EduVolume), CurrentEduVolumes);
+		var eduIndex = EditorField("Volume", CurrentEduVolumes.FindItemIndex(x => x == Settings.EduVolume), CurrentEduVolumes);
 
 		if (CurrentEduVolumes.Length > eduIndex && eduIndex != -1)
 			Settings.EduVolume = CurrentEduVolumes[eduIndex];
@@ -203,9 +202,9 @@ public class SettingsWindow : UnityWindow
         EditorGUI.EndDisabledGroup();
 
         // Directories
-        DrawHeader(ref yPos, "Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
+        DrawHeader("Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
 
-        Settings.HideDirSettings = EditorGUI.Toggle(GetNextRect(ref yPos), "Hide directory fields", Settings.HideDirSettings);
+        Settings.HideDirSettings = EditorField("Hide directory fields", Settings.HideDirSettings);
 
         if (!Settings.HideDirSettings)
         {
@@ -214,41 +213,41 @@ public class SettingsWindow : UnityWindow
             {
                 foreach (var mode in modes)
                 {
-                    Settings.GameDirectoriesWeb[mode] = EditorGUI.TextField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
+                    Settings.GameDirectoriesWeb[mode] = EditorField(mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
                 }
             }
             else
             {
                 foreach (var mode in modes)
                 {
-                    Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref yPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
+                    Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref YPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
                 }
             }
         }
 
         // Miscellaneous
 
-        DrawHeader(ref yPos, "Miscellaneous");
+        DrawHeader("Miscellaneous");
 
-        Settings.StateSwitchingMode = (StateSwitchingMode)EditorGUI.EnumPopup(GetNextRect(ref yPos), "State switching", Settings.StateSwitchingMode);
+        Settings.StateSwitchingMode = EditorField("State switching", Settings.StateSwitchingMode);
 
-        Settings.UseHDCollisionSheet = EditorGUI.Toggle(GetNextRect(ref yPos), "Use HD collision sheet", Settings.UseHDCollisionSheet);
+        Settings.UseHDCollisionSheet = EditorField("Use HD collision sheet", Settings.UseHDCollisionSheet);
 
-        Settings.AnimateSprites = EditorGUI.Toggle(GetNextRect(ref yPos), "Animate sprites", Settings.AnimateSprites);
+        Settings.AnimateSprites = EditorField("Animate sprites", Settings.AnimateSprites);
 
-        Settings.ShowAlwaysEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show always events", Settings.ShowAlwaysEvents);
+        Settings.ShowAlwaysEvents = EditorField("Show always events", Settings.ShowAlwaysEvents);
 
-        Settings.ShowEditorEvents = EditorGUI.Toggle(GetNextRect(ref yPos), "Show editor events", Settings.ShowEditorEvents);
+        Settings.ShowEditorEvents = EditorField("Show editor events", Settings.ShowEditorEvents);
 
-        Settings.ShowDebugInfo = EditorGUI.Toggle(GetNextRect(ref yPos), "Show debug info", Settings.ShowDebugInfo);
+        Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
 
-        Settings.BackupFiles = EditorGUI.Toggle(GetNextRect(ref yPos), "Create .BAK backup files", Settings.BackupFiles);
+        Settings.BackupFiles = EditorField("Create .BAK backup files", Settings.BackupFiles);
 
-        Settings.ScreenshotEnumeration = EditorGUI.Toggle(GetNextRect(ref yPos), "Screenshot enumeration", Settings.ScreenshotEnumeration);
+        Settings.ScreenshotEnumeration = EditorField("Screenshot enumeration", Settings.ScreenshotEnumeration);
 
-        Settings.FollowRaymanInMemoryMode = EditorGUI.Toggle(GetNextRect(ref yPos), "Follow Rayman in memory mode", Settings.FollowRaymanInMemoryMode);
+        Settings.FollowRaymanInMemoryMode = EditorField("Follow Rayman in memory mode", Settings.FollowRaymanInMemoryMode);
 
-        Rect rect = GetNextRect(ref yPos);
+        Rect rect = GetNextRect(ref YPos);
         rect = EditorGUI.PrefixLabel(rect, new GUIContent("Serialization log"));
         bool log = Settings.Log;
         rect = PrefixToggle(rect, ref log);
@@ -263,9 +262,9 @@ public class SettingsWindow : UnityWindow
 
         if (em != null)
         {
-            DrawHeader(ref yPos, "Editor Tools");
+            DrawHeader("Editor Tools");
 
-            if (GUI.Button(GetNextRect(ref yPos), "Copy localization"))
+            if (EditorButton("Copy localization"))
             {
                 if (em.Level.Localization != null)
                 {
@@ -281,7 +280,7 @@ public class SettingsWindow : UnityWindow
 
         // Game Tools
 
-        DrawHeader(ref yPos, "Game Tools");
+        DrawHeader("Game Tools");
 
         // Only update if previous values don't match
         if (!PrevGameActionValues.ComparePreviousValues())
@@ -293,7 +292,7 @@ public class SettingsWindow : UnityWindow
         // Add every game action
         foreach (GameAction action in CurrentGameActions)
         {
-            if (GUI.Button(GetNextRect(ref yPos), action.DisplayName))
+            if (EditorButton(action.DisplayName))
             {
                 // Get the directories
                 string inputDir = action.RequiresInputDir ? EditorUtility.OpenFolderPanel("Select input directory", null, "") : null;
@@ -313,11 +312,11 @@ public class SettingsWindow : UnityWindow
 
         // Global Tools
 
-        DrawHeader(ref yPos, "Global Tools");
+        DrawHeader("Global Tools");
 
         async UniTask AddGlobalActionAsync(string actionName)
         {
-            if (GUI.Button(GetNextRect(ref yPos), actionName))
+            if (EditorButton(actionName))
             {
                 // Get the output directory
                 string outputDir = EditorUtility.OpenFolderPanel("Select output directory", null, "");
@@ -393,16 +392,16 @@ public class SettingsWindow : UnityWindow
 
         // Randomizer
 
-        DrawHeader(ref yPos, "Randomizer");
+        DrawHeader("Randomizer");
 
-        if (GUI.Button(GetNextRect(ref yPos), "Run Batch Randomizer"))
+        if (EditorButton("Run Batch Randomizer"))
             await BatchRandomizeAsync();
 
-        RandomizerSeed = EditorGUI.IntField(GetNextRect(ref yPos), "Seed", RandomizerSeed);
+        RandomizerSeed = EditorField("Seed", RandomizerSeed);
 
-        RandomizerFlags = (RandomizerFlags)EditorGUI.EnumFlagsField(GetNextRect(ref yPos), "Flags", RandomizerFlags);
+        RandomizerFlags = (RandomizerFlags)EditorGUI.EnumFlagsField(GetNextRect(ref YPos), "Flags", RandomizerFlags);
 
-        TotalyPos = yPos;
+        TotalyPos = YPos;
 		GUI.EndScrollView();
 
 		if (EditorGUI.EndChangeCheck() || Dirty)
@@ -463,17 +462,19 @@ public class SettingsWindow : UnityWindow
 
     #endregion
 
+    #region Available Options
+
+    public string[] WorldOptions { get; set; } = new string[0];
+
+    #endregion
+
     private PrevValues PrevLvlValues { get; } = new PrevValues();
 
     private PrevValues PrevVolumeValues { get; } = new PrevValues();
 
     private PrevValues PrevGameActionValues { get; } = new PrevValues();
 
-    private string[] GameModeNames { get; } = EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray();
-
     private int[] AvailableWorlds { get; set; } = new int[0];
-
-    private string[] AvailableWorldNames { get; set; } = new string[0];
 
     private KeyValuePair<int, KeyValuePair<int, string>[]>[] CurrentLevels { get; set; } = new KeyValuePair<int, KeyValuePair<int, string>[]>[0];
 

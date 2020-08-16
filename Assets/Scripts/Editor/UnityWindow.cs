@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using R1Engine;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,17 +21,17 @@ public class UnityWindow : EditorWindow
 
         return rect;
     }
-    protected void DrawHeader(ref float yPos, string title)
+    protected void DrawHeader(ref float yPos, string header)
     {
         if (yPos > 0)
         {
             Rect rect = GetNextRect(ref yPos, padding: 0f, height: EditorStyles.toolbarButton.fixedHeight, vPadding: 4f);
-            EditorGUI.LabelField(rect, new GUIContent(title), EditorStyles.toolbarButton);
+            EditorGUI.LabelField(rect, new GUIContent(header), EditorStyles.toolbarButton);
         }
         else
         {
             Rect rect = GetNextRect(ref yPos, padding: 0f, height: EditorStyles.toolbarButton.fixedHeight, vPaddingBottom: 4f);
-            EditorGUI.LabelField(rect, new GUIContent(title), EditorStyles.toolbarButton);
+            EditorGUI.LabelField(rect, new GUIContent(header), EditorStyles.toolbarButton);
         }
     }
     protected Rect PrefixToggle(Rect rect, ref bool value) {
@@ -120,4 +124,92 @@ public class UnityWindow : EditorWindow
             Repaint();
         }
     }
+
+    #region Editor GUI
+
+    protected float YPos;
+    protected Dictionary<string, object> PrevValues = new Dictionary<string, object>();
+    protected Dictionary<string, string[]> EnumOptions = new Dictionary<string, string[]>();
+
+    public async UniTask OnGUI()
+    {
+        YPos = 0;
+
+        await UpdateEditorFields();
+    }
+
+    protected virtual UniTask UpdateEditorFields() => UniTask.CompletedTask;
+
+    protected void CheckForValueChanged(string key, object newValue, Action onValueChanged)
+    {
+        if (PrevValues.ContainsKey(key) && !PrevValues[key].Equals(newValue))
+            onValueChanged?.Invoke();
+
+        PrevValues[key] = newValue;
+    }
+
+    protected void DrawHeader(string header) => DrawHeader(ref YPos, header);
+
+    protected bool EditorField(string label, bool value, Action onValueChanged = null, bool isVisible = true)
+    {
+        if (!isVisible)
+            return value;
+
+        CheckForValueChanged(label, value, onValueChanged);
+        return EditorGUI.Toggle(GetNextRect(ref YPos), label, value);
+    }
+
+    protected T EditorField<T>(string label, T value, Action onValueChanged = null, bool isVisible = true, Func<string[]> getEnumOptions = null)
+        where T : Enum
+    {
+        if (!isVisible)
+            return value;
+
+        if (!EnumOptions.ContainsKey(label))
+            EnumOptions[label] = getEnumOptions == null ? EnumHelpers.GetValues<T>().Select(x => x.ToString()).ToArray() : getEnumOptions();
+
+        CheckForValueChanged(label, value, onValueChanged);
+
+        return (T)(object)EditorGUI.Popup(GetNextRect(ref YPos), label, (int)(object)value, EnumOptions[label]);
+    }
+
+    protected int EditorField(string label, int value, string[] options, Action onValueChanged = null, bool isVisible = true)
+    {
+        if (!isVisible)
+            return value;
+
+        CheckForValueChanged(label, value, onValueChanged);
+
+        return EditorGUI.Popup(GetNextRect(ref YPos), label, value, options);
+    }
+
+    protected string EditorField(string label, string value, Action onValueChanged = null, bool isVisible = true)
+    {
+        if (!isVisible)
+            return value;
+
+        CheckForValueChanged(label, value, onValueChanged);
+
+        return EditorGUI.TextField(GetNextRect(ref YPos), label, value);
+    }
+
+    protected int EditorField(string label, int value, Action onValueChanged = null, bool isVisible = true)
+    {
+        if (!isVisible)
+            return value;
+
+        CheckForValueChanged(label, value, onValueChanged);
+
+        return EditorGUI.IntField(GetNextRect(ref YPos), label, value);
+    }
+
+    protected bool EditorButton(string label, bool isVisible = true)
+    {
+        if (!isVisible)
+            return false;
+
+        return GUI.Button(GetNextRect(ref YPos), label);
+    }
+
+    #endregion
 }
