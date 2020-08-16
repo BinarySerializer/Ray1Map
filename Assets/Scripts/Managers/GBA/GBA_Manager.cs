@@ -508,6 +508,8 @@ namespace R1Engine
                 if (l.PaletteIndex > graphicData.SpriteGroup.Palette.Palette.Length / 16) {
                     Controller.print("Palette index too high: " + graphicData.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (graphicData.SpriteGroup.Palette.Palette.Length / 16));
                 }
+                float rot = l.GetRotation(a, s);
+                Vector2 scl = l.GetScale(a, s);
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Common_AnimationPart {
@@ -516,8 +518,8 @@ namespace R1Engine
                             IsFlippedVertically = l.IsFlippedVertically,
                             XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * 8) * 2,
                             YPosition = (l.YPosition + (l.IsFlippedVertically ? (l.YSize - 1 - y) : y) * 8) * 2,
-                            Rotation = l.GetRotation(a, s),
-                            Scale = l.GetScale(a, s),
+                            Rotation = rot,
+                            Scale = scl,
                             TransformOriginX = (l.XPosition + l.XSize * 8f / 2f) * 2,
                             TransformOriginY = (l.YPosition + l.YSize * 8f / 2f) * 2
                         };
