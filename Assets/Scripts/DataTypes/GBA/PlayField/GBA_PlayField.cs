@@ -7,9 +7,9 @@
         // Indicates if the PlayField is of type 2D or Mode7
         public bool IsMode7 { get; set; }
 
-        public byte TileKitIndex { get; set; }
+        public byte TileKitOffsetIndex { get; set; }
 
-        public byte UnkBGDataOffsetIndex { get; set; }
+        public byte BGTileTableOffsetIndex { get; set; }
         
         public byte Unk_03 { get; set; }
 
@@ -38,7 +38,6 @@
 
         public GBA_BGTileTable BGTileTable { get; set; }
 
-        public GBA_Cluster[] Clusters { get; set; }
         public GBA_TileLayer[] Layers { get; set; }
 
         public byte[] ClusterData { get; set; }
@@ -56,16 +55,16 @@
             if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA ||
                 s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 3, name: nameof(UnkBytes1));
-                TileKitIndex = s.Serialize<byte>(TileKitIndex, name: nameof(TileKitIndex));
-                UnkBGDataOffsetIndex = s.Serialize<byte>(UnkBGDataOffsetIndex, name: nameof(UnkBGDataOffsetIndex));
+                TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
+                BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
                 UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 2, name: nameof(UnkBytes2));
             } else if(s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } else {
                 IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
-                TileKitIndex = s.Serialize<byte>(TileKitIndex, name: nameof(TileKitIndex));
-                UnkBGDataOffsetIndex = s.Serialize<byte>(UnkBGDataOffsetIndex, name: nameof(UnkBGDataOffsetIndex));
+                TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
+                BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
             }
 
@@ -93,26 +92,23 @@
         {
             if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA)
             {
-                if (Clusters == null)
-                    Clusters = new GBA_Cluster[ClusterCount];
-
-                // Serialize layers
-                for (int i = 0; i < ClusterCount; i++)
-                    Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i]), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
-
                 if (Layers == null)
                     Layers = new GBA_TileLayer[LayerCount];
 
                 // Serialize layers
                 for (int i = 0; i < LayerCount; i++)
+                {
                     Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
 
+                    // Serialize the layer cluster info
+                    Layers[i].Cluster = s.DoAt(OffsetTable.GetPointer(ClusterTable[Layers[i].ClusterIndex]), () => s.SerializeObject<GBA_Cluster>(Layers[i].Cluster, name: nameof(GBA_TileLayer.Cluster)));
+                }
 
                 // Serialize tilemap
-                TileKit = s.DoAt(OffsetTable.GetPointer(TileKitIndex), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
+                TileKit = s.DoAt(OffsetTable.GetPointer(TileKitOffsetIndex), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
 
                 // Serialize tilemap
-                BGTileTable = s.DoAt(OffsetTable.GetPointer(UnkBGDataOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
+                BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
             }
             else
             {

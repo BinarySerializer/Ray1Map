@@ -54,6 +54,8 @@ namespace R1Engine
         // Batman
         public GBA_TileKit Tilemap { get; set; }
 
+        // Parsed
+        public GBA_Cluster Cluster { get; set; }
 
         public override void SerializeImpl(SerializerObject s) {
 
