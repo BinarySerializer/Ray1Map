@@ -20,6 +20,7 @@ namespace R1Engine
 
         public float? Rotation { get; set; }
         public Vector2? Scale { get; set; }
+        public int Priority { get; set; }
         public float TransformOriginX { get; set; }
         public float TransformOriginY { get; set; }
 

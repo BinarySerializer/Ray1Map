@@ -18,7 +18,7 @@
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             AffineMatricesIndex = s.Serialize<byte>(AffineMatricesIndex, name: nameof(AffineMatricesIndex));
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
-            FrameCount = Byte_03 & 0x3F;
+            FrameCount = BitHelpers.ExtractBits(Byte_03,6,0);
 
             LayersPerFrame = s.SerializeArray<byte>(LayersPerFrame, FrameCount, name: nameof(LayersPerFrame));
 

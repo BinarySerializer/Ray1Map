@@ -339,5 +339,11 @@ namespace R1Engine
                 encoded.Close();
             }
         }
+
+        public override void Log(string logString) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + logString);
+            }
+        }
     }
 }

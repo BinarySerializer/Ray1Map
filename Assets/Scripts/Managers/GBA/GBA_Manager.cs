@@ -499,8 +499,11 @@ namespace R1Engine
                 if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular
-                    || l.Mosaic
-                    || l.Color == GBA_AnimationLayer.ColorMode.Color8bpp) return new Common_AnimationPart[0];
+                    || l.Mosaic) return new Common_AnimationPart[0];
+                if (l.Color == GBA_AnimationLayer.ColorMode.Color8bpp) {
+                    Debug.LogWarning("Animation Layer @ " + l.Offset + " has 8bpp color mode, which is currently not supported.");
+                    return new Common_AnimationPart[0];
+                }
                 Common_AnimationPart[] parts = new Common_AnimationPart[l.XSize * l.YSize];
                 if (l.ImageIndex > graphicData.SpriteGroup.TileMap.TileMapLength) {
                     Controller.print("Image index too high: " + graphicData.Offset + " - " + l.Offset);
@@ -531,7 +534,7 @@ namespace R1Engine
             // Add first animation for now
             des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Common_Animation() {
                 Frames = a.Layers.Select(f => new Common_AnimFrame {
-                    Layers = f.SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup, a, l)).Reverse().ToArray()
+                    Layers = f.OrderByDescending(l => l.Priority).SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup, a, l)).Reverse().ToArray()
                 }).ToArray()
             }));
 

@@ -382,5 +382,11 @@ namespace R1Engine
 
             }
         }
-    }
+
+		public override void Log(string logString) {
+            if (Settings.Log) {
+                Context.Log.Log(LogPrefix + logString);
+            }
+		}
+	}
 }

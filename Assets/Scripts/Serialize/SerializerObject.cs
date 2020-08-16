@@ -105,6 +105,8 @@ namespace R1Engine
             //return Context.FilePointer<T>(relativePath)?.Resolve(this, onPreSerialize: onPreSerialize).Value;
         }
 
+        public abstract void Log(string logString);
+
         /// <summary>
         /// Begins calculating byte checksum for all following serialize operations
         /// </summary>

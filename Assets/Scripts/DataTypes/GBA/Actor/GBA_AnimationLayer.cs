@@ -60,6 +60,21 @@ namespace R1Engine
             ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 10, 0);
             Priority = BitHelpers.ExtractBits(Attr2, 2, 10);
             PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
+            bool paletteFlag = BitHelpers.ExtractBits(Attr2, 1, 15) == 1;
+
+            /*s.Log($"{nameof(XPosition)}: {XPosition}");
+            s.Log($"{nameof(YPosition)}: {YPosition}");
+            s.Log($"{nameof(TransformMode)}: {TransformMode}");
+            s.Log($"{nameof(RenderMode)}: {RenderMode}");
+            s.Log($"{nameof(Mosaic)}: {Mosaic}");
+            s.Log($"{nameof(Color)}: {Color}");
+            s.Log($"{nameof(SpriteShape)}: {SpriteShape}");
+            s.Log($"{nameof(SpriteSize)}: {SpriteSize}");
+
+            s.Log($"{nameof(ImageIndex)}: {ImageIndex}");
+            s.Log($"{nameof(Priority)}: {Priority}");
+            s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
+            s.Log($"{nameof(paletteFlag)}: {paletteFlag}");*/
 
             // Calculate size
             XSize = 1;
