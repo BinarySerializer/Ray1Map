@@ -100,8 +100,9 @@
                 {
                     Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
 
-                    // Serialize the layer cluster info
-                    Layers[i].Cluster = s.DoAt(OffsetTable.GetPointer(ClusterTable[Layers[i].ClusterIndex]), () => s.SerializeObject<GBA_Cluster>(Layers[i].Cluster, name: nameof(GBA_TileLayer.Cluster)));
+                    if (!IsMode7)
+                        // Serialize the layer cluster info
+                        Layers[i].Cluster = s.DoAt(OffsetTable.GetPointer(ClusterTable[Layers[i].ClusterIndex]), () => s.SerializeObject<GBA_Cluster>(Layers[i].Cluster, name: nameof(GBA_TileLayer.Cluster)));
                 }
 
                 // Serialize tilemap
