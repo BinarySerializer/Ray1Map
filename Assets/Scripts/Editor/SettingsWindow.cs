@@ -111,6 +111,8 @@ public class SettingsWindow : UnityWindow
             Settings.GameBasePointer = EditorGUI.IntField(GetNextRect(ref yPos), "Game memory pointer", Settings.GameBasePointer);
          
             EditorGUI.EndDisabledGroup();
+
+            Settings.FindPointerAutomatically = EditorGUI.Toggle(GetNextRect(ref yPos), "Find pointer automatically", Settings.FindPointerAutomatically);
         }
 
         // Map

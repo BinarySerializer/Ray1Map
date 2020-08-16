@@ -630,10 +630,17 @@ namespace R1Engine
 
                     var offset = file.StartPointer;
                     var basePtrPtr = offset + Settings.GameBasePointer;
-                    try {
-                        basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
-                    } catch (Exception ex) {
-                        Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}); falling back on manual specification {basePtrPtr}");
+
+                    if (Settings.FindPointerAutomatically)
+                    {
+                        try
+                        {
+                            basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}); falling back on manual specification {basePtrPtr}");
+                        }
                     }
 
                     var s = GameMemoryContext.Deserializer;

@@ -150,6 +150,7 @@ namespace R1Engine {
         public static string ProcessName { get; set; }
 
         public static int GameBasePointer { get; set; }
+        public static bool FindPointerAutomatically { get; set; }
 
         /// <summary>
         /// True for the HD collision sheet to be used, false for the original Rayman Designer one to be used
@@ -327,6 +328,7 @@ namespace R1Engine {
             LoadFromMemory = s.SerializeBool("LoadFromMemory", LoadFromMemory);
             ProcessName = s.SerializeString("ProcessName", ProcessName);
             GameBasePointer = s.SerializeInt("GameBasePointer", GameBasePointer);
+            FindPointerAutomatically = s.SerializeBool("FindPointerAutomatically", FindPointerAutomatically);
             UseHDCollisionSheet = s.SerializeBool("UseHDCollisionSheet", UseHDCollisionSheet);
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);
