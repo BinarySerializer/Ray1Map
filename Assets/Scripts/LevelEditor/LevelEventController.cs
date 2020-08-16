@@ -861,7 +861,7 @@ namespace R1Engine
 
             newEvent.Data = eventData;
 
-            newEvent.UniqueLayer = -lastUsedLayer;
+            newEvent.UniqueLayer = lastUsedLayer * (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA ? 1 : -1);
             lastUsedLayer++;
 
             // Set as child of events gameobject
