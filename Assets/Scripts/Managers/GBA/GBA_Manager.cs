@@ -341,43 +341,68 @@ namespace R1Engine
                     throw new NotImplementedException();
             }
 
-            // Get the map
-            GBA_TileLayer map = playField.IsMode7
-                ? playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
-                : playField.Layers.FirstOrDefault(x => x.LayerID == 2) ?? playField.Layers.First(x => !x.Is8bpp);
-
-            // Get the map data to use
-            var mapData = !playField.IsMode7 ? map.MapData : map.Mode7Data?.Select(x => playField.UnkBGData.Data1[x - 1].CloneObj()).ToArray();
-
-            // Get the collision data
-            GBA_TileLayer cMap = playField.Layers.First(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision);
+            // Get the map layers, skipping unknown ones
+            var mapLayers = playField.Layers.Where(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Map2D || x.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7 || x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision).ToArray();
 
             // Convert levelData to common level format
             Common_Lev commonLev = new Common_Lev
             {
-                // Create the map
-                Maps = new Common_LevelMap[]
-                {
-                    new Common_LevelMap()
-                    {
-                        // Set the dimensions
-                        Width = map.Width,
-                        Height = map.Height,
-
-                        // Create the tile arrays
-                        TileSet = new Common_Tileset[1],
-                        MapTiles = mapData.Select((x, i) =>
-                        {
-                            x.CollisionType = (byte)cMap.CollisionData.ElementAtOrDefault(i);
-                            return new Editor_MapTile(x);
-                        }).ToArray(),
-                        TileSetWidth = 1
-                    }
-                },
+                // Create the map array
+                Maps = new Common_LevelMap[mapLayers.Length],
 
                 // Create the events list
                 EventData = new List<Editor_EventData>(),
             };
+
+            // Add every map
+            for (int layer = 0; layer < mapLayers.Length; layer++)
+            {
+                Controller.status = $"Loading map {layer + 1}/{mapLayers.Length}";
+                await Controller.WaitIfNecessary();
+
+                var map = mapLayers[layer];
+
+                if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
+                {
+                    commonLev.Maps[layer] = new Common_LevelMap
+                    {
+                        Width = map.Width,
+                        Height = map.Height,
+                        TileSetWidth = 1,
+                        TileSet = new Common_Tileset[]
+                        {
+                            new Common_Tileset(new Tile[]
+                            {
+                                new Tile(),
+                            }), 
+                        },
+                        MapTiles = map.CollisionData.Select((x, i) => new Editor_MapTile(new MapTile()
+                        {
+                            CollisionType = (byte)x
+                        })).ToArray()
+                    };
+
+                    commonLev.DefaultCollisionMap = layer;
+                }
+                else
+                {
+                    var mapData = map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7 ? map.Mode7Data?.Select(x => playField.UnkBGData.Data1[x - 1].CloneObj()).ToArray() : map.MapData;
+
+                    commonLev.Maps[layer] = new Common_LevelMap
+                    {
+                        Width = map.Width,
+                        Height = map.Height,
+                        TileSetWidth = 1,
+                        TileSet = new Common_Tileset[]
+                        {
+                            LoadTileset(context, playField, map, mapData)
+                        },
+                        MapTiles = mapData.Select((x, i) => new Editor_MapTile(x)).ToArray()
+                    };
+
+                    commonLev.DefaultMap = layer;
+                }
+            }
 
             Controller.status = $"Loading actors";
             await Controller.WaitIfNecessary();
@@ -432,12 +457,6 @@ namespace R1Engine
                     actorIndex++;
                 }
             }
-
-            Controller.status = $"Loading tilemap";
-            await Controller.WaitIfNecessary();
-
-            // Set tile set
-            commonLev.Maps[0].TileSet[0] = LoadTileset(context, playField, map, mapData);
 
             return new GBA_EditorManager(commonLev, context, des, eta);
         }

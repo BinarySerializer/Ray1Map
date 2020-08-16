@@ -48,7 +48,7 @@ namespace R1Engine
 
         public int camMaxX=1;
         public int camMaxY=1;
-
+        
 
         public void InitializeTilemaps() {
             var editorManager = LevelEditorData.EditorManager;
@@ -93,7 +93,7 @@ namespace R1Engine
                         unsupportedTiles.Add(collisionTypeIndex);
 
                     // Set the collision tile
-                    Tilemaps[0].SetTile(new Vector3Int(x, y, 0), collisionTileSet[collisionTypeIndex]);
+                    Tilemaps[0].SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), collisionTileSet[collisionTypeIndex]);
                 }
             }
 
@@ -130,20 +130,22 @@ namespace R1Engine
                 lvl.AutoApplyPalette();
 
             // Refresh tiles for every map
-            var mapIndex = LevelEditorData.CurrentMap;
-            var map = lvl.Maps[mapIndex];
-
-            for (int y = 0; y < map.Height; y++)
+            for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++)
             {
-                for (int x = 0; x < map.Width; x++)
+                var map = lvl.Maps[mapIndex];
+
+                for (int y = 0; y < map.Height; y++)
                 {
-                    var t = map.MapTiles[y * map.Width + x];
+                    for (int x = 0; x < map.Width; x++)
+                    {
+                        var t = map.MapTiles[y * map.Width + x];
 
-                    if (palette != 0)
-                        t.PaletteIndex = palette;
+                        if (palette != 0)
+                            t.PaletteIndex = palette;
 
-                    Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
-                    Tilemaps[1].SetTransformMatrix(new Vector3Int(x, y, 0), Tilemaps[1].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));
+                        Tilemaps[1].SetTile(new Vector3Int(x, y, mapIndex), map.GetTile(t, LevelEditorData.CurrentSettings));
+                        Tilemaps[1].SetTransformMatrix(new Vector3Int(x, y, mapIndex), Tilemaps[1].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));
+                    }
                 }
             }
 
@@ -246,7 +248,8 @@ namespace R1Engine
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[1].SetTile(new Vector3Int(x, y, 0), null);
             Tilemaps[0].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)LevelEditorData.EditorManager.GetCollisionTypeGraphic(newTile.Data.CollisionType)]);
-            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), map.GetTile(newTile, LevelEditorData.CurrentSettings));
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 1), map.GetTile(newTile, LevelEditorData.CurrentSettings));
+            Tilemaps[1].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)LevelEditorData.EditorManager.GetCollisionTypeGraphic(newTile.Data.CollisionType)]);
 
             // Get the tile to set
             var destTile = map.MapTiles[y * map.Width + x];

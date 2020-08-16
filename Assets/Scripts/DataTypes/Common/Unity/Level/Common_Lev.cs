@@ -12,6 +12,7 @@ namespace R1Engine
 
         // TODO: Replace this with toggle in editor
         public int DefaultMap { get; set; }
+        public int DefaultCollisionMap { get; set; }
 
         /// <summary>
         /// The level maps

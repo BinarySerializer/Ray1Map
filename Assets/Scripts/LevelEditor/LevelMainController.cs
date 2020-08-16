@@ -61,7 +61,8 @@ namespace R1Engine
 
                 // Load the level
                 LevelEditorData.EditorManager = await manager.LoadAsync(serializeContext, true);
-                LevelEditorData.CurrentMap = LevelEditorData.CurrentCollisionMap = LevelEditorData.EditorManager.Level.DefaultMap;
+                LevelEditorData.CurrentMap = LevelEditorData.EditorManager.Level.DefaultMap;
+                LevelEditorData.CurrentCollisionMap = LevelEditorData.EditorManager.Level.DefaultCollisionMap;
 
                 var notSupportedEventTypes = LevelEditorData.Level.EventData.Where(x => !Enum.IsDefined(LevelEditorData.EditorManager.EventTypeEnumType, x.TypeValue)).Select(x => x.TypeValue).Distinct().OrderBy(x => x).ToArray();
 

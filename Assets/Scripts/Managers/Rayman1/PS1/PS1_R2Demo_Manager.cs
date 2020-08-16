@@ -373,7 +373,8 @@ namespace R1Engine
                 // Create the events list
                 EventData = new List<Editor_EventData>(),
 
-                DefaultMap = context.Settings.Level
+                DefaultMap = context.Settings.Level,
+                DefaultCollisionMap = context.Settings.Level,
             };
 
             // Add the events
