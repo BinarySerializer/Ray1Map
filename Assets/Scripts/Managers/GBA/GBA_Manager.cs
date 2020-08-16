@@ -574,7 +574,7 @@ namespace R1Engine
             eta[0] = graphicData.States.Select(s => new Common_EventState() {
                 AnimationIndex = s.AnimationIndex,
                 AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF)),
-                IsFlipped = s.IsFlipped
+                IsFlipped = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.IsFlipped)
             }).ToArray();
             int numAnims = graphicData.SpriteGroup.Animations.Length;
             if (eta[0].Length == 0 && numAnims > 0) {
