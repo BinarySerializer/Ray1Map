@@ -629,10 +629,24 @@ namespace R1Engine
                     GameMemoryContext.AddFile(file);
 
                     var offset = file.StartPointer;
+                    var basePtrPtr = offset + Settings.GameBasePointer;
+
+                    if (Settings.FindPointerAutomatically)
+                    {
+                        try
+                        {
+                            basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}); falling back on manual specification {basePtrPtr}");
+                        }
+                    }
+
                     var s = GameMemoryContext.Deserializer;
 
                     // Get the base pointer
-                    var baseOffset = s.DoAt(offset + Settings.GameBasePointer, () => s.SerializePointer(default));
+                    var baseOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default));
                     file.anchorOffset = baseOffset.AbsoluteOffset;
                     s.Goto(baseOffset);
 

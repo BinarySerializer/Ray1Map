@@ -1,0 +1,2995 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BinaryTools.Elf</name>
+    </assembly>
+    <members>
+        <member name="T:BinaryTools.Elf.BinaryReaderExtensions">
+            <summary>
+            An extension class providing <see cref="T:System.IO.BinaryReader"/> utility methods for extracting ELF specific data.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.BinaryReaderExtensions.ReadELFString(System.IO.BinaryReader)">
+             <summary>
+             Reads a string value from the binary reader.
+             </summary>
+            
+             <param name="reader">
+             The binary reader used to extract data.
+             </param>
+            
+             <returns>
+             The string value.
+             </returns>
+            
+             <remarks>
+             The string is defined as a null terminated sequence of character values.
+             </remarks>
+        </member>
+        <member name="M:BinaryTools.Elf.BinaryReaderExtensions.ReadELFString(System.IO.BinaryReader,BinaryTools.Elf.ElfSection,System.UInt64)">
+             <summary>
+             Reads a string value from an index into the ELF string table section.
+             </summary>
+            
+             <param name="reader">
+             The binary reader used to extract data.
+             </param>
+            
+             <param name="section">
+             The ELF string table section.
+             </param>
+            
+             <param name="offset">
+             The offset of the string in the ELF string table section.
+             </param>
+            
+             <returns>
+             The string value extracted from the ELF string table section at the specified offset.
+             </returns>
+            
+             <remarks>
+             The string is defined as a null terminated sequence of character values.
+             </remarks>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfDynamicEntry">
+            <summary>
+            Represents an ELF dynamic entry.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfDynamicEntry.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfDynamicEntry"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the entry begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfDynamicSection">
+            <summary>
+            Represents an ELF dynamic section.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfDynamicSection.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfDynamicSection"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfHeader">
+            <summary>
+            Represents a 32-bit ELF header.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfHeader.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfHeader"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF header begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfRelocationEntry">
+            <summary>
+            Represents an ELF relocation entry.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfRelocationEntry.#ctor(System.IO.BinaryReader,System.Int64,System.Boolean)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfRelocationEntry"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the entry begins.
+             </param>
+            
+             <param name="hasAddend">
+             Determines whether to parse the addend field.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfRelocationSection">
+            <summary>
+            Represents an ELF relocation section.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfRelocationSection.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfRelocationSection"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfSection">
+            <summary>
+            Represents a 32-bit ELF section.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfSection.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfSection"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfSegment">
+            <summary>
+            Represents a 32-bit ELF segment.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfSegment.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfSegment"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF segment begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfStringTable">
+            <summary>
+            Represents an ELF string table.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfStringTable.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfStringTable"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfSymbolTable">
+            <summary>
+            Represents an ELF symbol table.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfSymbolTable.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfSymbolTable"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit32.ElfSymbolTableEntry">
+            <summary>
+            Represents an ELF symbol table entry.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit32.ElfSymbolTableEntry.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit32.ElfSymbolTableEntry"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the entry begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfDynamicEntry">
+            <summary>
+            Represents an ELF dynamic entry.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfDynamicEntry.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfDynamicEntry"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the entry begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfDynamicSection">
+            <summary>
+            Represents an ELF dynamic section.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfDynamicSection.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfDynamicSection"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfHeader">
+            <summary>
+            Represents a 64-bit ELF header.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfHeader.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfHeader"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF header begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfRelocationEntry">
+            <summary>
+            Represents an ELF relocation entry.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfRelocationEntry.#ctor(System.IO.BinaryReader,System.Int64,System.Boolean)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfRelocationEntry"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the entry begins.
+             </param>
+            
+             <param name="hasAddend">
+             Determines whether to parse the addend field.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfRelocationSection">
+            <summary>
+            Represents an ELF relocation section.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfRelocationSection.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfRelocationSection"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfSection">
+            <summary>
+            Represents a 64-bit ELF section.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfSection.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfSection"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfSegment">
+            <summary>
+            Represents a 64-bit ELF segment.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfSegment.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfSegment"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF segment begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfStringTable">
+            <summary>
+            Represents an ELF string table.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfStringTable.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfStringTable"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfSymbolTable">
+            <summary>
+            Represents an ELF symbol table.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfSymbolTable.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfSymbolTable"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the ELF section begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.Bit64.ElfSymbolTableEntry">
+            <summary>
+            Represents an ELF symbol table entry.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Bit64.ElfSymbolTableEntry.#ctor(System.IO.BinaryReader,System.Int64)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Bit64.ElfSymbolTableEntry"/> class by extracting data from a <see cref="T:System.IO.BinaryReader"/>.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to initialize this type.
+             </param>
+            
+             <param name="position">
+             The position within the <paramref name="reader"/> base stream at which the entry begins.
+             </param>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfClass">
+            <summary>
+            Enumerates the ELF file bitness.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfClass.None">
+            <summary>
+            Invalid class
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfClass.Elf32">
+            <summary>
+            32-bit objects
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfClass.Elf64">
+            <summary>
+            64-bit objects
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfData">
+            <summary>
+            Enumerates the ELF file endianness.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfData.None">
+            <summary>
+            Invalid data encoding
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfData.Lsb">
+            <summary>
+            2's complement, little endian
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfData.Msb">
+            <summary>
+            2's complement, big endian
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfDynamicArrayTag">
+            <summary>
+            Enumerates the dynamic section entry tags which are used to interpret the entry values.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Null">
+            <summary>
+            An entry with a DT_NULL tag marks the end of the _DYNAMIC array.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Needed">
+            <summary>
+            This element holds the string table offset of a null-terminated string, giving the name of a needed library. The offset is an index into the table recorded in the DT_STRTAB code. The dynamic array may contain multiple entries with this type. These entries' relative order is significant, though their relation to entries of other types is not.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.PltRelSz">
+            <summary>
+            This element holds the total size, in bytes, of the relocation entries associated with the procedure linkage table. If an entry of type DT_JMPREL is present, a DT_PLTRELSZ must accompany it.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.PltGot">
+            <summary>
+            This element holds an address associated with the procedure linkage table and/or the global offset table.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Hash">
+            <summary>
+            This element holds the address of the symbol hash table. This hash table refers to the symbol table referenced by the DT_SYMTAB element.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.StrTab">
+            <summary>
+            This element holds the address of the string table. Symbol names, library names, and other strings reside in this table.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.SymTab">
+            <summary>
+            This element holds the address of the symbol table.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.RelA">
+            <summary>
+            This element holds the address of a relocation table. Entries in the table have explicit addends, such as Elf32_Rela for the 32-bit file class or Elf64_Rela for the 64-bit file class. An object file may have multiple relocation sections. When building the relocation table for an executable or shared object file, the link editor catenates those sections to form a single table. Although the sections remain independent in the object file, the dynamic linker sees a single table. When the dynamic linker creates the process image for an executable file or adds a shared object to the process image, it reads the relocation table and performs the associated actions. If this element is present, the dynamic structure must also have DT_RELASZ and DT_RELAENT elements. When relocation is ``mandatory'' for a file, either DT_RELA or DT_REL may occur (both are permitted but not required).
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.RelASz">
+            <summary>
+            This element holds the total size, in bytes, of the DT_RELA relocation table.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.RelAEnt">
+            <summary>
+            This element holds the size, in bytes, of the DT_RELA relocation entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.StrSz">
+            <summary>
+            This element holds the size, in bytes, of the string table.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.SymEnt">
+            <summary>
+            This element holds the size, in bytes, of a symbol table entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Init">
+            <summary>
+            This element holds the address of the initialization function.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Fini">
+            <summary>
+            This element holds the address of the termination function.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.SOName">
+            <summary>
+            This element holds the string table offset of a null-terminated string, giving the name of the shared object. The offset is an index into the table recorded in the DT_STRTAB entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.RPath">
+            <summary>
+            This element holds the string table offset of a null-terminated search library search path string. The offset is an index into the table recorded in the DT_STRTAB entry. This entry is at level 2. Its use has been superseded by DT_RUNPATH.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Symbolic">
+            <summary>
+            This element's presence in a shared object library alters the dynamic linker's symbol resolution algorithm for references within the library. Instead of starting a symbol search with the executable file, the dynamic linker starts from the shared object itself. If the shared object fails to supply the referenced symbol, the dynamic linker then searches the executable file and other shared objects as usual. This entry is at level 2. Its use has been superseded by the DF_SYMBOLIC flag.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Rel">
+            <summary>
+            This element is similar to DT_RELA, except its table has implicit addends, such as Elf32_Rel for the 32-bit file class or Elf64_Rel for the 64-bit file class. If this element is present, the dynamic structure must also have DT_RELSZ and DT_RELENT elements.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.RelSz">
+            <summary>
+            This element holds the total size, in bytes, of the DT_REL relocation table.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.RelEnt">
+            <summary>
+            This element holds the size, in bytes, of the DT_REL relocation entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.PltRel">
+            <summary>
+            This member specifies the type of relocation entry to which the procedure linkage table refers. The d_val member holds DT_REL or DT_RELA, as appropriate. All relocations in a procedure linkage table must use the same relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Debug">
+            <summary>
+            This member is used for debugging. Its contents are not specified for the ABI; programs that access this entry are not ABI-conforming.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.TextRel">
+            <summary>
+            This member's absence signifies that no relocation entry should cause a modification to a non-writable segment, as specified by the segment permissions in the program header table. If this member is present, one or more relocation entries might request modifications to a non-writable segment, and the dynamic linker can prepare accordingly. This entry is at level 2. Its use has been superseded by the DF_TEXTREL flag.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.JmpRel">
+            <summary>
+            If present, this entry's d_ptr member holds the address of relocation entries associated solely with the procedure linkage table. Separating these relocation entries lets the dynamic linker ignore them during process initialization, if lazy binding is enabled. If this entry is present, the related entries of types DT_PLTRELSZ and DT_PLTREL must also be present.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.BindNow">
+            <summary>
+            If present in a shared object or executable, this entry instructs the dynamic linker to process all relocations for the object containing this entry before transferring control to the program. The presence of this entry takes precedence over a directive to use lazy binding for this object when specified through the environment or via dlopen(BA_LIB). This entry is at level 2. Its use has been superseded by the DF_BIND_NOW flag.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.InitArray">
+            <summary>
+            This element holds the address of the array of pointers to initialization functions.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.FiniArray">
+            <summary>
+            This element holds the address of the array of pointers to termination functions.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.InitArraySz">
+            <summary>
+            This element holds the size in bytes of the array of initialization functions pointed to by the DT_INIT_ARRAY entry. If an object has a DT_INIT_ARRAY entry, it must also have a DT_INIT_ARRAYSZ entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.FiniArraySz">
+            <summary>
+            This element holds the size in bytes of the array of termination functions pointed to by the DT_FINI_ARRAY entry. If an object has a DT_FINI_ARRAY entry, it must also have a DT_FINI_ARRAYSZ entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.RunPath">
+            <summary>
+            This element holds the string table offset of a null-terminated library search path string. The offset is an index into the table recorded in the DT_STRTAB entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Flags">
+            <summary>
+            This element holds flag values specific to the object being loaded. Each flag value will have the name DF_flag_name.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.PreInitArray">
+            <summary>
+            This element holds the address of the array of pointers to pre-initialization functions. The DT_PREINIT_ARRAY table is processed only in an executable file; it is ignored if contained in a shared object.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.PreInitArraySz">
+            <summary>
+            This element holds the size in bytes of the array of pre-initialization functions pointed to by the DT_PREINIT_ARRAY entry. If an object has a DT_PREINIT_ARRAY entry, it must also have a DT_PREINIT_ARRAYSZ entry. As with DT_PREINIT_ARRAY, this entry is ignored if it appears in a shared object.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfDynamicArrayTag.Encoding">
+            <summary>
+            Values greater than or equal to DT_ENCODING and less than DT_LOOS follow the rules for the interpretation of the d_un union.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfDynamicEntry">
+            <summary>
+            Represents an ELF dynamic entry.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfDynamicEntry.Tag">
+            <summary>
+            Gets or sets the tag which controls the interpretation of the <see cref="P:BinaryTools.Elf.ElfDynamicEntry.Value"/>.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfDynamicEntry.Value">
+            <summary>
+            Gets or sets an integer value with various interpretations, including program virtual addresses.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfDynamicEntry.Name">
+            <summary>
+            Gets the string value of this entry if the <see cref="P:BinaryTools.Elf.ElfDynamicEntry.Tag"/> indicates that the <see cref="P:BinaryTools.Elf.ElfDynamicEntry.Value"/> holds
+            an index into the table recorded in the DT_STRTAB entry.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfDynamicSection">
+            <summary>
+            Represents an ELF dynamic section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfDynamicSection.Count">
+            <summary>
+            Gets the number of dynamic entries in this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfDynamicSection.Entries">
+            <summary>
+            Gets the list of dynamic entries in this dynamic section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfDynamicSection.Item(System.Int32)">
+             <summary>
+             Gets a dynamic entry at an index.
+             </summary>
+            
+             <param name="index">
+             The index of the dynamic entry.
+             </param>
+            
+             <returns>
+             The dynamic entry at the given index.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfDynamicSection.GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the dynamic section entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the dynamic section entries.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfDynamicSection.System#Collections#IEnumerable#GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the dynamic section entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the dynamic section entries.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfFile">
+            <summary>
+            Represents an Executable Linkable Format (ELF) file.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfFile.#ctor(BinaryTools.Elf.ElfHeader,BinaryTools.Elf.ElfProgramHeaderTable,BinaryTools.Elf.ElfSectionHeaderTable)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.ElfFile"/> class.
+             </summary>
+            
+             <param name="header">
+             The ELF file header.
+             </param>
+            
+             <param name="segments">
+             The program header table.
+             </param>
+            
+             <param name="sections">
+             The section header table.
+             </param>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfFile.Header">
+            <summary>
+            Gets the ELF header which contains metadata about segments and sections of the ELF file.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfFile.Segments">
+            <summary>
+            Gets the program header table containing a list of segments.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfFile.Sections">
+            <summary>
+            Gets the section header table containing a list of sections.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfFile.ReadElfFile(System.IO.BinaryReader)">
+             <summary>
+             Reads an ELF file from a binary reader.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to parse the ELF file.
+             </param>
+            
+             <returns>
+             The ELF file parsed from the binary reader.
+             </returns>
+            
+             <exception cref="T:BinaryTools.Elf.Io.FileFormatException">
+             <paramref name="reader"/> base stream does not represent a valid ELF file.
+             </exception>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfHeader">
+            <summary>
+            Represents an ELF header which contains metadata about the rest of the ELF file.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_MAG0">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of the 1st ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_MAG1">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of the 2nd ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_MAG2">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of the 3rd ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_MAG3">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of the 4th ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_CLASS">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of class byte representing the bitness of this ELF file.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_DATA">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of data byte representing the endianness of this ELF file.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_VERSION">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of version byte representing version this ELF file.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_OSABI">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of OS ABI byte.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_OSABIV">
+            <summary>
+            Gets the index within the <c>e_ident</c> structure of OS ABI version byte.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.EI_NIDENT">
+            <summary>
+            Gets size in number of bytes of the <c>e_ident</c> structure.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFMAG0">
+            <summary>
+            Gets the value of the 1st ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFMAG1">
+            <summary>
+            Gets the value of the 2nd ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFMAG2">
+            <summary>
+            Gets the value of the 3rd ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFMAG3">
+            <summary>
+            Gets the value of the 4th ELF magic number.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFCLASSNONE">
+            <summary>
+            Gets the value of an invalid ELF file bitness.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFCLASS32">
+            <summary>
+            Gets the value of an ELF file with 32-bit objects.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFCLASS64">
+            <summary>
+            Gets the value of an ELF file with 64-bit objects.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFDATANONE">
+            <summary>
+            Gets the value of an invalid ELF endianness.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFDATA2LSB">
+            <summary>
+            Gets the value of an little-endian (least significant byte first) ELF endianness.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfHeader.ELFDATA2MSB">
+            <summary>
+            Gets the value of an big-endian (most significant byte first) ELF endianness.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.Size">
+            <summary>
+            Gets or sets the size of the ELF header.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.Class">
+            <summary>
+            Gets or sets the ELF file bitness.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.Data">
+            <summary>
+            Gets or sets the ELF file endianness.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.OSABI">
+            <summary>
+            Gets or sets the ELF file Operating System (OS) Application Binary Interface (ABI).
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.OSABIVersion">
+            <summary>
+            Gets or sets the ELF file Operating System (OS) Application Binary Interface (ABI) version.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.Flags">
+            <summary>
+            Gets or sets interpretation of this field depends on the target architecture.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.Type">
+            <summary>
+            Gets or sets the ELF file type.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.Version">
+            <summary>
+            Gets or sets the ELF file version.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.Machine">
+            <summary>
+            Gets or sets the ELF file Instruction Set Architecture (ISA).
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.EntryOffset">
+            <summary>
+            Gets or sets memory address of the entry point from where the process starts executing.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.SectionHeaderOffset">
+            <summary>
+            Gets or sets the offset in number of bytes to the start of the section header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.SectionHeaderSize">
+            <summary>
+            Gets or sets the size in number of bytes of the section header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.SectionHeaderEntryCount">
+            <summary>
+            Gets or sets the number of sections in the section header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.ProgramHeaderOffset">
+            <summary>
+            Gets or sets the offset in number of bytes to the start of the program header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.ProgramHeaderSize">
+            <summary>
+            Gets or sets the size in number of bytes of the program header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.ProgramHeaderEntryCount">
+            <summary>
+            Gets or sets the number of segments in the program header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfHeader.StringSectionIndex">
+            <summary>
+            Gets or sets the index in the section header table that contains the section names.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfMachine">
+            <summary>
+            Enumerates the required architecture for an individual ELF file.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.None">
+            <summary>
+            No machine
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.M32">
+            <summary>
+            ATT WE 32100
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.SPARC">
+            <summary>
+            SPARC
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.I386">
+            <summary>
+            Intel 80386
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.M68K">
+            <summary>
+            Motorola 68000
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.M88K">
+            <summary>
+            Motorola 88000
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved6">
+            <summary>
+            Reserved for future use (was EM_486)
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.I860">
+            <summary>
+            Intel 80860
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MIPS">
+            <summary>
+            MIPS I Architecture
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.S370">
+            <summary>
+            IBM System/370 Processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MIPSRS3LE">
+            <summary>
+            MIPS RS3000 Little-endian
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved11">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved12">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved13">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved14">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PARISC">
+            <summary>
+            Hewlett-Packard PA-RISC
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved16">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.FujitsuVPP500">
+            <summary>
+            Fujitsu VPP500
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.SPARC32Plus">
+            <summary>
+            Enhanced instruction set SPARC
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.I960">
+            <summary>
+            Intel 80960
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PPC">
+            <summary>
+            PowerPC
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PPC64">
+            <summary>
+            64-bit PowerPC
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.S390">
+            <summary>
+            IBM System/390 Processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved23">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved24">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved25">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved26">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved27">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved28">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved29">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved30">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved31">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved32">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved33">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved34">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Reserved35">
+            <summary>
+            Reserved for future use
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.V800">
+            <summary>
+            NEC V800
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.FR20">
+            <summary>
+            Fujitsu FR20
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.RG32">
+            <summary>
+            TRW RH-32
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.RCE">
+            <summary>
+            Motorola RCE
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ARM">
+            <summary>
+            Advanced RISC Machines ARM
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Alpha">
+            <summary>
+            Digital Alpha
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.SH">
+            <summary>
+            Hitachi SH
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.SPARCV9">
+            <summary>
+            SPARC Version 9
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.TriCore">
+            <summary>
+            Siemens TriCore embedded processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ARC">
+            <summary>
+            Argonaut RISC Core, Argonaut Technologies Inc.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.H8300">
+            <summary>
+            Hitachi H8/300
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.H8300H">
+            <summary>
+            Hitachi H8/300H
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.H8S">
+            <summary>
+            Hitachi H8S
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.H8500">
+            <summary>
+            Hitachi H8/500
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.IA64">
+            <summary>
+            Intel IA-64 processor architecture
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MIPSX">
+            <summary>
+            Stanford MIPS-X
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ColdFire">
+            <summary>
+            Motorola ColdFire
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.M68HC12">
+            <summary>
+            Motorola M68HC12
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MMA">
+            <summary>
+            Fujitsu MMA Multimedia Accelerator
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PCP">
+            <summary>
+            Siemens PCP
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.NCPU">
+            <summary>
+            Sony nCPU embedded RISC processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.NDR1">
+            <summary>
+            Denso NDR1 microprocessor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.StarCore">
+            <summary>
+            Motorola Star*Core processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ME16">
+            <summary>
+            Toyota ME16 processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ST100">
+            <summary>
+            STMicroelectronics ST100 processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.TINYJ">
+            <summary>
+            Advanced Logic Corp. TinyJ embedded processor family
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.X8664">
+            <summary>
+            AMD x86-64 architecture
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PDSP">
+            <summary>
+            Sony DSP Processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PDP10">
+            <summary>
+            Digital Equipment Corp. PDP-10
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PDP11">
+            <summary>
+            Digital Equipment Corp. PDP-11
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.FX66">
+            <summary>
+            Siemens FX66 microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ST9PLUS">
+            <summary>
+            STMicroelectronics ST9+ 8/16 bit microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ST7">
+            <summary>
+            STMicroelectronics ST7 8-bit microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MC68HC16">
+            <summary>
+            Motorola MC68HC16 Microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MC68HC11">
+            <summary>
+            Motorola MC68HC11 Microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MC68HC08">
+            <summary>
+            Motorola MC68HC08 Microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MC68HC05">
+            <summary>
+            Motorola MC68HC05 Microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.SVX">
+            <summary>
+            Silicon Graphics SVx
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ST19">
+            <summary>
+            STMicroelectronics ST19 8-bit microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.VAX">
+            <summary>
+            Digital VAX
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.CRIS">
+            <summary>
+            Axis Communications 32-bit embedded processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.JAVELIN">
+            <summary>
+            Infineon Technologies 32-bit embedded processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.FIREPATH">
+            <summary>
+            Element 14 64-bit DSP Processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ZSP">
+            <summary>
+            LSI Logic 16-bit DSP Processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MMIX">
+            <summary>
+            Donald Knuth's educational 64-bit processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.HUANY">
+            <summary>
+            Harvard University machine-independent object files
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Prism">
+            <summary>
+            SiTera Prism
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.AVR">
+            <summary>
+            Atmel AVR 8-bit microcontroller
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.FR30">
+            <summary>
+            Fujitsu FR30
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.D10V">
+            <summary>
+            Mitsubishi D10V
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.D30V">
+            <summary>
+            Mitsubishi D30V
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.V850">
+            <summary>
+            NEC v850
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.M32R">
+            <summary>
+            Mitsubishi M32R
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MN10300">
+            <summary>
+            Matsushita MN10300
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.MN10200">
+            <summary>
+            Matsushita MN10200
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.PJ">
+            <summary>
+            picoJava
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.OpenRISC">
+            <summary>
+            OpenRISC 32-bit embedded processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ARCA5">
+            <summary>
+            ARC Cores Tangent-A5
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.Xtensa">
+            <summary>
+            Tensilica Xtensa Architecture
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.VideoCore">
+            <summary>
+            Alphamosaic VideoCore processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.TMMGPP">
+            <summary>
+            Thompson Multimedia General Purpose Processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.NS32K">
+            <summary>
+            National Semiconductor 32000 series
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.TPC">
+            <summary>
+            Tenor Network TPC processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.SNP1K">
+            <summary>
+            Trebia SNP 1000 processor
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfMachine.ST200">
+            <summary>
+            STMicroelectronics (www.st.com) ST200 microcontroller
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfNote">
+            <summary>
+            Represents an ELF note which contains auxiliary information.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfNote.#ctor(System.IO.BinaryReader)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.ElfNote"/> class.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to parse the ELF note.
+             </param>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfNote.Name">
+            <summary>
+            Gets the name of the note.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfNote.Type">
+            <summary>
+            Gets the type of the note which gives interpretation of the description.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfNote.DescriptionSize">
+            <summary>
+            Gets the size in number of bytes of the note description.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfNote.DescriptionOffset">
+            <summary>
+            Gets the description of the note.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfNote.ReadElfNote(System.IO.BinaryReader,BinaryTools.Elf.ElfSection)">
+             <summary>
+             Reads an ELF note from a binary reader whose base stream position points to an ELF note section.
+             </summary>
+            
+             <param name="reader">
+             The reader whose base stream position points to an ELF note section.
+             </param>
+            
+             <param name="section">
+             The section to read the ELF note from.
+             </param>
+            
+             <returns>
+             The ELF note parsed from the section.
+             </returns>
+            
+             <exception cref="T:BinaryTools.Elf.Io.FileFormatException">
+             <paramref name="reader"/> base stream does not represent a valid ELF note.
+             </exception>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfNote.ReadElfNote(System.IO.BinaryReader,BinaryTools.Elf.ElfSegment)">
+             <summary>
+             Reads an ELF note from a binary reader whose base stream position points to an ELF note segment.
+             </summary>
+            
+             <param name="reader">
+             The reader whose base stream position points to an ELF note segment.
+             </param>
+            
+             <param name="segment">
+             The segment to read the ELF note from.
+             </param>
+            
+             <returns>
+             The ELF note parsed from the segment.
+             </returns>
+            
+             <exception cref="T:BinaryTools.Elf.Io.FileFormatException">
+             <paramref name="reader"/> base stream does not represent a valid ELF note.
+             </exception>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfOSABI">
+            <summary>
+            Enumerates the OS- or ABI-specific ELF extensions.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.None">
+            <summary>
+            No extensions or unspecified
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.HPUX">
+            <summary>
+            Hewlett-Packard HP-UX
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.NetBSD">
+            <summary>
+            NetBSD
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.Linux">
+            <summary>
+            Linux
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.Solaris">
+            <summary>
+            Sun Solaris
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.AIX">
+            <summary>
+            AIX
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.IRIX">
+            <summary>
+            IRIX
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.FreeBSD">
+            <summary>
+            FreeBSD
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.TRU64">
+            <summary>
+            Compaq TRU64 UNIX
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.Modesto">
+            <summary>
+            Novell Modesto
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.OpenBSD">
+            <summary>
+            Open BSD
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.OpenVMS">
+            <summary>
+            Open VMS
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfOSABI.NSK">
+            <summary>
+            Hewlett-Packard Non-Stop Kernel
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfProgramHeaderTable">
+            <summary>
+            Represents an ELF program header table which describes a list of ELF segments.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfProgramHeaderTable.segments">
+            <summary>
+            Gets the list of ELF segments in this program header table.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfProgramHeaderTable.#ctor(System.IO.BinaryReader,BinaryTools.Elf.ElfHeader,BinaryTools.Elf.ElfSectionHeaderTable)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.ElfProgramHeaderTable"/> class by examining an ELF header.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to parse the ELF file.
+             </param>
+            
+             <param name="header">
+             The ELF header used to extract the metadata about this program header table.
+             </param>
+            
+             <param name="sections">
+             The list of sections which will be parsed to extract the sections corresponding to this segment.
+             </param>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfProgramHeaderTable.Count">
+            <summary>
+            Gets the number of ELF segments in this program header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfProgramHeaderTable.Item(System.Int32)">
+             <summary>
+             Gets an ELF segment at an index.
+             </summary>
+            
+             <param name="index">
+             The index of the ELF segment.
+             </param>
+            
+             <returns>
+             The ELF segment at the given index.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfProgramHeaderTable.GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the ELF segments.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the ELF segments.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfProgramHeaderTable.System#Collections#IEnumerable#GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the ELF segments.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the ELF segments.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfRelocationEntry">
+            <summary>
+            Represents an ELF relocation entry.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationEntry.Offset">
+            <summary>
+            Gets or sets the location at which to apply the relocation action. For a relocatable file, the value is the byte offset from the beginning of the section to the storage unit affected by the relocation. For an executable file or a shared object, the value is the virtual address of the storage unit affected by the relocation.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationEntry.Info">
+            <summary>
+            Gets or sets the symbol table index with respect to which the relocation must be made, and the type of relocation to apply.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationEntry.Type">
+            <summary>
+            Gets or sets the processor specific relocation type. See <see cref="T:BinaryTools.Elf.ElfRelocationSection"/> for more details.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationEntry.Addend">
+            <summary>
+            Gets or sets a constant addend used to compute the value to be stored into the relocatable field, if it exists.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationEntry.Symbol">
+            <summary>
+            Gets name of the symbol to relocate.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationEntry.SymbolIndex">
+            <summary>
+            Gets or sets symbol table index with respect to which the relocation must be made.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationEntry.SymbolValue">
+            <summary>
+            Gets the value from the symbol table corresponding to this relocation symbol.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfRelocationSection">
+            <summary>
+            Represents an ELF relocation section.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_NONE">
+            <summary>
+            No relocation needed.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_64">
+            <summary>
+            Direct 64-bit relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_PC32">
+            <summary>
+            Program counter (PC) relative 32-bit signed relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_GOT32">
+            <summary>
+            32-bit GOT entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_PLT32">
+            <summary>
+            32-bit PLT address.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_COPY">
+            <summary>
+            Copy symbol at runtime.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_GLOB_DAT">
+            <summary>
+            Create GOT entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_JUMP_SLOT">
+            <summary>
+            Create PLT entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_RELATIVE">
+            <summary>
+            Adjust by program base.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_GOTPCREL">
+            <summary>
+            32-bit signed PC relative offset to GOT.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_32">
+            <summary>
+            Direct 32-bit zero extended relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_32S">
+            <summary>
+            Direct 32-bit sign extended relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_16">
+            <summary>
+            Direct 16-bit zero extended relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_PC16">
+            <summary>
+            16-bit signed extended PC relative relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_8">
+            <summary>
+            Direct 8-bit sign extended relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_PC8">
+            <summary>
+            8-bit sign extended PC relative relocation.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfRelocationSection.R_X86_64_PC64">
+            <summary>
+            Place relative 64-bit signed relocation.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationSection.Count">
+            <summary>
+            Gets the number of relocation entries in this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationSection.Entries">
+            <summary>
+            Gets the list of relocation entries in this relocation section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfRelocationSection.Item(System.Int32)">
+             <summary>
+             Gets a relocation entry at an index.
+             </summary>
+            
+             <param name="index">
+             The index of the relocation entry.
+             </param>
+            
+             <returns>
+             The relocation entry at the given index.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfRelocationSection.GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the relocation section entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the relocation section entries.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfRelocationSection.System#Collections#IEnumerable#GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the relocation section entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the relocation section entries.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSection">
+            <summary>
+            Represents an ELF section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Name">
+            <summary>
+            Gets the name of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.NameOffset">
+            <summary>
+            Gets or sets the offset in the string table of the name of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Size">
+            <summary>
+            Gets or sets the size in number of bytes of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.EntrySize">
+            <summary>
+            Gets or sets the size of the fixed-sized entries of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Offset">
+            <summary>
+            Gets or sets the offset from the beginning of the ELF file the first byte in this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Address">
+            <summary>
+            Gets or sets the address of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Alignment">
+            <summary>
+            Gets or sets the address alignment of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Type">
+            <summary>
+            Gets or sets the type of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Flags">
+            <summary>
+            Gets or sets the flags of this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Link">
+            <summary>
+            Gets or sets a section header table index link whose interpretation depends on the section type.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSection.Info">
+            <summary>
+            Gets or sets the extra information whose interpretation depends on the section type.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSectionFlags">
+            <summary>
+            Enumerates the ELF section's contents and semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.None">
+            <summary>
+            The section contains no flags.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.Write">
+            <summary>
+            The section contains data that should be writable during process execution.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.Alloc">
+            <summary>
+            The section occupies memory during process execution. Some control sections do not reside in the memory image of an object file; this attribute is off for those sections.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.Exec">
+            <summary>
+            The section contains executable machine instructions.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.Merge">
+             <summary>
+             The data in the section may be merged to eliminate duplication. Unless the SHF_STRINGS flag is also set, the data elements in the section are of a uniform size. The size of each element is specified in the section header's sh_entsize field. If the SHF_STRINGS flag is also set, the data elements consist of null-terminated character strings. The size of each character is specified in the section header's sh_entsize field.
+            
+             Each element in the section is compared against other elements in sections with the same name, type and flags. Elements that would have identical values at program run-time may be merged. Relocations referencing elements of such sections must be resolved to the merged locations of the referenced values. Note that any relocatable values, including values that would result in run-time relocations, must be analyzed to determine whether the run-time values would actually be identical. An ABI-conforming object file may not depend on specific elements being merged, and an ABI-conforming link editor may choose not to merge specific elements.
+             </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.Strings">
+            <summary>
+            The data elements in the section consist of null-terminated character strings. The size of each character is specified in the section header's sh_entsize field.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.InfoLink">
+            <summary>
+            The sh_info field of this section header holds a section header table index.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.LinkOrder">
+            <summary>
+            This flag adds special ordering requirements for link editors. The requirements apply if the sh_link field of this section's header references another section (the linked-to section). If this section is combined with other sections in the output file, it must appear in the same relative order with respect to those sections, as the linked-to section appears with respect to sections the linked-to section is combined with.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.OSNonConforming">
+            <summary>
+            This section requires special OS-specific processing (beyond the standard linking rules) to avoid incorrect behavior. If this section has either an sh_type value or contains sh_flags bits in the OS-specific ranges for those fields, and a link editor processing this section does not recognize those values, then the link editor should reject the object file containing this section with an error.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.Group">
+            <summary>
+            This section is a member (perhaps the only one) of a section group. The section must be referenced by a section of type SHT_GROUP. The SHF_GROUP flag may be set only for sections contained in relocatable objects (objects with the ELF header e_type member set to ET_REL).
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionFlags.TLS">
+            <summary>
+            This section holds Thread-Local Storage, meaning that each separate execution flow has its own distinct instance of this data. Implementations need not support this flag.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSectionHeaderTable">
+            <summary>
+            Represents an ELF section header table which describes a list of ELF sections.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionHeaderTable.sections">
+            <summary>
+            Gets the list of ELF sections in this section header table.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfSectionHeaderTable.#ctor(System.IO.BinaryReader,BinaryTools.Elf.ElfHeader)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.ElfSectionHeaderTable"/> class by examining an ELF header.
+             </summary>
+            
+             <param name="reader">
+             The reader used to extract the data needed to parse the ELF file.
+             </param>
+            
+             <param name="header">
+             The ELF header used to extract the metadata about this section header table.
+             </param>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSectionHeaderTable.Count">
+            <summary>
+            Gets the number of ELF sections in this section header table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSectionHeaderTable.Item(System.Int32)">
+             <summary>
+             Gets an ELF section at an index.
+             </summary>
+            
+             <param name="index">
+             The index of the ELF section.
+             </param>
+            
+             <returns>
+             The ELF section at the given index.
+             </returns>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSectionHeaderTable.Item(System.String)">
+             <summary>
+             Gets an ELF section by name.
+             </summary>
+            
+             <param name="name">
+             The name of the ELF section.
+             </param>
+            
+             <returns>
+             The ELF section with the specified name if it exists; <c>null</c> otherwise.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfSectionHeaderTable.GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the ELF sections.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the ELF sections.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfSectionHeaderTable.System#Collections#IEnumerable#GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the ELF sections.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the ELF sections.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSectionType">
+            <summary>
+            Enumerates the ELF section's contents and semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.Null">
+            <summary>
+            This value marks the section header as inactive; it does not have an associated section. Other members of the section header have undefined values.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.ProgBits">
+            <summary>
+            The section holds information defined by the program, whose format and meaning are determined solely by the program.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.SymTab">
+            <summary>
+            These sections hold a symbol table. Currently, an object file may have only one section of each type, but this restriction may be relaxed in the future. Typically, SHT_SYMTAB provides symbols for link editing, though it may also be used for dynamic linking. As a complete symbol table, it may contain many symbols unnecessary for dynamic linking. Consequently, an object file may also contain a SHT_DYNSYM section, which holds a minimal set of dynamic linking symbols, to save space.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.StrTab">
+            <summary>
+            The section holds a string table. An object file may have multiple string table sections.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.RelA">
+            <summary>
+            The section holds relocation entries with explicit addends, such as type Elf32_Rela for the 32-bit class of object files or type Elf64_Rela for the 64-bit class of object files. An object file may have multiple relocation sections.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.Hash">
+            <summary>
+            The section holds a symbol hash table. Currently, an object file may have only one hash table, but this restriction may be relaxed in the future.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.Dynamic">
+            <summary>
+            The section holds information for dynamic linking. Currently, an object file may have only one dynamic section, but this restriction may be relaxed in the future.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.Note">
+            <summary>
+            The section holds information that marks the file in some way.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.NoBits">
+            <summary>
+            A section of this type occupies no space in the file but otherwise resembles SHT_PROGBITS. Although this section contains no bytes, the sh_offset member contains the conceptual file offset.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.Rel">
+            <summary>
+            The section holds relocation entries without explicit addends, such as type Elf32_Rel for the 32-bit class of object files or type Elf64_Rel for the 64-bit class of object files. An object file may have multiple relocation sections.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.ShLib">
+            <summary>
+            This section type is reserved but has unspecified semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.DynSym">
+            <summary>
+            These sections hold a symbol table. Currently, an object file may have only one section of each type, but this restriction may be relaxed in the future. Typically, SHT_SYMTAB provides symbols for link editing, though it may also be used for dynamic linking. As a complete symbol table, it may contain many symbols unnecessary for dynamic linking. Consequently, an object file may also contain a SHT_DYNSYM section, which holds a minimal set of dynamic linking symbols, to save space.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.InitArray">
+            <summary>
+            This section contains an array of pointers to initialization functions.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.FiniArray">
+            <summary>
+            This section contains an array of pointers to termination functions.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.PreInitArray">
+            <summary>
+            This section contains an array of pointers to functions that are invoked before all other initialization functions.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.Group">
+            <summary>
+            This section defines a section group. A section group is a set of sections that are related and that must be treated specially by the linker. Sections of type SHT_GROUP may appear only in relocatable objects (objects with the ELF header e_type member set to ET_REL). The section header table entry for a group section must appear in the section header table before the entries for any of the sections that are members of the group.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSectionType.SymTabShndx">
+            <summary>
+            This section is associated with a section of type SHT_SYMTAB and is required if any of the section header indexes referenced by that symbol table contain the escape value SHN_XINDEX. The section is an array of Elf32_Word values. Each value corresponds one to one with a symbol table entry and appear in the same order as those entries. The values represent the section header indexes against which the symbol table entries are defined. Only if corresponding symbol table entry's st_shndx field contains the escape value SHN_XINDEX will the matching Elf32_Word hold the actual section header index; otherwise, the entry must be SHN_UNDEF (0).
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSegment">
+            <summary>
+            Represents an ELF segment.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_NULL">
+            <summary>
+            Gets the type value of a segment that is unused.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_LOAD">
+            <summary>
+            Gets the type value of a segment representing a loadable segment.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_DYNAMIC">
+            <summary>
+            Gets the type value of a segment representing dynamic linking information.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_INTERP">
+            <summary>
+            Gets the type value of a segment representing the lIBM.OMR.CoreAnalyzer.ion and size of a null-terminated path name to invoke as an interpreter.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_NOTE">
+            <summary>
+            Gets the type value of a segment representing the lIBM.OMR.CoreAnalyzer.ion and size of auxiliary information.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_SHLIB">
+            <summary>
+            Gets the type value of a segment with unspecified semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_PHDR">
+            <summary>
+            Gets the type value of a segment representing the lIBM.OMR.CoreAnalyzer.ion and size of the program header table itself.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_LOPROC">
+            <summary>
+            Gets the type value representing the lower bound of a segment holding processor specific semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PT_HIPROC">
+            <summary>
+            Gets the type value representing the upper bound of a segment holding processor specific semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PF_X">
+            <summary>
+            Gets the flag value representing an executable segment.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PF_W">
+            <summary>
+            Gets the flag value representing a writable segment.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegment.PF_R">
+            <summary>
+            Gets the flag value representing a readable segment.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.FileSize">
+            <summary>
+            Gets or sets the size in number of bytes of the segment on disk.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.Offset">
+            <summary>
+            Gets or sets the offset from the beginning of the ELF file the first byte in this segment.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.MemorySize">
+            <summary>
+            Gets or sets the size in number of bytes of this segment in memory.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.VirtualAddress">
+            <summary>
+            Gets or sets the virtual address of this segment.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.PhysicalAddress">
+            <summary>
+            Gets or sets the physical address of this segment.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.Alignment">
+            <summary>
+            Gets or sets the address alignment of this segment.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.Type">
+            <summary>
+            Gets or sets the type of this segment.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.Flags">
+            <summary>
+            Gets or sets the flags of this segment.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSegment.Sections">
+            <summary>
+            Gets a list of sections mapped to this segment.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSegmentFlags">
+            <summary>
+            Enumerates the ELF section's contents and semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentFlags.Exec">
+            <summary>
+            The segement is executable.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentFlags.Write">
+            <summary>
+            The segement is writeable.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentFlags.Read">
+            <summary>
+            The segement is readable.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSegmentType">
+            <summary>
+            Enumerates the ELF segment's contents and semantics.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.Null">
+            <summary>
+            The array element is unused; other members' values are undefined. This type lets the program header table have ignored entries.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.Load">
+            <summary>
+            The array element specifies a loadable segment, described by p_filesz and p_memsz. The bytes from the file are mapped to the beginning of the memory segment. If the segment's memory size (p_memsz) is larger than the file size (p_filesz), the "extra" bytes are defined to hold the value 0 and to follow the segment's initialized area. The file size may not be larger than the memory size. Loadable segment entries in the program header table appear in ascending order, sorted on the p_vaddr member.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.Dynamic">
+            <summary>
+            The array element specifies dynamic linking information.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.Interp">
+            <summary>
+            The array element specifies the location and size of a null-terminated path name to invoke as an interpreter. This segment type is meaningful only for executable files (though it may occur for shared objects); it may not occur more than once in a file. If it is present, it must precede any loadable segment entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.Note">
+            <summary>
+            The array element specifies the location and size of auxiliary information.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.ShLib">
+            <summary>
+            This segment type is reserved but has unspecified semantics. Programs that contain an array element of this type do not conform to the ABI.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.PHdr">
+            <summary>
+            The array element, if present, specifies the location and size of the program header table itself, both in the file and in the memory image of the program. This segment type may not occur more than once in a file. Moreover, it may occur only if the program header table is part of the memory image of the program. If it is present, it must precede any loadable segment entry.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSegmentType.TLS">
+            <summary>
+            The array element specifies the Thread-Local Storage template. Implementations need not support this program table entry.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfStringTable">
+            <summary>
+            Represents an ELF string table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfStringTable.Count">
+            <summary>
+            Gets the number of strings in this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfStringTable.Entries">
+            <summary>
+            Gets the list of string entries (index and value) in this string table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfStringTable.Item(System.Int32)">
+             <summary>
+             Gets a string entry at an index.
+             </summary>
+            
+             <param name="index">
+             The index of the string entry.
+             </param>
+            
+             <returns>
+             The string entry at the given index.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfStringTable.GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the string table entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the string table entries.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfStringTable.System#Collections#IEnumerable#GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the string table entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the string table entries.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfStringTableEntry">
+            <summary>
+            Represents an ELF string table entry.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfStringTableEntry.Value">
+            <summary>
+            Gets or sets the string value.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfStringTableEntry.Index">
+            <summary>
+            Gets or sets index (in number of bytes) from the start of the string table section to this string entry.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSymbolBinding">
+            <summary>
+            A symbol's binding determines the linkage visibility and behavior.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolBinding.Local">
+            <summary>
+            Local symbols are not visible outside the object file containing their definition. Local symbols of the same name may exist in multiple files without interfering with each other.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolBinding.Global">
+            <summary>
+            Global symbols are visible to all object files being combined. One file's definition of a global symbol will satisfy another file's undefined reference to the same global symbol.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolBinding.Weak">
+            <summary>
+            Weak symbols resemble global symbols, but their definitions have lower precedence.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSymbolTable">
+            <summary>
+            Represents an ELF symbol table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTable.Count">
+            <summary>
+            Gets the number of symbol entries in this section.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTable.Entries">
+            <summary>
+            Gets the list of symbol entries in this symbol table.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTable.Item(System.Int32)">
+             <summary>
+             Gets a symbol entry at an index.
+             </summary>
+            
+             <param name="index">
+             The index of the symbol entry.
+             </param>
+            
+             <returns>
+             The symbol entry at the given index.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfSymbolTable.GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the symbol table entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the symbol table entries.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.ElfSymbolTable.System#Collections#IEnumerable#GetEnumerator">
+             <summary>
+             Returns an enumerator that iterates through the symbol table entries.
+             </summary>
+            
+             <returns>
+             An enumerator that can be used to iterate through the symbol table entries.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSymbolTableEntry">
+            <summary>
+            Represents an ELF symbol table entry.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.Name">
+            <summary>
+            Gets the name of the symbol.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.NameIndex">
+            <summary>
+            Gets or sets an index into the object file's symbol string table, which holds the character representations of the symbol names.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.Value">
+            <summary>
+            Gets or sets the value of the associated symbol.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.Size">
+            <summary>
+            Gets the size associated with the symbol. For example, a data object's size is the number of bytes contained in the object.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.Binding">
+            <summary>
+            Gets or sets the symbol's binding.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.Type">
+            <summary>
+            Gets or sets the symbol's type.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.Visibility">
+            <summary>
+            Gets or sets the symbol's visibility.
+            </summary>
+        </member>
+        <member name="P:BinaryTools.Elf.ElfSymbolTableEntry.ShIndex">
+            <summary>
+            Gets or sets the relevant section header table index for which this symbol entry is defined.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSymbolType">
+            <summary>
+            A symbol's type provides a general classification for the associated entity.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolType.NoType">
+            <summary>
+            The symbol's type is not specified.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolType.Object">
+            <summary>
+            The symbol is associated with a data object, such as a variable, an array, and so on.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolType.Func">
+            <summary>
+            The symbol is associated with a function or other executable code.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolType.Section">
+            <summary>
+            The symbol is associated with a section. Symbol table entries of this type exist primarily for relocation and normally have STB_LOCAL binding.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolType.File">
+            <summary>
+            Conventionally, the symbol's name gives the name of the source file associated with the object file. A file symbol has STB_LOCAL binding, its section index is SHN_ABS, and it precedes the other STB_LOCAL symbols for the file, if it is present.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolType.Common">
+            <summary>
+            The symbol labels an uninitialized common block.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolType.Tls">
+            <summary>
+            The symbol specifies a Thread-Local Storage entity. When defined, it gives the assigned offset for the symbol, not the actual address. Symbols of type STT_TLS can be referenced by only special thread-local storage relocations and thread-local storage relocations can only reference symbols with type STT_TLS. Implementation need not support thread-local storage.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfSymbolVisibility">
+            <summary>
+            A symbol's visibility, although it may be specified in a relocatable object, defines how that symbol may be accessed once it has become part of an executable or shared object.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolVisibility.Default">
+            <summary>
+            The visibility of symbols with the STV_DEFAULT attribute is as specified by the symbol's binding type. That is, global and weak symbols are visible outside of their defining component (executable file or shared object). Local symbols are hidden. Global and weak symbols are also preemptable, that is, they may by preempted by definitions of the same name in another component.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolVisibility.Internal">
+            <summary>
+            A symbol defined in the current component is protected if it is visible in other components but not preemptable, meaning that any reference to such a symbol from within the defining component must be resolved to the definition in that component, even if there is a definition in another component that would preempt by the default rules. A symbol with STB_LOCAL binding may not have STV_PROTECTED visibility. If a symbol definition with STV_PROTECTED visibility from a shared object is taken as resolving a reference from an executable or another shared object, the SHN_UNDEF symbol table entry created has STV_DEFAULT visibility.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolVisibility.Hidden">
+             <summary>
+             A symbol defined in the current component is hidden if its name is not visible to other components. Such a symbol is necessarily protected. This attribute may be used to control the external interface of a component. Note that an object named by such a symbol may still be referenced from another component if its address is passed outside.
+            
+             A hidden symbol contained in a relocatable object must be either removed or converted to STB_LOCAL binding by the link-editor when the relocatable object is included in an executable file or shared object.
+             </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfSymbolVisibility.Protected">
+             <summary>
+             The meaning of this visibility attribute may be defined by processor supplements to further constrain hidden symbols. A processor supplement's definition should be such that generic tools can safely treat internal symbols as hidden.
+            
+             An internal symbol contained in a relocatable object must be either removed or converted to STB_LOCAL binding by the link-editor when the relocatable object is included in an executable file or shared object.
+             </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.ElfType">
+            <summary>
+            Enumerates the object file type.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfType.None">
+            <summary>
+            No file type
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfType.Relocatable">
+            <summary>
+            Relocatable file
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfType.Executable">
+            <summary>
+            Executable file
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfType.Shared">
+            <summary>
+            Shared object file
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.ElfType.Core">
+            <summary>
+            Core file
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.EnumExtensions">
+            <summary>
+            An extension class providing utility methods for getting <see cref="T:System.ComponentModel.DescriptionAttribute"/> attribute strings from enum values.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.EnumExtensions.GetDescription``1(``0)">
+             <summary>
+             Gets the <see cref="T:System.ComponentModel.DescriptionAttribute"/> text from an enum.
+             </summary>
+            
+             <typeparam name="T">
+             The enum type.
+             </typeparam>
+            
+             <param name="enumerationValue">
+             The enum value for which to retrieve the description from.
+             </param>
+            
+             <returns>
+             The description string if it exists; default result of <c>ToString</c> otherwise.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.InaccessibleAddressException">
+            <summary>
+            The exception that is thrown when attempting to access an illegal memory lIBM.OMR.CoreAnalyzer.ion.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.InaccessibleAddressException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:BinaryTools.Elf.InaccessibleAddressException"/> class.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.InaccessibleAddressException.#ctor(System.String)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.InaccessibleAddressException"/> class with a specified error message.
+             </summary>
+            
+             <param name="message">
+             The message that describes the error.
+             </param>
+        </member>
+        <member name="M:BinaryTools.Elf.InaccessibleAddressException.#ctor(System.String,System.Exception)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.InaccessibleAddressException"/> class with a specified error message and a reference to the inner
+             exception that is the cause of this exception.
+             </summary>
+            
+             <param name="message">
+             The message that describes the error.
+             </param>
+            
+             <param name="innerException">
+             The exception that is the cause of the current exception, or a null reference if no inner exception is specified.
+             </param>
+        </member>
+        <member name="M:BinaryTools.Elf.InaccessibleAddressException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.InaccessibleAddressException"/> class with serialized data.
+             </summary>
+            
+             <param name="info">
+             The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.
+             </param>
+            
+             <param name="context">
+             The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.
+             </param>
+            
+             <exception cref="T:System.ArgumentNullException">
+             Thrown when <paramref name="info"/> parameter is <c>null</c>.
+             </exception>
+            
+             <exception cref="T:System.Runtime.Serialization.SerializationException">
+             Thrown when the class name is <c>null</c> or <see cref="P:System.Exception.HResult"/> is zero (0).
+             </exception>
+        </member>
+        <member name="T:BinaryTools.Elf.Io.EndianBinaryReader">
+            <summary>
+            Reads primitive data types as binary values in a specific encoding and endianness.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.#ctor(System.IO.Stream,BinaryTools.Elf.Io.Endianness)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Io.EndianBinaryReader"/> class based on the specified stream, endianness, and using UTF-8
+             encoding.
+             </summary>
+            
+             <param name="input">
+             The input stream.
+             </param>
+            
+             <param name="endianness">
+             The endianness of the data in the input stream.
+             </param>
+            
+             <exception cref="T:System.ArgumentException">
+             The stream does not support reading, is null, or is already closed.
+             </exception>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.#ctor(System.IO.Stream,BinaryTools.Elf.Io.Endianness,System.Text.Encoding)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Io.EndianBinaryReader"/> class based on the specified stream, endianness, and character
+             encoding.
+             </summary>
+            
+             <param name="input">
+             The input stream.
+             </param>
+            
+             <param name="endianness">
+             The endianness of the data in the input stream.
+             </param>
+            
+             <param name="encoding">
+             The character encoding to use.
+             </param>
+            
+             <exception cref="T:System.ArgumentException">
+             The stream does not support reading, is null, or is already closed.
+             </exception>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.#ctor(System.IO.Stream,BinaryTools.Elf.Io.Endianness,System.Text.Encoding,System.Boolean)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Io.EndianBinaryReader"/> class based on the specified stream, endianness, and character
+             encoding, and optionally leaves the stream open.
+             </summary>
+            
+             <param name="input">
+             The input stream.
+             </param>
+            
+             <param name="endianness">
+             The endianness of the data in the input stream.
+             </param>
+            
+             <param name="encoding">
+             The character encoding to use.
+             </param>
+            
+             <param name="leaveOpen">
+             <c>true</c> to leave the stream open after the <see cref="T:BinaryTools.Elf.Io.EndianBinaryReader"/> object is disposed; <c>false</c> otherwise.
+             </param>
+            
+             <exception cref="T:System.ArgumentException">
+             The stream does not support reading, is null, or is already closed.
+             </exception>
+        </member>
+        <member name="P:BinaryTools.Elf.Io.EndianBinaryReader.Endianness">
+            <summary>
+            Gets the endianness of the data in the input stream.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadDecimal">
+             <summary>
+             Reads a decimal value from the current stream and advances the current position of the stream by sixteen bytes.
+             </summary>
+            
+             <returns>
+             A decimal value read from the current stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadDouble">
+             <summary>
+             Reads an 8-byte floating point value from the current stream and advances the current position of the stream by eight bytes.
+             </summary>
+            
+             <returns>
+             An 8-byte floating point value read from the current stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadInt16">
+             <summary>
+             Reads a 2-byte signed integer from the current stream and advances the current position of the stream by two bytes.
+             </summary>
+            
+             <returns>
+             A 2-byte signed integer read from the current stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadInt32">
+             <summary>
+             Reads a 4-byte signed integer from the current stream and advances the current position of the stream by four bytes.
+             </summary>
+            
+             <returns>
+             A 4-byte signed integer read from the current stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadInt64">
+             <summary>
+             Reads an 8-byte signed integer from the current stream and advances the current position of the stream by eight bytes.
+             </summary>
+            
+             <returns>
+             An 8-byte signed integer read from the current stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadSingle">
+             <summary>
+             Reads a 4-byte floating point value from the current stream and advances the current position of the stream by four bytes.
+             </summary>
+            
+             <returns>
+             A 4-byte floating point value read from the current stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadString">
+             <summary>
+             Reads a string from the current stream. The string is prefixed with the length, encoded as an integer seven bits at a time.
+             </summary>
+            
+             <returns>
+             The string being read.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadUInt16">
+             <summary>
+             Reads a 2-byte unsigned integer from the current stream using little-endian encoding and advances the position of the stream by
+             two bytes.
+             </summary>
+            
+             <returns>
+             A 2-byte unsigned integer read from this stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadUInt32">
+             <summary>
+             Reads a 4-byte unsigned integer from the current stream using little-endian encoding and advances the position of the stream by
+             four bytes.
+             </summary>
+            
+             <returns>
+             A 4-byte unsigned integer read from this stream.
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBinaryReader.ReadUInt64">
+             <summary>
+             Reads an 8-byte unsigned integer from the current stream using little-endian encoding and advances the position of the stream by
+             eight bytes.
+             </summary>
+            
+             <returns>
+             An 8-byte unsigned integer read from this stream.
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.Io.EndianBitConverter">
+            <summary>
+            Converts integral values to the native endianness of this computer architecture.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.Io.EndianBitConverter.NativeEndianness">
+            <summary>
+            Gets the native endianness of this computer architecture.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBitConverter.Convert(System.UInt16,BinaryTools.Elf.Io.Endianness)">
+             <summary>
+             Converts a value from the specified endianness to the native endianness.
+             </summary>
+            
+             <param name="value">
+             The value to convert.
+             </param>
+            
+             <param name="endianness">
+             The endianness of <paramref name="value"/>.
+             </param>
+            
+             <returns>
+             The value converted from the specified endianness to the native endianness (<see cref="F:BinaryTools.Elf.Io.EndianBitConverter.NativeEndianness"/>).
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBitConverter.Convert(System.UInt32,BinaryTools.Elf.Io.Endianness)">
+             <summary>
+             Converts a value from the specified endianness to the native endianness.
+             </summary>
+            
+             <param name="value">
+             The value to convert.
+             </param>
+            
+             <param name="endianness">
+             The endianness of <paramref name="value"/>.
+             </param>
+            
+             <returns>
+             The value converted from the specified endianness to the native endianness (<see cref="F:BinaryTools.Elf.Io.EndianBitConverter.NativeEndianness"/>).
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBitConverter.Convert(System.UInt64,BinaryTools.Elf.Io.Endianness)">
+             <summary>
+             Converts a value from the specified endianness to the native endianness.
+             </summary>
+            
+             <param name="value">
+             The value to convert.
+             </param>
+            
+             <param name="endianness">
+             The endianness of <paramref name="value"/>.
+             </param>
+            
+             <returns>
+             The value converted from the specified endianness to the native endianness (<see cref="F:BinaryTools.Elf.Io.EndianBitConverter.NativeEndianness"/>).
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBitConverter.Convert(System.Int16,BinaryTools.Elf.Io.Endianness)">
+             <summary>
+             Converts a value from the specified endianness to the native endianness.
+             </summary>
+            
+             <param name="value">
+             The value to convert.
+             </param>
+            
+             <param name="endianness">
+             The endianness of <paramref name="value"/>.
+             </param>
+            
+             <returns>
+             The value converted from the specified endianness to the native endianness (<see cref="F:BinaryTools.Elf.Io.EndianBitConverter.NativeEndianness"/>).
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBitConverter.Convert(System.Int32,BinaryTools.Elf.Io.Endianness)">
+             <summary>
+             Converts a value from the specified endianness to the native endianness.
+             </summary>
+            
+             <param name="value">
+             The value to convert.
+             </param>
+            
+             <param name="endianness">
+             The endianness of <paramref name="value"/>.
+             </param>
+            
+             <returns>
+             The value converted from the specified endianness to the native endianness (<see cref="F:BinaryTools.Elf.Io.EndianBitConverter.NativeEndianness"/>).
+             </returns>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.EndianBitConverter.Convert(System.Int64,BinaryTools.Elf.Io.Endianness)">
+             <summary>
+             Converts a value from the specified endianness to the native endianness.
+             </summary>
+            
+             <param name="value">
+             The value to convert.
+             </param>
+            
+             <param name="endianness">
+             The endianness of <paramref name="value"/>.
+             </param>
+            
+             <returns>
+             The value converted from the specified endianness to the native endianness (<see cref="F:BinaryTools.Elf.Io.EndianBitConverter.NativeEndianness"/>).
+             </returns>
+        </member>
+        <member name="T:BinaryTools.Elf.Io.Endianness">
+            <summary>
+            Represents the endianness of a value in a computer architecture.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.Io.Endianness.BigEndian">
+            <summary>
+            Most significant byte first.
+            </summary>
+        </member>
+        <member name="F:BinaryTools.Elf.Io.Endianness.LittleEndian">
+            <summary>
+            Least significant byte first.
+            </summary>
+        </member>
+        <member name="T:BinaryTools.Elf.Io.FileFormatException">
+            <summary>
+            The exception that is thrown when an input file or a data stream is malformed.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.FileFormatException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:BinaryTools.Elf.Io.FileFormatException"/> class.
+            </summary>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.FileFormatException.#ctor(System.String)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Io.FileFormatException"/> class with a specified error message.
+             </summary>
+            
+             <param name="message">
+             The message that describes the error.
+             </param>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.FileFormatException.#ctor(System.String,System.Exception)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Io.FileFormatException"/> class with a specified error message and a reference to the inner
+             exception that is the cause of this exception.
+             </summary>
+            
+             <param name="message">
+             The message that describes the error.
+             </param>
+            
+             <param name="innerException">
+             The exception that is the cause of the current exception, or a null reference if no inner exception is specified.
+             </param>
+        </member>
+        <member name="M:BinaryTools.Elf.Io.FileFormatException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+             <summary>
+             Initializes a new instance of the <see cref="T:BinaryTools.Elf.Io.FileFormatException"/> class with serialized data.
+             </summary>
+            
+             <param name="info">
+             The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.
+             </param>
+            
+             <param name="context">
+             The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.
+             </param>
+            
+             <exception cref="T:System.ArgumentNullException">
+             Thrown when <paramref name="info"/> parameter is <c>null</c>.
+             </exception>
+            
+             <exception cref="T:System.Runtime.Serialization.SerializationException">
+             Thrown when the class name is <c>null</c> or <see cref="P:System.Exception.HResult"/> is zero (0).
+             </exception>
+        </member>
+    </members>
+</doc>
