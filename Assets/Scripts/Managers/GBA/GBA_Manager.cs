@@ -386,7 +386,13 @@ namespace R1Engine
                 }
                 else
                 {
-                    var mapData = map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7 ? map.Mode7Data?.Select(x => playField.UnkBGData.Data1[x - 1].CloneObj()).ToArray() : map.MapData;
+                    MapTile[] mapData = map.MapData;
+
+                    if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
+                        mapData = map.Mode7Data?.Select(x => playField.BGTileTable.Data1[x - 1].CloneObj()).ToArray();
+                    else if (map.Unk_0C == 0)
+                        // TODO: Avoid having to clamp here - why are the values too big?
+                        mapData = map.MapData?.Select(x => playField.BGTileTable.Data1[Mathf.Clamp(x.TileMapY - 1, 0, playField.BGTileTable.Data1.Length - 1)].CloneObj()).ToArray();
 
                     commonLev.Maps[layer] = new Common_LevelMap
                     {

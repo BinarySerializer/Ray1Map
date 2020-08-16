@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_UnkBGData : GBA_BaseBlock
+    public class GBA_BGTileTable : GBA_BaseBlock
     {
         public ushort Count1 { get; set; }
         public ushort Count2 { get; set; }

@@ -36,8 +36,7 @@
 
         public GBA_TileKit TileKit { get; set; }
 
-        // For Mode7 maps this creates the main tilemap
-        public GBA_UnkBGData UnkBGData { get; set; }
+        public GBA_BGTileTable BGTileTable { get; set; }
 
         public GBA_Cluster[] Clusters { get; set; }
         public GBA_TileLayer[] Layers { get; set; }
@@ -113,7 +112,7 @@
                 TileKit = s.DoAt(OffsetTable.GetPointer(TileKitIndex), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
 
                 // Serialize tilemap
-                UnkBGData = s.DoAt(OffsetTable.GetPointer(UnkBGDataOffsetIndex), () => s.SerializeObject<GBA_UnkBGData>(UnkBGData, name: nameof(UnkBGData)));
+                BGTileTable = s.DoAt(OffsetTable.GetPointer(UnkBGDataOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
             }
             else
             {
