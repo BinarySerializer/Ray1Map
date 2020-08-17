@@ -8,7 +8,7 @@ namespace R1Engine
         public Pointer RayEventOffset { get; set; }
 
         public Pointer TileArrayOffset { get; set; }
-        public PC_BigMap BigMap { get; set; }
+        public R1_PC_BigMap BigMap { get; set; }
 
         public void Update(SerializerObject s)
         {
@@ -22,7 +22,7 @@ namespace R1Engine
                 RayEventOffset = gameMemoryOffset + 0x16F650;
 
                 TileArrayOffset = s.DoAt(gameMemoryOffset + 0x16F640, () => s.SerializePointer(TileArrayOffset, name: nameof(TileArrayOffset)));
-                BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<PC_BigMap>(BigMap, name: nameof(BigMap)));
+                BigMap = s.DoAt(gameMemoryOffset + 0x1631D8, () => s.SerializeObject<R1_PC_BigMap>(BigMap, name: nameof(BigMap)));
             }
 
             // Rayman Designer (PC)
@@ -37,7 +37,7 @@ namespace R1Engine
             }
 
             // Rayman EDU (PC)
-            else if (s.GameSettings.EngineVersion == EngineVersion.RayEduPC)
+            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu)
             {
                 EventArrayOffset = s.DoAt(gameMemoryOffset + 0x16E338, () => s.SerializePointer(EventArrayOffset, name: nameof(EventArrayOffset)));
 
@@ -48,7 +48,7 @@ namespace R1Engine
             }
 
             // Rayman Advance (GBA)
-            else if (s.GameSettings.EngineVersion == EngineVersion.RayGBA)
+            else if (s.GameSettings.EngineVersion == EngineVersion.R1_GBA)
             {
                 // TODO: Update the event class to support the GBA structure when in memory so that this will work!
                 EventArrayOffset = gameMemoryOffset + 0x020226AE;

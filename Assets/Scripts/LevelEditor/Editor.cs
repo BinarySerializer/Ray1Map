@@ -31,7 +31,7 @@ namespace R1Engine
         public GameObject layerEvents;
 
         //Current tile under the mouse
-        public Editor_MapTile mouseTile;
+        public Unity_Tile mouseTile;
 
         bool selecting;
         bool dragging;
@@ -50,7 +50,7 @@ namespace R1Engine
         public R1_TileCollisionType currentType;
 
         //Selected tiles
-        public Editor_MapTile[,] selection;
+        public Unity_Tile[,] selection;
 
         private readonly List<Ray1MapEditorHistoryTile> TempPrevTileHistory = new List<Ray1MapEditorHistoryTile>();
         private readonly List<Ray1MapEditorHistoryTile> TempTileHistory = new List<Ray1MapEditorHistoryTile>();
@@ -289,7 +289,7 @@ namespace R1Engine
                             dragging = false;
 
                             // Create array for selected area
-                            selection = new Editor_MapTile[(int)(tileSelectSquare.XEnd - tileSelectSquare.XStart) + 1, (int)(tileSelectSquare.YEnd - tileSelectSquare.YStart) + 1];
+                            selection = new Unity_Tile[(int)(tileSelectSquare.XEnd - tileSelectSquare.XStart) + 1, (int)(tileSelectSquare.YEnd - tileSelectSquare.YStart) + 1];
 
                             int xi = 0;
                             int yi = 0;

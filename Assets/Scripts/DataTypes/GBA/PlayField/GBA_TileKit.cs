@@ -22,7 +22,7 @@
         #endregion
 
         public override void SerializeImpl(SerializerObject s) {
-            if (s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
                 IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
                 if (Is8bpp) {
@@ -40,7 +40,7 @@
 
             // Serialize tilemap data
             if (IsCompressed) {
-                s.DoEncoded(new LZSSEncoder(), () => {
+                s.DoEncoded(new GBA_LZSSEncoder(), () => {
                     TileMap4bpp = s.SerializeArray<byte>(TileMap4bpp, TileMap4bppSize * 0x20, name: nameof(TileMap4bpp));
                     TileMap8bpp = s.SerializeArray<byte>(TileMap8bpp, TileMap8bppSize * 0x40, name: nameof(TileMap8bpp));
                 });
@@ -53,7 +53,7 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA) {
+            if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                 // Serialize tile palette
                 TilePalette = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
             }

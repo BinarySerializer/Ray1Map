@@ -29,44 +29,44 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Read the rom
-            var rom = FileFactory.Read<SNES_R1_ROM>(GetROMFilePath, context);
+            var rom = FileFactory.Read<SNES_Proto_ROM>(GetROMFilePath, context);
 
             // Get the map
             var map = rom.MapData;
 
             // Convert levelData to common level format
-            Common_Lev commonLev = new Common_Lev
+            Unity_Level level = new Unity_Level
             {
                 // Create the map
-                Maps = new Common_LevelMap[]
+                Maps = new Unity_MapTile[]
                 {
-                    new Common_LevelMap()
+                    new Unity_MapTile()
                     {
                         // Set the dimensions
                         Width = map.Width,
                         Height = map.Height,
 
                         // Create the tile arrays
-                        TileSet = new Common_Tileset[1],
-                        MapTiles = map.Tiles.Select(x => new Editor_MapTile(x)).ToArray(),
+                        TileSet = new Unity_MapTileMap[1],
+                        MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
                         TileSetWidth = 1
                     }
                 },
 
                 // Create the events list
-                EventData = new List<Editor_EventData>(),
+                EventData = new List<Unity_Obj>(),
             };
 
             Controller.status = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent
-            commonLev.Maps[0].TileSet[0] = GetTileSet(context, rom);
+            level.Maps[0].TileSet[0] = GetTileSet(context, rom);
 
-            return new Jaguar_EditorManager(commonLev, context, new Dictionary<string, Common_Design>(), new Dictionary<string, Common_EventState[][]>(), new Dictionary<string, string[][]>());
+            return new R1Jaguar_EditorManager(level, context, new Dictionary<string, Unity_ObjGraphics>(), new Dictionary<string, R1_EventState[][]>(), new Dictionary<string, string[][]>());
         }
 
-        public virtual Common_Tileset GetTileSet(Context context, SNES_R1_ROM rom)
+        public virtual Unity_MapTileMap GetTileSet(Context context, SNES_Proto_ROM rom)
         {
             // Read the tiles
             const int block_size = 0x20;
@@ -103,7 +103,7 @@ namespace R1Engine
 
             tex.Apply();
 
-            return new Common_Tileset(tex, Settings.CellSize);
+            return new Unity_MapTileMap(tex, Settings.CellSize);
         }
 
         public void FillTextureBlock(Texture2D tex, int blockX, int blockY, int relX, int relY, byte[] imageBuffer, int imageBufferOffset, IList<ARGB1555Color> pal, int paletteInd, bool flipX, bool flipY)

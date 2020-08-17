@@ -22,7 +22,7 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="des">The event designs</param>
         /// <param name="eta">The event states</param>
-        protected BaseEditorManager(Common_Lev level, Context context, IReadOnlyDictionary<string, Common_Design> des, IReadOnlyDictionary<string, Common_EventState[][]> eta)
+        protected BaseEditorManager(Unity_Level level, Context context, IReadOnlyDictionary<string, Unity_ObjGraphics> des, IReadOnlyDictionary<string, R1_EventState[][]> eta)
         {
             // Set properties
             Level = level;
@@ -88,17 +88,17 @@ namespace R1Engine
         /// <summary>
         /// The type of enum for the event types
         /// </summary>
-        public Type EventTypeEnumType => Settings.Game == Game.Rayman2 ? typeof(PS1_R2Demo_EventType) : Settings.Game == Game.Rayman3GBA ? typeof(GBA_R3_ActorID) : typeof(EventType);
+        public Type EventTypeEnumType => Settings.Game == Game.R1_Rayman2 ? typeof(R1_R2EventType) : Settings.Game == Game.GBA_Rayman3 ? typeof(GBA_R3_ActorID) : typeof(R1_EventType);
 
         /// <summary>
         /// The event designs
         /// </summary>
-        public IReadOnlyDictionary<string, Common_Design> DES { get; }
+        public IReadOnlyDictionary<string, Unity_ObjGraphics> DES { get; }
 
         /// <summary>
         /// The event states
         /// </summary>
-        public IReadOnlyDictionary<string, Common_EventState[][]> ETA { get; }
+        public IReadOnlyDictionary<string, R1_EventState[][]> ETA { get; }
 
         // Optional names for the states
         public virtual IReadOnlyDictionary<string, string[][]> ETANames => null;
@@ -111,7 +111,7 @@ namespace R1Engine
         /// <summary>
         /// The common level
         /// </summary>
-        public Common_Lev Level { get; }
+        public Unity_Level Level { get; }
 
         /// <summary>
         /// The context
@@ -155,19 +155,19 @@ namespace R1Engine
         /// <param name="xPos">The x position</param>
         /// <param name="yPos">The y position</param>
         /// <returns>The event</returns>
-        public Editor_EventData AddEvent(int index, short xPos, short yPos)
+        public Unity_Obj AddEvent(int index, short xPos, short yPos)
         {
             // Get the event
             var e = EventInfoData[index];
 
             // Get the commands and label offsets
-            Common_EventCommandCollection cmds;
+            R1_EventCommandCollection cmds;
             ushort[] labelOffsets;
 
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
-                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(Common_EventCommandCollection.FromBytes(e.Commands, Settings), e.LabelOffsets), e.Commands);
+                cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(R1_EventCommandCollection.FromBytes(e.Commands, Settings), e.LabelOffsets), e.Commands);
 
                 // Local commands don't use label offsets
                 labelOffsets = new ushort[0];
@@ -176,20 +176,20 @@ namespace R1Engine
             {
                 if (e.Commands.Any())
                 {
-                    cmds = Common_EventCommandCollection.FromBytes(e.Commands, Settings);
+                    cmds = R1_EventCommandCollection.FromBytes(e.Commands, Settings);
                     labelOffsets = e.LabelOffsets;
                 }
                 else
                 {
-                    cmds = new Common_EventCommandCollection()
+                    cmds = new R1_EventCommandCollection()
                     {
-                        Commands = new Common_EventCommand[0]
+                        Commands = new R1_EventCommand[0]
                     };
                     labelOffsets = new ushort[0];
                 }
             }
 
-            var eventData = new Editor_EventData(new EventData()
+            var eventData = new Unity_Obj(new R1_EventData()
             {
                 Etat = e.Etat,
                 SubEtat = e.SubEtat,
@@ -213,8 +213,8 @@ namespace R1Engine
 
             eventData.Data.SetFollowEnabled(Settings, e.FollowEnabled);
 
-            if (EventTypeEnumType == typeof(EventType))
-                eventData.Data.Type = (EventType)eventData.Type;
+            if (EventTypeEnumType == typeof(R1_EventType))
+                eventData.Data.Type = (R1_EventType)eventData.Type;
 
             // We need to set the hit points after the type
             eventData.Data.ActualHitPoints = e.HitPoints;
@@ -277,7 +277,7 @@ namespace R1Engine
             return match;
         }
 
-        public string GetDisplayName(Editor_EventData e)
+        public string GetDisplayName(Unity_Obj e)
         {
             // Get the command bytes
             var cmds = e.CommandCollection?.ToBytes(Settings);
@@ -310,7 +310,7 @@ namespace R1Engine
         public abstract bool IsAvailableInWorld(GeneralEventInfoData eventInfoData);
 
         public abstract Enum GetCollisionTypeAsEnum(byte collisionType);
-        public abstract TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType);
+        public abstract Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType);
 
         /// <summary>
         /// Sets up small and bad Rayman's animations
@@ -318,9 +318,9 @@ namespace R1Engine
         public void InitializeRayAnim()
         {
             // Hard-code event animations for the different Rayman types
-            Common_Design rayDes = null;
+            Unity_ObjGraphics rayDes = null;
 
-            var rayEvent = Level.Rayman ?? Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_RAY_POS || x.Type is PS1_R2Demo_EventType et2 && et2 == PS1_R2Demo_EventType.RaymanPosition);
+            var rayEvent = Level.Rayman ?? Level.EventData.Find(x => x.Type is R1_EventType et && et == R1_EventType.TYPE_RAY_POS || x.Type is R1_R2EventType et2 && et2 == R1_R2EventType.RaymanPosition);
 
             if (rayEvent != null)
                 rayDes = DES.TryGetItem(rayEvent.DESKey);
@@ -328,7 +328,7 @@ namespace R1Engine
             if (rayDes == null)
                 return;
 
-            var miniRay = Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_DEMI_RAYMAN);
+            var miniRay = Level.EventData.Find(x => x.Type is R1_EventType et && et == R1_EventType.TYPE_DEMI_RAYMAN);
 
             if (miniRay != null)
             {
@@ -338,18 +338,18 @@ namespace R1Engine
                 {
                     miniRayDes.Animations = rayDes.Animations.Select(anim =>
                     {
-                        var newAnim = new Common_Animation
+                        var newAnim = new Unity_ObjAnimation
                         {
-                            Frames = anim.Frames.Select(x => new Common_AnimFrame()
+                            Frames = anim.Frames.Select(x => new Unity_ObjAnimationFrame()
                             {
-                                FrameData = new Common_AnimationFrame
+                                FrameData = new R1_AnimationFrame
                                 {
                                     XPosition = (byte)(x.FrameData.XPosition / 2),
                                     YPosition = (byte)(x.FrameData.YPosition / 2),
                                     Width = (byte)(x.FrameData.Width / 2),
                                     Height = (byte)(x.FrameData.Height / 2)
                                 },
-                                Layers = x.Layers.Select(l => new Common_AnimationPart()
+                                Layers = x.Layers.Select(l => new Unity_ObjAnimationPart()
                                 {
                                     ImageIndex = l.ImageIndex,
                                     XPosition = l.XPosition / 2,
@@ -365,7 +365,7 @@ namespace R1Engine
                 }
             }
 
-            var badRay = Level.EventData.Find(x => x.Type is EventType et && et == EventType.TYPE_BLACK_RAY);
+            var badRay = Level.EventData.Find(x => x.Type is R1_EventType et && et == R1_EventType.TYPE_BLACK_RAY);
 
             if (badRay != null)
             {

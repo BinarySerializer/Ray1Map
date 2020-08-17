@@ -108,7 +108,7 @@ namespace R1Engine
                         {
                             byte[] data = null;
 
-                            s.DoEncoded(new LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
+                            s.DoEncoded(new GBA_LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
 
                             // Make sure we got some data
                             if (data != null && data.Length > 32)
@@ -314,7 +314,7 @@ namespace R1Engine
             }
         }
 
-        public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_R3_ROM>(GetROMFilePath, context).Data;
+        public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath, context).Data;
 
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
@@ -348,13 +348,13 @@ namespace R1Engine
             var mapLayers = playField.Layers.Where(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Map2D || x.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7 || x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision).ToArray();
 
             // Convert levelData to common level format
-            Common_Lev commonLev = new Common_Lev
+            Unity_Level level = new Unity_Level
             {
                 // Create the map array
-                Maps = new Common_LevelMap[mapLayers.Length],
+                Maps = new Unity_MapTile[mapLayers.Length],
 
                 // Create the events list
-                EventData = new List<Editor_EventData>(),
+                EventData = new List<Unity_Obj>(),
             };
 
             // Add every map
@@ -367,25 +367,25 @@ namespace R1Engine
 
                 if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
                 {
-                    commonLev.Maps[layer] = new Common_LevelMap
+                    level.Maps[layer] = new Unity_MapTile
                     {
                         Width = map.Width,
                         Height = map.Height,
                         TileSetWidth = 1,
-                        TileSet = new Common_Tileset[]
+                        TileSet = new Unity_MapTileMap[]
                         {
-                            new Common_Tileset(new Tile[]
+                            new Unity_MapTileMap(new Tile[]
                             {
                                 ScriptableObject.CreateInstance<Tile>(),
                             }), 
                         },
-                        MapTiles = map.CollisionData.Select((x, i) => new Editor_MapTile(new MapTile()
+                        MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
                         {
                             CollisionType = (byte)x
                         })).ToArray()
                     };
 
-                    commonLev.DefaultCollisionMap = layer;
+                    level.DefaultCollisionMap = layer;
                 }
                 else
                 {
@@ -402,37 +402,37 @@ namespace R1Engine
                             } else {
                                 index -= 2;
                                 if (index < 0) {
-                                    return new MapTile() { PC_TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent };
+                                    return new MapTile() { PC_TransparencyMode = R1_PC_MapTileTransparencyMode.FullyTransparent };
                                 }
                                 return playField.BGTileTable.Data2[index].CloneObj();
                             }
                         }).ToArray();
                     }
 
-                    commonLev.Maps[layer] = new Common_LevelMap
+                    level.Maps[layer] = new Unity_MapTile
                     {
                         Width = map.Width,
                         Height = map.Height,
                         TileSetWidth = 1,
-                        TileSet = new Common_Tileset[]
+                        TileSet = new Unity_MapTileMap[]
                         {
                             LoadTileset(context, playField, map, mapData)
                         },
-                        MapTiles = mapData.Select((x, i) => new Editor_MapTile(x)).ToArray()
+                        MapTiles = mapData.Select((x, i) => new Unity_Tile(x)).ToArray()
                     };
 
-                    commonLev.DefaultMap = layer;
+                    level.DefaultMap = layer;
                 }
             }
 
             Controller.status = $"Loading actors";
             await Controller.WaitIfNecessary();
 
-            commonLev.EventData = new List<Editor_EventData>();
+            level.EventData = new List<Unity_Obj>();
 
-            var des = new Dictionary<int, Common_Design>();
+            var des = new Dictionary<int, Unity_ObjGraphics>();
 
-            var eta = new Dictionary<string, Common_EventState[][]>();
+            var eta = new Dictionary<string, R1_EventState[][]>();
 
             // Add actors
             if (lvlType != LevelType.Menu)
@@ -450,7 +450,7 @@ namespace R1Engine
                     if (!eta.ContainsKey(actor.GraphicsDataIndex.ToString()))
                         eta.Add(actor.GraphicsDataIndex.ToString(), GetCommonEventStates(actor.GraphicData));
 
-                    commonLev.EventData.Add(new Editor_EventData(new EventData()
+                    level.EventData.Add(new Unity_Obj(new R1_EventData()
                     {
                         XPosition = actor.XPos,
                         YPosition = actor.YPos,
@@ -479,16 +479,16 @@ namespace R1Engine
                 }
             }
 
-            return new GBA_EditorManager(commonLev, context, des, eta);
+            return new GBA_EditorManager(level, context, des, eta);
         }
 
-        public Common_Design GetCommonDesign(GBA_ActorGraphicData graphicData)
+        public Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphicData)
         {
             // Create the design
-            var des = new Common_Design
+            var des = new Unity_ObjGraphics
             {
                 Sprites = new List<Sprite>(),
-                Animations = new List<Common_Animation>(),
+                Animations = new List<Unity_ObjAnimation>(),
             };
 
             var tileMap = graphicData.SpriteGroup.TileMap;
@@ -531,16 +531,16 @@ namespace R1Engine
                 }
             }
 
-            Common_AnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, GBA_AnimationLayer l) {
+            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, GBA_AnimationLayer l) {
                 if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular
-                    || l.Mosaic) return new Common_AnimationPart[0];
+                    || l.Mosaic) return new Unity_ObjAnimationPart[0];
                 if (l.Color == GBA_AnimationLayer.ColorMode.Color8bpp) {
                     Debug.LogWarning("Animation Layer @ " + l.Offset + " has 8bpp color mode, which is currently not supported.");
-                    return new Common_AnimationPart[0];
+                    return new Unity_ObjAnimationPart[0];
                 }
-                Common_AnimationPart[] parts = new Common_AnimationPart[l.XSize * l.YSize];
+                Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[l.XSize * l.YSize];
                 if (l.ImageIndex > graphicData.SpriteGroup.TileMap.TileMapLength) {
                     Controller.print("Image index too high: " + graphicData.Offset + " - " + l.Offset);
                 }
@@ -551,7 +551,7 @@ namespace R1Engine
                 Vector2 scl = l.GetScale(a, s);
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
-                        parts[y * l.XSize + x] = new Common_AnimationPart {
+                        parts[y * l.XSize + x] = new Unity_ObjAnimationPart {
                             ImageIndex = tileMap.TileMapLength * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
                             IsFlippedHorizontally = l.IsFlippedHorizontally,
                             IsFlippedVertically = l.IsFlippedVertically,
@@ -568,8 +568,8 @@ namespace R1Engine
             }
 
             // Add first animation for now
-            des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Common_Animation() {
-                Frames = a.Layers.Select(f => new Common_AnimFrame {
+            des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Unity_ObjAnimation() {
+                Frames = a.Layers.Select(f => new Unity_ObjAnimationFrame {
                     Layers = f.OrderByDescending(l => l.Priority).SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup, a, l)).Reverse().ToArray()
                 }).ToArray()
             }));
@@ -579,17 +579,17 @@ namespace R1Engine
 
 
 
-        public Common_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
+        public R1_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
             // Create the states
-            var eta = new Common_EventState[1][];
-            eta[0] = graphicData.States.Select(s => new Common_EventState() {
+            var eta = new R1_EventState[1][];
+            eta[0] = graphicData.States.Select(s => new R1_EventState() {
                 AnimationIndex = s.AnimationIndex,
                 AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF)),
                 IsFlipped = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.IsFlipped)
             }).ToArray();
             int numAnims = graphicData.SpriteGroup.Animations.Length;
             if (eta[0].Length == 0 && numAnims > 0) {
-                eta[0] = Enumerable.Range(0, numAnims).Select(i => new Common_EventState() {
+                eta[0] = Enumerable.Range(0, numAnims).Select(i => new R1_EventState() {
                     AnimationIndex = (byte)i,
                     AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[i].Flags & 0xF)),
                 }).ToArray();
@@ -598,13 +598,13 @@ namespace R1Engine
             return eta;
         }
 
-        public Common_Tileset LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData)
+        public Unity_MapTileMap LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData)
         {
             // Get the tilemap to use
             byte[] tileMap;
             bool is8bpp;
             GBA_Palette tilePalette;
-            if (context.Settings.EngineVersion == EngineVersion.BatmanVengeanceGBA)
+            if (context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
             {
                 is8bpp = map.Tilemap.Is8bpp;
                 tileMap = is8bpp ? map.Tilemap.TileMap8bpp : map.Tilemap.TileMap4bpp;
@@ -697,7 +697,7 @@ namespace R1Engine
                 tiles[i] = t;
             }
 
-            return new Common_Tileset(tiles);
+            return new Unity_MapTileMap(tiles);
         }
 
         public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();

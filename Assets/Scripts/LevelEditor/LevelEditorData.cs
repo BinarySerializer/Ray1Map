@@ -9,7 +9,7 @@ namespace R1Engine
         public static GameSettings CurrentSettings => MainContext?.Settings;
 
         public static BaseEditorManager EditorManager { get; set; }
-        public static Common_Lev Level => EditorManager?.Level;
+        public static Unity_Level Level => EditorManager?.Level;
 
         public static int MaxWidth => Level.Maps.Max(x => x.Width);
         public static int MaxHeight => Level.Maps.Max(x => x.Height);

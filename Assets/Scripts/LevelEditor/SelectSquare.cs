@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace R1Engine {
     public class SelectSquare : MonoBehaviour {
-        Common_Lev lvl => LevelEditorData.Level;
+        Unity_Level lvl => LevelEditorData.Level;
         Image main, overlay;
         LevelMainController tileController;
         float xs, ys, xe, ye;
@@ -37,8 +37,8 @@ namespace R1Engine {
         /// Gets the tiles contained within the selection square.
         /// </summary>
         /// <returns></returns>
-        public Editor_MapTile[] GetTiles() {
-            var r = new List<Editor_MapTile>();
+        public Unity_Tile[] GetTiles() {
+            var r = new List<Unity_Tile>();
             for (int y = (int)YStart; y <= YEnd; y++)
                 for (int x = (int)XStart; x <= XEnd; x++)
                     r.Add(lvl.Maps[LevelEditorData.CurrentMap].MapTiles[x + y * lvl.Maps[LevelEditorData.CurrentMap].Width]);

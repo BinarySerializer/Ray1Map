@@ -9,99 +9,40 @@ namespace R1Engine
     [JsonConverter(typeof(StringEnumConverter))]
     public enum EngineVersion
     {
-        /// <summary>
-        /// Rayman 1 (PS1)
-        /// </summary>
-        RayPS1,
+        // Rayman 1
 
-        /// <summary>
-        /// Rayman 2 (PS1 - Demo)
-        /// </summary>
-        Ray2PS1,
+        R1_PS1,
+        R2_PS1,
+        R1_PS1_JP,
+        R1_PS1_JPDemoVol3,
+        R1_PS1_JPDemoVol6,
+        R1_Saturn,
+        R1_PC,
+        R1_PocketPC,
+        R1_PC_Kit,
+        R1_PC_Edu,
+        R1_PS1_Edu,
+        R1_GBA,
+        R1_DSi,
 
-        /// <summary>
-        /// Rayman 1 (PS1 - JP)
-        /// </summary>
-        RayPS1JP,
+        // Rayman 1 Jaguar
 
-        /// <summary>
-        /// Rayman 1 (PS1 - JP Demo vol. 3)
-        /// </summary>
-        RayPS1JPDemoVol3,
+        R1Jaguar,
+        R1Jaguar_Proto,
+        R1Jaguar_Demo,
 
-        /// <summary>
-        /// Rayman 1 (PS1 - JP Demo vol. 6)
-        /// </summary>
-        RayPS1JPDemoVol6,
+        // SNES
 
-        /// <summary>
-        /// Rayman 1 (Saturn)
-        /// </summary>
-        RaySaturn,
+        SNES,
 
-        /// <summary>
-        /// Rayman 1 (PC)
-        /// </summary>
-        RayPC,
+        // GBA
 
-        /// <summary>
-        /// Rayman Designer + spin-offs (PC)
-        /// </summary>
-        RayKitPC,
-
-        /// <summary>
-        /// Educational Rayman games (PC)
-        /// </summary>
-        RayEduPC,
-
-        /// <summary>
-        /// Educational Rayman games (PC)
-        /// </summary>
-        RayEduPS1,
-
-        /// <summary>
-        /// Rayman Ultimate (Pocket PC)
-        /// </summary>
-        RayPocketPC,
-
-        /// <summary>
-        /// Rayman 1 (Jaguar)
-        /// </summary>
-        RayJaguar,
-
-        /// <summary>
-        /// Rayman 1 (Jaguar - Prototype)
-        /// </summary>
-        RayJaguarProto,
-
-        /// <summary>
-        /// Rayman 1 (Jaguar - Demo)
-        /// </summary>
-        RayJaguarDemo,
-
-        /// <summary>
-        /// Rayman Advance (GBA)
-        /// </summary>
-        RayGBA,
-
-        /// <summary>
-        /// Rayman 1 (DSi)
-        /// </summary>
-        RayDSi,
-
-        RaySNES,
-
-        Ray3GBA,
-        Ray3GBAProto,
-
-        Ray3NGage,
-
-        PrinceOfPersiaGBA,
-
-        SabrinaGBA,
-
-        StarWarsGBA,
-        
-        BatmanVengeanceGBA,
+        GBA_R3,
+        GBA_R3_Proto,
+        GBA_R3_NGage,
+        GBA_PrinceOfPersia,
+        GBA_Sabrina,
+        GBA_StarWars,
+        GBA_BatmanVengeance,
     }
 }

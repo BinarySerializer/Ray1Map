@@ -16,20 +16,20 @@ namespace R1Engine
         {
             switch (game)
             {
-                case Game.Rayman1:
+                case Game.R1_Rayman1:
                     return Rayman1MapNames;
 
-                case Game.RaymanDesigner:
+                case Game.R1_Designer:
                     return RaymanDesignerMapNames;
 
-                case Game.Rayman3GBA:
+                case Game.GBA_Rayman3:
                     return Rayman3GBAMapNames;
 
-                case Game.RaymanMapper:
-                case Game.RaymanByHisFans:
-                case Game.Rayman60Levels:
-                case Game.RaymanEducational:
-                case Game.RaymanQuiz:
+                case Game.R1_Mapper:
+                case Game.R1_ByHisFans:
+                case Game.R1_60Levels:
+                case Game.R1_Educational:
+                case Game.R1_Quiz:
                 default:
                     return null;
             }
@@ -39,15 +39,14 @@ namespace R1Engine
         {
             switch (game)
             {
-                case Game.Rayman1:
-                case Game.Rayman1DemoPrototype:
-                case Game.RaymanDesigner:
-                case Game.RaymanMapper:
-                case Game.RaymanByHisFans:
-                case Game.Rayman60Levels:
-                case Game.RaymanEducational:
-                case Game.RaymanQuiz:
-                case Game.Rayman2:
+                case Game.R1_Rayman1:
+                case Game.R1_Designer:
+                case Game.R1_Mapper:
+                case Game.R1_ByHisFans:
+                case Game.R1_60Levels:
+                case Game.R1_Educational:
+                case Game.R1_Quiz:
+                case Game.R1_Rayman2:
                     return new Dictionary<int, string>()
                     {
                         [1] = "Jungle",
@@ -60,7 +59,7 @@ namespace R1Engine
                         [8] = "Multiplayer",
                     };
 
-                case Game.Rayman3GBA:
+                case Game.GBA_Rayman3:
                     return new Dictionary<int, string>()
                     {
                         [0] = "Forgotten Forests",
@@ -75,10 +74,10 @@ namespace R1Engine
                         [8] = "DLC",
                     };
 
-                case Game.PrinceOfPersiaTheSandsOfTimeGBA:
-                case Game.SabrinaTheTeenageWitchPotionCommotionGBA:
-                case Game.StarWarsTrilogyApprenticeOfTheForceGBA:
-                case Game.BatmanVengeanceGBA:
+                case Game.GBA_PrinceOfPersiaTheSandsOfTime:
+                case Game.GBA_SabrinaTheTeenageWitchPotionCommotion:
+                case Game.GBA_StarWarsTrilogyApprenticeOfTheForce:
+                case Game.GBA_BatmanVengeance:
                     return new Dictionary<int, string>()
                     {
                         [0] = "Game",
@@ -86,7 +85,7 @@ namespace R1Engine
                         [2] = "DLC",
                     };
 
-                case Game.RaymanSNESPrototype:
+                case Game.SNES_Prototype:
                 default:
                     return null;
             }

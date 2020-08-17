@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace R1Engine {
     public class EventListItem : MonoBehaviour, IPointerDownHandler {
-        public Common_Event ev;
+        public Unity_ObjBehaviour ev;
         public Text evName;
         EventList list;
         Image bg;

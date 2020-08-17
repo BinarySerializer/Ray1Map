@@ -59,7 +59,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s) {
 
-            if (s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 if (StructType != TileLayerStructTypes.Collision) {
                     Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
                     Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
@@ -77,7 +77,7 @@ namespace R1Engine
                     Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
 
                     if (IsCompressed) {
-                        s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
+                        s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
                     } else {
                         MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
                     }
@@ -86,7 +86,7 @@ namespace R1Engine
 
                 } else {
                     if (IsCompressed) {
-                        s.DoEncoded(new LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));
+                        s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));
                     } else {
                         CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData));
                     }
@@ -142,10 +142,10 @@ namespace R1Engine
                     }
 
                     // TODO: It seems the compressed block contains more data than just the tile indexes for BG_2 & 3?
-                    if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
-                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData))));
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData))));
                     } else {
-                        s.DoEncoded(new LZSSEncoder(), () =>
+                        s.DoEncoded(new GBA_LZSSEncoder(), () =>
                         {
                             if (StructType == TileLayerStructTypes.Map2D)
                                 MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
@@ -154,10 +154,10 @@ namespace R1Engine
                         });
                     }
                 } else {
-                    if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
-                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData))));
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData))));
                     } else {
-                        s.DoEncoded(new LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));
+                        s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));
                     }
                 }
             }

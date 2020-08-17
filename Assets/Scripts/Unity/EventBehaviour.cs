@@ -10,12 +10,12 @@ namespace R1Engine {
 
 
         static Transform root;
-        public Common_Event ev;
+        public Unity_ObjBehaviour ev;
         public Transform icon;
 
         void Start() {
             if (ev == null)
-                ev = new Common_Event();
+                ev = new Unity_ObjBehaviour();
             if (root == null) root = GameObject.Find("Events").transform;
             name = $"{root.childCount} | {ev.Data.Type}";
             transform.parent = root;

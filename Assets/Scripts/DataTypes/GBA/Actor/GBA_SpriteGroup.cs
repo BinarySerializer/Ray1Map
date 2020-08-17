@@ -31,7 +31,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.SabrinaGBA)
+            if (s.GameSettings.EngineVersion != EngineVersion.GBA_Sabrina)
             {
                 Byte_00 = s.Serialize<byte>(Byte_00, name: nameof(Byte_00));
                 Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
@@ -40,7 +40,7 @@ namespace R1Engine
             TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
             PaletteOffsetIndex = s.Serialize<byte>(PaletteOffsetIndex, name: nameof(PaletteOffsetIndex));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA || s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars)
                 UnkOffsetIndex3 = s.Serialize<byte>(UnkOffsetIndex3, name: nameof(UnkOffsetIndex3));
 
             Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));

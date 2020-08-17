@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace R1Engine {
 	public class MidiWriter {
-		public void Write(Jaguar_R1_MusicDescriptor file, string outPath) {
+		public void Write(R1Jaguar_MusicDescriptor file, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();
 			Track t = new Track();
@@ -29,7 +29,7 @@ namespace R1Engine {
         }
 
 #if ISWINDOWS
-        private Track CreateTrack(Jaguar_R1_MusicDescriptor jagFile) {
+        private Track CreateTrack(R1Jaguar_MusicDescriptor jagFile) {
 			Track t = new Track();
 			TempoChangeBuilder b = new TempoChangeBuilder();
 			b.Tempo = 22000;
@@ -39,7 +39,7 @@ namespace R1Engine {
             Dictionary<int, int> curNoteOnChannel = new Dictionary<int, int>();
 			int timeScale = 1;
 			for (int i = 0; i < jagFile.MusicData.Length; i++) {
-				Jaguar_R1_MusicData e = jagFile.MusicData[i];
+				R1Jaguar_MusicData e = jagFile.MusicData[i];
 				if (e.Time != int.MaxValue) {
 					int channelByte = BitHelpers.ExtractBits(e.Command, 8, 24);
 					if (channelByte == 0x7F) { // special point in the song

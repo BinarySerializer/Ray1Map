@@ -46,7 +46,7 @@ namespace R1Engine
 
                     if (block.Length > 4 && block[0] == 0x67 && block[1] == 0x45 && block[2] == 0x23 && block[3] == 0x01) {
                         s.DoAt(blockPointer, () => {
-                            s.DoEncoded(new RRRGBA_LZSSEncoder(blockSize), () => {
+                            s.DoEncoded(new LZSSEncoder(blockSize), () => {
                                 block = s.SerializeArray<byte>(default, s.CurrentLength);
                                 Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{blockPointer.AbsoluteOffset:X8}_decompressed.dat"), block);
                             });

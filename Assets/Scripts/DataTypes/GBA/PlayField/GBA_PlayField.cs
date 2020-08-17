@@ -52,14 +52,14 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.PrinceOfPersiaGBA ||
-                s.GameSettings.EngineVersion == EngineVersion.StarWarsGBA) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia ||
+                s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 3, name: nameof(UnkBytes1));
                 TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
                 BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
                 UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 2, name: nameof(UnkBytes2));
-            } else if(s.GameSettings.EngineVersion == EngineVersion.BatmanVengeanceGBA) {
+            } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } else {
                 IsMode7 = s.Serialize<bool>(IsMode7, name: nameof(IsMode7));
@@ -73,7 +73,7 @@
             
             LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA) {
+            if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                 
                 if (!IsMode7)
                     ClusterTable = s.SerializeArray<byte>(ClusterTable, 4, name: nameof(ClusterTable));
@@ -90,7 +90,7 @@
 
         public override void SerializeOffsetData(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion != EngineVersion.BatmanVengeanceGBA)
+            if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance)
             {
                 if (Layers == null)
                     Layers = new GBA_TileLayer[LayerCount];

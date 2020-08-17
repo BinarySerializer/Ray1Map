@@ -5,23 +5,10 @@
     /// </summary>
     public enum MajorEngineVersion
     {
-        /// <summary>
-        /// Jaguar
-        /// </summary>
-        Jaguar,
-
-        /// <summary>
-        /// PC, Pocket PC and Mobile
-        /// </summary>
-        PC,
-
-        /// <summary>
-        /// PS1 and Saturn
-        /// </summary>
-        PS1,
-
+        Rayman1,
+        Rayman1_Jaguar,
         SNES,
-
+        //GBC,
         GBA
     }
 }

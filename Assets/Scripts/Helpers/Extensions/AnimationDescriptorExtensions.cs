@@ -1,7 +1,7 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Extension methods for <see cref="IAnimationDescriptor"/>
+    /// Extension methods for <see cref="IR1_AnimationDescriptor"/>
     /// </summary>
     public static class AnimationDescriptorExtensions
     {
@@ -10,12 +10,12 @@
         /// </summary>
         /// <param name="animationDescriptor">The animation descriptor</param>
         /// <returns>The common animation</returns>
-        public static Common_Animation ToCommonAnimation(this IAnimationDescriptor animationDescriptor)
+        public static Unity_ObjAnimation ToCommonAnimation(this IR1_AnimationDescriptor animationDescriptor)
         {
             // Create the animation
-            var animation = new Common_Animation
+            var animation = new Unity_ObjAnimation
             {
-                Frames = new Common_AnimFrame[animationDescriptor.FrameCount],
+                Frames = new Unity_ObjAnimationFrame[animationDescriptor.FrameCount],
             };
 
             // The layer index
@@ -25,13 +25,13 @@
             for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
                 // Create the frame
-                var frame = new Common_AnimFrame()
+                var frame = new Unity_ObjAnimationFrame()
                 {
                     FrameData = animationDescriptor.Frames?[i],
-                    Layers = new Common_AnimationPart[animationDescriptor.LayersPerFrame]
+                    Layers = new Unity_ObjAnimationPart[animationDescriptor.LayersPerFrame]
                 };
                 if (animationDescriptor.Frames?[i] == null) {
-                    frame.FrameData = new Common_AnimationFrame();
+                    frame.FrameData = new R1_AnimationFrame();
                 }
                 if (animationDescriptor.Layers != null) {
 
@@ -41,7 +41,7 @@
                         layer++;
 
                         // Create the animation part
-                        var part = new Common_AnimationPart {
+                        var part = new Unity_ObjAnimationPart {
                             ImageIndex = animationLayer.ImageIndex,
                             XPosition = animationLayer.XPosition,
                             YPosition = animationLayer.YPosition,

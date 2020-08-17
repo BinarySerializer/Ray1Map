@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class CommandLine : MonoBehaviour
 {
-    public Common_EventCommand command;
+    public R1_EventCommand command;
 
     //UI elements
     public Dropdown uiDropdown;
@@ -17,7 +17,7 @@ public class CommandLine : MonoBehaviour
 
     private void Start() {
         //Fill out the dropdown
-        var all = Enum.GetValues(typeof(EventCommand));
+        var all = Enum.GetValues(typeof(R1_EventCommandType));
         foreach (var e in all) {
             Dropdown.OptionData dat = new Dropdown.OptionData {
                 text = e.ToString()

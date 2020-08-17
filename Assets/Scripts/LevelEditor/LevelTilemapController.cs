@@ -231,7 +231,7 @@ namespace R1Engine
         }
 
         // Get one common tile at given position
-        public Editor_MapTile GetTileAtPos(int x, int y) 
+        public Unity_Tile GetTileAtPos(int x, int y) 
         {
             if (LevelEditorData.Level == null)
                 return null;
@@ -246,7 +246,7 @@ namespace R1Engine
                 if (graphicIndex1D > map.TileSet[0].Tiles.Length - 1)
                     graphicIndex1D = 0;
 
-                Editor_MapTile t = new Editor_MapTile(new MapTile());
+                Unity_Tile t = new Unity_Tile(new MapTile());
 
                 t.Data.TileMapY = (ushort)Mathf.FloorToInt(graphicIndex1D / (float)map.TileSetWidth);
                 t.Data.TileMapX = (ushort)(graphicIndex1D - (map.TileSetWidth * t.Data.TileMapY));
@@ -257,7 +257,7 @@ namespace R1Engine
             return map.GetMapTile(x, y);
         }
 
-        public void SetTileAtPos(int x, int y, Editor_MapTile newTile) 
+        public void SetTileAtPos(int x, int y, Unity_Tile newTile) 
         {
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
 
@@ -287,7 +287,7 @@ namespace R1Engine
                 destTile.Data.PC_TransparencyMode = map.TileSetTransparencyModes[(map.TileSetWidth * newTile.Data.TileMapY) + newTile.Data.TileMapX];
         }
 
-        public Editor_MapTile SetTypeAtPos(int x, int y, byte collisionType) 
+        public Unity_Tile SetTypeAtPos(int x, int y, byte collisionType) 
         {
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
 

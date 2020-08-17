@@ -11,7 +11,7 @@ namespace R1Engine
     /// </summary>
     public class GBA_EditorManager : BaseEditorManager
     {
-        public GBA_EditorManager(Common_Lev level, Context context, IDictionary<int, Common_Design> des, IDictionary<string, Common_EventState[][]> eta) : base(level, context, des.ToDictionary(x => x.Key.ToString(), x => x.Value), new ReadOnlyDictionary<string, Common_EventState[][]>(eta))
+        public GBA_EditorManager(Unity_Level level, Context context, IDictionary<int, Unity_ObjGraphics> des, IDictionary<string, R1_EventState[][]> eta) : base(level, context, des.ToDictionary(x => x.Key.ToString(), x => x.Value), new ReadOnlyDictionary<string, R1_EventState[][]>(eta))
         { }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace R1Engine
 
         public override Enum GetCollisionTypeAsEnum(byte collisionType) => (GBA_TileCollisionType)collisionType;
 
-        public override TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((GBA_TileCollisionType)collisionType).GetCollisionTypeGraphic();
+        public override Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((GBA_TileCollisionType)collisionType).GetCollisionTypeGraphic();
 
         public override int PixelsPerUnit => 16;
         public override int CellSize => 8;

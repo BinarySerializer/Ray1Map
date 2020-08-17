@@ -20,11 +20,11 @@ namespace R1Engine
         /// <summary>
         /// The events
         /// </summary>
-        public List<Common_Event> Events { get; set; }
+        public List<Unity_ObjBehaviour> Events { get; set; }
 
-        public Common_Event RaymanEvent { get; set; }
+        public Unity_ObjBehaviour RaymanEvent { get; set; }
 
-        public IEnumerable<Common_Event> GetAllEvents => RaymanEvent != null ? Events.Append(RaymanEvent) : Events;
+        public IEnumerable<Unity_ObjBehaviour> GetAllEvents => RaymanEvent != null ? Events.Append(RaymanEvent) : Events;
 
         public Editor editor => controllerEvents.editor;
 
@@ -180,20 +180,20 @@ namespace R1Engine
 
             Enum[] exceptions = new Enum[]
             {
-                EventType.TYPE_GENERATING_DOOR,
-                EventType.TYPE_DESTROYING_DOOR,
-                EventType.MS_scintillement,
-                EventType.MS_super_gendoor,
-                EventType.MS_super_kildoor,
-                EventType.MS_compteur,
-                EventType.TYPE_RAY_POS,
-                EventType.TYPE_INDICATOR,
+                R1_EventType.TYPE_GENERATING_DOOR,
+                R1_EventType.TYPE_DESTROYING_DOOR,
+                R1_EventType.MS_scintillement,
+                R1_EventType.MS_super_gendoor,
+                R1_EventType.MS_super_kildoor,
+                R1_EventType.MS_compteur,
+                R1_EventType.TYPE_RAY_POS,
+                R1_EventType.TYPE_INDICATOR,
             };
 
             // TODO: Allow this to be configured | THIS whole part should be refactored, the foreach after is bad
 
             // Hide Rayman (except in Jaguar proto)
-            if (RaymanEvent != null && LevelEditorData.CurrentSettings.EngineVersion != EngineVersion.RayJaguarProto)
+            if (RaymanEvent != null && LevelEditorData.CurrentSettings.EngineVersion != EngineVersion.R1Jaguar_Proto)
                 RaymanEvent.gameObject.SetActive(false);
 
             // Hide unused links and show gendoors
@@ -217,22 +217,22 @@ namespace R1Engine
 
                 // TODO: Find solution to this
                 // Temporarily hide the Rayman 2 waterfall as it has the wrong map layer
-                if (Equals(e.Data.Type, PS1_R2Demo_EventType.WaterFall))
+                if (Equals(e.Data.Type, R1_R2EventType.WaterFall))
                     e.gameObject.SetActive(false);
 
                 // Helper method
-                bool isGendoor(Common_Event ee)
+                bool isGendoor(Unity_ObjBehaviour ee)
                 {
-                    if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Jaguar)
+                    if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
                         return ee.LinkID != 0;
                     else
-                        return ee.Data.Type is EventType et &&
-                               (et == EventType.TYPE_GENERATING_DOOR ||
-                                et == EventType.TYPE_DESTROYING_DOOR ||
-                                et == EventType.MS_scintillement ||
-                                et == EventType.MS_super_gendoor ||
-                                et == EventType.MS_super_kildoor ||
-                                et == EventType.MS_compteur);
+                        return ee.Data.Type is R1_EventType et &&
+                               (et == R1_EventType.TYPE_GENERATING_DOOR ||
+                                et == R1_EventType.TYPE_DESTROYING_DOOR ||
+                                et == R1_EventType.MS_scintillement ||
+                                et == R1_EventType.MS_super_gendoor ||
+                                et == R1_EventType.MS_super_kildoor ||
+                                et == R1_EventType.MS_compteur);
                 }
 
                 e.ChangeLinksVisibility(true);
@@ -245,10 +245,10 @@ namespace R1Engine
                 else {
                     //Hide link if not linked to gendoor
                     bool gendoorFound = isGendoor(e);
-                    var allofSame = new List<Common_Event> {
+                    var allofSame = new List<Unity_ObjBehaviour> {
                         e
                     };
-                    foreach (Common_Event f in Events.Where(f => f.LinkID == e.LinkID)) {
+                    foreach (Unity_ObjBehaviour f in Events.Where(f => f.LinkID == e.LinkID)) {
                         allofSame.Add(f);
                         if (isGendoor(f))
                             gendoorFound = true;

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Cysharp.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace R1Engine.Serialize {
-	public class MemoryMap {
+namespace R1Engine.Serialize
+{
+    public class MemoryMap {
 		public List<BinaryFile> Files { get; } = new List<BinaryFile>();
 
 		/// <summary>

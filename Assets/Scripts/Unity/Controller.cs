@@ -78,7 +78,7 @@ namespace R1Engine
             stopwatch.Stop();
             loadTimer.Stop();
 
-            var startEvent = LevelEditorData.Level.Rayman?.Data ?? levelController.Events.FindItem(x => (x.Data.Type is EventType et && (et == EventType.TYPE_RAY_POS || et == EventType.TYPE_PANCARTE)) || (x.Data.Type is GBA_R3_ActorID ai && ai == GBA_R3_ActorID.Rayman))?.Data.Data;
+            var startEvent = LevelEditorData.Level.Rayman?.Data ?? levelController.Events.FindItem(x => (x.Data.Type is R1_EventType et && (et == R1_EventType.TYPE_RAY_POS || et == R1_EventType.TYPE_PANCARTE)) || (x.Data.Type is GBA_R3_ActorID ai && ai == GBA_R3_ActorID.Rayman))?.Data.Data;
 
             if (startEvent != null)
                 Camera.main.transform.position = new Vector3(startEvent.XPosition, startEvent.YPosition, -10f);

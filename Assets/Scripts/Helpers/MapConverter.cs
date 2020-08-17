@@ -13,8 +13,8 @@ namespace R1Engine
                 using (var outputContext = new Context(outputSettings))
                 {
                     // Create managers
-                    var mapperManager = new PC_Mapper_Manager();
-                    var rdManager = new PC_RD_Manager();
+                    var mapperManager = new R1_Mapper_Manager();
+                    var rdManager = new R1_Kit_Manager();
 
                     // Load files to context
                     await mapperManager.LoadFilesAsync(inputContext);
@@ -28,7 +28,7 @@ namespace R1Engine
                     var outData = await rdManager.LoadAsync(outputContext, true);
                     
                     // Load a dummy PC level as a base
-                    var outLev = FileFactory.Read<PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
+                    var outLev = FileFactory.Read<R1_PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
 
                     // TODO: Set background data
 
@@ -53,8 +53,8 @@ namespace R1Engine
                     //outLev.TileTextureData = null;
 
                     // Get the file tables
-                    var desNames = FileFactory.Read<PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).DESFileNames;
-                    var etaNames = FileFactory.Read<PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).ETAFileNames;
+                    var desNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).DESFileNames;
+                    var etaNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).ETAFileNames;
 
                     // Set event data
                     outLev.EventData.EventCount = (ushort)inputLev.EventData.Count;
@@ -84,13 +84,13 @@ namespace R1Engine
 
                         // Remove commands which only contain the invalid command
                         if (cmds.Commands.Commands.Length == 1)
-                            cmds = new EventCommandCompiler.CompiledEventCommandData(new Common_EventCommandCollection()
+                            cmds = new EventCommandCompiler.CompiledEventCommandData(new R1_EventCommandCollection()
                             {
-                                Commands = new Common_EventCommand[0]
+                                Commands = new R1_EventCommand[0]
                             }, new ushort[0]);
 
                         // Create a command object
-                        return new PC_EventCommand
+                        return new R1_PC_EventCommand
                         {
                             CommandLength = (ushort)cmds.Commands.Commands.Select(y => y.Length).Sum(),
                             Commands = cmds.Commands,
@@ -101,7 +101,7 @@ namespace R1Engine
 
                     // TODO: Get data from .ini file
                     // Set profile define data
-                    outLev.ProfileDefine = new PC_ProfileDefine
+                    outLev.ProfileDefine = new R1_PC_ProfileDefine
                     {
                         LevelName = "Test Export",
                         LevelAuthor = "RayCarrot",
@@ -115,7 +115,7 @@ namespace R1Engine
                     };
 
                     // Write the changes to the file
-                    FileFactory.Write<PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
+                    FileFactory.Write<R1_PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
                 }
             }
         }

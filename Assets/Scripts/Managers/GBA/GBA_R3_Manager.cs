@@ -68,7 +68,7 @@ namespace R1Engine
 
                     // Decode data
                     byte[] data = null;
-                    s.DoEncoded(new LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => data = s.SerializeArray<byte>(default, s.CurrentLength));
 
                     int width;
                     int height;

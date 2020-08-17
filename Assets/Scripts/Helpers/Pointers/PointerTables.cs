@@ -125,7 +125,7 @@ namespace R1Engine
         /// <returns>The pointer table</returns>
         public static Dictionary<Jaguar_R1_Pointer, Pointer> GetJaguarPointerTable(EngineVersion engine, BinaryFile romFile)
         {
-            if (engine == EngineVersion.RayJaguar)
+            if (engine == EngineVersion.R1Jaguar)
             {
                 return new Dictionary<Jaguar_R1_Pointer, uint>()
                 {
@@ -136,7 +136,7 @@ namespace R1Engine
                     [Jaguar_R1_Pointer.Music] = 0x009210F0,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             }
-            else if (engine == EngineVersion.RayJaguarDemo)
+            else if (engine == EngineVersion.R1Jaguar_Demo)
             {
                 return new Dictionary<Jaguar_R1_Pointer, uint>()
                 {

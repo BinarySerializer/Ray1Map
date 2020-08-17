@@ -15,8 +15,8 @@ namespace R1Engine
         /// <summary>
         /// The currently selected event
         /// </summary>
-        public Common_Event SelectedEvent { get; set; }
-        public Common_Event PrevSelectedEvent { get; set; }
+        public Unity_ObjBehaviour SelectedEvent { get; set; }
+        public Unity_ObjBehaviour PrevSelectedEvent { get; set; }
 
         // Prefabs
         public GameObject eventParent;
@@ -110,7 +110,7 @@ namespace R1Engine
         {
             SelectedEvent.Data.Type = x;
 
-            if (x is EventType et)
+            if (x is R1_EventType et)
                 SelectedEvent.Data.Data.Type = et;
         }, (Enum)Enum.Parse(LevelEditorData.EditorManager.EventTypeEnumType, infoType.value.ToString()), () => SelectedEvent.Data.Type, "Type");
 
@@ -262,7 +262,7 @@ namespace R1Engine
 
         private float memoryLoadTimer = 0;
 
-        private Common_EventState[] lastSubEtat;
+        private R1_EventState[] lastSubEtat;
 
         private void UpdateEventFields()
         {
@@ -467,7 +467,7 @@ namespace R1Engine
                 {
                     RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
                     
-                    var e = hit.collider?.GetComponentInParent<Common_Event>();
+                    var e = hit.collider?.GetComponentInParent<Unity_ObjBehaviour>();
                     
                     if (e != null) 
                     {
@@ -486,7 +486,7 @@ namespace R1Engine
                             ClearCommands();
 
                             // Fill out the commands
-                            foreach (var c in SelectedEvent.Data.CommandCollection?.Commands ?? new Common_EventCommand[0]) {
+                            foreach (var c in SelectedEvent.Data.CommandCollection?.Commands ?? new R1_EventCommand[0]) {
                                 CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
                                 cmd.command = c;
                                 cmd.transform.SetParent(commandListParent, false);
@@ -548,7 +548,7 @@ namespace R1Engine
                 {
                     bool alone = true;
                     
-                    foreach (Common_Event ee in Controller.obj.levelController.Events.
+                    foreach (Unity_ObjBehaviour ee in Controller.obj.levelController.Events.
                         Where(ee => ee.linkCube.position == SelectedEvent.linkCube.position).
                         Where(ee => ee != SelectedEvent))
                     {
@@ -664,7 +664,7 @@ namespace R1Engine
                 Pointer currentOffset;
                 SerializerObject s;
 
-                void SerializeEvent(Editor_EventData ed)
+                void SerializeEvent(Unity_Obj ed)
                 {
                     s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
                     s.Goto(currentOffset);
@@ -715,7 +715,7 @@ namespace R1Engine
                 if (GameMemoryData.EventArrayOffset != null)
                 {
                     currentOffset = GameMemoryData.EventArrayOffset;
-                    foreach (Editor_EventData ed in lvl.EventData)
+                    foreach (Unity_Obj ed in lvl.EventData)
                         SerializeEvent(ed);
                 }
 
@@ -824,7 +824,7 @@ namespace R1Engine
         public void CalculateLinkIndexes() {
 
             List<int> alreadyChained = new List<int>();
-            foreach (Common_Event ee in Controller.obj.levelController.Events) {
+            foreach (Unity_ObjBehaviour ee in Controller.obj.levelController.Events) {
                 // No link
                 if (ee.LinkID == 0) {
                     ee.Data.LinkIndex = Controller.obj.levelController.Events.IndexOf(ee);
@@ -837,7 +837,7 @@ namespace R1Engine
                     // Find all the events with the same linkId and store their indexes
                     List<int> indexesOfSameId = new List<int>();
                     int cur = ee.LinkID;
-                    foreach (Common_Event e in Controller.obj.levelController.Events.Where<Common_Event>(e => e.LinkID == cur)) {
+                    foreach (Unity_ObjBehaviour e in Controller.obj.levelController.Events.Where<Unity_ObjBehaviour>(e => e.LinkID == cur)) {
                         indexesOfSameId.Add(Controller.obj.levelController.Events.IndexOf(e));
                         alreadyChained.Add(Controller.obj.levelController.Events.IndexOf(e));
                     }
@@ -854,12 +854,12 @@ namespace R1Engine
         }
 
         // Add events to the list via the managers
-        public Common_Event AddEvent(Editor_EventData eventData)
+        public Unity_ObjBehaviour AddEvent(Unity_Obj obj)
         {
             // Instantiate prefab
-            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.Data.XPosition / (float)EditorManager.PixelsPerUnit, -(eventData.Data.YPosition / (float)EditorManager.PixelsPerUnit), eventData.Data.Layer), Quaternion.identity).GetComponent<Common_Event>();
+            Unity_ObjBehaviour newEvent = Instantiate(prefabEvent, new Vector3(obj.Data.XPosition / (float)EditorManager.PixelsPerUnit, -(obj.Data.YPosition / (float)EditorManager.PixelsPerUnit), obj.Data.Layer), Quaternion.identity).GetComponent<Unity_ObjBehaviour>();
 
-            newEvent.Data = eventData;
+            newEvent.Data = obj;
 
             newEvent.UniqueLayer = lastUsedLayer * (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA ? 1 : -1);
             lastUsedLayer++;

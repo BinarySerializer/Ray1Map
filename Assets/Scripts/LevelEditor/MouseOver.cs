@@ -20,7 +20,7 @@ namespace R1Engine
 
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(mousePosition), Vector2.zero);
 
-            var e = hit.collider?.GetComponentInParent<Common_Event>();
+            var e = hit.collider?.GetComponentInParent<Unity_ObjBehaviour>();
             // Mouse over event
             if (e != null) {
                 textCollision.text = $"{e.DisplayName}";
