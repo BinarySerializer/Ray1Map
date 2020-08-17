@@ -390,9 +390,23 @@ namespace R1Engine
                     MapTile[] bgData = playField.BGTileTable.Data1.Concat(playField.BGTileTable.Data2).ToArray();
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
                         mapData = map.Mode7Data?.Select(x => bgData[x - 1].CloneObj()).ToArray();
-                    else if (map.Unk_0C == 0)
-                        // TODO: Avoid having to clamp here - why are the values too big?
-                        mapData = map.MapData?.Select(x => bgData[Mathf.Clamp(x.TileMapY - 1, 0, bgData.Length - 1)].CloneObj()).ToArray();
+                    else if (map.Unk_0C == 0) {
+                        mapData = map.MapData?.Select(x => {
+                            int index = BitHelpers.ExtractBits(x.TileMapY, 9, 0);
+                            bool isData1 = BitHelpers.ExtractBits(x.TileMapY, 1, 9) == 1;
+                            if (isData1) {
+                                return playField.BGTileTable.Data1[index].CloneObj();
+                            } else {
+                                index -= 2;
+                                if (index < 0) {
+                                    return new MapTile() { PC_TransparencyMode = PC_MapTileTransparencyMode.FullyTransparent };
+                                }
+                                return playField.BGTileTable.Data2[index].CloneObj();
+                            }
+                        }).ToArray();
+            // TODO: Avoid having to clamp here - why are the values too big?
+            //mapData = map.MapData?.Select(x => bgData[Mathf.Clamp(x.TileMapY - 1, 0, bgData.Length - 1)].CloneObj()).ToArray();
+                    }
 
                     commonLev.Maps[layer] = new Common_LevelMap
                     {

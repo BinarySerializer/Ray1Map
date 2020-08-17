@@ -62,6 +62,9 @@ TagManager:
   - name: Event Sprites
     uniqueID: 1770392689
     locked: 0
+  - name: Tiles Front
+    uniqueID: 1974437789
+    locked: 0
   - name: Links
     uniqueID: 1789067413
     locked: 0
