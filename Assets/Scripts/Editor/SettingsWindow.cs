@@ -276,7 +276,10 @@ public class SettingsWindow : UnityWindow
             {
                 var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
 
-                tilemaps[i].gameObject.SetActive(EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf));
+                var isActive = EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf);
+
+                if (isActive != tilemaps[i].gameObject.activeSelf)
+                    tilemaps[i].gameObject.SetActive(isActive);
             }
         }
 

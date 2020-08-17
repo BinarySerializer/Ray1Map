@@ -472,7 +472,8 @@ namespace R1Engine
                                     $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}"
+                                    $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}" +
+                                    $"State_UnkOffsetIndex: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_06}{Environment.NewLine}"
                     });
 
                     actorIndex++;
