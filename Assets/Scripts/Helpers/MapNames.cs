@@ -362,12 +362,12 @@ namespace R1Engine
             },
             [6] = new Dictionary<int, string>()
             {
-                [59] = "Multiplayer (Magma Mayhem)",
-                [60] = "Multiplayer (Magma Mayhem)",
-                [61] = "Multiplayer (?)",
-                [62] = "Multiplayer (?)",
-                [63] = "Multiplayer (Ly's Punch Challenge)",
-                [64] = "Multiplayer (Magma Mayhem)",
+                [59] = "Multiplayer 1",
+                [60] = "Multiplayer 2",
+                [61] = "Multiplayer 3",
+                [62] = "Multiplayer 4",
+                [63] = "Multiplayer 5",
+                [64] = "Multiplayer 6",
             },
             [7] = new Dictionary<int, string>()
             {
