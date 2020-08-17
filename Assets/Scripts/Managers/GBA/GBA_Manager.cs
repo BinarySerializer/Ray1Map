@@ -481,8 +481,13 @@ namespace R1Engine
                                     $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}" +
-                                    $"State_UnkOffsetIndexType: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_06}{Environment.NewLine}" + 
-                                    $"State_UnkOffsetIndex: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_07}{Environment.NewLine}"
+                                    $"State_UnkOffsetIndexType: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.StateDataType}{Environment.NewLine}" + 
+                                    $"State_UnkOffsetIndex: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.StateDataOffsetIndex}{Environment.NewLine}" +
+                                    $"State_Byte_00: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_00}{Environment.NewLine}" +
+                                    $"State_Byte_01: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_01}{Environment.NewLine}" +
+                                    $"State_Byte_02: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_02}{Environment.NewLine}" +
+                                    $"State_Byte_03: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_03}{Environment.NewLine}" +
+                                    $"State_Data: {String.Join("-", actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.StateData?.Data ?? new byte[0])}{Environment.NewLine}"
                     });
 
                     actorIndex++;

@@ -22,7 +22,8 @@
         InstaKill = 32,
         Damage = 33,
 
-        // 34, 35 and 36 might be vertical camera locks
+        // 34 and 35 might be enemy borders
+        // 36 might be vertical camera lock
         // 38 and 39 might be horizontal camera locks
 
         // Acts as triggers for moving platforms

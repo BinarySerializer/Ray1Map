@@ -53,7 +53,11 @@ namespace R1Engine
         public override void SerializeOffsetData(SerializerObject s)
         {
             Palette = s.DoAt(OffsetTable.GetPointer(PaletteOffsetIndex), () => s.SerializeObject<GBA_SpritePalette>(Palette, name: nameof(Palette)));
-            TileMap = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_SpriteTileMap>(TileMap, name: nameof(TileMap)));
+            TileMap = s.DoAt(OffsetTable.GetPointer(TileMapOffsetIndex), () => s.SerializeObject<GBA_SpriteTileMap>(TileMap, onPreSerialize: x =>
+            {
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina)
+                    x.IsDataCompressed = BitHelpers.ExtractBits(Byte_04, 1, 5) == 0;
+            }, name: nameof(TileMap)));
 
             if (Animations == null)
                 Animations = new GBA_Animation[AnimationsCount];

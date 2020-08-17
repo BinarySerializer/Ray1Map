@@ -86,6 +86,11 @@ namespace R1Engine
             Debug.Log($"Loaded in {loadTimer.ElapsedMilliseconds}ms");
         }
 
+        public void OnDestroy()
+        {
+            LevelEditorData.EditorManager = null;
+        }
+
         public void FindMatchingEncoding(params KeyValuePair<string, byte[]>[] input)
         {
             if (input.Length < 2)

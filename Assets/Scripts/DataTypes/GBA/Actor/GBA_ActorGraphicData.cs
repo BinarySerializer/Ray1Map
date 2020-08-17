@@ -22,7 +22,7 @@
             Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
             Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));
 
-            // TODO: Get number of entries - this doesn't always work
+            // TODO: Get number of entries
             States = s.SerializeObjectArray<GBA_ActorState>(States, (BlockSize - 12) / 8, name: nameof(States));
         }
 
@@ -30,7 +30,12 @@
         {
             SpriteGroup = s.DoAt(OffsetTable.GetPointer(SpriteGroupOffsetIndex), () => s.SerializeObject<GBA_SpriteGroup>(SpriteGroup, name: nameof(SpriteGroup)));
 
-            // TODO: Parse data for each state
+            // Parse state data
+            for (var i = 0; i < States.Length; i++)
+            {
+                if (States[i].StateDataType != -1)
+                    States[i].StateData = s.DoAt(OffsetTable.GetPointer(States[i].StateDataOffsetIndex), () => s.SerializeObject<GBA_ActorStateData>(States[i].StateData, name: $"{nameof(GBA_ActorState.StateData)}[{i}]"));
+            }
         }
     }
 }

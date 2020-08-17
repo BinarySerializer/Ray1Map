@@ -12,10 +12,11 @@ namespace R1Engine
         public ActorStateFlags Flags { get; set; }
 
         // Related to the struct Byte_07 points to
-        public sbyte Byte_06 { get; set; }
+        public sbyte StateDataType { get; set; }
+        public byte StateDataOffsetIndex { get; set; }
 
-        // Some offset index
-        public byte Byte_07 { get; set; }
+        // Parsed
+        public GBA_ActorStateData StateData { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -25,8 +26,8 @@ namespace R1Engine
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
             AnimationIndex = s.Serialize<byte>(AnimationIndex, name: nameof(AnimationIndex));
             Flags = s.Serialize<ActorStateFlags>(Flags, name: nameof(Flags));
-            Byte_06 = s.Serialize<sbyte>(Byte_06, name: nameof(Byte_06));
-            Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+            StateDataType = s.Serialize<sbyte>(StateDataType, name: nameof(StateDataType));
+            StateDataOffsetIndex = s.Serialize<byte>(StateDataOffsetIndex, name: nameof(StateDataOffsetIndex));
         }
 
         [Flags]

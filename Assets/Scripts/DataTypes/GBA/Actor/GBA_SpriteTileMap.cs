@@ -5,6 +5,8 @@
     /// </summary>
     public class GBA_SpriteTileMap : GBA_BaseBlock
     {
+        public bool? IsDataCompressed { get; set; }
+
         public ushort TileMapLength { get; set; }
         public bool IsCompressed { get; set; }
         public byte Byte_03 { get; set; }
@@ -17,7 +19,7 @@
             IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
 
-            if (IsCompressed) {
+            if (IsDataCompressed ?? IsCompressed) {
                 s.DoEncoded(new GBA_LZSSEncoder(), () => TileMap = s.SerializeArray<byte>(TileMap, TileMapLength * 32, name: nameof(TileMap)));
                 s.Align();
             } else {
