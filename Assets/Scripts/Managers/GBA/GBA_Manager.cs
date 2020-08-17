@@ -326,6 +326,14 @@ namespace R1Engine
             // Load the data block
             var dataBlock = LoadDataBlock(context);
 
+            // Log unused data blocks in offset tables
+            Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, GBA_OffsetTable.OffsetTables.Where(x => x.UsedOffsets.Any(y => !y)).Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
+            {
+                Obj = o,
+                Index = i
+            }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
+
+
             // Get the current play field
             GBA_PlayField playField;
 
@@ -473,7 +481,8 @@ namespace R1Engine
                                     $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}" +
-                                    $"State_UnkOffsetIndex: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_06}{Environment.NewLine}"
+                                    $"State_UnkOffsetIndexType: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_06}{Environment.NewLine}" + 
+                                    $"State_UnkOffsetIndex: {actor.GraphicData.States.ElementAtOrDefault(actor.StateIndex)?.Byte_07}{Environment.NewLine}"
                     });
 
                     actorIndex++;
