@@ -236,7 +236,11 @@ namespace R1Engine
         // Converts mouse position to worldspace and then tile positions (1 = 16)
         public Vector3 MouseToTileCoords(Vector3 mousePos) {
             var worldMouse = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 10));
-            return new Vector3(Mathf.Floor(worldMouse.x), Mathf.Floor(worldMouse.y + 1), 10);
+            return new Vector3(Mathf.Floor(worldMouse.x / CellSizeInUnits) * CellSizeInUnits, (Mathf.Floor(worldMouse.y / CellSizeInUnits) + 1) * CellSizeInUnits, 10);
+        }
+        public Vector2Int MouseToTileInt(Vector3 mousePos) {
+            var worldMouse = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 10));
+            return new Vector2Int(Mathf.FloorToInt(worldMouse.x / CellSizeInUnits), -(Mathf.FloorToInt(worldMouse.y / CellSizeInUnits) + 1));
         }
 
         // Get one common tile at given position

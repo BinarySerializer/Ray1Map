@@ -14,7 +14,7 @@ namespace R1Engine
 
         void Update() {
             transform.position = mousePosition;
-            Vector3 mousePositionTile = tilemapController.MouseToTileCoords(mousePosition);
+            Vector2Int mouseTile = tilemapController.MouseToTileInt(mousePosition);
 
             //Physics2D.Raycast(Camera.main.ScreenPointToRay(mousePosition), out var hit, 30);
 
@@ -49,8 +49,8 @@ namespace R1Engine
             else {
                 Controller.obj.tempDebugText.text = String.Empty;
                 var editorManager = LevelEditorData.EditorManager;
-                var t = editorManager?.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentMap)?.GetMapTile((int)mousePositionTile.x, -(int)mousePositionTile.y);
-                var c = editorManager?.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentCollisionMap)?.GetMapTile((int)mousePositionTile.x, -(int)mousePositionTile.y);
+                var t = editorManager?.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentMap)?.GetMapTile(mouseTile.x, mouseTile.y);
+                var c = editorManager?.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentCollisionMap)?.GetMapTile(mouseTile.x, mouseTile.y);
 
                 if (t != null && c != null) {
                     //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);

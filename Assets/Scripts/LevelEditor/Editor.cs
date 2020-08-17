@@ -190,7 +190,8 @@ namespace R1Engine
             if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
                 // Get the tile under the mouse
                 Vector3 mousePositionTile = lvlController.controllerTilemap.MouseToTileCoords(mousePosition);
-                mouseTile = lvlController.controllerTilemap.GetTileAtPos((int)mousePositionTile.x, -(int)mousePositionTile.y);
+                Vector2Int mouseTileInt = lvlController.controllerTilemap.MouseToTileInt(mousePosition);
+                mouseTile = lvlController.controllerTilemap.GetTileAtPos(mouseTileInt.x, mouseTileInt.y);
 
                 // =============== SELECTION SQUARE ===============
 
