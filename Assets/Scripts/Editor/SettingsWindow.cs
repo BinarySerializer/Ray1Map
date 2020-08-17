@@ -271,6 +271,13 @@ public class SettingsWindow : UnityWindow
                     te.Copy();
                 }
             }
+
+            for (int i = 0; i < em.Level.Maps.Length; i++)
+            {
+                var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
+
+                tilemaps[i].gameObject.SetActive(EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf));
+            }
         }
 
         // Game Tools
