@@ -6,6 +6,9 @@
         Rayman = 0,
         RaymanBody = 1,
         Pirate_Red = 2,
+        Piranha = 3,
+        WaterSplash = 4,
+        Explosion = 5,
 
         Platform_Bouncy = 7,
         Platform_Moving_Vertical = 8,
@@ -27,6 +30,7 @@
         HelicopterBomb = 26,
         ZombieChicken = 27,
 
+        FloatingBarrelSplash = 29,
         LevelExit_Back = 30,
 
         Rayman_WaterSki = 33,
@@ -62,6 +66,7 @@
         Ly = 78,
 
         Breakable_Wall = 81,
+        FallingBarrelEffect = 82,
 
         Boss_Machine = 84,
 
