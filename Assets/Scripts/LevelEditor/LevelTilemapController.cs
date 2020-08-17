@@ -81,6 +81,15 @@ namespace R1Engine
 
             // Set collision tiles
             var collisionTileSet = Settings.UseHDCollisionSheet ? TypeCollisionTilesHD : TypeCollisionTiles;
+            if (CellSizeInUnits != 1f) {
+                collisionTileSet = collisionTileSet
+                    .Select(t => {
+                        if (t == null) return null;
+                        Tile newT = ScriptableObject.CreateInstance<Tile>();
+                        newT.sprite = Sprite.Create(t.sprite.texture, t.sprite.rect, new Vector2(0.5f, 0.5f), t.sprite.pixelsPerUnit / CellSizeInUnits);
+                        return newT;
+                    }).ToArray();
+            }
 
             var unsupportedTiles = new HashSet<int>();
 
