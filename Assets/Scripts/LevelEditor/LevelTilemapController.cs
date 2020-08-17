@@ -7,8 +7,7 @@ using UnityEngine.UI;
 
 namespace R1Engine
 {
-    public class LevelTilemapController : MonoBehaviour 
-    {
+    public class LevelTilemapController : MonoBehaviour {
         /// <summary>
         /// References to specific tilemap gameObjects in inspector
         /// </summary>
@@ -16,8 +15,10 @@ namespace R1Engine
         public Tilemap[] GraphicsTilemaps;
 
         public Tilemap tilemapFull;
-        public bool focusedOnTemplate=false;
+        public bool focusedOnTemplate = false;
         public Editor editor;
+
+        public Grid grid;
 
         /// <summary>
         /// The events
@@ -44,20 +45,30 @@ namespace R1Engine
 
         // Infro tracked for when switching between template and normal level
         private Vector3 previousCameraPosNormal;
-        private Vector3 previousCameraPosTemplate = new Vector3(0,0,-10f);
-        private int templateMaxY=0;
+        private Vector3 previousCameraPosTemplate = new Vector3(0, 0, -10f);
+        private int templateMaxY = 0;
 
-        public int camMaxX=1;
-        public int camMaxY=1;
-        
+        public int camMaxX = 1;
+        public int camMaxY = 1;
+
+        public float CellSizeInUnits { get; set; } = 1f;
+
+
 
         public void InitializeTilemaps() {
             var editorManager = LevelEditorData.EditorManager;
             var level = LevelEditorData.Level;
 
+            CellSizeInUnits = editorManager.CellSize / (float)editorManager.PixelsPerUnit;
+            if (CellSizeInUnits != 1f) {
+                grid.cellSize = new Vector3(CellSizeInUnits, CellSizeInUnits, 0);
+            }
+            
+            // Resize the background tint
+            ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
+
             // Disable palette buttons based on if there are 3 palettes or not
-            if (!editorManager.Has3Palettes)
-            {
+            if (!editorManager.Has3Palettes) {
                 paletteText.SetActive(false);
                 paletteButtons[0].gameObject.SetActive(false);
                 paletteButtons[1].gameObject.SetActive(false);
@@ -74,17 +85,14 @@ namespace R1Engine
             var unsupportedTiles = new HashSet<int>();
 
             // Fill out types first
-            for (int y = 0; y < collisionMap.Height; y++)
-            {
-                for (int x = 0; x < collisionMap.Width; x++)
-                {
+            for (int y = 0; y < collisionMap.Height; y++) {
+                for (int x = 0; x < collisionMap.Width; x++) {
                     // Get the collision index
                     var collisionType = editorManager.GetCollisionTypeGraphic(collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType);
                     var collisionTypeIndex = (int)collisionType;
 
                     // Make sure it's not out of bounds
-                    if (collisionTypeIndex >= collisionTileSet.Length)
-                    {
+                    if (collisionTypeIndex >= collisionTileSet.Length) {
                         unsupportedTiles.Add(collisionTypeIndex);
                         collisionTypeIndex = 0;
                     }
@@ -115,8 +123,7 @@ namespace R1Engine
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
-        public void RefreshTiles(int palette)
-        {
+        public void RefreshTiles(int palette) {
             // Change button visibility
             currentPalette = palette;
             for (int i = 0; i < paletteButtons.Length; i++) {
@@ -137,21 +144,18 @@ namespace R1Engine
             if (GraphicsTilemaps.Length != LevelEditorData.Level.Maps.Length) {
                 Array.Resize(ref GraphicsTilemaps, LevelEditorData.Level.Maps.Length);
                 for (int i = 1; i < GraphicsTilemaps.Length; i++) {
-                    GraphicsTilemaps[i] = Instantiate<Tilemap>(GraphicsTilemaps[0], new Vector3(0,0,-i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
+                    GraphicsTilemaps[i] = Instantiate<Tilemap>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
                     /*if (i == GraphicsTilemaps.Length - 1) {
                         TilemapRenderer tr = GraphicsTilemaps[i].GetComponent<TilemapRenderer>();
                         tr.sortingLayerName = "Tiles Front";
                     }*/
                 }
             }
-            for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++)
-            {
+            for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++) {
                 var map = lvl.Maps[mapIndex];
 
-                for (int y = 0; y < map.Height; y++)
-                {
-                    for (int x = 0; x < map.Width; x++)
-                    {
+                for (int y = 0; y < map.Height; y++) {
+                    for (int x = 0; x < map.Width; x++) {
                         var t = map.MapTiles[y * map.Width + x];
 
                         if (palette != 0)
@@ -167,12 +171,10 @@ namespace R1Engine
             int xx = 0;
             int yy = 0;
 
-            foreach (Tile t in lvl.Maps[LevelEditorData.CurrentMap].TileSet[0].Tiles)
-            {
+            foreach (Tile t in lvl.Maps[LevelEditorData.CurrentMap].TileSet[0].Tiles) {
                 tilemapFull.SetTile(new Vector3Int(xx, yy, 0), t);
                 xx++;
-                if (xx == 16)
-                {
+                if (xx == 16) {
                     xx = 0;
                     yy++;
                 }
@@ -182,7 +184,7 @@ namespace R1Engine
         }
 
         // Resize the background tint
-        public void ResizeBackgroundTint(int x, int y) => backgroundTint.transform.localScale = new Vector2(x, y);
+        public void ResizeBackgroundTint(int x, int y) => backgroundTint.transform.localScale = new Vector2(CellSizeInUnits * x, CellSizeInUnits * y);
 
         // Used for switching the view between template and normal tiles
         public void ShowHideTemplate() {

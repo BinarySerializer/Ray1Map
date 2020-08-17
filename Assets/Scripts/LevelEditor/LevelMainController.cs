@@ -73,9 +73,6 @@ namespace R1Engine
 
                 Controller.status = $"Initializing tile maps";
 
-                // Resize the background tint
-                controllerTilemap.ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
-
                 // Init tilemaps
                 controllerTilemap.InitializeTilemaps();
 
@@ -269,8 +266,9 @@ namespace R1Engine
             RenderTexture renderTex = new RenderTexture(LevelEditorData.MaxWidth * LevelEditorData.EditorManager.CellSize / (half ? 2 : 1), LevelEditorData.MaxHeight * LevelEditorData.EditorManager.CellSize / (half ? 2 : 1), 24);
             renderCamera.targetTexture = renderTex;
             //Set camera pos
-            renderCamera.transform.position = new Vector3((LevelEditorData.MaxWidth) / 2f, -(LevelEditorData.MaxHeight) / 2f, renderCamera.transform.position.z);
-            renderCamera.orthographicSize = (LevelEditorData.MaxHeight / 2f);
+            var cellSizeInUnits = LevelEditorData.EditorManager.CellSize / (float)LevelEditorData.EditorManager.PixelsPerUnit;
+            renderCamera.transform.position = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, renderCamera.transform.position.z);
+            renderCamera.orthographicSize = (LevelEditorData.MaxHeight * cellSizeInUnits / 2f);
             renderCamera.rect = new Rect(0, 0, 1, 1);
             renderCamera.Render();
 

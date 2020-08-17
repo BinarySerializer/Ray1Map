@@ -11,7 +11,7 @@ namespace R1Engine
 {
     public abstract class GBA_Manager : IGameManager
     {
-        public virtual int PixelsPerUnit { get; set; } = 8;
+        public virtual int PixelsPerUnit { get; set; } = 16;
         public virtual int CellSize { get; set; } = 8;
 
         public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings)

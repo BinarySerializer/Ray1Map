@@ -78,8 +78,8 @@ namespace R1Engine {
                 // Stuff
                 vel /= 1f + (1f * friction) * Time.deltaTime;
                 pos += vel * Time.deltaTime;
-                pos.x = Mathf.Clamp(pos.x, 0, levelTilemapController.camMaxX);
-                pos.y = Mathf.Clamp(pos.y, -levelTilemapController.camMaxY, 0);
+                pos.x = Mathf.Clamp(pos.x, 0, levelTilemapController.camMaxX * levelTilemapController.CellSizeInUnits);
+                pos.y = Mathf.Clamp(pos.y, -levelTilemapController.camMaxY * levelTilemapController.CellSizeInUnits, 0);
 
                 pos.z = -10f;
                 if (pixelSnap) {

@@ -2033,6 +2033,7 @@ MonoBehaviour:
   tilemapFull: {fileID: 1987018907}
   focusedOnTemplate: 0
   editor: {fileID: 1956467904}
+  grid: {fileID: 1081275423}
   Events: {fileID: 114616739}
   paletteButtons:
   - {fileID: 1239416229}
@@ -2192,7 +2193,7 @@ LineRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1789067413
-  m_SortingLayer: 8
+  m_SortingLayer: 9
   m_SortingOrder: 5
   m_Positions:
   - {x: 0, y: 0, z: 0}

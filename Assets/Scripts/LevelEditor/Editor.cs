@@ -212,8 +212,8 @@ namespace R1Engine
 
                 if (dragging) {
                     // During drag, set the end corner
-                    var endX = Mathf.Clamp(mousePositionTile.x, 0, lvlTilemapController.camMaxX - 1);
-                    var endY = Mathf.Clamp(-mousePositionTile.y, 0, lvlTilemapController.camMaxY - 1);
+                    var endX = Mathf.Clamp(mousePositionTile.x, 0, (lvlTilemapController.camMaxX - 1) * lvlTilemapController.CellSizeInUnits);
+                    var endY = Mathf.Clamp(-mousePositionTile.y, 0, (lvlTilemapController.camMaxY - 1) * lvlTilemapController.CellSizeInUnits);
                     if (selecting) {
                         tileSelectSquare.color = colorSelect;
                         tileSelectSquare.SetEndCorner(endX, endY);

@@ -44,7 +44,7 @@ namespace R1Engine
 
         public override TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((GBA_TileCollisionType)collisionType).GetCollisionTypeGraphic();
 
-        public override int PixelsPerUnit => 8;
+        public override int PixelsPerUnit => 16;
         public override int CellSize => 8;
 	}
 }
