@@ -174,21 +174,30 @@ namespace R1Engine
 
                 if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
                 {
-                    var linkIndex = eventList[i].Data.LinkIndex;
+                    var links = eventList[i].Data.GBALinks;
 
                     // Ignore already assigned ones
                     if (eventList[i].LinkID != 0)
                         continue;
 
                     // No link
-                    if (linkIndex == 0xFF)
+                    if (links.All(x => x == 0xFF))
                     {
                         eventList[i].LinkID = 0;
                     }
                     // Link
                     else
                     {
-                        eventList[i].LinkID = eventList[linkIndex].LinkID = linkIndex;
+                        eventList[i].LinkID = i;
+
+                        foreach (var link in links)
+                        {
+                            if (link == 0xFF)
+                                continue;
+
+                            eventList[link].LinkID = i;
+                        }
+
                         eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
                     }
                 }

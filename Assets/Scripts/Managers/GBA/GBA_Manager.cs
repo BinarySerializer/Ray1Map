@@ -468,7 +468,13 @@ namespace R1Engine
                     })
                     {
                         Type = actor.ActorID,
-                        LinkIndex = actor.Link_0,
+                        GBALinks = new int[]
+                        {
+                            actor.Link_0, 
+                            actor.Link_1, 
+                            actor.Link_2, 
+                            actor.Link_3, 
+                        },
                         ForceAlways = actorIndex < dataBlock.LevelBlock.AlwaysActorsCount,
                         DESKey = actor.GraphicsDataIndex.ToString(),
                         ETAKey = actor.GraphicsDataIndex.ToString(),

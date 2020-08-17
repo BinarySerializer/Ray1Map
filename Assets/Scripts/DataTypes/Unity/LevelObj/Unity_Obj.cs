@@ -57,6 +57,8 @@ namespace R1Engine
         /// </summary>
         public int LinkIndex { get; set; }
 
+        public int[] GBALinks { get; set; }
+
         /// <summary>
         /// True if the event is forced to be handled as an always event
         /// </summary>

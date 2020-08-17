@@ -53,13 +53,6 @@ namespace R1Engine
                 Link_1 = s.Serialize<byte>(Link_1, name: nameof(Link_1));
                 Link_2 = s.Serialize<byte>(Link_2, name: nameof(Link_2));
                 Link_3 = s.Serialize<byte>(Link_3, name: nameof(Link_3));
-
-                if (Link_1 != 0xFF)
-                    Debug.LogWarning($"Link_1 is set!");
-                if (Link_2 != 0xFF)
-                    Debug.LogWarning($"Link_2 is set!");
-                if (Link_3 != 0xFF)
-                    Debug.LogWarning($"Link_3 is set!");
             }
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia)
