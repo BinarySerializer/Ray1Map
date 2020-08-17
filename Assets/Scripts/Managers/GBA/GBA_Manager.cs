@@ -35,10 +35,10 @@ namespace R1Engine
         {
             var worlds = WorldLevels.Length;
 
-            if (world == worlds)
+            if (world == worlds && MenuLevels.Any())
                 return LevelType.Menu;
 
-            if (world == (worlds + 1))
+            if (world == (worlds + 1) && DLCLevelCount > 0)
                 return LevelType.DLC;
 
             return LevelType.Game;
@@ -407,8 +407,6 @@ namespace R1Engine
                                 return playField.BGTileTable.Data2[index].CloneObj();
                             }
                         }).ToArray();
-            // TODO: Avoid having to clamp here - why are the values too big?
-            //mapData = map.MapData?.Select(x => bgData[Mathf.Clamp(x.TileMapY - 1, 0, bgData.Length - 1)].CloneObj()).ToArray();
                     }
 
                     commonLev.Maps[layer] = new Common_LevelMap
