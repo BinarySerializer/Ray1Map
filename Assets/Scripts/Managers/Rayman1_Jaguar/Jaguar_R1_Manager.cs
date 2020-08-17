@@ -850,7 +850,7 @@ namespace R1Engine
                         Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(key) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[key]) : null;
                             
                         // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
                     }
                 }
 
@@ -1220,7 +1220,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent
-            commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, 16);
+            commonLev.Maps[0].TileSet[0] = new Common_Tileset(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, Settings.CellSize);
 
             var eventDesigns = new Dictionary<string, Common_Design>();
             var eventETA = new Dictionary<string, Common_EventState[][]>();
@@ -1260,8 +1260,8 @@ namespace R1Engine
                 var mapX = (uint)(mapPos - (mapY * rom.EventData.Width));
                 
                 // Calculate the actual position on the map
-                mapX *= 4 * Settings.CellSize;
-                mapY *= 4 * Settings.CellSize;
+                mapX *= 4 * (uint)Settings.CellSize;
+                mapY *= 4 * (uint)Settings.CellSize;
 
                 bool IsGendoor(int index) {
                     switch (context.Settings.GameModeSelection) {

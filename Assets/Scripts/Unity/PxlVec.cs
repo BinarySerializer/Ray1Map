@@ -7,11 +7,11 @@ namespace R1Engine {
 
         public PxlVec(Vector3 vec) {
             this.vec = vec;
-            x = (ushort)(vec.x * 16);
-            y = (ushort)(-vec.y * 16);
+            x = (ushort)(vec.x * LevelEditorData.EditorManager.PixelsPerUnit);
+            y = (ushort)(-vec.y * LevelEditorData.EditorManager.PixelsPerUnit);
         }
         public PxlVec(ushort x, ushort y) {
-            vec = new Vector3((float)x / 16, -(float)y / 16);
+            vec = new Vector3((float)x / LevelEditorData.EditorManager.PixelsPerUnit, -(float)y / LevelEditorData.EditorManager.PixelsPerUnit);
             this.x = x;
             this.y = y;
         }
@@ -19,8 +19,8 @@ namespace R1Engine {
 
         public static Vector3 SnapVec(Vector3 vec) {
             return new Vector3(
-                (float)(int)(vec.x * 16) / 16,
-                (float)(int)(vec.y * 16) / 16);
+                (float)(int)(vec.x * LevelEditorData.EditorManager.PixelsPerUnit) / LevelEditorData.EditorManager.PixelsPerUnit,
+                (float)(int)(vec.y * LevelEditorData.EditorManager.PixelsPerUnit) / LevelEditorData.EditorManager.PixelsPerUnit);
         }
 
         public static implicit operator PxlVec(Vector3 v) => new PxlVec(v);

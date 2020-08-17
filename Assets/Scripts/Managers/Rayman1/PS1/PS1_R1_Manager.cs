@@ -45,8 +45,8 @@ namespace R1Engine
 
             int tile = 0;
 
-            for (int yB = 0; yB < height; yB += 16)
-            for (int xB = 0; xB < width; xB += 16, tile++)
+            for (int yB = 0; yB < height; yB += Settings.CellSize)
+            for (int xB = 0; xB < width; xB += Settings.CellSize, tile++)
             for (int y = 0; y < Settings.CellSize; y++)
             for (int x = 0; x < Settings.CellSize; x++)
             {

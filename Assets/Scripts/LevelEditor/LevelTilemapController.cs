@@ -128,6 +128,7 @@ namespace R1Engine
             // Get the current level and map
             var lvl = LevelEditorData.Level;
 
+
             // If auto, refresh indexes
             if (palette == 0)
                 lvl.AutoApplyPalette();
@@ -238,7 +239,7 @@ namespace R1Engine
             if (focusedOnTemplate)
             {
                 // Get the 1-dimensional graphic tile index
-                var graphicIndex1D = (y * 16) + x;
+                var graphicIndex1D = (y * LevelEditorData.EditorManager.CellSize) + x;
 
                 if (graphicIndex1D > map.TileSet[0].Tiles.Length - 1)
                     graphicIndex1D = 0;

@@ -230,7 +230,7 @@ namespace R1Engine {
             var anim = CurrentAnimation;
 
             // Update x and y
-            transform.position = new Vector3(Data.Data.XPosition / 16f, -(Data.Data.YPosition / 16f), 0);
+            transform.position = new Vector3(Data.Data.XPosition / (float)EditorManager.PixelsPerUnit, -(Data.Data.YPosition / (float)EditorManager.PixelsPerUnit), 0);
 
             // Don't move link cube if it's part of a link
             if (LinkID != 0)
@@ -285,8 +285,8 @@ namespace R1Engine {
 
                     // scale
                     Vector2 pos = new Vector2(
-                        ((xx - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / 16f,
-                        ((yy - pivot.y) * Scale + pivot.y) / 16f);
+                        ((xx - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit,
+                        ((yy - pivot.y) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit);
 
                     prefabRenderers[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRenderers[i].transform.localPosition.z);
                     prefabRenderers[i].transform.localScale = Vector3.one * Scale;
@@ -295,8 +295,8 @@ namespace R1Engine {
                     if ((layer.Rotation.HasValue && layer.Rotation.Value != 0) || (layer.Scale.HasValue && layer.Scale.Value != Vector2.one)) {
 
                         Vector3 transformOrigin = new Vector3(
-                            (((layer.TransformOriginX - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / 16f),
-                            ((-layer.TransformOriginY - pivot.y) * Scale + pivot.y) / 16f,
+                            (((layer.TransformOriginX - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit),
+                            ((-layer.TransformOriginY - pivot.y) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit,
                             prefabRenderers[i].transform.localPosition.z);
 
                         // Scale first
@@ -332,7 +332,7 @@ namespace R1Engine {
             // Update the follow sprite line
             if (anim != null && Data.Data.FollowSprite < anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers.Length)
             {
-                followSpriteLine.localPosition = new Vector2(anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].XPosition / 16f, -anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].YPosition / 16f - (Data.Data.OffsetHY / 16f));
+                followSpriteLine.localPosition = new Vector2(anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].XPosition / (float)EditorManager.PixelsPerUnit, -anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].YPosition / (float)EditorManager.PixelsPerUnit - (Data.Data.OffsetHY / (float)EditorManager.PixelsPerUnit));
 
                 var w = (prefabRenderers[Data.Data.FollowSprite].sprite == null) ? 0 : prefabRenderers[Data.Data.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
@@ -346,7 +346,7 @@ namespace R1Engine {
                 bool first = true;
                 foreach (SpriteRenderer part in prefabRenderers)
                 {
-                    var pos = new Vector2(part.transform.localPosition.x * 16, part.transform.localPosition.y * 16);
+                    var pos = new Vector2(part.transform.localPosition.x * EditorManager.PixelsPerUnit, part.transform.localPosition.y * EditorManager.PixelsPerUnit);
 
                     if (part.sprite == null)
                         continue;
@@ -366,19 +366,19 @@ namespace R1Engine {
 
                 if (!first)
                 {
-                    var w = (rightX - leftX) / 16f;
-                    var h = (topY - bottomY) / 16f;
+                    var w = (rightX - leftX) / (float)EditorManager.PixelsPerUnit;
+                    var h = (topY - bottomY) / (float)EditorManager.PixelsPerUnit;
                     boxCollider.size = new Vector2(w, h);
-                    boxCollider.offset = new Vector2(leftX / 16f + w / 2f, (topY / 16f - h / 2f));
+                    boxCollider.offset = new Vector2(leftX / (float)EditorManager.PixelsPerUnit + w / 2f, (topY / (float)EditorManager.PixelsPerUnit - h / 2f));
                 }
             }
 
             // Update offset points
             if (anim != null)
             {
-                offsetCrossBX.localPosition = new Vector2(Data.Data.OffsetBX / 16f, 0f);
-                offsetCrossBY.localPosition = new Vector2(Data.Data.OffsetBX / 16f, -(Data.Data.OffsetBY / 16f));
-                offsetCrossHY.localPosition = new Vector2(Data.Data.OffsetBX / 16f, -((Data.Data.OffsetHY / 16f) + ((CurrentAnimation?.Frames?.ElementAtOrDefault(0)?.FrameData?.YPosition ?? 1) / 16f)));
+                offsetCrossBX.localPosition = new Vector2(Data.Data.OffsetBX / (float)EditorManager.PixelsPerUnit, 0f);
+                offsetCrossBY.localPosition = new Vector2(Data.Data.OffsetBX / (float)EditorManager.PixelsPerUnit, -(Data.Data.OffsetBY / (float)EditorManager.PixelsPerUnit));
+                offsetCrossHY.localPosition = new Vector2(Data.Data.OffsetBX / (float)EditorManager.PixelsPerUnit, -((Data.Data.OffsetHY / (float)EditorManager.PixelsPerUnit) + ((CurrentAnimation?.Frames?.ElementAtOrDefault(0)?.FrameData?.YPosition ?? 1) / (float)EditorManager.PixelsPerUnit)));
             }
 
             // Update visibility

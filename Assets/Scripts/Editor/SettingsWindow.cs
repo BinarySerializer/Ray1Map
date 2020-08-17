@@ -125,7 +125,7 @@ public class SettingsWindow : UnityWindow
 			// Only update if previous values don't match
 			if (!PrevLvlValues.ComparePreviousValues())
             {
-                Debug.Log($"Updated levels for world {Settings.World}");
+                //Debug.Log($"Updated levels for world {Settings.World}");
 
                 var manager = Settings.GetGameManager;
                 var settings = Settings.GetGameSettings;
@@ -172,17 +172,15 @@ public class SettingsWindow : UnityWindow
             if (currentLevels.Length > lvlIndex && lvlIndex != -1)
                 Settings.Level = currentLevels[lvlIndex].Key;
         }
-        // Update previous values
-        PrevLvlValues.UpdatePreviousValues();
 
         EditorGUI.BeginDisabledGroup(Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPC && Settings.SelectedGameMode != GameModeSelection.RaymanQuizPC && Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPS1);
 
         try
 		{
             // Only update if previous values don't match
-            if (!PrevVolumeValues.ComparePreviousValues())
+            if (!PrevLvlValues.ComparePreviousValues())
             {
-				Debug.Log("Updated EDU volumes");
+				//Debug.Log("Updated EDU volumes");
                 CurrentEduVolumes = Settings.GetGameManager.GetEduVolumes(Settings.GetGameSettings);
             }
         }
@@ -195,9 +193,6 @@ public class SettingsWindow : UnityWindow
 
 		if (CurrentEduVolumes.Length > eduIndex && eduIndex != -1)
 			Settings.EduVolume = CurrentEduVolumes[eduIndex];
-
-        // Update previous values
-        PrevVolumeValues.UpdatePreviousValues();
 
         EditorGUI.EndDisabledGroup();
 
@@ -283,9 +278,9 @@ public class SettingsWindow : UnityWindow
         DrawHeader("Game Tools");
 
         // Only update if previous values don't match
-        if (!PrevGameActionValues.ComparePreviousValues())
+        if (!PrevLvlValues.ComparePreviousValues())
         {
-            Debug.Log("Updated game actions");
+            //Debug.Log("Updated game actions");
             CurrentGameActions = Settings.GetGameManager.GetGameActions(Settings.GetGameSettings);
         }
 
@@ -388,7 +383,7 @@ public class SettingsWindow : UnityWindow
         await AddGlobalActionAsync("Export Vignette");
 
         // Update previous values
-        PrevGameActionValues.UpdatePreviousValues();
+        PrevLvlValues.UpdatePreviousValues();
 
         // Randomizer
 
@@ -468,11 +463,7 @@ public class SettingsWindow : UnityWindow
 
     #endregion
 
-    private PrevValues PrevLvlValues { get; } = new PrevValues();
-
-    private PrevValues PrevVolumeValues { get; } = new PrevValues();
-
-    private PrevValues PrevGameActionValues { get; } = new PrevValues();
+    private PreviousValues PrevLvlValues { get; } = new PreviousValues();
 
     private int[] AvailableWorlds { get; set; } = new int[0];
 
@@ -486,7 +477,7 @@ public class SettingsWindow : UnityWindow
 
 	private Vector2 ScrollPosition { get; set; } = Vector2.zero;
 
-	public class PrevValues
+	public class PreviousValues
     {
         /// <summary>
         /// Updates saved previous values

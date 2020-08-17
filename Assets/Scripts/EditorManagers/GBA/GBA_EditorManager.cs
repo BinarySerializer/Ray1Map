@@ -43,5 +43,8 @@ namespace R1Engine
         public override Enum GetCollisionTypeAsEnum(byte collisionType) => (GBA_TileCollisionType)collisionType;
 
         public override TileCollisionTypeGraphic GetCollisionTypeGraphic(byte collisionType) => ((GBA_TileCollisionType)collisionType).GetCollisionTypeGraphic();
-    }
+
+        public override int PixelsPerUnit => 8;
+        public override int CellSize => 8;
+	}
 }

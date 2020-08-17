@@ -129,6 +129,10 @@ namespace R1Engine
         /// <returns>The names of the available events to add</returns>
         public string[] GetEvents() => EventInfoData.Select(x => x.Name).ToArray();
 
+        public virtual int PixelsPerUnit => 16;
+
+        public virtual int CellSize => 16;
+
         #endregion
 
         #region Methods

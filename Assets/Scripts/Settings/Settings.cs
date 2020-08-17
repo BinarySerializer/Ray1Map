@@ -274,9 +274,11 @@ namespace R1Engine {
         public static Encoding StringEncoding { get; } = Encoding.GetEncoding(437);
 
         /// <summary>
-        /// The size of a map cell
+        /// The size of a map cell in pixels
         /// </summary>
-        public const int CellSize = 16;
+        public static int CellSize = 16;
+
+        public static int PixelsPerUnit = 16;
 
         /// <summary>
         /// Gets the current game settings

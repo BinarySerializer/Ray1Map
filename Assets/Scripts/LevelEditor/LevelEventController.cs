@@ -166,11 +166,11 @@ namespace R1Engine
                 var maxWidth = LevelEditorData.MaxWidth;
                 var maxHeight = LevelEditorData.MaxHeight;
 
-                if (eventList[i].Data.Data.XPosition > (maxWidth * 16) + allowedBorder || eventList[i].Data.Data.XPosition < -allowedBorder)
-                    eventList[i].Data.Data.XPosition = (maxWidth * 16) + border;
+                if (eventList[i].Data.Data.XPosition > (maxWidth * EditorManager.CellSize) + allowedBorder || eventList[i].Data.Data.XPosition < -allowedBorder)
+                    eventList[i].Data.Data.XPosition = (maxWidth * EditorManager.CellSize) + border;
 
-                if (eventList[i].Data.Data.YPosition > (maxHeight * 16) + allowedBorder || eventList[i].Data.Data.YPosition < -allowedBorder)
-                    eventList[i].Data.Data.YPosition = (maxHeight * 16) + border;
+                if (eventList[i].Data.Data.YPosition > (maxHeight * EditorManager.CellSize) + allowedBorder || eventList[i].Data.Data.YPosition < -allowedBorder)
+                    eventList[i].Data.Data.YPosition = (maxHeight * EditorManager.CellSize) + border;
 
                 if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
                 {
@@ -442,16 +442,16 @@ namespace R1Engine
                 if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents) 
                 {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    var mox = mousepo.x * 16;
-                    var moy = mousepo.y * 16;
+                    var mox = mousepo.x * EditorManager.PixelsPerUnit;
+                    var moy = mousepo.y * EditorManager.PixelsPerUnit;
 
                     var maxWidth = LevelEditorData.MaxWidth;
                     var maxHeight = LevelEditorData.MaxHeight;
 
                     // Don't add if clicked outside of the level bounds
-                    if (mox > 0 && -moy > 0 && mox < maxWidth * 16 && -moy < maxHeight * 16) 
+                    if (mox > 0 && -moy > 0 && mox < maxWidth * EditorManager.CellSize && -moy < maxHeight * EditorManager.CellSize) 
                     {
-                        var eventData = LevelEditorData.EditorManager.AddEvent(eventDropdown.value, (short)mox, (short)-moy);
+                        var eventData = EditorManager.AddEvent(eventDropdown.value, (short)mox, (short)-moy);
 
                         LevelEditorData.Level.EventData.Add(eventData);
                         var eve = AddEvent(eventData);
@@ -531,8 +531,8 @@ namespace R1Engine
                         if (modeEvents) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                            FieldUpdated(x => SelectedEvent.Data.Data.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * 16), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.XPosition, "XPos");
-                            FieldUpdated(x => SelectedEvent.Data.Data.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * 16), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.YPosition, "YPos");
+                            FieldUpdated(x => SelectedEvent.Data.Data.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * EditorManager.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.XPosition, "XPos");
+                            FieldUpdated(x => SelectedEvent.Data.Data.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * EditorManager.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.YPosition, "YPos");
                         }
 
                         // Else move links
@@ -857,7 +857,7 @@ namespace R1Engine
         public Common_Event AddEvent(Editor_EventData eventData)
         {
             // Instantiate prefab
-            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.Data.XPosition / 16f, -(eventData.Data.YPosition / 16f), eventData.Data.Layer), Quaternion.identity).GetComponent<Common_Event>();
+            Common_Event newEvent = Instantiate(prefabEvent, new Vector3(eventData.Data.XPosition / (float)EditorManager.PixelsPerUnit, -(eventData.Data.YPosition / (float)EditorManager.PixelsPerUnit), eventData.Data.Layer), Quaternion.identity).GetComponent<Common_Event>();
 
             newEvent.Data = eventData;
 

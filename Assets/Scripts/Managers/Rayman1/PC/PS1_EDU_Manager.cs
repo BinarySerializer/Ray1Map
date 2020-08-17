@@ -264,7 +264,7 @@ namespace R1Engine
                     ushort currentTexture = levelIndices[gsp_index];
                     var tex = textures[currentTexture];
                     if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0) {
-                        des[e.PC_ImageDescriptorsIndex].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20);
+                        des[e.PC_ImageDescriptorsIndex].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20);
                     }
                     gsp_index++;
                 }

@@ -270,7 +270,7 @@ namespace R1Engine
                     Texture2D tex = GetSpriteTexture(context, null, i);
 
                     // Add it to the array
-                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
                 }
 
                 // Add to the designs
@@ -303,7 +303,7 @@ namespace R1Engine
                         Texture2D tex = loadTextures ? GetSpriteTexture(context, e.ImageBuffer, i) : null;
 
                         // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
                     }
 
                     // Add animations

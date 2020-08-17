@@ -265,9 +265,8 @@ namespace R1Engine
                 }
             }
 
-            bool half = LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA;
-
-            RenderTexture renderTex = new RenderTexture(LevelEditorData.MaxWidth*16 / (half ? 2 : 1), LevelEditorData.MaxHeight*16 / (half ? 2 : 1), 24);
+            bool half = false;
+            RenderTexture renderTex = new RenderTexture(LevelEditorData.MaxWidth * LevelEditorData.EditorManager.CellSize / (half ? 2 : 1), LevelEditorData.MaxHeight * LevelEditorData.EditorManager.CellSize / (half ? 2 : 1), 24);
             renderCamera.targetTexture = renderTex;
             //Set camera pos
             renderCamera.transform.position = new Vector3((LevelEditorData.MaxWidth) / 2f, -(LevelEditorData.MaxHeight) / 2f, renderCamera.transform.position.z);

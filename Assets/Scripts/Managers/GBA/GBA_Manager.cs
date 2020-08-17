@@ -11,6 +11,9 @@ namespace R1Engine
 {
     public abstract class GBA_Manager : IGameManager
     {
+        public virtual int PixelsPerUnit { get; set; } = 8;
+        public virtual int CellSize { get; set; } = 8;
+
         public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings)
         {
             var output = new List<KeyValuePair<int, int[]>>();
@@ -451,8 +454,8 @@ namespace R1Engine
 
                     commonLev.EventData.Add(new Editor_EventData(new EventData()
                     {
-                        XPosition = actor.XPos * 2,
-                        YPosition = actor.YPos * 2,
+                        XPosition = actor.XPos,
+                        YPosition = actor.YPos,
                         Etat = 0,
                         SubEtat = actor.StateIndex,
                         RuntimeSubEtat = actor.StateIndex
@@ -501,7 +504,7 @@ namespace R1Engine
             {
                 for (int i = 0; i < tileMap.TileMapLength; i++)
                 {
-                    var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
+                    var tex = new Texture2D(CellSize, CellSize)
                     {
                         filterMode = FilterMode.Point,
                         wrapMode = TextureWrapMode.Clamp
@@ -521,16 +524,12 @@ namespace R1Engine
                             if (v != 0)
                                 c = new Color(c.r, c.g, c.b, 1f);
 
-                            // Upscale to 16x16 for now...
-                            tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2, c);
-                            tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2, c);
-                            tex.SetPixel(x * 2 + 1, (tileWidth - 1 - y) * 2 + 1, c);
-                            tex.SetPixel(x * 2, (tileWidth - 1 - y) * 2 + 1, c);
+                            tex.SetPixel(x, (tileWidth - 1 - y), c);
                         }
                     }
 
                     tex.Apply();
-                    des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), PixelsPerUnit, 20));
                 }
             }
 
@@ -558,12 +557,12 @@ namespace R1Engine
                             ImageIndex = tileMap.TileMapLength * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
                             IsFlippedHorizontally = l.IsFlippedHorizontally,
                             IsFlippedVertically = l.IsFlippedVertically,
-                            XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * 8) * 2,
-                            YPosition = (l.YPosition + (l.IsFlippedVertically ? (l.YSize - 1 - y) : y) * 8) * 2,
+                            XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * CellSize),
+                            YPosition = (l.YPosition + (l.IsFlippedVertically ? (l.YSize - 1 - y) : y) * CellSize),
                             Rotation = rot,
                             Scale = scl,
-                            TransformOriginX = (l.XPosition + l.XSize * 8f / 2f) * 2,
-                            TransformOriginY = (l.YPosition + l.YSize * 8f / 2f) * 2
+                            TransformOriginX = (l.XPosition + l.XSize * CellSize / 2f),
+                            TransformOriginY = (l.YPosition + l.YSize * CellSize / 2f)
                         };
                     }
                 }
@@ -630,16 +629,16 @@ namespace R1Engine
             var tiles = new Tile[tilemapLength];
 
             // Create empty tile
-            var emptyTileTex = new Texture2D(Settings.CellSize, Settings.CellSize)
+            var emptyTileTex = new Texture2D(CellSize, CellSize)
             {
                 filterMode = FilterMode.Point,
                 wrapMode = TextureWrapMode.Clamp
             };
 
-            emptyTileTex.SetPixels(Enumerable.Repeat(Color.clear, Settings.CellSize * Settings.CellSize).ToArray());
+            emptyTileTex.SetPixels(Enumerable.Repeat(Color.clear, CellSize * CellSize).ToArray());
             emptyTileTex.Apply();
             Tile emptyTile = ScriptableObject.CreateInstance<Tile>();
-            emptyTile.sprite = Sprite.Create(emptyTileTex, new Rect(0, 0, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), Settings.CellSize, 20);
+            emptyTile.sprite = Sprite.Create(emptyTileTex, new Rect(0, 0, CellSize, CellSize), new Vector2(0.5f, 0.5f), PixelsPerUnit, 20);
 
             tiles[0] = emptyTile;
 
@@ -653,7 +652,7 @@ namespace R1Engine
 
                 var p = pals.FirstOrDefault();
 
-                var tex = new Texture2D(Settings.CellSize, Settings.CellSize)
+                var tex = new Texture2D(CellSize, CellSize)
                 {
                     filterMode = FilterMode.Point,
                     wrapMode = TextureWrapMode.Clamp
@@ -687,11 +686,7 @@ namespace R1Engine
                                 c = new Color(c.r, c.g, c.b, 1f);
                         }
 
-                        // Upscale to 16x16 for now...
-                        tex.SetPixel(x * 2, y * 2, c);
-                        tex.SetPixel(x * 2 + 1, y * 2, c);
-                        tex.SetPixel(x * 2 + 1, y * 2 + 1, c);
-                        tex.SetPixel(x * 2, y * 2 + 1, c);
+                        tex.SetPixel(x, y, c);
                     }
                 }
 
@@ -699,7 +694,7 @@ namespace R1Engine
 
                 // Create a tile
                 Tile t = ScriptableObject.CreateInstance<Tile>();
-                t.sprite = Sprite.Create(tex, new Rect(0, 0, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), Settings.CellSize, 20);
+                t.sprite = Sprite.Create(tex, new Rect(0, 0, CellSize, CellSize), new Vector2(0.5f, 0.5f), PixelsPerUnit, 20);
 
                 tiles[i] = t;
             }

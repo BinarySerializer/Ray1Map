@@ -18,8 +18,8 @@ namespace R1Engine
         public static void Randomize(BaseEditorManager editorManager, RandomizerFlags flags, int? seed, int map)
         {
             var random = seed != null ? new Random(seed.Value) : new Random();
-            var maxX = editorManager.Level.Maps[map].Width * 16;
-            var maxY = editorManager.Level.Maps[map].Height * 16;
+            var maxX = editorManager.Level.Maps[map].Width * Settings.CellSize;
+            var maxY = editorManager.Level.Maps[map].Height * Settings.CellSize;
 
             // Enumerate every event
             foreach (Editor_EventData eventData in editorManager.Level.EventData

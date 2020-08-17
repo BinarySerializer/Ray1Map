@@ -37,7 +37,7 @@ namespace R1Engine {
                 var rayman = LevelEditorData.Level.Rayman;
 
                 if (rayman != null)
-                    pos = new Vector3(rayman.Data.XPosition / 16f, -(rayman.Data.YPosition / 16f));
+                    pos = new Vector3(rayman.Data.XPosition / (float)LevelEditorData.EditorManager.PixelsPerUnit, -(rayman.Data.YPosition / (float)LevelEditorData.EditorManager.PixelsPerUnit));
             }
 
 

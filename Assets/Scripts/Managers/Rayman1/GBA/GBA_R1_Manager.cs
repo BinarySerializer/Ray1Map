@@ -851,7 +851,7 @@ namespace R1Engine
                         Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, spritePalette) : null;
 
                         // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
                     }
 
                     if (graphics.AnimDescriptors != null)

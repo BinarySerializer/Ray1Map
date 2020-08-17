@@ -918,7 +918,7 @@ namespace R1Engine
                     Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
 
                     // Add it to the array
-                    commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                    commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
                 }
             }
             else
@@ -941,7 +941,7 @@ namespace R1Engine
                         Texture2D tex = GetSpriteTexture(s, p, processedImageData);
 
                         // Add it to the array
-                        commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                        commonDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
                     }
                 }
             }
