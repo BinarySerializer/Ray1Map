@@ -392,7 +392,7 @@ namespace R1Engine
                     MapTile[] mapData = map.MapData;
                     MapTile[] bgData = playField.BGTileTable.Data1.Concat(playField.BGTileTable.Data2).ToArray();
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
-                        mapData = map.Mode7Data?.Select(x => bgData[x - 1].CloneObj()).ToArray();
+                        mapData = map.Mode7Data?.Select(x => bgData[x > 0 ? x - 1 : 0].CloneObj()).ToArray();
                     else if (map.Unk_0C == 0) {
                         mapData = map.MapData?.Select(x => {
                             int index = BitHelpers.ExtractBits(x.TileMapY, 9, 0);
