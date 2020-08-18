@@ -54,11 +54,11 @@
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia ||
                 s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
-                UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 3, name: nameof(UnkBytes1));
-                TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
+                UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
                 BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
+                TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
-                UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 2, name: nameof(UnkBytes2));
+                UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 3, name: nameof(UnkBytes2));
             } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } else {

@@ -39,7 +39,6 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-
             XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
             YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
 

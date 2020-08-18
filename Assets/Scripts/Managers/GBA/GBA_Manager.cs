@@ -402,9 +402,15 @@ namespace R1Engine
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
                         mapData = map.Mode7Data?.Select(x => bgData[x > 0 ? x - 1 : 0].CloneObj()).ToArray();
                     else if (map.Unk_0C == 0) {
+                        //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
+                        //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         mapData = map.MapData?.Select(x => {
-                            int index = BitHelpers.ExtractBits(x.TileMapY, 9, 0);
-                            bool isData1 = BitHelpers.ExtractBits(x.TileMapY, 1, 9) == 1;
+                            int numBits = 9;
+                            if (context.Settings.EngineVersion == EngineVersion.GBA_StarWars) {
+                                numBits = 10;
+                            }
+                            int index = BitHelpers.ExtractBits(x.TileMapY, numBits, 0);
+                            bool isData1 = BitHelpers.ExtractBits(x.TileMapY, 1, numBits) == 1;
                             if (isData1) {
                                 return playField.BGTileTable.Data1[index].CloneObj();
                             } else {
@@ -511,6 +517,7 @@ namespace R1Engine
                 Sprites = new List<Sprite>(),
                 Animations = new List<Unity_ObjAnimation>(),
             };
+            if (graphicData == null) return des;
 
             var tileMap = graphicData.SpriteGroup.TileMap;
             var pal = graphicData.SpriteGroup.Palette.Palette;
