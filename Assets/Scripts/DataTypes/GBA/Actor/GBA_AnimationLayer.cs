@@ -57,9 +57,17 @@ namespace R1Engine
             }
             SpriteSize = BitHelpers.ExtractBits(Attr1, 2, 14);
 
-            ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 11, 0);
-            Priority = BitHelpers.ExtractBits(Attr2, 1, 11);
-            PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina) {
+                ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 12, 0);
+                PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
+            } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+                ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 14, 0);
+                PaletteIndex = BitHelpers.ExtractBits(Attr2, 2, 14); // another flag at byte 0xF?
+            } else {
+                ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 11, 0);
+                Priority = BitHelpers.ExtractBits(Attr2, 1, 11);
+                PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
+            }
             bool paletteFlag = BitHelpers.ExtractBits(Attr2, 1, 15) == 1;
 
             s.Log($"{nameof(XPosition)}: {XPosition}");
@@ -75,6 +83,13 @@ namespace R1Engine
             s.Log($"{nameof(Priority)}: {Priority}");
             s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
             s.Log($"{nameof(paletteFlag)}: {paletteFlag}");
+            if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
+                s.Log($"{nameof(AffineMatrixIndex)}: {AffineMatrixIndex}");
+            } else {
+                s.Log($"{nameof(IsFlippedHorizontally)}: {IsFlippedHorizontally}");
+                s.Log($"{nameof(IsFlippedVertically)}: {IsFlippedVertically}");
+
+            }
 
             // Calculate size
             XSize = 1;
@@ -127,12 +142,11 @@ namespace R1Engine
             Tall
         }
 
-        public float GetRotation(GBA_Animation anim, GBA_SpriteGroup spriteGroup) {
+        public float GetRotation(GBA_Animation anim, GBA_SpriteGroup spriteGroup, int frameIndex) {
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
                 if (spriteGroup.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var matrices = spriteGroup.Matrices[anim.AffineMatricesIndex].Matrices;
-                    if (matrices.Length > AffineMatrixIndex) {
-                        var m = matrices[AffineMatrixIndex];
+                    var m = spriteGroup.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
+                    if (m != null) {
                         var rotation = -Mathf.Atan2(m.Pb / 256f, m.Pa / 256f);
                         return rotation * Mathf.Rad2Deg;
 
@@ -147,12 +161,11 @@ namespace R1Engine
             return 0f;
         }
 
-        public UnityEngine.Vector2 GetScale(GBA_Animation anim, GBA_SpriteGroup spriteGroup) {
+        public UnityEngine.Vector2 GetScale(GBA_Animation anim, GBA_SpriteGroup spriteGroup, int frameIndex) {
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
                 if (spriteGroup.Matrices.ContainsKey(anim.AffineMatricesIndex)) {
-                    var matrices = spriteGroup.Matrices[anim.AffineMatricesIndex].Matrices;
-                    if (matrices.Length > AffineMatrixIndex) {
-                        var m = matrices[AffineMatrixIndex];
+                    var m = spriteGroup.Matrices[anim.AffineMatricesIndex].GetMatrix(AffineMatrixIndex, frameIndex);
+                    if (m != null) {
                         var a = m.Pa / 256f;
                         var b = m.Pb / 256f;
                         var c = m.Pc / 256f;

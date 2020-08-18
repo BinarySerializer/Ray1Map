@@ -52,7 +52,11 @@ namespace R1Engine
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount, name: nameof(Actors));
+            } else {
+                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
+            }
 
             if (Unk_07 != 0 || Unk_08 != 0)
                 Debug.LogWarning($"Potentially missed data");

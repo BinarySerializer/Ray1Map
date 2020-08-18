@@ -70,7 +70,11 @@ namespace R1Engine
                 int matrixIndex = Animations[i].AffineMatricesIndex;
                 if (matrixIndex != 0) {
 
-                    Matrices[matrixIndex] = s.DoAt(OffsetTable.GetPointer(matrixIndex), () => s.SerializeObject<GBA_AffineMatrixList>(Matrices.ContainsKey(matrixIndex) ? Matrices[matrixIndex] : null, name: $"{nameof(Matrices)}[{matrixIndex}]"));
+                    Matrices[matrixIndex] = s.DoAt(OffsetTable.GetPointer(matrixIndex),
+                        () => s.SerializeObject<GBA_AffineMatrixList>(
+                            Matrices.ContainsKey(matrixIndex) ? Matrices[matrixIndex] : null,
+                            onPreSerialize: ml => ml.FrameCount = Animations[i].FrameCount,
+                            name: $"{nameof(Matrices)}[{matrixIndex}]"));
                 }
             }
         }

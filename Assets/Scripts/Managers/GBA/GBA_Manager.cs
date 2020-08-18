@@ -552,7 +552,7 @@ namespace R1Engine
                 }
             }
 
-            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, GBA_AnimationLayer l) {
+            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationLayer l) {
                 if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular
@@ -568,8 +568,8 @@ namespace R1Engine
                 if (l.PaletteIndex > graphicData.SpriteGroup.Palette.Palette.Length / 16) {
                     Controller.print("Palette index too high: " + graphicData.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (graphicData.SpriteGroup.Palette.Palette.Length / 16));
                 }
-                float rot = l.GetRotation(a, s);
-                Vector2 scl = l.GetScale(a, s);
+                float rot = l.GetRotation(a, s, frame);
+                Vector2 scl = l.GetScale(a, s, frame);
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Unity_ObjAnimationPart {
@@ -589,11 +589,17 @@ namespace R1Engine
             }
 
             // Add first animation for now
-            des.Animations.AddRange(graphicData.SpriteGroup.Animations.Select(a => new Unity_ObjAnimation() {
-                Frames = a.Layers.Select(f => new Unity_ObjAnimationFrame {
-                    Layers = f.OrderByDescending(l => l.Priority).SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup, a, l)).Reverse().ToArray()
-                }).ToArray()
-            }));
+            foreach (var a in graphicData.SpriteGroup.Animations) {
+                var unityAnim = new Unity_ObjAnimation();
+                var frames = new List<Unity_ObjAnimationFrame>();
+                for (int i = 0; i < a.FrameCount; i++) {
+                    frames.Add(new Unity_ObjAnimationFrame() {
+                        Layers = a.Layers[i].OrderByDescending(l => l.Priority).SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup, a, i, l)).Reverse().ToArray()
+                    });
+                }
+                unityAnim.Frames = frames.ToArray();
+                des.Animations.Add(unityAnim);
+            }
 
             return des;
         }
