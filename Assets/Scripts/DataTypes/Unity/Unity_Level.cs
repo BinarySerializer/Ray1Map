@@ -17,7 +17,7 @@ namespace R1Engine
         /// <summary>
         /// The level maps
         /// </summary>
-        public Unity_MapTile[] Maps { get; set; }
+        public Unity_Map[] Maps { get; set; }
 
         /// <summary>
         /// The event data for every event

@@ -359,7 +359,7 @@ namespace R1Engine
             Unity_Level level = new Unity_Level
             {
                 // Create the map array
-                Maps = new Unity_MapTile[mapLayers.Length],
+                Maps = new Unity_Map[mapLayers.Length],
 
                 // Create the events list
                 EventData = new List<Unity_Obj>(),
@@ -375,7 +375,7 @@ namespace R1Engine
 
                 if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
                 {
-                    level.Maps[layer] = new Unity_MapTile
+                    level.Maps[layer] = new Unity_Map
                     {
                         Width = map.Width,
                         Height = map.Height,
@@ -423,7 +423,7 @@ namespace R1Engine
                         }).ToArray();
                     }
 
-                    level.Maps[layer] = new Unity_MapTile
+                    level.Maps[layer] = new Unity_Map
                     {
                         Width = map.Width,
                         Height = map.Height,

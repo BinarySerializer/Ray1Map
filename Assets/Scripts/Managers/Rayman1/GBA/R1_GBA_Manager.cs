@@ -771,9 +771,9 @@ namespace R1Engine
             Unity_Level level = new Unity_Level 
             {
                 // Create the map
-                Maps = new Unity_MapTile[]
+                Maps = new Unity_Map[]
                 {
-                    new Unity_MapTile()
+                    new Unity_Map()
                     {
                         // Set the dimensions
                         Width = map.MapData.Width,
