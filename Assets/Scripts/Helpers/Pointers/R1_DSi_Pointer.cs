@@ -3,7 +3,7 @@
     /// <summary>
     /// The type of Rayman 1 DSi pointers
     /// </summary>
-    public enum DSi_R1_Pointer
+    public enum R1_DSi_Pointer
     {
         JungleMaps,
         LevelMaps,

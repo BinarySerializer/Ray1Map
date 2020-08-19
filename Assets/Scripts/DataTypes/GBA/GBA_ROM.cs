@@ -22,18 +22,18 @@
             var levelCount = ((GBA_Manager)s.Context.Settings.GetGameManager).LevelCount;
 
             // Get the pointer table
-            var pointerTable = PointerTables.GetGBAR3PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBA_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
 
             // Serialize the offset table
-            s.DoAt(pointerTable[GBA_R3_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));
+            s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));
 
             // Serialize unknown pointer table
-            if (pointerTable.ContainsKey(GBA_R3_Pointer.UnkPointerTable))
-                UnkPointerTable = s.DoAt(pointerTable[GBA_R3_Pointer.UnkPointerTable], () => s.SerializePointerArray(UnkPointerTable, 252, name: nameof(UnkPointerTable)));
+            if (pointerTable.ContainsKey(GBA_Pointer.UnkPointerTable))
+                UnkPointerTable = s.DoAt(pointerTable[GBA_Pointer.UnkPointerTable], () => s.SerializePointerArray(UnkPointerTable, 252, name: nameof(UnkPointerTable)));
 
             // Serialize level info
-            if (pointerTable.ContainsKey(GBA_R3_Pointer.LevelInfo))
-                LevelInfo = s.DoAt(pointerTable[GBA_R3_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, levelCount, name: nameof(LevelInfo)));
+            if (pointerTable.ContainsKey(GBA_Pointer.LevelInfo))
+                LevelInfo = s.DoAt(pointerTable[GBA_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, levelCount, name: nameof(LevelInfo)));
         }
     }
 }

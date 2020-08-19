@@ -21,8 +21,8 @@ namespace R1Engine
         public Pointer GetPointer(int index)
         {
             UsedOffsets[index] = true;
-            return PointerTables.GetGBAR3PointerTable(Offset.Context.Settings.GameModeSelection, Offset.file)[
-                GBA_R3_Pointer.UiOffsetTable] + (Offsets[index] * 4);
+            return PointerTables.GBA_PointerTable(Offset.Context.Settings.GameModeSelection, Offset.file)[
+                GBA_Pointer.UiOffsetTable] + (Offsets[index] * 4);
         }
 
         public override void SerializeImpl(SerializerObject s)

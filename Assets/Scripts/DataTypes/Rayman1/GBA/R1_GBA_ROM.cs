@@ -70,9 +70,9 @@ namespace R1Engine
             base.SerializeImpl(s);
 
             // Get the pointer table
-            var pointerTable = PointerTables.GetGBAPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+            var pointerTable = PointerTables.R1_GBA_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.WorldLevelOffsetTable],
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.WorldLevelOffsetTable],
                 () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 12, name: nameof(WorldLevelOffsetTable)));
 
             // Get the global level index
@@ -106,24 +106,24 @@ namespace R1Engine
             }
 
             // Serialize data from the ROM
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.LevelMaps] + (levelIndex * 28), 
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.LevelMaps] + (levelIndex * 28), 
                 () => LevelMapData = s.SerializeObject<R1_GBA_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
 
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.BackgroundVignette], 
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.BackgroundVignette], 
                 () => BackgroundVignettes = s.SerializeObjectArray<R1_GBA_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.IntroVignette], 
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.IntroVignette], 
                 () => IntroVignettes = s.SerializeObjectArray<R1_GBA_IntroVignette>(IntroVignettes, 14, name: nameof(IntroVignettes)));
             WorldMapVignette = s.SerializeObject<R1_GBA_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
 
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.SpritePalettes], 
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.SpritePalettes], 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16, name: nameof(SpritePalettes)));
 
             // Serialize the level event data
             LevelEventData = new R1_GBA_LevelEventData();
-            LevelEventData.SerializeData(s, pointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], pointerTable[GBA_R1_ROMPointer.EventDataPointers], pointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
+            LevelEventData.SerializeData(s, pointerTable[R1_GBA_ROMPointer.EventGraphicsPointers], pointerTable[R1_GBA_ROMPointer.EventDataPointers], pointerTable[R1_GBA_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[R1_GBA_ROMPointer.LevelEventGraphicsGroupCounts]);
 
             // Serialize strings
-            s.DoAt(pointerTable[GBA_R1_ROMPointer.StringPointers], () =>
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.StringPointers], () =>
             {
                 StringPointerTable = s.SerializePointerArray(StringPointerTable, 5 * 259, name: nameof(StringPointerTable));
 

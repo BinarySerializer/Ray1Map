@@ -74,29 +74,29 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get the pointer table
-            var pointerTable = PointerTables.GetDSiPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+            var pointerTable = PointerTables.R1_DSi_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
-            s.DoAt(pointerTable[DSi_R1_Pointer.WorldLevelOffsetTable],
+            s.DoAt(pointerTable[R1_DSi_Pointer.WorldLevelOffsetTable],
                 () => WorldLevelOffsetTable = s.SerializeArray<byte>(WorldLevelOffsetTable, 8, name: nameof(WorldLevelOffsetTable)));
 
             // Get the global level index
             var levelIndex = WorldLevelOffsetTable[s.GameSettings.World] + (s.GameSettings.Level - 1);
 
             // Serialize data from the ROM
-            s.DoAt((s.GameSettings.R1_World == R1_World.Jungle ? pointerTable[DSi_R1_Pointer.JungleMaps] : pointerTable[DSi_R1_Pointer.LevelMaps]) + (levelIndex * 32), 
+            s.DoAt((s.GameSettings.R1_World == R1_World.Jungle ? pointerTable[R1_DSi_Pointer.JungleMaps] : pointerTable[R1_DSi_Pointer.LevelMaps]) + (levelIndex * 32), 
                 () => LevelMapData = s.SerializeObject<R1_GBA_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
-            s.DoAt(pointerTable[DSi_R1_Pointer.BackgroundVignette],
+            s.DoAt(pointerTable[R1_DSi_Pointer.BackgroundVignette],
                 () => BackgroundVignettes = s.SerializeObjectArray<R1_GBA_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));
             WorldMapVignette = s.SerializeObject<R1_GBA_WorldMapVignette>(WorldMapVignette, name: nameof(WorldMapVignette));
 
             // Serialize the level event data
             LevelEventData = new R1_GBA_LevelEventData();
-            LevelEventData.SerializeData(s, pointerTable[DSi_R1_Pointer.EventGraphicsPointers], pointerTable[DSi_R1_Pointer.EventDataPointers], pointerTable[DSi_R1_Pointer.EventGraphicsGroupCountTablePointers], pointerTable[DSi_R1_Pointer.LevelEventGraphicsGroupCounts]);
+            LevelEventData.SerializeData(s, pointerTable[R1_DSi_Pointer.EventGraphicsPointers], pointerTable[R1_DSi_Pointer.EventDataPointers], pointerTable[R1_DSi_Pointer.EventGraphicsGroupCountTablePointers], pointerTable[R1_DSi_Pointer.LevelEventGraphicsGroupCounts]);
 
-            s.DoAt(pointerTable[DSi_R1_Pointer.SpecialPalettes], () => Palettes = s.SerializeObjectArray<R1_DSi_PaletteReference>(Palettes, 10, name: nameof(Palettes)));
+            s.DoAt(pointerTable[R1_DSi_Pointer.SpecialPalettes], () => Palettes = s.SerializeObjectArray<R1_DSi_PaletteReference>(Palettes, 10, name: nameof(Palettes)));
 
             // Serialize strings
-            s.DoAt(pointerTable[DSi_R1_Pointer.StringPointers], () =>
+            s.DoAt(pointerTable[R1_DSi_Pointer.StringPointers], () =>
             {
                 StringPointerTable = s.SerializePointerArray(StringPointerTable, 5 * 394, name: nameof(StringPointerTable));
                 
