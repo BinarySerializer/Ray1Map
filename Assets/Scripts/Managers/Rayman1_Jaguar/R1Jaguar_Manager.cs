@@ -717,8 +717,8 @@ namespace R1Engine
 
                 // Add the file
                 var file = await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
-                var pointerTable = PointerTables.GetJaguarPointerTable(s.GameSettings.EngineVersion, file);
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.Music], () => {
+                var pointerTable = PointerTables.JaguarR1_PointerTable(s.GameSettings.EngineVersion, file);
+                s.DoAt(pointerTable[JaguarR1_Pointer.Music], () => {
                     // Read the music table
                     R1Jaguar_MusicDescriptor[] MusicTable = s.SerializeObjectArray<R1Jaguar_MusicDescriptor>(null, s.GameSettings.EngineVersion == EngineVersion.R1Jaguar ? 0x20 : 1, name: nameof(MusicTable));
                     // Immediately after this: pointer to sample buffer?
@@ -1197,9 +1197,9 @@ namespace R1Engine
             Unity_Level level = new Unity_Level
             {
                 // Create the map
-                Maps = new Unity_MapTile[]
+                Maps = new Unity_Map[]
                 {
-                    new Unity_MapTile()
+                    new Unity_Map()
                     {
                         // Set the dimensions
                         Width = map.Width,

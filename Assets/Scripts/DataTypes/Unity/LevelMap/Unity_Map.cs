@@ -7,7 +7,7 @@ namespace R1Engine
     /// <summary>
     /// Common level map data
     /// </summary>
-    public class Unity_MapTile
+    public class Unity_Map
     {
         #region Public Properties
 

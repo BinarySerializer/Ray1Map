@@ -111,8 +111,8 @@ namespace R1Engine
                 var data = LoadData(context);
 
                 // Get a pointer tables
-                var gbaPointerTable = isGBA ? PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
-                var dsiPointerTable = !isGBA ? PointerTables.GetDSiPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
 
                 var graphics = new Dictionary<Pointer, List<KeyValuePair<R1_World, ARGB1555Color[]>>>();
 
@@ -130,9 +130,9 @@ namespace R1Engine
                         var eventData = new R1_GBA_LevelEventData();
 
                         if (isGBA)
-                            eventData.SerializeData(context.Deserializer, gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], gbaPointerTable[GBA_R1_ROMPointer.EventDataPointers], gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
+                            eventData.SerializeData(context.Deserializer, gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsPointers], gbaPointerTable[R1_GBA_ROMPointer.EventDataPointers], gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[R1_GBA_ROMPointer.LevelEventGraphicsGroupCounts]);
                         else
-                            eventData.SerializeData(context.Deserializer, dsiPointerTable[DSi_R1_Pointer.EventGraphicsPointers], dsiPointerTable[DSi_R1_Pointer.EventDataPointers], dsiPointerTable[DSi_R1_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[DSi_R1_Pointer.LevelEventGraphicsGroupCounts]);
+                            eventData.SerializeData(context.Deserializer, dsiPointerTable[R1_DSi_Pointer.EventGraphicsPointers], dsiPointerTable[R1_DSi_Pointer.EventDataPointers], dsiPointerTable[R1_DSi_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[R1_DSi_Pointer.LevelEventGraphicsGroupCounts]);
 
                         // Get the event graphics
                         for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -151,17 +151,17 @@ namespace R1Engine
                 // Add unused graphics
                 if (isGBA)
                 {
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.DrumWalkerGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.InkGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontSmallGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.FontLargeGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[GBA_R1_ROMPointer.PinsGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DrumWalkerGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.InkGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.FontSmallGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.FontLargeGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.PinsGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
                 }
                 else
                 {
                     // TODO: Where is the font?
-                    graphics.Add(dsiPointerTable[DSi_R1_Pointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(dsiPointerTable[R1_DSi_Pointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
                 }
 
                 var desIndex = 0;
@@ -222,8 +222,8 @@ namespace R1Engine
                 var graphics = new List<Pointer>();
 
                 // Get a pointer tables
-                var gbaPointerTable = isGBA ? PointerTables.GetGBAPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
-                var dsiPointerTable = !isGBA ? PointerTables.GetDSiPointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var gbaPointerTable = isGBA ? PointerTables.R1_GBA_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
+                var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
 
                 // Enumerate every world
                 foreach (var world in GetLevels(baseGameSettings))
@@ -239,9 +239,9 @@ namespace R1Engine
                         var eventData = new R1_GBA_LevelEventData();
 
                         if (isGBA)
-                            eventData.SerializeData(context.Deserializer, gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsPointers], gbaPointerTable[GBA_R1_ROMPointer.EventDataPointers], gbaPointerTable[GBA_R1_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[GBA_R1_ROMPointer.LevelEventGraphicsGroupCounts]);
+                            eventData.SerializeData(context.Deserializer, gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsPointers], gbaPointerTable[R1_GBA_ROMPointer.EventDataPointers], gbaPointerTable[R1_GBA_ROMPointer.EventGraphicsGroupCountTablePointers], gbaPointerTable[R1_GBA_ROMPointer.LevelEventGraphicsGroupCounts]);
                         else
-                            eventData.SerializeData(context.Deserializer, dsiPointerTable[DSi_R1_Pointer.EventGraphicsPointers], dsiPointerTable[DSi_R1_Pointer.EventDataPointers], dsiPointerTable[DSi_R1_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[DSi_R1_Pointer.LevelEventGraphicsGroupCounts]);
+                            eventData.SerializeData(context.Deserializer, dsiPointerTable[R1_DSi_Pointer.EventGraphicsPointers], dsiPointerTable[R1_DSi_Pointer.EventDataPointers], dsiPointerTable[R1_DSi_Pointer.EventGraphicsGroupCountTablePointers], dsiPointerTable[R1_DSi_Pointer.LevelEventGraphicsGroupCounts]);
 
                         // Get the event graphics
                         for (var i = 0; i < eventData.GraphicData.Length; i++)
@@ -771,9 +771,9 @@ namespace R1Engine
             Unity_Level level = new Unity_Level 
             {
                 // Create the map
-                Maps = new Unity_MapTile[]
+                Maps = new Unity_Map[]
                 {
-                    new Unity_MapTile()
+                    new Unity_Map()
                     {
                         // Set the dimensions
                         Width = map.MapData.Width,

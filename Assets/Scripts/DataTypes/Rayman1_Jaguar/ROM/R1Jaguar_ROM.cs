@@ -96,7 +96,7 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s)
         {
             // Get info
-            var pointerTable = s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto ? PointerTables.GetJaguarPointerTable(s.GameSettings.EngineVersion, this.Offset.file) : null;
+            var pointerTable = s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto ? PointerTables.JaguarR1_PointerTable(s.GameSettings.EngineVersion, this.Offset.file) : null;
             var manager = (R1Jaguar_Manager)s.GameSettings.GetGameManager;
             var levels = manager.GetNumLevels;
 
@@ -118,7 +118,7 @@ namespace R1Engine
                 if (!s.Context.FileExists("RAM_EventDefinitions"))
                 {
                     // Copied to 0x001f9000 in memory. All pointers to 0x001Fxxxx likely point to an entry in this table
-                    s.DoAt(pointerTable[Jaguar_R1_Pointer.EventDefinitions], () =>
+                    s.DoAt(pointerTable[JaguarR1_Pointer.EventDefinitions], () =>
                     {
                         byte[] EventDefsDataBytes = s.SerializeArray<byte>(null, manager.EventCount * 0x28,
                             name: nameof(EventDefsDataBytes));
@@ -136,7 +136,7 @@ namespace R1Engine
             }
             else
             {
-                var offset = s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto ? GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman) : pointerTable[Jaguar_R1_Pointer.EventDefinitions];
+                var offset = s.GameSettings.EngineVersion == EngineVersion.R1Jaguar_Proto ? GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman) : pointerTable[JaguarR1_Pointer.EventDefinitions];
 
                 // Pointers all point to the ROM, not RAM
                 s.DoAt(offset, () => EventDefinitions = s.SerializeObjectArray<R1Jaguar_EventDefinition>(EventDefinitions,
@@ -149,7 +149,7 @@ namespace R1Engine
                 {
                     AdditionalEventDefinitions = manager.AdditionalEventDefinitionPointers.Select(p =>
                     {
-                        return s.DoAt(new Pointer(p, pointerTable[Jaguar_R1_Pointer.EventDefinitions].file), () => s.SerializeObject<R1Jaguar_EventDefinition>(default, name: nameof(AdditionalEventDefinitions)));
+                        return s.DoAt(new Pointer(p, pointerTable[JaguarR1_Pointer.EventDefinitions].file), () => s.SerializeObject<R1Jaguar_EventDefinition>(default, name: nameof(AdditionalEventDefinitions)));
                     }).ToArray();
                 }
                 else
@@ -162,10 +162,10 @@ namespace R1Engine
             if (s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto)
             {
                 // Serialize allfix sprite data
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.FixSprites], () => AllfixLoadCommands = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands)));
+                s.DoAt(pointerTable[JaguarR1_Pointer.FixSprites], () => AllfixLoadCommands = s.SerializeObject<R1Jaguar_LevelLoadCommandCollection>(AllfixLoadCommands, name: nameof(AllfixLoadCommands)));
 
                 // Serialize world sprite data
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.WorldSprites], () =>
+                s.DoAt(pointerTable[JaguarR1_Pointer.WorldSprites], () =>
                 {
                     if (WorldLoadCommandPointers == null)
                         WorldLoadCommandPointers = new Pointer[6];
@@ -187,7 +187,7 @@ namespace R1Engine
                     }
                 });
 
-                s.DoAt(pointerTable[Jaguar_R1_Pointer.MapData], () =>
+                s.DoAt(pointerTable[JaguarR1_Pointer.MapData], () =>
                 {
                     if (LevelLoadCommandPointers == null)
                         LevelLoadCommandPointers = new Pointer[7][];

@@ -3,7 +3,7 @@
     /// <summary>
     /// The type of Rayman Advance GBA ROM pointers
     /// </summary>
-    public enum GBA_R1_ROMPointer
+    public enum R1_GBA_ROMPointer
     {
         LevelMaps,
         BackgroundVignette,

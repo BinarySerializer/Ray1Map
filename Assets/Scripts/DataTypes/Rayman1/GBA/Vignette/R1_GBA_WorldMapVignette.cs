@@ -19,13 +19,13 @@
             if (s.GameSettings.EngineVersion == EngineVersion.R1_GBA)
             {
                 // Get the pointer table
-                var pointerTable = PointerTables.GetGBAPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+                var pointerTable = PointerTables.R1_GBA_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
                 // Hard-code properties
-                ImageDataPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignetteImageData];
-                BlockIndicesPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignetteBlockIndices];
-                PaletteIndicesPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignettePaletteIndices];
-                PalettesPointer = pointerTable[GBA_R1_ROMPointer.WorldMapVignettePalettes];
+                ImageDataPointer = pointerTable[R1_GBA_ROMPointer.WorldMapVignetteImageData];
+                BlockIndicesPointer = pointerTable[R1_GBA_ROMPointer.WorldMapVignetteBlockIndices];
+                PaletteIndicesPointer = pointerTable[R1_GBA_ROMPointer.WorldMapVignettePaletteIndices];
+                PalettesPointer = pointerTable[R1_GBA_ROMPointer.WorldMapVignettePalettes];
 
                 // Serialize data from pointers
                 SerializeVignette(s, false);
@@ -33,10 +33,10 @@
             else if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
             {
                 // Get the pointer table
-                var pointerTable = PointerTables.GetDSiPointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
+                var pointerTable = PointerTables.R1_DSi_PointerTable(s.GameSettings.GameModeSelection, this.Offset.file);
 
                 // Serialize pointers
-                s.DoAt(pointerTable[DSi_R1_Pointer.WorldMapVignette], () =>
+                s.DoAt(pointerTable[R1_DSi_Pointer.WorldMapVignette], () =>
                 {
                     PalettesPointer = s.SerializePointer(PalettesPointer, name: nameof(PalettesPointer));
                     ImageDataPointer = s.SerializePointer(ImageDataPointer, name: nameof(ImageDataPointer));

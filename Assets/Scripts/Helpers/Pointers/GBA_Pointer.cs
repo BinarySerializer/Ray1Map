@@ -3,7 +3,7 @@
     /// <summary>
     /// The type of Rayman 3 GBA pointers
     /// </summary>
-    public enum GBA_R3_Pointer
+    public enum GBA_Pointer
     {
         UiOffsetTable,
         UnkPointerTable,
