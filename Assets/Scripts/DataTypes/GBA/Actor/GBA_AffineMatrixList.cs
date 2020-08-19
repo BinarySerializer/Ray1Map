@@ -11,7 +11,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
                 MatrixOffsets = s.SerializeArray<ushort>(MatrixOffsets, FrameCount, name: nameof(MatrixOffsets));
                 s.Align(4);
                 if (Matrices == null) Matrices = new GBA_AffineMatrix[FrameCount][];

@@ -37,12 +37,12 @@ namespace R1Engine
 
         // GBA
 
-        GBA_R3,
+        GBA_BatmanVengeance,
+        GBA_Sabrina,
         GBA_R3_Proto,
+        GBA_R3,
         GBA_R3_NGage,
         GBA_PrinceOfPersia,
-        GBA_Sabrina,
-        GBA_StarWars,
-        GBA_BatmanVengeance,
+        GBA_StarWarsTrilogy,
     }
 }

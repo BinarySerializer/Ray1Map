@@ -38,6 +38,7 @@
 
         public GBA_BGTileTable BGTileTable { get; set; }
 
+        public GBA_Cluster[] Clusters { get; set; }
         public GBA_TileLayer[] Layers { get; set; }
 
         public byte[] ClusterData { get; set; }
@@ -53,7 +54,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia ||
-                s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+                s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
                 BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
                 TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
@@ -88,21 +89,22 @@
             }
         }
 
-        public override void SerializeOffsetData(SerializerObject s)
-        {
-            if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance)
-            {
-                if (Layers == null)
-                    Layers = new GBA_TileLayer[LayerCount];
+        public override void SerializeOffsetData(SerializerObject s) {
+            if (!IsMode7 && Clusters == null) Clusters = new GBA_Cluster[ClusterCount];
+            if (Layers == null) Layers = new GBA_TileLayer[LayerCount];
+            if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
+
+                if (!IsMode7) {
+                    for (int i = 0; i < ClusterCount; i++) {
+                        Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i]), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
+                    }
+                }
 
                 // Serialize layers
-                for (int i = 0; i < LayerCount; i++)
-                {
+                for (int i = 0; i < LayerCount; i++) {
                     Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
 
-                    if (!IsMode7)
-                        // Serialize the layer cluster info
-                        Layers[i].Cluster = s.DoAt(OffsetTable.GetPointer(ClusterTable[Layers[i].ClusterIndex]), () => s.SerializeObject<GBA_Cluster>(Layers[i].Cluster, name: nameof(GBA_TileLayer.Cluster)));
+                    if (!IsMode7) Layers[i].Cluster = Clusters[Layers[i].ClusterIndex];
                 }
 
                 // Serialize tilemap
@@ -110,17 +112,12 @@
 
                 // Serialize tilemap
                 BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
-            }
-            else
-            {
+            } else {
                 // Serialize tile palette
                 TilePalette = s.DoAt(OffsetTable.GetPointer(TilePaletteIndex), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
 
-                if (Layers == null)
-                    Layers = new GBA_TileLayer[LayerCount];
-
                 // Serialize layers
-                for (int i = 0; i < LayerCount; i++)
+                for (int i = 0; i < LayerCount; i++) {
                     s.DoAt(OffsetTable.GetPointer(BatmanLayers[i].LayerID), () => {
                         Layers[i] = s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => {
                             l.IsCompressed = BatmanLayers[i].IsCompressed;
@@ -129,7 +126,7 @@
                             l.Height = BatmanLayers[i].Height;
                         }, name: $"{nameof(Layers)}[{i}]");
                     });
-
+                }
             }
         }
 

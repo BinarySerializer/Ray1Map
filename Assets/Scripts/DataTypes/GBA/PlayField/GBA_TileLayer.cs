@@ -52,7 +52,7 @@ namespace R1Engine
         public GBA_TileCollisionType[] CollisionData { get; set; }
 
         // Batman
-        public GBA_TileKit Tilemap { get; set; }
+        public GBA_TileKit TileKit { get; set; }
 
         // Parsed
         public GBA_Cluster Cluster { get; set; }
@@ -82,7 +82,7 @@ namespace R1Engine
                         MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
                     }
                     // Serialize tilemap
-                    Tilemap = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileKit>(Tilemap, name: nameof(Tilemap)));
+                    TileKit = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
 
                 } else {
                     if (IsCompressed) {
@@ -142,19 +142,19 @@ namespace R1Engine
                     }
 
                     // TODO: It seems the compressed block contains more data than just the tile indexes for BG_2 & 3?
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
-                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData))));
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
+                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData))));;
                     } else {
                         s.DoEncoded(new GBA_LZSSEncoder(), () =>
                         {
                             if (StructType == TileLayerStructTypes.Map2D)
-                                MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
+                                MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
                             else
                                 Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
                         });
                     }
                 } else {
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
                         s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData))));
                     } else {
                         s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));

@@ -398,28 +398,30 @@ namespace R1Engine
                 else
                 {
                     MapTile[] mapData = map.MapData;
-                    MapTile[] bgData = playField.BGTileTable.Data1.Concat(playField.BGTileTable.Data2).ToArray();
-                    if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7)
-                        mapData = map.Mode7Data?.Select(x => bgData[x > 0 ? x - 1 : 0].CloneObj()).ToArray();
-                    else if (map.Unk_0C == 0) {
+                    //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
+                    if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7) {
+                        mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
+                    } else if (map.Unk_0C == 0) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         mapData = map.MapData?.Select(x => {
-                            int numBits = 9;
-                            if (context.Settings.EngineVersion == EngineVersion.GBA_StarWars) {
-                                numBits = 10;
-                            }
-                            int index = BitHelpers.ExtractBits(x.TileMapY, numBits, 0);
-                            bool isData1 = BitHelpers.ExtractBits(x.TileMapY, 1, numBits) == 1;
-                            if (isData1) {
-                                return playField.BGTileTable.Data1[index].CloneObj();
+                            int index = x.TileMapY;
+                            bool is8bpp = map.Is8bpp;
+                            MapTile newt = x.CloneObj();
+                            if (is8bpp) {
+                                //Controller.print(index);
+                                newt.TileMapY = playField.BGTileTable.Indices8bpp[index];
                             } else {
-                                index -= 2;
+                                index -= 2; // BGData starts with 2 lengths that are included in this.
                                 if (index < 0) {
-                                    return new MapTile() { PC_TransparencyMode = R1_PC_MapTileTransparencyMode.FullyTransparent };
+                                    newt.TileMapY = 0;
+                                    newt.PC_TransparencyMode = R1_PC_MapTileTransparencyMode.FullyTransparent;
+                                } else {
+                                    //Controller.print(index);
+                                    newt.TileMapY = playField.BGTileTable.Indices4bpp[index];
                                 }
-                                return playField.BGTileTable.Data2[index].CloneObj();
                             }
+                            return newt;
                         }).ToArray();
                     }
 
@@ -615,6 +617,7 @@ namespace R1Engine
 
         public R1_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
             // Create the states
+            if (graphicData == null) return new R1_EventState[0][];
             var eta = new R1_EventState[1][];
             eta[0] = graphicData.States.Select(s => new R1_EventState() {
                 AnimationIndex = s.AnimationIndex,
@@ -634,31 +637,31 @@ namespace R1Engine
 
         public Unity_MapTileMap LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData)
         {
-            // Get the tilemap to use
-            byte[] tileMap;
+            // Get the tileset to use
+            byte[] tileset;
             bool is8bpp;
             GBA_Palette tilePalette;
             if (context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
             {
-                is8bpp = map.Tilemap.Is8bpp;
-                tileMap = is8bpp ? map.Tilemap.TileMap8bpp : map.Tilemap.TileMap4bpp;
+                is8bpp = map.TileKit.Is8bpp;
+                tileset = is8bpp ? map.TileKit.TileSet8bpp : map.TileKit.TileSet4bpp;
                 tilePalette = playField.TilePalette;
             }
             else
             {
                 is8bpp = map.Is8bpp;
-                tileMap = is8bpp ? playField.TileKit.TileMap8bpp : playField.TileKit.TileMap4bpp;
+                tileset = is8bpp ? playField.TileKit.TileSet8bpp : playField.TileKit.TileSet4bpp;
                 tilePalette = playField.TileKit.TilePalette;
             }
 
-            int tilemapLength = (tileMap.Length / (is8bpp ? 64 : 32)) + 1;
+            int tilesetLength = (tileset.Length / (is8bpp ? 64 : 32)) + 1;
 
 
             const int paletteSize = 16;
             const int tileWidth = 8;
             int tileSize = is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2;
 
-            var tiles = new Tile[tilemapLength];
+            var tiles = new Tile[tilesetLength];
 
             // Create empty tile
             var emptyTileTex = new Texture2D(CellSize, CellSize)
@@ -674,7 +677,7 @@ namespace R1Engine
 
             tiles[0] = emptyTile;
 
-            for (int i = 1; i < tilemapLength; i++)
+            for (int i = 1; i < tilesetLength; i++)
             {
                 // Get the palette to use
                 var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
@@ -700,7 +703,7 @@ namespace R1Engine
 
                         if (is8bpp)
                         {
-                            var b = tileMap[index];
+                            var b = tileset[index];
 
                             c = tilePalette.Palette[b].GetColor();
 
@@ -709,7 +712,7 @@ namespace R1Engine
                         }
                         else
                         {
-                            var b = tileMap[index];
+                            var b = tileset[index];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
                             c = tilePalette.Palette[p * paletteSize + v].GetColor();

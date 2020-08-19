@@ -144,10 +144,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina - The Teenage Witch - Potion Commotion (GBA - US)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWars, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - EU)", typeof(GBA_StarWarsApprentice_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - EU)", typeof(GBA_StarWarsTrilogy_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWars, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsApprentice_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsTrilogy_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAUS,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_BatmanVengeance, "Batman Vengeance (GBA - EU)", typeof(GBA_BatmanVengeance_Manager))]

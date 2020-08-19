@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace R1Engine
 {
-    public class GBA_StarWarsApprentice_Manager : GBA_Manager
+    public class GBA_StarWarsTrilogy_Manager : GBA_Manager
     {
         // TODO: Get count
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]

@@ -52,7 +52,7 @@ namespace R1Engine
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_StarWars) {
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
                 Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount, name: nameof(Actors));
             } else {
                 Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
@@ -77,7 +77,7 @@ namespace R1Engine
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
             {
-                if (Actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
+                if (Actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount && (s.GameSettings.EngineVersion != EngineVersion.GBA_StarWarsTrilogy || Actors[i].GraphicsDataIndex != 0))
                     Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex),
                         () => s.SerializeObject<GBA_ActorGraphicData>(Actors[i].GraphicData,
                             name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));

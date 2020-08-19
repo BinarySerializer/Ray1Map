@@ -36,6 +36,9 @@ namespace R1Engine
 
         public byte PaletteIndex { get; set; }
 
+        public bool IsBGTile { get; set; }
+        public bool Is8Bpp { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -120,25 +123,66 @@ namespace R1Engine
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
-                int numBits = 11;
+                if (IsBGTile) {
+                    int numBits = 9;
 
-                if (s.Context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
-                    numBits = 10;
-                else if (s.Context.Settings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.Context.Settings.EngineVersion == EngineVersion.GBA_StarWars)
-                    numBits = 14;
+                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
+                        numBits = 8;
+                    } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                        numBits = 9;
+                    }
 
-                ushort value = 0;
+                    ushort value = 0;
 
-                value = (ushort)BitHelpers.SetBits(value, TileMapY, numBits, 0);
-                value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits);
-                value = (ushort)BitHelpers.SetBits(value, PaletteIndex, 4, 12);
+                    value = (ushort)BitHelpers.SetBits(value, TileMapY, numBits, 0);
+                    value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, numBits);
+                    value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits+1);
+                    value = (ushort)BitHelpers.SetBits(value, PaletteIndex, 4, 12);
 
-                value = s.Serialize<ushort>(value, name: nameof(value));
+                    value = s.Serialize<ushort>(value, name: nameof(value));
 
-                TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
-                TileMapX = 0;
-                HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
-                PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
+                    TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
+                    TileMapX = 0;
+                    VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
+                    HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits+1) == 1;
+                    PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
+
+                    s.Log($"{nameof(TileMapY)}: {TileMapY}");
+                    s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
+                    s.Log($"{nameof(VerticalFlip)}: {VerticalFlip}");
+                    s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
+                } else {
+                    int numBits = 11;
+
+                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
+                        numBits = 10;
+                    else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                        numBits = Is8Bpp ? 14 : 12;
+                    }
+
+                    ushort value = 0;
+
+                    value = (ushort)BitHelpers.SetBits(value, TileMapY, numBits, 0);
+                    value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits);
+                    value = (ushort)BitHelpers.SetBits(value, PaletteIndex, 4, 12);
+
+                    value = s.Serialize<ushort>(value, name: nameof(value));
+
+                    TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
+                    TileMapX = 0;
+                    HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
+                    if (!Is8Bpp) {
+                        if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                            PaletteIndex = (byte)BitHelpers.ExtractBits(value, 3, 13);
+                        } else {
+                            PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
+                        }
+                    }
+
+                    s.Log($"{nameof(TileMapY)}: {TileMapY}");
+                    s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
+                    s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
+                }
             }
 
             else
