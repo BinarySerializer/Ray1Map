@@ -135,7 +135,7 @@ namespace R1Engine
                     ushort value = 0;
 
                     value = (ushort)BitHelpers.SetBits(value, TileMapY, numBits, 0);
-                    value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, numBits);
+                    //value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, numBits);
                     value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits+1);
                     value = (ushort)BitHelpers.SetBits(value, PaletteIndex, 4, 12);
 
@@ -143,7 +143,7 @@ namespace R1Engine
 
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
                     TileMapX = 0;
-                    VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
+                    //VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits+1) == 1;
                     PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
 
@@ -152,7 +152,7 @@ namespace R1Engine
                     s.Log($"{nameof(VerticalFlip)}: {VerticalFlip}");
                     s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
                 } else {
-                    int numBits = 11;
+                    int numBits = Is8Bpp ? 14 : 11;
 
                     if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
                         numBits = 10;
