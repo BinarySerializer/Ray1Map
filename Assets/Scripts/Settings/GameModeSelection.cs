@@ -9,6 +9,8 @@ namespace R1Engine
     [JsonConverter(typeof(StringEnumConverter))]
     public enum GameModeSelection
     {
+        // Rayman 1
+
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PS1, Game.R1_Rayman1, "Rayman 1 (PS1 - US)", typeof(R1_PS1_Manager))]
         RaymanPS1US,
 
@@ -87,15 +89,6 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PocketPC, Game.R1_Rayman1, "Rayman Classic (Mobile)", typeof(R1_Mobile_Manager))]
         RaymanClassicMobile,
 
-        [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar, Game.R1_Rayman1, "Rayman 1 (Jaguar)", typeof(R1Jaguar_Manager))]
-        RaymanJaguar,
-
-        [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar_Proto, Game.R1_Rayman1, "Rayman 1 (Jaguar - Prototype)", typeof(R1Jaguar_Proto_Manager))]
-        RaymanJaguarPrototype,
-
-        [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar_Demo, Game.R1_Rayman1, "Rayman 1 (Jaguar - Demo)", typeof(R1Jaguar_Demo_Manager))]
-        RaymanJaguarDemo,
-
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_GBA, Game.R1_Rayman1, "Rayman Advance (GBA - EU)", typeof(R1_GBA_Manager))]
         RaymanAdvanceGBAEU,
 
@@ -111,8 +104,23 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R2_PS1, Game.R1_Rayman2, "Rayman 2 (PS1 - Demo)", typeof(R1_PS1R2_Manager))]
         Rayman2PS1Demo,
 
+        // Rayman 1 Jaguar
+
+        [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar, Game.R1_Rayman1, "Rayman 1 (Jaguar)", typeof(R1Jaguar_Manager))]
+        RaymanJaguar,
+
+        [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar_Proto, Game.R1_Rayman1, "Rayman 1 (Jaguar - Prototype)", typeof(R1Jaguar_Proto_Manager))]
+        RaymanJaguarPrototype,
+
+        [GameMode(MajorEngineVersion.Rayman1_Jaguar, EngineVersion.R1Jaguar_Demo, Game.R1_Rayman1, "Rayman 1 (Jaguar - Demo)", typeof(R1Jaguar_Demo_Manager))]
+        RaymanJaguarDemo,
+
+        // SNES
+
         [GameMode(MajorEngineVersion.SNES, EngineVersion.SNES, Game.SNES_Prototype, "Rayman (SNES - Prototype)", typeof(SNES_Prototype_Manager))]
         RaymanSNES,
+
+        // GBA
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman 3 (GBA - EU)", typeof(GBA_R3_Manager))]
         Rayman3GBAEU,

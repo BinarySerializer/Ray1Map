@@ -210,6 +210,16 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">The correct number of states does not get read</td>
+  </tr>  
+  <tr>
+    <td class="tg-yw4l">Rayman 2 (PS1 - Demo)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">Currently each map layer has to be loaded separately</td>
   </tr>
 </table>
 
@@ -255,31 +265,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-  </tr>
-</table>
-
-### Supported Games (Rayman 2)
-
-<table class="tg">
-  <tr>
-    <th class="tg-yw4l"><b>Game</b></th>
-    <th class="tg-yw4l"><b>Variants</b></th>
-    <th class="tg-yw4l"><b>Map Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Viewing</b></th>
-    <th class="tg-yw4l"><b>Object Adding</b></th>
-    <th class="tg-yw4l"><b>Saving</b></th>
-    <th class="tg-yw4l"><b>Memory Loading</b></th>
-    <th class="tg-yw4l"><b>Notes</b></th>
-  </tr>
-    <tr>
-    <td class="tg-yw4l">Rayman 2 (PS1 - Demo)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Currently each map layer has to be loaded separately</td>
   </tr>
 </table>
 
@@ -448,6 +433,36 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Star Wars Episode III - Revenge of the Sith (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Open Season (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Surf's Up (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">TMNT (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
