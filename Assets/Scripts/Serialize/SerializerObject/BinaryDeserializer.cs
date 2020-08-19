@@ -376,6 +376,9 @@ namespace R1Engine
 
                 DoAt(sf.StartPointer, () => {
                     action();
+                    if (CurrentPointer != sf.StartPointer + sf.length) {
+                        UnityEngine.Debug.LogWarning($"Encoded block {key} was not fully deserialized: Serialized size: {CurrentPointer - sf.StartPointer} != Total size: {sf.length}");
+                    }
                 });
 
                 Context.RemoveFile(sf);

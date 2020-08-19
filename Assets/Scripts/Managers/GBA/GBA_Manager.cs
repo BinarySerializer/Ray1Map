@@ -654,12 +654,11 @@ namespace R1Engine
                 tilePalette = playField.TileKit.TilePalette;
             }
 
-            int tilesetLength = (tileset.Length / (is8bpp ? 64 : 32)) + 1;
+            int tileSize = (is8bpp ? (CellSize * CellSize) : (CellSize * CellSize) / 2);
+            int tilesetLength = (tileset.Length / (is8bpp ? (CellSize*CellSize) : (CellSize * CellSize)/2)) + 1;
 
 
             const int paletteSize = 16;
-            const int tileWidth = 8;
-            int tileSize = is8bpp ? (tileWidth * tileWidth) : (tileWidth * tileWidth) / 2;
 
             var tiles = new Tile[tilesetLength];
 
@@ -693,13 +692,13 @@ namespace R1Engine
                     wrapMode = TextureWrapMode.Clamp
                 };
 
-                for (int y = 0; y < tileWidth; y++)
+                for (int y = 0; y < CellSize; y++)
                 {
-                    for (int x = 0; x < tileWidth; x++)
+                    for (int x = 0; x < CellSize; x++)
                     {
                         Color c;
 
-                        int index = ((i - 1) * tileSize) + ((y * tileWidth + x) / (is8bpp ? 1 : 2));
+                        int index = ((i - 1) * tileSize) + ((y * CellSize + x) / (is8bpp ? 1 : 2));
 
                         if (is8bpp)
                         {

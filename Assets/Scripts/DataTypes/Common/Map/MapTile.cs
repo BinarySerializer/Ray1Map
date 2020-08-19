@@ -143,13 +143,12 @@ namespace R1Engine
 
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
                     TileMapX = 0;
-                    //VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
+                    //bool modifier = BitHelpers.ExtractBits(value, 1, numBits) == 1;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits+1) == 1;
                     PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
 
                     s.Log($"{nameof(TileMapY)}: {TileMapY}");
                     s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
-                    s.Log($"{nameof(VerticalFlip)}: {VerticalFlip}");
                     s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
