@@ -38,6 +38,7 @@ namespace R1Engine
 
         public bool IsBGTile { get; set; }
         public bool Is8Bpp { get; set; }
+        public bool IsFirstBlock { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -143,7 +144,7 @@ namespace R1Engine
 
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
                     TileMapX = 0;
-                    //bool modifier = BitHelpers.ExtractBits(value, 1, numBits) == 1;
+                    IsFirstBlock = BitHelpers.ExtractBits(value, 1, numBits) == 1;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits+1) == 1;
                     PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
 

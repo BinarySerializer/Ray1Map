@@ -404,12 +404,17 @@ namespace R1Engine
                     } else if (map.Unk_0C == 0) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
+                        //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
+                        //Controller.print(map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
+
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
                             bool is8bpp = map.Is8bpp;
                             MapTile newt = x.CloneObj();
                             if (is8bpp) {
-                                //Controller.print(index);
+                                if (!x.IsFirstBlock) {
+                                    index += 383; // seems hardcoded
+                                }
                                 newt.TileMapY = playField.BGTileTable.Indices8bpp[index];
                             } else {
                                 index -= 2; // BGData starts with 2 lengths that are included in this.
