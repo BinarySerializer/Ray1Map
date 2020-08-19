@@ -10,6 +10,8 @@
         // Contains general info about levels, but not anything map related
         public GBA_R3_LevelMapInfo[] LevelInfo { get; set; }
 
+        public GBA_LocLanguageTable Localization { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -27,13 +29,13 @@
             // Serialize the offset table
             s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));
 
-            // Serialize unknown pointer table
-            if (pointerTable.ContainsKey(GBA_Pointer.UnkPointerTable))
-                UnkPointerTable = s.DoAt(pointerTable[GBA_Pointer.UnkPointerTable], () => s.SerializePointerArray(UnkPointerTable, 252, name: nameof(UnkPointerTable)));
-
             // Serialize level info
             if (pointerTable.ContainsKey(GBA_Pointer.LevelInfo))
                 LevelInfo = s.DoAt(pointerTable[GBA_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, levelCount, name: nameof(LevelInfo)));
+
+            // Serialize localization
+            if (pointerTable.ContainsKey(GBA_Pointer.Localization))
+                s.DoAt(pointerTable[GBA_Pointer.Localization], () => Localization = s.SerializeObject<GBA_LocLanguageTable>(Localization, name: nameof(Localization)));
         }
     }
 }

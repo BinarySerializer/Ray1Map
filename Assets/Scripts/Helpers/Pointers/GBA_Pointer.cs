@@ -6,7 +6,7 @@
     public enum GBA_Pointer
     {
         UiOffsetTable,
-        UnkPointerTable,
-        LevelInfo
+        LevelInfo,
+        Localization
     }
 }

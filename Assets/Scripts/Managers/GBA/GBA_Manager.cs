@@ -315,6 +315,7 @@ namespace R1Engine
         }
 
         public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath, context).Data;
+        public virtual GBA_LocLanguageTable LoadLocalization(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath, context).Localization;
 
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
@@ -511,6 +512,16 @@ namespace R1Engine
 
                     actorIndex++;
                 }
+            }
+
+            var strings = LoadLocalization(context)?.StringGroups;
+
+            if (strings != null)
+            {
+                level.Localization = new Dictionary<string, string[]>();
+
+                for (int i = 0; i < strings.Length; i++)
+                    level.Localization.Add(i.ToString(), strings[i].LocStrings.SelectMany(x => x.Strings).ToArray());
             }
 
             return new GBA_EditorManager(level, context, des, eta);
