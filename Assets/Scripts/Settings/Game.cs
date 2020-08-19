@@ -28,5 +28,8 @@
         GBA_SabrinaTheTeenageWitchPotionCommotion,
         GBA_StarWarsTrilogyApprenticeOfTheForce,
         GBA_BatmanVengeance,
+        GBA_OpenSeason,
+        GBA_SurfsUp,
+        GBA_TMNT,
     }
 }

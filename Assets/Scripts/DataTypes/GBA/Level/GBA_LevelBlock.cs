@@ -13,7 +13,9 @@ namespace R1Engine
         public byte ObjectsCountTotal { get; set; }
         public byte AlwaysActorsCount { get; set; }
         public byte NormalActorsCount { get; set; }
-        public byte Unk_07 { get; set; }
+        public byte UnkCount { get; set; }
+
+        // Not included in ObjectsCountTotal
         public byte Unk_08 { get; set; }
 
         public byte UnkStructsCount { get; set; }
@@ -45,12 +47,14 @@ namespace R1Engine
             ObjectsCountTotal = s.Serialize<byte>(ObjectsCountTotal, name: nameof(ObjectsCountTotal));
             AlwaysActorsCount = s.Serialize<byte>(AlwaysActorsCount, name: nameof(AlwaysActorsCount));
             NormalActorsCount = s.Serialize<byte>(NormalActorsCount, name: nameof(NormalActorsCount));
-            Unk_07 = s.Serialize<byte>(Unk_07, name: nameof(Unk_07));
+            UnkCount = s.Serialize<byte>(UnkCount, name: nameof(UnkCount));
 
             Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
             UnkStructsCount = s.Serialize<byte>(UnkStructsCount, name: nameof(UnkStructsCount));
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
+
+            // TODO: Open Season is different from here - it first has 10 bytes and then always+normal actors where the first byte is the length of each. UnkCount is also used.
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
                 Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount, name: nameof(Actors));
@@ -58,7 +62,7 @@ namespace R1Engine
                 Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
             }
 
-            if (Unk_07 != 0 || Unk_08 != 0)
+            if (UnkCount != 0 || Unk_08 != 0)
                 Debug.LogWarning($"Potentially missed data");
 
             UnkStructs = s.SerializeObjectArray<GBA_UnkLevelBlockStruct>(UnkStructs, UnkStructsCount, name: nameof(UnkStructs));

@@ -47,7 +47,7 @@ namespace R1Engine
             GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
             StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
 
-            if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
+            if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance) {
                 Link_0 = s.Serialize<byte>(Link_0, name: nameof(Link_0));
                 Link_1 = s.Serialize<byte>(Link_1, name: nameof(Link_1));
                 Link_2 = s.Serialize<byte>(Link_2, name: nameof(Link_2));
