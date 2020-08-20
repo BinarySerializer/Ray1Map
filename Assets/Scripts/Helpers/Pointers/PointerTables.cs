@@ -258,6 +258,21 @@ namespace R1Engine
                         [GBA_Pointer.UiOffsetTable] = 0x08213F28,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SurfsUpEU1:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x08182504,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SurfsUpEU2:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x0818AD6C,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SurfsUpUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x081824D8,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 default:
                     return null;
             }

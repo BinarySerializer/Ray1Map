@@ -464,8 +464,8 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   <tr>
     <td class="tg-yw4l">Surf's Up (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>

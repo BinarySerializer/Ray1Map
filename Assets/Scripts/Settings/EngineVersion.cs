@@ -48,6 +48,6 @@ namespace R1Engine
         GBA_KingKong,           // 2005 // TODO: Support
         GBA_OpenSeason,         // 2006
         GBA_TMNT,               // 2007
-        GBA_SurfsUp,            // 2007 // TODO: Support
+        GBA_SurfsUp,            // 2007
     }
 }

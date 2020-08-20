@@ -176,6 +176,15 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TMNT, Game.GBA_TMNT, "TMNT (GBA - US)", typeof(GBA_TMNT_Manager))]
         TMNTGBAUS,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SurfsUp, Game.GBA_SurfsUp, "Surf's Up (GBA - EU 1)", typeof(GBA_SurfsUp_Manager))]
+        SurfsUpEU1,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SurfsUp, Game.GBA_SurfsUp, "Surf's Up (GBA - EU 2)", typeof(GBA_SurfsUp_Manager))]
+        SurfsUpEU2,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SurfsUp, Game.GBA_SurfsUp, "Surf's Up (GBA - US)", typeof(GBA_SurfsUp_Manager))]
+        SurfsUpUS,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman Raving Rabbids (GBA)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBA,
     }
