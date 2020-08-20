@@ -27,6 +27,8 @@
         GBA_PrinceOfPersiaTheSandsOfTime,
         GBA_SabrinaTheTeenageWitchPotionCommotion,
         GBA_StarWarsTrilogyApprenticeOfTheForce,
+        GBA_StarWarsEpisodeIII,
+        GBA_KingKong,
         GBA_BatmanVengeance,
         GBA_OpenSeason,
         GBA_SurfsUp,

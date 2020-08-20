@@ -161,6 +161,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsTrilogy_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAUS,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsEpisodeIII, Game.GBA_StarWarsEpisodeIII, "Star Wars Episode III (GBA - US)", typeof(GBA_StarWarsTrilogy_Manager))]
+        StarWarsEpisodeIIIGBAUS,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_KingKong, Game.GBA_KingKong, "King Kong (GBA - EU)", typeof(GBA_StarWarsTrilogy_Manager))]
+        KingKongGBAEU,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_OpenSeason, Game.GBA_OpenSeason, "Open Season (GBA - EU 1)", typeof(GBA_OpenSeason_Manager))]
         OpenSeasonGBAEU1,
 
