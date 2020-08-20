@@ -21,8 +21,7 @@ namespace R1Engine
                 Strings = new string[Pointers.Length];
 
             for (int i = 0; i < Strings.Length; i++)
-                // TODO: Encoding is wrong!
-                Strings[i] = s.DoAt(Pointers[i], () => s.SerializeString(Strings[i], encoding: Encoding.ASCII, name: $"{nameof(Strings)}[{i}]"));
+                Strings[i] = s.DoAt(Pointers[i], () => s.SerializeString(Strings[i], encoding: Encoding.GetEncoding(1252), name: $"{nameof(Strings)}[{i}]"));
         }
     }
 }

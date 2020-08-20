@@ -520,8 +520,23 @@ namespace R1Engine
             {
                 level.Localization = new Dictionary<string, string[]>();
 
+                // TODO: Don't hard-code languages as they differ between games and releases
+                var languages = new string[]
+                {
+                    "English",
+                    "French",
+                    "Spanish",
+                    "German",
+                    "Italian",
+                    "Dutch",
+                    "Swedish",
+                    "Finnish",
+                    "Norwegian",
+                    "Danish"
+                };
+
                 for (int i = 0; i < strings.Length; i++)
-                    level.Localization.Add(i.ToString(), strings[i].LocStrings.SelectMany(x => x.Strings).ToArray());
+                    level.Localization.Add(languages[i], strings[i].LocStrings.SelectMany(x => x.Strings).ToArray());
             }
 
             return new GBA_EditorManager(level, context, des, eta);
