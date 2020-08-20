@@ -141,7 +141,6 @@ namespace R1Engine
                         Mode7_14 = s.Serialize<byte>(Mode7_14, name: nameof(Mode7_14));
                     }
 
-                    // TODO: It seems the compressed block contains more data than just the tile indexes for BG_2 & 3?
                     if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
                         s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData))));;
                     } else {
