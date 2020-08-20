@@ -188,14 +188,17 @@ namespace R1Engine
                     // Link
                     else
                     {
-                        eventList[i].LinkID = i;
+                        eventList[i].LinkID = i + 1;
 
                         foreach (var link in links)
                         {
                             if (link == 0xFF)
                                 continue;
 
-                            eventList[link].LinkID = i;
+                            eventList[link].LinkID = i + 1;
+
+                            foreach (var linkedObj in eventList.Where(x => x.LinkID == 0 && x.Data.GBALinks.Contains(link)))
+                                linkedObj.LinkID = i + 1;
                         }
 
                         eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
