@@ -170,6 +170,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_OpenSeason, Game.GBA_OpenSeason, "Open Season (GBA - US)", typeof(GBA_OpenSeason_Manager))]
         OpenSeasonGBAUS,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TMNT, Game.GBA_TMNT, "TMNT (GBA - EU)", typeof(GBA_TMNT_Manager))]
+        TMNTGBAEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_TMNT, Game.GBA_TMNT, "TMNT (GBA - US)", typeof(GBA_TMNT_Manager))]
+        TMNTGBAUS,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman Raving Rabbids (GBA)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBA,
     }
