@@ -37,17 +37,17 @@ namespace R1Engine
 
         // GBA
 
-        GBA_BatmanVengeance, // 2001
-        GBA_Sabrina,         // 2002
-        GBA_R3_Proto,        // 2003
-        GBA_R3,              // 2003
-        GBA_R3_NGage,        // 2003
-        GBA_PrinceOfPersia,  // 2003
-        GBA_StarWarsTrilogy, // 2004
+        GBA_BatmanVengeance,    // 2001
+        GBA_Sabrina,            // 2002
+        GBA_R3_Proto,           // 2003
+        GBA_R3,                 // 2003
+        GBA_R3_NGage,           // 2003
+        GBA_PrinceOfPersia,     // 2003
+        GBA_StarWarsTrilogy,    // 2004
         GBA_StarWarsEpisodeIII, // 2005 // TODO: Support
-        GBA_KingKong,        // TODO: Support
-        GBA_OpenSeason,      // 2006
-        GBA_TMNT,            // 2007 // TODO: Support
-        GBA_SurfsUp,         // 2007 // TODO: Support
+        GBA_KingKong,           // 2005 // TODO: Support
+        GBA_OpenSeason,         // 2006
+        GBA_TMNT,               // 2007 // TODO: Support
+        GBA_SurfsUp,            // 2007 // TODO: Support
     }
 }

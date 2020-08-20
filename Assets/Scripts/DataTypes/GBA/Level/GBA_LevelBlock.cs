@@ -54,8 +54,6 @@ namespace R1Engine
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
             Unk_0B = s.Serialize<byte>(Unk_0B, name: nameof(Unk_0B));
 
-            // TODO: Open Season is different from here - it first has 10 bytes and then always+normal actors where the first byte is the length of each. UnkCount is also used.
-
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
                 if (Actors == null) Actors = new GBA_Actor[AlwaysActorsCount + NormalActorsCount];
                 for (int i = 0; i < Actors.Length; i++) {

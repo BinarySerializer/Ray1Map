@@ -342,10 +342,30 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
+    <td class="tg-yw4l">Batman Vengeance (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Rayman 3 (GBA)</td>
     <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -355,7 +375,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">Rayman 3 (GBA - US Prototype)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -365,7 +385,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">Rayman 3 (N-Gage)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -382,30 +402,10 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman Raving Rabbids (GBA)</td>
-    <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA)</td>
-    <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
     <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -415,17 +415,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
-  <tr>
-    <td class="tg-yw4l">Batman Vengeance (GBA)</td>
-    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -442,7 +432,27 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
+    <td class="tg-yw4l">King Kong (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Open Season (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">TMNT (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -461,17 +471,15 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
-  <tr>
-    <td class="tg-yw4l">TMNT (GBA)</td>
-    <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-  </tr>
 </table>
+
+### Supported Games (Isometric GBA)
+
+...
+
+### Supported Games (RRR GBA)
+
+...
 
 ## Get Started
 NOTE: This project is currently in its early stages and may be unstable. Saving edits may corrupt your files for certain games, so make sure to back up your files first!
