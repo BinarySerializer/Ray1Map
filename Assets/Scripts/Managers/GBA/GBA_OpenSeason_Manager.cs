@@ -9,7 +9,7 @@ namespace R1Engine
         // TODO: Get count
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 1)
+            Enumerable.Range(0, 50)
         };
 
         // TODO: Get values

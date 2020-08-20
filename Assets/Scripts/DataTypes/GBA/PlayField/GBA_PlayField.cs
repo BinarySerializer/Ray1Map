@@ -53,8 +53,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia ||
-                s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
                 BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
                 TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));

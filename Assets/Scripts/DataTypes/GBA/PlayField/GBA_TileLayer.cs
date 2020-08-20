@@ -141,7 +141,7 @@ namespace R1Engine
                         Mode7_14 = s.Serialize<byte>(Mode7_14, name: nameof(Mode7_14));
                     }
 
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
+                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData))));;
                     } else {
                         s.DoEncoded(new GBA_LZSSEncoder(), () =>
@@ -153,7 +153,7 @@ namespace R1Engine
                         });
                     }
                 } else {
-                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
+                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData))));
                     } else {
                         s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));

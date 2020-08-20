@@ -56,8 +56,13 @@ namespace R1Engine
 
             // TODO: Open Season is different from here - it first has 10 bytes and then always+normal actors where the first byte is the length of each. UnkCount is also used.
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy) {
-                Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount, name: nameof(Actors));
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
+                if (Actors == null) Actors = new GBA_Actor[AlwaysActorsCount + NormalActorsCount];
+                for (int i = 0; i < Actors.Length; i++) {
+                    ushort size = 12;
+                    if (i > 0) size = Actors[i - 1].NextActorSize;
+                    Actors[i] = s.SerializeObject<GBA_Actor>(Actors[i], onPreSerialize: a => a.ThisActorSize = size, name: $"{nameof(Actors)}[{i}]");
+                }
             } else {
                 Actors = s.SerializeObjectArray<GBA_Actor>(Actors, AlwaysActorsCount + NormalActorsCount, name: nameof(Actors));
             }
@@ -81,7 +86,7 @@ namespace R1Engine
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)
             {
-                if (Actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount && (s.GameSettings.EngineVersion != EngineVersion.GBA_StarWarsTrilogy || Actors[i].GraphicsDataIndex != 0))
+                if (Actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount && (s.GameSettings.EngineVersion < EngineVersion.GBA_StarWarsTrilogy || Actors[i].GraphicsDataIndex != 0))
                     Actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(Actors[i].GraphicsDataIndex),
                         () => s.SerializeObject<GBA_ActorGraphicData>(Actors[i].GraphicData,
                             name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));

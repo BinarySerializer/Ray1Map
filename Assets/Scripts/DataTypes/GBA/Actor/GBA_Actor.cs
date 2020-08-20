@@ -27,6 +27,10 @@ namespace R1Engine
         public short Short_0E { get; set; }
         public byte[] ExtraData { get; set; }
 
+        // Star Wars Trilogy & above
+        public ushort NextActorSize { get; set; }
+        public ushort ThisActorSize { get; set; }
+
         #endregion
 
         #region Parsed
@@ -39,6 +43,9 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
+                ExtraData = s.SerializeArray<byte>(ExtraData, ThisActorSize - 12, name: nameof(ExtraData));
+            }
             XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
             YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
 
@@ -47,7 +54,7 @@ namespace R1Engine
             GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
             StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
 
-            if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance) {
+            if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance && s.GameSettings.EngineVersion < EngineVersion.GBA_StarWarsTrilogy) {
                 Link_0 = s.Serialize<byte>(Link_0, name: nameof(Link_0));
                 Link_1 = s.Serialize<byte>(Link_1, name: nameof(Link_1));
                 Link_2 = s.Serialize<byte>(Link_2, name: nameof(Link_2));
@@ -60,6 +67,10 @@ namespace R1Engine
                 Short_0E = s.Serialize<short>(Short_0E, name: nameof(Short_0E));
                 int len = Short_0E & 0xF;
                 ExtraData = s.SerializeArray<byte>(ExtraData, len, name: nameof(ExtraData));
+            }
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
+                Short_0C = s.Serialize<short>(Short_0C, name: nameof(Short_0C));
+                NextActorSize = s.Serialize<ushort>(NextActorSize, name: nameof(NextActorSize));
             }
         }
 

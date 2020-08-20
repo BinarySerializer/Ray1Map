@@ -45,6 +45,7 @@ namespace R1Engine
         GBA_PrinceOfPersia,  // 2003
         GBA_StarWarsTrilogy, // 2004
         GBA_StarWarsEpisodeIII, // 2005 // TODO: Support
+        GBA_KingKong,        // TODO: Support
         GBA_OpenSeason,      // 2006
         GBA_TMNT,            // 2007 // TODO: Support
         GBA_SurfsUp,         // 2007 // TODO: Support

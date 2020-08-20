@@ -40,7 +40,7 @@ namespace R1Engine
             TileMapOffsetIndex = s.Serialize<byte>(TileMapOffsetIndex, name: nameof(TileMapOffsetIndex));
             PaletteOffsetIndex = s.Serialize<byte>(PaletteOffsetIndex, name: nameof(PaletteOffsetIndex));
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia || s.GameSettings.EngineVersion == EngineVersion.GBA_StarWarsTrilogy)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
                 UnkOffsetIndex3 = s.Serialize<byte>(UnkOffsetIndex3, name: nameof(UnkOffsetIndex3));
 
             Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
