@@ -38,7 +38,7 @@ namespace R1Engine
 
         public bool IsBGTile { get; set; }
         public bool Is8Bpp { get; set; }
-        public bool SetRelativeIndex { get; set; }
+        public bool IsFirstBlock { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -145,7 +145,7 @@ namespace R1Engine
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
                     TileMapX = 0;
                     if (Is8Bpp) {
-                        SetRelativeIndex = BitHelpers.ExtractBits(value, 1, 9) == 1;
+                        IsFirstBlock = BitHelpers.ExtractBits(value, 1, 9) == 1;
                     }
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, 10) == 1;
                     VerticalFlip = BitHelpers.ExtractBits(value, 1, 11) == 1;
@@ -153,7 +153,7 @@ namespace R1Engine
 
                     s.Log($"{nameof(TileMapY)}: {TileMapY}");
                     s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
-                    s.Log($"{nameof(SetRelativeIndex)}: {SetRelativeIndex}");
+                    s.Log($"{nameof(IsFirstBlock)}: {IsFirstBlock}");
                     s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
