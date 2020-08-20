@@ -42,7 +42,9 @@ namespace R1Engine
                       $"Sound: {e.State?.SoundIndex}{Environment.NewLine}" +
                       $"{Environment.NewLine}" +
                       $"Etat: {e.Data.Data.RuntimeEtat}{Environment.NewLine}" +
-                      $"SubEtat: {e.Data.Data.RuntimeSubEtat}{Environment.NewLine}"
+                      $"SubEtat: {e.Data.Data.RuntimeSubEtat}{Environment.NewLine}" +
+                      $"{Environment.NewLine}" +
+                      $"LinkID: {e.LinkID}{Environment.NewLine}"
                     : String.Empty;
             }
             // Else Mouse over type

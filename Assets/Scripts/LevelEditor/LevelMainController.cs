@@ -202,7 +202,7 @@ namespace R1Engine
                 e.ForceUpdate();
 
                 // Hide always and editor events, except for certain ones
-                if ((e.Data.GetIsAlways() || e.Data.GetIsEditor()) && !exceptions.Contains(e.Data.Type))
+                if ((e.Data.GetIsAlways() || e.Data.GetIsEditor()) && !exceptions.Contains(e.Data.Type) && (LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA || (e.Data.Data.XPosition == 0 && e.Data.Data.YPosition == 0)))
                     e.gameObject.SetActive(false);
                 else
                     e.gameObject.SetActive(true);
@@ -223,7 +223,7 @@ namespace R1Engine
                 // Helper method
                 bool isGendoor(Unity_ObjBehaviour ee)
                 {
-                    if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
+                    if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar || LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
                         return ee.LinkID != 0;
                     else
                         return ee.Data.Type is R1_EventType et &&
