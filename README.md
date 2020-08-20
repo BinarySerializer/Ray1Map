@@ -443,7 +443,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Open Season (GBA)</td>
-    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">EU 1, EU 2, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
