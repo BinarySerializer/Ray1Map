@@ -29,6 +29,13 @@ namespace R1Engine
 
         public override int DLCLevelCount => 10;
 
+        // TODO: Find the rest
+        public override int[] AdditionalSprites4bpp => Enumerable.Range(113, 116 - 113).ToArray();
+        public override int[] AdditionalSprites8bpp => new int[]
+        {
+            118
+        };
+
         // TODO: Find the way the game gets the vignette offsets and find remaining vignettes
         public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)
         {

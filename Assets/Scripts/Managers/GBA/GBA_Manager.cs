@@ -52,6 +52,8 @@ namespace R1Engine
         public int LevelCount => WorldLevels.Select(x => x.Count()).Sum();
         public abstract int[] MenuLevels { get; }
         public abstract int DLCLevelCount { get; }
+        public abstract int[] AdditionalSprites4bpp { get; }
+        public abstract int[] AdditionalSprites8bpp { get; }
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
@@ -227,6 +229,33 @@ namespace R1Engine
         public async UniTask ExportSpriteSetsAsync(GameSettings settings, string outputDir)
         {
             var exported = new HashSet<Pointer>();
+            Pointer baseOffset;
+
+            // Export menu sprites
+            using (var context = new Context(settings))
+            {
+                // Load the ROM
+                await LoadFilesAsync(context);
+
+                // Load the data block
+                var data = LoadDataBlock(context);
+
+                // Set the base offset
+                baseOffset = data.UiOffsetTable.Offset;
+
+                // Enumerate every menu sprite group
+                foreach (var menuSprite in AdditionalSprites4bpp)
+                {
+                    var s = context.Deserializer;
+                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false);
+                }
+
+                foreach (var menuSprite in AdditionalSprites8bpp)
+                {
+                    var s = context.Deserializer;
+                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true);
+                }
+            }
 
             // Enumerate every level
             for (int lev = 0; lev < LevelCount; lev++)
@@ -238,78 +267,70 @@ namespace R1Engine
                     // Load the ROM
                     await LoadFilesAsync(context);
 
-                    GBA_LevelBlock lvl;
-                    Pointer baseOffset;
-
-                    try
-                    {
-                        // Read the level
-                        var data = LoadDataBlock(context);
-                        lvl = data.LevelBlock;
-                        baseOffset = data.UiOffsetTable.Offset;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogWarning($"Error loading level {lev}: {ex.Message}");
-                        continue;
-                    }
+                    // Read the level
+                    var data = LoadDataBlock(context);
+                    GBA_LevelBlock lvl = data.LevelBlock;
 
                     // Enumerate every graphic group
                     foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
+                        ExportSpriteGroup(spr, false);
+                }
+            }
+
+            void ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit)
+            {
+                if (exported.Contains(spr.Offset))
+                    return;
+
+                exported.Add(spr.Offset);
+
+                var paletteCount = is8bit ? 1 : spr.Palette.Palette.Length / 16;
+
+                for (int palIndex = 0; palIndex < paletteCount; palIndex++)
+                {
+                    var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
+                    const int wrap = 16;
+                    const int tileWidth = 8;
+                    int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
+
+                    // Create a texture for the tileset
+                    var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
                     {
-                        if (exported.Contains(spr.Offset))
-                            return;
+                        filterMode = FilterMode.Point,
+                    };
 
-                        exported.Add(spr.Offset);
+                    // Default to transparent
+                    tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
 
-                        var paletteCount = spr.Palette.Palette.Length / 16;
+                    // Add each tile
+                    for (int i = 0; i < length; i++)
+                    {
+                        int mainY = tex.height - 1 - (i / wrap);
+                        int mainX = i % wrap;
 
-                        for (int palIndex = 0; palIndex < paletteCount; palIndex++)
+                        for (int y = 0; y < tileWidth; y++)
                         {
-                            var length = spr.TileMap.TileMapLength;
-                            const int wrap = 16;
-                            const int tileWidth = 8;
-                            const int tileSize = (tileWidth * tileWidth) / 2;
-
-                            // Create a texture for the tileset
-                            var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
+                            for (int x = 0; x < tileWidth; x++)
                             {
-                                filterMode = FilterMode.Point,
-                            };
+                                int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
 
-                            // Default to transparent
-                            tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
+                                var v = is8bit ? spr.TileMap.TileMap[index] : BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
 
-                            // Add each tile
-                            for (int i = 0; i < length; i++)
-                            {
-                                int mainY = tex.height - 1 - (i / wrap);
-                                int mainX = i % wrap;
+                                Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
 
-                                for (int y = 0; y < tileWidth; y++)
-                                {
-                                    for (int x = 0; x < tileWidth; x++)
-                                    {
-                                        int index = (i * tileSize) + ((y * tileWidth + x) / 2);
-                                        var v = BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
+                                if (v != 0)
+                                    c = new Color(c.r, c.g, c.b, 1f);
 
-                                        Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
-
-                                        if (v != 0)
-                                            c = new Color(c.r, c.g, c.b, 1f);
-
-                                        tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
-                                    }
-                                }
+                                tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
                             }
-
-                            tex.Apply();
-
-                            var fileName = $"Sprites_{(spr.Offset.AbsoluteOffset - baseOffset.AbsoluteOffset):X8}_Pal{palIndex}.png";
-
-                            Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                         }
                     }
+
+                    tex.Apply();
+
+                    var fileName = $"Sprites_{(spr.Offset.AbsoluteOffset - baseOffset.AbsoluteOffset):X8}_Pal{palIndex}.png";
+
+                    Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                 }
             }
         }

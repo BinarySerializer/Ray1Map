@@ -6,7 +6,6 @@ namespace R1Engine
 {
     public class GBA_OpenSeason_Manager : GBA_Manager
     {
-        // TODO: Get count
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
             Enumerable.Range(0, 50)
@@ -15,6 +14,8 @@ namespace R1Engine
         // TODO: Get values
         public override int[] MenuLevels => new int[0];
         public override int DLCLevelCount => 0;
+        public override int[] AdditionalSprites4bpp => new int[0];
+        public override int[] AdditionalSprites8bpp => new int[0];
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
     }
