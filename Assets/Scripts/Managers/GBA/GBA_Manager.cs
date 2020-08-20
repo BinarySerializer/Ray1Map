@@ -405,20 +405,31 @@ namespace R1Engine
                     } else if (map.Unk_0C == 0) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
-                        //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
-                        //Controller.print(map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
-
+                        //Controller.print(map.MapData?.Where(m=>m.SetRelativeIndex).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
+                        //Controller.print(map.MapData?.Where(m => !m.SetRelativeIndex).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
+                        int relativeIndex = 0;
+                        int i = 0;
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
                             bool is8bpp = map.Is8bpp;
                             MapTile newt = x.CloneObj();
                             if (is8bpp) {
-                                if (!x.IsFirstBlock) {
-                                    index += 383; // seems hardcoded
+                                if (x.SetRelativeIndex) {
+                                    //Controller.print(i + " - " + index);
+                                    relativeIndex = index;
+                                } else {
+                                    index += 384; // 3 * 128, 24 * 16?
+                                    index -= 1;
+                                    //index += relativeIndex; // 383; // seems hardcoded
                                 }
-                                newt.TileMapY = playField.BGTileTable.Indices8bpp[index];
+                                if (index < 0 || index >= playField.BGTileTable.IndicesCount8bpp) {
+                                    newt.TileMapY = 0;
+                                    newt.PC_TransparencyMode = R1_PC_MapTileTransparencyMode.FullyTransparent;
+                                } else {
+                                    newt.TileMapY = playField.BGTileTable.Indices8bpp[index];
+                                }
                             } else {
-                                index -= 2; // BGData starts with 2 lengths that are included in this.
+                                index -= 2;
                                 if (index < 0) {
                                     newt.TileMapY = 0;
                                     newt.PC_TransparencyMode = R1_PC_MapTileTransparencyMode.FullyTransparent;
@@ -427,6 +438,7 @@ namespace R1Engine
                                     newt.TileMapY = playField.BGTileTable.Indices4bpp[index];
                                 }
                             }
+                            i++;
                             return newt;
                         }).ToArray();
                     }

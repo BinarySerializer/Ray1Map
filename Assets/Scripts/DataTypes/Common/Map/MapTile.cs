@@ -38,7 +38,7 @@ namespace R1Engine
 
         public bool IsBGTile { get; set; }
         public bool Is8Bpp { get; set; }
-        public bool IsFirstBlock { get; set; }
+        public bool SetRelativeIndex { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -125,7 +125,7 @@ namespace R1Engine
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
                 if (IsBGTile) {
-                    int numBits = 9;
+                    int numBits = Is8Bpp ? 9 : 10;
 
                     if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
                         numBits = 8;
@@ -137,19 +137,23 @@ namespace R1Engine
 
                     value = (ushort)BitHelpers.SetBits(value, TileMapY, numBits, 0);
                     //value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, numBits);
-                    value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits+1);
+                    value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits);
                     value = (ushort)BitHelpers.SetBits(value, PaletteIndex, 4, 12);
 
                     value = s.Serialize<ushort>(value, name: nameof(value));
 
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
                     TileMapX = 0;
-                    IsFirstBlock = BitHelpers.ExtractBits(value, 1, numBits) == 1;
-                    HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits+1) == 1;
+                    if (Is8Bpp) {
+                        SetRelativeIndex = BitHelpers.ExtractBits(value, 1, 9) == 1;
+                    }
+                    HorizontalFlip = BitHelpers.ExtractBits(value, 1, 10) == 1;
+                    VerticalFlip = BitHelpers.ExtractBits(value, 1, 11) == 1;
                     PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
 
                     s.Log($"{nameof(TileMapY)}: {TileMapY}");
                     s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
+                    s.Log($"{nameof(SetRelativeIndex)}: {SetRelativeIndex}");
                     s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
