@@ -402,6 +402,26 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
+    <td class="tg-yw4l">Splinter Cell (GBA)</td>
+    <td class="tg-yw4l">EU, US, EU Beta</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Splinter Cell (N-Gage)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Prince of Persia: The Sands of Time (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
@@ -424,8 +444,8 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   <tr>
     <td class="tg-yw4l">Star Wars Episode III - Revenge of the Sith (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -434,8 +454,8 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   <tr>
     <td class="tg-yw4l">King Kong (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
