@@ -10,8 +10,8 @@ public class MapSelectionDropdown : AdvancedDropdown
     {
         GameVolumes = gameVolumes;
 
-        LevelNames = MapNames.GetMapNames(game);
-        WorldNames = MapNames.GetWorldNames(game);
+        LevelNames = MapNames.GetMapNames(game) ?? new Dictionary<int, Dictionary<int, string>>();
+        WorldNames = MapNames.GetWorldNames(game) ?? new Dictionary<int, string>();
 
         minimumSize = new Vector2(50, 500f);
     }
@@ -39,10 +39,10 @@ public class MapSelectionDropdown : AdvancedDropdown
     {
         foreach (var w in vol.Worlds.Where(x => x.Maps.Length > 0))
         {
-            var worldItem = new AdvancedDropdownItem(GetName(w.Index, WorldNames[w.Index]));
+            var worldItem = new AdvancedDropdownItem(GetName(w.Index, WorldNames?.TryGetItem(w.Index)));
 
             foreach (var m in w.Maps)
-                worldItem.AddChild(new MapSelectionDropdownItem(GetName(m, LevelNames[w.Index][m]), vol.Name, w.Index, m));
+                worldItem.AddChild(new MapSelectionDropdownItem(GetName(m, LevelNames?.TryGetItem(w.Index)?.TryGetItem(m)), vol.Name, w.Index, m));
 
             parent.AddChild(worldItem);
         }

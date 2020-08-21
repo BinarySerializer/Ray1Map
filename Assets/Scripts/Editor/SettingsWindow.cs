@@ -74,7 +74,7 @@ public class SettingsWindow : UnityWindow
             GameModeDropdown = new GameModeSelectionDropdown(new AdvancedDropdownState());
 
         var r = GetNextRect(ref YPos);
-        if (EditorGUI.DropdownButton(r, new GUIContent(Settings.SelectedGameMode.GetAttribute<GameModeAttribute>().DisplayName), FocusType.Passive))
+        if (EditorGUI.DropdownButton(r, new GUIContent(GameModeDropdown.SelectionName), FocusType.Passive))
             GameModeDropdown.Show(r);
 
         Settings.SelectedGameMode = GameModeDropdown.Selection;
