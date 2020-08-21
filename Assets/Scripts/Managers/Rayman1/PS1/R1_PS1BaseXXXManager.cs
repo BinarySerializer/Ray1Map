@@ -65,11 +65,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"{GetWorldName(w)}**.XXX", SearchOption.TopDirectoryOnly)
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"{GetWorldName(w)}**.XXX", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Where(x => x.Length == 5)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).Where(x => x.Value.Any()).ToArray();
+            .ToArray())).Where(x => x.Maps.Any()).ToArray());
 
         /// <summary>
         /// Gets the available game actions
@@ -209,9 +209,9 @@ namespace R1Engine
             }
 
             // Enumerate every world
-            foreach (var world in GetLevels(settings))
+            foreach (var world in GetLevels(settings).First().Worlds)
             {
-                settings.World = world.Key;
+                settings.World = world.Index;
                 settings.Level = 1;
 
                 using (var context = new Context(settings))

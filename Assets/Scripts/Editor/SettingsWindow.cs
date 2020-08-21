@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using R1Engine;
 using R1Engine.Serialize;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -45,8 +44,6 @@ public class SettingsWindow : UnityWindow
     public int DefaultMemoryOptionsIndex { get; set; }
     public int PreviousDefaultMemoryOptionsIndex { get; set; } = -1;
 
-    bool isFirstRun = true;
-
     protected override async UniTask UpdateEditorFields()
 	{
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
@@ -73,25 +70,14 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Mode");
 
-        if (fileMode == FileSystem.Mode.Web)
-        {
-            Settings.SelectedGameMode = EditorField("Game", Settings.SelectedGameMode, getEnumOptions: () => EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray());
-        }
-        else
-        {
-            var r = GetNextRect(ref YPos);
-            r = EditorGUI.PrefixLabel(r, new GUIContent("Game"));
-            if (EditorGUI.DropdownButton(r, new GUIContent(EnumExtensions.GetAttribute<GameModeAttribute>(Settings.SelectedGameMode).DisplayName), FocusType.Passive))
-            {
-                if (Dropdown == null)
-                    Dropdown = new GameModeSelectionDropdown(new AdvancedDropdownState());
-                
-                Dropdown.Show(r);
-            }
-        }
+        if (GameModeDropdown == null)
+            GameModeDropdown = new GameModeSelectionDropdown(new AdvancedDropdownState());
 
-        if (Dropdown != null)
-            Settings.SelectedGameMode = Dropdown.Selection;
+        var r = GetNextRect(ref YPos);
+        if (EditorGUI.DropdownButton(r, new GUIContent(Settings.SelectedGameMode.GetAttribute<GameModeAttribute>().DisplayName), FocusType.Passive))
+            GameModeDropdown.Show(r);
+
+        Settings.SelectedGameMode = GameModeDropdown.Selection;
 
         Settings.LoadFromMemory = EditorField("Load from memory", Settings.LoadFromMemory);
         
@@ -136,84 +122,38 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Map");
 
-        if (!isFirstRun)
-            Settings.World = AvailableWorlds.ElementAtOrDefault(EditorField("World", AvailableWorlds.FindItemIndex(x => x == Settings.World), WorldOptions));
+        var r2 = GetNextRect(ref YPos);
 
-        try
+        if (MapSelectionDropdown == null || GameModeDropdown.HasChanged)
         {
-			// Only update if previous values don't match
-			if (!PrevLvlValues.ComparePreviousValues())
-            {
-                //Debug.Log($"Updated levels for world {Settings.World}");
+            GameModeDropdown.HasChanged = false;
 
+            GameInfo_Volume[] volumes;
+
+            try
+            {
                 var manager = Settings.GetGameManager;
                 var settings = Settings.GetGameSettings;
 
-                var mapNames = MapNames.GetMapNames(settings.Game);
-                var worldNames = MapNames.GetWorldNames(settings.Game);
-
-                CurrentLevels = manager.GetLevels(settings)
-                    .Select(x => new KeyValuePair<int, KeyValuePair<int, string>[]>(x.Key, x.Value.OrderBy(i => i)
-                        .Select(i => new KeyValuePair<int, string>(i, mapNames?.TryGetItem(Settings.World)?.TryGetItem(i)))
-                        .ToArray()))
-                    .ToArray();
-                AvailableWorlds = CurrentLevels.Where(x => x.Value.Any()).Select(x => x.Key).ToArray();
-
-                // Helper method for getting the world name
-                string GetWorldName(int worldNum, string worldName) => worldName != null ? $"{worldNum:00} - {worldName}" : $"{worldNum}";
-
-                WorldOptions = AvailableWorlds.Select(x => worldNames?.TryGetItem(x)).Select((x, i) => GetWorldName(AvailableWorlds[i], x)).ToArray();
+                volumes = manager.GetLevels(settings);
             }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogWarning(ex.Message);
-        }
-
-        if (fileMode == FileSystem.Mode.Web) {
-            var lvlIndex = EditorField("Map", Settings.Level);
-
-            if (lvlIndex >= 0)
-                Settings.Level = lvlIndex;
-        } else {
-            var levels = Directory.Exists(Settings.CurrentDirectory) ? CurrentLevels : new KeyValuePair<int, KeyValuePair<int, string>[]>[0];
-
-            var currentLevels = levels.FindItem(x => x.Key == Settings.World).Value ?? new KeyValuePair<int, string>[0];
-
-            if (currentLevels.All(x => x.Key != Settings.Level))
-                Settings.Level = currentLevels.FirstOrDefault().Key;
-
-            // Helper method for getting the level name
-            string GetLvlName(int lvlNum, string lvlName) => lvlName != null ? $"{lvlNum:00} - {lvlName}" : $"{lvlNum}";
-
-            var lvlIndex = EditorField("Map", currentLevels.FindItemIndex(x => x.Key == Settings.Level), currentLevels.Select(x => GetLvlName(x.Key, x.Value)).ToArray());
-
-            if (currentLevels.Length > lvlIndex && lvlIndex != -1)
-                Settings.Level = currentLevels[lvlIndex].Key;
-        }
-
-        EditorGUI.BeginDisabledGroup(Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPC && Settings.SelectedGameMode != GameModeSelection.RaymanQuizPC && Settings.SelectedGameMode != GameModeSelection.RaymanEducationalPS1);
-
-        try
-		{
-            // Only update if previous values don't match
-            if (!PrevLvlValues.ComparePreviousValues())
+            catch (Exception ex)
             {
-				//Debug.Log("Updated EDU volumes");
-                CurrentEduVolumes = Settings.GetGameManager.GetEduVolumes(Settings.GetGameSettings);
+                volumes = new GameInfo_Volume[0];
+                Debug.LogWarning(ex.Message);
             }
+
+            MapSelectionDropdown = new MapSelectionDropdown(new AdvancedDropdownState(), volumes, Settings.SelectedGameMode.GetAttribute<GameModeAttribute>().Game);
+
+            // Debug.Log($"Map selection updated with {volumes.Length} volumes");
         }
-        catch (Exception ex)
-        {
-            Debug.LogWarning(ex.Message);
-        }
 
-		var eduIndex = EditorField("Volume", CurrentEduVolumes.FindItemIndex(x => x == Settings.EduVolume), CurrentEduVolumes);
+        if (EditorGUI.DropdownButton(r2, new GUIContent($"{(Settings.EduVolume != null ? $"{Settings.EduVolume} - " : String.Empty)}{Settings.World} - {Settings.Level}"), FocusType.Passive))
+            MapSelectionDropdown.Show(r2);
 
-		if (CurrentEduVolumes.Length > eduIndex && eduIndex != -1)
-			Settings.EduVolume = CurrentEduVolumes[eduIndex];
-
-        EditorGUI.EndDisabledGroup();
+        Settings.EduVolume = MapSelectionDropdown.SelectedVolume;
+        Settings.World = MapSelectionDropdown.SelectedWorld;
+        Settings.Level = MapSelectionDropdown.SelectedMap;
 
         // Directories
         DrawHeader("Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
@@ -307,9 +247,9 @@ public class SettingsWindow : UnityWindow
         DrawHeader("Game Tools");
 
         // Only update if previous values don't match
-        if (!PrevLvlValues.ComparePreviousValues())
+        if (MapSelectionDropdown.HasChanged)
         {
-            //Debug.Log("Updated game actions");
+            MapSelectionDropdown.HasChanged = false;
             CurrentGameActions = Settings.GetGameManager.GetGameActions(Settings.GetGameSettings);
         }
 
@@ -376,7 +316,7 @@ public class SettingsWindow : UnityWindow
                     var manager = settings.GetGameManager;
 
                     // Set to default EDU volume
-                    settings.EduVolume = manager.GetEduVolumes(settings).FirstOrDefault();
+                    settings.EduVolume = manager.GetLevels(settings).FirstOrDefault()?.Name;
 
                     // Get action
                     var action = manager.GetGameActions(settings).FirstOrDefault(x => x.DisplayName.Equals(actionName, StringComparison.CurrentCultureIgnoreCase));
@@ -411,9 +351,6 @@ public class SettingsWindow : UnityWindow
         await AddGlobalActionAsync("Export Animation Frames");
         await AddGlobalActionAsync("Export Vignette");
 
-        // Update previous values
-        PrevLvlValues.UpdatePreviousValues();
-
         // Randomizer
 
         DrawHeader("Randomizer");
@@ -433,8 +370,6 @@ public class SettingsWindow : UnityWindow
 			Settings.Save();
 			Dirty = false;
 		}
-
-        isFirstRun = false;
     }
 
     #region Randomizer
@@ -451,13 +386,13 @@ public class SettingsWindow : UnityWindow
         var flag = RandomizerFlags;
 
         // Enumerate every world
-        foreach (var world in manager.GetLevels(settings))
+        foreach (var world in manager.GetLevels(settings).First().Worlds)
         {
             // Set the world
-            settings.World = world.Key;
+            settings.World = world.Index;
 
             // Enumerate every level
-            foreach (var lvl in world.Value)
+            foreach (var lvl in world.Maps)
             {
                 // Set the level
                 settings.Level = lvl;
@@ -472,7 +407,7 @@ public class SettingsWindow : UnityWindow
                 var editorManager = await manager.LoadAsync(context, false);
 
                 // Randomize (only first map for now)
-                Randomizer.Randomize(editorManager, flag, (int)world.Key + lvl + RandomizerSeed, 0);
+                Randomizer.Randomize(editorManager, flag, (int)world.Index + lvl + RandomizerSeed, 0);
 
                 // Save the level
                 manager.SaveLevel(context, editorManager);
@@ -492,53 +427,12 @@ public class SettingsWindow : UnityWindow
 
     #endregion
 
-    private GameModeSelectionDropdown Dropdown { get; set; }
-
-    private PreviousValues PrevLvlValues { get; } = new PreviousValues();
-
-    private int[] AvailableWorlds { get; set; } = new int[0];
-
-    private KeyValuePair<int, KeyValuePair<int, string>[]>[] CurrentLevels { get; set; } = new KeyValuePair<int, KeyValuePair<int, string>[]>[0];
-
-	private string[] CurrentEduVolumes { get; set; } = new string[0];
+    private GameModeSelectionDropdown GameModeDropdown { get; set; }
+    private MapSelectionDropdown MapSelectionDropdown { get; set; }
 
     private GameAction[] CurrentGameActions { get; set; } = new GameAction[0];
 
     private float TotalyPos { get; set; }
 
 	private Vector2 ScrollPosition { get; set; } = Vector2.zero;
-
-	public class PreviousValues
-    {
-        /// <summary>
-        /// Updates saved previous values
-        /// </summary>
-        public void UpdatePreviousValues()
-        {
-            PrevDir = Settings.CurrentDirectory;
-            PrevWorld = Settings.World;
-            PrevEduVolume = Settings.EduVolume;
-        }
-
-        /// <summary>
-        /// Compares previous values and returns true if they're the same
-        /// </summary>
-        /// <returns>True if they're the same, otherwise false</returns>
-        public bool ComparePreviousValues()
-        {
-            return PrevDir == Settings.CurrentDirectory && PrevWorld == Settings.World && PrevEduVolume == Settings.EduVolume;
-        }
-
-        /// <summary>
-        /// The previously saved current directory
-        /// </summary>
-        private string PrevDir { get; set; } = String.Empty;
-
-        /// <summary>
-        /// The previously saved world
-        /// </summary>
-        private int PrevWorld { get; set; } = 1;
-
-        private string PrevEduVolume { get; set; } = String.Empty;
-    }
 }

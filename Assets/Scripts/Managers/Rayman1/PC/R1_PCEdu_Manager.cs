@@ -62,17 +62,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).Select(vol => new GameInfo_Volume(vol, WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(vol), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).ToArray();
-
-        /// <summary>
-        /// Gets the available educational volumes
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The available educational volumes</returns>
-        public override string[] GetEduVolumes(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToArray();
+            .ToArray())).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the archive files which can be extracted
@@ -84,11 +77,11 @@ namespace R1Engine
                 new ArchiveFile($"PCMAP/COMMON.DAT"),
                 new ArchiveFile($"PCMAP/SNDD8B.DAT"),
                 new ArchiveFile($"PCMAP/SNDH8B.DAT"),
-            }.Concat(GetEduVolumes(settings).SelectMany(x => new ArchiveFile[]
+            }.Concat(GetLevels(settings).SelectMany(x => new ArchiveFile[]
             {
-                new ArchiveFile($"PCMAP/{x}/sndsmp.dat"),
-                new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
-                new ArchiveFile($"PCMAP/{x}/VIGNET.DAT", ".pcx"),
+                new ArchiveFile($"PCMAP/{x.Name}/sndsmp.dat"),
+                new ArchiveFile($"PCMAP/{x.Name}/SPECIAL.DAT"),
+                new ArchiveFile($"PCMAP/{x.Name}/VIGNET.DAT", ".pcx"),
             })).ToArray();
         }
 
@@ -96,7 +89,7 @@ namespace R1Engine
         /// Gets additional sound archives
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetEduVolumes(settings).Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile(GetSamplesArchiveFilePath(x)))).ToArray();
+        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetLevels(settings).Select(x => new AdditionalSoundArchive($"SMP ({x.Name})", new ArchiveFile(GetSamplesArchiveFilePath(x.Name)))).ToArray();
 
         public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesEdu[context.Settings.R1_World] == desIndex && ((R1_EventType)x.Type).IsMultiColored());
 
@@ -110,7 +103,7 @@ namespace R1Engine
             level.Localization = new Dictionary<string, string[]>();
 
             // Enumerate each language
-            foreach (var vol in GetEduVolumes(context.Settings))
+            foreach (var vol in GetLevels(context.Settings).Select(x => x.Name))
             {
                 // Get the file path
                 var specialFilePath = GetSpecialArchiveFilePath(vol);

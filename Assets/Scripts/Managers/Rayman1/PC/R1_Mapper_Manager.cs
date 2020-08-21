@@ -48,11 +48,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(w), "MAP???", SearchOption.TopDirectoryOnly)
-                .Select(Path.GetFileName)
-                .Where(x => x.Length < 7)
-                .Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3)))
-                .ToArray())).ToArray();
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateDirectories(settings.GameDirectory + GetWorldFolderPath(w), "MAP???", SearchOption.TopDirectoryOnly)
+            .Select(Path.GetFileName)
+            .Where(x => x.Length < 7)
+            .Select(x => Int32.Parse(x.Replace("_", String.Empty).Substring(3)))
+            .ToArray())).ToArray());
 
         #endregion
 

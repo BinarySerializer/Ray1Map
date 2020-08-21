@@ -19,14 +19,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) =>
-            new KeyValuePair<int, int[]>[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        {
+            new GameInfo_World(1, new int[]
             {
-                new KeyValuePair<int, int[]>(1, new int[]
-                {
-                    1
-                }), 
-            };
+                1
+            }),
+        });
 
         public override uint EventCount => 28;
 

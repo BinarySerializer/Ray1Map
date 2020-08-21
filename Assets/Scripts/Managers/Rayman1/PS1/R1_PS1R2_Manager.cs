@@ -47,7 +47,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Enumerable.Range(0, w == R1_World.Jungle ? MapCount : 0).ToArray())).ToArray();
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Enumerable.Range(0, w == R1_World.Jungle ? MapCount : 0).ToArray())).ToArray());
 
         /// <summary>
         /// Gets the name for the specified map

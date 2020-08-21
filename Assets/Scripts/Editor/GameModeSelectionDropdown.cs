@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using R1Engine;
+﻿using R1Engine;
+using System.Linq;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ public class GameModeSelectionDropdown : AdvancedDropdown
         var modes = EnumHelpers.GetValues<GameModeSelection>().Select(x => new
         {
             Mode = x,
-            Attr = EnumExtensions.GetAttribute<GameModeAttribute>(x)
+            Attr = x.GetAttribute<GameModeAttribute>()
         }).GroupBy(x => x.Attr.MajorEngineVersion);
 
         var root = new AdvancedDropdownItem("Game");
@@ -51,8 +51,12 @@ public class GameModeSelectionDropdown : AdvancedDropdown
         base.ItemSelected(item);
 
         if (item.id != -1)
+        {
             Selection = (GameModeSelection)item.id;
+            HasChanged = true;
+        }
     }
 
-    public GameModeSelection Selection { get; set; }
+    public bool HasChanged { get; set; } = true;
+    public GameModeSelection Selection { get; set; } = Settings.SelectedGameMode;
 }

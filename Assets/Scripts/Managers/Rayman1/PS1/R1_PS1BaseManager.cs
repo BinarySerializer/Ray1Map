@@ -59,14 +59,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public abstract KeyValuePair<int, int[]>[] GetLevels(GameSettings settings);
-
-        /// <summary>
-        /// Gets the available educational volumes
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The available educational volumes</returns>
-        public virtual string[] GetEduVolumes(GameSettings settings) => new string[0];
+        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
         #endregion
 
@@ -422,12 +415,12 @@ namespace R1Engine
             var desIndexes = new Dictionary<string, int>();
 
             // Enumerate every world
-            foreach (var world in GetLevels(baseGameSettings))
+            foreach (var world in GetLevels(baseGameSettings).First().Worlds)
             {
-                baseGameSettings.World = world.Key;
+                baseGameSettings.World = world.Index;
 
                 // Enumerate every level
-                foreach (var lvl in world.Value)
+                foreach (var lvl in world.Maps)
                 {
                     baseGameSettings.Level = lvl;
 
@@ -502,12 +495,12 @@ namespace R1Engine
             var desIndexes = new Dictionary<string, int>();
 
             // Enumerate every world
-            foreach (var world in GetLevels(baseGameSettings))
+            foreach (var world in GetLevels(baseGameSettings).First().Worlds)
             {
-                baseGameSettings.World = world.Key;
+                baseGameSettings.World = world.Index;
 
                 // Enumerate every level
-                foreach (var lvl in world.Value)
+                foreach (var lvl in world.Maps)
                 {
                     baseGameSettings.Level = lvl;
 

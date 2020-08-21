@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
+using System;
+using System.IO;
 
 namespace R1Engine
 {
     public class GBA_RRR_Manager : IGameManager
     {
-        public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<int, int[]>[0];
-
-        public string[] GetEduVolumes(GameSettings settings) => new string[0];
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => new GameInfo_Volume[0];
 
         public virtual string GetROMFilePath => $"ROM.gba";
 

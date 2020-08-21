@@ -16,12 +16,12 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<int, int[]>[]
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
             // Hard-code this since most levels don't have maps we can load
-            new KeyValuePair<int, int[]>(1, Enumerable.Range(1, 14).ToArray()), 
-            new KeyValuePair<int, int[]>(2, Enumerable.Range(1, 5).ToArray()), 
-        };
+            new GameInfo_World(1, Enumerable.Range(1, 14).ToArray()),
+            new GameInfo_World(2, Enumerable.Range(1, 5).ToArray()),
+        });
 
         /// <summary>
         /// Gets the file path to the ROM file

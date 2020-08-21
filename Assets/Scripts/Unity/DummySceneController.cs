@@ -16,18 +16,15 @@ public class DummySceneController : MonoBehaviour
         }).
             Where(x => Directory.Exists(Settings.GameDirectories.TryGetItem(x.Mode))).
             OrderBy(m => m.Mode == Settings.SelectedGameMode ? -1 : 0).
-            SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode], 1, 1)
-                {
-                    EduVolume = x.Manager.GetEduVolumes(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode], 1, 1)).Contains(Settings.EduVolume) ? Settings.EduVolume : null
-                }).
-                SelectMany(y => y.Value.Select(z => new SettingsData(x.Mode, y.Key, z)))).
-            ToArray();
+            SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode], 1, 1)).
+                SelectMany(vol => vol.Worlds.SelectMany(world => world.Maps.Select(map => new SettingsData(x.Mode, vol.Name, world.Index, map))))).ToArray();
         Index = 0;
     }
 
     void Start()
     {
         Settings.SelectedGameMode = Data[Index].GameModeSelection;
+        Settings.EduVolume = Data[Index].Volume;
         Settings.World = Data[Index].World;
         Settings.Level = Data[Index].Level;
 
@@ -42,14 +39,17 @@ public class DummySceneController : MonoBehaviour
 
     private class SettingsData
     {
-        public SettingsData(GameModeSelection gameModeSelection, int world, int level)
+        public SettingsData(GameModeSelection gameModeSelection, string volume, int world, int level)
         {
             GameModeSelection = gameModeSelection;
+            Volume = volume;
             World = world;
             Level = level;
         }
 
         public GameModeSelection GameModeSelection { get; }
+
+        public string Volume { get; }
 
         public int World { get; }
 

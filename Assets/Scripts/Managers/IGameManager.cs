@@ -1,6 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
-using System.Collections.Generic;
 
 namespace R1Engine
 {
@@ -14,14 +13,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        KeyValuePair<int, int[]>[] GetLevels(GameSettings settings);
-
-        /// <summary>
-        /// Gets the available educational volumes
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The available educational volumes</returns>
-        string[] GetEduVolumes(GameSettings settings);
+        GameInfo_Volume[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the available game actions

@@ -106,17 +106,17 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => WorldHelpers.GetR1Worlds().Select(w => new KeyValuePair<int, int[]>((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(settings.EduVolume), $"{GetShortWorldName(w)}??.NEW", SearchOption.AllDirectories)
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).Select(vol => new GameInfo_Volume(vol, WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(vol), $"{GetShortWorldName(w)}??.NEW", SearchOption.AllDirectories)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).ToArray();
+            .ToArray())).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
         public override ArchiveFile[] GetArchiveFiles(GameSettings settings)
         {
-            return GetEduVolumes(settings).SelectMany(x => new ArchiveFile[]
+            return GetLevels(settings).Select(x => x.Name).SelectMany(x => new ArchiveFile[]
             {
                 new ArchiveFile($"PCMAP/{x}/COMMON.DAT"),
                 new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),

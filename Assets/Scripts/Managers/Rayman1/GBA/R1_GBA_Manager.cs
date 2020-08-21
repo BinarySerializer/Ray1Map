@@ -24,14 +24,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => GetLevelCounts.Select(x => new KeyValuePair<int, int[]>((int)x.Key, Enumerable.Range(0, x.Value).ToArray())).ToArray();
-
-        /// <summary>
-        /// Gets the available educational volumes
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The available educational volumes</returns>
-        public string[] GetEduVolumes(GameSettings settings) => new string[0];
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetLevelCounts.Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(0, x.Value).ToArray())).ToArray());
 
         public virtual KeyValuePair<R1_World, int>[] GetLevelCounts => new KeyValuePair<R1_World, int>[]
         {
@@ -117,12 +110,12 @@ namespace R1Engine
                 var graphics = new Dictionary<Pointer, List<KeyValuePair<R1_World, ARGB1555Color[]>>>();
 
                 // Enumerate every world
-                foreach (var world in GetLevels(baseGameSettings))
+                foreach (var world in GetLevels(baseGameSettings).First().Worlds)
                 {
-                    baseGameSettings.World = world.Key;
+                    baseGameSettings.World = world.Index;
 
                     // Enumerate every level
-                    foreach (var lvl in world.Value)
+                    foreach (var lvl in world.Maps)
                     {
                         baseGameSettings.Level = lvl;
 
@@ -142,8 +135,8 @@ namespace R1Engine
                             if (!graphics.ContainsKey(key))
                                 graphics.Add(key, new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
 
-                            if (graphics[key].All(x => x.Key != (R1_World)world.Key))
-                                graphics[key].Add(new KeyValuePair<R1_World, ARGB1555Color[]>((R1_World)world.Key, data.GetSpritePalettes(baseGameSettings)));
+                            if (graphics[key].All(x => x.Key != (R1_World)world.Index))
+                                graphics[key].Add(new KeyValuePair<R1_World, ARGB1555Color[]>((R1_World)world.Index, data.GetSpritePalettes(baseGameSettings)));
                         }
                     }
                 }
@@ -226,12 +219,12 @@ namespace R1Engine
                 var dsiPointerTable = !isGBA ? PointerTables.R1_DSi_PointerTable(baseGameSettings.GameModeSelection, ((R1Serializable)data).Offset.file) : null;
 
                 // Enumerate every world
-                foreach (var world in GetLevels(baseGameSettings))
+                foreach (var world in GetLevels(baseGameSettings).First().Worlds)
                 {
-                    baseGameSettings.World = world.Key;
+                    baseGameSettings.World = world.Index;
 
                     // Enumerate every level
-                    foreach (var lvl in world.Value)
+                    foreach (var lvl in world.Maps)
                     {
                         baseGameSettings.Level = lvl;
 
@@ -368,12 +361,12 @@ namespace R1Engine
             var tilePals = new List<ARGB1555Color[]>();
 
             // Enumerate every world
-            foreach (var world in GetLevels(settings))
+            foreach (var world in GetLevels(settings).First().Worlds)
             {
-                settings.World = world.Key;
+                settings.World = world.Index;
 
                 // Enumerate every level
-                foreach (var lvl in world.Value)
+                foreach (var lvl in world.Maps)
                 {
                     settings.Level = lvl;
 

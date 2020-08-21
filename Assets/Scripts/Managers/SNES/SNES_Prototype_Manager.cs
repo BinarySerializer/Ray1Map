@@ -9,15 +9,13 @@ namespace R1Engine
 {
     public class SNES_Prototype_Manager : IGameManager
     {
-        public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => new KeyValuePair<int, int[]>[]
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new KeyValuePair<int, int[]>(0, new int[]
+            new GameInfo_World(0, new int[]
             {
                 0
-            }), 
-        };
-
-        public string[] GetEduVolumes(GameSettings settings) => new string[0];
+            })
+        });
 
         public virtual string GetROMFilePath => $"ROM.sfc";
 

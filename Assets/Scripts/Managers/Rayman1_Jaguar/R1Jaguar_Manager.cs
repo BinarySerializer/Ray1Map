@@ -19,14 +19,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public virtual KeyValuePair<int, int[]>[] GetLevels(GameSettings settings) => GetNumLevels.OrderBy(x => x.Key).Select(x => new KeyValuePair<int, int[]>((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray();
-
-        /// <summary>
-        /// Gets the available educational volumes
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The available educational volumes</returns>
-        public string[] GetEduVolumes(GameSettings settings) => new string[0];
+        public virtual GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetNumLevels.OrderBy(x => x.Key).Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray());
 
         /// <summary>
         /// Gets the file path to the ROM file

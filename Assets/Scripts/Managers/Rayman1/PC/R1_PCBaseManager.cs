@@ -120,14 +120,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public abstract KeyValuePair<int, int[]>[] GetLevels(GameSettings settings);
-
-        /// <summary>
-        /// Gets the available educational volumes
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The available educational volumes</returns>
-        public virtual string[] GetEduVolumes(GameSettings settings) => new string[0];
+        public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
         /// <summary>
         /// Gets the archive files which can be extracted
@@ -448,7 +441,7 @@ namespace R1Engine
             var levels = new List<R1_PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(context.Settings).FindItem(x => x.Key == context.Settings.World).Value.OrderBy(x => x)) {
+            foreach (var i in GetLevels(context.Settings).First(x => x.Name == context.Settings.EduVolume).Worlds.FindItem(x => x.Index == context.Settings.World).Maps.OrderBy(x => x)) {
                 // Set the level number
                 context.Settings.Level = i;
 
@@ -543,7 +536,7 @@ namespace R1Engine
             var levels = new List<R1_PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(context.Settings).FindItem(x => x.Key == context.Settings.World).Value.OrderBy(x => x))
+            foreach (var i in GetLevels(context.Settings).First(x => x.Name == context.Settings.EduVolume).Worlds.FindItem(x => x.Index == context.Settings.World).Maps.OrderBy(x => x))
             {
                 // Set the level number
                 context.Settings.Level = i;
@@ -1210,12 +1203,12 @@ namespace R1Engine
                 var pal = new List<RGB666Color[]>();
 
                 // Enumerate every world
-                foreach (var world in GetLevels(settings))
+                foreach (var world in GetLevels(settings).First().Worlds)
                 {
-                    settings.World = world.Key;
+                    settings.World = world.Index;
 
                     // Enumerate every level
-                    foreach (var lvl in world.Value)
+                    foreach (var lvl in world.Maps)
                     {
                         settings.Level = lvl;
 
@@ -1694,7 +1687,7 @@ namespace R1Engine
                 context.AddFile(GetFile(context, GetWorldFilePath(context.Settings)));
 
                 // Add every level
-                foreach (var lvl in GetLevels(context.Settings).FindItem(x => x.Key == world).Value)
+                foreach (var lvl in GetLevels(context.Settings).First(x => x.Name == context.Settings.EduVolume).Worlds.FindItem(x => x.Index == world).Maps)
                 {
                     // Set the level
                     context.Settings.Level = lvl;

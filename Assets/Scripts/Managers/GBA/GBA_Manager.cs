@@ -14,21 +14,21 @@ namespace R1Engine
         public virtual int PixelsPerUnit { get; set; } = 16;
         public virtual int CellSize { get; set; } = 8;
 
-        public KeyValuePair<int, int[]>[] GetLevels(GameSettings settings)
+        public GameInfo_Volume[] GetLevels(GameSettings settings)
         {
-            var output = new List<KeyValuePair<int, int[]>>();
+            var output = new List<GameInfo_World>();
 
             // Add normal levels
-            output.AddRange(WorldLevels.Select((x, i) => new KeyValuePair<int, int[]>(i, x.ToArray())));
+            output.AddRange(WorldLevels.Select((x, i) => new GameInfo_World(i, x.ToArray())));
 
             // Add menu maps
-            output.Add(new KeyValuePair<int, int[]>(output.Count, MenuLevels));
+            output.Add(new GameInfo_World(output.Count, MenuLevels));
 
             // Add DLC maps if available
             if (DLCLevelCount > 0)
-                output.Add(new KeyValuePair<int, int[]>(output.Count, Enumerable.Range(0, DLCLevelCount).ToArray()));
+                output.Add(new GameInfo_World(output.Count, Enumerable.Range(0, DLCLevelCount).ToArray()));
 
-            return output.ToArray();
+            return GameInfo_Volume.SingleVolume(output.ToArray());
         }
 
         public LevelType GetLevelType(int world)
@@ -43,8 +43,6 @@ namespace R1Engine
 
             return LevelType.Game;
         }
-
-        public string[] GetEduVolumes(GameSettings settings) => new string[0];
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
