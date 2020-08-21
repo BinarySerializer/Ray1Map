@@ -425,7 +425,7 @@ namespace R1Engine
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7) {
                         mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
-                    } else if (map.Unk_0C == 0) {
+                    } else if (map.UsesBGTileTable == 0) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
@@ -754,7 +754,7 @@ namespace R1Engine
                     Debug.LogWarning($"Tile {i} has several possible palettes!");
 
                 int p = pals.FirstOrDefault();
-                if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.Unk_0C == 1) {
+                if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.UsesBGTileTable == 1) {
                     //p = ((p + 8) % (tilePalette.Palette.Length / paletteSize));
                     p += 8;
                 }

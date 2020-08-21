@@ -1,10 +1,9 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace R1Engine
 {
     /// <summary>
-    /// A map block for Rayman 3 (GBA)
+    /// A map block for GBA
     /// </summary>
     public class GBA_TileLayer : GBA_BaseBlock
     {
@@ -20,7 +19,6 @@ namespace R1Engine
         // 0-3 for 2D, 0-1 for Mode7
         public byte LayerID { get; set; }
 
-        // 0-3 for 2D
         public byte ClusterIndex { get; set; }
 
         public bool ShouldSetBGAlphaBlending { get; set; }
@@ -28,9 +26,8 @@ namespace R1Engine
         // Related to BG Alpha Blending
         public sbyte Unk_0B { get; set; }
 
-        public byte Unk_0C { get; set; }
+        public byte UsesBGTileTable { get; set; }
 
-        // Backgrounds are 8bpp, tilemaps are 4bpp
         public bool Is8bpp { get; set; }
 
         // 0-3 for Mode7
@@ -68,13 +65,13 @@ namespace R1Engine
                     ClusterIndex = s.Serialize<byte>(ClusterIndex, name: nameof(ClusterIndex));
                     // TODO: figure out what this is. One of these
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
+                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
+                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
+                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
+                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
 
                     if (IsCompressed) {
                         s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
@@ -116,7 +113,7 @@ namespace R1Engine
 
                     ShouldSetBGAlphaBlending = s.Serialize<bool>(ShouldSetBGAlphaBlending, name: nameof(ShouldSetBGAlphaBlending));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
+                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
 
                     if (StructType == TileLayerStructTypes.Mode7)
                     {
@@ -138,13 +135,12 @@ namespace R1Engine
                         Mode7_14 = s.Serialize<byte>(Mode7_14, name: nameof(Mode7_14));
                     }
                 }
-                if (!IsCompressed) {
+                if (!IsCompressed)
                     SerializeTileMap(s);
-                } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
                     s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
-                } else {
+                else
                     s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
-                }
             }
             s.Align();
         }
@@ -152,7 +148,7 @@ namespace R1Engine
         protected void SerializeTileMap(SerializerObject s) {
             switch (StructType) {
                 case TileLayerStructTypes.Map2D:
-                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
+                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (UsesBGTileTable == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
                     break;
                 case TileLayerStructTypes.Mode7:
                     Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
@@ -167,7 +163,10 @@ namespace R1Engine
         {
             Map2D = 0,
             Collision = 1,
-            Mode7 = 2
+            Mode7 = 2,
+
+            // TODO: What is this?
+            UnkMode7 = 3,
         }
     }
 }
