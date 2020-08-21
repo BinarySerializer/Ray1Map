@@ -7,12 +7,10 @@ namespace R1Engine
     /// <summary>
     /// A standard ARGB color
     /// </summary>
-    public class ARGBColor : R1Serializable, IEquatable<ARGBColor>
-    {
+    public class ARGBColor : R1Serializable, IEquatable<ARGBColor> {
         #region Constructors
 
-        public ARGBColor(byte red, byte green, byte blue)
-        {
+        public ARGBColor(byte red, byte green, byte blue) {
             Alpha = Byte.MaxValue;
             Red = red;
             Green = green;
@@ -20,8 +18,7 @@ namespace R1Engine
         }
 
         [JsonConstructor]
-        public ARGBColor(byte alpha, byte red, byte green, byte blue)
-        {
+        public ARGBColor(byte alpha, byte red, byte green, byte blue) {
             Alpha = alpha;
             Red = red;
             Green = green;

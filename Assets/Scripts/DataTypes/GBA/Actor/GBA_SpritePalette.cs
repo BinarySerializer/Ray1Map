@@ -5,11 +5,15 @@
     /// </summary>
     public class GBA_SpritePalette : GBA_BaseBlock
     {
-        public ARGB1555Color[] Palette { get; set; }
+        public ARGBColor[] Palette { get; set; }
 
         public override void SerializeBlock(SerializerObject s)
         {
-            Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, BlockSize / 2, name: nameof(Palette));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                Palette = s.SerializeObjectArray<ARGB1444Color>((ARGB1444Color[])Palette, BlockSize / 2, name: nameof(Palette));
+            } else {
+                Palette = s.SerializeObjectArray<ARGB1555Color>((ARGB1555Color[])Palette, BlockSize / 2, name: nameof(Palette));
+            }
         }
     }
 }

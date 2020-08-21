@@ -288,7 +288,6 @@ namespace R1Engine
                     return;
 
                 exported.Add(spr.Offset);
-
                 var paletteCount = is8bit ? 1 : spr.Palette.Palette.Length / 16;
 
                 for (int palIndex = 0; palIndex < paletteCount; palIndex++)
