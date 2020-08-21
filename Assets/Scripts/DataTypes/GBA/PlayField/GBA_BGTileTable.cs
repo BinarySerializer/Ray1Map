@@ -7,7 +7,7 @@
         public ushort[] Indices8bpp { get; set; }
         public ushort[] Indices4bpp { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             IndicesCount8bpp = s.Serialize<ushort>(IndicesCount8bpp, name: nameof(IndicesCount8bpp));
             IndicesCount4bpp = s.Serialize<ushort>(IndicesCount4bpp, name: nameof(IndicesCount4bpp));

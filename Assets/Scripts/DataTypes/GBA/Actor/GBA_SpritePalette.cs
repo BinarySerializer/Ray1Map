@@ -7,7 +7,7 @@
     {
         public ARGB1555Color[] Palette { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, BlockSize / 2, name: nameof(Palette));
         }

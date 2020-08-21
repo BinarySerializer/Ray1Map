@@ -21,7 +21,7 @@
         public GBA_Palette TilePalette { get; set; }
         #endregion
 
-        public override void SerializeImpl(SerializerObject s) {
+        public override void SerializeBlock(SerializerObject s) {
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
                 IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));

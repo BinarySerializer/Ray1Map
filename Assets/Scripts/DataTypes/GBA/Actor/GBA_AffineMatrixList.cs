@@ -9,7 +9,7 @@ namespace R1Engine
         public ushort[] MatrixOffsets { get; set; }
         public GBA_AffineMatrix[][] Matrices { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                 MatrixOffsets = s.SerializeArray<ushort>(MatrixOffsets, FrameCount, name: nameof(MatrixOffsets));

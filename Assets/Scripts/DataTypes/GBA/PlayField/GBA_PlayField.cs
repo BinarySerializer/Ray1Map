@@ -51,7 +51,7 @@
 
         #region Public Methods
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));

@@ -38,7 +38,7 @@ namespace R1Engine
 
         #region Public Methods
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             PlayFieldIndex = s.Serialize<ushort>(PlayFieldIndex, name: nameof(PlayFieldIndex));
             Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));

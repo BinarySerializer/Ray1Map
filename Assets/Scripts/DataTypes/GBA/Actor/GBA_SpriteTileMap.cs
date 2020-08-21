@@ -13,7 +13,7 @@
 
         public byte[] TileMap { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             TileMapLength = s.Serialize<ushort>(TileMapLength, name: nameof(TileMapLength));
             IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));

@@ -13,7 +13,7 @@
 
         public GBA_AnimationLayer[][] Layers { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        public override void SerializeBlock(SerializerObject s) {
             Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
             Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
             AffineMatricesIndex = s.Serialize<byte>(AffineMatricesIndex, name: nameof(AffineMatricesIndex));

@@ -13,7 +13,7 @@
         public byte Byte_0E { get; set; }
         public byte Byte_0F { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             OriginX = s.Serialize<int>(OriginX, name: nameof(OriginX));
             OriginY = s.Serialize<int>(OriginY, name: nameof(OriginY));

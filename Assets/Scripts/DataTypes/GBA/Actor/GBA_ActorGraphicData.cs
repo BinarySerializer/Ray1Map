@@ -13,7 +13,7 @@
 
         public GBA_SpriteGroup SpriteGroup { get; set; }
 
-        public override void SerializeImpl(SerializerObject s)
+        public override void SerializeBlock(SerializerObject s)
         {
             UnkData = s.SerializeArray<byte>(UnkData, 8, name: nameof(UnkData));
 

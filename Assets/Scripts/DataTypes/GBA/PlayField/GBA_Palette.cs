@@ -7,7 +7,7 @@
         public uint Length { get; set; }
         public ARGB1555Color[] Palette { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        public override void SerializeBlock(SerializerObject s) {
             Length = s.Serialize<uint>(Length, name: nameof(Length));
             Palette = s.SerializeObjectArray<ARGB1555Color>(Palette, Length, name: nameof(Palette));
         }

@@ -1,13 +1,19 @@
-﻿using System;
+﻿using Ionic.Zlib;
+using System;
 using System.IO;
-using System.IO.Compression;
 
 namespace R1Engine {
     /// <summary>
     /// Compresses/decompresses data using Zlib
     /// </summary>
-    public class ZlibEncoder : IStreamEncoder
-    {
+    public class ZlibEncoder : IStreamEncoder {
+        public ZlibEncoder(uint length, uint decompressedLength) {
+            Length = length;
+            DecompressedLength = decompressedLength;
+        }
+        protected uint Length { get; }
+        protected uint DecompressedLength { get; }
+
         /// <summary>
         /// Decodes the data and returns it in a stream
         /// </summary>
@@ -16,7 +22,10 @@ namespace R1Engine {
         public Stream DecodeStream(Stream s) {
             var memStream = new MemoryStream();
 
-            using (var zlibStream = new DeflateStream(s, CompressionMode.Decompress))
+            Reader reader = new Reader(s, isLittleEndian: false);
+            byte[] bytes = reader.ReadBytes((int)Length);
+
+            using (var zlibStream = new ZlibStream(new MemoryStream(bytes), CompressionMode.Decompress))
                 zlibStream.CopyTo(memStream);
 
             // Set the position to the beginning
@@ -29,7 +38,7 @@ namespace R1Engine {
         public Stream EncodeStream(Stream s) {
             var memStream = new MemoryStream();
 
-            using (DeflateStream compressionStream = new DeflateStream(memStream, CompressionMode.Compress)) {
+            using (var compressionStream = new ZlibStream(memStream, CompressionMode.Compress)) {
                 s.CopyTo(compressionStream);
             }
             memStream.Position = 0;

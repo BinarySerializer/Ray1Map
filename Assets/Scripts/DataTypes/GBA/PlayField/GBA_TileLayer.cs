@@ -57,7 +57,7 @@ namespace R1Engine
         // Parsed
         public GBA_Cluster Cluster { get; set; }
 
-        public override void SerializeImpl(SerializerObject s) {
+        public override void SerializeBlock(SerializerObject s) {
 
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 if (StructType != TileLayerStructTypes.Collision) {
@@ -102,9 +102,6 @@ namespace R1Engine
 
                 IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
 
-                if (!IsCompressed)
-                    throw new Exception("Non-compressed data is currently not supported");
-
                 Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
 
@@ -140,27 +137,30 @@ namespace R1Engine
                         Mode7_13 = s.Serialize<byte>(Mode7_13, name: nameof(Mode7_13));
                         Mode7_14 = s.Serialize<byte>(Mode7_14, name: nameof(Mode7_14));
                     }
-
-                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
-                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData))));;
-                    } else {
-                        s.DoEncoded(new GBA_LZSSEncoder(), () =>
-                        {
-                            if (StructType == TileLayerStructTypes.Map2D)
-                                MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
-                            else
-                                Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
-                        });
-                    }
+                }
+                if (!IsCompressed) {
+                    SerializeTileMap(s);
+                } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                    s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
                 } else {
-                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
-                        s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData))));
-                    } else {
-                        s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));
-                    }
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
                 }
             }
             s.Align();
+        }
+
+        protected void SerializeTileMap(SerializerObject s) {
+            switch (StructType) {
+                case TileLayerStructTypes.Map2D:
+                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (Unk_0C == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
+                    break;
+                case TileLayerStructTypes.Mode7:
+                    Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
+                    break;
+                case TileLayerStructTypes.Collision:
+                    CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData));
+                    break;
+            }
         }
 
         public enum TileLayerStructTypes : byte

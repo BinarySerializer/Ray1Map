@@ -27,7 +27,11 @@ namespace R1Engine
                 if (Block == null) {
                     return pointerTable[GBA_Pointer.UiOffsetTable] + Offsets[index];
                 } else {
-                    return Block.Offset + Offsets[index];
+                    if (Block.DecompressedBlockOffset != null) {
+                        return Block.DecompressedBlockOffset + Offsets[index];
+                    } else {
+                        return Block.Offset + Offsets[index];
+                    }
                 }
             } else {
                 return pointerTable[GBA_Pointer.UiOffsetTable] + (Offsets[index] * 4);
