@@ -75,7 +75,7 @@ public class SettingsWindow : UnityWindow
         var rectTemp = GetNextRect(ref YPos);
         var rbutton = EditorGUI.PrefixLabel(rectTemp, new GUIContent("Game"));
         rectTemp = new Rect(rbutton.x + rbutton.width - Mathf.Max(400f, rbutton.width), rbutton.y, Mathf.Max(400f, rbutton.width), rbutton.height);
-        if (EditorGUI.DropdownButton(rbutton, new GUIContent(Settings.SelectedGameMode.GetAttribute<GameModeAttribute>().DisplayName), FocusType.Passive))
+        if (EditorGUI.DropdownButton(rbutton, new GUIContent(GameModeDropdown.SelectionName), FocusType.Passive))
             GameModeDropdown.Show(rectTemp);
 
         Settings.LoadFromMemory = EditorField("Load from memory", Settings.LoadFromMemory);
@@ -127,8 +127,7 @@ public class SettingsWindow : UnityWindow
 
         if (MapSelectionDropdown == null || GameModeDropdown.HasChanged) {
             if (GameModeDropdown.HasChanged) {
-                Settings.SelectedGameMode = GameModeDropdown.Selection.Value;
-                GameModeDropdown.Selection = null;
+                Settings.SelectedGameMode = GameModeDropdown.Selection;
                 GameModeDropdown.HasChanged = false;
                 Dirty = true;
             }
@@ -252,12 +251,9 @@ public class SettingsWindow : UnityWindow
         {
             MapSelectionDropdown.HasChanged = false;
             Settings.EduVolume = MapSelectionDropdown.SelectedVolume;
-            Settings.World = MapSelectionDropdown.SelectedWorld.Value;
-            Settings.Level = MapSelectionDropdown.SelectedMap.Value;
+            Settings.World = MapSelectionDropdown.SelectedWorld;
+            Settings.Level = MapSelectionDropdown.SelectedMap;
             Dirty = true;
-            MapSelectionDropdown.SelectedMap = null;
-            MapSelectionDropdown.SelectedWorld = null;
-            MapSelectionDropdown.SelectedVolume = null;
             CurrentGameActions = Settings.GetGameManager.GetGameActions(Settings.GetGameSettings);
         }
 

@@ -71,9 +71,9 @@ public class MapSelectionDropdown : AdvancedDropdown
 
     public bool HasChanged { get; set; }
 
-    public string SelectedVolume { get; set; }
-    public int? SelectedWorld { get; set; }
-    public int? SelectedMap { get; set; }
+    public string SelectedVolume { get; set; } = Settings.EduVolume;
+    public int SelectedWorld { get; set; } = Settings.World;
+    public int SelectedMap { get; set; } = Settings.Level;
 
     public class MapSelectionDropdownItem : AdvancedDropdownItem
     {

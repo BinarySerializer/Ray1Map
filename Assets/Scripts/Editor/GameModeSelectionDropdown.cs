@@ -50,13 +50,15 @@ public class GameModeSelectionDropdown : AdvancedDropdown
     {
         base.ItemSelected(item);
 
-        if (item.id != -1)
+        if (item.id != -1 && ((GameModeSelection)item.id != Selection))
         {
             Selection = (GameModeSelection)item.id;
+            SelectionName = Selection.GetAttribute<GameModeAttribute>().DisplayName;
             HasChanged = true;
         }
     }
 
     public bool HasChanged { get; set; }
-    public GameModeSelection? Selection { get; set; }
+    public GameModeSelection Selection { get; set; } = Settings.SelectedGameMode;
+    public string SelectionName { get; set; } = Settings.SelectedGameMode.GetAttribute<GameModeAttribute>().DisplayName;
 }
