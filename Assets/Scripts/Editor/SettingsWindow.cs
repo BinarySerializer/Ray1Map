@@ -80,7 +80,8 @@ public class SettingsWindow : UnityWindow
         else
         {
             var r = GetNextRect(ref YPos);
-            if (EditorGUI.DropdownButton(r, new GUIContent(Settings.SelectedGameMode.ToString()), FocusType.Passive))
+            r = EditorGUI.PrefixLabel(r, new GUIContent("Game"));
+            if (EditorGUI.DropdownButton(r, new GUIContent(EnumExtensions.GetAttribute<GameModeAttribute>(Settings.SelectedGameMode).DisplayName), FocusType.Passive))
             {
                 if (Dropdown == null)
                     Dropdown = new GameModeSelectionDropdown(new AdvancedDropdownState());
