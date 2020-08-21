@@ -72,12 +72,11 @@ public class SettingsWindow : UnityWindow
 
         if (GameModeDropdown == null)
             GameModeDropdown = new GameModeSelectionDropdown(new AdvancedDropdownState());
-
-        var r = GetNextRect(ref YPos);
-        if (EditorGUI.DropdownButton(r, new GUIContent(GameModeDropdown.SelectionName), FocusType.Passive))
-            GameModeDropdown.Show(r);
-
-        Settings.SelectedGameMode = GameModeDropdown.Selection;
+        var rectTemp = GetNextRect(ref YPos);
+        var rbutton = EditorGUI.PrefixLabel(rectTemp, new GUIContent("Game"));
+        rectTemp = new Rect(rbutton.x + rbutton.width - Mathf.Max(400f, rbutton.width), rbutton.y, Mathf.Max(400f, rbutton.width), rbutton.height);
+        if (EditorGUI.DropdownButton(rbutton, new GUIContent(Settings.SelectedGameMode.GetAttribute<GameModeAttribute>().DisplayName), FocusType.Passive))
+            GameModeDropdown.Show(rectTemp);
 
         Settings.LoadFromMemory = EditorField("Load from memory", Settings.LoadFromMemory);
         
@@ -122,11 +121,17 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Map");
 
-        var r2 = GetNextRect(ref YPos);
+        rectTemp = GetNextRect(ref YPos);
+        rbutton = EditorGUI.PrefixLabel(rectTemp, new GUIContent("Map"));
+        rectTemp = new Rect(rbutton.x + rbutton.width - Mathf.Max(400f, rbutton.width), rbutton.y, Mathf.Max(400f, rbutton.width), rbutton.height);
 
-        if (MapSelectionDropdown == null || GameModeDropdown.HasChanged)
-        {
-            GameModeDropdown.HasChanged = false;
+        if (MapSelectionDropdown == null || GameModeDropdown.HasChanged) {
+            if (GameModeDropdown.HasChanged) {
+                Settings.SelectedGameMode = GameModeDropdown.Selection.Value;
+                GameModeDropdown.Selection = null;
+                GameModeDropdown.HasChanged = false;
+                Dirty = true;
+            }
 
             GameInfo_Volume[] volumes;
 
@@ -148,12 +153,8 @@ public class SettingsWindow : UnityWindow
             // Debug.Log($"Map selection updated with {volumes.Length} volumes");
         }
 
-        if (EditorGUI.DropdownButton(r2, new GUIContent($"{(Settings.EduVolume != null ? $"{Settings.EduVolume} - " : String.Empty)}{Settings.World} - {Settings.Level}"), FocusType.Passive))
-            MapSelectionDropdown.Show(r2);
-
-        Settings.EduVolume = MapSelectionDropdown.SelectedVolume;
-        Settings.World = MapSelectionDropdown.SelectedWorld;
-        Settings.Level = MapSelectionDropdown.SelectedMap;
+        if (EditorGUI.DropdownButton(rbutton, new GUIContent($"{(!string.IsNullOrEmpty(Settings.EduVolume) ? $"{Settings.EduVolume} - " : String.Empty)}{MapSelectionDropdown.GetLevelName(Settings.World, Settings.Level)}"), FocusType.Passive))
+            MapSelectionDropdown.Show(rectTemp);
 
         // Directories
         DrawHeader("Directories" + (fileMode == FileSystem.Mode.Web ? " (Web)" : ""));
@@ -250,6 +251,13 @@ public class SettingsWindow : UnityWindow
         if (MapSelectionDropdown.HasChanged)
         {
             MapSelectionDropdown.HasChanged = false;
+            Settings.EduVolume = MapSelectionDropdown.SelectedVolume;
+            Settings.World = MapSelectionDropdown.SelectedWorld.Value;
+            Settings.Level = MapSelectionDropdown.SelectedMap.Value;
+            Dirty = true;
+            MapSelectionDropdown.SelectedMap = null;
+            MapSelectionDropdown.SelectedWorld = null;
+            MapSelectionDropdown.SelectedVolume = null;
             CurrentGameActions = Settings.GetGameManager.GetGameActions(Settings.GetGameSettings);
         }
 

@@ -13,7 +13,7 @@ public class MapSelectionDropdown : AdvancedDropdown
         LevelNames = MapNames.GetMapNames(game) ?? new Dictionary<int, Dictionary<int, string>>();
         WorldNames = MapNames.GetWorldNames(game) ?? new Dictionary<int, string>();
 
-        minimumSize = new Vector2(50, 500f);
+        minimumSize = new Vector2(50, 400f);
     }
 
     protected override AdvancedDropdownItem BuildRoot()
@@ -34,6 +34,7 @@ public class MapSelectionDropdown : AdvancedDropdown
     }
 
     protected string GetName(int index, string name) => name != null ? $"{index:00} - {name}" : $"{index}";
+    public string GetLevelName(int worldIndex, int levelIndex) => GetName(levelIndex, LevelNames?.TryGetItem(worldIndex)?.TryGetItem(levelIndex));
 
     protected AdvancedDropdownItem AddWorlds(AdvancedDropdownItem parent, GameInfo_Volume vol)
     {
@@ -42,7 +43,7 @@ public class MapSelectionDropdown : AdvancedDropdown
             var worldItem = new AdvancedDropdownItem(GetName(w.Index, WorldNames?.TryGetItem(w.Index)));
 
             foreach (var m in w.Maps)
-                worldItem.AddChild(new MapSelectionDropdownItem(GetName(m, LevelNames?.TryGetItem(w.Index)?.TryGetItem(m)), vol.Name, w.Index, m));
+                worldItem.AddChild(new MapSelectionDropdownItem(GetLevelName(w.Index, m), vol.Name, w.Index, m));
 
             parent.AddChild(worldItem);
         }
@@ -68,11 +69,11 @@ public class MapSelectionDropdown : AdvancedDropdown
     public Dictionary<int, Dictionary<int, string>> LevelNames { get; }
     public Dictionary<int, string> WorldNames { get; }
 
-    public bool HasChanged { get; set; } = true;
+    public bool HasChanged { get; set; }
 
-    public string SelectedVolume { get; set; } = Settings.EduVolume;
-    public int SelectedWorld { get; set; } = Settings.World;
-    public int SelectedMap { get; set; } = Settings.Level;
+    public string SelectedVolume { get; set; }
+    public int? SelectedWorld { get; set; }
+    public int? SelectedMap { get; set; }
 
     public class MapSelectionDropdownItem : AdvancedDropdownItem
     {

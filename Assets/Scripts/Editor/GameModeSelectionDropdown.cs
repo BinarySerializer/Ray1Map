@@ -7,7 +7,7 @@ public class GameModeSelectionDropdown : AdvancedDropdown
 {
     public GameModeSelectionDropdown(AdvancedDropdownState state) : base(state)
     {
-        minimumSize = new Vector2(50, 700f);
+        minimumSize = new Vector2(50, 500f);
     }
 
     protected override AdvancedDropdownItem BuildRoot()
@@ -53,12 +53,10 @@ public class GameModeSelectionDropdown : AdvancedDropdown
         if (item.id != -1)
         {
             Selection = (GameModeSelection)item.id;
-            SelectionName = Selection.GetAttribute<GameModeAttribute>().DisplayName;
             HasChanged = true;
         }
     }
 
-    public bool HasChanged { get; set; } = true;
-    public GameModeSelection Selection { get; set; } = Settings.SelectedGameMode;
-    public string SelectionName { get; set; } = Settings.SelectedGameMode.GetAttribute<GameModeAttribute>().DisplayName;
+    public bool HasChanged { get; set; }
+    public GameModeSelection? Selection { get; set; }
 }
