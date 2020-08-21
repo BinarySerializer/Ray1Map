@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 public class SettingsWindow : UnityWindow
@@ -72,8 +73,25 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Mode");
 
-        Settings.SelectedGameMode = EditorField("Game", Settings.SelectedGameMode, getEnumOptions: () => EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray());
-        
+        if (fileMode == FileSystem.Mode.Web)
+        {
+            Settings.SelectedGameMode = EditorField("Game", Settings.SelectedGameMode, getEnumOptions: () => EnumHelpers.GetValues<GameModeSelection>().Select(x => x.GetAttribute<GameModeAttribute>().DisplayName).ToArray());
+        }
+        else
+        {
+            var r = GetNextRect(ref YPos);
+            if (EditorGUI.DropdownButton(r, new GUIContent(Settings.SelectedGameMode.ToString()), FocusType.Passive))
+            {
+                if (Dropdown == null)
+                    Dropdown = new GameModeSelectionDropdown(new AdvancedDropdownState());
+                
+                Dropdown.Show(r);
+            }
+        }
+
+        if (Dropdown != null)
+            Settings.SelectedGameMode = Dropdown.Selection;
+
         Settings.LoadFromMemory = EditorField("Load from memory", Settings.LoadFromMemory);
         
         // Memory
@@ -472,6 +490,8 @@ public class SettingsWindow : UnityWindow
     public string[] WorldOptions { get; set; } = new string[0];
 
     #endregion
+
+    private GameModeSelectionDropdown Dropdown { get; set; }
 
     private PreviousValues PrevLvlValues { get; } = new PreviousValues();
 
