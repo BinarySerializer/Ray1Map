@@ -172,11 +172,16 @@ namespace R1Engine
                         var indentLevel = 0;
                         GBA_OffsetTable offsetTable = dataBlock.UiOffsetTable;
                         GBA_DummyBlock[] blocks = new GBA_DummyBlock[offsetTable.OffsetsCount];
+                        Controller.print(blocks.Length);
 
                         for (int i = 0; i < blocks.Length; i++) {
-                            s.DoAt(offsetTable.GetPointer(i), () => {
-                                blocks[i] = s.SerializeObject<GBA_DummyBlock>(blocks[i], name: $"{nameof(blocks)}[{i}]");
-                            });
+                            try {
+                                s.DoAt(offsetTable.GetPointer(i), () => {
+                                    blocks[i] = s.SerializeObject<GBA_DummyBlock>(blocks[i], name: $"{nameof(blocks)}[{i}]");
+                                });
+                            } catch (Exception e) {
+                                Debug.LogError(e);
+                            }
                         }
 
                         void ExportBlocks(GBA_DummyBlock block, int index, string path)
@@ -751,7 +756,11 @@ namespace R1Engine
                 if (pals.Length > 1)
                     Debug.LogWarning($"Tile {i} has several possible palettes!");
 
-                var p = pals.FirstOrDefault();
+                int p = pals.FirstOrDefault();
+                if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.Unk_0C == 1) {
+                    //p = ((p + 8) % (tilePalette.Palette.Length / paletteSize));
+                    p += 8;
+                }
 
                 var tex = new Texture2D(CellSize, CellSize)
                 {

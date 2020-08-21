@@ -107,7 +107,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="value">The value to write</param>
         /// <param name="encoding">The encoding to use, or null for the default one</param>
-        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null, string name = null) {
+        public override string SerializeString(string obj, long? length = null, Encoding encoding = null, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(string) " + (name ?? "<no name>") + ": " + obj);
             }
@@ -119,7 +119,7 @@ namespace R1Engine
             return obj;
         }
 
-        public override string[] SerializeStringArray(string[] obj, decimal count, int length, Encoding encoding = null, string name = null)
+        public override string[] SerializeStringArray(string[] obj, long count, int length, Encoding encoding = null, string name = null)
         {
             if (Settings.Log)
                 Context.Log.Log(LogPrefix + "(String[" + count + "]) " + (name ?? "<no name>"));
@@ -225,7 +225,7 @@ namespace R1Engine
             return obj;
         }
 
-        public override T[] SerializeArray<T>(T[] obj, decimal count, string name = null) {
+        public override T[] SerializeArray<T>(T[] obj, long count, string name = null) {
             if (Settings.Log) {
                 if (typeof(T) == typeof(byte)) {
                     string normalLog = LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>") + ": ";
@@ -248,7 +248,7 @@ namespace R1Engine
             return obj;
         }
 
-        public override T[] SerializeObjectArray<T>(T[] obj, decimal count, Action<T> onPreSerialize = null, string name = null) {
+        public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T> onPreSerialize = null, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Object[] " + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
             }
@@ -259,7 +259,7 @@ namespace R1Engine
             return obj;
         }
 
-        public override Pointer[] SerializePointerArray(Pointer[] obj, decimal count, Pointer anchor = null, bool allowInvalid = false, string name = null) {
+        public override Pointer[] SerializePointerArray(Pointer[] obj, long count, Pointer anchor = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer[" + count + "]) " + (name ?? "<no name>"));
             }
@@ -270,7 +270,7 @@ namespace R1Engine
             return obj;
         }
 
-        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
+        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer<" + typeof(T) + ">[" + count + "]) " + (name ?? "<no name>"));
             }

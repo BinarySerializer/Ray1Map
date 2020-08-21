@@ -80,10 +80,10 @@ namespace R1Engine {
         public static bool operator !=(Pointer x, Pointer y) {
             return !(x == y);
         }
-        public static Pointer operator +(Pointer x, Decimal y) {
+        public static Pointer operator +(Pointer x, long y) {
             return new Pointer((uint)(x.AbsoluteOffset + y), x.file) { Anchor = x.Anchor };
         }
-        public static Pointer operator -(Pointer x, Decimal y) {
+        public static Pointer operator -(Pointer x, long y) {
             return new Pointer((uint)(x.AbsoluteOffset - y), x.file) { Anchor = x.Anchor };
         }
         public static ulong operator +(Pointer x, Pointer y) {

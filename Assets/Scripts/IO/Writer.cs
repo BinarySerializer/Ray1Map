@@ -68,7 +68,7 @@ namespace R1Engine {
             Write(data);
         }
 
-        public void WriteString(string value, decimal size, Encoding encoding = null) {
+        public void WriteString(string value, long size, Encoding encoding = null) {
             if (encoding == null)
                 encoding = Settings.StringEncoding;
             byte[] data = encoding.GetBytes(value + '\0');

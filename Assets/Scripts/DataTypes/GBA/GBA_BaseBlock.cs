@@ -15,6 +15,8 @@
         /// </summary>
         public GBA_OffsetTable OffsetTable { get; set; }
 
+        public bool IsBlockCompressed { get; set; }
+
 		protected override void OnPreSerialize(SerializerObject s) {
 			base.OnPreSerialize(s);
             s.DoAt(Offset - 4, () => {
@@ -25,7 +27,7 @@
                 // Align
                 s.Align();
                 // Serialize the offset table
-                OffsetTable = s.SerializeObject<GBA_OffsetTable>(OffsetTable, name: nameof(OffsetTable));
+                OffsetTable = s.SerializeObject<GBA_OffsetTable>(OffsetTable, onPreSerialize: ot => ot.Block = this, name: nameof(OffsetTable));
             });
 		}
 

@@ -116,7 +116,7 @@ namespace R1Engine {
             return "";
         }
 
-        public string ReadString(decimal size, Encoding encoding = null) {
+        public string ReadString(long size, Encoding encoding = null) {
             if (encoding == null)
                 encoding = Settings.StringEncoding;
 			byte[] bytes = ReadBytes((int)size);

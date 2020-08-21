@@ -212,6 +212,16 @@ namespace R1Engine
                         [GBA_Pointer.UiOffsetTable] = 0x081A0468,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SplinterCellGBAUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x082260A4,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SplinterCellNGage:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x0
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.StarWarsTrilogyApprenticeOfTheForceGBAEU:
                     return new Dictionary<GBA_Pointer, uint>()
                     {

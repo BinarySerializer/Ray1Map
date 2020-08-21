@@ -26,6 +26,7 @@
         GBA_Rayman3,
         GBA_PrinceOfPersiaTheSandsOfTime,
         GBA_SabrinaTheTeenageWitchPotionCommotion,
+        GBA_SplinterCell,
         GBA_StarWarsTrilogyApprenticeOfTheForce,
         GBA_StarWarsEpisodeIII,
         GBA_KingKong,

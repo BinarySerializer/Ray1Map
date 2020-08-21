@@ -121,7 +121,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="encoding">The encoding to use, or null for the default one</param>
         /// <returns>The string</returns>
-        public override string SerializeString(string obj, decimal? length = null, Encoding encoding = null, string name = null) {
+        public override string SerializeString(string obj, long? length = null, Encoding encoding = null, string name = null) {
             string logString = LogPrefix;
             string t;
             if (length.HasValue) {
@@ -135,7 +135,7 @@ namespace R1Engine
             return t;
         }
 
-        public override string[] SerializeStringArray(string[] obj, decimal count, int length, Encoding encoding = null, string name = null)
+        public override string[] SerializeStringArray(string[] obj, long count, int length, Encoding encoding = null, string name = null)
         {
             if (Settings.Log)
             {
@@ -265,7 +265,7 @@ namespace R1Engine
             return p;
         }
 
-        public override T[] SerializeArray<T>(T[] obj, decimal count, string name = null) {
+        public override T[] SerializeArray<T>(T[] obj, long count, string name = null) {
             // Use byte reading method if requested
             if (typeof(T) == typeof(byte)) {
                 if (Settings.Log) {
@@ -292,7 +292,7 @@ namespace R1Engine
             return buffer;
         }
 
-        public override T[] SerializeObjectArray<T>(T[] obj, decimal count, Action<T> onPreSerialize = null, string name = null) {
+        public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T> onPreSerialize = null, string name = null) {
             if (Settings.Log) {
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Object[]: " + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
@@ -306,7 +306,7 @@ namespace R1Engine
             return buffer;
         }
 
-        public override Pointer[] SerializePointerArray(Pointer[] obj, decimal count, Pointer anchor = null, bool allowInvalid = false, string name = null) {
+        public override Pointer[] SerializePointerArray(Pointer[] obj, long count, Pointer anchor = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Pointer[" + count + "]) " + (name ?? "<no name>"));
@@ -320,7 +320,7 @@ namespace R1Engine
             return buffer;
         }
 
-        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, decimal count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
+        public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
             if (Settings.Log) {
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Pointer<" + typeof(T) + ">[" + count + "]) " + (name ?? "<no name>"));

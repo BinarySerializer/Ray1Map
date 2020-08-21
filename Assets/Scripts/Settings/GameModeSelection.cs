@@ -149,6 +149,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_NGage, Game.GBA_Rayman3, "Rayman 3 (N-Gage)", typeof(GBA_R3NGage_Manager))]
         Rayman3NGage,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell, Game.GBA_SplinterCell, "Splinter Cell (GBA - US)", typeof(GBA_SplinterCell_Manager))]
+        SplinterCellGBAUS,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell_NGage, Game.GBA_SplinterCell, "Splinter Cell (N-Gage)", typeof(GBA_SplinterCellNGage_Manager))]
+        SplinterCellNGage,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_PrinceOfPersia, Game.GBA_PrinceOfPersiaTheSandsOfTime, "Prince of Persia: The Sands of Time (GBA - EU)", typeof(GBA_PoPSoT_Manager))]
         PrinceOfPersiaGBAEU,
 
@@ -161,10 +167,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsTrilogy_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsEpisodeIII, Game.GBA_StarWarsEpisodeIII, "Star Wars Episode III (GBA - US)", typeof(GBA_StarWarsTrilogy_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsEpisodeIII, Game.GBA_StarWarsEpisodeIII, "Star Wars Episode III (GBA - US)", typeof(GBA_StarWarsEpisodeIII_Manager))]
         StarWarsEpisodeIIIGBAUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_KingKong, Game.GBA_KingKong, "King Kong (GBA - EU)", typeof(GBA_StarWarsTrilogy_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_KingKong, Game.GBA_KingKong, "King Kong (GBA - EU)", typeof(GBA_KingKong_Manager))]
         KingKongGBAEU,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_OpenSeason, Game.GBA_OpenSeason, "Open Season (GBA - EU 1)", typeof(GBA_OpenSeason_Manager))]

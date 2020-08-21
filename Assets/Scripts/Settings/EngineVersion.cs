@@ -42,6 +42,8 @@ namespace R1Engine
         GBA_R3_Proto,           // 2003
         GBA_R3,                 // 2003
         GBA_R3_NGage,           // 2003
+        GBA_SplinterCell,       // 2003 - released before R3, but more developed engine
+        GBA_SplinterCell_NGage, // 2003
         GBA_PrinceOfPersia,     // 2003
         GBA_StarWarsTrilogy,    // 2004
         GBA_StarWarsEpisodeIII, // 2005

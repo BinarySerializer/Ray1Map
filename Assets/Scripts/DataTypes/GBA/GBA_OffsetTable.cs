@@ -7,11 +7,12 @@ namespace R1Engine
     /// </summary>
     public class GBA_OffsetTable : R1Serializable
     {
-        public uint OffsetsCount { get; set; }
-        public uint[] Offsets { get; set; }
+        public int OffsetsCount { get; set; }
+        public int[] Offsets { get; set; }
 
         public static List<GBA_OffsetTable> OffsetTables { get; } = new List<GBA_OffsetTable>();
         public bool[] UsedOffsets { get; set; }
+        public GBA_BaseBlock Block { get; set; }
 
         /// <summary>
         /// Gets a pointer from the table
@@ -21,16 +22,29 @@ namespace R1Engine
         public Pointer GetPointer(int index)
         {
             UsedOffsets[index] = true;
-            return PointerTables.GBA_PointerTable(Offset.Context.Settings.GameModeSelection, Offset.file)[
-                GBA_Pointer.UiOffsetTable] + (Offsets[index] * 4);
+            var pointerTable = PointerTables.GBA_PointerTable(Offset.Context.Settings.GameModeSelection, Offset.file);
+            if (Context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                if (Block == null) {
+                    return pointerTable[GBA_Pointer.UiOffsetTable] + Offsets[index];
+                } else {
+                    return Block.Offset + Offsets[index];
+                }
+            } else {
+                return pointerTable[GBA_Pointer.UiOffsetTable] + (Offsets[index] * 4);
+            }
         }
 
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize the offset table
-            OffsetsCount = s.Serialize<uint>(OffsetsCount, name: nameof(OffsetsCount));
-            Offsets = s.SerializeArray<uint>(Offsets, OffsetsCount, name: nameof(Offsets));
-            UsedOffsets = new bool[OffsetsCount];
+            OffsetsCount = s.Serialize<int>(OffsetsCount, name: nameof(OffsetsCount));
+            if (OffsetsCount > 0) {
+                Offsets = s.SerializeArray<int>(Offsets, OffsetsCount, name: nameof(Offsets));
+                UsedOffsets = new bool[OffsetsCount];
+            } else {
+                Offsets = new int[0];
+                UsedOffsets = new bool[0];
+            }
             OffsetTables.Add(this);
         }
     }

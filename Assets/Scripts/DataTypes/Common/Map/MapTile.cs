@@ -129,7 +129,7 @@ namespace R1Engine
 
                     if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
                         numBits = 8;
-                    } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                    } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                         numBits = 9;
                     }
 
@@ -160,7 +160,7 @@ namespace R1Engine
 
                     if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
                         numBits = 10;
-                    else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                    else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                         numBits = Is8Bpp ? 14 : 12;
                     }
 
@@ -176,11 +176,13 @@ namespace R1Engine
                     TileMapX = 0;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
                     if (!Is8Bpp) {
-                        if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                        if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                             PaletteIndex = (byte)BitHelpers.ExtractBits(value, 3, 13);
                         } else {
                             PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
                         }
+                    } else {
+                        VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits + 1) == 1;
                     }
 
                     s.Log($"{nameof(TileMapY)}: {TileMapY}");

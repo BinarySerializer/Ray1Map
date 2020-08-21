@@ -61,7 +61,9 @@ namespace R1Engine
                 Link_3 = s.Serialize<byte>(Link_3, name: nameof(Link_3));
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia)
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia
+                || s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell
+                || s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage)
             {
                 Short_0C = s.Serialize<short>(Short_0C, name: nameof(Short_0C));
                 Short_0E = s.Serialize<short>(Short_0E, name: nameof(Short_0E));
