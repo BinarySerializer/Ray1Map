@@ -124,7 +124,7 @@ namespace R1Engine
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
-                if (IsBGTile) {
+                if (IsBGTile && s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
                     int numBits = Is8Bpp ? 9 : 10;
 
                     if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
