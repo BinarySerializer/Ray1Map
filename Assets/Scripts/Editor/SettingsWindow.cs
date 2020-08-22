@@ -50,6 +50,8 @@ public class SettingsWindow : UnityWindow
             fileMode = FileSystem.Mode.Web;
         }
 
+        bool refreshGameActions = (GameModeDropdown?.HasChanged ?? false) || (MapSelectionDropdown?.HasChanged ?? false);
+
         // Increase label width due to it being cut off otherwise
         EditorGUIUtility.labelWidth = 192;
 
@@ -231,7 +233,7 @@ public class SettingsWindow : UnityWindow
         DrawHeader("Game Tools");
 
         // Only update if previous values don't match
-        if (MapSelectionDropdown.HasChanged)
+        if (CurrentGameActions == null || refreshGameActions)
         {
             MapSelectionDropdown.HasChanged = false;
             Settings.EduVolume = MapSelectionDropdown.SelectedVolume;
@@ -351,13 +353,13 @@ public class SettingsWindow : UnityWindow
         RandomizerFlags = (RandomizerFlags)EditorGUI.EnumFlagsField(GetNextRect(ref YPos), "Flags", RandomizerFlags);
 
         TotalyPos = YPos;
-		GUI.EndScrollView();
+        GUI.EndScrollView();
 
-		if (EditorGUI.EndChangeCheck() || Dirty)
-		{
-			Settings.Save();
-			Dirty = false;
-		}
+        if (EditorGUI.EndChangeCheck() || Dirty)
+        {
+            Settings.Save();
+            Dirty = false;
+        }
     }
 
     #region Randomizer
@@ -418,7 +420,7 @@ public class SettingsWindow : UnityWindow
     private GameModeSelectionDropdown GameModeDropdown { get; set; }
     private MapSelectionDropdown MapSelectionDropdown { get; set; }
 
-    private GameAction[] CurrentGameActions { get; set; } = new GameAction[0];
+    private GameAction[] CurrentGameActions { get; set; }
 
     private float TotalyPos { get; set; }
 
