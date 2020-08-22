@@ -227,6 +227,8 @@ namespace R1Engine
                     }
                 }
             }
+
+            Debug.Log("Finished logging blocks");
         }
 
         public async UniTask ExportSpriteSetsAsync(GameSettings settings, string outputDir)
