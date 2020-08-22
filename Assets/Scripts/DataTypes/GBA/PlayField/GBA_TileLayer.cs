@@ -26,7 +26,7 @@ namespace R1Engine
         // Related to BG Alpha Blending
         public sbyte Unk_0B { get; set; }
 
-        public byte UsesBGTileTable { get; set; }
+        public bool IsForegroundTileLayer { get; set; }
 
         public bool Is8bpp { get; set; }
 
@@ -65,13 +65,13 @@ namespace R1Engine
                     ClusterIndex = s.Serialize<byte>(ClusterIndex, name: nameof(ClusterIndex));
                     // TODO: figure out what this is. One of these
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
+                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
+                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
+                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
+                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
 
                     if (IsCompressed) {
                         s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
@@ -113,7 +113,7 @@ namespace R1Engine
 
                     ShouldSetBGAlphaBlending = s.Serialize<bool>(ShouldSetBGAlphaBlending, name: nameof(ShouldSetBGAlphaBlending));
                     Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    UsesBGTileTable = s.Serialize<byte>(UsesBGTileTable, name: nameof(UsesBGTileTable));
+                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
 
                     if (StructType == TileLayerStructTypes.Mode7)
                     {
@@ -148,7 +148,7 @@ namespace R1Engine
         protected void SerializeTileMap(SerializerObject s) {
             switch (StructType) {
                 case TileLayerStructTypes.Map2D:
-                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = (UsesBGTileTable == 0); m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
+                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = !IsForegroundTileLayer; m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
                     break;
                 case TileLayerStructTypes.Mode7:
                     Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
