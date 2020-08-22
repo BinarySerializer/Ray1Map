@@ -1177,7 +1177,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading data";
+            Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
             // Read the rom
@@ -1209,7 +1209,7 @@ namespace R1Engine
                 EventData = new List<Unity_Obj>(),
             };
 
-            Controller.status = $"Loading tile set";
+            Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent
@@ -1224,7 +1224,7 @@ namespace R1Engine
             // Set to true to change the event state to display them correctly, or false to use the original states
             var correctEventStates = context.Settings.EngineVersion != EngineVersion.R1Jaguar_Proto;
 
-            Controller.status = $"Loading events & states";
+            Controller.DetailedState = $"Loading events & states";
             await Controller.WaitIfNecessary();
 
             // Load events

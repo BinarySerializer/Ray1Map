@@ -739,7 +739,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading data";
+            Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
             // Read data from the ROM
@@ -750,12 +750,12 @@ namespace R1Engine
             var eventData = data.LevelEventData;
             var spritePalette = data.GetSpritePalettes(context.Settings);
 
-            Controller.status = $"Loading level data";
+            Controller.DetailedState = $"Loading level data";
             await Controller.WaitIfNecessary();
 
             map.SerializeLevelData(context.Deserializer);
 
-            Controller.status = $"Loading tile set";
+            Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
             Unity_MapTileMap tileset = GetTileSet(context, map);
@@ -785,7 +785,7 @@ namespace R1Engine
 
             level.Maps[0].TileSet[0] = tileset;
 
-            Controller.status = $"Loading events";
+            Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();
 
             var eventDesigns = new Dictionary<Pointer, Unity_ObjGraphics>();

@@ -38,12 +38,13 @@ public class MapSelectionDropdown : AdvancedDropdown
 
     protected AdvancedDropdownItem AddWorlds(AdvancedDropdownItem parent, GameInfo_Volume vol)
     {
+        int id = 0;
         foreach (var w in vol.Worlds.Where(x => x.Maps.Length > 0))
         {
-            var worldItem = new AdvancedDropdownItem(GetName(w.Index, WorldNames?.TryGetItem(w.Index)));
+            var worldItem = new AdvancedDropdownItem(GetName(w.Index, WorldNames?.TryGetItem(w.Index))) { id = -1 };
 
             foreach (var m in w.Maps)
-                worldItem.AddChild(new MapSelectionDropdownItem(GetLevelName(w.Index, m), vol.Name, w.Index, m));
+                worldItem.AddChild(new MapSelectionDropdownItem(GetLevelName(w.Index, m), vol.Name, w.Index, m) { id = id++ });
 
             parent.AddChild(worldItem);
         }
@@ -55,7 +56,7 @@ public class MapSelectionDropdown : AdvancedDropdown
     {
         base.ItemSelected(item);
 
-        if (!(item is MapSelectionDropdownItem mapItem)) 
+        if (item.id == -1 || !(item is MapSelectionDropdownItem mapItem)) 
             return;
 
         SelectedVolume = mapItem.Volume;

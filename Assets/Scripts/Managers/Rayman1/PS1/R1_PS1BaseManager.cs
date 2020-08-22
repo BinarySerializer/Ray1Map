@@ -275,7 +275,7 @@ namespace R1Engine
             // Add every event
             foreach (R1_EventData e in events ?? (events = new R1_EventData[0]))
             {
-                Controller.status = $"Loading DES {index}/{events.Length}";
+                Controller.DetailedState = $"Loading DES {index}/{events.Length}";
 
                 await Controller.WaitIfNecessary();
 

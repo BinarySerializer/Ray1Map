@@ -20,21 +20,22 @@ namespace R1Engine
         public LevelEventController levelEventController;
 
         // The loading string
-        public Text loadingText;
+        public LoadingScreen loadingScreen;
 
         public Text tempDebugText;
 
         private Stopwatch stopwatch;
 
-        public static string status
-        {
-            get => obj.loadingText.text;
-            set
-            {
-                if (obj?.loadingText != null)
-                    obj.loadingText.text = value;
-            }
+        public enum State {
+            None,
+            LoadingFiles,
+            Loading,
+            Initializing,
+            Error,
+            Finished
         }
+        public static State LoadState { get; set; }
+        public static string DetailedState { get; set; } = "Starting";
 
         public async UniTask WaitFrame()
         {
@@ -59,6 +60,11 @@ namespace R1Engine
             obj = this;
             levelController = GameObject.Find("Level").GetComponent<LevelMainController>();
             levelEventController = GameObject.Find("Level").GetComponent<LevelEventController>();
+            Application.logMessageReceived += Log;
+            if (Application.platform == RuntimePlatform.WebGLPlayer) {
+                UnityEngine.Debug.unityLogger.filterLogType = LogType.Assert;
+
+            }
         }
 
         async UniTaskVoid Start()
@@ -67,13 +73,20 @@ namespace R1Engine
             stopwatch.Start();
             loadTimer.Start();
 
-            status = "Starting...";
+            loadingScreen.Active = true;
+            LoadState = State.Loading;
+            DetailedState = "Starting...";
 
             // Create the context
             LevelEditorData.MainContext = new Context(Settings.GetGameSettings);
             await levelController.LoadLevelAsync(Settings.GetGameManager, LevelEditorData.MainContext);
 
-            status = String.Empty;
+            await WaitIfNecessary();
+            if (LoadState == State.Error) return;
+
+            DetailedState = "Finsihed";
+            LoadState = State.Finished;
+            loadingScreen.Active = false;
 
             stopwatch.Stop();
             loadTimer.Stop();
@@ -123,5 +136,36 @@ namespace R1Engine
             // Log the result
             Debug.Log($"Matching encodings for all: {String.Join(", ", matches.Select(x => $"{x.EncodingName} ({x.CodePage})"))}");
         }
-    }
+
+        public void Log(string condition, string stacktrace, LogType type) {
+            switch (type) {
+                case LogType.Exception:
+                case LogType.Error:
+                    if (LoadState != State.Finished) {
+                        // Allowed exceptions
+                        if (condition.Contains("cleaning the mesh failed")) break;
+                        if (condition.Contains("desc.isValid() failed!")) break;
+
+                        // Go to error state
+                        LoadState = State.Error;
+                        if (loadingScreen.Active) {
+                            DetailedState = condition;
+                        }
+                    }
+                    break;
+            }
+        }
+
+		private void Update() {
+            if (loadingScreen.Active) {
+                if (LoadState == State.Error) {
+                    loadingScreen.LoadingText = DetailedState;
+                    loadingScreen.LoadingtextColor = Color.red;
+                } else {
+                    loadingScreen.LoadingText = DetailedState;
+                    loadingScreen.LoadingtextColor = Color.white;
+                }
+            }
+        }
+	}
 }

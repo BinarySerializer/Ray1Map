@@ -23,7 +23,7 @@ namespace R1Engine
 
         public async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading data";
+            Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
             // Read the rom
@@ -55,7 +55,7 @@ namespace R1Engine
                 EventData = new List<Unity_Obj>(),
             };
 
-            Controller.status = $"Loading tile set";
+            Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent

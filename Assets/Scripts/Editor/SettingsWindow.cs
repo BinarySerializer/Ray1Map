@@ -44,8 +44,7 @@ public class SettingsWindow : UnityWindow
     public int DefaultMemoryOptionsIndex { get; set; }
     public int PreviousDefaultMemoryOptionsIndex { get; set; } = -1;
 
-    protected override async UniTask UpdateEditorFields()
-	{
+    protected override async UniTask UpdateEditorFields() {
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
             fileMode = FileSystem.Mode.Web;
@@ -54,13 +53,13 @@ public class SettingsWindow : UnityWindow
         // Increase label width due to it being cut off otherwise
         EditorGUIUtility.labelWidth = 192;
 
-		if (TotalyPos == 0f)
+        if (TotalyPos == 0f)
             TotalyPos = position.height;
 
-		scrollbarShown = TotalyPos > position.height;
-		ScrollPosition = GUI.BeginScrollView(new Rect(0, 0, EditorGUIUtility.currentViewWidth, position.height), ScrollPosition, new Rect(0, 0, EditorGUIUtility.currentViewWidth - (scrollbarShown ? scrollbarWidth : 0f), TotalyPos));
+        scrollbarShown = TotalyPos > position.height;
+        ScrollPosition = GUI.BeginScrollView(new Rect(0, 0, EditorGUIUtility.currentViewWidth, position.height), ScrollPosition, new Rect(0, 0, EditorGUIUtility.currentViewWidth - (scrollbarShown ? scrollbarWidth : 0f), TotalyPos));
 
-		EditorGUI.BeginChangeCheck();
+        EditorGUI.BeginChangeCheck();
 
         if (fileMode == FileSystem.Mode.Web) {
             EditorGUI.HelpBox(GetNextRect(ref YPos, height: 40f), "Your build target is configured as WebGL. Ray1Map will attempt to load from the server.", MessageType.Warning);
@@ -79,19 +78,16 @@ public class SettingsWindow : UnityWindow
             GameModeDropdown.Show(rectTemp);
 
         Settings.LoadFromMemory = EditorField("Load from memory", Settings.LoadFromMemory);
-        
+
         // Memory
-        
-        if (Settings.LoadFromMemory)
-        {
+
+        if (Settings.LoadFromMemory) {
             DrawHeader("Memory");
 
             DefaultMemoryOptionsIndex = EditorField("Default memory options", DefaultMemoryOptionsIndex, DefaultMemoryOptionNames);
 
-            if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex)
-            {
-                if (PreviousDefaultMemoryOptionsIndex == -1)
-                {
+            if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex) {
+                if (PreviousDefaultMemoryOptionsIndex == -1) {
                     var match = Enumerable.Range(0, DefaultMemoryOptionNames.Length).FirstOrDefault(x => DefaultMemoryOptionProcessNames[x] == Settings.ProcessName && DefaultMemoryOptionPointers[x] == Settings.GameBasePointer);
 
                     if (match > 0)
@@ -100,8 +96,7 @@ public class SettingsWindow : UnityWindow
 
                 PreviousDefaultMemoryOptionsIndex = DefaultMemoryOptionsIndex;
 
-                if (DefaultMemoryOptionsIndex != 0)
-                {
+                if (DefaultMemoryOptionsIndex != 0) {
                     Settings.ProcessName = DefaultMemoryOptionProcessNames[DefaultMemoryOptionsIndex];
                     Settings.GameBasePointer = DefaultMemoryOptionPointers[DefaultMemoryOptionsIndex];
                 }
@@ -111,7 +106,7 @@ public class SettingsWindow : UnityWindow
 
             Settings.ProcessName = EditorField("Process name", Settings.ProcessName);
             Settings.GameBasePointer = EditorField("Game memory pointer", Settings.GameBasePointer);
-         
+
             EditorGUI.EndDisabledGroup();
 
             Settings.FindPointerAutomatically = EditorField("Find pointer automatically", Settings.FindPointerAutomatically);
@@ -134,15 +129,12 @@ public class SettingsWindow : UnityWindow
 
             GameInfo_Volume[] volumes;
 
-            try
-            {
+            try {
                 var manager = Settings.GetGameManager;
                 var settings = Settings.GetGameSettings;
 
                 volumes = manager.GetLevels(settings);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 volumes = new GameInfo_Volume[0];
                 Debug.LogWarning(ex.Message);
             }
@@ -160,20 +152,14 @@ public class SettingsWindow : UnityWindow
 
         Settings.HideDirSettings = EditorField("Hide directory fields", Settings.HideDirSettings);
 
-        if (!Settings.HideDirSettings)
-        {
+        if (!Settings.HideDirSettings) {
             var modes = EnumHelpers.GetValues<GameModeSelection>();
-            if (fileMode == FileSystem.Mode.Web)
-            {
-                foreach (var mode in modes)
-                {
+            if (fileMode == FileSystem.Mode.Web) {
+                foreach (var mode in modes) {
                     Settings.GameDirectoriesWeb[mode] = EditorField(mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectoriesWeb.TryGetItem(mode, String.Empty));
                 }
-            }
-            else
-            {
-                foreach (var mode in modes)
-                {
+            } else {
+                foreach (var mode in modes) {
                     Settings.GameDirectories[mode] = DirectoryField(GetNextRect(ref YPos), mode.GetAttribute<GameModeAttribute>()?.DisplayName ?? "N/A", Settings.GameDirectories.TryGetItem(mode, String.Empty));
                 }
             }
@@ -211,34 +197,32 @@ public class SettingsWindow : UnityWindow
             Settings.LogFile = FileField(rect, "Serialization log File", Settings.LogFile, true, "txt", includeLabel: false);
 
         // Editor Tools
+        if (Application.isPlaying && Controller.LoadState == Controller.State.Finished) {
+            var em = LevelEditorData.EditorManager;
 
-        var em = LevelEditorData.EditorManager;
+            if (em != null) {
+                DrawHeader("Editor Tools");
 
-        if (em != null)
-        {
-            DrawHeader("Editor Tools");
-
-            if (EditorButton("Copy localization"))
-            {
-                if (em.Level.Localization != null)
-                {
-                    TextEditor te = new TextEditor
-                    {
-                        text = JsonConvert.SerializeObject(em.Level.Localization, Formatting.Indented)
-                    };
-                    te.SelectAll();
-                    te.Copy();
+                if (EditorButton("Copy localization")) {
+                    if (em.Level.Localization != null) {
+                        TextEditor te = new TextEditor {
+                            text = JsonConvert.SerializeObject(em.Level.Localization, Formatting.Indented)
+                        };
+                        te.SelectAll();
+                        te.Copy();
+                    }
                 }
-            }
 
-            for (int i = 0; i < em.Level.Maps.Length; i++)
-            {
-                var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
+                if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
+                    for (int i = 0; i < em.Level.Maps.Length; i++) {
+                        var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
 
-                var isActive = EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf);
+                        var isActive = EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf);
 
-                if (isActive != tilemaps[i].gameObject.activeSelf)
-                    tilemaps[i].gameObject.SetActive(isActive);
+                        if (isActive != tilemaps[i].gameObject.activeSelf)
+                            tilemaps[i].gameObject.SetActive(isActive);
+                    }
+                }
             }
         }
 

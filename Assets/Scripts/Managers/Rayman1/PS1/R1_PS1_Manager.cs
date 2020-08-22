@@ -236,7 +236,7 @@ namespace R1Engine
             await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
             FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
-            Controller.status = $"Loading world file";
+            Controller.DetailedState = $"Loading world file";
 
             await Controller.WaitIfNecessary();
 
@@ -244,7 +244,7 @@ namespace R1Engine
             await LoadExtraFile(context, GetWorldFilePath(context.Settings));
             FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
-            Controller.status = $"Loading map data";
+            Controller.DetailedState = $"Loading map data";
 
             // Read the level data
             await LoadExtraFile(context, GetLevelFilePath(context.Settings));

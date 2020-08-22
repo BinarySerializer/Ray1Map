@@ -71,7 +71,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
+            Controller.DetailedState = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
             // Get the level folder path
             var basePath = await GetLevelFolderPath(context);
@@ -116,7 +116,7 @@ namespace R1Engine
 
             };
 
-            Controller.status = $"Loading Mapper files";
+            Controller.DetailedState = $"Loading Mapper files";
 
             // Read the DES CMD manifest
             var desCmdManifest = FileFactory.ReadText<R1_Mapper_RayLev>(paths["ray.lev"], context).DESManifest;
@@ -182,7 +182,7 @@ namespace R1Engine
             // Handle each event
             foreach (var eventData in events)
             {
-                Controller.status = $"Loading event {index}/{eventCount}";
+                Controller.DetailedState = $"Loading event {index}/{eventCount}";
 
                 await Controller.WaitIfNecessary();
 
@@ -226,7 +226,7 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            Controller.status = $"Loading tile set";
+            Controller.DetailedState = $"Loading tile set";
 
             // Read the .pcx file and get the texture
             var pcxtex = FileFactory.Read<PCX>(paths["pcx"], context).ToTexture();

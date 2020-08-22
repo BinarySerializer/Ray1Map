@@ -30,6 +30,9 @@
                     DecompressedBlockOffset = s.CurrentPointer;
                     SerializeOffsetTable(s);
                     SerializeBlock(s);
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                        s.Align();
+                    }
                     CheckBlockSize(s);
                     // Serialize data from the offset table
                     SerializeOffsetData(s);
@@ -38,6 +41,9 @@
             } else {
                 SerializeOffsetTable(s);
                 SerializeBlock(s);
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                    s.Align();
+                }
                 CheckBlockSize(s);
                 // Serialize data from the offset table
                 SerializeOffsetData(s);

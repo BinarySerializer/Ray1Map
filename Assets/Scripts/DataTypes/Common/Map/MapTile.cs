@@ -158,9 +158,11 @@ namespace R1Engine
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
 
-                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance)
+                    if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
                         numBits = 10;
-                    else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
+                    } else if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                        numBits = Is8Bpp ? 14 : 12;
+                    } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                         numBits = Is8Bpp ? 14 : 12;
                     }
 
@@ -173,6 +175,9 @@ namespace R1Engine
                     value = s.Serialize<ushort>(value, name: nameof(value));
 
                     TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage && Is8Bpp) {
+                        TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits-1, 0);
+                    }
                     TileMapX = 0;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
                     if (!Is8Bpp) {

@@ -367,9 +367,9 @@ namespace R1Engine {
 		private async UniTask HttpRead(byte[] buffer, int offset, int count, long startPosition) {
 			HttpRequestsCount++;
 			UnityWebRequest www = UnityWebRequest.Get(Url);
-			string state = Controller.status;
+			string state = Controller.DetailedState;
 			int totalSize = caches.Sum(c => c.Value.Length);
-			Controller.status = state + "\nDownloading part of bigfile: " + Url.Replace(FileSystem.serverAddress, "") + " (New size: " + Util.SizeSuffix(totalSize + count, 0) + "/" + Util.SizeSuffix(Length, 0) + ")";
+			Controller.DetailedState = state + "\nDownloading part of bigfile: " + Url.Replace(FileSystem.serverAddress, "") + " (New size: " + Util.SizeSuffix(totalSize + count, 0) + "/" + Util.SizeSuffix(Length, 0) + ")";
 			UnityEngine.Debug.Log("Requesting range: " + string.Format("bytes={0}-{1}", startPosition, startPosition + count - 1) + " - " + Url);
 			www.SetRequestHeader("Range", string.Format("bytes={0}-{1}", startPosition, startPosition + count - 1));
 			try {
@@ -389,7 +389,7 @@ namespace R1Engine {
 				}
 			}
 
-			Controller.status = state;
+			Controller.DetailedState = state;
 			/*using (BinaryReader sr = new BinaryReader(httpResponse.GetResponseStream(), Encoding.GetEncoding(httpResponse.CharacterSet))) {
 				sr.ReadBlock(buffer, offset, count);
 			}*/

@@ -1296,21 +1296,21 @@ namespace R1Engine
             // Create the output list
             List<Unity_ObjGraphics> eventDesigns = new List<Unity_ObjGraphics>();
 
-            Controller.status = $"Loading allfix";
+            Controller.DetailedState = $"Loading allfix";
 
             // Read the fixed data
             var allfix = FileFactory.Read<R1_PC_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
 
-            Controller.status = $"Loading world";
+            Controller.DetailedState = $"Loading world";
 
             // Read the world data
             var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             await Controller.WaitIfNecessary();
 
-            Controller.status = $"Loading big ray";
+            Controller.DetailedState = $"Loading big ray";
 
             // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
             // Read the big ray data
@@ -1332,7 +1332,7 @@ namespace R1Engine
             // Read every DES item
             foreach (R1_PC_DES d in des)
             {
-                Controller.status = $"Loading DES {desIndex}/{des.Length}";
+                Controller.DetailedState = $"Loading DES {desIndex}/{des.Length}";
 
                 await Controller.WaitIfNecessary();
 
@@ -1357,7 +1357,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
+            Controller.DetailedState = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
 
             // Read the level data
             var levelData = FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.Settings), context);
@@ -1445,7 +1445,7 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            Controller.status = $"Loading tile set";
+            Controller.DetailedState = $"Loading tile set";
 
             // Read the 3 tile sets (one for each palette)
             var tileSets = ReadTileSets(levelData);

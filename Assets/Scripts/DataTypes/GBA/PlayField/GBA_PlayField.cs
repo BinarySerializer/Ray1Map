@@ -109,8 +109,11 @@
                 // Serialize tilemap
                 TileKit = s.DoAt(OffsetTable.GetPointer(TileKitOffsetIndex), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
 
-                // Serialize tilemap
-                BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
+                // This game has no BGTileTable
+                if (s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
+                    // Serialize tilemap
+                    BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
+                }
             } else {
                 // Serialize tile palette
                 TilePalette = s.DoAt(OffsetTable.GetPointer(TilePaletteIndex), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));

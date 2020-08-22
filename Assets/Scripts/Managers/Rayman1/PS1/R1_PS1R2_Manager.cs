@@ -196,7 +196,7 @@ namespace R1Engine
         public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
             await Controller.WaitIfNecessary();
-            Controller.status = $"Loading files";
+            Controller.DetailedState = $"Loading files";
 
             uint baseAddress = 0x80018000;
 
@@ -230,7 +230,7 @@ namespace R1Engine
             }
 
             await Controller.WaitIfNecessary();
-            Controller.status = $"Loading level data";
+            Controller.DetailedState = $"Loading level data";
 
             // Read the level data
             var lvlData = FileFactory.Read<R1_R2LevDataFile>(levelDTAPath, context);
@@ -239,7 +239,7 @@ namespace R1Engine
             var maps = Enumerable.Range(0, MapCount).Select(x => FileFactory.Read<MapData>(GetSubMapPath(x), context)).ToArray();
 
             await Controller.WaitIfNecessary();
-            Controller.status = $"Loading sprite data";
+            Controller.DetailedState = $"Loading sprite data";
 
             var eventETA = new Dictionary<Pointer, R1_EventState[][]>();
             var commonEvents = new List<Unity_Obj>();
@@ -264,7 +264,7 @@ namespace R1Engine
             // Get the events
             var events = lvlData.Events.Concat(lvlData.AlwaysEvents).ToArray();
 
-            Controller.status = $"Loading animations";
+            Controller.DetailedState = $"Loading animations";
             await Controller.WaitIfNecessary();
 
             // Get the ETA and DES
@@ -293,7 +293,7 @@ namespace R1Engine
                 }
             }
 
-            Controller.status = $"Loading events";
+            Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();
 
             var index = 0;
@@ -350,7 +350,7 @@ namespace R1Engine
             }
 
             await Controller.WaitIfNecessary();
-            Controller.status = $"Loading tiles";
+            Controller.DetailedState = $"Loading tiles";
 
             // Convert levelData to common level format
             Unity_Level c = new Unity_Level

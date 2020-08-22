@@ -166,20 +166,20 @@ namespace R1Engine {
 
 		public static async UniTask PrepareFile(string path) {
 			if (FileSystem.mode == FileSystem.Mode.Web && !string.IsNullOrEmpty(path)) {
-				string state = Controller.status;
-				Controller.status = state + "\nDownloading file: " + path;
+				string state = Controller.DetailedState;
+				Controller.DetailedState = state + "\nDownloading file: " + path;
 				await FileSystem.DownloadFile(path);
-				Controller.status = state;
+				Controller.DetailedState = state;
 				await Controller.WaitIfNecessary();
 			}
 		}
 
 		public static async UniTask PrepareBigFile(string path, int cacheLength) {
 			if (FileSystem.mode == FileSystem.Mode.Web) {
-				string state = Controller.status;
-				Controller.status = state + "\nInitializing bigfile: " + path + " (Cache size: " + Util.SizeSuffix(cacheLength, 0) + ")";
+				string state = Controller.DetailedState;
+				Controller.DetailedState = state + "\nInitializing bigfile: " + path + " (Cache size: " + Util.SizeSuffix(cacheLength, 0) + ")";
 				await FileSystem.InitBigFile(path, cacheLength);
-				Controller.status = state;
+				Controller.DetailedState = state;
 				await Controller.WaitIfNecessary();
 			}
 		}

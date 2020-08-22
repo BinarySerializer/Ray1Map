@@ -209,7 +209,7 @@ namespace R1Engine
         /// <returns>The common event designs</returns>
         public async UniTask<Unity_ObjGraphics[]> LoadSpritesAsync(Context context)
         {
-            Controller.status = $"Loading sprites";
+            Controller.DetailedState = $"Loading sprites";
             await Controller.WaitIfNecessary();
 
             // Load the world files
@@ -351,7 +351,7 @@ namespace R1Engine
         /// <returns>The editor manager</returns>
         public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading map data for {context.Settings.EduVolume}: {context.Settings.World} {context.Settings.Level}";
+            Controller.DetailedState = $"Loading map data for {context.Settings.EduVolume}: {context.Settings.World} {context.Settings.Level}";
 
             // Load the level
             var levelData = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.Settings), context);
@@ -409,7 +409,7 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            Controller.status = $"Loading tile set";
+            Controller.DetailedState = $"Loading tile set";
 
             // Read the 3 tile sets (one for each palette)
             var tileSets = ReadTileSets(levelData);

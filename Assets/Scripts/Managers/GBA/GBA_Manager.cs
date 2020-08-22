@@ -342,7 +342,7 @@ namespace R1Engine
 
         public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.status = $"Loading data";
+            Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
             var lvlType = GetLevelType(context.Settings.World);
@@ -392,7 +392,7 @@ namespace R1Engine
             // Add every map
             for (int layer = 0; layer < mapLayers.Length; layer++)
             {
-                Controller.status = $"Loading map {layer + 1}/{mapLayers.Length}";
+                Controller.DetailedState = $"Loading map {layer + 1}/{mapLayers.Length}";
                 await Controller.WaitIfNecessary();
 
                 var map = mapLayers[layer];
@@ -425,7 +425,7 @@ namespace R1Engine
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7) {
                         mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
-                    } else if (map.UsesBGTileTable == 0) {
+                    } else if (map.UsesBGTileTable == 0 && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
@@ -485,7 +485,7 @@ namespace R1Engine
                 }
             }
 
-            Controller.status = $"Loading actors";
+            Controller.DetailedState = $"Loading actors";
             await Controller.WaitIfNecessary();
 
             level.EventData = new List<Unity_Obj>();
@@ -501,7 +501,7 @@ namespace R1Engine
 
                 foreach (var actor in dataBlock.LevelBlock.Actors)
                 {
-                    Controller.status = $"Loading actor {actorIndex + 1}/{dataBlock.LevelBlock.Actors.Length}";
+                    Controller.DetailedState = $"Loading actor {actorIndex + 1}/{dataBlock.LevelBlock.Actors.Length}";
                     await Controller.WaitIfNecessary();
 
                     if (!des.ContainsKey(actor.GraphicsDataIndex))

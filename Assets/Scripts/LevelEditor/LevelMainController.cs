@@ -53,14 +53,25 @@ namespace R1Engine
             serializeContext = context;
 
             // Make sure all the necessary files are downloaded
+            Controller.LoadState = Controller.State.LoadingFiles;
             await manager.LoadFilesAsync(serializeContext);
+            await Controller.WaitIfNecessary();
 
             using (serializeContext) {
                 // Init editor data
                 await BaseEditorManager.Init(context);
+                await Controller.WaitIfNecessary();
 
                 // Load the level
+                Controller.LoadState = Controller.State.Loading;
                 LevelEditorData.EditorManager = await manager.LoadAsync(serializeContext, true);
+
+                await Controller.WaitIfNecessary();
+                if (Controller.LoadState == Controller.State.Error) return;
+
+                Controller.LoadState = Controller.State.Initializing;
+                await Controller.WaitIfNecessary();
+
                 LevelEditorData.CurrentMap = LevelEditorData.EditorManager.Level.DefaultMap;
                 LevelEditorData.CurrentCollisionMap = LevelEditorData.EditorManager.Level.DefaultCollisionMap;
 
@@ -69,16 +80,15 @@ namespace R1Engine
                 if (notSupportedEventTypes.Any())
                     Debug.LogWarning($"The following event types are not supported: {String.Join(", ", notSupportedEventTypes)}");
 
-                await Controller.WaitIfNecessary();
 
-                Controller.status = $"Initializing tile maps";
+                Controller.DetailedState = $"Initializing tile maps";
+                await Controller.WaitIfNecessary();
 
                 // Init tilemaps
                 controllerTilemap.InitializeTilemaps();
 
+                Controller.DetailedState = $"Initializing events";
                 await Controller.WaitIfNecessary();
-
-                Controller.status = $"Initializing events";
 
                 // Add events
                 Events = LevelEditorData.Level.EventData.Select(x => controllerEvents.AddEvent(x)).ToList();
