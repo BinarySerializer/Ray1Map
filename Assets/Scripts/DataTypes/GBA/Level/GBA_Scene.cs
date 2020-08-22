@@ -2,11 +2,12 @@
 
 namespace R1Engine
 {
-    public class GBA_LevelBlock : GBA_BaseBlock
+    public class GBA_Scene : GBA_BaseBlock
     {
         #region Level Data
 
-        public ushort PlayFieldIndex { get; set; }
+        public byte PlayFieldIndex { get; set; }
+        public byte Unk_01 { get; set; }
         public byte Unk_02 { get; set; }
         public byte Unk_03 { get; set; }
 
@@ -24,7 +25,7 @@ namespace R1Engine
         public byte Unk_0B { get; set; }
 
         public GBA_Actor[] Actors { get; set; }
-        public GBA_UnkLevelBlockStruct[] UnkStructs { get; set; }
+        public GBA_UnkSceneStruct[] UnkStructs { get; set; }
 
         public byte[] UnkData { get; set; }
 
@@ -40,7 +41,8 @@ namespace R1Engine
 
         public override void SerializeBlock(SerializerObject s)
         {
-            PlayFieldIndex = s.Serialize<ushort>(PlayFieldIndex, name: nameof(PlayFieldIndex));
+            PlayFieldIndex = s.Serialize<byte>(PlayFieldIndex, name: nameof(PlayFieldIndex));
+            Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
             Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
             Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
 
@@ -68,7 +70,7 @@ namespace R1Engine
             if (UnkCount != 0 || Unk_08 != 0)
                 Debug.LogWarning($"Potentially missed data");
 
-            UnkStructs = s.SerializeObjectArray<GBA_UnkLevelBlockStruct>(UnkStructs, UnkStructsCount, name: nameof(UnkStructs));
+            UnkStructs = s.SerializeObjectArray<GBA_UnkSceneStruct>(UnkStructs, UnkStructsCount, name: nameof(UnkStructs));
 
             // TODO: What is this data?
             //Controller.print(Actors.Sum(a => a.Unk_0B));

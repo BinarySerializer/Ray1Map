@@ -4,7 +4,7 @@
     {
         public GBA_OffsetTable UiOffsetTable { get; set; }
 
-        public GBA_LevelBlock LevelBlock { get; set; }
+        public GBA_Scene Scene { get; set; }
 
         public GBA_PlayField MenuLevelPlayfield { get; set; }
 
@@ -26,7 +26,7 @@
             {
                 case GBA_Manager.LevelType.Game:
                     // Serialize the level block for the current level
-                    LevelBlock = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_LevelBlock>(LevelBlock, name: nameof(LevelBlock)));
+                    Scene = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_Scene>(Scene, name: nameof(Scene)));
                     break;
                 
                 case GBA_Manager.LevelType.Menu:

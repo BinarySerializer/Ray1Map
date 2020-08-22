@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_UnkLevelBlockStruct : R1Serializable
+    public class GBA_UnkSceneStruct : R1Serializable
     {
         public byte[] Data { get; set; }
 

@@ -274,7 +274,7 @@ namespace R1Engine
 
                     // Read the level
                     var data = LoadDataBlock(context);
-                    GBA_LevelBlock lvl = data.LevelBlock;
+                    GBA_Scene lvl = data.Scene;
 
                     // Enumerate every graphic group
                     foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
@@ -366,7 +366,7 @@ namespace R1Engine
             switch (lvlType)
             {
                 case LevelType.Game:
-                    playField = dataBlock.LevelBlock.PlayField;
+                    playField = dataBlock.Scene.PlayField;
                     break;
 
                 case LevelType.Menu:
@@ -502,9 +502,9 @@ namespace R1Engine
             {
                 var actorIndex = 0;
 
-                foreach (var actor in dataBlock.LevelBlock.Actors)
+                foreach (var actor in dataBlock.Scene.Actors)
                 {
-                    Controller.DetailedState = $"Loading actor {actorIndex + 1}/{dataBlock.LevelBlock.Actors.Length}";
+                    Controller.DetailedState = $"Loading actor {actorIndex + 1}/{dataBlock.Scene.Actors.Length}";
                     await Controller.WaitIfNecessary();
 
                     if (!des.ContainsKey(actor.GraphicsDataIndex))
@@ -530,7 +530,7 @@ namespace R1Engine
                             actor.Link_2, 
                             actor.Link_3, 
                         },
-                        ForceAlways = actorIndex < dataBlock.LevelBlock.AlwaysActorsCount,
+                        ForceAlways = actorIndex < dataBlock.Scene.AlwaysActorsCount,
                         DESKey = actor.GraphicsDataIndex.ToString(),
                         ETAKey = actor.GraphicsDataIndex.ToString(),
                         DebugText = $"{nameof(GBA_Actor.Link_0)}: {actor.Link_0}{Environment.NewLine}" +
