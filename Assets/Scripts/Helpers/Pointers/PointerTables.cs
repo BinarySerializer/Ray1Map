@@ -233,6 +233,16 @@ namespace R1Engine
                         [GBA_Pointer.UiOffsetTable] = 0x0
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.SplinterCellPandoraTomorrowGBAUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x081D7E98,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.SplinterCellPandoraTomorrowGBAEU:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x081D7EF0,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.StarWarsTrilogyApprenticeOfTheForceGBAEU:
                     return new Dictionary<GBA_Pointer, uint>()
                     {
@@ -272,6 +282,11 @@ namespace R1Engine
                 case GameModeSelection.BatmanVengeanceGBAUS:
                     return new Dictionary<GBA_Pointer, uint>() {
                         [GBA_Pointer.UiOffsetTable] = 0x084FD44C,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.BatmanRiseOfSinTzuGBAUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x08207930,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.OpenSeasonGBAEU1:

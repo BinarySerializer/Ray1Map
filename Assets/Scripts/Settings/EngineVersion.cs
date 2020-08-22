@@ -37,19 +37,21 @@ namespace R1Engine
 
         // GBA
 
-        GBA_BatmanVengeance,    // 2001
-        GBA_Sabrina,            // 2002
-        GBA_R3_Proto,           // 2003
-        GBA_R3,                 // 2003
-        GBA_R3_NGage,           // 2003
-        GBA_SplinterCell,       // 2003 - released before R3, but more developed engine
-        GBA_SplinterCell_NGage, // 2003
-        GBA_PrinceOfPersia,     // 2003
-        GBA_StarWarsTrilogy,    // 2004
-        GBA_StarWarsEpisodeIII, // 2005
-        GBA_KingKong,           // 2005
-        GBA_OpenSeason,         // 2006
-        GBA_TMNT,               // 2007
-        GBA_SurfsUp,            // 2007
+        GBA_BatmanVengeance,             // 2001
+        GBA_Sabrina,                     // 2002
+        GBA_R3_Proto,                    // 2003
+        GBA_R3,                          // 2003
+        GBA_R3_NGage,                    // 2003
+        GBA_SplinterCell,                // 2003 - released before R3, but more developed engine
+        GBA_SplinterCell_NGage,          // 2003
+        GBA_PrinceOfPersia,              // 2003
+        GBA_BatmanRiseOfSinTzu,          // 2003
+        GBA_SplinterCellPandoraTomorrow, // 2003
+        GBA_StarWarsTrilogy,             // 2004
+        GBA_StarWarsEpisodeIII,          // 2005
+        GBA_KingKong,                    // 2005
+        GBA_OpenSeason,                  // 2006
+        GBA_TMNT,                        // 2007
+        GBA_SurfsUp,                     // 2007
     }
 }

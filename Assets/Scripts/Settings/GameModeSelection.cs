@@ -128,10 +128,10 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanVengeance, Game.GBA_BatmanVengeance, "Batman Vengeance (GBA - US)", typeof(GBA_BatmanVengeance_Manager))]
         BatmanVengeanceGBAUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina - The Teenage Witch - Potion Commotion (GBA - EU)", typeof(GBA_Sabrina_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina the Teenage Witch - Potion Commotion (GBA - EU)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina - The Teenage Witch - Potion Commotion (GBA - US)", typeof(GBA_Sabrina_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_Sabrina, Game.GBA_SabrinaTheTeenageWitchPotionCommotion, "Sabrina the Teenage Witch - Potion Commotion (GBA - US)", typeof(GBA_Sabrina_Manager))]
         SabrinaTheTeenageWitchPotionCommotionGBAUS,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman 3 (GBA - EU)", typeof(GBA_R3_Manager))]
@@ -161,16 +161,25 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell_NGage, Game.GBA_SplinterCell, "Splinter Cell (N-Gage)", typeof(GBA_SplinterCellNGage_Manager))]
         SplinterCellNGage,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCellPandoraTomorrow, Game.GBA_SplinterCellPandoraTomorrow, "Splinter Cell: Pandora Tomorrow (GBA - US)", typeof(GBA_SplinterCellPandoraTomorrow_Manager))]
+        SplinterCellPandoraTomorrowGBAUS,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCellPandoraTomorrow, Game.GBA_SplinterCellPandoraTomorrow, "Splinter Cell: Pandora Tomorrow (GBA - EU)", typeof(GBA_SplinterCellPandoraTomorrow_Manager))]
+        SplinterCellPandoraTomorrowGBAEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanRiseOfSinTzu, Game.GBA_BatmanRiseOfSinTzu, "Batman: Rise of Sin Tzu (GBA - US)", typeof(GBA_BatmanRiseOfSinTzu_Manager))]
+        BatmanRiseOfSinTzuGBAUS,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_PrinceOfPersia, Game.GBA_PrinceOfPersiaTheSandsOfTime, "Prince of Persia: The Sands of Time (GBA - EU)", typeof(GBA_PoPSoT_Manager))]
         PrinceOfPersiaGBAEU,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_PrinceOfPersia, Game.GBA_PrinceOfPersiaTheSandsOfTime, "Prince of Persia: The Sands of Time (GBA - US)", typeof(GBA_PoPSoT_Manager))]
         PrinceOfPersiaGBAUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - EU)", typeof(GBA_StarWarsTrilogy_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy: Apprentice of the Force (GBA - EU)", typeof(GBA_StarWarsTrilogy_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAEU,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy - Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsTrilogy_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsTrilogy, Game.GBA_StarWarsTrilogyApprenticeOfTheForce, "Star Wars Trilogy: Apprentice of the Force (GBA - US)", typeof(GBA_StarWarsTrilogy_Manager))]
         StarWarsTrilogyApprenticeOfTheForceGBAUS,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_StarWarsEpisodeIII, Game.GBA_StarWarsEpisodeIII, "Star Wars Episode III (GBA - EU)", typeof(GBA_StarWarsEpisodeIII_Manager))]

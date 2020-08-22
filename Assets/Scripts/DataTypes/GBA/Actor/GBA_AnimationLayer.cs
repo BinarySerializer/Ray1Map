@@ -60,6 +60,9 @@ namespace R1Engine
             if (s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina) {
                 ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 12, 0);
                 PaletteIndex = BitHelpers.ExtractBits(Attr2, 3, 12); // another flag at byte 0xF?
+            } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanRiseOfSinTzu) {
+                ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 14, 0);
+                PaletteIndex = BitHelpers.ExtractBits(Attr2, 1, 15); // another flag at byte 0xF?
             } else if(s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                 ImageIndex = (short)BitHelpers.ExtractBits(Attr2, 14, 0);
                 PaletteIndex = BitHelpers.ExtractBits(Attr2, 2, 14); // another flag at byte 0xF?

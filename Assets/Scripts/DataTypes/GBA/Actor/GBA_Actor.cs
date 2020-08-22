@@ -43,7 +43,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                 ExtraData = s.SerializeArray<byte>(ExtraData, ThisActorSize - 12, name: nameof(ExtraData));
             }
             XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
@@ -54,23 +54,22 @@ namespace R1Engine
             GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
             StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
 
-            if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance && s.GameSettings.EngineVersion < EngineVersion.GBA_StarWarsTrilogy) {
+            if (s.GameSettings.EngineVersion > EngineVersion.GBA_BatmanVengeance && s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                 Link_0 = s.Serialize<byte>(Link_0, name: nameof(Link_0));
                 Link_1 = s.Serialize<byte>(Link_1, name: nameof(Link_1));
                 Link_2 = s.Serialize<byte>(Link_2, name: nameof(Link_2));
                 Link_3 = s.Serialize<byte>(Link_3, name: nameof(Link_3));
             }
 
-            if (s.GameSettings.EngineVersion == EngineVersion.GBA_PrinceOfPersia
-                || s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell
-                || s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage)
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell
+                && s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow)
             {
                 Short_0C = s.Serialize<short>(Short_0C, name: nameof(Short_0C));
                 Short_0E = s.Serialize<short>(Short_0E, name: nameof(Short_0E));
                 int len = Short_0E & 0xF;
                 ExtraData = s.SerializeArray<byte>(ExtraData, len, name: nameof(ExtraData));
             }
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
+            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                 Short_0C = s.Serialize<short>(Short_0C, name: nameof(Short_0C));
                 NextActorSize = s.Serialize<ushort>(NextActorSize, name: nameof(NextActorSize));
             }
