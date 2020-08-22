@@ -154,10 +154,12 @@ namespace R1Engine
                 Array.Resize(ref GraphicsTilemaps, LevelEditorData.Level.Maps.Length);
                 for (int i = 1; i < GraphicsTilemaps.Length; i++) {
                     GraphicsTilemaps[i] = Instantiate<Tilemap>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
-                    /*if (i == GraphicsTilemaps.Length - 1) {
+                    if (LevelEditorData.Level.Maps[i].IsForeground)
+                    {
+                        Debug.Log($"{i} is in front");
                         TilemapRenderer tr = GraphicsTilemaps[i].GetComponent<TilemapRenderer>();
                         tr.sortingLayerName = "Tiles Front";
-                    }*/
+                    }
                 }
             }
             for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++) {

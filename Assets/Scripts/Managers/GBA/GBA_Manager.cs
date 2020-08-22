@@ -416,7 +416,7 @@ namespace R1Engine
                         MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
                         {
                             CollisionType = (byte)x
-                        })).ToArray()
+                        })).ToArray(),
                     };
 
                     level.DefaultCollisionMap = layer;
@@ -480,7 +480,8 @@ namespace R1Engine
                         {
                             LoadTileset(context, playField, map, mapData)
                         },
-                        MapTiles = mapData.Select((x, i) => new Unity_Tile(x)).ToArray()
+                        MapTiles = mapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
+                        IsForeground = map.LayerID == 3
                     };
 
                     level.DefaultMap = layer;

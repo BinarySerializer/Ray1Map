@@ -51,6 +51,11 @@ namespace R1Engine
         /// </summary>
         public Unity_Tile[] MapTiles { get; set; }
 
+        /// <summary>
+        /// Indicates if the layer should be in front of objects
+        /// </summary>
+        public bool IsForeground { get; set; }
+
         #endregion
 
         #region Helper Methods
