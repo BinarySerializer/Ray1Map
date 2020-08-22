@@ -47,7 +47,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Enumerable.Range(0, w == R1_World.Jungle ? MapCount : 0).ToArray())).ToArray());
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+            {
+                new GameInfo_World(1, new []
+                {
+                    0
+                }), 
+            }).ToArray();
 
         /// <summary>
         /// Gets the name for the specified map
@@ -59,16 +65,16 @@ namespace R1Engine
             switch (map)
             {
                 case 0:
-                    return "PL1";
+                    return "FD2";
 
                 case 1:
-                    return "PL2";
-
-                case 2:
                     return "FD1";
 
+                case 2:
+                    return "PL2";
+
                 case 3:
-                    return "FD2";
+                    return "PL1";
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(map));
@@ -200,7 +206,6 @@ namespace R1Engine
 
             uint baseAddress = 0x80018000;
 
-            // TODO: Move these to methods to avoid hard-coding
             var fixDTAPath = FixDataPath;
             var fixGRPPath = FixGraphicsPath;
             var sprPLSPath = SpritePalettesPath;
