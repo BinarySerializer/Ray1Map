@@ -352,7 +352,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Sabrina The Teenage Witch Potion Commotion (GBA)</td>
+    <td class="tg-yw4l">Sabrina the Teenage Witch: Potion Commotion (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -432,7 +432,17 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Star Wars Trilogy - Apprentice of the Force (GBA)</td>
+    <td class="tg-yw4l">Batman: Rise of Sin Tzu (GBA)</td>
+    <td class="tg-yw4l">US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Splinter Cell: Pandora Tomorrow (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
@@ -442,7 +452,17 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
-    <td class="tg-yw4l">Star Wars Episode III - Revenge of the Sith (GBA)</td>
+    <td class="tg-yw4l">Star Wars Trilogy: Apprentice of the Force (GBA)</td>
+    <td class="tg-yw4l">EU, US</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Star Wars Episode III: Revenge of the Sith (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>

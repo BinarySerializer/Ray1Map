@@ -46,7 +46,7 @@ namespace R1Engine
         GBA_SplinterCell_NGage,          // 2003
         GBA_PrinceOfPersia,              // 2003
         GBA_BatmanRiseOfSinTzu,          // 2003
-        GBA_SplinterCellPandoraTomorrow, // 2003
+        GBA_SplinterCellPandoraTomorrow, // 2004
         GBA_StarWarsTrilogy,             // 2004
         GBA_StarWarsEpisodeIII,          // 2005
         GBA_KingKong,                    // 2005
