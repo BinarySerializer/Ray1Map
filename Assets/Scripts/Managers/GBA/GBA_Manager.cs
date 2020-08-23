@@ -353,11 +353,13 @@ namespace R1Engine
             var dataBlock = LoadDataBlock(context);
 
             // Log unused data blocks in offset tables
-            Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, GBA_OffsetTable.OffsetTables.Where(x => x.UsedOffsets.Any(y => !y)).Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
-            {
-                Obj = o,
-                Index = i
-            }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
+            var notParsedBlocks = GBA_OffsetTable.OffsetTables.Skip(1).Where(x => x.UsedOffsets.Any(y => !y)).ToArray();
+            if (notParsedBlocks.Any())
+                Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, notParsedBlocks.Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
+                {
+                    Obj = o,
+                    Index = i
+                }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
 
 
             // Get the current play field
