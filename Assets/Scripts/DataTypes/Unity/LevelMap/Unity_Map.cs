@@ -56,6 +56,8 @@ namespace R1Engine
         /// </summary>
         public bool IsForeground { get; set; }
 
+        public float? Alpha { get; set; }
+
         #endregion
 
         #region Helper Methods

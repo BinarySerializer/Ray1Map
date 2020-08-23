@@ -124,7 +124,9 @@ namespace R1Engine
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
-                if (IsBGTile && s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
+                if (IsBGTile
+                    && s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
+                    && s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                     int numBits = Is8Bpp ? 9 : 10;
 
                     if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
@@ -180,13 +182,16 @@ namespace R1Engine
                     }
                     TileMapX = 0;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, numBits) == 1;
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+                        VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits + 1) == 1;
+                    }
                     if (!Is8Bpp) {
                         if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                             PaletteIndex = (byte)BitHelpers.ExtractBits(value, 3, 13);
                         } else {
                             PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
                         }
-                    } else {
+                    } else if(s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                         VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits + 1) == 1;
                     }
 

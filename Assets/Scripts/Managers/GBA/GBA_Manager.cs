@@ -427,7 +427,9 @@ namespace R1Engine
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7) {
                         mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
-                    } else if (!map.IsForegroundTileLayer && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
+                    } else if (!map.IsForegroundTileLayer
+                        && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
+                        && context.Settings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
@@ -483,6 +485,9 @@ namespace R1Engine
                         MapTiles = mapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
                         IsForeground = map.LayerID == 3
                     };
+                    if (map.ShouldSetBGAlphaBlending) {
+                        level.Maps[layer].Alpha = 0.5f;
+                    }
 
                     level.DefaultMap = layer;
                 }
@@ -583,7 +588,7 @@ namespace R1Engine
             return new GBA_EditorManager(level, context, des, eta);
         }
 
-        public Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphicData)
+        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphicData)
         {
             // Create the design
             var des = new Unity_ObjGraphics
@@ -687,7 +692,7 @@ namespace R1Engine
 
 
 
-        public R1_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
+        public virtual R1_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
             // Create the states
             if (graphicData == null) return new R1_EventState[0][];
             var eta = new R1_EventState[1][];

@@ -154,7 +154,7 @@ namespace R1Engine
                 Array.Resize(ref GraphicsTilemaps, LevelEditorData.Level.Maps.Length);
                 for (int i = 1; i < GraphicsTilemaps.Length; i++) {
                     GraphicsTilemaps[i] = Instantiate<Tilemap>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
-                    if (LevelEditorData.Level.Maps[i].IsForeground)
+                    if (lvl.Maps[i].IsForeground)
                     {
                         Debug.Log($"{i} is in front");
                         TilemapRenderer tr = GraphicsTilemaps[i].GetComponent<TilemapRenderer>();
@@ -164,6 +164,9 @@ namespace R1Engine
             }
             for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++) {
                 var map = lvl.Maps[mapIndex];
+                if (map.Alpha.HasValue) {
+                    GraphicsTilemaps[mapIndex].color = new Color(1f, 1f, 1f, map.Alpha.Value);
+                }
 
                 for (int y = 0; y < map.Height; y++) {
                     for (int x = 0; x < map.Width; x++) {
@@ -171,7 +174,6 @@ namespace R1Engine
 
                         if (palette != 0)
                             t.PaletteIndex = palette;
-
                         GraphicsTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
                         GraphicsTilemaps[mapIndex].SetTransformMatrix(new Vector3Int(x, y, 0), GraphicsTilemaps[mapIndex].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));
                     }

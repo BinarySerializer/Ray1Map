@@ -47,6 +47,7 @@ namespace R1Engine
         public byte[] Mode7Data { get; set; }
         public MapTile[] MapData { get; set; }
         public GBA_TileCollisionType[] CollisionData { get; set; }
+        public byte[] UnkBytes { get; set; }
 
         // Batman
         public GBA_TileKit TileKit { get; set; }
@@ -64,29 +65,10 @@ namespace R1Engine
                     LayerID = s.Serialize<byte>(LayerID, name: nameof(LayerID));
                     ClusterIndex = s.Serialize<byte>(ClusterIndex, name: nameof(ClusterIndex));
                     // TODO: figure out what this is. One of these
-                    Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
-                    Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
-                    Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
-                    Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
-
-                    if (IsCompressed) {
-                        s.DoEncoded(new GBA_LZSSEncoder(), () => MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData)));
-                    } else {
-                        MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, name: nameof(MapData));
-                    }
-                    // Serialize tilemap
-                    TileKit = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
-
-                } else {
-                    if (IsCompressed) {
-                        s.DoEncoded(new GBA_LZSSEncoder(), () => CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData)));
-                    } else {
-                        CollisionData = s.SerializeArray<GBA_TileCollisionType>(CollisionData, Width * Height, name: nameof(CollisionData));
-                    }
+                    UnkBytes = s.SerializeArray<byte>(UnkBytes, 5, name: nameof(UnkBytes));
+                    ShouldSetBGAlphaBlending = s.Serialize<bool>(ShouldSetBGAlphaBlending, name: nameof(ShouldSetBGAlphaBlending));
+                    Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
+                    ColorMode = s.Serialize<byte>(ColorMode, name: nameof(ColorMode));
                 }
             } else {
                 StructType = s.Serialize<TileLayerStructTypes>(StructType, name: nameof(StructType));
@@ -135,13 +117,13 @@ namespace R1Engine
                         Mode7_14 = s.Serialize<byte>(Mode7_14, name: nameof(Mode7_14));
                     }
                 }
-                if (!IsCompressed)
-                    SerializeTileMap(s);
-                else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
-                    s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
-                else
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
             }
+            if (!IsCompressed)
+                SerializeTileMap(s);
+            else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
+                s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
+            else
+                s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
             s.Align();
         }
 
@@ -159,7 +141,17 @@ namespace R1Engine
             }
         }
 
-        public enum TileLayerStructTypes : byte
+		public override void SerializeOffsetData(SerializerObject s) {
+			base.SerializeOffsetData(s);
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+                if(StructType != TileLayerStructTypes.Collision)
+                    // Serialize tilemap
+                    TileKit = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
+
+            }
+        }
+
+		public enum TileLayerStructTypes : byte
         {
             Map2D = 0,
             Collision = 1,

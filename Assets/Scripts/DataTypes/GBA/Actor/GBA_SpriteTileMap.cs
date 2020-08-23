@@ -15,9 +15,15 @@
 
         public override void SerializeBlock(SerializerObject s)
         {
-            TileMapLength = s.Serialize<ushort>(TileMapLength, name: nameof(TileMapLength));
-            IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
-            Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+            if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
+                Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+                IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
+                TileMapLength = s.Serialize<ushort>(TileMapLength, name: nameof(TileMapLength));
+            } else {
+                TileMapLength = s.Serialize<ushort>(TileMapLength, name: nameof(TileMapLength));
+                IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
+                Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+            }
 
             if (IsDataCompressed ?? IsCompressed) {
                 s.DoEncoded(new GBA_LZSSEncoder(), () => TileMap = s.SerializeArray<byte>(TileMap, TileMapLength * 32, name: nameof(TileMap)));
