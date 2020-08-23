@@ -387,7 +387,7 @@ namespace R1Engine {
             }
         }
 
-        static void ConfigureFileSystem() {
+        public static void ConfigureFileSystem() {
 
             if (Application.platform == RuntimePlatform.WebGLPlayer) {
                 FileSystem.mode = FileSystem.Mode.Web;

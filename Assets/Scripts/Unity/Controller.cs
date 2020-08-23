@@ -22,6 +22,8 @@ namespace R1Engine
         // The loading string
         public LoadingScreen loadingScreen;
 
+        public GameObject editorUI;
+
         public Text tempDebugText;
 
         private Stopwatch stopwatch;
@@ -63,7 +65,12 @@ namespace R1Engine
             Application.logMessageReceived += Log;
             if (Application.platform == RuntimePlatform.WebGLPlayer) {
                 UnityEngine.Debug.unityLogger.filterLogType = LogType.Assert;
+            }
 
+            // Make sure filesystem is set before checking here
+            Settings.ConfigureFileSystem();
+            if (FileSystem.mode == FileSystem.Mode.Web) {
+                editorUI.SetActive(false);
             }
         }
 

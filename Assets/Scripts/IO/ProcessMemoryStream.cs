@@ -1,8 +1,8 @@
-﻿#if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+﻿#if ((UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN) && !UNITY_WEBGL)
 #define ISWINDOWS
 #endif
 
-#if (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
+#if ((UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX) && !UNITY_WEBGL)
 #define ISLINUX
 #endif
 
@@ -67,8 +67,10 @@ namespace R1Engine {
             AllAccess
         }
 
+#if (ISWINDOWS || ISLINUX)
         Process process;
         IntPtr processHandle = IntPtr.Zero;
+#endif
         long currentAddress = 0;
         Mode mode = Mode.Read;
         string exeFile = "";
@@ -143,11 +145,19 @@ namespace R1Engine {
         }
 
         public int BaseAddress {
+#if (ISWINDOWS || ISLINUX)
             get { return process.MainModule.BaseAddress.ToInt32(); }
+#else
+            get { return 0; }
+#endif
         }
 
         public int MemorySize {
+#if (ISWINDOWS || ISLINUX)
             get { return process.MainModule.ModuleMemorySize; } 
+#else
+            get { return 0; }
+#endif
         }
 
         public override bool CanRead {
@@ -155,6 +165,8 @@ namespace R1Engine {
             get { return (mode == Mode.Read || mode == Mode.AllAccess) && processHandle != IntPtr.Zero; }
 #elif ISLINUX
             get { return (mode == Mode.Read || mode == Mode.AllAccess) && process.Id != 0; }
+#else
+            get { return false; }
 #endif
         }
 
@@ -163,6 +175,8 @@ namespace R1Engine {
             get { return processHandle != IntPtr.Zero; }
 #elif ISLINUX
 	    get { return process.Id != 0; } // No handle on Linux - we just ptrace every time we want to do something.
+#else
+            get { return false; }
 #endif
         }
 
@@ -171,6 +185,8 @@ namespace R1Engine {
             get { return (mode == Mode.Write || mode == Mode.AllAccess) && processHandle != IntPtr.Zero; }
 #elif ISLINUX
             get { return (mode == Mode.Write || mode == Mode.AllAccess) && process.Id != 0; }
+#else
+            get { return false; }
 #endif
         }
 
