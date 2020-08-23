@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ImageMagick;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -58,7 +59,8 @@ namespace R1Engine
             new GameAction("Export Compressed Blocks", false, true, (input, output) => ExportAllCompressedBlocksAsync(settings, output)),
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
-            new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteSetsAsync(settings, output)),
+            new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteSetsAsync(settings, output, false)),
+            new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteSetsAsync(settings, output, true)),
             new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
         };
 
@@ -231,7 +233,7 @@ namespace R1Engine
             Debug.Log("Finished logging blocks");
         }
 
-        public async UniTask ExportSpriteSetsAsync(GameSettings settings, string outputDir)
+        public async UniTask ExportSpriteSetsAsync(GameSettings settings, string outputDir, bool exportAnimFrames)
         {
             var exported = new HashSet<Pointer>();
             Pointer baseOffset;
@@ -287,55 +289,147 @@ namespace R1Engine
                 if (exported.Contains(spr.Offset))
                     return;
 
-                exported.Add(spr.Offset);
-                var paletteCount = is8bit ? 1 : spr.Palette.Palette.Length / 16;
-
-                for (int palIndex = 0; palIndex < paletteCount; palIndex++)
+                if (exportAnimFrames)
                 {
-                    var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
-                    const int wrap = 16;
-                    const int tileWidth = 8;
-                    int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
+                    ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
+                }
+                else
+                {
+                    exported.Add(spr.Offset);
+                    var paletteCount = is8bit ? 1 : spr.Palette.Palette.Length / 16;
 
-                    // Create a texture for the tileset
-                    var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
+                    for (int palIndex = 0; palIndex < paletteCount; palIndex++)
                     {
-                        filterMode = FilterMode.Point,
-                    };
+                        var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
+                        const int wrap = 16;
+                        const int tileWidth = 8;
+                        int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
 
-                    // Default to transparent
-                    tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
-
-                    // Add each tile
-                    for (int i = 0; i < length; i++)
-                    {
-                        int mainY = tex.height - 1 - (i / wrap);
-                        int mainX = i % wrap;
-
-                        for (int y = 0; y < tileWidth; y++)
+                        // Create a texture for the tileset
+                        var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
                         {
-                            for (int x = 0; x < tileWidth; x++)
+                            filterMode = FilterMode.Point,
+                        };
+
+                        // Default to transparent
+                        tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
+
+                        // Add each tile
+                        for (int i = 0; i < length; i++)
+                        {
+                            int mainY = tex.height - 1 - (i / wrap);
+                            int mainX = i % wrap;
+
+                            for (int y = 0; y < tileWidth; y++)
                             {
-                                int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
+                                for (int x = 0; x < tileWidth; x++)
+                                {
+                                    int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
 
-                                var v = is8bit ? spr.TileMap.TileMap[index] : BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
+                                    var v = is8bit ? spr.TileMap.TileMap[index] : BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
 
-                                Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
+                                    Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
 
-                                if (v != 0)
-                                    c = new Color(c.r, c.g, c.b, 1f);
+                                    if (v != 0)
+                                        c = new Color(c.r, c.g, c.b, 1f);
 
-                                tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
+                                    tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
+                                }
                             }
                         }
+
+                        tex.Apply();
+
+                        var fileName = $"Sprites_{(spr.Offset.AbsoluteOffset - baseOffset.AbsoluteOffset):X8}_Pal{palIndex}.png";
+
+                        Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
+                    }
+                }
+            }
+        }
+
+        public void ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
+        {
+            MagickImage[] sprites = null;
+
+            try
+            {
+                var commonDesign = GetCommonDesign(spr, is8bit);
+
+                // Convert Texture2D to MagickImage
+                sprites = commonDesign.Sprites.Select(x => GetMagickImage(x.texture.GetPixels())).ToArray();
+
+                MagickImage GetMagickImage(IList<Color> pixels)
+                {
+                    var bytes = new byte[pixels.Count * 4];
+
+                    for (int i = 0; i < pixels.Count; i++)
+                    {
+                        bytes[i * 4 + 0] = (byte)(pixels[i].a * 255);
+                        bytes[i * 4 + 1] = (byte)(pixels[i].b * 255);
+                        bytes[i * 4 + 2] = (byte)(pixels[i].g * 255);
+                        bytes[i * 4 + 3] = (byte)(pixels[i].r * 255);
+                    }
+                    
+                    var img = new MagickImage(bytes, new PixelReadSettings(8, 8, StorageType.Char, PixelMapping.ABGR));
+                    img.Flip();
+                    return img;
+                }
+
+                var animIndex = 0;
+
+                // Export every animation
+                foreach (var anim in commonDesign.Animations)
+                {
+                    var frameIndex = 0;
+                    var animDir = Path.Combine(outputDir, animIndex.ToString());
+                    Directory.CreateDirectory(animDir);
+
+                    foreach (var frame in anim.Frames)
+                    {
+                        var shiftX = frame.Layers.Select(x => x.XPosition).Min(x => x < 0 ? x : 0) * -1;
+                        var shiftY = frame.Layers.Select(x => x.YPosition).Min(x => x < 0 ? x : 0) * -1;
+
+                        // TODO: Update this for scaling and rotation!
+                        var maxX = frame.Layers.Max(x => x.XPosition) + 8 + shiftX;
+                        var maxY = frame.Layers.Max(x => x.YPosition) + 8 + shiftY;
+
+                        using (var frameImg = new MagickImage(new byte[maxX * maxY * 4], new PixelReadSettings(maxX, maxY, StorageType.Char, PixelMapping.ABGR)))
+                        {
+                            foreach (var layer in frame.Layers)
+                            {
+                                MagickImage img = (MagickImage)sprites[layer.ImageIndex].Clone();
+
+                                if (layer.IsFlippedHorizontally)
+                                    img.Flop();
+
+                                if (layer.IsFlippedVertically)
+                                    img.Flip();
+
+                                img.Scale(new Percentage(layer.Scale.Value.x * 100), new Percentage(layer.Scale.Value.y * 100));
+                                img.Rotate(layer.Rotation.Value);
+
+                                frameImg.Composite(img, layer.XPosition + shiftX, layer.YPosition + shiftY, CompositeOperator.Over);
+                            }
+
+                            frameImg.Write(Path.Combine(animDir, $"{frameIndex}.png"), MagickFormat.Png);
+                        }
+
+                        frameIndex++;
                     }
 
-                    tex.Apply();
-
-                    var fileName = $"Sprites_{(spr.Offset.AbsoluteOffset - baseOffset.AbsoluteOffset):X8}_Pal{palIndex}.png";
-
-                    Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
+                    animIndex++;
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"{ex.Message}");
+            }
+            finally
+            {
+                if (sprites != null)
+                    foreach (var s in sprites)
+                        s?.Dispose();
             }
         }
 
@@ -590,7 +684,8 @@ namespace R1Engine
             return new GBA_EditorManager(level, context, des, eta);
         }
 
-        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphicData)
+        public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphics) => GetCommonDesign(graphics.SpriteGroup, false);
+        public Unity_ObjGraphics GetCommonDesign(GBA_SpriteGroup spr, bool is8bit)
         {
             // Create the design
             var des = new Unity_ObjGraphics
@@ -598,18 +693,21 @@ namespace R1Engine
                 Sprites = new List<Sprite>(),
                 Animations = new List<Unity_ObjAnimation>(),
             };
-            if (graphicData == null) return des;
 
-            var tileMap = graphicData.SpriteGroup.TileMap;
-            var pal = graphicData.SpriteGroup.Palette.Palette;
+            if (spr == null)
+                return des;
+
+            var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
+            var tileMap = spr.TileMap;
+            var pal = spr.Palette.Palette;
             const int tileWidth = 8;
-            const int tileSize = (tileWidth * tileWidth) / 2;
-            var numPalettes = graphicData.SpriteGroup.Palette.Palette.Length / 16;
+            int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
+            var numPalettes = is8bit ? 1 : spr.Palette.Palette.Length / 16;
 
             // Add sprites for each palette
             for (int palIndex = 0; palIndex < numPalettes; palIndex++)
             {
-                for (int i = 0; i < tileMap.TileMapLength; i++)
+                for (int i = 0; i < length; i++)
                 {
                     var tex = new Texture2D(CellSize, CellSize)
                     {
@@ -621,10 +719,10 @@ namespace R1Engine
                     {
                         for (int x = 0; x < tileWidth; x++)
                         {
-                            int index = (i * tileSize) + ((y * tileWidth + x) / 2);
+                            int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
 
                             var b = tileMap.TileMap[index];
-                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                            var v = is8bit ? b : BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
                             Color c = pal[palIndex * 16 + v].GetColor();
 
@@ -650,18 +748,18 @@ namespace R1Engine
                     return new Unity_ObjAnimationPart[0];
                 }
                 Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[l.XSize * l.YSize];
-                if (l.ImageIndex > graphicData.SpriteGroup.TileMap.TileMapLength) {
-                    Controller.print("Image index too high: " + graphicData.Offset + " - " + l.Offset);
+                if (l.ImageIndex > length) {
+                    Controller.print("Image index too high: " + spr.Offset + " - " + l.Offset);
                 }
-                if (l.PaletteIndex > graphicData.SpriteGroup.Palette.Palette.Length / 16) {
-                    Controller.print("Palette index too high: " + graphicData.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (graphicData.SpriteGroup.Palette.Palette.Length / 16));
+                if (l.PaletteIndex > spr.Palette.Palette.Length / 16) {
+                    Controller.print("Palette index too high: " + spr.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (spr.Palette.Palette.Length / 16));
                 }
                 float rot = l.GetRotation(a, s, frame);
                 Vector2 scl = l.GetScale(a, s, frame);
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Unity_ObjAnimationPart {
-                            ImageIndex = tileMap.TileMapLength * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
+                            ImageIndex = length * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
                             IsFlippedHorizontally = l.IsFlippedHorizontally,
                             IsFlippedVertically = l.IsFlippedVertically,
                             XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * CellSize),
@@ -676,13 +774,13 @@ namespace R1Engine
                 return parts;
             }
 
-            // Add first animation for now
-            foreach (var a in graphicData.SpriteGroup.Animations) {
+            // Add animations
+            foreach (var a in spr.Animations) {
                 var unityAnim = new Unity_ObjAnimation();
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
                     frames.Add(new Unity_ObjAnimationFrame() {
-                        Layers = a.Layers[i].OrderByDescending(l => l.Priority).SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup, a, i, l)).Reverse().ToArray()
+                        Layers = a.Layers[i].OrderByDescending(l => l.Priority).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray()
                     });
                 }
                 unityAnim.Frames = frames.ToArray();
