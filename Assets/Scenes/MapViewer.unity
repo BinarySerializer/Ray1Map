@@ -20325,6 +20325,7 @@ MonoBehaviour:
   levelController: {fileID: 0}
   levelEventController: {fileID: 0}
   loadingScreen: {fileID: 1514958744}
+  editorUI: {fileID: 271071643}
   tempDebugText: {fileID: 1362650566}
 --- !u!4 &1683842180
 Transform:
