@@ -161,11 +161,11 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell_NGage, Game.GBA_SplinterCell, "Splinter Cell (N-Gage)", typeof(GBA_SplinterCellNGage_Manager))]
         SplinterCellNGage,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCellPandoraTomorrow, Game.GBA_SplinterCellPandoraTomorrow, "Splinter Cell: Pandora Tomorrow (GBA - US)", typeof(GBA_SplinterCellPandoraTomorrow_Manager))]
-        SplinterCellPandoraTomorrowGBAUS,
-
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCellPandoraTomorrow, Game.GBA_SplinterCellPandoraTomorrow, "Splinter Cell: Pandora Tomorrow (GBA - EU)", typeof(GBA_SplinterCellPandoraTomorrow_Manager))]
         SplinterCellPandoraTomorrowGBAEU,
+
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCellPandoraTomorrow, Game.GBA_SplinterCellPandoraTomorrow, "Splinter Cell: Pandora Tomorrow (GBA - US)", typeof(GBA_SplinterCellPandoraTomorrow_Manager))]
+        SplinterCellPandoraTomorrowGBAUS,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_BatmanRiseOfSinTzu, Game.GBA_BatmanRiseOfSinTzu, "Batman: Rise of Sin Tzu (GBA - US)", typeof(GBA_BatmanRiseOfSinTzu_Manager))]
         BatmanRiseOfSinTzuGBAUS,
