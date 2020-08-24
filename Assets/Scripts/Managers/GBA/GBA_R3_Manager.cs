@@ -21,16 +21,15 @@ namespace R1Engine
             Enumerable.Range(59, 6),
         };
 
-        // TODO: Get values
         public override int[] MenuLevels => new int[]
         {
+            91,
             117
         };
 
         public override int DLCLevelCount => 10;
 
-        // TODO: Find the rest
-        public override int[] AdditionalSprites4bpp => Enumerable.Range(70, 118 - 70).Concat(Enumerable.Range(119, 126 - 119)).ToArray();
+        public override int[] AdditionalSprites4bpp => Enumerable.Range(70, 91 - 70).Concat(Enumerable.Range(92, 117 - 92)).Concat(Enumerable.Range(119, 126 - 119)).ToArray();
         public override int[] AdditionalSprites8bpp => new int[]
         {
             118

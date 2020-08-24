@@ -370,6 +370,7 @@ namespace R1Engine
             },
             [7] = new Dictionary<int, string>()
             {
+                [91] = "Menu",
                 [117] = "Ubisoft Logo",
             },
         };
