@@ -50,7 +50,6 @@ namespace R1Engine
                 // Get the deserialize
                 var s = context.Deserializer;
 
-                // TODO: Find scrolling vignette for proto
                 var isPrototype = settings.GameModeSelection == GameModeSelection.Rayman3GBAUSPrototype;
 
                 // TODO: Move pointers to pointer table

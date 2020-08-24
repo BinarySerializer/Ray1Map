@@ -16,10 +16,23 @@ namespace R1Engine
             Enumerable.Range(58, 6),
         };
 
-        // TODO: Get values
-        public override int[] MenuLevels => new int[0];
+        public override int[] MenuLevels => new int[]
+        {
+            // Menu
+            89,
+
+            // Ubisoft logo
+            113,
+
+            // Scrolling vignette
+            121,
+            122
+        };
         public override int DLCLevelCount => 0;
-        public override int[] AdditionalSprites4bpp => new int[0];
-        public override int[] AdditionalSprites8bpp => new int[0];
+        public override int[] AdditionalSprites4bpp => Enumerable.Range(69, 89 - 69).Concat(Enumerable.Range(90, 113 - 90)).Concat(Enumerable.Range(115, 121 - 115)).ToArray();
+        public override int[] AdditionalSprites8bpp => new int[]
+        {
+            114
+        };
     }
 }
