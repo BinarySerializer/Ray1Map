@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ImageMagick;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+
+using ImageMagick;
 
 namespace R1Engine
 {
@@ -256,12 +257,14 @@ namespace R1Engine
                     var s = context.Deserializer;
                     ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false);
                 }
+                await UniTask.WaitForEndOfFrame();
 
                 foreach (var menuSprite in AdditionalSprites8bpp)
                 {
                     var s = context.Deserializer;
                     ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true);
                 }
+                await UniTask.WaitForEndOfFrame();
             }
 
             // Enumerate every level
@@ -279,6 +282,7 @@ namespace R1Engine
                     GBA_Scene lvl = data.Scene;
 
                     // Enumerate every graphic group
+                    await UniTask.WaitForEndOfFrame();
                     foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
                         ExportSpriteGroup(spr, false);
                 }
@@ -289,8 +293,8 @@ namespace R1Engine
                 if (exported.Contains(spr.Offset))
                     return;
 
-                if (exportAnimFrames)
-                {
+                if (exportAnimFrames) {
+                    exported.Add(spr.Offset);
                     ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
                 }
                 else
@@ -384,32 +388,73 @@ namespace R1Engine
                     var frameIndex = 0;
                     var animDir = Path.Combine(outputDir, animIndex.ToString());
                     Directory.CreateDirectory(animDir);
+                    if (anim.Frames == null || anim.Frames.Length == 0) continue;
+
+
+                    var shiftX = anim.Frames.Min(f => f.Layers.Select(x => Mathf.Min(0, x.XPosition)).DefaultIfEmpty().Min()) * -1;
+                    var shiftY = anim.Frames.Min(f => f.Layers.Select(x => Mathf.Min(0, x.YPosition)).DefaultIfEmpty().Min()) * -1;
+
+                    // TODO: Update this for scaling and rotation!
+                    var maxX = anim.Frames.Max(f => f.Layers.Select(x => x.XPosition).DefaultIfEmpty().Max()) + 8 + shiftX;
+                    var maxY = anim.Frames.Max(f => f.Layers.Select(x => x.YPosition).DefaultIfEmpty().Max()) + 8 + shiftY;
 
                     foreach (var frame in anim.Frames)
                     {
-                        var shiftX = frame.Layers.Select(x => x.XPosition).Min(x => x < 0 ? x : 0) * -1;
-                        var shiftY = frame.Layers.Select(x => x.YPosition).Min(x => x < 0 ? x : 0) * -1;
-
-                        // TODO: Update this for scaling and rotation!
-                        var maxX = frame.Layers.Max(x => x.XPosition) + 8 + shiftX;
-                        var maxY = frame.Layers.Max(x => x.YPosition) + 8 + shiftY;
 
                         using (var frameImg = new MagickImage(new byte[maxX * maxY * 4], new PixelReadSettings(maxX, maxY, StorageType.Char, PixelMapping.ABGR)))
                         {
                             foreach (var layer in frame.Layers)
                             {
                                 MagickImage img = (MagickImage)sprites[layer.ImageIndex].Clone();
-
+                                img.FilterType = FilterType.Point;
+                                img.BackgroundColor = MagickColors.Transparent;
                                 if (layer.IsFlippedHorizontally)
                                     img.Flop();
 
                                 if (layer.IsFlippedVertically)
                                     img.Flip();
+                                Vector2 pos = new Vector2(layer.XPosition, layer.YPosition);
+                                Vector2 size = new Vector2(img.Width, img.Height);
+                                Vector2 scale = Vector2.one;
+                                if (layer.Scale.HasValue || layer.Rotation.HasValue) {
+                                    Vector2 transformOrigin = new Vector2(layer.TransformOriginX, layer.TransformOriginY);
 
-                                img.Scale(new Percentage(layer.Scale.Value.x * 100), new Percentage(layer.Scale.Value.y * 100));
-                                img.Rotate(layer.Rotation.Value);
+                                    // Scale first
+                                    if (layer.Scale.HasValue && layer.Scale.Value != Vector2.one) {
+                                        float scaleX = layer.Scale.Value.x * 100;
+                                        float scaleY = layer.Scale.Value.y * 100;
+                                        Vector2 addFactor = Vector2.zero;
+                                        if (scaleX == 0f || scaleY == 0f) continue;
+                                        if (scaleX < 0f) {
+                                            img.Flop();
+                                            scaleX = -scaleX;
+                                            addFactor += new Vector2(-1f, 0f);
+                                        }
+                                        if (scaleY < 0f) {
+                                            img.Flip();
+                                            scaleY = -scaleY;
+                                            addFactor += new Vector2(0, -1f);
+                                        }
+                                        img.Scale(new Percentage(scaleX), new Percentage(scaleY));
+                                        Vector2 scaledPos = Vector2.Scale(pos - transformOrigin, layer.Scale.Value);
+                                        size = Vector2.Scale(size, new Vector2(scaleX / 100f, scaleY / 100f));
+                                        pos = transformOrigin + scaledPos + Vector2.Scale(addFactor, size);
+                                    }
+                                    // Then rotate
+                                    if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
+                                        Vector2 center = Vector2.Scale(size, new Vector2(0.5f, 0.5f));
+                                        Vector2 relativePos = pos - transformOrigin;
+                                        relativePos = Quaternion.Euler(0f, 0f, -layer.Rotation.Value) * (relativePos + center);
+                                        //img.Distort(DistortMethod.ScaleRotateTranslate,0,0,
+                                        img.Rotate(-layer.Rotation.Value);
+                                        center = new Vector2(img.Width / 2f, img.Height / 2f);
+                                        relativePos -= center;
+                                        pos = relativePos + transformOrigin;
+                                        img.BackgroundColor = MagickColors.Transparent;
+                                    }
+                                }
 
-                                frameImg.Composite(img, layer.XPosition + shiftX, layer.YPosition + shiftY, CompositeOperator.Over);
+                                frameImg.Composite(img, Mathf.RoundToInt(pos.x) + shiftX, Mathf.RoundToInt(pos.y) + shiftY, CompositeOperator.Over);
                             }
 
                             frameImg.Write(Path.Combine(animDir, $"{frameIndex}.png"), MagickFormat.Png);
@@ -427,7 +472,7 @@ namespace R1Engine
             }
             finally
             {
-                if (sprites != null)
+                if (sprites != null && sprites.Length > 0)
                     foreach (var s in sprites)
                         s?.Dispose();
             }
