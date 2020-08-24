@@ -60,8 +60,8 @@ namespace R1Engine
             new GameAction("Export Compressed Blocks", false, true, (input, output) => ExportAllCompressedBlocksAsync(settings, output)),
             new GameAction("Log Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)),
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
-            new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteSetsAsync(settings, output, false)),
-            new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteSetsAsync(settings, output, true)),
+            new GameAction("Export Sprites", false, true, (input, output) => ExportSpritesAsync(settings, output, false)),
+            new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpritesAsync(settings, output, true)),
             new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
         };
 
@@ -234,10 +234,9 @@ namespace R1Engine
             Debug.Log("Finished logging blocks");
         }
 
-        public async UniTask ExportSpriteSetsAsync(GameSettings settings, string outputDir, bool exportAnimFrames)
+        public async UniTask ExportSpritesAsync(GameSettings settings, string outputDir, bool exportAnimFrames)
         {
             var exported = new HashSet<Pointer>();
-            Pointer baseOffset;
 
             // Export menu sprites
             using (var context = new Context(settings))
@@ -248,21 +247,18 @@ namespace R1Engine
                 // Load the data block
                 var data = LoadDataBlock(context);
 
-                // Set the base offset
-                baseOffset = data.UiOffsetTable.Offset;
-
                 // Enumerate every menu sprite group
                 foreach (var menuSprite in AdditionalSprites4bpp)
                 {
                     var s = context.Deserializer;
-                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false);
+                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false, menuSprite);
                 }
                 await UniTask.WaitForEndOfFrame();
 
                 foreach (var menuSprite in AdditionalSprites8bpp)
                 {
                     var s = context.Deserializer;
-                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true);
+                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true, menuSprite);
                 }
                 await UniTask.WaitForEndOfFrame();
             }
@@ -284,71 +280,83 @@ namespace R1Engine
                     // Enumerate every graphic group
                     await UniTask.WaitForEndOfFrame();
                     foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
-                        ExportSpriteGroup(spr, false);
+                        ExportSpriteGroup(spr, false, -1);
                 }
             }
 
-            void ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit)
+            void ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit, int uioffset)
             {
                 if (exported.Contains(spr.Offset))
                     return;
 
-                if (exportAnimFrames) {
-                    exported.Add(spr.Offset);
+                exported.Add(spr.Offset);
+
+                if (exportAnimFrames)
                     ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
-                }
                 else
+                    ExportSpriteTileSet(spr, outputDir, is8bit, uioffset);
+            }
+        }
+
+        public void ExportSpriteTileSet(GBA_SpriteGroup spr, string outputDir, bool is8bit, int uioffset)
+        {
+            try
+            {
+                var paletteCount = is8bit ? 1 : spr.Palette.Palette.Length / 16;
+
+                for (int palIndex = 0; palIndex < paletteCount; palIndex++)
                 {
-                    exported.Add(spr.Offset);
-                    var paletteCount = is8bit ? 1 : spr.Palette.Palette.Length / 16;
+                    var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
+                    const int wrap = 16;
+                    const int tileWidth = 8;
+                    int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
 
-                    for (int palIndex = 0; palIndex < paletteCount; palIndex++)
+                    // Create a texture for the tileset
+                    var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
                     {
-                        var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
-                        const int wrap = 16;
-                        const int tileWidth = 8;
-                        int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
+                        filterMode = FilterMode.Point,
+                    };
 
-                        // Create a texture for the tileset
-                        var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
+                    // Default to transparent
+                    tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
+
+                    // Add each tile
+                    for (int i = 0; i < length; i++)
+                    {
+                        int mainY = tex.height - 1 - (i / wrap);
+                        int mainX = i % wrap;
+
+                        for (int y = 0; y < tileWidth; y++)
                         {
-                            filterMode = FilterMode.Point,
-                        };
-
-                        // Default to transparent
-                        tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
-
-                        // Add each tile
-                        for (int i = 0; i < length; i++)
-                        {
-                            int mainY = tex.height - 1 - (i / wrap);
-                            int mainX = i % wrap;
-
-                            for (int y = 0; y < tileWidth; y++)
+                            for (int x = 0; x < tileWidth; x++)
                             {
-                                for (int x = 0; x < tileWidth; x++)
-                                {
-                                    int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
+                                int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
 
-                                    var v = is8bit ? spr.TileMap.TileMap[index] : BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
+                                var v = is8bit ? spr.TileMap.TileMap[index] : BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
 
-                                    Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
+                                Color c = spr.Palette.Palette[palIndex * 16 + v].GetColor();
 
-                                    if (v != 0)
-                                        c = new Color(c.r, c.g, c.b, 1f);
+                                if (v != 0)
+                                    c = new Color(c.r, c.g, c.b, 1f);
 
-                                    tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
-                                }
+                                tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
                             }
                         }
-
-                        tex.Apply();
-
-                        var fileName = $"Sprites_{(spr.Offset.AbsoluteOffset - baseOffset.AbsoluteOffset):X8}_Pal{palIndex}.png";
-
-                        Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                     }
+
+                    tex.Apply();
+
+                    var fileName = $"{(uioffset != -1 ? $"MenuSprite{uioffset}_" : "Sprites_")}{spr.Offset.AbsoluteOffset:X8}_Pal{palIndex}.png";
+
+                    Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                 }
+            }
+            catch (Exception ex)
+            {
+                if (uioffset != -1)
+                    Debug.Log($"Error for UI offset {uioffset}");
+
+                Debug.LogError($"Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
             }
         }
 
