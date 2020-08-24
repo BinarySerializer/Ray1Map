@@ -468,7 +468,7 @@ namespace R1Engine
             }
             catch (Exception ex)
             {
-                Debug.LogError($"{ex.Message}");
+                Debug.LogError($"Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
             }
             finally
             {
@@ -793,8 +793,11 @@ namespace R1Engine
                     return new Unity_ObjAnimationPart[0];
                 }
                 Unity_ObjAnimationPart[] parts = new Unity_ObjAnimationPart[l.XSize * l.YSize];
-                if (l.ImageIndex > length) {
-                    Controller.print("Image index too high: " + spr.Offset + " - " + l.Offset);
+
+                var imgIndex = l.ImageIndex / (is8bit ? 2 : 1);
+
+                if (imgIndex > length) {
+                    Controller.print($"Image index {imgIndex} too high (length {length}) @ : " + spr.Offset + " - " + l.Offset);
                 }
                 if (l.PaletteIndex > spr.Palette.Palette.Length / 16) {
                     Controller.print("Palette index too high: " + spr.Offset + " - " + l.Offset + " - " + l.PaletteIndex + " - " + (spr.Palette.Palette.Length / 16));
@@ -804,7 +807,7 @@ namespace R1Engine
                 for (int y = 0; y < l.YSize; y++) {
                     for (int x = 0; x < l.XSize; x++) {
                         parts[y * l.XSize + x] = new Unity_ObjAnimationPart {
-                            ImageIndex = length * l.PaletteIndex + (l.ImageIndex + y * l.XSize + x),
+                            ImageIndex = length * l.PaletteIndex + (imgIndex + y * l.XSize + x),
                             IsFlippedHorizontally = l.IsFlippedHorizontally,
                             IsFlippedVertically = l.IsFlippedVertically,
                             XPosition = (l.XPosition + (l.IsFlippedHorizontally ? (l.XSize - 1 - x) : x) * CellSize),
