@@ -30,7 +30,7 @@ namespace R1Engine
         public override int DLCLevelCount => 10;
 
         // TODO: Find the rest
-        public override int[] AdditionalSprites4bpp => Enumerable.Range(113, 116 - 113).ToArray();
+        public override int[] AdditionalSprites4bpp => Enumerable.Range(70, 118 - 70).Concat(Enumerable.Range(119, 126 - 119)).ToArray();
         public override int[] AdditionalSprites8bpp => new int[]
         {
             118
