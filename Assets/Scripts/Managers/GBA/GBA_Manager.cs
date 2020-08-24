@@ -284,6 +284,8 @@ namespace R1Engine
                 }
             }
 
+            Debug.Log("Finished export");
+
             async UniTask ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit, int uioffset)
             {
                 if (exported.Contains(spr.Offset))
@@ -396,7 +398,7 @@ namespace R1Engine
                 {
                     await UniTask.WaitForEndOfFrame();
                     var frameIndex = 0;
-                    var animDir = Path.Combine(outputDir, animIndex.ToString());
+                    var animDir = Path.Combine(outputDir, $"{animIndex}-{anim.AnimSpeed}");
                     Directory.CreateDirectory(animDir);
                     if (anim.Frames == null || anim.Frames.Length == 0) continue;
 
@@ -858,6 +860,7 @@ namespace R1Engine
             // Add animations
             foreach (var a in spr.Animations) {
                 var unityAnim = new Unity_ObjAnimation();
+                unityAnim.AnimSpeed = (byte)(1 + (a.Flags & 0xF));
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
                     frames.Add(new Unity_ObjAnimationFrame() {
