@@ -81,7 +81,8 @@ namespace R1Engine
         public override void SerializeOffsetData(SerializerObject s)
         {
             // Parse level block data
-            PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
+            if (OffsetTable.Offsets[PlayFieldIndex] != -1)
+                PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
             // Parse actor data
             for (var i = 0; i < Actors.Length; i++)

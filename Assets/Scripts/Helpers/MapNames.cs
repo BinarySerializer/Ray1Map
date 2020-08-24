@@ -71,7 +71,7 @@ namespace R1Engine
                         [6] = "Multiplayer",
                         
                         [7] = "Menu",
-                        [8] = "DLC",
+                        [8] = "GameCube",
                     };
 
                 case Game.GBA_PrinceOfPersiaTheSandsOfTime:
@@ -82,7 +82,6 @@ namespace R1Engine
                     {
                         [0] = "Game",
                         [1] = "Menu",
-                        [2] = "DLC",
                     };
 
                 case Game.SNES_Prototype:

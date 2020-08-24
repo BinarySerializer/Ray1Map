@@ -8,7 +8,7 @@
         public Pointer[] UnkPointerTable { get; set; }
 
         // Contains general info about levels, but not anything map related
-        public GBA_R3_LevelMapInfo[] LevelInfo { get; set; }
+        public GBA_R3_SceneInfo[] LevelInfo { get; set; }
 
         public GBA_LocLanguageTable Localization { get; set; }
 
@@ -31,7 +31,7 @@
 
             // Serialize level info
             if (pointerTable.ContainsKey(GBA_Pointer.LevelInfo))
-                LevelInfo = s.DoAt(pointerTable[GBA_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_LevelMapInfo>(LevelInfo, levelCount, name: nameof(LevelInfo)));
+                LevelInfo = s.DoAt(pointerTable[GBA_Pointer.LevelInfo], () => s.SerializeObjectArray<GBA_R3_SceneInfo>(LevelInfo, levelCount, name: nameof(LevelInfo)));
 
             // Serialize localization
             if (pointerTable.ContainsKey(GBA_Pointer.Localization))

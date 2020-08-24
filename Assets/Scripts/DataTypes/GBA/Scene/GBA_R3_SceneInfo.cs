@@ -1,9 +1,9 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Information for a level
+    /// Information for a scene
     /// </summary>
-    public class GBA_R3_LevelMapInfo : R1Serializable
+    public class GBA_R3_SceneInfo : R1Serializable
     {
         public ushort MusicIndex { get; set; }
         

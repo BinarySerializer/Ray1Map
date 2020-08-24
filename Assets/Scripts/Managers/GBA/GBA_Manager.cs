@@ -47,6 +47,7 @@ namespace R1Engine
         }
 
         public virtual string GetROMFilePath => $"ROM.gba";
+        public virtual string GetGameCubeManifestFilePath => $"gba.nfo";
 
         public abstract IEnumerable<int>[] WorldLevels { get; }
         public int LevelCount => WorldLevels.Select(x => x.Count()).Sum();
@@ -523,35 +524,57 @@ namespace R1Engine
 
             var lvlType = GetLevelType(context.Settings.World);
 
-            // Load the data block
-            var dataBlock = LoadDataBlock(context);
-
-            // Log unused data blocks in offset tables
-            var notParsedBlocks = GBA_OffsetTable.OffsetTables.Skip(1).Where(x => x.UsedOffsets.Any(y => !y)).ToArray();
-            if (notParsedBlocks.Any())
-                Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, notParsedBlocks.Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
-                {
-                    Obj = o,
-                    Index = i
-                }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
-
-
-            // Get the current play field
             GBA_PlayField playField;
+            GBA_Scene scene;
 
-            switch (lvlType)
+            if (lvlType == LevelType.DLC)
             {
-                case LevelType.Game:
-                    playField = dataBlock.Scene.PlayField;
-                    break;
+                var s = context.Deserializer;
 
-                case LevelType.Menu:
+                // Uncomment to load the manifest
+                //context.AddFile(new LinearSerializedFile(context)
+                //{
+                //    filePath = GetGameCubeManifestFilePath
+                //});
+
+                //s.DoAt(context.GetFile(GetGameCubeManifestFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMapManifest>(default, name: "GameCubeManifest"));
+
+                var mapFilePath = $"map.{context.Settings.Level:000}";
+
+                context.AddFile(new LinearSerializedFile(context)
+                {
+                    filePath = mapFilePath
+                });
+
+                var gcnMap = s.DoAt(context.GetFile(mapFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMap>(default, name: "GameCubeMap"));
+
+                playField = gcnMap.PlayField;
+                scene = gcnMap.Scene;
+            }
+            else
+            {
+                // Load the data block
+                var dataBlock = LoadDataBlock(context);
+
+                // Log unused data blocks in offset tables
+                var notParsedBlocks = GBA_OffsetTable.OffsetTables.Skip(1).Where(x => x.UsedOffsets.Any(y => !y)).ToArray();
+                if (notParsedBlocks.Any())
+                    Debug.Log($"The following blocks were never parsed:{Environment.NewLine}" + String.Join(Environment.NewLine, notParsedBlocks.Select(y => $"[{y.Offset}]:" + String.Join(", ", y.UsedOffsets.Select((o, i) => new
+                    {
+                        Obj = o,
+                        Index = i
+                    }).Where(o => !o.Obj).Select(o => o.Index.ToString())))));
+
+                if (lvlType == LevelType.Game)
+                {
+                    scene = dataBlock.Scene;
+                    playField = dataBlock.Scene.PlayField;
+                }
+                else
+                {
+                    scene = null;
                     playField = dataBlock.MenuLevelPlayfield;
-                    break;
-                
-                case LevelType.DLC:
-                default:
-                    throw new NotImplementedException();
+                }
             }
 
             // Get the map layers, skipping unknown ones
@@ -679,13 +702,13 @@ namespace R1Engine
             var eta = new Dictionary<string, R1_EventState[][]>();
 
             // Add actors
-            if (lvlType != LevelType.Menu)
+            if (scene != null)
             {
                 var actorIndex = 0;
 
-                foreach (var actor in dataBlock.Scene.Actors)
+                foreach (var actor in scene.Actors)
                 {
-                    Controller.DetailedState = $"Loading actor {actorIndex + 1}/{dataBlock.Scene.Actors.Length}";
+                    Controller.DetailedState = $"Loading actor {actorIndex + 1}/{scene.Actors.Length}";
                     await Controller.WaitIfNecessary();
 
                     if (!des.ContainsKey(actor.GraphicsDataIndex))
@@ -711,7 +734,7 @@ namespace R1Engine
                             actor.Link_2, 
                             actor.Link_3, 
                         },
-                        ForceAlways = actorIndex < dataBlock.Scene.AlwaysActorsCount,
+                        ForceAlways = actorIndex < scene.AlwaysActorsCount,
                         DESKey = actor.GraphicsDataIndex.ToString(),
                         ETAKey = actor.GraphicsDataIndex.ToString(),
                         DebugText = $"{nameof(GBA_Actor.Link_0)}: {actor.Link_0}{Environment.NewLine}" +
