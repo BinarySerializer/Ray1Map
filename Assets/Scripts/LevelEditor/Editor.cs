@@ -421,7 +421,7 @@ namespace R1Engine
                                     var t = map.GetMapTile(x, y);
                                     TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
-                                    lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
+                                    //lvlController.controllerTilemap.SetTileAtPos(x, y, selection[xi, yi]);
                                     
                                     t.HasPendingEdits = true;
 
@@ -433,6 +433,7 @@ namespace R1Engine
                             xi = 0;
                             yi++;
                         }
+                        lvlController.controllerTilemap.SetTileBlockAtPos(mx, my, selection.GetLength(0), selection.GetLength(1), selection);
                     }
                 }
 

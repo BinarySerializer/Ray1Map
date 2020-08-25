@@ -13,7 +13,6 @@ namespace R1Engine
 			MemoryStream outStream = new MemoryStream();
 			huff.Decompress(s, s.Length, outStream);
 			outStream.Position = 0;
-			Util.ByteArrayToFile("D:/BART/RIPPING/R1/PoP_GBA/lol.bin",outStream.ToArray());
 			return outStream;
 		}
 
