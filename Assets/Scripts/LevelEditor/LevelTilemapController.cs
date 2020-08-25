@@ -179,25 +179,8 @@ namespace R1Engine
                         if (palette != 0)
                             t.PaletteIndex = palette;
                         Tile tile = map.GetTile(t, LevelEditorData.CurrentSettings);
-                        int texX = x * LevelEditorData.EditorManager.CellSize;
-                        int texY = y * LevelEditorData.EditorManager.CellSize;
-                        if (tile?.sprite?.texture == null) {
-                            tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
-                        } else {
-                            var tileTex = tile.sprite.texture;
-                            var baseX = (int)tile.sprite.rect.x;
-                            var baseY = (int)tile.sprite.rect.y;
 
-                            for (int j = 0; j < cellSize; j++)
-                            {
-                                for (int k = 0; k < cellSize; k++)
-                                {
-                                    int tileY = t.Data.VerticalFlip ? (cellSize - 1 - j) : j;
-                                    int tileX = t.Data.HorizontalFlip ? (cellSize - 1 - k) : k;
-                                    tex.SetPixel(texX + tileX, texY + tileY, tileTex.GetPixel(k + baseX, j + baseY));
-                                }
-                            }
-                        }
+                        FillInTilePixels(tex, tile, t, x, y, cellSize);
 
                         /*GraphicsTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
                         GraphicsTilemaps[mapIndex].SetTransformMatrix(new Vector3Int(x, y, 0), GraphicsTilemaps[mapIndex].GetTransformMatrix(new Vector3Int(x, y, 0)) * Matrix4x4.Scale(new Vector3(t.Data.HorizontalFlip ? -1 : 1, t.Data.VerticalFlip ? -1 : 1, 1)));*/
@@ -326,6 +309,41 @@ namespace R1Engine
             }
         }
 
+        private void FillInTilePixels(Texture2D tex, Tile tile, Unity_Tile t, int x, int y, int cellSize, bool applyTexture = false) {
+            int texX = x * cellSize;
+            int texY = y * cellSize;
+            if (tile?.sprite?.texture == null) {
+                tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
+            } else {
+                var tileTex = tile.sprite.texture;
+                var baseX = (int)tile.sprite.rect.x;
+                var baseY = (int)tile.sprite.rect.y;
+                if (baseX != 0 || baseY != 0 || tileTex.width != cellSize || tileTex.height != cellSize) {
+                    for (int j = 0; j < cellSize; j++) {
+                        for (int k = 0; k < cellSize; k++) {
+                            int tileY = t.Data.VerticalFlip ? (cellSize - 1 - j) : j;
+                            int tileX = t.Data.HorizontalFlip ? (cellSize - 1 - k) : k;
+                            tex.SetPixel(texX + tileX, texY + tileY, tileTex.GetPixel(k + baseX, j + baseY));
+                        }
+                    }
+                } else {
+                    Color[] pixels = tileTex.GetPixels();
+                    if (t.Data.HorizontalFlip || t.Data.VerticalFlip) {
+                        for (int j = 0; j < cellSize; j++) {
+                            for (int k = 0; k < cellSize; k++) {
+                                int tileY = t.Data.VerticalFlip ? (cellSize - 1 - j) : j;
+                                int tileX = t.Data.HorizontalFlip ? (cellSize - 1 - k) : k;
+                                tex.SetPixel(texX + tileX, texY + tileY, pixels[j * cellSize + k]);
+                            }
+                        }
+                    } else {
+                        tex.SetPixels(texX, texY, cellSize, cellSize, pixels);
+                    }
+                }
+            }
+            if (applyTexture) tex.Apply();
+        }
+
         public void SetTileAtPos(int x, int y, Unity_Tile newTile, bool applyTexture = true) 
         {
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
@@ -341,29 +359,8 @@ namespace R1Engine
                 Texture2D tex = GraphicsTilemaps[i].sprite.texture;
                 Tile tile = map.GetTile(newTile, LevelEditorData.CurrentSettings);
 
-                int texX = x * LevelEditorData.EditorManager.CellSize;
-                int texY = y * LevelEditorData.EditorManager.CellSize;
                 int cellSize = LevelEditorData.EditorManager.CellSize;
-
-                if (tile?.sprite?.texture == null) {
-                    tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
-                } else {
-                    Color[] pixels = tile.sprite.texture.GetPixels();
-                    if (newTile.Data.HorizontalFlip || newTile.Data.VerticalFlip) {
-                        for (int j = 0; j < cellSize; j++) {
-                            for (int k = 0; k < cellSize; k++) {
-                                int tileY = newTile.Data.VerticalFlip ? (cellSize - 1 - j) : j;
-                                int tileX = newTile.Data.HorizontalFlip ? (cellSize - 1 - k) : k;
-                                tex.SetPixel(texX + tileX, texY + tileY, pixels[j * cellSize + k]);
-                            }
-                        }
-                    } else {
-                        tex.SetPixels(texX, texY, cellSize, cellSize, pixels);
-                    }
-                }
-                if (applyTexture) {
-                    tex.Apply();
-                }
+                FillInTilePixels(tex, tile, newTile, x, y, cellSize);
             }
 
             // Get the tile to set
