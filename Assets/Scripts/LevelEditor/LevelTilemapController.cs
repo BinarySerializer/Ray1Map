@@ -154,7 +154,7 @@ namespace R1Engine
                 Array.Resize(ref GraphicsTilemaps, LevelEditorData.Level.Maps.Length);
                 for (int i = 1; i < GraphicsTilemaps.Length; i++) {
                     GraphicsTilemaps[i] = Instantiate<SpriteRenderer>(GraphicsTilemaps[0], new Vector3(0, 0, -i), Quaternion.identity, GraphicsTilemaps[0].transform.parent);
-                    //GraphicsTilemaps[i].
+                    GraphicsTilemaps[i].gameObject.name = "Tilemap Graphics " + i;
                     if (lvl.Maps[i].IsForeground)
                     {
                         Debug.Log($"{i} is in front");
@@ -170,7 +170,7 @@ namespace R1Engine
                     GraphicsTilemaps[mapIndex].color = new Color(1f, 1f, 1f, map.Alpha.Value);
                 }
                 int cellSize = LevelEditorData.EditorManager.CellSize;
-                Texture2D tex = new Texture2D(map.Width * cellSize, map.Height * cellSize);
+                Texture2D tex = new Texture2D(map.Width * cellSize, map.Height * cellSize, TextureFormat.ARGB32, false);
 
                 for (int y = 0; y < map.Height; y++) {
                     for (int x = 0; x < map.Width; x++) {
