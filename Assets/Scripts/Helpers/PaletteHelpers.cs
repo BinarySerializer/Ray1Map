@@ -40,11 +40,11 @@ namespace R1Engine
         /// </summary>
         /// <param name="outputPath">The path to export to</param>
         /// <param name="palette">The palette</param>
-        public static void ExportPalette(string outputPath, IList<ARGBColor> palette, int scale= 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null)
+        public static void ExportPalette(string outputPath, IList<ARGBColor> palette, int scale = 16, int offset = 0, int? optionalLength = null, int? optionalWrap = null)
         {
             int length = optionalLength ?? palette.Count;
             int wrap = optionalWrap ?? length;
-            var tex = new Texture2D(Mathf.Min(length, wrap) * scale, Mathf.CeilToInt(length / (float)wrap) * scale);
+            var tex = TextureHelpers.CreateTexture2D(Mathf.Min(length, wrap) * scale, Mathf.CeilToInt(length / (float)wrap) * scale);
 
             for (int i = offset; i < offset + length; i++)
             {
@@ -74,7 +74,7 @@ namespace R1Engine
         /// <param name="vram">The v-ram</param>
         public static void ExportVram(string outputPath, PS1_VRAM vram)
         {
-            Texture2D vramTex = new Texture2D(16 * 128, 2 * 256);
+            Texture2D vramTex = TextureHelpers.CreateTexture2D(16 * 128, 2 * 256);
             for (int x = 0; x < 16 * 128; x++) {
                 for (int y = 0; y < 2 * 256; y++) {
                     byte val = vram.GetPixel8(0, y / 256, x, y % 256);

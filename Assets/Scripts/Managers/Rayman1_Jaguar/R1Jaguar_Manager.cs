@@ -421,14 +421,7 @@ namespace R1Engine
                                         // Create each animation frame
                                         for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
                                         {
-                                            Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
-                                            {
-                                                filterMode = FilterMode.Point,
-                                                wrapMode = TextureWrapMode.Clamp
-                                            };
-
-                                            // Default to fully transparent
-                                            tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+                                            var tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
 
                                             bool hasLayers = false;
 
@@ -536,11 +529,7 @@ namespace R1Engine
                 return null;
 
             // Create a texture
-            var tex = new Texture2D(d.OuterWidth, d.OuterHeight)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
+            var tex = TextureHelpers.CreateTexture2D(d.OuterWidth, d.OuterHeight);
 
             var isFullyTransparent = true;
 
@@ -610,11 +599,7 @@ namespace R1Engine
                         {
                             var values = s.SerializeObjectArray<RGB556Color>(default, s.CurrentLength / 2);
 
-                            var tex = new Texture2D(vig.Value, values.Length / vig.Value)
-                            {
-                                filterMode = FilterMode.Point,
-                                wrapMode = TextureWrapMode.Clamp
-                            };
+                            var tex = TextureHelpers.CreateTexture2D(vig.Value, values.Length / vig.Value);
 
                             for (int y = 0; y < tex.height; y++)
                             {
@@ -843,7 +828,7 @@ namespace R1Engine
                         Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(key) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[key]) : null;
                             
                         // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
+                        finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                     }
                 }
 

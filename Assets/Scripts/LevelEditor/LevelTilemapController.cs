@@ -170,7 +170,7 @@ namespace R1Engine
                     GraphicsTilemaps[mapIndex].color = new Color(1f, 1f, 1f, map.Alpha.Value);
                 }
                 int cellSize = LevelEditorData.EditorManager.CellSize;
-                Texture2D tex = new Texture2D(map.Width * cellSize, map.Height * cellSize, TextureFormat.ARGB32, false);
+                Texture2D tex = TextureHelpers.CreateTexture2D(map.Width * cellSize, map.Height * cellSize);
 
                 for (int y = 0; y < map.Height; y++) {
                     for (int x = 0; x < map.Width; x++) {

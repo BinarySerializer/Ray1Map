@@ -183,7 +183,7 @@ namespace R1Engine
                         var tex = pcx.ToTexture();
 
                         // Flip the texture
-                        var flippedTex = new Texture2D(tex.width, tex.height);
+                        var flippedTex = TextureHelpers.CreateTexture2D(tex.width, tex.height);
 
                         for (int x = 0; x < tex.width; x++)
                         {
@@ -252,7 +252,7 @@ namespace R1Engine
                                 var tex = pcx.ToTexture();
 
                                 // Flip the texture
-                                var flippedTex = new Texture2D(tex.width, tex.height);
+                                var flippedTex = TextureHelpers.CreateTexture2D(tex.width, tex.height);
 
                                 for (int x = 0; x < tex.width; x++) {
                                     for (int y = 0; y < tex.height; y++) {
@@ -695,14 +695,7 @@ namespace R1Engine
                     // Create each animation frame
                     for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
                     {
-                        Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
-                        {
-                            filterMode = FilterMode.Point,
-                            wrapMode = TextureWrapMode.Clamp
-                        };
-
-                        // Default to fully transparent
-                        tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+                        Texture2D tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
 
                         bool hasLayers = false;
 
@@ -825,20 +818,7 @@ namespace R1Engine
             var offset = s.ImageBufferOffset;
 
             // Create the texture
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-
-            // Default to fully transparent
-            for (int y = 0; y < tex.height; y++)
-            {
-                for (int x = 0; x < tex.width; x++)
-                {
-                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                }
-            }
+            Texture2D tex = TextureHelpers.CreateTexture2D(width, height, true);
 
             try
             {
@@ -911,7 +891,7 @@ namespace R1Engine
                     Texture2D tex = GetSpriteTexture(s, palette, processedImageData);
 
                     // Add it to the array
-                    graphics.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
+                    graphics.Sprites.Add(tex == null ? null : tex.CreateSprite());
                 }
             }
             else
@@ -934,7 +914,7 @@ namespace R1Engine
                         Texture2D tex = GetSpriteTexture(s, p, processedImageData);
 
                         // Add it to the array
-                        graphics.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
+                        graphics.Sprites.Add(tex == null ? null : tex.CreateSprite());
                     }
                 }
             }
@@ -1517,11 +1497,7 @@ namespace R1Engine
                 for (int i = 0; i < levData.MapData.ColorPalettes.Length; i++)
                 {
                     // Create the texture to use for the tile
-                    var tileTexture = new Texture2D(Settings.CellSize, Settings.CellSize, TextureFormat.RGBA32, false)
-                    {
-                        filterMode = FilterMode.Point,
-                        wrapMode = TextureWrapMode.Clamp
-                    };
+                    var tileTexture = TextureHelpers.CreateTexture2D(Settings.CellSize, Settings.CellSize);
 
                     // Keep track if all pixels are red (transparent tile in RayKit)
                     bool allRed = true;
@@ -1557,7 +1533,7 @@ namespace R1Engine
                     tileTexture.Apply();
 
                     // Create and set up the tile
-                    output[i].SetTile(tileTexture, Settings.CellSize, index);
+                    output[i].Tiles[index] = tileTexture.CreateTile();
                 }
 
                 index++;

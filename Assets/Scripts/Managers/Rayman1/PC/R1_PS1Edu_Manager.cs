@@ -255,17 +255,21 @@ namespace R1Engine
                     anims = world.AnimationDescriptors[i - allfix.DESCount];
                     imageDescriptors[i] = world.ImageDescriptors[i - allfix.DESCount];
                 }
-                des[i] = new Unity_ObjGraphics();
-                des[i].Sprites = new Sprite[d.ImageDescriptorsCount].ToList();
-                des[i].Animations = anims.Select(x => x.ToCommonAnimation()).ToList();
+
+                des[i] = new Unity_ObjGraphics
+                {
+                    Sprites = new Sprite[d.ImageDescriptorsCount].ToList(),
+                    Animations = anims.Select(x => x.ToCommonAnimation()).ToList()
+                };
             }
             foreach (R1_EventData e in level.Events) {
                 for (int i = 0; i < e.ImageDescriptorCount; i++) {
                     ushort currentTexture = levelIndices[gsp_index];
                     var tex = textures[currentTexture];
-                    if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0) {
-                        des[e.PC_ImageDescriptorsIndex].Sprites[i] = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20);
-                    }
+
+                    if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0)
+                        des[e.PC_ImageDescriptorsIndex].Sprites[i] = tex.CreateSprite();
+
                     gsp_index++;
                 }
             }
@@ -291,14 +295,7 @@ namespace R1Engine
                     p = tex.Palettes[i].Value;
 
                 // Create the texture
-                Texture2D sprite = new Texture2D(d.Width, d.Height, TextureFormat.RGBA32, false)
-                {
-                    filterMode = FilterMode.Point,
-                    wrapMode = TextureWrapMode.Clamp
-                };
-
-                // Default to fully transparent
-                sprite.SetPixels(new Color[sprite.height * sprite.width]);
+                Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, true);
 
                 for (int y = 0; y < d.Height; y++)
                 {

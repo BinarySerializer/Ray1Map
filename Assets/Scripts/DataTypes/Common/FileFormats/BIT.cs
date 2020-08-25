@@ -23,13 +23,10 @@ namespace R1Engine
             int height = (PixelsPaletted?.Length ?? Pixels.Length) / width;
 
             // Create the texture
-            var tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            var tex = TextureHelpers.CreateTexture2D(width, height, true);
+
+            var blockSwizzlePattern = new Coordinate[] 
             {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-            tex.SetPixels(new Color[width * height]); // Clear image
-            Coordinate[] blockSwizzlePattern = new Coordinate[] {
                 new Coordinate(0,0),
                 new Coordinate(1,0),
                 new Coordinate(0,1),
@@ -94,9 +91,9 @@ namespace R1Engine
         }
 
         /// <summary>
-        /// Serializes the data
+        /// Handles the data serialization
         /// </summary>
-        /// <param name="serializer">The serializer</param>
+        /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s) {
             if (PAL != null) {
                 if (PixelsPaletted == null) {

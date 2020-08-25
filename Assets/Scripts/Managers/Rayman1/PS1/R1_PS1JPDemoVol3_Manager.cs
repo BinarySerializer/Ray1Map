@@ -134,12 +134,7 @@ namespace R1Engine
             var paletteOffset = 16 * s.Unknown2;
 
             // Create the texture
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp,
-
-            };
+            Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
 
             // Set every pixel
             if (s.ImageType == 3)

@@ -413,13 +413,7 @@ namespace R1Engine
             // If there are no tile blocks, return a dummy tile set
             if (levelMapData.TileBlockIndices == null)
             {
-                var dummy = new Texture2D(256, Settings.CellSize)
-                {
-                    filterMode = FilterMode.Point,
-                    wrapMode = TextureWrapMode.Clamp
-                };
-                dummy.SetPixels(new Color[dummy.width * dummy.height]);
-                dummy.Apply();
+                var dummy = TextureHelpers.CreateTexture2D(256, Settings.CellSize, true, true);
 
                 return new Unity_MapTileMap(dummy, Settings.CellSize);
             }
@@ -427,10 +421,7 @@ namespace R1Engine
             uint length = (uint)levelMapData.TileBlockIndices.Length * 8 * 8;
 
             // Get the tile-set texture
-            var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize) {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
+            var tex = TextureHelpers.CreateTexture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize);
 
             for (int i = 0; i < levelMapData.TileBlockIndices.Length; i++) {
                 ushort blockIndex = levelMapData.TileBlockIndices[i];
@@ -465,12 +456,7 @@ namespace R1Engine
                 return null;
 
             // Create the texture
-            Texture2D tex = new Texture2D(s.OuterWidth, s.OuterHeight, TextureFormat.RGBA32, false)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-            tex.SetPixels(new Color[tex.width * tex.height]);
+            Texture2D tex = TextureHelpers.CreateTexture2D(s.OuterWidth, s.OuterHeight);
 
             var offset = s.ImageBufferOffset;
             var curOff = (int)offset;
@@ -616,11 +602,7 @@ namespace R1Engine
         public Texture2D GetVignetteTexture(R1_GBA_BaseVignette vig)
         {
             // Create the texture
-            var tex = new Texture2D(vig.Width * 8, vig.Height * 8)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
+            var tex = TextureHelpers.CreateTexture2D(vig.Width * 8, vig.Height * 8);
 
             for (int y = 0; y < vig.Height; y++)
             {
@@ -642,11 +624,7 @@ namespace R1Engine
         public Texture2D GetVignetteTexture(R1_GBA_IntroVignette vig)
         {
             // Create the texture
-            var tex = new Texture2D(vig.Width * 8, vig.Height * 8)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
+            var tex = TextureHelpers.CreateTexture2D(vig.Width * 8, vig.Height * 8);
 
             for (int y = 0; y < vig.Height; y++)
             {
@@ -844,7 +822,7 @@ namespace R1Engine
                         Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, spritePalette) : null;
 
                         // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
+                        finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                     }
 
                     if (graphics.AnimDescriptors != null)

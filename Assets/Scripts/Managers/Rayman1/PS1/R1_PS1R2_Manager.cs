@@ -263,7 +263,7 @@ namespace R1Engine
                 Texture2D tex = GetSpriteTexture(context, null, img);
 
                 // Add it to the array
-                globalDesigns.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), 16, 20));
+                globalDesigns.Add(tex == null ? null : tex.CreateSprite());
             }
 
             // Get the events

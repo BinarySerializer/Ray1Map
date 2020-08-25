@@ -72,11 +72,7 @@ namespace R1Engine
             uint length = (uint)rom.TileDescriptors.Length * 8 * 8;
 
             // Get the tile-set texture
-            var tex = new Texture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
+            var tex = TextureHelpers.CreateTexture2D(256, Mathf.CeilToInt(length / 256f / Settings.CellSize) * Settings.CellSize);
 
             for (int i = 0; i < rom.TileDescriptors.Length; i++)
             {

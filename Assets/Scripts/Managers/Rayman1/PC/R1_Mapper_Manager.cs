@@ -258,11 +258,7 @@ namespace R1Engine
                 for (int tx = 0; tx < tileSetWidth; tx++)
                 {
                     // Create a tile
-                    Tile t = ScriptableObject.CreateInstance<Tile>();
-                    t.sprite = Sprite.Create(pcxtex, new Rect(tx * Settings.CellSize, ty * Settings.CellSize, Settings.CellSize, Settings.CellSize), new Vector2(0.5f, 0.5f), Settings.PixelsPerUnit, 20);
-
-                    // Set the tile
-                    tiles[ty * tileSetWidth + tx] = t;
+                    tiles[ty * tileSetWidth + tx] = pcxtex.CreateTile(new Rect(tx * Settings.CellSize, ty * Settings.CellSize, Settings.CellSize, Settings.CellSize));
                 }
             }
 

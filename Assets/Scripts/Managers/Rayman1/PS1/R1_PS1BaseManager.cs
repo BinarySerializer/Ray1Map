@@ -134,22 +134,8 @@ namespace R1Engine
             var palette = tp == 0 ? new ARGB1555Color[16] : new ARGB1555Color[256];
 
             // Create the texture
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
+            Texture2D tex = TextureHelpers.CreateTexture2D(width, height, true);
 
-            // Default to fully transparent
-            for (int y = 0; y < tex.height; y++)
-            {
-                for (int x = 0; x < tex.width; x++)
-                {
-                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                }
-            }
-
-            //try {
             // Set every pixel
             if (tp == 1)
             {
@@ -161,12 +147,7 @@ namespace R1Engine
 
                         // Get the color from the palette
                         if (palette[paletteIndex] == null)
-                        {
                             palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
-                        }
-                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
-                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);
-                        var color = palette[paletteIndex];*/
 
                         // Set the pixel
                         tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
@@ -181,29 +162,21 @@ namespace R1Engine
                     {
                         int actualX = (s.ImageOffsetInPageX + x) / 2;
                         var paletteIndex = vram.GetPixel8(pageX, pageY, actualX, s.ImageOffsetInPageY + y);
+
                         if (x % 2 == 0)
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 0);
                         else
                             paletteIndex = (byte)BitHelpers.ExtractBits(paletteIndex, 4, 4);
 
-
                         // Get the color from the palette
                         if (palette[paletteIndex] == null)
                             palette[paletteIndex] = vram.GetColor1555(0, 0, paletteX * 16 + paletteIndex, paletteY);
-
-                        /*var palettedByte0 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex, paletteY);
-                        var palettedByte1 = vram.GetPixel8(0, 0, paletteX * 16 + paletteIndex + 1, paletteY);*/
 
                         // Set the pixel
                         tex.SetPixel(x, height - 1 - y, palette[paletteIndex].GetColor());
                     }
                 }
             }
-            /*} catch (Exception ex) {
-                Debug.LogWarning($"Couldn't load sprite for DES: " + s.Offset + $" {ex.Message}");
-
-                return null;
-            }*/
 
             // Apply the changes
             tex.Apply();
@@ -263,7 +236,7 @@ namespace R1Engine
                     Texture2D tex = GetSpriteTexture(context, null, i);
 
                     // Add it to the array
-                    finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
+                    finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                 }
 
                 // Add to the designs
@@ -296,7 +269,7 @@ namespace R1Engine
                         Texture2D tex = loadTextures ? GetSpriteTexture(context, e.ImageBuffer, i) : null;
 
                         // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20));
+                        finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                     }
 
                     // Add animations
@@ -621,14 +594,7 @@ namespace R1Engine
                 // Create each animation frame
                 for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
                 {
-                    Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
-                    {
-                        filterMode = FilterMode.Point,
-                        wrapMode = TextureWrapMode.Clamp
-                    };
-
-                    // Default to fully transparent
-                    tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+                    var tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
 
                     bool hasLayers = false;
 
@@ -715,7 +681,7 @@ namespace R1Engine
                         var rawData = FileFactory.Read<ObjectArray<ARGB1555Color>>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
 
                         // Create the texture
-                        textures.Add(new Texture2D(fileInfo.Width, (int)(rawData.Length / fileInfo.Width)));
+                        textures.Add(TextureHelpers.CreateTexture2D(fileInfo.Width, (int)(rawData.Length / fileInfo.Width)));
 
                         // Set the pixels
                         for (int y = 0; y < textures.First().height; y++)
@@ -737,7 +703,7 @@ namespace R1Engine
                         for (int i = 0; i < multiData.ImageBlocks.Length; i++)
                         {
                             // Create the texture
-                            var tex = new Texture2D(fileInfo.Widths[i], (int)(multiData.ImageBlocks[i].Length / fileInfo.Widths[i]));
+                            var tex = TextureHelpers.CreateTexture2D(fileInfo.Widths[i], (int)(multiData.ImageBlocks[i].Length / fileInfo.Widths[i]));
 
                             // Set the pixels
                             for (int y = 0; y < tex.height; y++)
@@ -765,7 +731,7 @@ namespace R1Engine
                             imageBlock = FileFactory.Read<R1_PS1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2));
 
                         // Create the texture
-                        textures.Add(new Texture2D(imageBlock.Width, imageBlock.Height));
+                        textures.Add(TextureHelpers.CreateTexture2D(imageBlock.Width, imageBlock.Height));
 
                         // Get the block width
                         var blockWdith = imageBlock.GetBlockWidth(context.Settings.EngineVersion);
@@ -942,14 +908,7 @@ namespace R1Engine
                         // Create each animation frame
                         for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
                         {
-                            Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
-                            {
-                                filterMode = FilterMode.Point,
-                                wrapMode = TextureWrapMode.Clamp
-                            };
-
-                            // Default to fully transparent
-                            tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+                            Texture2D tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
 
                             bool hasLayers = false;
 

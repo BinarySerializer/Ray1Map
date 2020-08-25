@@ -266,11 +266,8 @@ namespace R1Engine
             var height = img.OuterHeight;
             var offset = img.ImageBufferOffset;
 
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false) {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-            //Debug.Log(string.Format("{0:X8}", img.ImageBufferOffset) + " - " + tex.width + " - " + tex.height);
+            Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
+
             var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(GetExeFilePath()).StartPointer + GetPalOffset(context.Settings), context, (s, x) => x.Length = 25 * 256 * 2);
 
             var palette = pal.Value;
@@ -437,7 +434,7 @@ namespace R1Engine
                         var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $" - {i}.png"));
 
                         // Create a new texture
-                        var newTex = new Texture2D((int)sizes[i].x, (int)sizes[i].y);
+                        var newTex = TextureHelpers.CreateTexture2D((int)sizes[i].x, (int)sizes[i].y);
 
                         // Set the pixels
                         newTex.SetPixels(pixels.Reverse().Skip(pixelOffset).Take(newTex.width * newTex.height).ToArray());
@@ -471,7 +468,7 @@ namespace R1Engine
                 var rawData = FileFactory.Read<ObjectArray<ARGB1555Color>>(file, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
 
                 // Create the texture
-                var tex = new Texture2D(width, (int)(rawData.Length / width));
+                var tex = TextureHelpers.CreateTexture2D(width, (int)(rawData.Length / width));
 
                 // Set the pixels
                 for (int y = 0; y < tex.height; y++)

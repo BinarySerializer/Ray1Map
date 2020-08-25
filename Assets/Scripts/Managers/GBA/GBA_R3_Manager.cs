@@ -90,14 +90,12 @@ namespace R1Engine
                             height = 120;
                             break;
 
-                        // TODO: Support scrolling vignette
-
                         default:
                             throw new Exception("Vignette length is not supported");
                     }
 
                     // Create a texture
-                    var tex = new Texture2D(width, height); ;
+                    var tex = TextureHelpers.CreateTexture2D(width, height);
 
                     var palIndex = i;
 

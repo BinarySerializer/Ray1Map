@@ -316,13 +316,7 @@ namespace R1Engine
                     int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
 
                     // Create a texture for the tileset
-                    var tex = new Texture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth)
-                    {
-                        filterMode = FilterMode.Point,
-                    };
-
-                    // Default to transparent
-                    tex.SetPixels(Enumerable.Repeat(Color.clear, tex.width * tex.height).ToArray());
+                    var tex = TextureHelpers.CreateTexture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth, true);
 
                     // Add each tile
                     for (int i = 0; i < length; i++)
@@ -609,7 +603,7 @@ namespace R1Engine
                         {
                             new Unity_MapTileMap(new Tile[]
                             {
-                                ScriptableObject.CreateInstance<Tile>(),
+                                TextureHelpers.CreateTexture2D(CellSize, CellSize, true, true).CreateTile()
                             }), 
                         },
                         MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
@@ -812,11 +806,7 @@ namespace R1Engine
             {
                 for (int i = 0; i < length; i++)
                 {
-                    var tex = new Texture2D(CellSize, CellSize)
-                    {
-                        filterMode = FilterMode.Point,
-                        wrapMode = TextureWrapMode.Clamp
-                    };
+                    var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
 
                     for (int y = 0; y < tileWidth; y++)
                     {
@@ -837,7 +827,7 @@ namespace R1Engine
                     }
 
                     tex.Apply();
-                    des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), PixelsPerUnit, 20));
+                    des.Sprites.Add(tex.CreateSprite());
                 }
             }
 
@@ -947,18 +937,7 @@ namespace R1Engine
             var tiles = new Tile[tilesetLength];
 
             // Create empty tile
-            var emptyTileTex = new Texture2D(CellSize, CellSize)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
-
-            emptyTileTex.SetPixels(Enumerable.Repeat(Color.clear, CellSize * CellSize).ToArray());
-            emptyTileTex.Apply();
-            Tile emptyTile = ScriptableObject.CreateInstance<Tile>();
-            emptyTile.sprite = Sprite.Create(emptyTileTex, new Rect(0, 0, CellSize, CellSize), new Vector2(0.5f, 0.5f), PixelsPerUnit, 20);
-
-            tiles[0] = emptyTile;
+            tiles[0] = TextureHelpers.CreateTexture2D(CellSize, CellSize, true, true).CreateTile();
 
             for (int i = 1; i < tilesetLength; i++)
             {
@@ -974,11 +953,7 @@ namespace R1Engine
                     p += 8;
                 }
 
-                var tex = new Texture2D(CellSize, CellSize)
-                {
-                    filterMode = FilterMode.Point,
-                    wrapMode = TextureWrapMode.Clamp
-                };
+                var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
 
                 for (int y = 0; y < CellSize; y++)
                 {
@@ -1015,10 +990,7 @@ namespace R1Engine
                 tex.Apply();
 
                 // Create a tile
-                Tile t = ScriptableObject.CreateInstance<Tile>();
-                t.sprite = Sprite.Create(tex, new Rect(0, 0, CellSize, CellSize), new Vector2(0.5f, 0.5f), PixelsPerUnit, 20);
-
-                tiles[i] = t;
+                tiles[i] = tex.CreateTile();
             }
 
             return new Unity_MapTileMap(tiles);

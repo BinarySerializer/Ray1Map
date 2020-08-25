@@ -39,10 +39,7 @@ namespace R1Engine
             // Add sprites for each palette
             for (int palIndex = 0; palIndex < numPalettes; palIndex++) {
                 for (int i = 0; i < tileMap.TileMapLength; i++) {
-                    var tex = new Texture2D(CellSize, CellSize) {
-                        filterMode = FilterMode.Point,
-                        wrapMode = TextureWrapMode.Clamp
-                    };
+                    var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
 
                     for (int y = 0; y < tileWidth; y++) {
                         for (int x = 0; x < tileWidth; x++) {
@@ -61,7 +58,7 @@ namespace R1Engine
                     }
 
                     tex.Apply();
-                    des.Sprites.Add(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), PixelsPerUnit, 20));
+                    des.Sprites.Add(tex.CreateSprite());
                 }
             }
 

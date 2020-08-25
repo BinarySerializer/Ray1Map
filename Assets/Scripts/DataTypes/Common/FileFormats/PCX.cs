@@ -61,11 +61,7 @@ namespace R1Engine
         public Texture2D ToTexture()
         {
             // Create the texture
-            var tex = new Texture2D(ImageWidth, ImageHeight, TextureFormat.RGBA32, false)
-            {
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
-            };
+            var tex = TextureHelpers.CreateTexture2D(ImageWidth, ImageHeight);
 
             // Set every pixel
             for (int y = 0; y < ImageHeight; y++)

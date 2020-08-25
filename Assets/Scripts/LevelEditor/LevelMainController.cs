@@ -138,11 +138,7 @@ namespace R1Engine
                 var tileSize = (int)tileSet.Tiles.First().sprite.rect.width;
 
                 // Create the texture
-                var tileTex = new Texture2D(tileSetWidth * tileSize, tileSetHeight * tileSize, TextureFormat.RGBA32, false)
-                {
-                    filterMode = FilterMode.Point,
-                    wrapMode = TextureWrapMode.Clamp
-                };
+                var tileTex = TextureHelpers.CreateTexture2D(tileSetWidth * tileSize, tileSetHeight * tileSize);
 
                 // Default to fully transparent
                 tileTex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tileTex.width * tileTex.height).ToArray());
@@ -282,10 +278,10 @@ namespace R1Engine
             renderCamera.rect = new Rect(0, 0, 1, 1);
             renderCamera.Render();
 
-            //Save to picture
+            // Save to picture
             RenderTexture.active = renderTex;
 
-            tex = new Texture2D(renderTex.width, renderTex.height, TextureFormat.RGB24, false);
+            tex = TextureHelpers.CreateTexture2D(renderTex.width, renderTex.height);
             tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
             tex.Apply();
 

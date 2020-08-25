@@ -190,14 +190,7 @@ namespace R1Engine
                                 // Create each animation frame
                                 for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
                                 {
-                                    Texture2D tex = new Texture2D(frameWidth ?? 1, frameHeight ?? 1, TextureFormat.RGBA32, false)
-                                    {
-                                        filterMode = FilterMode.Point,
-                                        wrapMode = TextureWrapMode.Clamp
-                                    };
-
-                                    // Default to fully transparent
-                                    tex.SetPixels(Enumerable.Repeat(new Color(0, 0, 0, 0), tex.width * tex.height).ToArray());
+                                    var tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
 
                                     bool hasLayers = false;
 
@@ -327,11 +320,7 @@ namespace R1Engine
                 {
                     s.DoAt(GetDataPointer(context, vig.Key), () =>
                     {
-                        var tex = new Texture2D(vig.Width, vig.Height)
-                        {
-                            filterMode = FilterMode.Point,
-                            wrapMode = TextureWrapMode.Clamp
-                        };
+                        var tex = TextureHelpers.CreateTexture2D(vig.Width, vig.Height);
 
                         var values = s.SerializeObjectArray<RGB556Color>(default, tex.width * vig.Height);
                         
