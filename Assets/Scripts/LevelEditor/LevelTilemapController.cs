@@ -184,17 +184,18 @@ namespace R1Engine
                         if (tile?.sprite?.texture == null) {
                             tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
                         } else {
-                            Color[] pixels = tile.sprite.texture.GetPixels();
-                            if (t.Data.HorizontalFlip || t.Data.VerticalFlip) {
-                                for (int j = 0; j < cellSize; j++) {
-                                    for (int k = 0; k < cellSize; k++) {
-                                        int tileY = t.Data.VerticalFlip ? (cellSize - 1 - j) : j;
-                                        int tileX = t.Data.HorizontalFlip ? (cellSize - 1 - k) : k;
-                                        tex.SetPixel(texX + tileX, texY + tileY, pixels[j * cellSize + k]);
-                                    }
+                            var tileTex = tile.sprite.texture;
+                            var baseX = (int)tile.sprite.rect.x;
+                            var baseY = (int)tile.sprite.rect.y;
+
+                            for (int j = 0; j < cellSize; j++)
+                            {
+                                for (int k = 0; k < cellSize; k++)
+                                {
+                                    int tileY = t.Data.VerticalFlip ? (cellSize - 1 - j) : j;
+                                    int tileX = t.Data.HorizontalFlip ? (cellSize - 1 - k) : k;
+                                    tex.SetPixel(texX + tileX, texY + tileY, tileTex.GetPixel(k + baseX, j + baseY));
                                 }
-                            } else {
-                                tex.SetPixels(texX, texY, cellSize, cellSize, pixels);
                             }
                         }
 
