@@ -456,7 +456,7 @@ namespace R1Engine
                 return null;
 
             // Create the texture
-            Texture2D tex = TextureHelpers.CreateTexture2D(s.OuterWidth, s.OuterHeight);
+            Texture2D tex = TextureHelpers.CreateTexture2D(s.OuterWidth, s.OuterHeight, true);
 
             var offset = s.ImageBufferOffset;
             var curOff = (int)offset;
