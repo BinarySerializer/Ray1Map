@@ -360,7 +360,7 @@ namespace R1Engine
                 Tile tile = map.GetTile(newTile, LevelEditorData.CurrentSettings);
 
                 int cellSize = LevelEditorData.EditorManager.CellSize;
-                FillInTilePixels(tex, tile, newTile, x, y, cellSize);
+                FillInTilePixels(tex, tile, newTile, x, y, cellSize, applyTexture: applyTexture);
             }
 
             // Get the tile to set
