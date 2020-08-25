@@ -603,7 +603,7 @@ namespace R1Engine
                         {
                             new Unity_MapTileMap(new Tile[]
                             {
-                                TextureHelpers.CreateTexture2D(CellSize, CellSize, true, true).CreateTile()
+                                TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
                             }), 
                         },
                         MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
@@ -937,7 +937,7 @@ namespace R1Engine
             var tiles = new Tile[tilesetLength];
 
             // Create empty tile
-            tiles[0] = TextureHelpers.CreateTexture2D(CellSize, CellSize, true, true).CreateTile();
+            tiles[0] = TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile();
 
             for (int i = 1; i < tilesetLength; i++)
             {

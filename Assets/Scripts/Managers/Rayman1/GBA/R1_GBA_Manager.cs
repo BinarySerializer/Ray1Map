@@ -413,7 +413,7 @@ namespace R1Engine
             // If there are no tile blocks, return a dummy tile set
             if (levelMapData.TileBlockIndices == null)
             {
-                var dummy = TextureHelpers.CreateTexture2D(256, Settings.CellSize, true, true);
+                var dummy = TextureHelpers.CreateTexture2D(256, Settings.CellSize, clear: true, applyClear: true);
 
                 return new Unity_MapTileMap(dummy, Settings.CellSize);
             }
@@ -456,7 +456,7 @@ namespace R1Engine
                 return null;
 
             // Create the texture
-            Texture2D tex = TextureHelpers.CreateTexture2D(s.OuterWidth, s.OuterHeight, true);
+            Texture2D tex = TextureHelpers.CreateTexture2D(s.OuterWidth, s.OuterHeight, clear: true);
 
             var offset = s.ImageBufferOffset;
             var curOff = (int)offset;

@@ -23,7 +23,7 @@ namespace R1Engine
             int height = (PixelsPaletted?.Length ?? Pixels.Length) / width;
 
             // Create the texture
-            var tex = TextureHelpers.CreateTexture2D(width, height, true);
+            var tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
 
             var blockSwizzlePattern = new Coordinate[] 
             {

@@ -32,15 +32,15 @@ namespace R1Engine
             return tex;
         }
 
-        public static Sprite CreateSprite(this Texture2D tex, Rect? rect = null)
+        public static Sprite CreateSprite(this Texture2D tex, Rect? rect = null, Vector2? pivot = null)
         {
-            return Sprite.Create(tex, rect ?? new Rect(0, 0, tex.width, tex.height), new Vector2(0f, 1f), Settings.PixelsPerUnit, 20);
+            return Sprite.Create(tex, rect ?? new Rect(0, 0, tex.width, tex.height), pivot ?? new Vector2(0f, 1f), Settings.PixelsPerUnit, 20);
         }
 
         public static Tile CreateTile(this Texture2D tex, Rect? rect = null)
         {
             var t = ScriptableObject.CreateInstance<Tile>();
-            t.sprite = tex.CreateSprite(rect);
+            t.sprite = tex.CreateSprite(rect: rect, pivot: new Vector2(0.5f, 0.5f));
             return t;
         }
     }

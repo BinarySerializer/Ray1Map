@@ -295,7 +295,7 @@ namespace R1Engine
                     p = tex.Palettes[i].Value;
 
                 // Create the texture
-                Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, true);
+                Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, clear: true);
 
                 for (int y = 0; y < d.Height; y++)
                 {

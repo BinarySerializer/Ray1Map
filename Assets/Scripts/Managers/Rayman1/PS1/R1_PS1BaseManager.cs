@@ -134,7 +134,7 @@ namespace R1Engine
             var palette = tp == 0 ? new ARGB1555Color[16] : new ARGB1555Color[256];
 
             // Create the texture
-            Texture2D tex = TextureHelpers.CreateTexture2D(width, height, true);
+            Texture2D tex = TextureHelpers.CreateTexture2D(width, height, clear: true);
 
             // Set every pixel
             if (tp == 1)
@@ -594,7 +594,7 @@ namespace R1Engine
                 // Create each animation frame
                 for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
                 {
-                    var tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
+                    var tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, clear: true);
 
                     bool hasLayers = false;
 
@@ -908,7 +908,7 @@ namespace R1Engine
                         // Create each animation frame
                         for (int frameIndex = 0; frameIndex < anim.FrameCount; frameIndex++)
                         {
-                            Texture2D tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
+                            Texture2D tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, clear: true);
 
                             bool hasLayers = false;
 

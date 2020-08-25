@@ -421,7 +421,7 @@ namespace R1Engine
                                         // Create each animation frame
                                         for (int frameIndex = 0; frameIndex < frameCount; frameIndex++)
                                         {
-                                            var tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, true);
+                                            var tex = TextureHelpers.CreateTexture2D(frameWidth ?? 1, frameHeight ?? 1, clear: true);
 
                                             bool hasLayers = false;
 
