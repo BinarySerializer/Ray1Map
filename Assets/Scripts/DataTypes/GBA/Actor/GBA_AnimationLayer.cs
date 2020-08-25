@@ -38,7 +38,15 @@ namespace R1Engine
 
             // Attr0
             YPosition = (short)BitHelpers.ExtractBits(Attr0, 8, 0);
-            if (YPosition >= 128) YPosition -= 256;
+            if (s.GameSettings.Game == Game.GBA_Rayman3) {
+                if (YPosition >= 96) YPosition -= 256; // Hack. Since usually more of the top sprite is visible, this is more likely.
+
+                /*if (YPosition >= 84) {
+                    YPosition -= 256;
+                }*/
+            } else {
+                if (YPosition >= 128) YPosition -= 256;
+            }
             TransformMode = (AffineObjectMode)BitHelpers.ExtractBits(Attr0, 2, 8);
             RenderMode = (GfxMode)BitHelpers.ExtractBits(Attr0, 2, 10);
             //Controller.print(BitHelpers.ExtractBits(Attr0, 2, 10));
@@ -48,10 +56,14 @@ namespace R1Engine
 
             // Attr1
             XPosition = (short)BitHelpers.ExtractBits(Attr1, 9, 0);
+            bool bit9 = false, bit10 = false, bit11 = false;
             if (XPosition >= 256) XPosition -= 512;
             if (TransformMode == AffineObjectMode.Affine || TransformMode == AffineObjectMode.AffineDouble) {
                 AffineMatrixIndex = BitHelpers.ExtractBits(Attr1, 5, 9);
             } else {
+                bit9 = BitHelpers.ExtractBits(Attr1, 1, 9) == 1;
+                bit10 = BitHelpers.ExtractBits(Attr1, 1, 10) == 1;
+                bit11 = BitHelpers.ExtractBits(Attr1, 1, 11) == 1;
                 IsFlippedHorizontally = BitHelpers.ExtractBits(Attr1, 1, 12) == 1;
                 IsFlippedVertically = BitHelpers.ExtractBits(Attr1, 1, 13) == 1;
             }
@@ -93,6 +105,9 @@ namespace R1Engine
                 s.Log($"{nameof(IsFlippedVertically)}: {IsFlippedVertically}");
 
             }
+            if (bit9) s.Log("BIT9");
+            if (bit10) s.Log("BIT10");
+            if (bit11) s.Log("BIT11");
 
             // Calculate size
             XSize = 1;
