@@ -88,36 +88,7 @@ namespace R1Engine
                     Util.ByteArrayToFile(Path.Combine(outputDir, $"Vig_{i}.png"), tex.EncodeToPNG());
                 }
 
-                const int creditsIcons = 16;
-
-                var creditsIconsData = s.DoAt(dataBlock.UiOffsetTable.GetPointer(141), () => s.SerializeObject<GBA_DummyBlock>(default)).Data;
-                var creditsIconsPal = s.DoAt(dataBlock.UiOffsetTable.GetPointer(142) + 8, () => s.SerializeObjectArray<ARGB1555Color>(default, 256));
-
-                for (int i = 0; i < creditsIcons; i++)
-                {
-                    // Create a texture
-                    var creditsIconsTex = TextureHelpers.CreateTexture2D(64, 64);
-
-                    // Set pixels
-                    for (int y = 0; y < creditsIconsTex.height; y++)
-                    {
-                        for (int x = 0; x < creditsIconsTex.width; x++)
-                        {
-                            var c = creditsIconsPal[creditsIconsData[y * creditsIconsTex.width + x + ((i + 1) * 4) + (i * (64 * 64)) + 20]].GetColor();
-
-                            // Remove transparency
-                            c.a = 1;
-
-                            // Set pixel
-                            creditsIconsTex.SetPixel(x, y, c);
-                        }
-                    }
-
-                    creditsIconsTex.Apply();
-
-                    // Export
-                    Util.ByteArrayToFile(Path.Combine(outputDir, $"Icon_{i}.png"), creditsIconsTex.EncodeToPNG());
-                }
+                ExtractVignetteCreditsIcons(context, dataBlock, 141, outputDir);
             }
         }
 
