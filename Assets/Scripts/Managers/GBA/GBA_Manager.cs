@@ -876,7 +876,6 @@ namespace R1Engine
                 }*/
                 if (l.RenderMode == GBA_AnimationChannel.GfxMode.Window
                     || l.RenderMode == GBA_AnimationChannel.GfxMode.Regular
-                    || l.Mosaic
                    // || l.ChannelType == GBA_AnimationChannel.Type.Null
                     || l.ChannelType != GBA_AnimationChannel.Type.Sprite) return new Unity_ObjAnimationPart[0];
                 if (l.Color == GBA_AnimationChannel.ColorMode.Color8bpp) {

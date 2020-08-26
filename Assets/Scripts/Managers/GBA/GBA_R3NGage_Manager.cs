@@ -103,7 +103,7 @@ namespace R1Engine
                     {
                         for (int x = 0; x < creditsIconsTex.width; x++)
                         {
-                            var c = creditsIconsPal[creditsIconsData[y * creditsIconsTex.width + x + (i * 64 * 64 + 4) + 20]].GetColor();
+                            var c = creditsIconsPal[creditsIconsData[y * creditsIconsTex.width + x + ((i + 1) * 4) + (i * (64 * 64)) + 20]].GetColor();
 
                             // Remove transparency
                             c.a = 1;

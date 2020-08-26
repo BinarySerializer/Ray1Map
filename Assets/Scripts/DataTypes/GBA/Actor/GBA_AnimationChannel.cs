@@ -24,7 +24,6 @@ namespace R1Engine
         public bool IsFlippedVertically { get; set; }
         public AffineObjectMode TransformMode { get; set; }
         public GfxMode RenderMode { get; set; }
-        public bool Mosaic { get; set; }
         public ColorMode Color { get; set; }
         public int AffineMatrixIndex { get; set; }
 
@@ -101,7 +100,6 @@ namespace R1Engine
                 s.Log($"{nameof(YPosition)}: {YPosition}");
                 s.Log($"{nameof(TransformMode)}: {TransformMode}");
                 s.Log($"{nameof(RenderMode)}: {RenderMode}");
-                s.Log($"{nameof(Mosaic)}: {Mosaic}");
                 s.Log($"{nameof(Color)}: {Color}");
                 s.Log($"{nameof(SpriteShape)}: {SpriteShape}");
                 s.Log($"{nameof(SpriteSize)}: {SpriteSize}");
