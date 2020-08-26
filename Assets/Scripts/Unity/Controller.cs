@@ -144,6 +144,28 @@ namespace R1Engine
             Debug.Log($"Matching encodings for all: {String.Join(", ", matches.Select(x => $"{x.EncodingName} ({x.CodePage})"))}");
         }
 
+        public async UniTask EnumerateLevelsAsync(Func<GameSettings, UniTask> action)
+        {
+            var manager = Settings.GetGameManager;
+            var settings = Settings.GetGameSettings;
+
+            foreach (var vol in manager.GetLevels(settings))
+            {
+                settings.EduVolume = vol.Name;
+
+                foreach (var world in vol.Worlds)
+                {
+                    settings.World = world.Index;
+
+                    foreach (var map in world.Maps)
+                    {
+                        settings.Level = map;
+                        await action(settings);
+                    }
+                }
+            }
+        }
+
         public void Log(string condition, string stacktrace, LogType type) {
             switch (type) {
                 case LogType.Exception:
