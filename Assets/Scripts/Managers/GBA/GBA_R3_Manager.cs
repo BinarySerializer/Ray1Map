@@ -35,7 +35,7 @@ namespace R1Engine
             118
         };
 
-        // TODO: Find the way the game gets the vignette offsets and find remaining vignettes
+        // TODO: Find the way the game gets the vignette offsets
         public override async UniTask ExtractVignetteAsync(GameSettings settings, string outputDir)
         {
             // Create a context

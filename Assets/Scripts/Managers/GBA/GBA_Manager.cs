@@ -78,7 +78,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Get the file
-                var file = (GBAMemoryMappedFile)context.GetFile(GetROMFilePath);
+                var file = context.GetFile(GetROMFilePath);
 
                 // Get the deserialize
                 var s = context.Deserializer;
@@ -86,8 +86,10 @@ namespace R1Engine
                 // Keep track of blocks
                 var blocks = new List<Tuple<long, long, int>>();
 
+                s.Goto(file.StartPointer);
+
                 // Enumerate every fourth byte (compressed blocks are always aligned to 4)
-                for (int i = 0; i < file.Length; i += 4)
+                for (int i = 0; i < s.CurrentLength; i += 4)
                 {
                     // Go to the offset
                     s.Goto(file.StartPointer + i);
@@ -252,14 +254,14 @@ namespace R1Engine
                 foreach (var menuSprite in AdditionalSprites4bpp)
                 {
                     var s = context.Deserializer;
-                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false, menuSprite);
+                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false, menuSprite);
                 }
                 await UniTask.WaitForEndOfFrame();
 
                 foreach (var menuSprite in AdditionalSprites8bpp)
                 {
                     var s = context.Deserializer;
-                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true, menuSprite);
+                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true, menuSprite);
                 }
                 await UniTask.WaitForEndOfFrame();
             }
@@ -267,6 +269,8 @@ namespace R1Engine
             // Enumerate every level
             for (int lev = 0; lev < LevelCount; lev++)
             {
+                Debug.Log($"Exporting level {lev + 1}/{LevelCount}");
+
                 settings.Level = lev;
 
                 using (var context = new Context(settings))
@@ -280,22 +284,22 @@ namespace R1Engine
 
                     // Enumerate every graphic group
                     await UniTask.WaitForEndOfFrame();
+
                     foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
-                        await ExportSpriteGroup(spr, false, -1);
+                        ExportSpriteGroup(spr, false, -1);
                 }
             }
 
             Debug.Log("Finished export");
 
-            async UniTask ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit, int uioffset)
+            void ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit, int uioffset)
             {
                 if (exported.Contains(spr.Offset))
                     return;
                 exported.Add(spr.Offset);
 
-                await UniTask.WaitForEndOfFrame();
                 if (exportAnimFrames) {
-                    await ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
+                    ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
                 } else {
                     ExportSpriteTileSet(spr, outputDir, is8bit, uioffset);
                 }
@@ -358,7 +362,7 @@ namespace R1Engine
             }
         }
 
-        async UniTask ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
+        void ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
         {
             MagickImage[] sprites = null;
 
@@ -391,7 +395,6 @@ namespace R1Engine
                 // Export every animation
                 foreach (var anim in commonDesign.Animations)
                 {
-                    await UniTask.WaitForEndOfFrame();
                     var frameIndex = 0;
                     var animDir = Path.Combine(outputDir, $"{animIndex}-{anim.AnimSpeed}");
                     Directory.CreateDirectory(animDir);
