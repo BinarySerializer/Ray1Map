@@ -366,6 +366,10 @@ namespace R1Engine
                 [62] = "Multiplayer 4",
                 [63] = "Multiplayer 5",
                 [64] = "Multiplayer 6",
+                [64] = "Multiplayer 7",
+                [64] = "Multiplayer 8",
+                [64] = "Multiplayer 9",
+                [64] = "Multiplayer 10",
             },
             [7] = new Dictionary<int, string>()
             {
