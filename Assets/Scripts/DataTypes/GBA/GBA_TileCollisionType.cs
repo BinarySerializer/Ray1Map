@@ -1,5 +1,7 @@
 ﻿namespace R1Engine
 {
+    // NOTE: The majority of these are different for Mode7 stages. Mode7 also has the following unique types: 48-59-60-61-62
+
     /// <summary>
     /// The collision types for GBA
     /// </summary>
@@ -9,47 +11,82 @@
 
         Solid = 0,
 
+        // Slippery solid platform
+        Slippery = 1,
+
         // Indicates that you can hang off of the ledge
         Ledge = 2,
 
-        Solid2 = 15,
-        
-        Hill_Slight_Left_1 = 18,
-        Hill_Slight_Left_2 = 19,
-        Hill_Slight_Right_2 = 20,
-        Hill_Slight_Right_1 = 21,
+        // At edges of slippery platforms
+        EndSlippery = 3,
 
+        // Seems to be tiles which are only solid when you stand on them?
+        Passthrough = 15,
+        
+        // Solid angles, like in R1
+        Solid_Left_1 = 18,
+        Solid_Left_2 = 19,
+        Solid_Right_2 = 20,
+        Solid_Right_1 = 21,
+
+        // Slippery angles
+        Slippery_Left_1 = 22,
+        Slippery_Left_2 = 23,
+        Slippery_Right_2 = 24,
+        Slippery_Right_1 = 25,
+
+        // Instantly kills you
         InstaKill = 32,
+
+        // Mainly used in the sanctuary levels for spikes on the walls
         Damage = 33,
 
-        // 34 and 35 might be enemy borders
-        // 36 might be vertical camera lock
-        // 38 and 39 might be horizontal camera locks
+        // Acts as triggers for enemies
+        EnemyTrigger_Left = 34,
+        EnemyTrigger_Right = 35,
+        EnemyTrigger_Up = 36,
+        EnemyTrigger_Down = 37,
 
         // Acts as triggers for moving platforms
         Reactionary_Left = 38,
         Reactionary_Right = 39,
         Reactionary_Up = 40,
         Reactionary_Down = 41,
-
         Reactionary_DownLeft = 42,
         Reactionary_DownRight = 43,
         Reactionary_UpRight = 44,
         Reactionary_UpLeft = 45,
 
+        // Hang from top
         Hang = 46,
+
+        // Climb in all 4 directions
         Climb = 47,
 
+        // Normal water, appears in early levels
         Water = 48,
         
         ClimbableWalls = 49,
 
-        ShellLoop = 50,
+        // Makes you jump - used on the bottom of slippery surfaces and for the shell to start a loop
+        AutoJump = 50,
 
+        // Same as Climb, but spiders can move on it too
+        Climb_Spider_51 = 51,
+        Climb_Spider_52 = 52,
+        Climb_Spider_53 = 53,
+        Climb_Spider_54 = 54,
+
+        // Plums can move on this
         Lava = 74,
 
-        // 81, 86 and 87 seems to change speed of moving platform
+        // See Wicked Flow
+        Unk_ReactionaryCorner_81 = 81,
+        Unk_ReactionaryCorner_82 = 82,
+        Unk_ReactionaryCorner_86 = 86,
+        Unk_ReactionaryCorner_87 = 87,
 
-        InstaKill2 = 90,
+        // Endless pits
+        Cliff = 90,
     }
 }

@@ -218,32 +218,52 @@ namespace R1Engine
                 case GBA_TileCollisionType.Empty:
                     return Unity_MapCollisionTypeGraphic.None;
 
+                case GBA_TileCollisionType.Slippery:
+                    return Unity_MapCollisionTypeGraphic.Slippery;
+
                 case GBA_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
 
                 case GBA_TileCollisionType.Ledge:
+                case GBA_TileCollisionType.Passthrough:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
                 case GBA_TileCollisionType.Solid:
-                case GBA_TileCollisionType.Solid2:
+                case GBA_TileCollisionType.EndSlippery:
                     return Unity_MapCollisionTypeGraphic.Solid;
 
                 case GBA_TileCollisionType.Climb:
                 case GBA_TileCollisionType.Hang:
                 case GBA_TileCollisionType.ClimbableWalls:
+                case GBA_TileCollisionType.Climb_Spider_51:
+                case GBA_TileCollisionType.Climb_Spider_52:
+                case GBA_TileCollisionType.Climb_Spider_53:
+                case GBA_TileCollisionType.Climb_Spider_54:
                     return Unity_MapCollisionTypeGraphic.Climb;
 
-                case GBA_TileCollisionType.Hill_Slight_Right_2:
+                case GBA_TileCollisionType.Solid_Right_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
 
-                case GBA_TileCollisionType.Hill_Slight_Right_1:
+                case GBA_TileCollisionType.Solid_Right_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
 
-                case GBA_TileCollisionType.Hill_Slight_Left_2:
+                case GBA_TileCollisionType.Solid_Left_2:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
 
-                case GBA_TileCollisionType.Hill_Slight_Left_1:
+                case GBA_TileCollisionType.Solid_Left_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
+
+                case GBA_TileCollisionType.Slippery_Right_2:
+                    return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_2;
+
+                case GBA_TileCollisionType.Slippery_Right_1:
+                    return Unity_MapCollisionTypeGraphic.Slippery_Slight_Right_1;
+
+                case GBA_TileCollisionType.Slippery_Left_2:
+                    return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_2;
+
+                case GBA_TileCollisionType.Slippery_Left_1:
+                    return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_1;
 
                 case GBA_TileCollisionType.Reactionary_Up:
                 case GBA_TileCollisionType.Reactionary_Down:
@@ -253,16 +273,28 @@ namespace R1Engine
                 case GBA_TileCollisionType.Reactionary_UpRight:
                 case GBA_TileCollisionType.Reactionary_DownLeft:
                 case GBA_TileCollisionType.Reactionary_UpLeft:
-                case GBA_TileCollisionType.ShellLoop:
+                case GBA_TileCollisionType.EnemyTrigger_Left:
+                case GBA_TileCollisionType.EnemyTrigger_Right:
+                case GBA_TileCollisionType.EnemyTrigger_Up:
+                case GBA_TileCollisionType.EnemyTrigger_Down:
+                case GBA_TileCollisionType.Unk_ReactionaryCorner_81:
+                case GBA_TileCollisionType.Unk_ReactionaryCorner_82:
+                case GBA_TileCollisionType.Unk_ReactionaryCorner_86:
+                case GBA_TileCollisionType.Unk_ReactionaryCorner_87:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
+                
+                case GBA_TileCollisionType.AutoJump:
+                    return Unity_MapCollisionTypeGraphic.Bounce;
 
                 case GBA_TileCollisionType.Water:
                 case GBA_TileCollisionType.Lava:
                     return Unity_MapCollisionTypeGraphic.Water;
 
                 case GBA_TileCollisionType.InstaKill:
-                case GBA_TileCollisionType.InstaKill2:
                     return Unity_MapCollisionTypeGraphic.Spikes;
+
+                case GBA_TileCollisionType.Cliff:
+                    return Unity_MapCollisionTypeGraphic.Cliff;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
