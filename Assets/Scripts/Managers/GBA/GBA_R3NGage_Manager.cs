@@ -105,5 +105,77 @@ namespace R1Engine
             };
             context.AddFile(file);
         }
+
+        // NOTE: In order to use this the FileSystem class needs to be updated to allow file stream sharing for read/write streams. Also note that this method will overwrite the GBA rom file, so keep a backup! All N-Gage data is appended rather than replaced, so the data can be swapped out by changing the offsets. Only the level offsets are automatically changed to use the N-Gage versions, thus keeping the menu etc.
+        public async UniTask AddNGageToGBAAsync(GameModeSelection gbaGameModeSelection)
+        {
+            // Create a GBA manager
+            var gbaManager = new GBA_R3_Manager();
+
+            // Create a GBA context
+            using (var gbaContext = new Context(new GameSettings(gbaGameModeSelection, Settings.GameDirectories[gbaGameModeSelection], 0, 0)))
+            {
+                // Load GBA files
+                await gbaManager.LoadFilesAsync(gbaContext);
+
+                // Create an N-Gage context
+                using (var ngageContext = new Context(new GameSettings(GameModeSelection.Rayman3NGage, Settings.GameDirectories[GameModeSelection.Rayman3NGage], 0, 0)))
+                {
+                    // Load N-Gage files
+                    await LoadFilesAsync(ngageContext);
+
+                    // Read the GBA data
+                    var gbaData = gbaManager.LoadDataBlock(gbaContext);
+
+                    // Read N-Gage data
+                    var ngageData = LoadDataBlock(ngageContext);
+
+                    // Get offsets
+                    var gbaBase = gbaData.UiOffsetTable.Offset;
+                    var ngageNewBase = ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath)).StartPointer + ((MemoryMappedFile)gbaContext.GetFile(gbaManager.GetROMFilePath)).Length;
+                    var ngageOffset = (ngageNewBase - gbaBase) / 4;
+
+                    // Read all N-Gage blocks
+                    var s = ngageContext.Deserializer;
+                    var ngageBlocks = Enumerable.Range(0, ngageData.UiOffsetTable.OffsetsCount).Select(x => ngageData.UiOffsetTable.GetPointer(x)).Select(x => s.DoAt(x, () => s.SerializeObject<GBA_DummyBlock>(default))).ToArray();
+
+                    // Keep track of relocated blocks
+                    var relocated = new HashSet<GBA_DummyBlock>();
+
+                    // Recursively relocate all offsets
+                    foreach (var block in ngageBlocks)
+                        RelocateBlock(block);
+
+                    void RelocateBlock(GBA_DummyBlock block)
+                    {
+                        // Don't relocate blocks which have been relocated
+                        if (relocated.Contains(block))
+                            return;
+                        relocated.Add(block);
+
+                        // Relocate all sub-blocks
+                        foreach (var subBlock in block.SubBlocks)
+                            RelocateBlock(subBlock);
+
+                        // Relocate offsets
+                        for (int i = 0; i < block.OffsetTable.Offsets.Length; i++)
+                            block.OffsetTable.Offsets[i] = (int)(block.OffsetTable.Offsets[i] + ngageOffset);
+
+                        // Update the offsets for the R1Serializable
+                        block.Init(ngageNewBase + block.Offset.FileOffset);
+                        block.OffsetTable.Init(ngageNewBase + block.Offset.FileOffset + block.BlockSize);
+                    }
+
+                    // Write the blocks
+                    var ss = ngageContext.Serializer;
+                    foreach (var block in ngageBlocks)
+                        ss.DoAt(block.Offset, () => ss.SerializeObject(block));
+
+                    // Update level offsets
+                    for (int i = 0; i < 65; i++)
+                        ss.DoAt(gbaBase + 4 + (i * 4), () => ss.Serialize<int>((int)((ngageBlocks[i].Offset.FileOffset - gbaBase.FileOffset) / 4)));
+                }
+            }
+        }
     }
 }
