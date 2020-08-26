@@ -830,13 +830,52 @@ namespace R1Engine
                     des.Sprites.Add(tex.CreateSprite());
                 }
             }
+            // Add boxes
+            /*int AddBox(Color c) {
+                int count = des.Sprites.Count;
+                var tex = TextureHelpers.CreateTexture2D(1,1);
+                tex.SetPixel(0, 0, c);
+                //tex.SetPixels(Enumerable.Repeat(c, width * height).ToArray());
 
-            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationLayer l) {
-                if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
-                    || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
-                    || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular
-                    || l.Mosaic) return new Unity_ObjAnimationPart[0];
-                if (l.Color == GBA_AnimationLayer.ColorMode.Color8bpp) {
+                tex.Apply();
+                des.Sprites.Add(tex.CreateSprite());
+                return count;
+            }
+            int boxIndex = des.Sprites.Count;
+            AddBox(new Color(1f, 0f, 0f, 0.5f));
+            AddBox(new Color(0f, 1f, 0f, 0.5f));*/
+
+
+            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationChannel l) {
+                /*if (l.ChannelType == GBA_AnimationChannel.Type.AttackBox) {
+                    return new Unity_ObjAnimationPart[1] {
+                        new Unity_ObjAnimationPart() {
+                            ImageIndex = boxIndex,
+                            XPosition = l.BoxX,
+                            YPosition = l.BoxY,
+                            TransformOriginX = l.BoxX,
+                            TransformOriginY = l.BoxY,
+                            Scale = new Vector2(l.BoxX2 - l.BoxX, l.BoxY2 - l.BoxY)
+                        }
+                    };
+                }
+                if (l.ChannelType == GBA_AnimationChannel.Type.VulnerabilityBox) {
+                    return new Unity_ObjAnimationPart[1] {
+                        new Unity_ObjAnimationPart() {
+                            ImageIndex = boxIndex+1,
+                            XPosition = l.BoxX,
+                            YPosition = l.BoxY,
+                            TransformOriginX = l.BoxX,
+                            TransformOriginY = l.BoxY,
+                            Scale = new Vector2(l.BoxX2 - l.BoxX, l.BoxY2 - l.BoxY)
+                        }
+                    };
+                }*/
+                if (l.RenderMode == GBA_AnimationChannel.GfxMode.Window
+                    || l.RenderMode == GBA_AnimationChannel.GfxMode.Regular
+                    || l.Mosaic
+                    || l.ChannelType == GBA_AnimationChannel.Type.Null) return new Unity_ObjAnimationPart[0];
+                if (l.Color == GBA_AnimationChannel.ColorMode.Color8bpp) {
                     Debug.LogWarning("Animation Layer @ " + l.Offset + " has 8bpp color mode, which is currently not supported.");
                     return new Unity_ObjAnimationPart[0];
                 }
@@ -877,7 +916,7 @@ namespace R1Engine
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
                     frames.Add(new Unity_ObjAnimationFrame() {
-                        Layers = a.Layers[i].OrderByDescending(l => l.Priority).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray()
+                        Layers = a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray()
                     });
                 }
                 unityAnim.Frames = frames.ToArray();

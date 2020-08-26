@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_TileKitBlock : GBA_BaseBlock {
+    public class GBA_AnimatedTileKit : GBA_BaseBlock {
         public byte Unk_00 { get; set; }
         public byte Unk_01 { get; set; }
         public byte TileIndicesCount { get; set; }

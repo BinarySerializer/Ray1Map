@@ -11,7 +11,7 @@
         // Parsed
         public int FrameCount { get; set; }
 
-        public GBA_AnimationLayer[][] Layers { get; set; }
+        public GBA_AnimationChannel[][] Layers { get; set; }
 
         public override void SerializeBlock(SerializerObject s) {
             Flags = s.Serialize<byte>(Flags, name: nameof(Flags));
@@ -25,10 +25,10 @@
             s.Align();
 
             if (Layers == null) 
-                Layers = new GBA_AnimationLayer[FrameCount][];
+                Layers = new GBA_AnimationChannel[FrameCount][];
 
             for (int i = 0; i < FrameCount; i++)
-                Layers[i] = s.SerializeObjectArray<GBA_AnimationLayer>(Layers[i], LayersPerFrame[i], name: $"{nameof(Layers)}[{i}]");
+                Layers[i] = s.SerializeObjectArray<GBA_AnimationChannel>(Layers[i], LayersPerFrame[i], name: $"{nameof(Layers)}[{i}]");
         }
     }
 }

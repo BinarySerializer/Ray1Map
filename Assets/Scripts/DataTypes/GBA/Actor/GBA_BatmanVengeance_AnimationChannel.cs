@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using static R1Engine.GBA_AnimationLayer;
+using static R1Engine.GBA_AnimationChannel;
 
 namespace R1Engine
 {
-    public class GBA_BatmanVengeance_AnimationLayer : R1Serializable {
+    public class GBA_BatmanVengeance_AnimationChannel : R1Serializable {
         #region Data
         public byte Byte_00 { get; set; }
         public byte Byte_01 { get; set; }

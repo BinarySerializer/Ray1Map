@@ -62,7 +62,7 @@ namespace R1Engine
                 }
             }
 
-            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_BatmanVengeance_SpriteGroup s, GBA_BatmanVengeance_Animation a, int frame, GBA_BatmanVengeance_AnimationLayer l) {
+            Unity_ObjAnimationPart[] GetPartsForLayer(GBA_BatmanVengeance_SpriteGroup s, GBA_BatmanVengeance_Animation a, int frame, GBA_BatmanVengeance_AnimationChannel l) {
                 /*if (l.TransformMode == GBA_AnimationLayer.AffineObjectMode.Hide
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Window
                     || l.RenderMode == GBA_AnimationLayer.GfxMode.Regular

@@ -13,7 +13,7 @@ namespace R1Engine
 
         #region Parsed
 
-        public GBA_BatmanVengeance_AnimationLayer[] Layers { get; set; }
+        public GBA_BatmanVengeance_AnimationChannel[] Layers { get; set; }
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace R1Engine
             LayerCount = s.Serialize<byte>(LayerCount, name: nameof(LayerCount));
             Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
             Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
-            Layers = s.SerializeObjectArray<GBA_BatmanVengeance_AnimationLayer>(Layers, LayerCount, name: nameof(Layers));
+            Layers = s.SerializeObjectArray<GBA_BatmanVengeance_AnimationChannel>(Layers, LayerCount, name: nameof(Layers));
         }
 
         #endregion
