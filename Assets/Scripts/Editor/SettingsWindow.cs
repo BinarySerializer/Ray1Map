@@ -258,9 +258,13 @@ public class SettingsWindow : UnityWindow
 
                 if (string.IsNullOrEmpty(outputDir) && action.RequiresOutputDir)
                     return;
-
-                // Run the action
-                await action.GameActionFunc(inputDir, outputDir);
+                try {
+                    Controller.StartStopwatch();
+                    // Run the action
+                    await action.GameActionFunc(inputDir, outputDir);
+                } finally {
+                    Controller.StopStopwatch();
+                }
             }
         }
 

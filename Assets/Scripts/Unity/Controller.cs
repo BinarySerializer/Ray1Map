@@ -26,7 +26,7 @@ namespace R1Engine
 
         public Text tempDebugText;
 
-        private Stopwatch stopwatch;
+        private static Stopwatch stopwatch = new Stopwatch();
 
         public enum State {
             None,
@@ -39,26 +39,29 @@ namespace R1Engine
         public static State LoadState { get; set; }
         public static string DetailedState { get; set; } = "Starting";
 
-        public async UniTask WaitFrame()
+        public static async UniTask WaitFrame()
         {
             await UniTask.WaitForEndOfFrame();
 
-            if (stopwatch.IsRunning)
-                stopwatch.Restart();
+            if (stopwatch.IsRunning) stopwatch.Restart();
+        }
+
+        public static void StartStopwatch() {
+            stopwatch.Start();
+        }
+        public static void StopStopwatch() {
+            if(stopwatch.IsRunning) stopwatch.Stop();
         }
 
         public static async UniTask WaitIfNecessary()
         {
-            if (obj == null)
-                return;
-
-            if (obj.stopwatch.ElapsedMilliseconds > 16)
-                await obj.WaitFrame();
+            if (!stopwatch.IsRunning) stopwatch.Start();
+            if (stopwatch.ElapsedMilliseconds > 16)
+                await WaitFrame();
         }
 
         void Awake() 
         {
-            stopwatch = new Stopwatch();
             obj = this;
             levelController = GameObject.Find("Level").GetComponent<LevelMainController>();
             levelEventController = GameObject.Find("Level").GetComponent<LevelEventController>();
@@ -77,7 +80,7 @@ namespace R1Engine
         async UniTaskVoid Start()
         {
             var loadTimer = new Stopwatch();
-            stopwatch.Start();
+            StartStopwatch();
             loadTimer.Start();
 
             loadingScreen.Active = true;
@@ -95,7 +98,7 @@ namespace R1Engine
             LoadState = State.Finished;
             loadingScreen.Active = false;
 
-            stopwatch.Stop();
+            StopStopwatch();
             loadTimer.Stop();
 
             var startEvent = LevelEditorData.Level.Rayman?.Data ?? levelController.Events.FindItem(x => (x.Data.Type is R1_EventType et && (et == R1_EventType.TYPE_RAY_POS || et == R1_EventType.TYPE_PANCARTE)) || (x.Data.Type is GBA_R3_ActorID ai && ai == GBA_R3_ActorID.Rayman))?.Data.Data;

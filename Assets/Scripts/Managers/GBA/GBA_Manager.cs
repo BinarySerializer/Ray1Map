@@ -254,16 +254,16 @@ namespace R1Engine
                 foreach (var menuSprite in AdditionalSprites4bpp)
                 {
                     var s = context.Deserializer;
-                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false, menuSprite);
+                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), false, menuSprite);
                 }
-                await UniTask.WaitForEndOfFrame();
+                await Controller.WaitIfNecessary();
 
                 foreach (var menuSprite in AdditionalSprites8bpp)
                 {
                     var s = context.Deserializer;
-                    ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true, menuSprite);
+                    await ExportSpriteGroup(s.DoAt(data.UiOffsetTable.GetPointer(menuSprite), () => s.SerializeObject<GBA_SpriteGroup>(default)), true, menuSprite);
                 }
-                await UniTask.WaitForEndOfFrame();
+                await Controller.WaitIfNecessary();
             }
 
             // Enumerate every level
@@ -286,20 +286,20 @@ namespace R1Engine
                     await UniTask.WaitForEndOfFrame();
 
                     foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
-                        ExportSpriteGroup(spr, false, -1);
+                        await ExportSpriteGroup(spr, false, -1);
                 }
             }
 
             Debug.Log("Finished export");
 
-            void ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit, int uioffset)
+            async UniTask ExportSpriteGroup(GBA_SpriteGroup spr, bool is8bit, int uioffset)
             {
                 if (exported.Contains(spr.Offset))
                     return;
                 exported.Add(spr.Offset);
 
                 if (exportAnimFrames) {
-                    ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
+                    await ExportAnimations(spr, Path.Combine(outputDir, $"0x{spr.Offset.AbsoluteOffset:X8}"), is8bit);
                 } else {
                     ExportSpriteTileSet(spr, outputDir, is8bit, uioffset);
                 }
@@ -364,7 +364,7 @@ namespace R1Engine
             }
         }
 
-        protected void ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
+        protected async UniTask ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
         {
             MagickImage[] sprites = null;
 
@@ -397,6 +397,7 @@ namespace R1Engine
                 // Export every animation
                 foreach (var anim in commonDesign.Animations)
                 {
+                    await Controller.WaitIfNecessary();
                     var frameIndex = 0;
                     var animDir = Path.Combine(outputDir, $"{animIndex}-{anim.AnimSpeed}");
                     Directory.CreateDirectory(animDir);
@@ -465,6 +466,7 @@ namespace R1Engine
                         }
                     }
                     Vector2Int frameImgSize = max - min;
+                    if (frameImgSize.x == 0 || frameImgSize.y == 0) continue;
 
                     foreach (var frame in anim.Frames)
                     {
@@ -997,7 +999,8 @@ namespace R1Engine
             eta[0] = graphicData.States.Select(s => new R1_EventState() {
                 AnimationIndex = s.AnimationIndex,
                 AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF)),
-                IsFlipped = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip),
+                IsFlippedHorizontally = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip),
+                IsFlippedVertically = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip)
             }).ToArray();
             int numAnims = graphicData.SpriteGroup.Animations.Length;
             if (eta[0].Length == 0 && numAnims > 0) {

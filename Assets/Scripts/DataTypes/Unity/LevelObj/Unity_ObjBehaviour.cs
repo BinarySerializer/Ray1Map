@@ -248,7 +248,8 @@ namespace R1Engine {
 
                 var pivot = new Vector2(Data.Data.OffsetBX, -(Data.Data.OffsetBY));
 
-                var mirrored = Data.GetIsFlippedHorizontally(State);
+                var mirroredX = Data.GetIsFlippedHorizontally(State);
+                var mirroredY = Data.GetIsFlippedVertically(State);
 
                 for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
                 {
@@ -269,24 +270,25 @@ namespace R1Engine {
                     }
                     prefabRenderers[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 
-                    var isFlippedHor = layer.IsFlippedHorizontally;
+                    var layerMirroredX = layer.IsFlippedHorizontally;
+                    var layerMirroredY = layer.IsFlippedVertically;
 
                     // Indicate if the sprites should be flipped
-                    prefabRenderers[i].flipX = (isFlippedHor ^ mirrored);
-                    prefabRenderers[i].flipY = layer.IsFlippedVertically;
+                    prefabRenderers[i].flipX = (layerMirroredX ^ mirroredX);
+                    prefabRenderers[i].flipY = (layerMirroredY ^ mirroredY);
 
                     // Get the dimensions
                     var w = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.texture.width;
                     var h = prefabRenderers[i].sprite == null ? 0 : prefabRenderers[i].sprite.texture.height;
                     
-                    var xx = layer.XPosition + (isFlippedHor ? w : 0);
+                    var xx = layer.XPosition + (layerMirroredX ? w : 0);
 
-                    var yy = -(layer.YPosition + (layer.IsFlippedVertically ? h : 0));
+                    var yy = -(layer.YPosition + (layerMirroredY ? h : 0));
 
                     // scale
                     Vector2 pos = new Vector2(
-                        ((xx - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit,
-                        ((yy - pivot.y) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit);
+                        ((xx - pivot.x) * (mirroredX ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit,
+                        ((yy - pivot.y) * (mirroredY ? -1f : 1f) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit);
 
                     prefabRenderers[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRenderers[i].transform.localPosition.z);
                     prefabRenderers[i].transform.localScale = Vector3.one * Scale;
@@ -295,8 +297,8 @@ namespace R1Engine {
                     if ((layer.Rotation.HasValue && layer.Rotation.Value != 0) || (layer.Scale.HasValue && layer.Scale.Value != Vector2.one)) {
 
                         Vector3 transformOrigin = new Vector3(
-                            (((layer.TransformOriginX - pivot.x) * (mirrored ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit),
-                            ((-layer.TransformOriginY - pivot.y) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit,
+                            (((layer.TransformOriginX - pivot.x) * (mirroredX ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit),
+                            ((-layer.TransformOriginY - pivot.y) * (mirroredY ? -1f : 1f) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit,
                             prefabRenderers[i].transform.localPosition.z);
 
                         // Scale first
@@ -311,7 +313,7 @@ namespace R1Engine {
                             /*Quaternion rotation = Quaternion.Euler(0, 0, layer.Rotation * 180f);*/
                             //Vector3 rotationOrigin = Vector3.zero;
 
-                            prefabRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), layer.Rotation.Value * (mirrored ? -1f : 1f));
+                            prefabRenderers[i].transform.RotateAround(transform.TransformPoint(transformOrigin), new Vector3(0, 0, 1), layer.Rotation.Value * ((mirroredX ^ mirroredY) ? -1f : 1f));
                             /*    Vector2 relativePos = pos - rotationOrigin;
                             Vector2 rotatedPos = rotation * relativePos;
                             prefabRenderers[i].transform.localRotation = rotation;

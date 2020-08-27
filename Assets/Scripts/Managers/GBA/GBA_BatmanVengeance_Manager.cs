@@ -123,7 +123,8 @@ namespace R1Engine
             eta[0] = graphicData.States.Select(s => new R1_EventState() {
                 AnimationIndex = s.AnimationIndex,
                 AnimationSpeed = (byte)(1),// + (graphicData.SpriteGroup_BatmanVengeance.Animations[s.AnimationIndex].Flags & 0xF)),
-                IsFlipped = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip)
+                IsFlippedHorizontally = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip),
+                IsFlippedVertically = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip)
             }).ToArray();
             int numAnims = graphicData.SpriteGroup_BatmanVengeance.Animations.Length;
             if (eta[0].Length == 0 && numAnims > 0) {
