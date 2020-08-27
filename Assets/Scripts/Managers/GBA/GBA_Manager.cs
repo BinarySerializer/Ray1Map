@@ -314,25 +314,27 @@ namespace R1Engine
 
                 for (int palIndex = 0; palIndex < paletteCount; palIndex++)
                 {
-                    var length = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
+                    var numTiles = spr.TileMap.TileMapLength / (is8bit ? 2 : 1);
                     const int wrap = 16;
-                    const int tileWidth = 8;
-                    int tileSize = (tileWidth * tileWidth) / (is8bit ? 1 : 2);
+                    int tileDataSize = (CellSize * CellSize) / (is8bit ? 1 : 2);
+
+                    int tilesX = Math.Min(numTiles, wrap);
+                    int tilesY = Mathf.CeilToInt(numTiles / (float)wrap);
 
                     // Create a texture for the tileset
-                    var tex = TextureHelpers.CreateTexture2D(Mathf.Min(length, wrap) * tileWidth, Mathf.CeilToInt(length / (float)wrap) * tileWidth, true);
+                    var tex = TextureHelpers.CreateTexture2D(tilesX * CellSize, tilesY * CellSize, true);
 
                     // Add each tile
-                    for (int i = 0; i < length; i++)
+                    for (int i = 0; i < numTiles; i++)
                     {
-                        int mainY = tex.height - 1 - (i / wrap);
-                        int mainX = i % wrap;
+                        int tileY = tilesY - 1 - (i / wrap);
+                        int tileX = i % wrap;
 
-                        for (int y = 0; y < tileWidth; y++)
+                        for (int y = 0; y < CellSize; y++)
                         {
-                            for (int x = 0; x < tileWidth; x++)
+                            for (int x = 0; x < CellSize; x++)
                             {
-                                int index = (i * tileSize) + ((y * tileWidth + x) / (is8bit ? 1 : 2));
+                                int index = (i * tileDataSize) + ((y * CellSize + x) / (is8bit ? 1 : 2));
 
                                 var v = is8bit ? spr.TileMap.TileMap[index] : BitHelpers.ExtractBits(spr.TileMap.TileMap[index], 4, x % 2 == 0 ? 0 : 4);
 
@@ -341,7 +343,7 @@ namespace R1Engine
                                 if (v != 0)
                                     c = new Color(c.r, c.g, c.b, 1f);
 
-                                tex.SetPixel(mainX * tileWidth + x, mainY * tileWidth + (tileWidth - y - 1), c);
+                                tex.SetPixel(tileX * CellSize + x, tileY * CellSize + (CellSize - y - 1), c);
                             }
                         }
                     }
