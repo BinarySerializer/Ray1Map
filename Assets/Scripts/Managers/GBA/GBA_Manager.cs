@@ -1032,7 +1032,7 @@ namespace R1Engine
                 is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
                 tileset = is8bpp ? playField.TileKit.TileSet8bpp : playField.TileKit.TileSet4bpp;
                 tilePalette = playField.TileKit.TilePalette;
-                animatedTilekits = playField.TileKit.AnimatedTileKits?.Where(atk => atk.Is8Bpp == map.Is8bpp).ToArray();
+                animatedTilekits = playField.TileKit.AnimatedTileKits?.Where(atk => atk.Is8Bpp == (map.ColorMode == GBA_ColorMode.Color8bpp)).ToArray();
             }
 
             int tileSize = (is8bpp ? (CellSize * CellSize) : (CellSize * CellSize) / 2);

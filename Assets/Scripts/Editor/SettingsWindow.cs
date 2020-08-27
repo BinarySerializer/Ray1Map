@@ -177,6 +177,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.AnimateSprites = EditorField("Animate sprites", Settings.AnimateSprites);
 
+        Settings.AnimateTiles = EditorField("Animate tiles", Settings.AnimateTiles);
+
         Settings.ShowAlwaysEvents = EditorField("Show always events", Settings.ShowAlwaysEvents);
 
         Settings.ShowEditorEvents = EditorField("Show editor events", Settings.ShowEditorEvents);

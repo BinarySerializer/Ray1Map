@@ -184,6 +184,8 @@ namespace R1Engine {
             }
         }
 
+        public static bool AnimateTiles { get; set; }
+
         /// <summary>
         /// Indicates if always events should be shown
         /// </summary>
@@ -333,6 +335,7 @@ namespace R1Engine {
             FindPointerAutomatically = s.SerializeBool("FindPointerAutomatically", FindPointerAutomatically);
             UseHDCollisionSheet = s.SerializeBool("UseHDCollisionSheet", UseHDCollisionSheet);
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
+            AnimateTiles = s.SerializeBool("AnimateTiles", AnimateTiles);
             ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);
 
             string stateModeString = s.SerializeString("StateSwitchingMode", StateSwitchingMode.ToString());

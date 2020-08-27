@@ -410,44 +410,47 @@ namespace R1Engine
             return destTile;
         }
 
-		private void Update() {
-            if (Controller.LoadState == Controller.State.Finished) {
-                if (animatedTiles != null) {
-                    for (int mapIndex = 0; mapIndex < animatedTiles.Length; mapIndex++) {
-                        bool changedTile = false;
-                        var map = LevelEditorData.Level.Maps[mapIndex];
-                        Texture2D tex = GraphicsTilemaps[mapIndex].sprite.texture;
-                        foreach (var animatedTile in animatedTiles[mapIndex].Keys) {
-                            var animSpeed = animatedTile.AnimationSpeed / 30f;
-                            foreach (var at in animatedTiles[mapIndex][animatedTile]) {
-                                //print("Updating " + at.x + " - " + at.y);
-                                at.currentTimer += Time.deltaTime;
-                                if (at.currentTimer >= animSpeed) {
-                                    int frames = Mathf.FloorToInt(at.currentTimer / animSpeed);
-                                    int oldTileIndex = at.tileIndex;
-                                    at.tileIndex = (oldTileIndex + frames) % at.animatedTile.TileIndices.Length;
+		private void Update()
+        {
+            if (Controller.LoadState != Controller.State.Finished || animatedTiles == null || !Settings.AnimateTiles)
+                return;
 
-                                    int oldIndexInTileset = at.animatedTile.TileIndices[oldTileIndex];
-                                    int newIndexInTileset = at.animatedTile.TileIndices[at.tileIndex];
-                                    if (oldIndexInTileset != newIndexInTileset) {
-                                        changedTile = true;
-                                        var newTile = map.MapTiles[at.y * map.Width + at.x];
-                                        Tile tile = map.GetTile(newTile, LevelEditorData.CurrentSettings, tileIndexOverride: newIndexInTileset);
+            for (int mapIndex = 0; mapIndex < animatedTiles.Length; mapIndex++) {
+                bool changedTile = false;
+                var map = LevelEditorData.Level.Maps[mapIndex];
+                Texture2D tex = GraphicsTilemaps[mapIndex].sprite.texture;
+                foreach (var animatedTile in animatedTiles[mapIndex].Keys) {
+                    var animSpeed = animatedTile.AnimationSpeed / 30f;
+                    foreach (var at in animatedTiles[mapIndex][animatedTile]) {
+                        //print("Updating " + at.x + " - " + at.y);
+                        at.currentTimer += Time.deltaTime;
 
-                                        int cellSize = LevelEditorData.EditorManager.CellSize;
-                                        FillInTilePixels(tex, tile, newTile, at.x, at.y, cellSize, applyTexture: false);
-                                    }
-                                    at.currentTimer -= frames * animSpeed;
-                                }
-                            }
+                        if (!(at.currentTimer >= animSpeed)) 
+                            continue;
+
+                        int frames = Mathf.FloorToInt(at.currentTimer / animSpeed);
+                        int oldTileIndex = at.tileIndex;
+                        at.tileIndex = (oldTileIndex + frames) % at.animatedTile.TileIndices.Length;
+
+                        int oldIndexInTileset = at.animatedTile.TileIndices[oldTileIndex];
+                        int newIndexInTileset = at.animatedTile.TileIndices[at.tileIndex];
+                        if (oldIndexInTileset != newIndexInTileset) 
+                        {
+                            changedTile = true;
+                            var newTile = map.MapTiles[at.y * map.Width + at.x];
+                            Tile tile = map.GetTile(newTile, LevelEditorData.CurrentSettings, tileIndexOverride: newIndexInTileset);
+
+                            int cellSize = LevelEditorData.EditorManager.CellSize;
+                            FillInTilePixels(tex, tile, newTile, at.x, at.y, cellSize, applyTexture: false);
                         }
-                        if (changedTile) {
-                            tex.Apply();
-                        }
+                        at.currentTimer -= frames * animSpeed;
                     }
                 }
+
+                if (changedTile)
+                    tex.Apply();
             }
-		}
+        }
 
         public class AnimatedTileProperties {
             public int x;
