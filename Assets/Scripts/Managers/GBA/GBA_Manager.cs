@@ -635,8 +635,8 @@ namespace R1Engine
                 }
             }
 
-            // Get the map layers, skipping unknown ones
-            var mapLayers = playField.Layers.Where(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Map2D || x.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7 || x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision).ToArray();
+            // Get the map layers, skipping the text layers
+            var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.TileLayerStructTypes.TextLayerMode7).ToArray();
 
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level
@@ -682,7 +682,7 @@ namespace R1Engine
                 {
                     MapTile[] mapData = map.MapData;
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
-                    if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Mode7) {
+                    if (map.StructType == GBA_TileLayer.TileLayerStructTypes.RotscaleLayerMode7) {
                         mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
                     } else if (!map.IsForegroundTileLayer
                         && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
@@ -694,7 +694,7 @@ namespace R1Engine
                         int i = 0;
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
-                            bool is8bpp = map.Is8bpp;
+                            bool is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
                             MapTile newt = x.CloneObj();
                             if (is8bpp) {
                                 if (x.IsFirstBlock) {
@@ -743,7 +743,7 @@ namespace R1Engine
                         IsForeground = map.LayerID == 3
                     };
                     if (map.ShouldSetBGAlphaBlending) {
-                        level.Maps[layer].Alpha = 0.5f;
+                        level.Maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;
                     }
 
                     level.DefaultMap = layer;
@@ -940,7 +940,7 @@ namespace R1Engine
                     || l.RenderMode == GBA_AnimationChannel.GfxMode.Regular
                    // || l.ChannelType == GBA_AnimationChannel.Type.Null
                     || l.ChannelType != GBA_AnimationChannel.Type.Sprite) return new Unity_ObjAnimationPart[0];
-                if (l.Color == GBA_AnimationChannel.ColorMode.Color8bpp) {
+                if (l.Color == GBA_ColorMode.Color8bpp) {
                     Debug.LogWarning("Animation Layer @ " + l.Offset + " has 8bpp color mode, which is currently not supported.");
                     return new Unity_ObjAnimationPart[0];
                 }
@@ -1029,7 +1029,7 @@ namespace R1Engine
             }
             else
             {
-                is8bpp = map.Is8bpp;
+                is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
                 tileset = is8bpp ? playField.TileKit.TileSet8bpp : playField.TileKit.TileSet4bpp;
                 tilePalette = playField.TileKit.TilePalette;
                 animatedTilekits = playField.TileKit.AnimatedTileKits?.Where(atk => atk.Is8Bpp == map.Is8bpp).ToArray();

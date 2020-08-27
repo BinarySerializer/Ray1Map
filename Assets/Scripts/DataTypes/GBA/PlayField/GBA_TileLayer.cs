@@ -10,6 +10,7 @@ namespace R1Engine
         public TileLayerStructTypes StructType { get; set; }
 
         public bool IsCompressed { get; set; }
+        public bool Unk_01 { get; set; }
         public byte Unk_02 { get; set; }
         public byte Unk_03 { get; set; }
 
@@ -22,21 +23,19 @@ namespace R1Engine
         public byte ClusterIndex { get; set; }
 
         public bool ShouldSetBGAlphaBlending { get; set; }
-
-        // Related to BG Alpha Blending
-        public sbyte Unk_0B { get; set; }
+        public sbyte AlphaBlending_Coeff { get; set; }
 
         public bool IsForegroundTileLayer { get; set; }
-
-        public bool Is8bpp { get; set; }
 
         // 0-3 for Mode7
         public byte Priority { get; set; }
 
+        public byte Unk_0C { get; set; }
+        public byte Unk_0D { get; set; }
         public byte Unk_0E { get; set; }
+        public byte Unk_0F { get; set; }
 
-        // Is this same as Is8bpp? This is ColorMode for Mode7, Is8bpp is used right now for 2D
-        public byte ColorMode { get; set; }
+        public GBA_ColorMode ColorMode { get; set; }
 
         public byte Mode7_10 { get; set; }
         public byte Mode7_11 { get; set; }
@@ -68,18 +67,15 @@ namespace R1Engine
                     UnkBytes = s.SerializeArray<byte>(UnkBytes, 5, name: nameof(UnkBytes));
                     ShouldSetBGAlphaBlending = s.Serialize<bool>(ShouldSetBGAlphaBlending, name: nameof(ShouldSetBGAlphaBlending));
                     Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
-                    ColorMode = s.Serialize<byte>(ColorMode, name: nameof(ColorMode));
+                    ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                 }
             } else {
                 StructType = s.Serialize<TileLayerStructTypes>(StructType, name: nameof(StructType));
 
-                if ((byte)StructType > 2)
-                {
-                    Debug.LogWarning($"TileLayer type {StructType} is not supported");
-                    return;
-                }
-
-                IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
+                if (StructType != TileLayerStructTypes.TextLayerMode7)
+                    IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
+                else
+                    Unk_01 = s.Serialize<bool>(Unk_01, name: nameof(Unk_01));
 
                 Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
                 Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
@@ -90,49 +86,65 @@ namespace R1Engine
                 if (StructType != TileLayerStructTypes.Collision) {
                     LayerID = s.Serialize<byte>(LayerID, name: nameof(LayerID));
 
-                    if (StructType != TileLayerStructTypes.Mode7)
+                    if (StructType == TileLayerStructTypes.Layer2D)
                         ClusterIndex = s.Serialize<byte>(ClusterIndex, name: nameof(ClusterIndex));
 
                     ShouldSetBGAlphaBlending = s.Serialize<bool>(ShouldSetBGAlphaBlending, name: nameof(ShouldSetBGAlphaBlending));
-                    Unk_0B = s.Serialize<sbyte>(Unk_0B, name: nameof(Unk_0B));
-                    IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
+                    AlphaBlending_Coeff = s.Serialize<sbyte>(AlphaBlending_Coeff, name: nameof(AlphaBlending_Coeff));
 
-                    if (StructType == TileLayerStructTypes.Mode7)
+                    switch (StructType)
                     {
-                        Priority = s.Serialize<byte>(Priority, name: nameof(Priority));
-                        Is8bpp = true;
-                    }
-                    else
-                        Is8bpp = s.Serialize<bool>(Is8bpp, name: nameof(Is8bpp));
+                        case TileLayerStructTypes.TextLayerMode7:
+                            // 21 bytes
+                            // Prio is 0x1D
+                            // ColorMode is 0x1F
+                            // Width & height seems duplicates again (is it actually width and height?)
 
-                    Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
-                    ColorMode = s.Serialize<byte>(ColorMode, name: nameof(ColorMode));
+                            break;
 
-                    if (StructType == TileLayerStructTypes.Mode7)
-                    {
-                        Mode7_10 = s.Serialize<byte>(Mode7_10, name: nameof(Mode7_10));
-                        Mode7_11 = s.Serialize<byte>(Mode7_11, name: nameof(Mode7_11));
-                        Mode7_12 = s.Serialize<byte>(Mode7_12, name: nameof(Mode7_12));
-                        Mode7_13 = s.Serialize<byte>(Mode7_13, name: nameof(Mode7_13));
-                        Mode7_14 = s.Serialize<byte>(Mode7_14, name: nameof(Mode7_14));
+                        case TileLayerStructTypes.RotscaleLayerMode7:
+                            // The game hard-codes the color mode
+                            ColorMode = GBA_ColorMode.Color8bpp;
+
+                            Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
+                            Unk_0D = s.Serialize<byte>(Unk_0D, name: nameof(Unk_0D));
+                            Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
+                            Unk_0F = s.Serialize<byte>(Unk_0F, name: nameof(Unk_0F));
+                            Mode7_10 = s.Serialize<byte>(Mode7_10, name: nameof(Mode7_10));
+                            Mode7_11 = s.Serialize<byte>(Mode7_11, name: nameof(Mode7_11));
+                            Mode7_12 = s.Serialize<byte>(Mode7_12, name: nameof(Mode7_12));
+                            Mode7_13 = s.Serialize<byte>(Mode7_13, name: nameof(Mode7_13));
+                            Mode7_14 = s.Serialize<byte>(Mode7_14, name: nameof(Mode7_14));
+                            break;
+
+                        case TileLayerStructTypes.Layer2D:
+                            IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
+                            ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
+                            Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
+                            Unk_0F = s.Serialize<byte>(Unk_0F, name: nameof(Unk_0F));
+                            break;
                     }
                 }
             }
-            if (!IsCompressed)
-                SerializeTileMap(s);
-            else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
-                s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
-            else
-                s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
-            s.Align();
+
+            if (StructType != TileLayerStructTypes.TextLayerMode7)
+            {
+                if (!IsCompressed)
+                    SerializeTileMap(s);
+                else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
+                    s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
+                else
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
+                s.Align();
+            }
         }
 
         protected void SerializeTileMap(SerializerObject s) {
             switch (StructType) {
-                case TileLayerStructTypes.Map2D:
-                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = !IsForegroundTileLayer; m.Is8Bpp = Is8bpp; }, name: nameof(MapData));
+                case TileLayerStructTypes.Layer2D:
+                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = !IsForegroundTileLayer; m.Is8Bpp = ColorMode == GBA_ColorMode.Color8bpp; }, name: nameof(MapData));
                     break;
-                case TileLayerStructTypes.Mode7:
+                case TileLayerStructTypes.RotscaleLayerMode7:
                     Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));
                     break;
                 case TileLayerStructTypes.Collision:
@@ -153,12 +165,10 @@ namespace R1Engine
 
 		public enum TileLayerStructTypes : byte
         {
-            Map2D = 0,
+            Layer2D = 0,
             Collision = 1,
-            Mode7 = 2,
-
-            // TODO: What is this?
-            UnkMode7 = 3,
+            RotscaleLayerMode7 = 2,
+            TextLayerMode7 = 3,
         }
     }
 }

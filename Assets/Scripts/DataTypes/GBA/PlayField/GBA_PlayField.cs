@@ -23,6 +23,14 @@
         public byte[] ClusterTable { get; set; }
         public byte[] LayerTable { get; set; }
 
+        // Size in bytes
+        public ushort Mode7TilesSize { get; set; }
+
+        // Always 1?
+        public ushort Mode7Unk { get; set; }
+
+        public MapTile[] Mode7Tiles { get; set; }
+
         // Prince of Persia
         public byte[] UnkBytes1 { get; set; }
         public byte[] UnkBytes2 { get; set; }
@@ -78,9 +86,16 @@
                 if (!IsMode7)
                     ClusterTable = s.SerializeArray<byte>(ClusterTable, 4, name: nameof(ClusterTable));
                 
-                LayerTable = s.SerializeArray<byte>(LayerTable, IsMode7 ? 8 : 6, name: nameof(LayerTable));
+                LayerTable = s.SerializeArray<byte>(LayerTable,  6, name: nameof(LayerTable));
 
-                // TODO: Mode7 has more data
+                if (IsMode7)
+                {
+                    s.Serialize<byte>(default, name: "Padding");
+
+                    Mode7TilesSize = s.Serialize<ushort>(Mode7TilesSize, name: nameof(Mode7TilesSize));
+                    Mode7Unk = s.Serialize<ushort>(Mode7Unk, name: nameof(Mode7Unk));
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, s.CurrentLength / 2, name: nameof(Mode7Tiles)));
+                }
             } else {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 1, name: nameof(UnkBytes1));
                 ClusterData = s.SerializeArray<byte>(ClusterData, 0x40, name: nameof(ClusterData)); // 4 of 0x10
@@ -123,7 +138,7 @@
                     s.DoAt(OffsetTable.GetPointer(BatmanLayers[i].LayerID), () => {
                         Layers[i] = s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => {
                             l.IsCompressed = BatmanLayers[i].IsCompressed;
-                            l.StructType = BatmanLayers[i].IsCollisionBlock ? GBA_TileLayer.TileLayerStructTypes.Collision : GBA_TileLayer.TileLayerStructTypes.Map2D;
+                            l.StructType = BatmanLayers[i].IsCollisionBlock ? GBA_TileLayer.TileLayerStructTypes.Collision : GBA_TileLayer.TileLayerStructTypes.Layer2D;
                             l.Width = BatmanLayers[i].Width;
                             l.Height = BatmanLayers[i].Height;
                         }, name: $"{nameof(Layers)}[{i}]");

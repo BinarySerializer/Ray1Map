@@ -24,7 +24,7 @@ namespace R1Engine
         public bool IsFlippedVertically { get; set; }
         public AffineObjectMode TransformMode { get; set; }
         public GfxMode RenderMode { get; set; }
-        public ColorMode Color { get; set; }
+        public GBA_ColorMode Color { get; set; }
         public int AffineMatrixIndex { get; set; }
 
         public Type ChannelType { get; set; } = Type.Sprite;
@@ -62,7 +62,7 @@ namespace R1Engine
                 TransformMode = (AffineObjectMode)BitHelpers.ExtractBits(Attr0, 2, 8);
                 RenderMode = (GfxMode)BitHelpers.ExtractBits(Attr0, 2, 10);
                 //Controller.print(BitHelpers.ExtractBits(Attr0, 2, 10));
-                Color = (ColorMode)BitHelpers.ExtractBits(Attr0, 1, 13);
+                Color = (GBA_ColorMode)BitHelpers.ExtractBits(Attr0, 1, 13);
                 SpriteShape = (Shape)BitHelpers.ExtractBits(Attr0, 2, 14);
 
                 // Attr1
@@ -166,11 +166,6 @@ namespace R1Engine
             Regular = 0,
             Blend,
             Window
-        }
-
-        public enum ColorMode {
-            Color4bpp,
-            Color8bpp
         }
 
         public enum Shape {
