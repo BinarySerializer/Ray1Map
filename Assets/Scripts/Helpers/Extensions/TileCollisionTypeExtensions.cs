@@ -277,10 +277,10 @@ namespace R1Engine
                 case GBA_TileCollisionType.EnemyTrigger_Right:
                 case GBA_TileCollisionType.EnemyTrigger_Up:
                 case GBA_TileCollisionType.EnemyTrigger_Down:
-                case GBA_TileCollisionType.Unk_ReactionaryCorner_81:
-                case GBA_TileCollisionType.Unk_ReactionaryCorner_82:
-                case GBA_TileCollisionType.Unk_ReactionaryCorner_86:
-                case GBA_TileCollisionType.Unk_ReactionaryCorner_87:
+                case GBA_TileCollisionType.Reactionary_Turn_45CounterCLockwise:
+                case GBA_TileCollisionType.Reactionary_Turn_90CounterClockwise:
+                case GBA_TileCollisionType.Reactionary_Turn_90Clockwise:
+                case GBA_TileCollisionType.Reactionary_Turn_45Clockwise:
                     return Unity_MapCollisionTypeGraphic.Reactionary;
                 
                 case GBA_TileCollisionType.AutoJump:
