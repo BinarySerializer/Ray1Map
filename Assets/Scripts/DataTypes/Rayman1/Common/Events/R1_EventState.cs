@@ -70,7 +70,8 @@
         public byte InteractionType { get; set; }
 
         // For GBA
-        public bool IsFlipped { get; set; }
+        public bool IsFlippedHorizontally { get; set; }
+        public bool IsFlippedVertically { get; set; }
 
         /// <summary>
         /// Serializes the data

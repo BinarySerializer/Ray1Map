@@ -109,7 +109,16 @@ namespace R1Engine
 
             // If we're on GBA, check the state
             if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
-                return state?.IsFlipped ?? false;
+                return state?.IsFlippedHorizontally ?? false;
+
+            return false;
+        }
+
+
+        public bool GetIsFlippedVertically(R1_EventState state) {
+            // If we're on GBA, check the state
+            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
+                return state?.IsFlippedVertically ?? false;
 
             return false;
         }
