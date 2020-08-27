@@ -353,14 +353,22 @@ namespace R1Engine {
                     if (part.sprite == null)
                         continue;
 
-                    if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
+                    /*if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
                         leftX = pos.x - (part.flipX ? part.sprite.texture.width : 0);
                     if (pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0) > rightX || first)
                         rightX = pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0);
                     if (pos.y - part.sprite.texture.height < bottomY || first)
                         bottomY = pos.y - part.sprite.texture.height;
                     if (pos.y > topY || first)
-                        topY = pos.y;
+                        topY = pos.y;*/
+
+                    Bounds b = part.bounds;
+                    b = new Bounds(transform.InverseTransformPoint(b.center) * EditorManager.PixelsPerUnit, transform.InverseTransformVector(b.size) * EditorManager.PixelsPerUnit);
+                    //print(b);
+                    if (b.min.x < leftX || first) leftX = b.min.x;
+                    if (b.min.y < bottomY || first) bottomY = b.min.y;
+                    if (b.max.x > rightX || first) rightX = b.max.x;
+                    if (b.max.y > topY || first) topY = b.max.y;
 
                     if (first)
                         first = false;
