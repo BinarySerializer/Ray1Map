@@ -306,7 +306,7 @@ namespace R1Engine
             }
         }
 
-        public void ExportSpriteTileSet(GBA_SpriteGroup spr, string outputDir, bool is8bit, int uioffset)
+        protected void ExportSpriteTileSet(GBA_SpriteGroup spr, string outputDir, bool is8bit, int uioffset)
         {
             try
             {
@@ -364,7 +364,7 @@ namespace R1Engine
             }
         }
 
-        void ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
+        protected void ExportAnimations(GBA_SpriteGroup spr, string outputDir, bool is8bit)
         {
             MagickImage[] sprites = null;
 
@@ -403,17 +403,73 @@ namespace R1Engine
                     if (anim.Frames == null || anim.Frames.Length == 0) continue;
 
 
-                    var shiftX = anim.Frames.Min(f => f.Layers.Select(x => Mathf.Min(0, x.XPosition)).DefaultIfEmpty().Min()) * -1;
+                    /*var shiftX = anim.Frames.Min(f => f.Layers.Select(x => Mathf.Min(0, x.XPosition)).DefaultIfEmpty().Min()) * -1;
                     var shiftY = anim.Frames.Min(f => f.Layers.Select(x => Mathf.Min(0, x.YPosition)).DefaultIfEmpty().Min()) * -1;
 
-                    // TODO: Update this for scaling and rotation!
                     var maxX = anim.Frames.Max(f => f.Layers.Select(x => x.XPosition).DefaultIfEmpty().Max()) + 8 + shiftX;
-                    var maxY = anim.Frames.Max(f => f.Layers.Select(x => x.YPosition).DefaultIfEmpty().Max()) + 8 + shiftY;
+                    var maxY = anim.Frames.Max(f => f.Layers.Select(x => x.YPosition).DefaultIfEmpty().Max()) + 8 + shiftY;*/
+
+                    Vector2Int min = new Vector2Int();
+                    Vector2Int max = new Vector2Int();
+                    foreach (var frame in anim.Frames) {
+                        foreach (var layer in frame.Layers) {
+                            Vector2 size = new Vector2Int(8, 8);
+                            Vector2 pos = new Vector2(layer.XPosition, layer.YPosition);
+                            if ((layer.Scale.HasValue && layer.Scale.Value != Vector2.one) || (layer.Rotation.HasValue && layer.Rotation.Value != 0f)) {
+                                Vector2 transformOrigin = new Vector2(layer.TransformOriginX, layer.TransformOriginY);
+                                Vector2 relativePos = pos - transformOrigin; // Center relative to transform origin
+                                
+                                // Scale first
+                                Vector2 scale = Vector2.one;
+                                if (layer.Scale.HasValue && layer.Scale.Value != Vector2.one) {
+                                    scale = layer.Scale.Value;
+                                    float scaleX = layer.Scale.Value.x;
+                                    float scaleY = layer.Scale.Value.y;
+                                    if (scaleX == 0f || scaleY == 0f) continue;
+                                    if (scaleX > 0f) {
+                                        scaleX = Mathf.Ceil(size.x * scaleX) / (size.x);
+                                    } else {
+                                        scaleX = -Mathf.Ceil(size.x * -scaleX) / (size.x);
+                                    }
+                                    if (scaleY > 0f) {
+                                        scaleY = Mathf.Ceil(size.y * scaleY) / (size.y);
+                                    } else {
+                                        scaleY = -Mathf.Ceil(size.y * -scaleY) / (size.y);
+                                    }
+                                    scale = new Vector2(scaleX, scaleY);
+
+                                    relativePos = Vector2.Scale(relativePos, layer.Scale.Value);
+                                    size = Vector2.Scale(size, scale);
+                                }
+                                // Then rotate
+                                float rotation = 0f;
+                                if (layer.Rotation.HasValue && layer.Rotation.Value != 0) {
+                                    rotation = -layer.Rotation.Value;
+                                    relativePos = Quaternion.Euler(0f, 0f, rotation) * relativePos;
+                                    //size = Quaternion.Euler(0f, 0f, rotation) * size;
+                                    // Calculate new bounding box
+                                    var newY = Mathf.Abs(size.x * Mathf.Sin(Mathf.Deg2Rad * rotation)) + Mathf.Abs(size.y * Mathf.Cos(Mathf.Deg2Rad * rotation));
+                                    var newX = Mathf.Abs(size.x * Mathf.Cos(Mathf.Deg2Rad * rotation)) + Mathf.Abs(size.y * Mathf.Sin(Mathf.Deg2Rad * rotation));
+                                    size = new Vector2(newX, newY);
+                                }
+                                pos = transformOrigin + relativePos;
+                            }
+                            int x = Mathf.FloorToInt(pos.x);
+                            int y = Mathf.FloorToInt(pos.y);
+                            if (x < min.x) min.x = x;
+                            if (y < min.y) min.y = y;
+                            int maxX = Mathf.CeilToInt(pos.x + size.x);
+                            int maxY = Mathf.CeilToInt(pos.y + size.y);
+                            if (maxX > max.x) max.x = maxX;
+                            if (maxY > max.y) max.y = maxY;
+                        }
+                    }
+                    Vector2Int frameImgSize = max - min;
 
                     foreach (var frame in anim.Frames)
                     {
 
-                        using (var frameImg = new MagickImage(new byte[maxX * maxY * 4], new PixelReadSettings(maxX, maxY, StorageType.Char, PixelMapping.ABGR))) {
+                        using (var frameImg = new MagickImage(new byte[frameImgSize.x * frameImgSize.y * 4], new PixelReadSettings(frameImgSize.x, frameImgSize.y, StorageType.Char, PixelMapping.ABGR))) {
                             frameImg.FilterType = FilterType.Point;
                             frameImg.Interpolate = PixelInterpolateMethod.Nearest;
                             int layerIndex = 0;
@@ -482,12 +538,12 @@ namespace R1Engine
                                     img.Distort(DistortMethod.ScaleRotateTranslate, new double[] { (canvas.x / 2), (canvas.y / 2), scale.x, scale.y, rotation });
                                     //img.Write(Path.Combine(animDir, $"{frameIndex}___{layerIndex}.png"), MagickFormat.Png);
                                     frameImg.Composite(img,
-                                        Mathf.RoundToInt(transformOrigin.x + relativePos.x) - (canvas.x / 2) + shiftX,
-                                        Mathf.RoundToInt(transformOrigin.y + relativePos.y) - (canvas.y / 2) + shiftY, CompositeOperator.Over);
+                                        Mathf.RoundToInt(transformOrigin.x + relativePos.x) - (canvas.x / 2) - min.x,
+                                        Mathf.RoundToInt(transformOrigin.y + relativePos.y) - (canvas.y / 2) - min.y, CompositeOperator.Over);
                                 } else {
                                     frameImg.Composite(img,
-                                        Mathf.RoundToInt(pos.x) + shiftX,
-                                        Mathf.RoundToInt(pos.y) + shiftY, CompositeOperator.Over);
+                                        Mathf.RoundToInt(pos.x) - min.x,
+                                        Mathf.RoundToInt(pos.y) - min.y, CompositeOperator.Over);
                                 }
                                 layerIndex++;
                             }
