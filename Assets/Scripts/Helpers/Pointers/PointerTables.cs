@@ -184,7 +184,8 @@ namespace R1Engine
                 case GameModeSelection.Rayman3GBAUSPrototype:
                     return new Dictionary<GBA_Pointer, uint>()
                     {
-                        [GBA_Pointer.UiOffsetTable] = 0x084C1478
+                        [GBA_Pointer.UiOffsetTable] = 0x084C1478,
+                        [GBA_Pointer.Localization] = 0x080F20C0,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Rayman3NGage:
