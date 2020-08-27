@@ -53,6 +53,8 @@ namespace R1Engine
 
         public float CellSizeInUnits { get; set; } = 1f;
 
+        private Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[] animatedTiles;
+
 
 
         public void InitializeTilemaps() {
@@ -164,8 +166,10 @@ namespace R1Engine
                     }
                 }
             }
+            animatedTiles = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[GraphicsTilemaps.Length];
             for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++) {
                 var map = lvl.Maps[mapIndex];
+                animatedTiles[mapIndex] = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>();
                 if (map.Alpha.HasValue) {
                     GraphicsTilemaps[mapIndex].color = new Color(1f, 1f, 1f, map.Alpha.Value);
                 }
@@ -179,6 +183,16 @@ namespace R1Engine
                         if (palette != 0)
                             t.PaletteIndex = palette;
                         Tile tile = map.GetTile(t, LevelEditorData.CurrentSettings);
+                        var atInstance = map.GetAnimatedTile(t, LevelEditorData.CurrentSettings);
+                        if (atInstance != null) {
+                            atInstance.x = x;
+                            atInstance.y = y;
+                            var at = atInstance.animatedTile;
+                            if (!animatedTiles[mapIndex].ContainsKey(at)) {
+                                animatedTiles[mapIndex][at] = new List<Unity_AnimatedTile.Instance>();
+                            }
+                            animatedTiles[mapIndex][at].Add(atInstance);
+                        }
 
                         FillInTilePixels(tex, tile, t, x, y, cellSize);
 
@@ -395,5 +409,56 @@ namespace R1Engine
 
             return destTile;
         }
-    }
+
+		private void Update() {
+            if (Controller.LoadState == Controller.State.Finished) {
+                if (animatedTiles != null) {
+                    for (int mapIndex = 0; mapIndex < animatedTiles.Length; mapIndex++) {
+                        bool changedTile = false;
+                        var map = LevelEditorData.Level.Maps[mapIndex];
+                        Texture2D tex = GraphicsTilemaps[mapIndex].sprite.texture;
+                        foreach (var animatedTile in animatedTiles[mapIndex].Keys) {
+                            var animSpeed = animatedTile.AnimationSpeed / 30f;
+                            foreach (var at in animatedTiles[mapIndex][animatedTile]) {
+                                //print("Updating " + at.x + " - " + at.y);
+                                at.currentTimer += Time.deltaTime;
+                                if (at.currentTimer >= animSpeed) {
+                                    int frames = Mathf.FloorToInt(at.currentTimer / animSpeed);
+                                    int oldTileIndex = at.tileIndex;
+                                    at.tileIndex = (oldTileIndex + frames) % at.animatedTile.TileIndices.Length;
+
+                                    int oldIndexInTileset = at.animatedTile.TileIndices[oldTileIndex];
+                                    int newIndexInTileset = at.animatedTile.TileIndices[at.tileIndex];
+                                    if (oldIndexInTileset != newIndexInTileset) {
+                                        changedTile = true;
+                                        var newTile = map.MapTiles[at.y * map.Width + at.x];
+                                        Tile tile = map.GetTile(newTile, LevelEditorData.CurrentSettings, tileIndexOverride: newIndexInTileset);
+
+                                        int cellSize = LevelEditorData.EditorManager.CellSize;
+                                        FillInTilePixels(tex, tile, newTile, at.x, at.y, cellSize, applyTexture: false);
+                                    }
+                                    at.currentTimer -= frames * animSpeed;
+                                }
+                            }
+                        }
+                        if (changedTile) {
+                            tex.Apply();
+                        }
+                    }
+                }
+            }
+		}
+
+        public class AnimatedTileProperties {
+            public int x;
+            public int y;
+            public int tileIndex;
+            public float currentTimer;
+
+            public AnimatedTileProperties(int x, int y) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+	}
 }

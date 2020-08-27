@@ -1,4 +1,7 @@
-﻿namespace R1Engine
+﻿
+using UnityEngine;
+
+namespace R1Engine
 {
     /// <summary>
     /// A map block for GBA
@@ -64,6 +67,7 @@
                     for (int i = 0; i < AnimatedTileKits.Length; i++) {
                         AnimatedTileKits[i] = s.DoAt(OffsetTable.GetPointer(AnimatedTileKitManager.TileKitBlocks[i]), () => s.SerializeObject<GBA_AnimatedTileKit>(AnimatedTileKits[i], name: $"{nameof(AnimatedTileKits)}[{i}]"));
                     }
+                    Debug.Log("Level " + s.GameSettings.Level + " (" + s.GameSettings.World + ") has " + AnimatedTileKits.Length + " animated tilekits.");
                 }
             }
         }

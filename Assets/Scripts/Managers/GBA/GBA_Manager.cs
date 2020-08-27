@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 using ImageMagick;
+using JetBrains.Annotations;
 
 namespace R1Engine
 {
@@ -1019,6 +1020,7 @@ namespace R1Engine
             byte[] tileset;
             bool is8bpp;
             GBA_Palette tilePalette;
+            GBA_AnimatedTileKit[] animatedTilekits = null;
             if (context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
             {
                 is8bpp = map.TileKit.Is8bpp;
@@ -1030,11 +1032,27 @@ namespace R1Engine
                 is8bpp = map.Is8bpp;
                 tileset = is8bpp ? playField.TileKit.TileSet8bpp : playField.TileKit.TileSet4bpp;
                 tilePalette = playField.TileKit.TilePalette;
+                animatedTilekits = playField.TileKit.AnimatedTileKits?.Where(atk => atk.Is8Bpp == map.Is8bpp).ToArray();
             }
 
             int tileSize = (is8bpp ? (CellSize * CellSize) : (CellSize * CellSize) / 2);
             int tilesetLength = (tileset.Length / (is8bpp ? (CellSize*CellSize) : (CellSize * CellSize)/2)) + 1;
 
+            Unity_AnimatedTile[] animatedTiles = null;
+            if (animatedTilekits != null) {
+                int[] GetIndicesFrom(int start, int step, int count) {
+                    int[] indices = new int[count];
+                    for (int i = 0; i < count; i++) {
+                        indices[i] = start + step * i;
+                    }
+                    return indices;
+                }
+
+                animatedTiles = animatedTilekits.SelectMany(atk => atk.TileIndices.Select(atkt => new Unity_AnimatedTile() {
+                    AnimationSpeed = atk.AnimationSpeed,
+                    TileIndices = GetIndicesFrom(atkt, atk.TilesStep, atk.NumFrames)
+                })).ToArray();
+            }
 
             const int paletteSize = 16;
 
@@ -1097,7 +1115,9 @@ namespace R1Engine
                 tiles[i] = tex.CreateTile();
             }
 
-            return new Unity_MapTileMap(tiles);
+            return new Unity_MapTileMap(tiles) {
+                AnimatedTiles = animatedTiles
+            };
         }
 
         public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
