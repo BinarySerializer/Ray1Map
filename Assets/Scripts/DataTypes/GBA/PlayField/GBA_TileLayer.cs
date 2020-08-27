@@ -126,13 +126,17 @@ namespace R1Engine
                     }
                 }
             }
-            if (!IsCompressed)
-                SerializeTileMap(s);
-            else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
-                s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
-            else
-                s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
-            s.Align();
+
+            if (StructType != TileLayerStructTypes.TextLayerMode7)
+            {
+                if (!IsCompressed)
+                    SerializeTileMap(s);
+                else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
+                    s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
+                else
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
+                s.Align();
+            }
         }
 
         protected void SerializeTileMap(SerializerObject s) {
