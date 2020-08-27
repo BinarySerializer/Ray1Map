@@ -33,6 +33,7 @@ namespace R1Engine
         public sbyte BoxY { get; set; }
         public sbyte BoxY2 { get; set; }
         public int Unknown8 { get; set; }
+        public int UnknownC { get; set; }
 
         public const ushort BOX_FLAG = 0x3c00;
 
@@ -41,6 +42,7 @@ namespace R1Engine
 
             // Parse
             if ((Attr0 & BOX_FLAG) == 0x800) ChannelType = Type.Unknown8;
+            if ((Attr0 & BOX_FLAG) == 0xC00) ChannelType = Type.UnknownC;
             if ((Attr0 & BOX_FLAG) == 0x1000) ChannelType = Type.AttackBox;
             if ((Attr0 & BOX_FLAG) == 0x1400) ChannelType = Type.VulnerabilityBox;
 
@@ -146,6 +148,8 @@ namespace R1Engine
                 }
             } else if(ChannelType == Type.Unknown8) {
                 Unknown8 = s.Serialize<int>(Unknown8, name: nameof(Unknown8));
+            } else if (ChannelType == Type.UnknownC) {
+                UnknownC = s.Serialize<int>(UnknownC, name: nameof(UnknownC));
             } else {
                 s.Log($"{nameof(ChannelType)}: {ChannelType}");
                 BoxX = s.Serialize<sbyte>(BoxX, name: nameof(BoxX));
@@ -178,7 +182,8 @@ namespace R1Engine
             Sprite,
             AttackBox,
             VulnerabilityBox,
-            Unknown8
+            Unknown8,
+            UnknownC
         }
 
         public float GetRotation(GBA_Animation anim, GBA_SpriteGroup spriteGroup, int frameIndex) {
