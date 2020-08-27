@@ -805,6 +805,7 @@ namespace R1Engine
                                     $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}" +
                                     $"State_UnkOffsetIndexType: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateDataType}{Environment.NewLine}" + 
                                     $"State_UnkOffsetIndex: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateDataOffsetIndex}{Environment.NewLine}" +
+                                    $"State_Flags: {String.Join(", ", actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Flags.GetFlags() ?? new Enum[0])}{Environment.NewLine}" +
                                     $"State_Byte_00: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_00}{Environment.NewLine}" +
                                     $"State_Byte_01: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_01}{Environment.NewLine}" +
                                     $"State_Byte_02: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_02}{Environment.NewLine}" +
@@ -998,7 +999,7 @@ namespace R1Engine
             eta[0] = graphicData.States.Select(s => new R1_EventState() {
                 AnimationIndex = s.AnimationIndex,
                 AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF)),
-                IsFlipped = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.IsFlipped)
+                IsFlipped = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip),
             }).ToArray();
             int numAnims = graphicData.SpriteGroup.Animations.Length;
             if (eta[0].Length == 0 && numAnims > 0) {

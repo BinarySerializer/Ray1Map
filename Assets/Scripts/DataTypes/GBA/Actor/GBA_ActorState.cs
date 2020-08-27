@@ -50,8 +50,8 @@ namespace R1Engine
         {
             None = 0,
 
-            IsFlipped = 1 << 0,
-            UnkFlag_1 = 1 << 1,
+            HorizontalFlip = 1 << 0,
+            VerticalFlip = 1 << 1,
             UnkFlag_2 = 1 << 2,
             UnkFlag_3 = 1 << 3,
             UnkFlag_4 = 1 << 4,
