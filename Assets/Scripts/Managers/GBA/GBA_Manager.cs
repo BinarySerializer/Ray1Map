@@ -638,6 +638,22 @@ namespace R1Engine
             // Get the map layers, skipping the text layers
             var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.TileLayerStructTypes.TextLayerMode7).ToArray();
 
+            // Create a dummy layer for Mode7 background
+            if (playField.IsMode7)
+            {
+                mapLayers = new GBA_TileLayer[]
+                {
+                    new GBA_TileLayer()
+                    {
+                        StructType = GBA_TileLayer.TileLayerStructTypes.Layer2D,
+                        MapData = playField.Mode7Tiles,
+                        Width = 64,
+                        Height = 64,
+                        ColorMode = GBA_ColorMode.Color8bpp,
+                        IsForegroundTileLayer = false
+                    }
+                }.Concat(mapLayers).ToArray();
+            }
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level
             {
@@ -691,12 +707,10 @@ namespace R1Engine
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
                         //Controller.print(map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
-                        int i = 0;
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
-                            bool is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
                             MapTile newt = x.CloneObj();
-                            if (is8bpp) {
+                            if (map.ColorMode == GBA_ColorMode.Color8bpp) {
                                 if (x.IsFirstBlock) {
                                     //Controller.print(i + " - " + index);
                                     //relativeIndex = index;
@@ -711,7 +725,6 @@ namespace R1Engine
                                 }
                                 if (index < 0 || index >= playField.BGTileTable.IndicesCount8bpp) {
                                     newt.TileMapY = 0;
-                                    newt.PC_TransparencyMode = R1_PC_MapTileTransparencyMode.FullyTransparent;
                                 } else {
                                     newt.TileMapY = playField.BGTileTable.Indices8bpp[index];
                                 }
@@ -719,13 +732,11 @@ namespace R1Engine
                                 index -= 2;
                                 if (index < 0 || index >= playField.BGTileTable.IndicesCount4bpp) {
                                     newt.TileMapY = 0;
-                                    newt.PC_TransparencyMode = R1_PC_MapTileTransparencyMode.FullyTransparent;
                                 } else {
                                     //Controller.print(index);
                                     newt.TileMapY = playField.BGTileTable.Indices4bpp[index];
                                 }
                             }
-                            i++;
                             return newt;
                         }).ToArray();
                     }

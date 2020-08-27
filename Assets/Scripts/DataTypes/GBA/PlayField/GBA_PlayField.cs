@@ -94,7 +94,11 @@
 
                     Mode7TilesSize = s.Serialize<ushort>(Mode7TilesSize, name: nameof(Mode7TilesSize));
                     Mode7Unk = s.Serialize<ushort>(Mode7Unk, name: nameof(Mode7Unk));
-                    s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, s.CurrentLength / 2, name: nameof(Mode7Tiles)));
+                    s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, s.CurrentLength / 2, x =>
+                    {
+                        x.IsBGTile = true;
+                        x.Is8Bpp = true;
+                    }, name: nameof(Mode7Tiles)));
                 }
             } else {
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 1, name: nameof(UnkBytes1));
