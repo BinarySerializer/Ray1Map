@@ -23,9 +23,12 @@
         public byte[] ClusterTable { get; set; }
         public byte[] LayerTable { get; set; }
 
-        // Mode7
-        public ushort Mode7Unk1 { get; set; }
-        public ushort Mode7Unk2 { get; set; }
+        // Size in bytes
+        public ushort Mode7TilesSize { get; set; }
+
+        // Always 1?
+        public ushort Mode7Unk { get; set; }
+
         public MapTile[] Mode7Tiles { get; set; }
 
         // Prince of Persia
@@ -89,8 +92,8 @@
                 {
                     s.Serialize<byte>(default, name: "Padding");
 
-                    Mode7Unk1 = s.Serialize<ushort>(Mode7Unk1, name: nameof(Mode7Unk1));
-                    Mode7Unk2 = s.Serialize<ushort>(Mode7Unk2, name: nameof(Mode7Unk2));
+                    Mode7TilesSize = s.Serialize<ushort>(Mode7TilesSize, name: nameof(Mode7TilesSize));
+                    Mode7Unk = s.Serialize<ushort>(Mode7Unk, name: nameof(Mode7Unk));
                     s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, s.CurrentLength / 2, name: nameof(Mode7Tiles)));
                 }
             } else {
