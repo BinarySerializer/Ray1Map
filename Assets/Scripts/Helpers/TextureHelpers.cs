@@ -37,10 +37,12 @@ namespace R1Engine
             return Sprite.Create(tex, rect ?? new Rect(0, 0, tex.width, tex.height), pivot ?? new Vector2(0f, 1f), Settings.PixelsPerUnit, 20);
         }
 
-        public static Tile CreateTile(this Texture2D tex, Rect? rect = null)
+        public static Unity_TileTexture CreateTile(this Texture2D tex, Rect? rect = null)
         {
-            var t = ScriptableObject.CreateInstance<Tile>();
-            t.sprite = tex.CreateSprite(rect: rect, pivot: new Vector2(0.5f, 0.5f));
+            var t = new Unity_TileTexture() {
+                rect = rect ?? new Rect(0, 0, tex.width, tex.height),
+                texture = tex
+            };
             return t;
         }
     }

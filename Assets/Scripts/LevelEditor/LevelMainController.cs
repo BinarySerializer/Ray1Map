@@ -135,7 +135,7 @@ namespace R1Engine
                 var tileCount = tileSet.Tiles.Length;
                 const int tileSetWidth = 16;
                 var tileSetHeight = (int)Math.Ceiling(tileCount / (double)tileSetWidth);
-                var tileSize = (int)tileSet.Tiles.First().sprite.rect.width;
+                var tileSize = (int)tileSet.Tiles.First().rect.width;
 
                 // Create the texture
                 var tileTex = TextureHelpers.CreateTexture2D(tileSetWidth * tileSize, tileSetHeight * tileSize);
@@ -147,7 +147,7 @@ namespace R1Engine
                 for (int i = 0; i < tileCount; i++)
                 {
                     // Get the tile texture
-                    var tile = tileSet.Tiles[i].sprite;
+                    var tile = tileSet.Tiles[i];
 
                     // Get the texture offsets
                     var offsetY = (i / tileSetWidth) * tileSize;

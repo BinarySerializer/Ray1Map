@@ -19,7 +19,6 @@ namespace R1Engine
         public LevelEventController lvlEventController;
         public LevelTilemapController lvlTilemapController;
         public SelectSquare tileSelectSquare;
-        public Tilemap previewTilemap;
         //Reference to UI buttons
         public Button[] modeButtons;
         public Button[] visibilityButtons;
@@ -79,7 +78,7 @@ namespace R1Engine
             lvlEventController.ToggleLinks(currentMode == EditMode.Links);
 
             tileSelectSquare.gameObject.SetActive(currentMode == EditMode.Tiles || currentMode == EditMode.Collisions);
-            previewTilemap.gameObject.SetActive(currentMode == EditMode.Tiles);
+            lvlTilemapController.tilemapPreview.gameObject.SetActive(currentMode == EditMode.Tiles);
 
             if (currentMode != EditMode.Tiles) {
                 if (lvlTilemapController.focusedOnTemplate) {
@@ -176,7 +175,7 @@ namespace R1Engine
             selection = null;
             tileSelectSquare.Clear();
             if (currentMode == EditMode.Tiles)
-                previewTilemap.ClearAllTiles();
+                lvlTilemapController.ClearPreviewTilemap();
         }
 
         void Update() 
@@ -207,7 +206,7 @@ namespace R1Engine
                         selecting = !GetKey(KeyCode.LeftControl);
                         //Clear old preview tilemap
                         if (currentMode == EditMode.Tiles)
-                            previewTilemap.ClearAllTiles();
+                            lvlTilemapController.ClearPreviewTilemap();
                     }
                 }
 
@@ -226,29 +225,11 @@ namespace R1Engine
                         if (currentMode == EditMode.Tiles) 
                         {
                             // Change preview position
-                            previewTilemap.transform.position = new Vector3((int)tileSelectSquare.XStart, -(int)tileSelectSquare.YStart);
+                            lvlTilemapController.tilemapPreview.transform.position = new Vector3((int)tileSelectSquare.XStart, -(int)tileSelectSquare.YStart);
 
                             // Expand the preview tiles
                             if (selection != null) {
-                                previewTilemap.ClearAllTiles();
-                                int xi = 0;
-                                int yi = 0;
-                                for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) 
-                                {
-                                    for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
-                                    {
-                                        previewTilemap.SetTile(new Vector3Int(x - (int)tileSelectSquare.XStart, y - (int)tileSelectSquare.YStart, 0), map.GetTile(selection[xi, yi], LevelEditorData.CurrentSettings));
-
-                                        xi++;
-
-                                        if (xi >= selection.GetLength(0))
-                                            xi = 0;
-                                    }
-                                    xi = 0;
-                                    yi++;
-                                    if (yi >= selection.GetLength(1))
-                                        yi = 0;
-                                }
+                                lvlTilemapController.SetPreviewTilemap(map, selection);
                             }
                         }
                     }
@@ -274,7 +255,7 @@ namespace R1Engine
                 else {
                     scrolling = false;
                     //Move preview with mouse if not dragging
-                    previewTilemap.transform.position = mousePositionTile;
+                    lvlTilemapController.tilemapPreview.transform.position = mousePositionTile;
                 }
 
                 // Reset camera friction from the drag's override if moved manually
@@ -303,14 +284,13 @@ namespace R1Engine
                                     var t = lvlController.controllerTilemap.GetTileAtPos(x, y);
                                     selection[xi, yi] = t;
 
-                                    // Also fill out preview tilemap
-                                    if (currentMode == EditMode.Tiles)
-                                        previewTilemap.SetTile(new Vector3Int(xi, yi, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
-
                                     xi++;
                                 }
                                 xi = 0;
                                 yi++;
+                            }
+                            if (currentMode == EditMode.Tiles) {
+                                lvlTilemapController.SetPreviewTilemap(map, selection);
                             }
                         }
                         // If dragging and painting mouse up, set the selection
@@ -345,17 +325,8 @@ namespace R1Engine
                                     }
                                 }
                                 // Cut the preview back to the original size since it's been expanded
-                                if (currentMode == EditMode.Tiles) 
-                                {
-                                    previewTilemap.ClearAllTiles();
-                                    // Save the selected area
-                                    for (int y = 0; y <= selection.GetLength(1) - 1; y++) 
-                                    {
-                                        for (int x = 0; x <= selection.GetLength(0) - 1; x++) 
-                                        {
-                                            previewTilemap.SetTile(new Vector3Int(x, y, 0), map.GetTile(selection[x, y], LevelEditorData.CurrentSettings));
-                                        }
-                                    }
+                                if (currentMode == EditMode.Tiles) {
+                                    lvlTilemapController.SetPreviewTilemap(map, selection);
                                 }
                             }
                         }

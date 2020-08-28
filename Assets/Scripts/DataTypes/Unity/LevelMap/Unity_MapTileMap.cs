@@ -17,7 +17,7 @@ namespace R1Engine
         /// <param name="cellSize">The tile size</param>
         public Unity_MapTileMap(IList<ARGBColor> tileMapColors, int tileMapWidth, int cellSize) {
             // Create the tile array
-            Tiles = new Tile[tileMapColors.Count / (cellSize * cellSize)];
+            Tiles = new Unity_TileTexture[tileMapColors.Count / (cellSize * cellSize)];
 
             // Create each tile
             for (var index = 0; index < Tiles.Length; index++) {
@@ -52,7 +52,7 @@ namespace R1Engine
         /// <param name="cellSize">The tile size</param>
         public Unity_MapTileMap(Texture2D tileSet, int cellSize) {
             // Create the tile array
-            Tiles = new Tile[(tileSet.width / cellSize) * (tileSet.height / cellSize)];
+            Tiles = new Unity_TileTexture[(tileSet.width / cellSize) * (tileSet.height / cellSize)];
 
             // Keep track of the index
             var index = 0;
@@ -72,14 +72,14 @@ namespace R1Engine
         /// Creates a tile set from a tile array
         /// </summary>
         /// <param name="tiles">The tiles in this set</param>
-        public Unity_MapTileMap(Tile[] tiles) {
+        public Unity_MapTileMap(Unity_TileTexture[] tiles) {
             Tiles = tiles;
         }
 
         /// <summary>
         /// The tiles in this set
         /// </summary>
-        public Tile[] Tiles { get; }
+        public Unity_TileTexture[] Tiles { get; }
 
         public Unity_AnimatedTile[] AnimatedTiles { get; set; }
     }

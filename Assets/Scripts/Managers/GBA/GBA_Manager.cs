@@ -772,7 +772,7 @@ namespace R1Engine
                 // Load empty tileset for collision layer
                 if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
                 {
-                    level.Maps[layer].TileSet = Enumerable.Repeat(new Unity_MapTileMap(new Tile[]
+                    level.Maps[layer].TileSet = Enumerable.Repeat(new Unity_MapTileMap(new Unity_TileTexture[]
                     {
                         TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
                     }), tilePalettesCount).ToArray();
@@ -1121,10 +1121,10 @@ namespace R1Engine
             int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);
 
             var tileSetTex = TextureHelpers.CreateTexture2D(tilesX * CellSize, tilesY * CellSize * info.TilePalettes.Length);
-            Tile empty = TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile();
-            Tile[][] tiles = new Tile[info.TilePalettes.Length][];
+            Unity_TileTexture empty = TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile();
+            Unity_TileTexture[][] tiles = new Unity_TileTexture[info.TilePalettes.Length][];
             for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
-                tiles[tilePal] = new Tile[tilesetLength];
+                tiles[tilePal] = new Unity_TileTexture[tilesetLength];
                 tiles[tilePal][0] = empty;
             }
             

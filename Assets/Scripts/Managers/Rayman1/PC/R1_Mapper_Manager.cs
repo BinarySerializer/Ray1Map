@@ -235,7 +235,7 @@ namespace R1Engine
             var tileSetHeight = pcxtex.height / Settings.CellSize;
 
             // Create the tile array
-            var tiles = new Tile[tileSetWidth * tileSetHeight];
+            var tiles = new Unity_TileTexture[tileSetWidth * tileSetHeight];
 
             // Get the transparency color
             var transparencyColor = pcxtex.GetPixel(0, 0);

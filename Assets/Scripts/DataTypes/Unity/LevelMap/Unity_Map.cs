@@ -69,7 +69,7 @@ namespace R1Engine
         /// <param name="mapTile">The map tile</param>
         /// <param name="settings">The game settings</param>
         /// <returns>The tile</returns>
-        public Tile GetTile(Unity_Tile mapTile, GameSettings settings, int? tileIndexOverride = null)
+        public Unity_TileTexture GetTile(Unity_Tile mapTile, GameSettings settings, int? tileIndexOverride = null)
         {
             // Get the tile index
             int tileIndex;

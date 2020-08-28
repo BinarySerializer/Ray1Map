@@ -1476,9 +1476,9 @@ namespace R1Engine
             // Create the output array
             var output = new Unity_MapTileMap[]
             {
-                new Unity_MapTileMap(new Tile[levData.TileTextureData.TexturesOffsetTable.Length]),
-                new Unity_MapTileMap(new Tile[levData.TileTextureData.TexturesOffsetTable.Length]),
-                new Unity_MapTileMap(new Tile[levData.TileTextureData.TexturesOffsetTable.Length])
+                new Unity_MapTileMap(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
+                new Unity_MapTileMap(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length]),
+                new Unity_MapTileMap(new Unity_TileTexture[levData.TileTextureData.TexturesOffsetTable.Length])
             };
 
             // Keep track of the tile index
