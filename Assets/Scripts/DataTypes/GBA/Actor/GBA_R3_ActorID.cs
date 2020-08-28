@@ -11,7 +11,7 @@
         Explosion = 5,
 
         Platform_Bouncy = 7,
-        Platform_Moving_Vertical = 8,
+        Platform_Moving = 8,
         Platform_Falling = 9,
         Switch = 10,
         LockedDoor = 11,

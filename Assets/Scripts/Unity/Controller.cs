@@ -94,7 +94,7 @@ namespace R1Engine
             await WaitIfNecessary();
             if (LoadState == State.Error) return;
 
-            DetailedState = "Finsihed";
+            DetailedState = "Finished";
             LoadState = State.Finished;
             loadingScreen.Active = false;
 
