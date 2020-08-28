@@ -1059,7 +1059,7 @@ namespace R1Engine
                     return indices;
                 }
 
-                animatedTiles = animatedTilekits.SelectMany(atk => atk.TileIndices.Select(atkt => new Unity_AnimatedTile() {
+                animatedTiles = animatedTilekits.SelectMany(atk => atk.TileIndices.Where(atkt => atkt != 0).Select(atkt => new Unity_AnimatedTile() {
                     AnimationSpeed = atk.AnimationSpeed,
                     TileIndices = GetIndicesFrom(atkt, atk.TilesStep, atk.NumFrames)
                 })).ToArray();
