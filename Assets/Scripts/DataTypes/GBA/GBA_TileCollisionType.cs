@@ -81,7 +81,7 @@
         Lava = 74,
 
         // See Wicked Flow
-        Reactionary_Turn_45CounterCLockwise = 81,
+        Reactionary_Turn_45CounterClockwise = 81,
         Reactionary_Turn_90CounterClockwise = 82,
         Reactionary_Turn_90Clockwise = 86,
         Reactionary_Turn_45Clockwise = 87,

@@ -1115,6 +1115,13 @@ namespace R1Engine
 
             var output = new Unity_MapTileMap[info.TilePalettes.Length];
 
+            var wrap = 4096 / CellSize;
+
+            int tilesX = Math.Min(tilesetLength, wrap);
+            int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);
+
+            var tileSetTex = TextureHelpers.CreateTexture2D(tilesX * CellSize, tilesY * CellSize * info.TilePalettes.Length);
+
             for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++)
             {
                 Controller.DetailedState = $"Loading tileset {tilesetIndex + 1} (palette {tilePal + 1}/{info.TilePalettes.Length})";
@@ -1127,6 +1134,9 @@ namespace R1Engine
 
                 for (int i = 1; i < tilesetLength; i++)
                 {
+                    int tileY = ((i / wrap)) * CellSize + (tilePal * tilesY * CellSize);
+                    int tileX = (i % wrap) * CellSize;
+
                     // Get the palette to use
                     var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
 
@@ -1134,13 +1144,9 @@ namespace R1Engine
                         Debug.LogWarning($"Tile {i} has several possible palettes: {String.Join(", ", pals)}");
 
                     int p = pals.FirstOrDefault();
-                    if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.IsForegroundTileLayer)
-                    {
-                        //p = ((p + 8) % (tilePalette.Palette.Length / paletteSize));
-                        p += 8;
-                    }
 
-                    var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+                    if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.IsForegroundTileLayer)
+                        p += 8;
 
                     for (int y = 0; y < CellSize; y++)
                     {
@@ -1170,14 +1176,12 @@ namespace R1Engine
                                     c = new Color(c.r, c.g, c.b, 1f);
                             }
 
-                            tex.SetPixel(x, y, c);
+                            tileSetTex.SetPixel(tileX + x, tileY + y, c);
                         }
                     }
 
-                    tex.Apply();
-
                     // Create a tile
-                    tiles[i] = tex.CreateTile();
+                    tiles[i] = tileSetTex.CreateTile(new Rect(tileX, tileY, CellSize, CellSize));
                 }
 
                 output[tilePal] = new Unity_MapTileMap(tiles)
@@ -1185,6 +1189,8 @@ namespace R1Engine
                     AnimatedTiles = animatedTiles
                 };
             }
+
+            tileSetTex.Apply();
 
             return output;
         }
