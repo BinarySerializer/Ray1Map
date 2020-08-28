@@ -40,8 +40,9 @@ namespace R1Engine
         /// <summary>
         /// The type collision tiles
         /// </summary>
-        public Tile[] TypeCollisionTiles;
-        public Tile[] TypeCollisionTilesHD;
+        public Tile[] CollisionTiles;
+        public Tile[] CollisionTilesHD;
+        Dictionary<Unity_MapCollisionTypeGraphic, Tile> CurrentCollisionIcons = new Dictionary<Unity_MapCollisionTypeGraphic, Tile>();
 
         // Infro tracked for when switching between template and normal level
         private Vector3 previousCameraPosNormal;
@@ -82,15 +83,31 @@ namespace R1Engine
             var collisionMap = level.Maps[LevelEditorData.CurrentCollisionMap];
 
             // Set collision tiles
-            var collisionTileSet = Settings.UseHDCollisionSheet ? TypeCollisionTilesHD : TypeCollisionTiles;
+            var collisionTileSet = Settings.UseHDCollisionSheet ? CollisionTilesHD : CollisionTiles;
             if (CellSizeInUnits != 1f) {
                 collisionTileSet = collisionTileSet
                     .Select(t => {
                         if (t == null) return null;
                         Tile newT = ScriptableObject.CreateInstance<Tile>();
                         newT.sprite = Sprite.Create(t.sprite.texture, t.sprite.rect, new Vector2(0.5f, 0.5f), t.sprite.pixelsPerUnit / CellSizeInUnits);
+                        newT.sprite.name = t.sprite.name;
                         return newT;
                     }).ToArray();
+            }
+            var types = Enum.GetValues(typeof(Unity_MapCollisionTypeGraphic));
+            foreach(var type in types) {
+                var typed = (Unity_MapCollisionTypeGraphic)type;
+                string name = typed.ToString();
+                Tile collisionSprite = collisionTileSet.FirstOrDefault(tile => tile.sprite.name == name);
+                if (collisionSprite != null) {
+                    CurrentCollisionIcons[typed] = collisionSprite;
+                } else {
+                    if (typed == Unity_MapCollisionTypeGraphic.None) continue;
+                    Tile t = collisionTileSet.FirstOrDefault(tile => tile.sprite.name == "Unknown");
+                    if (t != null) {
+                        CurrentCollisionIcons[typed] = t;
+                    }
+                }
             }
 
             var unsupportedTiles = new HashSet<int>();
@@ -100,21 +117,18 @@ namespace R1Engine
                 for (int x = 0; x < collisionMap.Width; x++) {
                     // Get the collision index
                     var collisionType = editorManager.GetCollisionTypeGraphic(collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType);
-                    var collisionTypeIndex = (int)collisionType;
 
                     // Make sure it's not out of bounds
-                    if (collisionTypeIndex >= collisionTileSet.Length) {
-                        unsupportedTiles.Add(collisionTypeIndex);
-                        collisionTypeIndex = 0;
+                    if(collisionType != Unity_MapCollisionTypeGraphic.None &&
+                        (!CurrentCollisionIcons.ContainsKey(collisionType)
+                        || (CurrentCollisionIcons[collisionType].sprite?.name.Contains("Unknown") ?? false)
+                        || collisionType.ToString().Contains("Unknown"))) {
+                        unsupportedTiles.Add((int)collisionType);
                     }
-
-                    // Add to list of unsupported if it doesn't have a graphic
-                    if (collisionType.ToString().Contains("Unknown"))
-                        unsupportedTiles.Add(collisionTypeIndex);
 
                     // Set the collision tile
                     for (int i = 0; i < CollisionTilemaps.Length; i++) {
-                        CollisionTilemaps[i].SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), collisionTileSet[collisionTypeIndex]);
+                        CollisionTilemaps[i].SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), CurrentCollisionIcons.TryGetItem(collisionType));
                     }
                 }
             }
@@ -367,7 +381,10 @@ namespace R1Engine
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
                 CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
-                CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)LevelEditorData.EditorManager.GetCollisionTypeGraphic(newTile.Data.CollisionType)]);
+                var type = LevelEditorData.EditorManager.GetCollisionTypeGraphic(newTile.Data.CollisionType);
+                if (CurrentCollisionIcons.ContainsKey(type)) {
+                    CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
+                }
             }
             for (int i = 0; i < GraphicsTilemaps.Length; i++) {
                 Texture2D tex = GraphicsTilemaps[i].sprite.texture;
@@ -400,7 +417,10 @@ namespace R1Engine
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
                 CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
-                CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), TypeCollisionTiles[(int)LevelEditorData.EditorManager.GetCollisionTypeGraphic(collisionType)]);
+                var type = LevelEditorData.EditorManager.GetCollisionTypeGraphic(collisionType);
+                if (CurrentCollisionIcons.ContainsKey(type)) {
+                    CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
+                }
             }
             // Get the tile to set
             var destTile = map.MapTiles[y * map.Width + x];

@@ -48,14 +48,14 @@
         EnemyTrigger_Down = 37,
 
         // Acts as triggers for moving platforms
-        Reactionary_Left = 38,
-        Reactionary_Right = 39,
-        Reactionary_Up = 40,
-        Reactionary_Down = 41,
-        Reactionary_DownLeft = 42,
-        Reactionary_DownRight = 43,
-        Reactionary_UpRight = 44,
-        Reactionary_UpLeft = 45,
+        Direction_Left = 38,
+        Direction_Right = 39,
+        Direction_Up = 40,
+        Direction_Down = 41,
+        Direction_DownLeft = 42,
+        Direction_DownRight = 43,
+        Direction_UpRight = 44,
+        Direction_UpLeft = 45,
 
         // Hang from top
         Hang = 46,

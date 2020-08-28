@@ -15,7 +15,7 @@
         Water = 10,
         Exit = 11,
         Climb = 12,
-        WaterNoSplash = 13,
+        Water_NoSplash = 13,
         Passthrough = 14,
         Solid = 15,
         Seed = 16,
@@ -32,6 +32,18 @@
         Unknown2 = 27,
         Unknown3 = 28,
         Unknown4 = 29,
-        Slippery = 30
+        Slippery = 30,
+
+        Direction_Up,
+        Direction_Down,
+        Direction_Left,
+        Direction_Right,
+        Direction_UpLeft,
+        Direction_UpRight,
+        Direction_DownLeft,
+        Direction_DownRight,
+        Climb_Full,
+        Climb_Hang,
+        LedgeGrab
     }
 }

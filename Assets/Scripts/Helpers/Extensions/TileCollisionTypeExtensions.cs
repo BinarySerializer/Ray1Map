@@ -48,7 +48,7 @@ namespace R1Engine
                     return Unity_MapCollisionTypeGraphic.Climb;
 
                 case R1_TileCollisionType.WaterNoSplash:
-                    return Unity_MapCollisionTypeGraphic.WaterNoSplash;
+                    return Unity_MapCollisionTypeGraphic.Water_NoSplash;
 
                 case R1_TileCollisionType.Passthrough:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
@@ -223,8 +223,8 @@ namespace R1Engine
 
                 case GBA_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
-
                 case GBA_TileCollisionType.Ledge:
+                    return Unity_MapCollisionTypeGraphic.LedgeGrab;
                 case GBA_TileCollisionType.Passthrough:
                     return Unity_MapCollisionTypeGraphic.Passthrough;
 
@@ -233,7 +233,10 @@ namespace R1Engine
                     return Unity_MapCollisionTypeGraphic.Solid;
 
                 case GBA_TileCollisionType.Climb:
+                    return Unity_MapCollisionTypeGraphic.Climb_Full;
                 case GBA_TileCollisionType.Hang:
+                    return Unity_MapCollisionTypeGraphic.Climb_Hang;
+
                 case GBA_TileCollisionType.ClimbableWalls:
                 case GBA_TileCollisionType.Climb_Spider_51:
                 case GBA_TileCollisionType.Climb_Spider_52:
@@ -265,14 +268,23 @@ namespace R1Engine
                 case GBA_TileCollisionType.Slippery_Left_1:
                     return Unity_MapCollisionTypeGraphic.Slippery_Slight_Left_1;
 
-                case GBA_TileCollisionType.Reactionary_Up:
-                case GBA_TileCollisionType.Reactionary_Down:
-                case GBA_TileCollisionType.Reactionary_Left:
-                case GBA_TileCollisionType.Reactionary_Right:
-                case GBA_TileCollisionType.Reactionary_DownRight:
-                case GBA_TileCollisionType.Reactionary_UpRight:
-                case GBA_TileCollisionType.Reactionary_DownLeft:
-                case GBA_TileCollisionType.Reactionary_UpLeft:
+                case GBA_TileCollisionType.Direction_Down:
+                    return Unity_MapCollisionTypeGraphic.Direction_Down;
+                case GBA_TileCollisionType.Direction_DownLeft:
+                    return Unity_MapCollisionTypeGraphic.Direction_DownLeft;
+                case GBA_TileCollisionType.Direction_DownRight:
+                    return Unity_MapCollisionTypeGraphic.Direction_DownRight;
+                case GBA_TileCollisionType.Direction_Left:
+                    return Unity_MapCollisionTypeGraphic.Direction_Left;
+                case GBA_TileCollisionType.Direction_Right:
+                    return Unity_MapCollisionTypeGraphic.Direction_Right;
+                case GBA_TileCollisionType.Direction_Up:
+                    return Unity_MapCollisionTypeGraphic.Direction_Up;
+                case GBA_TileCollisionType.Direction_UpLeft:
+                    return Unity_MapCollisionTypeGraphic.Direction_UpLeft;
+                case GBA_TileCollisionType.Direction_UpRight:
+                    return Unity_MapCollisionTypeGraphic.Direction_UpRight;
+
                 case GBA_TileCollisionType.EnemyTrigger_Left:
                 case GBA_TileCollisionType.EnemyTrigger_Right:
                 case GBA_TileCollisionType.EnemyTrigger_Up:

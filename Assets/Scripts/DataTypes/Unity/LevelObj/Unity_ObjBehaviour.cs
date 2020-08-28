@@ -348,12 +348,12 @@ namespace R1Engine {
                 bool first = true;
                 foreach (SpriteRenderer part in prefabRenderers)
                 {
-                    var pos = new Vector2(part.transform.localPosition.x * EditorManager.PixelsPerUnit, part.transform.localPosition.y * EditorManager.PixelsPerUnit);
 
                     if (part.sprite == null)
                         continue;
 
-                    /*if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
+                    /*var pos = new Vector2(part.transform.localPosition.x * EditorManager.PixelsPerUnit, part.transform.localPosition.y * EditorManager.PixelsPerUnit);
+                    if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
                         leftX = pos.x - (part.flipX ? part.sprite.texture.width : 0);
                     if (pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0) > rightX || first)
                         rightX = pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0);

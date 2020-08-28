@@ -4,97 +4,97 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: -5129695853149024117
-    second: TypeCollision_0
+    second: Reactionary
   - first:
       213: 1637147933150425752
-    second: TypeCollision_1
+    second: Hill_Steep_Left
   - first:
       213: -1929805820428528851
-    second: TypeCollision_2
+    second: Hill_Steep_Right
   - first:
       213: -6471239257855383930
-    second: TypeCollision_3
+    second: Hill_Slight_Left_1
   - first:
       213: 7631552946031441819
-    second: TypeCollision_4
+    second: Hill_Slight_Left_2
   - first:
       213: 4348509129755015395
-    second: TypeCollision_5
+    second: Hill_Slight_Right_2
   - first:
       213: -9174620244060137645
-    second: TypeCollision_6
+    second: Hill_Slight_Right_1
   - first:
       213: 145604147332103513
-    second: TypeCollision_7
+    second: Damage
   - first:
       213: -6390522803144573849
-    second: TypeCollision_8
+    second: Bounce
   - first:
       213: 7741478571819324514
-    second: TypeCollision_9
+    second: Water
   - first:
       213: 848235925670341131
-    second: TypeCollision_10
+    second: Exit
   - first:
       213: -541949160996301626
-    second: TypeCollision_11
+    second: Climb
   - first:
       213: 1117890852493055300
-    second: TypeCollision_12
+    second: Water_NoSplash
   - first:
       213: 5952016016909777030
-    second: TypeCollision_13
+    second: Passthrough
   - first:
       213: -8650991762211185995
-    second: TypeCollision_14
+    second: Solid
   - first:
       213: -5282947189964365613
-    second: TypeCollision_15
+    second: Seed
   - first:
       213: -443986218189412202
-    second: TypeCollision_16
+    second: Unknown0
   - first:
       213: 6127672942224286340
-    second: TypeCollision_17
+    second: Slippery_Steep_Left
   - first:
       213: 5931549597590950192
-    second: TypeCollision_18
+    second: Slippery_Steep_Right
   - first:
       213: -1595922255337957678
-    second: TypeCollision_19
+    second: Slippery_Slight_Left_1
   - first:
       213: 8389344153059746050
-    second: TypeCollision_20
+    second: Slippery_Slight_Left_2
   - first:
       213: 5377589014826520355
-    second: TypeCollision_21
+    second: Slippery_Slight_Right_2
   - first:
       213: -6543639312854883270
-    second: TypeCollision_22
+    second: Slippery_Slight_Right_1
   - first:
       213: 980301016103558135
-    second: TypeCollision_23
+    second: Spikes
   - first:
       213: 5586633005738744777
-    second: TypeCollision_24
+    second: Cliff
   - first:
       213: -7722963707877292598
-    second: TypeCollision_25
+    second: Unknown1
   - first:
       213: 2745589101236320176
-    second: TypeCollision_26
+    second: Unknown2
   - first:
       213: 403154682482232163
-    second: TypeCollision_27
+    second: Unknown3
   - first:
       213: -1286720978719862414
-    second: TypeCollision_28
+    second: Unknown4
   - first:
       213: 306881212683075847
-    second: TypeCollision_29
+    second: Slippery
   - first:
       213: -7315793704915975869
-    second: TypeCollision_30
+    second: Unknown
   - first:
       213: -1705586181150560719
     second: TypeCollision_31
@@ -339,7 +339,7 @@ TextureImporter:
       213: -3581197698496628952
     second: TypeCollision_111
   externalObjects: {}
-  serializedVersion: 10
+  serializedVersion: 11
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -393,6 +393,7 @@ TextureImporter:
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  applyGammaDecoding: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -422,7 +423,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TypeCollision_0
+      name: Reactionary
       rect:
         serializedVersion: 2
         x: 16
@@ -430,7 +431,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -443,7 +444,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_1
+      name: Hill_Steep_Left
       rect:
         serializedVersion: 2
         x: 32
@@ -451,7 +452,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -464,7 +465,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_2
+      name: Hill_Steep_Right
       rect:
         serializedVersion: 2
         x: 48
@@ -472,7 +473,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -485,7 +486,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_3
+      name: Hill_Slight_Left_1
       rect:
         serializedVersion: 2
         x: 64
@@ -493,7 +494,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -506,7 +507,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_4
+      name: Hill_Slight_Left_2
       rect:
         serializedVersion: 2
         x: 80
@@ -514,7 +515,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -527,7 +528,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_5
+      name: Hill_Slight_Right_2
       rect:
         serializedVersion: 2
         x: 96
@@ -535,7 +536,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -548,7 +549,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_6
+      name: Hill_Slight_Right_1
       rect:
         serializedVersion: 2
         x: 112
@@ -556,7 +557,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -569,7 +570,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_7
+      name: Damage
       rect:
         serializedVersion: 2
         x: 0
@@ -577,7 +578,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -590,7 +591,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_8
+      name: Bounce
       rect:
         serializedVersion: 2
         x: 16
@@ -598,7 +599,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -611,7 +612,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_9
+      name: Water
       rect:
         serializedVersion: 2
         x: 32
@@ -619,7 +620,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -632,7 +633,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_10
+      name: Exit
       rect:
         serializedVersion: 2
         x: 48
@@ -640,7 +641,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -653,7 +654,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_11
+      name: Climb
       rect:
         serializedVersion: 2
         x: 64
@@ -661,7 +662,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -674,7 +675,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_12
+      name: Water_NoSplash
       rect:
         serializedVersion: 2
         x: 80
@@ -682,7 +683,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -695,7 +696,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_13
+      name: Passthrough
       rect:
         serializedVersion: 2
         x: 96
@@ -703,7 +704,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -716,7 +717,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_14
+      name: Solid
       rect:
         serializedVersion: 2
         x: 112
@@ -724,7 +725,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -737,7 +738,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_15
+      name: Seed
       rect:
         serializedVersion: 2
         x: 0
@@ -745,7 +746,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -758,7 +759,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_16
+      name: Unknown0
       rect:
         serializedVersion: 2
         x: 16
@@ -766,7 +767,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -779,7 +780,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_17
+      name: Slippery_Steep_Left
       rect:
         serializedVersion: 2
         x: 32
@@ -787,7 +788,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -800,7 +801,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_18
+      name: Slippery_Steep_Right
       rect:
         serializedVersion: 2
         x: 48
@@ -808,7 +809,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -821,7 +822,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_19
+      name: Slippery_Slight_Left_1
       rect:
         serializedVersion: 2
         x: 64
@@ -829,7 +830,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -842,7 +843,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_20
+      name: Slippery_Slight_Left_2
       rect:
         serializedVersion: 2
         x: 80
@@ -850,7 +851,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -863,7 +864,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_21
+      name: Slippery_Slight_Right_2
       rect:
         serializedVersion: 2
         x: 96
@@ -871,7 +872,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -884,7 +885,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_22
+      name: Slippery_Slight_Right_1
       rect:
         serializedVersion: 2
         x: 112
@@ -892,7 +893,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -905,7 +906,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_23
+      name: Spikes
       rect:
         serializedVersion: 2
         x: 0
@@ -913,7 +914,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -926,7 +927,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_24
+      name: Cliff
       rect:
         serializedVersion: 2
         x: 16
@@ -934,7 +935,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -947,7 +948,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_25
+      name: Unknown1
       rect:
         serializedVersion: 2
         x: 32
@@ -955,7 +956,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -968,7 +969,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_26
+      name: Unknown2
       rect:
         serializedVersion: 2
         x: 48
@@ -976,7 +977,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -989,7 +990,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_27
+      name: Unknown3
       rect:
         serializedVersion: 2
         x: 64
@@ -997,7 +998,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -1010,7 +1011,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_28
+      name: Unknown4
       rect:
         serializedVersion: 2
         x: 80
@@ -1018,7 +1019,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -1031,7 +1032,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_29
+      name: Slippery
       rect:
         serializedVersion: 2
         x: 96
@@ -1039,7 +1040,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -1052,7 +1053,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TypeCollision_30
+      name: Unknown
       rect:
         serializedVersion: 2
         x: 112
@@ -1060,7 +1061,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
