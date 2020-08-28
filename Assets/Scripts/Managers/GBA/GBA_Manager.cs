@@ -1121,70 +1121,76 @@ namespace R1Engine
             int tilesY = Mathf.CeilToInt(tilesetLength / (float)wrap);
 
             var tileSetTex = TextureHelpers.CreateTexture2D(tilesX * CellSize, tilesY * CellSize * info.TilePalettes.Length);
-
-            for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++)
+            Tile empty = TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile();
+            Tile[][] tiles = new Tile[info.TilePalettes.Length][];
+            for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
+                tiles[tilePal] = new Tile[tilesetLength];
+                tiles[tilePal][0] = empty;
+            }
+            
+            for (int i = 1; i < tilesetLength; i++)
             {
-                Controller.DetailedState = $"Loading tileset {tilesetIndex + 1} (palette {tilePal + 1}/{info.TilePalettes.Length})";
-                await Controller.WaitIfNecessary();
+                Controller.DetailedState = $"Loading tileset {tilesetIndex + 1} (tile {i-1}/{tilesetLength-1})";
+                if(i % 100 == 0) await Controller.WaitIfNecessary();
+                int tileY = ((i / wrap)) * CellSize;
+                int tileX = (i % wrap) * CellSize;
 
-                var tiles = new Tile[tilesetLength];
+                // Get the palette to use
+                var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
 
-                // Create empty tile
-                tiles[0] = TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile();
+                if (pals.Length > 1)
+                    Debug.LogWarning($"Tile {i} has several possible palettes: {String.Join(", ", pals)}");
 
-                for (int i = 1; i < tilesetLength; i++)
+                int p = pals.FirstOrDefault();
+
+                if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.IsForegroundTileLayer)
+                    p += 8;
+
+                for (int y = 0; y < CellSize; y++)
                 {
-                    int tileY = ((i / wrap)) * CellSize + (tilePal * tilesY * CellSize);
-                    int tileX = (i % wrap) * CellSize;
-
-                    // Get the palette to use
-                    var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
-
-                    if (pals.Length > 1)
-                        Debug.LogWarning($"Tile {i} has several possible palettes: {String.Join(", ", pals)}");
-
-                    int p = pals.FirstOrDefault();
-
-                    if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.IsForegroundTileLayer)
-                        p += 8;
-
-                    for (int y = 0; y < CellSize; y++)
+                    for (int x = 0; x < CellSize; x++)
                     {
-                        for (int x = 0; x < CellSize; x++)
+                        Color c;
+
+                        int index = ((i - 1) * tileSize) + ((y * CellSize + x) / (info.Is8bpp ? 1 : 2));
+
+                        if (info.Is8bpp)
                         {
-                            Color c;
-
-                            int index = ((i - 1) * tileSize) + ((y * CellSize + x) / (info.Is8bpp ? 1 : 2));
-
-                            if (info.Is8bpp)
-                            {
-                                var b = info.Tileset[index];
-
+                            var b = info.Tileset[index];
+                            for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
                                 c = info.TilePalettes[tilePal].Palette[b].GetColor();
 
                                 if (b != 0)
                                     c = new Color(c.r, c.g, c.b, 1f);
-                            }
-                            else
-                            {
-                                var b = info.Tileset[index];
-                                var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
 
+                                tileSetTex.SetPixel(tileX + x, tileY + y + (tilePal * tilesY * CellSize), c);
+                            }
+                        }
+                        else
+                        {
+                            var b = info.Tileset[index];
+                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+                            for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
                                 c = info.TilePalettes[tilePal].Palette[p * paletteSize + v].GetColor();
 
                                 if (v != 0)
                                     c = new Color(c.r, c.g, c.b, 1f);
-                            }
 
-                            tileSetTex.SetPixel(tileX + x, tileY + y, c);
+                                tileSetTex.SetPixel(tileX + x, tileY + y + (tilePal * tilesY * CellSize), c);
+                            }
+                        }
+
+
+                        for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
+                            // Create a tile
+                            tiles[tilePal][i] = tileSetTex.CreateTile(new Rect(tileX, tileY + (tilePal * tilesY * CellSize), CellSize, CellSize));
                         }
                     }
-
-                    // Create a tile
-                    tiles[i] = tileSetTex.CreateTile(new Rect(tileX, tileY, CellSize, CellSize));
                 }
+            }
 
-                output[tilePal] = new Unity_MapTileMap(tiles)
+            for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
+                output[tilePal] = new Unity_MapTileMap(tiles[tilePal])
                 {
                     AnimatedTiles = animatedTiles
                 };
