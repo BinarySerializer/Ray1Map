@@ -32,7 +32,7 @@ namespace R1Engine
         //The ui text
         public GameObject paletteText;
         //0 is auto
-        private int currentPalette = 1;
+        public int currentPalette = 1;
 
         // Reference to the background ting
         public SpriteRenderer backgroundTint;

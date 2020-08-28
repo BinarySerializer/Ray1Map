@@ -654,6 +654,7 @@ namespace R1Engine
                     }
                 }.Concat(mapLayers).ToArray();
             }
+
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level
             {
@@ -663,6 +664,8 @@ namespace R1Engine
                 // Create the events list
                 EventData = new List<Unity_Obj>(),
             };
+
+            var tilePalettes = context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance ? 1 : playField.TileKit.PaletteCount;
 
             // Add every map
             for (int layer = 0; layer < mapLayers.Length; layer++)
@@ -679,13 +682,10 @@ namespace R1Engine
                         Width = map.Width,
                         Height = map.Height,
                         TileSetWidth = 1,
-                        TileSet = new Unity_MapTileMap[]
+                        TileSet = Enumerable.Repeat(new Unity_MapTileMap(new Tile[]
                         {
-                            new Unity_MapTileMap(new Tile[]
-                            {
-                                TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
-                            }), 
-                        },
+                            TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
+                        }), tilePalettes).ToArray(),
                         MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
                         {
                             CollisionType = (byte)x
@@ -746,10 +746,7 @@ namespace R1Engine
                         Width = map.Width,
                         Height = map.Height,
                         TileSetWidth = 1,
-                        TileSet = new Unity_MapTileMap[]
-                        {
-                            LoadTileset(context, playField, map, mapData)
-                        },
+                        TileSet = Enumerable.Range(0, tilePalettes).Select(x => LoadTileset(context, playField, map, mapData, x)).ToArray(),
                         MapTiles = mapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
                         IsForeground = map.LayerID == 3
                     };
@@ -1025,7 +1022,7 @@ namespace R1Engine
             return eta;
         }
 
-        public Unity_MapTileMap LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData)
+        public Unity_MapTileMap LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData, int palIndex)
         {
             // Get the tileset to use
             byte[] tileset;
@@ -1042,7 +1039,7 @@ namespace R1Engine
             {
                 is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
                 tileset = is8bpp ? playField.TileKit.TileSet8bpp : playField.TileKit.TileSet4bpp;
-                tilePalette = playField.TileKit.Palettes[0];
+                tilePalette = playField.TileKit.Palettes[palIndex];
                 animatedTilekits = playField.TileKit.AnimatedTileKits?.Where(atk => atk.Is8Bpp == (map.ColorMode == GBA_ColorMode.Color8bpp)).ToArray();
             }
 

@@ -227,7 +227,24 @@ public class SettingsWindow : UnityWindow
                             tilemaps[i].gameObject.SetActive(isActive);
                     }
                 }
+
+                if (PalOptions == null)
+                    PalOptions = new string[]
+                    {
+                        "Auto"
+                    }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps[LevelEditorData.Level.DefaultMap].TileSet.Length).Select(x => x.ToString())).ToArray();
+
+                var pal = EditorField("Palette", Controller.obj?.levelController?.controllerTilemap?.currentPalette ?? 1, PalOptions);
+
+                if (Controller.obj?.levelController?.controllerTilemap?.currentPalette != null && pal != Controller.obj.levelController.controllerTilemap.currentPalette)
+                {
+                    Controller.obj.levelController.controllerTilemap.RefreshTiles(pal);
+                }
             }
+        }
+        else
+        {
+            PalOptions = null;
         }
 
         // Game Tools
@@ -420,6 +437,7 @@ public class SettingsWindow : UnityWindow
     #region Available Options
 
     public string[] WorldOptions { get; set; } = new string[0];
+    public string[] PalOptions { get; set; } = null;
 
     #endregion
 
