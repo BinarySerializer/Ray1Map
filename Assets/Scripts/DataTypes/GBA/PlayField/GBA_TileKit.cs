@@ -9,10 +9,12 @@ namespace R1Engine
     public class GBA_TileKit : GBA_BaseBlock {
         public ushort TileSet4bppSize { get; set; }
         public ushort TileSet8bppSize { get; set; }
-        public byte[] UnkData { get; set; }
-        public byte TilePaletteIndex { get; set; } // Not used. Always 0 in R3GBA, but not in N-Gage (but tile block is always offset 0).
+        public byte Byte_04 { get; set; } // Not used. Always 0 in R3GBA, but not in N-Gage (but tile block is always offset 0).
         public byte AnimatedTileKitManagerIndex { get; set; }
+        public byte PaletteCount { get; set; }
+        public byte Byte_07 { get; set; }
 
+        public byte[] PaletteIndices { get; set; }
         public byte[] TileSet4bpp { get; set; }
         public byte[] TileSet8bpp { get; set; }
 
@@ -21,7 +23,7 @@ namespace R1Engine
         public bool IsCompressed { get; set; }
 
         #region Parsed
-        public GBA_Palette TilePalette { get; set; }
+        public GBA_Palette[] Palettes { get; set; }
         public GBA_AnimatedTileKitManager AnimatedTileKitManager { get; set; }
         public GBA_AnimatedTileKit[] AnimatedTileKits { get; set; }
         #endregion
@@ -38,9 +40,11 @@ namespace R1Engine
             } else {
                 TileSet4bppSize = s.Serialize<ushort>(TileSet4bppSize, name: nameof(TileSet4bppSize));
                 TileSet8bppSize = s.Serialize<ushort>(TileSet8bppSize, name: nameof(TileSet8bppSize));
-                TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
+                Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
                 AnimatedTileKitManagerIndex = s.Serialize<byte>(AnimatedTileKitManagerIndex, name: nameof(AnimatedTileKitManagerIndex)); // Can be 0xFF which means this block doesn't exist
-                UnkData = s.SerializeArray<byte>(UnkData, 6, name: nameof(UnkData));
+                PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
+                Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+                PaletteIndices = s.SerializeArray<byte>(PaletteIndices, PaletteCount, name: nameof(PaletteIndices));
             }
 
             // Serialize tilemap data
@@ -60,7 +64,12 @@ namespace R1Engine
         {
             if (s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                 // Serialize tile palette
-                TilePalette = s.DoAt(OffsetTable.GetPointer(0), () => s.SerializeObject<GBA_Palette>(TilePalette, name: nameof(TilePalette)));
+                if (Palettes == null) Palettes = new GBA_Palette[PaletteCount];
+                for (int p = 0; p < Palettes.Length; p++) {
+                    Palettes[p] = s.DoAt(OffsetTable.GetPointer(PaletteIndices[p]), () => s.SerializeObject<GBA_Palette>(Palettes[p], name: $"{nameof(Palettes)}[{p}]"));
+                }
+
+                // Serialize tile animations
                 if (AnimatedTileKitManagerIndex != 0xFF) {
                     AnimatedTileKitManager = s.DoAt(OffsetTable.GetPointer(AnimatedTileKitManagerIndex), () => s.SerializeObject<GBA_AnimatedTileKitManager>(AnimatedTileKitManager, name: nameof(AnimatedTileKitManager)));
                     if (AnimatedTileKits == null) AnimatedTileKits = new GBA_AnimatedTileKit[AnimatedTileKitManager.Length];

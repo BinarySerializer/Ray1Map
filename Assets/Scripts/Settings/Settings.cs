@@ -184,7 +184,7 @@ namespace R1Engine {
             }
         }
 
-        public static bool AnimateTiles { get; set; }
+        public static bool AnimateTiles { get; set; } = true;
 
         /// <summary>
         /// Indicates if always events should be shown
