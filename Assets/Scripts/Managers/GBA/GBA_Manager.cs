@@ -665,7 +665,9 @@ namespace R1Engine
                 EventData = new List<Unity_Obj>(),
             };
 
-            var tilePalettes = context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance ? 1 : playField.TileKit.PaletteCount;
+            var tilePalettesCount = context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance ? 1 : playField.TileKit.PaletteCount;
+
+            var mapDatas = new MapTile[mapLayers.Length][];
 
             // Add every map
             for (int layer = 0; layer < mapLayers.Length; layer++)
@@ -682,10 +684,6 @@ namespace R1Engine
                         Width = map.Width,
                         Height = map.Height,
                         TileSetWidth = 1,
-                        TileSet = Enumerable.Repeat(new Unity_MapTileMap(new Tile[]
-                        {
-                            TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
-                        }), tilePalettes).ToArray(),
                         MapTiles = map.CollisionData.Select((x, i) => new Unity_Tile(new MapTile()
                         {
                             CollisionType = (byte)x
@@ -741,13 +739,14 @@ namespace R1Engine
                         }).ToArray();
                     }
 
+                    mapDatas[layer] = mapData;
+
                     level.Maps[layer] = new Unity_Map
                     {
                         Width = map.Width,
                         Height = map.Height,
                         TileSetWidth = 1,
-                        TileSet = Enumerable.Range(0, tilePalettes).Select(x => LoadTileset(context, playField, map, mapData, x)).ToArray(),
-                        MapTiles = mapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
+                        MapTiles = mapData.Select(x => new Unity_Tile(x)).ToArray(),
                         IsForeground = map.LayerID == 3
                     };
                     if (map.ShouldSetBGAlphaBlending) {
@@ -755,6 +754,46 @@ namespace R1Engine
                     }
 
                     level.DefaultMap = layer;
+                }
+            }
+
+            // Cache loaded tilesets
+            Dictionary<byte[], Unity_MapTileMap[]> tilesetCache = new Dictionary<byte[], Unity_MapTileMap[]>();
+
+            // Get tileset info for every map
+            var tilesetInfos = mapLayers.Select(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision ? new TilesetInfo(null, false, null, null) : GetTilesetInfo(context, playField, x)).ToArray();
+
+            // Load tilesets
+            var tilesetIndex = 0;
+            for (int layer = 0; layer < mapLayers.Length; layer++)
+            {
+                var map = mapLayers[layer];
+
+                // Load empty tileset for collision layer
+                if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
+                {
+                    level.Maps[layer].TileSet = Enumerable.Repeat(new Unity_MapTileMap(new Tile[]
+                    {
+                        TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
+                    }), tilePalettesCount).ToArray();
+                }
+                else
+                {
+                    // If not cached we load the tileset
+                    if (!tilesetCache.ContainsKey(tilesetInfos[layer].Tileset))
+                    {
+                        // Load the tileset and pass in all map data which use it
+                        tilesetCache[tilesetInfos[layer].Tileset] = await LoadTilesetsAsync(context, map, tilesetInfos.Select((x, i) => new
+                        {
+                            Data = x,
+                            Index = i
+                        }).Where(x => x.Data.Tileset == tilesetInfos[layer].Tileset).SelectMany(x => mapDatas[x.Index]).ToArray(), tilesetInfos[layer], tilesetIndex);
+
+                        tilesetIndex++;
+                    }
+
+                    // Se the tileset
+                    level.Maps[layer].TileSet = tilesetCache[tilesetInfos[layer].Tileset];
                 }
             }
 
@@ -1022,32 +1061,42 @@ namespace R1Engine
             return eta;
         }
 
-        public Unity_MapTileMap LoadTileset(Context context, GBA_PlayField playField, GBA_TileLayer map, MapTile[] mapData, int palIndex)
+        protected TilesetInfo GetTilesetInfo(Context context, GBA_PlayField playField, GBA_TileLayer map)
         {
             // Get the tileset to use
             byte[] tileset;
             bool is8bpp;
-            GBA_Palette tilePalette;
+            GBA_Palette[] tilePalettes;
             GBA_AnimatedTileKit[] animatedTilekits = null;
             if (context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
             {
                 is8bpp = map.TileKit.Is8bpp;
                 tileset = is8bpp ? map.TileKit.TileSet8bpp : map.TileKit.TileSet4bpp;
-                tilePalette = playField.TilePalette;
+                tilePalettes = new GBA_Palette[]
+                {
+                    playField.TilePalette
+                };
             }
             else
             {
                 is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
                 tileset = is8bpp ? playField.TileKit.TileSet8bpp : playField.TileKit.TileSet4bpp;
-                tilePalette = playField.TileKit.Palettes[palIndex];
+                tilePalettes = playField.TileKit.Palettes.Distinct().ToArray();
                 animatedTilekits = playField.TileKit.AnimatedTileKits?.Where(atk => atk.Is8Bpp == (map.ColorMode == GBA_ColorMode.Color8bpp)).ToArray();
             }
 
-            int tileSize = (is8bpp ? (CellSize * CellSize) : (CellSize * CellSize) / 2);
-            int tilesetLength = (tileset.Length / (is8bpp ? (CellSize*CellSize) : (CellSize * CellSize)/2)) + 1;
+            return new TilesetInfo(tileset, is8bpp, tilePalettes, animatedTilekits);
+        }
+        protected async UniTask<Unity_MapTileMap[]> LoadTilesetsAsync(Context context, GBA_TileLayer map, MapTile[] mapData, TilesetInfo info, int tilesetIndex)
+        {
+            Controller.DetailedState = $"Loading tileset {tilesetIndex + 1}";
+            await Controller.WaitIfNecessary();
+
+            int tileSize = (info.Is8bpp ? (CellSize * CellSize) : (CellSize * CellSize) / 2);
+            int tilesetLength = (info.Tileset.Length / (info.Is8bpp ? (CellSize*CellSize) : (CellSize * CellSize)/2)) + 1;
 
             Unity_AnimatedTile[] animatedTiles = null;
-            if (animatedTilekits != null) {
+            if (info.AnimatedTilekits != null) {
                 int[] GetIndicesFrom(int start, int step, int count) {
                     int[] indices = new int[count];
                     for (int i = 0; i < count; i++) {
@@ -1056,7 +1105,7 @@ namespace R1Engine
                     return indices;
                 }
 
-                animatedTiles = animatedTilekits.SelectMany(atk => atk.TileIndices.Where(atkt => atkt != 0).Select(atkt => new Unity_AnimatedTile() {
+                animatedTiles = info.AnimatedTilekits.SelectMany(atk => atk.TileIndices.Where(atkt => atkt != 0).Select(atkt => new Unity_AnimatedTile() {
                     AnimationSpeed = atk.AnimationSpeed,
                     TileIndices = GetIndicesFrom(atkt, atk.TilesStep, atk.NumFrames)
                 })).ToArray();
@@ -1064,68 +1113,80 @@ namespace R1Engine
 
             const int paletteSize = 16;
 
-            var tiles = new Tile[tilesetLength];
+            var output = new Unity_MapTileMap[info.TilePalettes.Length];
 
-            // Create empty tile
-            tiles[0] = TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile();
-
-            for (int i = 1; i < tilesetLength; i++)
+            for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++)
             {
-                // Get the palette to use
-                var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
+                Controller.DetailedState = $"Loading tileset {tilesetIndex + 1} (palette {tilePal + 1}/{info.TilePalettes.Length})";
+                await Controller.WaitIfNecessary();
 
-                if (pals.Length > 1)
-                    Debug.LogWarning($"Tile {i} has several possible palettes!");
+                var tiles = new Tile[tilesetLength];
 
-                int p = pals.FirstOrDefault();
-                if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.IsForegroundTileLayer) {
-                    //p = ((p + 8) % (tilePalette.Palette.Length / paletteSize));
-                    p += 8;
-                }
+                // Create empty tile
+                tiles[0] = TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile();
 
-                var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
-
-                for (int y = 0; y < CellSize; y++)
+                for (int i = 1; i < tilesetLength; i++)
                 {
-                    for (int x = 0; x < CellSize; x++)
+                    // Get the palette to use
+                    var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
+
+                    if (pals.Length > 1)
+                        Debug.LogWarning($"Tile {i} has several possible palettes: {String.Join(", ", pals)}");
+
+                    int p = pals.FirstOrDefault();
+                    if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.IsForegroundTileLayer)
                     {
-                        Color c;
-
-                        int index = ((i - 1) * tileSize) + ((y * CellSize + x) / (is8bpp ? 1 : 2));
-
-                        if (is8bpp)
-                        {
-                            var b = tileset[index];
-
-                            c = tilePalette.Palette[b].GetColor();
-
-                            if (b != 0)
-                                c = new Color(c.r, c.g, c.b, 1f);
-                        }
-                        else
-                        {
-                            var b = tileset[index];
-                            var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
-
-                            c = tilePalette.Palette[p * paletteSize + v].GetColor();
-
-                            if (v != 0)
-                                c = new Color(c.r, c.g, c.b, 1f);
-                        }
-
-                        tex.SetPixel(x, y, c);
+                        //p = ((p + 8) % (tilePalette.Palette.Length / paletteSize));
+                        p += 8;
                     }
+
+                    var tex = TextureHelpers.CreateTexture2D(CellSize, CellSize);
+
+                    for (int y = 0; y < CellSize; y++)
+                    {
+                        for (int x = 0; x < CellSize; x++)
+                        {
+                            Color c;
+
+                            int index = ((i - 1) * tileSize) + ((y * CellSize + x) / (info.Is8bpp ? 1 : 2));
+
+                            if (info.Is8bpp)
+                            {
+                                var b = info.Tileset[index];
+
+                                c = info.TilePalettes[tilePal].Palette[b].GetColor();
+
+                                if (b != 0)
+                                    c = new Color(c.r, c.g, c.b, 1f);
+                            }
+                            else
+                            {
+                                var b = info.Tileset[index];
+                                var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
+
+                                c = info.TilePalettes[tilePal].Palette[p * paletteSize + v].GetColor();
+
+                                if (v != 0)
+                                    c = new Color(c.r, c.g, c.b, 1f);
+                            }
+
+                            tex.SetPixel(x, y, c);
+                        }
+                    }
+
+                    tex.Apply();
+
+                    // Create a tile
+                    tiles[i] = tex.CreateTile();
                 }
 
-                tex.Apply();
-
-                // Create a tile
-                tiles[i] = tex.CreateTile();
+                output[tilePal] = new Unity_MapTileMap(tiles)
+                {
+                    AnimatedTiles = animatedTiles
+                };
             }
 
-            return new Unity_MapTileMap(tiles) {
-                AnimatedTiles = animatedTiles
-            };
+            return output;
         }
 
         public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
@@ -1146,6 +1207,22 @@ namespace R1Engine
             Game,
             Menu,
             DLC
+        }
+
+        protected class TilesetInfo
+        {
+            public TilesetInfo(byte[] tileset, bool is8Bpp, GBA_Palette[] tilePalettes, GBA_AnimatedTileKit[] animatedTilekits)
+            {
+                Tileset = tileset;
+                Is8bpp = is8Bpp;
+                TilePalettes = tilePalettes;
+                AnimatedTilekits = animatedTilekits;
+            }
+
+            public byte[] Tileset { get; }
+            public bool Is8bpp { get; }
+            public GBA_Palette[] TilePalettes { get; }
+            public GBA_AnimatedTileKit[] AnimatedTilekits { get; }
         }
     }
 }
