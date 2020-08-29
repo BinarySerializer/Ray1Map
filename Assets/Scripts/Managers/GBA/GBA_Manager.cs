@@ -665,8 +665,6 @@ namespace R1Engine
                 EventData = new List<Unity_Obj>(),
             };
 
-            var tilePalettesCount = context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance ? 1 : playField.TileKits[0].PaletteCount;
-
             var mapDatas = new MapTile[mapLayers.Length][];
 
             // Add every map
@@ -785,10 +783,11 @@ namespace R1Engine
                 // Load empty tileset for collision layer
                 if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
                 {
-                    level.Maps[layer].TileSet = Enumerable.Repeat(new Unity_MapTileMap(new Unity_TileTexture[]
-                    {
-                        TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
-                    }), tilePalettesCount).ToArray();
+                    level.Maps[layer].TileSet = new Unity_MapTileMap[] {
+                        new Unity_MapTileMap(new Unity_TileTexture[] {
+                            TextureHelpers.CreateTexture2D(CellSize, CellSize, clear: true, applyClear: true).CreateTile()
+                        })
+                    };
                 }
                 else
                 {
