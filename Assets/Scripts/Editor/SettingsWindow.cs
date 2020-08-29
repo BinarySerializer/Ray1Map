@@ -234,11 +234,8 @@ public class SettingsWindow : UnityWindow
                         "Auto"
                     }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps[LevelEditorData.Level.DefaultMap].TileSet.Length).Select(x => x.ToString())).ToArray();
 
-                var pal = EditorField("Palette", Controller.obj?.levelController?.controllerTilemap?.currentPalette ?? 1, PalOptions);
-
-                if (Controller.obj?.levelController?.controllerTilemap?.currentPalette != null && pal != Controller.obj.levelController.controllerTilemap.currentPalette)
-                {
-                    Controller.obj.levelController.controllerTilemap.RefreshTiles(pal);
+                if (Controller.obj?.levelController?.controllerTilemap != null) {
+                    Controller.obj.levelController.controllerTilemap.currentPalette = EditorField("Palette", Controller.obj.levelController.controllerTilemap.currentPalette, PalOptions);
                 }
             }
         }

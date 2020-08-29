@@ -34,6 +34,7 @@ namespace R1Engine
         public GameObject paletteText;
         //0 is auto
         public int currentPalette = 1;
+        private int _currentPalette = 1;
 
         // Reference to the background ting
         public SpriteRenderer backgroundTint;
@@ -138,7 +139,8 @@ namespace R1Engine
                 Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
 
             // Fill out tiles
-            RefreshTiles(editorManager.Has3Palettes ? 0 : 1);
+            currentPalette = editorManager.Has3Palettes ? 0 : 1;
+            RefreshTiles(currentPalette);
 
             var maxWidth = LevelEditorData.MaxWidth;
             var maxHeight = LevelEditorData.MaxHeight;
@@ -151,10 +153,10 @@ namespace R1Engine
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
         public void RefreshTiles(int palette) {
             // Change button visibility
-            currentPalette = palette;
+            _currentPalette = palette;
             for (int i = 0; i < paletteButtons.Length; i++) {
                 ColorBlock b = paletteButtons[i].colors;
-                b.normalColor = currentPalette == i ? new Color(1, 1, 1) : new Color(0.5f, 0.5f, 0.5f);
+                b.normalColor = _currentPalette == i ? new Color(1, 1, 1) : new Color(0.5f, 0.5f, 0.5f);
                 paletteButtons[i].colors = b;
             }
 
@@ -472,10 +474,19 @@ namespace R1Engine
             return destTile;
         }
 
+        private void CheckPaletteChange() {
+            if (_currentPalette != currentPalette) {
+                Controller.obj.levelController.controllerTilemap.RefreshTiles(currentPalette);
+            }
+        }
+
 		private void Update()
         {
-            if (Controller.LoadState != Controller.State.Finished || animatedTiles == null || !Settings.AnimateTiles)
-                return;
+            if (Controller.LoadState != Controller.State.Finished) return;
+
+            CheckPaletteChange();
+
+            if (animatedTiles == null || !Settings.AnimateTiles) return;
 
             for (int mapIndex = 0; mapIndex < animatedTiles.Length; mapIndex++) {
                 bool changedTile = false;
