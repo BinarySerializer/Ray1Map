@@ -51,7 +51,10 @@ namespace R1Engine
             PlayField.BGTileTable = s.DoAt(baseOffset + PlayField.OffsetTable.Offsets[PlayField.BGTileTableOffsetIndex], () => SerializeGCNBlock<GBA_BGTileTable>(s, PlayField.BGTileTable, (obj, length) => 0));
 
             // Serialize tilemap (this is the only offset which leads to the ROM data block)
-            PlayField.TileKit = s.DoAt(PlayField.OffsetTable.GetPointer(PlayField.TileKitOffsetIndex), () => s.SerializeObject<GBA_TileKit>(PlayField.TileKit, name: nameof(PlayField.TileKit)));
+            if (PlayField.TileKits == null) PlayField.TileKits = new GBA_TileKit[PlayField.TileKitCount];
+            for (int i = 0; i < PlayField.TileKitCount; i++) {
+                PlayField.TileKits[i] = s.DoAt(PlayField.OffsetTable.GetPointer(PlayField.TileKitOffsetIndex + i), () => s.SerializeObject<GBA_TileKit>(PlayField.TileKits[i], name: $"{nameof(PlayField.TileKits)}[{i}]"));
+            }
         }
 
         protected T SerializeGCNBlock<T>(SerializerObject s, T obj, Func<T, uint, long> getOffsetCount)

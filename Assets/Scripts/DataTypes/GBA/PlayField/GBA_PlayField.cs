@@ -46,7 +46,7 @@ namespace R1Engine
 
         #region Parsed
 
-        public GBA_TileKit TileKit { get; set; }
+        public GBA_TileKit[] TileKits { get; set; }
 
         public GBA_BGTileTable BGTileTable { get; set; }
         public GBA_BGTileTable FGTileTable { get; set; }
@@ -101,7 +101,7 @@ namespace R1Engine
                     Mode7Unk = s.Serialize<ushort>(Mode7Unk, name: nameof(Mode7Unk));
                     s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, s.CurrentLength / 2, x =>
                     {
-                        x.IsBGTile = true;
+                        x.GBATileType = MapTile.GBA_TileType.BGTile;
                         x.Is8Bpp = true;
                     }, name: nameof(Mode7Tiles)));
                 }
@@ -131,8 +131,10 @@ namespace R1Engine
                 }
 
                 // Serialize tilemap
-                TileKit = s.DoAt(OffsetTable.GetPointer(TileKitOffsetIndex), () => s.SerializeObject<GBA_TileKit>(TileKit, name: nameof(TileKit)));
-
+                if (TileKits == null) TileKits = new GBA_TileKit[TileKitCount];
+                for (int i = 0; i < TileKitCount; i++) {
+                    TileKits[i] = s.DoAt(OffsetTable.GetPointer(TileKitOffsetIndex + i), () => s.SerializeObject<GBA_TileKit>(TileKits[i], name: $"{nameof(TileKits)}[{i}]"));
+                }
                 // This game has no BGTileTable
                 if (s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
                     // Serialize tilemap

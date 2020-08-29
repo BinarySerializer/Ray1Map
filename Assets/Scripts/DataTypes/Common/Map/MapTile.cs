@@ -36,9 +36,15 @@ namespace R1Engine
 
         public byte PaletteIndex { get; set; }
 
-        public bool IsBGTile { get; set; }
+        public GBA_TileType GBATileType { get; set; } = GBA_TileType.Normal;
         public bool Is8Bpp { get; set; }
         public bool IsFirstBlock { get; set; }
+
+        public enum GBA_TileType {
+            BGTile,
+            Normal,
+            FGTile
+        }
 
         /// <summary>
         /// Handles the data serialization
@@ -124,16 +130,19 @@ namespace R1Engine
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
-                if (IsBGTile
+                if ((GBATileType == GBA_TileType.BGTile || GBATileType == GBA_TileType.FGTile)
                     && s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
                     && s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                     int numBits = Is8Bpp ? 9 : 10;
 
                     if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
                         numBits = 8;
+                    }/*else if(s.GameSettings.EngineVersion >= EngineVersion.GBA_StarWarsTrilogy) {
+                        numBits = Is8Bpp ? 9 : 10;
                     } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCell) {
                         numBits = 9;
-                    }
+                        if (GBATileType == GBA_TileType.FGTile) numBits = 10;
+                    }*/
 
                     ushort value = 0;
 

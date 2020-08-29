@@ -25,7 +25,7 @@ namespace R1Engine
         public bool ShouldSetBGAlphaBlending { get; set; }
         public sbyte AlphaBlending_Coeff { get; set; }
 
-        public bool IsForegroundTileLayer { get; set; }
+        public bool UsesTileKitDirectly { get; set; }
 
         // 0-3 for Mode7
         public byte Priority { get; set; }
@@ -118,7 +118,7 @@ namespace R1Engine
                             break;
 
                         case TileLayerStructTypes.Layer2D:
-                            IsForegroundTileLayer = s.Serialize<bool>(IsForegroundTileLayer, name: nameof(IsForegroundTileLayer));
+                            UsesTileKitDirectly = s.Serialize<bool>(UsesTileKitDirectly, name: nameof(UsesTileKitDirectly));
                             ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                             Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
                             Unk_0F = s.Serialize<byte>(Unk_0F, name: nameof(Unk_0F));
@@ -142,7 +142,16 @@ namespace R1Engine
         protected void SerializeTileMap(SerializerObject s) {
             switch (StructType) {
                 case TileLayerStructTypes.Layer2D:
-                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => { m.IsBGTile = !IsForegroundTileLayer; m.Is8Bpp = ColorMode == GBA_ColorMode.Color8bpp; }, name: nameof(MapData));
+                    MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => {
+                        if (!UsesTileKitDirectly) {
+                            if (Unk_0E == 1) {
+                                m.GBATileType = MapTile.GBA_TileType.FGTile;
+                            } else {
+                                m.GBATileType = MapTile.GBA_TileType.BGTile;
+                            }
+                        }
+                        m.Is8Bpp = ColorMode == GBA_ColorMode.Color8bpp;
+                    }, name: nameof(MapData));
                     break;
                 case TileLayerStructTypes.RotscaleLayerMode7:
                     Mode7Data = s.SerializeArray<byte>(Mode7Data, Width * Height, name: nameof(Mode7Data));

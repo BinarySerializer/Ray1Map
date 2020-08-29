@@ -650,7 +650,7 @@ namespace R1Engine
                         Width = 64,
                         Height = 64,
                         ColorMode = GBA_ColorMode.Color8bpp,
-                        IsForegroundTileLayer = false
+                        UsesTileKitDirectly = false
                     }
                 }.Concat(mapLayers).ToArray();
             }
@@ -665,7 +665,7 @@ namespace R1Engine
                 EventData = new List<Unity_Obj>(),
             };
 
-            var tilePalettesCount = context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance ? 1 : playField.TileKit.PaletteCount;
+            var tilePalettesCount = context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance ? 1 : playField.TileKits[0].PaletteCount;
 
             var mapDatas = new MapTile[mapLayers.Length][];
 
@@ -698,16 +698,16 @@ namespace R1Engine
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
                     if (map.StructType == GBA_TileLayer.TileLayerStructTypes.RotscaleLayerMode7) {
                         mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
-                    } else if (!map.IsForegroundTileLayer
+                    } else if (!map.UsesTileKitDirectly
                         && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
                         && context.Settings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
                         //Controller.print(map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
-                        Controller.print(map.LayerID + ": " + map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount4bpp);
+                        //if(map.ColorMode == GBA_ColorMode.Color4bpp) Controller.print(map.LayerID + ": Min:" + map.MapData?.Where(m =>m.TileMapY != 0).Min(m => m.TileMapY) + " - Max:" +map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount4bpp);
 
-                        GBA_BGTileTable tbl = /*map.LayerID >= 2 ? playField.FGTileTable :*/ playField.BGTileTable;
+                        GBA_BGTileTable tbl = map.Unk_0E == 1 ? playField.FGTileTable : playField.BGTileTable;
 
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
@@ -731,10 +731,15 @@ namespace R1Engine
                                     newt.TileMapY = tbl.Indices8bpp[index];
                                 }
                             } else {
-                                if (context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
-                                    index -= 8;
-                                } else {
-                                    index -= 2;
+                                index -= 2;
+                                if (context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia
+                                && context.Settings.EngineVersion < EngineVersion.GBA_StarWarsTrilogy
+                                && playField.BGTileTable != null) {
+                                    int numTiles = playField.BGTileTable.IndicesCount8bpp % 128;
+                                    index -= numTiles * 2;
+                                }
+                                if (map.Unk_0E == 1 && playField.BGTileTable != null) {
+                                    index -= playField.BGTileTable.IndicesCount4bpp;
                                 }
                                 if (index < 0 || index >= tbl.IndicesCount4bpp) {
                                     newt.TileMapY = 0;
@@ -1088,9 +1093,9 @@ namespace R1Engine
             else
             {
                 is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
-                tileset = is8bpp ? playField.TileKit.TileSet8bpp : playField.TileKit.TileSet4bpp;
-                tilePalettes = playField.TileKit.Palettes.Distinct().ToArray();
-                animatedTilekits = playField.TileKit.AnimatedTileKits?.Where(atk => atk.Is8Bpp == (map.ColorMode == GBA_ColorMode.Color8bpp)).ToArray();
+                tileset = is8bpp ? playField.TileKits[map.Unk_0E].TileSet8bpp : playField.TileKits[map.Unk_0E].TileSet4bpp;
+                tilePalettes = playField.TileKits[map.Unk_0E].Palettes.Distinct().ToArray();
+                animatedTilekits = playField.TileKits[map.Unk_0E].AnimatedTileKits?.Where(atk => atk.Is8Bpp == (map.ColorMode == GBA_ColorMode.Color8bpp)).ToArray();
             }
 
             return new TilesetInfo(tileset, is8bpp, tilePalettes, animatedTilekits);
@@ -1114,7 +1119,7 @@ namespace R1Engine
                 }
 
                 animatedTiles = info.AnimatedTilekits.SelectMany(atk => atk.TileIndices.Where(atkt => atkt != 0).Select(atkt => new Unity_AnimatedTile() {
-                    AnimationSpeed = atk.AnimationSpeed,
+                    AnimationSpeed = atk.AnimationSpeed / 2f,
                     TileIndices = GetIndicesFrom(atkt, atk.TilesStep, atk.NumFrames)
                 })).ToArray();
             }
@@ -1139,7 +1144,7 @@ namespace R1Engine
             for (int i = 1; i < tilesetLength; i++)
             {
                 Controller.DetailedState = $"Loading tileset {tilesetIndex + 1} (tile {i-1}/{tilesetLength-1})";
-                if(i % 100 == 0) await Controller.WaitIfNecessary();
+                if(i % 64 == 1) await Controller.WaitIfNecessary();
                 int tileY = ((i / wrap)) * CellSize;
                 int tileX = (i % wrap) * CellSize;
 
