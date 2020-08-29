@@ -9,7 +9,7 @@
         Piranha = 3,
         WaterSplash = 4,
         Explosion = 5,
-
+        Gunshot = 6,
         Platform_Bouncy = 7,
         Platform_Moving = 8,
         Platform_Falling = 9,
@@ -18,75 +18,104 @@
         Lum = 12,
         Cage = 13,
         LevelCurtain = 14,
-
+        Platform_Falling2 = 15,
+        Unused_16 = 16,
+        Breakable_Door = 17,
         Keg = 18,
         FloatingBarrel = 19,
         SphereBase = 20,
         Sphere = 21,
-
+        Bridge_Falling = 22,
         Pirate_Green = 23,
         Pirate_Blue = 24,
-        Pirate_Unknown = 25,
+        Pirate_Silver = 25,
         HelicopterBomb = 26,
         ZombieChicken = 27,
-
+        Climbable_Falling = 28,
         FloatingBarrelSplash = 29,
         LevelExit_Back = 30,
-
+        RedShell = 31,
+        KegFire = 32,
         Rayman_WaterSki = 33,
         Lum_Mode7 = 34,
         Caterpillar = 35,
         Butterfly = 37,
-
+        Unused_38 = 38,
         Boss_Jano = 39,
-
+        MovingSkull_Jano = 40,
         Spider = 41,
         Ssssam = 42,
-
+        Nettle = 43,
+        GrimKeeper_Wood = 44,
+        Spinneroo = 45,
+        Slapdash = 46,
         Ring = 47,
-
+        GrimKeeperBomb = 48,
         Effect_49 = 49,
         Breakable_Ground = 50,
-
+        ChasingBoulder = 51,
+        Unused_52 = 52,
         Platform_Moving_Burn = 53,
         Plum = 54,
-
-        DarkLum = 57,
-
+        PlumSplash = 55,
+        BlackLum = 57,
+        ElectricObstacle = 58,
+        Hoodstormer = 59,
         SpikyBall_Hovering = 60,
-
+        Effect_Burn = 61,
         HelicopterBomb_Mode7 = 62,
-
+        WaterEffect_Mode7 = 63,
         Murfy = 64,
-
-        Effect_67 = 67,
-
+        Fire = 65,
+        Explosion_Mode7 = 66,
+        Effect_Sparkles = 67,
+        PurplePlant_Mode7 = 68,
+        BrokenFence_Mode7 = 69,
+        BrokenTree_Mode7 = 70,
+        Pumpkin_Mode7 = 71,
+        Bats = 72,
+        Effect_Sparkle = 73,
+        Rayman_Kart = 74,
+        Effect_Smoke = 75,
         Shell_Walking = 76,
-
+        WoodenBar = 77,
         Ly = 78,
-
+        Flag = 79,
+        Unused_80 = 80,
         Breakable_Wall = 81,
         FallingBarrelEffect = 82,
-
+        Boss_Scaleman = 83,
         Boss_Machine = 84,
-
-        balloon = 85,
-
+        Balloon = 85,
+        Scaleman2 = 86,
+        MultiplayerItem = 87,
         Rayman_FlyingShell = 88,
         MovingSkull = 89,
-
+        Unused_90 = 90,
         SpikyBall_Swinging = 91,
         MurfyStone = 92,
         Boss_Grolgoth = 93,
-
+        BombGrolgoth = 94,
         Teensies = 95,
-
+        Unused_96 = 96,
+        Boss_Rocky = 97,
+        Effect_RockyDust = 98,
         Platform_UpOnPunch = 99,
         Urchin = 100,
         LevelExit_Next = 101,
-
+        SpikyEnemy = 102,
         Rayman_WorldMap = 103,
-
+        Bumpers_Mode7 = 104,
+        RollingStone_Mode7 = 105,
+        Unused_106 = 106,
+        HelicopterBomb_Rotated = 107,
+        Effect_Leaf = 108,
         Effect_JanoShot = 109,
+        GrimKeeper_Metal = 110,
+        CaptureFlag_Flag = 111,
+        Rayman_Flag2p = 112,
+        CaptureFlag_Base = 113,
+        CaptureFlag_Item = 114,
+        Rayman_Flag4p = 115,
     }
 }
