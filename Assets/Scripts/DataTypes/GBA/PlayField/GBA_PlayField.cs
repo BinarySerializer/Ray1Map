@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     public class GBA_PlayField : GBA_BaseBlock
     {
@@ -10,7 +12,9 @@
         public byte TileKitOffsetIndex { get; set; }
 
         public byte BGTileTableOffsetIndex { get; set; }
-        
+
+        public byte TileKitCount { get; set; } = 1;
+
         public byte Unk_03 { get; set; }
 
         // For BG_0 parallax scrolling?
@@ -45,6 +49,7 @@
         public GBA_TileKit TileKit { get; set; }
 
         public GBA_BGTileTable BGTileTable { get; set; }
+        public GBA_BGTileTable FGTileTable { get; set; }
 
         public GBA_Cluster[] Clusters { get; set; }
         public GBA_TileLayer[] Layers { get; set; }
@@ -65,7 +70,7 @@
                 UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
                 BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
                 TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
-                Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+                TileKitCount = s.Serialize<byte>(TileKitCount, name: nameof(TileKitCount));
                 UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 3, name: nameof(UnkBytes2));
             } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
@@ -132,6 +137,10 @@
                 if (s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
                     // Serialize tilemap
                     BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
+
+                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                        FGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex+1), () => s.SerializeObject<GBA_BGTileTable>(FGTileTable, name: nameof(FGTileTable)));
+                    }
                 }
             } else {
                 // Serialize tile palette

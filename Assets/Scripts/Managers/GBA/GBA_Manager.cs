@@ -705,6 +705,10 @@ namespace R1Engine
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
                         //Controller.print(map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
+                        Controller.print(map.LayerID + ": " + map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount4bpp);
+
+                        GBA_BGTileTable tbl = /*map.LayerID >= 2 ? playField.FGTileTable :*/ playField.BGTileTable;
+
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
                             MapTile newt = x.CloneObj();
@@ -721,18 +725,22 @@ namespace R1Engine
                                         index = -1;
                                     }
                                 }
-                                if (index < 0 || index >= playField.BGTileTable.IndicesCount8bpp) {
+                                if (index < 0 || index >= tbl.IndicesCount8bpp) {
                                     newt.TileMapY = 0;
                                 } else {
-                                    newt.TileMapY = playField.BGTileTable.Indices8bpp[index];
+                                    newt.TileMapY = tbl.Indices8bpp[index];
                                 }
                             } else {
-                                index -= 2;
-                                if (index < 0 || index >= playField.BGTileTable.IndicesCount4bpp) {
+                                if (context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                                    index -= 8;
+                                } else {
+                                    index -= 2;
+                                }
+                                if (index < 0 || index >= tbl.IndicesCount4bpp) {
                                     newt.TileMapY = 0;
                                 } else {
                                     //Controller.print(index);
-                                    newt.TileMapY = playField.BGTileTable.Indices4bpp[index];
+                                    newt.TileMapY = tbl.Indices4bpp[index];
                                 }
                             }
                             return newt;
