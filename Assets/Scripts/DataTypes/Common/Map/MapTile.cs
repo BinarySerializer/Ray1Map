@@ -191,6 +191,10 @@ namespace R1Engine
                         } else {
                             PaletteIndex = (byte)BitHelpers.ExtractBits(value, 4, 12);
                         }
+
+                        if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell) {
+                            PaletteIndex += 8;
+                        }
                     } else if(s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
                         VerticalFlip = BitHelpers.ExtractBits(value, 1, numBits + 1) == 1;
                     }

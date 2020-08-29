@@ -1151,9 +1151,6 @@ namespace R1Engine
 
                 int p = pals.FirstOrDefault();
 
-                if (context.Settings.EngineVersion == EngineVersion.GBA_SplinterCell && map.IsForegroundTileLayer)
-                    p += 8;
-
                 for (int y = 0; y < CellSize; y++)
                 {
                     for (int x = 0; x < CellSize; x++)
