@@ -232,7 +232,7 @@ public class SettingsWindow : UnityWindow
                     PalOptions = new string[]
                     {
                         "Auto"
-                    }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps[LevelEditorData.Level.DefaultMap].TileSet.Length).Select(x => x.ToString())).ToArray();
+                    }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString())).ToArray();
 
                 if (Controller.obj?.levelController?.controllerTilemap != null) {
                     Controller.obj.levelController.controllerTilemap.currentPalette = EditorField("Palette", Controller.obj.levelController.controllerTilemap.currentPalette, PalOptions);

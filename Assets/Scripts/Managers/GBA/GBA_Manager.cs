@@ -796,7 +796,7 @@ namespace R1Engine
                     if (!tilesetCache.ContainsKey(tilesetInfos[layer].Tileset))
                     {
                         // Load the tileset and pass in all map data which use it
-                        tilesetCache[tilesetInfos[layer].Tileset] = await LoadTilesetsAsync(context, map, tilesetInfos.Select((x, i) => new
+                        tilesetCache[tilesetInfos[layer].Tileset] = await LoadTilesetsAsync(tilesetInfos.Select((x, i) => new
                         {
                             Data = x,
                             Index = i
@@ -1100,7 +1100,7 @@ namespace R1Engine
 
             return new TilesetInfo(tileset, is8bpp, tilePalettes, animatedTilekits);
         }
-        protected async UniTask<Unity_MapTileMap[]> LoadTilesetsAsync(Context context, GBA_TileLayer map, MapTile[] mapData, TilesetInfo info, int tilesetIndex)
+        protected async UniTask<Unity_MapTileMap[]> LoadTilesetsAsync(MapTile[] mapData, TilesetInfo info, int tilesetIndex)
         {
             Controller.DetailedState = $"Loading tileset {tilesetIndex + 1}";
             await Controller.WaitIfNecessary();

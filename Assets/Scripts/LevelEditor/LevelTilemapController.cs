@@ -151,7 +151,10 @@ namespace R1Engine
         }
 
         // Used to redraw all tiles with different palette (0 = auto, 1-3 = palette)
-        public void RefreshTiles(int palette) {
+        public void RefreshTiles(int palette) 
+        {
+            Debug.Log($"Refreshing tiles with palette {palette}");
+
             // Change button visibility
             _currentPalette = palette;
             for (int i = 0; i < paletteButtons.Length; i++) {
@@ -199,6 +202,10 @@ namespace R1Engine
 
                         if (palette != 0)
                             t.PaletteIndex = palette;
+
+                        if (t.PaletteIndex - 1 >= map.TileSet.Length)
+                            t.PaletteIndex = 1;
+
                         Unity_TileTexture tile = map.GetTile(t, LevelEditorData.CurrentSettings);
                         var atInstance = map.GetAnimatedTile(t, LevelEditorData.CurrentSettings);
                         if (atInstance != null) {
