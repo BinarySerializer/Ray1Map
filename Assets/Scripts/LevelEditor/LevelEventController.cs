@@ -194,7 +194,10 @@ namespace R1Engine
                         {
                             if (link == 0xFF)
                                 continue;
-
+                            if (link >= eventList.Count) {
+                                Debug.LogWarning("Link ID " + link + " was too high (event count: " + eventList.Count);
+                                continue;
+                            }
                             eventList[link].LinkID = i + 1;
 
                             foreach (var linkedObj in eventList.Where(x => x.LinkID == 0 && x.Data.GBALinks.Contains(link)))

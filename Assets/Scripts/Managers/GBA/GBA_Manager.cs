@@ -731,9 +731,10 @@ namespace R1Engine
                             } else {
                                 index -= 2;
                                 if (context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia
-                                && context.Settings.EngineVersion < EngineVersion.GBA_StarWarsTrilogy
-                                && playField.BGTileTable != null) {
-                                    int numTiles = playField.BGTileTable.IndicesCount8bpp % 128;
+                                //&& context.Settings.EngineVersion < EngineVersion.GBA_StarWarsTrilogy
+                                && playField.BGTileTable != null
+                                && playField.BGTileTable.IndicesCount8bpp > 383) {
+                                    int numTiles = playField.BGTileTable.IndicesCount8bpp % 384;
                                     index -= numTiles * 2;
                                 }
                                 if (map.Unk_0E == 1 && playField.BGTileTable != null) {
