@@ -29,6 +29,7 @@ namespace R1Engine
             122
         };
         public override int DLCLevelCount => 0;
+
         public override int[] AdditionalSprites4bpp => Enumerable.Range(69, 89 - 69).Concat(Enumerable.Range(90, 113 - 90)).Concat(Enumerable.Range(115, 121 - 115)).ToArray();
         public override int[] AdditionalSprites8bpp => new int[]
         {

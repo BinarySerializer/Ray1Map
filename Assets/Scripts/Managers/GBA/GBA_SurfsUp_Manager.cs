@@ -6,16 +6,17 @@ namespace R1Engine
 {
     public class GBA_SurfsUp_Manager : GBA_Manager
     {
-        // TODO: Get count
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 1)
+            Enumerable.Range(0, 248)
         };
 
-        // TODO: Get values
-        public override int[] MenuLevels => new int[0];
+        public override int[] MenuLevels => ValueRange.EnumerateRanges(new ValueRange(259, 270), new ValueRange(304, 309)).ToArray();
         public override int DLCLevelCount => 0;
-        public override int[] AdditionalSprites4bpp => new int[0];
+
+        public override int[] AdditionalSprites4bpp => ValueRange.EnumerateRanges(new ValueRange(248, 258), new ValueRange(271, 282), new ValueRange(284, 303), 
+            // ?
+            new ValueRange(321, 321)).ToArray();
         public override int[] AdditionalSprites8bpp => new int[0];
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();

@@ -1,11 +1,31 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 
 namespace R1Engine
 {
-    public class GBA_SplinterCellNGage_Manager : GBA_SplinterCell_Manager
+    public class GBA_SplinterCellNGage_Manager : GBA_Manager
     {
         public override string GetROMFilePath => $"splintercell_1.dat";
+
+        public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
+        {
+            Enumerable.Range(0, 185)
+        };
+
+        public override int[] MenuLevels => ValueRange.EnumerateRanges(
+            new ValueRange(206, 206),
+            new ValueRange(222, 226)
+        ).ToArray();
+        public override int DLCLevelCount => 0;
+
+        public override int[] AdditionalSprites4bpp => ValueRange.EnumerateRanges(
+            new ValueRange(205, 205),
+            new ValueRange(207, 215),
+            new ValueRange(217, 221)
+        ).ToArray();
+        public override int[] AdditionalSprites8bpp => new int[0];
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 

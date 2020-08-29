@@ -155,7 +155,7 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell, Game.GBA_SplinterCell, "Splinter Cell (GBA - US)", typeof(GBA_SplinterCell_Manager))]
         SplinterCellGBAUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell, Game.GBA_SplinterCell, "Splinter Cell (GBA - EU Beta)", typeof(GBA_SplinterCell_Manager))]
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell, Game.GBA_SplinterCell, "Splinter Cell (GBA - EU Beta)", typeof(GBA_SplinterCellProto_Manager))]
         SplinterCellGBAEUBeta,
 
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell_NGage, Game.GBA_SplinterCell, "Splinter Cell (N-Gage)", typeof(GBA_SplinterCellNGage_Manager))]
