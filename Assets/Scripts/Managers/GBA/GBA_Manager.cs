@@ -638,10 +638,44 @@ namespace R1Engine
             // Get the map layers, skipping the text layers
             var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.Type.TextLayerMode7).ToArray();
 
+            var mode7Layers = playField.Layers.Where(x => x.StructType == GBA_TileLayer.Type.TextLayerMode7).ToArray();
+
             // Create a dummy layer for Mode7 background
             if (playField.StructType == GBA_PlayField.Type.PlayFieldMode7)
             {
-                mapLayers = new GBA_TileLayer[]
+                MapTile[] lastBit = new MapTile[256];
+                Array.Copy(playField.Mode7Tiles, playField.Mode7Tiles.Length - 256, lastBit, 0, 256);
+                /*MapTile[] firstBit = new MapTile[256];
+                Array.Copy(playField.Mode7Tiles, 0, firstBit, 0, 256);*/
+                MapTile[] lastLayer = new MapTile[playField.Mode7Tiles.Length - 256];
+                Array.Copy(playField.Mode7Tiles, 256, lastLayer, 0, lastLayer.Length);
+                mapLayers = mapLayers.Concat(mode7Layers.Select(l => {
+                    l.ColorMode = GBA_ColorMode.Color8bpp;
+                    l.Width /= 2;
+                    l.Height *= 2;
+                    l.UsesTileKitDirectly = false;
+                    //l.MapData = lastLayer;
+                    l.MapData = playField.Mode7Tiles;
+                    return l;/* new GBA_TileLayer() {
+                        StructType = GBA_TileLayer.Type.Layer2D,
+                        MapData = playField.Mode7Tiles,
+                        Width = 64,
+                        Height = 64,
+                        ColorMode = GBA_ColorMode.Color8bpp,
+                        UsesTileKitDirectly = false
+                    };*/
+                })).Concat(new GBA_TileLayer[]
+                {
+                    new GBA_TileLayer() {
+                        StructType = GBA_TileLayer.Type.Layer2D,
+                        MapData = lastBit,
+                        Width = 16,
+                        Height = 16,
+                        ColorMode = GBA_ColorMode.Color8bpp,
+                        UsesTileKitDirectly = false
+                    }
+                }).ToArray();
+                /*mapLayers = new GBA_TileLayer[]
                 {
                     new GBA_TileLayer()
                     {
@@ -652,7 +686,7 @@ namespace R1Engine
                         ColorMode = GBA_ColorMode.Color8bpp,
                         UsesTileKitDirectly = false
                     }
-                }.Concat(mapLayers).ToArray();
+                }.Concat(mapLayers).ToArray();*/
             }
 
             // Convert levelData to common level format
