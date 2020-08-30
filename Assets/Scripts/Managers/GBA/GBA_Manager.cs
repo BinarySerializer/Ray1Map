@@ -824,6 +824,8 @@ namespace R1Engine
             {
                 var actorIndex = 0;
 
+                var usesLinks = context.Settings.EngineVersion > EngineVersion.GBA_BatmanVengeance && context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow;
+
                 foreach (var actor in scene.Actors)
                 {
                     Controller.DetailedState = $"Loading actor {actorIndex + 1}/{scene.Actors.Length}";
@@ -845,13 +847,13 @@ namespace R1Engine
                     })
                     {
                         Type = actor.ActorID,
-                        GBALinks = new int[]
+                        GBALinks = usesLinks ? new int[]
                         {
                             actor.Link_0, 
                             actor.Link_1, 
                             actor.Link_2, 
                             actor.Link_3, 
-                        },
+                        } : new int[0],
                         ForceAlways = actorIndex < scene.AlwaysActorsCount,
                         DESKey = actor.GraphicsDataIndex.ToString(),
                         ETAKey = actor.GraphicsDataIndex.ToString(),
