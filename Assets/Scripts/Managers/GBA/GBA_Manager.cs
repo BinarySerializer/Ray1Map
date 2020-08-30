@@ -636,16 +636,16 @@ namespace R1Engine
             }
 
             // Get the map layers, skipping the text layers
-            var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.TileLayerStructTypes.TextLayerMode7).ToArray();
+            var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.Type.TextLayerMode7).ToArray();
 
             // Create a dummy layer for Mode7 background
-            if (playField.IsMode7)
+            if (playField.StructType == GBA_PlayField.Type.PlayFieldMode7)
             {
                 mapLayers = new GBA_TileLayer[]
                 {
                     new GBA_TileLayer()
                     {
-                        StructType = GBA_TileLayer.TileLayerStructTypes.Layer2D,
+                        StructType = GBA_TileLayer.Type.Layer2D,
                         MapData = playField.Mode7Tiles,
                         Width = 64,
                         Height = 64,
@@ -675,7 +675,7 @@ namespace R1Engine
 
                 var map = mapLayers[layer];
 
-                if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
+                if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
                     level.Maps[layer] = new Unity_Map
                     {
@@ -694,7 +694,7 @@ namespace R1Engine
                 {
                     MapTile[] mapData = map.MapData;
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
-                    if (map.StructType == GBA_TileLayer.TileLayerStructTypes.RotscaleLayerMode7) {
+                    if (map.StructType == GBA_TileLayer.Type.RotscaleLayerMode7) {
                         mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
                     } else if (!map.UsesTileKitDirectly
                         && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
@@ -705,7 +705,7 @@ namespace R1Engine
                         //Controller.print(map.MapData?.Where(m => !m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
                         //if(map.ColorMode == GBA_ColorMode.Color4bpp) Controller.print(map.LayerID + ": Min:" + map.MapData?.Where(m =>m.TileMapY != 0).Min(m => m.TileMapY) + " - Max:" +map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount4bpp);
 
-                        GBA_BGTileTable tbl = map.Unk_0E == 1 ? playField.FGTileTable : playField.BGTileTable;
+                        GBA_BGTileTable tbl = map.TileKitIndex == 1 ? playField.FGTileTable : playField.BGTileTable;
 
                         mapData = map.MapData?.Select(x => {
                             int index = x.TileMapY;
@@ -737,7 +737,7 @@ namespace R1Engine
                                     int numTiles = playField.BGTileTable.IndicesCount8bpp % 384;
                                     index -= numTiles * 2;
                                 }
-                                if (map.Unk_0E == 1 && playField.BGTileTable != null) {
+                                if (map.TileKitIndex == 1 && playField.BGTileTable != null) {
                                     index -= playField.BGTileTable.IndicesCount4bpp;
                                 }
                                 if (index < 0 || index >= tbl.IndicesCount4bpp) {
@@ -773,7 +773,7 @@ namespace R1Engine
             Dictionary<byte[], Unity_MapTileMap[]> tilesetCache = new Dictionary<byte[], Unity_MapTileMap[]>();
 
             // Get tileset info for every map
-            var tilesetInfos = mapLayers.Select(x => x.StructType == GBA_TileLayer.TileLayerStructTypes.Collision ? new TilesetInfo(null, false, null, null) : GetTilesetInfo(context, playField, x)).ToArray();
+            var tilesetInfos = mapLayers.Select(x => x.StructType == GBA_TileLayer.Type.Collision ? new TilesetInfo(null, false, null, null) : GetTilesetInfo(context, playField, x)).ToArray();
 
             // Load tilesets
             var tilesetIndex = 0;
@@ -782,7 +782,7 @@ namespace R1Engine
                 var map = mapLayers[layer];
 
                 // Load empty tileset for collision layer
-                if (map.StructType == GBA_TileLayer.TileLayerStructTypes.Collision)
+                if (map.StructType == GBA_TileLayer.Type.Collision)
                 {
                     level.Maps[layer].TileSet = new Unity_MapTileMap[] {
                         new Unity_MapTileMap(new Unity_TileTexture[] {
@@ -1093,9 +1093,9 @@ namespace R1Engine
             else
             {
                 is8bpp = map.ColorMode == GBA_ColorMode.Color8bpp;
-                tileset = is8bpp ? playField.TileKits[map.Unk_0E].TileSet8bpp : playField.TileKits[map.Unk_0E].TileSet4bpp;
-                tilePalettes = playField.TileKits[map.Unk_0E].Palettes.Distinct().ToArray();
-                animatedTilekits = playField.TileKits[map.Unk_0E].AnimatedTileKits?.Where(atk => atk.Is8Bpp == (map.ColorMode == GBA_ColorMode.Color8bpp)).ToArray();
+                tileset = is8bpp ? playField.TileKits[map.TileKitIndex].TileSet8bpp : playField.TileKits[map.TileKitIndex].TileSet4bpp;
+                tilePalettes = playField.TileKits[map.TileKitIndex].Palettes.Distinct().ToArray();
+                animatedTilekits = playField.TileKits[map.TileKitIndex].AnimatedTileKits?.Where(atk => atk.Is8Bpp == (map.ColorMode == GBA_ColorMode.Color8bpp)).ToArray();
             }
 
             return new TilesetInfo(tileset, is8bpp, tilePalettes, animatedTilekits);
