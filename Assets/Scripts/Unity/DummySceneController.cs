@@ -15,10 +15,10 @@ public class DummySceneController : MonoBehaviour
             Manager = (IGameManager)Activator.CreateInstance(x.GetAttribute<GameModeAttribute>().ManagerType),
         }).
             Where(x => Directory.Exists(Settings.GameDirectories.TryGetItem(x.Mode))).
-            OrderBy(m => m.Mode == Settings.SelectedGameMode ? -1 : 0).
             SelectMany(x => x.Manager.GetLevels(new GameSettings(x.Mode, Settings.GameDirectories[x.Mode], 1, 1)).
                 SelectMany(vol => vol.Worlds.SelectMany(world => world.Maps.Select(map => new SettingsData(x.Mode, vol.Name, world.Index, map))))).ToArray();
-        Index = 0;
+        Index = Data.FindItemIndex(x => x.GameModeSelection == Settings.SelectedGameMode && (x.Volume == null || x.Volume == Settings.EduVolume) && x.World == Settings.World && x.Level == Settings.Level);
+        Debug.Log($"Screenshot enumeration from {Index} with {Data.Length - Index} items");
     }
 
     void Start()
