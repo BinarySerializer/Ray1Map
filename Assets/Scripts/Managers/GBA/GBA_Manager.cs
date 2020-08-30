@@ -1151,6 +1151,13 @@ namespace R1Engine
                 // Get the palette to use
                 var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
 
+                if (pals.Length < 1 && animatedTiles != null) {
+                    Unity_AnimatedTile animT = animatedTiles.FirstOrDefault(at => at.TileIndices.Contains(i));
+                    if (animT != null) {
+                        pals = mapData.Where(x => x.TileMapY == animT.TileIndices[0]).Select(x => x.PaletteIndex).Distinct().ToArray();
+                    }
+                }
+
                 if (pals.Length > 1)
                     Debug.LogWarning($"Tile {i} has several possible palettes: {String.Join(", ", pals)}");
 

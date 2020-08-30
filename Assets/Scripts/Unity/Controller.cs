@@ -90,6 +90,7 @@ namespace R1Engine
             // Create the context
             LevelEditorData.MainContext = new Context(Settings.GetGameSettings);
             await levelController.LoadLevelAsync(Settings.GetGameManager, LevelEditorData.MainContext);
+            if (Settings.ScreenshotEnumeration) return;
 
             await WaitIfNecessary();
             if (LoadState == State.Error) return;

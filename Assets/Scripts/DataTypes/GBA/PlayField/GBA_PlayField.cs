@@ -32,8 +32,8 @@ namespace R1Engine
         // Size in bytes
         public ushort Mode7TilesSize { get; set; }
 
-        // Always 1?
-        public ushort Mode7Unk { get; set; }
+        public bool Mode7IsCompressed { get; set; }
+        public byte Mode7Unk { get; set; }
 
         public MapTile[] Mode7Tiles { get; set; }
 
@@ -106,11 +106,19 @@ namespace R1Engine
                         s.Serialize<byte>(default, name: "Padding");
 
                         Mode7TilesSize = s.Serialize<ushort>(Mode7TilesSize, name: nameof(Mode7TilesSize));
-                        Mode7Unk = s.Serialize<ushort>(Mode7Unk, name: nameof(Mode7Unk));
-                        s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, s.CurrentLength / 2, x => {
-                            x.GBATileType = MapTile.GBA_TileType.BGTile;
-                            x.Is8Bpp = true;
-                        }, name: nameof(Mode7Tiles)));
+                        Mode7IsCompressed = s.Serialize<bool>(Mode7IsCompressed, name: nameof(Mode7IsCompressed));
+                        Mode7Unk = s.Serialize<byte>(Mode7Unk, name: nameof(Mode7Unk));
+                        if (Mode7IsCompressed) {
+                            s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, Mode7TilesSize / 2, x => {
+                                x.GBATileType = MapTile.GBA_TileType.BGTile;
+                                x.Is8Bpp = true;
+                            }, name: nameof(Mode7Tiles)));
+                        } else {
+                            Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, Mode7TilesSize / 2, x => {
+                                x.GBATileType = MapTile.GBA_TileType.BGTile;
+                                x.Is8Bpp = true;
+                            }, name: nameof(Mode7Tiles));
+                        }
                     }
                 } else {
                     UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 1, name: nameof(UnkBytes1));

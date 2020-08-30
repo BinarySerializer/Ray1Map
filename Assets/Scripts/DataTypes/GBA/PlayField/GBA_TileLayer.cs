@@ -91,6 +91,8 @@ namespace R1Engine
                         LayerID = s.Serialize<byte>(LayerID, name: nameof(LayerID));
                         ShouldSetBGAlphaBlending = s.Serialize<bool>(ShouldSetBGAlphaBlending, name: nameof(ShouldSetBGAlphaBlending));
                         AlphaBlending_Coeff = s.Serialize<sbyte>(AlphaBlending_Coeff, name: nameof(AlphaBlending_Coeff));
+                        UnkBytes = s.SerializeArray<byte>(UnkBytes, 0x14, name: nameof(UnkBytes));
+                        ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                         // 21 bytes
                         // Prio is 0x1D
                         // ColorMode is 0x1F
