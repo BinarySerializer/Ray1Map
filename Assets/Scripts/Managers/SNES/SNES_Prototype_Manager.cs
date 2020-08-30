@@ -76,23 +76,14 @@ namespace R1Engine
 
             for (int i = 0; i < rom.TileDescriptors.Length; i++)
             {
-                ushort descriptor = rom.TileDescriptors[i];
-
-                var tileIndex = BitHelpers.ExtractBits(descriptor, 10, 0);
-                var pal = BitHelpers.ExtractBits(descriptor, 3, 10);
-                
-                // This is set to 1 for anything which should be drawn in front of Rayman, such as the pipe
-                var isForeground = BitHelpers.ExtractBits(descriptor, 1, 13) == 1;
-                
-                var flipX = BitHelpers.ExtractBits(descriptor, 1, 14) == 1;
-                var flipY = BitHelpers.ExtractBits(descriptor, 1, 15) == 1;
+                var descriptor = rom.TileDescriptors[i];
 
                 var x = ((i / 4) * 2) % (256 / 8) + ((i % 2) == 0 ? 0 : 1);
                 var y = (((i / 4) * 2) / (256 / 8)) * 2 + ((i % 4) < 2 ? 0 : 1);
 
-                var curOff = block_size * tileIndex;
+                var curOff = block_size * descriptor.TileIndex;
 
-                FillTextureBlock(tex, 0, 0, x, y, rom.TileMap, curOff, rom.Palettes, pal, flipX, flipY);
+                FillTextureBlock(tex, 0, 0, x, y, rom.TileMap, curOff, rom.Palettes, descriptor.Palette, descriptor.FlipX, descriptor.FlipY);
             }
 
             tex.Apply();

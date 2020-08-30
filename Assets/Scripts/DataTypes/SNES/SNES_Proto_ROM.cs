@@ -4,7 +4,7 @@
     {
         public MapData MapData { get; set; }
         public ARGB1555Color[] Palettes { get; set; }
-        public ushort[] TileDescriptors { get; set; }
+        public SNES_Proto_TileDescriptor[] TileDescriptors { get; set; }
         public byte[] TileMap { get; set; }
 
         /// <summary>
@@ -15,7 +15,7 @@
         {
             MapData = s.DoAt(s.CurrentPointer + 0x28000, () => s.SerializeObject<MapData>(MapData, name: nameof(MapData)));
             Palettes = s.DoAt(s.CurrentPointer + 0x2ADC4, () => s.SerializeObjectArray<ARGB1555Color>(Palettes, 16* 16, name: nameof(Palettes)));
-            TileDescriptors = s.DoAt(s.CurrentPointer + 0x1AAF8, () => s.SerializeArray<ushort>(TileDescriptors, 1024 * 4, name: nameof(TileDescriptors)));
+            TileDescriptors = s.DoAt(s.CurrentPointer + 0x1AAF8, () => s.SerializeObjectArray<SNES_Proto_TileDescriptor>(TileDescriptors, 1024 * 4, name: nameof(TileDescriptors)));
             TileMap = s.DoAt(s.CurrentPointer + 0x30000, () => s.SerializeArray<byte>(TileMap, 0x10000, name: nameof(TileMap)));
         }
     }
