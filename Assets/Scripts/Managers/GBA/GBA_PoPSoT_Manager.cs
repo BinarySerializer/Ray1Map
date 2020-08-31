@@ -16,7 +16,6 @@ namespace R1Engine
             new ValueRange(166, 166),
             new ValueRange(169, 171),
             new ValueRange(176, 177),
-            // Might be maps, but have a different structure if so
             new ValueRange(181, 200)
             ).ToArray();
         public override int DLCLevelCount => 0;

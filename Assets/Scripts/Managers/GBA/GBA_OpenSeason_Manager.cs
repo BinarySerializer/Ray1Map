@@ -13,8 +13,8 @@ namespace R1Engine
 
         public override int[] MenuLevels => ValueRange.EnumerateRanges(
             new ValueRange(54, 66),
-            // Maps?
-            new ValueRange(102, 134)
+            new ValueRange(102, 118),
+            new ValueRange(134, 134)
         ).ToArray();
         public override int DLCLevelCount => 0;
 
