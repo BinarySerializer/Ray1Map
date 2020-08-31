@@ -781,7 +781,7 @@ namespace R1Engine
                         Height = map.Height,
                         TileSetWidth = 1,
                         MapTiles = mapData.Select(x => new Unity_Tile(x)).ToArray(),
-                        IsForeground = map.LayerID == 3
+                        IsForeground = (map.LayerID == 3 && map.StructType != GBA_TileLayer.Type.TextLayerMode7)
                     };
                     if (map.ShouldSetBGAlphaBlending) {
                         level.Maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;
