@@ -109,13 +109,15 @@ namespace R1Engine
                         Mode7IsCompressed = s.Serialize<bool>(Mode7IsCompressed, name: nameof(Mode7IsCompressed));
                         Mode7Unk = s.Serialize<byte>(Mode7Unk, name: nameof(Mode7Unk));
                         if (Mode7IsCompressed) {
-                            s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, Mode7TilesSize / 2, x => {
-                                x.GBATileType = MapTile.GBA_TileType.BGTile;
+                            s.DoEncoded(new GBA_LZSSEncoder(), () => Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, Mode7TilesSize / 2,
+                                onPreSerialize: x => {
+                                x.GBATileType = MapTile.GBA_TileType.Mode7Tile;
                                 x.Is8Bpp = true;
                             }, name: nameof(Mode7Tiles)));
                         } else {
-                            Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, Mode7TilesSize / 2, x => {
-                                x.GBATileType = MapTile.GBA_TileType.BGTile;
+                            Mode7Tiles = s.SerializeObjectArray<MapTile>(Mode7Tiles, Mode7TilesSize / 2,
+                                onPreSerialize: x => {
+                                x.GBATileType = MapTile.GBA_TileType.Mode7Tile;
                                 x.Is8Bpp = true;
                             }, name: nameof(Mode7Tiles));
                         }

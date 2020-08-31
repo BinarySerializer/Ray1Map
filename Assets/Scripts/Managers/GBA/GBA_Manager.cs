@@ -640,53 +640,28 @@ namespace R1Engine
 
             var mode7Layers = playField.Layers.Where(x => x.StructType == GBA_TileLayer.Type.TextLayerMode7).ToArray();
 
-            // Create a dummy layer for Mode7 background
-            if (playField.StructType == GBA_PlayField.Type.PlayFieldMode7)
-            {
-                MapTile[] lastBit = new MapTile[256];
-                Array.Copy(playField.Mode7Tiles, playField.Mode7Tiles.Length - 256, lastBit, 0, 256);
-                /*MapTile[] firstBit = new MapTile[256];
-                Array.Copy(playField.Mode7Tiles, 0, firstBit, 0, 256);*/
-                MapTile[] lastLayer = new MapTile[playField.Mode7Tiles.Length - 256];
-                Array.Copy(playField.Mode7Tiles, 256, lastLayer, 0, lastLayer.Length);
-                mapLayers = mapLayers.Concat(mode7Layers.Select(l => {
-                    l.ColorMode = GBA_ColorMode.Color8bpp;
-                    l.Width /= 2;
-                    l.Height *= 2;
-                    l.UsesTileKitDirectly = false;
-                    //l.MapData = lastLayer;
-                    l.MapData = playField.Mode7Tiles;
-                    return l;/* new GBA_TileLayer() {
-                        StructType = GBA_TileLayer.Type.Layer2D,
-                        MapData = playField.Mode7Tiles,
-                        Width = 64,
-                        Height = 64,
-                        ColorMode = GBA_ColorMode.Color8bpp,
-                        UsesTileKitDirectly = false
-                    };*/
-                })).Concat(new GBA_TileLayer[]
-                {
-                    new GBA_TileLayer() {
-                        StructType = GBA_TileLayer.Type.Layer2D,
-                        MapData = lastBit,
-                        Width = 16,
-                        Height = 16,
-                        ColorMode = GBA_ColorMode.Color8bpp,
-                        UsesTileKitDirectly = false
+            // Create layers for Mode7 background
+            if (playField.StructType == GBA_PlayField.Type.PlayFieldMode7) {
+                int currentY = 0;
+                int currentBlock = 0;
+                for (int i = 0; i < mode7Layers.Length; i++) {
+                    var l = mode7Layers[i];
+                    MapTile[] t = new MapTile[l.Width * l.Height];
+                    int screenBlockWidth = 32;
+                    for (int y = 0; y < l.Height; y++) {
+                        for (int x = 0; x < l.Width; x++) {
+                            int screenblock = (currentBlock + (x / screenBlockWidth)) * 1024;
+                            t[y * l.Width + x] = playField.Mode7Tiles[(currentY + y) * screenBlockWidth + (x % screenBlockWidth) + screenblock];
+                        }
                     }
-                }).ToArray();
-                /*mapLayers = new GBA_TileLayer[]
-                {
-                    new GBA_TileLayer()
-                    {
-                        StructType = GBA_TileLayer.Type.Layer2D,
-                        MapData = playField.Mode7Tiles,
-                        Width = 64,
-                        Height = 64,
-                        ColorMode = GBA_ColorMode.Color8bpp,
-                        UsesTileKitDirectly = false
+                    currentY += l.Height;
+                    if (currentY >= 32) {
+                        currentY -= 32;
+                        currentBlock += 2;
                     }
-                }.Concat(mapLayers).ToArray();*/
+                    l.MapData = t;
+                }
+                mapLayers = mapLayers.Concat(mode7Layers).ToArray();
             }
 
             // Convert levelData to common level format
@@ -729,7 +704,11 @@ namespace R1Engine
                     MapTile[] mapData = map.MapData;
                     //MapTile[] bgData = playField.BGTileTable.Indices1.Concat(playField.BGTileTable.Indices2).ToArray();
                     if (map.StructType == GBA_TileLayer.Type.RotscaleLayerMode7) {
-                        mapData = map.Mode7Data?.Select(x => new MapTile() { TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0] }).ToArray();
+                        mapData = map.Mode7Data?.Select(x => {
+                            return new MapTile() {
+                                TileMapY = playField.BGTileTable.Indices8bpp[x > 0 ? x - 1 : 0]
+                            };
+                        }).ToArray();
                     } else if (!map.UsesTileKitDirectly
                         && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
                         && context.Settings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
@@ -750,14 +729,22 @@ namespace R1Engine
                                     //relativeIndex = index;
                                 } else {
                                     if (index > 0) {
-                                        index += 384; // 3 * 128, 24 * 16?
+                                        if (x.GBATileType == MapTile.GBA_TileType.Mode7Tile) {
+                                            index += 256;
+                                        } else {
+                                            index += 384; // 3 * 128, 24 * 16?
+                                        }
                                         index -= 1;
                                         //index += relativeIndex; // 383; // seems hardcoded
                                     } else {
                                         index = -1;
                                     }
                                 }
+                                if (x.GBATileType == MapTile.GBA_TileType.Mode7Tile) {
+                                    index -= 1;
+                                }
                                 if (index < 0 || index >= tbl.IndicesCount8bpp) {
+                                    //Controller.print(map.LayerID + " - " + index);
                                     newt.TileMapY = 0;
                                 } else {
                                     newt.TileMapY = tbl.Indices8bpp[index];
@@ -775,6 +762,7 @@ namespace R1Engine
                                     index -= playField.BGTileTable.IndicesCount4bpp;
                                 }
                                 if (index < 0 || index >= tbl.IndicesCount4bpp) {
+                                    Controller.print(map.LayerID + " - " + index);
                                     newt.TileMapY = 0;
                                 } else {
                                     //Controller.print(index);

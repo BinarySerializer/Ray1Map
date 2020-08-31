@@ -43,7 +43,8 @@ namespace R1Engine
         public enum GBA_TileType {
             BGTile,
             Normal,
-            FGTile
+            FGTile,
+            Mode7Tile
         }
 
         /// <summary>
@@ -166,6 +167,26 @@ namespace R1Engine
                     s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
                     s.Log($"{nameof(IsFirstBlock)}: {IsFirstBlock}");
                     s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
+                } else if(GBATileType == GBA_TileType.Mode7Tile) {
+
+                    ushort value = 0;
+                    int numBits = 9;
+
+                    value = (ushort)BitHelpers.SetBits(value, TileMapY, numBits, 0);
+                    //value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, numBits);
+                    value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits);
+
+                    value = s.Serialize<ushort>(value, name: nameof(value));
+
+                    TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
+                    TileMapX = 0;
+                    IsFirstBlock = BitHelpers.ExtractBits(value, 1, 9) == 1;
+                    HorizontalFlip = BitHelpers.ExtractBits(value, 1, 10) == 1;
+                    VerticalFlip = BitHelpers.ExtractBits(value, 1, 11) == 1;
+
+                    s.Log($"{nameof(TileMapY)}: {TileMapY}");
+                    s.Log($"{nameof(HorizontalFlip)}: {HorizontalFlip}");
+                    s.Log($"{nameof(IsFirstBlock)}: {IsFirstBlock}");
                 } else {
                     int numBits = Is8Bpp ? 14 : 11;
 
