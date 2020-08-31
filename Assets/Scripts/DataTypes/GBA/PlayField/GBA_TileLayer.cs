@@ -134,6 +134,13 @@ namespace R1Engine
                         }
                         UsesTileKitDirectly = true;
                         break;
+                    case Type.PoP:
+                        Unk_0C = s.Serialize<byte>(Unk_0C, name: nameof(Unk_0C));
+                        Unk_0D = s.Serialize<byte>(Unk_0D, name: nameof(Unk_0D));
+                        Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
+                        Unk_0F = s.Serialize<byte>(Unk_0F, name: nameof(Unk_0F));
+                        ColorMode = GBA_ColorMode.Color8bpp;
+                        break;
                     case Type.Layer2D:
                         LayerID = s.Serialize<byte>(LayerID, name: nameof(LayerID));
                         ClusterIndex = s.Serialize<byte>(ClusterIndex, name: nameof(ClusterIndex));
@@ -152,7 +159,7 @@ namespace R1Engine
             {
                 if (!IsCompressed)
                     SerializeTileMap(s);
-                else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
+                else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PoP)
                     s.DoEncoded(new HuffmanEncoder(), () => s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s)));
                 else
                     s.DoEncoded(new GBA_LZSSEncoder(), () => SerializeTileMap(s));
@@ -164,6 +171,7 @@ namespace R1Engine
             switch (StructType) {
                 case Type.Layer2D:
                 case Type.SplinterCellZoom:
+                case Type.PoP:
                     MapData = s.SerializeObjectArray<MapTile>(MapData, Width * Height, onPreSerialize: m => {
                         if (!UsesTileKitDirectly) {
                             if (TileKitIndex == 1) {
@@ -200,7 +208,8 @@ namespace R1Engine
             Collision = 1,
             RotscaleLayerMode7 = 2,
             TextLayerMode7 = 3,
-            SplinterCellZoom = 4
+            SplinterCellZoom = 4,
+            PoP = 5
         }
     }
 }

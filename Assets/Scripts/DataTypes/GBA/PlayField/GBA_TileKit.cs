@@ -40,7 +40,7 @@ namespace R1Engine
             } else {
                 TileSet4bppSize = s.Serialize<ushort>(TileSet4bppSize, name: nameof(TileSet4bppSize));
                 TileSet8bppSize = s.Serialize<ushort>(TileSet8bppSize, name: nameof(TileSet8bppSize));
-                Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
+                IsCompressed = s.Serialize<bool>(IsCompressed, name: nameof(IsCompressed));
                 AnimatedTileKitManagerIndex = s.Serialize<byte>(AnimatedTileKitManagerIndex, name: nameof(AnimatedTileKitManagerIndex)); // Can be 0xFF which means this block doesn't exist
                 PaletteCount = s.Serialize<byte>(PaletteCount, name: nameof(PaletteCount));
                 Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));

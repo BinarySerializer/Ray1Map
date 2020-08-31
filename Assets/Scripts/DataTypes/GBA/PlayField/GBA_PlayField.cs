@@ -40,6 +40,7 @@ namespace R1Engine
         // Prince of Persia
         public byte[] UnkBytes1 { get; set; }
         public byte[] UnkBytes2 { get; set; }
+        public byte[] UnkBytes3 { get; set; }
 
         // Batman: Vengeance
         public byte TilePaletteIndex { get; set; }
@@ -69,11 +70,17 @@ namespace R1Engine
         public override void SerializeBlock(SerializerObject s)
         {
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
-                UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 2, name: nameof(UnkBytes1));
+                StructType = s.Serialize<Type>(StructType, name: nameof(StructType));
+                UnkBytes1 = s.SerializeArray<byte>(UnkBytes1, 1, name: nameof(UnkBytes1));
                 BGTileTableOffsetIndex = s.Serialize<byte>(BGTileTableOffsetIndex, name: nameof(BGTileTableOffsetIndex));
                 TileKitOffsetIndex = s.Serialize<byte>(TileKitOffsetIndex, name: nameof(TileKitOffsetIndex));
                 TileKitCount = s.Serialize<byte>(TileKitCount, name: nameof(TileKitCount));
-                UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 3, name: nameof(UnkBytes2));
+                if (StructType == Type.PlayFieldPoP) {
+                    UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 0x13, name: nameof(UnkBytes2));
+                    LayerCount = 2;
+                } else {
+                    UnkBytes2 = s.SerializeArray<byte>(UnkBytes2, 3, name: nameof(UnkBytes2));
+                }
             } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance) {
                 TilePaletteIndex = s.Serialize<byte>(TilePaletteIndex, name: nameof(TilePaletteIndex));
             } else {
@@ -88,7 +95,7 @@ namespace R1Engine
                     Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
                 }
             }
-            if (StructType != Type.PlayFieldZoom) {
+            if (StructType != Type.PlayFieldZoom && StructType != Type.PlayFieldPoP) {
 
                 if (StructType == Type.PlayField2D)
                     ClusterCount = s.Serialize<byte>(ClusterCount, name: nameof(ClusterCount));
@@ -144,7 +151,12 @@ namespace R1Engine
                 // Serialize layers
                 if (StructType == Type.PlayFieldZoom) {
                     for (int i = 0; i < 4; i++) {
-                        Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerStartIndex+i), () => s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => l.LayerID = (byte)i, name: $"{nameof(Layers)}[{i}]"));
+                        Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerStartIndex + i), () => s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => l.LayerID = (byte)i, name: $"{nameof(Layers)}[{i}]"));
+
+                    }
+                } else if(StructType == Type.PlayFieldPoP) {
+                    for (int i = 0; i < 2; i++) {
+                        Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerStartIndex + i), () => s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => l.LayerID = (byte)i, name: $"{nameof(Layers)}[{i}]"));
 
                     }
                 } else {
@@ -163,9 +175,9 @@ namespace R1Engine
                 // This game has no BGTileTable
                 if (s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
                     // Serialize tilemap
-                    BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, name: nameof(BGTileTable)));
+                    BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, onPreSerialize: b => b.HasExtraData = StructType == Type.PlayFieldPoP, name: nameof(BGTileTable)));
 
-                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+                    if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PlayFieldPoP) {
                         FGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex+1), () => s.SerializeObject<GBA_BGTileTable>(FGTileTable, name: nameof(FGTileTable)));
                     }
                 }
@@ -213,6 +225,7 @@ namespace R1Engine
             PlayField2D = 0,
             PlayFieldMode7 = 1,
             PlayFieldZoom = 2,
+            PlayFieldPoP = 3
         }
     }
 }
