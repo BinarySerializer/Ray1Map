@@ -4,474 +4,49 @@
 			"name": "Rayman series",
 			"games": [
 				{
-					"title": "Rayman 2 / Revolution",
-					"viewer": "raymap",
-					"json": "r2",
-					"image": ".\/img\/logo\/r2.png",
+					"title": "Rayman",
+					"viewer": "ray1map",
+					"json": "r1",
+					"image": ".\/img\/logo\/r1.png",
 					"versions": [
 						{
-							"json": "dc",
-							"image": ".\/img\/version\/dc.png",
-							"name": "Dreamcast",
-							"folder": "r2_dc"
-						},
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "r2_pc"
-						},
-						{
-							"json": "ps1",
+							"json": "ps1_us",
 							"image": ".\/img\/version\/ps1.png",
-							"name": "PlayStation",
-							"folder": "r2_ps1"
-						},
-						{
-							"json": "ps2",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "PS2: Revolution",
-							"folder": "r2_ps2"
-						},
-						{
-							"json": "n64",
-							"image": ".\/img\/version\/n64.png",
-							"name": "Nintendo 64",
-							"folder": "r2_n64"
-						},
-						{
-							"json": "ds",
-							"image": ".\/img\/version\/ds.png",
-							"name": "Nintendo DS",
-							"folder": "r2_ds"
-						},
-						{
-							"json": "3ds",
-							"image": ".\/img\/version\/3ds.png",
-							"name": "Nintendo 3DS",
-							"folder": "r2_3ds"
-						},
-						{
-							"json": "ios",
-							"image": ".\/img\/version\/ios.png",
-							"name": "iOS",
-							"folder": "r2_ios"
-						},
-						{
-							"json": "dc_jp",
-							"image": ".\/img\/version\/dc.png",
-							"name": "Dreamcast (Japanese)",
-							"folder": "r2_dc_jp"
-						},
-						{
-							"json": "ps2_jp",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "PS2: Revolution (Japanese)",
-							"folder": "r2_ps2_jp"
-						},
-						{
-							"json": "pc_demo_19990818",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC Demo (1999\/08\/18)",
-							"folder": "r2_pc_demo_19990818"
-						},
-						{
-							"json": "pc_demo_19990904",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC Demo (1999\/09\/04)",
-							"folder": "r2_pc_demo_19990904"
-						}
-					]
-				},
-				{
-					"title": "Rayman M \/ Arena \/ Rush",
-					"viewer": "raymap",
-					"json": "rm",
-					"image": ".\/img\/logo\/rm.png",
-					"versions": [
-						{
-							"json": "m\/pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "M - PC",
-							"folder": "rm_pc"
-						},
-						{
-							"json": "m\/ps2",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "M - PlayStation 2",
-							"folder": "rm_ps2"
-						},
-						{
-							"json": "m\/ps2_demo_20010725",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "M - PS2 Demo (2001\/07\/25)",
-							"folder": "rm_ps2_demo_20010725"
-						},
-						{
-							"json": "arena\/gc",
-							"image": ".\/img\/version\/gc.png",
-							"name": "Arena - GameCube",
-							"folder": "ra_gc"
-						},
-						{
-							"json": "arena\/xbox",
-							"image": ".\/img\/version\/xbox.png",
-							"name": "Arena - Xbox",
-							"folder": "ra_xbox"
-						},
-						{
-							"json": "arena\/pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "Arena - PC",
-							"folder": "ra_pc"
-						},
-						{
-							"json": "arena\/ps2",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "Arena - PlayStation 2",
-							"folder": "ra_ps2"
-						},
-						{
-							"json": "arena\/gc_demo_20020307",
-							"image": ".\/img\/version\/gc.png",
-							"name": "Arena - GC Demo (2002\/03\/07)",
-							"folder": "ra_gc_demo_20020307"
-						},
-						{
-							"json": "rush\/ps1",
-							"image": ".\/img\/version\/ps1.png",
-							"name": "Rush - PlayStation",
-							"folder": "rr_ps1"
+							"name": "PlayStation (US)",
+							"folder": "r1/ps1_us"
 						}
 					]
 				},
 				{
 					"title": "Rayman 3",
-					"viewer": "raymap",
-					"json": "r3",
+					"viewer": "ray1map",
+					"json": "gba\/r3",
 					"image": ".\/img\/logo\/r3.png",
 					"versions": [
 						{
-							"json": "gc",
-							"image": ".\/img\/version\/gc.png",
-							"name": "GameCube",
-							"folder": "r3_gc"
-						},
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "r3_pc"
-						},
-						{
-							"json": "ps2",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "PlayStation 2",
-							"folder": "r3_ps2"
-						},
-						{
-							"json": "xbox",
-							"image": ".\/img\/version\/xbox.png",
-							"name": "Xbox",
-							"folder": "r3_xbox"
-						},
-						{
-							"json": "x360",
-							"image": ".\/img\/version\/x360.png",
-							"name": "Xbox 360",
-							"folder": "r3_x360"
-						},
-						{
-							"json": "ps3",
-							"image": ".\/img\/version\/ps3.png",
-							"name": "PlayStation 3",
-							"folder": "r3_ps3"
-						},
-						{
-							"json": "macos",
-							"image": ".\/img\/version\/macos.png",
-							"name": "Mac OS",
-							"folder": "r3_macos"
-						},
-						{
-							"json": "pc_demo_20021004",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC Demo (2002\/10\/04)",
-							"folder": "r3_pc_demo_20021004"
-						},
-						{
-							"json": "pc_demo_20021021",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC Demo (2002\/10\/21)",
-							"folder": "r3_pc_demo_20021021"
-						},
-						{
-							"json": "pc_demo_20021210",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC Demo (2002\/12\/10)",
-							"folder": "r3_pc_demo_20021210"
-						},
-						{
-							"json": "pc_demo_20030108",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC Demo (2003\/01\/08)",
-							"folder": "r3_pc_demo_20030108"
-						},
-						{
-							"json": "pc_demo_20030129",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC Demo (2003\/01\/29)",
-							"folder": "r3_pc_demo_20030129"
-						},
-						{
-							"json": "ps2_demo_20020807",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "PS2 Demo (2002\/08\/07)",
-							"folder": "r3_ps2_demo_20020807"
-						},
-						{
-							"json": "ps2_devbuild_20020906",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "PS2 Dev Build (2002\/09\/06)",
-							"folder": "r3_ps2_devbuild_20020906"
-						},
-						{
-							"json": "ps2_demo_20021029",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "PS2 Demo (2002\/10\/29)",
-							"folder": "r3_ps2_demo_20021029"
-						},
-						{
-							"json": "ps2_demo_20021218",
-							"image": ".\/img\/version\/ps2.png",
-							"name": "PS2 Demo (2002\/12\/18)",
-							"folder": "r3_ps2_demo_20021218"
-						},
-						{
-							"json": "gc_demo",
-							"image": ".\/img\/version\/gc.png",
-							"name": "GameCube Demo",
-							"folder": "r3_gc_demo"
-						}
-					]
-				},
-				{
-					"title": "Rayman Raving Rabbids",
-					"viewer": "raymap",
-					"json": "rrr",
-					"image": ".\/img\/logo\/rrr.png",
-					"versions": [
-						{
-							"json": "ds",
-							"image": ".\/img\/version\/ds.png",
-							"name": "Nintendo DS",
-							"folder": "rrr_ds"
+							"json": "eu",
+							"image": ".\/img\/version\/gba.png",
+							"name": "Gameboy Advance (EU)",
+							"folder": "gba/r3_eu"
 						}
 					]
 				}
 			]
 		},
 		{
-			"name": "Tonic Trouble",
+			"name": "Other games",
 			"games": [
 				{
-					"title": "Tonic Trouble (Special Edition)",
+					"title": "Prince of Persia: The Sands of Time",
 					"viewer": "raymap",
-					"json": "ttse",
-					"image": ".\/img\/logo\/ttse.png",
+					"json": "gba\/pop_sot",
+					"image": ".\/img\/logo\/pop_sot.png",
 					"versions": [
 						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "ttse_pc"
-						}
-					]
-				},
-				{
-					"title": "Tonic Trouble",
-					"viewer": "raymap",
-					"json": "tt",
-					"image": ".\/img\/logo\/tt.png",
-					"versions": [
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "tt_pc"
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "Disney OpenSpace games",
-			"games": [
-				{
-					"title": "Donald Duck: Quack Attack",
-					"viewer": "raymap",
-					"json": "dd",
-					"image": ".\/img\/logo\/dd.png",
-					"versions": [
-						{
-							"json": "dc",
-							"image": ".\/img\/version\/dc.png",
-							"name": "Dreamcast",
-							"folder": "dd_dc"
-						},
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "dd_pc"
-						},
-						{
-							"json": "ps1",
-							"image": ".\/img\/version\/ps1.png",
-							"name": "PlayStation",
-							"folder": "dd_ps1"
-						},
-						{
-							"json": "n64",
-							"image": ".\/img\/version\/n64.png",
-							"name": "Nintendo 64",
-							"folder": "dd_n64"
-						}
-					]
-				},
-				{
-					"title": "Dinosaur",
-					"viewer": "raymap",
-					"json": "dinosaur",
-					"image": ".\/img\/logo\/dinosaur.png",
-					"versions": [
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "dinosaur_pc"
-						}
-					]
-				},
-				{
-					"title": "The Jungle Book: Groove Party",
-					"viewer": "raymap",
-					"json": "jb",
-					"image": ".\/img\/logo\/jb.png",
-					"versions": [
-						{
-							"json": "ps1",
-							"image": ".\/img\/version\/ps1.png",
-							"name": "PlayStation",
-							"folder": "jb_ps1"
-						}
-					]
-				},
-				{
-					"title": "PK: Out of the Shadows",
-					"viewer": "raymap",
-					"json": "ddpk",
-					"image": ".\/img\/logo\/ddpk.png",
-					"versions": [
-						{
-							"json": "gc",
-							"image": ".\/img\/version\/gc.png",
-							"name": "GameCube",
-							"folder": "pk_gc"
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "Playmobil OpenSpace games",
-			"games": [
-				{
-					"title": "Laura's Happy Adventures",
-					"viewer": "raymap",
-					"json": "playmobil_laura",
-					"image": ".\/img\/logo\/playmobil_laura.png",
-					"versions": [
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "laura_pc"
-						}
-					]
-				},
-				{
-					"title": "Alex Builds His Farm",
-					"viewer": "raymap",
-					"json": "playmobil_alex",
-					"image": ".\/img\/logo\/playmobil_alex.png",
-					"versions": [
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "alex_pc"
-						}
-					]
-				},
-				{
-					"title": "Hype: The Time Quest",
-					"viewer": "raymap",
-					"json": "playmobil_hype",
-					"image": ".\/img\/logo\/playmobil_hype.png",
-					"versions": [
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "hype_pc"
-						}
-					]
-				}
-			]
-		},
-		{
-			"name": "Other OpenSpace games",
-			"games": [
-				{
-					"title": "Largo Winch: Empire Under Threat",
-					"viewer": "raymap",
-					"json": "largowinch",
-					"image": ".\/img\/logo\/largowinch.png",
-					"versions": [
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "largowinch_pc"
-						}
-					]
-				},
-				{
-					"title": "V.I.P.",
-					"viewer": "raymap",
-					"json": "vip",
-					"image": ".\/img\/logo\/vip.png",
-					"versions": [
-						{
-							"json": "ps1",
-							"image": ".\/img\/version\/ps1.png",
-							"name": "PlayStation",
-							"folder": "vip_ps1"
-						}
-					]
-				},
-				{
-					"title": "Red Planet",
-					"viewer": "raymap",
-					"json": "redplanet",
-					"image": ".\/img\/logo\/redplanet.png",
-					"versions": [
-						{
-							"json": "pc",
-							"image": ".\/img\/version\/pc.png",
-							"name": "PC",
-							"folder": "redplanet_pc"
+							"json": "us",
+							"image": ".\/img\/version\/gba.png",
+							"name": "Gameboy Advance (US)",
+							"folder": "gba/pop_us"
 						}
 					]
 				}

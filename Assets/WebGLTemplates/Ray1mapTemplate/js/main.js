@@ -95,7 +95,7 @@ let currentSO = null;
 let gameInstance = null;
 let inputHasFocus = false;
 let gameSettings = null;
-let mode, lvl, folder;
+let mode, lvl, folder, wld;
 
 let currentBehavior = null;
 let currentBehaviorType = "";
@@ -1727,7 +1727,7 @@ function initVersion(versionJSON) {
 			if(value.hasOwnProperty("folder")) {
 				levelFolder += "/" + value.folder;
 			}
-			let urlParams = "?mode=" + levelsJSON.mode + "&folder=" + levelFolder + "&lvl=" + value.level;
+			let urlParams = "?mode=" + levelsJSON.mode + "&folder=" + levelFolder + "&wld=" + value.world + "&lvl=" + value.level;
 			if(value.hasOwnProperty("additionalParams")) {
 				$.each(value.additionalParams, function(inx_param, val_param) {
 					urlParams += "&" + val_param.key + "=" + val_param.value;
@@ -1743,8 +1743,8 @@ function initVersion(versionJSON) {
 			}
 
 			//items.push("<a class='logo-item' href='#" + value.json + "' title='" + value.title + "'><img src='" + encodeURI(value.image) + "' alt='" + value.title + "'></a>");
-			if(levelsJSON.mode === mode && folder === levelFolder && value.level === lvl) {
-				items.push("<div class='levels-item level current-levels-item' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.level + "</div></div>");
+			if(levelsJSON.mode === mode && folder === levelFolder && value.level === lvl && value.world === wld) {
+				items.push("<div class='levels-item level current-levels-item' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.nameInternal + "</div></div>");
 				document.title = " [" + levelsJSON.name + "] " + value.name + " - " + baseTitle;
 			} else {
 				let actorHTML = "";
@@ -1753,7 +1753,7 @@ function initVersion(versionJSON) {
 					if(requiresActor2) actorHTML += "data-actor2='" + actor2_selector.val() + "' ";
 					if(requiresActor1 || requiresActor2) actorHTML += "' data-url-params='" + escapeHTML(urlParams) + "' ";
 				}
-				items.push("<a class='levels-item level' " + actorHTML + "href='index.html" + urlParams + actorParams + "' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.level + "</div></a>");
+				items.push("<a class='levels-item level' " + actorHTML + "href='index.html" + urlParams + actorParams + "' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.nameInternal + "</div></a>");
 			}
 			totalEm += 2;
 		});
@@ -1980,9 +1980,10 @@ function init() {
 	initContent();
 	let url = new URL(window.location.href);
 	mode = url.searchParams.get("mode");
-	lvl = url.searchParams.get("lvl");
+	lvl = parseInt(url.searchParams.get("lvl"));
+	wld = parseInt(url.searchParams.get("wld"));
 	folder = url.searchParams.get("folder");
-	if(mode != null && lvl != null && folder != null) {
+	if(mode != null && lvl != null && folder != null && wld != null) {
 		startGame();
 	} else {
 		//showConfig();
