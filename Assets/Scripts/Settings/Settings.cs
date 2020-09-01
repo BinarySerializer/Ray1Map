@@ -74,7 +74,7 @@ namespace R1Engine {
         private static string _eduVolume;
         private static bool _useHdCollisionSheet;
         private static bool _animateSprites = true;
-        private static bool _showAlwaysEvents;
+        private static bool _showAlwaysEvents = true;
         private static bool _showEditorEvents = true;
 
         #endregion
@@ -229,7 +229,7 @@ namespace R1Engine {
         /// </summary>
         public static bool BackupFiles { get; set; }
 
-        public static StateSwitchingMode StateSwitchingMode { get; set; } = StateSwitchingMode.Loop;
+        public static StateSwitchingMode StateSwitchingMode { get; set; } = StateSwitchingMode.None;
 
         /// <summary>
         /// Indicates if debug info should be shown on event mouse hovering

@@ -9,6 +9,7 @@ public class DummySceneController : MonoBehaviour
 {
     static DummySceneController()
     {
+#if !UNITY_WEBGL
         Data = EnumHelpers.GetValues<GameModeSelection>().Select(x => new
         {
             Mode = x,
@@ -19,6 +20,7 @@ public class DummySceneController : MonoBehaviour
                 SelectMany(vol => vol.Worlds.SelectMany(world => world.Maps.Select(map => new SettingsData(x.Mode, vol.Name, world.Index, map))))).ToArray();
         Index = Data.FindItemIndex(x => x.GameModeSelection == Settings.SelectedGameMode && (x.Volume == null || x.Volume == Settings.EduVolume) && x.World == Settings.World && x.Level == Settings.Level);
         Debug.Log($"Screenshot enumeration from {Index} with {Data.Length - Index} items");
+#endif
     }
 
     void Start()
