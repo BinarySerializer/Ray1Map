@@ -1,38 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace R1Engine
 {
     /// <summary>
-    /// Level data
+    /// Data for a loaded level
     /// </summary>
     public class Unity_Level
     {
+        #region Constructor
+
+        public Unity_Level(Unity_Map[] maps, Unity_ObjectManager objManager, List<Unity_Object> eventData = null, Unity_Object rayman = null, IReadOnlyDictionary<string, string[]> localization = null, int defaultMap = 0, int defaultCollisionMap = 0, int pixelsPerUnit = 16, int cellSize = 16, Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null)
+        {
+            Maps = maps;
+            ObjManager = objManager;
+            EventData = eventData ?? new List<Unity_Object>();
+            Rayman = rayman;
+            Localization = localization;
+            DefaultMap = defaultMap;
+            DefaultCollisionMap = defaultCollisionMap;
+            PixelsPerUnit = pixelsPerUnit;
+            CellSize = cellSize;
+            GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((R1_TileCollisionType)x).GetCollisionTypeGraphic());
+        }
+
+        #endregion
+
         #region Public Properties
 
+        public int PixelsPerUnit { get; }
+        public int CellSize { get; }
+
         // TODO: Replace this with toggle in editor
-        public int DefaultMap { get; set; }
-        public int DefaultCollisionMap { get; set; }
+        public int DefaultMap { get; }
+        public int DefaultCollisionMap { get; }
 
-        /// <summary>
-        /// The level maps
-        /// </summary>
-        public Unity_Map[] Maps { get; set; }
+        public Unity_Map[] Maps { get; }
 
-        /// <summary>
-        /// The event data for every event
-        /// </summary>
-        public List<Unity_Obj> EventData { get; set; }
+        public List<Unity_Object> EventData { get; }
+        public Unity_Object Rayman { get; }
 
-        /// <summary>
-        /// Rayman's event
-        /// </summary>
-        public Unity_Obj Rayman { get; set; }
+        public IReadOnlyDictionary<string, string[]> Localization { get; }
 
-        /// <summary>
-        /// Localization data, currently only for web
-        /// </summary>
-        public Dictionary<string, string[]> Localization { get; set; }
+        public Unity_ObjectManager ObjManager { get; }
+
+        public Func<byte, Unity_MapCollisionTypeGraphic> GetCollisionTypeGraphicFunc { get; }
 
         #endregion
 
@@ -43,9 +56,14 @@ namespace R1Engine
         /// </summary>
         public void AutoApplyPalette()
         {
+            var r1Events = EventData.OfType<Unity_Object_R1>().ToArray();
+
+            if (!r1Events.Any())
+                return;
+
             // Get the palette changers
-            var paletteXChangers = EventData.Where(x => (R1_EventType)x.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.Data.SubEtat < 6).ToDictionary(x => x.Data.XPosition, x => (R1_PaletteChangerMode)x.Data.SubEtat);
-            var paletteYChangers = EventData.Where(x => (R1_EventType)x.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.Data.SubEtat >= 6).ToDictionary(x => x.Data.YPosition, x => (R1_PaletteChangerMode)x.Data.SubEtat);
+            var paletteXChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat < 6).ToDictionary(x => x.XPosition, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
+            var paletteYChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
 
             // NOTE: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have

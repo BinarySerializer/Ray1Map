@@ -27,15 +27,15 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures);
+        /// <returns>The level</returns>
+        UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures);
 
         /// <summary>
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="editorManager">The editor manager</param>savel
-        void SaveLevel(Context context, BaseEditorManager editorManager);
+        /// <param name="level">The level</param>
+        void SaveLevel(Context context, Unity_Level level);
 
         /// <summary>
         /// Preloads all the necessary files into the context

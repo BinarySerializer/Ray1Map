@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
-using Newtonsoft.Json;
-using R1Engine.Serialize;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -305,7 +303,7 @@ namespace R1Engine
                 AddAllFiles(context);
 
                 // Load the event info data
-                var eventInfo = BaseEditorManager.AllEventInfoData;
+                var eventInfo = LevelEditorData.EventInfoData;
 
                 // Get the DES names for every world
                 var desNames = WorldHelpers.GetR1Worlds().ToDictionary(x => x, world => {
@@ -870,7 +868,7 @@ namespace R1Engine
         public virtual Unity_ObjGraphics GetCommonDesign(Context context, R1_PC_DES des, IList<ARGBColor> palette, int desIndex)
         {
             // Check if the DES is used for multi-colored events
-            var isMultiColored = IsDESMultiColored(context, desIndex + 1, BaseEditorManager.AllEventInfoData);
+            var isMultiColored = IsDESMultiColored(context, desIndex + 1, LevelEditorData.EventInfoData);
 
             // Create the common design
             Unity_ObjGraphics graphics = new Unity_ObjGraphics
@@ -1334,8 +1332,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
 
@@ -1344,84 +1342,62 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level 
-            {
-                // Create the map
-                Maps = new Unity_Map[]
-                {
-                    new Unity_Map()
-                    {
-                        // Set the dimensions
-                        Width = levelData.MapData.Width,
-                        Height = levelData.MapData.Height,
-
-                        // Create the tile arrays
-                        TileSet = new Unity_MapTileMap[3],
-                        MapTiles = levelData.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                        TileSetWidth = 1,
-
-                        TileSetTransparencyModes = levelData.TileTextureData.TexturesOffsetTable.Select(x => levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
-                        {
-                            if (x == null)
-                                return R1_PC_MapTileTransparencyMode.FullyTransparent;
-
-                            if (x.TransparencyMode == 0xAAAAAAAA)
-                                return R1_PC_MapTileTransparencyMode.FullyTransparent;
-
-                            if (x.TransparencyMode == 0x55555555)
-                                return R1_PC_MapTileTransparencyMode.NoTransparency;
-
-                            return R1_PC_MapTileTransparencyMode.PartiallyTransparent;
-                        }).ToArray(),
-                        PCTileOffsetTable = levelData.TileTextureData.TexturesOffsetTable
-                    }
-                },
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
-            };
-
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.MapData.ColorPalettes.First()) : new Unity_ObjGraphics[0];
 
             // Read the world data
             var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
-            // Get file names if available
-            var desNames = worldData.DESFileNames ?? new string[0];
-            var etaNames = worldData.ETAFileNames ?? new string[0];
+            // Create the object manager
+            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), levelData.EventData.EventLinkingTable, usesPointers: false);
 
-            var index = 0;
-
-            foreach (R1_EventData e in levelData.EventData.Events)
+            // Create the maps
+            var maps = new Unity_Map[]
             {
-                // Get the file keys
-                var desKey = desNames.Any() ? desNames[e.PC_ImageDescriptorsIndex] : e.PC_ImageDescriptorsIndex.ToString();
-                var etaKey = etaNames.Any() ? etaNames[e.PC_ETAIndex] : e.PC_ETAIndex.ToString();
+                new Unity_Map()
+                {
+                    // Set the dimensions
+                    Width = levelData.MapData.Width,
+                    Height = levelData.MapData.Height,
+
+                    // Create the tile arrays
+                    TileSet = new Unity_MapTileMap[3],
+                    MapTiles = levelData.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    TileSetWidth = 1,
+
+                    TileSetTransparencyModes = levelData.TileTextureData.TexturesOffsetTable.Select(x => levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
+                    {
+                        if (x == null)
+                            return R1_PC_MapTileTransparencyMode.FullyTransparent;
+
+                        if (x.TransparencyMode == 0xAAAAAAAA)
+                            return R1_PC_MapTileTransparencyMode.FullyTransparent;
+
+                        if (x.TransparencyMode == 0x55555555)
+                            return R1_PC_MapTileTransparencyMode.NoTransparency;
+
+                        return R1_PC_MapTileTransparencyMode.PartiallyTransparent;
+                    }).ToArray(),
+                    PCTileOffsetTable = levelData.TileTextureData.TexturesOffsetTable
+                }
+            };
+
+            // Create a level object
+            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.Rayman, objManager), localization: LoadLocalization(context));
+
+            for (var i = 0; i < levelData.EventData.Events.Length; i++)
+            {
+                R1_EventData e = levelData.EventData.Events[i];
+
+                e.Commands = levelData.EventData.EventCommands[i].Commands;
+                e.LabelOffsets = levelData.EventData.EventCommands[i].LabelOffsetTable;
 
                 // Add the event
-                level.EventData.Add(new Unity_Obj(e)
+                level.EventData.Add(new Unity_Object_R1(e, objManager)
                 {
-                    Type = e.Type,
-                    DESKey = desKey,
-                    ETAKey = etaKey,
-                    LabelOffsets = levelData.EventData.EventCommands[index].LabelOffsetTable,
-                    CommandCollection = levelData.EventData.EventCommands[index].Commands,
-                    LinkIndex = levelData.EventData.EventLinkingTable[index],
                     DebugText = $"Flags: {String.Join(", ", e.PC_Flags.GetFlags())}{Environment.NewLine}"
                 });
-
-                index++;
             }
-
-            // Add Rayman
-            level.Rayman = new Unity_Obj(R1_EventData.Rayman)
-            {
-                Type = R1_EventType.TYPE_RAYMAN,
-                DESKey = desNames.Any() ? desNames[1] : "1",
-                ETAKey = etaNames.Any() ? etaNames[0] : "0",
-            };
 
             await Controller.WaitIfNecessary();
 
@@ -1443,29 +1419,16 @@ namespace R1Engine
                     // Get the cell
                     var cell = levelData.MapData.Tiles[cellY * levelData.MapData.Width + cellX];
 
-                    // TODO: FIX
                     // Set the common tile
                     level.Maps[0].MapTiles[cellY * levelData.MapData.Width + cellX] = new Unity_Tile(cell);
                 }
             }
 
-            // Load localization
-            LoadLocalization(context, level);
-
-            // Return an editor manager
-            return GetEditorManager(level, context, eventDesigns);
+            // Return the level
+            return level;
         }
 
-        protected abstract void LoadLocalization(Context context, Unity_Level level);
-
-        /// <summary>
-        /// Gets an editor manager from the specified objects
-        /// </summary>
-        /// <param name="level">The common level</param>
-        /// <param name="context">The context</param>
-        /// <param name="designs">The common design</param>
-        /// <returns>The editor manager</returns>
-        public abstract BaseEditorManager GetEditorManager(Unity_Level level, Context context, Unity_ObjGraphics[] designs);
+        protected abstract IReadOnlyDictionary<string, string[]> LoadLocalization(Context context);
 
         /// <summary>
         /// Reads 3 tile-sets, one for each palette
@@ -1546,9 +1509,11 @@ namespace R1Engine
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="editorManager">The editor manager</param>
-        public void SaveLevel(Context context, BaseEditorManager editorManager) {
-            var commonLevelData = editorManager.Level;
+        /// <param name="level">The level</param>
+        public void SaveLevel(Context context, Unity_Level level) 
+        {
+            // Get the object manager
+            var objManager = (Unity_ObjectManager_R1)level.ObjManager;
 
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
@@ -1560,14 +1525,13 @@ namespace R1Engine
             for (int y = 0; y < lvlData.MapData.Height; y++) {
                 for (int x = 0; x < lvlData.MapData.Width; x++) {
                     // Set the tiles
-                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = commonLevelData.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data;
+                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = level.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data;
                 }
             }
 
             // Temporary event lists
             var events = new List<R1_EventData>();
             var eventCommands = new List<R1_PC_EventCommand>();
-            var eventLinkingTable = new List<ushort>();
 
             // Read the world data
             var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
@@ -1576,13 +1540,9 @@ namespace R1Engine
             var desNames = worldData.DESFileNames ?? new string[0];
             var etaNames = worldData.ETAFileNames ?? new string[0];
 
-            foreach (var e in commonLevelData.EventData) 
+            foreach (var e in level.EventData.Cast<Unity_Object_R1>())
             {
-                // Get the file indexes
-                var desIndex = desNames.Any() ? (uint)desNames.FindItemIndex(x => x == e.DESKey) : UInt32.Parse(e.DESKey);
-                var etaIndex = etaNames.Any() ? (uint)etaNames.FindItemIndex(x => x == e.ETAKey) : UInt32.Parse(e.ETAKey);
-
-                var r1Event = e.Data;
+                var r1Event = e.EventData;
 
                 if (r1Event.PS1Demo_Unk1 == null)
                     r1Event.PS1Demo_Unk1 = new byte[40];
@@ -1590,13 +1550,8 @@ namespace R1Engine
                 if (r1Event.Unk_98 == null)
                     r1Event.Unk_98 = new byte[5];
 
-                r1Event.PC_ImageDescriptorsIndex = desIndex;
-                r1Event.PC_AnimationDescriptorsIndex = desIndex;
-                r1Event.PC_ImageBufferIndex = desIndex;
-                r1Event.PC_ETAIndex = etaIndex;
-
-                r1Event.ImageDescriptorCount = (ushort)editorManager.DES[e.DESKey].Sprites.Count;
-                r1Event.AnimDescriptorCount = (byte)editorManager.DES[e.DESKey].Animations.Count;
+                r1Event.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.Sprites.Count;
+                r1Event.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Animations.Count;
 
                 // Add the event
                 events.Add(r1Event);
@@ -1604,21 +1559,17 @@ namespace R1Engine
                 // Add the event commands
                 eventCommands.Add(new R1_PC_EventCommand()
                 {
-                    CommandLength = (ushort)(e.CommandCollection.Commands.Select(x => x.Length).Sum()),
-                    Commands = e.CommandCollection,
-                    LabelOffsetCount = (ushort)e.LabelOffsets.Length,
-                    LabelOffsetTable = e.LabelOffsets
+                    CommandLength = (ushort)(e.EventData.Commands.Commands.Select(x => x.Length).Sum()),
+                    Commands = e.EventData.Commands,
+                    LabelOffsetCount = (ushort)e.EventData.LabelOffsets.Length,
+                    LabelOffsetTable = e.EventData.LabelOffsets
                 });
-
-                // Add the event links
-                eventLinkingTable.Add((ushort)e.LinkIndex);
             }
 
             // Update event values
             lvlData.EventData.EventCount = (ushort)events.Count;
             lvlData.EventData.Events = events.ToArray();
             lvlData.EventData.EventCommands = eventCommands.ToArray();
-            lvlData.EventData.EventLinkingTable = eventLinkingTable.ToArray();
 
             // Save the file
             FileFactory.Write<R1_PC_LevFile>(lvlPath, context);
@@ -1767,12 +1718,13 @@ namespace R1Engine
 
         public void ExportETAInfo(GameSettings settings, string outputDir, bool includeStates)
         {
+            /*
             using (var context = new Context(settings))
             {
                 AddAllFiles(context);
 
                 var output = new List<KeyValuePair<string, ETAInfo[]>>();
-                var events = BaseEditorManager.AllEventInfoData;
+                var events = LevelEditorData.EventInfoData;
                 BaseEditorManager editor;
 
                 if (this is R1_PC_Manager)
@@ -1828,7 +1780,7 @@ namespace R1Engine
                 }
 
                 JsonHelpers.SerializeToFile(output, Path.Combine(outputDir, $"ETA{(includeStates ? "ex" : String.Empty)} - {context.Settings.GameModeSelection}.json"), NullValueHandling.Ignore);
-            }
+            }*/
         }
 
         #endregion

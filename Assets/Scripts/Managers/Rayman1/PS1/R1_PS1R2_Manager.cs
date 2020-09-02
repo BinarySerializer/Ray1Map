@@ -198,8 +198,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             await Controller.WaitIfNecessary();
             Controller.DetailedState = $"Loading files";
@@ -246,9 +246,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
             Controller.DetailedState = $"Loading sprite data";
 
-            var eventETA = new Dictionary<Pointer, R1_EventState[][]>();
-            var commonEvents = new List<Unity_Obj>();
-            var eventDES = new Dictionary<Pointer, Unity_ObjGraphics>();
+            var commonEvents = new List<Unity_Object>();
 
             if (loadTextures)
                 // Get the v-ram
@@ -272,60 +270,36 @@ namespace R1Engine
             Controller.DetailedState = $"Loading animations";
             await Controller.WaitIfNecessary();
 
-            // Get the ETA and DES
-            foreach (var animGroup in events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup))
+            // Get the animation groups
+            var animGroups = events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup).Distinct().Select(animGroup =>
             {
-                // Add the ETA
-                if (animGroup?.ETAPointer != null && !eventETA.ContainsKey(animGroup.ETAPointer))
-                    eventETA.Add(animGroup.ETAPointer, animGroup.ETA.EventStates);
-
-                // Add the DES
-                if (animGroup?.AnimationDescriptorsPointer != null && !eventDES.ContainsKey(animGroup.AnimationDescriptorsPointer))
+                // Create the DES
+                var des = new Unity_ObjGraphics()
                 {
-                    // Create the DES
-                    var des = new Unity_ObjGraphics()
-                    {
-                        Sprites = globalDesigns,
-                        Animations = new List<Unity_ObjAnimation>(),
-                        FilePath = animGroup.AnimationDescriptorsPointer.file.filePath
-                    };
+                    Sprites = globalDesigns,
+                    Animations = new List<Unity_ObjAnimation>(),
+                    FilePath = animGroup?.AnimationDescriptorsPointer?.file.filePath
+                };
 
-                    // Add animations
-                    des.Animations.AddRange(animGroup.AnimationDecriptors.Select(x => x.ToCommonAnimation()));
+                // Add animations
+                des.Animations.AddRange(animGroup?.AnimationDecriptors?.Select(x => x.ToCommonAnimation()) ?? new Unity_ObjAnimation[0]);
 
-                    // Add the DES
-                    eventDES.Add(animGroup.AnimationDescriptorsPointer, des);
-                }
-            }
+                // Add DES and ETA
+                return new Unity_ObjectManager_R2.AnimGroup(animGroup?.Offset, animGroup?.ETA.EventStates ?? new R1_EventState[0][], des);
+            }).ToArray();
+
+            var objManager = new Unity_ObjectManager_R2(context, lvlData.EventLinkTable, animGroups);
 
             Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();
-
-            var index = 0;
 
             // Add every event
             foreach (var e in events)
             {
                 // Add the event
-                commonEvents.Add(new Unity_Obj(new R1_EventData()
+                commonEvents.Add(new Unity_Object_R2(e, objManager)
                 {
-                    Etat = e.Etat,
-                    SubEtat = e.SubEtat,
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
-                    OffsetBX = e.CollisionData?.OffsetBX ?? 0,
-                    OffsetBY = e.CollisionData?.OffsetBY ?? 0,
-                    OffsetHY = e.CollisionData?.OffsetHY ?? 0,
-                    Layer = e.Layer,
-                })
-                {
-                    Type = e.EventType,
-                    DESKey = e.AnimGroup?.AnimationDescriptorsPointer?.ToString() ?? "NULL",
-                    ETAKey = e.AnimGroup?.ETAPointer?.ToString() ?? "NULL",
-                    MapLayer = e.MapLayer,
-                    FlipHorizontally = e.IsFlippedHorizontally,
-                    LinkIndex = lvlData.EventLinkTable.Length > index ? lvlData.EventLinkTable[index] : index,
-                    ForceAlways = lvlData.AlwaysEvents.Contains(e),
+                    IsAlwaysEvent = lvlData.AlwaysEvents.Contains(e),
                     DebugText = $"UShort_00: {e.UShort_00}{Environment.NewLine}" +
                                 $"UShort_02: {e.UShort_02}{Environment.NewLine}" +
                                 $"UShort_04: {e.UShort_04}{Environment.NewLine}" +
@@ -350,40 +324,24 @@ namespace R1Engine
                                 $"CollisionDataValues 1: {String.Join("-", e.CollisionData?.Unk1 ?? new byte[0])}{Environment.NewLine}" +
                                 $"CollisionDataValues 2: {String.Join("-", e.CollisionData?.Unk2 ?? new byte[0])}{Environment.NewLine}"
                 });
-
-                index++;
             }
 
             await Controller.WaitIfNecessary();
             Controller.DetailedState = $"Loading tiles";
 
-            // Convert levelData to common level format
-            Unity_Level c = new Unity_Level
+            var levelMaps = maps.Select((x, i) => new Unity_Map()
             {
-                // Create the maps
-                Maps = maps.Select((x, i) => new Unity_Map()
-                {
-                    // Set the dimensions
-                    Width = x.Width,
-                    Height = x.Height,
+                // Set the dimensions
+                Width = x.Width,
+                Height = x.Height,
 
-                    // TODO: Correct this - scale backgrounds too
-                    ScaleFactor = i == 1 ? 0.5f : 1,
+                // Create the tile array
+                TileSet = new Unity_MapTileMap[1],
+                TileSetWidth = TileSetWidth
+            }).ToArray();
 
-                    // Create the tile array
-                    TileSet = new Unity_MapTileMap[1],
-                    TileSetWidth = TileSetWidth
-                }).ToArray(),
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
-
-                DefaultMap = context.Settings.Level,
-                DefaultCollisionMap = context.Settings.Level,
-            };
-
-            // Add the events
-            c.EventData = commonEvents;
+            // Convert levelData to common level format
+            Unity_Level level = new Unity_Level(levelMaps, objManager, commonEvents, getCollisionTypeGraphicFunc: x => ((R2_TileCollsionType)x).GetCollisionTypeGraphic());
 
             await Controller.WaitIfNecessary();
 
@@ -393,14 +351,14 @@ namespace R1Engine
                 // Get the tile set
                 Unity_MapTileMap tileSet = GetTileSet(context, i);
 
-                c.Maps[i].TileSet[0] = tileSet;
+                level.Maps[i].TileSet[0] = tileSet;
 
                 // Set the tiles
-                c.Maps[i].MapTiles = maps[i].Tiles.Select(x => new Unity_Tile(x)).ToArray();
+                level.Maps[i].MapTiles = maps[i].Tiles.Select(x => new Unity_Tile(x)).ToArray();
             }
 
-            // Return an editor manager
-            return new R1_PS1R2_EditorManager(c, context, eventDES, eventETA);
+            // Return the level
+            return level;
         }
 
         /// <summary>

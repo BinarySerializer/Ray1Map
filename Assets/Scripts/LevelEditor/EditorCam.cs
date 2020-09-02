@@ -21,13 +21,6 @@ namespace R1Engine {
             Camera.main.orthographicSize = fov;
             fricStart = friction;
             editor = FindObjectOfType<Editor>();
-
-            /*if (Controller.obj.levelController != null) {
-                var startEvent = Controller.obj.levelController.currentLevel.Events.FindItem(x => x.EventInfoData?.Type == 99 || x.EventInfoData?.Type == 124);
-
-                if (startEvent != null)
-                    pos = new Vector3(startEvent.XPosition, startEvent.YPosition);
-            }*/
         }
 
         void Update() {
@@ -37,7 +30,7 @@ namespace R1Engine {
                 var rayman = LevelEditorData.Level.Rayman;
 
                 if (rayman != null)
-                    pos = new Vector3(rayman.Data.XPosition / (float)LevelEditorData.EditorManager.PixelsPerUnit, -(rayman.Data.YPosition / (float)LevelEditorData.EditorManager.PixelsPerUnit));
+                    pos = new Vector3(rayman.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(rayman.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
             }
 
 

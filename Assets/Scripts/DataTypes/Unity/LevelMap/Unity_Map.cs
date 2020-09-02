@@ -13,11 +13,6 @@ namespace R1Engine
         #region Public Properties
 
         /// <summary>
-        /// The event scale factor
-        /// </summary>
-        public float ScaleFactor { get; set; } = 1;
-
-        /// <summary>
         /// The level width
         /// </summary>
         public ushort Width { get; set; }

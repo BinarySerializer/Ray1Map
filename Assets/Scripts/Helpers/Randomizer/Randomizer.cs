@@ -15,8 +15,9 @@ namespace R1Engine
         /// <param name="flags">The flags</param>
         /// <param name="seed">An optional seed to use</param>
         /// <param name="map">The map index</param>
-        public static void Randomize(BaseEditorManager editorManager, RandomizerFlags flags, int? seed, int map)
+        public static void Randomize(RandomizerFlags flags, int? seed, int map)
         {
+            /*
             var random = seed != null ? new Random(seed.Value) : new Random();
             var maxX = editorManager.Level.Maps[map].Width * Settings.CellSize;
             var maxY = editorManager.Level.Maps[map].Height * Settings.CellSize;
@@ -75,7 +76,7 @@ namespace R1Engine
 
                 if (flags.HasFlag(RandomizerFlags.Type))
                     eventData.Type = (R1_EventType)random.Next(0, 255);
-            }
+            }*/
         }
     }
 }

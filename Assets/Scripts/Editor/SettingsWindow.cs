@@ -207,15 +207,15 @@ public class SettingsWindow : UnityWindow
 
         // Editor Tools
         if (Application.isPlaying && Controller.LoadState == Controller.State.Finished) {
-            var em = LevelEditorData.EditorManager;
+            var lvl = LevelEditorData.Level;
 
-            if (em != null) {
+            if (lvl != null) {
                 DrawHeader("Editor Tools");
 
                 if (EditorButton("Copy localization")) {
-                    if (em.Level.Localization != null) {
+                    if (lvl.Localization != null) {
                         TextEditor te = new TextEditor {
-                            text = JsonConvert.SerializeObject(em.Level.Localization, Formatting.Indented)
+                            text = JsonConvert.SerializeObject(lvl.Localization, Formatting.Indented)
                         };
                         te.SelectAll();
                         te.Copy();
@@ -223,7 +223,7 @@ public class SettingsWindow : UnityWindow
                 }
 
                 if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
-                    for (int i = 0; i < em.Level.Maps.Length; i++) {
+                    for (int i = 0; i < lvl.Maps.Length; i++) {
                         var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
 
                         var isActive = EditorField($"Show layer {i}", tilemaps[i].gameObject.activeSelf);
@@ -424,7 +424,7 @@ public class SettingsWindow : UnityWindow
                 var editorManager = await manager.LoadAsync(context, false);
 
                 // Randomize (only first map for now)
-                Randomizer.Randomize(editorManager, flag, (int)world.Index + lvl + RandomizerSeed, 0);
+                //Randomizer.Randomize(editorManager, flag, (int)world.Index + lvl + RandomizerSeed, 0);
 
                 // Save the level
                 manager.SaveLevel(context, editorManager);

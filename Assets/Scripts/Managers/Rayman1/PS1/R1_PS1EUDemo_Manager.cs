@@ -30,10 +30,10 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoPALDemo;
 
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             // Create the dictionary
-            level.Localization = new Dictionary<string, string[]>()
+            return new Dictionary<string, string[]>()
             {
                 ["English"] = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath("US"), context).Strings
             };

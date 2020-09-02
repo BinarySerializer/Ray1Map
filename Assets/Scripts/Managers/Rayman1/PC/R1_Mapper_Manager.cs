@@ -1,11 +1,10 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -68,8 +67,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
 
@@ -92,30 +91,6 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level
-            {
-                // Create the map
-                Maps = new Unity_Map[]
-                {
-                    new Unity_Map()
-                    {
-                        // Set the dimensions
-                        Width = mapData.Width,
-                        Height = mapData.Height,
-
-                        // Create the tile arrays
-                        TileSet = new Unity_MapTileMap[1],
-                        MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                        TileSetWidth = 1
-                    }
-                },
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
-
-            };
-
             Controller.DetailedState = $"Loading Mapper files";
 
             // Read the DES CMD manifest
@@ -137,6 +112,24 @@ namespace R1Engine
 
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, vgaPalette) : new Unity_ObjGraphics[0];
+
+            // Read the world data
+            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map()
+                {
+                    // Set the dimensions
+                    Width = mapData.Width,
+                    Height = mapData.Height,
+
+                    // Create the tile arrays
+                    TileSet = new Unity_MapTileMap[1],
+                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    TileSetWidth = 1
+                }
+            };
 
             var index = 0;
 
@@ -179,6 +172,12 @@ namespace R1Engine
                 }
             }
 
+            // Create the object manager
+            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), linkTable, usesPointers: false);
+
+            // Convert levelData to common level format
+            var level = new Unity_Level(maps, objManager);
+
             // Handle each event
             foreach (var eventData in events)
             {
@@ -188,7 +187,7 @@ namespace R1Engine
 
                 // Get the data
                 var e = eventData.EventData;
-
+                
                 var ed = new R1_EventData()
                 {
                     Type = e.Type,
@@ -205,20 +204,19 @@ namespace R1Engine
                     HitSprite = e.HitSprite,
 
                     PS1Demo_Unk1 = new byte[40],
-                    Unk_98 = new byte[5]
+                    Unk_98 = new byte[5],
+
+                    LabelOffsets = new ushort[0],
+                    Commands = R1_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray(), context.Settings),
                 };
 
                 ed.SetFollowEnabled(context.Settings, e.FollowEnabled > 0);
 
                 // Add the event
-                level.EventData.Add(new Unity_Obj(ed)
+                level.EventData.Add(new Unity_Object_R1(ed, objManager)
                 {
-                    Type = e.Type,
-                    DESKey = eventData.DESFileName,
-                    ETAKey = e.ETAFile,
-                    LabelOffsets = new ushort[0],
-                    CommandCollection = R1_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray(), context.Settings),
-                    LinkIndex = linkTable[index]
+                    DESIndex = worldData.DESFileNames.FindItemIndex(x => x == eventData.DESFileName),
+                    ETAIndex = worldData.ETAFileNames.FindItemIndex(x => x == e.ETAFile)
                 });
 
                 index++;
@@ -265,22 +263,9 @@ namespace R1Engine
             // Set the tile-set
             level.Maps[0].TileSet[0] = new Unity_MapTileMap(tiles);
 
-            // Return an editor manager
-            return GetEditorManager(level, context, eventDesigns);
+            // Return the level
+            return level;
         }
-
-        #endregion
-
-        #region Manager Methods
-
-        /// <summary>
-        /// Gets an editor manager from the specified objects
-        /// </summary>
-        /// <param name="level">The common level</param>
-        /// <param name="context">The context</param>
-        /// <param name="designs">The common design</param>
-        /// <returns>The editor manager</returns>
-        public override BaseEditorManager GetEditorManager(Unity_Level level, Context context, Unity_ObjGraphics[] designs) => new R1_Mapper_EditorManager(level, context, this, designs);
 
         #endregion
     }

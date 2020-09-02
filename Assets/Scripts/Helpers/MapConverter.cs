@@ -8,6 +8,7 @@ namespace R1Engine
     {
         public static async UniTask MapperToRDAsync(GameSettings inputSettings, GameSettings outputSettings)
         {
+            /*
             using (var inputContext = new Context(inputSettings))
             {
                 using (var outputContext = new Context(outputSettings))
@@ -21,7 +22,7 @@ namespace R1Engine
                     await rdManager.LoadFilesAsync(outputContext);
 
                     // Load the mapper level
-                    var inputLev = (await mapperManager.LoadAsync(inputContext, false)).Level;
+                    var inputLev = (await mapperManager.LoadAsync(inputContext, false));
                     var inputMap = inputLev.Maps[0];
 
                     // Load the editor manager data for the output level
@@ -117,7 +118,7 @@ namespace R1Engine
                     // Write the changes to the file
                     FileFactory.Write<R1_PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
                 }
-            }
+            }*/
         }
     }
 }

@@ -21,7 +21,7 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[0];
 
-        public async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -32,28 +32,23 @@ namespace R1Engine
             // Get the map
             var map = rom.MapData;
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level
+            var maps = new Unity_Map[]
             {
-                // Create the map
-                Maps = new Unity_Map[]
+                new Unity_Map()
                 {
-                    new Unity_Map()
-                    {
-                        // Set the dimensions
-                        Width = map.Width,
-                        Height = map.Height,
+                    // Set the dimensions
+                    Width = map.Width,
+                    Height = map.Height,
 
-                        // Create the tile arrays
-                        TileSet = new Unity_MapTileMap[1],
-                        MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                        TileSetWidth = 1
-                    }
-                },
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
+                    // Create the tile arrays
+                    TileSet = new Unity_MapTileMap[1],
+                    MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    TileSetWidth = 1
+                }
             };
+
+            // Convert levelData to common level format
+            Unity_Level level = new Unity_Level(maps, new Unity_ObjectManager(context), getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic());
 
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
@@ -61,7 +56,7 @@ namespace R1Engine
             // Load tile set and treat black as transparent
             level.Maps[0].TileSet[0] = GetTileSet(context, rom);
 
-            return new R1Jaguar_EditorManager(level, context, new Dictionary<string, Unity_ObjGraphics>(), new Dictionary<string, R1_EventState[][]>(), new Dictionary<string, string[][]>());
+            return level;
         }
 
         public virtual Unity_MapTileMap GetTileSet(Context context, SNES_Proto_ROM rom)
@@ -127,7 +122,7 @@ namespace R1Engine
             }
         }
 
-        public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
+        public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public async UniTask LoadFilesAsync(Context context)
         {

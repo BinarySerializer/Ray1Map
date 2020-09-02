@@ -48,6 +48,17 @@ namespace R1Engine
             HitPoints = 0,
             Layer = 7,
             HitSprite = 0,
+
+            PC_ImageDescriptorsIndex = 1,
+            PC_AnimationDescriptorsIndex = 1,
+            PC_ImageBufferIndex = 1,
+            PC_ETAIndex = 0,
+
+            Commands = new R1_EventCommandCollection()
+            {
+                Commands = new R1_EventCommand[0]
+            },
+            LabelOffsets = new ushort[0]
         };
 
         #endregion

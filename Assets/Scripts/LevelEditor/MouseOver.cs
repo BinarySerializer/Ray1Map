@@ -23,46 +23,35 @@ namespace R1Engine
             var e = hit.collider?.GetComponentInParent<Unity_ObjBehaviour>();
             // Mouse over event
             if (e != null) {
-                textCollision.text = $"{e.DisplayName}";
-                textGraphic.text = $"Type: {e.Data.TypeValue}{Environment.NewLine}" +
-                                   $"Pos: {e.Data.Data.XPosition}, {e.Data.Data.YPosition}{Environment.NewLine}" +
-                                   $"Offsets: {e.Data.Data.OffsetBX} x {e.Data.Data.OffsetBY} x {e.Data.Data.OffsetHY}";
+                
+                textCollision.text = $"{e.ObjData.DisplayName}";
+                textGraphic.text = $"Pos: {e.ObjData.XPosition}, {e.ObjData.YPosition}{Environment.NewLine}" +
+                                   $"Offsets: {e.ObjData.Pivot.x} x {e.ObjData.Pivot.y}";
 
                 // Set debug text
                 Controller.obj.tempDebugText.text = Settings.ShowDebugInfo 
-                    ? $"{e.Data.DebugText}{Environment.NewLine}" +
-                      $"CurrentFrame: {(int)e.Data.Data.RuntimeCurrentAnimFrame}{Environment.NewLine}" +
-                      $"Frames: {e.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
-                      $"AnimationIndex: {e.Data.Data.RuntimeCurrentAnimIndex}{Environment.NewLine}" +
-                      $"AnimationSpeed: {e.AnimSpeed}{Environment.NewLine}" +
+                    ? $"{e.ObjData.DebugText}{Environment.NewLine}" +
+                      $"CurrentFrame: {(int)e.ObjData.CurrentAnimationFrame}{Environment.NewLine}" +
+                      $"Frames: {e.ObjData.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
                       $"{Environment.NewLine}" +
-                      $"RightSpeed: {e.State?.RightSpeed}{Environment.NewLine}" +
-                      $"LeftSpeed: {e.State?.LeftSpeed}{Environment.NewLine}" +
-                      $"InteractionType: {e.State?.InteractionType}{Environment.NewLine}" +
-                      $"Sound: {e.State?.SoundIndex}{Environment.NewLine}" +
-                      $"{Environment.NewLine}" +
-                      $"Etat: {e.Data.Data.RuntimeEtat}{Environment.NewLine}" +
-                      $"SubEtat: {e.Data.Data.RuntimeSubEtat}{Environment.NewLine}" +
-                      $"{Environment.NewLine}" +
-                      $"LinkID: {e.LinkID}{Environment.NewLine}"
+                      $"LinkID: {e.ObjData.EditorLinkGroup}{Environment.NewLine}"
                     : String.Empty;
             }
             // Else Mouse over type
             else {
                 Controller.obj.tempDebugText.text = String.Empty;
-                var editorManager = LevelEditorData.EditorManager;
-                var t = editorManager?.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentMap)?.GetMapTile(mouseTile.x, mouseTile.y);
-                var c = editorManager?.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentCollisionMap)?.GetMapTile(mouseTile.x, mouseTile.y);
+                var t = LevelEditorData.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentMap)?.GetMapTile(mouseTile.x, mouseTile.y);
+                var c = LevelEditorData.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentCollisionMap)?.GetMapTile(mouseTile.x, mouseTile.y);
 
                 if (t != null && c != null) {
                     //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);
-                    textCollision.text = $"Collision: {editorManager.GetCollisionTypeAsEnum(c.Data.CollisionType)}";
+                    textCollision.text = $"Collision: {c.Data.CollisionType}";
                     textGraphic.text = $"Graphic tile: {t.Data.TileMapX}, {t.Data.TileMapY}";
 
                     // Set debug text
                     Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
                         ? $"{t.DebugText}{Environment.NewLine}" +
-                          $"Collision: {editorManager.GetCollisionTypeAsEnum(c.Data.CollisionType)}{Environment.NewLine}" +
+                          $"Collision: {c.Data.CollisionType}{Environment.NewLine}" +
                           $"PC_TransparencyMode: {t.Data.PC_TransparencyMode}{Environment.NewLine}" +
                           $"PC_Unk1: {t.Data.PC_Unk1}{Environment.NewLine}" +
                           $"PC_Unk2: {t.Data.PC_Unk2}{Environment.NewLine}" +

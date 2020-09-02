@@ -335,8 +335,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Get the paths
             var allfixFilePath = GetAllfixFilePath();
@@ -606,11 +606,11 @@ namespace R1Engine
             return $"Unknown/";
         }
 
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             // The localization is compiled in the US/JP releases
             if (context.Settings.GameModeSelection != GameModeSelection.RaymanSaturnEU)
-                return;
+                return null;
 
             var langs = new[]
             {
@@ -632,14 +632,16 @@ namespace R1Engine
             };
 
             // Create the dictionary
-            level.Localization = new Dictionary<string, string[]>();
+            var loc = new Dictionary<string, string[]>();
 
             // Add each language
             foreach (var lang in langs)
             {
                 var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context);
-                level.Localization.Add(lang.Language, langFile.Strings);
+                loc.Add(lang.Language, langFile.Strings);
             }
+
+            return loc;
         }
 
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)

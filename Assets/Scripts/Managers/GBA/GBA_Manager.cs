@@ -1,14 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
+using ImageMagick;
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-
-using ImageMagick;
-using JetBrains.Annotations;
 
 namespace R1Engine
 {
@@ -575,7 +572,7 @@ namespace R1Engine
         public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath, context).Data;
         public virtual GBA_LocLanguageTable LoadLocalization(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath, context).Localization;
 
-        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -664,15 +661,49 @@ namespace R1Engine
                 mapLayers = mapLayers.Concat(mode7Layers).ToArray();
             }
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level
-            {
-                // Create the map array
-                Maps = new Unity_Map[mapLayers.Length],
+            Controller.DetailedState = $"Loading actor graphics";
+            await Controller.WaitIfNecessary();
 
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
-            };
+            var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
+
+            foreach (var actor in scene?.Actors ?? new GBA_Actor[0])
+            {
+                if (graphicsData.Any(x => x.Index == actor.GraphicsDataIndex))
+                    continue;
+
+                graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.GraphicsDataIndex, actor.GraphicData.States, GetCommonDesign(actor.GraphicData)));
+            }
+
+            var objManager = new Unity_ObjectManager_GBA(context, graphicsData.ToArray());
+
+            var strings = LoadLocalization(context)?.StringGroups;
+            Dictionary<string, string[]> loc = null;
+
+            if (strings != null)
+            {
+                loc = new Dictionary<string, string[]>();
+
+                // TODO: Don't hard-code languages as they differ between games and releases
+                var languages = new string[]
+                {
+                    "English",
+                    "French",
+                    "Spanish",
+                    "German",
+                    "Italian",
+                    "Dutch",
+                    "Swedish",
+                    "Finnish",
+                    "Norwegian",
+                    "Danish"
+                };
+
+                for (int i = 0; i < strings.Length; i++)
+                    loc.Add(languages[i], strings[i].LocStrings.SelectMany(x => x.Strings).ToArray());
+            }
+
+            // Convert levelData to common level format
+            Unity_Level level = new Unity_Level(new Unity_Map[mapLayers.Length], objManager, defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision), localization: loc, cellSize: 8, getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic());
 
             var mapDatas = new MapTile[mapLayers.Length][];
 
@@ -696,8 +727,6 @@ namespace R1Engine
                             CollisionType = (byte)x
                         })).ToArray(),
                     };
-
-                    level.DefaultCollisionMap = layer;
                 }
                 else
                 {
@@ -786,8 +815,6 @@ namespace R1Engine
                     if (map.ShouldSetBGAlphaBlending) {
                         level.Maps[layer].Alpha = map.AlphaBlending_Coeff / 16f;
                     }
-
-                    level.DefaultMap = layer;
                 }
             }
 
@@ -835,50 +862,15 @@ namespace R1Engine
             Controller.DetailedState = $"Loading actors";
             await Controller.WaitIfNecessary();
 
-            level.EventData = new List<Unity_Obj>();
-
-            var des = new Dictionary<int, Unity_ObjGraphics>();
-
-            var eta = new Dictionary<string, R1_EventState[][]>();
-
             // Add actors
             if (scene != null)
             {
-                var actorIndex = 0;
-
-                var usesLinks = context.Settings.EngineVersion > EngineVersion.GBA_BatmanVengeance && context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow;
-
-                foreach (var actor in scene.Actors)
+                for (var actorIndex = 0; actorIndex < scene.Actors.Length; actorIndex++)
                 {
-                    Controller.DetailedState = $"Loading actor {actorIndex + 1}/{scene.Actors.Length}";
-                    await Controller.WaitIfNecessary();
-
-                    if (!des.ContainsKey(actor.GraphicsDataIndex))
-                        des.Add(actor.GraphicsDataIndex, GetCommonDesign(actor.GraphicData));
-
-                    if (!eta.ContainsKey(actor.GraphicsDataIndex.ToString()))
-                        eta.Add(actor.GraphicsDataIndex.ToString(), GetCommonEventStates(actor.GraphicData));
-
-                    level.EventData.Add(new Unity_Obj(new R1_EventData()
+                    var actor = scene.Actors[actorIndex];
+                    level.EventData.Add(new Unity_Object_GBA(actor, objManager)
                     {
-                        XPosition = actor.XPos,
-                        YPosition = actor.YPos,
-                        Etat = 0,
-                        SubEtat = actor.StateIndex,
-                        RuntimeSubEtat = actor.StateIndex
-                    })
-                    {
-                        Type = actor.ActorID,
-                        GBALinks = usesLinks ? new int[]
-                        {
-                            actor.Link_0, 
-                            actor.Link_1, 
-                            actor.Link_2, 
-                            actor.Link_3, 
-                        } : new int[0],
-                        ForceAlways = actorIndex < scene.AlwaysActorsCount,
-                        DESKey = actor.GraphicsDataIndex.ToString(),
-                        ETAKey = actor.GraphicsDataIndex.ToString(),
+                        IsAlwaysEvent = actorIndex < scene.AlwaysActorsCount,
                         DebugText = $"{nameof(GBA_Actor.Link_0)}: {actor.Link_0}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.Link_1)}: {actor.Link_1}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.Link_2)}: {actor.Link_2}{Environment.NewLine}" +
@@ -888,7 +880,7 @@ namespace R1Engine
                                     $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
                                     $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}" +
-                                    $"State_UnkOffsetIndexType: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateDataType}{Environment.NewLine}" + 
+                                    $"State_UnkOffsetIndexType: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateDataType}{Environment.NewLine}" +
                                     $"State_UnkOffsetIndex: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateDataOffsetIndex}{Environment.NewLine}" +
                                     $"State_Flags: {String.Join(", ", actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Flags.GetFlags() ?? new Enum[0])}{Environment.NewLine}" +
                                     $"State_Byte_00: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_00}{Environment.NewLine}" +
@@ -897,37 +889,10 @@ namespace R1Engine
                                     $"State_Byte_03: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_03}{Environment.NewLine}" +
                                     $"State_Data: {String.Join("-", actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateData?.Data ?? new byte[0])}{Environment.NewLine}"
                     });
-
-                    actorIndex++;
                 }
             }
 
-            var strings = LoadLocalization(context)?.StringGroups;
-
-            if (strings != null)
-            {
-                level.Localization = new Dictionary<string, string[]>();
-
-                // TODO: Don't hard-code languages as they differ between games and releases
-                var languages = new string[]
-                {
-                    "English",
-                    "French",
-                    "Spanish",
-                    "German",
-                    "Italian",
-                    "Dutch",
-                    "Swedish",
-                    "Finnish",
-                    "Norwegian",
-                    "Danish"
-                };
-
-                for (int i = 0; i < strings.Length; i++)
-                    level.Localization.Add(languages[i], strings[i].LocStrings.SelectMany(x => x.Strings).ToArray());
-            }
-
-            return new GBA_EditorManager(level, context, des, eta);
+            return level;
         }
 
         public virtual Unity_ObjGraphics GetCommonDesign(GBA_ActorGraphicData graphics) => GetCommonDesign(graphics.SpriteGroup, false);
@@ -1061,7 +1026,7 @@ namespace R1Engine
             // Add animations
             foreach (var a in spr.Animations) {
                 var unityAnim = new Unity_ObjAnimation();
-                unityAnim.AnimSpeed = (byte)(1 + (a.Flags & 0xF));
+                unityAnim.AnimSpeed =  (byte)(1 + (a.Flags & 0xF));
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
                     frames.Add(new Unity_ObjAnimationFrame() {
@@ -1073,29 +1038,6 @@ namespace R1Engine
             }
 
             return des;
-        }
-
-
-
-        public virtual R1_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
-            // Create the states
-            if (graphicData == null) return new R1_EventState[0][];
-            var eta = new R1_EventState[1][];
-            eta[0] = graphicData.States.Select(s => new R1_EventState() {
-                AnimationIndex = s.AnimationIndex,
-                AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[s.AnimationIndex].Flags & 0xF)),
-                IsFlippedHorizontally = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip),
-                IsFlippedVertically = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip)
-            }).ToArray();
-            int numAnims = graphicData.SpriteGroup.Animations.Length;
-            if (eta[0].Length == 0 && numAnims > 0) {
-                eta[0] = Enumerable.Range(0, numAnims).Select(i => new R1_EventState() {
-                    AnimationIndex = (byte)i,
-                    AnimationSpeed = (byte)(1 + (graphicData.SpriteGroup.Animations[i].Flags & 0xF)),
-                }).ToArray();
-            }
-
-            return eta;
         }
 
         protected TilesetInfo GetTilesetInfo(Context context, GBA_PlayField playField, GBA_TileLayer map)
@@ -1242,7 +1184,7 @@ namespace R1Engine
             return output;
         }
 
-        public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
+        public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual async UniTask LoadFilesAsync(Context context)
         {

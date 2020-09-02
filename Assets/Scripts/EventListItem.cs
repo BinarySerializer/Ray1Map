@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-namespace R1Engine {
+namespace R1Engine
+{
     public class EventListItem : MonoBehaviour, IPointerDownHandler {
         public Unity_ObjBehaviour ev;
         public Text evName;
@@ -13,7 +13,7 @@ namespace R1Engine {
         void Start() {
             list = GetComponentInParent<EventList>();
             bg = GetComponent<Image>();
-            evName.text = ev.DisplayName;
+            evName.text = ev.ObjData.DisplayName;
         }
 
         public void OnPointerDown(PointerEventData eventData) {

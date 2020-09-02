@@ -102,17 +102,19 @@ namespace R1Engine
             StopStopwatch();
             loadTimer.Stop();
 
-            var startEvent = LevelEditorData.Level.Rayman?.Data ?? levelController.Events.FindItem(x => (x.Data.Type is R1_EventType et && (et == R1_EventType.TYPE_RAY_POS || et == R1_EventType.TYPE_PANCARTE)) || (x.Data.Type is GBA_R3_ActorID ai && ai == GBA_R3_ActorID.Rayman))?.Data.Data;
+            var startEvent = LevelEditorData.Level.Rayman ?? LevelEditorData.Level.ObjManager.GetMainObject(LevelEditorData.Level.EventData);
 
             if (startEvent != null)
-                Controller.obj.levelEventController.editor.cam.pos = new Vector3(startEvent.XPosition / (float)LevelEditorData.EditorManager.PixelsPerUnit, -(startEvent.YPosition / (float)LevelEditorData.EditorManager.PixelsPerUnit));
+                Controller.obj.levelEventController.editor.cam.pos = new Vector3(startEvent.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(startEvent.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
 
             Debug.Log($"Loaded in {loadTimer.ElapsedMilliseconds}ms");
         }
 
         public void OnDestroy()
         {
-            LevelEditorData.EditorManager = null;
+            LevelEditorData.Level = null;
+            LevelEditorData.MainContext?.Dispose();
+            LevelEditorData.MainContext = null;
         }
 
         public void FindMatchingEncoding(params KeyValuePair<string, byte[]>[] input)

@@ -180,7 +180,7 @@ namespace R1Engine
 
         void Update() 
         {
-            if (LevelEditorData.EditorManager == null)
+            if (LevelEditorData.Level == null)
                 return;
 
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];

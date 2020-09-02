@@ -106,33 +106,11 @@ namespace R1Engine
                     });
                 }
                 unityAnim.Frames = frames.ToArray();
+                unityAnim.AnimSpeed = 1;
                 des.Animations.Add(unityAnim);
             }
 
             return des;
-        }
-
-
-
-        public override R1_EventState[][] GetCommonEventStates(GBA_ActorGraphicData graphicData) {
-            // Create the states
-            if (graphicData == null) return new R1_EventState[0][];
-            var eta = new R1_EventState[1][];
-            eta[0] = graphicData.States.Select(s => new R1_EventState() {
-                AnimationIndex = s.AnimationIndex,
-                AnimationSpeed = (byte)(1),// + (graphicData.SpriteGroup_BatmanVengeance.Animations[s.AnimationIndex].Flags & 0xF)),
-                IsFlippedHorizontally = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip),
-                IsFlippedVertically = s.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip)
-            }).ToArray();
-            int numAnims = graphicData.SpriteGroup_BatmanVengeance.Animations.Length;
-            if (eta[0].Length == 0 && numAnims > 0) {
-                eta[0] = Enumerable.Range(0, numAnims).Select(i => new R1_EventState() {
-                    AnimationIndex = (byte)i,
-                    AnimationSpeed = (byte)(1),// + (graphicData.SpriteGroup_BatmanVengeance.Animations[i].Flags & 0xF)),
-                }).ToArray();
-            }
-
-            return eta;
         }
     }
 }

@@ -345,13 +345,13 @@ namespace R1Engine
             }
         }
 
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             // Read the language file
             var lng = FileFactory.ReadText<R1_PC_LNGFile>(GetLanguageFilePath(), context);
 
             // Set the common localization
-            level.Localization = new Dictionary<string, string[]>()
+            var loc = new Dictionary<string, string[]>()
             {
                 ["English"] = lng.Strings[0],
                 ["French"] = lng.Strings[1],
@@ -360,19 +360,12 @@ namespace R1Engine
 
             // Set extended localization if available
             if (lng.Strings.Length > 3)
-                level.Localization.Add("Japanese", lng.Strings[3]);
+                loc.Add("Japanese", lng.Strings[3]);
             if (lng.Strings.Length > 4)
-                level.Localization.Add("Chinese", lng.Strings[4]);
-        }
+                loc.Add("Chinese", lng.Strings[4]);
 
-        /// <summary>
-        /// Gets an editor manager from the specified objects
-        /// </summary>
-        /// <param name="level">The common level</param>
-        /// <param name="context">The context</param>
-        /// <param name="designs">The common design</param>
-        /// <returns>The editor manager</returns>
-        public override BaseEditorManager GetEditorManager(Unity_Level level, Context context, Unity_ObjGraphics[] designs) => new R1_PC_EditorManager(level, context, this, designs);
+            return loc;
+        }
 
         #endregion
     }

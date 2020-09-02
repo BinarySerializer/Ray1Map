@@ -229,8 +229,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Read the allfix file
             await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
@@ -263,11 +263,12 @@ namespace R1Engine
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="editorManager">The editor manager</param>
-        public override void SaveLevel(Context context, BaseEditorManager editorManager)
+        /// <param name="lvl">The level</param>
+        public override void SaveLevel(Context context, Unity_Level lvl)
         {
-            var em = (R1_PS1_EditorManager)editorManager;
-            var commonLevelData = editorManager.Level;
+            /*
+            var em = (R1_PS1_EditorManager)level;
+            var commonLevelData = level.Level;
 
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
@@ -326,14 +327,14 @@ namespace R1Engine
 
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
-            FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);
+            FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);*/
         }
 
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             // The localization is compiled in the US/JP releases
             if (context.Settings.GameModeSelection != GameModeSelection.RaymanPS1EU)
-                return;
+                return null;
 
             var langs = new[]
             {
@@ -355,14 +356,16 @@ namespace R1Engine
             };
 
             // Create the dictionary
-            level.Localization = new Dictionary<string, string[]>();
+            var loc = new Dictionary<string, string[]>();
 
             // Add each language
             foreach (var lang in langs)
             {
                 var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context);
-                level.Localization.Add(lang.Language, langFile.Strings);
+                loc.Add(lang.Language, langFile.Strings);
             }
+
+            return loc;
         }
     }
 }

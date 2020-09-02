@@ -178,7 +178,7 @@ namespace R1Engine
             filePath = filePath
         };
 
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             var langs = new[]
             {
@@ -245,15 +245,17 @@ namespace R1Engine
             };
 
             // Create the dictionary
-            level.Localization = new Dictionary<string, string[]>();
+            var loc = new Dictionary<string, string[]>();
 
             // Add each language
             foreach (var lang in langs)
             {
                 var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context, encoding: lang.Encoding);
 
-                level.Localization.Add(lang.Language, langFile.Strings);
+                loc.Add(lang.Language, langFile.Strings);
             }
+
+            return loc;
         }
 
         #endregion

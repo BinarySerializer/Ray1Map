@@ -11,8 +11,6 @@ namespace R1Engine
     /// </summary>
     public class R1_Kit_Manager : R1_PCBaseManager
     {
-        #region Values and paths
-
         /// <summary>
         /// Gets the file path for the specified level
         /// </summary>
@@ -136,14 +134,10 @@ namespace R1Engine
             return generalEvents.Any(x => x.DesKit[context.Settings.R1_World] == nameWithoutExt && ((R1_EventType)x.Type).IsMultiColored());
         }
 
-        #endregion
-
-        #region Manager Methods
-
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             // Create the dictionary
-            level.Localization = new Dictionary<string, string[]>();
+            var localization = new Dictionary<string, string[]>();
 
             // Enumerate each language
             foreach (var lang in GetLanguages(context.Settings))
@@ -178,7 +172,7 @@ namespace R1Engine
                         locName = lang;
 
                     // Add the localization
-                    level.Localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+                    localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
                 }
 
                 // Create a stream for the general data
@@ -191,7 +185,7 @@ namespace R1Engine
                     var general = FileFactory.Read<R1_PC_GeneralFile>(key, context);
 
                     // Add the localization
-                    level.Localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
+                    localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
                 }
 
                 // Add the event localizations (allfix + 6 worlds)
@@ -213,20 +207,11 @@ namespace R1Engine
                     var evLoc = FileFactory.Read<R1_Mapper_EventLocFile>(evLocPath, context);
 
                     // Add the localization
-                    level.Localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray());
+                    localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray());
                 }
             }
+
+            return localization;
         }
-
-        /// <summary>
-        /// Gets an editor manager from the specified objects
-        /// </summary>
-        /// <param name="level">The common level</param>
-        /// <param name="context">The context</param>
-        /// <param name="designs">The common design</param>
-        /// <returns>The editor manager</returns>
-        public override BaseEditorManager GetEditorManager(Unity_Level level, Context context, Unity_ObjGraphics[] designs) => new R1_Kit_EditorManager(level, context, this, designs);
-
-        #endregion
     }
 }

@@ -97,10 +97,10 @@ namespace R1Engine
 
         #region Manager Methods
 
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             // Create the dictionary
-            level.Localization = new Dictionary<string, string[]>();
+            var localization = new Dictionary<string, string[]>();
 
             // Enumerate each language
             foreach (var vol in GetLevels(context.Settings).Select(x => x.Name))
@@ -132,7 +132,7 @@ namespace R1Engine
                     locName = $"{loc.LanguageNames[loc.LanguageUtilized]} ({vol})";
 
                     // Add the localization
-                    level.Localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+                    localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
                 }
 
                 // Create a stream for the general data
@@ -145,7 +145,7 @@ namespace R1Engine
                     var general = FileFactory.Read<R1_PC_GeneralFile>(key, context);
 
                     // Add the localization
-                    level.Localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
+                    localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
                 }
 
                 // Create a stream for the MOT data
@@ -158,19 +158,12 @@ namespace R1Engine
                     var loc = FileFactory.Read<R1_PCEdu_MOTFile>(key, context);
 
                     // Add the localization
-                    level.Localization.Add($"MOT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
+                    localization.Add($"MOT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
                 }
             }
-        }
 
-        /// <summary>
-        /// Gets an editor manager from the specified objects
-        /// </summary>
-        /// <param name="level">The common level</param>
-        /// <param name="context">The context</param>
-        /// <param name="designs">The common design</param>
-        /// <returns>The editor manager</returns>
-        public override BaseEditorManager GetEditorManager(Unity_Level level, Context context, Unity_ObjGraphics[] designs) => new R1_EDU_EditorManager(level, context, this, designs);
+            return localization;
+        }
 
         #endregion
     }

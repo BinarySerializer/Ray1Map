@@ -345,8 +345,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public override async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading map data for {context.Settings.EduVolume}: {context.Settings.World} {context.Settings.Level}";
 
@@ -355,53 +355,41 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level
-            {
-                // Create the map
-                Maps = new Unity_Map[]
-                {
-                    new Unity_Map()
-                    {
-                        // Set the dimensions
-                        Width = levelData.Width,
-                        Height = levelData.Height,
-
-                        // Create the tile arrays
-                        TileSet = new Unity_MapTileMap[3],
-                        MapTiles = levelData.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
-                        TileSetWidth = 1
-                    }
-                },
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
-            };
-
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context) : new Unity_ObjGraphics[0];
 
-            var index = 0;
+            // Create the object manager
+            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i)).ToArray(), GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i)).ToArray(), levelData.EventLinkTable, usesPointers: false);
 
-            foreach (R1_EventData e in levelData.Events)
+            var maps = new Unity_Map[]
             {
-                // Get the file keys
-                var desKey = e.PC_ImageDescriptorsIndex.ToString();
-                var etaKey = e.PC_ETAIndex.ToString();
-
-                // Add the event
-                level.EventData.Add(new Unity_Obj(e)
+                new Unity_Map()
                 {
-                    Type = e.Type,
-                    DESKey = desKey,
-                    ETAKey = etaKey,
-                    LabelOffsets = levelData.EventCommands[index].LabelOffsetTable,
-                    CommandCollection = levelData.EventCommands[index].Commands,
-                    LinkIndex = levelData.EventLinkTable[index],
+                    // Set the dimensions
+                    Width = levelData.Width,
+                    Height = levelData.Height,
+
+                    // Create the tile arrays
+                    TileSet = new Unity_MapTileMap[3],
+                    MapTiles = levelData.MapTiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    TileSetWidth = 1
+                }
+            };
+
+            Unity_Level level = new Unity_Level(maps, objManager, localization: LoadLocalization(context));
+
+            // Add the events
+            for (var index = 0; index < levelData.Events.Length; index++)
+            {
+                var e = levelData.Events[index];
+
+                e.Commands = levelData.EventCommands[index].Commands;
+                e.LabelOffsets = levelData.EventCommands[index].LabelOffsetTable;
+
+                level.EventData.Add(new Unity_Object_R1(e, objManager)
+                {
                     DebugText = $"Flags: {String.Join(", ", e.PC_Flags.GetFlags())}{Environment.NewLine}"
                 });
-
-                index++;
             }
 
             await Controller.WaitIfNecessary();
@@ -416,11 +404,8 @@ namespace R1Engine
             level.Maps[0].TileSet[1] = tileSets[1];
             level.Maps[0].TileSet[2] = tileSets[2];
 
-            // Load localization
-            LoadLocalization(context, level);
-
-            // Return an editor manager
-            return GetEditorManager(level, context, eventDesigns);
+            // Return the level
+            return level;
         }
 
         /// <summary>

@@ -714,8 +714,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -738,36 +738,26 @@ namespace R1Engine
 
             Unity_MapTileMap tileset = GetTileSet(context, map);
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level 
+            var maps = new Unity_Map[]
             {
-                // Create the map
-                Maps = new Unity_Map[]
+                new Unity_Map()
                 {
-                    new Unity_Map()
+                    // Set the dimensions
+                    Width = map.MapData.Width,
+                    Height = map.MapData.Height,
+
+                    // Create the tile arrays
+                    TileSet = new Unity_MapTileMap[]
                     {
-                        // Set the dimensions
-                        Width = map.MapData.Width,
-                        Height = map.MapData.Height,
-
-                        // Create the tile arrays
-                        TileSet = new Unity_MapTileMap[1],
-                        MapTiles = map.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                        TileSetWidth = 1
-                    }
-                },
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
+                        tileset
+                    },
+                    MapTiles = map.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    TileSetWidth = 1
+                }
             };
-
-            level.Maps[0].TileSet[0] = tileset;
 
             Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();
-
-            var eventDesigns = new Dictionary<Pointer, Unity_ObjGraphics>();
-            var eventETA = new Dictionary<Pointer, R1_EventState[][]>();
 
             // Create a linking table
             var linkTable = new ushort[eventData.EventData.Select(x => x.Length).Sum()];
@@ -798,55 +788,27 @@ namespace R1Engine
                 }
             }
 
-            var index = 0;
+            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>>();
+            var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
 
-            // Load the events
+            // Create graphics
             for (int i = 0; i < eventData.GraphicsGroupCount; i++)
             {
-                var graphics = eventData.GraphicData[i];
-
-                // Add if not found
-                if (graphics.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(graphics.ImageDescriptorsPointer))
-                {
-                    Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
-                    {
-                        Sprites = new List<Sprite>(),
-                        Animations = new List<Unity_ObjAnimation>(),
-                        FilePath = graphics.ImageDescriptorsPointer.file.filePath
-                    };
-
-                    // Get every sprite
-                    foreach (R1_ImageDescriptor img in graphics.ImageDescriptors)
-                    {
-                        // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, spritePalette) : null;
-
-                        // Add it to the array
-                        finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
-                    }
-
-                    if (graphics.AnimDescriptors != null)
-                        // Add animations
-                        finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => x.ToCommonAnimation()));
-
-                    // Add to the designs
-                    eventDesigns.Add(graphics.ImageDescriptorsPointer, finalDesign);
-                }
-
+                // Create ETA
                 for (int j = 0; j < eventData.EventData[i].Length; j++)
                 {
                     var dat = eventData.EventData[i][j];
 
                     // Add if not found
-                    if (dat.ETAPointer != null && !eventETA.ContainsKey(dat.ETAPointer))
+                    if (dat.ETAPointer != null && eventETA.All(x => x.Pointer != dat.ETAPointer))
                     {
                         // Add to the ETA
-                        eventETA.Add(dat.ETAPointer, dat.ETA);
+                        eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(dat.ETA, dat.ETAPointer));
                     }
                     else if (dat.ETAPointer != null && context.Settings.EngineVersion == EngineVersion.R1_DSi)
                     {
                         // Temporary solution - combine ETA
-                        var current = eventETA[dat.ETAPointer];
+                        var current = eventETA.First(x => x.Pointer == dat.ETAPointer).Data;
 
                         if (dat.ETA.Length > current.Length)
                             Array.Resize(ref current, dat.ETA.Length);
@@ -863,10 +825,54 @@ namespace R1Engine
                                 current[ii][jj] = dat.ETA[ii][jj];
                         }
 
-                        eventETA[dat.ETAPointer] = current;
+                        eventETA[eventETA.FindItemIndex(x => x.Pointer == dat.ETAPointer)] = new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(current, dat.ETAPointer);
                     }
+                }
 
-                    var editorEventData = new Unity_Obj(new R1_EventData()
+                var graphics = eventData.GraphicData[i];
+
+                // Add if not found
+                if (graphics.ImageDescriptorsPointer == null || eventDesigns.Any(x => x.Pointer == graphics.ImageDescriptorsPointer)) 
+                    continue;
+
+                Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
+                {
+                    Sprites = new List<Sprite>(),
+                    Animations = new List<Unity_ObjAnimation>(),
+                    FilePath = graphics.ImageDescriptorsPointer.file.filePath
+                };
+
+                // Get every sprite
+                foreach (R1_ImageDescriptor img in graphics.ImageDescriptors)
+                {
+                    // Get the texture for the sprite, or null if not loading textures
+                    Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, spritePalette) : null;
+
+                    // Add it to the array
+                    finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
+                }
+
+                if (graphics.AnimDescriptors != null)
+                    // Add animations
+                    finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => x.ToCommonAnimation()));
+
+                // Add to the designs
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, graphics.ImageDescriptorsPointer));
+            }
+
+            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.ToArray(), eventETA.ToArray(), linkTable);
+            Unity_Level level = new Unity_Level(maps, objManager, localization: LoadLocalization(data));
+
+            // Load the events
+            for (int i = 0; i < eventData.GraphicsGroupCount; i++)
+            {
+                var graphics = eventData.GraphicData[i];
+
+                for (int j = 0; j < eventData.EventData[i].Length; j++)
+                {
+                    var dat = eventData.EventData[i][j];
+
+                    var editorEventData = new Unity_Object_R1(new R1_EventData()
                     {
                         Type = dat.Type,
                         Etat = dat.Etat,
@@ -880,58 +886,44 @@ namespace R1Engine
                         ActualHitPoints = dat.HitPoints,
                         Layer = (byte)dat.Layer,
                         HitSprite = dat.HitSprite,
-                    })
-                    {
-                        Type = dat.Type,
-                        DESKey = graphics.ImageDescriptorsPointer?.ToString() ?? String.Empty,
-                        ETAKey = dat.ETAPointer?.ToString() ?? String.Empty,
-                        CommandCollection = dat.Commands,
-                        LinkIndex = linkTable[index],
-                    };
 
-                    editorEventData.Data.SetFollowEnabled(context.Settings, dat.FollowEnabled);
+                        ImageDescriptorsPointer = graphics.ImageDescriptorsPointer,
+                        AnimDescriptorsPointer = graphics.ImageDescriptorsPointer,
+                        ImageBufferPointer = graphics.ImageDescriptorsPointer,
+                        ETAPointer = dat.ETAPointer,
+
+                        Commands = dat.Commands,
+                        LabelOffsets = new ushort[0]
+                    }, objManager);
+
+                    editorEventData.EventData.SetFollowEnabled(context.Settings, dat.FollowEnabled);
 
                     // Add the event
                     level.EventData.Add(editorEventData);
-
-                    index++;
                 }
             }
 
-            if (context.Settings.EngineVersion == EngineVersion.R1_GBA)
-            {
-                // Add the localization data
-                level.Localization = new Dictionary<string, string[]>()
-                {
-                    ["English"] = data.Strings[0],
-                    ["French"] = data.Strings[1],
-                    ["German"] = data.Strings[2],
-                    ["Spanish"] = data.Strings[3],
-                    ["Italian"] = data.Strings[4],
-                };
-            }
-            else
-            {
-                // Add the localization data
-                level.Localization = new Dictionary<string, string[]>()
-                {
-                    ["English"] = data.Strings[1],
-                    ["French"] = data.Strings[2],
-                    ["German"] = data.Strings[4],
-                    ["Spanish"] = data.Strings[0],
-                    ["Italian"] = data.Strings[3],
-                };
-            }
-
-            return new R1_PS1_EditorManager(level, context, eventDesigns, eventETA, null);
+            return level;
         }
 
         /// <summary>
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="editorManager">The editor manager</param>
-        public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
+        /// <param name="editorManager">The level</param>
+        public void SaveLevel(Context context, Unity_Level editorManager) => throw new NotImplementedException();
+
+        public virtual IReadOnlyDictionary<string, string[]> LoadLocalization(IR1_GBAData data)
+        {
+            return new Dictionary<string, string[]>()
+            {
+                ["English"] = data.Strings[0],
+                ["French"] = data.Strings[1],
+                ["German"] = data.Strings[2],
+                ["Spanish"] = data.Strings[3],
+                ["Italian"] = data.Strings[4],
+            };
+        }
 
         /// <summary>
         /// Preloads all the necessary files into the context

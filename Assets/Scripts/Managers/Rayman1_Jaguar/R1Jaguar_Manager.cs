@@ -755,15 +755,12 @@ namespace R1Engine
                         Endianness = BinaryFile.Endian.Little
                     };
                     context.AddFile(file);
-                    ushort[] data = s.DoAt(file.StartPointer, () => {
-                        return s.SerializeArray<ushort>(null, s.CurrentLength / 2, name: nameof(data));
-                    });
+                    ushort[] data = s.DoAt(file.StartPointer, () => s.SerializeArray<ushort>(null, s.CurrentLength / 2, name: nameof(data)));
 
                     using (MemoryStream ms = new MemoryStream()) {
                         Writer w = new Writer(ms, isLittleEndian: false);
-                        foreach (ushort u in data) {
+                        foreach (ushort u in data)
                             w.Write(u);
-                        }
                         ms.Position = 0;
                         Util.ByteArrayToFile(context.BasePath + path + ".fixed", ms.ToArray());
                     }
@@ -771,41 +768,39 @@ namespace R1Engine
             }
         }
 
-        public Unity_Obj CreateEventData(Context c, R1Jaguar_EventDefinition ed, Dictionary<string, Unity_ObjGraphics> eventDesigns, Dictionary<string, R1_EventState[][]> eventETA, Dictionary<string, string[][]> eventETANames, bool loadTextures) 
+        public Unity_Object_R1Jaguar CreateEventData(Context c, R1Jaguar_EventDefinition ed, List<Unity_ObjectManager_R1Jaguar.EventDefinition> eventDefinitions, bool loadTextures, Unity_ObjectManager_R1Jaguar objManager)
         {
-            if (ed == null) 
+            if (ed == null)
                 return null;
 
             var rom = FileFactory.Read<R1Jaguar_ROM>(GetROMFilePath, c);
 
             var usedNames = new List<string>();
+
             // Helper method to get the name for a pointer
             string GetPointerName(Pointer p, int subEtat = 0, bool desEtaName = false)
             {
                 string name;
 
                 if (c.Settings.EngineVersion != EngineVersion.R1Jaguar_Proto)
-                    name = p?.ToString() ?? String.Empty;
+                    name = null;
                 // Need to do last here to get the correct event name for Rayman
                 else if (desEtaName)
                     name = rom.References.LastOrDefault(x => x.DataPointer == p && !usedNames.Contains(x.String))
-                               ?.String ?? p?.ToString() ?? String.Empty;
+                        ?.String;
                 // Need to save used names here to avoid getting the same name for animations
                 else
                     name = rom.References.FirstOrDefault(x => x.DataPointer == p && !usedNames.Contains(x.String))
-                               ?.String ??
-                           $"{rom.References.FirstOrDefault(x => x.DataPointer == p)?.String} [{subEtat}]";
+                               ?.String ?? $"{rom.References.FirstOrDefault(x => x.DataPointer == p)?.String} [{subEtat}]";
 
-                
-                usedNames.Add(name);
-                
+                if (name != null)
+                    usedNames.Add(name);
+
                 return name;
             }
 
             // Get the DES key (normally the offset of the event definition, but in the prototype we have strings we can use)
-            var desKey = GetPointerName(ed.Offset, 0, true);
-
-            int? predeterminedState = null;
+            var eventDefinitionPointer = ed.Offset;
 
             /* TODO: Process special event definitions.
              * - 0x001FB3C8[0x000023C8]: RAY POS
@@ -813,20 +808,41 @@ namespace R1Engine
              * - 0x001F9CD0[0x00000CD0]: Gendoors. Spawns next event read by ReadEvent in Jaguar_R1_EventBlock
              */
 
+            // Key for states
+            bool usesComplexData = false;
+            Pointer etatKeyOffset = null;
+
+            if (ed.AnimationLayers != null)
+                etatKeyOffset = ed.Offset;
+
+            if (ed.States != null && ed.States.Length > 0)
+            {
+                etatKeyOffset = ed.States[0].Offset;
+            }
+            else if (ed.ComplexData != null)
+            {
+                usesComplexData = true;
+                etatKeyOffset = ed.ComplexData.Transitions != null ? ed.ComplexData.Transitions[0].Offset : ed.ComplexData.Offset;
+            }
+
             // Add if not found
-            if (!eventDesigns.ContainsKey(desKey)) {
-                Unity_ObjGraphics finalDesign = new Unity_ObjGraphics {
+            if (eventDefinitions.All(x => x.Pointer != eventDefinitionPointer))
+            {
+                Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
+                {
                     Sprites = new List<Sprite>(),
                     Animations = new List<Unity_ObjAnimation>()
                 };
 
                 // Get every sprite
-                void AddImageDescriptors(R1_ImageDescriptor[] imgDesc, uint key) {
+                void AddImageDescriptors(R1_ImageDescriptor[] imgDesc, uint key)
+                {
                     if (imgDesc == null) return;
-                    foreach (R1_ImageDescriptor img in imgDesc) {
+                    foreach (R1_ImageDescriptor img in imgDesc)
+                    {
                         // Get the texture for the sprite, or null if not loading textures
                         Texture2D tex = loadTextures && rom.ImageBuffers.ContainsKey(key) ? GetSpriteTexture(img, rom.SpritePalette, rom.ImageBuffers[key]) : null;
-                            
+
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                     }
@@ -848,189 +864,166 @@ namespace R1Engine
                 }
 
                 // Add animations
-                if (ed.AnimationLayers != null) {
+                if (ed.AnimationLayers != null)
+                {
                     finalDesign.Animations.Add(ed.ToCommonAnimation());
-                } else if (ed.States != null) {
+                }
+                else if (ed.States != null)
+                {
                     finalDesign.Animations.AddRange(ed.States.Where(x => x.Animation != null).Select(x => x.Animation.ToCommonAnimation(ed)));
-                } else if (ed.ComplexData != null) {
-                    if (ed.ComplexData.Transitions != null) {
-                        foreach (var transition in ed.ComplexData.Transitions) 
+                }
+                else if (ed.ComplexData != null)
+                {
+                    if (ed.ComplexData.Transitions != null)
+                    {
+                        foreach (var transition in ed.ComplexData.Transitions)
                         {
-                            if (transition.ComplexData?.States == null || (c.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset)) 
+                            if (transition.ComplexData?.States == null || (c.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto && transition.ComplexData.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
                                 continue;
                             finalDesign.Animations.AddRange(transition.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                         }
-                    } else {
-                        if (ed.ComplexData.States != null) {
+                    }
+                    else
+                    {
+                        if (ed.ComplexData.States != null)
+                        {
                             finalDesign.Animations.AddRange(ed.ComplexData.States.Where(x => x.Layers?.Length > 0).Select(x => x.ToCommonAnimation(ed)));
                         }
                     }
                 }
 
-                // Add to the designs
-                eventDesigns.Add(desKey, finalDesign);
-            }
+                Unity_ObjectManager_R1Jaguar.State[][] finalStates;
 
-            // Key for ETAT
-            bool usesComplexData = false;
-            Pointer etatKeyOffset = null;
-
-            if (ed.AnimationLayers != null)
-                etatKeyOffset = ed.Offset;
-
-            if (ed.States != null && ed.States.Length > 0) {
-                etatKeyOffset = ed.States[0].Offset;
-            } else if (ed.ComplexData != null)
-            {
-                usesComplexData = true;
-                etatKeyOffset = ed.ComplexData.Transitions != null ? ed.ComplexData.Transitions[0].Offset : ed.ComplexData.Offset;
-            }
-
-            var etatKey = etatKeyOffset != null ? GetPointerName(etatKeyOffset, 0, true) : String.Empty;
-
-            // Add ETAT if not found
-            if (etatKeyOffset != null && !eventETA.ContainsKey(etatKey)) {
-                if (!usesComplexData) {
-                    if (ed.AnimationLayers != null) {
-                        // Create a common state array
-                        var states = new R1_EventState[1][] {
-                            new R1_EventState[1] {
-                                new R1_EventState {
-                                    AnimationIndex = 0,
-                                    LinkedEtat = 0,
-                                    AnimationSpeed = 1,
-                                }
-                            }
-                        };
-                        var stateNames = new string[][]
+                if (etatKeyOffset != null)
+                {
+                    if (!usesComplexData)
+                    {
+                        if (ed.AnimationLayers != null)
                         {
-                            new string[]
+                            // Create a common state array
+                            finalStates = new Unity_ObjectManager_R1Jaguar.State[][] 
                             {
-                                GetPointerName(ed.AnimationPointer - 4)
-                            },
-                        };
-                        eventETA.Add(etatKey, states);
-                        eventETANames?.Add(etatKey, stateNames);
-                    } else {
-                        var validStates = ed.States.Where(x => x.Animation != null).ToArray();
-
-                        // Create a common state array
-                        var states = new R1_EventState[validStates.Length][];
-                        var stateNames = new string[validStates.Length][];
-
-                        // Add dummy states
-                        for (byte s = 0; s < states.Length; s++) {
-                            var stateLinkIndex = -1;
-                            var fullStateIndex = ed.States.FindItemIndex(x => x == validStates[s]);
-
-                            if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null)
-                                stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
-
-                            states[s] = new R1_EventState[]
-                            {
-                                new R1_EventState {
-                                    AnimationIndex = s,
-                                    LinkedEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                    AnimationSpeed = (byte)(validStates[s].AnimationSpeed & 0b1111),
+                                new Unity_ObjectManager_R1Jaguar.State[] 
+                                {
+                                    new Unity_ObjectManager_R1Jaguar.State(
+                                        animationIndex: 0, 
+                                        animSpeed: 1, 
+                                        linkedStateIndex: 0, 
+                                        linkedComplexStateIndex: 0, 
+                                        name: GetPointerName(ed.AnimationPointer - 4))
                                 }
-                            };
-                            stateNames[s] = new string[]
-                            {
-                                GetPointerName(validStates[s].AnimationPointer, s)
                             };
                         }
+                        else
+                        {
+                            var validStates = ed.States.Where(x => x.Animation != null).ToArray();
 
-                        // Add to the states
-                        eventETA.Add(etatKey, states);
-                        eventETANames?.Add(etatKey, stateNames);
+                            // Create a common state array
+                            finalStates = new Unity_ObjectManager_R1Jaguar.State[validStates.Length][];
+
+                            // Add dummy states
+                            for (byte s = 0; s < finalStates.Length; s++)
+                            {
+                                var stateLinkIndex = -1;
+                                var fullStateIndex = ed.States.FindItemIndex(x => x == validStates[s]);
+
+                                if (fullStateIndex + 1 < ed.States.Length && ed.States[fullStateIndex + 1].LinkedState != null)
+                                    stateLinkIndex = validStates.FindItemIndex(x => x == ed.States[fullStateIndex + 1].LinkedState);
+
+                                finalStates[s] = new Unity_ObjectManager_R1Jaguar.State[]
+                                {
+                                    new Unity_ObjectManager_R1Jaguar.State(
+                                        animationIndex: s, 
+                                        animSpeed: (byte)(validStates[s].AnimationSpeed & 0b1111),
+                                        linkedComplexStateIndex: 0,
+                                        linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
+                                        name: GetPointerName(validStates[s].AnimationPointer, s))
+                                };
+                            }
+                        }
                     }
-                } else {
-                    List<R1Jaguar_EventComplexData> cds = new List<R1Jaguar_EventComplexData>();
-                    List<R1_EventState[]> states = new List<R1_EventState[]>();
-                    List<string[]> stateNames = new List<string[]>();
-                    int curAnimIndex = 0;
-                    void AddComplexData(R1Jaguar_EventComplexData cd) {
-                        if (cd == null || cds.Contains(cd)) return;
-
-                        if ((c.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto && cd.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
-                            return;
-
-                        cds.Add(cd);
-                        var validStates = cd.States.Where(x => x.Layers?.Length > 0).ToArray();
-                        var substates = new R1_EventState[validStates.Length];
-                        var substateNames = new string[validStates.Length];
-                        for (byte s = 0; s < substates.Length; s++)
+                    else
+                    {
+                        List<R1Jaguar_EventComplexData> cds = new List<R1Jaguar_EventComplexData>();
+                        List<Unity_ObjectManager_R1Jaguar.State[]> states = new List<Unity_ObjectManager_R1Jaguar.State[]>();
+                        int curAnimIndex = 0;
+                        void AddComplexData(R1Jaguar_EventComplexData cd)
                         {
-                            var stateLinkIndex = -1;
-                            if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < cd.States.Length)
+                            if (cd == null || cds.Contains(cd)) return;
+
+                            if ((c.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto && cd.ImageDescriptorsPointer != rom.ImageBufferDescriptors[ed.ImageBufferMemoryPointerPointer >> 8].First().Offset))
+                                return;
+
+                            cds.Add(cd);
+                            var validStates = cd.States.Where(x => x.Layers?.Length > 0).ToArray();
+                            var substates = new Unity_ObjectManager_R1Jaguar.State[validStates.Length];
+                            for (byte s = 0; s < substates.Length; s++)
                             {
-                                var linkedState = cd.States[validStates[s].LinkedStateIndex - 1];
-                                stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
+                                var stateLinkIndex = -1;
+                                if (validStates[s].LinkedStateIndex > 0 && validStates[s].LinkedStateIndex - 1 < cd.States.Length)
+                                {
+                                    var linkedState = cd.States[validStates[s].LinkedStateIndex - 1];
+                                    stateLinkIndex = validStates.FindItemIndex(x => x == linkedState);
+                                }
+
+                                substates[s] = new Unity_ObjectManager_R1Jaguar.State(
+                                    animationIndex: (byte)curAnimIndex++, 
+                                    animSpeed: (byte)(validStates[s].UnkBytes[0] & 0b1111), 
+                                    linkedComplexStateIndex: (byte)states.Count, 
+                                    linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
+                                    name: GetPointerName(validStates[s].AnimationPointer - 4, s));
                             }
 
-                            substates[s] = new R1_EventState
-                            {
-                                AnimationIndex = (byte)curAnimIndex++,
-                                LinkedEtat = (byte)states.Count,
-                                LinkedSubEtat = (byte)(stateLinkIndex == -1 ? s : stateLinkIndex),
-                                AnimationSpeed = (byte)(validStates[s].UnkBytes[0] & 0b1111),
-                            };
-                            substateNames[s] = GetPointerName(validStates[s].AnimationPointer - 4, s);
-                        }
+                            states.Add(substates);
 
-                        states.Add(substates);
-                        stateNames.Add(substateNames);
+                            if (cd.Transitions == null) 
+                                return;
 
-                        if (cd.Transitions != null) {
-                            foreach (R1Jaguar_EventComplexDataTransition t in cd.Transitions) {
+                            foreach (R1Jaguar_EventComplexDataTransition t in cd.Transitions)
                                 AddComplexData(t.ComplexData);
-                            }
                         }
-                    }
-                    AddComplexData(ed.ComplexData);
+                        AddComplexData(ed.ComplexData);
 
-                    // Add to the states
-                    eventETA.Add(etatKey, states.ToArray());
-                    eventETANames?.Add(etatKey, stateNames.ToArray());
+                        finalStates = states.ToArray();
+                    }
                 }
+                else
+                {
+                    finalStates = new Unity_ObjectManager_R1Jaguar.State[0][];
+                }
+
+                eventDefinitions.Add(new Unity_ObjectManager_R1Jaguar.EventDefinition(eventDefinitionPointer, finalDesign, finalStates, GetPointerName(eventDefinitionPointer, 0, true)));
             }
 
             // Get state index
             int stateIndex = 0;
             int substateIndex = 0;
-            if (etatKeyOffset != null) {
-                if (!usesComplexData) {
-                    if (ed.States != null && ed.States.Length > 1 && eventETA.ContainsKey(etatKey)) {
+            if (etatKeyOffset != null)
+            {
+                if (!usesComplexData)
+                {
+                    if (ed.States != null && ed.States.Length > 1)
+                    {
                         var validStates = ed.States.Where(x => x.Animation != null).ToArray();
-                        int ind;
-                        if (predeterminedState.HasValue && predeterminedState.Value < ed.States.Length) {
-                            var st = ed.States[predeterminedState.Value];
-                            if (st.LinkedState != null) st = st.LinkedState;
-                            ind = validStates.FindItemIndex(state => state.Offset == st.Offset);
-                            if (ind < 0) {
-                                ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
-                            }
-                        } else {
-                            ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
-                        }
-                        if (ind >= 0) {
+
+                        var ind = validStates.FindItemIndex(state => state.Offset == ed.CurrentStatePointer);
+
+                        if (ind >= 0)
                             stateIndex = ind;
-                        }
                     }
-                } else {
-                    if (usesComplexData) {
-                        stateIndex = 0;
-                        substateIndex = 0;
-                        if (ed.UInt_1C > 0 && ed.UInt_1C - 1 < ed.ComplexData?.States?.Length) {
-                            var validStates = ed.ComplexData.States.Where(x => x.Layers?.Length > 0).ToArray();
-                            var linkedState = ed.ComplexData.States[ed.UInt_1C - 1];
-                            var goodSubstate = validStates.FindItemIndex(x => x == linkedState);
-                            if (goodSubstate != -1) {
-                                substateIndex = goodSubstate;
-                            }
-                        }
-                    } else {
-                        stateIndex = 0;
+                }
+                else
+                {
+                    stateIndex = 0;
+                    substateIndex = 0;
+                    if (ed.UInt_1C > 0 && ed.UInt_1C - 1 < ed.ComplexData?.States?.Length)
+                    {
+                        var validStates = ed.ComplexData.States.Where(x => x.Layers?.Length > 0).ToArray();
+                        var linkedState = ed.ComplexData.States[ed.UInt_1C - 1];
+                        var goodSubstate = validStates.FindItemIndex(x => x == linkedState);
+
+                        if (goodSubstate != -1)
+                            substateIndex = goodSubstate;
                     }
                 }
             }
@@ -1071,18 +1064,11 @@ namespace R1Engine
             };
 
             // Add the event
-            return new Unity_Obj(new R1_EventData()
+            return new Unity_Object_R1Jaguar(objManager, eventDefinitionPointer)
             {
-                Etat = (byte)stateIndex,
-                SubEtat = (byte)substateIndex,
-            })
-            {
-                DESKey = desKey,
-                ETAKey = etatKey,
-
-                Type = R1_EventType.TYPE_BADGUY1,
-
-                ForceNoAnimation = forceNoAnimation.Contains(ed.Offset.FileOffset) || 
+                ComplexStateIndex = (byte)stateIndex,
+                StateIndex = (byte)substateIndex,
+                ForceNoAnimation = forceNoAnimation.Contains(ed.Offset.FileOffset) ||
                                    forceFrame1.Contains(ed.Offset.FileOffset) ||
                                    forceFrame2.Contains(ed.Offset.FileOffset),
                 ForceFrame = forceFrame1.Contains(ed.Offset.FileOffset) ? (byte?)ed.Byte_25 : forceFrame2.Contains(ed.Offset.FileOffset) ? (byte?)ed.Byte_26 : null
@@ -1159,8 +1145,8 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public virtual async UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures)
+        /// <returns>The level</returns>
+        public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
@@ -1171,38 +1157,29 @@ namespace R1Engine
             // Get the map
             var map = rom.MapData;
 
-            // Convert levelData to common level format
-            Unity_Level level = new Unity_Level
+            var maps = new Unity_Map[]
             {
-                // Create the map
-                Maps = new Unity_Map[]
+                new Unity_Map()
                 {
-                    new Unity_Map()
-                    {
-                        // Set the dimensions
-                        Width = map.Width,
-                        Height = map.Height,
+                    // Set the dimensions
+                    Width = map.Width,
+                    Height = map.Height,
 
-                        // Create the tile arrays
-                        TileSet = new Unity_MapTileMap[1],
-                        MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
-                        TileSetWidth = 1
-                    }
-                },
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
+                    // Create the tile arrays
+                    TileSet = new Unity_MapTileMap[1],
+                    MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    TileSetWidth = 1
+                }
             };
 
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
             // Load tile set and treat black as transparent
-            level.Maps[0].TileSet[0] = new Unity_MapTileMap(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, Settings.CellSize);
+            maps[0].TileSet[0] = new Unity_MapTileMap(rom.TileData.Select(x => x.Blue == 0 && x.Red == 0 && x.Green == 0 ? new RGB556Color(0, 0, 0, 0) : x).ToArray(), 1, Settings.CellSize);
 
-            var eventDesigns = new Dictionary<string, Unity_ObjGraphics>();
-            var eventETA = new Dictionary<string, R1_EventState[][]>();
-            var eventETANames = context.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto ? new Dictionary<string, string[][]>() : null;
+            var eventDefinitions = new List<Unity_ObjectManager_R1Jaguar.EventDefinition>();
+            var objManager = new Unity_ObjectManager_R1Jaguar(context, eventDefinitions);
 
             var eventIndex = 0;
 
@@ -1213,20 +1190,25 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load events
-            Dictionary<int, Unity_Obj> uniqueEvents = new Dictionary<int, Unity_Obj>();
+            Dictionary<int, Unity_Object> uniqueEvents = new Dictionary<int, Unity_Object>();
 
             // Get all event definitions
             var eventDefs = rom.EventDefinitions?.Concat(rom.AdditionalEventDefinitions ?? new R1Jaguar_EventDefinition[0]).ToArray() ?? new R1Jaguar_EventDefinition[0];
 
+            // Helper method for loading an event definition
+            Unity_Object_R1Jaguar loadEventDef(R1Jaguar_EventDefinition def) => CreateEventData(context, def, eventDefinitions, loadTextures, objManager);
+
             // Load special events so we can display them
             var specialPointers = GetSpecialEventPointers(context);
 
-            var rayPos = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Rayman position
-            var gendoor = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Gendoor
-            var piranha = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Piranha
-            var scroll = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Scroll
-            var rayBzzit = (correctEventStates && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Rayman on Bzzit
-            var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDesigns, eventETA, eventETANames, loadTextures) : null; // Bzzit (demo)
+            var rayPos = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RaymanVisual])) : null; // Rayman position
+            var gendoor = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.GendoorVisual])) : null; // Gendoor
+            var piranha = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.PiranhaVisual])) : null; // Piranha
+            var scroll = correctEventStates ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.ScrollVisual])) : null; // Scroll
+            var rayBzzit = (correctEventStates && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) ? loadEventDef(eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.RayOnBzzitVisual])) : null; // Rayman on Bzzit
+            var bzzitDemo = correctEventStates ? CreateEventData(context, eventDefs.FirstOrDefault(x => x.Offset == specialPointers[SpecialEventType.BzzitDemoVisual]), eventDefinitions, loadTextures, objManager) : null; // Bzzit (demo)
+
+            var eventDataList = new List<Unity_Object>();
 
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
@@ -1236,13 +1218,15 @@ namespace R1Engine
                 // Get the x and y positions
                 var mapY = (uint)Math.Floor(mapPos / (double)(rom.EventData.Width));
                 var mapX = (uint)(mapPos - (mapY * rom.EventData.Width));
-                
+
                 // Calculate the actual position on the map
                 mapX *= 4 * (uint)Settings.CellSize;
                 mapY *= 4 * (uint)Settings.CellSize;
 
-                bool IsGendoor(int index) {
-                    switch (context.Settings.GameModeSelection) {
+                bool IsGendoor(int index)
+                {
+                    switch (context.Settings.GameModeSelection)
+                    {
                         default:
                             return rom.EventData.EventData[i][index].EventDefinitionPointer.AbsoluteOffset == 0x001F9CD0;
                     }
@@ -1253,10 +1237,11 @@ namespace R1Engine
                 for (int j = 0; j < rom.EventData.EventData[i].Length; j++)
                 {
                     var e = rom.EventData.EventData[i][j];
-                    
-                    if (uniqueEvents.ContainsKey(e.EventIndex)) {
 
-                        if (uniqueEvents[e.EventIndex].Data.XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].Data.YPosition != (uint)(mapY + e.OffsetY))
+                    if (uniqueEvents.ContainsKey(e.EventIndex))
+                    {
+
+                        if (uniqueEvents[e.EventIndex].XPosition != (uint)(mapX + e.OffsetX) || uniqueEvents[e.EventIndex].YPosition != (uint)(mapY + e.OffsetY))
                             Debug.LogWarning($"An event with an existing index (index {e.EventIndex} at EventData[{i}][{j}]) which was removed has a different map position");
 
                         continue; // Duplicate
@@ -1264,25 +1249,30 @@ namespace R1Engine
 
                     var ed = e.EventDefinition;
 
-					/* TODO: Process special event definitions.
+                    /* TODO: Process special event definitions.
                      * - 0x001FB3C8[0x000023C8]: RAY POS
                      * - 0x001FB760[0x00002760]: Mr Dark boss spawners
                      * - 0x001F9CD0[0x00000CD0]: Gendoors. Spawns next event read by ReadEvent in Jaguar_R1_EventBlock
                      */
-					
+
                     var linkIndex = eventIndex;
-                    if (linkBackIndex.HasValue) {
+                    if (linkBackIndex.HasValue)
+                    {
                         linkIndex++;
-                        if (j == rom.EventData.EventData[i].Length - 1 || IsGendoor(j + 1) || rom.EventData.EventData[i][j + 1].Unk_00 != 2) {
+                        if (j == rom.EventData.EventData[i].Length - 1 || IsGendoor(j + 1) || rom.EventData.EventData[i][j + 1].Unk_00 != 2)
+                        {
                             linkIndex = linkBackIndex.Value;
                             linkBackIndex = null;
                         }
 
-                    } else if (e.Unk_00 == 2) {
+                    }
+                    else if (e.Unk_00 == 2)
+                    {
                         // Duplicate
                         continue;
                     }
-                    if (IsGendoor(j)) {
+                    if (IsGendoor(j))
+                    {
                         linkBackIndex = eventIndex;
                         linkIndex++;
                     }
@@ -1301,11 +1291,11 @@ namespace R1Engine
 						predeterminedState = e.EventDefinition.UnkBytes[5];
 					}*/
                     // Add the event
-                    var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures);
+                    var eventData = loadEventDef(ed);
                     uniqueEvents[e.EventIndex] = eventData;
                     eventData.LinkIndex = linkIndex;
-                    eventData.Data.XPosition = (short)(mapX + e.OffsetX);
-                    eventData.Data.YPosition = (short)(mapY + e.OffsetY);
+                    eventData.XPosition = (short)(mapX + e.OffsetX);
+                    eventData.YPosition = (short)(mapY + e.OffsetY);
                     eventData.DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
                                           $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
                                           $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
@@ -1323,53 +1313,47 @@ namespace R1Engine
                     {
                         if (ed.Offset == specialPointers[SpecialEventType.RayPos]) // Rayman position
                         {
-                            eventData.DESKey = rayPos.DESKey;
-                            eventData.ETAKey = rayPos.ETAKey;
-                            eventData.Data.SubEtat = 7;
+                            eventData.EventDefinitionIndex = rayPos.EventDefinitionIndex;
+                            eventData.StateIndex = 7;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.Gendoor]) // Gendoor
                         {
-                            eventData.DESKey = gendoor.DESKey;
-                            eventData.ETAKey = gendoor.ETAKey;
-                            eventData.Data.SubEtat = 2;
+                            eventData.EventDefinitionIndex = gendoor.EventDefinitionIndex;
+                            eventData.StateIndex = 2;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.Piranha] || ed.Offset == specialPointers[SpecialEventType.Piranha2]) // Piranha
                         {
-                            eventData.DESKey = piranha.DESKey;
-                            eventData.ETAKey = piranha.ETAKey;
+                            eventData.EventDefinitionIndex = piranha.EventDefinitionIndex;
 
                             if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Demo)
-                                eventData.Data.Etat = 1;
+                                eventData.ComplexStateIndex = 1;
                         }
                         else if ((ed.Offset == specialPointers[SpecialEventType.ScrollFast] || ed.Offset == specialPointers[SpecialEventType.ScrollSlow]) && !Settings.ScreenshotEnumeration) // Scroll fast/slow
                         {
-                            eventData.DESKey = scroll.DESKey;
-                            eventData.ETAKey = scroll.ETAKey;
+                            eventData.EventDefinitionIndex = scroll.EventDefinitionIndex;
 
                             if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Demo)
-                                eventData.Data.Etat = 6;
+                                eventData.ComplexStateIndex = 6;
                             else
-                                eventData.Data.Etat = 2;
+                                eventData.ComplexStateIndex = 2;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
-                            if (rayBzzit != null) {
-                                eventData.DESKey = rayBzzit.DESKey;
-                                eventData.ETAKey = rayBzzit.ETAKey;
-                            }
+                            if (rayBzzit != null)
+                                eventData.EventDefinitionIndex = rayBzzit.EventDefinitionIndex;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.BzzitDemo]) // Bzzit (demo)
                         {
-                            if (bzzitDemo != null) {
-                                eventData.DESKey = bzzitDemo.DESKey;
-                                eventData.ETAKey = bzzitDemo.ETAKey;
+                            if (bzzitDemo != null)
+                            {
+                                eventData.EventDefinitionIndex = bzzitDemo.EventDefinitionIndex;
 
-                                eventData.Data.SubEtat = 0;
+                                eventData.StateIndex = 0;
                             }
                         }
                     }
 
-                    level.EventData.Add(uniqueEvents[e.EventIndex]);
+                    eventDataList.Add(uniqueEvents[e.EventIndex]);
 
                     eventIndex++;
                 }
@@ -1384,15 +1368,20 @@ namespace R1Engine
                         Debug.LogWarning($"Event with index {inst.EventIndex} wasn't loaded!");
                 }
             }
-            if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto) {
+
+            Unity_Object rayman = null;
+
+            if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto)
+            {
                 var ray = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(R1Jaguar_Proto_References.MS_rayman));
-                if (ray != null) {
-                    var eventData = CreateEventData(context, ray, eventDesigns, eventETA, eventETANames, loadTextures);
+                if (ray != null)
+                {
+                    var eventData = loadEventDef(ray);
                     //uniqueEvents[e.EventIndex] = eventData;
-                    eventData.Data.XPosition = (int)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_x).DataValue;
-                    eventData.Data.YPosition = (int)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_y).DataValue;
-                    eventData.Data.SubEtat = 7;
-                    level.Rayman = eventData;
+                    eventData.XPosition = (short)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_x).DataValue;
+                    eventData.YPosition = (short)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_y).DataValue;
+                    eventData.StateIndex = 7;
+                    rayman = eventData;
                 }
                 /*foreach (var ed in eventDefs) {// Add the event
                     var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures);
@@ -1425,15 +1414,13 @@ namespace R1Engine
                 }
             }*/
 
-            return new R1Jaguar_EditorManager(level, context, eventDesigns, eventETA, eventETANames);
+            // Convert levelData to common level format
+            Unity_Level level = new Unity_Level(maps, objManager, eventDataList, rayman, getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic());
+
+            return level;
         }
 
-        /// <summary>
-        /// Saves the specified level
-        /// </summary>
-        /// <param name="context">The serialization context</param>
-        /// <param name="editorManager">The editor manager</param>
-        public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
+        public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
         /// <summary>
         /// Preloads all the necessary files into the context

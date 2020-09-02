@@ -2,7 +2,8 @@
 using System.Linq;
 using UnityEngine;
 
-namespace R1Engine {
+namespace R1Engine
+{
     /// <summary>
     /// Common event data
     /// </summary>
@@ -10,60 +11,17 @@ namespace R1Engine {
     {
         #region Public Properties
 
-        public string DisplayName { get; set; }
-        public Unity_Obj Data { get; set; }
-
-        public BaseEditorManager EditorManager => LevelEditorData.EditorManager;
-        public R1_EventState State => EditorManager.ETA.TryGetItem(Data.ETAKey)?.ElementAtOrDefault(Data.Data.RuntimeEtat)?.ElementAtOrDefault(Data.Data.RuntimeSubEtat);
-        public Unity_ObjAnimation CurrentAnimation => EditorManager?.DES.TryGetItem(Data.DESKey)?.Animations?.ElementAtOrDefault(Data.Data.RuntimeCurrentAnimIndex);
-        public int AnimSpeed => (Data.ForceNoAnimation || (Data.Type is R1_EventType et && et.IsHPFrame())) ? 0 : State?.AnimationSpeed ?? 0;
-
-        public byte? PrevAnimIndex { get; set; }
-        public float EditorAnimFrame { get; set; }
+        public Unity_Object ObjData { get; set; }
         public float UpdateTimer { get; set; }
-        public int UniqueLayer { get; set; }
-        public int LinkID { get; set; }
-
         public bool DisplayOffsets { get; set; }
 
         #endregion
 
         #region Event Methods
 
-        // TODO: Call this when adding a new event
-        /// <summary>
-        /// Performs the initial setup for the event
-        /// </summary>
-        public void InitialSetup()
-        {
-            if (Data.MapLayer != null && Data.MapLayer.Value > 0)
-                Scale = EditorManager.Level.Maps[Data.MapLayer.Value - 1].ScaleFactor;
-
-            Data.Data.RuntimeEtat = Data.Data.Etat;
-            Data.Data.RuntimeSubEtat = Data.Data.SubEtat;
-            Data.Data.RuntimeLayer = Data.Data.Layer;
-            Data.Data.RuntimeXPosition = (ushort)Data.Data.XPosition;
-            Data.Data.RuntimeYPosition = (ushort)Data.Data.YPosition;
-            //Data.Data.RuntimeCurrentAnimFrame = 0;
-            Data.Data.RuntimeCurrentAnimIndex = 0;
-            Data.Data.RuntimeHitPoints = Data.Data.HitPoints;
-
-            RefreshEditorInfo();
-        }
-
-        /// <summary>
-        /// Refreshes the editor event info
-        /// </summary>
-        public void RefreshEditorInfo() {
-            RefreshName();
-            ChangeLinksVisibility(false);
-        }
-        
-        public void RefreshName() => DisplayName = name = EditorManager.GetDisplayName(Data) ?? $"Unknown type {Data.Type}";
+        public void RefreshEditorInfo() => ChangeLinksVisibility(false);
 
         #endregion
-
-        public float Scale = 1f;
 
         // Default sprite
         public SpriteRenderer defautRenderer;
@@ -93,14 +51,15 @@ namespace R1Engine {
 
         public AudioClip currentSoundEffect;
 
-        private void Start() {
-            //Snap link cube position
+        private void Start() 
+        {
+            RefreshEditorInfo();
+
+            // Snap link cube position
             linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
         }
 
-        public void ForceUpdate() {
-            Update();
-        }
+        public void ForceUpdate() => Update();
 
         void Update()
         {
@@ -109,59 +68,8 @@ namespace R1Engine {
                 return;
 
             // Update frame and states
-            if (CurrentAnimation != null && !Settings.LoadFromMemory) 
-            {
-                // Set frame based on hit points for special events
-                if (Data.Type is R1_EventType et && et.IsHPFrame())
-                {
-                    Data.Data.RuntimeCurrentAnimFrame = Data.Data.HitPoints;
-                    EditorAnimFrame = Data.Data.HitPoints;
-                }
-                else if (Data.ForceFrame != null && Data.ForceNoAnimation)
-                {
-                    EditorAnimFrame = Data.Data.RuntimeCurrentAnimFrame = Data.ForceFrame.Value;
-                }
-                else if (Data.Type is R1_EventType et2 && et2.UsesEditorFrame())
-                {
-                    EditorAnimFrame = Data.Data.RuntimeCurrentAnimFrame;
-                }
-                else
-                {
-                    // Increment frame if animating
-                    if (Settings.AnimateSprites && AnimSpeed > 0)
-                        EditorAnimFrame += (60f / AnimSpeed) * Time.deltaTime;
-
-                    // Update the frame
-                    Data.Data.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(EditorAnimFrame);
-
-                    // Loop back to first frame
-                    if (Data.Data.RuntimeCurrentAnimFrame >= CurrentAnimation.Frames.Length)
-                    {
-                        Data.Data.RuntimeCurrentAnimFrame = 0;
-                        EditorAnimFrame = 0;
-
-                        if (Settings.StateSwitchingMode != StateSwitchingMode.None)
-                        {
-                            // Get the current state
-                            var state = State;
-
-                            // Check if we've reached the end of the linking chain and we're looping
-                            if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && Data.Data.RuntimeEtat == state.LinkedEtat && Data.Data.RuntimeSubEtat == state.LinkedSubEtat)
-                            {
-                                // Reset the state
-                                Data.Data.RuntimeEtat = Data.Data.Etat;
-                                Data.Data.RuntimeSubEtat = Data.Data.SubEtat;
-                            }
-                            else
-                            {
-                                // Update state values to the linked one
-                                Data.Data.RuntimeEtat = state.LinkedEtat;
-                                Data.Data.RuntimeSubEtat = state.LinkedSubEtat;
-                            }
-                        }
-                    }
-                }
-            }
+            if (ObjData.CurrentAnimation != null && !Settings.LoadFromMemory)
+                ObjData.UpdateFrame();
 
             UpdateTimer += Time.deltaTime;
 
@@ -171,18 +79,10 @@ namespace R1Engine {
 
             UpdateTimer = 0.0f;
 
-            // Update the animation index if not loading from memory
-            if (!Settings.LoadFromMemory)
-                Data.Data.RuntimeCurrentAnimIndex = State?.AnimationIndex ?? 0;
-
-            // Check if the animation has changed
-            if (PrevAnimIndex != Data.Data.RuntimeCurrentAnimIndex)
+            if (ObjData.ShouldUpdateAnimation())
             {
-                // Update the animation index
-                PrevAnimIndex = Data.Data.RuntimeCurrentAnimIndex;
-
                 // If animation is null, use default renderer ("E")
-                if (CurrentAnimation == null)
+                if (ObjData.CurrentAnimation == null)
                 {
                     defautRenderer.enabled = true;
                     ClearChildren();
@@ -192,17 +92,10 @@ namespace R1Engine {
                     defautRenderer.enabled = false;
 
                     // Reset the current frame
-                    if (!Settings.LoadFromMemory)
-                    {
-                        if (!Data.Data.Type.UsesEditorFrame())
-                        {
-                            Data.Data.RuntimeCurrentAnimFrame = 0;
-                            EditorAnimFrame = 0;
-                        }
-                    }
+                    ObjData.ResetFrame();
 
                     // Get the amount of layers per frame
-                    var len = CurrentAnimation.Frames.Max(f => f.Layers.Length);
+                    var len = ObjData.CurrentAnimation.Frames.Max(f => f.Layers.Length);
 
                     // Clear old array
                     ClearChildren();
@@ -214,12 +107,12 @@ namespace R1Engine {
                     for (int i = 0; i < len; i++)
                     {
                         // Instantiate prefab
-                        SpriteRenderer newRenderer = Instantiate<GameObject>(prefabSpritepart, new Vector3(0, 0, len - i), Quaternion.identity, transform).GetComponent<SpriteRenderer>();
-                        newRenderer.sortingOrder = Settings.LoadFromMemory ? -(Data.Data.EventIndex + (256 * Data.Data.RuntimeLayer)) : UniqueLayer;
+                        SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, len - i), Quaternion.identity, transform).GetComponent<SpriteRenderer>();
+                        newRenderer.sortingOrder = ObjData.Layer;
 
                         // Set as child of events gameobject
                         newRenderer.gameObject.transform.parent = transform;
-                        newRenderer.gameObject.transform.localScale = Vector3.one * Scale;
+                        newRenderer.gameObject.transform.localScale = Vector3.one * ObjData.Scale;
                         // Add to list
                         prefabRenderers[i] = newRenderer;
                     }
@@ -227,13 +120,13 @@ namespace R1Engine {
             }
 
             // Get the current animation
-            var anim = CurrentAnimation;
+            var anim = ObjData.CurrentAnimation;
 
             // Update x and y
-            transform.position = new Vector3(Data.Data.XPosition / (float)EditorManager.PixelsPerUnit, -(Data.Data.YPosition / (float)EditorManager.PixelsPerUnit), 0);
+            transform.position = new Vector3(ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit), 0);
 
             // Don't move link cube if it's part of a link
-            if (LinkID != 0)
+            if (ObjData.EditorLinkGroup != 0)
                 linkCube.position = linkCubeLockPosition;
             else
                 linkCubeLockPosition = linkCube.position;
@@ -241,15 +134,12 @@ namespace R1Engine {
             // Update sprite parts in the animation
             if (anim != null)
             {
-                var frame = Data.Data.RuntimeCurrentAnimFrame;
-
-                // Get the sprites
-                var sprites = EditorManager.DES[Data.DESKey].Sprites;
-
-                var pivot = new Vector2(Data.Data.OffsetBX, -(Data.Data.OffsetBY));
-
-                var mirroredX = Data.GetIsFlippedHorizontally(State);
-                var mirroredY = Data.GetIsFlippedVertically(State);
+                // Get properties
+                var frame = ObjData.CurrentAnimationFrame;
+                var sprites = ObjData.Sprites;
+                var pivot = ObjData.Pivot;
+                var mirroredX = ObjData.FlipHorizontally;
+                var mirroredY = ObjData.FlipVertically;
 
                 for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
                 {
@@ -257,16 +147,16 @@ namespace R1Engine {
                     // Get the sprite index
                     var spriteIndex = layer.ImageIndex;
 
-                    // Change it if the event is multi-colored
-                    if (Data.Type is R1_EventType et && et.IsMultiColored())
-                        spriteIndex += ((sprites.Count / 6) * Data.Data.HitPoints);
+                    // Change it if the event is multi-colored (Rayman 1 only)
+                    if (ObjData is Unity_Object_R1 objr1 && objr1.EventData.Type.IsMultiColored())
+                        spriteIndex += ((sprites.Count / 6) * objr1.EventData.HitPoints);
 
                     if (prefabRenderers.Length <= i)
                         continue;
 
                     // Set the sprite, skipping sprites which are out of bounds
                     if (spriteIndex >= sprites.Count && (LevelEditorData.CurrentSettings.EngineVersion != EngineVersion.R2_PS1 || spriteIndex < 0xFFF)) {
-                        print("Sprite index too high: " + Data.Type + ": " + spriteIndex + " >= " + sprites.Count);
+                        print("Sprite index too high: " + ObjData.DisplayName + ": " + spriteIndex + " >= " + sprites.Count);
                     }
                     prefabRenderers[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 
@@ -287,24 +177,24 @@ namespace R1Engine {
 
                     // scale
                     Vector2 pos = new Vector2(
-                        ((xx - pivot.x) * (mirroredX ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit,
-                        ((yy - pivot.y) * (mirroredY ? -1f : 1f) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit);
+                        ((xx - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit,
+                        ((yy - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit);
 
                     prefabRenderers[i].transform.localPosition = new Vector3(pos.x, pos.y, prefabRenderers[i].transform.localPosition.z);
-                    prefabRenderers[i].transform.localScale = Vector3.one * Scale;
+                    prefabRenderers[i].transform.localScale = Vector3.one * ObjData.Scale;
 
                     prefabRenderers[i].transform.localRotation = Quaternion.Euler(0, 0, 0);
                     if ((layer.Rotation.HasValue && layer.Rotation.Value != 0) || (layer.Scale.HasValue && layer.Scale.Value != Vector2.one)) {
 
                         Vector3 transformOrigin = new Vector3(
-                            (((layer.TransformOriginX - pivot.x) * (mirroredX ? -1f : 1f) * Scale + pivot.x) / (float)EditorManager.PixelsPerUnit),
-                            ((-layer.TransformOriginY - pivot.y) * (mirroredY ? -1f : 1f) * Scale + pivot.y) / (float)EditorManager.PixelsPerUnit,
+                            (((layer.TransformOriginX - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit),
+                            ((-layer.TransformOriginY - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit,
                             prefabRenderers[i].transform.localPosition.z);
 
                         // Scale first
                         if (layer.Scale.HasValue && layer.Scale.Value != Vector2.one) {
                             Vector3 scaleValue = new Vector3(layer.Scale.Value.x, layer.Scale.Value.y, 1f);
-                            prefabRenderers[i].transform.localScale = Vector3.Scale(Vector3.one * Scale, scaleValue);
+                            prefabRenderers[i].transform.localScale = Vector3.Scale(Vector3.one * ObjData.Scale, scaleValue);
                             Vector3 scaledPos = Vector3.Scale(prefabRenderers[i].transform.localPosition - transformOrigin, scaleValue);
                             prefabRenderers[i].transform.localPosition = transformOrigin + scaledPos;
                         }
@@ -322,8 +212,8 @@ namespace R1Engine {
                     }
 
                     // Get visibility
-                    prefabRenderers[i].enabled = Data.GetIsVisible();
-                    prefabRenderers[i].color = Data.GetIsFaded() ? new Color(1, 1, 1, 0.5f) : Color.white;
+                    prefabRenderers[i].enabled = ObjData.IsVisible;
+                    prefabRenderers[i].color = ObjData.IsDisabled ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
                 for(int i = anim.Frames[frame].Layers.Length; i < prefabRenderers.Length; i++) {
                     prefabRenderers[i].sprite = null;
@@ -331,12 +221,12 @@ namespace R1Engine {
                 }
             }
 
-            // Update the follow sprite line
-            if (anim != null && Data.Data.FollowSprite < anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers.Length)
+            // Update the follow sprite line (Rayman 1 only)
+            if (ObjData is Unity_Object_R1 r1 && anim != null && r1.EventData.FollowSprite < anim.Frames[ObjData.CurrentAnimationFrame].Layers.Length)
             {
-                followSpriteLine.localPosition = new Vector2(anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].XPosition / (float)EditorManager.PixelsPerUnit, -anim.Frames[Data.Data.RuntimeCurrentAnimFrame].Layers[Data.Data.FollowSprite].YPosition / (float)EditorManager.PixelsPerUnit - (Data.Data.OffsetHY / (float)EditorManager.PixelsPerUnit));
+                followSpriteLine.localPosition = new Vector2(anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].Layers[r1.EventData.FollowSprite].XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].Layers[r1.EventData.FollowSprite].YPosition / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
 
-                var w = (prefabRenderers[Data.Data.FollowSprite].sprite == null) ? 0 : prefabRenderers[Data.Data.FollowSprite].sprite.texture.width;
+                var w = (prefabRenderers[r1.EventData.FollowSprite].sprite == null) ? 0 : prefabRenderers[r1.EventData.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
             }
 
@@ -348,23 +238,12 @@ namespace R1Engine {
                 bool first = true;
                 foreach (SpriteRenderer part in prefabRenderers)
                 {
-
                     if (part.sprite == null)
                         continue;
 
-                    /*var pos = new Vector2(part.transform.localPosition.x * EditorManager.PixelsPerUnit, part.transform.localPosition.y * EditorManager.PixelsPerUnit);
-                    if (pos.x - (part.flipX ? part.sprite.texture.width : 0) < leftX || first)
-                        leftX = pos.x - (part.flipX ? part.sprite.texture.width : 0);
-                    if (pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0) > rightX || first)
-                        rightX = pos.x + part.sprite.texture.width - (part.flipX ? part.sprite.texture.width : 0);
-                    if (pos.y - part.sprite.texture.height < bottomY || first)
-                        bottomY = pos.y - part.sprite.texture.height;
-                    if (pos.y > topY || first)
-                        topY = pos.y;*/
-
                     Bounds b = part.bounds;
-                    b = new Bounds(transform.InverseTransformPoint(b.center) * EditorManager.PixelsPerUnit, transform.InverseTransformVector(b.size) * EditorManager.PixelsPerUnit);
-                    //print(b);
+                    b = new Bounds(transform.InverseTransformPoint(b.center) * LevelEditorData.Level.PixelsPerUnit, transform.InverseTransformVector(b.size) * LevelEditorData.Level.PixelsPerUnit);
+
                     if (b.min.x < leftX || first) leftX = b.min.x;
                     if (b.min.y < bottomY || first) bottomY = b.min.y;
                     if (b.max.x > rightX || first) rightX = b.max.x;
@@ -376,23 +255,25 @@ namespace R1Engine {
 
                 if (!first)
                 {
-                    var w = (rightX - leftX) / (float)EditorManager.PixelsPerUnit;
-                    var h = (topY - bottomY) / (float)EditorManager.PixelsPerUnit;
+                    var w = (rightX - leftX) / LevelEditorData.Level.PixelsPerUnit;
+                    var h = (topY - bottomY) / LevelEditorData.Level.PixelsPerUnit;
                     boxCollider.size = new Vector2(w, h);
-                    boxCollider.offset = new Vector2(leftX / (float)EditorManager.PixelsPerUnit + w / 2f, (topY / (float)EditorManager.PixelsPerUnit - h / 2f));
+                    boxCollider.offset = new Vector2(leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f, (topY / LevelEditorData.Level.PixelsPerUnit - h / 2f));
                 }
             }
 
             // Update offset points
             if (anim != null)
             {
-                offsetCrossBX.localPosition = new Vector2(Data.Data.OffsetBX / (float)EditorManager.PixelsPerUnit, 0f);
-                offsetCrossBY.localPosition = new Vector2(Data.Data.OffsetBX / (float)EditorManager.PixelsPerUnit, -(Data.Data.OffsetBY / (float)EditorManager.PixelsPerUnit));
-                offsetCrossHY.localPosition = new Vector2(Data.Data.OffsetBX / (float)EditorManager.PixelsPerUnit, -((Data.Data.OffsetHY / (float)EditorManager.PixelsPerUnit) + ((CurrentAnimation?.Frames?.ElementAtOrDefault(0)?.FrameData?.YPosition ?? 1) / (float)EditorManager.PixelsPerUnit)));
+                var pivot = ObjData.Pivot;
+
+                offsetCrossBX.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, 0f);
+                offsetCrossBY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, -(pivot.y / LevelEditorData.Level.PixelsPerUnit));
+                offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, -((pivot.y / LevelEditorData.Level.PixelsPerUnit) + ((ObjData.CurrentAnimation?.Frames?.ElementAtOrDefault(0)?.FrameData?.YPosition ?? 1) / (float)LevelEditorData.Level.PixelsPerUnit)));
             }
 
             // Update visibility
-            boxCollider.enabled = Data.GetIsVisible();
+            boxCollider.enabled = ObjData.IsVisible;
 
             // Set new midpoint
             midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
@@ -407,14 +288,14 @@ namespace R1Engine {
             offsetCrossBY.gameObject.SetActive(DisplayOffsets);
             offsetCrossHY.gameObject.SetActive(DisplayOffsets);
             followSpriteLine.gameObject.SetActive(DisplayOffsets);
-            followSpriteLine.gameObject.SetActive(DisplayOffsets && Data.Data.GetFollowEnabled(EditorManager.Settings));
+            followSpriteLine.gameObject.SetActive(DisplayOffsets && ObjData is Unity_Object_R1 r1o && r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings));
         }
 
         public void ChangeLinksVisibility(bool visible) {
-            if (visible && Data.GetIsVisible()) {
+            if (visible && ObjData.IsVisible) {
 
                 //Change link colors
-                if (LinkID == 0) {
+                if (ObjData.EditorLinkGroup == 0) {
                     lineRend.startColor = Controller.obj.levelEventController.linkColorDeactive;
                     lineRend.endColor = Controller.obj.levelEventController.linkColorDeactive;
                     linkCube.GetComponent<SpriteRenderer>().color = Controller.obj.levelEventController.linkColorDeactive;
@@ -431,16 +312,17 @@ namespace R1Engine {
 
         private void ClearChildren() {
             // Clear old array
-            if (prefabRenderers != null) {
-                foreach (SpriteRenderer t in prefabRenderers) {
-                    GameObject g = t.gameObject;
-                    Destroy(t);
-                    Destroy(g);
-                }
+            if (prefabRenderers == null) 
+                return;
 
-                Array.Clear(prefabRenderers, 0, prefabRenderers.Length);
-                prefabRenderers = null;
+            foreach (SpriteRenderer t in prefabRenderers) {
+                GameObject g = t.gameObject;
+                Destroy(t);
+                Destroy(g);
             }
+
+            Array.Clear(prefabRenderers, 0, prefabRenderers.Length);
+            prefabRenderers = null;
         }
 
         // Delete this event properly
@@ -448,7 +330,7 @@ namespace R1Engine {
             // Remove this from the event list
             Controller.obj.levelController.Events.Remove(this);
             // Remove the data
-            EditorManager.Level.EventData.Remove(Data);
+            LevelEditorData.Level.EventData.Remove(ObjData);
             // Remove all children
             ClearChildren();
             // Remove self

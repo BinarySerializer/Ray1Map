@@ -58,13 +58,12 @@ namespace R1Engine
 
         private Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[] animatedTiles;
 
-
+        public bool Has3Palettes => LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC || LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PocketPC || LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC_Kit;
 
         public void InitializeTilemaps() {
-            var editorManager = LevelEditorData.EditorManager;
             var level = LevelEditorData.Level;
 
-            CellSizeInUnits = editorManager.CellSize / (float)editorManager.PixelsPerUnit;
+            CellSizeInUnits = level.CellSize / (float)level.PixelsPerUnit;
             if (CellSizeInUnits != 1f) {
                 grid.cellSize = new Vector3(CellSizeInUnits, CellSizeInUnits, 0);
             }
@@ -73,7 +72,7 @@ namespace R1Engine
             ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
 
             // Disable palette buttons based on if there are 3 palettes or not
-            if (!editorManager.Has3Palettes) {
+            if (!Has3Palettes) {
                 paletteText.SetActive(false);
                 paletteButtons[0].gameObject.SetActive(false);
                 paletteButtons[1].gameObject.SetActive(false);
@@ -118,7 +117,7 @@ namespace R1Engine
             for (int y = 0; y < collisionMap.Height; y++) {
                 for (int x = 0; x < collisionMap.Width; x++) {
                     // Get the collision index
-                    var collisionType = editorManager.GetCollisionTypeGraphic(collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType);
+                    var collisionType = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType);
 
                     // Make sure it's not out of bounds
                     if(collisionType != Unity_MapCollisionTypeGraphic.None &&
@@ -139,7 +138,7 @@ namespace R1Engine
                 Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
 
             // Fill out tiles
-            currentPalette = editorManager.Has3Palettes ? 0 : 1;
+            currentPalette = Has3Palettes ? 0 : 1;
             RefreshTiles(currentPalette);
 
             var maxWidth = LevelEditorData.MaxWidth;
@@ -193,7 +192,7 @@ namespace R1Engine
                 if (map.Alpha.HasValue) {
                     GraphicsTilemaps[mapIndex].color = new Color(1f, 1f, 1f, map.Alpha.Value);
                 }
-                int cellSize = LevelEditorData.EditorManager.CellSize;
+                int cellSize = LevelEditorData.Level.CellSize;
                 Texture2D tex = TextureHelpers.CreateTexture2D(map.Width * cellSize, map.Height * cellSize);
 
                 for (int y = 0; y < map.Height; y++) {
@@ -227,7 +226,7 @@ namespace R1Engine
                 tex.filterMode = FilterMode.Point;
                 tex.Apply();
                 // Note: FullRect is important, otherwise when editing you need to create a new sprite
-                GraphicsTilemaps[mapIndex].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.EditorManager.PixelsPerUnit, 0, SpriteMeshType.FullRect);
+                GraphicsTilemaps[mapIndex].sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
             }
 
             CreateTilemapFull();
@@ -238,7 +237,7 @@ namespace R1Engine
             int mapWidth = 16;
             int mapHeight = Mathf.CeilToInt(lvl.Maps[LevelEditorData.CurrentMap].TileSet[0].Tiles.Length / (float)mapWidth);
 
-            int cellSize = LevelEditorData.EditorManager.CellSize;
+            int cellSize = LevelEditorData.Level.CellSize;
             Texture2D tex = TextureHelpers.CreateTexture2D(mapWidth * cellSize, mapHeight * cellSize);
 
             // Refresh the full tilemap template for current map
@@ -259,7 +258,7 @@ namespace R1Engine
 
             tex.filterMode = FilterMode.Point;
             tex.Apply();
-            tilemapFull.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.EditorManager.PixelsPerUnit, 0, SpriteMeshType.FullRect);
+            tilemapFull.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
         }
 
         // Resize the background tint
@@ -320,7 +319,7 @@ namespace R1Engine
                 ClearPreviewTilemap();
                 return;
             }
-            int cellSize = LevelEditorData.EditorManager.CellSize;
+            int cellSize = LevelEditorData.Level.CellSize;
             Texture2D tex = new Texture2D(w * cellSize, h * cellSize);
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
@@ -330,7 +329,7 @@ namespace R1Engine
                 }
             }
             tex.Apply();
-            tilemapPreview.sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0, 0), LevelEditorData.EditorManager.PixelsPerUnit, 0, SpriteMeshType.FullRect);
+            tilemapPreview.sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
         }
         public void ClearPreviewTilemap() {
             tilemapPreview.sprite = null;
@@ -347,7 +346,7 @@ namespace R1Engine
             if (focusedOnTemplate)
             {
                 // Get the 1-dimensional graphic tile index
-                var graphicIndex1D = (y * LevelEditorData.EditorManager.CellSize) + x;
+                var graphicIndex1D = (y * LevelEditorData.Level.CellSize) + x;
 
                 if (graphicIndex1D > map.TileSet[0].Tiles.Length - 1)
                     graphicIndex1D = 0;
@@ -432,7 +431,7 @@ namespace R1Engine
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
                 CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
-                var type = LevelEditorData.EditorManager.GetCollisionTypeGraphic(newTile.Data.CollisionType);
+                var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(newTile.Data.CollisionType);
                 if (CurrentCollisionIcons.ContainsKey(type)) {
                     CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
                 }
@@ -441,7 +440,7 @@ namespace R1Engine
                 Texture2D tex = GraphicsTilemaps[i].sprite.texture;
                 Unity_TileTexture tile = map.GetTile(newTile, LevelEditorData.CurrentSettings);
 
-                int cellSize = LevelEditorData.EditorManager.CellSize;
+                int cellSize = LevelEditorData.Level.CellSize;
                 FillInTilePixels(tex, tile, newTile, x, y, cellSize, applyTexture: applyTexture);
             }
 
@@ -468,7 +467,7 @@ namespace R1Engine
             // Update tile graphics
             for (int i = 0; i < CollisionTilemaps.Length; i++) {
                 CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), null);
-                var type = LevelEditorData.EditorManager.GetCollisionTypeGraphic(collisionType);
+                var type = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionType);
                 if (CurrentCollisionIcons.ContainsKey(type)) {
                     CollisionTilemaps[i].SetTile(new Vector3Int(x, y, 0), CurrentCollisionIcons[type]);
                 }
@@ -520,7 +519,7 @@ namespace R1Engine
                             var newTile = map.MapTiles[at.y * map.Width + at.x];
                             Unity_TileTexture tile = map.GetTile(newTile, LevelEditorData.CurrentSettings, tileIndexOverride: newIndexInTileset);
 
-                            int cellSize = LevelEditorData.EditorManager.CellSize;
+                            int cellSize = LevelEditorData.Level.CellSize;
                             FillInTilePixels(tex, tile, newTile, at.x, at.y, cellSize, applyTexture: false);
                         }
                         at.currentTimer -= frames * animSpeed;

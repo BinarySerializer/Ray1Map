@@ -98,13 +98,13 @@ namespace R1Engine
             filePath = filePath
         };
 
-        protected override void LoadLocalization(Context context, Unity_Level level)
+        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
         {
             // Read the language file
             var lng = FileFactory.ReadText<R1_PC_LNGFile>(GetLanguageFilePath(), context);
 
             // Set the common localization
-            level.Localization = new Dictionary<string, string[]>()
+            return new Dictionary<string, string[]>()
             {
                 ["English1"] = lng.Strings[0],
                 ["English2"] = lng.Strings[1],

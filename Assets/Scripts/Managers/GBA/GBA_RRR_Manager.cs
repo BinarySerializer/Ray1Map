@@ -55,9 +55,9 @@ namespace R1Engine
             }
         }
 
-        public UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures) => throw new NotImplementedException();
+        public UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures) => throw new NotImplementedException();
 
-        public void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
+        public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual async UniTask LoadFilesAsync(Context context)
         {

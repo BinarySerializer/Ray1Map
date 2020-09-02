@@ -17,9 +17,9 @@ namespace R1Engine {
             if (ev == null)
                 ev = new Unity_ObjBehaviour();
             if (root == null) root = GameObject.Find("Events").transform;
-            name = $"{root.childCount} | {ev.Data.Type}";
+            name = $"{root.childCount} | {ev.ObjData.DisplayName}";
             transform.parent = root;
-            transform.position = new Vector3(ev.Data.Data.XPosition, ev.Data.Data.YPosition) + Vector3.forward * 5;
+            transform.position = new Vector3(ev.ObjData.XPosition, ev.ObjData.YPosition) + Vector3.forward * 5;
         }
     }
 }

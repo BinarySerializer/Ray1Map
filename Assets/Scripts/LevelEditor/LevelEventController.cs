@@ -65,54 +65,56 @@ namespace R1Engine
 
         public bool hasLoaded;
 
-        public BaseEditorManager EditorManager => LevelEditorData.EditorManager;
         public bool LogModifications => false;
 
         #endregion
 
         #region Field Changed Methods
 
-        private void FieldUpdated<T>(Action<T> updateAction, T newValue, Func<T> currentValue, string logName, bool refreshName = true)
+        private void FieldUpdated<T>(Action<T> updateAction, T newValue, Func<T> currentValue, string logName)
             where T : IComparable
         {
             if (SelectedEvent != null && !newValue.Equals(currentValue()))
             {
                 updateAction(newValue);
-                SelectedEvent.Data.HasPendingEdits = true;
-
-                if (refreshName)
-                    SelectedEvent.RefreshName();
+                SelectedEvent.ObjData.HasPendingEdits = true;
 
                 if (LogModifications)
                     Debug.Log($"{logName} has been modified");
             }
         }
 
-        public void FieldXPosition() => FieldUpdated(x => SelectedEvent.Data.Data.XPosition = x, Int16.TryParse(infoX.text, out var v) ? v : 0, () => SelectedEvent.Data.Data.XPosition, "XPos", false);
-        public void FieldYPosition() => FieldUpdated(x => SelectedEvent.Data.Data.YPosition = x, Int16.TryParse(infoY.text, out var v) ? v : 0, () => SelectedEvent.Data.Data.YPosition, "YPos", false);
-        public void FieldDes() => FieldUpdated(x => SelectedEvent.Data.DESKey = x, infoDes.options[infoDes.value].text, () => SelectedEvent.Data.DESKey, "DES");
-        public void FieldEta() => FieldUpdated(x => SelectedEvent.Data.ETAKey = x, infoEta.options[infoEta.value].text, () => SelectedEvent.Data.ETAKey, "ETA");
-        public void FieldEtat() => FieldUpdated(x => SelectedEvent.Data.Data.Etat = SelectedEvent.Data.Data.RuntimeEtat = x, (byte)infoEtat.value, () => SelectedEvent.Data.Data.Etat, "Etat");
-        public void FieldSubEtat() => FieldUpdated(x => SelectedEvent.Data.Data.SubEtat = SelectedEvent.Data.Data.RuntimeSubEtat = x, (byte)infoSubEtat.value, () => SelectedEvent.Data.Data.SubEtat, "SubEtat");
-        public void FieldOffsetBx() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetBX = x, byte.TryParse(infoOffsetBx.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetBX, "BX");
-        public void FieldOffsetBy() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetBY = x, byte.TryParse(infoOffsetBy.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetBY, "BY");
-        public void FieldOffsetHy() => FieldUpdated(x => SelectedEvent.Data.Data.OffsetHY = x, byte.TryParse(infoOffsetHy.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.OffsetHY, "HY");
-        public void FieldFollowSprite() => FieldUpdated(x => SelectedEvent.Data.Data.FollowSprite = x, byte.TryParse(infoFollowSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.FollowSprite, "FollowSprite");
-        public void FieldHitPoints() => FieldUpdated(x =>
+        public void FieldXPosition() => FieldUpdated(x => SelectedEvent.ObjData.XPosition = x, Int16.TryParse(infoX.text, out var v) ? v : (short)0, () => SelectedEvent.ObjData.XPosition, "XPos");
+        public void FieldYPosition() => FieldUpdated(x => SelectedEvent.ObjData.YPosition = x, Int16.TryParse(infoY.text, out var v) ? v : (short)0, () => SelectedEvent.ObjData.YPosition, "YPos");
+        public void FieldDes() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.DES = x, infoDes.value, () => SelectedEvent.ObjData.LegacyWrapper.DES, "DES");
+        public void FieldEta() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.ETA = x, infoEta.value, () => SelectedEvent.ObjData.LegacyWrapper.ETA, "ETA");
+        public void FieldEtat() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.Etat = x, (byte)infoEtat.value, () => SelectedEvent.ObjData.LegacyWrapper.Etat, "Etat");
+        public void FieldSubEtat() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.SubEtat = x, (byte)infoSubEtat.value, () => SelectedEvent.ObjData.LegacyWrapper.SubEtat, "SubEtat");
+        public void FieldOffsetBx() => FieldUpdated(x =>
         {
-            SelectedEvent.Data.Data.ActualHitPoints = x;
-            SelectedEvent.Data.Data.RuntimeHitPoints = (byte)(x % 256);
-        }, UInt32.TryParse(infoHitPoints.text, out var v) ? v : 0, () => SelectedEvent.Data.Data.ActualHitPoints, "HitPoints");
-        public void FieldHitSprite() => FieldUpdated(x => SelectedEvent.Data.Data.HitSprite = x, byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.Data.Data.HitSprite, "HitSprite");
-        public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.Data.Data.SetFollowEnabled(LevelEditorData.CurrentSettings, x), infoFollow.isOn, () => SelectedEvent.Data.Data.GetFollowEnabled(LevelEditorData.CurrentSettings), "FollowEnabled");
-
-        public void FieldType() => FieldUpdated(x =>
+            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
+                r1obj.EventData.OffsetBX = x;
+        }, byte.TryParse(infoOffsetBx.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.OffsetBX : default, "BX");
+        public void FieldOffsetBy() => FieldUpdated(x =>
         {
-            SelectedEvent.Data.Type = x;
+            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
+                r1obj.EventData.OffsetBY = x;
+        }, byte.TryParse(infoOffsetBy.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.OffsetBY : default, "BY");
+        public void FieldOffsetHy() => FieldUpdated(x =>
+        {
+            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
+                r1obj.EventData.OffsetHY = x;
+        }, byte.TryParse(infoOffsetHy.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.OffsetHY : default, "HY");
+        public void FieldFollowSprite() => FieldUpdated(x =>
+        {
+            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
+                r1obj.EventData.FollowSprite = x;
+        }, byte.TryParse(infoFollowSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData is Unity_Object_R1 r1obj ? r1obj.EventData.FollowSprite : default, "FollowSprite");
+        public void FieldHitPoints() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.HitPoints = x, UInt32.TryParse(infoHitPoints.text, out var v) ? v : 0, () => SelectedEvent.ObjData.LegacyWrapper.HitPoints, "HitPoints");
+        public void FieldHitSprite() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.HitSprite = x, byte.TryParse(infoHitSprite.text, out var v) ? v : (byte)0, () => SelectedEvent.ObjData.LegacyWrapper.HitSprite, "HitSprite");
+        public void FieldFollowEnabled() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.FollowEnabled = x, infoFollow.isOn, () => SelectedEvent.ObjData.LegacyWrapper.FollowEnabled, "FollowEnabled");
 
-            if (x is R1_EventType et)
-                SelectedEvent.Data.Data.Type = et;
-        }, (Enum)Enum.Parse(LevelEditorData.EditorManager.EventTypeEnumType, infoType.value.ToString()), () => SelectedEvent.Data.Type, "Type");
+        public void FieldType() => FieldUpdated(x => SelectedEvent.ObjData.LegacyWrapper.Type = (ushort)x, infoType.value, () => SelectedEvent.ObjData.LegacyWrapper.Type, "Type");
 
         public void FieldAnimIndex() => throw new NotImplementedException("The animation index can not be updated");
      
@@ -120,24 +122,19 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
-            // Initialize Rayman's animation as they're shared for small and dark Rayman
-            EditorManager.InitializeRayAnim();
-
-            // Setup events
-            foreach (var e in Controller.obj.levelController.GetAllEvents)
-                e.InitialSetup();
+            LevelEditorData.ObjManager.InitEvents(LevelEditorData.Level);
 
             // Initialize links
             InitializeEventLinks();
 
             // Fill eventinfo dropdown with the event types
-            infoType.options.AddRange(EditorManager.EventTypes.Select(x => new Dropdown.OptionData
+            infoType.options.AddRange(EnumHelpers.GetValues<R1_EventType>().Select(x => new Dropdown.OptionData
             {
-                text = x
+                text = x.ToString()
             }));
 
             // Fill the dropdown menu
-            eventDropdown.options = EditorManager.GetEvents().Select(x => new Dropdown.OptionData
+            eventDropdown.options = LevelEditorData.ObjManager.GetAvailableObjects.Select(x => new Dropdown.OptionData
             {
                 text = x
             }).ToList();
@@ -146,8 +143,8 @@ namespace R1Engine
             eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;
 
             // Fill Des and Eta dropdowns with their max values
-            infoDes.options = EditorManager.DES.Select(x => new Dropdown.OptionData(x.Key)).ToList();
-            infoEta.options = EditorManager.ETA.Select(x => new Dropdown.OptionData(x.Key)).ToList();
+            infoDes.options = LevelEditorData.ObjManager.LegacyDESNames.Select(x => new Dropdown.OptionData(x)).ToList();
+            infoEta.options = LevelEditorData.ObjManager.LegacyETANames.Select(x => new Dropdown.OptionData(x)).ToList();
 
             hasLoaded = true;
         }
@@ -157,7 +154,7 @@ namespace R1Engine
             var eventList = Controller.obj.levelController.Events;
 
             // Convert linkIndex of each event to linkId
-            for (int i = 0; i < eventList.Count; i++)
+            foreach (Unity_ObjBehaviour obj in eventList)
             {
                 // If X and Y are insane, clamp them
                 const int allowedBorder = 200;
@@ -166,93 +163,24 @@ namespace R1Engine
                 var maxWidth = LevelEditorData.MaxWidth;
                 var maxHeight = LevelEditorData.MaxHeight;
 
-                if (eventList[i].Data.Data.XPosition > (maxWidth * EditorManager.CellSize) + allowedBorder || eventList[i].Data.Data.XPosition < -allowedBorder)
-                    eventList[i].Data.Data.XPosition = (maxWidth * EditorManager.CellSize) + border;
+                if (obj.ObjData.XPosition > (maxWidth * LevelEditorData.Level.CellSize) + allowedBorder || obj.ObjData.XPosition < -allowedBorder)
+                    obj.ObjData.XPosition = (short)((maxWidth * LevelEditorData.Level.CellSize) + border);
 
-                if (eventList[i].Data.Data.YPosition > (maxHeight * EditorManager.CellSize) + allowedBorder || eventList[i].Data.Data.YPosition < -allowedBorder)
-                    eventList[i].Data.Data.YPosition = (maxHeight * EditorManager.CellSize) + border;
-
-                if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
-                {
-                    var links = eventList[i].Data.GBALinks;
-
-                    // Ignore already assigned ones
-                    if (eventList[i].LinkID != 0)
-                        continue;
-
-                    // No link
-                    if (links.All(x => x == 0xFF))
-                    {
-                        eventList[i].LinkID = 0;
-                    }
-                    // Link
-                    else
-                    {
-                        eventList[i].LinkID = i + 1;
-
-                        foreach (var link in links)
-                        {
-                            if (link == 0xFF)
-                                continue;
-                            if (link >= eventList.Count) {
-                                Debug.LogWarning("Link ID " + link + " was too high (event count: " + eventList.Count);
-                                continue;
-                            }
-                            eventList[link].LinkID = i + 1;
-
-                            foreach (var linkedObj in eventList.Where(x => x.LinkID == 0 && x.Data.GBALinks.Contains(link)))
-                                linkedObj.LinkID = i + 1;
-                        }
-
-                        eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
-                    }
-                }
-                else
-                {
-                    // No link
-                    if (eventList[i].Data.LinkIndex == i)
-                    {
-                        eventList[i].LinkID = 0;
-                    }
-                    else
-                    {
-                        // Ignore already assigned ones
-                        if (eventList[i].LinkID != 0)
-                            continue;
-
-                        // Link found, loop through everyone on the link chain
-                        int nextEvent = eventList[i].Data.LinkIndex;
-                        eventList[i].LinkID = currentId;
-                        eventList[i].linkCubeLockPosition = eventList[i].linkCube.position;
-                        int prevEvent = i;
-                        while (nextEvent != i && nextEvent != prevEvent)
-                        {
-                            prevEvent = nextEvent;
-                            eventList[nextEvent].LinkID = currentId;
-
-                            // Stack the link cubes
-                            eventList[nextEvent].linkCube.position = eventList[i].linkCube.position;
-                            eventList[nextEvent].linkCubeLockPosition = eventList[nextEvent].linkCube.position;
-
-                            nextEvent = eventList[nextEvent].Data.LinkIndex;
-                        }
-                        currentId++;
-                    }
-                }
+                if (obj.ObjData.YPosition > (maxHeight * LevelEditorData.Level.CellSize) + allowedBorder || obj.ObjData.YPosition < -allowedBorder)
+                    obj.ObjData.YPosition = (short)((maxHeight * LevelEditorData.Level.CellSize) + border);
             }
 
-            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
-            {
-                foreach (var linkedEvents in eventList.Where(x => x.LinkID != 0).GroupBy(x => x.LinkID))
-                {
-                    var prev = linkedEvents.Last();
+            LevelEditorData.ObjManager.InitLinkGroups(eventList.Select(x => x.ObjData).ToArray());
 
-                    foreach (var e in linkedEvents)
-                    {
-                        e.linkCube.position = prev.linkCube.position;
-                        e.linkCubeLockPosition = e.linkCube.position;
-                        prev = e; 
-                    }
+            foreach (var linkedEvents in eventList.Where(x => x.ObjData.EditorLinkGroup != 0).GroupBy(x => x.ObjData.EditorLinkGroup))
+            {
+                var prev = linkedEvents.Last();
+
+                foreach (var e in linkedEvents)
+                {
+                    e.linkCube.position = prev.linkCube.position;
+                    e.linkCubeLockPosition = e.linkCube.position;
+                    prev = e;
                 }
             }
         }
@@ -277,13 +205,13 @@ namespace R1Engine
 
         private float memoryLoadTimer = 0;
 
-        private R1_EventState[] lastSubEtat;
-
         private void UpdateEventFields()
         {
+            var wrapper = SelectedEvent?.ObjData.LegacyWrapper;
+
             // Update Etat and SubEtat drop downs
-            var etatLength = SelectedEvent?.Data.ETAKey == null ? 0 : EditorManager.ETA.TryGetItem(SelectedEvent.Data.ETAKey)?.Length ?? 0;
-            var subEtatArray = SelectedEvent == null ? null : EditorManager.ETA.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat);
+            var etatLength = wrapper?.EtatLength ?? 0;
+            var subEtatLength = wrapper?.SubEtatLength ?? 0;
 
             if (infoEtat.options.Count != etatLength)
             {
@@ -295,40 +223,17 @@ namespace R1Engine
                 {
                     text = x.ToString()
                 }));
-
-                //Debug.Log($"Etat array updated to size {etatLength}");
             }
-            if (lastSubEtat != subEtatArray)
+            if (infoSubEtat.options.Count != subEtatLength)
             {
-                var length = subEtatArray?.Length ?? 0;
-
                 // Clear old options
                 infoSubEtat.options.Clear();
 
                 // Set new options
-                infoSubEtat.options.AddRange(Enumerable.Range(0, length).Select(x => new Dropdown.OptionData
+                infoSubEtat.options.AddRange(Enumerable.Range(0, subEtatLength).Select(x => new Dropdown.OptionData
                 {
-                    text = EditorManager.ETANames?.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat)?.ElementAtOrDefault(x) ?? x.ToString()
+                    text = x.ToString()
                 }));
-
-                lastSubEtat = subEtatArray;
-
-                // Force refresh
-                int? subEtat = SelectedEvent?.Data.Data.SubEtat;
-                infoSubEtat.value = (subEtat != null && subEtat.Value < subEtatArray.Length ? subEtat.Value : 0);
-                infoSubEtat.RefreshShownValue();
-
-                //Debug.Log($"SubEtat array updated to size {length}");
-            }
-
-            // Make sure Etat and SubEtat indexes are not out of range
-            if (!Settings.LoadFromMemory)
-            {
-                if (SelectedEvent?.Data.Data.Etat >= infoEtat.options.Count)
-                    FieldUpdated(x => SelectedEvent.Data.Data.Etat = SelectedEvent.Data.Data.RuntimeEtat = x, (byte)0, () => SelectedEvent.Data.Data.Etat, "Etat");
-
-                if (SelectedEvent?.Data.Data.SubEtat >= infoSubEtat.options.Count)
-                    FieldUpdated(x => SelectedEvent.Data.Data.SubEtat = SelectedEvent.Data.Data.RuntimeSubEtat = x, (byte)0, () => SelectedEvent.Data.Data.SubEtat, "SubEtat");
             }
 
             // Helper method for updating a field
@@ -344,19 +249,17 @@ namespace R1Engine
             }
 
             // Helper method for updating a drop down
-            void updateDropDown<T>(Dropdown field, T value)
-                where T : IComparable
+            void updateDropDownIndex(Dropdown field, int index)
             {
                 var selectedIndex = field.value;
-                var currentIndex = field.options.FindIndex(x => x.text == value?.ToString());
 
-                if (currentIndex == -1)
-                    currentIndex = 0;
+                if (index == -1)
+                    index = 0;
 
-                if (selectedIndex == currentIndex && PrevSelectedEvent == SelectedEvent) 
+                if (selectedIndex == index && PrevSelectedEvent == SelectedEvent) 
                     return;
                 
-                field.value = currentIndex;
+                field.value = index;
             }
 
             // Helper method for updating a toggle
@@ -369,54 +272,49 @@ namespace R1Engine
             }
 
             // X Position
-            updateInputField<short>(infoX, (short)(SelectedEvent?.Data.Data.XPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
+            updateInputField<short>(infoX, (short)(SelectedEvent?.ObjData.XPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
 
             // Y Position
-            updateInputField<short>(infoY, (short)(SelectedEvent?.Data.Data.YPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
+            updateInputField<short>(infoY, (short)(SelectedEvent?.ObjData.YPosition ?? -1), x => Int16.TryParse(x, out var r) ? r : (short)0);
 
             // DES
-            updateDropDown<string>(infoDes, SelectedEvent?.Data.DESKey);
+            updateDropDownIndex(infoDes, wrapper?.DES ?? 0);
 
             // ETA
-            updateDropDown<string>(infoEta, SelectedEvent?.Data.ETAKey);
+            updateDropDownIndex(infoEta, wrapper?.ETA ?? 0);
 
             // Etat
-            updateDropDown<byte>(infoEtat, SelectedEvent?.Data.Data.Etat ?? 0);
+            updateDropDownIndex(infoEtat, wrapper?.Etat ?? 0);
 
             // SubEtat
-            var seName = SelectedEvent != null ? EditorManager.ETANames?.TryGetItem(SelectedEvent.Data.ETAKey)?.ElementAtOrDefault(SelectedEvent.Data.Data.Etat)?.ElementAtOrDefault(SelectedEvent.Data.Data.SubEtat) : null;
-
-            if (seName != null)
-                updateDropDown<string>(infoSubEtat, seName);
-            else
-                updateDropDown<byte>(infoSubEtat, SelectedEvent?.Data.Data.SubEtat ?? 0);
+            updateDropDownIndex(infoSubEtat, wrapper?.SubEtat ?? 0);
 
             // OffsetBX
-            updateInputField<byte>(infoOffsetBx, SelectedEvent?.Data.Data.OffsetBX ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+            updateInputField<byte>(infoOffsetBx, wrapper?.OffsetBX ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
             
             // OffsetBY
-            updateInputField<byte>(infoOffsetBy, SelectedEvent?.Data.Data.OffsetBY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+            updateInputField<byte>(infoOffsetBy, wrapper?.OffsetBY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
 
             // OffsetHY
-            updateInputField<byte>(infoOffsetHy, SelectedEvent?.Data.Data.OffsetHY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+            updateInputField<byte>(infoOffsetHy, wrapper?.OffsetHY ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
 
             // FollowSprite
-            updateInputField<byte>(infoFollowSprite, SelectedEvent?.Data.Data.FollowSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+            updateInputField<byte>(infoFollowSprite, wrapper?.FollowSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
 
             // HitPoints
-            updateInputField<uint>(infoHitPoints, SelectedEvent?.Data.Data.ActualHitPoints ?? 0, x => UInt32.TryParse(x, out var r) ? r : 0);
+            updateInputField<uint>(infoHitPoints, wrapper?.HitPoints ?? 0, x => UInt32.TryParse(x, out var r) ? r : 0);
 
             // HitSprite
-            updateInputField<byte>(infoHitSprite, SelectedEvent?.Data.Data.HitSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
+            updateInputField<byte>(infoHitSprite, wrapper?.HitSprite ?? 0, x => Byte.TryParse(x, out var r) ? r : (byte)0);
 
             // FollowEnabled
-            updateToggle(infoFollow, SelectedEvent?.Data.Data.GetFollowEnabled(EditorManager.Settings) ?? false);
+            updateToggle(infoFollow, wrapper?.FollowEnabled ?? false);
 
             // Type
-            updateDropDown<Enum>(infoType, SelectedEvent?.Data.Type);
+            updateDropDownIndex(infoType, wrapper?.Type ?? 0);
 
             // Set other fields
-            infoName.text = SelectedEvent?.DisplayName ?? String.Empty;
+            infoName.text = SelectedEvent?.ObjData.DisplayName ?? String.Empty;
 
             PrevSelectedEvent = SelectedEvent;
         }
@@ -457,16 +355,19 @@ namespace R1Engine
                 if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents) 
                 {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    var mox = mousepo.x * EditorManager.PixelsPerUnit;
-                    var moy = mousepo.y * EditorManager.PixelsPerUnit;
+                    var mox = mousepo.x * LevelEditorData.Level.PixelsPerUnit;
+                    var moy = mousepo.y * LevelEditorData.Level.PixelsPerUnit;
 
                     var maxWidth = LevelEditorData.MaxWidth;
                     var maxHeight = LevelEditorData.MaxHeight;
 
                     // Don't add if clicked outside of the level bounds
-                    if (mox > 0 && -moy > 0 && mox < maxWidth * EditorManager.CellSize && -moy < maxHeight * EditorManager.CellSize) 
+                    if (mox > 0 && -moy > 0 && mox < maxWidth * LevelEditorData.Level.CellSize && -moy < maxHeight * LevelEditorData.Level.CellSize) 
                     {
-                        var eventData = EditorManager.AddEvent(eventDropdown.value, (short)mox, (short)-moy);
+                        var eventData = LevelEditorData.ObjManager.CreateObject(eventDropdown.value);
+
+                        eventData.XPosition = (short)mox;
+                        eventData.YPosition = (short)-moy;
 
                         LevelEditorData.Level.EventData.Add(eventData);
                         var eve = AddEvent(eventData);
@@ -494,18 +395,21 @@ namespace R1Engine
                             SelectedEvent = e;
 
                             // Change event info if event is selected
-                            infoAnimIndex.text = SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
-                            infoLayer.text = SelectedEvent.Data.Data.Layer.ToString();
+                            //infoAnimIndex.text = SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
+                            infoLayer.text = SelectedEvent.ObjData.Layer.ToString();
                             
                             // Clear old commands
                             ClearCommands();
 
-                            // Fill out the commands
-                            foreach (var c in SelectedEvent.Data.CommandCollection?.Commands ?? new R1_EventCommand[0]) {
-                                CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
-                                cmd.command = c;
-                                cmd.transform.SetParent(commandListParent, false);
-                                commandLines.Add(cmd);
+                            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
+                            {
+                                // Fill out the commands
+                                foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
+                                    CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
+                                    cmd.command = c;
+                                    cmd.transform.SetParent(commandListParent, false);
+                                    commandLines.Add(cmd);
+                                }
                             }
                         }
 
@@ -520,7 +424,7 @@ namespace R1Engine
                         // Change the link
                         if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanEvent && SelectedEvent != null) 
                         {
-                            SelectedEvent.LinkID = 0;
+                            SelectedEvent.ObjData.EditorLinkGroup = 0;
                             SelectedEvent.ChangeLinksVisibility(true);
                         }
                     }
@@ -546,8 +450,8 @@ namespace R1Engine
                         if (modeEvents) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-                            FieldUpdated(x => SelectedEvent.Data.Data.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * EditorManager.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.XPosition, "XPos");
-                            FieldUpdated(x => SelectedEvent.Data.Data.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * EditorManager.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.Data.Data.YPosition, "YPos");
+                            FieldUpdated(x => SelectedEvent.ObjData.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.XPosition, "XPos");
+                            FieldUpdated(x => SelectedEvent.ObjData.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.YPosition, "YPos");
                         }
 
                         // Else move links
@@ -559,7 +463,7 @@ namespace R1Engine
                 }
 
                 //Confirm links with mmb
-                if (Input.GetMouseButtonDown(2) && modeLinks && SelectedEvent?.LinkID == 0)
+                if (Input.GetMouseButtonDown(2) && modeLinks && SelectedEvent?.ObjData.EditorLinkGroup == 0)
                 {
                     bool alone = true;
                     
@@ -567,7 +471,7 @@ namespace R1Engine
                         Where(ee => ee.linkCube.position == SelectedEvent.linkCube.position).
                         Where(ee => ee != SelectedEvent))
                     {
-                        ee.LinkID = currentId;
+                        ee.ObjData.EditorLinkGroup = currentId;
                         ee.ChangeLinksVisibility(true);
                         ee.linkCubeLockPosition = ee.linkCube.position;
                         alone = false;
@@ -575,7 +479,7 @@ namespace R1Engine
 
                     if (!alone) 
                     {
-                        SelectedEvent.LinkID = currentId;
+                        SelectedEvent.ObjData.EditorLinkGroup = currentId;
                         SelectedEvent.ChangeLinksVisibility(true);
                         SelectedEvent.linkCubeLockPosition = SelectedEvent.linkCube.position;
                     }
@@ -587,22 +491,22 @@ namespace R1Engine
                 {
                     if (Input.GetKeyDown(KeyCode.O))
                     {
-                        var frame = SelectedEvent.EditorAnimFrame - 1;
+                        var frame = SelectedEvent.ObjData.CurrentAnimationFrame - 1;
 
                         if (frame < 0)
-                            frame = SelectedEvent.CurrentAnimation.Frames.Length - 1;
+                            frame = SelectedEvent.ObjData.CurrentAnimation.Frames.Length - 1;
 
-                        SelectedEvent.EditorAnimFrame = SelectedEvent.Data.Data.RuntimeCurrentAnimFrame = (byte)frame;
+                        SelectedEvent.ObjData.CurrentAnimationFrame = (byte)frame;
                     }
 
                     if (Input.GetKeyDown(KeyCode.P))
                     {
-                        var frame = SelectedEvent.EditorAnimFrame + 1;
+                        var frame = SelectedEvent.ObjData.CurrentAnimationFrame + 1;
 
-                        if (frame >= SelectedEvent.CurrentAnimation.Frames.Length)
+                        if (frame >= SelectedEvent.ObjData.CurrentAnimation.Frames.Length)
                             frame = 0;
 
-                        SelectedEvent.EditorAnimFrame = SelectedEvent.Data.Data.RuntimeCurrentAnimFrame = (byte)frame;
+                        SelectedEvent.ObjData.CurrentAnimationFrame = (byte)frame;
                     }
                 }
 
@@ -679,43 +583,43 @@ namespace R1Engine
                 Pointer currentOffset;
                 SerializerObject s;
 
-                void SerializeEvent(Unity_Obj ed)
+                void SerializeEvent(Unity_Object_R1 ed)
                 {
                     s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
                     s.Goto(currentOffset);
-                    ed.Data.Init(s.CurrentPointer);
-                    ed.Data.Serialize(s);
-                    ed.DebugText = $"Pos: {ed.Data.XPosition}, {ed.Data.YPosition}{Environment.NewLine}" +
-                                   $"RuntimePos: {ed.Data.RuntimeXPosition}, {ed.Data.RuntimeYPosition}{Environment.NewLine}" +
-                                   $"Layer: {ed.Data.Layer}{Environment.NewLine}" +
-                                   $"RuntimeLayer: {ed.Data.RuntimeLayer}{Environment.NewLine}" +
+                    ed.EventData.Init(s.CurrentPointer);
+                    ed.EventData.Serialize(s);
+                    ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
+                                   $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
+                                   $"Layer: {ed.EventData.Layer}{Environment.NewLine}" +
+                                   $"RuntimeLayer: {ed.EventData.RuntimeLayer}{Environment.NewLine}" +
                                    $"{Environment.NewLine}" +
-                                   $"Unk_24: {ed.Data.Unk_24}{Environment.NewLine}" +
-                                   $"Unk_28: {ed.Data.Unk_28}{Environment.NewLine}" +
-                                   $"Unk_32: {ed.Data.Unk_32}{Environment.NewLine}" +
-                                   $"Unk_36: {ed.Data.Unk_36}{Environment.NewLine}" +
+                                   $"Unk_24: {ed.EventData.Unk_24}{Environment.NewLine}" +
+                                   $"Unk_28: {ed.EventData.Unk_28}{Environment.NewLine}" +
+                                   $"Unk_32: {ed.EventData.Unk_32}{Environment.NewLine}" +
+                                   $"Unk_36: {ed.EventData.Unk_36}{Environment.NewLine}" +
                                    $"{Environment.NewLine}" +
-                                   $"Unk_48: {ed.Data.Unk_48}{Environment.NewLine}" +
-                                   $"Unk_54: {ed.Data.Unk_54}{Environment.NewLine}" +
-                                   $"Unk_56: {ed.Data.Unk_56}{Environment.NewLine}" +
-                                   $"Unk_58: {ed.Data.Unk_58}{Environment.NewLine}" +
+                                   $"Unk_48: {ed.EventData.Unk_48}{Environment.NewLine}" +
+                                   $"Unk_54: {ed.EventData.Unk_54}{Environment.NewLine}" +
+                                   $"Unk_56: {ed.EventData.Unk_56}{Environment.NewLine}" +
+                                   $"Unk_58: {ed.EventData.Unk_58}{Environment.NewLine}" +
                                    $"{Environment.NewLine}" +
-                                   $"Unk_64: {ed.Data.Unk_64}{Environment.NewLine}" +
-                                   $"Unk_66: {ed.Data.Unk_66}{Environment.NewLine}" +
+                                   $"Unk_64: {ed.EventData.Unk_64}{Environment.NewLine}" +
+                                   $"Unk_66: {ed.EventData.Unk_66}{Environment.NewLine}" +
                                    $"{Environment.NewLine}" +
-                                   $"Unk_74: {ed.Data.Unk_74}{Environment.NewLine}" +
-                                   $"Unk_76: {ed.Data.Unk_76}{Environment.NewLine}" +
-                                   $"Unk_78: {ed.Data.Unk_78}{Environment.NewLine}" +
-                                   $"Unk_80: {ed.Data.Unk_80}{Environment.NewLine}" +
-                                   $"Unk_82: {ed.Data.Unk_82}{Environment.NewLine}" +
-                                   $"Unk_84: {ed.Data.Unk_84}{Environment.NewLine}" +
-                                   $"Unk_86: {ed.Data.Unk_86}{Environment.NewLine}" +
-                                   $"Unk_88: {ed.Data.Unk_88}{Environment.NewLine}" +
-                                   $"Unk_90: {ed.Data.Unk_90}{Environment.NewLine}" +
-                                   $"Runtime_ZdcIndex: {ed.Data.Runtime_ZdcIndex}{Environment.NewLine}" +
-                                   $"Unk_94: {ed.Data.Unk_94}{Environment.NewLine}" +
+                                   $"Unk_74: {ed.EventData.Unk_74}{Environment.NewLine}" +
+                                   $"Unk_76: {ed.EventData.Unk_76}{Environment.NewLine}" +
+                                   $"Unk_78: {ed.EventData.Unk_78}{Environment.NewLine}" +
+                                   $"Unk_80: {ed.EventData.Unk_80}{Environment.NewLine}" +
+                                   $"Unk_82: {ed.EventData.Unk_82}{Environment.NewLine}" +
+                                   $"Unk_84: {ed.EventData.Unk_84}{Environment.NewLine}" +
+                                   $"Unk_86: {ed.EventData.Unk_86}{Environment.NewLine}" +
+                                   $"Unk_88: {ed.EventData.Unk_88}{Environment.NewLine}" +
+                                   $"Unk_90: {ed.EventData.Unk_90}{Environment.NewLine}" +
+                                   $"Runtime_ZdcIndex: {ed.EventData.Runtime_ZdcIndex}{Environment.NewLine}" +
+                                   $"Unk_94: {ed.EventData.Unk_94}{Environment.NewLine}" +
                                    $"{Environment.NewLine}" +
-                                   $"Flags: {Convert.ToString((byte)ed.Data.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
+                                   $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
                     if (s is BinarySerializer)
                     {
                         Debug.Log($"Edited event");
@@ -730,15 +634,15 @@ namespace R1Engine
                 if (GameMemoryData.EventArrayOffset != null)
                 {
                     currentOffset = GameMemoryData.EventArrayOffset;
-                    foreach (Unity_Obj ed in lvl.EventData)
+                    foreach (var ed in lvl.EventData.OfType<Unity_Object_R1>())
                         SerializeEvent(ed);
                 }
 
                 // Rayman
-                if (GameMemoryData.RayEventOffset != null)
+                if (GameMemoryData.RayEventOffset != null && lvl.Rayman is Unity_Object_R1 r1Ray)
                 {
                     currentOffset = GameMemoryData.RayEventOffset;
-                    SerializeEvent(lvl.Rayman);
+                    SerializeEvent(r1Ray);
                 }
 
                 // Tiles
@@ -836,48 +740,15 @@ namespace R1Engine
         }
 
         // Converts linkID to linkIndex when saving
-        public void CalculateLinkIndexes() {
-
-            List<int> alreadyChained = new List<int>();
-            foreach (Unity_ObjBehaviour ee in Controller.obj.levelController.Events) {
-                // No link
-                if (ee.LinkID == 0) {
-                    ee.Data.LinkIndex = Controller.obj.levelController.Events.IndexOf(ee);
-                }
-                else {
-                    // Skip if already chained
-                    if (alreadyChained.Contains(Controller.obj.levelController.Events.IndexOf(ee)))
-                        continue;
-
-                    // Find all the events with the same linkId and store their indexes
-                    List<int> indexesOfSameId = new List<int>();
-                    int cur = ee.LinkID;
-                    foreach (Unity_ObjBehaviour e in Controller.obj.levelController.Events.Where<Unity_ObjBehaviour>(e => e.LinkID == cur)) {
-                        indexesOfSameId.Add(Controller.obj.levelController.Events.IndexOf(e));
-                        alreadyChained.Add(Controller.obj.levelController.Events.IndexOf(e));
-                    }
-                    // Loop through and chain them
-                    for (int j = 0; j < indexesOfSameId.Count; j++) {
-                        int next = j + 1;
-                        if (next == indexesOfSameId.Count)
-                            next = 0;
-
-                        Controller.obj.levelController.Events[indexesOfSameId[j]].Data.LinkIndex = indexesOfSameId[next];
-                    }
-                }
-            }
-        }
+        public void CalculateLinkIndexes() => LevelEditorData.ObjManager.SaveLinkGroups(LevelEditorData.Level.EventData);
 
         // Add events to the list via the managers
-        public Unity_ObjBehaviour AddEvent(Unity_Obj obj)
+        public Unity_ObjBehaviour AddEvent(Unity_Object obj)
         {
             // Instantiate prefab
-            Unity_ObjBehaviour newEvent = Instantiate(prefabEvent, new Vector3(obj.Data.XPosition / (float)EditorManager.PixelsPerUnit, -(obj.Data.YPosition / (float)EditorManager.PixelsPerUnit), obj.Data.Layer), Quaternion.identity).GetComponent<Unity_ObjBehaviour>();
+            Unity_ObjBehaviour newEvent = Instantiate(prefabEvent, new Vector3(obj.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(obj.YPosition / (float)LevelEditorData.Level.PixelsPerUnit), obj.Layer), Quaternion.identity).GetComponent<Unity_ObjBehaviour>();
 
-            newEvent.Data = obj;
-
-            newEvent.UniqueLayer = lastUsedLayer * (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA ? 1 : -1);
-            lastUsedLayer++;
+            newEvent.ObjData = obj;
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
@@ -885,5 +756,24 @@ namespace R1Engine
             // Add to list
             return newEvent;
         }
+    }
+
+    [Obsolete]
+    public interface ILegacyEditorWrapper
+    {
+        ushort Type { get; set; }
+        int DES { get; set; }
+        int ETA { get; set; }
+        byte Etat { get; set; }
+        byte SubEtat { get; set; }
+        int EtatLength { get; }
+        int SubEtatLength { get; }
+        byte OffsetBX { get; set; }
+        byte OffsetBY { get; set; }
+        byte OffsetHY { get; set; }
+        byte FollowSprite { get; set; }
+        uint HitPoints { get; set; }
+        byte HitSprite { get; set; }
+        bool FollowEnabled { get; set; }
     }
 }

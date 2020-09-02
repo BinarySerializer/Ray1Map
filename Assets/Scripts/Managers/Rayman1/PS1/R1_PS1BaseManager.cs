@@ -205,14 +205,13 @@ namespace R1Engine
         /// <param name="eventLinkingTable">The event linking table</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
         /// <param name="bg">The background block data if available</param>
-        /// <returns>The editor manager</returns>
-        public async UniTask<BaseEditorManager> LoadAsync(Context context, MapData map, R1_EventData[] events, ushort[] eventLinkingTable, bool loadTextures, R1_PS1_BackgroundBlock bg = null)
+        /// <returns>The level</returns>
+        public async UniTask<Unity_Level> LoadAsync(Context context, MapData map, R1_EventData[] events, ushort[] eventLinkingTable, bool loadTextures, R1_PS1_BackgroundBlock bg = null)
         {
             Unity_MapTileMap tileSet = GetTileSet(context);
 
-            var eventDesigns = new Dictionary<Pointer, Unity_ObjGraphics>();
-            var eventETA = new Dictionary<Pointer, R1_EventState[][]>();
-            var commonEvents = new List<Unity_Obj>();
+            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>>();
+            var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
 
             // Only load the v-ram if we're loading textures
             if (loadTextures)
@@ -240,20 +239,14 @@ namespace R1Engine
                 }
 
                 // Add to the designs
-                eventDesigns.Add(bg.Offset, finalDesign);
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, bg.Offset));
             }
 
-            var index = 0;
-
-            // Add every event
+            // Load graphics
             foreach (R1_EventData e in events ?? (events = new R1_EventData[0]))
             {
-                Controller.DetailedState = $"Loading DES {index}/{events.Length}";
-
-                await Controller.WaitIfNecessary();
-
                 // Add if not found
-                if (e.ImageDescriptorsPointer != null && !eventDesigns.ContainsKey(e.ImageDescriptorsPointer))
+                if (e.ImageDescriptorsPointer != null && eventDesigns.All(x => x.Pointer != e.ImageDescriptorsPointer))
                 {
                     Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                     {
@@ -276,67 +269,44 @@ namespace R1Engine
                     finalDesign.Animations.AddRange(e.AnimDescriptors.Select(x => x.ToCommonAnimation()));
 
                     // Add to the designs
-                    eventDesigns.Add(e.ImageDescriptorsPointer, finalDesign);
+                    eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, e.ImageDescriptorsPointer));
                 }
 
                 // Add if not found
-                if (e.ETAPointer != null && !eventETA.ContainsKey(e.ETAPointer))
+                if (e.ETAPointer != null && eventETA.All(x => x.Pointer != e.ETAPointer))
                     // Add to the ETA
-                    eventETA.Add(e.ETAPointer, e.ETA.EventStates);
-
-                // Add the event
-                commonEvents.Add(new Unity_Obj(e)
-                {
-                    Type = e.Type,
-                    DESKey = e.ImageDescriptorsPointer?.ToString() ?? String.Empty,
-                    ETAKey = e.ETAPointer?.ToString() ?? String.Empty,
-                    LabelOffsets = e.LabelOffsets,
-                    CommandCollection = e.Commands,
-                    LinkIndex = eventLinkingTable[index]
-                });
-
-                index++;
+                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(e.ETA.EventStates, e.ETAPointer));
             }
 
+            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.ToArray(), eventETA.ToArray(), eventLinkingTable);
+
             await Controller.WaitIfNecessary();
+
+            var maps = new Unity_Map[]
+            {
+                new Unity_Map()
+                {
+                    // Set the dimensions
+                    Width = map.Width,
+                    Height = map.Height,
+
+                    // Create the tile array
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        tileSet
+                    },
+                    TileSetWidth = TileSetWidth,
+                    MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray()
+                }
+            };
 
             // Convert levelData to common level format
-            Unity_Level c = new Unity_Level
-            {
-                // Create the map
-                Maps = new Unity_Map[]
-                {
-                    new Unity_Map()
-                    {
-                        // Set the dimensions
-                        Width = map.Width,
-                        Height = map.Height,
-
-                        // Create the tile array
-                        TileSet = new Unity_MapTileMap[1],
-                        TileSetWidth = TileSetWidth
-                    }
-                },
-
-                // Create the events list
-                EventData = new List<Unity_Obj>(),
-
-            };
-            c.Maps[0].TileSet[0] = tileSet;
-
-            // Add the events
-            c.EventData = commonEvents;
+            Unity_Level level = new Unity_Level(maps, objManager, eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), localization: LoadLocalization(context));
 
             await Controller.WaitIfNecessary();
 
-            // Set the tiles
-            c.Maps[0].MapTiles = map.Tiles.Select(x => new Unity_Tile(x)).ToArray();
-
-            // Load localization
-            LoadLocalization(context, c);
-
-            // Return an editor manager
-            return new R1_PS1_EditorManager(c, context, eventDesigns, eventETA, events);
+            // Return the level
+            return level;
         }
 
         /// <summary>
@@ -344,15 +314,15 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="loadTextures">Indicates if textures should be loaded</param>
-        /// <returns>The editor manager</returns>
-        public abstract UniTask<BaseEditorManager> LoadAsync(Context context, bool loadTextures);
+        /// <returns>The level</returns>
+        public abstract UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures);
 
         /// <summary>
         /// Saves the specified level
         /// </summary>
         /// <param name="context">The serialization context</param>
-        /// <param name="editorManager">The editor manager</param>
-        public virtual void SaveLevel(Context context, BaseEditorManager editorManager) => throw new NotImplementedException();
+        /// <param name="level">The level</param>
+        public virtual void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
         /// <summary>
         /// Preloads all the necessary files into the context
@@ -401,16 +371,18 @@ namespace R1Engine
                     using (var context = new Context(baseGameSettings))
                     {
                         // Load the editor manager
-                        var editorManager = await LoadAsync(context, true);
+                        var level = await LoadAsync(context, true);
 
                         // Set up animations
-                        editorManager.InitializeRayAnim();
+                        level.ObjManager.InitEvents(level);
+
+                        var objManager = (Unity_ObjectManager_R1)level.ObjManager;
 
                         // Enumerate every design
-                        foreach (var des in editorManager.DES.Values)
+                        foreach (var des in objManager.DES)
                         {
                             // Get the export dir name
-                            var exportDirName = GetExportDirName(baseGameSettings, des);
+                            var exportDirName = GetExportDirName(baseGameSettings, des.Data);
 
                             if (!desIndexes.ContainsKey(exportDirName))
                                 desIndexes.Add(exportDirName, 0);
@@ -418,7 +390,7 @@ namespace R1Engine
                             var spriteIndex = -1;
 
                             // Enumerate every sprite
-                            foreach (var sprite in des.Sprites.Where(x => x != null).Select(x => x.texture))
+                            foreach (var sprite in des.Data.Sprites.Where(x => x != null).Select(x => x.texture))
                             {
                                 spriteIndex++;
 
@@ -484,20 +456,26 @@ namespace R1Engine
                     // Create the context
                     using (var context = new Context(baseGameSettings))
                     {
-                        // Load the editor manager
-                        var editorManager = await LoadAsync(context, true);
+                        // Load the level
+                        var level = await LoadAsync(context, true);
+
+                        var objManage = (Unity_ObjectManager_R1)level.ObjManager;
 
                         // Set up animations
-                        editorManager.InitializeRayAnim();
+                        objManage.InitEvents(level);
 
                         // Enumerate every design
-                        foreach (var des in editorManager.DES)
+                        for (var i = 0; i < objManage.DES.Length; i++)
                         {
+                            var des = objManage.DES[i];
+                            
                             // Check the hash
                             using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
                             {
                                 // Get the hash
-                                var hash = Convert.ToBase64String(sha1.ComputeHash(des.Value.Sprites.SelectMany(x => x?.texture?.GetRawTextureData() ?? new byte[0]).Append((byte)des.Value.Animations.Count).ToArray()));
+                                var hash = Convert.ToBase64String(sha1.ComputeHash(des.Data.Sprites
+                                    .SelectMany(x => x?.texture?.GetRawTextureData() ?? new byte[0])
+                                    .Append((byte) des.Data.Animations.Count).ToArray()));
 
                                 // Check if it's been used before
                                 if (hashList.Contains(hash))
@@ -508,12 +486,13 @@ namespace R1Engine
                             }
 
                             // Get the export dir name
-                            var exportDirName = GetExportDirName(baseGameSettings, des.Value);
+                            var exportDirName = GetExportDirName(baseGameSettings, des.Data);
 
                             if (!desIndexes.ContainsKey(exportDirName))
                                 desIndexes.Add(exportDirName, 0);
 
-                            await ExportAnimationFramesAsync(baseGameSettings, editorManager, des, Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]}"));
+                            await ExportAnimationFramesAsync(baseGameSettings, level, i, des.Data,
+                                Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]}"));
 
                             desIndexes[exportDirName]++;
                         }
@@ -526,27 +505,29 @@ namespace R1Engine
         /// Exports the animation frames from a common design
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <param name="editorManager">The current editor manager</param>
+        /// <param name="level">The current editor manager</param>
         /// <param name="desValuePair">The common design and its key</param>
         /// <param name="outputDir">The output directory to export to</param>
         /// <returns>The task</returns>
-        public async UniTask ExportAnimationFramesAsync(GameSettings settings, BaseEditorManager editorManager, KeyValuePair<string, Unity_ObjGraphics> desValuePair, string outputDir)
+        public async UniTask ExportAnimationFramesAsync(GameSettings settings, Unity_Level level, int index, Unity_ObjGraphics des, string outputDir)
         {
+            var objManager = (Unity_ObjectManager_R1)level.ObjManager;
+
             // Find all events where this DES is used
-            var matchingEvents = editorManager.Level.EventData.Where(x => x.DESKey == desValuePair.Key);
+            var matchingEvents = level.EventData.Cast<Unity_Object_R1>().Where(x => x.DESIndex == index);
 
             // Find matching ETA for this DES from the level events
-            var matchingStates = matchingEvents.SelectMany(lvlEvent => editorManager.ETA[lvlEvent.ETAKey].SelectMany(x => x)).ToArray();
+            var matchingStates = matchingEvents.SelectMany(lvlEvent => objManager.ETA[lvlEvent.ETAIndex].Data.SelectMany(x => x)).ToArray();
 
             // Correct Rayman's ETA for Rayman 2
             if (settings.EngineVersion == EngineVersion.R2_PS1 && !matchingStates.Any())
-                matchingStates = editorManager.ETA.Last().Value.SelectMany(x => x).ToArray();
+                matchingStates = objManager.ETA.Last().Data.SelectMany(x => x).ToArray();
 
             // Get the animations
-            var spriteAnim = desValuePair.Value.Animations;
+            var spriteAnim = des.Animations;
 
             // Get the textures
-            var textures = desValuePair.Value.Sprites?.Select(x => x?.texture).ToArray() ?? new Texture2D[0];
+            var textures = des.Sprites?.Select(x => x?.texture).ToArray() ?? new Texture2D[0];
 
             // Enumerate the animations
             for (var j = 0; j < spriteAnim.Count; j++)
@@ -796,7 +777,7 @@ namespace R1Engine
             }
         }
 
-        protected virtual void LoadLocalization(Context context, Unity_Level level) { }
+        protected virtual IReadOnlyDictionary<string, string[]> LoadLocalization(Context context) => null;
 
         public abstract UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 

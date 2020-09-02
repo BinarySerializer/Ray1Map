@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace R1Engine
 {
@@ -59,12 +58,12 @@ namespace R1Engine
 
             using (serializeContext) {
                 // Init editor data
-                await BaseEditorManager.Init(context);
+                await LevelEditorData.Init();
                 await Controller.WaitIfNecessary();
 
                 // Load the level
                 Controller.LoadState = Controller.State.Loading;
-                LevelEditorData.EditorManager = await manager.LoadAsync(serializeContext, true);
+                LevelEditorData.Level = await manager.LoadAsync(serializeContext, true);
 
                 await Controller.WaitIfNecessary();
                 if (Controller.LoadState == Controller.State.Error) return;
@@ -72,14 +71,8 @@ namespace R1Engine
                 Controller.LoadState = Controller.State.Initializing;
                 await Controller.WaitIfNecessary();
 
-                LevelEditorData.CurrentMap = LevelEditorData.EditorManager.Level.DefaultMap;
-                LevelEditorData.CurrentCollisionMap = LevelEditorData.EditorManager.Level.DefaultCollisionMap;
-
-                var notSupportedEventTypes = LevelEditorData.Level.EventData.Where(x => !Enum.IsDefined(LevelEditorData.EditorManager.EventTypeEnumType, x.TypeValue)).Select(x => x.TypeValue).Distinct().OrderBy(x => x).ToArray();
-
-                if (notSupportedEventTypes.Any())
-                    Debug.LogWarning($"The following event types are not supported: {String.Join(", ", notSupportedEventTypes)}");
-
+                LevelEditorData.CurrentMap = LevelEditorData.Level.DefaultMap;
+                LevelEditorData.CurrentCollisionMap = LevelEditorData.Level.DefaultCollisionMap;
 
                 Controller.DetailedState = $"Initializing tile maps";
                 await Controller.WaitIfNecessary();
@@ -119,9 +112,9 @@ namespace R1Engine
             Controller.obj.levelEventController.CalculateLinkIndexes();
 
             using (serializeContext)
-                Settings.GetGameManager.SaveLevel(serializeContext, LevelEditorData.EditorManager);
+                Settings.GetGameManager.SaveLevel(serializeContext, LevelEditorData.Level);
 
-            Debug.Log("Saved.");
+            Debug.Log("Saved");
         }
 
         public void ExportTileset() 
@@ -177,7 +170,7 @@ namespace R1Engine
         }
 
         public void ConvertLevelToPNG() {
-
+            /*
             // Get the path to save to
             var destPath = $@"Screenshots\{LevelEditorData.CurrentSettings.GameModeSelection}\{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00}.png";
 
@@ -208,7 +201,7 @@ namespace R1Engine
                 e.ForceUpdate();
 
                 // Hide always and editor events, except for certain ones
-                if ((e.Data.GetIsAlways() || e.Data.GetIsEditor()) && !exceptions.Contains(e.Data.Type) && (LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA || (e.Data.Data.XPosition == 0 && e.Data.Data.YPosition == 0)))
+                if ((e.ObjData.IsAlways || e.ObjData.IsEditor) && !exceptions.Contains(e.Data.Type) && (LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA || (e.Data.Data.XPosition == 0 && e.Data.Data.YPosition == 0)))
                     e.gameObject.SetActive(false);
                 else
                     e.gameObject.SetActive(true);
@@ -299,7 +292,7 @@ namespace R1Engine
             Settings.OnShowEditorEventsChanged -= controllerEvents.ChangeEventsVisibility;
 
             if (Settings.ScreenshotEnumeration)
-                SceneManager.LoadScene("Dummy");
+                SceneManager.LoadScene("Dummy");*/
         }
 
         public void TabClicked(int tabIndex) {
