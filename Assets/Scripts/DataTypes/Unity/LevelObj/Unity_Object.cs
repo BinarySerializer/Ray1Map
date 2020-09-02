@@ -35,6 +35,9 @@ namespace R1Engine
         {
             get
             {
+                if (LevelEditorData.Level.Rayman == this)
+                    return Settings.ShowRayman;
+
                 if (IsEditor)
                     return Settings.ShowEditorEvents;
 

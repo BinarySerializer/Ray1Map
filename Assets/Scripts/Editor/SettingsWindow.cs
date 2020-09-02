@@ -188,6 +188,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowEditorEvents = EditorField("Show editor events", Settings.ShowEditorEvents);
 
+        Settings.ShowRayman = EditorField("Show Rayman", Settings.ShowRayman);
+
         Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
 
         Settings.BackupFiles = EditorField("Create .BAK backup files", Settings.BackupFiles);

@@ -5,12 +5,8 @@
     /// </summary>
     public class R1_R2AllfixFooter : R1Serializable
     {
-        public Pointer UnkPointer1 { get; set; }
-        public Pointer UnkPointer2 { get; set; }
-
-        /// <summary>
-        /// The pointer to Rayman's animation group
-        /// </summary>
+        public Pointer RaymanCollisionDataPointer { get; set; }
+        public Pointer RaymanBehaviorPointer { get; set; }
         public Pointer RaymanAnimGroupPointer { get; set; }
 
         public uint Unk1 { get; set; }
@@ -22,9 +18,7 @@
         public byte[] Unk4 { get; set; }
 
 
-        /// <summary>
-        /// Rayman's animation group
-        /// </summary>
+        public R1_R2EventCollision CollisionData { get; set; }
         public R1_R2EventAnimGroup RaymanAnimGroup { get; set; }
 
 
@@ -35,8 +29,8 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize pointers
-            UnkPointer1 = s.SerializePointer(UnkPointer1, name: nameof(UnkPointer1));
-            UnkPointer2 = s.SerializePointer(UnkPointer2, name: nameof(UnkPointer2));
+            RaymanCollisionDataPointer = s.SerializePointer(RaymanCollisionDataPointer, name: nameof(RaymanCollisionDataPointer));
+            RaymanBehaviorPointer = s.SerializePointer(RaymanBehaviorPointer, name: nameof(RaymanBehaviorPointer));
             RaymanAnimGroupPointer = s.SerializePointer(RaymanAnimGroupPointer, name: nameof(RaymanAnimGroupPointer));
 
             Unk1 = s.Serialize<uint>(Unk1, name: nameof(Unk1));
@@ -49,6 +43,9 @@
 
             // Serialize Rayman's animation group
             s.DoAt(RaymanAnimGroupPointer, () => RaymanAnimGroup = s.SerializeObject<R1_R2EventAnimGroup>(RaymanAnimGroup, name: nameof(RaymanAnimGroup)));
+
+            // Serialize collision data
+            s.DoAt(RaymanCollisionDataPointer, () => CollisionData = s.SerializeObject<R1_R2EventCollision>(CollisionData, name: nameof(CollisionData)));
         }
     }
 }

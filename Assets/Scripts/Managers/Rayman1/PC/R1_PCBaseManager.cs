@@ -1383,7 +1383,7 @@ namespace R1Engine
             };
 
             // Create a level object
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.Rayman, objManager), localization: LoadLocalization(context));
+            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager), localization: LoadLocalization(context));
 
             for (var i = 0; i < levelData.EventData.Events.Length; i++)
             {

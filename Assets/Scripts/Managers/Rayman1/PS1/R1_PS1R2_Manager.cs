@@ -341,7 +341,7 @@ namespace R1Engine
             }).ToArray();
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(levelMaps, objManager, commonEvents, getCollisionTypeGraphicFunc: x => ((R2_TileCollsionType)x).GetCollisionTypeGraphic());
+            Unity_Level level = new Unity_Level(levelMaps, objManager, commonEvents, rayman: new Unity_Object_R2(R1_R2EventData.GetRayman(events.FirstOrDefault(x => x.EventType == R1_R2EventType.RaymanPosition), footer), objManager), getCollisionTypeGraphicFunc: x => ((R2_TileCollsionType)x).GetCollisionTypeGraphic());
 
             await Controller.WaitIfNecessary();
 

@@ -7,7 +7,32 @@ namespace R1Engine
     /// <summary>
     /// Event data for Rayman 2 (PS1 - Demo)
     /// </summary>
-    public class R1_R2EventData : R1Serializable {
+    public class R1_R2EventData : R1Serializable 
+    {
+        #region Static Methods
+
+        /// <summary>
+        /// Gets a new event instance for Rayman
+        /// </summary>
+        public static R1_R2EventData GetRayman(R1_R2EventData rayPos, R1_R2AllfixFooter data) => new R1_R2EventData()
+        {
+            // Gets loaded at 0x80178DF0 during runtime
+            BehaviorPointer = data.RaymanBehaviorPointer,
+            CollisionDataPointer = data.RaymanCollisionDataPointer,
+            AnimGroupPointer = data.RaymanAnimGroupPointer,
+            XPosition = (short)(rayPos != null ? (rayPos.XPosition + rayPos.CollisionData.OffsetBX - data.CollisionData.OffsetBX) : 100),
+            YPosition = (short)(rayPos != null ? (rayPos.YPosition + rayPos.CollisionData.OffsetBY - data.CollisionData.OffsetBY) : 0),
+            Etat = 0,
+            SubEtat = 19,
+            MapLayer = 1,
+            EventType = R1_R2EventType.Rayman,
+            Layer = 7,
+            CollisionData = data.CollisionData,
+            AnimGroup = data.RaymanAnimGroup
+        };
+
+        #endregion
+
         #region Event Data
 
         public ushort UShort_00 { get; set; }

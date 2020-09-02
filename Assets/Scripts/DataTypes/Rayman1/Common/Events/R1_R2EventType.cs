@@ -6,6 +6,7 @@
     public enum R1_R2EventType : ushort
     {
         Unk_0 = 0,
+        Rayman = 1,
         Unk_2 = 2,
 
         Oneup = 3,

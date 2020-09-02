@@ -53,7 +53,7 @@ namespace R1Engine
         public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.EventType == R1_R2EventType.RaymanPosition);
 
         [Obsolete]
-        public override string[] LegacyDESNames => AnimGroups.Select(x => x.Pointer.ToString()).ToArray();
+        public override string[] LegacyDESNames => AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
         [Obsolete]
         public override string[] LegacyETANames => LegacyDESNames;
 

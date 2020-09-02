@@ -175,8 +175,7 @@ namespace R1Engine
             // Create the object manager
             var objManager = new Unity_ObjectManager_R1(context, eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), linkTable, usesPointers: false);
 
-            // Convert levelData to common level format
-            var level = new Unity_Level(maps, objManager);
+            var levelEvents = new List<Unity_Object>();
 
             // Handle each event
             foreach (var eventData in events)
@@ -213,7 +212,7 @@ namespace R1Engine
                 ed.SetFollowEnabled(context.Settings, e.FollowEnabled > 0);
 
                 // Add the event
-                level.EventData.Add(new Unity_Object_R1(ed, objManager)
+                levelEvents.Add(new Unity_Object_R1(ed, objManager)
                 {
                     DESIndex = worldData.DESFileNames.FindItemIndex(x => x == eventData.DESFileName),
                     ETAIndex = worldData.ETAFileNames.FindItemIndex(x => x == e.ETAFile)
@@ -221,6 +220,9 @@ namespace R1Engine
 
                 index++;
             }
+
+            // Convert levelData to common level format
+            var level = new Unity_Level(maps, objManager, levelEvents, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData), objManager));
 
             await Controller.WaitIfNecessary();
 

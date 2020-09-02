@@ -220,6 +220,7 @@ namespace R1Engine {
 
         public static bool ScreenshotEnumeration { get; set; }
 
+        public static bool ShowRayman { get; set; } = true;
         public static bool FollowRaymanInMemoryMode { get; set; } = true;
 
         public static bool HideDirSettings { get; set; }
@@ -345,6 +346,7 @@ namespace R1Engine {
             ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
             ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo);
+            ShowRayman = s.SerializeBool("ShowRayman", ShowRayman);
             FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
             HideDirSettings = s.SerializeBool("HideDirSettings", HideDirSettings);
 

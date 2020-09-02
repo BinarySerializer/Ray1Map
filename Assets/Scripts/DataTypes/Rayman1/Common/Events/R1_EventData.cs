@@ -29,15 +29,15 @@ namespace R1Engine
     /// </summary>
     public class R1_EventData : R1Serializable
     {
-        #region Static Properties
+        #region Static Methods
 
         /// <summary>
         /// Gets a new event instance for Rayman
         /// </summary>
-        public static R1_EventData Rayman => new R1_EventData()
+        public static R1_EventData GetRayman(R1_EventData rayPos) => new R1_EventData()
         {
-            XPosition = 100,
-            YPosition = 0,
+            XPosition = rayPos?.XPosition ?? 100,
+            YPosition = rayPos?.YPosition ?? 0,
             Type = R1_EventType.TYPE_RAYMAN,
             OffsetBX = 80,
             OffsetBY = 78,
