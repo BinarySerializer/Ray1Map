@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -49,6 +50,7 @@ namespace R1Engine
             set => EventData.YPosition = value;
         }
 
+        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public bool IsAlwaysEvent { get; set; }
@@ -132,6 +134,7 @@ namespace R1Engine
             return false;
         }
 
+        [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_R2 obj)

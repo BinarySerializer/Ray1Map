@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace R1Engine
@@ -15,6 +16,7 @@ namespace R1Engine
         public bool HasPendingEdits { get; set; }
 
         // TODO: Remove this once we rework the editor
+        [Obsolete]
         public abstract ILegacyEditorWrapper LegacyWrapper { get; }
 
         // Attributes

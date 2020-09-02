@@ -39,6 +39,7 @@ namespace R1Engine
             set => Actor.YPos = (ushort)value;
         }
 
+        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public bool IsAlwaysEvent { get; set; }

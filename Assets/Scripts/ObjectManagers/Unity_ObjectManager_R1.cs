@@ -241,7 +241,7 @@ namespace R1Engine
 
             public T Data { get; }
             public Pointer Pointer { get; }
-            protected string Name { get; }
+            public string Name { get; }
             public int Index { get; }
             public string DisplayName => Name ?? (Pointer != null ? Pointer.ToString() : Index.ToString());
         }

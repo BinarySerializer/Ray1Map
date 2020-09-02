@@ -34,6 +34,12 @@ namespace R1Engine
                       $"CurrentFrame: {(int)e.ObjData.CurrentAnimationFrame}{Environment.NewLine}" +
                       $"Frames: {e.ObjData.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
                       $"{Environment.NewLine}" +
+                      $"IsAlways: {e.ObjData.IsAlways}{Environment.NewLine}" +
+                      $"IsEditor: {e.ObjData.IsEditor}{Environment.NewLine}" +
+                      $"IsActive: {e.ObjData.IsActive}{Environment.NewLine}" +
+                      $"IsDisabled: {e.ObjData.IsDisabled}{Environment.NewLine}" +
+                      $"IsVisible: {e.ObjData.IsVisible}{Environment.NewLine}" +
+                      $"{Environment.NewLine}" +
                       $"LinkID: {e.ObjData.EditorLinkGroup}{Environment.NewLine}"
                     : String.Empty;
             }

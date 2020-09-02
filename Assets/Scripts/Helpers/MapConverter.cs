@@ -8,7 +8,6 @@ namespace R1Engine
     {
         public static async UniTask MapperToRDAsync(GameSettings inputSettings, GameSettings outputSettings)
         {
-            /*
             using (var inputContext = new Context(inputSettings))
             {
                 using (var outputContext = new Context(outputSettings))
@@ -24,10 +23,12 @@ namespace R1Engine
                     // Load the mapper level
                     var inputLev = (await mapperManager.LoadAsync(inputContext, false));
                     var inputMap = inputLev.Maps[0];
+                    var inputObjManager = (Unity_ObjectManager_R1)inputLev.ObjManager;
 
                     // Load the editor manager data for the output level
                     var outData = await rdManager.LoadAsync(outputContext, true);
-                    
+                    var outputObjManager = (Unity_ObjectManager_R1)outData.ObjManager;
+
                     // Load a dummy PC level as a base
                     var outLev = FileFactory.Read<R1_PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
 
@@ -54,34 +55,37 @@ namespace R1Engine
                     //outLev.TileTextureData = null;
 
                     // Get the file tables
-                    var desNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).DESFileNames;
-                    var etaNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).ETAFileNames;
+                    var outputDesNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).DESFileNames;
+                    var outputEtaNames = FileFactory.Read<R1_PC_WorldFile>(rdManager.GetWorldFilePath(outputSettings), outputContext).ETAFileNames;
 
                     // Set event data
                     outLev.EventData.EventCount = (ushort)inputLev.EventData.Count;
-                    outLev.EventData.EventLinkingTable = inputLev.EventData.Select(x => (ushort)x.LinkIndex).ToArray();
-                    outLev.EventData.Events = inputLev.EventData.Select(x =>
+                    outLev.EventData.EventLinkingTable = inputObjManager.LinkTable;
+                    outLev.EventData.Events = inputLev.EventData.Cast<Unity_Object_R1>().Select(x =>
                     {
-                        var e = x.Data;
+                        var e = x.EventData;
+
+                        var newDesIndex = (uint)outputDesNames.FindItemIndex(y => y == inputObjManager.DES[x.DESIndex].Name);
+                        var newEtaIndex = (uint)outputEtaNames.FindItemIndex(y => y == inputObjManager.ETA[x.ETAIndex].Name);
 
                         // Set DES and ETA indexes
-                        e.PC_ImageDescriptorsIndex = (uint)desNames.FindItemIndex(y => y == x.DESKey);
-                        e.PC_ImageBufferIndex = (uint)desNames.FindItemIndex(y => y == x.DESKey);
-                        e.PC_AnimationDescriptorsIndex = (uint)desNames.FindItemIndex(y => y == x.DESKey);
-                        e.PC_ETAIndex = (uint)etaNames.FindItemIndex(y => y == x.ETAKey);
+                        e.PC_ImageDescriptorsIndex = newDesIndex;
+                        e.PC_ImageBufferIndex = newDesIndex;
+                        e.PC_AnimationDescriptorsIndex = newDesIndex;
+                        e.PC_ETAIndex = newEtaIndex;
 
                         // Set image and animation descriptor counts
-                        e.ImageDescriptorCount = (ushort)outData.DES[x.DESKey].Sprites.Count;
-                        e.AnimDescriptorCount = (byte)outData.DES[x.DESKey].Animations.Count;
+                        e.ImageDescriptorCount = (ushort)outputObjManager.DES[x.DESIndex].Data.Sprites.Count;
+                        e.AnimDescriptorCount = (byte)outputObjManager.DES[x.DESIndex].Data.Animations.Count;
 
                         return e;
                     }).ToArray();
 
                     // Set event commands
-                    outLev.EventData.EventCommands = inputLev.EventData.Select(x =>
+                    outLev.EventData.EventCommands = inputLev.EventData.Cast<Unity_Object_R1>().Select(x =>
                     {
                         // Get the commands in the compiled format
-                        var cmds = EventCommandCompiler.Compile(x.CommandCollection, x.CommandCollection.ToBytes(inputSettings));
+                        var cmds = EventCommandCompiler.Compile(x.EventData.Commands, x.EventData.Commands.ToBytes(inputSettings));
 
                         // Remove commands which only contain the invalid command
                         if (cmds.Commands.Commands.Length == 1)
@@ -118,7 +122,7 @@ namespace R1Engine
                     // Write the changes to the file
                     FileFactory.Write<R1_PC_LevFile>(rdManager.GetLevelFilePath(outputSettings), outputContext);
                 }
-            }*/
+            }
         }
     }
 }

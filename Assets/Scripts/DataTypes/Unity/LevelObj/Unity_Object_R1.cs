@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -66,6 +67,7 @@ namespace R1Engine
             set => EventData.YPosition = value;
         }
 
+        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
         public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == R1_EventType.TYPE_DARK2_PINK_FLY);
         public override bool IsEditor => TypeInfo?.Flag == ObjTypeFlag.Editor;
@@ -198,6 +200,7 @@ namespace R1Engine
             CurrentAnimationFrame = 0;
         }
 
+        [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_R1 obj)

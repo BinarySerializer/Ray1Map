@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -11,6 +12,10 @@ namespace R1Engine
             // Set properties
             ObjManager = objManager;
             EventDefinitionPointer = eventDefinitionPointer;
+
+            // Set editor states
+            RuntimeComplexStateIndex = ComplexStateIndex;
+            RuntimeStateIndex = StateIndex;
         }
 
         public Unity_ObjectManager_R1Jaguar ObjManager { get; }
@@ -24,7 +29,9 @@ namespace R1Engine
             set => EventDefinitionPointer = ObjManager.EventDefinitions[value].Pointer;
         }
 
+        public byte RuntimeStateIndex { get; set; }
         public byte StateIndex { get; set; }
+        public byte RuntimeComplexStateIndex { get; set; }
         public byte ComplexStateIndex { get; set; }
 
         public bool ForceNoAnimation { get; set; }
@@ -34,8 +41,9 @@ namespace R1Engine
 
         public Unity_ObjGraphics DES => ObjManager.EventDefinitions[EventDefinitionIndex].DES;
         public Unity_ObjectManager_R1Jaguar.State[][] ETA => ObjManager.EventDefinitions[EventDefinitionIndex].ETA;
-        public Unity_ObjectManager_R1Jaguar.State State => ETA?.ElementAtOrDefault(ComplexStateIndex)?.ElementAtOrDefault(StateIndex);
+        public Unity_ObjectManager_R1Jaguar.State State => ETA?.ElementAtOrDefault(RuntimeComplexStateIndex)?.ElementAtOrDefault(RuntimeStateIndex);
 
+        [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
         public override string DisplayName => ObjManager.EventDefinitions[EventDefinitionIndex].DisplayName;
         public override Unity_ObjAnimation CurrentAnimation => DES.Animations.ElementAtOrDefault(CurrentAnimIndex);
@@ -69,7 +77,30 @@ namespace R1Engine
 
                 // Loop back to first frame
                 if (CurrentAnimationFrame >= CurrentAnimation.Frames.Length)
+                {
                     CurrentAnimationFrame = 0;
+                    CurrentAnimationFrameFloat = 0;
+
+                    if (Settings.StateSwitchingMode != StateSwitchingMode.None)
+                    {
+                        // Get the current state
+                        var state = State;
+
+                        // Check if we've reached the end of the linking chain and we're looping
+                        if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && RuntimeComplexStateIndex == state.LinkedComplexStateIndex && RuntimeStateIndex == state.LinkedStateIndex)
+                        {
+                            // Reset the state
+                            RuntimeComplexStateIndex = ComplexStateIndex;
+                            RuntimeStateIndex = StateIndex;
+                        }
+                        else
+                        {
+                            // Update state values to the linked one
+                            RuntimeComplexStateIndex = state.LinkedComplexStateIndex;
+                            RuntimeStateIndex = state.LinkedStateIndex;
+                        }
+                    }
+                }
             }
         }
 
@@ -91,6 +122,7 @@ namespace R1Engine
             return false;
         }
 
+        [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_R1Jaguar obj)
@@ -113,17 +145,17 @@ namespace R1Engine
             public byte Etat
             {
                 get => Obj.ComplexStateIndex;
-                set => Obj.ComplexStateIndex = value;
+                set => Obj.ComplexStateIndex = Obj.RuntimeComplexStateIndex = value;
             }
 
             public byte SubEtat
             {
                 get => Obj.StateIndex;
-                set => Obj.StateIndex = value;
+                set => Obj.StateIndex = Obj.RuntimeStateIndex = value;
             }
 
             public int EtatLength => Obj.ObjManager.EventDefinitions.ElementAtOrDefault(Obj.EventDefinitionIndex)?.ETA.Length ?? 0;
-            public int SubEtatLength => Obj.ObjManager.EventDefinitions.ElementAtOrDefault(Obj.EventDefinitionIndex)?.ETA.ElementAtOrDefault(Obj.ComplexStateIndex)?.Length ?? 0;
+            public int SubEtatLength => Obj.ObjManager.EventDefinitions.ElementAtOrDefault(Obj.EventDefinitionIndex)?.ETA.ElementAtOrDefault(Obj.RuntimeComplexStateIndex)?.Length ?? 0;
 
             public byte OffsetBX { get; set; }
 

@@ -1066,7 +1066,9 @@ namespace R1Engine
             // Add the event
             return new Unity_Object_R1Jaguar(objManager, eventDefinitionPointer)
             {
+                RuntimeComplexStateIndex = (byte)stateIndex,
                 ComplexStateIndex = (byte)stateIndex,
+                RuntimeStateIndex = (byte)substateIndex,
                 StateIndex = (byte)substateIndex,
                 ForceNoAnimation = forceNoAnimation.Contains(ed.Offset.FileOffset) ||
                                    forceFrame1.Contains(ed.Offset.FileOffset) ||
@@ -1314,28 +1316,28 @@ namespace R1Engine
                         if (ed.Offset == specialPointers[SpecialEventType.RayPos]) // Rayman position
                         {
                             eventData.EventDefinitionIndex = rayPos.EventDefinitionIndex;
-                            eventData.StateIndex = 7;
+                            eventData.StateIndex = eventData.RuntimeStateIndex = 7;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.Gendoor]) // Gendoor
                         {
                             eventData.EventDefinitionIndex = gendoor.EventDefinitionIndex;
-                            eventData.StateIndex = 2;
+                            eventData.StateIndex = eventData.RuntimeStateIndex = 2;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.Piranha] || ed.Offset == specialPointers[SpecialEventType.Piranha2]) // Piranha
                         {
                             eventData.EventDefinitionIndex = piranha.EventDefinitionIndex;
 
                             if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Demo)
-                                eventData.ComplexStateIndex = 1;
+                                eventData.ComplexStateIndex = eventData.RuntimeComplexStateIndex = 1;
                         }
                         else if ((ed.Offset == specialPointers[SpecialEventType.ScrollFast] || ed.Offset == specialPointers[SpecialEventType.ScrollSlow]) && !Settings.ScreenshotEnumeration) // Scroll fast/slow
                         {
                             eventData.EventDefinitionIndex = scroll.EventDefinitionIndex;
 
                             if (context.Settings.EngineVersion == EngineVersion.R1Jaguar_Demo)
-                                eventData.ComplexStateIndex = 6;
+                                eventData.ComplexStateIndex = eventData.RuntimeComplexStateIndex = 6;
                             else
-                                eventData.ComplexStateIndex = 2;
+                                eventData.ComplexStateIndex = eventData.RuntimeComplexStateIndex = 2;
                         }
                         else if (ed.Offset == specialPointers[SpecialEventType.RayOnBzzit] && context.Settings.R1_World == R1_World.Jungle && context.Settings.Level == 7) // Rayman on Bzzit
                         {
@@ -1348,7 +1350,7 @@ namespace R1Engine
                             {
                                 eventData.EventDefinitionIndex = bzzitDemo.EventDefinitionIndex;
 
-                                eventData.StateIndex = 0;
+                                eventData.StateIndex = eventData.RuntimeStateIndex = 0;
                             }
                         }
                     }
@@ -1380,7 +1382,7 @@ namespace R1Engine
                     //uniqueEvents[e.EventIndex] = eventData;
                     eventData.XPosition = (short)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_x).DataValue;
                     eventData.YPosition = (short)rom.GetProtoDataReference(R1Jaguar_Proto_References.ray_center_y).DataValue;
-                    eventData.StateIndex = 7;
+                    eventData.StateIndex = eventData.RuntimeStateIndex = 7;
                     rayman = eventData;
                 }
                 /*foreach (var ed in eventDefs) {// Add the event
