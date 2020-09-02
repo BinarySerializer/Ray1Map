@@ -242,8 +242,11 @@ namespace R1Engine
                 eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, bg.Offset));
             }
 
+            // Load Rayman
+            var rayman = GetRaymanEvent(context);
+
             // Load graphics
-            foreach (R1_EventData e in events ?? (events = new R1_EventData[0]))
+            foreach (R1_EventData e in events?.Append(rayman).Where(x => x != null) ?? (events = new R1_EventData[0]))
             {
                 // Add if not found
                 if (e.ImageDescriptorsPointer != null && eventDesigns.All(x => x.Pointer != e.ImageDescriptorsPointer))
@@ -300,14 +303,19 @@ namespace R1Engine
                 }
             };
 
+            // Initialize Rayman
+            rayman?.InitRayman(events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS));
+
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(maps, objManager, eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), localization: LoadLocalization(context));
+            Unity_Level level = new Unity_Level(maps, objManager, eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), rayman: rayman != null ? new Unity_Object_R1(rayman, objManager) : null, localization: LoadLocalization(context));
 
             await Controller.WaitIfNecessary();
 
             // Return the level
             return level;
         }
+
+        public virtual R1_EventData GetRaymanEvent(Context context) => null;
 
         /// <summary>
         /// Loads the specified level for the editor

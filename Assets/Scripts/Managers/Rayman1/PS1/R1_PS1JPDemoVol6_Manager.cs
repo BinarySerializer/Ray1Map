@@ -237,5 +237,7 @@ namespace R1Engine
                 }, null);
             }
         }
+
+        public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context).RaymanEvent;
     }
 }

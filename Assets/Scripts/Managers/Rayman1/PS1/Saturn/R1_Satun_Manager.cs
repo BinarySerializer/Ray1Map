@@ -672,5 +672,7 @@ namespace R1Engine
                 }
             }
         }
+
+        public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1_AllfixBlock>(GetAllfixFilePath(), context, onPreSerialize: (s, o) => o.Length = s.CurrentLength).MenuEvents[0];
     }
 }

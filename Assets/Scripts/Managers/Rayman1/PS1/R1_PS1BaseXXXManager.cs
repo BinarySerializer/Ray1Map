@@ -295,5 +295,7 @@ namespace R1Engine
                 }
             }
         }
+
+        public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context).AllfixData.MenuEvents[0];
     }
 }

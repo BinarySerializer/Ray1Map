@@ -34,32 +34,7 @@ namespace R1Engine
         /// <summary>
         /// Gets a new event instance for Rayman
         /// </summary>
-        public static R1_EventData GetRayman(R1_EventData rayPos) => new R1_EventData()
-        {
-            XPosition = rayPos?.XPosition ?? 100,
-            YPosition = rayPos?.YPosition ?? 0,
-            Type = R1_EventType.TYPE_RAYMAN,
-            OffsetBX = 80,
-            OffsetBY = 78,
-            SubEtat = 19,
-            Etat = 0,
-            OffsetHY = 20,
-            FollowSprite = 0,
-            HitPoints = 0,
-            Layer = 7,
-            HitSprite = 0,
-
-            PC_ImageDescriptorsIndex = 1,
-            PC_AnimationDescriptorsIndex = 1,
-            PC_ImageBufferIndex = 1,
-            PC_ETAIndex = 0,
-
-            Commands = new R1_EventCommandCollection()
-            {
-                Commands = new R1_EventCommand[0]
-            },
-            LabelOffsets = new ushort[0]
-        };
+        public static R1_EventData GetRayman(R1_EventData rayPos) => new R1_EventData().InitRayman(rayPos);
 
         #endregion
 
@@ -594,6 +569,35 @@ namespace R1Engine
                 if (ETA?.EventStates?.ElementAtOrDefault(Etat)?.ElementAtOrDefault(SubEtat) == null)
                     Debug.LogWarning($"Matching event state not found for event {Type} at {XPosition}x{YPosition} with E{Etat},SE{SubEtat} for {s.GameSettings.GameModeSelection} in {s.GameSettings.World}{s.GameSettings.Level}");
             }
+        }
+
+        public R1_EventData InitRayman(R1_EventData rayPos)
+        {
+            XPosition = rayPos?.XPosition ?? 100;
+            YPosition = rayPos?.YPosition ?? 0;
+            Type = R1_EventType.TYPE_RAYMAN;
+            OffsetBX = 80;
+            OffsetBY = 78;
+            SubEtat = 19;
+            Etat = 0;
+            OffsetHY = 20;
+            FollowSprite = 0;
+            HitPoints = 0;
+            Layer = 7;
+            HitSprite = 0;
+
+            PC_ImageDescriptorsIndex = 1;
+            PC_AnimationDescriptorsIndex = 1;
+            PC_ImageBufferIndex = 1;
+            PC_ETAIndex = 0;
+
+            Commands = new R1_EventCommandCollection()
+            {
+                Commands = new R1_EventCommand[0]
+            };
+            LabelOffsets = new ushort[0];
+
+            return this;
         }
 
         /// <summary>
