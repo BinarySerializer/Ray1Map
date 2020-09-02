@@ -1,4 +1,5 @@
 ﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -46,6 +47,7 @@ namespace R1Engine
             }
         }
 
+        [Obsolete]
         public override string[] LegacyDESNames => EventDefinitions.Select(x => x.DisplayName).ToArray();
 
         public class State
