@@ -3,6 +3,7 @@ using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -201,6 +202,60 @@ namespace R1Engine
                     loadingScreen.LoadingtextColor = Color.white;
                 }
             }
+        }
+
+        public void OutputJSONForWeb(string outputDir)
+        {
+            foreach (var mode in EnumHelpers.GetValues<GameModeSelection>().Where(x => Settings.GameDirectories.ContainsKey(x) && Directory.Exists(Settings.GameDirectories[x])))
+            {
+                var s = new GameSettings(mode, Settings.GameDirectories[mode], 0, 0);
+                var m = (IGameManager)Activator.CreateInstance(mode.GetAttribute<GameModeAttribute>().ManagerType);
+
+                foreach (var vol in m.GetLevels(s))
+                {
+                    s.EduVolume = vol.Name;
+                    OutputJSONForWeb(Path.Combine(outputDir, $"{mode}{vol.Name}.json"), s);
+                }
+            }
+        }
+
+        public void OutputJSONForWeb(string outputPath, GameSettings s)
+        {
+            var manager = s.GetGameManager;
+            var attr = s.GameModeSelection.GetAttribute<GameModeAttribute>();
+            var settings = s;
+            var worlds = manager.GetLevels(settings).First(x => x.Name == null || x.Name == s.EduVolume).Worlds.ToArray();
+            var names = MapNames.GetMapNames(attr.Game);
+
+            var lvlWorldIndex = 0;
+
+            var jsonObj = new
+            {
+                name = attr.DisplayName,
+                mode = s.GameModeSelection.ToString(),
+                folder = (string)null,
+                icons = worlds.Select(x =>
+                {
+                    var icon = new
+                    {
+                        image = @".\/img\/icon\/",
+                        level = lvlWorldIndex
+                    };
+
+                    lvlWorldIndex += x.Maps.Length;
+
+                    return icon;
+                }),
+                levels = worlds.Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
+                {
+                    world = w.Index,
+                    level = lvl,
+                    nameInternal = (string)null,
+                    name = names?.TryGetItem(w.Index)?.TryGetItem(lvl)
+                }))
+            };
+
+            JsonHelpers.SerializeToFile(jsonObj, outputPath);
         }
 	}
 }
