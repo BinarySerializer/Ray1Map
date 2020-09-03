@@ -2,6 +2,7 @@
     "name": "Scripts",
     "references": [
         "GUID:fe29d24fee604ed4b84d1425496ebf9c",
+        "GUID:c55d28459d9c4444ebb4788be912e1f1",
         "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [],

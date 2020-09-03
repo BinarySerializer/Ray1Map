@@ -25,7 +25,7 @@ namespace R1Engine
 
         public IEnumerable<Unity_ObjBehaviour> GetAllEvents => RaymanEvent != null ? Events.Append(RaymanEvent) : Events;
 
-        public Editor editor => controllerEvents.editor;
+        public LevelEditorBehaviour editor => controllerEvents.editor;
 
         // The context, to reuse when writing
         private Context serializeContext;

@@ -23,7 +23,7 @@ namespace R1Engine
         public GameObject prefabEvent;
         public GameObject prefabCommandLine;
 
-        public Editor editor;
+        public LevelEditorBehaviour editor;
 
         public Vector2 selectedPosition;
         public LineRenderer selectedLineRend;
@@ -209,7 +209,7 @@ namespace R1Engine
         public void ChangeEventsVisibility(object o, EventArgs e) {
             if (LevelEditorData.Level != null) {
                 foreach (var eve in Controller.obj.levelController.GetAllEvents) {
-                    if (editor.currentMode == Editor.EditMode.Links)
+                    if (editor.currentMode == LevelEditorBehaviour.EditMode.Links)
                         eve.ChangeLinksVisibility(true);
                 }
             }
@@ -356,8 +356,8 @@ namespace R1Engine
             }
             if (makingChanges) return;
             // Only do this if in event/link mode
-            bool modeEvents = editor.currentMode == Editor.EditMode.Events;
-            bool modeLinks = editor.currentMode == Editor.EditMode.Links;
+            bool modeEvents = editor.currentMode == LevelEditorBehaviour.EditMode.Events;
+            bool modeLinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links;
 
             if ( modeEvents || modeLinks ) 
             {

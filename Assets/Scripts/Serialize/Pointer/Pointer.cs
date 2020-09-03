@@ -1,4 +1,5 @@
-﻿using R1Engine.Serialize;
+﻿using Newtonsoft.Json;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text;
 
 namespace R1Engine {
+    [JsonConverter(typeof(PointerJsonConverter))]
     public class Pointer : IEquatable<Pointer>, IComparable<Pointer> {
         public uint AbsoluteOffset { get; }
         public Context Context { get; }

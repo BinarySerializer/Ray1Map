@@ -8,7 +8,7 @@ using static UnityEngine.Input;
 
 namespace R1Engine
 {
-    public class Editor : MonoBehaviour {
+    public class LevelEditorBehaviour : MonoBehaviour {
         //Settings
         public int autoScrollMargin = 60;
         public float autoScrollSpeed = 5;

@@ -17,7 +17,7 @@ namespace R1Engine
         public SpriteRenderer tilemapFull;
         public SpriteRenderer tilemapPreview;
         public bool focusedOnTemplate = false;
-        public Editor editor;
+        public LevelEditorBehaviour editor;
 
         public Grid grid;
 

@@ -13,14 +13,14 @@ namespace R1Engine {
         [HideInInspector] public Vector3 pos;
         [HideInInspector] public Vector3 vel;
         Vector3 mousePosPrev;
-        Editor editor;
+        LevelEditorBehaviour editor;
 
         public LevelTilemapController levelTilemapController;
 
         void Start() {
             Camera.main.orthographicSize = fov;
             fricStart = friction;
-            editor = FindObjectOfType<Editor>();
+            editor = FindObjectOfType<LevelEditorBehaviour>();
         }
 
         void Update() {

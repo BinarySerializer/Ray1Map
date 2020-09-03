@@ -40,7 +40,7 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.test-framework": "1.1.3"
+        "com.unity.test-framework": "1.1.1"
       },
       "url": "https://packages.unity.com"
     },
@@ -85,6 +85,20 @@
       "dependencies": {
         "com.unity.modules.ui": "1.0.0"
       }
+    },
+    "jillejr.newtonsoft.json-for-unity": {
+      "version": "12.0.301",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://npm.cloudsmith.io/jillejr/newtonsoft-json-for-unity"
+    },
+    "jillejr.newtonsoft.json-for-unity.converters": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://npm.cloudsmith.io/jillejr/newtonsoft-json-for-unity"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
