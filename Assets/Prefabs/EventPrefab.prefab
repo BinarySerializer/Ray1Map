@@ -385,7 +385,6 @@ MonoBehaviour:
   linkCubeLockPosition: {x: 0, y: 0}
   offsetOrigin: {fileID: 7845656510151612301}
   offsetCrossBX: {fileID: 3102864165816558869}
-  offsetCrossBY: {fileID: 0}
   offsetCrossHY: {fileID: 547317133392056369}
   followSpriteLine: {fileID: 1461871569743029422}
   midpoint: {x: 0, y: 0}
@@ -634,7 +633,7 @@ SpriteRenderer:
   m_SortingLayer: 8
   m_SortingOrder: 255
   m_Sprite: {fileID: 21300000, guid: b155734aa39e54146a3a26e639070f74, type: 3}
-  m_Color: {r: 1, g: 0.8509804, b: 0, a: 0.6862745}
+  m_Color: {r: 0.83137256, g: 0.17647056, b: 0.65584874, a: 0.6862745}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
