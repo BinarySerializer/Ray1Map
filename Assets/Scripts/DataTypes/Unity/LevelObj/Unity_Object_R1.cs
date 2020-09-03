@@ -15,15 +15,13 @@ namespace R1Engine
             TypeInfo = EventData.Type.GetAttribute<ObjTypeInfoAttribute>();
 
             // Set editor states
-            if (!Settings.LoadFromMemory) {
-                EventData.RuntimeEtat = EventData.Etat;
-                EventData.RuntimeSubEtat = EventData.SubEtat;
-                EventData.RuntimeLayer = EventData.Layer;
-                EventData.RuntimeXPosition = (ushort)EventData.XPosition;
-                EventData.RuntimeYPosition = (ushort)EventData.YPosition;
-                EventData.RuntimeCurrentAnimIndex = 0;
-                EventData.RuntimeHitPoints = EventData.HitPoints;
-            }
+            EventData.RuntimeEtat = EventData.Etat;
+            EventData.RuntimeSubEtat = EventData.SubEtat;
+            EventData.RuntimeLayer = EventData.Layer;
+            EventData.RuntimeXPosition = (ushort)EventData.XPosition;
+            EventData.RuntimeYPosition = (ushort)EventData.YPosition;
+            EventData.RuntimeCurrentAnimIndex = 0;
+            EventData.RuntimeHitPoints = EventData.HitPoints;
         }
 
         public R1_EventData EventData { get; }
