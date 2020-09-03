@@ -13,7 +13,8 @@ namespace R1Engine
 
         public Unity_Object ObjData { get; set; }
         public float UpdateTimer { get; set; }
-        public bool DisplayOffsets { get; set; }
+        public bool IsSelected { get; set; }
+        public bool ShowOffsets => IsSelected || Settings.ShowObjOffsets;
 
         public int Index { get; set; }
 
@@ -45,7 +46,6 @@ namespace R1Engine
         // Reference to offset crosses
         public Transform offsetOrigin;
         public Transform offsetCrossBX;
-        public Transform offsetCrossBY;
         public Transform offsetCrossHY;
         public Transform followSpriteLine;
         // Part parent
@@ -291,9 +291,16 @@ namespace R1Engine
             {
                 var pivot = ObjData.Pivot;
 
-                offsetCrossBX.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, 0f);
-                offsetCrossBY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, -(pivot.y / LevelEditorData.Level.PixelsPerUnit));
-                offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, -((pivot.y / LevelEditorData.Level.PixelsPerUnit) + ((ObjData.CurrentAnimation?.Frames?.ElementAtOrDefault(0)?.FrameData?.YPosition ?? 1) / (float)LevelEditorData.Level.PixelsPerUnit)));
+                offsetCrossBX.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, (pivot.y / LevelEditorData.Level.PixelsPerUnit));
+
+                if (ObjData is Unity_Object_R1 r1bj)
+                {
+                    var hy = r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings)
+                        ? -anim.Frames[r1bj.EventData.RuntimeCurrentAnimFrame].Layers[r1bj.EventData.FollowSprite].YPosition - (r1bj.EventData.OffsetHY) 
+                        : -(r1bj.EventData.OffsetHY);
+
+                    offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy  / (float)LevelEditorData.Level.PixelsPerUnit);
+                }
             }
 
             // Update visibility
@@ -307,12 +314,11 @@ namespace R1Engine
             lineRend.SetPosition(1, linkCube.position);
 
             // Change the offsets visibility
-            offsetOrigin.gameObject.SetActive(DisplayOffsets);
-            offsetCrossBX.gameObject.SetActive(DisplayOffsets);
-            offsetCrossBY.gameObject.SetActive(DisplayOffsets);
-            offsetCrossHY.gameObject.SetActive(DisplayOffsets);
-            followSpriteLine.gameObject.SetActive(DisplayOffsets);
-            followSpriteLine.gameObject.SetActive(DisplayOffsets && ObjData is Unity_Object_R1 r1o && r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings));
+            offsetOrigin.gameObject.SetActive(ShowOffsets);
+            offsetCrossBX.gameObject.SetActive(ShowOffsets && offsetCrossBX.transform.position != Vector3.zero);
+            offsetCrossHY.gameObject.SetActive(ShowOffsets && ObjData is Unity_Object_R1 && offsetCrossHY.transform.position != Vector3.zero);
+            followSpriteLine.gameObject.SetActive(ShowOffsets);
+            followSpriteLine.gameObject.SetActive(ShowOffsets && ObjData is Unity_Object_R1 r1o && r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings));
         }
 
         public void ChangeLinksVisibility(bool visible) {

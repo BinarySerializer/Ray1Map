@@ -121,6 +121,7 @@ public class WebCommunicator : MonoBehaviour {
 			ShowEditorEvents = Settings.ShowEditorEvents,
 			ShowDebugInfo = Settings.ShowDebugInfo,
             ShowDefaultObjIcons = Settings.ShowDefaultObjIcons,
+            ShowObjOffsets = Settings.ShowObjOffsets,
 			ShowRayman = Settings.ShowRayman,
 			StateSwitchingMode = Settings.StateSwitchingMode
 		};
@@ -141,6 +142,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.AnimateTiles.HasValue) Settings.AnimateTiles = msg.AnimateTiles.Value;
 		if (msg.ShowAlwaysEvents.HasValue) Settings.ShowAlwaysEvents = msg.ShowAlwaysEvents.Value;
 		if (msg.ShowEditorEvents.HasValue) Settings.ShowEditorEvents = msg.ShowEditorEvents.Value;
+		if (msg.ShowObjOffsets.HasValue) Settings.ShowObjOffsets = msg.ShowObjOffsets.Value;
 		if (msg.ShowDefaultObjIcons.HasValue) Settings.ShowDefaultObjIcons = msg.ShowDefaultObjIcons.Value;
 		if (msg.ShowRayman.HasValue) Settings.ShowRayman = msg.ShowRayman.Value;
 		if (msg.ShowDebugInfo.HasValue) Settings.ShowDebugInfo = msg.ShowDebugInfo.Value;

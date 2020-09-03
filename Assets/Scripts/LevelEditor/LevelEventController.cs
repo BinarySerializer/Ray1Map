@@ -385,7 +385,7 @@ namespace R1Engine
                     if (e != null) 
                     {
                         if (SelectedEvent != null)
-                            SelectedEvent.DisplayOffsets = false;
+                            SelectedEvent.IsSelected = false;
 
                         if (e != SelectedEvent) 
                         {
@@ -416,7 +416,7 @@ namespace R1Engine
 
                         // Update offset visibility
                         if (SelectedEvent != null)
-                            SelectedEvent.DisplayOffsets = true;
+                            SelectedEvent.IsSelected = true;
 
                         // Change the link
                         if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanEvent && SelectedEvent != null) 
@@ -428,7 +428,7 @@ namespace R1Engine
                     else 
                     {
                         if (SelectedEvent != null)
-                            SelectedEvent.DisplayOffsets = false;
+                            SelectedEvent.IsSelected = false;
 
                         selectedLineRend.enabled = false;
                         SelectedEvent = null;
@@ -511,7 +511,7 @@ namespace R1Engine
                 if (Input.GetKeyDown(KeyCode.Delete) && modeEvents && SelectedEvent != null)
                 {
                     if (SelectedEvent != null)
-                        SelectedEvent.DisplayOffsets = false;
+                        SelectedEvent.IsSelected = false;
 
                     SelectedEvent.Delete();
                     SelectedEvent = null;

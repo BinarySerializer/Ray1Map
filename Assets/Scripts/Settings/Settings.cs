@@ -222,6 +222,7 @@ namespace R1Engine {
 
         public static bool ShowRayman { get; set; } = true;
         public static bool ShowDefaultObjIcons { get; set; } = true;
+        public static bool ShowObjOffsets { get; set; }
         public static bool FollowRaymanInMemoryMode { get; set; } = true;
 
         public static bool HideDirSettings { get; set; }
@@ -348,6 +349,7 @@ namespace R1Engine {
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
             ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo);
             ShowDefaultObjIcons = s.SerializeBool("ShowDefaultObjIcons", ShowDefaultObjIcons);
+            ShowObjOffsets = s.SerializeBool("ShowObjOffsets", ShowObjOffsets);
             ShowRayman = s.SerializeBool("ShowRayman", ShowRayman);
             FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
             HideDirSettings = s.SerializeBool("HideDirSettings", HideDirSettings);

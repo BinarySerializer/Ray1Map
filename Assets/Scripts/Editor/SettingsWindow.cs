@@ -196,6 +196,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowDefaultObjIcons = EditorField("Show default object icons", Settings.ShowDefaultObjIcons);
 
+        Settings.ShowObjOffsets = EditorField("Show object offsets", Settings.ShowObjOffsets);
+
         Settings.ShowRayman = EditorField("Show Rayman", Settings.ShowRayman);
 
         Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
