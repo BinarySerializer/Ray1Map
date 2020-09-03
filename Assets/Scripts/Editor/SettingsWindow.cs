@@ -124,6 +124,12 @@ public class SettingsWindow : UnityWindow
             rectTemp = new Rect(rbutton.x + rbutton.width - Mathf.Max(400f, rbutton.width), rbutton.y, Mathf.Max(400f, rbutton.width), rbutton.height);
 
             if (MapSelectionDropdown == null || GameModeDropdown.HasChanged) {
+                if (GameModeDropdown.HasChanged) {
+                    Settings.SelectedGameMode = GameModeDropdown.Selection;
+                    GameModeDropdown.HasChanged = false;
+                    Dirty = true;
+                }
+
                 GameInfo_Volume[] volumes;
 
                 try {
