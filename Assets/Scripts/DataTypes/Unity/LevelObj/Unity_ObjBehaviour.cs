@@ -14,7 +14,7 @@ namespace R1Engine
         public Unity_Object ObjData { get; set; }
         public float UpdateTimer { get; set; }
         public bool IsSelected { get; set; }
-        public bool ShowOffsets => IsSelected || Settings.ShowObjOffsets;
+        public bool ShowOffsets => (IsSelected || Settings.ShowObjOffsets) && IsVisible;
 
         public int Index { get; set; }
 
