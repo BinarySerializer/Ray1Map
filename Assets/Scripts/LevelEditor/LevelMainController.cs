@@ -235,13 +235,13 @@ namespace R1Engine
                 // Helper method
                 bool showLinksForObj(Unity_ObjBehaviour ee)
                 {
-                    if (ee.ObjData is Unity_Object_R1 r1Obj)
-                        return (r1Obj.EventData.Type == R1_EventType.TYPE_GENERATING_DOOR ||
-                                r1Obj.EventData.Type == R1_EventType.TYPE_DESTROYING_DOOR ||
-                                r1Obj.EventData.Type == R1_EventType.MS_scintillement ||
-                                r1Obj.EventData.Type == R1_EventType.MS_super_gendoor ||
-                                r1Obj.EventData.Type == R1_EventType.MS_super_kildoor ||
-                                r1Obj.EventData.Type == R1_EventType.MS_compteur);
+                    if (ee.ObjData is Unity_Object_R1 r1Object)
+                        return (r1Object.EventData.Type == R1_EventType.TYPE_GENERATING_DOOR ||
+                                r1Object.EventData.Type == R1_EventType.TYPE_DESTROYING_DOOR ||
+                                r1Object.EventData.Type == R1_EventType.MS_scintillement ||
+                                r1Object.EventData.Type == R1_EventType.MS_super_gendoor ||
+                                r1Object.EventData.Type == R1_EventType.MS_super_kildoor ||
+                                r1Object.EventData.Type == R1_EventType.MS_compteur);
 
                     return ee.ObjData.EditorLinkGroup != 0;
                 }
