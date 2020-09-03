@@ -9,16 +9,19 @@
         public Pointer RaymanBehaviorPointer { get; set; }
         public Pointer RaymanAnimGroupPointer { get; set; }
 
+        // Gets copied to 0x80145a18
         public uint Unk1 { get; set; }
+        // Gets copied to 0x80145980
         public uint Unk2 { get; set; }
+        // Gets copied to 0x80145aa0
         public uint Unk3 { get; set; }
-
+        // Gets copied to 0x8017af60
         public Pointer UnkPointer3 { get; set; }
 
         public byte[] Unk4 { get; set; }
 
 
-        public R1_R2EventCollision CollisionData { get; set; }
+        public R1_R2EventCollision RaymanCollisionData { get; set; }
         public R1_R2EventAnimGroup RaymanAnimGroup { get; set; }
 
 
@@ -45,7 +48,7 @@
             s.DoAt(RaymanAnimGroupPointer, () => RaymanAnimGroup = s.SerializeObject<R1_R2EventAnimGroup>(RaymanAnimGroup, name: nameof(RaymanAnimGroup)));
 
             // Serialize collision data
-            s.DoAt(RaymanCollisionDataPointer, () => CollisionData = s.SerializeObject<R1_R2EventCollision>(CollisionData, name: nameof(CollisionData)));
+            s.DoAt(RaymanCollisionDataPointer, () => RaymanCollisionData = s.SerializeObject<R1_R2EventCollision>(RaymanCollisionData, name: nameof(RaymanCollisionData)));
         }
     }
 }
