@@ -107,12 +107,13 @@ namespace R1Engine
                     for (int i = 0; i < len; i++)
                     {
                         // Instantiate prefab
-                        SpriteRenderer newRenderer = Instantiate(prefabSpritepart, new Vector3(0, 0, len - i), Quaternion.identity, transform).GetComponent<SpriteRenderer>();
+                        SpriteRenderer newRenderer = Instantiate(prefabSpritepart, transform).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = ObjData.Layer;
 
-                        // Set as child of events gameobject
-                        newRenderer.gameObject.transform.parent = transform;
-                        newRenderer.gameObject.transform.localScale = Vector3.one * ObjData.Scale;
+                        newRenderer.transform.localPosition = new Vector3(0, 0, len - i);
+                        newRenderer.transform.localRotation = Quaternion.identity;
+                        newRenderer.transform.localScale = Vector3.one * ObjData.Scale;
+
                         // Add to list
                         prefabRenderers[i] = newRenderer;
                     }
