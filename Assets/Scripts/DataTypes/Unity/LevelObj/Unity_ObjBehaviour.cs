@@ -15,6 +15,11 @@ namespace R1Engine
         public float UpdateTimer { get; set; }
         public bool DisplayOffsets { get; set; }
 
+        public int Index { get; set; }
+
+        public bool IsVisible => ObjData.IsVisible && (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
+        public int Layer => (ObjData.GetLayer(Index) ?? Index) * 256;
+
         #endregion
 
         #region Event Methods
@@ -53,6 +58,10 @@ namespace R1Engine
 
         private void Start() 
         {
+            Index = LevelEditorData.Level.EventData.IndexOf(ObjData);
+            transform.position = new Vector3(ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit), Layer);
+            transform.rotation = Quaternion.identity;
+
             RefreshEditorInfo();
 
             // Snap link cube position
@@ -79,18 +88,17 @@ namespace R1Engine
 
             UpdateTimer = 0.0f;
 
+            defautRenderer.enabled = true;
+
             if (ObjData.ShouldUpdateAnimation())
             {
                 // If animation is null, use default renderer ("E")
                 if (ObjData.CurrentAnimation == null)
                 {
-                    defautRenderer.enabled = true;
                     ClearChildren();
                 }
                 else
                 {
-                    defautRenderer.enabled = false;
-
                     // Reset the current frame
                     ObjData.ResetFrame();
 
@@ -108,7 +116,7 @@ namespace R1Engine
                     {
                         // Instantiate prefab
                         SpriteRenderer newRenderer = Instantiate(prefabSpritepart, transform).GetComponent<SpriteRenderer>();
-                        newRenderer.sortingOrder = ObjData.Layer;
+                        newRenderer.sortingOrder = Layer + i;
 
                         newRenderer.transform.localPosition = new Vector3(0, 0, len - i);
                         newRenderer.transform.localRotation = Quaternion.identity;
@@ -122,6 +130,8 @@ namespace R1Engine
 
             // Get the current animation
             var anim = ObjData.CurrentAnimation;
+
+            defautRenderer.enabled = Settings.ShowDefaultObjIcons && anim == null;
 
             // Update x and y
             transform.position = new Vector3(ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit), 0);
@@ -213,7 +223,7 @@ namespace R1Engine
                     }
 
                     // Get visibility
-                    prefabRenderers[i].enabled = ObjData.IsVisible;
+                    prefabRenderers[i].enabled = IsVisible;
                     prefabRenderers[i].color = ObjData.IsDisabled ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
                 for(int i = anim.Frames[frame].Layers.Length; i < prefabRenderers.Length; i++) {
@@ -274,7 +284,7 @@ namespace R1Engine
             }
 
             // Update visibility
-            boxCollider.enabled = ObjData.IsVisible;
+            boxCollider.enabled = IsVisible;
 
             // Set new midpoint
             midpoint = new Vector3(transform.position.x + boxCollider.offset.x, transform.position.y + boxCollider.offset.y, 0);
@@ -293,7 +303,7 @@ namespace R1Engine
         }
 
         public void ChangeLinksVisibility(bool visible) {
-            if (visible && ObjData.IsVisible) {
+            if (visible && IsVisible) {
 
                 //Change link colors
                 if (ObjData.EditorLinkGroup == 0) {

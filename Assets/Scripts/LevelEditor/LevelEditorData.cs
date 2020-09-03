@@ -19,6 +19,7 @@ namespace R1Engine
 
         public static int CurrentMap { get; set; }
         public static int CurrentCollisionMap { get; set; }
+        public static bool[] ShowEventsForMaps { get; set; }
 
         public static async UniTask Init()
         {

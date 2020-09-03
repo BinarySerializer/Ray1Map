@@ -194,6 +194,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowEditorEvents = EditorField("Show editor events", Settings.ShowEditorEvents);
 
+        Settings.ShowDefaultObjIcons = EditorField("Show default object icons", Settings.ShowDefaultObjIcons);
+
         Settings.ShowRayman = EditorField("Show Rayman", Settings.ShowRayman);
 
         Settings.ShowDebugInfo = EditorField("Show debug info", Settings.ShowDebugInfo);
@@ -241,15 +243,18 @@ public class SettingsWindow : UnityWindow
                     }
                 }
 
+                if (LevelEditorData.ShowEventsForMaps != null)
+                    for (int i = 0; i < LevelEditorData.ShowEventsForMaps.Length; i++)
+                        LevelEditorData.ShowEventsForMaps[i] = EditorField($"Show objects for layer {i}", LevelEditorData.ShowEventsForMaps[i]);
+
                 if (PalOptions == null)
                     PalOptions = new string[]
                     {
                         "Auto"
                     }.Concat(Enumerable.Range(0, LevelEditorData.Level.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString())).ToArray();
 
-                if (Controller.obj?.levelController?.controllerTilemap != null) {
+                if (Controller.obj?.levelController?.controllerTilemap != null)
                     Controller.obj.levelController.controllerTilemap.currentPalette = EditorField("Palette", Controller.obj.levelController.controllerTilemap.currentPalette, PalOptions);
-                }
             }
         }
         else

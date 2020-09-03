@@ -31,7 +31,7 @@ namespace R1Engine
                 // Set debug text
                 Controller.obj.tempDebugText.text = Settings.ShowDebugInfo 
                     ? $"{e.ObjData.DebugText}{Environment.NewLine}" +
-                      $"CurrentFrame: {(int)e.ObjData.CurrentAnimationFrame}{Environment.NewLine}" +
+                      $"CurrentFrame: {e.ObjData.CurrentAnimationFrame}{Environment.NewLine}" +
                       $"Frames: {e.ObjData.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
                       $"{Environment.NewLine}" +
                       $"IsAlways: {e.ObjData.IsAlways}{Environment.NewLine}" +
@@ -39,6 +39,7 @@ namespace R1Engine
                       $"IsActive: {e.ObjData.IsActive}{Environment.NewLine}" +
                       $"IsDisabled: {e.ObjData.IsDisabled}{Environment.NewLine}" +
                       $"IsVisible: {e.ObjData.IsVisible}{Environment.NewLine}" +
+                      $"Layer: {e.Layer}{Environment.NewLine}" +
                       $"{Environment.NewLine}" +
                       $"LinkID: {e.ObjData.EditorLinkGroup}{Environment.NewLine}"
                     : String.Empty;

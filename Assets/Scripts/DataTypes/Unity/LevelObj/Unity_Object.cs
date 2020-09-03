@@ -26,7 +26,7 @@ namespace R1Engine
 
         // Display properties
         public abstract string DisplayName { get; }
-        public virtual int Layer => 0;
+        public virtual int? GetLayer(int index) => null;
         public virtual int? MapLayer => null;
         public virtual float Scale => 1f;
         public virtual bool FlipHorizontally => false;

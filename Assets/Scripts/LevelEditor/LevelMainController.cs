@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace R1Engine
 {
@@ -64,6 +65,7 @@ namespace R1Engine
                 // Load the level
                 Controller.LoadState = Controller.State.Loading;
                 LevelEditorData.Level = await manager.LoadAsync(serializeContext, true);
+                LevelEditorData.ShowEventsForMaps = LevelEditorData.Level.Maps.Select(x => true).ToArray();
 
                 await Controller.WaitIfNecessary();
                 if (Controller.LoadState == Controller.State.Error) return;
@@ -169,91 +171,107 @@ namespace R1Engine
             }
         }
 
-        public void ConvertLevelToPNG() {
-            /*
+        public void ConvertLevelToPNG() 
+        {
             // Get the path to save to
             var destPath = $@"Screenshots\{LevelEditorData.CurrentSettings.GameModeSelection}\{LevelEditorData.CurrentSettings.GameModeSelection} - {LevelEditorData.CurrentSettings.World} {LevelEditorData.CurrentSettings.Level:00}.png";
 
             // Create the directory
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
-            Enum[] exceptions = new Enum[]
-            {
-                R1_EventType.TYPE_GENERATING_DOOR,
-                R1_EventType.TYPE_DESTROYING_DOOR,
-                R1_EventType.MS_scintillement,
-                R1_EventType.MS_super_gendoor,
-                R1_EventType.MS_super_kildoor,
-                R1_EventType.MS_compteur,
-                R1_EventType.TYPE_RAY_POS,
-                R1_EventType.TYPE_INDICATOR,
-            };
+            var screenshot = CreateLevelScreenshot();
 
+            var bytes = tex.EncodeToPNG();
+            File.WriteAllBytes(destPath, bytes);
+
+            Destroy(tex);
+
+            if (Settings.ScreenshotEnumeration)
+            {
+                Settings.OnShowAlwaysEventsChanged -= controllerEvents.ChangeEventsVisibility;
+                Settings.OnShowEditorEventsChanged -= controllerEvents.ChangeEventsVisibility;
+                SceneManager.LoadScene("Dummy");
+            }
+        }
+
+        public Texture2D CreateLevelScreenshot()
+        {
             // TODO: Allow this to be configured | THIS whole part should be refactored, the foreach after is bad
 
-            // Hide Rayman (except in Jaguar proto)
-            if (RaymanEvent != null && LevelEditorData.CurrentSettings.EngineVersion != EngineVersion.R1Jaguar_Proto)
-                RaymanEvent.gameObject.SetActive(false);
-
             // Hide unused links and show gendoors
-            foreach (var e in Events) 
+            foreach (var e in Events)
             {
+                // Update the event to make sure it has rendered
                 e.ForceUpdate();
 
-                // Hide always and editor events, except for certain ones
-                if ((e.ObjData.IsAlways || e.ObjData.IsEditor) && !exceptions.Contains(e.Data.Type) && (LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA || (e.Data.Data.XPosition == 0 && e.Data.Data.YPosition == 0)))
-                    e.gameObject.SetActive(false);
-                else
-                    e.gameObject.SetActive(true);
+                if (e.ObjData is Unity_Object_R1 r1Obj)
+                {
+                    Enum[] exceptions = new Enum[]
+                    {
+                        R1_EventType.TYPE_GENERATING_DOOR,
+                        R1_EventType.TYPE_DESTROYING_DOOR,
+                        R1_EventType.MS_scintillement,
+                        R1_EventType.MS_super_gendoor,
+                        R1_EventType.MS_super_kildoor,
+                        R1_EventType.MS_compteur,
+                        R1_EventType.TYPE_RAY_POS,
+                        R1_EventType.TYPE_INDICATOR,
+                    };
+
+                    if (exceptions.Contains(r1Obj.EventData.Type))
+                        e.gameObject.SetActive(true);
+                }
+                else if (e.ObjData is Unity_Object_GBA gbaObj)
+                {
+                    if (gbaObj.Actor.ActorID == 0)
+                        e.gameObject.SetActive(true);
+                }
 
                 // Always hide events with no graphics
                 if (e.defautRenderer.enabled)
                     e.gameObject.SetActive(false);
 
-                // Hide events from other layers
-                if (e.Data.MapLayer != null && e.Data.MapLayer - 1 != LevelEditorData.CurrentMap)
-                    e.gameObject.SetActive(false);
-
-                // TODO: Find solution to this
-                // Temporarily hide the Rayman 2 waterfall as it has the wrong map layer
-                if (Equals(e.Data.Type, R1_R2EventType.WaterFall))
-                    e.gameObject.SetActive(false);
-
+                // TODO: Change this option
                 // Helper method
-                bool isGendoor(Unity_ObjBehaviour ee)
+                bool showLinksForObj(Unity_ObjBehaviour ee)
                 {
-                    if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar || LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
-                        return ee.LinkID != 0;
-                    else
-                        return ee.Data.Type is R1_EventType et &&
-                               (et == R1_EventType.TYPE_GENERATING_DOOR ||
-                                et == R1_EventType.TYPE_DESTROYING_DOOR ||
-                                et == R1_EventType.MS_scintillement ||
-                                et == R1_EventType.MS_super_gendoor ||
-                                et == R1_EventType.MS_super_kildoor ||
-                                et == R1_EventType.MS_compteur);
+                    if (ee.ObjData is Unity_Object_R1 r1Obj)
+                        return (r1Obj.EventData.Type == R1_EventType.TYPE_GENERATING_DOOR ||
+                                r1Obj.EventData.Type == R1_EventType.TYPE_DESTROYING_DOOR ||
+                                r1Obj.EventData.Type == R1_EventType.MS_scintillement ||
+                                r1Obj.EventData.Type == R1_EventType.MS_super_gendoor ||
+                                r1Obj.EventData.Type == R1_EventType.MS_super_kildoor ||
+                                r1Obj.EventData.Type == R1_EventType.MS_compteur);
+
+                    return ee.ObjData.EditorLinkGroup != 0;
                 }
 
                 e.ChangeLinksVisibility(true);
 
-                if (e.LinkID == 0) 
+                if (e.ObjData.EditorLinkGroup == 0)
                 {
                     e.lineRend.enabled = false;
                     e.linkCube.gameObject.SetActive(false);
                 }
-                else {
-                    //Hide link if not linked to gendoor
-                    bool gendoorFound = isGendoor(e);
+                else
+                {
+                    // Hide link if not linked to gendoor
+                    bool gendoorFound = showLinksForObj(e);
                     var allofSame = new List<Unity_ObjBehaviour> {
                         e
                     };
-                    foreach (Unity_ObjBehaviour f in Events.Where(f => f.LinkID == e.LinkID)) {
+
+                    foreach (Unity_ObjBehaviour f in Events.Where(f => f.ObjData.EditorLinkGroup == e.ObjData.EditorLinkGroup))
+                    {
                         allofSame.Add(f);
-                        if (isGendoor(f))
+                        if (showLinksForObj(f))
                             gendoorFound = true;
                     }
-                    if (!gendoorFound) {
-                        foreach(var a in allofSame) {
+
+                    if (!gendoorFound)
+                    {
+                        foreach (var a in allofSame)
+                        {
                             a.lineRend.enabled = false;
                             a.linkCube.gameObject.SetActive(false);
                         }
@@ -261,11 +279,9 @@ namespace R1Engine
                 }
             }
 
-            bool half = false;
-            RenderTexture renderTex = new RenderTexture(LevelEditorData.MaxWidth * LevelEditorData.EditorManager.CellSize / (half ? 2 : 1), LevelEditorData.MaxHeight * LevelEditorData.EditorManager.CellSize / (half ? 2 : 1), 24);
+            RenderTexture renderTex = new RenderTexture(LevelEditorData.MaxWidth * LevelEditorData.Level.CellSize / 1, LevelEditorData.MaxHeight * LevelEditorData.Level.CellSize / 1, 24);
             renderCamera.targetTexture = renderTex;
-            //Set camera pos
-            var cellSizeInUnits = LevelEditorData.EditorManager.CellSize / (float)LevelEditorData.EditorManager.PixelsPerUnit;
+            var cellSizeInUnits = LevelEditorData.Level.CellSize / (float)LevelEditorData.Level.PixelsPerUnit;
             renderCamera.transform.position = new Vector3((LevelEditorData.MaxWidth) * cellSizeInUnits / 2f, -(LevelEditorData.MaxHeight) * cellSizeInUnits / 2f, renderCamera.transform.position.z);
             renderCamera.orthographicSize = (LevelEditorData.MaxHeight * cellSizeInUnits / 2f);
             renderCamera.rect = new Rect(0, 0, 1, 1);
@@ -278,21 +294,10 @@ namespace R1Engine
             tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
             tex.Apply();
 
-            var bytes = tex.EncodeToPNG();
-            File.WriteAllBytes(destPath, bytes);
-
-            Destroy(tex);
             RenderTexture.active = null;
             renderCamera.rect = new Rect(0, 0, 0, 0);
 
-            Debug.Log("Level saved as PNG");
-
-            //Unsub events
-            Settings.OnShowAlwaysEventsChanged -= controllerEvents.ChangeEventsVisibility;
-            Settings.OnShowEditorEventsChanged -= controllerEvents.ChangeEventsVisibility;
-
-            if (Settings.ScreenshotEnumeration)
-                SceneManager.LoadScene("Dummy");*/
+            return tex;
         }
 
         public void TabClicked(int tabIndex) {

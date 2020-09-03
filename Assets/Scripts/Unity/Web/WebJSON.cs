@@ -31,7 +31,8 @@ public class WebJSON {
 		public bool? ShowAlwaysEvents { get; set; }
 		public bool? ShowDebugInfo { get; set; }
 		public bool? ShowEditorEvents { get; set; }
-		public bool? ShowRayman { get; set; }
+		public bool? ShowDefaultObjIcons { get; set; }
+        public bool? ShowRayman { get; set; }
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 	}
 	public class Hierarchy {

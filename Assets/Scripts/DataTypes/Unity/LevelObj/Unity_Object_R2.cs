@@ -58,9 +58,9 @@ namespace R1Engine
 
         public override string DisplayName => $"{EventData.EventType}";
         // TODO: Fix
-        public override int Layer => Settings.LoadFromMemory ? -(EventData.EventIndex + (256 * EventData.Layer)) : 0;
-        public override int? MapLayer => EventData.MapLayer;
-        public override float Scale => MapLayer == 2 ? 0.5f : 1;
+        public override int? GetLayer(int index) => -(index + (EventData.Layer * 512));
+        public override int? MapLayer => EventData.MapLayer - 1;
+        public override float Scale => MapLayer == 1 ? 0.5f : 1;
         public override bool FlipHorizontally => EventData.IsFlippedHorizontally;
 
         public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.DES?.Animations.ElementAtOrDefault(EventData.RuntimeCurrentAnimIndex);

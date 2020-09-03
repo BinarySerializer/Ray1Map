@@ -408,7 +408,7 @@ namespace R1Engine
 
                             // Change event info if event is selected
                             //infoAnimIndex.text = SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
-                            infoLayer.text = SelectedEvent.ObjData.Layer.ToString();
+                            infoLayer.text = SelectedEvent.Layer.ToString();
                             
                             // Clear old commands
                             ClearCommands();
@@ -758,8 +758,8 @@ namespace R1Engine
         public Unity_ObjBehaviour AddEvent(Unity_Object obj)
         {
             // Instantiate prefab
-            Unity_ObjBehaviour newEvent = Instantiate(prefabEvent, new Vector3(obj.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(obj.YPosition / (float)LevelEditorData.Level.PixelsPerUnit), obj.Layer), Quaternion.identity).GetComponent<Unity_ObjBehaviour>();
-
+            Unity_ObjBehaviour newEvent = Instantiate(prefabEvent).GetComponent<Unity_ObjBehaviour>();
+            
             newEvent.ObjData = obj;
 
             // Set as child of events gameobject

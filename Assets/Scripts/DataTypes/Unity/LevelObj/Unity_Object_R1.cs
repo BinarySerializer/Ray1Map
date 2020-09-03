@@ -79,7 +79,7 @@ namespace R1Engine
         public override string DisplayName => $"{EventData.Type}";
 
         // TODO: Fix
-        public override int Layer => Settings.LoadFromMemory ? -(EventData.EventIndex + (256 * EventData.RuntimeLayer)) : 0;
+        public override int? GetLayer(int index) => -(index + (EventData.RuntimeLayer * 512));
 
         public override bool FlipHorizontally
         {

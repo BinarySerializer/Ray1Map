@@ -46,8 +46,6 @@ namespace R1Engine
         public override bool IsAlways => IsAlwaysEvent;
 
         public override string DisplayName => $"{Actor.ActorID}";
-        // TODO: Fix
-        public override int Layer => 0;
 
         public override bool FlipHorizontally => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip) ?? false;
         public override bool FlipVertically => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip) ?? false;
