@@ -165,25 +165,10 @@ namespace R1Engine
         {
             var eventList = Controller.obj.levelController.Events;
 
-            // Convert linkIndex of each event to linkId
-            foreach (Unity_ObjBehaviour obj in eventList)
-            {
-                // If X and Y are insane, clamp them
-                const int allowedBorder = 200;
-                const int border = 10;
-
-                var maxWidth = LevelEditorData.MaxWidth;
-                var maxHeight = LevelEditorData.MaxHeight;
-
-                if (obj.ObjData.XPosition > (maxWidth * LevelEditorData.Level.CellSize) + allowedBorder || obj.ObjData.XPosition < -allowedBorder)
-                    obj.ObjData.XPosition = (short)((maxWidth * LevelEditorData.Level.CellSize) + border);
-
-                if (obj.ObjData.YPosition > (maxHeight * LevelEditorData.Level.CellSize) + allowedBorder || obj.ObjData.YPosition < -allowedBorder)
-                    obj.ObjData.YPosition = (short)((maxHeight * LevelEditorData.Level.CellSize) + border);
-            }
-
+            // Initialize links
             LevelEditorData.ObjManager.InitLinkGroups(eventList.Select(x => x.ObjData).ToArray());
 
+            // Set link positions
             foreach (var linkedEvents in eventList.Where(x => x.ObjData.EditorLinkGroup != 0).GroupBy(x => x.ObjData.EditorLinkGroup))
             {
                 var prev = linkedEvents.Last();

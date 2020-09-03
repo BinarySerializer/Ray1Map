@@ -59,7 +59,6 @@ namespace R1Engine
         private void Start() 
         {
             Index = LevelEditorData.Level.EventData.IndexOf(ObjData);
-            transform.position = new Vector3(ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit), Layer);
             transform.rotation = Quaternion.identity;
 
             RefreshEditorInfo();
@@ -133,8 +132,22 @@ namespace R1Engine
 
             defautRenderer.enabled = Settings.ShowDefaultObjIcons && anim == null;
 
-            // Update x and y
-            transform.position = new Vector3(ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit), 0);
+            // Update x and y, and clamp them to not have objects appear too far away from the map
+            const int allowedBorder = 200;
+            const int border = 10;
+
+            var maxWidth = LevelEditorData.MaxWidth;
+            var maxHeight = LevelEditorData.MaxHeight;
+            var x = (float)ObjData.XPosition;
+            var y = (float)ObjData.YPosition;
+
+            if (x > (maxWidth * LevelEditorData.Level.CellSize) + allowedBorder || x < -allowedBorder)
+                x = (maxWidth * LevelEditorData.Level.CellSize) + border;
+
+            if (y > (maxHeight * LevelEditorData.Level.CellSize) + allowedBorder || y < -allowedBorder)
+                y = ((maxHeight * LevelEditorData.Level.CellSize) + border);
+
+            transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
 
             // Don't move link cube if it's part of a link
             if (ObjData.EditorLinkGroup != 0)
