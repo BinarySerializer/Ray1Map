@@ -1,6 +1,7 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 
@@ -366,6 +367,40 @@ namespace R1Engine
             }
 
             return loc;
+        }
+
+        public void LogEventFlags(GameSettings settings, string outputFilePath)
+        {
+            if (settings.GameModeSelection != GameModeSelection.RaymanPS1US)
+                throw new NotSupportedException();
+
+            using (var context = new Context(settings))
+            {
+                var file = new LinearSerializedFile(context)
+                {
+                    filePath = "SLUS-000.05"
+                };
+                context.AddFile(file);
+                var s = context.Deserializer;
+
+                // flag & 8 checks if the event hurts Rayman on contact
+                // flag & 4 checks if the event has collision - what do the rest do?
+                var flags = s.DoAt(file.StartPointer + 0x9CA94, () => s.SerializeArray<uint>(default, 256));
+
+                using (var log = File.Create(outputFilePath))
+                {
+                    using (var logWriter = new StreamWriter(log))
+                    {
+                        for (int i = 0; i < flags.Length; i++)
+                        {
+                            var type = (R1_EventType)i;
+                            var attrFlag = type.GetAttribute<ObjTypeInfoAttribute>()?.Flag ?? ObjTypeFlag.Normal;
+
+                            logWriter.WriteLine($"{Convert.ToString(flags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}");
+                        }
+                    }
+                }
+            }
         }
     }
 }
