@@ -20,6 +20,8 @@
         EventGraphicsGroupCountTablePointers,
         LevelEventGraphicsGroupCounts,
 
-        ClockGraphics
+        ClockGraphics,
+
+        RaymanGraphics
     }
 }

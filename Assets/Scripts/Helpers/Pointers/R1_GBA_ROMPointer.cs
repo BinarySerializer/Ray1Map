@@ -30,6 +30,8 @@
         InkGraphics,
         FontSmallGraphics,
         FontLargeGraphics,
-        PinsGraphics
+        PinsGraphics,
+
+        RaymanGraphics
     }
 }

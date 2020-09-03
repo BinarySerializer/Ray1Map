@@ -56,6 +56,8 @@ namespace R1Engine
         /// <returns>The game data</returns>
         public override IR1_GBAData LoadData(Context context) => FileFactory.Read<R1_DSi_DataFile>(GetROMFilePath, context);
 
+        public override Pointer GetRaymanGraphicsPointer(Context context) => PointerTables.R1_DSi_PointerTable(context.Settings.GameModeSelection, context.GetFile(GetROMFilePath))[R1_DSi_Pointer.RaymanGraphics];
+
         public override IReadOnlyDictionary<string, string[]> LoadLocalization(IR1_GBAData data)
         {
             return new Dictionary<string, string[]>()

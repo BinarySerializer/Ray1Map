@@ -791,49 +791,16 @@ namespace R1Engine
             var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>>();
             var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
 
-            // Create graphics
-            for (int i = 0; i < eventData.GraphicsGroupCount; i++)
+            // Load Rayman's graphics
+            //var rayGraphics = FileFactory.Read<R1_GBA_EventGraphicsData>(GetRaymanGraphicsPointer(context), context);
+            //loadGraphics(rayGraphics);
+
+            // Helper for loading graphics
+            void loadGraphics(R1_GBA_EventGraphicsData graphics)
             {
-                // Create ETA
-                for (int j = 0; j < eventData.EventData[i].Length; j++)
-                {
-                    var dat = eventData.EventData[i][j];
-
-                    // Add if not found
-                    if (dat.ETAPointer != null && eventETA.All(x => x.Pointer != dat.ETAPointer))
-                    {
-                        // Add to the ETA
-                        eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(dat.ETA, dat.ETAPointer));
-                    }
-                    else if (dat.ETAPointer != null && context.Settings.EngineVersion == EngineVersion.R1_DSi)
-                    {
-                        // Temporary solution - combine ETA
-                        var current = eventETA.First(x => x.Pointer == dat.ETAPointer).Data;
-
-                        if (dat.ETA.Length > current.Length)
-                            Array.Resize(ref current, dat.ETA.Length);
-
-                        for (int ii = 0; ii < dat.ETA.Length; ii++)
-                        {
-                            if (current[ii] == null)
-                                current[ii] = new R1_EventState[dat.ETA[ii]?.Length ?? 0];
-
-                            if ((dat.ETA[ii]?.Length ?? 0) > current[ii].Length)
-                                Array.Resize(ref current[ii], dat.ETA[ii].Length);
-
-                            for (int jj = 0; jj < (dat.ETA[ii]?.Length ?? 0); jj++)
-                                current[ii][jj] = dat.ETA[ii][jj];
-                        }
-
-                        eventETA[eventETA.FindItemIndex(x => x.Pointer == dat.ETAPointer)] = new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(current, dat.ETAPointer);
-                    }
-                }
-
-                var graphics = eventData.GraphicData[i];
-
                 // Add if not found
-                if (graphics.ImageDescriptorsPointer == null || eventDesigns.Any(x => x.Pointer == graphics.ImageDescriptorsPointer)) 
-                    continue;
+                if (graphics.ImageDescriptorsPointer == null || eventDesigns.Any(x => x.Pointer == graphics.ImageDescriptorsPointer))
+                    return;
 
                 Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                 {
@@ -858,6 +825,49 @@ namespace R1Engine
 
                 // Add to the designs
                 eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, graphics.ImageDescriptorsPointer));
+            }
+
+            // Helper for loading ETA
+            void loadETA(R1_GBA_EventData dat)
+            {
+                // Add if not found
+                if (dat.ETAPointer != null && eventETA.All(x => x.Pointer != dat.ETAPointer))
+                {
+                    // Add to the ETA
+                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(dat.ETA, dat.ETAPointer));
+                }
+                else if (dat.ETAPointer != null && context.Settings.EngineVersion == EngineVersion.R1_DSi)
+                {
+                    // Temporary solution - combine ETA
+                    var current = eventETA.First(x => x.Pointer == dat.ETAPointer).Data;
+
+                    if (dat.ETA.Length > current.Length)
+                        Array.Resize(ref current, dat.ETA.Length);
+
+                    for (int ii = 0; ii < dat.ETA.Length; ii++)
+                    {
+                        if (current[ii] == null)
+                            current[ii] = new R1_EventState[dat.ETA[ii]?.Length ?? 0];
+
+                        if ((dat.ETA[ii]?.Length ?? 0) > current[ii].Length)
+                            Array.Resize(ref current[ii], dat.ETA[ii].Length);
+
+                        for (int jj = 0; jj < (dat.ETA[ii]?.Length ?? 0); jj++)
+                            current[ii][jj] = dat.ETA[ii][jj];
+                    }
+
+                    eventETA[eventETA.FindItemIndex(x => x.Pointer == dat.ETAPointer)] = new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(current, dat.ETAPointer);
+                }
+            }
+
+            // Load graphics and ETA
+            for (int graphicsIndex = 0; graphicsIndex < eventData.GraphicsGroupCount; graphicsIndex++)
+            {
+                // Create ETA
+                for (int eventIndex = 0; eventIndex < eventData.EventData[graphicsIndex].Length; eventIndex++)
+                    loadETA(eventData.EventData[graphicsIndex][eventIndex]);
+
+                loadGraphics(eventData.GraphicData[graphicsIndex]);
             }
 
             var objManager = new Unity_ObjectManager_R1(context, eventDesigns.ToArray(), eventETA.ToArray(), linkTable);
@@ -905,6 +915,8 @@ namespace R1Engine
 
             return level;
         }
+
+        public virtual Pointer GetRaymanGraphicsPointer(Context context) => PointerTables.R1_GBA_PointerTable(context.Settings.GameModeSelection, context.GetFile(GetROMFilePath))[R1_GBA_ROMPointer.RaymanGraphics];
 
         /// <summary>
         /// Saves the specified level

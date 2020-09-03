@@ -20,14 +20,14 @@ namespace R1Engine
             BehaviorPointer = data.RaymanBehaviorPointer,
             CollisionDataPointer = data.RaymanCollisionDataPointer,
             AnimGroupPointer = data.RaymanAnimGroupPointer,
-            XPosition = (short)(rayPos != null ? (rayPos.XPosition + rayPos.CollisionData.OffsetBX - data.CollisionData.OffsetBX) : 100),
-            YPosition = (short)(rayPos != null ? (rayPos.YPosition + rayPos.CollisionData.OffsetBY - data.CollisionData.OffsetBY) : 0),
+            XPosition = (short)(rayPos != null ? (rayPos.XPosition + rayPos.CollisionData.OffsetBX - data.RaymanCollisionData.OffsetBX) : 100),
+            YPosition = (short)(rayPos != null ? (rayPos.YPosition + rayPos.CollisionData.OffsetBY - data.RaymanCollisionData.OffsetBY) : 0),
             Etat = 0,
             SubEtat = 19,
             MapLayer = 1,
             EventType = R1_R2EventType.Rayman,
             Layer = 7,
-            CollisionData = data.CollisionData,
+            CollisionData = data.RaymanCollisionData,
             AnimGroup = data.RaymanAnimGroup
         };
 
