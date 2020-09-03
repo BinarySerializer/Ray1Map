@@ -43,7 +43,7 @@ public class MapSelectionDropdown : AdvancedDropdown
         {
             var worldItem = new AdvancedDropdownItem(GetName(w.Index, WorldNames?.TryGetItem(w.Index))) { id = -1 };
 
-            foreach (var m in w.Maps)
+            foreach (var m in w.Maps.OrderBy(x => x))
                 worldItem.AddChild(new MapSelectionDropdownItem(GetLevelName(w.Index, m), vol.Name, w.Index, m) { id = id++ });
 
             parent.AddChild(worldItem);
