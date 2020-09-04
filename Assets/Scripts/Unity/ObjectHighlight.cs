@@ -1,12 +1,11 @@
 ﻿using R1Engine;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class ObjectHighlight : MonoBehaviour {
     public Unity_ObjBehaviour highlightedObject = null;
-    public Unity_Tile highlightedCollision = null;
-    public Unity_Tile highlightedTile = null;
+    public Unity_Tile[] highlightedCollision = null;
+    public Unity_Tile[] highlightedTile = null;
 
     private void HandleCollision() {
         int layerMask = 0;
@@ -27,8 +26,8 @@ public class ObjectHighlight : MonoBehaviour {
             }
         }
         Vector2Int mouseTile = Controller.obj.levelController.controllerTilemap.MouseToTileInt(Input.mousePosition);
-        highlightedCollision = LevelEditorData.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentCollisionMap)?.GetMapTile(mouseTile.x, mouseTile.y);
-        highlightedTile = LevelEditorData.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentMap)?.GetMapTile(mouseTile.x, mouseTile.y);
+        highlightedCollision = LevelEditorData.Level?.Maps?.Select(x => x.GetMapTile(mouseTile.x, mouseTile.y)).ToArray();
+        highlightedTile = LevelEditorData.Level?.Maps?.Select(x => x.GetMapTile(mouseTile.x, mouseTile.y)).ToArray();
     }
 
     void Update() {

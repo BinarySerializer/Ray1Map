@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -53,19 +55,18 @@ namespace R1Engine
 
                 if (t != null && c != null) {
                     //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);
-                    textCollision.text = $"Collision: {c.Data.CollisionType}";
-                    textGraphic.text = $"Graphic tile: {t.Data.TileMapX}, {t.Data.TileMapY}";
+                    textCollision.text = $"Collision: {String.Join(", ", c.Select(x => x?.Data?.CollisionType))}";
+                    textGraphic.text = $"Graphic tile: {String.Join(", ", t.Select(x => $"({x?.Data?.TileMapX}, {x?.Data?.TileMapY})"))}";
 
                     // Set debug text
                     Controller.obj.tempDebugText.text = Settings.ShowDebugInfo
-                        ? $"{t.DebugText}{Environment.NewLine}" +
-                          $"Collision: {c.Data.CollisionType}{Environment.NewLine}" +
-                          $"PC_TransparencyMode: {t.Data.PC_TransparencyMode}{Environment.NewLine}" +
-                          $"PC_Unk1: {t.Data.PC_Unk1}{Environment.NewLine}" +
-                          $"PC_Unk2: {t.Data.PC_Unk2}{Environment.NewLine}" +
-                          $"HorizontalFlip: {t.Data.HorizontalFlip}{Environment.NewLine}" +
-                          $"VerticalFlip: {t.Data.VerticalFlip}{Environment.NewLine}" +
-                          $"PaletteIndex: {t.PaletteIndex}{Environment.NewLine}"
+                        ? $"{String.Join(Environment.NewLine, t.Select(x => x?.DebugText))}{Environment.NewLine}" +
+                          $"PC_TransparencyMode: {String.Join(", ", t.Select(x => x?.Data?.PC_TransparencyMode))}{Environment.NewLine}" +
+                          $"PC_Unk1: {String.Join(", ", t.Select(x => x?.Data?.PC_Unk1))}{Environment.NewLine}" +
+                          $"PC_Unk2: {String.Join(", ", t.Select(x => x?.Data?.PC_Unk2))}{Environment.NewLine}" +
+                          $"HorizontalFlip: {String.Join(", ", t.Select(x => x?.Data?.HorizontalFlip))}{Environment.NewLine}" +
+                          $"VerticalFlip: {String.Join(", ", t.Select(x => x?.Data?.VerticalFlip))}{Environment.NewLine}" +
+                          $"PaletteIndex: {String.Join(", ", t.Select(x => x?.Data?.PaletteIndex))}{Environment.NewLine}"
                         : String.Empty;
                 }
             }

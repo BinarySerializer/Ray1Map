@@ -25,8 +25,13 @@ namespace R1Engine
             Etat = 0,
             SubEtat = 19,
             MapLayer = 1,
+            Unk2 = new byte[17],
             EventType = R1_R2EventType.Rayman,
+            RuntimeBytes1 = new byte[7],
             Layer = 7,
+            Unk3 = new byte[10],
+            Unk4 = new byte[3],
+            Unk5 = new byte[2],
             CollisionData = data.RaymanCollisionData,
             AnimGroup = data.RaymanAnimGroup
         };
