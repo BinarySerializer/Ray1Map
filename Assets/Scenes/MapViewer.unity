@@ -876,7 +876,7 @@ GameObject:
   - component: {fileID: 92047763}
   - component: {fileID: 92047765}
   - component: {fileID: 92047764}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tilemap Collision 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1070,7 +1070,7 @@ GameObject:
   m_Component:
   - component: {fileID: 108687968}
   - component: {fileID: 108687969}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tilemap Graphics 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4207,7 +4207,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textGraphic: {fileID: 284904158}
   textCollision: {fileID: 500820506}
-  tilemapController: {fileID: 172781303}
 --- !u!1 &357719261
 GameObject:
   m_ObjectHideFlags: 0
@@ -24528,6 +24527,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1956467905}
   - component: {fileID: 1956467904}
+  - component: {fileID: 1956467906}
   m_Layer: 0
   m_Name: Editor
   m_TagString: Untagged
@@ -24556,6 +24556,7 @@ MonoBehaviour:
   lvlEventController: {fileID: 172781304}
   lvlTilemapController: {fileID: 172781303}
   tileSelectSquare: {fileID: 1559163638}
+  objectHighlight: {fileID: 1956467906}
   modeButtons:
   - {fileID: 1112513665}
   - {fileID: 1072569426}
@@ -24593,6 +24594,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1956467906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1956467903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53816748b2121bd40a3e0506bf6d79b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightedObject: {fileID: 0}
 --- !u!1 &1956505444
 GameObject:
   m_ObjectHideFlags: 0

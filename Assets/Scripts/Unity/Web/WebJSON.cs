@@ -18,6 +18,8 @@ public class WebJSON {
 		public Localization Localization { get; set; }
 		public Request Request { get; set; }
 		public GameSettings GameSettings { get; set; }
+		public Highlight Highlight { get; set; }
+		public Selection Selection { get; set; }
 	}
 	public class GameSettings {
 		public MajorEngineVersion MajorEngineVersion { get; set; }
@@ -25,7 +27,20 @@ public class WebJSON {
 		public Game Game { get; set; }
 		public GameModeSelection Mode { get; set; }
 	}
+	public class Selection {
+		public Object Object { get; set; }
+	}
+	public class Highlight {
+		public Object Object { get; set; }
+		public Collision Collision { get; set; }
+	}
+	public class Collision {
+		public string Type { get; set; }
+	}
 	public class Settings {
+		public bool? ShowObjects { get; set; }
+		public bool? ShowTiles { get; set; }
+		public bool? ShowCollision { get; set; }
 		public bool? AnimateSprites { get; set; }
 		public bool? AnimateTiles { get; set; }
 		public bool? ShowAlwaysEvents { get; set; }
@@ -37,30 +52,26 @@ public class WebJSON {
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 	}
 	public class Hierarchy {
-		public Object[] Always { get; set; }
 		public Object[] Objects { get; set; }
 	}
 	public class Object {
 		public string Name { get; set; }
+		public int Index { get; set; } // Identify by index, non-nullable
+		public bool? IsAlways { get; set; }
+		public bool? IsEditor { get; set; }
+		public int? X { get; set; }
+		public int? Y { get; set; }
+		public string[] Commands { get; set; }
 	}
 	public class Request {
 		public RequestType Type { get; set; }
 
 		// Optional
-		public Pointer Offset { get; set; }
+		public int? Index { get; set; }
 		public Screenshot Screenshot { get; set; }
 	}
 	public class Localization {
-		public Language Common { get; set; }
-		public Language[] Languages { get; set; }
-		public int CommonStart { get; set; }
-		public int LanguageStart { get; set; }
-
-		public class Language {
-			public string Name { get; set; }
-			public string NameLocalized { get; set; }
-			public string[] Entries { get; set; }
-		}
+		// TODO
 	}
 	public class Screenshot {
 		public int? Width { get; set; }

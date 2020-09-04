@@ -19,6 +19,7 @@ namespace R1Engine
         public LevelEventController lvlEventController;
         public LevelTilemapController lvlTilemapController;
         public SelectSquare tileSelectSquare;
+        public ObjectHighlight objectHighlight;
         //Reference to UI buttons
         public Button[] modeButtons;
         public Button[] visibilityButtons;
@@ -89,33 +90,28 @@ namespace R1Engine
             //Change some of the visibility buttons
             if (currentMode == EditMode.Tiles) {
                 ChangeVisibButton(0, true);
-                layerTiles.SetActive(true);
+                Settings.ShowTiles = true;
+                //layerTiles.SetActive(true);
             }
             if (currentMode == EditMode.Collisions) {
                 ChangeVisibButton(1, true);
-                layerTypes.SetActive(true);
+                Settings.ShowCollision = true;
+                //layerTypes.SetActive(true);
             }
             if (currentMode == EditMode.Events) {
                 ChangeVisibButton(2, true);
-                layerEvents.SetActive(true);
+                Settings.ShowObjects = true;
+                //layerEvents.SetActive(true);
             }
         }
 
         public void SetLayerVisibility(int index) {
-            //Tiles
-            if (index == 0 && currentMode!=EditMode.Tiles) {
-                layerTiles.SetActive(!layerTiles.activeSelf);
-                ChangeVisibButton(index, layerTiles.activeSelf);
-            }
-            //Types
-            else if (index == 1 && currentMode != EditMode.Collisions) {
-                layerTypes.SetActive(!layerTypes.activeSelf);
-                ChangeVisibButton(index, layerTypes.activeSelf);
-            }
-            //Events
-            else if (index == 2 && currentMode != EditMode.Events && currentMode != EditMode.Links) {
-                layerEvents.SetActive(!layerEvents.activeSelf);
-                ChangeVisibButton(index, layerEvents.activeSelf);
+            if (index == 0 && currentMode != EditMode.Tiles) {
+                Settings.ShowTiles = !Settings.ShowTiles;
+            } else if (index == 1) {// && currentMode != EditMode.Collisions) {
+                Settings.ShowCollision = !Settings.ShowCollision;
+            } else if (index == 2) {// && currentMode != EditMode.Events && currentMode != EditMode.Links) {
+                Settings.ShowObjects = !Settings.ShowObjects;
             }
         }
 
@@ -163,8 +159,6 @@ namespace R1Engine
         void Start() {
             //Default to events
             SetEditMode(2);
-            //Hide types by default
-            SetLayerVisibility(1);
         }
 
         public void SetCurrentType(int type)
@@ -180,8 +174,19 @@ namespace R1Engine
 
         void Update() 
         {
-            if (LevelEditorData.Level == null)
-                return;
+            if (Settings.ShowTiles != layerTiles.activeSelf) {
+                layerTiles.SetActive(!layerTiles.activeSelf);
+                ChangeVisibButton(0, layerTiles.activeSelf);
+            }
+            if (Settings.ShowCollision != layerTypes.activeSelf) {
+                layerTypes.SetActive(!layerTypes.activeSelf);
+                ChangeVisibButton(1, layerTypes.activeSelf);
+            }
+            if (Settings.ShowObjects != layerEvents.activeSelf) {
+                layerEvents.SetActive(!layerEvents.activeSelf);
+                ChangeVisibButton(2, layerEvents.activeSelf);
+            }
+            if (Controller.LoadState != Controller.State.Finished || LevelEditorData.Level == null) return;
 
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
         

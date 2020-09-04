@@ -218,6 +218,10 @@ namespace R1Engine {
             }
         }
 
+        public static bool ShowObjects { get; set; } = true;
+        public static bool ShowCollision { get; set; } = false;
+        public static bool ShowTiles { get; set; } = true;
+
         public static bool ScreenshotEnumeration { get; set; }
 
         public static bool ShowRayman { get; set; } = true;
@@ -337,6 +341,11 @@ namespace R1Engine {
             GameBasePointer = s.SerializeInt("GameBasePointer", GameBasePointer);
             FindPointerAutomatically = s.SerializeBool("FindPointerAutomatically", FindPointerAutomatically);
             UseHDCollisionSheet = s.SerializeBool("UseHDCollisionSheet", UseHDCollisionSheet);
+
+            ShowObjects = s.SerializeBool("ShowObjects", ShowObjects);
+            ShowTiles = s.SerializeBool("ShowTiles", ShowTiles);
+            ShowCollision = s.SerializeBool("ShowCollision", ShowCollision);
+
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             AnimateTiles = s.SerializeBool("AnimateTiles", AnimateTiles);
             ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);

@@ -182,6 +182,12 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("Miscellaneous");
 
+        Settings.ShowObjects = EditorField("Show objects", Settings.ShowObjects);
+
+        Settings.ShowTiles = EditorField("Show tiles", Settings.ShowTiles);
+
+        Settings.ShowCollision = EditorField("Show collision", Settings.ShowCollision);
+
         Settings.StateSwitchingMode = EditorField("State switching", Settings.StateSwitchingMode);
 
         Settings.UseHDCollisionSheet = EditorField("Use HD collision sheet", Settings.UseHDCollisionSheet);

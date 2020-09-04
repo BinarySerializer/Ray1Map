@@ -231,7 +231,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -836501477
   m_SortingLayer: 8
-  m_SortingOrder: 255
+  m_SortingOrder: 252
   m_Sprite: {fileID: 21300000, guid: 52d18199c91e98a42bdc267ad177cfe9, type: 3}
   m_Color: {r: 0, g: 0.30524302, b: 1, a: 0.6862745}
   m_FlipX: 0
@@ -312,7 +312,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -836501477
   m_SortingLayer: 8
-  m_SortingOrder: 255
+  m_SortingOrder: 254
   m_Sprite: {fileID: 21300000, guid: b155734aa39e54146a3a26e639070f74, type: 3}
   m_Color: {r: 1, g: 0.8496767, b: 0, a: 0.6862745}
   m_FlipX: 0
@@ -337,7 +337,7 @@ GameObject:
   - component: {fileID: 8388059050577267216}
   - component: {fileID: 8273637944863852906}
   - component: {fileID: 5110095365168562726}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EventPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -631,7 +631,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -836501477
   m_SortingLayer: 8
-  m_SortingOrder: 255
+  m_SortingOrder: 253
   m_Sprite: {fileID: 21300000, guid: b155734aa39e54146a3a26e639070f74, type: 3}
   m_Color: {r: 0.83137256, g: 0.17647056, b: 0.65584874, a: 0.6862745}
   m_FlipX: 0

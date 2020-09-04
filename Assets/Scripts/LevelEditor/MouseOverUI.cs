@@ -2,25 +2,21 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.Input;
 
 namespace R1Engine
 {
-    public class MouseOver : MonoBehaviour {
+    public class MouseOverUI : MonoBehaviour {
         public Text textGraphic, textCollision;
 
-        // Reference to level's tilemap controller
-        public LevelTilemapController tilemapController;
-
         void Update() {
-            transform.position = mousePosition;
-            Vector2Int mouseTile = tilemapController.MouseToTileInt(mousePosition);
+            if (Controller.LoadState != Controller.State.Finished) return;
+            transform.position = Input.mousePosition;
 
-            //Physics2D.Raycast(Camera.main.ScreenPointToRay(mousePosition), out var hit, 30);
+            var selector = Controller.obj.levelController.editor.objectHighlight;
+            var e = selector.highlightedObject;
+            var t = selector.highlightedTile;
+            var c = selector.highlightedCollision;
 
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(mousePosition), Vector2.zero);
-
-            var e = hit.collider?.GetComponentInParent<Unity_ObjBehaviour>();
             // Mouse over event
             if (e != null) {
                 
@@ -47,8 +43,6 @@ namespace R1Engine
             // Else Mouse over type
             else {
                 Controller.obj.tempDebugText.text = String.Empty;
-                var t = LevelEditorData.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentMap)?.GetMapTile(mouseTile.x, mouseTile.y);
-                var c = LevelEditorData.Level?.Maps?.ElementAtOrDefault(LevelEditorData.CurrentCollisionMap)?.GetMapTile(mouseTile.x, mouseTile.y);
 
                 if (t != null && c != null) {
                     //Debug.Log("Tile here x:" + t.XPosition + " y:" + t.YPosition + " col:" + t.CollisionType);

@@ -316,6 +316,40 @@ namespace R1Engine
             PrevSelectedEvent = SelectedEvent;
         }
 
+        public void SelectEvent(int index) {
+            var events = Controller.obj.levelController.Events;
+            if (index < 0 || index > events.Count) return;
+            var e = events[index];
+            SelectEvent(e);
+        }
+
+        public void SelectEvent(Unity_ObjBehaviour e) {
+            if (SelectedEvent != e) {
+                if (SelectedEvent != null) {
+                    SelectedEvent.IsSelected = false;
+                }
+                SelectedEvent = e;
+
+                // Change event info if event is selected
+                //infoAnimIndex.text = SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
+                infoLayer.text = SelectedEvent.Layer.ToString();
+
+                // Clear old commands
+                ClearCommands();
+
+                if (SelectedEvent.ObjData is Unity_Object_R1 r1obj) {
+                    // Fill out the commands
+                    foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
+                        CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<CommandLine>();
+                        cmd.command = c;
+                        cmd.transform.SetParent(commandListParent, false);
+                        commandLines.Add(cmd);
+                    }
+                }
+                SelectedEvent.IsSelected = true;
+            }
+        }
+
         private void Update() 
         {
             if (!hasLoaded)
@@ -378,45 +412,28 @@ namespace R1Engine
                 //Detect event under mouse when clicked
                 if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) 
                 {
-                    RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-                    
-                    var e = hit.collider?.GetComponentInParent<Unity_ObjBehaviour>();
+                    int layerMask = 0;
+                    layerMask |= 1 << LayerMask.NameToLayer("Object");
+                    Unity_ObjBehaviour e = null;
+                    RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, Mathf.Infinity, layerMask);
+                    if (hits != null && hits.Length > 0) {
+                        System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
+                        for (int i = 0; i < hits.Length; i++) {
+                            Unity_ObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_ObjBehaviour>();
+                            if (ob != null) {
+                                e = ob;
+                                break;
+                            }
+                        }
+                    }
                     
                     if (e != null) 
                     {
-                        if (SelectedEvent != null)
-                            SelectedEvent.IsSelected = false;
-
-                        if (e != SelectedEvent) 
-                        {
-                            SelectedEvent = e;
-
-                            // Change event info if event is selected
-                            //infoAnimIndex.text = SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
-                            infoLayer.text = SelectedEvent.Layer.ToString();
-                            
-                            // Clear old commands
-                            ClearCommands();
-
-                            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj)
-                            {
-                                // Fill out the commands
-                                foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
-                                    CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0,0,0), Quaternion.identity).GetComponent<CommandLine>();
-                                    cmd.command = c;
-                                    cmd.transform.SetParent(commandListParent, false);
-                                    commandLines.Add(cmd);
-                                }
-                            }
-                        }
+                        SelectEvent(e);
 
                         // Record selected position
                         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
-
-                        // Update offset visibility
-                        if (SelectedEvent != null)
-                            SelectedEvent.IsSelected = true;
 
                         // Change the link
                         if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanEvent && SelectedEvent != null) 
@@ -744,8 +761,10 @@ namespace R1Engine
         {
             // Instantiate prefab
             Unity_ObjBehaviour newEvent = Instantiate(prefabEvent).GetComponent<Unity_ObjBehaviour>();
+            newEvent.gameObject.name = obj.DisplayName;
             
             newEvent.ObjData = obj;
+            newEvent.Index = LevelEditorData.Level.EventData.IndexOf(obj);
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;

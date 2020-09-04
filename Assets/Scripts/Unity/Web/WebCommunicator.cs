@@ -20,6 +20,9 @@ public class WebCommunicator : MonoBehaviour {
     bool sentHierarchy = false;
     string allJSON = null;
 
+	Unity_ObjBehaviour highlightedObject_;
+	Unity_ObjBehaviour selectedObject_;
+
 	private Newtonsoft.Json.JsonSerializerSettings _jsonSettings;
 	public Newtonsoft.Json.JsonSerializerSettings JsonSettings {
 		get {
@@ -50,10 +53,25 @@ public class WebCommunicator : MonoBehaviour {
         }
         if (Application.platform == RuntimePlatform.WebGLPlayer && Controller.LoadState == Controller.State.Finished) {
 			// TODO: Handle highlight & selection changes like in raymap:
-			// Check highlighted object, highlighted collision, highlighted link?
+			var hl = Controller.obj.levelController.editor.objectHighlight;
+			// TODO: Also check highlighted collision?
+			if (highlightedObject_ != hl.highlightedObject) {
+				highlightedObject_ = hl.highlightedObject;
+				Send(GetHighlightMessageJSON());
+			}
+
 			// Check selected object
+			if (selectedObject_ != Controller.obj.levelEventController.SelectedEvent) {
+				selectedObject_ = Controller.obj.levelEventController.SelectedEvent;
+				if (selectedObject_ != null) {
+					// TODO: keep state indices so updates on animation speed, etc. can be sent
+					//selectedPersoStateIndex_ = selectedPerso_.currentState;
+					Send(GetSelectionMessageJSON(true));
+				}
+			}
+
 			// Check selected object's state
-        }
+		}
     }
 
     public void SendHierarchy() {
@@ -85,12 +103,57 @@ public class WebCommunicator : MonoBehaviour {
 			Type = WebJSON.MessageType.Hierarchy,
 			Settings = GetSettingsJSON(),
 			Localization = GetLocalizationJSON(),
-			Hierarchy = new WebJSON.Hierarchy(),
+			Hierarchy = GetHierarchyJSON(),
 			GameSettings = GetGameSettingsJSON()
 		};
-		// TODO: Fill in objects info in hierarchy
 		return message;
     }
+	private WebJSON.Hierarchy GetHierarchyJSON() {
+		var h = new WebJSON.Hierarchy();
+		var objects = Controller.obj.levelController.Events;
+		h.Objects = objects.Select(o => GetObjectJSON(o)).ToArray();
+		return h;
+	}
+	private WebJSON.Message GetSelectionMessageJSON(bool includeLists) {
+		WebJSON.Message selectionJSON = new WebJSON.Message() {
+			Type = WebJSON.MessageType.Selection,
+			Selection = new WebJSON.Selection() {
+				Object = GetObjectJSON(selectedObject_, includeLists: includeLists)
+			}
+		};
+		return selectionJSON;
+	}
+	private WebJSON.Message GetHighlightMessageJSON() {
+		WebJSON.Message selectionJSON = new WebJSON.Message() {
+			Type = WebJSON.MessageType.Highlight,
+			Highlight = new WebJSON.Highlight() {
+				Object = GetObjectJSON(highlightedObject_),
+				// Collision
+			}
+		};
+		return selectionJSON;
+	}
+	private WebJSON.Object GetObjectJSON(Unity_ObjBehaviour obj, bool includeLists = false) {
+		if (obj == null) return null;
+		var webObj = new WebJSON.Object() {
+			Name = obj.ObjData.DisplayName,
+			Index = obj.Index,
+			IsAlways = obj.ObjData.IsAlways,
+			IsEditor = obj.ObjData.IsEditor,
+			X = obj.ObjData.XPosition,
+			Y = obj.ObjData.YPosition,
+		};
+		switch (obj.ObjData) {
+			case Unity_Object_R1 r1obj:
+				// TODO: Add all R1/R1Jaguar/GBA-specific properties to WebJSON.Object as well.
+				// TODO: Also add all lists for properties that should have a dropdown (DES, ETA, Subetat...)
+				if (includeLists) {
+					webObj.Commands = (r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]).Select(c => c.ToTranslatedString()).ToArray();
+				}
+				break;
+		}
+		return webObj;
+	}
 	public WebJSON.GameSettings GetGameSettingsJSON() {
 		Context c = LevelEditorData.MainContext;
 		GameSettings g = c.Settings;
@@ -115,6 +178,9 @@ public class WebCommunicator : MonoBehaviour {
 
 	private WebJSON.Settings GetSettingsJSON() {
 		return new WebJSON.Settings() {
+			ShowObjects = Settings.ShowObjects,
+			ShowTiles = Settings.ShowTiles,
+			ShowCollision = Settings.ShowCollision,
 			AnimateSprites = Settings.AnimateSprites,
 			AnimateTiles = Settings.AnimateTiles,
 			ShowAlwaysEvents = Settings.ShowAlwaysEvents,
@@ -136,8 +202,14 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.Request != null) {
 			ParseRequestJSON(msg.Request);
 		}
+		if (msg.Selection != null) {
+			ParseSelectionJSON(msg.Selection);
+		}
     }
     private void ParseSettingsJSON(WebJSON.Settings msg) {
+		if (msg.ShowObjects.HasValue) Settings.ShowObjects = msg.ShowObjects.Value;
+		if (msg.ShowTiles.HasValue) Settings.ShowTiles = msg.ShowTiles.Value;
+		if (msg.ShowCollision.HasValue) Settings.ShowCollision = msg.ShowCollision.Value;
 		if (msg.AnimateSprites.HasValue) Settings.AnimateSprites = msg.AnimateSprites.Value;
 		if (msg.AnimateTiles.HasValue) Settings.AnimateTiles = msg.AnimateTiles.Value;
 		if (msg.ShowAlwaysEvents.HasValue) Settings.ShowAlwaysEvents = msg.ShowAlwaysEvents.Value;
@@ -147,6 +219,11 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.ShowRayman.HasValue) Settings.ShowRayman = msg.ShowRayman.Value;
 		if (msg.ShowDebugInfo.HasValue) Settings.ShowDebugInfo = msg.ShowDebugInfo.Value;
 		if (msg.StateSwitchingMode.HasValue) Settings.StateSwitchingMode = msg.StateSwitchingMode.Value;
+	}
+	private void ParseSelectionJSON(WebJSON.Selection msg) {
+		if (msg?.Object != null) {
+			Controller.obj.levelEventController.SelectEvent(msg.Object.Index);
+		}
 	}
 	private void ParseRequestJSON(WebJSON.Request msg) {
 		switch (msg.Type) {

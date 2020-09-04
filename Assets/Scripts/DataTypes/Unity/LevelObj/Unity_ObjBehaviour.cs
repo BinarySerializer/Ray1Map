@@ -58,7 +58,6 @@ namespace R1Engine
 
         private void Start() 
         {
-            Index = LevelEditorData.Level.EventData.IndexOf(ObjData);
             transform.rotation = Quaternion.identity;
 
             RefreshEditorInfo();

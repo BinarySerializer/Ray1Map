@@ -102,5 +102,23 @@ namespace R1Engine
                 s.SerializeArray<byte>(Arguments, Arguments.Length, name: nameof(Arguments));
             }
         }
+
+        public string ToTranslatedString() {
+            string cmd = Command.ToString();
+            switch (Command) {
+                case R1_EventCommandType.GO_LABEL:
+                    return "LABEL " + Arguments[0] + ":";
+                case R1_EventCommandType.GO_RETURN:
+                    if (Arguments.Length == 0) {
+                        return "RETURN;";
+                    } else {
+                        cmd = cmd.Replace("GO_", "");
+                        return "\t" + cmd + "(" + (Arguments.Length > 0 ? string.Join(", ", Arguments) : "") + ");";
+                    }
+                default:
+                    cmd = cmd.Replace("GO_", "");
+                    return "\t" + cmd + (Arguments.Length > 0 ? (" " + string.Join(" ", Arguments)) : "") + ";";
+            }
+        }
     }
 }
