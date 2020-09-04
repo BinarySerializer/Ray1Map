@@ -55,13 +55,37 @@ public class WebJSON {
 		public Object[] Objects { get; set; }
 	}
 	public class Object {
-		public string Name { get; set; }
+		// Common
+        public string Name { get; set; }
 		public int Index { get; set; } // Identify by index, non-nullable
 		public bool? IsAlways { get; set; }
 		public bool? IsEditor { get; set; }
 		public int? X { get; set; }
 		public int? Y { get; set; }
-		public string[] Commands { get; set; }
+
+        // Rayman 1/2
+		public int? R1_DESIndex { get; set; }
+		public int? R1_ETAIndex { get; set; } // Not in R2
+		public byte? R1_Etat { get; set; }
+	    public byte? R1_SubEtat { get; set; }
+        public byte? R1_OffsetBX { get; set; }
+        public byte? R1_OffsetBY { get; set; }
+        public byte? R1_OffsetHY { get; set; }
+        public byte? R1_FollowSprite { get; set; } // Not in R2
+        public uint? R1_HitPoints { get; set; } // Not in R2
+		public byte? R1_HitSprite { get; set; } // Not in R2
+		public bool? R1_FollowEnabled { get; set; } // Not in R2
+		public byte? R1_DisplayPrio { get; set; }
+        public string[] R1_Commands { get; set; } // Not in R2
+
+		// Jaguar
+		public int? R1Jaguar_EventDefinitionIndex { get; set; }
+		public byte? R1Jaguar_ComplexState { get; set; }
+		public byte? R1Jaguar_State { get; set; }
+
+		// GBA
+		public int? GBA_GraphicsDataIndex { get; set; }
+		public byte? GBA_State { get; set; }
 	}
 	public class Request {
 		public RequestType Type { get; set; }
