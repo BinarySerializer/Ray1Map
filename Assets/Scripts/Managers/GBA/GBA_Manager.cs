@@ -283,7 +283,7 @@ namespace R1Engine
                     // Enumerate every graphic group
                     await UniTask.WaitForEndOfFrame();
 
-                    foreach (var spr in lvl.Actors.Select(x => x.GraphicData.SpriteGroup).Distinct())
+                    foreach (var spr in lvl.GetAllActors.Select(x => x.GraphicData.SpriteGroup).Distinct())
                         await ExportSpriteGroup(spr, false, -1);
                 }
             }
@@ -666,7 +666,7 @@ namespace R1Engine
 
             var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
 
-            foreach (var actor in scene?.Actors ?? new GBA_Actor[0])
+            foreach (var actor in scene?.GetAllActors ?? new GBA_Actor[0])
             {
                 if (graphicsData.Any(x => x.Index == actor.GraphicsDataIndex))
                     continue;
@@ -865,29 +865,38 @@ namespace R1Engine
             // Add actors
             if (scene != null)
             {
-                for (var actorIndex = 0; actorIndex < scene.Actors.Length; actorIndex++)
+                var actorIndex = 0;
+
+                for (int i = 0; i < scene.Always1Actors.Length; i++)
                 {
-                    var actor = scene.Actors[actorIndex];
+                    addActor(scene.Always1Actors[i], true, actorIndex);
+                    actorIndex++;
+                }
+                for (int i = 0; i < scene.NormalActors.Length; i++)
+                {
+                    addActor(scene.NormalActors[i], false, actorIndex);
+                    actorIndex++;
+                }
+                for (int i = 0; i < scene.Always2Actors.Length; i++)
+                {
+                    addActor(scene.Always2Actors[i], true, actorIndex);
+                    actorIndex++;
+                }
+
+                void addActor(GBA_Actor actor, bool isAlways, int index)
+                {
                     level.EventData.Add(new Unity_Object_GBA(actor, objManager)
                     {
-                        IsAlwaysEvent = actorIndex < scene.AlwaysActorsCount,
+                        IsAlwaysEvent = isAlways,
                         DebugText = $"{nameof(GBA_Actor.Link_0)}: {actor.Link_0}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.Link_1)}: {actor.Link_1}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.Link_2)}: {actor.Link_2}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.Link_3)}: {actor.Link_3}{Environment.NewLine}" +
-                                    $"Index: {actorIndex}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
-                                    $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}" +
-                                    $"State_UnkOffsetIndexType: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateDataType}{Environment.NewLine}" +
-                                    $"State_UnkOffsetIndex: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateDataOffsetIndex}{Environment.NewLine}" +
-                                    $"State_Flags: {String.Join(", ", actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Flags.GetFlags() ?? new Enum[0])}{Environment.NewLine}" +
-                                    $"State_Byte_00: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_00}{Environment.NewLine}" +
-                                    $"State_Byte_01: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_01}{Environment.NewLine}" +
-                                    $"State_Byte_02: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_02}{Environment.NewLine}" +
-                                    $"State_Byte_03: {actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.Byte_03}{Environment.NewLine}" +
-                                    $"State_Data: {String.Join("-", actor.GraphicData?.States.ElementAtOrDefault(actor.StateIndex)?.StateData?.Data ?? new byte[0])}{Environment.NewLine}"
+                        $"{nameof(GBA_Actor.Link_1)}: {actor.Link_1}{Environment.NewLine}" +
+                        $"{nameof(GBA_Actor.Link_2)}: {actor.Link_2}{Environment.NewLine}" +
+                        $"{nameof(GBA_Actor.Link_3)}: {actor.Link_3}{Environment.NewLine}" +
+                        $"Index: {index}{Environment.NewLine}" +
+                        $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
+                        $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
+                        $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
+                        $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}"
                     });
                 }
             }

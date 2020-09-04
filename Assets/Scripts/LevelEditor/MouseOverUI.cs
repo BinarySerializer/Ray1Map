@@ -13,9 +13,9 @@ namespace R1Engine
             transform.position = Input.mousePosition;
 
             var selector = Controller.obj.levelController.editor.objectHighlight;
-            var e = selector.highlightedObject;
-            var t = selector.highlightedTile;
-            var c = selector.highlightedCollision;
+            var e = selector?.highlightedObject;
+            var t = selector?.highlightedTile;
+            var c = selector?.highlightedCollision;
 
             // Mouse over event
             if (e != null) {
