@@ -887,16 +887,7 @@ namespace R1Engine
                 {
                     level.EventData.Add(new Unity_Object_GBA(actor, objManager)
                     {
-                        IsAlwaysEvent = isAlways,
-                        DebugText = $"{nameof(GBA_Actor.Link_0)}: {actor.Link_0}{Environment.NewLine}" +
-                        $"{nameof(GBA_Actor.Link_1)}: {actor.Link_1}{Environment.NewLine}" +
-                        $"{nameof(GBA_Actor.Link_2)}: {actor.Link_2}{Environment.NewLine}" +
-                        $"{nameof(GBA_Actor.Link_3)}: {actor.Link_3}{Environment.NewLine}" +
-                        $"Index: {index}{Environment.NewLine}" +
-                        $"{nameof(GBA_Actor.Byte_04)}: {actor.Byte_04}{Environment.NewLine}" +
-                        $"{nameof(GBA_Actor.ActorID)}: {actor.ActorID}{Environment.NewLine}" +
-                        $"{nameof(GBA_Actor.GraphicsDataIndex)}: {actor.GraphicsDataIndex}{Environment.NewLine}" +
-                        $"{nameof(GBA_Actor.StateIndex)}: {actor.StateIndex}{Environment.NewLine}"
+                        IsAlwaysEvent = isAlways
                     });
                 }
             }

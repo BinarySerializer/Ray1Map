@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -11,7 +12,7 @@ namespace R1Engine
         public abstract short YPosition { get; set; }
 
         // Editor
-        public string DebugText { get; set; }
+        public abstract string DebugText { get; }
         public int EditorLinkGroup { get; set; }
         public bool HasPendingEdits { get; set; }
 
@@ -51,18 +52,63 @@ namespace R1Engine
         public virtual bool IsDisabled => Settings.LoadFromMemory && !IsActive;
 
         // Animations
+        // TODO: Expose current frame and use that mostly
         public abstract Unity_ObjAnimation CurrentAnimation { get; }
-        public abstract byte CurrentAnimationFrame { get; set; }
-        protected float CurrentAnimationFrameFloat { get; set; }
+        public virtual byte AnimationFrame { get; set; }
+        public virtual byte AnimationIndex { get; set; }
+        public abstract byte AnimSpeed { get; }
+        public float AnimationFrameFloat { get; set; }
         protected byte? PrevAnimIndex { get; set; }
+        public abstract byte GetAnimIndex { get; }
         public abstract IList<Sprite> Sprites { get; }
         public virtual Vector2 Pivot => Vector2.zero;
-        public abstract void UpdateFrame();
-        public abstract bool ShouldUpdateAnimation();
+        public void UpdateFrame()
+        {
+            if (!ShouldUpdateFrame())
+                return;
+
+            // Increment frame if animating
+            if (Settings.AnimateSprites && AnimSpeed > 0)
+                AnimationFrameFloat += (60f / AnimSpeed) * Time.deltaTime;
+
+            // Update the frame
+            AnimationFrame = (byte)Mathf.FloorToInt(AnimationFrameFloat);
+
+            // Loop back to first frame
+            if (AnimationFrame >= CurrentAnimation.Frames.Length)
+            {
+                AnimationFrame = 0;
+                AnimationFrameFloat = 0;
+
+                OnFinishedAnimation();
+            }
+        }
+        protected virtual bool ShouldUpdateFrame() => true;
+        protected virtual void OnFinishedAnimation() { }
+        public virtual bool ShouldUpdateAnimation()
+        {
+            // Update the animation index if not loading from memory
+            if (!Settings.LoadFromMemory)
+                AnimationIndex = GetAnimIndex;
+
+            // Check if the animation has changed
+            if (PrevAnimIndex != AnimationIndex)
+            {
+                // Update the animation index
+                PrevAnimIndex = AnimationIndex;
+
+                return true;
+            }
+
+            return false;
+        }
         public virtual void ResetFrame()
         {
-            if (!Settings.LoadFromMemory) 
-                CurrentAnimationFrame = 0;
+            if (!Settings.LoadFromMemory)
+            {
+                AnimationFrame = 0;
+                AnimationFrameFloat = 0;
+            }
         }
     }
 }

@@ -992,7 +992,7 @@ namespace R1Engine
                     finalStates = new Unity_ObjectManager_R1Jaguar.State[0][];
                 }
 
-                eventDefinitions.Add(new Unity_ObjectManager_R1Jaguar.EventDefinition(eventDefinitionPointer, finalDesign, finalStates, GetPointerName(eventDefinitionPointer, 0, true)));
+                eventDefinitions.Add(new Unity_ObjectManager_R1Jaguar.EventDefinition(eventDefinitionPointer, finalDesign, finalStates, GetPointerName(eventDefinitionPointer, 0, true), ed));
             }
 
             // Get state index
@@ -1298,17 +1298,7 @@ namespace R1Engine
                     eventData.LinkIndex = linkIndex;
                     eventData.XPosition = (short)(mapX + e.OffsetX);
                     eventData.YPosition = (short)(mapY + e.OffsetY);
-                    eventData.DebugText = $"{nameof(e.Unk_00)}: {e.Unk_00}{Environment.NewLine}" +
-                                          $"{nameof(e.Unk_0A)}: {e.Unk_0A}{Environment.NewLine}" +
-                                          $"{nameof(e.EventIndex)}: {e.EventIndex}{Environment.NewLine}" +
-                                          $"MapPos: {mapPos}{Environment.NewLine}" +
-                                          $"{nameof(e.EventDefinitionPointer)}: {e.EventDefinitionPointer}{Environment.NewLine}" +
-                                          $"IsComplex: {e.EventDefinition.ComplexData != null}{Environment.NewLine}" +
-                                          $"CAR: {String.Join("-", e.EventDefinition.CarData ?? new byte[0])}{Environment.NewLine}" +
-                                          $"Byte_25: {e.EventDefinition.Byte_25}{Environment.NewLine}" +
-                                          $"Byte_26: {e.EventDefinition.Byte_26}{Environment.NewLine}" +
-                                          $"{nameof(e.OffsetX)}: {e.OffsetX}{Environment.NewLine}" +
-                                          $"{nameof(e.OffsetY)}: {e.OffsetY}{Environment.NewLine}";
+                    eventData.Instance = e;
 
                     // Hack change the DES and ETA if special event so it displays correctly
                     if (correctEventStates)

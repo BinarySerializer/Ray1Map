@@ -158,7 +158,7 @@ namespace R1Engine
             if (anim != null)
             {
                 // Get properties
-                var frame = ObjData.CurrentAnimationFrame;
+                var frame = ObjData.AnimationFrame;
                 var sprites = ObjData.Sprites;
                 var pivot = ObjData.Pivot;
                 var mirroredX = ObjData.FlipHorizontally;
@@ -245,7 +245,7 @@ namespace R1Engine
             }
 
             // Update the follow sprite line (Rayman 1 only)
-            if (ObjData is Unity_Object_R1 r1 && anim != null && r1.EventData.FollowSprite < anim.Frames[ObjData.CurrentAnimationFrame].Layers.Length)
+            if (ObjData is Unity_Object_R1 r1 && anim != null && r1.EventData.FollowSprite < anim.Frames[ObjData.AnimationFrame].Layers.Length)
             {
                 followSpriteLine.localPosition = new Vector2(anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].Layers[r1.EventData.FollowSprite].XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].Layers[r1.EventData.FollowSprite].YPosition / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
 

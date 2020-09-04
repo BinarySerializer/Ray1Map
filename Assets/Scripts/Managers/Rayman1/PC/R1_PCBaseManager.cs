@@ -1393,10 +1393,7 @@ namespace R1Engine
                 e.LabelOffsets = levelData.EventData.EventCommands[i].LabelOffsetTable;
 
                 // Add the event
-                level.EventData.Add(new Unity_Object_R1(e, objManager)
-                {
-                    DebugText = $"Flags: {String.Join(", ", e.PC_Flags.GetFlags())}{Environment.NewLine}"
-                });
+                level.EventData.Add(new Unity_Object_R1(e, objManager));
             }
 
             await Controller.WaitIfNecessary();

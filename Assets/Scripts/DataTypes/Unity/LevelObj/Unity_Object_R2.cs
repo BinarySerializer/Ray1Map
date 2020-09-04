@@ -50,6 +50,30 @@ namespace R1Engine
             set => EventData.YPosition = value;
         }
 
+        public override string DebugText => $"UShort_00: {EventData.UShort_00}{Environment.NewLine}" +
+                                            $"UShort_02: {EventData.UShort_02}{Environment.NewLine}" +
+                                            $"UShort_04: {EventData.UShort_04}{Environment.NewLine}" +
+                                            $"UShort_06: {EventData.UShort_06}{Environment.NewLine}" +
+                                            $"UShort_08: {EventData.UShort_08}{Environment.NewLine}" +
+                                            $"UShort_0A: {EventData.UShort_0A}{Environment.NewLine}" +
+                                            $"UnkStateRelatedValue: {EventData.UnkStateRelatedValue}{Environment.NewLine}" +
+                                            $"Unk_22: {EventData.Unk_22}{Environment.NewLine}" +
+                                            $"MapLayer: {EventData.MapLayer}{Environment.NewLine}" +
+                                            $"Unk1: {EventData.Unk1}{Environment.NewLine}" +
+                                            $"Unk2: {String.Join("-", EventData.Unk2)}{Environment.NewLine}" +
+                                            $"RuntimeUnk1: {EventData.EventIndex}{Environment.NewLine}" +
+                                            $"EventType: {EventData.EventType}{Environment.NewLine}" +
+                                            $"RuntimeOffset1: {EventData.RuntimeOffset1}{Environment.NewLine}" +
+                                            $"RuntimeOffset2: {EventData.RuntimeOffset2}{Environment.NewLine}" +
+                                            $"RuntimeBytes1: {String.Join("-", EventData.RuntimeBytes1)}{Environment.NewLine}" +
+                                            $"Unk_58: {EventData.Unk_58}{Environment.NewLine}" +
+                                            $"Unk3: {String.Join("-", EventData.Unk3)}{Environment.NewLine}" +
+                                            $"Unk4: {String.Join("-", EventData.Unk4)}{Environment.NewLine}" +
+                                            $"Flags: {String.Join(", ", EventData.Flags.GetFlags())}{Environment.NewLine}" +
+                                            $"Unk5: {String.Join("-", EventData.Unk5)}{Environment.NewLine}" +
+                                            $"CollisionDataValues 1: {String.Join("-", EventData.CollisionData?.Unk1 ?? new byte[0])}{Environment.NewLine}" +
+                                            $"CollisionDataValues 2: {String.Join("-", EventData.CollisionData?.Unk2 ?? new byte[0])}{Environment.NewLine}";
+
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
@@ -63,75 +87,46 @@ namespace R1Engine
         public override float Scale => MapLayer == 1 ? 0.5f : 1;
         public override bool FlipHorizontally => EventData.IsFlippedHorizontally;
 
-        public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.DES?.Animations.ElementAtOrDefault(EventData.RuntimeCurrentAnimIndex);
-        public override byte CurrentAnimationFrame
+        public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.DES?.Animations.ElementAtOrDefault(AnimationIndex);
+        public override byte AnimationFrame
         {
             get => EventData.RuntimeCurrentAnimFrame;
-            set
-            {
-                EventData.RuntimeCurrentAnimFrame = value;
-                CurrentAnimationFrameFloat = value;
-            }
+            set => EventData.RuntimeCurrentAnimFrame = value;
         }
 
-        public int AnimSpeed => State?.AnimationSpeed ?? 0;
+        public override byte AnimationIndex
+        {
+            get => EventData.RuntimeCurrentAnimIndex;
+            set => EventData.RuntimeCurrentAnimIndex = value;
+        }
 
+        public override byte AnimSpeed => State?.AnimationSpeed ?? 0;
+
+        public override byte GetAnimIndex => State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => AnimGroup?.DES?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.CollisionData.OffsetBX, -EventData.CollisionData.OffsetBY);
 
-        public override void UpdateFrame()
+        protected override void OnFinishedAnimation()
         {
-            // Increment frame if animating
-            if (Settings.AnimateSprites && AnimSpeed > 0)
-                CurrentAnimationFrameFloat += (60f / AnimSpeed) * Time.deltaTime;
-
-            // Update the frame
-            EventData.RuntimeCurrentAnimFrame = (byte)Mathf.FloorToInt(CurrentAnimationFrameFloat);
-
-            // Loop back to first frame
-            if (EventData.RuntimeCurrentAnimFrame >= CurrentAnimation.Frames.Length)
+            if (Settings.StateSwitchingMode != StateSwitchingMode.None)
             {
-                EventData.RuntimeCurrentAnimFrame = 0;
-                CurrentAnimationFrameFloat = 0;
+                // Get the current state
+                var state = State;
 
-                if (Settings.StateSwitchingMode != StateSwitchingMode.None)
+                // Check if we've reached the end of the linking chain and we're looping
+                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.RuntimeEtat == state.LinkedEtat && EventData.RuntimeSubEtat == state.LinkedSubEtat)
                 {
-                    // Get the current state
-                    var state = State;
-
-                    // Check if we've reached the end of the linking chain and we're looping
-                    if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.RuntimeEtat == state.LinkedEtat && EventData.RuntimeSubEtat == state.LinkedSubEtat)
-                    {
-                        // Reset the state
-                        EventData.RuntimeEtat = EventData.Etat;
-                        EventData.RuntimeSubEtat = EventData.SubEtat;
-                    }
-                    else
-                    {
-                        // Update state values to the linked one
-                        EventData.RuntimeEtat = state.LinkedEtat;
-                        EventData.RuntimeSubEtat = state.LinkedSubEtat;
-                    }
+                    // Reset the state
+                    EventData.RuntimeEtat = EventData.Etat;
+                    EventData.RuntimeSubEtat = EventData.SubEtat;
+                }
+                else
+                {
+                    // Update state values to the linked one
+                    EventData.RuntimeEtat = state.LinkedEtat;
+                    EventData.RuntimeSubEtat = state.LinkedSubEtat;
                 }
             }
-        }
-
-        public override bool ShouldUpdateAnimation()
-        {
-            // Update the animation index if not loading from memory
-            if (!Settings.LoadFromMemory)
-                EventData.RuntimeCurrentAnimIndex = State?.AnimationIndex ?? 0;
-
-            // Check if the animation has changed
-            if (PrevAnimIndex != EventData.RuntimeCurrentAnimIndex)
-            {
-                // Update the animation index
-                PrevAnimIndex = EventData.RuntimeCurrentAnimIndex;
-
-                return true;
-            }
-
-            return false;
         }
 
         [Obsolete]

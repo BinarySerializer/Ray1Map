@@ -505,22 +505,24 @@ namespace R1Engine
                 {
                     if (Input.GetKeyDown(KeyCode.O))
                     {
-                        var frame = SelectedEvent.ObjData.CurrentAnimationFrame - 1;
+                        var frame = SelectedEvent.ObjData.AnimationFrame - 1;
 
                         if (frame < 0)
                             frame = SelectedEvent.ObjData.CurrentAnimation.Frames.Length - 1;
 
-                        SelectedEvent.ObjData.CurrentAnimationFrame = (byte)frame;
+                        SelectedEvent.ObjData.AnimationFrame = (byte)frame;
+                        SelectedEvent.ObjData.AnimationFrameFloat = frame;
                     }
 
                     if (Input.GetKeyDown(KeyCode.P))
                     {
-                        var frame = SelectedEvent.ObjData.CurrentAnimationFrame + 1;
+                        var frame = SelectedEvent.ObjData.AnimationFrame + 1;
 
                         if (frame >= SelectedEvent.ObjData.CurrentAnimation.Frames.Length)
                             frame = 0;
 
-                        SelectedEvent.ObjData.CurrentAnimationFrame = (byte)frame;
+                        SelectedEvent.ObjData.AnimationFrame = (byte)frame;
+                        SelectedEvent.ObjData.AnimationFrameFloat = frame;
                     }
                 }
 
@@ -603,37 +605,6 @@ namespace R1Engine
                     s.Goto(currentOffset);
                     ed.EventData.Init(s.CurrentPointer);
                     ed.EventData.Serialize(s);
-                    ed.DebugText = $"Pos: {ed.EventData.XPosition}, {ed.EventData.YPosition}{Environment.NewLine}" +
-                                   $"RuntimePos: {ed.EventData.RuntimeXPosition}, {ed.EventData.RuntimeYPosition}{Environment.NewLine}" +
-                                   $"Layer: {ed.EventData.Layer}{Environment.NewLine}" +
-                                   $"RuntimeLayer: {ed.EventData.RuntimeLayer}{Environment.NewLine}" +
-                                   $"{Environment.NewLine}" +
-                                   $"Unk_24: {ed.EventData.Unk_24}{Environment.NewLine}" +
-                                   $"Unk_28: {ed.EventData.Unk_28}{Environment.NewLine}" +
-                                   $"Unk_32: {ed.EventData.Unk_32}{Environment.NewLine}" +
-                                   $"Unk_36: {ed.EventData.Unk_36}{Environment.NewLine}" +
-                                   $"{Environment.NewLine}" +
-                                   $"Unk_48: {ed.EventData.Unk_48}{Environment.NewLine}" +
-                                   $"Unk_54: {ed.EventData.Unk_54}{Environment.NewLine}" +
-                                   $"Unk_56: {ed.EventData.Unk_56}{Environment.NewLine}" +
-                                   $"Unk_58: {ed.EventData.Unk_58}{Environment.NewLine}" +
-                                   $"{Environment.NewLine}" +
-                                   $"Unk_64: {ed.EventData.Unk_64}{Environment.NewLine}" +
-                                   $"Unk_66: {ed.EventData.Unk_66}{Environment.NewLine}" +
-                                   $"{Environment.NewLine}" +
-                                   $"Unk_74: {ed.EventData.Unk_74}{Environment.NewLine}" +
-                                   $"Unk_76: {ed.EventData.Unk_76}{Environment.NewLine}" +
-                                   $"Unk_78: {ed.EventData.Unk_78}{Environment.NewLine}" +
-                                   $"Unk_80: {ed.EventData.Unk_80}{Environment.NewLine}" +
-                                   $"Unk_82: {ed.EventData.Unk_82}{Environment.NewLine}" +
-                                   $"Unk_84: {ed.EventData.Unk_84}{Environment.NewLine}" +
-                                   $"Unk_86: {ed.EventData.Unk_86}{Environment.NewLine}" +
-                                   $"Unk_88: {ed.EventData.Unk_88}{Environment.NewLine}" +
-                                   $"Unk_90: {ed.EventData.Unk_90}{Environment.NewLine}" +
-                                   $"Runtime_ZdcIndex: {ed.EventData.Runtime_ZdcIndex}{Environment.NewLine}" +
-                                   $"Unk_94: {ed.EventData.Unk_94}{Environment.NewLine}" +
-                                   $"{Environment.NewLine}" +
-                                   $"Flags: {Convert.ToString((byte)ed.EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}";
                     if (s is BinarySerializer)
                     {
                         Debug.Log($"Edited event");

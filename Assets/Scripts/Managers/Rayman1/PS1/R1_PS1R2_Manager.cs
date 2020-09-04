@@ -299,30 +299,7 @@ namespace R1Engine
                 // Add the event
                 commonEvents.Add(new Unity_Object_R2(e, objManager)
                 {
-                    IsAlwaysEvent = lvlData.AlwaysEvents.Contains(e),
-                    DebugText = $"UShort_00: {e.UShort_00}{Environment.NewLine}" +
-                                $"UShort_02: {e.UShort_02}{Environment.NewLine}" +
-                                $"UShort_04: {e.UShort_04}{Environment.NewLine}" +
-                                $"UShort_06: {e.UShort_06}{Environment.NewLine}" +
-                                $"UShort_08: {e.UShort_08}{Environment.NewLine}" +
-                                $"UShort_0A: {e.UShort_0A}{Environment.NewLine}" +
-                                $"UnkStateRelatedValue: {e.UnkStateRelatedValue}{Environment.NewLine}" +
-                                $"Unk_22: {e.Unk_22}{Environment.NewLine}" +
-                                $"MapLayer: {e.MapLayer}{Environment.NewLine}" +
-                                $"Unk1: {e.Unk1}{Environment.NewLine}" +
-                                $"Unk2: {String.Join("-", e.Unk2)}{Environment.NewLine}" +
-                                $"RuntimeUnk1: {e.EventIndex}{Environment.NewLine}" +
-                                $"EventType: {e.EventType}{Environment.NewLine}" +
-                                $"RuntimeOffset1: {e.RuntimeOffset1}{Environment.NewLine}" +
-                                $"RuntimeOffset2: {e.RuntimeOffset2}{Environment.NewLine}" +
-                                $"RuntimeBytes1: {String.Join("-", e.RuntimeBytes1)}{Environment.NewLine}" +
-                                $"Unk_58: {e.Unk_58}{Environment.NewLine}" +
-                                $"Unk3: {String.Join("-", e.Unk3)}{Environment.NewLine}" +
-                                $"Unk4: {String.Join("-", e.Unk4)}{Environment.NewLine}" +
-                                $"Flags: {String.Join(", ", e.Flags.GetFlags())}{Environment.NewLine}" +
-                                $"Unk5: {String.Join("-", e.Unk5)}{Environment.NewLine}" +
-                                $"CollisionDataValues 1: {String.Join("-", e.CollisionData?.Unk1 ?? new byte[0])}{Environment.NewLine}" +
-                                $"CollisionDataValues 2: {String.Join("-", e.CollisionData?.Unk2 ?? new byte[0])}{Environment.NewLine}"
+                    IsAlwaysEvent = lvlData.AlwaysEvents.Contains(e)
                 });
             }
 

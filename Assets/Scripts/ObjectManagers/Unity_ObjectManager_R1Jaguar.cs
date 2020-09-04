@@ -70,12 +70,13 @@ namespace R1Engine
 
         public class EventDefinition
         {
-            public EventDefinition(Pointer pointer, Unity_ObjGraphics des, State[][] eta, string name)
+            public EventDefinition(Pointer pointer, Unity_ObjGraphics des, State[][] eta, string name, R1Jaguar_EventDefinition definition)
             {
                 Pointer = pointer;
                 DES = des;
                 ETA = eta;
                 Name = name;
+                Definition = definition;
             }
 
             public Pointer Pointer { get; }
@@ -83,6 +84,7 @@ namespace R1Engine
             public State[][] ETA { get; }
             protected string Name { get; }
             public string DisplayName => Name ?? Pointer.ToString();
+            public R1Jaguar_EventDefinition Definition { get; }
         }
     }
 }

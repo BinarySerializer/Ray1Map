@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,23 +20,31 @@ namespace R1Engine
             if (e != null) {
                 
                 textCollision.text = $"{e.ObjData.DisplayName}";
-                textGraphic.text = $"Pos: {e.ObjData.XPosition}, {e.ObjData.YPosition}{Environment.NewLine}" +
-                                   $"Offsets: {e.ObjData.Pivot.x} x {e.ObjData.Pivot.y}";
+                textGraphic.text = $"Pos: ({e.ObjData.XPosition}, {e.ObjData.YPosition}){Environment.NewLine}" +
+                                   $"Pivot: ({e.ObjData.Pivot.x}, {e.ObjData.Pivot.y})";
 
                 // Set debug text
                 Controller.obj.tempDebugText.text = Settings.ShowDebugInfo 
                     ? $"{e.ObjData.DebugText}{Environment.NewLine}" +
-                      $"CurrentFrame: {e.ObjData.CurrentAnimationFrame}{Environment.NewLine}" +
+                      $"{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.AnimationIndex)}: {e.ObjData.AnimationIndex}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.AnimationFrame)}: {e.ObjData.AnimationFrame}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.AnimSpeed)}: {e.ObjData.AnimSpeed}{Environment.NewLine}" +
                       $"Frames: {e.ObjData.CurrentAnimation?.Frames?.GetLength(0)}{Environment.NewLine}" +
                       $"{Environment.NewLine}" +
-                      $"IsAlways: {e.ObjData.IsAlways}{Environment.NewLine}" +
-                      $"IsEditor: {e.ObjData.IsEditor}{Environment.NewLine}" +
-                      $"IsActive: {e.ObjData.IsActive}{Environment.NewLine}" +
-                      $"IsDisabled: {e.ObjData.IsDisabled}{Environment.NewLine}" +
-                      $"IsVisible: {e.ObjData.IsVisible}{Environment.NewLine}" +
-                      $"Layer: {e.Layer}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.IsAlways)}: {e.ObjData.IsAlways}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.IsEditor)}: {e.ObjData.IsEditor}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.IsActive)}: {e.ObjData.IsActive}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.IsDisabled)}: {e.ObjData.IsDisabled}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.IsVisible)}: {e.ObjData.IsVisible}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.MapLayer)}: {e.ObjData.MapLayer}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.Scale)}: {e.ObjData.Scale}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.FlipHorizontally)}: {e.ObjData.FlipHorizontally}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.FlipVertically)}: {e.ObjData.FlipVertically}{Environment.NewLine}" +
                       $"{Environment.NewLine}" +
-                      $"LinkID: {e.ObjData.EditorLinkGroup}{Environment.NewLine}"
+                      $"{nameof(e.Index)}: {e.Index}{Environment.NewLine}" +
+                      $"{nameof(e.Layer)}: {e.Layer}{Environment.NewLine}" +
+                      $"{nameof(e.ObjData.EditorLinkGroup)}: {e.ObjData.EditorLinkGroup}{Environment.NewLine}" 
                     : String.Empty;
             }
             // Else Mouse over type

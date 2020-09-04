@@ -39,6 +39,15 @@ namespace R1Engine
             set => Actor.YPos = (ushort)value;
         }
 
+        public override string DebugText => $"{nameof(Actor.Link_0)}: {Actor.Link_0}{Environment.NewLine}" +
+                                            $"{nameof(Actor.Link_1)}: {Actor.Link_1}{Environment.NewLine}" +
+                                            $"{nameof(Actor.Link_2)}: {Actor.Link_2}{Environment.NewLine}" +
+                                            $"{nameof(Actor.Link_3)}: {Actor.Link_3}{Environment.NewLine}" +
+                                            $"{nameof(Actor.Byte_04)}: {Actor.Byte_04}{Environment.NewLine}" +
+                                            $"{nameof(Actor.ActorID)}: {Actor.ActorID}{Environment.NewLine}" +
+                                            $"{nameof(Actor.GraphicsDataIndex)}: {Actor.GraphicsDataIndex}{Environment.NewLine}" +
+                                            $"{nameof(Actor.StateIndex)}: {Actor.StateIndex}";
+
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
@@ -50,54 +59,11 @@ namespace R1Engine
         public override bool FlipHorizontally => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip) ?? false;
         public override bool FlipVertically => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip) ?? false;
 
-        public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(CurrentAnimIndex);
-        public byte CurrentAnimIndex { get; set; }
-        private byte _currentAnimationFrame;
-        public override byte CurrentAnimationFrame
-        {
-            get => _currentAnimationFrame;
-            set
-            {
-                _currentAnimationFrame = value;
-                CurrentAnimationFrameFloat = value;
-            }
-        }
+        public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex);
+        public override byte AnimSpeed => CurrentAnimation.AnimSpeed.Value;
 
-        public int AnimSpeed => CurrentAnimation.AnimSpeed.Value;
-
+        public override byte GetAnimIndex => State?.AnimationIndex ?? Actor.StateIndex;
         public override IList<Sprite> Sprites => GraphicsData?.Graphics.Sprites;
-
-        public override void UpdateFrame()
-        {
-            // Increment frame if animating
-            if (Settings.AnimateSprites && AnimSpeed > 0)
-                CurrentAnimationFrameFloat += (60f / AnimSpeed) * Time.deltaTime;
-
-            // Update the frame
-            _currentAnimationFrame = (byte)Mathf.FloorToInt(CurrentAnimationFrameFloat);
-
-            // Loop back to first frame
-            if (CurrentAnimationFrame >= CurrentAnimation.Frames.Length)
-                CurrentAnimationFrame = 0;
-        }
-
-        public override bool ShouldUpdateAnimation()
-        {
-            // Update the animation index if not loading from memory
-            if (!Settings.LoadFromMemory)
-                CurrentAnimIndex = State?.AnimationIndex ?? Actor.StateIndex;
-
-            // Check if the animation has changed
-            if (PrevAnimIndex != CurrentAnimIndex)
-            {
-                // Update the animation index
-                PrevAnimIndex = CurrentAnimIndex;
-
-                return true;
-            }
-
-            return false;
-        }
 
         [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
