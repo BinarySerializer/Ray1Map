@@ -1766,7 +1766,7 @@ function initVersion(versionJSON) {
 			if(levelsJSON.icons.length > index+1 && levelsJSON.icons[index+1].level < value.level+7) {
 				iconClass = iconClass + " small";
 			}
-			let iconSidebar = "<div class='sidebar-button' style='background-image: url(\"" + encodeURI(value.image) + "\");'></div>";
+			let iconSidebar = "<div class='sidebar-button'><div class='sidebar-button-image' style='background-image: url(\"" + encodeURI(value.image) + "\");'></div></div>";
 			items.push("<div class='" + iconClass + "' style='background-image: url(\"" + encodeURI(value.image) + "\"); top: " + emDistance*(value.level) + "em;'></div>");
 			sidebarItems.push(iconSidebar);
 		});

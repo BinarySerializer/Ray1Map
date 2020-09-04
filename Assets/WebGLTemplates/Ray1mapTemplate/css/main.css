@@ -949,7 +949,7 @@ a:focus {
 	height: 12em;
 	opacity: 0.1;
 	font-size: 0.9em;
-	background-size: 100%;
+	background-size: contain;
 	background-repeat: no-repeat;
 }
 
@@ -965,7 +965,8 @@ a:focus {
 	position: relative;
 	width: 5em;
 	height: 4em;
-	background-size: 70%;
+	box-sizing: border-box;
+	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center center;
 	transition: background-color .4s;
@@ -979,6 +980,18 @@ a:focus {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+.sidebar-button-image {
+	box-sizing: border-box;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 3.5em;
+	height: 3.5em;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center center;
 }
 
 .sidebar-slider {

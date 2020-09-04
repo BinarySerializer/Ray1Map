@@ -4,43 +4,43 @@
   "folder": "gba/r3_eu",
   "icons": [
     {
-      "image": ".\/img\/icon\/R3GBA\/World1.png",
+      "image": ".\/img\/icon\/R3GBA\/World1.gif",
       "level": 0
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/World2.png",
+      "image": ".\/img\/icon\/R3GBA\/World2.gif",
       "level": 8
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/World3.png",
+      "image": ".\/img\/icon\/R3GBA\/World3.gif",
       "level": 17
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/World4.png",
+      "image": ".\/img\/icon\/R3GBA\/World4.gif",
       "level": 30
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/Bonus.png",
+      "image": ".\/img\/icon\/R3GBA\/Bonus.gif",
       "level": 40
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/Ly.png",
+      "image": ".\/img\/icon\/R3GBA\/Ly.gif",
       "level": 48
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/World.png",
+      "image": ".\/img\/icon\/R3GBA\/World.gif",
       "level": 54
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/Multiplayer.png",
+      "image": ".\/img\/icon\/R3GBA\/Multiplayer.gif",
       "level": 59
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/Menu.png",
+      "image": ".\/img\/icon\/R3GBA\/Menu.gif",
       "level": 65
     },
     {
-      "image": ".\/img\/icon\/R3GBA\/GCN.png",
+      "image": ".\/img\/icon\/R3GBA\/GCN.gif",
       "level": 67
     }
   ],
