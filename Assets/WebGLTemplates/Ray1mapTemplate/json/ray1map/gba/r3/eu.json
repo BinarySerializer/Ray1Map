@@ -1,0 +1,511 @@
+{
+  "name": "Rayman 3 (GBA - EU)",
+  "mode": "Rayman3GBAEU",
+  "folder": "gba/r3_eu",
+  "icons": [
+    {
+      "image": ".\/img\/icon\/R3GBA\/World1.png",
+      "level": 0
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/World2.png",
+      "level": 8
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/World3.png",
+      "level": 17
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/World4.png",
+      "level": 30
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/Bonus.png",
+      "level": 40
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/Ly.png",
+      "level": 48
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/World.png",
+      "level": 54
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/Multiplayer.png",
+      "level": 59
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/Menu.png",
+      "level": 65
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/GCN.png",
+      "level": 67
+    }
+  ],
+  "levels": [
+    {
+      "world": 0,
+      "level": 0,
+      "nameInternal": "0",
+      "name": "Wanderwood Forest 1"
+    },
+    {
+      "world": 0,
+      "level": 1,
+      "nameInternal": "1",
+      "name": "Wanderwood Forest 2"
+    },
+    {
+      "world": 0,
+      "level": 2,
+      "nameInternal": "2",
+      "name": "Shining Glade 1"
+    },
+    {
+      "world": 0,
+      "level": 3,
+      "nameInternal": "3",
+      "name": "Shining Glade 2"
+    },
+    {
+      "world": 0,
+      "level": 4,
+      "nameInternal": "4",
+      "name": "Swamp of Bégoniax"
+    },
+    {
+      "world": 0,
+      "level": 5,
+      "nameInternal": "5",
+      "name": "Garish Gears"
+    },
+    {
+      "world": 0,
+      "level": 6,
+      "nameInternal": "6",
+      "name": "Hoodlum Hideout 1"
+    },
+    {
+      "world": 0,
+      "level": 7,
+      "nameInternal": "7",
+      "name": "Hoodlum Hideout 2"
+    },
+    {
+      "world": 1,
+      "level": 8,
+      "nameInternal": "8",
+      "name": "Magma Mayhem"
+    },
+    {
+      "world": 1,
+      "level": 9,
+      "nameInternal": "9",
+      "name": "Vertigo Wastes 1"
+    },
+    {
+      "world": 1,
+      "level": 10,
+      "nameInternal": "10",
+      "name": "Vertigo Wastes 2"
+    },
+    {
+      "world": 1,
+      "level": 11,
+      "nameInternal": "11",
+      "name": "Void of Bones 1"
+    },
+    {
+      "world": 1,
+      "level": 12,
+      "nameInternal": "12",
+      "name": "Void of Bones 2"
+    },
+    {
+      "world": 1,
+      "level": 13,
+      "nameInternal": "13",
+      "name": "Jano's Nest"
+    },
+    {
+      "world": 1,
+      "level": 14,
+      "nameInternal": "14",
+      "name": "Prickly Passage 1"
+    },
+    {
+      "world": 1,
+      "level": 15,
+      "nameInternal": "15",
+      "name": "Prickly Passage 2"
+    },
+    {
+      "world": 1,
+      "level": 16,
+      "nameInternal": "16",
+      "name": "Swamp of Bégoniax 2"
+    },
+    {
+      "world": 2,
+      "level": 17,
+      "nameInternal": "17",
+      "name": "River of Fire 1"
+    },
+    {
+      "world": 2,
+      "level": 18,
+      "nameInternal": "18",
+      "name": "River of Fire 2"
+    },
+    {
+      "world": 2,
+      "level": 19,
+      "nameInternal": "19",
+      "name": "River of Fire 3"
+    },
+    {
+      "world": 2,
+      "level": 20,
+      "nameInternal": "20",
+      "name": "The Underlands 1"
+    },
+    {
+      "world": 2,
+      "level": 21,
+      "nameInternal": "21",
+      "name": "The Underlands 2"
+    },
+    {
+      "world": 2,
+      "level": 22,
+      "nameInternal": "22",
+      "name": "Boulder Brink 1"
+    },
+    {
+      "world": 2,
+      "level": 23,
+      "nameInternal": "23",
+      "name": "Boulder Brink 2"
+    },
+    {
+      "world": 2,
+      "level": 24,
+      "nameInternal": "24",
+      "name": "Den of Rocky"
+    },
+    {
+      "world": 2,
+      "level": 25,
+      "nameInternal": "25",
+      "name": "Wretched Ruins 1"
+    },
+    {
+      "world": 2,
+      "level": 26,
+      "nameInternal": "26",
+      "name": "Wretched Ruins 2 "
+    },
+    {
+      "world": 2,
+      "level": 27,
+      "nameInternal": "27",
+      "name": "Wicked Flow 1"
+    },
+    {
+      "world": 2,
+      "level": 28,
+      "nameInternal": "28",
+      "name": "Wicked Flow 2"
+    },
+    {
+      "world": 2,
+      "level": 29,
+      "nameInternal": "29",
+      "name": "Wicked Flow 3"
+    },
+    {
+      "world": 3,
+      "level": 30,
+      "nameInternal": "30",
+      "name": "Creeping Chaos 1"
+    },
+    {
+      "world": 3,
+      "level": 31,
+      "nameInternal": "31",
+      "name": "Creeping Chaos 2"
+    },
+    {
+      "world": 3,
+      "level": 32,
+      "nameInternal": "32",
+      "name": "Scaleman's Keep"
+    },
+    {
+      "world": 3,
+      "level": 33,
+      "nameInternal": "33",
+      "name": "The Mettleworks 1"
+    },
+    {
+      "world": 3,
+      "level": 34,
+      "nameInternal": "34",
+      "name": "The Mettleworks 2"
+    },
+    {
+      "world": 3,
+      "level": 35,
+      "nameInternal": "35",
+      "name": "Magma Mayhem 2"
+    },
+    {
+      "world": 3,
+      "level": 36,
+      "nameInternal": "36",
+      "name": "Razor Slide 1"
+    },
+    {
+      "world": 3,
+      "level": 37,
+      "nameInternal": "37",
+      "name": "Razor Slide 2"
+    },
+    {
+      "world": 3,
+      "level": 38,
+      "nameInternal": "38",
+      "name": "Heart of the Ancients 1"
+    },
+    {
+      "world": 3,
+      "level": 39,
+      "nameInternal": "39",
+      "name": "Heart of the Ancients 2"
+    },
+    {
+      "world": 4,
+      "level": 40,
+      "nameInternal": "40",
+      "name": "Mega Havoc 1"
+    },
+    {
+      "world": 4,
+      "level": 41,
+      "nameInternal": "41",
+      "name": "Mega Havoc 2"
+    },
+    {
+      "world": 4,
+      "level": 42,
+      "nameInternal": "42",
+      "name": "Mega Havoc 3"
+    },
+    {
+      "world": 4,
+      "level": 43,
+      "nameInternal": "43",
+      "name": "Mega Havoc 4"
+    },
+    {
+      "world": 4,
+      "level": 44,
+      "nameInternal": "44",
+      "name": "Lum Challenge"
+    },
+    {
+      "world": 4,
+      "level": 45,
+      "nameInternal": "45",
+      "name": "Ly's Punch Challenge 1"
+    },
+    {
+      "world": 4,
+      "level": 46,
+      "nameInternal": "46",
+      "name": "Ly's Punch Challenge 2"
+    },
+    {
+      "world": 4,
+      "level": 47,
+      "nameInternal": "47",
+      "name": "Ly's Punch Challenge 3"
+    },
+    {
+      "world": 5,
+      "level": 48,
+      "nameInternal": "48",
+      "name": "Ly Power 1 (Wanderwood Forest)"
+    },
+    {
+      "world": 5,
+      "level": 49,
+      "nameInternal": "49",
+      "name": "Ly Power 2 (Garish Gears)"
+    },
+    {
+      "world": 5,
+      "level": 50,
+      "nameInternal": "50",
+      "name": "Ly Power 3 (Vertigo Wasters)"
+    },
+    {
+      "world": 5,
+      "level": 51,
+      "nameInternal": "51",
+      "name": "Ly Power 4 (River of Fire)"
+    },
+    {
+      "world": 5,
+      "level": 52,
+      "nameInternal": "52",
+      "name": "Ly Power 5 (Den of Rocky)"
+    },
+    {
+      "world": 5,
+      "level": 53,
+      "nameInternal": "53",
+      "name": "Ly Power 6 (Scaleman's Keep)"
+    },
+    {
+      "world": 6,
+      "level": 54,
+      "nameInternal": "54",
+      "name": "Forgotten Forests"
+    },
+    {
+      "world": 6,
+      "level": 55,
+      "nameInternal": "55",
+      "name": "Haunted Dreams"
+    },
+    {
+      "world": 6,
+      "level": 56,
+      "nameInternal": "56",
+      "name": "Magmacosm"
+    },
+    {
+      "world": 6,
+      "level": 57,
+      "nameInternal": "57",
+      "name": "Pirate Stronghold"
+    },
+    {
+      "world": 6,
+      "level": 58,
+      "nameInternal": "58",
+      "name": "Worldmap"
+    },
+    {
+      "world": 7,
+      "level": 59,
+      "nameInternal": "59",
+      "name": "Multiplayer 1"
+    },
+    {
+      "world": 7,
+      "level": 60,
+      "nameInternal": "60",
+      "name": "Multiplayer 2"
+    },
+    {
+      "world": 7,
+      "level": 61,
+      "nameInternal": "61",
+      "name": "Multiplayer 3"
+    },
+    {
+      "world": 7,
+      "level": 62,
+      "nameInternal": "62",
+      "name": "Multiplayer 4"
+    },
+    {
+      "world": 7,
+      "level": 63,
+      "nameInternal": "63",
+      "name": "Multiplayer 5"
+    },
+    {
+      "world": 7,
+      "level": 64,
+      "nameInternal": "64",
+      "name": "Multiplayer 6"
+    },
+    {
+      "world": 8,
+      "level": 91,
+      "nameInternal": "91",
+      "name": "Menu"
+    },
+    {
+      "world": 8,
+      "level": 117,
+      "nameInternal": "117",
+      "name": "Ubisoft Logo"
+    },
+    {
+      "world": 9,
+      "level": 0,
+      "nameInternal": "map.000",
+      "name": "GameCube Map 0"
+    },
+    {
+      "world": 9,
+      "level": 1,
+      "nameInternal": "map.001",
+      "name": "GameCube Map 1"
+    },
+    {
+      "world": 9,
+      "level": 2,
+      "nameInternal": "map.002",
+      "name": "GameCube Map 2"
+    },
+    {
+      "world": 9,
+      "level": 3,
+      "nameInternal": "map.003",
+      "name": "GameCube Map 3"
+    },
+    {
+      "world": 9,
+      "level": 4,
+      "nameInternal": "map.004",
+      "name": "GameCube Map 4"
+    },
+    {
+      "world": 9,
+      "level": 5,
+      "nameInternal": "map.005",
+      "name": "GameCube Map 5"
+    },
+    {
+      "world": 9,
+      "level": 6,
+      "nameInternal": "map.006",
+      "name": "GameCube Map 6"
+    },
+    {
+      "world": 9,
+      "level": 7,
+      "nameInternal": "map.007",
+      "name": "GameCube Map 7"
+    },
+    {
+      "world": 9,
+      "level": 8,
+      "nameInternal": "map.008",
+      "name": "GameCube Map 8"
+    },
+    {
+      "world": 9,
+      "level": 9,
+      "nameInternal": "map.009",
+      "name": "GameCube Map 9"
+    }
+  ]
+}

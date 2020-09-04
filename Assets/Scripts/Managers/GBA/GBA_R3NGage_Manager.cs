@@ -13,13 +13,14 @@ namespace R1Engine
 
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 8),
-            Enumerable.Range(8, 9),
-            Enumerable.Range(17, 13),
-            Enumerable.Range(30, 10),
-            Enumerable.Range(40, 14),
-            Enumerable.Range(54, 5),
-            Enumerable.Range(59, 10),
+            Enumerable.Range(0, 8), // World 1
+            Enumerable.Range(8, 9), // World 2
+            Enumerable.Range(17, 13), // World 3
+            Enumerable.Range(30, 10), // World 4
+            Enumerable.Range(40, 8), // Bonus
+            Enumerable.Range(48, 6), // Ly
+            Enumerable.Range(54, 5), // World
+            Enumerable.Range(59, 10), // Multiplayer
         };
 
         public override int[] MenuLevels => new int[]

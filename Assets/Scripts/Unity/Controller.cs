@@ -238,7 +238,7 @@ namespace R1Engine
                 {
                     var icon = new
                     {
-                        image = @".\/img\/icon\/",
+                        image = (string)null,
                         level = lvlWorldIndex
                     };
 
@@ -250,9 +250,9 @@ namespace R1Engine
                 {
                     world = w.Index,
                     level = lvl,
-                    nameInternal = (string)null,
-                    name = names?.TryGetItem(w.Index)?.TryGetItem(lvl)
-                }))
+                    nameInternal = s.MajorEngineVersion == MajorEngineVersion.GBA ? lvl.ToString() : (string)null,
+                    name = names?.TryGetItem(w.Index)?.TryGetItem(lvl) ?? (s.MajorEngineVersion == MajorEngineVersion.GBA ? $"Map {lvl}" : $"Map {w.Index}-{lvl}")
+                })).SelectMany(x => x)
             };
 
             JsonHelpers.SerializeToFile(jsonObj, outputPath);

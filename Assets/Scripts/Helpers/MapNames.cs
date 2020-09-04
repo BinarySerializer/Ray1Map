@@ -67,17 +67,26 @@ namespace R1Engine
                         [2] = "Magmacosm",
                         [3] = "Pirate Stronghold",
                         [4] = "Bonus",
-                        [5] = "World",
-                        [6] = "Multiplayer",
+                        [5] = "Ly",
+                        [6] = "World",
+                        [7] = "Multiplayer",
                         
-                        [7] = "Menu",
-                        [8] = "GameCube",
+                        [8] = "Menu",
+                        [9] = "GameCube",
                     };
 
                 case Game.GBA_PrinceOfPersiaTheSandsOfTime:
                 case Game.GBA_SabrinaTheTeenageWitchPotionCommotion:
+                case Game.GBA_SplinterCell:
+                case Game.GBA_SplinterCellPandoraTomorrow:
                 case Game.GBA_StarWarsTrilogyApprenticeOfTheForce:
+                case Game.GBA_StarWarsEpisodeIII:
+                case Game.GBA_KingKong:
                 case Game.GBA_BatmanVengeance:
+                case Game.GBA_TMNT:
+                case Game.GBA_BatmanRiseOfSinTzu:
+                case Game.GBA_OpenSeason:
+                case Game.GBA_SurfsUp:
                     return new Dictionary<int, string>()
                     {
                         [0] = "Game",
@@ -336,13 +345,13 @@ namespace R1Engine
                 [41] = "Mega Havoc 2",
                 [42] = "Mega Havoc 3",
                 [43] = "Mega Havoc 4",
-                
                 [44] = "Lum Challenge",
-                
                 [45] = "Ly's Punch Challenge 1",
                 [46] = "Ly's Punch Challenge 2",
                 [47] = "Ly's Punch Challenge 3",
-                
+            },
+            [5] = new Dictionary<int, string>()
+            {
                 [48] = "Ly Power 1 (Wanderwood Forest)",
                 [49] = "Ly Power 2 (Garish Gears)",
                 [50] = "Ly Power 3 (Vertigo Wasters)",
@@ -350,7 +359,7 @@ namespace R1Engine
                 [52] = "Ly Power 5 (Den of Rocky)",
                 [53] = "Ly Power 6 (Scaleman's Keep)",
             },
-            [5] = new Dictionary<int, string>()
+            [6] = new Dictionary<int, string>()
             {
                 [54] = "Forgotten Forests",
                 [55] = "Haunted Dreams",
@@ -358,7 +367,7 @@ namespace R1Engine
                 [57] = "Pirate Stronghold",
                 [58] = "Worldmap",
             },
-            [6] = new Dictionary<int, string>()
+            [7] = new Dictionary<int, string>()
             {
                 [59] = "Multiplayer 1",
                 [60] = "Multiplayer 2",
@@ -371,7 +380,7 @@ namespace R1Engine
                 [67] = "Multiplayer 9",
                 [68] = "Multiplayer 10",
             },
-            [7] = new Dictionary<int, string>()
+            [8] = new Dictionary<int, string>()
             {
                 [91] = "Menu",
                 [117] = "Ubisoft Logo",
