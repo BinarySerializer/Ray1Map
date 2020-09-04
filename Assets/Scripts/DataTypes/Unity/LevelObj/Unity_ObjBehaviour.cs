@@ -300,6 +300,12 @@ namespace R1Engine
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy  / (float)LevelEditorData.Level.PixelsPerUnit);
                 }
+                else if (ObjData is Unity_Object_R2 r2bj)
+                {
+                    var hy = -(r2bj.EventData.CollisionData.OffsetHY);
+
+                    offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy / (float)LevelEditorData.Level.PixelsPerUnit);
+                }
             }
 
             // Update visibility
@@ -315,7 +321,7 @@ namespace R1Engine
             // Change the offsets visibility
             offsetOrigin.gameObject.SetActive(ShowOffsets);
             offsetCrossBX.gameObject.SetActive(ShowOffsets && offsetCrossBX.transform.position != Vector3.zero);
-            offsetCrossHY.gameObject.SetActive(ShowOffsets && ObjData is Unity_Object_R1 && offsetCrossHY.transform.position != Vector3.zero);
+            offsetCrossHY.gameObject.SetActive(ShowOffsets && (ObjData is Unity_Object_R1 || ObjData is Unity_Object_R2) && offsetCrossHY.transform.position != Vector3.zero);
             followSpriteLine.gameObject.SetActive(ShowOffsets);
             followSpriteLine.gameObject.SetActive(ShowOffsets && ObjData is Unity_Object_R1 r1o && r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings));
         }
