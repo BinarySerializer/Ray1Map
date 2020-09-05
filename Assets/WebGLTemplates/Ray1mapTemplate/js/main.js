@@ -300,150 +300,63 @@ function selectButton(button, selected) {
 	}
 }
 
-// SUPEROBJECT PARSING
-function getSuperObjectByIndex(index) {
+// OBJECT PARSING
+function getObjectByIndex(index) {
 	return objectsList[index];
 }
-function getPersoNameHTML(perso) {
+function getObjectNameHTML(obj) {
 	let nameStr = "";
-	if(perso.hasOwnProperty("NameFamily")) nameStr += "<div class='name-family'>" + perso.NameFamily + "</div>";
-	if(perso.hasOwnProperty("NameModel")) nameStr += "<div class='name-model'>" + perso.NameModel + "</div>";
-	if(perso.hasOwnProperty("NameInstance")) nameStr += "<div class='name-instance'>" + perso.NameInstance + "</div>";
+	if(obj.hasOwnProperty("Name")) nameStr += "<div class='name-instance'>" + escapeHTML(obj.Name) + "</div>";
 	return nameStr;
 }
-function parseSuperObject(so, level) {
-	let items = [];
-	objectsList.push(so);
-	let type = "Unknown";
-	if(so.hasOwnProperty("Type")) {
-		type = so.Type;
-	}
-	switch(type) {
-		case "World":
-			items.push("<div class='objects-item object-world level-" + level + "' alt='" + so.Name + "'>" + so.Name + "</div>");
-			break;
-		case "Perso":
-			items.push("<div class='objects-item object-perso' title='" + so.Name + "'>");
-			if(so.hasOwnProperty("Perso")) {
-				items.push(getPersoNameHTML(so.Perso));
-			}
-			items.push("</div>");
-			break;
-		case "Sector":
-			items.push("<div class='objects-item object-sector level-" + level + "' title='" + so.Name + "'>" + so.Name + "</div>");
-			break;
-		case "IPO":
-		case "IPO_2":
-			items.push("<div class='objects-item object-IPO level-" + level + "' title='" + so.Name + "'>" + so.Name + "</div>");
-			break;
-		default:
-			items.push("<div class='objects-item object-regular' title='" + so.Name + "'>" + so.Name + "</div>");
-			break;
-			
-	}
-	if(so.hasOwnProperty("Children")) {
-		$.each(so.Children, function(i, child) {
-			items = items.concat(parseSuperObject(child, level+1));
-		});
-	}
-	return items;
+function getObjectListEntryHTML(obj) {
+	return "<div class='objects-item object-event' title='" + escapeHTML(obj.Name) + "'>" + getObjectNameHTML(obj) + "</div>";
 }
-function parseAlways(alwaysData) {
+function parseObjects(objectsData) {
+	objectsList = objectsData;
 	let items = [];
-	let so = {
-		Offset: "null",
-		Type: "AlwaysWorld",
-		Position: { x: 0, y: 0, z: 0 },
-		Rotation: { x: 0, y: 0, z: 0 },
-		Scale:    { x: 0, y: 0, z: 0 }
-	};
-	objectsList.push(so);
-	items.push("<div class='objects-item object-world level-0' alt='Spawnable objects'>Spawnable objects</div>");
-	
-	if(alwaysData.hasOwnProperty("SpawnablePersos")) {
-		$.each(alwaysData.SpawnablePersos, function(i, child) {
-			let perso = alwaysData.SpawnablePersos[i];
-			let family = perso.NameFamily;
-			let model = perso.NameModel;
-			let instance = perso.NameInstance;
-			items.push("<div class='objects-item object-always object-perso' title='Spawnable'>" + getPersoNameHTML(perso) + "</div>");
-			let persoSO = {
-				Offset:   perso.Offset,
-				Type:     "Perso",
-				Perso:    perso,
-				Position: perso.Position,
-				Rotation: perso.Rotation,
-				Scale:    perso.Scale
-			};
-			objectsList.push(persoSO);
-		});
-	}
-	return items;
-}
-
-function parseDynamicSuperObjects(dynamicSO) {
-	let items = [];
-	let so = {
-		Offset: "null",
-		Type: "World",
-		Position: { x: 0, y: 0, z: 0 },
-		Rotation: { x: 0, y: 0, z: 0 },
-		Scale:    { x: 0, y: 0, z: 0 }
-	};
-	objectsList.push(so);
-	items.push("<div class='objects-item object-world level-0' alt='Dynamic World'>Dynamic World</div>");
-	
-	$.each(dynamicSO, function(i, child) {
-		items = items.concat(parseSuperObject(child, 1));
+	let alwaysObjects = [];
+	let editorObjects = [];
+	let normalObjects = [];
+	$.each(objectsData, function(i, obj) {
+		if(obj.IsAlways) {
+			alwaysObjects.push(obj);
+		} else if(obj.IsEditor) {
+			editorObjects.push(obj);
+		} else {
+			normalObjects.push(obj);
+		}
 	});
+	if(alwaysObjects.length > 0) {
+		items.push("<div class='objects-item object-world level-0' alt='Always objects'>Always objects</div>");
+		$.each(alwaysObjects, function(i, obj) {
+			items.push(getObjectListEntryHTML(obj));
+		});
+	}
+	if(editorObjects.length > 0) {
+		items.push("<div class='objects-item object-world level-0' alt='Editor objects'>Editor objects</div>");
+		$.each(editorObjects, function(i, obj) {
+			items.push(getObjectListEntryHTML(obj));
+		});
+	}
+	if(normalObjects.length > 0) {
+		items.push("<div class='objects-item object-world level-0' alt='Objects'>Objects</div>");
+		$.each(normalObjects, function(i, obj) {
+			items.push(getObjectListEntryHTML(obj));
+		});
+	}
 	return items;
 }
 function handleMessage_settings(msg) {
 	$(".settings-toggle").removeClass("disabled-button");
-	$("#btn-lighting").removeClass("disabled-button");
-	if(msg.EnableLighting) {
-		$(".lighting-settings").removeClass("disabled-button");
-	} else {
-		$(".lighting-settings").addClass("disabled-button");
-	}
-	selectButton($("#btn-lighting"), msg.EnableLighting);
-	selectButton($("#btn-saturate"), !msg.Saturate);
-	selectButton($("#btn-fog"), msg.EnableFog);
-	selectButton($("#btn-viewCollision"), msg.ViewCollision);
-	selectButton($("#btn-viewGraphs"), msg.ViewGraphs);
-	selectButton($("#btn-viewInvisible"), msg.ViewInvisible);
-	selectButton($("#btn-displayInactive"), msg.DisplayInactive);
-	selectButton($("#btn-showPersos"), msg.ShowPersos);
-	selectButton($("#btn-playAnimations"), msg.PlayAnimations);
-	selectButton($("#btn-playTextureAnimations"), msg.PlayTextureAnimations);
-	$("#range-luminosity").val(msg.Luminosity);
-}
-function updateCinematic() {
-	let index = cinematicSelector.prop("selectedIndex");
 	
-	let jsonObj = {
-		CineData: {
-			CinematicIndex: index
-		}
-	};
-	let animationSpeed = $('#cinematicSpeed').val();
-	if($.isNumeric(animationSpeed) && parseInt(animationSpeed) >= 0) {
-		jsonObj.CineData.AnimationSpeed = parseInt(animationSpeed);
-	}
-	sendMessage(jsonObj);
-}
-function selectCinematicActor() {
-	let index = cinematicActorSelector.prop("selectedIndex");
-	if(index !== 0) {
-		let persoIndex = cinematicActorSelector.val();
-		cinematicActorSelector.prop("selectedIndex", 0);
-		if($.isNumeric(persoIndex) && persoIndex > -1) {
-			let so = getSuperObjectByIndex(persoIndex);
-			if(so.hasOwnProperty("Perso")) {
-				setSelectionPerso(so.Perso);
-			}
-		}
-	}
+	selectButton($("#btn-showCollision"), msg.ShowCollision);
+	//selectButton($("#btn-viewGraphs"), msg.ViewGraphs);
+	//selectButton($("#btn-viewInvisible"), msg.ViewInvisible);
+	//selectButton($("#btn-displayInactive"), msg.DisplayInactive);
+	selectButton($("#btn-showObjects"), msg.ShowObjects);
+	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
+	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 }
 function getIndexFromPerso(perso) {
 	if(hierarchy != null) {
@@ -457,35 +370,6 @@ function getIndexFromPerso(perso) {
 		}
 	}
 	return -1;
-}
-function handleMessage_cineData(msg) {
-	$("#btn-cine").removeClass("disabled-button");
-	if(msg.hasOwnProperty("CinematicNames")) {
-		cinematicSelector.empty();
-		$.each(msg.CinematicNames, function (idx, cine) {
-			cinematicSelector.append("<option value='" + idx + "'>" + escapeHTML(cine) + "</option>");
-		});
-	}
-	if(msg.hasOwnProperty("CinematicIndex")) {
-		cinematicSelector.prop("selectedIndex", msg.CinematicIndex);
-	}
-	if(msg.hasOwnProperty("AnimationSpeed")) {
-		$('#cinematicSpeed').val(msg.AnimationSpeed);
-		$("#cine-speed-group").removeClass("invisible");
-	} else {
-		$("#cine-speed-group").addClass("invisible");
-	}
-	cinematicActorSelector.empty();
-	cinematicActorSelector.append("<option value='null'>Select an actor...</option>");
-	if(msg.hasOwnProperty("Actors")) {
-		$("#cine-actor-group").removeClass("invisible");
-		$.each(msg.Actors, function (idx, act) {
-			cinematicActorSelector.append("<option value='" + getIndexFromPerso(act) + "'>" + escapeHTML(act.NameInstance) + "</option>");
-		});
-	} else {
-		$("#cine-actor-group").addClass("invisible");
-	}
-	cinematicActorSelector.prop("selectedIndex", 0);
 }
 function updateCameraPos() {
 	let selectedCameraPos = cameraPosSelector.val();
@@ -676,15 +560,6 @@ function handleMessage_camera(msg) {
 		cameraPosSelector.val(cameraPos);
 	}
 }
-function toggleCinePopup() {
-	if($("#btn-cine").hasClass("selected")) {
-		$("#cine-popup").addClass("hidden-popup");
-		$("#btn-cine").removeClass("selected");
-	} else {
-		$("#cine-popup").removeClass("hidden-popup");
-		$("#btn-cine").addClass("selected");
-	}
-}
 function toggleCameraPopup() {
 	if($("#btn-camera").hasClass("selected")) {
 		$("#camera-popup").addClass("hidden-popup");
@@ -851,20 +726,6 @@ function handleMessage_localization(msg) {
 		fullHTML.push("<div id='language-common'>");
 		fullHTML.push(getLanguageHTML(msg.Common, msg.CommonStart));
 		fullHTML.push("</div>");
-	}
-	api.getContentPane().append(fullHTML.join(""));
-	setTimeout(function(){
-		api.reinitialise();
-	}, 100);
-}
-function handleMessage_input(msg) {
-	$("#btn-entryactions").removeClass("disabled-button");
-	let fullHTML = [];
-	let api = $("#content-entryactions").data('jsp');	
-	if(msg.hasOwnProperty("EntryActions")) {
-		$.each(msg.EntryActions, function (idx, val) {
-			fullHTML.push("<div class='entryactions-item'><div class='entryactions-item-name'>" + escapeHTML(val.Name) + "</div><div class='entryactions-item-input'>" + escapeHTML(val.Input) + "</div></div>");
-		});
 	}
 	api.getContentPane().append(fullHTML.join(""));
 	setTimeout(function(){
@@ -1047,7 +908,7 @@ function showObjectDescription(so, isSOChanged) {
 		
 		selectButton($("#btn-enabled"), perso.IsEnabled);
 
-		$("#objectName").html(getPersoNameHTML(perso));
+		$("#objectName").html(getObjectNameHTML(perso));
 		
 		// Animation stuff
 		selectButton($("#btn-playAnimation"), perso.PlayAnimation);
@@ -1469,7 +1330,7 @@ function handleMessage_highlight(msg) {
 	highlight_tooltip.removeClass("collider");
 	if(msg.hasOwnProperty("Perso")) {
 		highlight_tooltip.addClass("perso");
-		highlight += "<div class='highlight-perso'>" + getPersoNameHTML(msg.Perso) + "</div>";
+		highlight += "<div class='highlight-perso'>" + getObjectNameHTML(msg.Perso) + "</div>";
 	}
 	if(msg.hasOwnProperty("WayPoint")) {
 		if(msg.WayPoint.hasOwnProperty("Graphs")) {
@@ -1527,17 +1388,13 @@ function handleMessage_transitionExport(msg) {
 function sendSettings() {
 	let jsonObj = {
 		Settings: {
-			EnableLighting: $("#btn-lighting").hasClass("selected"),
-			EnableFog: $("#btn-fog").hasClass("selected"),
-			Luminosity: $("#range-luminosity").val(),
-			Saturate: !$("#btn-saturate").hasClass("selected"),
-			ViewCollision: $("#btn-viewCollision").hasClass("selected"),
-			ViewGraphs: $("#btn-viewGraphs").hasClass("selected"),
-			ViewInvisible: $("#btn-viewInvisible").hasClass("selected"),
-			DisplayInactive: $("#btn-displayInactive").hasClass("selected"),
-			ShowPersos: $("#btn-showPersos").hasClass("selected"),
-			PlayAnimations: $("#btn-playAnimations").hasClass("selected"),
-			PlayTextureAnimations: $("#btn-playTextureAnimations").hasClass("selected")
+			ShowCollision: $("#btn-showCollision").hasClass("selected"),
+			//ViewGraphs: $("#btn-viewGraphs").hasClass("selected"),
+			//ViewInvisible: $("#btn-viewInvisible").hasClass("selected"),
+			//DisplayInactive: $("#btn-displayInactive").hasClass("selected"),
+			ShowObjects: $("#btn-showObjects").hasClass("selected"),
+			AnimateSprites: $("#btn-animateSprites").hasClass("selected"),
+			AnimateTiles: $("#btn-animateTiles").hasClass("selected")
 		}
 	}
 	sendMessage(jsonObj);
