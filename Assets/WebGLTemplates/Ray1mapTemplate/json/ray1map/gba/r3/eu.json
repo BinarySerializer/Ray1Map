@@ -9,42 +9,46 @@
     },
     {
       "image": ".\/img\/icon\/R3GBA\/World2.gif",
-      "level": 8
+      "level": 15
     },
     {
       "image": ".\/img\/icon\/R3GBA\/World3.gif",
-      "level": 17
+      "level": 28
     },
     {
       "image": ".\/img\/icon\/R3GBA\/World4.gif",
-      "level": 30
+      "level": 45
     },
     {
       "image": ".\/img\/icon\/R3GBA\/Bonus.gif",
-      "level": 40
-    },
-    {
-      "image": ".\/img\/icon\/R3GBA\/Ly.gif",
-      "level": 48
-    },
-    {
-      "image": ".\/img\/icon\/R3GBA\/World.gif",
-      "level": 54
-    },
-    {
-      "image": ".\/img\/icon\/R3GBA\/Multiplayer.gif",
-      "level": 59
-    },
-    {
-      "image": ".\/img\/icon\/R3GBA\/Menu.gif",
-      "level": 65
-    },
-    {
-      "image": ".\/img\/icon\/R3GBA\/GCN.gif",
-      "level": 67
+      "level": 61
     }
   ],
   "levels": [
+    {
+      "world": 8,
+      "level": 117,
+      "nameInternal": "117",
+      "name": "Ubisoft Logo"
+    },
+    {
+      "world": 8,
+      "level": 91,
+      "nameInternal": "91",
+      "name": "Menu"
+    },
+    {
+      "world": 6,
+      "level": 58,
+      "nameInternal": "58",
+      "name": "World Map"
+    },
+    {
+      "world": 6,
+      "level": 54,
+      "nameInternal": "54",
+      "name": "Forgotten Forests (World Map)"
+    },
     {
       "world": 0,
       "level": 0,
@@ -56,6 +60,12 @@
       "level": 1,
       "nameInternal": "1",
       "name": "Wanderwood Forest 2"
+    },
+	{
+      "world": 5,
+      "level": 48,
+      "nameInternal": "48",
+      "name": "Ly Power 1 (Wanderwood Forest)"
     },
     {
       "world": 0,
@@ -82,6 +92,12 @@
       "name": "Garish Gears"
     },
     {
+      "world": 5,
+      "level": 49,
+      "nameInternal": "49",
+      "name": "Ly Power 2 (Garish Gears)"
+    },
+    {
       "world": 0,
       "level": 6,
       "nameInternal": "6",
@@ -92,6 +108,18 @@
       "level": 7,
       "nameInternal": "7",
       "name": "Hoodlum Hideout 2"
+    },
+    {
+      "world": 4,
+      "level": 40,
+      "nameInternal": "40",
+      "name": "Mega Havoc 1"
+    },
+    {
+      "world": 6,
+      "level": 55,
+      "nameInternal": "55",
+      "name": "Haunted Dreams (World Map)"
     },
     {
       "world": 1,
@@ -110,6 +138,12 @@
       "level": 10,
       "nameInternal": "10",
       "name": "Vertigo Wastes 2"
+    },
+    {
+      "world": 5,
+      "level": 50,
+      "nameInternal": "50",
+      "name": "Ly Power 3 (Vertigo Wastes)"
     },
     {
       "world": 1,
@@ -141,11 +175,29 @@
       "nameInternal": "15",
       "name": "Prickly Passage 2"
     },
+	{
+      "world": 4,
+      "level": 45,
+      "nameInternal": "45",
+      "name": "Ly's Punch Challenge 1"
+    },
     {
       "world": 1,
       "level": 16,
       "nameInternal": "16",
       "name": "Swamp of Bégoniax 2"
+    },
+    {
+      "world": 4,
+      "level": 41,
+      "nameInternal": "41",
+      "name": "Mega Havoc 2"
+    },
+    {
+      "world": 6,
+      "level": 56,
+      "nameInternal": "56",
+      "name": "Magmacosm (World Map)"
     },
     {
       "world": 2,
@@ -164,6 +216,12 @@
       "level": 19,
       "nameInternal": "19",
       "name": "River of Fire 3"
+    },
+    {
+      "world": 5,
+      "level": 51,
+      "nameInternal": "51",
+      "name": "Ly Power 4 (River of Fire)"
     },
     {
       "world": 2,
@@ -196,6 +254,12 @@
       "name": "Den of Rocky"
     },
     {
+      "world": 5,
+      "level": 52,
+      "nameInternal": "52",
+      "name": "Ly Power 5 (Den of Rocky)"
+    },
+    {
       "world": 2,
       "level": 25,
       "nameInternal": "25",
@@ -226,6 +290,18 @@
       "name": "Wicked Flow 3"
     },
     {
+      "world": 4,
+      "level": 42,
+      "nameInternal": "42",
+      "name": "Mega Havoc 3"
+    },
+    {
+      "world": 6,
+      "level": 57,
+      "nameInternal": "57",
+      "name": "Pirate Stronghold (World Map)"
+    },
+    {
       "world": 3,
       "level": 30,
       "nameInternal": "30",
@@ -242,6 +318,12 @@
       "level": 32,
       "nameInternal": "32",
       "name": "Scaleman's Keep"
+    },
+    {
+      "world": 5,
+      "level": 53,
+      "nameInternal": "53",
+      "name": "Ly Power 6 (Scaleman's Keep)"
     },
     {
       "world": 3,
@@ -274,6 +356,18 @@
       "name": "Razor Slide 2"
     },
     {
+      "world": 4,
+      "level": 46,
+      "nameInternal": "46",
+      "name": "Ly's Punch Challenge 2"
+    },
+    {
+      "world": 4,
+      "level": 47,
+      "nameInternal": "47",
+      "name": "Ly's Punch Challenge 3 (Unused)"
+    },
+    {
       "world": 3,
       "level": 38,
       "nameInternal": "38",
@@ -287,24 +381,6 @@
     },
     {
       "world": 4,
-      "level": 40,
-      "nameInternal": "40",
-      "name": "Mega Havoc 1"
-    },
-    {
-      "world": 4,
-      "level": 41,
-      "nameInternal": "41",
-      "name": "Mega Havoc 2"
-    },
-    {
-      "world": 4,
-      "level": 42,
-      "nameInternal": "42",
-      "name": "Mega Havoc 3"
-    },
-    {
-      "world": 4,
       "level": 43,
       "nameInternal": "43",
       "name": "Mega Havoc 4"
@@ -314,90 +390,6 @@
       "level": 44,
       "nameInternal": "44",
       "name": "Lum Challenge"
-    },
-    {
-      "world": 4,
-      "level": 45,
-      "nameInternal": "45",
-      "name": "Ly's Punch Challenge 1"
-    },
-    {
-      "world": 4,
-      "level": 46,
-      "nameInternal": "46",
-      "name": "Ly's Punch Challenge 2"
-    },
-    {
-      "world": 4,
-      "level": 47,
-      "nameInternal": "47",
-      "name": "Ly's Punch Challenge 3"
-    },
-    {
-      "world": 5,
-      "level": 48,
-      "nameInternal": "48",
-      "name": "Ly Power 1 (Wanderwood Forest)"
-    },
-    {
-      "world": 5,
-      "level": 49,
-      "nameInternal": "49",
-      "name": "Ly Power 2 (Garish Gears)"
-    },
-    {
-      "world": 5,
-      "level": 50,
-      "nameInternal": "50",
-      "name": "Ly Power 3 (Vertigo Wasters)"
-    },
-    {
-      "world": 5,
-      "level": 51,
-      "nameInternal": "51",
-      "name": "Ly Power 4 (River of Fire)"
-    },
-    {
-      "world": 5,
-      "level": 52,
-      "nameInternal": "52",
-      "name": "Ly Power 5 (Den of Rocky)"
-    },
-    {
-      "world": 5,
-      "level": 53,
-      "nameInternal": "53",
-      "name": "Ly Power 6 (Scaleman's Keep)"
-    },
-    {
-      "world": 6,
-      "level": 54,
-      "nameInternal": "54",
-      "name": "Forgotten Forests"
-    },
-    {
-      "world": 6,
-      "level": 55,
-      "nameInternal": "55",
-      "name": "Haunted Dreams"
-    },
-    {
-      "world": 6,
-      "level": 56,
-      "nameInternal": "56",
-      "name": "Magmacosm"
-    },
-    {
-      "world": 6,
-      "level": 57,
-      "nameInternal": "57",
-      "name": "Pirate Stronghold"
-    },
-    {
-      "world": 6,
-      "level": 58,
-      "nameInternal": "58",
-      "name": "Worldmap"
     },
     {
       "world": 7,
@@ -436,76 +428,64 @@
       "name": "Multiplayer 6"
     },
     {
-      "world": 8,
-      "level": 91,
-      "nameInternal": "91",
-      "name": "Menu"
-    },
-    {
-      "world": 8,
-      "level": 117,
-      "nameInternal": "117",
-      "name": "Ubisoft Logo"
-    },
-    {
       "world": 9,
       "level": 0,
       "nameInternal": "map.000",
-      "name": "GameCube Map 0"
+      "name": "Bonus 1 (GameCube)"
     },
     {
       "world": 9,
       "level": 1,
       "nameInternal": "map.001",
-      "name": "GameCube Map 1"
+      "name": "Bonus 2 (GameCube)"
     },
     {
       "world": 9,
       "level": 2,
       "nameInternal": "map.002",
-      "name": "GameCube Map 2"
+      "name": "Bonus 3 (GameCube)"
     },
     {
       "world": 9,
       "level": 3,
       "nameInternal": "map.003",
-      "name": "GameCube Map 3"
+      "name": "Bonus 4 (GameCube)"
     },
     {
       "world": 9,
       "level": 4,
       "nameInternal": "map.004",
-      "name": "GameCube Map 4"
+      "name": "Bonus 5 (GameCube)"
     },
     {
       "world": 9,
       "level": 5,
       "nameInternal": "map.005",
-      "name": "GameCube Map 5"
+      "name": "Bonus 6 (GameCube)"
     },
     {
       "world": 9,
       "level": 6,
       "nameInternal": "map.006",
-      "name": "GameCube Map 6"
+      "name": "Bonus 7 (GameCube)"
     },
     {
       "world": 9,
       "level": 7,
       "nameInternal": "map.007",
-      "name": "GameCube Map 7"
+      "name": "Bonus 8 (GameCube)"
     },
     {
       "world": 9,
       "level": 8,
       "nameInternal": "map.008",
-      "name": "GameCube Map 8"
+      "name": "Bonus 9 (GameCube)"
     },
     {
       "world": 9,
       "level": 9,
       "nameInternal": "map.009",
-      "name": "GameCube Map 9"
+      "name": "Bonus 10 (GameCube)"
     }
   ]
 }
