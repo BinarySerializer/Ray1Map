@@ -110,7 +110,7 @@ public class WebCommunicator : MonoBehaviour {
     }
 	private WebJSON.Hierarchy GetHierarchyJSON() {
 		var h = new WebJSON.Hierarchy();
-		var objects = Controller.obj.levelController.Events;
+		var objects = Controller.obj.levelController.Objects;
 		h.Objects = objects.Select(o => GetObjectJSON(o)).ToArray();
 		return h;
 	}

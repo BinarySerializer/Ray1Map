@@ -163,7 +163,7 @@ namespace R1Engine
 
         protected void InitializeEventLinks()
         {
-            var eventList = Controller.obj.levelController.Events;
+            var eventList = Controller.obj.levelController.Objects;
 
             // Initialize links
             LevelEditorData.ObjManager.InitLinkGroups(eventList.Select(x => x.ObjData).ToArray());
@@ -193,7 +193,7 @@ namespace R1Engine
 
         public void ChangeEventsVisibility(object o, EventArgs e) {
             if (LevelEditorData.Level != null) {
-                foreach (var eve in Controller.obj.levelController.GetAllEvents) {
+                foreach (var eve in Controller.obj.levelController.GetAllObjects) {
                     if (editor.currentMode == LevelEditorBehaviour.EditMode.Links)
                         eve.ChangeLinksVisibility(true);
                 }
@@ -317,7 +317,7 @@ namespace R1Engine
         }
 
         public void SelectEvent(int index) {
-            var events = Controller.obj.levelController.Events;
+            var events = Controller.obj.levelController.Objects;
             if (index < 0 || index > events.Count) return;
             var e = events[index];
             SelectEvent(e);
@@ -406,7 +406,7 @@ namespace R1Engine
                         // Refresh the event
                         eve.RefreshEditorInfo();
 
-                        Controller.obj.levelController.Events.Add(eve);
+                        Controller.obj.levelController.Objects.Add(eve);
                     }
                 }
                 //Detect event under mouse when clicked
@@ -436,7 +436,7 @@ namespace R1Engine
                         selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
 
                         // Change the link
-                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanEvent && SelectedEvent != null) 
+                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null) 
                         {
                             SelectedEvent.ObjData.EditorLinkGroup = 0;
                             SelectedEvent.ChangeLinksVisibility(true);
@@ -469,7 +469,7 @@ namespace R1Engine
                         }
 
                         // Else move links
-                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanEvent) {
+                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
                         }
@@ -481,7 +481,7 @@ namespace R1Engine
                 {
                     bool alone = true;
                     
-                    foreach (Unity_ObjBehaviour ee in Controller.obj.levelController.Events.
+                    foreach (Unity_ObjBehaviour ee in Controller.obj.levelController.Objects.
                         Where(ee => ee.linkCube.position == SelectedEvent.linkCube.position).
                         Where(ee => ee != SelectedEvent))
                     {
@@ -718,7 +718,7 @@ namespace R1Engine
         public void ToggleLinks(bool t) {
             if (LevelEditorData.Level != null && areLinksVisible != t) {
                 areLinksVisible = t;
-                foreach (var e in Controller.obj.levelController.Events) {
+                foreach (var e in Controller.obj.levelController.Objects) {
                     e.ChangeLinksVisibility(t);
                 }
             }

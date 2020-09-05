@@ -15,16 +15,12 @@ namespace R1Engine
         public GameObject closed;
     }
 
-    public class LevelMainController : MonoBehaviour {
-
-        /// <summary>
-        /// The events
-        /// </summary>
-        public List<Unity_ObjBehaviour> Events { get; set; }
-
-        public Unity_ObjBehaviour RaymanEvent { get; set; }
-
-        public IEnumerable<Unity_ObjBehaviour> GetAllEvents => RaymanEvent != null ? Events.Append(RaymanEvent) : Events;
+    public class LevelMainController : MonoBehaviour 
+    {
+        // Object behaviors
+        public List<Unity_ObjBehaviour> Objects { get; set; }
+        public Unity_ObjBehaviour RaymanObject { get; set; }
+        public IEnumerable<Unity_ObjBehaviour> GetAllObjects => RaymanObject != null ? Objects.Append(RaymanObject) : Objects;
 
         public LevelEditorBehaviour editor => controllerEvents.editor;
 
@@ -86,10 +82,10 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
 
                 // Add events
-                Events = LevelEditorData.Level.EventData.Select(x => controllerEvents.AddEvent(x)).ToList();
+                Objects = LevelEditorData.Level.EventData.Select(x => controllerEvents.AddEvent(x)).ToList();
 
                 if (LevelEditorData.Level.Rayman != null)
-                    RaymanEvent = controllerEvents.AddEvent(LevelEditorData.Level.Rayman);
+                    RaymanObject = controllerEvents.AddEvent(LevelEditorData.Level.Rayman);
 
                 // Init event things
                 controllerEvents.InitializeEvents();
@@ -179,7 +175,7 @@ namespace R1Engine
             // Create the directory
             Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
-            var screenshot = CreateLevelScreenshot();
+            CreateLevelScreenshot();
 
             var bytes = tex.EncodeToPNG();
             File.WriteAllBytes(destPath, bytes);
@@ -196,10 +192,8 @@ namespace R1Engine
 
         public Texture2D CreateLevelScreenshot()
         {
-            // TODO: Allow this to be configured | THIS whole part should be refactored, the foreach after is bad
-
             // Hide unused links and show gendoors
-            foreach (var e in Events)
+            foreach (var e in Objects)
             {
                 // Update the event to make sure it has rendered
                 e.ForceUpdate();
@@ -261,7 +255,7 @@ namespace R1Engine
                         e
                     };
 
-                    foreach (Unity_ObjBehaviour f in Events.Where(f => f.ObjData.EditorLinkGroup == e.ObjData.EditorLinkGroup))
+                    foreach (Unity_ObjBehaviour f in Objects.Where(f => f.ObjData.EditorLinkGroup == e.ObjData.EditorLinkGroup))
                     {
                         allofSame.Add(f);
                         if (showLinksForObj(f))

@@ -363,7 +363,7 @@ namespace R1Engine
         // Delete this event properly
         public void Delete() {
             // Remove this from the event list
-            Controller.obj.levelController.Events.Remove(this);
+            Controller.obj.levelController.Objects.Remove(this);
             // Remove the data
             LevelEditorData.Level.EventData.Remove(ObjData);
             // Remove all children

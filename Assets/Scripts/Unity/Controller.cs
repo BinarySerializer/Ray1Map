@@ -1,11 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
@@ -27,7 +22,7 @@ namespace R1Engine
 
         public Text tempDebugText;
 
-        private static Stopwatch stopwatch = new Stopwatch();
+        private static readonly Stopwatch stopwatch = new Stopwatch();
 
         public enum State {
             None,
@@ -118,57 +113,19 @@ namespace R1Engine
             LevelEditorData.MainContext = null;
         }
 
-        public void FindMatchingEncoding(params KeyValuePair<string, byte[]>[] input)
+        private void Update()
         {
-            if (input.Length < 2)
-                throw new Exception("Too few strings to check!");
-
-            // Get all possible encodings
-            var encodings = Encoding.GetEncodings().Select(x => Encoding.GetEncoding(x.CodePage)).ToArray();
-
-            // Keep a list of all matching ones
-            var matches = new List<Encoding>();
-
-            // Helper method for getting all matching encodings
-            IEnumerable<Encoding> GetMatches(KeyValuePair<string, byte[]> str)
+            if (loadingScreen.Active)
             {
-                var m = encodings.Where(enc => enc.GetString(str.Value).Equals(str.Key, StringComparison.InvariantCultureIgnoreCase)).ToArray();
-                Debug.Log($"Matching encodings for {str.Key}: {String.Join(", ", m.Select(x => $"{x.EncodingName} ({x.CodePage})"))}");
-                return m;
-            }
-
-            // Add matches for the first one
-            matches.AddRange(GetMatches(input.First()));
-
-            // Check remaining ones, removing any which don't match
-            foreach (var str in input.Skip(1))
-            {
-                var ma = GetMatches(str);
-                matches.RemoveAll(x => !ma.Contains(x));
-            }
-
-            // Log the result
-            Debug.Log($"Matching encodings for all: {String.Join(", ", matches.Select(x => $"{x.EncodingName} ({x.CodePage})"))}");
-        }
-
-        public async UniTask EnumerateLevelsAsync(Func<GameSettings, UniTask> action)
-        {
-            var manager = Settings.GetGameManager;
-            var settings = Settings.GetGameSettings;
-
-            foreach (var vol in manager.GetLevels(settings))
-            {
-                settings.EduVolume = vol.Name;
-
-                foreach (var world in vol.Worlds)
+                if (LoadState == State.Error)
                 {
-                    settings.World = world.Index;
-
-                    foreach (var map in world.Maps)
-                    {
-                        settings.Level = map;
-                        await action(settings);
-                    }
+                    loadingScreen.LoadingText = DetailedState;
+                    loadingScreen.LoadingtextColor = Color.red;
+                }
+                else
+                {
+                    loadingScreen.LoadingText = DetailedState;
+                    loadingScreen.LoadingtextColor = Color.white;
                 }
             }
         }
@@ -191,71 +148,5 @@ namespace R1Engine
                     break;
             }
         }
-
-		private void Update() {
-            if (loadingScreen.Active) {
-                if (LoadState == State.Error) {
-                    loadingScreen.LoadingText = DetailedState;
-                    loadingScreen.LoadingtextColor = Color.red;
-                } else {
-                    loadingScreen.LoadingText = DetailedState;
-                    loadingScreen.LoadingtextColor = Color.white;
-                }
-            }
-        }
-
-        public void OutputJSONForWeb(string outputDir)
-        {
-            foreach (var mode in EnumHelpers.GetValues<GameModeSelection>().Where(x => Settings.GameDirectories.ContainsKey(x) && Directory.Exists(Settings.GameDirectories[x])))
-            {
-                var s = new GameSettings(mode, Settings.GameDirectories[mode], 0, 0);
-                var m = (IGameManager)Activator.CreateInstance(mode.GetAttribute<GameModeAttribute>().ManagerType);
-
-                foreach (var vol in m.GetLevels(s))
-                {
-                    s.EduVolume = vol.Name;
-                    OutputJSONForWeb(Path.Combine(outputDir, $"{mode}{vol.Name}.json"), s);
-                }
-            }
-        }
-
-        public void OutputJSONForWeb(string outputPath, GameSettings s)
-        {
-            var manager = s.GetGameManager;
-            var attr = s.GameModeSelection.GetAttribute<GameModeAttribute>();
-            var settings = s;
-            var worlds = manager.GetLevels(settings).First(x => x.Name == null || x.Name == s.EduVolume).Worlds.ToArray();
-            var names = MapNames.GetMapNames(attr.Game);
-
-            var lvlWorldIndex = 0;
-
-            var jsonObj = new
-            {
-                name = attr.DisplayName,
-                mode = s.GameModeSelection.ToString(),
-                folder = (string)null,
-                icons = worlds.Select(x =>
-                {
-                    var icon = new
-                    {
-                        image = (string)null,
-                        level = lvlWorldIndex
-                    };
-
-                    lvlWorldIndex += x.Maps.Length;
-
-                    return icon;
-                }),
-                levels = worlds.Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
-                {
-                    world = w.Index,
-                    level = lvl,
-                    nameInternal = s.MajorEngineVersion == MajorEngineVersion.GBA ? lvl.ToString() : (string)null,
-                    name = names?.TryGetItem(w.Index)?.TryGetItem(lvl) ?? (s.MajorEngineVersion == MajorEngineVersion.GBA ? $"Map {lvl}" : $"Map {w.Index}-{lvl}")
-                })).SelectMany(x => x)
-            };
-
-            JsonHelpers.SerializeToFile(jsonObj, outputPath);
-        }
-	}
+    }
 }
