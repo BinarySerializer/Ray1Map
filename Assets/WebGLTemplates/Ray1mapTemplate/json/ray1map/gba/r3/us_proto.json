@@ -1,0 +1,437 @@
+{
+  "name": "Rayman 3 Prototype (GBA - US)",
+  "mode": "Rayman3GBAUSPrototype",
+  "folder": "gba/r3_us_proto",
+  "icons": [
+    {
+      "image": ".\/img\/icon\/R3GBA\/World1.gif",
+      "level": 0
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/World2.gif",
+      "level": 15
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/World3.gif",
+      "level": 28
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/World4.gif",
+      "level": 45
+    },
+    {
+      "image": ".\/img\/icon\/R3GBA\/Bonus.gif",
+      "level": 60
+    }
+  ],
+  "levels": [
+    {
+      "world": 8,
+      "level": 113,
+      "nameInternal": "113",
+      "name": "Ubisoft Logo"
+    },
+    {
+      "world": 8,
+      "level": 89,
+      "nameInternal": "89",
+      "name": "Menu"
+    },
+    {
+      "world": 6,
+      "level": 57,
+      "nameInternal": "57",
+      "name": "World Map"
+    },
+    {
+      "world": 6,
+      "level": 53,
+      "nameInternal": "53",
+      "name": "World 1 (World Map)"
+    },
+    {
+      "world": 0,
+      "level": 0,
+      "nameInternal": "0",
+      "name": "The Wood Light 1"
+    },
+    {
+      "world": 0,
+      "level": 1,
+      "nameInternal": "1",
+      "name": "The Wood Light 2"
+    },
+	{
+      "world": 5,
+      "level": 47,
+      "nameInternal": "47",
+      "name": "Ly Power 1 (The Wood Light)"
+    },
+    {
+      "world": 0,
+      "level": 2,
+      "nameInternal": "2",
+      "name": "Fairy Glade 1"
+    },
+    {
+      "world": 0,
+      "level": 3,
+      "nameInternal": "3",
+      "name": "Fairy Glade 2"
+    },
+    {
+      "world": 0,
+      "level": 4,
+      "nameInternal": "4",
+      "name": "Marsh Awakening #1"
+    },
+    {
+      "world": 0,
+      "level": 5,
+      "nameInternal": "5",
+      "name": "Boss Machine"
+    },
+    {
+      "world": 5,
+      "level": 48,
+      "nameInternal": "48",
+      "name": "Ly Power 2 (Boss Machine)"
+    },
+    {
+      "world": 0,
+      "level": 6,
+      "nameInternal": "6",
+      "name": "Sanctuary Of The Big Trees 1"
+    },
+    {
+      "world": 0,
+      "level": 7,
+      "nameInternal": "7",
+      "name": "Sanctuary Of The Big Trees 2"
+    },
+    {
+      "world": 4,
+      "level": 40,
+      "nameInternal": "40",
+      "name": "Bonus #1"
+    },
+    {
+      "world": 6,
+      "level": 54,
+      "nameInternal": "54",
+      "name": "World 2 (World Map)"
+    },
+    {
+      "world": 1,
+      "level": 8,
+      "nameInternal": "8",
+      "name": "Missile Sur Pattes"
+    },
+    {
+      "world": 1,
+      "level": 9,
+      "nameInternal": "9",
+      "name": "The Echoing Caves 1"
+    },
+    {
+      "world": 1,
+      "level": 10,
+      "nameInternal": "10",
+      "name": "The Echoing Caves 2"
+    },
+    {
+      "world": 5,
+      "level": 49,
+      "nameInternal": "49",
+      "name": "Ly Power 3 (The Echoing Caves)"
+    },
+    {
+      "world": 1,
+      "level": 11,
+      "nameInternal": "11",
+      "name": "Cave Of Bad Dreams 1"
+    },
+    {
+      "world": 1,
+      "level": 12,
+      "nameInternal": "12",
+      "name": "Cave Of Bad Dreams 2"
+    },
+    {
+      "world": 1,
+      "level": 13,
+      "nameInternal": "13",
+      "name": "Boss Bad Dream"
+    },
+    {
+      "world": 1,
+      "level": 14,
+      "nameInternal": "14",
+      "name": "The Menhirs Hills 1"
+    },
+    {
+      "world": 1,
+      "level": 15,
+      "nameInternal": "15",
+      "name": "The Menhirs Hills 2"
+    },
+	{
+      "world": 4,
+      "level": 45,
+      "nameInternal": "45",
+      "name": "Challenge Ly #1"
+    },
+    {
+      "world": 1,
+      "level": 16,
+      "nameInternal": "16",
+      "name": "Marsh Of Awakening #2"
+    },
+    {
+      "world": 4,
+      "level": 41,
+      "nameInternal": "41",
+      "name": "Bonus #2"
+    },
+    {
+      "world": 6,
+      "level": 55,
+      "nameInternal": "55",
+      "name": "World 3 (World Map)"
+    },
+    {
+      "world": 2,
+      "level": 17,
+      "nameInternal": "17",
+      "name": "Sanctuary Rock And Lava 1"
+    },
+    {
+      "world": 2,
+      "level": 18,
+      "nameInternal": "18",
+      "name": "Sanctuary Rock And Lava 2"
+    },
+    {
+      "world": 2,
+      "level": 19,
+      "nameInternal": "19",
+      "name": "Sanctuary Rock And Lava 3"
+    },
+    {
+      "world": 5,
+      "level": 50,
+      "nameInternal": "50",
+      "name": "Ly Power 4 (Sanctuary Rock And Lava)"
+    },
+    {
+      "world": 2,
+      "level": 20,
+      "nameInternal": "20",
+      "name": "Beneath Sanctuary 1"
+    },
+    {
+      "world": 2,
+      "level": 21,
+      "nameInternal": "21",
+      "name": "Beneath Sanctuary 2"
+    },
+    {
+      "world": 2,
+      "level": 22,
+      "nameInternal": "22",
+      "name": "The Precipice 1"
+    },
+    {
+      "world": 2,
+      "level": 23,
+      "nameInternal": "23",
+      "name": "The Precipice 2"
+    },
+    {
+      "world": 2,
+      "level": 24,
+      "nameInternal": "24",
+      "name": "Boss : Rock And Lava"
+    },
+    {
+      "world": 5,
+      "level": 51,
+      "nameInternal": "51",
+      "name": "Ly Power 5 (Boss : Rock And Lava)"
+    },
+    {
+      "world": 2,
+      "level": 25,
+      "nameInternal": "25",
+      "name": "The Canopy 1"
+    },
+    {
+      "world": 2,
+      "level": 26,
+      "nameInternal": "26",
+      "name": "The Canopy 2 "
+    },
+    {
+      "world": 2,
+      "level": 27,
+      "nameInternal": "27",
+      "name": "Sanctuary Stone And Fire 1"
+    },
+    {
+      "world": 2,
+      "level": 28,
+      "nameInternal": "28",
+      "name": "Sanctuary Stone And Fire 2"
+    },
+    {
+      "world": 2,
+      "level": 29,
+      "nameInternal": "29",
+      "name": "Sanctuary Stone And Fire 3"
+    },
+    {
+      "world": 4,
+      "level": 42,
+      "nameInternal": "42",
+      "name": "Bonus #3"
+    },
+    {
+      "world": 6,
+      "level": 56,
+      "nameInternal": "56",
+      "name": "World 4 (World Map)"
+    },
+    {
+      "world": 3,
+      "level": 30,
+      "nameInternal": "30",
+      "name": "Tomb Of The Ancient 1"
+    },
+    {
+      "world": 3,
+      "level": 31,
+      "nameInternal": "31",
+      "name": "Tomb Of The Ancient 2"
+    },
+    {
+      "world": 3,
+      "level": 32,
+      "nameInternal": "32",
+      "name": "Boss : Clark"
+    },
+    {
+      "world": 5,
+      "level": 52,
+      "nameInternal": "52",
+      "name": "Ly Power 6 (Boss : Clark)"
+    },
+    {
+      "world": 3,
+      "level": 33,
+      "nameInternal": "33",
+      "name": "The Iron Mountains 1"
+    },
+    {
+      "world": 3,
+      "level": 34,
+      "nameInternal": "34",
+      "name": "The Iron Mountains 2"
+    },
+    {
+      "world": 3,
+      "level": 35,
+      "nameInternal": "35",
+      "name": "Missile sur pattes #2"
+    },
+    {
+      "world": 3,
+      "level": 36,
+      "nameInternal": "36",
+      "name": "The Pirate Ship 1"
+    },
+    {
+      "world": 3,
+      "level": 37,
+      "nameInternal": "37",
+      "name": "The Pirate Ship 2"
+    },
+    {
+      "world": 4,
+      "level": 46,
+      "nameInternal": "46",
+      "name": "Challenge Ly #2"
+    },
+    {
+      "world": 3,
+      "level": 38,
+      "nameInternal": "38",
+      "name": "Boss Final 1"
+    },
+    {
+      "world": 3,
+      "level": 39,
+      "nameInternal": "39",
+      "name": "Boss Final 2"
+    },
+    {
+      "world": 4,
+      "level": 43,
+      "nameInternal": "43",
+      "name": "Bonus #4"
+    },
+    {
+      "world": 4,
+      "level": 44,
+      "nameInternal": "44",
+      "name": "1000e lums"
+    },
+    {
+      "world": 7,
+      "level": 58,
+      "nameInternal": "58",
+      "name": "Multiplayer 1"
+    },
+    {
+      "world": 7,
+      "level": 59,
+      "nameInternal": "59",
+      "name": "Multiplayer 2"
+    },
+    {
+      "world": 7,
+      "level": 60,
+      "nameInternal": "60",
+      "name": "Multiplayer 3"
+    },
+    {
+      "world": 7,
+      "level": 61,
+      "nameInternal": "61",
+      "name": "Multiplayer 4"
+    },
+    {
+      "world": 7,
+      "level": 62,
+      "nameInternal": "62",
+      "name": "Multiplayer 5"
+    },
+    {
+      "world": 7,
+      "level": 63,
+      "nameInternal": "63",
+      "name": "Multiplayer 6"
+    },
+    {
+      "world": 8,
+      "level": 121,
+      "nameInternal": "121",
+      "name": "Cutscene (Scrolling 1)"
+    },
+    {
+      "world": 8,
+      "level": 122,
+      "nameInternal": "122",
+      "name": "Cutscene (Scrolling 2)"
+    }
+  ]
+}

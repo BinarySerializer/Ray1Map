@@ -26,8 +26,14 @@
 						{
 							"json": "eu",
 							"image": ".\/img\/version\/gba.png",
-							"name": "Gameboy Advance (EU)",
+							"name": "GBA (EU)",
 							"folder": "gba/r3_eu"
+						},
+						{
+							"json": "us_proto",
+							"image": ".\/img\/version\/gba.png",
+							"name": "GBA Prototype (US)",
+							"folder": "gba/r3_us_proto"
 						}
 					]
 				}
