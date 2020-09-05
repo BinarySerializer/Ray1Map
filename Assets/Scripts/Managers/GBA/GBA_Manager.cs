@@ -791,7 +791,7 @@ namespace R1Engine
                                     index -= playField.BGTileTable.IndicesCount4bpp;
                                 }
                                 if (index < 0 || index >= tbl.IndicesCount4bpp) {
-                                    Controller.print(map.LayerID + " - " + index);
+                                    //Controller.print(map.LayerID + " - " + index);
                                     newt.TileMapY = 0;
                                 } else {
                                     //Controller.print(index);

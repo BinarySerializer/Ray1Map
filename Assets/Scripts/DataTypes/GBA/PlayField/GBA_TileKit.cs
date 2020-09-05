@@ -48,7 +48,7 @@ namespace R1Engine
             }
 
             // Serialize tilemap data
-            if (IsCompressed) {
+            if (IsCompressed && s.GameSettings.EngineVersion != EngineVersion.GBA_R3_NGage) {
                 s.DoEncoded(new GBA_LZSSEncoder(), () => {
                     TileSet4bpp = s.SerializeArray<byte>(TileSet4bpp, TileSet4bppSize * 0x20, name: nameof(TileSet4bpp));
                     TileSet8bpp = s.SerializeArray<byte>(TileSet8bpp, TileSet8bppSize * 0x40, name: nameof(TileSet8bpp));

@@ -70,7 +70,7 @@ namespace R1Engine
                 if (NormalActors == null) NormalActors = new GBA_Actor[NormalActorsCount];
                 if (Always2Actors == null) Always2Actors = new GBA_Actor[Always2ActorsCount];
 
-                void serializeActors(GBA_Actor[] actors, ushort? prevSize)
+                void SerializeActors(GBA_Actor[] actors, ushort? prevSize)
                 {
                     for (int i = 0; i < actors.Length; i++)
                     {
@@ -85,9 +85,9 @@ namespace R1Engine
                     }
                 }
 
-                serializeActors(Always1Actors, null);
-                serializeActors(NormalActors, Always1Actors.LastOrDefault()?.NextActorSize);
-                serializeActors(Always2Actors, NormalActors.LastOrDefault()?.NextActorSize ?? Always1Actors.LastOrDefault()?.NextActorSize);
+                SerializeActors(Always1Actors, null);
+                SerializeActors(NormalActors, Always1Actors.LastOrDefault()?.NextActorSize);
+                SerializeActors(Always2Actors, NormalActors.LastOrDefault()?.NextActorSize ?? Always1Actors.LastOrDefault()?.NextActorSize);
 
                 // TODO: Parse remaining data
                 RemainingData = s.SerializeArray<byte>(RemainingData, BlockSize - (s.CurrentPointer - Offset), name: nameof(RemainingData));

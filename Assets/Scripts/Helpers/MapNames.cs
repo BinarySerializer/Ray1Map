@@ -354,7 +354,7 @@ namespace R1Engine
             {
                 [48] = "Ly Power 1 (Wanderwood Forest)",
                 [49] = "Ly Power 2 (Garish Gears)",
-                [50] = "Ly Power 3 (Vertigo Wasters)",
+                [50] = "Ly Power 3 (Vertigo Wastes)",
                 [51] = "Ly Power 4 (River of Fire)",
                 [52] = "Ly Power 5 (Den of Rocky)",
                 [53] = "Ly Power 6 (Scaleman's Keep)",
@@ -365,7 +365,7 @@ namespace R1Engine
                 [55] = "Haunted Dreams",
                 [56] = "Magmacosm",
                 [57] = "Pirate Stronghold",
-                [58] = "Worldmap",
+                [58] = "World Map",
             },
             [7] = new Dictionary<int, string>()
             {

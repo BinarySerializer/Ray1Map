@@ -329,6 +329,7 @@ a:focus {
 	background-color: transparent;
 }
 .objects-item.object-perso,
+.objects-item.object-event,
 .behaviors-item.behavior {
 	padding: 0 0.5em 0 0.5em;
 	cursor: pointer;
@@ -537,6 +538,7 @@ a:focus {
 }
 .objects-item > .name-instance,
 .highlight-perso > .name-instance,
+.highlight-event > .name-instance,
 #objectName > .name-instance,
 .dsgvar-value > .name-instance {
 	text-align: left;
@@ -642,6 +644,7 @@ a:focus {
 	padding: 0 0 0 0.5em;
 }
 .highlight-perso > *,
+.highlight-event > *,
 #objectName > * {
 	width: auto !important;
 }
@@ -718,7 +721,8 @@ a:focus {
 	font-weight: bold;
 }
 
-.highlight-perso {
+.highlight-perso,
+.highlight-event {
     display: flex;
 	flex-flow: row;
 	justify-content: space-around;

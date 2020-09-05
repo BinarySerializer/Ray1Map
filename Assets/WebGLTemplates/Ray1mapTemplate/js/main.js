@@ -116,7 +116,7 @@ function getNoCacheURL() {
 function sendMessage(jsonObj) {
 	if(gameInstance != null) {
 		//console.log("Message: " + JSON.stringify(jsonObj));
-		gameInstance.SendMessage("Loader", "ParseMessage", JSON.stringify(jsonObj));
+		gameInstance.SendMessage("Controller", "ParseMessage", JSON.stringify(jsonObj));
 	}
 }
 
@@ -882,34 +882,13 @@ function setAllJSON(jsonString) {
 	if(msg.hasOwnProperty("Hierarchy")) {
 		hierarchy = msg.Hierarchy;
 		if(hierarchy != null) {
-			let totalWorld = [];
-			if(hierarchy.hasOwnProperty("Always")) {
-				let fakeAlwaysWorld = parseAlways(hierarchy.Always);
-				totalWorld = totalWorld.concat(fakeAlwaysWorld);
+			let objectsHTML = [];
+			if(hierarchy.hasOwnProperty("Objects")) {
+				objectsHTML = parseObjects(hierarchy.Objects);
 			}
-			if(hierarchy.hasOwnProperty("TransitDynamicWorld")) {
-				let transitDynamicWorld = parseSuperObject(hierarchy.TransitDynamicWorld, 0);
-				totalWorld = totalWorld.concat(transitDynamicWorld);
-			}
-			if(hierarchy.hasOwnProperty("ActualWorld")) {
-				let actualWorld = parseSuperObject(hierarchy.ActualWorld, 0);
-				totalWorld = totalWorld.concat(actualWorld);
-			}
-			if(hierarchy.hasOwnProperty("DynamicWorld")) {
-				let dynamicWorld = parseSuperObject(hierarchy.DynamicWorld, 0);
-				totalWorld = totalWorld.concat(dynamicWorld);
-			}
-			if(hierarchy.hasOwnProperty("DynamicSuperObjects")) {
-				let dynamicWorld = parseDynamicSuperObjects(hierarchy.DynamicSuperObjects);
-				totalWorld = totalWorld.concat(dynamicWorld);
-			}
-			if(hierarchy.hasOwnProperty("FatherSector")) {
-				let fatherSector = parseSuperObject(hierarchy.FatherSector, 0);
-				totalWorld = totalWorld.concat(fatherSector);
-			}
-			if(totalWorld.length > 0) {
+			if(objectsHTML.length > 0) {
 				let api = objects_content.data('jsp');
-				api.getContentPane().append(totalWorld.join(""));
+				api.getContentPane().append(objectsHTML.join(""));
 				// hack, but append (in chrome) is asynchronous so we could reinit with non-full scrollpane
 				setTimeout(function(){
 					api.reinitialise();
@@ -920,17 +899,8 @@ function setAllJSON(jsonString) {
 	if(msg.hasOwnProperty("Settings")) {
 		handleMessage_settings(msg.Settings);
 	}
-	if(msg.hasOwnProperty("Camera")) {
-		handleMessage_camera(msg.Camera);
-	}
-	if(msg.hasOwnProperty("CineData")) {
-		handleMessage_cineData(msg.CineData);
-	}
 	if(msg.hasOwnProperty("Localization")) {
 		handleMessage_localization(msg.Localization);
-	}
-	if(msg.hasOwnProperty("Input")) {
-		handleMessage_input(msg.Input);
 	}
 }
 // SCRIPT
