@@ -142,16 +142,17 @@ function initContent() {
 						}
 					});
 				}
+				let titleHTML = escapeHTML(value.title);
 				if(thisGameSelected) {
 					versions_content.off(transEndEventName);
 					initGame(value);
 					$(".current-game-item").removeClass("current-game-item");
-					items.push("<div class='game-item current-game-item' data-game='" + value.json + "' title='" + value.title + "' data-logo='" + encodeURI(value.image) + "'>");
+					items.push("<div class='game-item current-game-item' data-game='" + value.json + "' title='" + titleHTML + "' data-logo='" + encodeURI(value.image) + "'>");
 				} else {
-					items.push("<div class='game-item' data-game='" + value.json + "' title='" + value.title + "' data-logo='" + encodeURI(value.image) + "'>");
+					items.push("<div class='game-item' data-game='" + value.json + "' title='" + titleHTML + "' data-logo='" + encodeURI(value.image) + "'>");
 				}
-				items.push("<div class='game-item-logo' style='background-image: url(\"" + encodeURI(value.image) + "\");' alt='" + value.title + "'></div>");
-				items.push("<div class='game-item-title'>" + value.title + "</div></div>");
+				items.push("<div class='game-item-logo' style='background-image: url(\"" + encodeURI(value.image) + "\");' alt='" + titleHTML + "'></div>");
+				items.push("<div class='game-item-title'>" + titleHTML + "</div></div>");
 			});
 		});
 		/*if(!isLoading) {
@@ -1570,8 +1571,9 @@ function initVersion(versionJSON) {
 			}
 
 			//items.push("<a class='logo-item' href='#" + value.json + "' title='" + value.title + "'><img src='" + encodeURI(value.image) + "' alt='" + value.title + "'></a>");
+			let nameHTML = escapeHTML(value.name);
 			if(levelsJSON.mode === mode && folder === levelFolder && value.level === lvl && value.world === wld) {
-				items.push("<div class='levels-item level current-levels-item' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.nameInternal + "</div></div>");
+				items.push("<div class='levels-item level current-levels-item' title='" + nameHTML + "'><div class='name'>" + nameHTML + "</div><div class='internal-name'>" + escapeHTML(value.nameInternal) + "</div></div>");
 				document.title = " [" + levelsJSON.name + "] " + value.name + " - " + baseTitle;
 			} else {
 				let actorHTML = "";
@@ -1580,7 +1582,7 @@ function initVersion(versionJSON) {
 					if(requiresActor2) actorHTML += "data-actor2='" + actor2_selector.val() + "' ";
 					if(requiresActor1 || requiresActor2) actorHTML += "' data-url-params='" + escapeHTML(urlParams) + "' ";
 				}
-				items.push("<a class='levels-item level' " + actorHTML + "href='index.html" + urlParams + actorParams + "' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.nameInternal + "</div></a>");
+				items.push("<a class='levels-item level' " + actorHTML + "href='index.html" + urlParams + actorParams + "' title='" + nameHTML + "'><div class='name'>" + nameHTML + "</div><div class='internal-name'>" + escapeHTML(value.nameInternal) + "</div></a>");
 			}
 			totalEm += 2;
 		});
