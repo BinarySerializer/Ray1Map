@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json;
-using R1Engine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using R1Engine;
 
 public class WebJSON {
 	public class Message {
@@ -60,10 +53,13 @@ public class WebJSON {
 		public int Index { get; set; } // Identify by index, non-nullable
 		public bool? IsAlways { get; set; }
 		public bool? IsEditor { get; set; }
+		public byte? AnimIndex { get; set; }
+		public byte? AnimSpeed { get; set; }
 		public int? X { get; set; }
 		public int? Y { get; set; }
 
         // Rayman 1/2
+		public ushort? R1_Type { get; set; }
 		public int? R1_DESIndex { get; set; }
 		public int? R1_ETAIndex { get; set; } // Not in R2
 		public byte? R1_Etat { get; set; }
@@ -84,6 +80,7 @@ public class WebJSON {
 		public byte? R1Jaguar_State { get; set; }
 
 		// GBA
+		public byte? GBA_ActorID { get; set; }
 		public int? GBA_GraphicsDataIndex { get; set; }
 		public byte? GBA_State { get; set; }
 	}
