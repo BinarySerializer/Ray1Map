@@ -527,7 +527,7 @@ namespace R1Engine
                 }
 
                 // Delete selected event
-                if (Input.GetKeyDown(KeyCode.Delete) && modeEvents && SelectedEvent != null)
+                if (Input.GetKeyDown(KeyCode.Delete) && modeEvents && SelectedEvent != null && Application.platform != RuntimePlatform.WebGLPlayer)
                 {
                     if (SelectedEvent != null)
                         SelectedEvent.IsSelected = false;

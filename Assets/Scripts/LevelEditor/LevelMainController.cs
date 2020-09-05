@@ -298,5 +298,71 @@ namespace R1Engine
             tabs[tabIndex].open.SetActive(!tabs[tabIndex].open.activeSelf);
             tabs[tabIndex].closed.SetActive(!tabs[tabIndex].closed.activeSelf);
         }
+
+        public void Update()
+        {
+            var updatedSettings = false;
+
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                Settings.ShowObjects = !Settings.ShowObjects;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                Settings.ShowTiles = !Settings.ShowTiles;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                Settings.ShowCollision = !Settings.ShowCollision;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.G))
+            {
+                Settings.AnimateSprites = !Settings.AnimateSprites;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                Settings.AnimateTiles = !Settings.AnimateTiles;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Settings.ShowAlwaysEvents = !Settings.ShowAlwaysEvents;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Settings.ShowEditorEvents = !Settings.ShowEditorEvents;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                Settings.ShowDebugInfo = !Settings.ShowDebugInfo;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                Settings.ShowObjOffsets = !Settings.ShowObjOffsets;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Settings.ShowRayman = !Settings.ShowRayman;
+                updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Settings.ShowRayman = !Settings.ShowRayman;
+                updatedSettings = true;
+            }
+
+            if (updatedSettings)
+            {
+                //communicator.SendSettings();
+            }
+        }
     }
 }
