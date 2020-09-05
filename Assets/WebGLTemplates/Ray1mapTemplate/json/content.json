@@ -26,8 +26,14 @@
 						{
 							"json": "eu",
 							"image": ".\/img\/version\/gba.png",
-							"name": "GBA (EU)",
+							"name": "GBA",
 							"folder": "gba/r3_eu"
+						},
+						{
+							"json": "ngage",
+							"image": ".\/img\/version\/ngage.png",
+							"name": "N-Gage",
+							"folder": "gba/r3_ngage"
 						},
 						{
 							"json": "us_proto",

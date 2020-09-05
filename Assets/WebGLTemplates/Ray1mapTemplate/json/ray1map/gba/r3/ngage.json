@@ -1,7 +1,7 @@
 {
-  "name": "Rayman 3 (GBA)",
-  "mode": "Rayman3GBAEU",
-  "folder": "gba/r3_eu",
+  "name": "Rayman 3 (N-Gage)",
+  "mode": "Rayman3NGage",
+  "folder": "gba/r3_ngage",
   "icons": [
     {
       "image": ".\/img\/icon\/R3GBA\/World1.gif",
@@ -27,14 +27,14 @@
   "levels": [
     {
       "world": 8,
-      "level": 117,
-      "nameInternal": "117",
+      "level": 131,
+      "nameInternal": "131",
       "name": "Ubisoft Logo"
     },
     {
       "world": 8,
-      "level": 91,
-      "nameInternal": "91",
+      "level": 103,
+      "nameInternal": "103",
       "name": "Menu"
     },
     {
@@ -83,7 +83,7 @@
       "world": 0,
       "level": 4,
       "nameInternal": "4",
-      "name": "Swamp of Bégoniax"
+      "name": "Ascension"
     },
     {
       "world": 0,
@@ -125,7 +125,7 @@
       "world": 1,
       "level": 8,
       "nameInternal": "8",
-      "name": "Magma Mayhem"
+      "name": "Ly's Punch Challenge 1"
     },
     {
       "world": 1,
@@ -179,13 +179,13 @@
       "world": 4,
       "level": 45,
       "nameInternal": "45",
-      "name": "Ly's Punch Challenge 1"
+      "name": "Ly's Punch Challenge 2"
     },
     {
       "world": 1,
       "level": 16,
       "nameInternal": "16",
-      "name": "Swamp of Bégoniax 2"
+      "name": "Free Falling"
     },
     {
       "world": 4,
@@ -341,7 +341,7 @@
       "world": 3,
       "level": 35,
       "nameInternal": "35",
-      "name": "Magma Mayhem 2"
+      "name": "Falling Down"
     },
     {
       "world": 3,
@@ -359,13 +359,13 @@
       "world": 4,
       "level": 46,
       "nameInternal": "46",
-      "name": "Ly's Punch Challenge 2"
+      "name": "Ly's Punch Challenge 3"
     },
     {
       "world": 4,
       "level": 47,
       "nameInternal": "47",
-      "name": "Ly's Punch Challenge 3 (Unused)"
+      "name": "Ly's Punch Challenge 4 (Unused)"
     },
     {
       "world": 3,
@@ -428,64 +428,28 @@
       "name": "Multiplayer 6"
     },
     {
-      "world": 9,
-      "level": 0,
-      "nameInternal": "map.000",
-      "name": "Bonus 1 (GameCube)"
+      "world": 7,
+      "level": 65,
+      "nameInternal": "65",
+      "name": "Multiplayer 7"
     },
     {
-      "world": 9,
-      "level": 1,
-      "nameInternal": "map.001",
-      "name": "Bonus 2 (GameCube)"
+      "world": 7,
+      "level": 66,
+      "nameInternal": "66",
+      "name": "Multiplayer 8"
     },
     {
-      "world": 9,
-      "level": 2,
-      "nameInternal": "map.002",
-      "name": "Bonus 3 (GameCube)"
+      "world": 7,
+      "level": 67,
+      "nameInternal": "67",
+      "name": "Multiplayer 9"
     },
     {
-      "world": 9,
-      "level": 3,
-      "nameInternal": "map.003",
-      "name": "Bonus 4 (GameCube)"
-    },
-    {
-      "world": 9,
-      "level": 4,
-      "nameInternal": "map.004",
-      "name": "Bonus 5 (GameCube)"
-    },
-    {
-      "world": 9,
-      "level": 5,
-      "nameInternal": "map.005",
-      "name": "Bonus 6 (GameCube)"
-    },
-    {
-      "world": 9,
-      "level": 6,
-      "nameInternal": "map.006",
-      "name": "Bonus 7 (GameCube)"
-    },
-    {
-      "world": 9,
-      "level": 7,
-      "nameInternal": "map.007",
-      "name": "Bonus 8 (GameCube)"
-    },
-    {
-      "world": 9,
-      "level": 8,
-      "nameInternal": "map.008",
-      "name": "Bonus 9 (GameCube)"
-    },
-    {
-      "world": 9,
-      "level": 9,
-      "nameInternal": "map.009",
-      "name": "Bonus 10 (GameCube)"
+      "world": 7,
+      "level": 68,
+      "nameInternal": "68",
+      "name": "Multiplayer 10"
     }
   ]
 }
