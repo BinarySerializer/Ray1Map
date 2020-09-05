@@ -19,7 +19,7 @@ namespace R1Engine
         void Update() {
             if (!loaded && LevelEditorData.Level != null) {
                 loaded = true;
-                foreach (var e in FindObjectOfType<LevelMainController>().Events) {
+                foreach (var e in FindObjectOfType<LevelMainController>().Objects) {
                     Instantiate<GameObject>(listItemRes, list).GetComponent<EventListItem>().ev = e;
                 }
             }

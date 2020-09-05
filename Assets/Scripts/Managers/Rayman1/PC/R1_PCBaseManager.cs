@@ -1706,6 +1706,7 @@ namespace R1Engine
                 LogFile<R1_PC_VersionFile>("VERSION");
                 //LogFile<>("SCRIPT");
                 LogFile<R1_PC_GeneralFile>("GENERAL");
+                LogFile<R1_PC_GeneralFile>("GENERAL0");
                 LogFile<R1_PCEdu_MOTFile>("MOT");
                 LogFile<R1_PC_SampleNamesFile>("SMPNAMES");
                 LogFile<R1_PC_LocFile>("TEXT");

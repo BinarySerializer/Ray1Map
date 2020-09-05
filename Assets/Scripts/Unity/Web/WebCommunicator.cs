@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using UnityEngine;
-using System.Runtime.InteropServices;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using R1Engine;
 using R1Engine.Serialize;
+using System;
+using System.Linq;
+using System.Runtime.InteropServices;
+using UnityEngine;
 
 public class WebCommunicator : MonoBehaviour {
     [DllImport("__Internal")]
@@ -110,7 +108,7 @@ public class WebCommunicator : MonoBehaviour {
     }
 	private WebJSON.Hierarchy GetHierarchyJSON() {
 		var h = new WebJSON.Hierarchy();
-		var objects = Controller.obj.levelController.Events;
+		var objects = Controller.obj.levelController.Objects;
 		h.Objects = objects.Select(o => GetObjectJSON(o)).ToArray();
 		return h;
 	}
@@ -140,12 +138,15 @@ public class WebCommunicator : MonoBehaviour {
 			Index = obj.Index,
 			IsAlways = obj.ObjData.IsAlways,
 			IsEditor = obj.ObjData.IsEditor,
+			AnimIndex = obj.ObjData.AnimationIndex,
+			AnimSpeed = obj.ObjData.AnimSpeed,
 			X = obj.ObjData.XPosition,
 			Y = obj.ObjData.YPosition,
 		};
 		switch (obj.ObjData) {
             // TODO: Also add all lists for properties that should have a dropdown (DES, ETA, Subetat...)
 			case Unity_Object_R1 r1obj:
+                webObj.R1_Type = (ushort)r1obj.EventData.Type;
                 webObj.R1_DESIndex = r1obj.DESIndex;
 				webObj.R1_Etat = r1obj.EventData.Etat;
 				webObj.R1_SubEtat = r1obj.EventData.SubEtat;
@@ -164,6 +165,7 @@ public class WebCommunicator : MonoBehaviour {
 				break;
 
 			case Unity_Object_R2 r2obj:
+                webObj.R1_Type = (ushort)r2obj.EventData.EventType;
                 webObj.R1_DESIndex = r2obj.AnimGroupIndex;
                 webObj.R1_Etat = r2obj.EventData.Etat;
                 webObj.R1_SubEtat = r2obj.EventData.SubEtat;
@@ -180,6 +182,7 @@ public class WebCommunicator : MonoBehaviour {
                 break;
 
 			case Unity_Object_GBA gbaObj:
+                webObj.GBA_ActorID = (byte)gbaObj.Actor.ActorID;
                 webObj.GBA_GraphicsDataIndex = gbaObj.GraphicsDataIndex;
                 webObj.GBA_State = gbaObj.Actor.StateIndex;
                 break;
