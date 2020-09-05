@@ -9,23 +9,23 @@
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W2.png",
-			"level": 22
+			"level": 21
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W3.png",
-			"level": 40
+			"level": 39
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W4.png",
-			"level": 53
+			"level": 52
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W5.png",
-			"level": 66
+			"level": 65
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W6.png",
-			"level": 78
+			"level": 77
 		}
 	],
     "levels": [

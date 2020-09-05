@@ -222,7 +222,7 @@ function refreshScroll() {
 	}, 3, "some unique string");
 }
 
-function setLevelsSidebarSlider(pos) {
+function setLevelsSidebarSlider(pos, isAtTop, isAtBottom) {
 	if(levelsJSON != null && levelsJSON.hasOwnProperty("icons") && $(".levels-item.level").length > 0) {
 		// Find which section you're scrolling in
 		let i = 0;
@@ -237,11 +237,26 @@ function setLevelsSidebarSlider(pos) {
 				break;
 			}
 		}
+		// Calculate height for special cases
+		let height = 1;
+		if(isAtBottom && isAtTop) {
+			highlight_i = 0;
+			height = levelsJSON.icons.length;
+		} else if(isAtTop && highlight_i !== 0) {
+			height = 1 + highlight_i;
+			highlight_i = 0;
+		} else if(isAtBottom && highlight_i !== levelsJSON.icons.length - 1) {
+			height = levelsJSON.icons.length - highlight_i;
+		}
+
 		// Add class
 		//let butt = $(".sidebar-button").eq(highlight_i);
 		//let buttPos = butt.position().top;
 		//$('#sidebar-soundtrack-slider').css('top',buttPos + 'px');
-		$('#sidebar-levels-slider').css('top',(highlight_i * 4) + 'em');
+		$('#sidebar-levels-slider').css({
+			'top': (highlight_i * 4) + 'em',
+			'height': (height * 4) + 'em'
+		});
 		/*if(!butt.hasClass('sidebar-button-active')) {
 			$(".sidebar-button").removeClass('sidebar-button-active');
 			butt.addClass('sidebar-button-active');
@@ -2242,7 +2257,7 @@ $(function() {
 	
 	$('#content-levels').bind('jsp-scroll-y', function(event, scrollPositionY, isAtTop, isAtBottom) {
 		waitForFinalEvent(function(){
-				setLevelsSidebarSlider(scrollPositionY);
+				setLevelsSidebarSlider(scrollPositionY, isAtTop, isAtBottom);
 			}, 20, "scrolly scrolly");
 		}
 	)

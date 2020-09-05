@@ -1005,9 +1005,9 @@ a:focus {
 	width: 5em;
 	height: 4em;
 	z-index: 0;
-	transition: top .2s ease-out;
-	-moz-transition: top .2s ease-out;
-	-webkit-transition: top .2s ease-out;
+	transition: top .2s ease-out, height .2s ease-out;
+	-moz-transition: top .2s ease-out, height .2s ease-out;
+	-webkit-transition: top .2s ease-out, height .2s ease-out;
 }
 
 .sidebar-arrow {
