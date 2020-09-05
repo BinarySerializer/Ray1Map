@@ -727,7 +727,7 @@ a:focus {
 	flex-flow: row;
 	justify-content: space-around;
 }
-.highlight-collider,
+.highlight-collision,
 .highlight-waypoint {
     display: flex;
 	flex-flow: row;

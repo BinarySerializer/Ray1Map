@@ -1325,12 +1325,12 @@ function handleMessage_selection(msg) {
 }
 function handleMessage_highlight(msg) {
 	let highlight = "";
-	highlight_tooltip.removeClass("perso");
+	highlight_tooltip.removeClass("event");
 	highlight_tooltip.removeClass("waypoint");
-	highlight_tooltip.removeClass("collider");
-	if(msg.hasOwnProperty("Perso")) {
-		highlight_tooltip.addClass("perso");
-		highlight += "<div class='highlight-perso'>" + getObjectNameHTML(msg.Perso) + "</div>";
+	highlight_tooltip.removeClass("collision");
+	if(msg.hasOwnProperty("Object")) {
+		highlight_tooltip.addClass("event");
+		highlight += "<div class='highlight-event'>" + getObjectNameHTML(msg.Object) + "</div>";
 	}
 	if(msg.hasOwnProperty("WayPoint")) {
 		if(msg.WayPoint.hasOwnProperty("Graphs")) {
@@ -1344,8 +1344,8 @@ function handleMessage_highlight(msg) {
 			highlight += "</div>";
 		}
 	}
-	if(msg.hasOwnProperty("Collider")) {
-		highlight_tooltip.addClass("collider");
+	if(msg.hasOwnProperty("Collision")) {
+		highlight_tooltip.addClass("collision");
 		highlight += "<div class='highlight-header'>Collide Type:</div><div class='highlight-collider'>";
 		if(msg.Collider.hasOwnProperty("CollideTypes")) {
 			if(msg.Collider.CollideTypes.length > 0) {
