@@ -88,7 +88,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The map file path</returns>
-        public string GetMapFilePath(Context context) => GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}00{context.Settings.Level}.XMP";
+        public string GetMapFilePath(Context context) => (GetWorldFolderPath(context.Settings.R1_World) + (context.Settings.Level == 140 ? $"JUNNT14.XMP" : $"{GetWorldName(context.Settings.R1_World)}00{context.Settings.Level}.XMP"));
 
         /// <summary>
         /// Gets the tile-set palette file path
@@ -124,7 +124,7 @@ namespace R1Engine
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"*.XMP", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(5)))
-            .ToArray())).ToArray());
+            .ToArray())).Select(x => x.Index == 1 ? new GameInfo_World(x.Index, x.Maps.Append(140).ToArray()) : x).ToArray());
 
         public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress = 0)
         {
@@ -363,13 +363,14 @@ namespace R1Engine
             await LoadFile(context, tileSetFilePath);
             await LoadFile(context, mapFilePath);
 
+            // Load executable to get the palettes
+            await LoadFile(context, GetExeFilePath());
+
+            // Load the texture files
+            await LoadFile(context, GetFixImageFilePath());
+
             if (FileSystem.FileExists(context.BasePath + levelFilePath))
             {
-                // Load executable to get the palettes
-                await LoadFile(context, GetExeFilePath());
-
-                // Load the texture files
-                await LoadFile(context, GetFixImageFilePath());
                 await LoadFile(context, GetWorldImageFilePath(context));
                 await LoadFile(context, GetLevelImageFilePath(context));
             }

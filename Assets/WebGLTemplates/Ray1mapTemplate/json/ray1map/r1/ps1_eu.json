@@ -1,7 +1,7 @@
 {
-    "name": "Rayman (PS1 - US)",
-    "mode": "RaymanPS1US",
-    "folder": "r1/ps1_us",
+    "name": "Rayman (PS1 - EU)",
+    "mode": "RaymanPS1EU",
+    "folder": "r1/ps1_eu",
 	"icons": [
 		{
 			"image": ".\/img\/icon\/R1\/R1-W1.png",

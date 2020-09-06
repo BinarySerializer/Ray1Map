@@ -246,7 +246,7 @@ namespace R1Engine
             var rayman = GetRaymanEvent(context);
 
             // Load graphics
-            foreach (R1_EventData e in events?.Append(rayman).Where(x => x != null) ?? (events = new R1_EventData[0]))
+            foreach (R1_EventData e in (events ?? (events = new R1_EventData[0])).Append(rayman).Where(x => x != null))
             {
                 // Add if not found
                 if (e.ImageDescriptorsPointer != null && eventDesigns.All(x => x.Pointer != e.ImageDescriptorsPointer))

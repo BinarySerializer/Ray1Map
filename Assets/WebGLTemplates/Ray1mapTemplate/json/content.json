@@ -14,6 +14,120 @@
 							"image": ".\/img\/version\/ps1.png",
 							"name": "PlayStation (US)",
 							"folder": "r1/ps1_us"
+						},
+						{
+							"json": "ps1_eu",
+							"image": ".\/img\/version\/ps1.png",
+							"name": "PlayStation (EU)",
+							"folder": "r1/ps1_eu"
+						},
+						{
+							"json": "ps1_jp",
+							"image": ".\/img\/version\/ps1.png",
+							"name": "PlayStation (JP)",
+							"folder": "r1/ps1_jp"
+						},
+						{
+							"json": "saturn_us",
+							"image": ".\/img\/version\/saturn.png",
+							"name": "Sega Saturn (US)",
+							"folder": "r1/saturn_us"
+						},
+						{
+							"json": "saturn_eu",
+							"image": ".\/img\/version\/saturn.png",
+							"name": "Sega Saturn (EU)",
+							"folder": "r1/saturn_eu"
+						},
+						{
+							"json": "pc_100",
+							"image": ".\/img\/version\/pc.png",
+							"name": "PC (1.00)",
+							"folder": "r1/pc_100"
+						},
+						{
+							"json": "pc_110",
+							"image": ".\/img\/version\/pc.png",
+							"name": "PC (1.10)",
+							"folder": "r1/pc_110"
+						},
+						{
+							"json": "pc_112",
+							"image": ".\/img\/version\/pc.png",
+							"name": "PC (1.12)",
+							"folder": "r1/pc_112"
+						},
+						{
+							"json": "pc_120",
+							"image": ".\/img\/version\/pc.png",
+							"name": "PC (1.20)",
+							"folder": "r1/pc_120"
+						},
+						{
+							"json": "pc_121",
+							"image": ".\/img\/version\/pc.png",
+							"name": "PC (1.21)",
+							"folder": "r1/pc_121"
+						},
+						{
+							"json": "pocketpc",
+							"image": ".\/img\/version\/pocketpc.png",
+							"name": "Pocket PC: Ultimate",
+							"folder": "r1/pocketpc"
+						},
+						{
+							"json": "android",
+							"image": ".\/img\/version\/android.png",
+							"name": "Android: Classic",
+							"folder": "r1/android"
+						},
+						{
+							"json": "gba",
+							"image": ".\/img\/version\/gba.png",
+							"name": "GBA: Advance",
+							"folder": "r1/gba"
+						},
+						{
+							"json": "dsi",
+							"image": ".\/img\/version\/dsi.png",
+							"name": "DSi-Ware",
+							"folder": "r1/dsi"
+						},
+						{
+							"json": "jaguar",
+							"image": ".\/img\/version\/jaguar.png",
+							"name": "Atari Jaguar",
+							"folder": "r1_jaguar/r1"
+						},
+						{
+							"json": "jaguar_proto",
+							"image": ".\/img\/version\/jaguar.png",
+							"name": "Atari Jaguar Prototype",
+							"folder": "r1_jaguar/proto"
+						},
+						{
+							"json": "jaguar_demo",
+							"image": ".\/img\/version\/jaguar.png",
+							"name": "Atari Jaguar Demo",
+							"folder": "r1_jaguar/demo"
+						},
+						{
+							"json": "saturn_proto",
+							"image": ".\/img\/version\/saturn.png",
+							"name": "Sega Saturn Prototype",
+							"folder": "r1/saturn_proto"
+						},
+						{
+							"json": "ps1_jp_demovol3",
+							"image": ".\/img\/version\/ps1.png",
+							"name": "PS1 Demo (DemoDemo 3)",
+							"folder": "r1/ps1_jp_demovol3"
+						},
+						{
+							"json": "ps1_jp_demovol6",
+							"image": ".\/img\/version\/ps1.png",
+							"name": "PS1 Demo (DemoDemo 6)",
+							"folder": "r1/ps1_jp_demovol6"
 						}
 					]
 				},
@@ -38,7 +152,7 @@
 						{
 							"json": "us_proto",
 							"image": ".\/img\/version\/gba.png",
-							"name": "GBA Prototype (US)",
+							"name": "GBA Prototype",
 							"folder": "gba/r3_us_proto"
 						}
 					]

@@ -1,5 +1,5 @@
 {
-  "name": "Rayman 3 Prototype (GBA - US)",
+  "name": "Rayman 3 Prototype (GBA)",
   "mode": "Rayman3GBAUSPrototype",
   "folder": "gba/r3_us_proto",
   "icons": [
@@ -29,13 +29,13 @@
       "world": 8,
       "level": 113,
       "nameInternal": "113",
-      "name": "Ubisoft Logo"
+      "name": "(Menu) Ubisoft Logo"
     },
     {
       "world": 8,
       "level": 89,
       "nameInternal": "89",
-      "name": "Menu"
+      "name": "(Menu) Main Menu"
     },
     {
       "world": 6,
@@ -425,13 +425,13 @@
       "world": 8,
       "level": 121,
       "nameInternal": "121",
-      "name": "Cutscene (Scrolling 1)"
+      "name": "(Cutscene) Scrolling Vignette 1"
     },
     {
       "world": 8,
       "level": 122,
       "nameInternal": "122",
-      "name": "Cutscene (Scrolling 2)"
+      "name": "(Cutscene) Scrolling Vignette 2"
     }
   ]
 }
