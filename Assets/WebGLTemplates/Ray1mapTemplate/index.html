@@ -29,7 +29,6 @@
 		<link rel="stylesheet" type="text/css" href="css/source-sans-pro.css" />
         <link rel="stylesheet" type="text/css" href="css/icomoon.css" />
 		<link rel="stylesheet" type="text/css" href="css/jquery.jscrollpane.css" media="all" />
-		<link rel="stylesheet" type="text/css" href="css/highlight.css">
 		<link rel="stylesheet" type="text/css" href="css/camera-cube.css" />
 		<link rel="stylesheet" type="text/css" href="css/main.css?1" />
 		
@@ -84,34 +83,31 @@
 							<div class="header-buttons-right"><div id="btn-close-description" class="header-button disabled-button" title="Close object description panel"><i class="icon-times"></i></div></div>
 						</div>
 						<div id="content-description" class="column-content column-content-scroll">
-							<div class="input-group input-flex perso-description invisible">
+							<div class="input-group input-flex object-description invisible">
 								<div id="btn-enabled" class="header-button" title="Show/hide"><i class="icon-eye"></i></div>
-								<div id="objectName"><div class='name-family'>family</div><div class='name-model'>model</div><div class='name-instance'>instance</div></div>
+								<div id="objectName"></div>
 							</div>
 							<div class="input-group">
-								<div class="input vector3"><div class="label main">Position</div><div class="fields"><div class="field"><div class="label sub">X</div><input id="posX" class="input-typing input-transform" type="number" step="any" name="x" placeholder="0"></input></div><div class="field"><div class="label sub">Y</div><input id="posY" class="input-typing input-transform" type="number" step="any" name="y" placeholder="0"></input></div><div class="field"><div class="label sub">Z</div><input id="posZ" class="input-typing input-transform" type="number" step="any" name="z" placeholder="0"></input></div></div></div>
-								<div class="input vector3"><div class="label main">Rotation</div><div class="fields"><div class="field"><div class="label sub">X</div><input id="rotX" class="input-typing input-transform" type="number" step="any" name="x" placeholder="0"></input></div><div class="field"><div class="label sub">Y</div><input id="rotY" class="input-typing input-transform" type="number" step="any" name="y" placeholder="0"></input></div><div class="field"><div class="label sub">Z</div><input id="rotZ" class="input-typing input-transform" type="number" step="any" name="z" placeholder="0"></input></div></div></div>
-								<div class="input vector3"><div class="label main">Scale</div><div class="fields"><div class="field"><div class="label sub">X</div><input id="sclX" class="input-typing input-transform" type="number" step="any" name="x" placeholder="0"></input></div><div class="field"><div class="label sub">Y</div><input id="sclY" class="input-typing input-transform" type="number" step="any" name="y" placeholder="0"></input></div><div class="field"><div class="label sub">Z</div><input id="sclZ" class="input-typing input-transform" type="number" step="any" name="z" placeholder="0"></input></div></div></div>
+								<div class="input vector2"><div class="label main">Position</div><div class="fields"><div class="field"><div class="label sub">X</div><input id="posX" class="input-typing input-transform" type="number" step="any" name="x" placeholder="0"></input></div><div class="field"><div class="label sub">Y</div><input id="posY" class="input-typing input-transform" type="number" step="any" name="y" placeholder="0"></input></div></div></div>
 							</div>
-							<div id="objectListInputGroup" class="input-group small perso-description invisible">
+							<div id="objectListInputGroup" class="input-group small object-description invisible">
 								<div class="input dropdown">
 									<div class="label main">Object List</div><div class="fields"><div class="field"><select id="objectList">
 									  <option value="none">None</option>
 									</select></div></div>
 								</div>
 							</div>
-							<div class="input-group small input-flex perso-description invisible">
+							<div class="input-group small input-flex object-description invisible">
 								<div class="label main">State</div>
 								<div class="field flexible"><select id="state"><option value="none">None</option></select></div>
 								<div id="btn-autoNextState" class="field header-button" title="Automatically go to next state"><i class="icon-media-fast-forward"></i></div>
 							</div>
-							<div class="input-group small input-flex perso-description invisible">
+							<div class="input-group small input-flex object-description invisible">
 								<div class="label main">Speed</div>
 								<div class="field flexible"><input id="animationSpeed" class="input-typing" type="number" step="any" name="x" placeholder="0" min="0"></input></div>
 								<div id="btn-playAnimation" class="field header-button" title="Play animation"><i class="icon-media-play"></i></div>
 							</div>
-							<div id="content-state-transitions" class="perso-description invisible"></div>
-							<div id="content-brain" class="perso-description invisible"></div>
+							<div id="content-commands" class="object-description invisible"></div>
 						</div>
 						<div class="column-footer"></div>
 					</div>
@@ -124,16 +120,10 @@
 						<div id="game-content" class="column-content"><div id="gameContainer"></div></div>
 						<div class="column-footer">
 							<div class="header-buttons-left">
-								<div id="btn-lighting" class="header-button disabled-button selected" title="Lighting on/off (L)"><i class="icon-lightbulb-o"></i></div>
-								<div class="header-slider-container"><input id="range-luminosity" class="header-slider disabled-button lighting-settings" type="range" min="0" max="1" value="0.5" step="0.01"></div>
-								<div id="btn-saturate" class="header-button disabled-button lighting-settings settings-toggle" title="Allow overlight"><i class="icon-adjust-brightness"></i></div>
-								<div id="btn-fog" class="header-button disabled-button lighting-settings settings-toggle selected" title="Enable fog (F)"><i class="icon-windy"></i></div>
 							</div>
 							<!--<div class="small-text">Camera controls: Shift + WASD</div>-->
 							<div class="header-buttons-right">
-								<div id="btn-entryactions" class="header-button disabled-button" title="Browse entry actions"><i class="icon-gamepad"></i></div>
 								<div id="btn-localization" class="header-button disabled-button" title="Browse localization"><i class="icon-commenting"></i></div>
-								<div id="btn-cine" class="header-button disabled-button" title="Cinematic switcher"><i class="icon-film1"></i></div>
 								<div id="btn-camera" class="header-button disabled-button" title="Camera settings"><i class="icon-video1"></i></div>
 								<div id="btn-fullscreen" class="header-button" title="Fullscreen mode"><i class="icon-fullscreen"></i></div>
 							</div>
@@ -181,24 +171,6 @@
 									<div class="input-big-button">
 										<div id="btn-photo" class="header-button big" title="Screenshot"><i class="icon-camera icon-opaque"></i><i class="icon-camera-outline icon-transparency hidden"></i></div>
 										<div id="btn-photo-transparency" class="header-button lowerright" title="Transparency"><i class="icon-image icon-opaque"></i><i class="icon-image-outline icon-transparency hidden"></i></div>
-									</div>
-								</div>
-							</div>
-							<div id="cine-popup" class="hidden-popup">
-								<div class="cine-options">
-									<div class="input-group dropdown input-flex">
-										<div class="label main label-flex">Cinematic</div><div class="field flexible"><select id="cinematicSelector">
-										  <option value="null">None</option>
-										</select></div>
-									</div>
-									<div id="cine-speed-group" class="input-group small input-flex invisible">
-										<div class="label main label-flex">Animation Speed</div>
-										<div class="field flexible"><input id="cinematicSpeed" class="input-typing" type="number" step="any" name="x" placeholder="0" min="0"></input></div>
-									</div>
-									<div id="cine-actor-group" class="input-group dropdown input-flex invisible">
-										<div class="label main label-flex">Actors</div><div class="field flexible"><select id="cinematicActorSelector">
-										  <option value="null">Select an actor...</option>
-										</select></div>
 									</div>
 								</div>
 							</div>
@@ -318,11 +290,6 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div id="entryactions-popup" class="hidden-popup">
-				<div class="column-header">Entry actions viewer</div>
-				<div id="content-entryactions" class="column-content column-content-scroll"></div>
-				<div class="column-footer"></div>
 			</div>
 			<div id="notification-popup" class="hidden-popup"></div>
 		</div>

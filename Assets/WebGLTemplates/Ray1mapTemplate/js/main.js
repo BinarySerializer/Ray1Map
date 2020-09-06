@@ -91,7 +91,7 @@ let dialogueMsg = null;
 let fullData = null;
 let hierarchy = null;
 let objectsList = [];
-let currentSO = null;
+let currentObject = null;
 let gameInstance = null;
 let inputHasFocus = false;
 let gameSettings = null;
@@ -167,48 +167,6 @@ function initContent() {
 			api.reinitialise();
 		}, 100);
 	});
-	/*$.getJSON( "json/content.json?1", function( data ) {
-		$('#sidebar-levels').removeClass('hidden-sidebar');
-		$('.sidebar-button').remove();
-		$('#sidebar-levels-slider').css('top','0px');
-		$('#sidebar-levels').scrollTop(0);
-		let sidebarItems = [];
-		levelsJSON = data;
-		let api = $("#content-levels").data('jsp');
-		let items = [];
-		let games = data.games;
-		let totalEm = 0;
-		$.each( games, function(index_game, value_game) {
-			let levels = value_game.levels;
-			items.push("<div class='levels-item game' alt='" + value_game.name + "'>" + value_game.name + "</div>");
-			totalEm += 3;
-			let iconClass = "world-image";
-			if(levels.length < 7) {
-				iconClass = iconClass + " small";
-			}
-			let iconSidebar = "<div class='sidebar-button' style='background-image: url(\"" + encodeURI(value_game.image) + "\");'></div>";
-			items.push("<div class='" + iconClass + "' style='background-image: url(\"" + encodeURI(value_game.image) + "\"); top: " + (totalEm+1) + "em;'></div>");
-			sidebarItems.push(iconSidebar);
-			$.each( levels, function(index, value) {
-				let levelFolder = value.hasOwnProperty("folder") ? value.folder : value_game.folder;
-				//items.push("<a class='logo-item' href='#" + value.json + "' title='" + value.title + "'><img src='" + encodeURI(value.image) + "' alt='" + value.title + "'></a>");
-				if(value_game.mode === mode && folder === levelFolder && value.level === lvl) {
-					items.push("<div class='levels-item level current-levels-item' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.level + "</div></div>");
-					document.title = " [" + value_game.name + "] " + value.name + " - " + baseTitle;
-				} else {
-					items.push("<a class='levels-item level' href='index.html?mode=" + value_game.mode + "&folder=" + levelFolder + "&lvl=" + value.level + "' title='" + value.name + "'><div class='name'>" + value.name + "</div><div class='internal-name'>" + value.level + "</div></a>");
-				}
-				totalEm += 2;
-			});
-		});
-		api.getContentPane().append(items.join(""));
-		$('#sidebar-levels-content').append(sidebarItems.join(""));
-		sidebarUpdateArrows($(".column-sidebar-content"));
-		// hack, but append (in chrome) is asynchronous so we could reinit with non-full scrollpane
-		setTimeout(function(){
-			api.reinitialise();
-		}, 100);
-	});*/
 }
 
 function refreshScroll() {
@@ -250,17 +208,10 @@ function setLevelsSidebarSlider(pos, isAtTop, isAtBottom) {
 		}
 
 		// Add class
-		//let butt = $(".sidebar-button").eq(highlight_i);
-		//let buttPos = butt.position().top;
-		//$('#sidebar-soundtrack-slider').css('top',buttPos + 'px');
 		$('#sidebar-levels-slider').css({
 			'top': (highlight_i * 4) + 'em',
 			'height': (height * 4) + 'em'
 		});
-		/*if(!butt.hasClass('sidebar-button-active')) {
-			$(".sidebar-button").removeClass('sidebar-button-active');
-			butt.addClass('sidebar-button-active');
-		}*/
 	}
 }
 
@@ -322,11 +273,13 @@ function getObjectByIndex(index) {
 }
 function getObjectNameHTML(obj) {
 	let nameStr = "";
-	if(obj.hasOwnProperty("Name")) nameStr += "<div class='name-instance'>" + escapeHTML(obj.Name) + "</div>";
+	if(obj.hasOwnProperty("Index")) nameStr += "<div class='name-index'>" + escapeHTML(obj.Index) + "</div>";
+	if(obj.hasOwnProperty("Name")) nameStr += "<div class='name-main'>" + escapeHTML(obj.Name) + "</div>";
+	if(obj.hasOwnProperty("Name")) nameStr += "<div class='name-secondary'>Unofficial Name</div>";
 	return nameStr;
 }
 function getObjectListEntryHTML(obj) {
-	return "<div class='objects-item object-event' title='" + escapeHTML(obj.Name) + "'>" + getObjectNameHTML(obj) + "</div>";
+	return "<div class='objects-item object-event' title='" + escapeHTML(obj.Name) + "' data-index='" + obj.Index + "'>" + getObjectNameHTML(obj) + "</div>";
 }
 function parseObjects(objectsData) {
 	objectsList = objectsData;
@@ -374,16 +327,9 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 }
-function getIndexFromPerso(perso) {
-	if(hierarchy != null) {
-		for (let i = 0; i < objectsList.length; i++) {
-			if(!objectsList[i].hasOwnProperty("Perso")) {
-				continue;
-			}
-			if(objectsList[i].Perso.Offset === perso.Offset) {
-				return i;
-			}
-		}
+function getIndexFromObject(obj) {
+	if(obj !== null) {
+		return obj.Index;
 	}
 	return -1;
 }
@@ -782,9 +728,9 @@ function setAllJSON(jsonString) {
 }
 // SCRIPT
 function setBehavior(behaviorIndex) {
-	if(currentSO != null && currentSO.hasOwnProperty("Perso") && currentSO.Perso.hasOwnProperty("Brain") && behaviorIndex >= 0) {
-		let brain = currentSO.Perso.Brain;
-		let modelname = currentSO.Perso.hasOwnProperty("NameModel") ? currentSO.Perso.NameModel : currentSO.Perso.NameInstance;
+	if(currentObject != null && currentObject.hasOwnProperty("Perso") && currentObject.Perso.hasOwnProperty("Brain") && behaviorIndex >= 0) {
+		let brain = currentObject.Perso.Brain;
+		let modelname = currentObject.Perso.hasOwnProperty("NameModel") ? currentObject.Perso.NameModel : currentObject.Perso.NameInstance;
 		currentBehavior = null;
 		let curIndex = behaviorIndex;
 		if(currentBehavior == null && brain.hasOwnProperty("Intelligence") && brain.Intelligence.length > 0) {
@@ -855,6 +801,15 @@ function getScriptHTML(title, script) {
 	scriptHTML += "<div class='script-item script'><pre><code class='script-item-code cs'>" + escapeHTML(script.Translation) + "</code></pre></div>";
 	return scriptHTML;
 }
+function getCommandsHTML(commands) {
+	let commandsString ="<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>+</div>Commands</div><div id='commands-collapse' style='display: none;'>";
+	$.each(commands, function (idx, val) {
+		commandsString += "<div class='commands-item command'><div class='commands-item-line-number'>" + idx + "</div>";
+		commandsString += "<div class='commands-item-script'><pre><code class='commands-item-code c'>" + escapeHTML(val) + "</code></pre></div></div>";
+	});
+	commandsString += "</div>";
+	return commandsString;
+}
 function handleMessage_comport(msg) {
 	if(currentBehavior != null) {
 		currentBehavior = msg;
@@ -881,22 +836,34 @@ function handleMessage_comport(msg) {
 }
 
 // PERSO OBJECT DESCRIPTION
-function showObjectDescription(so, isSOChanged) {
-	$('#posX').val(so.Position.x);
-	$('#posY').val(so.Position.y);
-	$('#posZ').val(so.Position.z);
+function showObjectDescription(obj, isChanged) {
+	if(obj === null) { 
+		$('.object-description').addClass('invisible');
+	} else {
+		$('#posX').val(obj.X);
+		$('#posY').val(obj.Y);
+		$("#objectName").html(getObjectNameHTML(obj));
+
+		if(obj.hasOwnProperty("AnimSpeed")) {
+			$('#animationSpeed').val(obj.AnimSpeed);
+		}
+		if(isChanged) {
+			$("#content-commands").empty();
+			if(obj.hasOwnProperty("R1_Commands") && obj.R1_Commands.length > 0) {
+				let commandsString = getCommandsHTML(obj.R1_Commands);
+				$("#content-commands").append(commandsString);
+				// Format commands
+				$(".commands-item-code").each(function() {
+					hljs.highlightBlock($(this).get(0));
+				})
+			}
+		}
+
+		$('.object-description').removeClass('invisible');
+	}
 	
-	$('#rotX').val(so.Rotation.x);
-	$('#rotY').val(so.Rotation.y);
-	$('#rotZ').val(so.Rotation.z);
-	
-	$('#sclX').val(so.Scale.x);
-	$('#sclY').val(so.Scale.y);
-	$('#sclZ').val(so.Scale.z);
-	
-	if(so.hasOwnProperty("Perso")) {
+	/*if(so.hasOwnProperty("Perso")) {
 		let perso = so.Perso;
-		$('.perso-description').removeClass('invisible');
 		if(isSOChanged) {
 			stateSelector.empty();
 			objectListSelector.empty();
@@ -1019,9 +986,7 @@ function showObjectDescription(so, isSOChanged) {
 			}
 		}
 		
-	} else {
-		$('.perso-description').addClass('invisible');
-	}
+	}*/
 	let api = description_content.data('jsp');
 	setTimeout(function(){
 		api.reinitialise();
@@ -1031,227 +996,34 @@ function showObjectDescription(so, isSOChanged) {
 	description_column.removeClass('invisible');
 }
 
-function getDsgVarString(index, dsg, hasCurrent, hasInitial, hasModel) {
-	if(dsg.IsArray && dsg.ArrayLength > 0) {
-		let dsgString = "<div class='dsgvars-item dsgvar dsgvar-array collapsible' data-collapse='dsgvar-" + index + "-collapse'><div class='dsgvar-type collapse-sign'>+</div>";
-		dsgString += "<div class='dsgvar-name'>" + dsg.Name + " (Length: " + dsg.ArrayLength + ")</div></div>";
-		dsgString += "<div id='dsgvar-" + index + "-collapse' style='display: none;'>"
-		for (let i = 0; i < dsg.ArrayLength; i++) {
-			dsgString += "<div class='dsgvars-item dsgvar'><div class='dsgvar-type dsgvar-type-" + dsg.Type + "'>" + getDsgVarIcon(dsg.ArrayType) + "</div>";
-			dsgString += "<div class='dsgvar-name'>" +  "[" + i + "]</div>";
-			if(hasCurrent) dsgString += getDsgVarTypeString("current", dsg.ValueCurrent, i);
-			if(hasInitial) dsgString += getDsgVarTypeString("initial", dsg.ValueInitial, i);
-			if(hasModel) dsgString += getDsgVarTypeString("model", dsg.ValueModel, i);
-			dsgString += "</div>";
-		}
-		dsgString += "</div>";
-		return dsgString;
-	} else if(dsg.IsArray) {
-		let dsgString = "<div class='dsgvars-item dsgvar'><div class='dsgvar-type dsgvar-type-" + dsg.Type + "'>" + getDsgVarIcon(dsg.Type) + "</div>";
-		dsgString += "<div class='dsgvar-name'>" + dsg.Name + " (Length: 0)</div>";
-		dsgString += "</div>";
-		return dsgString;
-	} else {
-		let dsgString = "<div class='dsgvars-item dsgvar'><div class='dsgvar-type dsgvar-type-" + dsg.Type + "'>" + getDsgVarIcon(dsg.Type) + "</div>";
-		dsgString += "<div class='dsgvar-name'>" + dsg.Name + "</div>";
-		if(hasCurrent) dsgString += getDsgVarTypeString("current", dsg.ValueCurrent, 0);
-		if(hasInitial) dsgString += getDsgVarTypeString("initial", dsg.ValueInitial, 0);
-		if(hasModel) dsgString += getDsgVarTypeString("model", dsg.ValueModel, 0);
-		dsgString += "</div>";
-		return dsgString;
-	}
-}
-
-function getDsgVarIcon(type) {
-	let dsgString = "<div class='dsgvar-icon'>";
-	switch(type) {
-		case "Boolean":
-			//dsgString += "<i class='icon-input-checked'></i>";
-			break;
-		case "Byte":
-			break;
-		case "UByte":
-			break;
-		case "Short":
-			break;
-		case "UShort":
-			break;
-		case "Int":
-			break;
-		case "UInt":
-			break;
-		case "Float":
-			break;
-		case "Caps":
-			break;
-		case "Text":
-			dsgString += "<i class='icon-commenting'></i>";
-			break;
-		case "Vector":
-			break;
-		case "Perso":
-			dsgString += "<i class='icon-user'></i>";
-			break;
-		case "SuperObject":
-			break;
-		case "WayPoint":
-			dsgString += "<i class='icon-location-pin'></i>";
-			break;
-		case "Graph":
-			dsgString += "<i class='icon-flow-children'></i>";
-			break;
-		case "Action":
-			dsgString += "<i class='icon-media-play'></i>";
-			break;
-		case "SoundEvent":
-			dsgString += "<i class='icon-volume-medium'></i>";
-		default:
-			break;
-	}
-	dsgString += "</div>";
-	return dsgString;
-}
-
-function getDsgVarTypeString(valueType, val, idx) {
-	if(val === undefined || val === null) {
-		let dsgString = "<div class='dsgvar-value dsgvar-value-null'></div>";
-		return dsgString;
-	}
-	if(val.hasOwnProperty("AsArray")) {
-		if(idx >= val.AsArray.length) {
-			let dsgString = "<div class='dsgvar-value dsgvar-value-null'></div>";
-			return dsgString;
-		} else {
-			return getDsgVarTypeString(valueType, val.AsArray[idx], idx);
-		}
-	}
-	let dsgString = "<div class='dsgvar-value dsgvar-value-" + valueType + " dsgvar-value-" + val.Type;
-	switch(val.Type) {
-		case "Boolean":
-			dsgString += "'>" + val.AsBoolean;
-			break;
-		case "Byte":
-			dsgString += "'>" + val.AsByte;
-			break;
-		case "UByte":
-			dsgString += "'>" + val.AsUByte;
-			break;
-		case "Short":
-			dsgString += "'>" + val.AsShort;
-			break;
-		case "UShort":
-			dsgString += "'>" + val.AsUShort;
-			break;
-		case "Int":
-			dsgString += "'>" + val.AsInt;
-			break;
-		case "UInt":
-			dsgString += "'>" + val.AsUInt;
-			break;
-		case "Float":
-			dsgString += "'>" + val.AsFloat;
-			break;
-		case "Caps":
-			dsgString += "'>" + val.AsCaps;
-			break;
-		case "Text":
-			dsgString += " text' data-localization-item='" + val.AsText + "'>" + val.AsText;
-			let text = $("#content-localization").find(`.localization-item[data-loc-item='${val.AsText}']`).find(".localization-item-text").text();
-			if(text !== undefined && text != null) {
-				dsgString += " - " + escapeHTML(text);
-			}
-			break;
-		case "Vector":
-			dsgString += " vector'>(" + val.AsVector.x + ", " + val.AsVector.y + ", " + val.AsVector.z + ")";
-			break;
-		case "Perso":
-			if(val.hasOwnProperty("AsPerso")) {
-				dsgString += " perso' data-offset='" + val.AsPerso.Offset + "'>" + val.AsPerso.NameInstance;
-			} else {
-				dsgString +="'>"
-			}
-			break;
-		case "SuperObject":
-			dsgString += "'>";
-			if(val.hasOwnProperty("AsSuperObject")) {
-				if(val.AsSuperObject.hasOwnProperty("Name")) {
-					dsgString += val.AsSuperObject.Name;
-				}
-			}
-			break;
-		case "WayPoint":
-			dsgString += "'>";
-			if(val.hasOwnProperty("AsWayPoint")) {
-				if(val.AsWayPoint.hasOwnProperty("Name")) {
-					dsgString += val.AsWayPoint.Name;
-				}
-			}
-			break;
-		case "Graph":
-			dsgString += "'>";
-			if(val.hasOwnProperty("AsGraph")) {
-				if(val.AsGraph.hasOwnProperty("Name")) {
-					dsgString += val.AsGraph.Name;
-				}
-			}
-			break;
-		case "Action":
-			dsgString += "'>";
-			if(val.hasOwnProperty("AsAction")) {
-				if(val.AsAction.hasOwnProperty("Name")) {
-					dsgString += val.AsAction.Name;
-				}
-			}
-			break;
-		default:
-			dsgString += "'>";
-			break;
-	}
-	dsgString += "</div>";
-	return dsgString;
-}
-
 function sendPerso() {
-	if(currentSO != null && currentSO.hasOwnProperty("Perso")) {
+	if(currentObject != null && currentObject.hasOwnProperty("Perso")) {
 		let animationSpeed = $('#animationSpeed').val();
 		let jsonObj = {
 			Perso: {
-				Offset: currentSO.Perso.Offset,
+				Offset: currentObject.Perso.Offset,
 				ObjectList: $("#objectList").prop('selectedIndex'),
 				State: $("#state").prop('selectedIndex'),
 				IsEnabled: $("#btn-enabled").hasClass("selected"),
 				PlayAnimation: $("#btn-playAnimation").hasClass("selected"),
 				AutoNextState: $("#btn-autoNextState").hasClass("selected"),
-				AnimationSpeed: $.isNumeric(animationSpeed) ? animationSpeed : currentSO.Perso.AnimationSpeed
+				AnimationSpeed: $.isNumeric(animationSpeed) ? animationSpeed : currentObject.Perso.AnimationSpeed
 			}
 		}
 		sendMessage(jsonObj);
 	}
 }
 function setObjectTransform() {
-	if(currentSO != null) {
+	if(currentObject != null) {
 		let posX = $('#posX').val();
 		let posY = $('#posY').val();
-		let posZ = $('#posZ').val();
 		
-		let rotX = $('#rotX').val();
-		let rotY = $('#rotY').val();
-		let rotZ = $('#rotZ').val();
-		
-		let sclX = $('#sclX').val();
-		let sclY = $('#sclY').val();
-		let sclZ = $('#sclZ').val();
-		
-		if($.isNumeric(posX) && $.isNumeric(posY) && $.isNumeric(posZ) &&
-		   $.isNumeric(rotX) && $.isNumeric(rotY) && $.isNumeric(rotZ) &&
-		   $.isNumeric(sclX) && $.isNumeric(sclY) && $.isNumeric(sclZ)) {
+		if($.isNumeric(posX) && $.isNumeric(posY)) {
 			let jsonObj = {
-				Superobject: {
-					Offset:   currentSO.Offset,
-					Type:     currentSO.Type,
-					Position: { x: posX, y: posY, z: posZ},
-					Rotation: { x: rotX, y: rotY, z: rotZ},
-					Scale:    { x: sclX, y: sclY, z: sclZ}
+				Object: {
+					Index:   currentObject.Index,
+					X:		 currentObject.X,
+					Y:		 currentObject.Y
 				}
 			}
 			sendMessage(jsonObj);
@@ -1260,25 +1032,12 @@ function setObjectTransform() {
 }
 
 // SELECTION
-function setSelectionPerso(perso) {
-	let jsonObj = {
-		Selection: {
-			Perso: {
-				Offset: perso.Offset
-			},
-			View: true
-		}
-	}
-	sendMessage(jsonObj);
-}
-function setSelection(so) {
-	if(so.hasOwnProperty("Perso")) {
-		setSelectionPerso(so.Perso);
-	} else {
+function setSelection(obj) {
+	if(obj !== null) {
 		let jsonObj = {
 			Selection: {
-				SuperObject: {
-					Offset: so.Offset
+				Object: {
+					Index: obj.Index
 				},
 				View: true
 			}
@@ -1292,7 +1051,7 @@ function clearSelection() {
 	/*setTimeout(function(){
 		recalculateAspectRatio();
 	}, 100);*/
-	currentSO = null;
+	currentObject = null;
 	let jsonObj = {
 		Selection: {
 			//Offset: "null"
@@ -1300,43 +1059,59 @@ function clearSelection() {
 	}
 	sendMessage(jsonObj);
 }
-function handleMessage_selection_updatePerso(oldPerso, newPerso) {
-	if(newPerso.hasOwnProperty("IsEnabled")) { // IncludeDetails
-		oldPerso.IsEnabled = newPerso.IsEnabled;
-		oldPerso.State = newPerso.State;
-		oldPerso.ObjectList = newPerso.ObjectList;
-		oldPerso.PlayAnimation = newPerso.PlayAnimation;
-		oldPerso.AnimationSpeed = newPerso.AnimationSpeed;
-		oldPerso.AutoNextState = newPerso.AutoNextState;
-	}
-	oldPerso.Position = newPerso.Position;
-	oldPerso.Rotation = newPerso.Rotation;
-	oldPerso.Scale = newPerso.Scale;
-	if(newPerso.hasOwnProperty("States")) oldPerso.States = newPerso.States;
+function handleMessage_selection_updateObject(oldObj, newObj) {
+	// Only properties that can be modified
+	if(newObj.hasOwnProperty("X")) oldObj.X = newObj.X;
+	if(newObj.hasOwnProperty("Y")) oldObj.Y = newObj.Y;
+
+	if(newObj.hasOwnProperty("AnimIndex")) oldObj.AnimIndex = newObj.AnimIndex;
+	if(newObj.hasOwnProperty("AnimSpeed")) oldObj.AnimSpeed = newObj.AnimSpeed;
+	
+	// R1
+	if(newObj.hasOwnProperty("R1_DESIndex")) oldObj.R1_DESIndex = newObj.R1_DESIndex;
+	if(newObj.hasOwnProperty("R1_Etat")) oldObj.R1_Etat = newObj.R1_Etat;
+	if(newObj.hasOwnProperty("R1_SubEtat")) oldObj.R1_SubEtat = newObj.R1_SubEtat;
+	if(newObj.hasOwnProperty("R1_OffsetBX")) oldObj.R1_OffsetBX = newObj.R1_OffsetBX;
+	if(newObj.hasOwnProperty("R1_OffsetBY")) oldObj.R1_OffsetBY = newObj.R1_OffsetBY;
+	if(newObj.hasOwnProperty("R1_OffsetHY")) oldObj.R1_OffsetHY = newObj.R1_OffsetHY;
+	if(newObj.hasOwnProperty("R1_FollowSprite")) oldObj.R1_FollowSprite = newObj.R1_FollowSprite;
+	if(newObj.hasOwnProperty("R1_HitPoints")) oldObj.R1_HitPoints = newObj.R1_HitPoints;
+	if(newObj.hasOwnProperty("R1_HitSprite")) oldObj.R1_HitSprite = newObj.R1_HitSprite;
+	if(newObj.hasOwnProperty("R1_DisplayPrio")) oldObj.R1_DisplayPrio = newObj.R1_DisplayPrio;
+
+	// R1Jaguar
+	if(newObj.hasOwnProperty("R1Jaguar_EventDefinitionIndex")) oldObj.R1Jaguar_EventDefinitionIndex = newObj.R1Jaguar_EventDefinitionIndex;
+	if(newObj.hasOwnProperty("R1Jaguar_ComplexState")) oldObj.R1Jaguar_ComplexState = newObj.R1Jaguar_ComplexState;
+	if(newObj.hasOwnProperty("R1Jaguar_State")) oldObj.R1Jaguar_State = newObj.R1Jaguar_State;
+
+	// GBA
+	if(newObj.hasOwnProperty("GBA_ActorID")) oldObj.GBA_ActorID = newObj.GBA_ActorID;
+	if(newObj.hasOwnProperty("GBA_GraphicsDataIndex")) oldObj.GBA_GraphicsDataIndex = newObj.GBA_GraphicsDataIndex;
+	if(newObj.hasOwnProperty("GBA_State")) oldObj.GBA_State = newObj.GBA_State;
+
+	// Lists
+	if(newObj.hasOwnProperty("R1_Commands")) oldObj.R1_Commands = newObj.R1_Commands;
+	/*if(newPerso.hasOwnProperty("States")) oldPerso.States = newPerso.States;
 	if(newPerso.hasOwnProperty("ObjectLists")) oldPerso.ObjectLists = newPerso.ObjectLists;
-	if(newPerso.hasOwnProperty("Brain")) oldPerso.Brain = newPerso.Brain;
-	if(newPerso.hasOwnProperty("StateTransitionExportAvailable")) oldPerso.StateTransitionExportAvailable = newPerso.StateTransitionExportAvailable;
+	if(newPerso.hasOwnProperty("Brain")) oldPerso.Brain = newPerso.Brain;*/
 }
 function handleMessage_selection(msg) {
 	let selection = msg;
-	if(!selection.hasOwnProperty("Perso")) {
+	if(!selection.hasOwnProperty("Object")) {
 		// Deselection. Can only happen from web version, so do nothing
 		return;
 	}
-	let perso = selection.Perso;
-	let perso_index = getIndexFromPerso(perso);
-	if(perso_index > -1) {
-		handleMessage_selection_updatePerso(objectsList[perso_index].Perso, perso);
-		objectsList[perso_index].Position = perso.Position;
-		objectsList[perso_index].Rotation = perso.Rotation;
-		objectsList[perso_index].Scale = perso.Scale;
+	let object = selection.Object;
+	let obj_index = getIndexFromObject(object);
+	if(obj_index > -1) {
+		handleMessage_selection_updateObject(objectsList[obj_index], object);
 
 		$(".objects-item").removeClass("current-objects-item");
-		$(".objects-item:eq(" + perso_index + ")").addClass("current-objects-item");
-		let newcurrentSO = objectsList[perso_index];
-		let isSOChanged = newcurrentSO != currentSO;
-		currentSO = newcurrentSO;
-		showObjectDescription(currentSO, isSOChanged);
+		$(".objects-item[data-index='" + obj_index + "']").addClass("current-objects-item");
+		let newcurrentObject = objectsList[obj_index];
+		let isObjectChanged = newcurrentObject != currentObject;
+		currentObject = newcurrentObject;
+		showObjectDescription(currentObject, isObjectChanged);
 	}
 }
 function handleMessage_highlight(msg) {
@@ -1924,25 +1699,12 @@ $(function() {
 		text_highlight_content.html("");
 		text_highlight_tooltip.addClass("hidden-tooltip");
 	});
-	$(document).on('click', ".objects-item.object-perso", function() {
-		let index = $(".objects-item").index(this);
+	$(document).on('click', ".objects-item.object-event", function() {
+		let index = $(this).data("index");
 		//$(".objects-item").removeClass("current-objects-item");
 		//$(this).addClass("current-objects-item");
-		let so = getSuperObjectByIndex(index);
-		if(so.hasOwnProperty("Perso")) {
-			setSelectionPerso(so.Perso);
-			//currentSO = so;
-			//showObjectDescription(so);
-		}
-		return false;
-	});
-	
-	$(document).on('click', ".objects-item.object-IPO, .objects-item.object-sector", function() {
-		let index = $(".objects-item").index(this);
-		//$(".objects-item").removeClass("current-objects-item");
-		//$(this).addClass("current-objects-item");
-		let so = getSuperObjectByIndex(index);
-		setSelection(so);
+		let obj = getObjectByIndex(index);
+		setSelection(obj);
 		return false;
 	});
 	
@@ -2046,7 +1808,7 @@ $(function() {
 		//let selectedIndex = $(this).prop('selectedIndex');
 		//setState(selectedIndex);
 		let newState = parseInt($(this).data("selectState"));
-		if(currentSO != null && currentSO.hasOwnProperty("Perso") && currentSO.Perso.State != newState) {
+		if(currentObject != null && currentObject.hasOwnProperty("Perso") && currentObject.Perso.State != newState) {
 			stateSelector.prop("selectedIndex", newState);
 			sendPerso();
 		}

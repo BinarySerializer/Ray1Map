@@ -113,7 +113,7 @@ namespace R1Engine
                         return "RETURN;";
                     } else {
                         cmd = cmd.Replace("GO_", "");
-                        return "\t" + cmd + "(" + (Arguments.Length > 0 ? string.Join(", ", Arguments) : "") + ");";
+                        return "\t" + cmd + (Arguments.Length > 0 ? (" " + string.Join(" ", Arguments)) : "") + ";";
                     }
                 default:
                     cmd = cmd.Replace("GO_", "");

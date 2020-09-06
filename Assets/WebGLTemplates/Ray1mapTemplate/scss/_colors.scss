@@ -31,6 +31,8 @@ $color_cube_left: hsl(193, 90%, 10%) !default;
 $color_cube_top: hsl(193, 90%, 35%) !default;
 $color_cube_bottom: hsl(193, 90%, 15%) !default;
 
+$color_hljs_comment: #888888 !default;
+
 html {
 	/*background: url('../img/background.jpg') no-repeat center center fixed;*/
     -webkit-background-size: cover;
@@ -131,7 +133,8 @@ body {
 .behaviors-item,
 .dsgvars-item,
 .localization-item,
-.entryactions-item {
+.entryactions-item,
+.commands-item {
 	color: $color;
 }
 
@@ -150,14 +153,16 @@ body {
 .behaviors-item.category,
 .transitions-item.category,
 .localization-item.category,
-.script-item.category {
+.script-item.category,
+.commands-item.category {
 	color: $color;
 	background-color: $color_bg_dark;
 }
 .dsgvars-item > .dsgvar-name,
 .dsgvars-item > .dsgvar-type,
 .localization-item > .localization-item-index,
-.entryactions-item > .entryactions-item-name {
+.entryactions-item > .entryactions-item-name,
+.commands-item-line-number {
 	background-color: $color_bg_dark;
 }
 .dsgvars-item.dsgvar-array:hover > .dsgvar-name,
@@ -170,7 +175,8 @@ body {
 }
 .objects-item.object-sector:hover,
 .behaviors-item.category:hover,
-.transitions-item.category:hover {
+.transitions-item.category:hover,
+.commands-item.category:hover {
 	background-color: $color_bg_darkest;
 }
 .objects-item.object-world.current-objects-item,
@@ -183,6 +189,7 @@ body {
 .objects-item.object-IPO:hover,
 .levels-item.level:hover,
 .behaviors-item.behavior:hover,
+.commands-item.command:hover,
 .entryactions-item:hover
 .dsgvars-item:hover,
 .selectState:hover,
@@ -486,4 +493,73 @@ a.config-header:hover {
 }
 .state-diagram-header {
     background-color: $color_bg_light;
+}
+
+
+
+/**************************************** HIGHLIGHT.JS ************************************************/
+
+/* Base color: saturation 0; */
+
+.hljs,
+.hljs-subst {
+  color: $color;
+}
+
+.hljs-comment {
+  color: $color_hljs_comment;
+}
+
+
+/* User color: hue: 0 */
+
+.hljs-type,
+.hljs-string,
+.hljs-number,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-quote,
+.hljs-template-tag,
+.hljs-deletion {
+  color: $color_highlight;
+}
+
+.hljs-title,
+.hljs-section {
+  color: #880000;
+}
+
+.hljs-regexp,
+.hljs-symbol,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-link,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: #BC6060;
+}
+
+
+/* Language color: hue: 90; */
+
+.hljs-literal {
+  color: rgb(120, 169, 96);
+}
+
+.hljs-built_in,
+.hljs-bullet,
+.hljs-code,
+.hljs-addition {
+  color: #397300;
+}
+
+
+/* Meta color: hue: 200 */
+
+.hljs-meta {
+  color: #1f7199;
+}
+
+.hljs-meta-string {
+  color: #4d99bf;
 }
