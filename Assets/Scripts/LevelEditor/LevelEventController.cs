@@ -311,7 +311,7 @@ namespace R1Engine
             updateDropDownIndex(infoType, wrapper?.Type ?? 0);
 
             // Set other fields
-            infoName.text = SelectedEvent?.ObjData.DisplayName ?? String.Empty;
+            infoName.text = SelectedEvent?.ObjData.Name ?? String.Empty;
 
             PrevSelectedEvent = SelectedEvent;
         }
@@ -397,8 +397,8 @@ namespace R1Engine
                     {
                         var eventData = LevelEditorData.ObjManager.CreateObject(eventDropdown.value);
 
-                        eventData.XPosition = (short)mox;
-                        eventData.YPosition = (short)-moy;
+                        eventData.XPosition = (short)(mox - eventData.Pivot.x);
+                        eventData.YPosition = (short)(-moy + eventData.Pivot.y);
 
                         LevelEditorData.Level.EventData.Add(eventData);
                         var eve = AddEvent(eventData);
@@ -732,7 +732,7 @@ namespace R1Engine
         {
             // Instantiate prefab
             Unity_ObjBehaviour newEvent = Instantiate(prefabEvent).GetComponent<Unity_ObjBehaviour>();
-            newEvent.gameObject.name = obj.DisplayName;
+            newEvent.gameObject.name = obj.Name;
             
             newEvent.ObjData = obj;
             newEvent.Index = LevelEditorData.Level.EventData.IndexOf(obj);

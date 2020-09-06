@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -26,7 +25,9 @@ namespace R1Engine
         public virtual bool IsActive => true;
 
         // Display properties
-        public abstract string DisplayName { get; }
+        public abstract string PrimaryName { get; } // Official
+        public abstract string SecondaryName { get; } // Unofficial
+        public string Name => PrimaryName ?? SecondaryName;
         public virtual int? GetLayer(int index) => null;
         public virtual int? MapLayer => null;
         public virtual float Scale => 1f;

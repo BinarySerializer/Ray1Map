@@ -179,7 +179,7 @@ namespace R1Engine
 
                     // Set the sprite, skipping sprites which are out of bounds
                     if (spriteIndex >= sprites.Count && (LevelEditorData.CurrentSettings.EngineVersion != EngineVersion.R2_PS1 || spriteIndex < 0xFFF)) {
-                        print("Sprite index too high: " + ObjData.DisplayName + ": " + spriteIndex + " >= " + sprites.Count);
+                        print("Sprite index too high: " + ObjData.Name + ": " + spriteIndex + " >= " + sprites.Count);
                     }
                     prefabRenderers[i].sprite = spriteIndex >= sprites.Count ? null : sprites[spriteIndex];
 

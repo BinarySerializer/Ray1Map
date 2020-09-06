@@ -53,8 +53,8 @@ namespace R1Engine
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-
-        public override string DisplayName => $"{Actor.ActorID}";
+        public override string PrimaryName => $"ID_{Actor.ActorID}";
+        public override string SecondaryName => ObjManager.Context.Settings.Game == Game.GBA_Rayman3 ? $"{(GBA_R3_ActorID)Actor.ActorID}" : null;
 
         public override bool FlipHorizontally => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip) ?? false;
         public override bool FlipVertically => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip) ?? false;
@@ -77,8 +77,8 @@ namespace R1Engine
 
             public ushort Type
             {
-                get => (ushort)Obj.Actor.ActorID;
-                set => Obj.Actor.ActorID = (GBA_R3_ActorID)value;
+                get => Obj.Actor.ActorID;
+                set => Obj.Actor.ActorID = (byte)value;
             }
 
             public int DES

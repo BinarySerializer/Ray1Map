@@ -21,7 +21,7 @@ namespace R1Engine
             // Mouse over event
             if (e != null) {
                 
-                textCollision.text = $"{e.ObjData.DisplayName}";
+                textCollision.text = $"{e.ObjData.PrimaryName} | {e.ObjData.SecondaryName}";
                 textGraphic.text = $"Pos: ({e.ObjData.XPosition}, {e.ObjData.YPosition}){Environment.NewLine}" +
                                    $"Pivot: ({e.ObjData.Pivot.x}, {e.ObjData.Pivot.y})";
 

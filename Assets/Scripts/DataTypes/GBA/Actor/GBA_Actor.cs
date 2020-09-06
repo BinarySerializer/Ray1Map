@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class GBA_Actor : R1Serializable
     {
@@ -11,7 +9,7 @@ namespace R1Engine
 
         public byte Byte_04 { get; set; }
         
-        public GBA_R3_ActorID ActorID { get; set; }
+        public byte ActorID { get; set; }
         
         public byte GraphicsDataIndex { get; set; }
 
@@ -50,7 +48,7 @@ namespace R1Engine
             YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
 
             Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-            ActorID = (GBA_R3_ActorID)s.Serialize<byte>((byte)ActorID, name: nameof(ActorID));
+            ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
             GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
             StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
 
