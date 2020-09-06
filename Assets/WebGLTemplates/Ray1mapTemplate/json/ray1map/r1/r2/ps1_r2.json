@@ -1,0 +1,14 @@
+{
+    "name": "Rayman 2 Prototype (PS1)",
+    "mode": "Rayman2PS1Demo",
+    "folder": "r1/ps1_r2_proto",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R2\/R2.png",
+			"level": 0
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 0, "nameInternal": "JUN01", "name": "Prototype" }
+    ]
+}
