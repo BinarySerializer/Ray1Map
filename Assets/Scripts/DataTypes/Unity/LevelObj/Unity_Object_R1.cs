@@ -22,6 +22,9 @@ namespace R1Engine
             EventData.RuntimeYPosition = (ushort)EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
             EventData.RuntimeHitPoints = EventData.HitPoints;
+
+            // Find matching name from event sheet
+            SecondaryName = ObjManager.FindMatchingEventInfo(EventData)?.Name;
         }
 
         public R1_EventData EventData { get; }
@@ -110,8 +113,8 @@ namespace R1Engine
         // TODO: Check PS1 flags
         // Unk_28 is also some active flag, but it's 0 for Rayman
         public override bool IsActive => EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.SwitchedOn) && EventData.Unk_36 == 1;
-
-        public override string DisplayName => $"{EventData.Type}";
+        public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type}" : $"TYPE_{(ushort)EventData.Type}";
+        public override string SecondaryName { get; }
 
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.RuntimeLayer * 512));

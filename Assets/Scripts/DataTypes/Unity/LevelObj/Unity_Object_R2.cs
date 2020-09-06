@@ -80,7 +80,8 @@ namespace R1Engine
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
 
-        public override string DisplayName => $"{EventData.EventType}";
+        public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
+        public override string SecondaryName => $"{EventData.EventType}";
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.Layer * 512));
         public override int? MapLayer => IsAlways ? 0 : EventData.MapLayer - 1;

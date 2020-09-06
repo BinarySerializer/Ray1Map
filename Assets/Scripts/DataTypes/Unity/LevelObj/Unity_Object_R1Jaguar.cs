@@ -57,7 +57,9 @@ namespace R1Engine
 
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
-        public override string DisplayName => ObjManager.EventDefinitions[EventDefinitionIndex].DisplayName;
+
+        public override string PrimaryName => ObjManager.EventDefinitions[EventDefinitionIndex].DisplayName ?? $"Def_0x{ObjManager.EventDefinitions[EventDefinitionIndex].Pointer.FileOffset}";
+        public override string SecondaryName => null;
         public override Unity_ObjAnimation CurrentAnimation => DES.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimSpeed => (byte)(ForceNoAnimation ? 0 : State?.AnimSpeed ?? 1);
         public override byte GetAnimIndex => State?.AnimationIndex ?? 0;
