@@ -47,7 +47,7 @@
       "world": 6,
       "level": 53,
       "nameInternal": "53",
-      "name": "World 1 (World Map)"
+      "name": "(World Map) World 1"
     },
     {
       "world": 0,
@@ -119,7 +119,7 @@
       "world": 6,
       "level": 54,
       "nameInternal": "54",
-      "name": "World 2 (World Map)"
+      "name": "(World Map) World 2"
     },
     {
       "world": 1,
@@ -197,7 +197,7 @@
       "world": 6,
       "level": 55,
       "nameInternal": "55",
-      "name": "World 3 (World Map)"
+      "name": "(World Map) World 3"
     },
     {
       "world": 2,
@@ -299,7 +299,7 @@
       "world": 6,
       "level": 56,
       "nameInternal": "56",
-      "name": "World 4 (World Map)"
+      "name": "(World Map) World 4"
     },
     {
       "world": 3,
@@ -389,37 +389,37 @@
       "world": 7,
       "level": 58,
       "nameInternal": "58",
-      "name": "Multiplayer 1"
+      "name": "(Multiplayer) Bumper Race"
     },
     {
       "world": 7,
       "level": 59,
       "nameInternal": "59",
-      "name": "Multiplayer 2"
+      "name": "(Multiplayer) Bumper Arena"
     },
     {
       "world": 7,
       "level": 60,
       "nameInternal": "60",
-      "name": "Multiplayer 3"
+      "name": "(Multiplayer) Web Tag"
     },
     {
       "world": 7,
       "level": 61,
       "nameInternal": "61",
-      "name": "Multiplayer 4"
+      "name": "(Multiplayer) Slide Tag"
     },
     {
       "world": 7,
       "level": 62,
       "nameInternal": "62",
-      "name": "Multiplayer 5"
+      "name": "(Multiplayer) Steal n’ Slide"
     },
     {
       "world": 7,
       "level": 63,
       "nameInternal": "63",
-      "name": "Multiplayer 6"
+      "name": "(Multiplayer) Steal n’ Spider"
     },
     {
       "world": 8,

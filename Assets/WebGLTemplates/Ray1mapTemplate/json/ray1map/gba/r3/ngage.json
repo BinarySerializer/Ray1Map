@@ -47,7 +47,7 @@
       "world": 6,
       "level": 54,
       "nameInternal": "54",
-      "name": "Forgotten Forests (World Map)"
+      "name": "(World Map) Forgotten Forests"
     },
     {
       "world": 0,
@@ -119,7 +119,7 @@
       "world": 6,
       "level": 55,
       "nameInternal": "55",
-      "name": "Haunted Dreams (World Map)"
+      "name": "(World Map) Haunted Dreams"
     },
     {
       "world": 1,
@@ -197,7 +197,7 @@
       "world": 6,
       "level": 56,
       "nameInternal": "56",
-      "name": "Magmacosm (World Map)"
+      "name": "(World Map) Magmacosm"
     },
     {
       "world": 2,
@@ -299,7 +299,7 @@
       "world": 6,
       "level": 57,
       "nameInternal": "57",
-      "name": "Pirate Stronghold (World Map)"
+      "name": "(World Map) Pirate Stronghold"
     },
     {
       "world": 3,
@@ -395,61 +395,61 @@
       "world": 7,
       "level": 59,
       "nameInternal": "59",
-      "name": "Multiplayer 1"
+      "name": "(Multiplayer) Middle Ground"
     },
     {
       "world": 7,
       "level": 60,
       "nameInternal": "60",
-      "name": "Multiplayer 2"
+      "name": "(Multiplayer) Floors"
     },
     {
       "world": 7,
       "level": 61,
       "nameInternal": "61",
-      "name": "Multiplayer 3"
+      "name": "(Multiplayer) One for All"
     },
     {
       "world": 7,
       "level": 62,
       "nameInternal": "62",
-      "name": "Multiplayer 4"
+      "name": "(Multiplayer) All for One"
     },
     {
       "world": 7,
       "level": 63,
       "nameInternal": "63",
-      "name": "Multiplayer 5"
+      "name": "(Multiplayer) Team Work"
     },
     {
       "world": 7,
       "level": 64,
       "nameInternal": "64",
-      "name": "Multiplayer 6"
+      "name": "(Multiplayer) Team Player"
     },
     {
       "world": 7,
       "level": 65,
       "nameInternal": "65",
-      "name": "Multiplayer 7"
+      "name": "(Multiplayer) Web Tag"
     },
     {
       "world": 7,
       "level": 66,
       "nameInternal": "66",
-      "name": "Multiplayer 8"
+      "name": "(Multiplayer) Slide Tag"
     },
     {
       "world": 7,
       "level": 67,
       "nameInternal": "67",
-      "name": "Multiplayer 9"
+      "name": "(Multiplayer) Steal n’ Slide"
     },
     {
       "world": 7,
       "level": 68,
       "nameInternal": "68",
-      "name": "Multiplayer 10"
+      "name": "(Multiplayer) Steal n’ Spider"
     }
   ]
 }
