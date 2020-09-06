@@ -21,23 +21,26 @@
             // The layer index
             var layer = 0;
 
+            var frames = animationDescriptor.Frames;
+            var layers = animationDescriptor.Layers;
+
             // Create each frame
             for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
                 // Create the frame
                 var frame = new Unity_ObjAnimationFrame()
                 {
-                    FrameData = animationDescriptor.Frames?[i],
+                    FrameData = frames?[i],
                     Layers = new Unity_ObjAnimationPart[animationDescriptor.LayersPerFrame]
                 };
-                if (animationDescriptor.Frames?[i] == null) {
+                if (frame.FrameData == null) {
                     frame.FrameData = new R1_AnimationFrame();
                 }
-                if (animationDescriptor.Layers != null) {
+                if (layers != null) {
 
                     // Create each layer
                     for (var layerIndex = 0; layerIndex < animationDescriptor.LayersPerFrame; layerIndex++) {
-                        var animationLayer = animationDescriptor.Layers[layer];
+                        var animationLayer = layers[layer];
                         layer++;
 
                         // Create the animation part

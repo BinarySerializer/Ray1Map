@@ -252,6 +252,7 @@ namespace R1Engine
                 // Get the v-ram
                 FillVRAM(context, VRAMMode.Level);
 
+
             // Create the global design list
             var globalDesigns = new List<Sprite>();
 
@@ -266,13 +267,17 @@ namespace R1Engine
 
             // Get the events
             var events = lvlData.Events.Concat(lvlData.AlwaysEvents).ToArray();
-
             Controller.DetailedState = $"Loading animations";
             await Controller.WaitIfNecessary();
 
             // Get the animation groups
-            var animGroups = events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup).Distinct().Select(animGroup =>
-            {
+            var r2AnimGroups = events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup).Distinct().ToArray();
+            Unity_ObjectManager_R2.AnimGroup[] animGroups = new Unity_ObjectManager_R2.AnimGroup[r2AnimGroups.Length];
+            for (int i = 0; i < animGroups.Length; i++) {
+                animGroups[i] = await GetGroup(r2AnimGroups[i]);
+                await Controller.WaitIfNecessary();
+            }
+            async UniTask<Unity_ObjectManager_R2.AnimGroup> GetGroup(R1_R2EventAnimGroup animGroup) {
                 // Create the DES
                 var des = new Unity_ObjGraphics()
                 {
@@ -286,7 +291,7 @@ namespace R1Engine
 
                 // Add DES and ETA
                 return new Unity_ObjectManager_R2.AnimGroup(animGroup?.Offset, animGroup?.ETA.EventStates ?? new R1_EventState[0][], des);
-            }).ToArray();
+            }
 
             var objManager = new Unity_ObjectManager_R2(context, lvlData.EventLinkTable, animGroups);
 
