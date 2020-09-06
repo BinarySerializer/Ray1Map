@@ -129,7 +129,7 @@ namespace R1Engine
             // Get the current animation
             var anim = ObjData.CurrentAnimation;
 
-            defautRenderer.enabled = Settings.ShowDefaultObjIcons && anim == null;
+            defautRenderer.enabled = Settings.ShowDefaultObjIcons && anim == null && IsVisible;
 
             // Update x and y, and clamp them to not have objects appear too far away from the map
             const int allowedBorder = 200;
