@@ -83,7 +83,7 @@ namespace R1Engine
             public Unity_ObjGraphics DES { get; }
             public State[][] ETA { get; }
             protected string Name { get; }
-            public string DisplayName => Name ?? Pointer.ToString();
+            public string DisplayName => Name ?? $"MS_0x{Pointer.FileOffset:X8}";
             public R1Jaguar_EventDefinition Definition { get; }
         }
     }
