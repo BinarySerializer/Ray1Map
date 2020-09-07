@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -97,7 +98,7 @@ namespace R1Engine
 
         #region Manager Methods
 
-        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
+        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
             // Create the dictionary
             var localization = new Dictionary<string, string[]>();
@@ -108,11 +109,7 @@ namespace R1Engine
                 // Get the file path
                 var specialFilePath = GetSpecialArchiveFilePath(vol);
 
-                // Add the file to the context
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    filePath = specialFilePath
-                });
+                await AddFile(context, specialFilePath);
 
                 // Read the archive
                 var specialData = FileFactory.Read<R1_PC_EncryptedFileArchive>(specialFilePath, context);

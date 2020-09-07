@@ -1383,7 +1383,7 @@ namespace R1Engine
             };
 
             // Create a level object
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager), localization: LoadLocalization(context));
+            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager), localization: await LoadLocalizationAsync(context));
 
             for (var i = 0; i < levelData.EventData.Events.Length; i++)
             {
@@ -1425,7 +1425,7 @@ namespace R1Engine
             return level;
         }
 
-        protected abstract IReadOnlyDictionary<string, string[]> LoadLocalization(Context context);
+        protected abstract UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context);
 
         /// <summary>
         /// Reads 3 tile-sets, one for each palette
@@ -1582,11 +1582,8 @@ namespace R1Engine
                 ["bigray"] = GetBigRayFilePath(context.Settings)
             };
 
-            foreach (string pathKey in paths.Keys) {
-                await FileSystem.PrepareFile(context.BasePath + paths[pathKey]);
-
-                context.AddFile(GetFile(context, paths[pathKey]));
-            }
+            foreach (string pathKey in paths.Keys) 
+                await AddFile(context, paths[pathKey]);
         }
 
         /// <summary>
@@ -1632,6 +1629,16 @@ namespace R1Engine
         {
             filePath = filePath
         };
+
+        public async UniTask AddFile(Context context, string filePath)
+        {
+            await FileSystem.PrepareFile(context.BasePath + filePath);
+
+            if (!FileSystem.FileExists(context.BasePath + filePath))
+                return;
+
+            context.AddFile(GetFile(context, filePath));
+        }
 
         /// <summary>
         /// Gets the event states for the current context

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Cysharp.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -178,7 +179,7 @@ namespace R1Engine
             filePath = filePath
         };
 
-        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
+        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
             var langs = new[]
             {
@@ -250,7 +251,11 @@ namespace R1Engine
             // Add each language
             foreach (var lang in langs)
             {
-                var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context, encoding: lang.Encoding);
+                var lngPath = GetLanguageFilePath(lang.LangCode);
+
+                await AddFile(context, lngPath);
+
+                var langFile = FileFactory.ReadText<R1_TextLocFile>(lngPath, context, encoding: lang.Encoding);
 
                 loc.Add(lang.Language, langFile.Strings);
             }

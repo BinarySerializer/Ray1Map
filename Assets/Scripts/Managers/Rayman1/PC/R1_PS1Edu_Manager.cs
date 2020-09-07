@@ -376,7 +376,7 @@ namespace R1Engine
                 }
             };
 
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager), localization: LoadLocalization(context));
+            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager), localization: await LoadLocalizationAsync(context));
 
             // Add the events
             for (var index = 0; index < levelData.Events.Length; index++)

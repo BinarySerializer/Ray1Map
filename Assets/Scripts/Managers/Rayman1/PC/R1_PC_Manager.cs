@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 
 namespace R1Engine
@@ -345,10 +346,14 @@ namespace R1Engine
             }
         }
 
-        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
+        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
+            var lngPath = GetLanguageFilePath();
+
+            await FileSystem.PrepareFile(context.BasePath + lngPath);
+
             // Read the language file
-            var lng = FileFactory.ReadText<R1_PC_LNGFile>(GetLanguageFilePath(), context);
+            var lng = FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
 
             // Set the common localization
             var loc = new Dictionary<string, string[]>()

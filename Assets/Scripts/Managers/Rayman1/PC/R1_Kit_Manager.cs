@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -134,7 +135,7 @@ namespace R1Engine
             return generalEvents.Any(x => x.DesKit[context.Settings.R1_World] == nameWithoutExt && ((R1_EventType)x.Type).IsMultiColored());
         }
 
-        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
+        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
             // Create the dictionary
             var localization = new Dictionary<string, string[]>();
@@ -146,10 +147,7 @@ namespace R1Engine
                 var specialFilePath = GetSpecialArchiveFilePath(lang);
 
                 // Add the file to the context
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    filePath = specialFilePath
-                });
+                await AddFile(context, specialFilePath);
 
                 // Read the archive
                 var specialData = FileFactory.Read<R1_PC_EncryptedFileArchive>(specialFilePath, context);
@@ -194,14 +192,11 @@ namespace R1Engine
                     // Get the file path
                     var evLocPath = GetEventLocFilePath(lang, i);
 
+                    // Add the file to the context
+                    await AddFile(context, evLocPath);
+
                     if (!FileSystem.FileExists(context.BasePath + evLocPath))
                         continue;
-
-                    // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context)
-                    {
-                        filePath = evLocPath
-                    });
 
                     // Read the file
                     var evLoc = FileFactory.Read<R1_Mapper_EventLocFile>(evLocPath, context);
