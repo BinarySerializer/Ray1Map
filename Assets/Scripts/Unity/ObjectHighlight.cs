@@ -1,6 +1,7 @@
 ﻿using R1Engine;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ObjectHighlight : MonoBehaviour {
     public Unity_ObjBehaviour highlightedObject = null;
@@ -35,6 +36,7 @@ public class ObjectHighlight : MonoBehaviour {
         highlightedCollision = null;
         Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
         if (Controller.LoadState == Controller.State.Finished
+            && !EventSystem.current.IsPointerOverGameObject()
             && screenRect.Contains(Input.mousePosition)
             ) HandleCollision();
     }

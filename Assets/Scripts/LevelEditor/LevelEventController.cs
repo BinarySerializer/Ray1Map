@@ -17,6 +17,7 @@ namespace R1Engine
         /// </summary>
         public Unity_ObjBehaviour SelectedEvent { get; set; }
         public Unity_ObjBehaviour PrevSelectedEvent { get; set; }
+        public Unity_ObjBehaviour ClickedEvent { get; set; }
 
         // Prefabs
         public GameObject eventParent;
@@ -26,7 +27,7 @@ namespace R1Engine
         public LevelEditorBehaviour editor;
 
         public Vector2 selectedPosition;
-        public LineRenderer selectedLineRend;
+        public OutlineManager outlineManager;
 
         public Dropdown eventDropdown;
 
@@ -316,6 +317,37 @@ namespace R1Engine
             PrevSelectedEvent = SelectedEvent;
         }
 
+        private void ClickEvent(Unity_ObjBehaviour e) {
+            bool modeEvents = editor.currentMode == LevelEditorBehaviour.EditMode.Events;
+            bool modeLinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links;
+            if (e != null) {
+                if (e != SelectedEvent) {
+                    outlineManager.TransferHighlightToActiveColor();
+                }
+                SelectEvent(e);
+
+
+                // Record selected position
+                var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
+
+                // Change the link
+                if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null) {
+                    SelectedEvent.ObjData.EditorLinkGroup = 0;
+                    SelectedEvent.ChangeLinksVisibility(true);
+                }
+            } else {
+                if (SelectedEvent != null)
+                    SelectedEvent.IsSelected = false;
+
+                outlineManager.Active = null;
+                SelectedEvent = null;
+
+                // Clear info window
+                ClearInfoWindow();
+            }
+        }
+
         public void SelectEvent(int index) {
             var events = Controller.obj.levelController.Objects;
             if (index < 0 || index > events.Count) return;
@@ -378,10 +410,11 @@ namespace R1Engine
             bool modeEvents = editor.currentMode == LevelEditorBehaviour.EditMode.Events;
             bool modeLinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links;
 
+            outlineManager.Highlight = editor.objectHighlight.highlightedObject;
+            outlineManager.Active = SelectedEvent;
             if ( modeEvents || modeLinks ) 
             {
-                selectedLineRend.enabled = true;
-                
+                outlineManager.Active = SelectedEvent;
                 // Add events with mmb
                 if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents) 
                 {
@@ -412,53 +445,33 @@ namespace R1Engine
                 //Detect event under mouse when clicked
                 if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) 
                 {
-                    int layerMask = 0;
-                    layerMask |= 1 << LayerMask.NameToLayer("Object");
-                    Unity_ObjBehaviour e = null;
-                    RaycastHit2D[] hits = Physics2D.RaycastAll(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero, Mathf.Infinity, layerMask);
-                    if (hits != null && hits.Length > 0) {
-                        System.Array.Sort(hits, (x, y) => (x.distance.CompareTo(y.distance)));
-                        for (int i = 0; i < hits.Length; i++) {
-                            Unity_ObjBehaviour ob = hits[i].transform.GetComponentInParent<Unity_ObjBehaviour>();
-                            if (ob != null) {
-                                e = ob;
-                                break;
-                            }
+                    var e = editor.objectHighlight.highlightedObject;
+                    if (e != null) ClickedEvent = e;
+                    if (FileSystem.mode != FileSystem.Mode.Web) {
+                        ClickEvent(e);
+                    } else {
+                        if (e != null) {
+                            // Record selected position
+                            var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                            selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
+                        } else {
+                            ClickEvent(e);
                         }
                     }
-                    
-                    if (e != null) 
-                    {
-                        SelectEvent(e);
-
-                        // Record selected position
-                        var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                        selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
-
-                        // Change the link
-                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null) 
-                        {
-                            SelectedEvent.ObjData.EditorLinkGroup = 0;
-                            SelectedEvent.ChangeLinksVisibility(true);
+                }
+                if (ClickedEvent != null) {
+                    if (FileSystem.mode == FileSystem.Mode.Web) {
+                        if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject()) {
+                            var e = editor.objectHighlight.highlightedObject;
+                            ClickEvent(ClickedEvent);
                         }
-                    }
-                    else 
-                    {
-                        if (SelectedEvent != null)
-                            SelectedEvent.IsSelected = false;
-
-                        selectedLineRend.enabled = false;
-                        SelectedEvent = null;
-
-                        // Clear info window
-                        ClearInfoWindow();
                     }
                 }
 
                 // Drag and move the event
                 if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
                 {
-                    if (SelectedEvent != null) 
+                    if (SelectedEvent != null && SelectedEvent == ClickedEvent) 
                     {
                         // Move event if in event mode
                         if (modeEvents) {
@@ -536,11 +549,13 @@ namespace R1Engine
                     SelectedEvent = null;
                     ClearInfoWindow();
                 }
+            } else {
+                outlineManager.Active = null;
             }
-            else 
-            {
-                selectedLineRend.enabled = false;
+            if (ClickedEvent != null && (!Input.GetMouseButton(0) || !(modeEvents || modeLinks))) {
+                ClickedEvent = null;
             }
+            outlineManager.selecting = ClickedEvent != null;
         }
 
         public Context GameMemoryContext { get; set; }
@@ -676,27 +691,6 @@ namespace R1Engine
                 }
             }
             return madeEdits;
-        }
-
-        private void LateUpdate() 
-        {
-            // Update selection square lines
-            if (SelectedEvent != null) 
-            {
-                selectedLineRend.SetPosition(0, new Vector2(SelectedEvent.midpoint.x - SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y - SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(1, new Vector2(SelectedEvent.midpoint.x + SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y - SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(2, new Vector2(SelectedEvent.midpoint.x + SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y + SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(3, new Vector2(SelectedEvent.midpoint.x - SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y + SelectedEvent.boxCollider.size.y / 2f));
-                selectedLineRend.SetPosition(4, new Vector2(SelectedEvent.midpoint.x - SelectedEvent.boxCollider.size.x / 2f, SelectedEvent.midpoint.y - SelectedEvent.boxCollider.size.y / 2f));
-            }
-            else 
-            {
-                selectedLineRend.SetPosition(0, Vector2.zero);
-                selectedLineRend.SetPosition(1, Vector2.zero);
-                selectedLineRend.SetPosition(2, Vector2.zero);
-                selectedLineRend.SetPosition(3, Vector2.zero);
-                selectedLineRend.SetPosition(4, Vector2.zero);
-            }
         }
 
         private void ClearInfoWindow() {
