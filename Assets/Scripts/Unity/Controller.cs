@@ -22,6 +22,8 @@ namespace R1Engine
 
         public Text tempDebugText;
 
+        public WebCommunicator webCommunicator;
+
         private static readonly Stopwatch stopwatch = new Stopwatch();
 
         public enum State {

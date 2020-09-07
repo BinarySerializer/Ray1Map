@@ -14786,8 +14786,7 @@ MonoBehaviour:
   activeColor: {r: 0, g: 1, b: 0, a: 0.5686275}
   fadeInSpeed: 10
   fadeOutSpeed: 3
-  selectingHighlight: 0
-  selectingActive: 0
+  selecting: 0
 --- !u!1 &1266747709
 GameObject:
   m_ObjectHideFlags: 0
@@ -20557,6 +20556,7 @@ MonoBehaviour:
   loadingScreen: {fileID: 1514958744}
   editorUI: {fileID: 271071643}
   tempDebugText: {fileID: 1362650566}
+  webCommunicator: {fileID: 1683842181}
 --- !u!4 &1683842180
 Transform:
   m_ObjectHideFlags: 0
