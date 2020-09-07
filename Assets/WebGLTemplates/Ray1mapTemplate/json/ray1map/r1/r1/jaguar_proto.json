@@ -1,0 +1,14 @@
+{
+    "name": "Rayman Prototype (Jaguar)",
+    "mode": "RaymanJaguarPrototype",
+    "folder": "r1_jaguar/proto",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 1, "nameInternal": "jun_map", "name": "Prototype" }
+    ]
+}

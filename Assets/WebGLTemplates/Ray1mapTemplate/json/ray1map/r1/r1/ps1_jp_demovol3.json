@@ -1,0 +1,19 @@
+{
+    "name": "Rayman Demo (PS1 - DemoDemo 3)",
+    "mode": "RaymanPS1DemoVol3Japan",
+    "folder": "r1/ps1_jp_demovol3",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W3.png",
+			"level": 1
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 1, "nameInternal": "_UN_01", "name": "Jungle" },
+        { "world": 3, "level": 1, "nameInternal": "_ON_01", "name": "Mountain" }
+    ]
+}

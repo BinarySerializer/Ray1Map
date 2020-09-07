@@ -1,0 +1,34 @@
+{
+    "name": "Rayman Demo (Jaguar)",
+    "mode": "RaymanJaguarDemo",
+    "folder": "r1_jaguar/demo",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W2.png",
+			"level": 14
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 1, "nameInternal": "1-0", "name": "Pink Plant Woods 1" },
+        { "world": 1, "level": 2, "nameInternal": "1-1", "name": "Pink Plant Woods 2" },
+        { "world": 1, "level": 3, "nameInternal": "1-2", "name": "Pink Plant Woods 3 - Betilla" },
+        { "world": 1, "level": 4, "nameInternal": "1-3", "name": "Pink Plant Woods 4" },
+        { "world": 1, "level": 5, "nameInternal": "1-4", "name": "Forgotten Swamps 1" },
+        { "world": 1, "level": 6, "nameInternal": "1-5", "name": "Anguish Lagoon 4 - Betilla" },
+        { "world": 1, "level": 7, "nameInternal": "1-6", "name": "Anguish Lagoon 3 - Bzzit Flight" },
+        { "world": 1, "level": 9, "nameInternal": "1-8", "name": "Forgotten Swamps 2" },
+        { "world": 1, "level": 10, "nameInternal": "1-9", "name": "Forgotten Swamps" },
+        { "world": 1, "level": 11, "nameInternal": "1-10", "name": "Moskito's Nest 1" },
+        { "world": 1, "level": 12, "nameInternal": "1-11", "name": "Moskito's Nest 2" },
+        { "world": 1, "level": 13, "nameInternal": "1-12", "name": "Moskito's Nest 3 - Boss Chase" },
+        { "world": 1, "level": 14, "nameInternal": "1-13", "name": "Moskito's Nest 4 - Boss" },
+        { "world": 2, "level": 2, "nameInternal": "2-1", "name": "Bongo Hills 2" },
+        { "world": 2, "level": 3, "nameInternal": "2-2", "name": "Bongo Hills 3" },
+        { "world": 2, "level": 4, "nameInternal": "2-3", "name": "Bongo Hills 4" },
+        { "world": 2, "level": 5, "nameInternal": "2-4", "name": "Gong Heights 2" }
+    ]
+}

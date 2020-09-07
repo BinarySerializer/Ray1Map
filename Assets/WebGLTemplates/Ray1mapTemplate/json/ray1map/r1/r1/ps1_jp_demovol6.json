@@ -1,0 +1,14 @@
+{
+    "name": "Rayman Demo (PS1 - DemoDemo 6)",
+    "mode": "RaymanPS1DemoVol6Japan",
+    "folder": "r1/ps1_jp_demovol6",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 13, "nameInternal": "JUN13", "name": "Moskito's Nest 3 - Boss Chase" }
+    ]
+}
