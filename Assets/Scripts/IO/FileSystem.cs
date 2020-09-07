@@ -60,10 +60,14 @@ namespace R1Engine {
 			if (path == null || path.Trim() == "") return null;
 			if (FileSystem.mode == FileSystem.Mode.Web) { // || (Application.isEditor && UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.WebGL)) {
 				if (virtualFiles.ContainsKey(path)) {
+					if (virtualFiles[path] == null) throw new Exception("File does not exist: " + path);
 					return new MemoryStream(virtualFiles[path]);
 				} else if (virtualBigFiles.ContainsKey(path)) {
 					return new PartialHttpStream(serverAddress + path, cacheLen: virtualBigFiles[path].cacheLength, length: virtualBigFiles[path].fileLength);
-				} else return null;
+				} else {
+					throw new Exception("File wasn't prepared: " + path);
+					//return null;
+				}
             } else {
                 return File.OpenRead(path);
             }
