@@ -275,7 +275,7 @@ function getObjectNameHTML(obj) {
 	let nameStr = "";
 	if(obj.hasOwnProperty("Index")) nameStr += "<div class='name-index'>" + escapeHTML(obj.Index) + "</div>";
 	if(obj.hasOwnProperty("Name")) nameStr += "<div class='name-main'>" + escapeHTML(obj.Name) + "</div>";
-	if(obj.hasOwnProperty("Name")) nameStr += "<div class='name-secondary'>Unofficial Name</div>";
+	if(obj.hasOwnProperty("SecondaryName")) nameStr += "<div class='name-secondary'" + escapeHTML(obj.SecondaryName) + "</div>";
 	return nameStr;
 }
 function getObjectListEntryHTML(obj) {
@@ -726,81 +726,7 @@ function setAllJSON(jsonString) {
 		handleMessage_localization(msg.Localization);
 	}
 }
-// SCRIPT
-function setBehavior(behaviorIndex) {
-	if(currentObject != null && currentObject.hasOwnProperty("Perso") && currentObject.Perso.hasOwnProperty("Brain") && behaviorIndex >= 0) {
-		let brain = currentObject.Perso.Brain;
-		let modelname = currentObject.Perso.hasOwnProperty("NameModel") ? currentObject.Perso.NameModel : currentObject.Perso.NameInstance;
-		currentBehavior = null;
-		let curIndex = behaviorIndex;
-		if(currentBehavior == null && brain.hasOwnProperty("Intelligence") && brain.Intelligence.length > 0) {
-			if(curIndex < brain.Intelligence.length) {
-				currentBehavior = brain.Intelligence[curIndex];
-				$("#header-script-text").text(modelname + ".Intelligence[" + curIndex + "]: " + currentBehavior.Name);
-				currentBehaviorType = "Intelligence";
-			} else {
-				curIndex -= brain.Intelligence.length;
-			}
-		}
-		if(currentBehavior == null && brain.hasOwnProperty("Reflex") && brain.Reflex.length > 0) {
-			if(curIndex < brain.Reflex.length) {
-				currentBehavior = brain.Reflex[curIndex];
-				$("#header-script-text").text(modelname + ".Reflex[" + curIndex + "]: " + currentBehavior.Name);
-				currentBehaviorType = "Reflex";
-			} else {
-				curIndex -= brain.Reflex.length;
-			}
-		}
-		if(currentBehavior == null && brain.hasOwnProperty("Macros") && brain.Macros.length > 0) {
-			if(curIndex < brain.Macros.length) {
-				currentBehavior = brain.Macros[curIndex];
-				$("#header-script-text").text(modelname + ".Macros[" + curIndex + "]: " + currentBehavior.Name);
-				currentBehaviorType = "Macro";
-			} else {
-				curIndex -= brain.Macros.length;
-			}
-		}
-		if(currentBehavior != null) {
-			requestComport();
-		}
-	}
-}
 
-function requestComport() {
-	let api = $("#content-script").data('jsp');
-	api.getContentPane().html("");
-	api.scrollTo(0,0, false);
-	refreshScroll();
-	$('#btn-next-script').addClass('disabled-button');
-	$('#btn-prev-script').addClass('disabled-button');
-	
-	if(currentBehaviorType == "Macro") {
-		let jsonObj = {
-			Request: {
-				Type: "Macro",
-				Offset: currentBehavior.Offset,
-				BehaviorType: currentBehaviorType
-			}
-		};
-		sendMessage(jsonObj);
-	} else {
-		let jsonObj = {
-			Request: {
-				Type: "Comport",
-				Offset: currentBehavior.Offset,
-				BehaviorType: currentBehaviorType
-			}
-		};
-		sendMessage(jsonObj);
-	}
-}
-
-function getScriptHTML(title, script) {
-	let scriptHTML = "";
-	scriptHTML += "<div class='script-item category'><div class='script-item-name'>" + escapeHTML(title) + " - " + escapeHTML(script.Offset) + "</div></div>";
-	scriptHTML += "<div class='script-item script'><pre><code class='script-item-code cs'>" + escapeHTML(script.Translation) + "</code></pre></div>";
-	return scriptHTML;
-}
 function getCommandsHTML(commands) {
 	let commandsString ="<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>+</div>Commands</div><div id='commands-collapse' style='display: none;'>";
 	$.each(commands, function (idx, val) {
@@ -809,30 +735,6 @@ function getCommandsHTML(commands) {
 	});
 	commandsString += "</div>";
 	return commandsString;
-}
-function handleMessage_comport(msg) {
-	if(currentBehavior != null) {
-		currentBehavior = msg;
-		let comportHTML = "";
-		if(currentBehavior.hasOwnProperty("Script")) {
-			comportHTML += getScriptHTML("Script", currentBehavior.Script);
-		}
-		if(currentBehavior.hasOwnProperty("FirstScript")) {
-			comportHTML += getScriptHTML("First Script", currentBehavior.FirstScript);
-		}
-		if(currentBehavior.hasOwnProperty("Scripts")) {
-			$.each(currentBehavior.Scripts, function (idx, script) {
-				comportHTML += getScriptHTML("Scripts[" + idx + "]", script);
-			});
-		}
-		let api = $("#content-script").data('jsp');
-		api.getContentPane().html(comportHTML);
-		$(".script-item-code").each(function() {
-			hljs.highlightBlock($(this).get(0));
-		})
-		api.scrollTo(0,0, false);
-		refreshScroll();
-	}
 }
 
 // PERSO OBJECT DESCRIPTION
@@ -848,6 +750,7 @@ function showObjectDescription(obj, isChanged) {
 			$('#animationSpeed').val(obj.AnimSpeed);
 		}
 		if(isChanged) {
+			// Commands
 			$("#content-commands").empty();
 			if(obj.hasOwnProperty("R1_Commands") && obj.R1_Commands.length > 0) {
 				let commandsString = getCommandsHTML(obj.R1_Commands);

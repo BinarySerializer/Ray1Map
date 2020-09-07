@@ -49,7 +49,7 @@ public class WebJSON {
 	}
 	public class Object {
 		// Common
-        public string PrimaryName { get; set; }
+        public string Name { get; set; }
         public string SecondaryName { get; set; }
 		public int Index { get; set; } // Identify by index, non-nullable
 		public bool? IsAlways { get; set; }

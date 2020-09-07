@@ -352,8 +352,7 @@ namespace R1Engine
             // Load the memory mapped files
             baseAddress += await LoadFile(context, allfixFilePath, baseAddress);
 
-            if (FileSystem.FileExists(context.BasePath + worldFilePath))
-                baseAddress += await LoadFile(context, worldFilePath, baseAddress);
+            baseAddress += await LoadFile(context, worldFilePath, baseAddress);
 
             baseAddress += await LoadFile(context, levelFilePath, baseAddress);
 

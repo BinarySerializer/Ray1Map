@@ -134,7 +134,7 @@ public class WebCommunicator : MonoBehaviour {
 	private WebJSON.Object GetObjectJSON(Unity_ObjBehaviour obj, bool includeLists = false) {
 		if (obj == null) return null;
 		var webObj = new WebJSON.Object() {
-			PrimaryName = obj.ObjData.PrimaryName,
+			Name = obj.ObjData.PrimaryName,
 			SecondaryName = obj.ObjData.SecondaryName,
 			Index = obj.Index,
 			IsAlways = obj.ObjData.IsAlways,
