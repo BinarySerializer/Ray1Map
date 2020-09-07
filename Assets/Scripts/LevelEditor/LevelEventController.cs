@@ -516,7 +516,7 @@ namespace R1Engine
                 // Change frame with right and left arrows if not animation and not loading from memory
                 if (SelectedEvent != null && !Settings.LoadFromMemory && !Settings.AnimateSprites)
                 {
-                    if (Input.GetKeyDown(KeyCode.O))
+                    if (Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus))
                     {
                         var frame = SelectedEvent.ObjData.AnimationFrame - 1;
 
@@ -527,7 +527,7 @@ namespace R1Engine
                         SelectedEvent.ObjData.AnimationFrameFloat = frame;
                     }
 
-                    if (Input.GetKeyDown(KeyCode.P))
+                    if (Input.GetKeyDown(KeyCode.Plus) || Input.GetKeyDown(KeyCode.KeypadPlus))
                     {
                         var frame = SelectedEvent.ObjData.AnimationFrame + 1;
 

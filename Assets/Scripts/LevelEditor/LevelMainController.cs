@@ -303,12 +303,12 @@ namespace R1Engine
         {
             var updatedSettings = false;
 
-            if (Input.GetKeyDown(KeyCode.U))
+            if (Input.GetKeyDown(KeyCode.O))
             {
                 Settings.ShowObjects = !Settings.ShowObjects;
                 updatedSettings = true;
             }
-            if (Input.GetKeyDown(KeyCode.F))
+            if (Input.GetKeyDown(KeyCode.T))
             {
                 Settings.ShowTiles = !Settings.ShowTiles;
                 updatedSettings = true;
@@ -318,17 +318,17 @@ namespace R1Engine
                 Settings.ShowCollision = !Settings.ShowCollision;
                 updatedSettings = true;
             }
-            if (Input.GetKeyDown(KeyCode.G))
+            if (Input.GetKeyDown(KeyCode.P))
             {
                 Settings.AnimateSprites = !Settings.AnimateSprites;
                 updatedSettings = true;
             }
-            if (Input.GetKeyDown(KeyCode.T))
+            if (Input.GetKeyDown(KeyCode.Y))
             {
                 Settings.AnimateTiles = !Settings.AnimateTiles;
                 updatedSettings = true;
             }
-            if (Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.G))
             {
                 Settings.ShowAlwaysEvents = !Settings.ShowAlwaysEvents;
                 updatedSettings = true;
@@ -337,6 +337,11 @@ namespace R1Engine
             {
                 Settings.ShowEditorEvents = !Settings.ShowEditorEvents;
                 updatedSettings = true;
+            }
+            if (Input.GetKeyDown(KeyCode.L)) {
+                // TODO: Use for ShowLinks
+                /*Settings.ShowDebugInfo = !Settings.ShowDebugInfo;
+                updatedSettings = true;*/
             }
             if (Input.GetKeyDown(KeyCode.L))
             {
@@ -353,15 +358,10 @@ namespace R1Engine
                 Settings.ShowRayman = !Settings.ShowRayman;
                 updatedSettings = true;
             }
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                Settings.ShowRayman = !Settings.ShowRayman;
-                updatedSettings = true;
-            }
 
             if (updatedSettings)
             {
-                //communicator.SendSettings();
+                Controller.obj.webCommunicator.SendSettings();
             }
         }
     }
