@@ -26,10 +26,10 @@ namespace R1Engine
         {
             const string file = "Events.csv";
 
+            await FileSystem.PrepareFile(file);
+
             if (FileSystem.FileExists(file))
             {
-                await FileSystem.PrepareFile(file);
-
                 // Load the event info data
                 using (var csvFile = FileSystem.GetFileReadStream(file))
                     EventInfoData = GeneralEventInfoData.ReadCSV(csvFile);

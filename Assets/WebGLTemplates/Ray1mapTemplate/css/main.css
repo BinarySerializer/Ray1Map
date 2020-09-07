@@ -552,7 +552,7 @@ a:focus {
 }
 .name-main {
 	padding: 0 0.5em 0 0.5em;
-	text-align: center;
+	text-align: left;
 	display: inline-block;
 	font-weight: bold;
 	width: 50%;

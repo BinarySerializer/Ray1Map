@@ -275,7 +275,7 @@ function getObjectNameHTML(obj) {
 	let nameStr = "";
 	if(obj.hasOwnProperty("Index")) nameStr += "<div class='name-index'>" + escapeHTML(obj.Index) + "</div>";
 	if(obj.hasOwnProperty("Name")) nameStr += "<div class='name-main'>" + escapeHTML(obj.Name) + "</div>";
-	if(obj.hasOwnProperty("SecondaryName")) nameStr += "<div class='name-secondary'" + escapeHTML(obj.SecondaryName) + "</div>";
+	if(obj.hasOwnProperty("SecondaryName")) nameStr += "<div class='name-secondary'>" + escapeHTML(obj.SecondaryName) + "</div>";
 	return nameStr;
 }
 function getObjectListEntryHTML(obj) {
