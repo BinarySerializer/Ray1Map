@@ -188,6 +188,9 @@ namespace R1Engine
         public virtual async UniTask LoadExtraFile(Context context, string path) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
+            if (!FileSystem.FileExists(context.BasePath + path))
+                return;
+
             Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
             PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress, InvalidPointerMode) {
                 filePath = path,

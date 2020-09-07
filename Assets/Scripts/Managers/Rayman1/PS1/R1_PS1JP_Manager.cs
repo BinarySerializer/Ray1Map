@@ -24,17 +24,7 @@ namespace R1Engine
 
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
-        /// <summary>
-        /// Gets the path for the special tile set file to use if one is available
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public string GetSpecialTileSetPathIfExists(Context context)
-        {
-            var path = GetWorldFolderPath(context.Settings.R1_World) + $"{GetWorldName(context.Settings.R1_World)}{context.Settings.Level:00}.BLC";
-
-            return FileSystem.FileExists(context.BasePath + path) ? path : null;
-        }
+        public string GetSpecialTileSetPath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetWorldName(settings.R1_World)}{settings.Level:00}.BLC";
 
         /// <summary>
         /// Gets the tile set colors to use
@@ -43,9 +33,9 @@ namespace R1Engine
         /// <returns>The tile set colors to use</returns>
         public IList<ARGBColor> GetTileSetColors(Context context)
         {
-            var levelTileSetFileName = GetSpecialTileSetPathIfExists(context);
+            var levelTileSetFileName = GetSpecialTileSetPath(context.Settings);
 
-            if (levelTileSetFileName != null)
+            if (FileSystem.FileExists(context.BasePath + levelTileSetFileName))
             {
                 ObjectArray<ARGB1555Color> cols = FileFactory.Read<ObjectArray<ARGB1555Color>>(levelTileSetFileName, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
                 return cols.Value;
@@ -194,11 +184,8 @@ namespace R1Engine
             await LoadExtraFile(context, GetLevelFilePath(context.Settings));
             var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
 
-            // Load special tile set file if available
-            var levelTileSetFileName = GetSpecialTileSetPathIfExists(context);
-
-            if (levelTileSetFileName != null)
-                await LoadExtraFile(context, levelTileSetFileName);
+            // Load special tile set file
+            await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings));
 
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures);

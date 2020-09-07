@@ -11,7 +11,7 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman 1 (Saturn)
     /// </summary>
-    public class R1_Satun_Manager : R1_PS1BaseManager
+    public class R1_Saturn_Manager : R1_PS1BaseManager
     {
         /// <summary>
         /// The width of the tile set in tiles
