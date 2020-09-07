@@ -882,7 +882,7 @@ namespace R1Engine
                 {
                     var dat = eventData.EventData[i][j];
 
-                    var editorEventData = new Unity_Object_R1(new R1_EventData()
+                    var e = new R1_EventData()
                     {
                         Type = dat.Type,
                         Etat = dat.Etat,
@@ -904,9 +904,11 @@ namespace R1Engine
 
                         Commands = dat.Commands,
                         LabelOffsets = new ushort[0]
-                    }, objManager);
+                    };
 
-                    editorEventData.EventData.SetFollowEnabled(context.Settings, dat.FollowEnabled);
+                    e.SetFollowEnabled(context.Settings, dat.FollowEnabled);
+
+                    var editorEventData = new Unity_Object_R1(e, objManager);
 
                     // Add the event
                     level.EventData.Add(editorEventData);

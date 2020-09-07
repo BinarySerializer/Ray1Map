@@ -294,9 +294,10 @@ namespace R1Engine
 
                 if (ObjData is Unity_Object_R1 r1bj)
                 {
-                    var hy = r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings)
-                        ? -anim.Frames[r1bj.EventData.RuntimeCurrentAnimFrame].Layers[r1bj.EventData.FollowSprite].YPosition - (r1bj.EventData.OffsetHY) 
-                        : -(r1bj.EventData.OffsetHY);
+                    int hy = -(r1bj.EventData.OffsetHY);
+
+                    if (r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings))
+                        hy -= anim.Frames[r1bj.EventData.RuntimeCurrentAnimFrame].Layers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy  / (float)LevelEditorData.Level.PixelsPerUnit);
                 }

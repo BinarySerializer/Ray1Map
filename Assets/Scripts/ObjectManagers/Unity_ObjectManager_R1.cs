@@ -1,7 +1,7 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using R1Engine.Serialize;
 using UnityEngine;
 
 namespace R1Engine
@@ -57,16 +57,25 @@ namespace R1Engine
         
         public GeneralEventInfoData FindMatchingEventInfo(R1_EventData e)
         {
-            // Helper method for comparing the commands
-            bool compareCommands(GeneralEventInfoData eventInfo)
+            byte[] compiledCmds;
+            ushort[] labelOffsets;
+
+            if (UsesLocalCommands)
             {
-                if (UsesLocalCommands)
-                    // TODO: Compile commands and compare them!
-                    return false;
-                else
-                    return eventInfo.LabelOffsets.SequenceEqual(eventInfo.LabelOffsets ?? new ushort[0]) &&
-                           eventInfo.Commands.SequenceEqual(eventInfo.Commands ?? new byte[0]);
+                var compiledData = e.Commands == null ? null : EventCommandCompiler.Compile(e.Commands, e.Commands.ToBytes(Context.Settings));
+                compiledCmds = compiledData?.Commands?.ToBytes(Context.Settings) ?? new byte[0];
+                labelOffsets = compiledData?.LabelOffsets ?? new ushort[0];
             }
+            else
+            {
+                compiledCmds = e.Commands?.ToBytes(Context.Settings) ?? new byte[0];
+                labelOffsets = e.LabelOffsets ?? new ushort[0];
+            }
+
+            // Helper method for comparing the commands
+            bool compareCommands(GeneralEventInfoData eventInfo) =>
+                eventInfo.LabelOffsets.SequenceEqual(labelOffsets) &&
+                eventInfo.Commands.SequenceEqual(compiledCmds);
 
             // Find a matching item
             var match = AvailableEvents.FindItem(x => x.Type == (ushort)e.Type &&
@@ -83,7 +92,7 @@ namespace R1Engine
 
             // Create dummy item if not found
             if (match == null && AvailableEvents.Any())
-                Debug.LogWarning($"Matching event not found for event with type {e.Type}, etat {e.Etat} & subetat {e.SubEtat} in level {Settings.World}{Settings.Level}");
+                Debug.LogWarning($"Matching event not found for event with type {e.Type}, etat {e.Etat} & subetat {e.SubEtat} in level {Settings.World}-{Settings.Level}");
 
             // Return the item
             return match;
