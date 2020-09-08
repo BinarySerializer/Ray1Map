@@ -79,13 +79,16 @@ namespace R1Engine
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-        public override bool IsEditor => !AnimGroup.DES.Animations.Any();
+        public override bool IsEditor => !AnimGroup.DES.Animations.Any() && EventData.EventType != R1_R2EventType.None;
 
         public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
         public override string SecondaryName => $"{EventData.EventType}";
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.Layer * 512));
-        public override int? MapLayer => IsAlways ? 0 : EventData.MapLayer - 1;
+
+        // Clamp since some events have layer 0, which would get treated as -1 (these are the nulled out events)
+        public override int? MapLayer => IsAlways ? 0 : Mathf.Clamp(EventData.MapLayer - 1, 0, 3);
+
         public override float Scale => MapLayer == 1 ? 0.5f : 1;
         public override bool FlipHorizontally => EventData.IsFlippedHorizontally;
 
@@ -106,7 +109,7 @@ namespace R1Engine
 
         public override byte GetAnimIndex => State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => AnimGroup?.DES?.Sprites;
-        public override Vector2 Pivot => new Vector2(EventData.CollisionData.OffsetBX, -EventData.CollisionData.OffsetBY);
+        public override Vector2 Pivot => new Vector2(EventData.CollisionData?.OffsetBX ?? 0, -EventData.CollisionData?.OffsetBY ?? 0);
 
         protected override void OnFinishedAnimation()
         {
