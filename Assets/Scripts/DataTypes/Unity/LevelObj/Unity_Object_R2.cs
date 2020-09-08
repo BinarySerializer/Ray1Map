@@ -179,20 +179,32 @@ namespace R1Engine
 
             public byte OffsetBX
             {
-                get => Obj.EventData.CollisionData.OffsetBX;
-                set => Obj.EventData.CollisionData.OffsetBX = value;
+                get => Obj.EventData.CollisionData?.OffsetBX ?? 0;
+                set
+                {
+                    if (Obj.EventData.CollisionData != null)
+                        Obj.EventData.CollisionData.OffsetBX = value;
+                }
             }
 
             public byte OffsetBY
             {
-                get => Obj.EventData.CollisionData.OffsetBY;
-                set => Obj.EventData.CollisionData.OffsetBY = value;
+                get => Obj.EventData.CollisionData?.OffsetBY ?? 0;
+                set
+                {
+                    if (Obj.EventData.CollisionData != null)
+                        Obj.EventData.CollisionData.OffsetBY = value;
+                }
             }
 
             public byte OffsetHY
             {
-                get => Obj.EventData.CollisionData.OffsetHY;
-                set => Obj.EventData.CollisionData.OffsetHY = value;
+                get => Obj.EventData.CollisionData?.OffsetHY ?? 0;
+                set
+                {
+                    if (Obj.EventData.CollisionData != null)
+                        Obj.EventData.CollisionData.OffsetHY = value;
+                }
             }
 
             public byte FollowSprite { get; set; }
