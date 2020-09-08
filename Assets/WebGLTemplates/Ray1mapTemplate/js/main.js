@@ -95,7 +95,7 @@ let currentObject = null;
 let gameInstance = null;
 let inputHasFocus = false;
 let gameSettings = null;
-let mode, lvl, folder, wld;
+let mode, lvl, folder, wld, vol;
 
 let currentBehavior = null;
 let currentBehaviorType = "";
@@ -135,7 +135,8 @@ function initContent() {
 				let thisGameSelected = false;
 				if(!gameSelected) {
 					$.each( value.versions, function(idx_ver, val_ver) {
-						if(!gameSelected && folder !== null && val_ver.hasOwnProperty("folder") && (folder === val_ver.folder || folder.startsWith(val_ver.folder + "/"))) {
+						let isVol = ((vol === null && !val_ver.hasOwnProperty("volume")) || (val_ver.hasOwnProperty("volume") && vol === val_ver.volume));
+						if(!gameSelected && folder !== null && val_ver.hasOwnProperty("folder") && (folder === val_ver.folder || folder.startsWith(val_ver.folder + "/")) && isVol) {
 							gameSelected = true;
 							thisGameSelected = true;
 							return false;
@@ -1131,7 +1132,8 @@ function initGame(gameJSON) {
 	let versionSelected = false;
 	$.each(versions, function(index_version, value) {
 		let thisVersionSelected = false;
-		if(!versionSelected && folder !== null && value.hasOwnProperty("folder") && (folder === value.folder || folder.startsWith(value.folder + "/"))) {
+		let isVol = ((vol === null && !value.hasOwnProperty("volume")) || (value.hasOwnProperty("volume") && vol === value.volume));
+		if(!versionSelected && folder !== null && value.hasOwnProperty("folder") && (folder === value.folder || folder.startsWith(value.folder + "/")) && isVol) {
 			versionSelected = true;
 			thisVersionSelected = true;
 		}
@@ -1243,6 +1245,7 @@ function initVersion(versionJSON) {
 	// Fill in levels
 	if(levelsJSON.hasOwnProperty("levels")) {
 		let levels = levelsJSON.levels;
+		let isVol = ((vol === null && !levelsJSON.hasOwnProperty("volume")) || (levelsJSON.hasOwnProperty("volume") && vol === levelsJSON.volume));
 		$.each( levels, function(index, value) {
 			let levelFolder = levelsJSON.folder;
 			if(value.hasOwnProperty("folder")) {
@@ -1250,7 +1253,7 @@ function initVersion(versionJSON) {
 			}
 			let urlParams = "?mode=" + levelsJSON.mode + "&folder=" + levelFolder + "&wld=" + value.world + "&lvl=" + value.level;
 			if(versionJSON.hasOwnProperty("volume")) {
-				urlParams += "&volume=" + versionJSON.volume;
+				urlParams += "&vol=" + versionJSON.volume;
 			}
 			if(value.hasOwnProperty("additionalParams")) {
 				$.each(value.additionalParams, function(inx_param, val_param) {
@@ -1268,7 +1271,7 @@ function initVersion(versionJSON) {
 
 			//items.push("<a class='logo-item' href='#" + value.json + "' title='" + value.title + "'><img src='" + encodeURI(value.image) + "' alt='" + value.title + "'></a>");
 			let nameHTML = escapeHTML(value.name);
-			if(levelsJSON.mode === mode && folder === levelFolder && value.level === lvl && value.world === wld) {
+			if(levelsJSON.mode === mode && folder === levelFolder && value.level === lvl && value.world === wld && isVol) {
 				items.push("<div class='levels-item level current-levels-item' title='" + nameHTML + "'><div class='name'>" + nameHTML + "</div><div class='internal-name'>" + escapeHTML(value.nameInternal) + "</div></div>");
 				document.title = " [" + levelsJSON.name + "] " + value.name + " - " + baseTitle;
 			} else {
@@ -1508,6 +1511,7 @@ function init() {
 	mode = url.searchParams.get("mode");
 	lvl = parseInt(url.searchParams.get("lvl"));
 	wld = parseInt(url.searchParams.get("wld"));
+	vol = url.searchParams.get("vol");
 	folder = url.searchParams.get("folder");
 	if(mode != null && lvl != null && folder != null && wld != null) {
 		startGame();
