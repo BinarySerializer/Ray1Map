@@ -348,18 +348,29 @@ namespace R1Engine
         /// <returns>The level</returns>
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.DetailedState = $"Loading map data for {context.Settings.EduVolume}: {context.Settings.World} {context.Settings.Level}";
+            Controller.DetailedState = $"Loading map data";
 
             // Load the level
             var levelData = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.Settings), context);
+
+            Controller.DetailedState = $"Loading archives";
+            await Controller.WaitIfNecessary();
+
+            await LoadArchivesAsync(context);
 
             await Controller.WaitIfNecessary();
 
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context) : new Unity_ObjGraphics[0];
 
+            var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.Settings));
+
+            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i)).ToArray();
+            var allEta = GetCurrentEventStates(context).ToArray();
+            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i)).ToArray();
+
             // Create the object manager
-            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i)).ToArray(), GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i)).ToArray(), levelData.EventLinkTable, usesPointers: false);
+            var objManager = new Unity_ObjectManager_R1(context, des, eta, levelData.EventLinkTable, usesPointers: false);
 
             var maps = new Unity_Map[]
             {
@@ -376,7 +387,18 @@ namespace R1Engine
                 }
             };
 
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager), localization: await LoadLocalizationAsync(context));
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
+            // Load the localization
+            var loc = await LoadLocalizationAsync(context);
+
+            Controller.DetailedState = $"Loading events";
+            await Controller.WaitIfNecessary();
+
+            // Load Rayman
+            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(levelData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
+            Unity_Level level = new Unity_Level(maps, objManager, rayman: rayman, localization: loc);
 
             // Add the events
             for (var index = 0; index < levelData.Events.Length; index++)

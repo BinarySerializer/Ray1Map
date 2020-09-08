@@ -48,10 +48,8 @@ namespace R1Engine
         public virtual string GetVolumeDirectory(string volume) => GetDataPath() + $"{volume}/";
         public virtual string GetSamplesArchiveFilePath(string volume) => GetVolumeDirectory(volume) + "SNDSMP.DAT";
         public virtual string GetSpecialArchiveFilePath(string volume) => GetVolumeDirectory(volume) + "SPECIAL.DAT";
+        public virtual string GetCommonArchiveFilePath() => GetDataPath() + "COMMON.DAT";
         public virtual string GetEventLocFilePath(string volume, int index) => GetVolumeDirectory(volume) + $"EVNAME{index:00}.WLD";
-
-        // These are actually treated like the volumes in the EDU games, but since the levels are global we don't treat them as that
-        public string[] GetLanguages(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).ToArray();
 
         /// <summary>
         /// Gets the levels for each world
@@ -106,11 +104,11 @@ namespace R1Engine
         {
             return new ArchiveFile[]
             {
-                new ArchiveFile($"PCMAP/COMMON.DAT"),
+                new ArchiveFile(GetCommonArchiveFilePath()),
                 new ArchiveFile($"PCMAP/SNDD8B.DAT"),
                 new ArchiveFile($"PCMAP/SNDH8B.DAT"),
                 new ArchiveFile($"PCMAP/VIGNET.DAT", ".pcx"),
-            }.Concat(GetLanguages(settings).SelectMany(x => new ArchiveFile[]
+            }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new ArchiveFile[]
             {
                 new ArchiveFile(GetSamplesArchiveFilePath(x)),
                 new ArchiveFile(GetSpecialArchiveFilePath(x)),
@@ -141,50 +139,27 @@ namespace R1Engine
             var localization = new Dictionary<string, string[]>();
 
             // Enumerate each language
-            foreach (var lang in GetLanguages(context.Settings))
+            foreach (var lang in FileFactory.Read<R1_PC_VersionFile>("VERSION", context).VersionCodes)
             {
-                // Get the file path
-                var specialFilePath = GetSpecialArchiveFilePath(lang);
-
-                // Add the file to the context
-                await AddFile(context, specialFilePath);
-
-                // Read the archive
-                var specialData = FileFactory.Read<R1_PC_EncryptedFileArchive>(specialFilePath, context);
+                // Read the text data
+                var loc = ReadArchiveFile<R1_PC_LocFile>(context, R1_PC_ArchiveFileName.TEXT, lang);
 
                 // Save the localized name
-                string locName;
+                var locName = loc?.LanguageNames[loc.LanguageUtilized];
 
-                // Create a stream for the text data
-                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileName == "TEXT")]))
-                {
-                    var key = $"TEXT{lang}";
+                if (String.IsNullOrWhiteSpace(locName))
+                    locName = lang;
 
-                    context.AddFile(new StreamFile(key, stream, context));
-
-                    var loc = FileFactory.Read<R1_PC_LocFile>(key, context);
-
-                    locName = loc.LanguageNames[loc.LanguageUtilized];
-
-                    if (String.IsNullOrWhiteSpace(locName))
-                        locName = lang;
-
-                    // Add the localization
+                // Add the localization
+                if (loc != null)
                     localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
-                }
 
-                // Create a stream for the general data
-                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileName == "GENERAL")]))
-                {
-                    var key = $"GENERAL{lang}";
+                // Read the general data
+                var general = ReadArchiveFile<R1_PC_GeneralFile>(context, R1_PC_ArchiveFileName.GENERAL, lang);
 
-                    context.AddFile(new StreamFile(key, stream, context));
-
-                    var general = FileFactory.Read<R1_PC_GeneralFile>(key, context);
-
-                    // Add the localization
+                // Add the localization
+                if (general != null)
                     localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
-                }
 
                 // Add the event localizations (allfix + 6 worlds)
                 for (int i = 0; i < 7; i++)
@@ -207,6 +182,24 @@ namespace R1Engine
             }
 
             return localization;
+        }
+
+        public override IList<ARGBColor> GetBigRayPalette(Context context) => ReadArchiveFile<PCX>(context, "FND00")?.VGAPalette;
+
+        public override async UniTask LoadArchivesAsync(Context context)
+        {
+            // Load the vignette archive
+            await LoadArchiveAsync(context, GetVignetteFilePath(context.Settings), null);
+
+            // Load the common archive
+            await LoadArchiveAsync(context, GetCommonArchiveFilePath(), null);
+
+            // Get the available languages (volumes)
+            var version = ReadArchiveFile<R1_PC_VersionFile>(context, R1_PC_ArchiveFileName.VERSION);
+
+            // Load the special archive for every version
+            foreach (var versionCode in version.VersionCodes)
+                await LoadArchiveAsync(context, GetSpecialArchiveFilePath(versionCode), versionCode);
         }
     }
 }

@@ -389,39 +389,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The big ray palette</returns>
-        public IList<ARGBColor> GetBigRayPalette(Context context)
-        {
-            // Attempt to get the vignette archive file
-            var vig = GetArchiveFiles(context.Settings).FindItem(x => x.FilePath == GetVignetteFilePath(context.Settings));
-
-            if (vig == null) 
-                return null;
-
-            // Extract the archive
-            var vigData = ExtractArchive(context, vig);
-
-            // Get the splash screen vignette
-            var splashVig = vigData.FindItem(x => context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu || context.Settings.EngineVersion == EngineVersion.R1_PC_Edu ? x.FileName.StartsWith("FND04") : x.FileName.StartsWith("FND0"));
-
-            if (splashVig == null) 
-                return null;
-
-            // Create the key
-            const string key = "PCX";
-
-            // Use a memory stream
-            using (var stream = new MemoryStream(splashVig.Data))
-            {
-                // Add to context
-                context.AddFile(new StreamFile(key, stream, context));
-
-                // Serialize the data
-                var pcx = FileFactory.Read<PCX>(key, context);
-
-                // Get the palette
-                return pcx.VGAPalette;
-            }
-        }
+        public virtual IList<ARGBColor> GetBigRayPalette(Context context) => null;
 
         /// <summary>
         /// Exports all sprite textures from the world file to the specified output directory
@@ -1335,10 +1303,15 @@ namespace R1Engine
         /// <returns>The level</returns>
         public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.DetailedState = $"Loading map data for {context.Settings.World} {context.Settings.Level}";
+            Controller.DetailedState = $"Loading map data";
 
             // Read the level data
             var levelData = FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.Settings), context);
+
+            Controller.DetailedState = $"Loading archives";
+            await Controller.WaitIfNecessary();
+
+            await LoadArchivesAsync(context);
 
             await Controller.WaitIfNecessary();
 
@@ -1348,8 +1321,14 @@ namespace R1Engine
             // Read the world data
             var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
+            var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.Settings));
+
+            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i, i == eventDesigns.Length - 1 ? bigRayName : worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray();
+            var allEta = GetCurrentEventStates(context).ToArray();
+            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, i == allEta.Length - 1 ? bigRayName : worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray();
+
             // Create the object manager
-            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), levelData.EventData.EventLinkingTable, usesPointers: false);
+            var objManager = new Unity_ObjectManager_R1(context, des, eta, levelData.EventData.EventLinkingTable, usesPointers: false);
 
             // Create the maps
             var maps = new Unity_Map[]
@@ -1382,8 +1361,20 @@ namespace R1Engine
                 }
             };
 
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
+            // Load the localization
+            var loc = await LoadLocalizationAsync(context);
+
+            Controller.DetailedState = $"Loading events";
+            await Controller.WaitIfNecessary();
+
+            // Load Rayman
+            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
+
             // Create a level object
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager), localization: await LoadLocalizationAsync(context));
+            Unity_Level level = new Unity_Level(maps, objManager, rayman: rayman, localization: loc);
 
             for (var i = 0; i < levelData.EventData.Events.Length; i++)
             {
@@ -1788,6 +1779,38 @@ namespace R1Engine
             }*/
         }
 
+        protected async UniTask LoadArchiveAsync(Context context, string filePath, string vol)
+        {
+            // Add the file to the context
+            await AddFile(context, filePath);
+
+            if (!FileSystem.FileExists(context.BasePath + filePath))
+                return;
+
+            // Read the archive
+            var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(filePath, context);
+
+            // Create a stream file for every file
+            for (var i = 0; i < archive.Entries.Length - 1; i++)
+                context.AddFile(new StreamFile($"{archive.Entries[i].FileName}{vol}", new MemoryStream(archive.DecodedFiles[i]), context));
+        }
+
+        public virtual UniTask LoadArchivesAsync(Context context) => UniTask.CompletedTask;
+
+        public T ReadArchiveFile<T>(Context context, R1_PC_ArchiveFileName fileName, string lang = null)
+            where T : R1Serializable, new() => ReadArchiveFile<T>(context, fileName.ToString(), lang);
+
+        public T ReadArchiveFile<T>(Context context, string fileName, string lang = null)
+            where T : R1Serializable, new()
+        {
+            var file = $"{fileName}{lang}";
+
+            if (context.FileExists(file))
+                return FileFactory.Read<T>(file, context);
+            else
+                return null;
+        }
+
         #endregion
 
         #region Classes
@@ -1943,6 +1966,18 @@ namespace R1Engine
             /// The bits per sample
             /// </summary>
             public int BitsPerSample { get; }
+        }
+
+        public enum R1_PC_ArchiveFileName
+        {
+            VERSION,
+            SCRIPT,
+            GENERAL,
+            GENERAL0, // French KIT only
+            MOT,
+            SMPNAMES,
+            TEXT,
+            WLDMAP01
         }
 
         #endregion

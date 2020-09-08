@@ -98,68 +98,50 @@ namespace R1Engine
 
         #region Manager Methods
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
+        protected override UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
             // Create the dictionary
             var localization = new Dictionary<string, string[]>();
 
-            // Enumerate each language
-            foreach (var vol in GetLevels(context.Settings).Select(x => x.Name))
-            {
-                // Get the file path
-                var specialFilePath = GetSpecialArchiveFilePath(vol);
+            // Read the text data
+            var loc = ReadArchiveFile<R1_PC_LocFile>(context, R1_PC_ArchiveFileName.TEXT);
 
-                await AddFile(context, specialFilePath);
+            // Save the localized name
+            var locName = loc.LanguageNames[loc.LanguageUtilized];
 
-                // Read the archive
-                var specialData = FileFactory.Read<R1_PC_EncryptedFileArchive>(specialFilePath, context);
+            if (String.IsNullOrWhiteSpace(locName))
+                locName = context.Settings.EduVolume;
 
-                // Save the localized name
-                string locName;
+            // Add the localization
+            localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
 
-                // Create a stream for the text data
-                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileName == "TEXT")]))
-                {
-                    var key = $"TEXT{vol}";
+            // Read the general data
+            var general = ReadArchiveFile<R1_PC_GeneralFile>(context, R1_PC_ArchiveFileName.GENERAL);
 
-                    context.AddFile(new StreamFile(key, stream, context));
+            // Add the localization
+            localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
 
-                    var loc = FileFactory.Read<R1_PC_LocFile>(key, context);
+            // Read the MOT data
+            var mot = ReadArchiveFile<R1_PCEdu_MOTFile>(context, R1_PC_ArchiveFileName.MOT);
 
-                    locName = $"{loc.LanguageNames[loc.LanguageUtilized]} ({vol})";
+            // Add the localization
+            localization.Add($"MOT ({locName})", mot.TextDefine.Select(x => x.Value).ToArray());
 
-                    // Add the localization
-                    localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
-                }
+            return UniTask.FromResult<IReadOnlyDictionary<string, string[]>>(localization);
+        }
 
-                // Create a stream for the general data
-                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileName == "GENERAL")]))
-                {
-                    var key = $"GENERAL{vol}";
+        public override IList<ARGBColor> GetBigRayPalette(Context context) => ReadArchiveFile<PCX>(context, "FND04")?.VGAPalette;
 
-                    context.AddFile(new StreamFile(key, stream, context));
+        public override async UniTask LoadArchivesAsync(Context context)
+        {
+            // Load the vignette archive
+            await LoadArchiveAsync(context, GetVignetteFilePath(context.Settings), null);
 
-                    var general = FileFactory.Read<R1_PC_GeneralFile>(key, context);
+            // Load the common archive
+            await LoadArchiveAsync(context, GetCommonArchiveFilePath(), null);
 
-                    // Add the localization
-                    localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
-                }
-
-                // Create a stream for the MOT data
-                using (var stream = new MemoryStream(specialData.DecodedFiles[specialData.Entries.FindItemIndex(x => x.FileName == "MOT")]))
-                {
-                    var key = $"MOT{vol}";
-
-                    context.AddFile(new StreamFile(key, stream, context));
-
-                    var loc = FileFactory.Read<R1_PCEdu_MOTFile>(key, context);
-
-                    // Add the localization
-                    localization.Add($"MOT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
-                }
-            }
-
-            return localization;
+            // Load the special archive
+            await LoadArchiveAsync(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), null);
         }
 
         #endregion
