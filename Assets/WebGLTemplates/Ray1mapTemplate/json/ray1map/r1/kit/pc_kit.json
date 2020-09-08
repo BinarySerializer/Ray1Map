@@ -1,0 +1,57 @@
+{
+    "name": "Rayman Designer (PC)",
+    "mode": "RaymanDesignerPC",
+    "folder": "r1/pc_kit",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W2.png",
+			"level": 4
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W3.png",
+			"level": 8
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W4.png",
+			"level": 12
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W5.png",
+			"level": 16
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W6.png",
+			"level": 20
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 1, "nameInternal": "JUN01", "name": "The Sky's the Limit" },
+        { "world": 1, "level": 2, "nameInternal": "JUN02", "name": "Fruity Fun" },
+        { "world": 1, "level": 3, "nameInternal": "JUN03", "name": "Junglemania" },
+        { "world": 1, "level": 4, "nameInternal": "JUN04", "name": "Ring a Ling" },
+        { "world": 2, "level": 1, "nameInternal": "MUS01", "name": "Gone with the Wind" },
+        { "world": 2, "level": 2, "nameInternal": "MUS02", "name": "Scale the Scales" },
+        { "world": 2, "level": 3, "nameInternal": "MUS03", "name": "Music Lessons" },
+        { "world": 2, "level": 4, "nameInternal": "MUS04", "name": "Melodic Maracas" },
+        { "world": 3, "level": 1, "nameInternal": "MON01", "name": "Treetop Adventure" },
+        { "world": 3, "level": 2, "nameInternal": "MON02", "name": "Tough Climb" },
+        { "world": 3, "level": 3, "nameInternal": "MON03", "name": "Tip-Top Tempest" },
+        { "world": 3, "level": 4, "nameInternal": "MON04", "name": "The Diabolical Pursuit" },
+        { "world": 4, "level": 1, "nameInternal": "IMA01", "name": "The Five Doors" },
+        { "world": 4, "level": 2, "nameInternal": "IMA02", "name": "Pencil Pentathalon" },
+        { "world": 4, "level": 3, "nameInternal": "IMA03", "name": "Eraser Mania" },
+        { "world": 4, "level": 4, "nameInternal": "IMA04", "name": "Tic Tack Toe" },
+        { "world": 5, "level": 1, "nameInternal": "CAV01", "name": "Peaks and Rocks" },
+        { "world": 5, "level": 2, "nameInternal": "CAV02", "name": "Dark Journey" },
+        { "world": 5, "level": 3, "nameInternal": "CAV03", "name": "Dreaded Caves" },
+        { "world": 5, "level": 4, "nameInternal": "CAV04", "name": "Dire Darkness" },
+        { "world": 6, "level": 1, "nameInternal": "CAK01", "name": "Chocolate Trap" },
+        { "world": 6, "level": 2, "nameInternal": "CAK02", "name": "Crazy Candy" },
+        { "world": 6, "level": 3, "nameInternal": "CAK03", "name": "Bonbon-a-rama" },
+        { "world": 6, "level": 4, "nameInternal": "CAK04", "name": "Whipped Cream Challenge" }
+    ]
+}
