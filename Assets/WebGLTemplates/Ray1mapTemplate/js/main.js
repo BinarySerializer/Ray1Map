@@ -1249,6 +1249,9 @@ function initVersion(versionJSON) {
 				levelFolder += "/" + value.folder;
 			}
 			let urlParams = "?mode=" + levelsJSON.mode + "&folder=" + levelFolder + "&wld=" + value.world + "&lvl=" + value.level;
+			if(versionJSON.hasOwnProperty("volume")) {
+				urlParams += "&volume=" + versionJSON.volume;
+			}
 			if(value.hasOwnProperty("additionalParams")) {
 				$.each(value.additionalParams, function(inx_param, val_param) {
 					urlParams += "&" + val_param.key + "=" + val_param.value;
