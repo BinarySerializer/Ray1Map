@@ -1,0 +1,93 @@
+{
+    "name": "Rayman 60 Levels (PC)",
+    "mode": "Rayman60LevelsPC",
+    "folder": "r1/pc_60n",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W2.png",
+			"level": 10
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W3.png",
+			"level": 20
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W4.png",
+			"level": 30
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W5.png",
+			"level": 40
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W6.png",
+			"level": 50
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 1, "nameInternal": "JUN01", "name": "JUNGLE 1" },
+        { "world": 1, "level": 2, "nameInternal": "JUN02", "name": "JUNGLE 2" },
+        { "world": 1, "level": 3, "nameInternal": "JUN03", "name": "JUNGLE 3" },
+        { "world": 1, "level": 4, "nameInternal": "JUN04", "name": "JUNGLE 4" },
+        { "world": 1, "level": 5, "nameInternal": "JUN05", "name": "JUNGLE 5" },
+        { "world": 1, "level": 6, "nameInternal": "JUN06", "name": "JUNGLE 6" },
+        { "world": 1, "level": 7, "nameInternal": "JUN07", "name": "JUNGLE 7" },
+        { "world": 1, "level": 8, "nameInternal": "JUN08", "name": "JUNGLE 8" },
+        { "world": 1, "level": 9, "nameInternal": "JUN09", "name": "JUNGLE 9" },
+        { "world": 1, "level": 10, "nameInternal": "JUN10", "name": "JUNGLE 10" },
+        { "world": 2, "level": 1, "nameInternal": "MUS01", "name": "MUSIC 1" },
+        { "world": 2, "level": 2, "nameInternal": "MUS02", "name": "MUSIC 2" },
+        { "world": 2, "level": 3, "nameInternal": "MUS03", "name": "MUSIC 3" },
+        { "world": 2, "level": 4, "nameInternal": "MUS04", "name": "MUSIC 4" },
+        { "world": 2, "level": 5, "nameInternal": "MUS05", "name": "MUSIC 5" },
+        { "world": 2, "level": 6, "nameInternal": "MUS06", "name": "MUSIC 6" },
+        { "world": 2, "level": 7, "nameInternal": "MUS07", "name": "MUSIC 7" },
+        { "world": 2, "level": 8, "nameInternal": "MUS08", "name": "MUSIC 8" },
+        { "world": 2, "level": 9, "nameInternal": "MUS09", "name": "MUSIC 9" },
+        { "world": 2, "level": 10, "nameInternal": "MUS10", "name": "MUSIC 10" },
+        { "world": 3, "level": 1, "nameInternal": "MON01", "name": "MOUNTAIN 1" },
+        { "world": 3, "level": 2, "nameInternal": "MON02", "name": "MOUNTAIN 2" },
+        { "world": 3, "level": 3, "nameInternal": "MON03", "name": "MOUNTAIN 3" },
+        { "world": 3, "level": 4, "nameInternal": "MON04", "name": "MOUNTAIN 4" },
+        { "world": 3, "level": 5, "nameInternal": "MON05", "name": "MOUNTAIN 5" },
+        { "world": 3, "level": 6, "nameInternal": "MON06", "name": "MOUNTAIN 6" },
+        { "world": 3, "level": 7, "nameInternal": "MON07", "name": "MOUNTAIN 7" },
+        { "world": 3, "level": 8, "nameInternal": "MON08", "name": "MOUNTAIN 8" },
+        { "world": 3, "level": 9, "nameInternal": "MON09", "name": "MOUNTAIN 9" },
+        { "world": 3, "level": 10, "nameInternal": "MON010", "name": "MOUNTAIN 10" },
+        { "world": 4, "level": 1, "nameInternal": "IMA01", "name": "IMAGE 1" },
+        { "world": 4, "level": 2, "nameInternal": "IMA02", "name": "IMAGE 2" },
+        { "world": 4, "level": 3, "nameInternal": "IMA03", "name": "IMAGE 3" },
+        { "world": 4, "level": 4, "nameInternal": "IMA04", "name": "IMAGE 4" },
+        { "world": 4, "level": 5, "nameInternal": "IMA05", "name": "IMAGE 5" },
+        { "world": 4, "level": 6, "nameInternal": "IMA06", "name": "IMAGE 6" },
+        { "world": 4, "level": 7, "nameInternal": "IMA07", "name": "IMAGE 7" },
+        { "world": 4, "level": 8, "nameInternal": "IMA08", "name": "IMAGE 8" },
+        { "world": 4, "level": 9, "nameInternal": "IMA09", "name": "IMAGE 9" },
+        { "world": 4, "level": 10, "nameInternal": "IMA010", "name": "IMAGE 10" },
+        { "world": 5, "level": 1, "nameInternal": "CAV01", "name": "CAVE 1" },
+        { "world": 5, "level": 2, "nameInternal": "CAV02", "name": "CAVE 2" },
+        { "world": 5, "level": 3, "nameInternal": "CAV03", "name": "CAVE 3" },
+        { "world": 5, "level": 4, "nameInternal": "CAV04", "name": "CAVE 4" },
+        { "world": 5, "level": 5, "nameInternal": "CAV05", "name": "CAVE 5" },
+        { "world": 5, "level": 6, "nameInternal": "CAV06", "name": "CAVE 6" },
+        { "world": 5, "level": 7, "nameInternal": "CAV07", "name": "CAVE 7" },
+        { "world": 5, "level": 8, "nameInternal": "CAV08", "name": "CAVE 8" },
+        { "world": 5, "level": 9, "nameInternal": "CAV09", "name": "CAVE 9" },
+        { "world": 5, "level": 10, "nameInternal": "CAV10", "name": "CAVE 10" },
+        { "world": 6, "level": 1, "nameInternal": "CAK01", "name": "CAKE 1" },
+        { "world": 6, "level": 2, "nameInternal": "CAK02", "name": "CAKE 2" },
+        { "world": 6, "level": 3, "nameInternal": "CAK03", "name": "CAKE 3" },
+        { "world": 6, "level": 4, "nameInternal": "CAK04", "name": "CAKE 4" },
+        { "world": 6, "level": 5, "nameInternal": "CAK05", "name": "CAKE 5" },
+        { "world": 6, "level": 6, "nameInternal": "CAK06", "name": "CAKE 6" },
+        { "world": 6, "level": 7, "nameInternal": "CAK07", "name": "CAKE 7" },
+        { "world": 6, "level": 8, "nameInternal": "CAK08", "name": "CAKE 8" },
+        { "world": 6, "level": 9, "nameInternal": "CAK09", "name": "CAKE 9" },
+        { "world": 6, "level": 10, "nameInternal": "CAK10", "name": "CAKE 10" }
+    ]
+}

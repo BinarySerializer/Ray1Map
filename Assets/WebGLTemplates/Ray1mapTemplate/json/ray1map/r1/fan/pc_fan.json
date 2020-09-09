@@ -1,0 +1,73 @@
+{
+    "name": "Rayman by his Fans (PC)",
+    "mode": "RaymanByHisFansPC",
+    "folder": "r1/pc_fan",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W2.png",
+			"level": 7
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W3.png",
+			"level": 12
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W4.png",
+			"level": 22
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W5.png",
+			"level": 29
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W6.png",
+			"level": 34
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 1, "nameInternal": "JUN01", "name": "The O Pond" },
+        { "world": 1, "level": 2, "nameInternal": "JUN02", "name": "Good Pickin'" },
+        { "world": 1, "level": 3, "nameInternal": "JUN03", "name": "The Living Forest" },
+        { "world": 1, "level": 4, "nameInternal": "JUN04", "name": "The enchanted forest" },
+        { "world": 1, "level": 5, "nameInternal": "JUN05", "name": "In the thick of things" },
+        { "world": 1, "level": 6, "nameInternal": "JUN06", "name": "Water Lily Way" },
+        { "world": 1, "level": 7, "nameInternal": "JUN07", "name": "Lost in the Jungle" },
+        { "world": 2, "level": 1, "nameInternal": "MUS01", "name": "The Magic Flutes" },
+        { "world": 2, "level": 2, "nameInternal": "MUS02", "name": "A Symphony of Drums" },
+        { "world": 2, "level": 3, "nameInternal": "MUS03", "name": "A trumpet fanfare" },
+        { "world": 2, "level": 4, "nameInternal": "MUS04", "name": "Musical Rambles" },
+        { "world": 2, "level": 5, "nameInternal": "MUS05", "name": "The Wrong Note" },
+        { "world": 3, "level": 1, "nameInternal": "MON01", "name": "Watch out for the peaks" },
+        { "world": 3, "level": 2, "nameInternal": "MON02", "name": "The Illuminated Heights" },
+        { "world": 3, "level": 3, "nameInternal": "MON03", "name": "The Blue Mountain" },
+        { "world": 3, "level": 4, "nameInternal": "MON04", "name": "Ting Mountain" },
+        { "world": 3, "level": 5, "nameInternal": "MON05", "name": "Heart of the Mountain" },
+        { "world": 3, "level": 6, "nameInternal": "MON06", "name": "An avalanche of tings" },
+        { "world": 3, "level": 7, "nameInternal": "MON07", "name": "Hell mountain" },
+        { "world": 3, "level": 8, "nameInternal": "MON08", "name": "Slides and Spikes" },
+        { "world": 3, "level": 9, "nameInternal": "MON09", "name": "Danger at the top" },
+        { "world": 3, "level": 10, "nameInternal": "MON10", "name": "Sliders, Away!" },
+        { "world": 4, "level": 1, "nameInternal": "IMA01", "name": "The Forgotten Pencils" },
+        { "world": 4, "level": 2, "nameInternal": "IMA02", "name": "Tangled up in Colors" },
+        { "world": 4, "level": 3, "nameInternal": "IMA03", "name": "Rubbers !" },
+        { "world": 4, "level": 4, "nameInternal": "IMA04", "name": "The drawing lesson" },
+        { "world": 4, "level": 5, "nameInternal": "IMA05", "name": "Punaise !" },
+        { "world": 4, "level": 6, "nameInternal": "IMA06", "name": "Don't Despair" },
+        { "world": 4, "level": 7, "nameInternal": "IMA07", "name": "High Flyer" },
+        { "world": 5, "level": 1, "nameInternal": "CAV01", "name": "Meandering Peaks" },
+        { "world": 5, "level": 2, "nameInternal": "CAV02", "name": "Ting Fishin'" },
+        { "world": 5, "level": 3, "nameInternal": "CAV03", "name": "Up, up and away!" },
+        { "world": 5, "level": 4, "nameInternal": "CAV04", "name": "A Cave full of Surprises" },
+        { "world": 5, "level": 5, "nameInternal": "CAV05", "name": "The Forbidden Valley" },
+        { "world": 6, "level": 1, "nameInternal": "CAK01", "name": "Peanut Perfume" },
+        { "world": 6, "level": 2, "nameInternal": "CAK02", "name": "Catch it if you can" },
+        { "world": 6, "level": 3, "nameInternal": "CAK03", "name": "Yummy, munch, slurp!" },
+        { "world": 6, "level": 4, "nameInternal": "CAK04", "name": "Bumbs Galore!" },
+        { "world": 6, "level": 5, "nameInternal": "CAK05", "name": "In the guts of the Cream" },
+        { "world": 6, "level": 6, "nameInternal": "CAK06", "name": "Supercopter Race" }
+    ]
+}
