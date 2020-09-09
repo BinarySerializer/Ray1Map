@@ -72,15 +72,18 @@ namespace R1Engine
             if (Settings.AnimateSprites && AnimSpeed > 0)
                 AnimationFrameFloat += (60f / AnimSpeed) * Time.deltaTime;
 
+            // Loop around if over the frame limit
+            bool isFinished = false;
+            if (AnimationFrameFloat >= CurrentAnimation.Frames.Length) {
+                AnimationFrameFloat %= CurrentAnimation.Frames.Length;
+                isFinished = true;
+            }
+
             // Update the frame
             AnimationFrame = (byte)Mathf.FloorToInt(AnimationFrameFloat);
 
-            // Loop back to first frame
-            if (AnimationFrame >= CurrentAnimation.Frames.Length)
-            {
-                AnimationFrame = 0;
-                AnimationFrameFloat = 0;
-
+            // Trigger animation finished event
+            if (isFinished) {
                 OnFinishedAnimation();
             }
         }
