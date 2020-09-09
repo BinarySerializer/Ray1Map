@@ -13,6 +13,7 @@ public class WebJSON {
 		public GameSettings GameSettings { get; set; }
 		public Highlight Highlight { get; set; }
 		public Selection Selection { get; set; }
+		public Object Object { get; set; }
 	}
 	public class GameSettings {
 		public MajorEngineVersion MajorEngineVersion { get; set; }
@@ -45,6 +46,7 @@ public class WebJSON {
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 	}
 	public class Hierarchy {
+		public Object Rayman { get; set; }
 		public Object[] Objects { get; set; }
 	}
 	public class Object {

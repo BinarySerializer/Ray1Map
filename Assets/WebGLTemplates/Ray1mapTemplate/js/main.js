@@ -91,6 +91,7 @@ let dialogueMsg = null;
 let fullData = null;
 let hierarchy = null;
 let objectsList = [];
+let raymanObject = null;
 let currentObject = null;
 let gameInstance = null;
 let inputHasFocus = false;
@@ -282,13 +283,19 @@ function getObjectNameHTML(obj) {
 function getObjectListEntryHTML(obj) {
 	return "<div class='objects-item object-event' title='" + escapeHTML(obj.Name) + "' data-index='" + obj.Index + "'>" + getObjectNameHTML(obj) + "</div>";
 }
-function parseObjects(objectsData) {
-	objectsList = objectsData;
+function parseObjects(hierarchy) {
+	if(hierarchy.hasOwnProperty("Rayman")) raymanObject = hierarchy.Rayman;
+	if(hierarchy.hasOwnProperty("Objects")) objectsList = hierarchy.Objects;
+	
 	let items = [];
 	let alwaysObjects = [];
 	let editorObjects = [];
 	let normalObjects = [];
-	$.each(objectsData, function(i, obj) {
+	if(raymanObject !== null) {
+		items.push("<div class='objects-item object-world level-0' alt='Rayman object'>Rayman object</div>");
+		items.push(getObjectListEntryHTML(raymanObject));
+	}
+	$.each(objectsList, function(i, obj) {
 		if(obj.IsAlways) {
 			alwaysObjects.push(obj);
 		} else if(obj.IsEditor) {
@@ -332,7 +339,7 @@ function getIndexFromObject(obj) {
 	if(obj !== null) {
 		return obj.Index;
 	}
-	return -1;
+	return -2;
 }
 function updateCameraPos() {
 	let selectedCameraPos = cameraPosSelector.val();
@@ -708,7 +715,7 @@ function setAllJSON(jsonString) {
 		if(hierarchy != null) {
 			let objectsHTML = [];
 			if(hierarchy.hasOwnProperty("Objects")) {
-				objectsHTML = parseObjects(hierarchy.Objects);
+				objectsHTML = parseObjects(hierarchy);
 			}
 			if(objectsHTML.length > 0) {
 				let api = objects_content.data('jsp');
@@ -926,8 +933,8 @@ function setObjectTransform() {
 			let jsonObj = {
 				Object: {
 					Index:   currentObject.Index,
-					X:		 currentObject.X,
-					Y:		 currentObject.Y
+					X:		 posX,
+					Y:		 posY
 				}
 			}
 			sendMessage(jsonObj);
@@ -1007,15 +1014,18 @@ function handleMessage_selection(msg) {
 	}
 	let object = selection.Object;
 	let obj_index = getIndexFromObject(object);
-	if(obj_index > -1) {
-		handleMessage_selection_updateObject(objectsList[obj_index], object);
+	if(obj_index > -2) {
+		let objectInList = obj_index == -1 ? raymanObject : objectsList[obj_index];
+		handleMessage_selection_updateObject(objectInList, object);
 
 		$(".objects-item").removeClass("current-objects-item");
 		$(".objects-item[data-index='" + obj_index + "']").addClass("current-objects-item");
-		let newcurrentObject = objectsList[obj_index];
+		let newcurrentObject = objectInList;
 		let isObjectChanged = newcurrentObject != currentObject;
 		currentObject = newcurrentObject;
 		showObjectDescription(currentObject, isObjectChanged);
+	} else if(obj_index == -1) {
+		
 	}
 }
 function handleMessage_highlight(msg) {

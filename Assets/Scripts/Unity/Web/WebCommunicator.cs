@@ -109,6 +109,7 @@ public class WebCommunicator : MonoBehaviour {
 	private WebJSON.Hierarchy GetHierarchyJSON() {
 		var h = new WebJSON.Hierarchy();
 		var objects = Controller.obj.levelController.Objects;
+		h.Rayman = GetObjectJSON(Controller.obj.levelController.RaymanObject);
 		h.Objects = objects.Select(o => GetObjectJSON(o)).ToArray();
 		return h;
 	}
@@ -241,6 +242,9 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.Selection != null) {
 			ParseSelectionJSON(msg.Selection);
 		}
+		if (msg.Object != null) {
+			ParseObjectJSON(msg.Object);
+		}
     }
     private void ParseSettingsJSON(WebJSON.Settings msg) {
 		if (msg.ShowObjects.HasValue) Settings.ShowObjects = msg.ShowObjects.Value;
@@ -260,6 +264,20 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg?.Object != null) {
 			Controller.obj.levelEventController.SelectEvent(msg.Object.Index);
 		}
+	}
+	private void ParseObjectJSON(WebJSON.Object msg) {
+		if (msg == null || msg.Index < -1) return;
+		var objects = Controller.obj.levelController.Objects;
+		if (msg.Index > objects.Count) return;
+		Unity_ObjBehaviour o = msg.Index == -1 ? Controller.obj.levelController.RaymanObject : objects[msg.Index];
+		if (o == null) return;
+
+		// Now we have the object, parse it
+		if (msg.X.HasValue) o.ObjData.XPosition = (short)msg.X.Value;
+		if (msg.Y.HasValue) o.ObjData.YPosition = (short)msg.Y.Value;
+		// TODO: Allow setting this
+		//if (msg.AnimSpeed.HasValue) o.ObjData.AnimSpeed = msg.AnimSpeed.Value;
+
 	}
 	private void ParseRequestJSON(WebJSON.Request msg) {
 		switch (msg.Type) {
