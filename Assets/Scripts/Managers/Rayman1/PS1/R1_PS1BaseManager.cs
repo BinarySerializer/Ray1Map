@@ -310,7 +310,7 @@ namespace R1Engine
             rayman?.InitRayman(events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS));
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(maps, objManager, eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), rayman: rayman != null ? new Unity_Object_R1(rayman, objManager) : null, localization: LoadLocalization(context));
+            Unity_Level level = new Unity_Level(maps, objManager, eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), rayman: rayman != null ? new Unity_Object_R1(rayman, objManager) : null, localization: await LoadLocalizationAsync(context));
 
             await Controller.WaitIfNecessary();
 
@@ -788,7 +788,7 @@ namespace R1Engine
             }
         }
 
-        protected virtual IReadOnlyDictionary<string, string[]> LoadLocalization(Context context) => null;
+        protected virtual UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context) => UniTask.FromResult<IReadOnlyDictionary<string, string[]>>(null);
 
         public abstract UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames);
 

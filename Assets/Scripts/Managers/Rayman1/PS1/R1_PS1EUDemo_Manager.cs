@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 
 namespace R1Engine
@@ -30,12 +31,16 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoPALDemo;
 
-        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
+        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
+            var filePath = GetLanguageFilePath("US");
+
+            await FileSystem.PrepareFile(filePath);
+
             // Create the dictionary
             return new Dictionary<string, string[]>()
             {
-                ["English"] = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath("US"), context).Strings
+                ["English"] = FileFactory.ReadText<R1_TextLocFile>(filePath, context).Strings
             };
         }
     }

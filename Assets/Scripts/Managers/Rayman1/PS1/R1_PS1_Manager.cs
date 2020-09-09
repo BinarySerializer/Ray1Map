@@ -331,7 +331,7 @@ namespace R1Engine
             FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);*/
         }
 
-        protected override IReadOnlyDictionary<string, string[]> LoadLocalization(Context context)
+        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
             // The localization is compiled in the US/JP releases
             if (context.Settings.GameModeSelection != GameModeSelection.RaymanPS1EU)
@@ -362,7 +362,9 @@ namespace R1Engine
             // Add each language
             foreach (var lang in langs)
             {
-                var langFile = FileFactory.ReadText<R1_TextLocFile>(GetLanguageFilePath(lang.LangCode), context);
+                var filePath = GetLanguageFilePath(lang.LangCode);
+                await FileSystem.PrepareFile(filePath);
+                var langFile = FileFactory.ReadText<R1_TextLocFile>(filePath, context);
                 loc.Add(lang.Language, langFile.Strings);
             }
 
