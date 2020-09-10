@@ -8,86 +8,86 @@ html {
 
 body {
   /* background: #444; */
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 #header h1 {
-  color: #19c8c3;
+  color: #ffcccd;
 }
 
 #header h1 span {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 #container {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 #footer a,
 .footer-content a {
-  color: #19c8c3;
+  color: #ffcccd;
 }
 
 #footer a:hover,
 .footer-content a:hover {
-  background: rgba(1, 33, 45, 0.5);
+  background: rgba(35, 6, 25, 0.5);
 }
 
 .column {
-  background-color: #06566d;
+  background-color: #711452;
 }
 
 .column-header,
 .column-footer,
 .column-sidebar {
-  color: #9ed9a0;
-  background-color: #033d52;
+  color: #ffcf99;
+  background-color: #450c32;
 }
 
 #game-content {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .game-item:hover,
 .version-item:hover {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .game-item,
 .version-item {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 .current-game-item,
 .current-version-item {
-  color: #19c8c3;
-  background-color: rgba(3, 61, 82, 0.7);
+  color: #ffcccd;
+  background-color: rgba(69, 12, 50, 0.7);
 }
 
 .game-category-item {
-  color: #9ed9a0;
-  background-color: #033d52;
+  color: #ffcf99;
+  background-color: #450c32;
 }
 
 .column-versions,
 .column-levels,
 .column-games {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 /*#content-versions,*/
 #content-levels,
 #content-games {
-  background-color: #06566d;
+  background-color: #711452;
 }
 
 #content-versions {
-  background-color: #004d65;
+  background-color: #5f1145;
 }
 
 .progress .full {
-  background: #033d52;
-  background: linear-gradient(95deg, #033d52 0%, #9ed9a0 78%, #19c8c3 100%);
+  background: #450c32;
+  background: linear-gradient(95deg, #450c32 0%, #ffcf99 78%, #ffcccd 100%);
 }
 
 /*.song-item:active,
@@ -103,17 +103,17 @@ body {
 .localization-item,
 .entryactions-item,
 .commands-item {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 .current-objects-item {
-  color: #19c8c3;
-  background-color: rgba(3, 61, 82, 0.7);
+  color: #ffcccd;
+  background-color: rgba(69, 12, 50, 0.7);
 }
 
 .current-levels-item {
-  color: #19c8c3;
-  background-color: #033d52;
+  color: #ffcccd;
+  background-color: #450c32;
 }
 
 .objects-item.object-world,
@@ -124,8 +124,8 @@ body {
 .localization-item.category,
 .script-item.category,
 .commands-item.category {
-  color: #9ed9a0;
-  background-color: #033d52;
+  color: #ffcf99;
+  background-color: #450c32;
 }
 
 .dsgvars-item > .dsgvar-name,
@@ -133,30 +133,30 @@ body {
 .localization-item > .localization-item-index,
 .entryactions-item > .entryactions-item-name,
 .commands-item-line-number {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .dsgvars-item.dsgvar-array:hover > .dsgvar-name,
 .dsgvars-item.dsgvar-array:hover > .dsgvar-type {
-  background-color: #01212d;
+  background-color: #230619;
 }
 
 .dsgvars-item.dsgvars-header,
 .transitions-item.transitions-header {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .objects-item.object-sector:hover,
 .behaviors-item.category:hover,
 .transitions-item.category:hover,
 .commands-item.category:hover {
-  background-color: #01212d;
+  background-color: #230619;
 }
 
 .objects-item.object-world.current-objects-item,
 .objects-item.object-sector.current-objects-item {
-  color: #19c8c3;
-  background-color: #01212d;
+  color: #ffcccd;
+  background-color: #230619;
 }
 
 .objects-item.object-perso:hover,
@@ -168,12 +168,12 @@ body {
 .entryactions-item:hover .dsgvars-item:hover,
 .selectState:hover,
 .localization-item:hover {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 #highlight-tooltip {
-  background-color: #06566d;
-  color: #9ed9a0;
+  background-color: #711452;
+  color: #ffcf99;
 }
 
 #text-highlight-tooltip {
@@ -187,119 +187,119 @@ body {
 }
 
 .song-buttons > .song-button {
-  color: #06566d;
+  color: #711452;
 }
 
 .sidebar-button:hover {
-  background-color: rgba(1, 33, 45, 0.5);
+  background-color: rgba(35, 6, 25, 0.5);
 }
 
 .sidebar-button.sidebar-button-active {
-  background-color: rgba(1, 33, 45, 0.7);
+  background-color: rgba(35, 6, 25, 0.7);
 }
 
 .sidebar-slider {
-  background-color: rgba(1, 33, 45, 0.7);
+  background-color: rgba(35, 6, 25, 0.7);
 }
 
 .sidebar-arrow {
-  background-color: rgba(6, 86, 109, 0.7);
+  background-color: rgba(113, 20, 82, 0.7);
 }
 
 .playlist-item > .song-remove,
 .faux-playlist-item > .faux-song-remove,
 .playlist-item > .song-handle,
 .faux-playlist-item > .song-handle {
-  color: #06566d;
+  color: #711452;
 }
 
 .playlist-item-placeholder {
-  border: 3px dotted #033d52;
-  background-color: rgba(3, 61, 82, 0.5);
+  border: 3px dotted #450c32;
+  background-color: rgba(69, 12, 50, 0.5);
 }
 
 .ui-sortable-helper,
 .ui-draggable-dragging {
-  background-color: #033d52 !important;
+  background-color: #450c32 !important;
 }
 
 .played {
-  color: #19c8c3;
+  color: #ffcccd;
 }
 
 .current-song {
-  color: #19c8c3;
-  background-color: rgba(3, 61, 82, 0.7);
+  color: #ffcccd;
+  background-color: rgba(69, 12, 50, 0.7);
 }
 
 #footer-soundtrack a {
-  color: #19c8c3;
+  color: #ffcccd;
 }
 
 #footer-soundtrack.loading-header a {
-  color: rgba(25, 200, 195, 0);
+  color: rgba(255, 204, 205, 0);
 }
 
 #footer-soundtrack:not(.loading-header) a:hover {
-  background: rgba(1, 33, 45, 0.5);
+  background: rgba(35, 6, 25, 0.5);
 }
 
 #footer-playlist {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 /* ============================== PLAYER ============================== */
 #player-cover {
-  border-color: #9ed9a0;
+  border-color: #ffcf99;
 }
 
 #player-cover.cover-loaded {
-  border-color: #033d52;
+  border-color: #450c32;
 }
 
 .loading-header {
-  color: rgba(158, 217, 160, 0) !important;
+  color: rgba(255, 207, 153, 0) !important;
 }
 
 /* ============================== HEADER BUTTONS ============================== */
 .header-button {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 .header-button:hover {
-  background: rgba(1, 33, 45, 0.5);
+  background: rgba(35, 6, 25, 0.5);
 }
 
 .header-button.selected {
-  color: #19c8c3;
-  background-color: #01212d;
+  color: #ffcccd;
+  background-color: #230619;
 }
 
 .header-button.disabled-button {
-  color: #06566d;
+  color: #711452;
   background-color: transparent;
 }
 
 input[type=range]::-webkit-slider-thumb {
-  background: #9ed9a0;
+  background: #ffcf99;
   /* Green background */
 }
 
 input[type=range]::-moz-range-thumb {
-  background: #9ed9a0;
+  background: #ffcf99;
   /* Green background */
 }
 
 input[type=range]::-webkit-slider-runnable-track {
-  background: #01212d;
+  background: #230619;
 }
 
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: #01212d;
+  background: #230619;
 }
 
 input[type=range]::-moz-range-track {
-  background: #01212d;
+  background: #230619;
 }
 
 input[type=range]::-ms-fill-lower {
@@ -307,19 +307,19 @@ input[type=range]::-ms-fill-lower {
 }
 
 input[type=range]:focus::-ms-fill-lower {
-  background: #01212d;
+  background: #230619;
 }
 
 input[type=range]::-ms-fill-upper {
-  background: #01212d;
+  background: #230619;
 }
 
 input[type=range]:focus::-ms-fill-upper {
-  background: #01212d;
+  background: #230619;
 }
 
 #header-playlist-info {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 #popup-overlay {
@@ -327,49 +327,49 @@ input[type=range]:focus::-ms-fill-upper {
 }
 
 #dialogue-content {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .share-button {
-  background-color: #033d52;
-  color: #9ed9a0;
+  background-color: #450c32;
+  color: #ffcf99;
 }
 
 .share-button:hover {
-  background: #01212d;
+  background: #230619;
 }
 
 #cover-popup {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .cover-button {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .cover-button:hover {
-  background: #01212d;
+  background: #230619;
 }
 
 .cover-button.disabled-button {
-  color: #06566d;
+  color: #711452;
 }
 
 #notification-popup {
   -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0px 0 10px;
   -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 0 10px;
   box-shadow: rgba(0, 0, 0, 0.4) 0 0 10px;
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .config-header {
-  color: #9ed9a0;
-  background-color: #033d52;
+  color: #ffcf99;
+  background-color: #450c32;
 }
 
 a.config-header:hover {
-  color: #19c8c3;
-  background-color: #01212d;
+  color: #ffcccd;
+  background-color: #230619;
 }
 
 #levelselect-popup,
@@ -378,46 +378,46 @@ a.config-header:hover {
 #config-popup,
 #entryactions-popup,
 .info-content {
-  background-color: #06566d;
+  background-color: #711452;
 }
 
 #camera-popup,
 #cine-popup,
 #info-popup {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 .style-item.current-style-item {
-  background-color: rgba(3, 61, 82, 0.7);
-  color: #19c8c3;
+  background-color: rgba(69, 12, 50, 0.7);
+  color: #ffcccd;
 }
 
 .style-item:hover {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 /* ============================== MOBILE ONLY ============================== */
 .mobile-tabswitch-button {
-  background: rgba(1, 33, 45, 0.5);
-  color: #9ed9a0;
+  background: rgba(35, 6, 25, 0.5);
+  color: #ffcf99;
 }
 
 .mobile-tabswitch-button:hover {
-  background: #01212d;
+  background: #230619;
 }
 
 .mobile-tabswitch-button.disabled-button {
-  color: #06566d;
+  color: #711452;
 }
 
 .mobile-tabswitch-button.highlighted-button {
-  color: #19c8c3;
+  color: #ffcccd;
 }
 
 /* MEDIA QUERIES */
 @media only screen and (max-width: 900px) {
   html {
-    background-color: #033d52;
+    background-color: #450c32;
     background-image: none;
   }
 
@@ -430,7 +430,7 @@ a.config-header:hover {
   }
 
   .column-content {
-    background-color: #06566d;
+    background-color: #711452;
   }
 
   .song-buttons > .song-button,
@@ -443,11 +443,11 @@ a.config-header:hover {
 }
 /* ============================== JSCROLLPANE ============================== */
 .jspTrack {
-  background: rgba(3, 61, 82, 0.7);
+  background: rgba(69, 12, 50, 0.7);
 }
 
 .jspDrag {
-  background: rgba(1, 33, 45, 0.7);
+  background: rgba(35, 6, 25, 0.7);
 }
 
 .jspArrow {
@@ -464,7 +464,7 @@ a.config-header:hover {
 
 /* ============================== CAMERA CUBE ============================== */
 .cube__face {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 .cube__face:hover {
@@ -473,62 +473,62 @@ a.config-header:hover {
 }
 
 .cube__face--front {
-  background: #087491;
+  background: #762375;
 }
 
 .cube__face--right {
-  background: #0a9ac2;
+  background: #9e2e9c;
 }
 
 .cube__face--back {
-  background: #054d61;
+  background: #4f174e;
 }
 
 .cube__face--left {
-  background: #032730;
+  background: #270c27;
 }
 
 .cube__face--top {
-  background: #0987aa;
+  background: #8a2889;
 }
 
 .cube__face--bottom {
-  background: #043a49;
+  background: #3b113b;
 }
 
 /* ============================== STATE DIAGRAM ============================== */
 .state-diagram-container {
-  background-color: #033d52;
+  background-color: #450c32;
 }
 
 /* Following classes are only read from javascript, in statediagram.html */
 .state-diagram-arrow-normal {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 .state-diagram-arrow-reflex {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 .state-diagram-state-selected {
-  background-color: #06566d;
-  color: #9ed9a0;
+  background-color: #711452;
+  color: #ffcf99;
 }
 
 .state-diagram-state {
-  background-color: rgba(3, 61, 82, 0.5);
-  color: rgba(158, 217, 160, 0.5);
+  background-color: rgba(69, 12, 50, 0.5);
+  color: rgba(255, 207, 153, 0.5);
 }
 
 .state-diagram-header {
-  background-color: #06566d;
+  background-color: #711452;
 }
 
 /**************************************** HIGHLIGHT.JS ************************************************/
 /* Base color: saturation 0; */
 .hljs,
 .hljs-subst {
-  color: #9ed9a0;
+  color: #ffcf99;
 }
 
 .hljs-comment {
@@ -544,7 +544,7 @@ a.config-header:hover {
 .hljs-quote,
 .hljs-template-tag,
 .hljs-deletion {
-  color: #19c8c3;
+  color: #ffcccd;
 }
 
 .hljs-title,
@@ -592,4 +592,4 @@ a.config-header:hover {
   filter: drop-shadow(2px 2px 0px #0004);
 }
 
-/*# sourceMappingURL=theme_raymap.css.map */
+/*# sourceMappingURL=theme_rayman1.css.map */
