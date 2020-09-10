@@ -18,7 +18,8 @@ namespace R1Engine
 
         public int Index { get; set; }
 
-        public bool IsVisible => ObjData.IsVisible && (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
+        public bool IsEnabled { get; set; } = true;
+        public bool IsVisible => IsEnabled && ObjData.IsVisible && (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
         public int Layer => (ObjData.GetLayer(Index) ?? Index) * 256;
 
         #endregion

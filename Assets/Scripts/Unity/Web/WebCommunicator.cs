@@ -139,9 +139,9 @@ public class WebCommunicator : MonoBehaviour {
 			SecondaryName = obj.ObjData.SecondaryName,
 			Index = obj.Index,
 			IsAlways = obj.ObjData.IsAlways,
+			IsEnabled = obj.IsEnabled,
 			IsEditor = obj.ObjData.IsEditor,
 			AnimIndex = obj.ObjData.AnimationIndex,
-			AnimSpeed = obj.ObjData.AnimSpeed,
 			X = obj.ObjData.XPosition,
 			Y = obj.ObjData.YPosition,
 		};
@@ -275,6 +275,7 @@ public class WebCommunicator : MonoBehaviour {
 		// Now we have the object, parse it
 		if (msg.X.HasValue) o.ObjData.XPosition = (short)msg.X.Value;
 		if (msg.Y.HasValue) o.ObjData.YPosition = (short)msg.Y.Value;
+		if (msg.IsEnabled.HasValue) o.IsEnabled = msg.IsEnabled.Value;
 		// TODO: Allow setting this
 		//if (msg.AnimSpeed.HasValue) o.ObjData.AnimSpeed = msg.AnimSpeed.Value;
 

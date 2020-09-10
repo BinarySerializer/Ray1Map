@@ -761,9 +761,8 @@ function showObjectDescription(obj, isChanged) {
 		$('#posY').val(obj.Y);
 		$("#objectName").html(getObjectNameHTML(obj));
 
-		if(obj.hasOwnProperty("AnimSpeed")) {
-			$('#animationSpeed').val(obj.AnimSpeed);
-		}
+		selectButton($("#btn-enabled"), obj.IsEnabled);
+
 		if(isChanged) {
 			// Commands
 			$("#content-commands").empty();
@@ -914,18 +913,14 @@ function showObjectDescription(obj, isChanged) {
 	description_column.removeClass('invisible');
 }
 
-function sendPerso() {
-	if(currentObject != null && currentObject.hasOwnProperty("Perso")) {
-		let animationSpeed = $('#animationSpeed').val();
+function sendObject() {
+	if(currentObject != null) {
 		let jsonObj = {
-			Perso: {
-				Offset: currentObject.Perso.Offset,
-				ObjectList: $("#objectList").prop('selectedIndex'),
-				State: $("#state").prop('selectedIndex'),
-				IsEnabled: $("#btn-enabled").hasClass("selected"),
-				PlayAnimation: $("#btn-playAnimation").hasClass("selected"),
-				AutoNextState: $("#btn-autoNextState").hasClass("selected"),
-				AnimationSpeed: $.isNumeric(animationSpeed) ? animationSpeed : currentObject.Perso.AnimationSpeed
+			Object: {
+				Index:		currentObject.Index,
+				//ObjectList: $("#objectList").prop('selectedIndex'),
+				//State: $("#state").prop('selectedIndex'),
+				IsEnabled:	$("#btn-enabled").hasClass("selected"),
 			}
 		}
 		sendMessage(jsonObj);
@@ -983,7 +978,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("Y")) oldObj.Y = newObj.Y;
 
 	if(newObj.hasOwnProperty("AnimIndex")) oldObj.AnimIndex = newObj.AnimIndex;
-	if(newObj.hasOwnProperty("AnimSpeed")) oldObj.AnimSpeed = newObj.AnimSpeed;
+	if(newObj.hasOwnProperty("IsEnabled")) oldObj.IsEnabled = newObj.IsEnabled;
 	
 	// R1
 	if(newObj.hasOwnProperty("R1_DESIndex")) oldObj.R1_DESIndex = newObj.R1_DESIndex;
@@ -1700,9 +1695,9 @@ $(function() {
 		return false;
 	});
 	
-	$(document).on('click', "#btn-enabled, #btn-autoNextState, #btn-playAnimation", function() {
+	$(document).on('click', "#btn-enabled", function() {
 		selectButton($(this), !$(this).hasClass("selected"));
-		sendPerso();
+		sendObject();
 		return false;
 	});
 	$(document).on('click', "#btn-photo", function() {
@@ -1728,7 +1723,7 @@ $(function() {
 	$(document).on('change', "#objectList", function() {
 		//let selectedIndex = $(this).prop('selectedIndex');
 		//setObjectList(selectedIndex);
-		sendPerso();
+		sendObject();
 		$(this).blur();
 		return false;
 	});
@@ -1738,7 +1733,7 @@ $(function() {
 		let newState = parseInt($(this).data("selectState"));
 		if(currentObject != null && currentObject.hasOwnProperty("Perso") && currentObject.Perso.State != newState) {
 			stateSelector.prop("selectedIndex", newState);
-			sendPerso();
+			sendObject();
 		}
 		$(this).blur();
 		return false;
@@ -1746,7 +1741,7 @@ $(function() {
 	$(document).on('change', "#state", function() {
 		//let selectedIndex = $(this).prop('selectedIndex');
 		//setState(selectedIndex);
-		sendPerso();
+		sendObject();
 		$(this).blur();
 		return false;
 	});
