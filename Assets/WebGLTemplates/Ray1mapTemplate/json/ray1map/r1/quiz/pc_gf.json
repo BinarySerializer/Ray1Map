@@ -1,8 +1,8 @@
 {
-  "name": "Rayman Opettaa Englantia Taso 1 (PC - FG1)",
+  "name": "French with Rayman 1 (PC - GF)",
   "mode": "RaymanQuizPC",
-  "folder": "r1/quiz/pc_fg1",
-  "volume": "FG1",
+  "folder": "r1/quiz/pc_gf",
+  "volume": "GF",
   "icons": [
     {
       "image": "./img/icon/R1/R1-W1.png",
@@ -14,19 +14,19 @@
     },
     {
       "image": "./img/icon/R1/R1-W3.png",
-      "level": 20
+      "level": 19
     },
     {
       "image": "./img/icon/R1/R1-W4.png",
-      "level": 28
+      "level": 26
     },
     {
       "image": "./img/icon/R1/R1-W5.png",
-      "level": 36
+      "level": 34
     },
     {
       "image": "./img/icon/R1/R1-W6.png",
-      "level": 48
+      "level": 44
     }
   ],
   "levels": [
@@ -68,9 +68,9 @@
     },
     {
       "world": 1,
-      "level": 23,
-      "nameInternal": "JUN23",
-      "name": "Jungle 23"
+      "level": 52,
+      "nameInternal": "JUN52",
+      "name": "Jungle 52"
     },
     {
       "world": 1,
@@ -134,15 +134,9 @@
     },
     {
       "world": 2,
-      "level": 12,
-      "nameInternal": "MUS12",
-      "name": "Music 12"
-    },
-    {
-      "world": 2,
-      "level": 24,
-      "nameInternal": "MUS24",
-      "name": "Music 24"
+      "level": 52,
+      "nameInternal": "MUS52",
+      "name": "Music 52"
     },
     {
       "world": 2,
@@ -188,12 +182,6 @@
     },
     {
       "world": 3,
-      "level": 12,
-      "nameInternal": "MON12",
-      "name": "Mountain 12"
-    },
-    {
-      "world": 3,
       "level": 53,
       "nameInternal": "MON53",
       "name": "Mountain 53"
@@ -236,9 +224,9 @@
     },
     {
       "world": 4,
-      "level": 12,
-      "nameInternal": "IMA12",
-      "name": "Image 12"
+      "level": 52,
+      "nameInternal": "IMA52",
+      "name": "Image 52"
     },
     {
       "world": 4,
@@ -302,18 +290,6 @@
     },
     {
       "world": 5,
-      "level": 25,
-      "nameInternal": "CAV25",
-      "name": "Cave 25"
-    },
-    {
-      "world": 5,
-      "level": 51,
-      "nameInternal": "CAV51",
-      "name": "Cave 51"
-    },
-    {
-      "world": 5,
       "level": 53,
       "nameInternal": "CAV53",
       "name": "Cave 53"
@@ -371,12 +347,6 @@
       "level": 9,
       "nameInternal": "CAK09",
       "name": "Cake 9"
-    },
-    {
-      "world": 6,
-      "level": 14,
-      "nameInternal": "CAK14",
-      "name": "Cake 14"
     },
     {
       "world": 6,

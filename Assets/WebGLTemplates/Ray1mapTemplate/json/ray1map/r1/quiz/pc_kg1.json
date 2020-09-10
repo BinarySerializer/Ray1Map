@@ -1,8 +1,8 @@
 {
-  "name": "Rayman Opettaa Englantia Taso 1 (PC - FG1)",
+  "name": "레이맨 잉글리쉬 제1편 (PC - KG1)",
   "mode": "RaymanQuizPC",
-  "folder": "r1/quiz/pc_fg1",
-  "volume": "FG1",
+  "folder": "r1/quiz/pc_kg1",
+  "volume": "KG1",
   "icons": [
     {
       "image": "./img/icon/R1/R1-W1.png",

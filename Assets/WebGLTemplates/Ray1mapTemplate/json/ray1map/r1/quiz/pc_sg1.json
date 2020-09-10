@@ -1,8 +1,8 @@
 {
-  "name": "Rayman Opettaa Englantia Taso 1 (PC - FG1)",
+  "name": "Engelska med Rayman 1 (PC - SG1)",
   "mode": "RaymanQuizPC",
-  "folder": "r1/quiz/pc_fg1",
-  "volume": "FG1",
+  "folder": "r1/quiz/pc_sg1",
+  "volume": "SG1",
   "icons": [
     {
       "image": "./img/icon/R1/R1-W1.png",

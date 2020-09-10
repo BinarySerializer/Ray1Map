@@ -1,8 +1,8 @@
 {
-  "name": "Rayman Opettaa Englantia Taso 2/3 (PC - FG2)",
-  "mode": "RaymanQuizPC",
-  "folder": "r1/quiz/pc_fg2",
-  "volume": "FG2",
+  "name": "כיף ללמוד עם ריימן M (PC - ISM)",
+  "mode": "RaymanEducationalPC",
+  "folder": "r1/edu/pc_ism",
+  "volume": "ISM",
   "icons": [
     {
       "image": "./img/icon/R1/R1-W1.png",
@@ -10,61 +10,55 @@
     },
     {
       "image": "./img/icon/R1/R1-W2.png",
-      "level": 13
+      "level": 17
     },
     {
       "image": "./img/icon/R1/R1-W3.png",
-      "level": 32
+      "level": 34
     },
     {
       "image": "./img/icon/R1/R1-W4.png",
-      "level": 45
+      "level": 51
     },
     {
       "image": "./img/icon/R1/R1-W5.png",
-      "level": 58
+      "level": 68
     },
     {
       "image": "./img/icon/R1/R1-W6.png",
-      "level": 78
+      "level": 85
     }
   ],
   "levels": [
     {
       "world": 1,
-      "level": 11,
-      "nameInternal": "JUN11",
-      "name": "Jungle 11"
-    },
-    {
-      "world": 1,
-      "level": 12,
-      "nameInternal": "JUN12",
-      "name": "Jungle 12"
-    },
-    {
-      "world": 1,
-      "level": 13,
-      "nameInternal": "JUN13",
-      "name": "Jungle 13"
-    },
-    {
-      "world": 1,
-      "level": 14,
-      "nameInternal": "JUN14",
-      "name": "Jungle 14"
-    },
-    {
-      "world": 1,
-      "level": 15,
-      "nameInternal": "JUN15",
-      "name": "Jungle 15"
-    },
-    {
-      "world": 1,
       "level": 16,
       "nameInternal": "JUN16",
       "name": "Jungle 16"
+    },
+    {
+      "world": 1,
+      "level": 17,
+      "nameInternal": "JUN17",
+      "name": "Jungle 17"
+    },
+    {
+      "world": 1,
+      "level": 18,
+      "nameInternal": "JUN18",
+      "name": "Jungle 18"
+    },
+    {
+      "world": 1,
+      "level": 19,
+      "nameInternal": "JUN19",
+      "name": "Jungle 19"
+    },
+    {
+      "world": 1,
+      "level": 20,
+      "nameInternal": "JUN20",
+      "name": "Jungle 20"
     },
     {
       "world": 1,
@@ -104,39 +98,39 @@
     },
     {
       "world": 1,
+      "level": 27,
+      "nameInternal": "JUN27",
+      "name": "Jungle 27"
+    },
+    {
+      "world": 1,
+      "level": 28,
+      "nameInternal": "JUN28",
+      "name": "Jungle 28"
+    },
+    {
+      "world": 1,
+      "level": 29,
+      "nameInternal": "JUN29",
+      "name": "Jungle 29"
+    },
+    {
+      "world": 1,
+      "level": 30,
+      "nameInternal": "JUN30",
+      "name": "Jungle 30"
+    },
+    {
+      "world": 1,
+      "level": 52,
+      "nameInternal": "JUN52",
+      "name": "Jungle 52"
+    },
+    {
+      "world": 1,
       "level": 53,
       "nameInternal": "JUN53",
       "name": "Jungle 53"
-    },
-    {
-      "world": 2,
-      "level": 11,
-      "nameInternal": "MUS11",
-      "name": "Music 11"
-    },
-    {
-      "world": 2,
-      "level": 12,
-      "nameInternal": "MUS12",
-      "name": "Music 12"
-    },
-    {
-      "world": 2,
-      "level": 13,
-      "nameInternal": "MUS13",
-      "name": "Music 13"
-    },
-    {
-      "world": 2,
-      "level": 14,
-      "nameInternal": "MUS14",
-      "name": "Music 14"
-    },
-    {
-      "world": 2,
-      "level": 15,
-      "nameInternal": "MUS15",
-      "name": "Music 15"
     },
     {
       "world": 2,
@@ -161,6 +155,12 @@
       "level": 19,
       "nameInternal": "MUS19",
       "name": "Music 19"
+    },
+    {
+      "world": 2,
+      "level": 20,
+      "nameInternal": "MUS20",
+      "name": "Music 20"
     },
     {
       "world": 2,
@@ -218,45 +218,51 @@
     },
     {
       "world": 2,
+      "level": 30,
+      "nameInternal": "MUS30",
+      "name": "Music 30"
+    },
+    {
+      "world": 2,
+      "level": 52,
+      "nameInternal": "MUS52",
+      "name": "Music 52"
+    },
+    {
+      "world": 2,
       "level": 53,
       "nameInternal": "MUS53",
       "name": "Music 53"
     },
     {
       "world": 3,
-      "level": 11,
-      "nameInternal": "MON11",
-      "name": "Mountain 11"
-    },
-    {
-      "world": 3,
-      "level": 12,
-      "nameInternal": "MON12",
-      "name": "Mountain 12"
-    },
-    {
-      "world": 3,
-      "level": 13,
-      "nameInternal": "MON13",
-      "name": "Mountain 13"
-    },
-    {
-      "world": 3,
-      "level": 14,
-      "nameInternal": "MON14",
-      "name": "Mountain 14"
-    },
-    {
-      "world": 3,
-      "level": 15,
-      "nameInternal": "MON15",
-      "name": "Mountain 15"
-    },
-    {
-      "world": 3,
       "level": 16,
       "nameInternal": "MON16",
       "name": "Mountain 16"
+    },
+    {
+      "world": 3,
+      "level": 17,
+      "nameInternal": "MON17",
+      "name": "Mountain 17"
+    },
+    {
+      "world": 3,
+      "level": 18,
+      "nameInternal": "MON18",
+      "name": "Mountain 18"
+    },
+    {
+      "world": 3,
+      "level": 19,
+      "nameInternal": "MON19",
+      "name": "Mountain 19"
+    },
+    {
+      "world": 3,
+      "level": 20,
+      "nameInternal": "MON20",
+      "name": "Mountain 20"
     },
     {
       "world": 3,
@@ -296,45 +302,69 @@
     },
     {
       "world": 3,
+      "level": 27,
+      "nameInternal": "MON27",
+      "name": "Mountain 27"
+    },
+    {
+      "world": 3,
+      "level": 28,
+      "nameInternal": "MON28",
+      "name": "Mountain 28"
+    },
+    {
+      "world": 3,
+      "level": 29,
+      "nameInternal": "MON29",
+      "name": "Mountain 29"
+    },
+    {
+      "world": 3,
+      "level": 30,
+      "nameInternal": "MON30",
+      "name": "Mountain 30"
+    },
+    {
+      "world": 3,
+      "level": 52,
+      "nameInternal": "MON52",
+      "name": "Mountain 52"
+    },
+    {
+      "world": 3,
       "level": 53,
       "nameInternal": "MON53",
       "name": "Mountain 53"
     },
     {
       "world": 4,
-      "level": 11,
-      "nameInternal": "IMA11",
-      "name": "Image 11"
-    },
-    {
-      "world": 4,
-      "level": 12,
-      "nameInternal": "IMA12",
-      "name": "Image 12"
-    },
-    {
-      "world": 4,
-      "level": 13,
-      "nameInternal": "IMA13",
-      "name": "Image 13"
-    },
-    {
-      "world": 4,
-      "level": 14,
-      "nameInternal": "IMA14",
-      "name": "Image 14"
-    },
-    {
-      "world": 4,
-      "level": 15,
-      "nameInternal": "IMA15",
-      "name": "Image 15"
-    },
-    {
-      "world": 4,
       "level": 16,
       "nameInternal": "IMA16",
       "name": "Image 16"
+    },
+    {
+      "world": 4,
+      "level": 17,
+      "nameInternal": "IMA17",
+      "name": "Image 17"
+    },
+    {
+      "world": 4,
+      "level": 18,
+      "nameInternal": "IMA18",
+      "name": "Image 18"
+    },
+    {
+      "world": 4,
+      "level": 19,
+      "nameInternal": "IMA19",
+      "name": "Image 19"
+    },
+    {
+      "world": 4,
+      "level": 20,
+      "nameInternal": "IMA20",
+      "name": "Image 20"
     },
     {
       "world": 4,
@@ -374,39 +404,39 @@
     },
     {
       "world": 4,
+      "level": 27,
+      "nameInternal": "IMA27",
+      "name": "Image 27"
+    },
+    {
+      "world": 4,
+      "level": 28,
+      "nameInternal": "IMA28",
+      "name": "Image 28"
+    },
+    {
+      "world": 4,
+      "level": 29,
+      "nameInternal": "IMA29",
+      "name": "Image 29"
+    },
+    {
+      "world": 4,
+      "level": 30,
+      "nameInternal": "IMA30",
+      "name": "Image 30"
+    },
+    {
+      "world": 4,
+      "level": 52,
+      "nameInternal": "IMA52",
+      "name": "Image 52"
+    },
+    {
+      "world": 4,
       "level": 53,
       "nameInternal": "IMA53",
       "name": "Image 53"
-    },
-    {
-      "world": 5,
-      "level": 11,
-      "nameInternal": "CAV11",
-      "name": "Cave 11"
-    },
-    {
-      "world": 5,
-      "level": 12,
-      "nameInternal": "CAV12",
-      "name": "Cave 12"
-    },
-    {
-      "world": 5,
-      "level": 13,
-      "nameInternal": "CAV13",
-      "name": "Cave 13"
-    },
-    {
-      "world": 5,
-      "level": 14,
-      "nameInternal": "CAV14",
-      "name": "Cave 14"
-    },
-    {
-      "world": 5,
-      "level": 15,
-      "nameInternal": "CAV15",
-      "name": "Cave 15"
     },
     {
       "world": 5,
@@ -431,6 +461,12 @@
       "level": 19,
       "nameInternal": "CAV19",
       "name": "Cave 19"
+    },
+    {
+      "world": 5,
+      "level": 20,
+      "nameInternal": "CAV20",
+      "name": "Cave 20"
     },
     {
       "world": 5,
@@ -488,45 +524,21 @@
     },
     {
       "world": 5,
-      "level": 51,
-      "nameInternal": "CAV51",
-      "name": "Cave 51"
+      "level": 30,
+      "nameInternal": "CAV30",
+      "name": "Cave 30"
+    },
+    {
+      "world": 5,
+      "level": 52,
+      "nameInternal": "CAV52",
+      "name": "Cave 52"
     },
     {
       "world": 5,
       "level": 53,
       "nameInternal": "CAV53",
       "name": "Cave 53"
-    },
-    {
-      "world": 6,
-      "level": 11,
-      "nameInternal": "CAK11",
-      "name": "Cake 11"
-    },
-    {
-      "world": 6,
-      "level": 12,
-      "nameInternal": "CAK12",
-      "name": "Cake 12"
-    },
-    {
-      "world": 6,
-      "level": 13,
-      "nameInternal": "CAK13",
-      "name": "Cake 13"
-    },
-    {
-      "world": 6,
-      "level": 14,
-      "nameInternal": "CAK14",
-      "name": "Cake 14"
-    },
-    {
-      "world": 6,
-      "level": 15,
-      "nameInternal": "CAK15",
-      "name": "Cake 15"
     },
     {
       "world": 6,
@@ -551,6 +563,12 @@
       "level": 19,
       "nameInternal": "CAK19",
       "name": "Cake 19"
+    },
+    {
+      "world": 6,
+      "level": 20,
+      "nameInternal": "CAK20",
+      "name": "Cake 20"
     },
     {
       "world": 6,
@@ -605,6 +623,12 @@
       "level": 29,
       "nameInternal": "CAK29",
       "name": "Cake 29"
+    },
+    {
+      "world": 6,
+      "level": 30,
+      "nameInternal": "CAK30",
+      "name": "Cake 30"
     },
     {
       "world": 6,

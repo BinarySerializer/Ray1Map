@@ -1,8 +1,8 @@
 {
-  "name": "Rayman Opettaa Englantia Taso 2/3 (PC - FG2)",
+  "name": "Engels met Rayman 2 (PC - HG2)",
   "mode": "RaymanQuizPC",
-  "folder": "r1/quiz/pc_fg2",
-  "volume": "FG2",
+  "folder": "r1/quiz/pc_gh2",
+  "volume": "GH2",
   "icons": [
     {
       "image": "./img/icon/R1/R1-W1.png",
