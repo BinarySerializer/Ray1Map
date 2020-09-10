@@ -144,6 +144,72 @@ namespace R1Engine {
             JsonHelpers.SerializeToFile(jsonObj, outputPath);
         }
 
+        public static void OutputEDUJSONForWeb(string dir, GameModeSelection mode, bool isPC)
+        {
+            var modeName = mode == GameModeSelection.RaymanQuizPC ? "quiz" : "edu";
+            var platformName = isPC ? "PC" : "PS1";
+            var m = new R1_PCEdu_Manager();
+
+            foreach (var subDir in Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly))
+            {
+                var settings = new GameSettings(mode, subDir, 1, 1);
+
+                foreach (var v in m.GetLevels(settings))
+                {
+                    var worlds = v.Worlds;
+                    var vol = v.Name;
+                    settings.EduVolume = vol;
+
+                    var lvlWorldIndex = 0;
+
+                    var jsonObj = new
+                    {
+                        name = $"NAME ({platformName} - {vol})",
+                        mode = mode.ToString(),
+                        folder = $"r1/{modeName}/{platformName.ToLower()}_{vol.ToLower()}",
+                        volume = vol,
+                        icons = worlds.Select(x =>
+                        {
+                            var icon = new
+                            {
+                                image = $"./img/icon/R1/R1-W{x.Index}.png",
+                                level = lvlWorldIndex
+                            };
+
+                            lvlWorldIndex += x.Maps.Length;
+
+                            return icon;
+                        }),
+                        levels = worlds.Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
+                        {
+                            world = w.Index,
+                            level = lvl,
+                            nameInternal = $"{m.GetShortWorldName((R1_World)w.Index)}{lvl:00}",
+                            name = $"{(R1_World)w.Index} {lvl}"
+                        })).SelectMany(x => x)
+                    };
+
+                    JsonHelpers.SerializeToFile(jsonObj, Path.Combine(dir, $"{platformName.ToLower()}_{vol.ToLower()}.json"));
+                }
+            }
+        }
+
+        public static void RenameFilesToUpper(string inputDir)
+        {
+            foreach (var file in Directory.GetFiles(inputDir, "*", SearchOption.AllDirectories))
+            {
+                var dir = Path.GetDirectoryName(file);
+                var fileName = Path.GetFileName(file);
+
+                // Move to temp name
+                var tempPath = Path.Combine(dir, $"TEMP_{fileName}");
+                File.Move(file, tempPath);
+
+                // Move to upper-case name
+                File.Move(tempPath, Path.Combine(dir, fileName.ToUpper()));
+            }
+        }
+
         public static async UniTask EnumerateLevelsAsync(Func<GameSettings, UniTask> action)
         {
             var manager = Settings.GetGameManager;

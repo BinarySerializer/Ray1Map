@@ -1655,60 +1655,87 @@ namespace R1Engine
         {
             using (var context = new Context(settings))
             {
-                // Load every archive
-                var archives = GetArchiveFiles(settings).SelectMany(archiveFile =>
+                try
                 {
-                    // Add the file to the context
-                    context.AddFile(new LinearSerializedFile(context)
+                    // Load every archive
+                    var archives = GetArchiveFiles(settings).SelectMany(archiveFile =>
                     {
-                        filePath = archiveFile.FilePath
-                    });
-                    
-                    // Read the archive
-                    var data = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile.FilePath, context);
+                        byte[][] decodedFiles;
+                        R1_PC_EncryptedFileArchive data;
 
-                    // Return files
-                    return data.DecodedFiles.Select((x, i) => new
+                        if (!File.Exists(context.BasePath + archiveFile.FilePath))
+                        {
+                            decodedFiles = new byte[0][];
+                            data = null;
+                        }
+                        else
+                        {
+                            // Add the file to the context
+                            context.AddFile(new LinearSerializedFile(context)
+                            {
+                                filePath = archiveFile.FilePath
+                            });
+
+                            // Read the archive
+                            data = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile.FilePath, context);
+
+                            decodedFiles = data.DecodedFiles;
+                        }
+
+                        // Return files
+                        return decodedFiles.Select((x, i) => new
+                        {
+                            FileData = x,
+                            FileName = data.Entries[i].FileName
+                        });
+                    }).ToArray();
+
+                    // Helper methods for loading an archive file
+                    void LogFile<T>(string fileName)
+                        where T : R1Serializable, new()
                     {
-                        FileData = x,
-                        FileName = data.Entries[i].FileName
-                    });
-                }).ToArray();
+                        // Find the archive file
+                        var file = archives.FirstOrDefault(x => x.FileName == fileName);
 
-                // Helper methods for loading an archive file
-                void LogFile<T>(string fileName)
-                    where T : R1Serializable, new()
-                {
-                    // Find the archive file
-                    var file = archives.FirstOrDefault(x => x.FileName == fileName);
+                        // Skip if not found
+                        if (file == null)
+                        {
+                            Debug.Log($"File {fileName} not found");
+                            return;
+                        }
 
-                    // Skip if not found
-                    if (file == null)
-                    {
-                        Debug.Log($"File {fileName} not found");
-                        return;
+                        try
+                        {
+                            // Create a stream
+                            using (var stream = new MemoryStream(file.FileData))
+                            {
+                                // Add to context
+                                context.AddFile(new StreamFile(fileName, stream, context));
+
+                                // Read the file
+                                FileFactory.Read<T>(fileName, context);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"Error on file {fileName}: {ex.Message}");
+                        }
                     }
 
-                    // Create a stream
-                    using (var stream = new MemoryStream(file.FileData))
-                    {
-                        // Add to context
-                        context.AddFile(new StreamFile(fileName, stream, context));
-
-                        // Read the file
-                        FileFactory.Read<T>(fileName, context);
-                    }
+                    // Read all known files
+                    LogFile<R1_PC_VersionFile>("VERSION");
+                    //LogFile<>("SCRIPT");
+                    LogFile<R1_PC_GeneralFile>("GENERAL");
+                    LogFile<R1_PC_GeneralFile>("GENERAL0");
+                    LogFile<R1_PCEdu_MOTFile>("MOT");
+                    LogFile<R1_PC_SampleNamesFile>("SMPNAMES");
+                    LogFile<R1_PC_LocFile>("TEXT");
+                    //LogFile<>("WLDMAP01");
                 }
-
-                // Read all known files
-                LogFile<R1_PC_VersionFile>("VERSION");
-                //LogFile<>("SCRIPT");
-                LogFile<R1_PC_GeneralFile>("GENERAL");
-                LogFile<R1_PC_GeneralFile>("GENERAL0");
-                LogFile<R1_PCEdu_MOTFile>("MOT");
-                LogFile<R1_PC_SampleNamesFile>("SMPNAMES");
-                LogFile<R1_PC_LocFile>("TEXT");
-                //LogFile<>("WLDMAP01");
+                catch (Exception ex)
+                {
+                    Debug.LogError($"{ex.Message}");
+                }
             }
         }
 
