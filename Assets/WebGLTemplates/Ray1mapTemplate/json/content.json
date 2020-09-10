@@ -14,11 +14,11 @@
 						{ "json": "ps1_jp", "image": ".\/img\/version\/ps1.png", "name": "PlayStation (JP)", "folder": "r1/ps1_jp" },
 						{ "json": "saturn_us", "image": ".\/img\/version\/saturn.png", "name": "Sega Saturn (US)", "folder": "r1/saturn_us" },
 						{ "json": "saturn_eu", "image": ".\/img\/version\/saturn.png", "name": "Sega Saturn (EU)", "folder": "r1/saturn_eu" },
-						{ "json": "pc_100", "image": ".\/img\/version\/pc.png", "name": "PC (1.00)", "folder": "r1/pc_100" },
-						{ "json": "pc_110", "image": ".\/img\/version\/pc.png", "name": "PC (1.10)", "folder": "r1/pc_110" },
-						{ "json": "pc_112", "image": ".\/img\/version\/pc.png", "name": "PC (1.12)", "folder": "r1/pc_112" }, 
-						{ "json": "pc_120", "image": ".\/img\/version\/pc.png", "name": "PC (1.20)", "folder": "r1/pc_120" },
-						{ "json": "pc_121", "image": ".\/img\/version\/pc.png", "name": "PC (1.21)", "folder": "r1/pc_121" },
+						{ "json": "pc_100", "image": ".\/img\/version\/msdos.png", "name": "PC (1.00)", "folder": "r1/pc_100" },
+						{ "json": "pc_110", "image": ".\/img\/version\/msdos.png", "name": "PC (1.10)", "folder": "r1/pc_110" },
+						{ "json": "pc_112", "image": ".\/img\/version\/msdos.png", "name": "PC (1.12)", "folder": "r1/pc_112" }, 
+						{ "json": "pc_120", "image": ".\/img\/version\/msdos.png", "name": "PC (1.20)", "folder": "r1/pc_120" },
+						{ "json": "pc_121", "image": ".\/img\/version\/msdos.png", "name": "PC (1.21)", "folder": "r1/pc_121" },
 						{ "json": "pocketpc", "image": ".\/img\/version\/pocketpc.png", "name": "Pocket PC: Ultimate", "folder": "r1/pocketpc" },
 						{ "json": "android", "image": ".\/img\/version\/android.png", "name": "Android: Classic", "folder": "r1/android" },
 						{ "json": "gba", "image": ".\/img\/version\/gba.png", "name": "GBA: Advance", "folder": "r1/gba" },
@@ -46,8 +46,8 @@
 					"json": "r1\/quiz",
 					"image": ".\/img\/logo\/quiz.png",
 					"versions": [
-						{ "json": "pc_fg1", "image": ".\/img\/version\/pc.png", "name": "Finnish 🡒 English 1 (FG1)", "volume": "FG1", "folder": "r1/quiz/pc_fg1" },
-						{ "json": "pc_fg2", "image": ".\/img\/version\/pc.png", "name": "Finnish 🡒 English 2/3 (FG2)", "volume": "FG2", "folder": "r1/quiz/pc_fg2" }
+						{ "json": "pc_fg1", "image": ".\/img\/version\/msdos.png", "name": "Finnish 🡒 English 1 (FG1)", "volume": "FG1", "folder": "r1/quiz/pc_fg1" },
+						{ "json": "pc_fg2", "image": ".\/img\/version\/msdos.png", "name": "Finnish 🡒 English 2/3 (FG2)", "volume": "FG2", "folder": "r1/quiz/pc_fg2" }
 					]
 				},
 				{
@@ -56,8 +56,8 @@
 					"json": "r1\/kit",
 					"image": ".\/img\/logo\/designer.png",
 					"versions": [
-						{ "json": "pc_kit", "image": ".\/img\/version\/pc.png", "name": "PC", "folder": "r1/pc_kit" },
-						{ "json": "pc_kit_demo", "image": ".\/img\/version\/pc.png", "name": "PC Demo", "folder": "r1/pc_kit_demo" }
+						{ "json": "pc_kit", "image": ".\/img\/version\/msdos.png", "name": "PC", "folder": "r1/pc_kit" },
+						{ "json": "pc_kit_demo", "image": ".\/img\/version\/msdos.png", "name": "PC Demo", "folder": "r1/pc_kit_demo" }
 					]
 				},
 				{
@@ -66,7 +66,7 @@
 					"json": "r1\/fan",
 					"image": ".\/img\/logo\/fan.png",
 					"versions": [
-						{ "json": "pc_fan", "image": ".\/img\/version\/pc.png", "name": "PC", "folder": "r1/pc_fan" }
+						{ "json": "pc_fan", "image": ".\/img\/version\/msdos.png", "name": "PC", "folder": "r1/pc_fan" }
 					]
 				},
 				{
@@ -75,7 +75,7 @@
 					"json": "r1\/60n",
 					"image": ".\/img\/logo\/60n.png",
 					"versions": [
-						{ "json": "pc_60n", "image": ".\/img\/version\/pc.png", "name": "PC", "folder": "r1/pc_60n" }
+						{ "json": "pc_60n", "image": ".\/img\/version\/msdos.png", "name": "PC", "folder": "r1/pc_60n" }
 					]
 				},
 				{
