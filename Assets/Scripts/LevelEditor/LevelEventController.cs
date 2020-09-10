@@ -348,42 +348,51 @@ namespace R1Engine
             }
         }
 
-        public void SelectEvent(int index) {
+        public void SelectEvent(int index, bool moveCamera = false) {
             if (index == -1) {
-                SelectEvent(Controller.obj.levelController.RaymanObject);
+                SelectEvent(Controller.obj.levelController.RaymanObject, moveCamera);
             } else {
                 var events = Controller.obj.levelController.Objects;
                 if (index < 0 || index > events.Count) return;
                 var e = events[index];
-                SelectEvent(e);
+                SelectEvent(e, moveCamera);
             }
         }
 
-        public void SelectEvent(Unity_ObjBehaviour e) {
-            if (SelectedEvent != e) {
-                if (SelectedEvent != null) {
-                    SelectedEvent.IsSelected = false;
+        public void SelectEvent(Unity_ObjBehaviour e, bool moveCamera = false)
+        {
+            // Return if the event is already selected
+            if (SelectedEvent == e) 
+                return;
+
+            // Set previously selected event to not be selected
+            if (SelectedEvent != null)
+                SelectedEvent.IsSelected = false;
+
+            // Updated selected event
+            SelectedEvent = e;
+
+            // Change event info if event is selected
+            infoAnimIndex.text = SelectedEvent.ObjData.AnimationIndex.ToString();
+            infoLayer.text = SelectedEvent.Layer.ToString();
+
+            // Clear old commands
+            ClearCommands();
+
+            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj) {
+                // Fill out the commands
+                foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
+                    CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<CommandLine>();
+                    cmd.command = c;
+                    cmd.transform.SetParent(commandListParent, false);
+                    commandLines.Add(cmd);
                 }
-                SelectedEvent = e;
-
-                // Change event info if event is selected
-                //infoAnimIndex.text = SelectedEvent.Data.Data.RuntimeCurrentAnimIndex.ToString();
-                infoLayer.text = SelectedEvent.Layer.ToString();
-
-                // Clear old commands
-                ClearCommands();
-
-                if (SelectedEvent.ObjData is Unity_Object_R1 r1obj) {
-                    // Fill out the commands
-                    foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
-                        CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<CommandLine>();
-                        cmd.command = c;
-                        cmd.transform.SetParent(commandListParent, false);
-                        commandLines.Add(cmd);
-                    }
-                }
-                SelectedEvent.IsSelected = true;
             }
+
+            if (moveCamera)
+                Controller.obj.levelEventController.editor.cam.pos = new Vector3(SelectedEvent.ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(SelectedEvent.ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
+
+            SelectedEvent.IsSelected = true;
         }
 
         private void Update() 

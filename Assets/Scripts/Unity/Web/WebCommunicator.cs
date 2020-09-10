@@ -262,7 +262,7 @@ public class WebCommunicator : MonoBehaviour {
 	}
 	private void ParseSelectionJSON(WebJSON.Selection msg) {
 		if (msg?.Object != null) {
-			Controller.obj.levelEventController.SelectEvent(msg.Object.Index);
+			Controller.obj.levelEventController.SelectEvent(msg.Object.Index, true);
 		}
 	}
 	private void ParseObjectJSON(WebJSON.Object msg) {
