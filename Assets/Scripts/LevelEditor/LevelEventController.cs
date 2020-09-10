@@ -349,10 +349,14 @@ namespace R1Engine
         }
 
         public void SelectEvent(int index) {
-            var events = Controller.obj.levelController.Objects;
-            if (index < 0 || index > events.Count) return;
-            var e = events[index];
-            SelectEvent(e);
+            if (index == -1) {
+                SelectEvent(Controller.obj.levelController.RaymanObject);
+            } else {
+                var events = Controller.obj.levelController.Objects;
+                if (index < 0 || index > events.Count) return;
+                var e = events[index];
+                SelectEvent(e);
+            }
         }
 
         public void SelectEvent(Unity_ObjBehaviour e) {

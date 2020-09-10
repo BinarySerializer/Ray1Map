@@ -271,7 +271,14 @@ function selectButton(button, selected) {
 
 // OBJECT PARSING
 function getObjectByIndex(index) {
-	return objectsList[index];
+	if(index > -2) {
+		if(index == -1) {
+			return raymanObject;
+		}
+		return objectsList[index];
+	} else {
+		return null;
+	}
 }
 function getObjectNameHTML(obj) {
 	let nameStr = "";
