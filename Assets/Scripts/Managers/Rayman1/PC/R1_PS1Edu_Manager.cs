@@ -303,18 +303,38 @@ namespace R1Engine
                         if (levelTex.Palettes.Length == levelTex.Descriptors.Length)
                             p = levelTex.Palettes[texIndex].Value;
 
-                        //if (isMultiColored && p != null)
-                        //{
-                        //    // Hack to get correct colors
-                        //    var newPal = p.Skip(color * 8 + 1).ToList();
+                        //if (color > 0) Debug.Log(color + " - " + texIndex);
+                        if (isMultiColored && p != null && color > 0)
+                        {
+                            // Hack to get correct colors
+                            /*var newPal = p.Skip(color * 8 + 1).ToList();
 
-                        //    newPal.Insert(0, new ARGBColor(0, 0, 0));
+                            newPal.Insert(0, new ARGBColor(0, 0, 0));
 
-                        //    if (color % 2 != 0)
-                        //        newPal[8] = p[color * 8];
+                            if (color % 2 != 0)
+                                newPal[8] = p[color * 8];
 
-                        //    p = newPal;
-                        //}
+                            p = newPal;*/
+                            List<ARGBColor> newPal = new List<ARGBColor>();
+                            for (int c = 0; c < p.Count; c++) {
+                                if (c == 0) {
+                                    newPal.Add(p[c]);
+                                } else {
+                                    bool added = false;
+                                    for (int oc = 0; oc < 8; oc++) {
+                                        if ((level.ColorPalettes[0][oc].Red >> 3) == (p[c].Red >> 3) &&
+                                            (level.ColorPalettes[0][oc].Green >> 3) == (p[c].Green >> 3) &&
+                                            (level.ColorPalettes[0][oc].Blue >> 3) == (p[c].Blue >> 3)) {
+                                            newPal.Add(level.ColorPalettes[0][oc + color * 8]);
+                                            added = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!added) newPal.Add(p[c]);
+                                }
+                            }
+                            p = newPal;
+                        }
 
                         if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0)
                             des[desIndex].Sprites[color * e.ImageDescriptorCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
