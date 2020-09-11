@@ -238,9 +238,7 @@ namespace R1Engine
             // Load .grx files (.tex and .gsp)
             R1_PS1Edu_TEX levelTex = s.DoAt(GetFilePointer(GetGRXLevelName(context.Settings) + ".TEX"), () => s.SerializeObject<R1_PS1Edu_TEX>(default, name: nameof(levelTex)));
             ushort[] levelIndices = s.DoAt(GetFilePointer(GetGRXLevelName(context.Settings) + ".GSP"), () => s.SerializeObject<R1_PS1Edu_GSP>(default, name: nameof(levelIndices)).Indices);
-            Texture2D[] textures = GetSpriteTextures(levelTex).ToArray();
 
-            int gsp_index = 0;
             Unity_ObjGraphics[] des = new Unity_ObjGraphics[allfix.DESCount + world.DESCount];
             R1_ImageDescriptor[][] imageDescriptors = new R1_ImageDescriptor[allfix.DESCount + world.DESCount][];
             for (int i = 0; i < des.Length; i++) {
@@ -256,22 +254,76 @@ namespace R1Engine
                     imageDescriptors[i] = world.ImageDescriptors[i - allfix.DESCount];
                 }
 
+                // Check if it's multi-colored
+                var isMultiColored = IsDESMultiColored(context, i, LevelEditorData.EventInfoData);
+
                 des[i] = new Unity_ObjGraphics
                 {
-                    Sprites = new Sprite[d.ImageDescriptorsCount].ToList(),
+                    Sprites = new Sprite[d.ImageDescriptorsCount * (isMultiColored ? 6 : 1)].ToList(),
                     Animations = anims.Select(x => x.ToCommonAnimation()).ToList()
                 };
             }
-            foreach (R1_EventData e in level.Events) {
-                for (int i = 0; i < e.ImageDescriptorCount; i++) {
-                    ushort currentTexture = levelIndices[gsp_index];
-                    var tex = textures[currentTexture];
 
-                    if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0)
-                        des[e.PC_ImageDescriptorsIndex].Sprites[i] = tex.CreateSprite();
+            int globalGspIndex = 0;
 
-                    gsp_index++;
+            // Keep track of already loaded DES
+            var loadedDES = new List<int>();
+
+            // Enumerate every event
+            foreach (R1_EventData e in level.Events)
+            {
+                // Get event DES index
+                var desIndex = (int)e.PC_ImageDescriptorsIndex;
+
+                if (loadedDES.Contains(desIndex))
+                {
+                    globalGspIndex += e.ImageDescriptorCount;
+                    continue;
                 }
+
+                await Controller.WaitIfNecessary();
+                loadedDES.Add(desIndex);
+
+                // Check if it's multi-colored
+                var isMultiColored = IsDESMultiColored(context, desIndex, LevelEditorData.EventInfoData);
+
+                // Enumerate every color
+                for (int color = 0; color < (isMultiColored ? 6 : 1); color++)
+                {
+                    var localGspIndex = globalGspIndex;
+
+                    // Enumerate every image descriptor in the event DES
+                    for (int i = 0; i < e.ImageDescriptorCount; i++)
+                    {
+                        ushort texIndex = levelIndices[localGspIndex];
+                        var d = levelTex.Descriptors[texIndex];
+
+                        IList<ARGBColor> p = null;
+
+                        if (levelTex.Palettes.Length == levelTex.Descriptors.Length)
+                            p = levelTex.Palettes[texIndex].Value;
+
+                        //if (isMultiColored && p != null)
+                        //{
+                        //    // Hack to get correct colors
+                        //    var newPal = p.Skip(color * 8 + 1).ToList();
+
+                        //    newPal.Insert(0, new ARGBColor(0, 0, 0));
+
+                        //    if (color % 2 != 0)
+                        //        newPal[8] = p[color * 8];
+
+                        //    p = newPal;
+                        //}
+
+                        if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0)
+                            des[desIndex].Sprites[color * e.ImageDescriptorCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
+
+                        localGspIndex++;
+                    }
+                }
+
+                globalGspIndex += e.ImageDescriptorCount;
             }
 
             // Return the sprites
@@ -287,57 +339,63 @@ namespace R1Engine
         public IEnumerable<Texture2D> GetSpriteTextures(R1_PS1Edu_TEX tex, IList<ARGBColor> palette = null)
         {
             // Parse the sprites from the texture pages
-            for(int i = 0; i < tex.Descriptors.Length; i++) {
+            for (int i = 0; i < tex.Descriptors.Length; i++)
+            {
                 var d = tex.Descriptors[i];
                 IList<ARGBColor> p = palette;
 
                 if (p == null && tex.Palettes.Length == tex.Descriptors.Length)
                     p = tex.Palettes[i].Value;
 
-                // Create the texture
-                Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, clear: true);
+                yield return GetSpriteTexture(tex, d, p);
+            }
+        }
 
-                for (int y = 0; y < d.Height; y++)
+        public Texture2D GetSpriteTexture(R1_PS1Edu_TEX tex, R1_PS1Edu_TEXDescriptor d, IList<ARGBColor> p)
+        {
+            // Create the texture
+            Texture2D sprite = TextureHelpers.CreateTexture2D(d.Width, d.Height, clear: true);
+
+            for (int y = 0; y < d.Height; y++)
+            {
+                for (int x = 0; x < d.Width; x++)
                 {
-                    for (int x = 0; x < d.Width; x++)
-                    {
-                        var paletteIndex = tex.GetPagePixel(d.PageIndex, d.XInPage + x, d.YInPage + y);
+                    var paletteIndex = tex.GetPagePixel(d.PageIndex, d.XInPage + x, d.YInPage + y);
 
-                        if (p == null) {
-                            switch (tex.BitDepth) {
-                                case 4: paletteIndex <<= 4; break;
-                                case 8: break;
-                                case 16: paletteIndex >>= 8; break;
-                            }
-                            sprite.SetPixel(
-                                x,
-                                d.Height - 1 - y,
-                                new Color(paletteIndex / 255f, paletteIndex / 255f, paletteIndex / 255f));
-                        } else {
-                            ARGBColor col = null;
-                            switch (tex.BitDepth) {
-                                case 4: col = p[paletteIndex]; break;
-                                case 8: col = p[paletteIndex]; break;
-                                case 16: col = ARGB1555Color.From1555(paletteIndex); break;
-                            }
-                            Color c = col.GetColor();
-                            if (paletteIndex != 0)
-                                c = new Color(c.r, c.g, c.b, 1f);
-                            else
-                                c = new Color(0, 0, 0, 0f);
-                            sprite.SetPixel(
-                                x,
-                                d.Height - 1 - y,
-                                c);
+                    if (p == null)
+                    {
+                        switch (tex.BitDepth)
+                        {
+                            case 4: paletteIndex <<= 4; break;
+                            case 8: break;
+                            case 16: paletteIndex >>= 8; break;
                         }
+                        sprite.SetPixel(x, d.Height - 1 - y, new Color(paletteIndex / 255f, paletteIndex / 255f, paletteIndex / 255f));
+                    }
+                    else
+                    {
+                        ARGBColor col = null;
+
+                        switch (tex.BitDepth)
+                        {
+                            case 4: col = p[paletteIndex]; break;
+                            case 8: col = p[paletteIndex]; break;
+                            case 16: col = ARGB1555Color.From1555(paletteIndex); break;
+                        }
+
+                        Color c = col.GetColor();
+
+                        c = paletteIndex != 0 ? new Color(c.r, c.g, c.b, 1f) : new Color(0, 0, 0, 0f);
+
+                        sprite.SetPixel(x, d.Height - 1 - y, c);
                     }
                 }
-
-                // Apply the changes
-                sprite.Apply();
-
-                yield return sprite;
             }
+
+            // Apply the changes
+            sprite.Apply();
+
+            return sprite;
         }
 
         /// <summary>
