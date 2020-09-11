@@ -33,7 +33,8 @@ public class MapSelectionDropdown : AdvancedDropdown
         return root;
     }
 
-    protected string GetName(int index, string name) => name != null ? $"{index:00} - {name}" : $"{index}";
+    protected string GetName(int index, string name) => name != null ? $"{index} - {name}" : $"{index}";
+    public string GetWorldName(int worldIndex) => WorldNames?.TryGetItem(worldIndex) ?? $"{worldIndex:00}";
     public string GetLevelName(int worldIndex, int levelIndex) => GetName(levelIndex, LevelNames?.TryGetItem(worldIndex)?.TryGetItem(levelIndex));
 
     protected AdvancedDropdownItem AddWorlds(AdvancedDropdownItem parent, GameInfo_Volume vol)

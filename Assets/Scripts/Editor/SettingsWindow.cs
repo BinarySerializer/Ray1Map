@@ -147,7 +147,7 @@ public class SettingsWindow : UnityWindow
                 // Debug.Log($"Map selection updated with {volumes.Length} volumes");
             }
 
-            if (EditorGUI.DropdownButton(rbutton, new GUIContent($"{(!string.IsNullOrEmpty(Settings.EduVolume) ? $"{Settings.EduVolume} - " : String.Empty)}{MapSelectionDropdown.GetLevelName(Settings.World, Settings.Level)}"), FocusType.Passive))
+            if (EditorGUI.DropdownButton(rbutton, new GUIContent($"{(!string.IsNullOrEmpty(Settings.EduVolume) ? $"{Settings.EduVolume} - " : String.Empty)}{MapSelectionDropdown.GetWorldName(Settings.World)} {MapSelectionDropdown.GetLevelName(Settings.World, Settings.Level)}"), FocusType.Passive))
                 MapSelectionDropdown.Show(rectTemp);
         } else if (fileMode == FileSystem.Mode.Web) {
             if (GameModeDropdown.HasChanged) {
