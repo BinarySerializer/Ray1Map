@@ -20,7 +20,20 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The level file path</returns>
-        public override string GetLevelFilePath(GameSettings settings) => Directory.EnumerateFiles(settings.GameDirectory + $"{GetVolumePath(settings.EduVolume)}{GetShortWorldName(settings.R1_World)}", $"{GetShortWorldName(settings.R1_World)}{settings.Level:00}.NEW", SearchOption.AllDirectories).First().Substring(settings.GameDirectory.Length).Replace('\\', '/');
+        public override string GetLevelFilePath(GameSettings settings)
+        {
+            var worldDir = $"{GetVolumePath(settings.EduVolume)}{GetShortWorldName(settings.R1_World)}";
+
+            // US version has the world split into two parts
+            if (settings.EduVolume.Contains("US"))
+            {
+                return $"{worldDir}/{GetShortWorldName(settings.R1_World)}{(settings.Level < 20 ? 1 : 2):00}/{GetShortWorldName(settings.R1_World)}{settings.Level:00}.NEW";
+            }
+            else
+            {
+                return $"{worldDir}/{GetShortWorldName(settings.R1_World)}{settings.Level:00}.NEW";
+            }
+        }
 
         /// <summary>
         /// Gets the file path for the specified world file
@@ -44,50 +57,48 @@ namespace R1Engine
         public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"BIGRAY.DAT";
 
         /// <summary>
-        /// Gets the file paths for the .grx bundles
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The .grx bundle file paths</returns>
-        public string[] GetAllGRX(GameSettings settings) => Directory.GetFiles(settings.GameDirectory, "*.grx", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).ToArray();
-
-        /// <summary>
         /// Gets the name for the file to use in the .grx files for BigRay
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The name</returns>
-        public string GetGRXBigRayName(GameSettings settings) => $"{GetShortVolName(settings).ToLower()}_br";
+        public string GetGRXBigRayName(GameSettings settings) => $"{GetLangCode(settings).ToLower()}_br";
 
         /// <summary>
-        /// Gets the short volume name for the volume
+        /// Gets the language for the volume
         /// </summary>
         /// <param name="settings">The game settings</param>
-        /// <returns>The short volume name</returns>
-        public string GetShortVolName(GameSettings settings)
+        /// <returns>The language code</returns>
+        public string GetLangCode(GameSettings settings)
         {
             var v = settings.EduVolume.Substring(0, 2).ToUpper();
 
             switch (v)
             {
+                // English (US)
                 case "US":
                     return "US";
 
+                // French > English
                 case "FG":
                     return "FR";
 
+                // Italian > English
                 case "IG":
                     return "IT";
 
+                // Spanish > English
                 case "EG":
-                    return "SP";
-
-                case "DG":
-                    return "GM";
-
-                case "GB":
-                    return "EN";
-
+                // Spanish
                 case "CS":
                     return "SP";
+
+                // German > English
+                case "DG":
+                    return "GM";
+                
+                // English (UK)
+                case "GB":
+                    return "EN";
 
                 default:
                     return v;
@@ -99,7 +110,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The name</returns>
-        public string GetGRXLevelName(GameSettings settings) => $"{GetShortVolName(settings).Substring(0, 1)}W{settings.World}L{settings.Level}";
+        public string GetGRXLevelName(GameSettings settings) => $"{GetLangCode(settings).Substring(0, 1)}W{settings.World}L{settings.Level}";
 
         /// <summary>
         /// Gets the levels for each world
@@ -164,7 +175,8 @@ namespace R1Engine
                 if (exportSprites)
                     brPal = GetBigRayPalette(context);
 
-                foreach (var grxFilePath in GetAllGRX(settings))
+                foreach (var grxFilePath in Directory.GetFiles(settings.GameDirectory, "*.grx", SearchOption.TopDirectoryOnly)
+                    .Select(Path.GetFileName))
                 {
                     context.AddFile(new LinearSerializedFile(context)
                     {
@@ -218,7 +230,7 @@ namespace R1Engine
             var level = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the .grx bundles
-            var grx = GetAllGRX(context.Settings).Select(x => FileFactory.Read<R1_PS1Edu_GRX>(x, context)).ToArray();
+            var grx = context.MemoryMap.Files.Where(x => x.filePath.Contains(".GRX")).Select(x => FileFactory.Read<R1_PS1Edu_GRX>(x.filePath, context)).ToArray();
 
             // Helper method to get grx file pointer
             Pointer GetFilePointer(string fileName)
@@ -549,14 +561,20 @@ namespace R1Engine
             // Load base files
             await base.LoadFilesAsync(context);
 
-            // Load the .grx files
-            foreach (var g in GetAllGRX(context.Settings))
-                await LoadFileAsync(g);
+            var langCode = GetLangCode(context.Settings);
 
-            async UniTask LoadFileAsync(string filePath)
+            // Load the .grx files
+            if (context.Settings.GameModeSelection == GameModeSelection.RaymanEducationalPS1)
             {
-                await FileSystem.PrepareFile(context.BasePath + filePath);
-                context.AddFile(GetFile(context, filePath));
+                var volLevel = context.Settings.EduVolume.Substring(2, 1);
+
+                await AddFile(context, $"FIX{volLevel}.GRX");
+                await AddFile(context, $"{langCode}{volLevel}.GRX");
+            }
+            else if (context.Settings.GameModeSelection == GameModeSelection.RaymanQuizPS1)
+            {
+                await AddFile(context, $"LFIX.GRX");
+                await AddFile(context, $"LE_{langCode}.GRX");
             }
         }
 

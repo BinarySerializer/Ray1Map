@@ -1,7 +1,7 @@
 {
-  "name": "Maths and English with Rayman 1 (PC - GB1)",
-  "mode": "RaymanEducationalPC",
-  "folder": "r1/edu/pc_gb",
+  "name": "Rayman Junior 1 (PS1 - GB1)",
+  "mode": "RaymanEducationalPS1",
+  "folder": "r1/edu/ps1_eu1",
   "volume": "GB1",
   "icons": [
     {

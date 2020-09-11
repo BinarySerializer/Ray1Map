@@ -146,9 +146,9 @@ namespace R1Engine {
 
         public static void OutputEDUJSONForWeb(string dir, GameModeSelection mode, bool isPC)
         {
-            var modeName = mode == GameModeSelection.RaymanQuizPC ? "quiz" : "edu";
+            var modeName = mode == GameModeSelection.RaymanQuizPC || mode == GameModeSelection.RaymanQuizPS1 ? "quiz" : "edu";
             var platformName = isPC ? "PC" : "PS1";
-            var m = new R1_PCEdu_Manager();
+            var m = isPC ? new R1_PCEdu_Manager() : new R1_PS1Edu_Manager();
 
             foreach (var subDir in Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly))
             {
@@ -166,7 +166,7 @@ namespace R1Engine {
                     {
                         name = $"NAME ({platformName} - {vol})",
                         mode = mode.ToString(),
-                        folder = $"r1/{modeName}/{platformName.ToLower()}_{vol.ToLower()}",
+                        folder = $"r1/{modeName}/{Path.GetFileName(subDir)}",
                         volume = vol,
                         icons = worlds.Select(x =>
                         {
