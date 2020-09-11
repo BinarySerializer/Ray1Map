@@ -27,8 +27,7 @@
 
         public byte WorldDefineChecksum { get; set; }
 
-        // What is this?
-        public byte[] WorldDefines { get; set; }
+        public R1_PC_WorldDefine WorldDefine { get; set; }
 
         public string[] DESFileNames { get; set; }
 
@@ -70,7 +69,7 @@
                 // Serialize world defines
                 WorldDefineChecksum = s.DoChecksum(new Checksum8Calculator(false), () =>
                 {
-                    s.DoXOR(0x71, () => WorldDefines = s.SerializeArray<byte>(WorldDefines, 26, name: nameof(WorldDefines)));
+                    s.DoXOR(0x71, () => WorldDefine = s.SerializeObject<R1_PC_WorldDefine>(WorldDefine, name: nameof(WorldDefine)));
                 }, ChecksumPlacement.Before, name: nameof(WorldDefineChecksum));
 
                 // Serialize file tables

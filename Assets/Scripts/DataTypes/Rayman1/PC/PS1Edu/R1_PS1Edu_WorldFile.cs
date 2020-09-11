@@ -29,7 +29,7 @@ namespace R1Engine
 
         public R1_PS1Edu_DESData[] DESData { get; set; }
 
-        public byte[] WorldDefine { get; set; }
+        public R1_PC_WorldDefine WorldDefine { get; set; }
 
         public uint MainDataBlockLength { get; set; }
 
@@ -102,7 +102,7 @@ namespace R1Engine
             DESData = s.SerializeObjectArray<R1_PS1Edu_DESData>(DESData, DESCount, name: nameof(DESData));
 
             if (FileType == Type.World)
-                WorldDefine = s.SerializeArray<byte>(WorldDefine, 0x1A, name: nameof(WorldDefine));
+                WorldDefine = WorldDefine = s.SerializeObject<R1_PC_WorldDefine>(WorldDefine, name: nameof(WorldDefine));
 
             // Serialize main data block length
             MainDataBlockLength = s.Serialize<uint>(MainDataBlockLength, name: nameof(MainDataBlockLength));
