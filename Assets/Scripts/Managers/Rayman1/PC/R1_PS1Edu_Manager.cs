@@ -569,7 +569,9 @@ namespace R1Engine
                 var volLevel = context.Settings.EduVolume.Substring(2, 1);
 
                 await AddFile(context, $"FIX{volLevel}.GRX");
-                await AddFile(context, $"{langCode}{volLevel}.GRX");
+
+                for (int i = 1; i < 3 + 1; i++)
+                    await AddFile(context, $"{langCode}{i}.GRX");
             }
             else if (context.Settings.GameModeSelection == GameModeSelection.RaymanQuizPS1)
             {
