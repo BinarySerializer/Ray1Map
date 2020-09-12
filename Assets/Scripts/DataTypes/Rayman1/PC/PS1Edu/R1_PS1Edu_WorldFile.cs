@@ -19,7 +19,7 @@ namespace R1Engine
 
         public byte Plan0NumPcxCount { get; set; }
 
-        public byte[][] Plan0NumPcx { get; set; }
+        public string[] Plan0NumPcxFiles { get; set; }
 
         public ushort DESCount { get; set; }
         
@@ -77,14 +77,7 @@ namespace R1Engine
                 BG1 = s.Serialize<ushort>(BG1, name: nameof(BG1));
                 BG2 = s.Serialize<ushort>(BG2, name: nameof(BG2));
                 Plan0NumPcxCount = s.Serialize<byte>(Plan0NumPcxCount, name: nameof(Plan0NumPcxCount));
-
-                if (Plan0NumPcx == null)
-                    Plan0NumPcx = new byte[Plan0NumPcxCount][];
-
-                s.BeginXOR(0x19);
-                for (int i = 0; i < Plan0NumPcx.Length; i++)
-                    Plan0NumPcx[i] = s.SerializeArray<byte>(Plan0NumPcx[i], 8, name: $"{nameof(Plan0NumPcx)}[{i}]");
-                s.EndXOR();
+                s.DoXOR(0x19, () => Plan0NumPcxFiles = s.SerializeStringArray(Plan0NumPcxFiles, Plan0NumPcxCount, 8, name: nameof(Plan0NumPcxFiles)));
 
                 // Serialize counts
                 DESCount = s.Serialize<ushort>(DESCount, name: nameof(DESCount));

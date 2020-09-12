@@ -523,7 +523,12 @@ namespace R1Engine
 
             // Load Rayman
             var rayman = new Unity_Object_R1(R1_EventData.GetRayman(levelData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: rayman, localization: loc);
+
+            var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
+
+            var bg = ReadArchiveFile<PCX>(context, world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true);
+
+            Unity_Level level = new Unity_Level(maps, objManager, rayman: rayman, localization: loc, background: bg);
 
             // Add the events
             for (var index = 0; index < levelData.Events.Length; index++)

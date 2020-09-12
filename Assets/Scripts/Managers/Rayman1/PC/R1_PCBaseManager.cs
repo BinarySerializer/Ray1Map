@@ -178,24 +178,10 @@ namespace R1Engine
                         var pcx = FileFactory.Read<PCX>(key, context);
 
                         // Convert to a texture
-                        var tex = pcx.ToTexture();
-
-                        // Flip the texture
-                        var flippedTex = TextureHelpers.CreateTexture2D(tex.width, tex.height);
-
-                        for (int x = 0; x < tex.width; x++)
-                        {
-                            for (int y = 0; y < tex.height; y++)
-                            {
-                                flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
-                            }
-                        }
-
-                        // Apply the pixels
-                        flippedTex.Apply();
+                        var tex = pcx.ToTexture(true);
 
                         // Write the bytes
-                        File.WriteAllBytes(Path.Combine(outputDir, $"{index}. {file.FileName}.png"), flippedTex.EncodeToPNG());
+                        File.WriteAllBytes(Path.Combine(outputDir, $"{index}. {file.FileName}.png"), tex.EncodeToPNG());
                     }
 
                     index++;
@@ -247,22 +233,10 @@ namespace R1Engine
                                 var pcx = FileFactory.Read<PCX>("pcx", c);
 
                                 // Convert to a texture
-                                var tex = pcx.ToTexture();
-
-                                // Flip the texture
-                                var flippedTex = TextureHelpers.CreateTexture2D(tex.width, tex.height);
-
-                                for (int x = 0; x < tex.width; x++) {
-                                    for (int y = 0; y < tex.height; y++) {
-                                        flippedTex.SetPixel(x, tex.height - y - 1, tex.GetPixel(x, y));
-                                    }
-                                }
-
-                                // Apply the pixels
-                                flippedTex.Apply();
+                                var tex = pcx.ToTexture(true);
 
                                 // Add the file
-                                foundPCX.Add($"{i}-{j}", flippedTex.EncodeToPNG());
+                                foundPCX.Add($"{i}-{j}", tex.EncodeToPNG());
                             }
                         }
                     }
@@ -1373,8 +1347,18 @@ namespace R1Engine
             // Load Rayman
             var rayman = new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
 
+            // Load background vignette textures
+            var bg = LoadBackgroundVignette(context, worldData, levelData, false);
+            var bg2 = LoadBackgroundVignette(context, worldData, levelData, true);
+
             // Create a level object
-            Unity_Level level = new Unity_Level(maps, objManager, rayman: rayman, localization: loc);
+            Unity_Level level = new Unity_Level(
+                maps: maps, 
+                objManager: objManager, 
+                rayman: rayman, 
+                localization: loc,
+                background: bg,
+                parallaxBackground: bg2);
 
             for (var i = 0; i < levelData.EventData.Events.Length; i++)
             {
@@ -1415,6 +1399,8 @@ namespace R1Engine
             // Return the level
             return level;
         }
+
+        public abstract Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax);
 
         protected abstract UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context);
 

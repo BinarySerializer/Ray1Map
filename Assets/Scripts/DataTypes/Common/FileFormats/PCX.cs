@@ -58,7 +58,7 @@ namespace R1Engine
         /// Converts the PCX data to a texture
         /// </summary>
         /// <returns>The texture</returns>
-        public Texture2D ToTexture()
+        public Texture2D ToTexture(bool flip = false)
         {
             // Create the texture
             var tex = TextureHelpers.CreateTexture2D(ImageWidth, ImageHeight);
@@ -72,7 +72,7 @@ namespace R1Engine
                     var paletteIndex = ScanLines[y][x];
 
                     // Set the pixel
-                    tex.SetPixel(x, y, VGAPalette[paletteIndex].GetColor());
+                    tex.SetPixel(x, flip ? (ImageHeight - y - 1) : y, VGAPalette[paletteIndex].GetColor());
                 }
             }
 

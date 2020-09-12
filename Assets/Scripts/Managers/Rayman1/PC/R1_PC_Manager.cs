@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -345,6 +346,8 @@ namespace R1Engine
                 yield return new ArchiveData(i.ToString(), fileData.Skip(entry.FileOffset).Take(entry.FileSize).Select(x => (byte)(x ^ entry.XORKey)).ToArray());
             }
         }
+
+        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => null;
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {

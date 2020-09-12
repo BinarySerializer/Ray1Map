@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -132,6 +133,8 @@ namespace R1Engine
 
             return generalEvents.Any(x => x.DesKit[context.Settings.R1_World] == nameWithoutExt && ((R1_EventType)x.Type).IsMultiColored());
         }
+
+        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => parallax ? null : ReadArchiveFile<PCX>(context, world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true);
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {

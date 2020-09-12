@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -97,6 +98,8 @@ namespace R1Engine
         #endregion
 
         #region Manager Methods
+
+        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => parallax ? null : ReadArchiveFile<PCX>(context, world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true);
 
         protected override UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {

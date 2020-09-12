@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -11,7 +12,7 @@ namespace R1Engine
     {
         #region Constructor
 
-        public Unity_Level(Unity_Map[] maps, Unity_ObjectManager objManager, List<Unity_Object> eventData = null, Unity_Object rayman = null, IReadOnlyDictionary<string, string[]> localization = null, int defaultMap = 0, int defaultCollisionMap = 0, int pixelsPerUnit = 16, int cellSize = 16, Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null)
+        public Unity_Level(Unity_Map[] maps, Unity_ObjectManager objManager, List<Unity_Object> eventData = null, Unity_Object rayman = null, IReadOnlyDictionary<string, string[]> localization = null, int defaultMap = 0, int defaultCollisionMap = 0, int pixelsPerUnit = 16, int cellSize = 16, Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, Texture2D background = null, Texture2D parallaxBackground = null)
         {
             Maps = maps;
             ObjManager = objManager;
@@ -23,6 +24,8 @@ namespace R1Engine
             PixelsPerUnit = pixelsPerUnit;
             CellSize = cellSize;
             GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((R1_TileCollisionType)x).GetCollisionTypeGraphic());
+            Background = background;
+            ParallaxBackground = parallaxBackground;
         }
 
         #endregion
@@ -46,6 +49,9 @@ namespace R1Engine
         public Unity_ObjectManager ObjManager { get; }
 
         public Func<byte, Unity_MapCollisionTypeGraphic> GetCollisionTypeGraphicFunc { get; }
+
+        public Texture2D Background { get; }
+        public Texture2D ParallaxBackground { get; }
 
         #endregion
 

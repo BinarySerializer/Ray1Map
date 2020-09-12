@@ -4,7 +4,17 @@
     {
         public byte LevelDefineChecksum { get; set; }
         public byte[] LevelDefine_0 { get; set; }
+        public byte MusicTrack { get; set; }
+
+        // Why are there 3 background values?
+        public byte BG_0 { get; set; }
+        public byte BG_1 { get; set; }
+        public byte BG_2 { get; set; }
+
         public byte[] LevelDefine_1 { get; set; }
+        
+        public RayEvtsFlags RayEvts { get; set; }
+        public byte UnkByte { get; set; } // Padding?
 
         public byte BackgroundDefineNormalChecksum { get; set; }
         public R1_BackgroundLayerPosition[] BackgroundDefineNormal { get; set; }
@@ -24,8 +34,14 @@
             {
                 s.DoXOR((byte)(isEncryptedAndChecksum ? 0x57 : 0), () =>
                 {
-                    LevelDefine_0 = s.SerializeArray<byte>(LevelDefine_0, 13, name: nameof(LevelDefine_0));
+                    LevelDefine_0 = s.SerializeArray<byte>(LevelDefine_0, 6, name: nameof(LevelDefine_0));
+                    MusicTrack = s.Serialize<byte>(MusicTrack, name: nameof(MusicTrack));
+                    BG_0 = s.Serialize<byte>(BG_0, name: nameof(BG_0));
+                    BG_1 = s.Serialize<byte>(BG_1, name: nameof(BG_1));
+                    BG_2 = s.Serialize<byte>(BG_2, name: nameof(BG_2));
                     LevelDefine_1 = s.SerializeArray<byte>(LevelDefine_1, 3, name: nameof(LevelDefine_1));
+                    RayEvts = s.Serialize<RayEvtsFlags>(RayEvts, name: nameof(RayEvts));
+                    UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
                 });
             }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(LevelDefineChecksum));
 
