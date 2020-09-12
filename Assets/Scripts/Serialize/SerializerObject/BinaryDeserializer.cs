@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -391,5 +392,11 @@ namespace R1Engine
                 Context.Log.Log(LogPrefix + logString);
             }
 		}
-	}
+
+        public override async UniTask FillCacheForRead(int length)
+        {
+            if (reader.BaseStream is PartialHttpStream httpStream)
+                await httpStream.FillCacheForRead(length);
+        }
+    }
 }

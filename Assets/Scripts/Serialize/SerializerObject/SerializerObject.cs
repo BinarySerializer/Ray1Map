@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Cysharp.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -161,6 +162,8 @@ namespace R1Engine
             else
                 return SerializeChecksum(v, name);
         }
+
+        public virtual UniTask FillCacheForRead(int length) => UniTask.CompletedTask;
     }
 
     /// <summary>

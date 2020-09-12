@@ -144,10 +144,10 @@ namespace R1Engine
         {
             return new GameAction[]
             {
-                new GameAction("Export Sprites (GRX)", false, true, (input, output) => ExportGRX(settings, output, true)),
+                new GameAction("Export Sprites (GRX)", false, true, (input, output) => ExportGRXAsync(settings, output, true)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
-                new GameAction("Export GRX", false, true, (input, output) => ExportGRX(settings, output, false)), 
+                new GameAction("Export GRX", false, true, (input, output) => ExportGRXAsync(settings, output, false)), 
                 new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
             };
         }
@@ -162,7 +162,7 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         /// <param name="outputDir">The output directory to export to</param>
         /// <param name="exportSprites">True if sprites should be exported, false if the files should be exported</param>
-        public void ExportGRX(GameSettings settings, string outputDir, bool exportSprites)
+        public async UniTask ExportGRXAsync(GameSettings settings, string outputDir, bool exportSprites)
         {
             // Create the context
             using (var context = new Context(settings))
@@ -183,7 +183,7 @@ namespace R1Engine
                         filePath = grxFilePath
                     });
 
-                    var grx = FileFactory.Read<R1_PS1Edu_GRX>(grxFilePath, context);
+                    var grx = await LoadGRXAsync(context, grxFilePath);
 
                     foreach (var grxFile in grx.Files) 
                     {
@@ -207,11 +207,44 @@ namespace R1Engine
                         }
                         else
                         {
-                            Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, grxFile.FileName), grx.GetFileBytes(context.Deserializer, grxFile.FileName));
+                            Util.ByteArrayToFile(Path.Combine(outputDir, grxFilePath, grxFile.FileName), await grx.GetFileBytesAsync(context.Deserializer, grxFile.FileName));
                         }
                     }
                 }
             }
+        }
+
+        public async UniTask<R1_PS1Edu_GRX> LoadGRXAsync(Context context, string grxFilePath)
+        {
+            var s = context.Deserializer;
+            s.Goto(context.GetFile(grxFilePath).StartPointer);
+
+            var grx = new R1_PS1Edu_GRX();
+            await grx.SerializeHeaderAsync(s);
+
+            return grx;
+        }
+
+        public async UniTask<T> LoadGRXFileAsync<T>(Context context, IList<R1_PS1Edu_GRX> grx, string fileName, string name)
+            where T : R1Serializable, new()
+        {
+            // Get the file
+            var file = grx.SelectMany(x => x.Files).FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception($"No matching file was found for name {fileName}");
+
+            // Get the grx it belongs to
+            var g = grx.First(x => x.Files.Contains(file));
+
+            // Get the pointer
+            var pointer = g.BaseOffset + file.FileOffset;
+
+            var s = context.Deserializer;
+
+            // Go to the pointer
+            s.Goto(pointer);
+
+            await s.FillCacheForRead((int)file.FileSize);
+
+            return s.SerializeObject<T>(default, name: nameof(name));
         }
 
         /// <summary>
@@ -230,26 +263,16 @@ namespace R1Engine
             var level = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the .grx bundles
-            var grx = context.MemoryMap.Files.Where(x => x.filePath.Contains(".GRX")).Select(x => FileFactory.Read<R1_PS1Edu_GRX>(x.filePath, context)).ToArray();
+            var grx = new List<R1_PS1Edu_GRX>();
 
-            // Helper method to get grx file pointer
-            Pointer GetFilePointer(string fileName)
-            {
-                // Get the file
-                var file = grx.SelectMany(x => x.Files).FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception($"No matching file was found for name {fileName}");
-
-                // Get the grx it belongs to
-                var g = grx.First(x => x.Files.Contains(file));
-
-                // Return the pointer
-                return g.BaseOffset + file.FileOffset;
-            }
+            foreach (var grxFile in context.MemoryMap.Files.Where(x => x.filePath.Contains(".GRX")).Select(x => x.filePath))
+                grx.Add(await LoadGRXAsync(context, grxFile));
 
             var s = context.Deserializer;
 
             // Load .grx files (.tex and .gsp)
-            R1_PS1Edu_TEX levelTex = s.DoAt(GetFilePointer(GetGRXLevelName(context.Settings) + ".TEX"), () => s.SerializeObject<R1_PS1Edu_TEX>(default, name: nameof(levelTex)));
-            ushort[] levelIndices = s.DoAt(GetFilePointer(GetGRXLevelName(context.Settings) + ".GSP"), () => s.SerializeObject<R1_PS1Edu_GSP>(default, name: nameof(levelIndices)).Indices);
+            R1_PS1Edu_TEX levelTex = await LoadGRXFileAsync<R1_PS1Edu_TEX>(context, grx, GetGRXLevelName(context.Settings) + ".TEX", "LevelTex");
+            ushort[] levelIndices = (await LoadGRXFileAsync<R1_PS1Edu_GSP>(context, grx, GetGRXLevelName(context.Settings) + ".GSP", "LevelIndices")).Indices;
 
             Unity_ObjGraphics[] des = new Unity_ObjGraphics[allfix.DESCount + world.DESCount];
             R1_ImageDescriptor[][] imageDescriptors = new R1_ImageDescriptor[allfix.DESCount + world.DESCount][];
@@ -568,15 +591,15 @@ namespace R1Engine
             {
                 var volLevel = context.Settings.EduVolume.Substring(2, 1);
 
-                await AddFile(context, $"FIX{volLevel}.GRX");
+                await AddFile(context, $"FIX{volLevel}.GRX", true);
 
                 for (int i = 1; i < 3 + 1; i++)
-                    await AddFile(context, $"{langCode}{i}.GRX");
+                    await AddFile(context, $"{langCode}{i}.GRX", true);
             }
             else if (context.Settings.GameModeSelection == GameModeSelection.RaymanQuizPS1)
             {
-                await AddFile(context, $"LFIX.GRX");
-                await AddFile(context, $"LE_{langCode}.GRX");
+                await AddFile(context, $"LFIX.GRX", true);
+                await AddFile(context, $"LE_{langCode}.GRX", true);
             }
         }
 

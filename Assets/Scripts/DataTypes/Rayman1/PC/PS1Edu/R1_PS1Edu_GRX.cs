@@ -1,11 +1,13 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
     /// <summary>
     /// GRX bundle data for EDU on PS1
     /// </summary>
-    public class R1_PS1Edu_GRX : R1Serializable
+    public class R1_PS1Edu_GRX
     {
         /// <summary>
         /// The magic header
@@ -40,29 +42,31 @@ namespace R1Engine
         /// <param name="s">The serializer object</param>
         /// <param name="fileName">The file name</param>
         /// <returns>The file bytes</returns>
-        public byte[] GetFileBytes(SerializerObject s, string fileName)
+        public async UniTask<byte[]> GetFileBytesAsync(SerializerObject s, string fileName)
         {
             // Attempt to find the file
             var file = GetFile(fileName);
 
-            // Create the buffer
-            byte[] buffer = null;
+            s.Goto(BaseOffset + file.FileOffset);
+
+            await s.FillCacheForRead((int)file.FileSize);
 
             // Read the bytes
-            s.DoAt(BaseOffset + file.FileOffset, () => buffer = s.SerializeArray<byte>(buffer, file.FileSize, name: nameof(buffer)));
+            byte[] buffer = s.SerializeArray<byte>(default, file.FileSize, name: nameof(buffer));
 
             // Return the buffer
             return buffer;
         }
 
-        /// <summary>
-        /// Handles the data serialization
-        /// </summary>
-        /// <param name="s">The serializer object</param>
-        public override void SerializeImpl(SerializerObject s)
+        public async UniTask SerializeHeaderAsync(SerializerObject s)
         {
+            await s.FillCacheForRead(8);
+            
             Magic = s.SerializeArray<byte>(Magic, 4, name: nameof(Magic));
-            BaseOffset = s.SerializePointer(BaseOffset, this.BaseOffset, name: nameof(BaseOffset));
+            BaseOffset = s.SerializePointer(BaseOffset, name: nameof(BaseOffset));
+
+            await s.FillCacheForRead((int)BaseOffset.FileOffset - 8);
+            
             FileCount = s.Serialize<uint>(FileCount, name: nameof(FileCount));
             Files = s.SerializeObjectArray<R1_PS1Edu_GRXFile>(Files, FileCount, name: nameof(Files));
         }

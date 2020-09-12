@@ -1621,9 +1621,12 @@ namespace R1Engine
             filePath = filePath
         };
 
-        public async UniTask AddFile(Context context, string filePath)
+        public async UniTask AddFile(Context context, string filePath, bool isBigFile = false)
         {
-            await FileSystem.PrepareFile(context.BasePath + filePath);
+            if (isBigFile)
+                await FileSystem.PrepareBigFile(context.BasePath + filePath, 8);
+            else
+                await FileSystem.PrepareFile(context.BasePath + filePath);
 
             if (!FileSystem.FileExists(context.BasePath + filePath))
                 return;
