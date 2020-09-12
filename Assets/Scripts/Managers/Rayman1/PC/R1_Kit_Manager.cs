@@ -110,8 +110,8 @@ namespace R1Engine
                 new ArchiveFile($"PCMAP/VIGNET.DAT", ".pcx"),
             }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new ArchiveFile[]
             {
-                new ArchiveFile(GetSamplesArchiveFilePath(x)),
-                new ArchiveFile(GetSpecialArchiveFilePath(x)),
+                new ArchiveFile(GetSamplesArchiveFilePath(x), volume: x),
+                new ArchiveFile(GetSpecialArchiveFilePath(x), volume: x),
             })).ToArray();
         }
 

@@ -1689,7 +1689,8 @@ namespace R1Engine
                         return decodedFiles.Select((x, i) => new
                         {
                             FileData = x,
-                            FileName = data.Entries[i].FileName
+                            FileName = data.Entries[i].FileName,
+                            Volume = archiveFile.Volume
                         });
                     }).ToArray();
 
@@ -1697,31 +1698,27 @@ namespace R1Engine
                     void LogFile<T>(string fileName)
                         where T : R1Serializable, new()
                     {
-                        // Find the archive file
-                        var file = archives.FirstOrDefault(x => x.FileName == fileName);
-
-                        // Skip if not found
-                        if (file == null)
+                        // Log each file
+                        foreach (var file in archives.Where(x => x.FileName == fileName))
                         {
-                            Debug.Log($"File {fileName} not found");
-                            return;
-                        }
-
-                        try
-                        {
-                            // Create a stream
-                            using (var stream = new MemoryStream(file.FileData))
+                            try
                             {
-                                // Add to context
-                                context.AddFile(new StreamFile(fileName, stream, context));
+                                // Create a stream
+                                using (var stream = new MemoryStream(file.FileData))
+                                {
+                                    var name = $"{file.FileName}{file.Volume}";
 
-                                // Read the file
-                                FileFactory.Read<T>(fileName, context);
+                                    // Add to context
+                                    context.AddFile(new StreamFile(name, stream, context));
+
+                                    // Read the file
+                                    FileFactory.Read<T>(name, context);
+                                }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogError($"Error on file {fileName}: {ex.Message}");
+                            catch (Exception ex)
+                            {
+                                Debug.LogError($"Error on file {fileName}: {ex.Message}");
+                            }
                         }
                     }
 
@@ -1733,7 +1730,7 @@ namespace R1Engine
                     LogFile<R1_PCEdu_MOTFile>("MOT");
                     LogFile<R1_PC_SampleNamesFile>("SMPNAMES");
                     LogFile<R1_PC_LocFile>("TEXT");
-                    //LogFile<>("WLDMAP01");
+                    LogFile<R1_PC_WorldMap>("WLDMAP01");
                 }
                 catch (Exception ex)
                 {
@@ -1883,16 +1880,19 @@ namespace R1Engine
             /// </summary>
             /// <param name="filePath">The file path</param>
             /// <param name="fileExtension">The file extension</param>
-            public ArchiveFile(string filePath, string fileExtension = ".dat")
+            public ArchiveFile(string filePath, string fileExtension = ".dat", string volume = null)
             {
                 FilePath = filePath;
                 FileExtension = fileExtension;
+                Volume = volume;
             }
 
             /// <summary>
             /// The file path
             /// </summary>
             public string FilePath { get; }
+
+            public string Volume { get; }
 
             /// <summary>
             /// The file extension
