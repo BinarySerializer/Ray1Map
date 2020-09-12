@@ -80,10 +80,14 @@ namespace R1Engine
 
                 // French > English
                 case "FG":
+                // French
+                case "FR":
                     return "FR";
 
                 // Italian > English
                 case "IG":
+                // Italian
+                case "IT":
                     return "IT";
 
                 // Spanish > English
@@ -94,6 +98,8 @@ namespace R1Engine
 
                 // German > English
                 case "DG":
+                // German
+                case "AL":
                     return "GM";
                 
                 // English (UK)
