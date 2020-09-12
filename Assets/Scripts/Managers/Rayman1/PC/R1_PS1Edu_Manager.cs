@@ -229,7 +229,10 @@ namespace R1Engine
             where T : R1Serializable, new()
         {
             // Get the file
-            var file = grx.SelectMany(x => x.Files).FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception($"No matching file was found for name {fileName}");
+            var file = grx.SelectMany(x => x.Files).FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (file == null)
+                return null;
 
             // Get the grx it belongs to
             var g = grx.First(x => x.Files.Contains(file));
@@ -272,7 +275,10 @@ namespace R1Engine
 
             // Load .grx files (.tex and .gsp)
             R1_PS1Edu_TEX levelTex = await LoadGRXFileAsync<R1_PS1Edu_TEX>(context, grx, GetGRXLevelName(context.Settings) + ".TEX", "LevelTex");
-            ushort[] levelIndices = (await LoadGRXFileAsync<R1_PS1Edu_GSP>(context, grx, GetGRXLevelName(context.Settings) + ".GSP", "LevelIndices")).Indices;
+            ushort[] levelIndices = (await LoadGRXFileAsync<R1_PS1Edu_GSP>(context, grx, GetGRXLevelName(context.Settings) + ".GSP", "LevelIndices"))?.Indices;
+
+            if (levelTex == null || levelIndices == null)
+                return new Unity_ObjGraphics[0];
 
             Unity_ObjGraphics[] des = new Unity_ObjGraphics[allfix.DESCount + world.DESCount];
             R1_ImageDescriptor[][] imageDescriptors = new R1_ImageDescriptor[allfix.DESCount + world.DESCount][];
