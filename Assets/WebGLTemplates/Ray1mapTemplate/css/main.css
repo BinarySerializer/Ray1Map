@@ -934,22 +934,43 @@ a:focus {
 #game-content canvas + * {
 	z-index: 2;
 }
-.logo {
+.logo-container {
 	z-index: 3;
 	display: block;
 	width: 100%;
 	height: 100%;
 	background-color: black;
 	position: absolute;
-	top: 0;
-	left: 0;
-	background-image: url('../preview.png');
+	top: 0%;
+	left: 0%;
+}
+/* The animation code */
+@keyframes logo-anim {
+	0% { top: -100%; }
+	40% { top: 5%; }
+	60% { top: -15%; }
+	80% { top: 5%; }
+	90% { top: -5%; }
+	100% { top: 5%; }
+}
+.logo {
+	z-index: 4;
+	display: block;
+	width: 80%;
+	height: 75%;
+	position: absolute;
+	top: 5%;
+	left: 10%;
+	background-image: url('../img/Ray1Map.png');
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: 50% 30%;
+	animation-name: logo-anim;
+	animation-duration: 1s;
+	animation-timing-function: linear;
 }
 .progress {
-	z-index: 4;
+	z-index: 5;
 	border: 1px solid white;
 	position: absolute;
 	bottom: 10%;
@@ -968,7 +989,7 @@ a:focus {
 .progress .empty {
 	width: 10%;
 	top: 0;
-	z-index: 4;
+	z-index: 5;
 	position: absolute;
 	background-color: black;
 	right: 0;
