@@ -155,6 +155,18 @@ namespace R1Engine
             writer.EndXOR();
         }
 
+        public override void DoXOR(byte xorKey, Action action)
+        {
+            var prevKey = writer.GetXOR();
+            BeginXOR(xorKey);
+            action();
+
+            if (prevKey == null)
+                EndXOR();
+            else
+                BeginXOR(prevKey.Value);
+        }
+
         public override void Goto(Pointer offset) {
             if (offset == null) return;
             if (offset.file != currentFile) {

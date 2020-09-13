@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace R1Engine
 {
+    // TODO: Parse as an archive
     public class R1_PC_LNGFile : R1TextSerializable
     {
         /// <summary>

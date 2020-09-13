@@ -168,6 +168,7 @@ namespace R1Engine {
         public void EndXOR() {
             xorKey = null;
         }
+        public byte? GetXOR() => xorKey;
         public void BeginCalculateChecksum(IChecksumCalculator checksumCalculator) {
             this.checksumCalculator = checksumCalculator;
         }

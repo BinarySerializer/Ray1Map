@@ -127,12 +127,7 @@ namespace R1Engine
         public virtual void BeginXOR(byte xorKey) { }
         public virtual void EndXOR() { }
 
-        public void DoXOR(byte xorKey, Action action)
-        {
-            BeginXOR(xorKey);
-            action();
-            EndXOR();
-        }
+        public virtual void DoXOR(byte xorKey, Action action) { }
 
         public T DoChecksum<T>(IChecksumCalculator<T> c, Action action, ChecksumPlacement placement, bool calculateChecksum = true, string name = null)
         {

@@ -36,12 +36,24 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            XORKey = s.Serialize<byte>(XORKey, name: nameof(XORKey));
-            Checksum = s.Serialize<byte>(Checksum, name: nameof(Checksum));
-            FileOffset = s.Serialize<uint>(FileOffset, name: nameof(FileOffset));
-            FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC)
+            {
+                FileOffset = s.Serialize<uint>(FileOffset, name: nameof(FileOffset));
+                FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+                XORKey = s.Serialize<byte>(XORKey, name: nameof(XORKey));
+                Checksum = s.Serialize<byte>(Checksum, name: nameof(Checksum));
 
-            s.DoXOR(XORKey, () => FileName = s.SerializeString(FileName, 9, name: nameof(FileName)));
+                s.SerializeArray<byte>(new byte[2], 2, name: "Padding");
+            }
+            else
+            {
+                XORKey = s.Serialize<byte>(XORKey, name: nameof(XORKey));
+                Checksum = s.Serialize<byte>(Checksum, name: nameof(Checksum));
+                FileOffset = s.Serialize<uint>(FileOffset, name: nameof(FileOffset));
+                FileSize = s.Serialize<uint>(FileSize, name: nameof(FileSize));
+
+                s.DoXOR(XORKey, () => FileName = s.SerializeString(FileName, 9, name: nameof(FileName)));
+            }
         }
     }
 }

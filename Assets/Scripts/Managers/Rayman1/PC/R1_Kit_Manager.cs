@@ -101,18 +101,18 @@ namespace R1Engine
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
-        public override ArchiveFile[] GetArchiveFiles(GameSettings settings)
+        public override string[] GetArchiveFiles(GameSettings settings)
         {
-            return new ArchiveFile[]
+            return new string[]
             {
-                new ArchiveFile(GetCommonArchiveFilePath()),
-                new ArchiveFile($"PCMAP/SNDD8B.DAT"),
-                new ArchiveFile($"PCMAP/SNDH8B.DAT"),
-                new ArchiveFile($"PCMAP/VIGNET.DAT", ".pcx"),
-            }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new ArchiveFile[]
+               GetCommonArchiveFilePath(),
+               GetSoundFilePath(),
+               GetSoundManifestFilePath(),
+               GetVignetteFilePath(settings),
+            }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new string[]
             {
-                new ArchiveFile(GetSamplesArchiveFilePath(x), volume: x),
-                new ArchiveFile(GetSpecialArchiveFilePath(x), volume: x),
+                GetSamplesArchiveFilePath(x),
+                GetSpecialArchiveFilePath(x),
             })).ToArray();
         }
 
@@ -121,9 +121,9 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => 
-            Directory.GetDirectories(settings.GameDirectory + "PCMAP").
+            Directory.GetDirectories(settings.GameDirectory + GetDataPath()).
                 Select(Path.GetFileName).
-                Select(x => new AdditionalSoundArchive($"SMP ({x})", new ArchiveFile($"PCMAP/{x}/SNDSMP.DAT"))).ToArray();
+                Select(x => new AdditionalSoundArchive($"SMP ({x})", GetSamplesArchiveFilePath(x))).ToArray();
 
         public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents)
         {
@@ -134,7 +134,8 @@ namespace R1Engine
             return generalEvents.Any(x => x.DesKit[context.Settings.R1_World] == nameWithoutExt && ((R1_EventType)x.Type).IsMultiColored());
         }
 
-        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => parallax ? null : ReadArchiveFile<PCX>(context, world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true);
+        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => 
+            parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true);
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
@@ -142,10 +143,10 @@ namespace R1Engine
             var localization = new Dictionary<string, string[]>();
 
             // Enumerate each language
-            foreach (var lang in FileFactory.Read<R1_PC_VersionFile>("VERSION", context).VersionCodes)
+            foreach (var lang in LoadArchiveFile<R1_PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
             {
                 // Read the text data
-                var loc = ReadArchiveFile<R1_PC_LocFile>(context, R1_PC_ArchiveFileName.TEXT, lang);
+                var loc = LoadArchiveFile<R1_PC_LocFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.TEXT);
 
                 // Save the localized name
                 var locName = loc?.LanguageNames[loc.LanguageUtilized];
@@ -158,7 +159,7 @@ namespace R1Engine
                     localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
 
                 // Read the general data
-                var general = ReadArchiveFile<R1_PC_GeneralFile>(context, R1_PC_ArchiveFileName.GENERAL, lang);
+                var general = LoadArchiveFile<R1_PC_GeneralFile>(context, GetSpecialArchiveFilePath(lang), R1_PC_ArchiveFileName.GENERAL);
 
                 // Add the localization
                 if (general != null)
@@ -187,22 +188,19 @@ namespace R1Engine
             return localization;
         }
 
-        public override IList<ARGBColor> GetBigRayPalette(Context context) => ReadArchiveFile<PCX>(context, "FND00")?.VGAPalette;
+        public override IList<ARGBColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND00")?.VGAPalette;
 
-        public override async UniTask LoadArchivesAsync(Context context)
+        public override async UniTask LoadFilesAsync(Context context)
         {
-            // Load the vignette archive
-            await LoadArchiveAsync(context, GetVignetteFilePath(context.Settings), null);
+            // Base
+            await base.LoadFilesAsync(context);
 
-            // Load the common archive
-            await LoadArchiveAsync(context, GetCommonArchiveFilePath(), null);
-
-            // Get the available languages (volumes)
-            var version = ReadArchiveFile<R1_PC_VersionFile>(context, R1_PC_ArchiveFileName.VERSION);
-
-            // Load the special archive for every version
-            foreach (var versionCode in version.VersionCodes)
-                await LoadArchiveAsync(context, GetSpecialArchiveFilePath(versionCode), versionCode);
+            // Common
+            await AddFile(context, GetCommonArchiveFilePath());
+            
+            // Special
+            foreach (var version in LoadArchiveFile<R1_PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
+                await AddFile(context, GetSpecialArchiveFilePath(version));
         }
     }
 }

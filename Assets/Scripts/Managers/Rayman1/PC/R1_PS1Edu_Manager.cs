@@ -131,13 +131,13 @@ namespace R1Engine
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
-        public override ArchiveFile[] GetArchiveFiles(GameSettings settings)
+        public override string[] GetArchiveFiles(GameSettings settings)
         {
-            return GetLevels(settings).Select(x => x.Name).SelectMany(x => new ArchiveFile[]
+            return GetLevels(settings).Select(x => x.Name).SelectMany(x => new string[]
             {
-                new ArchiveFile($"PCMAP/{x}/COMMON.DAT"),
-                new ArchiveFile($"PCMAP/{x}/SPECIAL.DAT"),
-                new ArchiveFile($"PCMAP/{x}/VIGNET.DAT", ".pcx"),
+                GetCommonArchiveFilePath(),
+                GetSpecialArchiveFilePath(x),
+                GetVignetteFilePath(x),
             }).ToArray();
         }
 
@@ -478,11 +478,6 @@ namespace R1Engine
             // Load the level
             var levelData = FileFactory.Read<R1_PS1Edu_LevFile>(GetLevelFilePath(context.Settings), context);
 
-            Controller.DetailedState = $"Loading archives";
-            await Controller.WaitIfNecessary();
-
-            await LoadArchivesAsync(context);
-
             await Controller.WaitIfNecessary();
 
             // Load the sprites
@@ -526,7 +521,7 @@ namespace R1Engine
 
             var world = FileFactory.Read<R1_PS1Edu_WorldFile>(GetWorldFilePath(context.Settings), context, (ss, o) => o.FileType = R1_PS1Edu_WorldFile.Type.World);
 
-            var bg = ReadArchiveFile<PCX>(context, world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true);
+            var bg = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[levelData.LevelDefines.BG_0])?.ToTexture(true); 
 
             Unity_Level level = new Unity_Level(maps, objManager, rayman: rayman, localization: loc, background: bg);
 

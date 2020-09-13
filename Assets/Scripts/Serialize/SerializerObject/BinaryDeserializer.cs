@@ -179,6 +179,18 @@ namespace R1Engine
             reader.EndXOR();
         }
 
+        public override void DoXOR(byte xorKey, Action action)
+        {
+            var prevKey = reader.GetXOR();
+            BeginXOR(xorKey);
+            action();
+
+            if (prevKey == null)
+                EndXOR();
+            else
+                BeginXOR(prevKey.Value);
+        }
+
         public override void Goto(Pointer offset) {
             if (offset == null) return;
             if (offset.file != currentFile) {

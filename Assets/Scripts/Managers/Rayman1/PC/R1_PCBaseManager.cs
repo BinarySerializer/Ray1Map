@@ -124,7 +124,7 @@ namespace R1Engine
         /// Gets the archive files which can be extracted
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public abstract ArchiveFile[] GetArchiveFiles(GameSettings settings);
+        public abstract string[] GetArchiveFiles(GameSettings settings);
 
         /// <summary>
         /// Gets additional sound archives
@@ -142,49 +142,38 @@ namespace R1Engine
         /// Extracts a the vignette files
         /// </summary>
         /// <param name="settings">The settings</param>
-        /// <param name="filePath">The vignette file path</param>
+        /// <param name="vigPath">The vignette file path</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExtractVignette(GameSettings settings, string filePath, string outputDir)
+        public void ExtractVignette(GameSettings settings, string vigPath, string outputDir, bool bruteforce = false)
         {
-            var archiveVig = GetArchiveFiles(settings).FindItem(x => x.FilePath == filePath);
-
-            if (archiveVig == null)
+            if (bruteforce)
             {
-                ExtractEncryptedPCX(settings.GameDirectory + filePath, outputDir);
+                ExtractEncryptedPCX(settings.GameDirectory + vigPath, outputDir);
                 return;
             }
 
             // Create a new context
             using (var context = new Context(Settings.GetGameSettings))
             {
-                // Read the archive
-                var archive = ExtractArchive(context, archiveVig);
+                context.AddFile(new LinearSerializedFile(context)
+                {
+                    filePath = vigPath
+                });
 
-                var index = 0;
+                // Read the archive
+                var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(vigPath, context);
 
                 // Extract every .pcx file
-                foreach (var file in archive)
+                for (int i = 0; i < archive.Entries.Length; i++)
                 {
-                    // Create the key
-                    var key = $"PCX{index}";
+                    // Read the data
+                    var pcx = archive.ReadFile<PCX>(context, i);
 
-                    // Use a memory stream
-                    using (var stream = new MemoryStream(file.Data))
-                    {
-                        // Add to context
-                        context.AddFile(new StreamFile(key, stream, context));
+                    // Convert to a texture
+                    var tex = pcx.ToTexture(true);
 
-                        // Serialize the data
-                        var pcx = FileFactory.Read<PCX>(key, context);
-
-                        // Convert to a texture
-                        var tex = pcx.ToTexture(true);
-
-                        // Write the bytes
-                        File.WriteAllBytes(Path.Combine(outputDir, $"{index}. {file.FileName}.png"), tex.EncodeToPNG());
-                    }
-
-                    index++;
+                    // Write the bytes
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{archive.Entries[i].FileName ?? i.ToString()}.png"), tex.EncodeToPNG());
                 }
             }
         }
@@ -872,101 +861,73 @@ namespace R1Engine
         #region Manager Methods
 
         /// <summary>
-        /// Extracts the data from an archive file
-        /// </summary>
-        /// <param name="context">The context</param>
-        /// <param name="file">The archive file</param>
-        /// <returns>The archive data</returns>
-        public virtual IEnumerable<ArchiveData> ExtractArchive(Context context, ArchiveFile file)
-        {
-            // Add the file to the context
-            context.AddFile(new LinearSerializedFile(context)
-            {
-                filePath = file.FilePath
-            });
-
-            // Read the archive
-            var data = FileFactory.Read<R1_PC_EncryptedFileArchive>(file.FilePath, context);
-
-            // Return the data
-            for (int i = 0; i < data.DecodedFiles.Length; i++)
-                yield return new ArchiveData(data.Entries[i].FileName, data.DecodedFiles[i]);
-        }
-
-        /// <summary>
         /// Gets the sound groups
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The available sound groups</returns>
-        public IEnumerable<SoundGroup> GetSoundGroups(Context context)
+        public async UniTask<IEnumerable<SoundGroup>> GetSoundGroupsAsync(Context context)
         {
+            var output = new List<SoundGroup>();
+            
             // Get common sound files
             string soundFile = GetSoundFilePath();
             string soundManifestFile = GetSoundManifestFilePath();
 
+            await AddFile(context, soundFile);
+            await AddFile(context, soundManifestFile);
+
             // Extract the archives
-            var soundArchiveFileData = ExtractArchive(context, new ArchiveFile(soundFile));
-            var soundManifestArchiveFileData = ExtractArchive(context, new ArchiveFile(soundManifestFile)).ToArray();
+            var soundArchive = FileFactory.Read<R1_PC_EncryptedFileArchive>(soundFile, context);
+            var soundManifestArchive = FileFactory.Read<R1_PC_EncryptedFileArchive>(soundManifestFile, context);
 
             var index = 0;
 
             // Handle every sound group
-            foreach (var soundArchiveData in soundArchiveFileData)
+            foreach (var soundArchiveEntry in soundArchive.Entries)
             {
-                // Get the sound manifest data
-                var manifestArchiveData = soundManifestArchiveFileData[index];
+                var manifestArchiveEntry = soundManifestArchive.Entries[index];
 
-                // Get the manifest data
-                using (var manfiestStream = new MemoryStream(manifestArchiveData.Data))
+                // Read the manifest data
+                var manifestData = soundManifestArchive.ReadFile<R1_PC_SoundManifest>(context, index, file => file.Length = manifestArchiveEntry.FileSize / (4 * 4));
+
+                var groupName = manifestArchiveEntry.FileName ?? index.ToString();
+
+                // Create the group
+                var group = new SoundGroup()
                 {
-                    using (var manifestContext = new Context(context.Settings))
+                    GroupName = groupName
+                };
+
+                var groupEntries = new List<SoundGroup.SoundGroupEntry>();
+
+                // Handle every sound file entry
+                for (int j = 0; j < manifestData.SoundFileEntries.Length; j++)
+                {
+                    // Get the entry
+                    var entry = manifestData.SoundFileEntries[j];
+
+                    // Make sure it contains any data
+                    if (entry.FileSize == 0)
+                        continue;
+
+                    // Get the bytes
+                    var s = context.Deserializer;
+                    s.DoXOR(soundArchiveEntry.XORKey, () =>
                     {
-                        // Create a key
-                        var key = $"manifest{index}";
+                        var soundEntryBytes = s.DoAt(soundArchive.Offset + soundArchiveEntry.FileOffset + entry.FileOffset, () => s.SerializeArray<byte>(default, entry.FileSize));
 
-                        // Add to context
-                        manifestContext.AddFile(new StreamFile(key, manfiestStream, manifestContext));
-
-                        // Serialize the manifest data
-                        var manfiestData = FileFactory.Read<R1_PC_SoundManifest>(key, manifestContext, (o, file) => file.Length = o.CurrentLength / (4 * 4));
-
-                        // Get the group name
-                        var groupName = manifestArchiveData.FileName;
-
-                        // Create the group
-                        var group = new SoundGroup()
+                        groupEntries.Add(new SoundGroup.SoundGroupEntry()
                         {
-                            GroupName = groupName
-                        };
-
-                        var groupEntries = new List<SoundGroup.SoundGroupEntry>();
-
-                        // Handle every sound file entry
-                        for (int j = 0; j < manfiestData.SoundFileEntries.Length; j++)
-                        {
-                            // Get the entry
-                            var entry = manfiestData.SoundFileEntries[j];
-
-                            // Make sure it contains any data
-                            if (entry.FileSize == 0)
-                                continue;
-
-                            // Get the bytes
-                            var soundEntryBytes = soundArchiveData.Data.Skip((int)entry.FileOffset).Take((int)entry.FileSize).ToArray();
-
-                            groupEntries.Add(new SoundGroup.SoundGroupEntry()
-                            {
-                                FileName = $"{groupName}_{j}",
-                                RawSoundData = soundEntryBytes
-                            });
-                        }
-
-                        group.Entries = groupEntries.ToArray();
-
-                        // Return the group
-                        yield return group;
-                    }
+                            FileName = $"{groupName}_{j}",
+                            RawSoundData = soundEntryBytes
+                        });
+                    });
                 }
+
+                group.Entries = groupEntries.ToArray();
+
+                // Add the group
+                output.Add(group);
 
                 index++;
             }
@@ -974,21 +935,28 @@ namespace R1Engine
             // Handle the additional archives
             foreach (var archiveData in GetAdditionalSoundArchives(context.Settings))
             {
-                // Extract the archive
-                var archive = ExtractArchive(context, archiveData.ArchiveFile);
+                if (!File.Exists(context.BasePath + archiveData.ArchiveFile))
+                    continue;
 
-                // Create and return the group
-                yield return new SoundGroup()
+                await AddFile(context, archiveData.ArchiveFile);
+
+                // Extract the archive
+                var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveData.ArchiveFile, context);
+
+                // Create and add the group
+                output.Add(new SoundGroup()
                 {
                     GroupName = archiveData.Name,
-                    Entries = archive.Select(x => new SoundGroup.SoundGroupEntry()
+                    Entries = archive.Entries.Take(archive.Entries.Length - 1).Select((x, i) => new SoundGroup.SoundGroupEntry()
                     {
-                        FileName = x.FileName,
-                        RawSoundData = x.Data
+                        FileName = x.FileName ?? i.ToString(),
+                        RawSoundData = archive.ReadFileBytes(context, i)
                     }).ToArray(),
                     BitsPerSample = archiveData.BitsPerSample
-                };
+                });
             }
+
+            return output;
         }
 
         /// <summary>
@@ -1004,7 +972,7 @@ namespace R1Engine
                 new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
                 new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
-                new GameAction("Export Sound", false, true, (input, output) => ExtractSound(settings, output)),
+                new GameAction("Export Sound", false, true, (input, output) => ExtractSoundAsync(settings, output)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
                 new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
                 new GameAction("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
@@ -1017,13 +985,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <param name="outputPath">The output path</param>
-        public void ExtractSound(GameSettings settings, string outputPath)
+        public async UniTask ExtractSoundAsync(GameSettings settings, string outputPath)
         {
             // Create a new context
             using (var context = new Context(Settings.GetGameSettings))
             {
                 // Handle every sound group
-                foreach (var soundGroup in GetSoundGroups(context))
+                foreach (var soundGroup in await GetSoundGroupsAsync(context))
                 {
                     // Get the output directory
                     var groupOutputDir = Path.Combine(outputPath, soundGroup.GroupName);
@@ -1100,18 +1068,23 @@ namespace R1Engine
             using (var context = new Context(Settings.GetGameSettings))
             {
                 // Extract every archive file
-                foreach (var archiveFile in GetArchiveFiles(context.Settings).Where(x => File.Exists(context.BasePath + x.FilePath)))
+                foreach (var archiveFile in GetArchiveFiles(context.Settings).Where(x => File.Exists(context.BasePath + x)))
                 {
-                    // Get the output directory
-                    var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
+                    context.AddFile(new LinearSerializedFile(context)
+                    {
+                        filePath = archiveFile
+                    });
 
-                    // Create the directory
-                    Directory.CreateDirectory(output);
+                    // Get the output directory
+                    var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile), Path.GetFileNameWithoutExtension(archiveFile));
+
+                    // Read archive
+                    var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile, context);
 
                     // Extract every file
-                    foreach (var fileData in ExtractArchive(context, archiveFile))
+                    for (int i = 0; i < archive.Entries.Length; i++)
                         // Write the bytes
-                        File.WriteAllBytes(Path.Combine(output, fileData.FileName + archiveFile.FileExtension), fileData.Data);
+                        Util.ByteArrayToFile(Path.Combine(output, (archive.Entries[i].FileName ?? i.ToString())), archive.ReadFileBytes(context, i));
                 }
             }
         }
@@ -1281,11 +1254,6 @@ namespace R1Engine
 
             // Read the level data
             var levelData = FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.Settings), context);
-
-            Controller.DetailedState = $"Loading archives";
-            await Controller.WaitIfNecessary();
-
-            await LoadArchivesAsync(context);
 
             await Controller.WaitIfNecessary();
 
@@ -1549,18 +1517,22 @@ namespace R1Engine
             FileFactory.Write<R1_PC_LevFile>(lvlPath, context);
         }
 
-        public virtual async UniTask LoadFilesAsync(Context context) 
+        public virtual async UniTask LoadFilesAsync(Context context)
         {
-            Dictionary<string, string> paths = new Dictionary<string, string>
-            {
-                ["allfix"] = GetAllfixFilePath(context.Settings),
-                ["world"] = GetWorldFilePath(context.Settings),
-                ["level"] = GetLevelFilePath(context.Settings),
-                ["bigray"] = GetBigRayFilePath(context.Settings)
-            };
+            // Allfix
+            await AddFile(context, GetAllfixFilePath(context.Settings));
 
-            foreach (string pathKey in paths.Keys) 
-                await AddFile(context, paths[pathKey]);
+            // World
+            await AddFile(context, GetWorldFilePath(context.Settings));
+
+            // Level
+            await AddFile(context, GetLevelFilePath(context.Settings));
+
+            // BigRay
+            await AddFile(context, GetBigRayFilePath(context.Settings));
+
+            // Vignette
+            await AddFile(context, GetVignetteFilePath(context.Settings));
         }
 
         /// <summary>
@@ -1644,84 +1616,40 @@ namespace R1Engine
         {
             using (var context = new Context(settings))
             {
-                try
-                {
-                    // Load every archive
-                    var archives = GetArchiveFiles(settings).SelectMany(archiveFile =>
+                // Load every archive
+                var archives = GetArchiveFiles(settings).
+                    Where(x => File.Exists(context.BasePath + x)).
+                    Select(archiveFile =>
                     {
-                        byte[][] decodedFiles;
-                        R1_PC_EncryptedFileArchive data;
-
-                        if (!File.Exists(context.BasePath + archiveFile.FilePath))
+                        context.AddFile(new LinearSerializedFile(context)
                         {
-                            decodedFiles = new byte[0][];
-                            data = null;
-                        }
-                        else
-                        {
-                            // Add the file to the context
-                            context.AddFile(new LinearSerializedFile(context)
-                            {
-                                filePath = archiveFile.FilePath
-                            });
-
-                            // Read the archive
-                            data = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile.FilePath, context);
-
-                            decodedFiles = data.DecodedFiles;
-                        }
-
-                        // Return files
-                        return decodedFiles.Select((x, i) => new
-                        {
-                            FileData = x,
-                            FileName = data.Entries[i].FileName,
-                            Volume = archiveFile.Volume
+                            filePath = archiveFile
                         });
-                    }).ToArray();
+                        return FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile, context);
+                    }).
+                    ToArray();
 
-                    // Helper methods for loading an archive file
-                    void LogFile<T>(string fileName)
-                        where T : R1Serializable, new()
-                    {
-                        // Log each file
-                        foreach (var file in archives.Where(x => x.FileName == fileName))
-                        {
-                            try
-                            {
-                                // Create a stream
-                                using (var stream = new MemoryStream(file.FileData))
-                                {
-                                    var name = $"{file.FileName}{file.Volume}";
-
-                                    // Add to context
-                                    context.AddFile(new StreamFile(name, stream, context));
-
-                                    // Read the file
-                                    FileFactory.Read<T>(name, context);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.LogError($"Error on file {fileName}: {ex.Message}");
-                            }
-                        }
-                    }
-
-                    // Read all known files
-                    LogFile<R1_PC_VersionFile>("VERSION");
-                    //LogFile<>("SCRIPT");
-                    LogFile<R1_PC_GeneralFile>("GENERAL");
-                    LogFile<R1_PC_GeneralFile>("GENERAL0");
-                    LogFile<R1_PCEdu_MOTFile>("MOT");
-                    LogFile<R1_PC_SampleNamesFile>("SMPNAMES");
-                    LogFile<R1_PC_LocFile>("TEXT");
-                    LogFile<R1_PC_WorldMap>("WLDMAP01");
-                }
-                catch (Exception ex)
+                // Helper methods for loading an archive file
+                void LogFile<T>(R1_PC_ArchiveFileName fileName)
+                    where T : R1Serializable, new()
                 {
-                    Debug.LogError($"{ex.Message}");
+                    // Log each file
+                    foreach (var archive in archives)
+                    {
+                        var index = archive.Entries.FindItemIndex(x => x.FileName == fileName.ToString());
+                        archive.ReadFile<T>(context, index);
+                    }
                 }
+
+                // Read all known files
+                LogFile<R1_PC_VersionFile>(R1_PC_ArchiveFileName.VERSION);
+                //LogFile<>("SCRIPT"); // TODO: Serialize script
+                LogFile<R1_PC_GeneralFile>(R1_PC_ArchiveFileName.GENERAL);
+                LogFile<R1_PC_GeneralFile>(R1_PC_ArchiveFileName.GENERAL0);
+                LogFile<R1_PCEdu_MOTFile>(R1_PC_ArchiveFileName.MOT);
+                LogFile<R1_PC_SampleNamesFile>(R1_PC_ArchiveFileName.SMPNAMES);
+                LogFile<R1_PC_LocFile>(R1_PC_ArchiveFileName.TEXT);
+                LogFile<R1_PC_WorldMap>(R1_PC_ArchiveFileName.WLDMAP01);
             }
         }
 
@@ -1792,36 +1720,24 @@ namespace R1Engine
             }*/
         }
 
-        protected async UniTask LoadArchiveAsync(Context context, string filePath, string vol)
-        {
-            // Add the file to the context
-            await AddFile(context, filePath);
-
-            if (!FileSystem.FileExists(context.BasePath + filePath))
-                return;
-
-            // Read the archive
-            var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(filePath, context);
-
-            // Create a stream file for every file
-            for (var i = 0; i < archive.Entries.Length - 1; i++)
-                context.AddFile(new StreamFile($"{archive.Entries[i].FileName}{vol}", new MemoryStream(archive.DecodedFiles[i]), context));
-        }
-
-        public virtual UniTask LoadArchivesAsync(Context context) => UniTask.CompletedTask;
-
-        public T ReadArchiveFile<T>(Context context, R1_PC_ArchiveFileName fileName, string lang = null)
-            where T : R1Serializable, new() => ReadArchiveFile<T>(context, fileName.ToString(), lang);
-
-        public T ReadArchiveFile<T>(Context context, string fileName, string lang = null)
+        public T LoadArchiveFile<T>(Context context, string archivePath, string fileName)
             where T : R1Serializable, new()
         {
-            var file = $"{fileName}{lang}";
-
-            if (context.FileExists(file))
-                return FileFactory.Read<T>(file, context);
-            else
+            if (context.MemoryMap.Files.All(x => x.filePath != archivePath))
                 return null;
+
+            return FileFactory.Read<R1_PC_EncryptedFileArchive>(archivePath, context).ReadFile<T>(context, fileName);
+        }
+
+        public T LoadArchiveFile<T>(Context context, string archivePath, R1_PC_ArchiveFileName fileName)
+            where T : R1Serializable, new() => LoadArchiveFile<T>(context, archivePath, fileName.ToString());
+        public T LoadArchiveFile<T>(Context context, string archivePath, int fileIndex)
+            where T : R1Serializable, new()
+        {
+            if (context.MemoryMap.Files.All(x => x.filePath != archivePath))
+                return null;
+
+            return FileFactory.Read<R1_PC_EncryptedFileArchive>(archivePath, context).ReadFile<T>(context, fileIndex);
         }
 
         #endregion
@@ -1854,63 +1770,6 @@ namespace R1Engine
                 public byte SoundIndex { get; set; }
                 public byte InteractionType { get; set; }
             }
-        }
-
-        /// <summary>
-        /// Archive file info
-        /// </summary>
-        public class ArchiveFile
-        {
-            /// <summary>
-            /// Default constructor
-            /// </summary>
-            /// <param name="filePath">The file path</param>
-            /// <param name="fileExtension">The file extension</param>
-            public ArchiveFile(string filePath, string fileExtension = ".dat", string volume = null)
-            {
-                FilePath = filePath;
-                FileExtension = fileExtension;
-                Volume = volume;
-            }
-
-            /// <summary>
-            /// The file path
-            /// </summary>
-            public string FilePath { get; }
-
-            public string Volume { get; }
-
-            /// <summary>
-            /// The file extension
-            /// </summary>
-            public string FileExtension { get; }
-        }
-
-        /// <summary>
-        /// Archive data
-        /// </summary>
-        public class ArchiveData
-        {
-            /// <summary>
-            /// Default constructor
-            /// </summary>
-            /// <param name="fileName">The file name</param>
-            /// <param name="data">The data</param>
-            public ArchiveData(string fileName, byte[] data)
-            {
-                FileName = fileName;
-                Data = data;
-            }
-
-            /// <summary>
-            /// The file name
-            /// </summary>
-            public string FileName { get; }
-
-            /// <summary>
-            /// The data
-            /// </summary>
-            public byte[] Data { get; }
         }
 
         /// <summary>
@@ -1961,7 +1820,7 @@ namespace R1Engine
             /// <param name="name">The name</param>
             /// <param name="archiveFile">The archive file</param>
             /// <param name="bitsPerSample">The bits per sample</param>
-            public AdditionalSoundArchive(string name, ArchiveFile archiveFile, int bitsPerSample = 8)
+            public AdditionalSoundArchive(string name, string archiveFile, int bitsPerSample = 8)
             {
                 Name = name;
                 ArchiveFile = archiveFile;
@@ -1976,7 +1835,7 @@ namespace R1Engine
             /// <summary>
             /// The archive file
             /// </summary>
-            public ArchiveFile ArchiveFile { get; }
+            public string ArchiveFile { get; }
 
             /// <summary>
             /// The bits per sample

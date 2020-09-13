@@ -29,12 +29,8 @@ namespace R1Engine
         /// <returns>The world file path</returns>
         public override string GetWorldFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"RAY{settings.World:00}.WLD";
 
-        /// <summary>
-        /// Gets the file path for the vignette file
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <returns>The vignette file path</returns>
-        public override string GetVignetteFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"VIGNET.DAT";
+        public override string GetVignetteFilePath(GameSettings settings) => GetVignetteFilePath(settings.EduVolume);
+        public string GetVignetteFilePath(string volume) => GetVolumePath(volume) + $"VIGNET.DAT";
 
         /// <summary>
         /// Gets the file path for the primary sound file
@@ -72,18 +68,18 @@ namespace R1Engine
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
-        public override ArchiveFile[] GetArchiveFiles(GameSettings settings)
+        public override string[] GetArchiveFiles(GameSettings settings)
         {
-            return new ArchiveFile[]
+            return new string[]
             {
-                new ArchiveFile($"PCMAP/COMMON.DAT"),
-                new ArchiveFile($"PCMAP/SNDD8B.DAT"),
-                new ArchiveFile($"PCMAP/SNDH8B.DAT"),
-            }.Concat(GetLevels(settings).SelectMany(x => new ArchiveFile[]
+                GetCommonArchiveFilePath(),
+                GetSoundFilePath(),
+                GetSoundManifestFilePath(),
+            }.Concat(GetLevels(settings).SelectMany(x => new string[]
             {
-                new ArchiveFile($"PCMAP/{x.Name}/sndsmp.dat"),
-                new ArchiveFile($"PCMAP/{x.Name}/SPECIAL.DAT"),
-                new ArchiveFile($"PCMAP/{x.Name}/VIGNET.DAT", ".pcx"),
+                GetSamplesArchiveFilePath(x.Name),
+                GetSpecialArchiveFilePath(x.Name),
+                GetVignetteFilePath(x.Name),
             })).ToArray();
         }
 
@@ -91,7 +87,7 @@ namespace R1Engine
         /// Gets additional sound archives
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetLevels(settings).Select(x => new AdditionalSoundArchive($"SMP ({x.Name})", new ArchiveFile(GetSamplesArchiveFilePath(x.Name)))).ToArray();
+        public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetLevels(settings).Select(x => new AdditionalSoundArchive($"SMP ({x.Name})", GetSamplesArchiveFilePath(x.Name))).ToArray();
 
         public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesEdu[context.Settings.R1_World] == desIndex && ((R1_EventType)x.Type).IsMultiColored());
 
@@ -99,7 +95,8 @@ namespace R1Engine
 
         #region Manager Methods
 
-        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => parallax ? null : ReadArchiveFile<PCX>(context, world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true);
+        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
+            parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true);
 
         protected override UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
@@ -107,7 +104,7 @@ namespace R1Engine
             var localization = new Dictionary<string, string[]>();
 
             // Read the text data
-            var loc = ReadArchiveFile<R1_PC_LocFile>(context, R1_PC_ArchiveFileName.TEXT);
+            var loc = LoadArchiveFile<R1_PC_LocFile>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.TEXT);
 
             // Save the localized name
             var locName = loc.LanguageNames[loc.LanguageUtilized];
@@ -119,13 +116,13 @@ namespace R1Engine
             localization.Add($"TEXT ({locName})", loc.TextDefine.Select(x => x.Value).ToArray());
 
             // Read the general data
-            var general = ReadArchiveFile<R1_PC_GeneralFile>(context, R1_PC_ArchiveFileName.GENERAL);
+            var general = LoadArchiveFile<R1_PC_GeneralFile>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.GENERAL);
 
             // Add the localization
             localization.Add($"GENERAL ({locName})", general.CreditsStringItems.Select(x => x.String.Value).ToArray());
 
             // Read the MOT data
-            var mot = ReadArchiveFile<R1_PCEdu_MOTFile>(context, R1_PC_ArchiveFileName.MOT);
+            var mot = LoadArchiveFile<R1_PCEdu_MOTFile>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.MOT); 
 
             // Add the localization
             localization.Add($"MOT ({locName})", mot.TextDefine.Select(x => x.Value).ToArray());
@@ -133,18 +130,18 @@ namespace R1Engine
             return UniTask.FromResult<IReadOnlyDictionary<string, string[]>>(localization);
         }
 
-        public override IList<ARGBColor> GetBigRayPalette(Context context) => ReadArchiveFile<PCX>(context, "FND04")?.VGAPalette;
+        public override IList<ARGBColor> GetBigRayPalette(Context context) => LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), "FND04")?.VGAPalette;
 
-        public override async UniTask LoadArchivesAsync(Context context)
+        public override async UniTask LoadFilesAsync(Context context)
         {
-            // Load the vignette archive
-            await LoadArchiveAsync(context, GetVignetteFilePath(context.Settings), null);
+            // Base
+            await base.LoadFilesAsync(context);
 
-            // Load the common archive
-            await LoadArchiveAsync(context, GetCommonArchiveFilePath(), null);
+            // Common
+            await AddFile(context, GetCommonArchiveFilePath());
 
-            // Load the special archive
-            await LoadArchiveAsync(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), null);
+            // Special
+            await AddFile(context, GetSpecialArchiveFilePath(context.Settings.EduVolume));
         }
 
         #endregion

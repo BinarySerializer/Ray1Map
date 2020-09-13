@@ -36,7 +36,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The vignette file path</returns>
-        public override string GetVignetteFilePath(GameSettings settings) => throw new NotImplementedException();
+        public override string GetVignetteFilePath(GameSettings settings) => String.Empty;
 
         /// <summary>
         /// Gets the file path for the allfix file
