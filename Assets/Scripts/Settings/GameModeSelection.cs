@@ -59,6 +59,12 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PC, Game.R1_Rayman1, "Rayman 1 (PC - 1.21)", typeof(R1_PC_Manager))]
         RaymanPC_1_21,
 
+        [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PC, Game.R1_Rayman1, "Rayman 1 (PC - Demo 1)", typeof(R1_PC_Manager))]
+        RaymanPC_Demo_1,
+
+        [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PC, Game.R1_Rayman1, "Rayman 1 (PC - Demo 2)", typeof(R1_PC_Manager))]
+        RaymanPC_Demo_2,
+
         [GameMode(MajorEngineVersion.Rayman1, EngineVersion.R1_PC_Kit, Game.R1_Designer, "Rayman Gold (PC - Demo)", typeof(R1_Kit_Manager))]
         RaymanGoldPCDemo,
 

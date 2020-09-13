@@ -20,7 +20,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
+        public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Where(x => Directory.Exists(settings.GameDirectory + GetWorldFolderPath(x))).Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"RAY??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray());
@@ -358,15 +358,15 @@ namespace R1Engine
             // Read the language file
             var lng = FileFactory.ReadText<R1_PC_LNGFile>(lngPath, context);
 
-            // Set the common localization
-            var loc = new Dictionary<string, string[]>()
-            {
-                ["English"] = lng.Strings[0],
-                ["French"] = lng.Strings[1],
-                ["German"] = lng.Strings[2],
-            };
+            var loc = new Dictionary<string, string[]>();
 
-            // Set extended localization if available
+            // Set localization if available
+            if (lng.Strings.Length > 0)
+                loc.Add("English", lng.Strings[0]);
+            if (lng.Strings.Length > 1)
+                loc.Add("French", lng.Strings[1]);
+            if (lng.Strings.Length > 2)
+                loc.Add("German", lng.Strings[2]);
             if (lng.Strings.Length > 3)
                 loc.Add("Japanese", lng.Strings[3]);
             if (lng.Strings.Length > 4)

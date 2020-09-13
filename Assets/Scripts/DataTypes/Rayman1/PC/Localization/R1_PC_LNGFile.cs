@@ -17,6 +17,14 @@ namespace R1Engine
 
             switch (parser.GameSettings.GameModeSelection)
             {
+                // Same loc as 1.00
+                case GameModeSelection.RaymanPC_Demo_1:
+                    values = new KeyValuePair<uint, byte>[]
+                    {
+                        new KeyValuePair<uint, byte>(0, 0xE4)
+                    };
+                    break;
+
                 case GameModeSelection.RaymanPC_1_00:
                     values = new KeyValuePair<uint, byte>[]
                     {
@@ -36,6 +44,7 @@ namespace R1Engine
                     };
                     break;
 
+                case GameModeSelection.RaymanPC_Demo_2:
                 case GameModeSelection.RaymanPC_1_12:
                     values = new KeyValuePair<uint, byte>[]
                     {
