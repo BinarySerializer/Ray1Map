@@ -24,6 +24,8 @@ namespace R1Engine
         // We don't use this since it's a leftover file - the game uses the .csv files
         public override string GetLanguageFilePath() => "Media/RAY.LNG";
 
+        public override string GetVignetteFilePath(GameSettings settings) => $"Media/VIGNET.DAT";
+
         public string GetLanguageFilePath(string langCode) => $"Media/LOCALIZATION_STR_{langCode.ToUpper()}.CSV";
         public string GetExtLanguageFilePath(string langCode) => $"MediaCosmos/Localization/ext_localization_{langCode.ToLower()}.csv";
 
