@@ -63,6 +63,9 @@ namespace R1Engine
         /// </summary>
         public Dictionary<uint, byte[]> ImageBuffers { get; set; }
 
+        public Pointer BackgroundPointer { get; set; }
+        public RGB556Color[] Background { get; set; }
+
         // Prototype only
         public Dictionary<uint, R1_ImageDescriptor[]> ImageBufferDescriptors { get; set; }
 
@@ -323,6 +326,13 @@ namespace R1Engine
                         index++;
                     }
                 }
+
+                // Serialize background
+                var vigs = manager.GetVignette;
+                BackgroundPointer = mapCommands.Concat(wldCommands.Commands).FirstOrDefault(x => x.Type == R1Jaguar_LevelLoadCommand.LevelLoadCommandType.Graphics && vigs.Any(y => y.Key == x.ImageBufferPointer.AbsoluteOffset))?.ImageBufferPointer;
+
+                if (BackgroundPointer != null)
+                    s.DoAt(BackgroundPointer, () => s.DoEncoded(new RNCEncoder(), () => Background = s.SerializeObjectArray<RGB556Color>(Background, s.CurrentLength / 2, name: nameof(Background))));
             }
             else
             {
@@ -391,6 +401,10 @@ namespace R1Engine
                         s.DoAt(spr.DescrAdr, () => ImageBufferDescriptors[spr.MemAdr] = s.SerializeObjectArray<R1_ImageDescriptor>(default, imgDescLen, name: $"ImageBufferDescriptors_{spr.Name}"));
                     }
                 }
+
+                // Serialize background
+                BackgroundPointer = GetProtoDataPointer(R1Jaguar_Proto_References.jun_plan0);
+                s.DoAt(BackgroundPointer, () => Background = s.SerializeObjectArray<RGB556Color>(Background, 192 * 246, name: nameof(Background)));
             }
         }
 

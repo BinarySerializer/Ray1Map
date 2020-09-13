@@ -55,7 +55,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the vignette addresses and widths
         /// </summary>
-        protected override KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
+        public override KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
         {
             // World map
             new KeyValuePair<uint, int>(0x875BC0, 320), 

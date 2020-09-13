@@ -51,7 +51,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the vignette addresses and widths
         /// </summary>
-        protected virtual KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
+        public virtual KeyValuePair<uint, int>[] GetVignette => new KeyValuePair<uint, int>[]
         {
             // Vignette
             new KeyValuePair<uint, int>(GetROMBaseAddress + 43680, 384),
@@ -1406,8 +1406,33 @@ namespace R1Engine
                 }
             }*/
 
+            // Create background vignette if there is one
+            Texture2D bg = null;
+            
+            if (rom.Background != null)
+            {
+                var width = context.Settings.EngineVersion == EngineVersion.R1Jaguar_Proto ? 192 : GetVignette.First(x => x.Key == rom.BackgroundPointer.AbsoluteOffset).Value;
+                bg = TextureHelpers.CreateTexture2D(width, rom.Background.Length / width);
+
+                for (int y = 0; y < bg.height; y++)
+                {
+                    for (int x = 0; x < bg.width; x++)
+                    {
+                        bg.SetPixel(x, bg.height - y - 1, rom.Background[y * bg.width + x].GetColor());
+                    }
+                }
+
+                bg.Apply();
+            }
+
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(maps, objManager, eventDataList, rayman, getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic());
+            Unity_Level level = new Unity_Level(
+                maps: maps, 
+                objManager: objManager, 
+                eventData: eventDataList, 
+                rayman: rayman, 
+                getCollisionTypeGraphicFunc: x => ((R1Jaguar_TileCollisionType)x).GetCollisionTypeGraphic(), 
+                background: bg);
 
             return level;
         }
