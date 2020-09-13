@@ -324,6 +324,8 @@ public class SettingsWindow : UnityWindow
                     Controller.StartStopwatch();
                     // Run the action
                     await action.GameActionFunc(inputDir, outputDir);
+                } catch(Exception ex) {
+                    Debug.LogError(ex.Message);
                 } finally {
                     Controller.StopStopwatch();
                 }
