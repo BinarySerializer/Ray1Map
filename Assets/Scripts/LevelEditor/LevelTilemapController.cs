@@ -39,6 +39,9 @@ namespace R1Engine
         // Reference to the background ting
         public SpriteRenderer backgroundTint;
 
+        public SpriteRenderer background;
+        public SpriteRenderer backgroundParallax;
+
         /// <summary>
         /// The type collision tiles
         /// </summary>
@@ -67,7 +70,16 @@ namespace R1Engine
             if (CellSizeInUnits != 1f) {
                 grid.cellSize = new Vector3(CellSizeInUnits, CellSizeInUnits, 0);
             }
-            
+
+            if (level.Background != null) {
+                background.sprite = level.Background.CreateSprite();
+                background.gameObject.SetActive(true);
+            }
+            if (level.ParallaxBackground != null) {
+                backgroundParallax.sprite = level.ParallaxBackground.CreateSprite();
+                backgroundParallax.gameObject.SetActive(true);
+            }
+
             // Resize the background tint
             ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
 

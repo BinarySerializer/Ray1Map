@@ -240,6 +240,24 @@ public class SettingsWindow : UnityWindow
                     }
                 }
 
+                if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
+                    var bg = Controller.obj.levelController.controllerTilemap.background;
+
+                    var isActive = EditorField($"Show background", bg.gameObject.activeSelf);
+
+                    if (isActive != bg.gameObject.activeSelf)
+                        bg.gameObject.SetActive(isActive);
+                }
+
+                if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
+                    var bg = Controller.obj.levelController.controllerTilemap.backgroundParallax;
+
+                    var isActive = EditorField($"Show parallax background", bg.gameObject.activeSelf);
+
+                    if (isActive != bg.gameObject.activeSelf)
+                        bg.gameObject.SetActive(isActive);
+                }
+
                 if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
                     for (int i = 0; i < lvl.Maps.Length; i++) {
                         var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
