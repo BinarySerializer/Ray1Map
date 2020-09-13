@@ -32,7 +32,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the vignette addresses and widths
         /// </summary>
-        protected override KeyValuePair<uint, int>[] GetVignette => null;
+        public override KeyValuePair<uint, int>[] GetVignette => null;
 
         protected override Dictionary<SpecialEventType, Pointer> GetSpecialEventPointers(Context context) => new Dictionary<SpecialEventType, Pointer>();
 
