@@ -253,11 +253,11 @@ namespace R1Engine
             foreach (var pcx in foundPCX.Select(x => new
             {
                 XORKey = x.Key.Split('-')[0],
-                FileOffset = x.Key.Split('-')[1],
+                FileOffset = long.Parse(x.Key.Split('-')[1]),
                 Data = x.Value
             }).OrderBy(x => x.FileOffset))
             {
-                File.WriteAllBytes(Path.Combine(outputDir, $"{index}. [{pcx.XORKey}] ({pcx.FileOffset}).png"), pcx.Data);
+                File.WriteAllBytes(Path.Combine(outputDir, $"{index}. [{pcx.XORKey}] ({string.Format("{0:X8}", pcx.FileOffset)}).png"), pcx.Data);
 
                 index++;
             }
