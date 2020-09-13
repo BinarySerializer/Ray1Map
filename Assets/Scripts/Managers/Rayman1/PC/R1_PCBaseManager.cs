@@ -205,7 +205,7 @@ namespace R1Engine
             var foundPCX = new Dictionary<string, byte[]>();
 
             // Enumerate every possible xor key
-            for (int i = 0; i < 255; i++)
+            for (int i = 0; i <= 255; i++)
             {
                 // Create a buffer
                 var buffer = new byte[originalBytes.Length];
