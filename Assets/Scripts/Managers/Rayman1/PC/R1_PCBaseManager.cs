@@ -144,16 +144,10 @@ namespace R1Engine
         /// <param name="settings">The settings</param>
         /// <param name="vigPath">The vignette file path</param>
         /// <param name="outputDir">The output directory</param>
-        public void ExtractVignette(GameSettings settings, string vigPath, string outputDir, bool bruteforce = false)
+        public virtual void ExtractVignette(GameSettings settings, string vigPath, string outputDir)
         {
-            if (bruteforce)
-            {
-                ExtractEncryptedPCX(settings.GameDirectory + vigPath, outputDir);
-                return;
-            }
-
             // Create a new context
-            using (var context = new Context(Settings.GetGameSettings))
+            using (var context = new Context(settings))
             {
                 context.AddFile(new LinearSerializedFile(context)
                 {
@@ -1316,8 +1310,8 @@ namespace R1Engine
             var rayman = new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
 
             // Load background vignette textures
-            var bg = LoadBackgroundVignette(context, worldData, levelData, false);
-            var bg2 = LoadBackgroundVignette(context, worldData, levelData, true);
+            var bg = await LoadBackgroundVignetteAsync(context, worldData, levelData, false);
+            var bg2 = await LoadBackgroundVignetteAsync(context, worldData, levelData, true);
 
             // Create a level object
             Unity_Level level = new Unity_Level(
@@ -1368,7 +1362,7 @@ namespace R1Engine
             return level;
         }
 
-        public abstract Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax);
+        public abstract UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax);
 
         protected abstract UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context);
 

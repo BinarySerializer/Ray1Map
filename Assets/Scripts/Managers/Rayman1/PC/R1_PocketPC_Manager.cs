@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -84,6 +85,8 @@ namespace R1Engine
             }
         }
 
+        public string GetVignetteFilePath(int index) => GetDataPath() + $"dat/{index:00}.dat.gz";
+
         #endregion
 
         #region Manager Methods
@@ -117,6 +120,85 @@ namespace R1Engine
                 ["French"] = lng.Strings[3],
                 ["German"] = lng.Strings[4],
             };
+        }
+
+        public override async UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax)
+        {
+            var index = world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex];
+
+            var xor = LoadVignetteHeader(context)[index].XORKey;
+
+            var path = GetVignetteFilePath(index);
+
+            await AddFile(context, path);
+
+            var s = context.Deserializer;
+            Texture2D tex = null;
+
+            s.DoAt(context.GetFile(path).StartPointer, () =>
+            {
+                s.DoXOR(xor, () =>
+                {
+                    // Read the data
+                    var pcx = s.SerializeObject<PCX>(default, name: $"VIGNET");
+
+                    // Convert to a texture
+                    tex = pcx.ToTexture(true);
+                });
+            });
+
+            return tex;
+        }
+
+        protected R1_PC_EncryptedFileArchiveEntry[] LoadVignetteHeader(Context context)
+        {
+            var s = context.Deserializer;
+
+            var headerBytes = R1_PC_ArchiveHeaders.GetHeader(context.Settings, "VIGNET.DAT");
+            var headerLength = headerBytes.Length / 12;
+
+            var headerStream = new MemoryStream(headerBytes);
+            var key = $"VIGNET_Header";
+            s.Context.AddFile(new StreamFile(key, headerStream, s.Context));
+
+            return s.DoAt(s.Context.GetFile(key).StartPointer, () => s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(default, headerLength, name: "Entries"));
+        }
+
+        public override void ExtractVignette(GameSettings settings, string vigPath, string outputDir)
+        {
+            // Create a new context
+            using (var context = new Context(settings))
+            {
+                R1_PC_EncryptedFileArchiveEntry[] entries = LoadVignetteHeader(context);
+                var s = context.Deserializer;
+
+                // Extract every .pcx file
+                for (int i = 0; i < entries.Length; i++)
+                {
+                    var path = GetVignetteFilePath(i);
+                    var file = new GzipCompressedFile(context)
+                    {
+                        filePath = path
+                    };
+
+                    context.AddFile(file);
+
+                    s.DoAt(file.StartPointer, () =>
+                    {
+                        s.DoXOR(entries[i].XORKey, () =>
+                        {
+                            // Read the data
+                            var pcx = s.SerializeObject<PCX>(default, name: $"PCX[{i}]");
+
+                            // Convert to a texture
+                            var tex = pcx.ToTexture(true);
+
+                            // Write the bytes
+                            Util.ByteArrayToFile(Path.Combine(outputDir, $"{i}.png"), tex.EncodeToPNG());
+                        });
+                    });
+                }
+            }
         }
 
         #endregion

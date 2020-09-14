@@ -97,7 +97,7 @@ namespace R1Engine
             {
                 new GameAction("Decrypt Save Files", false, false, (input, output) => DecryptSaveFiles(settings)),
                 new GameAction("Read Save Files", false, false, (input, output) => ReadSaveFiles(settings)),
-                new GameAction("Export Vignette (brute force)", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output, true)),
+                new GameAction("Export Vignette (brute force)", false, true, (input, output) => ExtractEncryptedPCX(settings.GameDirectory + GetVignetteFilePath(settings), output)),
             }).ToArray();
         }
 
@@ -157,8 +157,8 @@ namespace R1Engine
             }
         }
 
-        public override Texture2D LoadBackgroundVignette(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
-            LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])?.ToTexture(true);
+        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
+            UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])?.ToTexture(true));
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
