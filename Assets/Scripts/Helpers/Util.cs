@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using UnityEngine;
 
 namespace R1Engine {
@@ -154,42 +155,89 @@ namespace R1Engine {
             {
                 var settings = new GameSettings(mode, subDir, 1, 1);
 
-                foreach (var v in m.GetLevels(settings))
+                using (var context = new Context(settings))
                 {
-                    var worlds = v.Worlds;
-                    var vol = v.Name;
-                    settings.EduVolume = vol;
-
-                    var lvlWorldIndex = 0;
-
-                    var jsonObj = new
+                    foreach (var v in m.GetLevels(settings))
                     {
-                        name = $"NAME ({platformName} - {vol})",
-                        mode = mode.ToString(),
-                        folder = $"r1/{modeName}/{Path.GetFileName(subDir)}",
-                        volume = vol,
-                        icons = worlds.Select(x =>
+                        var vol = v.Name;
+                        settings.EduVolume = vol;
+                        var specialPath = m.GetSpecialArchiveFilePath(vol);
+
+                        context.AddFile(new LinearSerializedFile(context)
                         {
-                            var icon = new
+                            filePath = specialPath
+                        });
+
+                        var wldMap = m.LoadArchiveFile<R1_PC_WorldMap>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.WLDMAP01);
+                        var text = m.LoadArchiveFile<R1_PC_LocFile>(context, specialPath, R1_PCBaseManager.R1_PC_ArchiveFileName.TEXT);
+
+                        var worlds = v.Worlds;
+
+                        var lvlWorldIndex = 0;
+
+                        var jsonObj = new
+                        {
+                            name = $"NAME ({platformName} - {vol})",
+                            mode = mode.ToString(),
+                            folder = $"r1/{modeName}/{Path.GetFileName(subDir)}",
+                            volume = vol,
+                            icons = worlds.Select(x =>
                             {
-                                image = $"./img/icon/R1/R1-W{x.Index}.png",
-                                level = lvlWorldIndex
-                            };
+                                var icon = new
+                                {
+                                    image = $"./img/icon/R1/R1-W{x.Index}.png",
+                                    level = lvlWorldIndex
+                                };
 
-                            lvlWorldIndex += x.Maps.Length;
+                                lvlWorldIndex += x.Maps.Length;
 
-                            return icon;
-                        }),
-                        levels = worlds.Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
+                                return icon;
+                            }),
+                            levels = worlds.Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
+                            {
+                                world = w.Index,
+                                level = lvl,
+                                nameInternal = $"{m.GetShortWorldName((R1_World)w.Index)}{lvl:00}",
+                                name = getLevelName(w.Index, lvl)
+                            })).SelectMany(x => x)
+                        };
+
+                        JsonHelpers.SerializeToFile(jsonObj, Path.Combine(dir, $"{platformName.ToLower()}_{vol.ToLower()}.json"));
+
+                        string getLevelName(int world, int level)
                         {
-                            world = w.Index,
-                            level = lvl,
-                            nameInternal = $"{m.GetShortWorldName((R1_World)w.Index)}{lvl:00}",
-                            name = $"{(R1_World)w.Index} {lvl}"
-                        })).SelectMany(x => x)
-                    };
+                            foreach (var lvl in wldMap.Levels.Take(wldMap.LevelsCount))
+                            {
+                                sbyte currentWorld = -1;
+                                var levelIndex = 0;
+                                var groupIndex = 1;
 
-                    JsonHelpers.SerializeToFile(jsonObj, Path.Combine(dir, $"{platformName.ToLower()}_{vol.ToLower()}.json"));
+                                for (int i = 0; i < lvl.MapEntries.Length; i++)
+                                {
+                                    var entry = lvl.MapEntries[i];
+
+                                    if (entry.Level == -1)
+                                    {
+                                        levelIndex = 0;
+                                        groupIndex++;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        levelIndex++;
+                                    }
+
+                                    if (entry.World != -1)
+                                        currentWorld = entry.World;
+
+                                    if (currentWorld == world && entry.Level == level)
+                                        return $"{(R1_World)world} {level} ({text.TextDefine[lvl.LevelName].Value.Trim('/')} {groupIndex}-{levelIndex})";
+                                }
+                            }
+
+                            return $"{(R1_World)world} {level}";
+                        }
+                    }
                 }
             }
         }

@@ -33,14 +33,18 @@ namespace R1Engine
             LanguageUtilized = s.Serialize<byte>(LanguageUtilized, name: nameof(LanguageUtilized));
             KeyboardType = s.Serialize<KeyboardTypes>(KeyboardType, name: nameof(KeyboardType));
 
-            LanguageNames = s.SerializeStringArray(LanguageNames,
-                // Most versions have 3 languages, but sometimes the NumberOfLanguages is set to 1 because only 1 is available. Other versions may have up to 5.
-                Mathf.Clamp(NumberOfLanguages, 3, 5), 11, name: nameof(LanguageNames));
+            // Most versions have 3 languages, but sometimes the NumberOfLanguages is set to 1 because only 1 is available. Other versions may have up to 5.
+            var numLangNames = Mathf.Clamp(NumberOfLanguages, 3, 5);
+
+            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu && (s.GameSettings.EduVolume.StartsWith("IT") || s.GameSettings.EduVolume.StartsWith("CS")))
+                numLangNames = 5;
+
+            LanguageNames = s.SerializeStringArray(LanguageNames, numLangNames, 11, name: nameof(LanguageNames));
 
             var align = 3 + LanguageNames.Length * 11 + 8;
 
             if (align % 4 != 0)
-                s.SerializeArray<byte>(new byte[align % 4], align % 4, name: "Align");
+                s.SerializeArray<byte>(new byte[align % 4], 4 - (align % 4), name: "Align");
 
             TextDefineCount = s.Serialize<uint>(TextDefineCount, name: nameof(TextDefineCount));
             Unk1 = s.Serialize<ushort>(Unk1, name: nameof(Unk1));

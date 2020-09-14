@@ -66,13 +66,13 @@ namespace R1Engine
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
-        public override string[] GetArchiveFiles(GameSettings settings) => new string[]
+        public override Archive[] GetArchiveFiles(GameSettings settings) => new Archive[]
         {
             //GetLanguageFilePath(), // TODO: Serialize as an archive
-            GetVignetteFilePath(settings),
-            GetSoundManifestFilePath(),
-            GetSoundFilePath(),
-            GetSoundVignetteFilePath()
+            new Archive(GetVignetteFilePath(settings)),
+            new Archive(GetSoundManifestFilePath()),
+            new Archive(GetSoundFilePath()),
+            new Archive(GetSoundVignetteFilePath())
         };
 
         /// <summary>

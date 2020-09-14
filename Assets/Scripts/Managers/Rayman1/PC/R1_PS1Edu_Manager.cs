@@ -131,14 +131,16 @@ namespace R1Engine
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
-        public override string[] GetArchiveFiles(GameSettings settings)
+        public override Archive[] GetArchiveFiles(GameSettings settings)
         {
-            return GetLevels(settings).Select(x => x.Name).SelectMany(x => new string[]
+            return new Archive[]
             {
-                GetCommonArchiveFilePath(),
-                GetSpecialArchiveFilePath(x),
-                GetVignetteFilePath(x),
-            }).ToArray();
+                new Archive(GetCommonArchiveFilePath()), 
+            }.Concat(GetLevels(settings).Select(x => x.Name).SelectMany(x => new Archive[]
+            {
+                new Archive(GetSpecialArchiveFilePath(x), x), 
+                new Archive(GetVignetteFilePath(x), x), 
+            })).ToArray();
         }
 
         /// <summary>

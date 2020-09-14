@@ -30,7 +30,14 @@
         public override void SerializeImpl(SerializerObject s)
         {
             Unk1 = s.Serialize<uint>(Unk1, name: nameof(Unk1));
-            Unk2 = s.SerializeArray<byte>(Unk2, 27, name: nameof(Unk2));
+
+            var unk2Length = 27;
+
+            // The PS1 version hard-codes a different length for this version
+            if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu && s.GameSettings.EduVolume.StartsWith("CS"))
+                unk2Length = 29;
+
+            Unk2 = s.SerializeArray<byte>(Unk2, unk2Length, name: nameof(Unk2));
             Unk3 = s.SerializeArray<byte>(Unk3, 3130, name: nameof(Unk3));
             SampleNames = s.SerializeStringArray(SampleNames, 7, 9, name: nameof(SampleNames));
 

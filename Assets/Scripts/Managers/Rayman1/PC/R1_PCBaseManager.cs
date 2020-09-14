@@ -124,7 +124,7 @@ namespace R1Engine
         /// Gets the archive files which can be extracted
         /// </summary>
         /// <param name="settings">The game settings</param>
-        public abstract string[] GetArchiveFiles(GameSettings settings);
+        public abstract Archive[] GetArchiveFiles(GameSettings settings);
 
         /// <summary>
         /// Gets additional sound archives
@@ -1064,18 +1064,18 @@ namespace R1Engine
             using (var context = new Context(Settings.GetGameSettings))
             {
                 // Extract every archive file
-                foreach (var archiveFile in GetArchiveFiles(context.Settings).Where(x => File.Exists(context.BasePath + x)))
+                foreach (var archiveFile in GetArchiveFiles(context.Settings).Where(x => File.Exists(context.BasePath + x.FilePath)))
                 {
                     context.AddFile(new LinearSerializedFile(context)
                     {
-                        filePath = archiveFile
+                        filePath = archiveFile.FilePath
                     });
 
                     // Get the output directory
-                    var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile), Path.GetFileNameWithoutExtension(archiveFile));
+                    var output = Path.Combine(outputPath, Path.GetDirectoryName(archiveFile.FilePath), Path.GetFileNameWithoutExtension(archiveFile.FilePath));
 
                     // Read archive
-                    var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile, context);
+                    var archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile.FilePath, context);
 
                     // Extract every file
                     for (int i = 0; i < archive.Entries.Length; i++)
@@ -1614,14 +1614,18 @@ namespace R1Engine
             {
                 // Load every archive
                 var archives = GetArchiveFiles(settings).
-                    Where(x => File.Exists(context.BasePath + x)).
-                    Select(archiveFile =>
+                    Where(x => File.Exists(context.BasePath + x.FilePath)).
+                    Select(archive =>
                     {
                         context.AddFile(new LinearSerializedFile(context)
                         {
-                            filePath = archiveFile
+                            filePath = archive.FilePath
                         });
-                        return FileFactory.Read<R1_PC_EncryptedFileArchive>(archiveFile, context);
+                        return new
+                        {
+                            Archive = FileFactory.Read<R1_PC_EncryptedFileArchive>(archive.FilePath, context),
+                            Volume = archive.Volume
+                        };
                     }).
                     ToArray();
 
@@ -1632,8 +1636,9 @@ namespace R1Engine
                     // Log each file
                     foreach (var archive in archives)
                     {
-                        var index = archive.Entries.FindItemIndex(x => x.FileName == fileName.ToString());
-                        archive.ReadFile<T>(context, index);
+                        var index = archive.Archive.Entries.FindItemIndex(x => x.FileName == fileName.ToString());
+                        context.Settings.EduVolume = archive.Volume;
+                        archive.Archive.ReadFile<T>(context, index);
                     }
                 }
 
@@ -1837,6 +1842,18 @@ namespace R1Engine
             /// The bits per sample
             /// </summary>
             public int BitsPerSample { get; }
+        }
+
+        public class Archive
+        {
+            public Archive(string filePath, string volume = null)
+            {
+                FilePath = filePath;
+                Volume = volume;
+            }
+
+            public string FilePath { get; }
+            public string Volume { get; }
         }
 
         public enum R1_PC_ArchiveFileName

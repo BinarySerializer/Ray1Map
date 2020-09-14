@@ -101,18 +101,18 @@ namespace R1Engine
         /// <summary>
         /// Gets the archive files which can be extracted
         /// </summary>
-        public override string[] GetArchiveFiles(GameSettings settings)
+        public override Archive[] GetArchiveFiles(GameSettings settings)
         {
-            return new string[]
+            return new Archive[]
             {
-               GetCommonArchiveFilePath(),
-               GetSoundFilePath(),
-               GetSoundManifestFilePath(),
-               GetVignetteFilePath(settings),
-            }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new string[]
+               new Archive(GetCommonArchiveFilePath()),
+               new Archive(GetSoundFilePath()),
+               new Archive(GetSoundManifestFilePath()),
+               new Archive(GetVignetteFilePath(settings)),
+            }.Concat(Directory.GetDirectories(settings.GameDirectory + "PCMAP").Select(Path.GetFileName).SelectMany(x => new Archive[]
             {
-                GetSamplesArchiveFilePath(x),
-                GetSpecialArchiveFilePath(x),
+                new Archive(GetSamplesArchiveFilePath(x)),
+                new Archive(GetSpecialArchiveFilePath(x)),
             })).ToArray();
         }
 
