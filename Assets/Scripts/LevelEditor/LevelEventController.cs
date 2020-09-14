@@ -429,7 +429,7 @@ namespace R1Engine
             {
                 outlineManager.Active = SelectedEvent;
                 // Add events with mmb
-                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents) 
+                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents && FileSystem.mode == FileSystem.Mode.Web) 
                 {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     var mox = mousepo.x * LevelEditorData.Level.PixelsPerUnit;
