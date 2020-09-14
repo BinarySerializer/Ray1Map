@@ -1,0 +1,36 @@
+{
+    "name": "Rayman (PC - Demo)",
+    "mode": "RaymanPC_Demo_1",
+    "folder": "r1/pc_demo1",
+	"icons": [
+		{
+			"image": ".\/img\/icon\/R1\/R1-W1.png",
+			"level": 0
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W2.png",
+			"level": 2
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W3.png",
+			"level": 3
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W4.png",
+			"level": 4
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W5.png",
+			"level": 5
+		}
+	],
+    "levels": [
+        { "world": 1, "level": 4, "nameInternal": "JUNGLE/RAY4", "name": "Pink Plant Woods 4" },
+        { "world": 1, "level": 9, "nameInternal": "JUNGLE/RAY9", "name": "The Swamps of Forgetfulness 1" },
+        { "world": 2, "level": 7, "nameInternal": "MUSIC/RAY7", "name": "Allegro Presto 1" },
+        { "world": 3, "level": 7, "nameInternal": "MOUNTAIN/RAY7", "name": "Mr Stone's Peaks 2" },
+        { "world": 4, "level": 1, "nameInternal": "IMAGE/RAY1", "name": "Eraser Plains 1" },
+        { "world": 5, "level": 4, "nameInternal": "CAVE/RAY4", "name": "Eat at Joe's 2" },
+        { "world": 5, "level": 10, "nameInternal": "CAVE/RAY10", "name": "Mr Skops' Stalactites 2 - Boss" }
+    ]
+}

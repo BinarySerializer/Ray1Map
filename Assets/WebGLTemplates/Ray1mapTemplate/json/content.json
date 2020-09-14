@@ -26,6 +26,7 @@
 						{ "json": "jaguar", "image": ".\/img\/version\/jaguar.png", "name": "Atari Jaguar", "folder": "r1_jaguar/r1" },
 						{ "json": "jaguar_proto", "image": ".\/img\/version\/jaguar.png", "name": "Atari Jaguar Prototype", "folder": "r1_jaguar/proto" },
 						{ "json": "jaguar_demo", "image": ".\/img\/version\/jaguar.png", "name": "Atari Jaguar Demo", "folder": "r1_jaguar/demo" },
+						{ "json": "pc_demo1", "image": ".\/img\/version\/msdos.png", "name": "PC Demo", "folder": "r1/pc_demo1" },
 						{ "json": "saturn_proto", "image": ".\/img\/version\/saturn.png", "name": "Sega Saturn Prototype", "folder": "r1/saturn_proto" },
 						{ "json": "ps1_jp_demovol3", "image": ".\/img\/version\/ps1.png", "name": "PS1 Demo (DemoDemo 3)", "folder": "r1/ps1_jp_demovol3" },
 						{ "json": "ps1_jp_demovol6", "image": ".\/img\/version\/ps1.png", "name": "PS1 Demo (DemoDemo 6)", "folder": "r1/ps1_jp_demovol6" }
