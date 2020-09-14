@@ -295,6 +295,8 @@ namespace R1Engine
                     return a?.Any() == true ? a : null;
                 });
 
+                context.Settings.R1_World = R1_World.Jungle;
+
                 // Keep track of Rayman's anim
                 R1_PC_AnimationDescriptor[] rayAnim = null;
 
@@ -364,7 +366,7 @@ namespace R1Engine
             var levels = new List<R1_PC_LevFile>();
 
             // Load the levels to get the palettes
-            foreach (var i in GetLevels(context.Settings).First(x => x.Name == context.Settings.EduVolume).Worlds.FindItem(x => x.Index == context.Settings.World).Maps.OrderBy(x => x)) {
+            foreach (var i in GetLevels(context.Settings).First(x => x.Name == context.Settings.EduVolume || x.Name == null).Worlds.First(x => x.Index == context.Settings.World).Maps.OrderBy(x => x)) {
                 // Set the level number
                 context.Settings.Level = i;
 
@@ -1551,7 +1553,7 @@ namespace R1Engine
                 context.AddFile(GetFile(context, GetWorldFilePath(context.Settings)));
 
                 // Add every level
-                foreach (var lvl in GetLevels(context.Settings).First(x => x.Name == context.Settings.EduVolume).Worlds.FindItem(x => x.Index == world).Maps)
+                foreach (var lvl in GetLevels(context.Settings).First(x => x.Name == context.Settings.EduVolume || x.Name == null).Worlds.FirstOrDefault(x => x.Index == world)?.Maps ?? new int[0])
                 {
                     // Set the level
                     context.Settings.Level = lvl;
