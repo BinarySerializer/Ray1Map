@@ -9,7 +9,7 @@
 
         public string[] VersionModes { get; set; }
 
-        public R1_PC_VersionEntry[] VersionEntries { get; set; }
+        public R1_PC_VersionMemoryInfo[] VersionMemoryInfos { get; set; }
 
         public string DefaultPrimaryHeader { get; set; }
         public string DefaultSecondaryHeader { get; set; }
@@ -26,7 +26,7 @@
 
             s.DoAt(Offset + 0x02, () => VersionCodes = s.SerializeStringArray(VersionCodes, VersionsCount, 5, name: nameof(VersionCodes)));
             s.DoAt(Offset + 0x52, () => VersionModes = s.SerializeStringArray(VersionModes, VersionsCount, 20, name: nameof(VersionModes)));
-            s.DoAt(Offset + 0x192, () => VersionEntries = s.SerializeObjectArray<R1_PC_VersionEntry>(VersionEntries, VersionsCount, name: nameof(VersionEntries)));
+            s.DoAt(Offset + 0x192, () => VersionMemoryInfos = s.SerializeObjectArray<R1_PC_VersionMemoryInfo>(VersionMemoryInfos, VersionsCount, name: nameof(VersionMemoryInfos)));
 
             s.DoAt(Offset + (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit ? 0x392 : 0x312), () =>
             {
