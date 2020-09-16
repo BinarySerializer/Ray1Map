@@ -207,7 +207,7 @@
 					"json": "gba\/pop_sot",
 					"image": ".\/img\/logo\/pop_sot.png",
 					"versions": [
-						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/pop_eu" }
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/prince_of_persia_the_sands_of_time_eu" }
 					]
 				},
 				{
