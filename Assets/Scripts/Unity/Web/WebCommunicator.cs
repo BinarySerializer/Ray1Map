@@ -64,7 +64,7 @@ public class WebCommunicator : MonoBehaviour {
 				if (selectedObject_ != null) {
 					// TODO: keep state indices so updates on animation speed, etc. can be sent
 					//selectedPersoStateIndex_ = selectedPerso_.currentState;
-					Send(GetSelectionMessageJSON(true));
+					Send(GetSelectionMessageJSON(includeLists: true, includeDetails: true));
 				}
 			}
 
@@ -113,11 +113,11 @@ public class WebCommunicator : MonoBehaviour {
 		h.Objects = objects.Select(o => GetObjectJSON(o)).ToArray();
 		return h;
 	}
-	private WebJSON.Message GetSelectionMessageJSON(bool includeLists) {
+	private WebJSON.Message GetSelectionMessageJSON(bool includeLists = false, bool includeDetails = true) {
 		WebJSON.Message selectionJSON = new WebJSON.Message() {
 			Type = WebJSON.MessageType.Selection,
 			Selection = new WebJSON.Selection() {
-				Object = GetObjectJSON(selectedObject_, includeLists: includeLists)
+				Object = GetObjectJSON(selectedObject_, includeLists: includeLists, includeDetails: includeDetails)
 			}
 		};
 		return selectionJSON;
@@ -132,7 +132,7 @@ public class WebCommunicator : MonoBehaviour {
 		};
 		return selectionJSON;
 	}
-	private WebJSON.Object GetObjectJSON(Unity_ObjBehaviour obj, bool includeLists = false) {
+	private WebJSON.Object GetObjectJSON(Unity_ObjBehaviour obj, bool includeLists = false, bool includeDetails = false) {
 		if (obj == null) return null;
 		var webObj = new WebJSON.Object() {
 			Name = obj.ObjData.PrimaryName,
@@ -141,53 +141,65 @@ public class WebCommunicator : MonoBehaviour {
 			IsAlways = obj.ObjData.IsAlways,
 			IsEnabled = obj.IsEnabled,
 			IsEditor = obj.ObjData.IsEditor,
-			AnimIndex = obj.ObjData.AnimationIndex,
-			X = obj.ObjData.XPosition,
-			Y = obj.ObjData.YPosition,
 		};
-		switch (obj.ObjData) {
-            // TODO: Also add all lists for properties that should have a dropdown (DES, ETA, Subetat...)
-			case Unity_Object_R1 r1obj:
-                webObj.R1_Type = (ushort)r1obj.EventData.Type;
-                webObj.R1_DESIndex = r1obj.DESIndex;
-				webObj.R1_Etat = r1obj.EventData.Etat;
-				webObj.R1_SubEtat = r1obj.EventData.SubEtat;
-				webObj.R1_OffsetBX = r1obj.EventData.OffsetBX;
-				webObj.R1_OffsetBY = r1obj.EventData.OffsetBY;
-				webObj.R1_OffsetHY = r1obj.EventData.OffsetHY;
-				webObj.R1_FollowSprite = r1obj.EventData.FollowSprite;
-				webObj.R1_HitPoints = r1obj.EventData.ActualHitPoints;
-				webObj.R1_HitSprite = r1obj.EventData.HitSprite;
-				webObj.R1_FollowEnabled = r1obj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings);
-				webObj.R1_DisplayPrio = r1obj.EventData.Layer;
+		if (includeDetails) {
+			// Common details
+			webObj.AnimIndex = obj.ObjData.AnimationIndex;
+			webObj.X = obj.ObjData.XPosition;
+			webObj.Y = obj.ObjData.YPosition;
 
-				if (includeLists) {
-					webObj.R1_Commands = (r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]).Select(c => c.ToTranslatedString()).ToArray();
-				}
-				break;
+			if (includeLists) {
+				webObj.StateNames = obj.ObjData.UIStateNames;
+			}
+			webObj.StateIndex = obj.ObjData.CurrentUIState;
 
-			case Unity_Object_R2 r2obj:
-                webObj.R1_Type = (ushort)r2obj.EventData.EventType;
-                webObj.R1_DESIndex = r2obj.AnimGroupIndex;
-                webObj.R1_Etat = r2obj.EventData.Etat;
-                webObj.R1_SubEtat = r2obj.EventData.SubEtat;
-                webObj.R1_OffsetBX = r2obj.EventData.CollisionData?.OffsetBX;
-                webObj.R1_OffsetBY = r2obj.EventData.CollisionData?.OffsetBY;
-                webObj.R1_OffsetHY = r2obj.EventData.CollisionData?.OffsetHY;
-                webObj.R1_DisplayPrio = r2obj.EventData.Layer;
-                break;
+			// TODO: Also add all remaining lists for properties that should have a dropdown (DES, ETA, GraphicsData, EventDefinition)
 
-			case Unity_Object_R1Jaguar r1jaguarObj:
-                webObj.R1Jaguar_EventDefinitionIndex = r1jaguarObj.EventDefinitionIndex;
-                webObj.R1Jaguar_ComplexState = r1jaguarObj.ComplexStateIndex;
-                webObj.R1Jaguar_State = r1jaguarObj.StateIndex;
-                break;
 
-			case Unity_Object_GBA gbaObj:
-                webObj.GBA_ActorID = (byte)gbaObj.Actor.ActorID;
-                webObj.GBA_GraphicsDataIndex = gbaObj.GraphicsDataIndex;
-                webObj.GBA_State = gbaObj.Actor.StateIndex;
-                break;
+			// Specific properties for type
+			switch (obj.ObjData) {
+				case Unity_Object_R1 r1obj:
+					webObj.R1_Type = (ushort)r1obj.EventData.Type;
+					webObj.R1_DESIndex = r1obj.DESIndex;
+					webObj.R1_Etat = r1obj.EventData.Etat;
+					webObj.R1_SubEtat = r1obj.EventData.SubEtat;
+					webObj.R1_OffsetBX = r1obj.EventData.OffsetBX;
+					webObj.R1_OffsetBY = r1obj.EventData.OffsetBY;
+					webObj.R1_OffsetHY = r1obj.EventData.OffsetHY;
+					webObj.R1_FollowSprite = r1obj.EventData.FollowSprite;
+					webObj.R1_HitPoints = r1obj.EventData.ActualHitPoints;
+					webObj.R1_HitSprite = r1obj.EventData.HitSprite;
+					webObj.R1_FollowEnabled = r1obj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings);
+					webObj.R1_DisplayPrio = r1obj.EventData.Layer;
+
+					if (includeLists) {
+						webObj.R1_Commands = (r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]).Select(c => c.ToTranslatedString()).ToArray();
+					}
+					break;
+
+				case Unity_Object_R2 r2obj:
+					webObj.R1_Type = (ushort)r2obj.EventData.EventType;
+					webObj.R1_DESIndex = r2obj.AnimGroupIndex;
+					webObj.R1_Etat = r2obj.EventData.Etat;
+					webObj.R1_SubEtat = r2obj.EventData.SubEtat;
+					webObj.R1_OffsetBX = r2obj.EventData.CollisionData?.OffsetBX;
+					webObj.R1_OffsetBY = r2obj.EventData.CollisionData?.OffsetBY;
+					webObj.R1_OffsetHY = r2obj.EventData.CollisionData?.OffsetHY;
+					webObj.R1_DisplayPrio = r2obj.EventData.Layer;
+					break;
+
+				case Unity_Object_R1Jaguar r1jaguarObj:
+					webObj.R1Jaguar_EventDefinitionIndex = r1jaguarObj.EventDefinitionIndex;
+					webObj.R1Jaguar_ComplexState = r1jaguarObj.ComplexStateIndex;
+					webObj.R1Jaguar_State = r1jaguarObj.StateIndex;
+					break;
+
+				case Unity_Object_GBA gbaObj:
+					webObj.GBA_ActorID = (byte)gbaObj.Actor.ActorID;
+					webObj.GBA_GraphicsDataIndex = gbaObj.GraphicsDataIndex;
+					webObj.GBA_State = gbaObj.Actor.StateIndex;
+					break;
+			}
 		}
 		return webObj;
 	}

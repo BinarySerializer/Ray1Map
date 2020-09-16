@@ -114,5 +114,9 @@ namespace R1Engine
                 AnimationFrameFloat = 0;
             }
         }
+
+        public abstract string[] UIStateNames { get; }
+        public abstract int CurrentUIState { get; set; }
+        public byte? OverrideAnimIndex { get; set; }
     }
 }

@@ -24,7 +24,10 @@ namespace R1Engine
         public int GraphicsDataIndex
         {
             get => ObjManager.GraphicsDatas.FindItemIndex(x => x.Index == Actor.GraphicsDataIndex);
-            set => Actor.GraphicsDataIndex = (byte)ObjManager.GraphicsDatas[value].Index;
+            set {
+                OverrideAnimIndex = null;
+                Actor.GraphicsDataIndex = (byte)ObjManager.GraphicsDatas[value].Index;
+            }
         }
 
 
@@ -62,10 +65,88 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimSpeed => CurrentAnimation.AnimSpeed.Value;
 
-        public override byte GetAnimIndex => State?.AnimationIndex ?? Actor.StateIndex;
+        public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? Actor.StateIndex;
         public override IList<Sprite> Sprites => GraphicsData?.Graphics.Sprites;
 
-        [Obsolete]
+		public override string[] UIStateNames {
+            get {
+                var states = GraphicsData?.States;
+                var anims = GraphicsData?.Graphics.Animations;
+                HashSet<int> usedAnims = new HashSet<int>();
+                List<string> stateNames = new List<string>();
+                if (states != null) {
+                    for (int i = 0; i < states.Length; i++) {
+                        stateNames.Add("State " + i);
+                        usedAnims.Add(states[i].AnimationIndex);
+                    }
+                }
+                if (anims != null) {
+                    for (int i = 0; i < anims.Count; i++) {
+                        if (usedAnims.Contains(i)) continue;
+                        stateNames.Add("(Unused) Animation " + i);
+                    }
+                }
+                return stateNames.ToArray();
+            }
+        }
+
+		public override int CurrentUIState {
+            get {
+                if (OverrideAnimIndex.HasValue) {
+                    var states = GraphicsData?.States;
+                    var anims = GraphicsData?.Graphics.Animations;
+                    HashSet<int> usedAnims = new HashSet<int>();
+                    int currentState = states?.Length ?? 0;
+                    if (states != null) {
+                        for (int i = 0; i < states.Length; i++) {
+                            usedAnims.Add(states[i].AnimationIndex);
+                        }
+                    }
+                    if (anims != null) {
+                        for (int i = 0; i < anims.Count; i++) {
+                            if (usedAnims.Contains(i)) continue;
+                            if (i == OverrideAnimIndex) return currentState;
+                            currentState++;
+                        }
+                    }
+                    return currentState;
+                } else {
+                    var states = GraphicsData?.States;
+                    if (Actor.StateIndex >= 0 && Actor.StateIndex < states.Length) return Actor.StateIndex;
+                    return 0;
+                }
+            }
+            set {
+                if (value != CurrentUIState) {
+                    var states = GraphicsData?.States;
+                    if (value < states.Length) {
+                        Actor.StateIndex = (byte)value;
+                        OverrideAnimIndex = null;
+                    } else if(GraphicsData?.Graphics.Animations.Count > 0) {
+                        int currentState = states?.Length ?? 0;
+                        HashSet<int> usedAnims = new HashSet<int>();
+                        if (states != null) {
+                            for (int i = 0; i < states.Length; i++) {
+                                usedAnims.Add(states[i].AnimationIndex);
+                            }
+                        }
+                        var anims = GraphicsData?.Graphics.Animations;
+                        if (anims != null) {
+                            for (int i = 0; i < anims.Count; i++) {
+                                if (usedAnims.Contains(i)) continue;
+                                if (currentState == value) {
+                                    OverrideAnimIndex = (byte)i;
+                                    return;
+                                }
+                                currentState++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+		[Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_GBA obj)

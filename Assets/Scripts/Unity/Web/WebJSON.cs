@@ -60,6 +60,8 @@ public class WebJSON {
 		public bool? IsEnabled { get; set; }
 		public int? X { get; set; }
 		public int? Y { get; set; }
+		public string[] StateNames { get; set; }
+		public int? StateIndex { get; set; }
 
         // Rayman 1/2
 		public ushort? R1_Type { get; set; }

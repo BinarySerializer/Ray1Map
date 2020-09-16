@@ -107,9 +107,109 @@ namespace R1Engine
 
         public override byte AnimSpeed => State?.AnimationSpeed ?? 0;
 
-        public override byte GetAnimIndex => State?.AnimationIndex ?? 0;
+        public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => AnimGroup?.DES?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.CollisionData?.OffsetBX ?? 0, -EventData.CollisionData?.OffsetBY ?? 0);
+
+
+        public override string[] UIStateNames {
+            get {
+                List<string> stateNames = new List<string>();
+                HashSet<int> usedAnims = new HashSet<int>();
+                var eta = AnimGroup?.ETA;
+                if (eta != null) {
+                    for (int i = 0; i < eta.Length; i++) {
+                        for (int j = 0; j < eta[i].Length; j++) {
+                            usedAnims.Add(eta[i][j].AnimationIndex);
+                            stateNames.Add($"State {i}-{j}");
+                        }
+                    }
+                }
+                var anims = AnimGroup?.DES?.Animations;
+                if (anims != null) {
+                    for (int i = 0; i < anims.Count; i++) {
+                        if (usedAnims.Contains(i)) continue;
+                        stateNames.Add("(Unused) Animation " + i);
+                    }
+                }
+                return stateNames.ToArray();
+            }
+        }
+
+        public override int CurrentUIState {
+            get {
+                var eta = AnimGroup?.ETA;
+                if (OverrideAnimIndex.HasValue) {
+                    int currentState = eta?.Sum(e => e.Length) ?? 0;
+                    HashSet<int> usedAnims = new HashSet<int>();
+                    if (eta != null) {
+                        for (int i = 0; i < eta.Length; i++) {
+                            for (int j = 0; j < eta[i].Length; j++) {
+                                usedAnims.Add(eta[i][j].AnimationIndex);
+                            }
+                        }
+                    }
+                    var anims = AnimGroup?.DES?.Animations;
+                    if (anims != null) {
+                        for (int i = 0; i < anims.Count; i++) {
+                            if (usedAnims.Contains(i)) continue;
+                            if (i == OverrideAnimIndex) {
+                                return currentState;
+                            } else if (i > OverrideAnimIndex) {
+                                return 0;
+                            }
+                            currentState++;
+                        }
+                    }
+                    return 0;
+                } else {
+                    int stateCount = 0;
+                    if (eta != null) {
+                        for (int i = 0; i < eta.Length; i++) {
+                            if (EventData.Etat == i) {
+                                if (EventData.SubEtat < eta[i].Length) {
+                                    return stateCount + EventData.SubEtat;
+                                } else return 0;
+                            }
+                            stateCount += eta[i].Length;
+                        }
+                    }
+                    return 0;
+                }
+            }
+            set {
+                if (value != CurrentUIState) {
+                    HashSet<int> usedAnims = new HashSet<int>();
+                    var eta = AnimGroup?.ETA;
+                    int stateCount = 0;
+                    if (eta != null) {
+                        for (int i = 0; i < eta.Length; i++) {
+                            for (int j = 0; j < eta[i].Length; j++) {
+                                if (value == stateCount) {
+                                    EventData.Etat = EventData.RuntimeEtat = (byte)i;
+                                    EventData.SubEtat = EventData.RuntimeSubEtat = (byte)j;
+                                    OverrideAnimIndex = null;
+                                    return;
+                                }
+                                usedAnims.Add(eta[i][j].AnimationIndex);
+                                stateCount++;
+                            }
+                        }
+                    }
+                    var anims = AnimGroup?.DES?.Animations;
+                    if (anims != null) {
+                        for (int i = 0; i < anims.Count; i++) {
+                            if (usedAnims.Contains(i)) continue;
+                            if (value == stateCount) {
+                                OverrideAnimIndex = (byte)i;
+                                return;
+                            }
+                            stateCount++;
+                        }
+                    }
+                }
+            }
+        }
 
         protected override void OnFinishedAnimation()
         {

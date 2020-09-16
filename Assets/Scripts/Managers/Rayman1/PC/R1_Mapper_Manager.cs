@@ -212,10 +212,9 @@ namespace R1Engine
                 ed.SetFollowEnabled(context.Settings, e.FollowEnabled > 0);
 
                 // Add the event
-                levelEvents.Add(new Unity_Object_R1(ed, objManager)
+                levelEvents.Add(new Unity_Object_R1(ed, objManager, ETAIndex: worldData.ETAFileNames.FindItemIndex(x => x == e.ETAFile))
                 {
-                    DESIndex = worldData.DESFileNames.FindItemIndex(x => x == eventData.DESFileName),
-                    ETAIndex = worldData.ETAFileNames.FindItemIndex(x => x == e.ETAFile)
+                    DESIndex = worldData.DESFileNames.FindItemIndex(x => x == eventData.DESFileName)
                 });
 
                 index++;

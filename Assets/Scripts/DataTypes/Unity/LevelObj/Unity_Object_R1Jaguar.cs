@@ -62,8 +62,60 @@ namespace R1Engine
         public override string SecondaryName => null;
         public override Unity_ObjAnimation CurrentAnimation => DES.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimSpeed => (byte)(ForceNoAnimation ? 0 : State?.AnimSpeed ?? 1);
-        public override byte GetAnimIndex => State?.AnimationIndex ?? 0;
+        public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => DES.Sprites;
+
+        public override string[] UIStateNames {
+            get {
+                List<string> stateNames = new List<string>();
+                var eta = ETA;
+                if (eta != null) {
+                    for (int i = 0; i < eta.Length; i++) {
+                        for (int j = 0; j < eta[i].Length; j++) {
+                            stateNames.Add($"State {i}-{j}");
+                        }
+                    }
+                }
+                return stateNames.ToArray();
+            }
+        }
+
+        public override int CurrentUIState {
+            get {
+                var eta = ETA;
+                int stateCount = 0;
+                if (eta != null) {
+                    for (int i = 0; i < eta.Length; i++) {
+                        if (RuntimeComplexStateIndex == i) {
+                            if (RuntimeStateIndex < eta[i].Length) {
+                                return stateCount + RuntimeStateIndex;
+                            } else return 0;
+                        }
+                        stateCount += eta[i].Length;
+                    }
+                }
+                return 0;
+            }
+            set {
+                if (value != CurrentUIState) {
+                    var eta = ETA;
+                    int stateCount = 0;
+                    if (eta != null) {
+                        for (int i = 0; i < eta.Length; i++) {
+                            for (int j = 0; j < eta[i].Length; j++) {
+                                if (value == stateCount) {
+                                    ComplexStateIndex = RuntimeComplexStateIndex = (byte)i;
+                                    StateIndex = RuntimeStateIndex = (byte)j;
+                                    OverrideAnimIndex = null;
+                                    return;
+                                }
+                                stateCount++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         protected override bool ShouldUpdateFrame()
         {

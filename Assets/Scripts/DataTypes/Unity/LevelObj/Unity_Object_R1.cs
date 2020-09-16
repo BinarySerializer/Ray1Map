@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class Unity_Object_R1 : Unity_Object
     {
-        public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager)
+        public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null)
         {
             // Set properties
             EventData = eventData;
@@ -25,6 +25,13 @@ namespace R1Engine
 
             // Find matching name from event sheet
             SecondaryName = ObjManager.FindMatchingEventInfo(EventData)?.Name;
+
+            if (ETAIndex.HasValue) {
+                if (ObjManager.UsesPointers)
+                    EventData.ETAPointer = ObjManager.ETA[ETAIndex.Value].Pointer;
+                else
+                    EventData.PC_ETAIndex = (uint)ETAIndex.Value;
+            }
         }
 
         public R1_EventData EventData { get; }
@@ -36,24 +43,32 @@ namespace R1Engine
         public int DESIndex
         {
             get => (ObjManager.UsesPointers ? ObjManager.DES.FindItemIndex(x => x.Pointer == EventData.ImageDescriptorsPointer) : (int)EventData.PC_ImageDescriptorsIndex);
-            set
-            {
-                if (ObjManager.UsesPointers)
-                    EventData.ImageDescriptorsPointer = ObjManager.DES[value].Pointer;
-                else
-                    EventData.PC_ImageDescriptorsIndex = EventData.PC_AnimationDescriptorsIndex = EventData.PC_ImageBufferIndex = (uint)value;
+            set {
+                if (value != DESIndex) {
+                    OverrideAnimIndex = null;
+
+                    if (ObjManager.UsesPointers)
+                        EventData.ImageDescriptorsPointer = ObjManager.DES[value].Pointer;
+                    else
+                        EventData.PC_ImageDescriptorsIndex = EventData.PC_AnimationDescriptorsIndex = EventData.PC_ImageBufferIndex = (uint)value;
+                }
             }
         }
 
         public int ETAIndex
         {
             get => (ObjManager.UsesPointers ? ObjManager.ETA.FindItemIndex(x => x.Pointer == EventData.ETAPointer) : (int)EventData.PC_ETAIndex);
-            set
-            {
-                if (ObjManager.UsesPointers)
-                    EventData.ETAPointer = ObjManager.ETA[value].Pointer;
-                else
-                    EventData.PC_ETAIndex = (uint)value;
+            set {
+                if (value != ETAIndex) {
+                    EventData.Etat = EventData.RuntimeEtat = 0;
+                    EventData.SubEtat = EventData.RuntimeSubEtat = 0;
+                    OverrideAnimIndex = null;
+
+                    if (ObjManager.UsesPointers)
+                        EventData.ETAPointer = ObjManager.ETA[value].Pointer;
+                    else
+                        EventData.PC_ETAIndex = (uint)value;
+                }
             }
         }
 
@@ -161,11 +176,110 @@ namespace R1Engine
 
         public override byte AnimSpeed => (byte)(EventData.Type.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0);
 
-        public override byte GetAnimIndex => State?.AnimationIndex ?? 0;
+        public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.OffsetBX, -EventData.OffsetBY);
 
-        protected override bool ShouldUpdateFrame()
+		public override string[] UIStateNames {
+            get {
+                List<string> stateNames = new List<string>();
+                HashSet<int> usedAnims = new HashSet<int>();
+                var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
+                if (eta != null) {
+                    for (int i = 0; i < eta.Length; i++) {
+                        for (int j = 0; j < eta[i].Length; j++) {
+                            usedAnims.Add(eta[i][j].AnimationIndex);
+                            stateNames.Add($"State {i}-{j}");
+                        }
+                    }
+                }
+                var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations;
+                if (anims != null) {
+                    for (int i = 0; i < anims.Count; i++) {
+                        if (usedAnims.Contains(i)) continue;
+                        stateNames.Add("(Unused) Animation " + i);
+                    }
+                }
+                return stateNames.ToArray();
+            }
+        }
+
+		public override int CurrentUIState {
+            get {
+                var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
+                if (OverrideAnimIndex.HasValue) {
+                    int currentState = eta?.Sum(e => e.Length) ?? 0;
+                    HashSet<int> usedAnims = new HashSet<int>();
+                    if (eta != null) {
+                        for (int i = 0; i < eta.Length; i++) {
+                            for (int j = 0; j < eta[i].Length; j++) {
+                                usedAnims.Add(eta[i][j].AnimationIndex);
+                            }
+                        }
+                    }
+                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations;
+                    if (anims != null) {
+                        for (int i = 0; i < anims.Count; i++) {
+                            if (usedAnims.Contains(i)) continue;
+                            if (i == OverrideAnimIndex) {
+                                return currentState;
+                            } else if (i > OverrideAnimIndex) {
+                                return 0;
+                            }
+                            currentState++;
+                        }
+                    }
+                    return 0;
+                } else {
+                    int stateCount = 0;
+                    if (eta != null) {
+                        for (int i = 0; i < eta.Length; i++) {
+                            if (EventData.Etat == i) {
+                                if (EventData.SubEtat < eta[i].Length) {
+                                    return stateCount + EventData.SubEtat;
+                                } else return 0;
+                            }
+                            stateCount += eta[i].Length;
+                        }
+                    }
+                    return 0;
+                }
+            }
+            set {
+                if (value != CurrentUIState) {
+                    HashSet<int> usedAnims = new HashSet<int>();
+                    var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
+                    int stateCount = 0;
+                    if (eta != null) {
+                        for (int i = 0; i < eta.Length; i++) {
+                            for (int j = 0; j < eta[i].Length; j++) {
+                                if (value == stateCount) {
+                                    EventData.Etat = EventData.RuntimeEtat = (byte)i;
+                                    EventData.SubEtat = EventData.RuntimeSubEtat = (byte)j;
+                                    OverrideAnimIndex = null;
+                                    return;
+                                }
+                                usedAnims.Add(eta[i][j].AnimationIndex);
+                                stateCount++;
+                            }
+                        }
+                    }
+                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations;
+                    if (anims != null) {
+                        for (int i = 0; i < anims.Count; i++) {
+                            if (usedAnims.Contains(i)) continue;
+                            if (value == stateCount) {
+                                OverrideAnimIndex = (byte)i;
+                                return;
+                            }
+                            stateCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+		protected override bool ShouldUpdateFrame()
         {
             // Set frame based on hit points for special events
             if (EventData.Type.IsHPFrame())
