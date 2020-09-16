@@ -99,7 +99,12 @@ namespace R1Engine
                 Always2Actors = s.SerializeObjectArray<GBA_Actor>(Always2Actors, Always2ActorsCount, name: nameof(Always2Actors));
 
                 UnkActorStructs = s.SerializeObjectArray<GBA_UnkActorStruct>(UnkActorStructs, UnkActorStructsCount, name: nameof(UnkActorStructs));
-                UnkSceneStructs = s.SerializeObjectArray<GBA_UnkSceneStruct>(UnkSceneStructs, UnkSceneStructsCount, name: nameof(UnkSceneStructs));
+
+                if (s.GameSettings.EngineVersion != EngineVersion.GBA_PrinceOfPersia)
+                    UnkSceneStructs = s.SerializeObjectArray<GBA_UnkSceneStruct>(UnkSceneStructs, UnkSceneStructsCount, name: nameof(UnkSceneStructs));
+                else
+                    // TODO: Parse remaining data
+                    RemainingData = s.SerializeArray<byte>(RemainingData, BlockSize - (s.CurrentPointer - Offset), name: nameof(RemainingData));
             }
         }
 
