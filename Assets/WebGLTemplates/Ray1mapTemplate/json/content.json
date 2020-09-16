@@ -130,6 +130,15 @@
 					]
 				},
 				{
+					"title": "Rayman SNES",
+					"viewer": "ray1map",
+					"json": "snes",
+					"image": ".\/img\/logo\/r1_snes.png",
+					"versions": [
+						{ "json": "proto", "image": ".\/img\/version\/snes.png", "name": "SNES Prototype", "folder": "snes/proto" }
+					]
+				},
+				{
 					"title": "Rayman 3",
 					"viewer": "ray1map",
 					"json": "gba\/r3",
@@ -146,12 +155,113 @@
 			"name": "Other games",
 			"games": [
 				{
+					"title": "Batman Vengeance",
+					"viewer": "ray1map",
+					"json": "gba\/batman_vengeance",
+					"image": ".\/img\/logo\/batman_vengeance.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/batman_vengeance_eu" }
+					]
+				},
+				{
+					"title": "Sabrina the Teenage Witch - Potion Commotion",
+					"viewer": "ray1map",
+					"json": "gba\/sabrina_potion_commotion",
+					"image": ".\/img\/logo\/sabrina_potion_commotion.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/sabrina_potion_commotion_eu" }
+					]
+				},
+				{
+					"title": "Splinter Cell",
+					"viewer": "ray1map",
+					"json": "gba\/splinter_cell",
+					"image": ".\/img\/logo\/splinter_cell.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/splinter_cell_eu" },
+						{ "json": "ngage", "image": ".\/img\/version\/ngage.png", "name": "N-Gage", "folder": "gba/splinter_cell_ngage" },
+						{ "json": "eu_proto", "image": ".\/img\/version\/gba.png", "name": "GBA Prototype", "folder": "gba/splinter_cell_eu_beta" }
+					]
+				},
+				{
+					"title": "Splinter Cell: Pandora Tomorrow",
+					"viewer": "ray1map",
+					"json": "gba\/splinter_cell_pandora_tomorrow",
+					"image": ".\/img\/logo\/splinter_cell_pandora_tomorrow.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/splinter_cell_pandora_tomorrow_eu" }
+					]
+				},
+				{
+					"title": "Batman: Rise of Sin Tzu",
+					"viewer": "ray1map",
+					"json": "gba\/batman_rise_of_sin_tzu",
+					"image": ".\/img\/logo\/batman_rise_of_sin_tzu.png",
+					"versions": [
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/batman_rise_of_sin_tzu_us" }
+					]
+				},
+				{
 					"title": "Prince of Persia: The Sands of Time",
-					"viewer": "raymap",
+					"viewer": "ray1map",
 					"json": "gba\/pop_sot",
 					"image": ".\/img\/logo\/pop_sot.png",
 					"versions": [
-						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "Gameboy Advance (US)", "folder": "gba/pop_us" }
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/pop_eu" }
+					]
+				},
+				{
+					"title": "Star Wars Trilogy: Apprentice of the Force",
+					"viewer": "ray1map",
+					"json": "gba\/star_wars_trilogy_apprentice_of_the_force",
+					"image": ".\/img\/logo\/star_wars_trilogy_apprentice_of_the_force.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/star_wars_trilogy_apprentice_of_the_force_eu" }
+					]
+				},
+				{
+					"title": "Star Wars Episode III",
+					"viewer": "ray1map",
+					"json": "gba\/star_wars_episode_III",
+					"image": ".\/img\/logo\/star_wars_episode_III.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/star_wars_episode_III_eu" }
+					]
+				},
+				{
+					"title": "King Kong",
+					"viewer": "ray1map",
+					"json": "gba\/king_kong",
+					"image": ".\/img\/logo\/king_kong.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/king_kong_eu" }
+					]
+				},
+				{
+					"title": "Open Season",
+					"viewer": "ray1map",
+					"json": "gba\/open_season",
+					"image": ".\/img\/logo\/open_season.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/open_season_eu1" }
+					]
+				},
+				{
+					"title": "TMNT",
+					"viewer": "ray1map",
+					"json": "gba\/tmnt",
+					"image": ".\/img\/logo\/tmnt.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/tmnt_eu" }
+					]
+				},
+				{
+					"title": "Surf's Up",
+					"viewer": "ray1map",
+					"json": "gba\/surf's_up",
+					"image": ".\/img\/logo\/surf's_up.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/surf's_up_eu1" }
 					]
 				}
 			]

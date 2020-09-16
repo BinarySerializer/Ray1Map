@@ -34,61 +34,61 @@
       "world": 1,
       "level": 6,
       "nameInternal": "JUN06",
-      "name": "Jungle 6"
+      "name": "Ordine alfabetico 1-1"
     },
     {
       "world": 1,
       "level": 7,
       "nameInternal": "JUN07",
-      "name": "Jungle 7"
+      "name": "Ordine alfabetico 1-2"
     },
     {
       "world": 1,
       "level": 8,
       "nameInternal": "JUN08",
-      "name": "Jungle 8"
+      "name": "Ordine alfabetico 1-3"
     },
     {
       "world": 1,
       "level": 9,
       "nameInternal": "JUN09",
-      "name": "Jungle 9"
+      "name": "Ordine alfabetico 1-4"
     },
     {
       "world": 1,
       "level": 10,
       "nameInternal": "JUN10",
-      "name": "Jungle 10"
+      "name": "Ordine alfabetico 1-5"
     },
     {
       "world": 1,
       "level": 21,
       "nameInternal": "JUN21",
-      "name": "Jungle 21"
+      "name": "Addizioni e sottrazioni 1-1"
     },
     {
       "world": 1,
       "level": 22,
       "nameInternal": "JUN22",
-      "name": "Jungle 22"
+      "name": "Addizioni e sottrazioni 1-2"
     },
     {
       "world": 1,
       "level": 23,
       "nameInternal": "JUN23",
-      "name": "Jungle 23"
+      "name": "Addizioni e sottrazioni 1-3"
     },
     {
       "world": 1,
       "level": 24,
       "nameInternal": "JUN24",
-      "name": "Jungle 24"
+      "name": "Addizioni e sottrazioni 1-4"
     },
     {
       "world": 1,
       "level": 25,
       "nameInternal": "JUN25",
-      "name": "Jungle 25"
+      "name": "Addizioni e sottrazioni 1-5"
     },
     {
       "world": 1,
@@ -106,67 +106,67 @@
       "world": 1,
       "level": 53,
       "nameInternal": "JUN53",
-      "name": "Jungle 53"
+      "name": "Allenamento con le bacche 1-1"
     },
     {
       "world": 2,
       "level": 6,
       "nameInternal": "MUS06",
-      "name": "Music 6"
+      "name": "Scomposizione delle parole 1-1"
     },
     {
       "world": 2,
       "level": 7,
       "nameInternal": "MUS07",
-      "name": "Music 7"
+      "name": "Scomposizione delle parole 1-2"
     },
     {
       "world": 2,
       "level": 8,
       "nameInternal": "MUS08",
-      "name": "Music 8"
+      "name": "Scomposizione delle parole 1-3"
     },
     {
       "world": 2,
       "level": 9,
       "nameInternal": "MUS09",
-      "name": "Music 9"
+      "name": "Scomposizione delle parole 1-4"
     },
     {
       "world": 2,
       "level": 10,
       "nameInternal": "MUS10",
-      "name": "Music 10"
+      "name": "Scomposizione delle parole 1-5"
     },
     {
       "world": 2,
       "level": 21,
       "nameInternal": "MUS21",
-      "name": "Music 21"
+      "name": "Equazioni 1-1"
     },
     {
       "world": 2,
       "level": 22,
       "nameInternal": "MUS22",
-      "name": "Music 22"
+      "name": "Equazioni 1-2"
     },
     {
       "world": 2,
       "level": 23,
       "nameInternal": "MUS23",
-      "name": "Music 23"
+      "name": "Equazioni 1-3"
     },
     {
       "world": 2,
       "level": 24,
       "nameInternal": "MUS24",
-      "name": "Music 24"
+      "name": "Equazioni 1-4"
     },
     {
       "world": 2,
       "level": 25,
       "nameInternal": "MUS25",
-      "name": "Music 25"
+      "name": "Equazioni 1-5"
     },
     {
       "world": 2,
@@ -184,67 +184,67 @@
       "world": 2,
       "level": 53,
       "nameInternal": "MUS53",
-      "name": "Music 53"
+      "name": " Allenamento razzi-maracas 1-1"
     },
     {
       "world": 3,
       "level": 6,
       "nameInternal": "MON06",
-      "name": "Mountain 6"
+      "name": "Comprensione dei vocaboli 1-1"
     },
     {
       "world": 3,
       "level": 7,
       "nameInternal": "MON07",
-      "name": "Mountain 7"
+      "name": "Comprensione dei vocaboli 1-2"
     },
     {
       "world": 3,
       "level": 8,
       "nameInternal": "MON08",
-      "name": "Mountain 8"
+      "name": "Comprensione dei vocaboli 1-3"
     },
     {
       "world": 3,
       "level": 9,
       "nameInternal": "MON09",
-      "name": "Mountain 9"
+      "name": "Comprensione dei vocaboli 1-4"
     },
     {
       "world": 3,
       "level": 10,
       "nameInternal": "MON10",
-      "name": "Mountain 10"
+      "name": "Comprensione dei vocaboli 1-5"
     },
     {
       "world": 3,
       "level": 21,
       "nameInternal": "MON21",
-      "name": "Mountain 21"
+      "name": "Riconoscimento dei numeri 1-1"
     },
     {
       "world": 3,
       "level": 22,
       "nameInternal": "MON22",
-      "name": "Mountain 22"
+      "name": "Riconoscimento dei numeri 1-2"
     },
     {
       "world": 3,
       "level": 23,
       "nameInternal": "MON23",
-      "name": "Mountain 23"
+      "name": "Riconoscimento dei numeri 1-3"
     },
     {
       "world": 3,
       "level": 24,
       "nameInternal": "MON24",
-      "name": "Mountain 24"
+      "name": "Riconoscimento dei numeri 1-4"
     },
     {
       "world": 3,
       "level": 25,
       "nameInternal": "MON25",
-      "name": "Mountain 25"
+      "name": "Riconoscimento dei numeri 1-5"
     },
     {
       "world": 3,
@@ -268,61 +268,61 @@
       "world": 4,
       "level": 6,
       "nameInternal": "IMA06",
-      "name": "Image 6"
+      "name": "Fonetica 1-1"
     },
     {
       "world": 4,
       "level": 7,
       "nameInternal": "IMA07",
-      "name": "Image 7"
+      "name": "Fonetica 1-2"
     },
     {
       "world": 4,
       "level": 8,
       "nameInternal": "IMA08",
-      "name": "Image 8"
+      "name": "Fonetica 1-3"
     },
     {
       "world": 4,
       "level": 9,
       "nameInternal": "IMA09",
-      "name": "Image 9"
+      "name": "Fonetica 1-4"
     },
     {
       "world": 4,
       "level": 10,
       "nameInternal": "IMA10",
-      "name": "Image 10"
+      "name": "Fonetica 1-5"
     },
     {
       "world": 4,
       "level": 21,
       "nameInternal": "IMA21",
-      "name": "Image 21"
+      "name": "Comparazioni e ordine dei numeri 1-1"
     },
     {
       "world": 4,
       "level": 22,
       "nameInternal": "IMA22",
-      "name": "Image 22"
+      "name": "Comparazioni e ordine dei numeri 1-2"
     },
     {
       "world": 4,
       "level": 23,
       "nameInternal": "IMA23",
-      "name": "Image 23"
+      "name": "Comparazioni e ordine dei numeri 1-3"
     },
     {
       "world": 4,
       "level": 24,
       "nameInternal": "IMA24",
-      "name": "Image 24"
+      "name": "Comparazioni e ordine dei numeri 1-4"
     },
     {
       "world": 4,
       "level": 25,
       "nameInternal": "IMA25",
-      "name": "Image 25"
+      "name": "Comparazioni e ordine dei numeri 1-5"
     },
     {
       "world": 4,
@@ -340,67 +340,67 @@
       "world": 4,
       "level": 53,
       "nameInternal": "IMA53",
-      "name": "Image 53"
+      "name": "Allenamento salto ed elicottero 1-1"
     },
     {
       "world": 5,
       "level": 6,
       "nameInternal": "CAV06",
-      "name": "Cave 6"
+      "name": "Riconoscimento dei vocaboli 1-1"
     },
     {
       "world": 5,
       "level": 7,
       "nameInternal": "CAV07",
-      "name": "Cave 7"
+      "name": "Riconoscimento dei vocaboli 1-2"
     },
     {
       "world": 5,
       "level": 8,
       "nameInternal": "CAV08",
-      "name": "Cave 8"
+      "name": "Riconoscimento dei vocaboli 1-3"
     },
     {
       "world": 5,
       "level": 9,
       "nameInternal": "CAV09",
-      "name": "Cave 9"
+      "name": "Riconoscimento dei vocaboli 1-4"
     },
     {
       "world": 5,
       "level": 10,
       "nameInternal": "CAV10",
-      "name": "Cave 10"
+      "name": "Riconoscimento dei vocaboli 1-5"
     },
     {
       "world": 5,
       "level": 21,
       "nameInternal": "CAV21",
-      "name": "Cave 21"
+      "name": "Conteggio e moltiplicazioni 1-1"
     },
     {
       "world": 5,
       "level": 22,
       "nameInternal": "CAV22",
-      "name": "Cave 22"
+      "name": "Conteggio e moltiplicazioni 1-2"
     },
     {
       "world": 5,
       "level": 23,
       "nameInternal": "CAV23",
-      "name": "Cave 23"
+      "name": "Conteggio e moltiplicazioni 1-3"
     },
     {
       "world": 5,
       "level": 24,
       "nameInternal": "CAV24",
-      "name": "Cave 24"
+      "name": "Conteggio e moltiplicazioni 1-4"
     },
     {
       "world": 5,
       "level": 25,
       "nameInternal": "CAV25",
-      "name": "Cave 25"
+      "name": "Conteggio e moltiplicazioni 1-5"
     },
     {
       "world": 5,
@@ -418,67 +418,67 @@
       "world": 5,
       "level": 53,
       "nameInternal": "CAV53",
-      "name": "Cave 53"
+      "name": "Allenamento pugni 1-1"
     },
     {
       "world": 6,
       "level": 6,
       "nameInternal": "CAK06",
-      "name": "Cake 6"
+      "name": "Ortografia 1-1"
     },
     {
       "world": 6,
       "level": 7,
       "nameInternal": "CAK07",
-      "name": "Cake 7"
+      "name": "Ortografia 1-2"
     },
     {
       "world": 6,
       "level": 8,
       "nameInternal": "CAK08",
-      "name": "Cake 8"
+      "name": "Ortografia 1-3"
     },
     {
       "world": 6,
       "level": 9,
       "nameInternal": "CAK09",
-      "name": "Cake 9"
+      "name": "Ortografia 1-4"
     },
     {
       "world": 6,
       "level": 10,
       "nameInternal": "CAK10",
-      "name": "Cake 10"
+      "name": "Ortografia 1-5"
     },
     {
       "world": 6,
       "level": 21,
       "nameInternal": "CAK21",
-      "name": "Cake 21"
+      "name": "Analisi dei numeri 1-1"
     },
     {
       "world": 6,
       "level": 22,
       "nameInternal": "CAK22",
-      "name": "Cake 22"
+      "name": "Analisi dei numeri 1-2"
     },
     {
       "world": 6,
       "level": 23,
       "nameInternal": "CAK23",
-      "name": "Cake 23"
+      "name": "Analisi dei numeri 1-3"
     },
     {
       "world": 6,
       "level": 24,
       "nameInternal": "CAK24",
-      "name": "Cake 24"
+      "name": "Analisi dei numeri 1-4"
     },
     {
       "world": 6,
       "level": 25,
       "nameInternal": "CAK25",
-      "name": "Cake 25"
+      "name": "Analisi dei numeri 1-5"
     },
     {
       "world": 6,
@@ -496,13 +496,13 @@
       "world": 6,
       "level": 53,
       "nameInternal": "CAK53",
-      "name": "Cake 53"
+      "name": " Allenamento superelica 1-1"
     },
     {
       "world": 6,
       "level": 54,
       "nameInternal": "CAK54",
-      "name": "Cake 54"
+      "name": "Fine 1-1"
     }
   ]
 }
