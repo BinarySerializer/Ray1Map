@@ -72,7 +72,11 @@ namespace R1Engine
                 if (eta != null) {
                     for (int i = 0; i < eta.Length; i++) {
                         for (int j = 0; j < eta[i].Length; j++) {
-                            stateNames.Add($"State {i}-{j}");
+                            if (eta[i][j].Name != null) {
+                                stateNames.Add($"State {i}-{j}: {eta[i][j].Name}");
+                            } else {
+                                stateNames.Add($"State {i}-{j}");
+                            }
                         }
                     }
                 }
