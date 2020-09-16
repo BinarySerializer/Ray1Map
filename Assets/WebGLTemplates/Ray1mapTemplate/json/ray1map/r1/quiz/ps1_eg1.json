@@ -34,139 +34,139 @@
       "world": 1,
       "level": 1,
       "nameInternal": "JUN01",
-      "name": "Jungle 1"
+      "name": "En casa 1-1"
     },
     {
       "world": 1,
       "level": 2,
       "nameInternal": "JUN02",
-      "name": "Jungle 2"
+      "name": "En casa 1-2"
     },
     {
       "world": 1,
       "level": 3,
       "nameInternal": "JUN03",
-      "name": "Jungle 3"
+      "name": "En casa 1-3"
     },
     {
       "world": 1,
       "level": 4,
       "nameInternal": "JUN04",
-      "name": "Jungle 4"
+      "name": "La gente 1-1"
     },
     {
       "world": 1,
       "level": 5,
       "nameInternal": "JUN05",
-      "name": "Jungle 5"
+      "name": "La gente 1-2"
     },
     {
       "world": 1,
       "level": 6,
       "nameInternal": "JUN06",
-      "name": "Jungle 6"
+      "name": "La gente 1-3"
     },
     {
       "world": 1,
       "level": 53,
       "nameInternal": "JUN53",
-      "name": "Jungle 53"
+      "name": "Prueba tu sincronización 1-1"
     },
     {
       "world": 2,
       "level": 1,
       "nameInternal": "MUS01",
-      "name": "Music 1"
+      "name": "Arte y cultura 1-1"
     },
     {
       "world": 2,
       "level": 2,
       "nameInternal": "MUS02",
-      "name": "Music 2"
+      "name": "Arte y cultura 1-2"
     },
     {
       "world": 2,
       "level": 3,
       "nameInternal": "MUS03",
-      "name": "Music 3"
+      "name": "Arte y cultura 1-3"
     },
     {
       "world": 2,
       "level": 4,
       "nameInternal": "MUS04",
-      "name": "Music 4"
+      "name": "En la calle 1-1"
     },
     {
       "world": 2,
       "level": 5,
       "nameInternal": "MUS05",
-      "name": "Music 5"
+      "name": "En la calle 1-2"
     },
     {
       "world": 2,
       "level": 6,
       "nameInternal": "MUS06",
-      "name": "Music 6"
+      "name": "En la calle 1-3"
     },
     {
       "world": 2,
       "level": 7,
       "nameInternal": "MUS07",
-      "name": "Music 7"
+      "name": "Naturaleza 1-1"
     },
     {
       "world": 2,
       "level": 8,
       "nameInternal": "MUS08",
-      "name": "Music 8"
+      "name": "Naturaleza 1-2"
     },
     {
       "world": 2,
       "level": 9,
       "nameInternal": "MUS09",
-      "name": "Music 9"
+      "name": "Naturaleza 1-3"
     },
     {
       "world": 2,
       "level": 53,
       "nameInternal": "MUS53",
-      "name": "Music 53"
+      "name": "Practica con el cohete maraca 1-1"
     },
     {
       "world": 3,
       "level": 1,
       "nameInternal": "MON01",
-      "name": "Mountain 1"
+      "name": "Números 1-1"
     },
     {
       "world": 3,
       "level": 2,
       "nameInternal": "MON02",
-      "name": "Mountain 2"
+      "name": "Números 1-2"
     },
     {
       "world": 3,
       "level": 3,
       "nameInternal": "MON03",
-      "name": "Mountain 3"
+      "name": "Números 1-3"
     },
     {
       "world": 3,
       "level": 4,
       "nameInternal": "MON04",
-      "name": "Mountain 4"
+      "name": "El cuerpo humano 1-1"
     },
     {
       "world": 3,
       "level": 5,
       "nameInternal": "MON05",
-      "name": "Mountain 5"
+      "name": "El cuerpo humano 1-2"
     },
     {
       "world": 3,
       "level": 6,
       "nameInternal": "MON06",
-      "name": "Mountain 6"
+      "name": "El cuerpo humano 1-3"
     },
     {
       "world": 3,
@@ -178,169 +178,169 @@
       "world": 4,
       "level": 1,
       "nameInternal": "IMA01",
-      "name": "Image 1"
+      "name": "Medios de comunicación 1-1"
     },
     {
       "world": 4,
       "level": 2,
       "nameInternal": "IMA02",
-      "name": "Image 2"
+      "name": "Medios de comunicación 1-2"
     },
     {
       "world": 4,
       "level": 3,
       "nameInternal": "IMA03",
-      "name": "Image 3"
+      "name": "Medios de comunicación 1-3"
     },
     {
       "world": 4,
       "level": 4,
       "nameInternal": "IMA04",
-      "name": "Image 4"
+      "name": "¡De vacaciones! 1-1"
     },
     {
       "world": 4,
       "level": 5,
       "nameInternal": "IMA05",
-      "name": "Image 5"
+      "name": "¡De vacaciones! 1-2"
     },
     {
       "world": 4,
       "level": 6,
       "nameInternal": "IMA06",
-      "name": "Image 6"
+      "name": "¡De vacaciones! 1-3"
     },
     {
       "world": 4,
       "level": 53,
       "nameInternal": "IMA53",
-      "name": "Image 53"
+      "name": "Practica con el salto y el helicóptero 1-1"
     },
     {
       "world": 5,
       "level": 1,
       "nameInternal": "CAV01",
-      "name": "Cave 1"
+      "name": "En el colegio 1-1"
     },
     {
       "world": 5,
       "level": 2,
       "nameInternal": "CAV02",
-      "name": "Cave 2"
+      "name": "En el colegio 1-2"
     },
     {
       "world": 5,
       "level": 3,
       "nameInternal": "CAV03",
-      "name": "Cave 3"
+      "name": "En el colegio 1-3"
     },
     {
       "world": 5,
       "level": 4,
       "nameInternal": "CAV04",
-      "name": "Cave 4"
+      "name": "Deportes 1-1"
     },
     {
       "world": 5,
       "level": 5,
       "nameInternal": "CAV05",
-      "name": "Cave 5"
+      "name": "Deportes 1-2"
     },
     {
       "world": 5,
       "level": 6,
       "nameInternal": "CAV06",
-      "name": "Cave 6"
+      "name": "Deportes 1-3"
     },
     {
       "world": 5,
       "level": 7,
       "nameInternal": "CAV07",
-      "name": "Cave 7"
+      "name": "Conocimientos generales 1-1"
     },
     {
       "world": 5,
       "level": 8,
       "nameInternal": "CAV08",
-      "name": "Cave 8"
+      "name": "Conocimientos generales 1-2"
     },
     {
       "world": 5,
       "level": 9,
       "nameInternal": "CAV09",
-      "name": "Cave 9"
+      "name": "Conocimientos generales 1-3"
     },
     {
       "world": 5,
       "level": 53,
       "nameInternal": "CAV53",
-      "name": "Cave 53"
+      "name": "Practica con el superhelicóptero 1-1"
     },
     {
       "world": 6,
       "level": 1,
       "nameInternal": "CAK01",
-      "name": "Cake 1"
+      "name": "Comida y bebida 1-1"
     },
     {
       "world": 6,
       "level": 2,
       "nameInternal": "CAK02",
-      "name": "Cake 2"
+      "name": "Comida y bebida 1-2"
     },
     {
       "world": 6,
       "level": 3,
       "nameInternal": "CAK03",
-      "name": "Cake 3"
+      "name": "Comida y bebida 1-3"
     },
     {
       "world": 6,
       "level": 4,
       "nameInternal": "CAK04",
-      "name": "Cake 4"
+      "name": "Fiestas y ocasiones especiales 1-1"
     },
     {
       "world": 6,
       "level": 5,
       "nameInternal": "CAK05",
-      "name": "Cake 5"
+      "name": "Fiestas y ocasiones especiales 1-2"
     },
     {
       "world": 6,
       "level": 6,
       "nameInternal": "CAK06",
-      "name": "Cake 6"
+      "name": "Fiestas y ocasiones especiales 1-3"
     },
     {
       "world": 6,
       "level": 7,
       "nameInternal": "CAK07",
-      "name": "Cake 7"
+      "name": "Héroes y aventuras 1-1"
     },
     {
       "world": 6,
       "level": 8,
       "nameInternal": "CAK08",
-      "name": "Cake 8"
+      "name": "Héroes y aventuras 1-2"
     },
     {
       "world": 6,
       "level": 9,
       "nameInternal": "CAK09",
-      "name": "Cake 9"
+      "name": "Héroes y aventuras 1-3"
     },
     {
       "world": 6,
       "level": 53,
       "nameInternal": "CAK53",
-      "name": "Cake 53"
+      "name": "Practica con el puño 1-1"
     },
     {
       "world": 6,
       "level": 54,
       "nameInternal": "CAK54",
-      "name": "Cake 54"
+      "name": "Fin 1-1"
     }
   ]
 }

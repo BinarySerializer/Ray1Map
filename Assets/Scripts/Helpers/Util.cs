@@ -231,7 +231,7 @@ namespace R1Engine {
                                         currentWorld = entry.World;
 
                                     if (currentWorld == world && entry.Level == level)
-                                        return $"{(R1_World)world} {level} ({text.TextDefine[lvl.LevelName].Value.Trim('/')} {groupIndex}-{levelIndex})";
+                                        return $"{text.TextDefine[lvl.LevelName].Value.Trim('/')} {groupIndex}-{levelIndex}";
                                 }
                             }
 

@@ -34,61 +34,61 @@
       "world": 1,
       "level": 1,
       "nameInternal": "JUN01",
-      "name": "Jungle 1"
+      "name": "Ordre alphabétique 1-1"
     },
     {
       "world": 1,
       "level": 2,
       "nameInternal": "JUN02",
-      "name": "Jungle 2"
+      "name": "Ordre alphabétique 1-2"
     },
     {
       "world": 1,
       "level": 3,
       "nameInternal": "JUN03",
-      "name": "Jungle 3"
+      "name": "Ordre alphabétique 1-3"
     },
     {
       "world": 1,
       "level": 4,
       "nameInternal": "JUN04",
-      "name": "Jungle 4"
+      "name": "Ordre alphabétique 1-4"
     },
     {
       "world": 1,
       "level": 5,
       "nameInternal": "JUN05",
-      "name": "Jungle 5"
+      "name": "Ordre alphabétique 1-5"
     },
     {
       "world": 1,
       "level": 16,
       "nameInternal": "JUN16",
-      "name": "Jungle 16"
+      "name": "Opérations 1-1"
     },
     {
       "world": 1,
       "level": 17,
       "nameInternal": "JUN17",
-      "name": "Jungle 17"
+      "name": "Opérations 1-2"
     },
     {
       "world": 1,
       "level": 18,
       "nameInternal": "JUN18",
-      "name": "Jungle 18"
+      "name": "Opérations 1-3"
     },
     {
       "world": 1,
       "level": 19,
       "nameInternal": "JUN19",
-      "name": "Jungle 19"
+      "name": "Opérations 1-4"
     },
     {
       "world": 1,
       "level": 20,
       "nameInternal": "JUN20",
-      "name": "Jungle 20"
+      "name": "Opérations 1-5"
     },
     {
       "world": 1,
@@ -106,67 +106,67 @@
       "world": 1,
       "level": 53,
       "nameInternal": "JUN53",
-      "name": "Jungle 53"
+      "name": "Entraînement balanciers 1-1"
     },
     {
       "world": 2,
       "level": 1,
       "nameInternal": "MUS01",
-      "name": "Music 1"
+      "name": "Décomposition des mots 1-1"
     },
     {
       "world": 2,
       "level": 2,
       "nameInternal": "MUS02",
-      "name": "Music 2"
+      "name": "Décomposition des mots 1-2"
     },
     {
       "world": 2,
       "level": 3,
       "nameInternal": "MUS03",
-      "name": "Music 3"
+      "name": "Décomposition des mots 1-3"
     },
     {
       "world": 2,
       "level": 4,
       "nameInternal": "MUS04",
-      "name": "Music 4"
+      "name": "Décomposition des mots 1-4"
     },
     {
       "world": 2,
       "level": 5,
       "nameInternal": "MUS05",
-      "name": "Music 5"
+      "name": "Décomposition des mots 1-5"
     },
     {
       "world": 2,
       "level": 16,
       "nameInternal": "MUS16",
-      "name": "Music 16"
+      "name": "Comparaisons de quantités 1-1"
     },
     {
       "world": 2,
       "level": 17,
       "nameInternal": "MUS17",
-      "name": "Music 17"
+      "name": "Comparaisons de quantités 1-2"
     },
     {
       "world": 2,
       "level": 18,
       "nameInternal": "MUS18",
-      "name": "Music 18"
+      "name": "Comparaisons de quantités 1-3"
     },
     {
       "world": 2,
       "level": 19,
       "nameInternal": "MUS19",
-      "name": "Music 19"
+      "name": "Comparaisons de quantités 1-4"
     },
     {
       "world": 2,
       "level": 20,
       "nameInternal": "MUS20",
-      "name": "Music 20"
+      "name": "Comparaisons de quantités 1-5"
     },
     {
       "world": 2,
@@ -184,67 +184,67 @@
       "world": 2,
       "level": 53,
       "nameInternal": "MUS53",
-      "name": "Music 53"
+      "name": "Entraînement pilotage maracas 1-1"
     },
     {
       "world": 3,
       "level": 1,
       "nameInternal": "MON01",
-      "name": "Mountain 1"
+      "name": "Lecture fine et compréhension 1-1"
     },
     {
       "world": 3,
       "level": 2,
       "nameInternal": "MON02",
-      "name": "Mountain 2"
+      "name": "Lecture fine et compréhension 1-2"
     },
     {
       "world": 3,
       "level": 3,
       "nameInternal": "MON03",
-      "name": "Mountain 3"
+      "name": "Lecture fine et compréhension 1-3"
     },
     {
       "world": 3,
       "level": 4,
       "nameInternal": "MON04",
-      "name": "Mountain 4"
+      "name": "Lecture fine et compréhension 1-4"
     },
     {
       "world": 3,
       "level": 5,
       "nameInternal": "MON05",
-      "name": "Mountain 5"
+      "name": "Lecture fine et compréhension 1-5"
     },
     {
       "world": 3,
       "level": 16,
       "nameInternal": "MON16",
-      "name": "Mountain 16"
+      "name": "Lecture des nombres 1-1"
     },
     {
       "world": 3,
       "level": 17,
       "nameInternal": "MON17",
-      "name": "Mountain 17"
+      "name": "Lecture des nombres 1-2"
     },
     {
       "world": 3,
       "level": 18,
       "nameInternal": "MON18",
-      "name": "Mountain 18"
+      "name": "Lecture des nombres 1-3"
     },
     {
       "world": 3,
       "level": 19,
       "nameInternal": "MON19",
-      "name": "Mountain 19"
+      "name": "Lecture des nombres 1-4"
     },
     {
       "world": 3,
       "level": 20,
       "nameInternal": "MON20",
-      "name": "Mountain 20"
+      "name": "Lecture des nombres 1-5"
     },
     {
       "world": 3,
@@ -268,61 +268,61 @@
       "world": 4,
       "level": 1,
       "nameInternal": "IMA01",
-      "name": "Image 1"
+      "name": "Identifier et lire les sons 1-1"
     },
     {
       "world": 4,
       "level": 2,
       "nameInternal": "IMA02",
-      "name": "Image 2"
+      "name": "Identifier et lire les sons 1-2"
     },
     {
       "world": 4,
       "level": 3,
       "nameInternal": "IMA03",
-      "name": "Image 3"
+      "name": "Identifier et lire les sons 1-3"
     },
     {
       "world": 4,
       "level": 4,
       "nameInternal": "IMA04",
-      "name": "Image 4"
+      "name": "Identifier et lire les sons 1-4"
     },
     {
       "world": 4,
       "level": 5,
       "nameInternal": "IMA05",
-      "name": "Image 5"
+      "name": "Identifier et lire les sons 1-5"
     },
     {
       "world": 4,
       "level": 16,
       "nameInternal": "IMA16",
-      "name": "Image 16"
+      "name": "Ordre des nombres 1-1"
     },
     {
       "world": 4,
       "level": 17,
       "nameInternal": "IMA17",
-      "name": "Image 17"
+      "name": "Ordre des nombres 1-2"
     },
     {
       "world": 4,
       "level": 18,
       "nameInternal": "IMA18",
-      "name": "Image 18"
+      "name": "Ordre des nombres 1-3"
     },
     {
       "world": 4,
       "level": 19,
       "nameInternal": "IMA19",
-      "name": "Image 19"
+      "name": "Ordre des nombres 1-4"
     },
     {
       "world": 4,
       "level": 20,
       "nameInternal": "IMA20",
-      "name": "Image 20"
+      "name": "Ordre des nombres 1-5"
     },
     {
       "world": 4,
@@ -340,67 +340,67 @@
       "world": 4,
       "level": 53,
       "nameInternal": "IMA53",
-      "name": "Image 53"
+      "name": "Entraînement saut et hélico 1-1"
     },
     {
       "world": 5,
       "level": 1,
       "nameInternal": "CAV01",
-      "name": "Cave 1"
+      "name": "Reconnaissance globale des mots 1-1"
     },
     {
       "world": 5,
       "level": 2,
       "nameInternal": "CAV02",
-      "name": "Cave 2"
+      "name": "Reconnaissance globale des mots 1-2"
     },
     {
       "world": 5,
       "level": 3,
       "nameInternal": "CAV03",
-      "name": "Cave 3"
+      "name": "Reconnaissance globale des mots 1-3"
     },
     {
       "world": 5,
       "level": 4,
       "nameInternal": "CAV04",
-      "name": "Cave 4"
+      "name": "Reconnaissance globale des mots 1-4"
     },
     {
       "world": 5,
       "level": 5,
       "nameInternal": "CAV05",
-      "name": "Cave 5"
+      "name": "Reconnaissance globale des mots 1-5"
     },
     {
       "world": 5,
       "level": 16,
       "nameInternal": "CAV16",
-      "name": "Cave 16"
+      "name": "Dénombrement et multiplication 1-1"
     },
     {
       "world": 5,
       "level": 17,
       "nameInternal": "CAV17",
-      "name": "Cave 17"
+      "name": "Dénombrement et multiplication 1-2"
     },
     {
       "world": 5,
       "level": 18,
       "nameInternal": "CAV18",
-      "name": "Cave 18"
+      "name": "Dénombrement et multiplication 1-3"
     },
     {
       "world": 5,
       "level": 19,
       "nameInternal": "CAV19",
-      "name": "Cave 19"
+      "name": "Dénombrement et multiplication 1-4"
     },
     {
       "world": 5,
       "level": 20,
       "nameInternal": "CAV20",
-      "name": "Cave 20"
+      "name": "Dénombrement et multiplication 1-5"
     },
     {
       "world": 5,
@@ -418,67 +418,67 @@
       "world": 5,
       "level": 53,
       "nameInternal": "CAV53",
-      "name": "Cave 53"
+      "name": "Entraînement poing 1-1"
     },
     {
       "world": 6,
       "level": 1,
       "nameInternal": "CAK01",
-      "name": "Cake 1"
+      "name": "Orthographe d'usage 1-1"
     },
     {
       "world": 6,
       "level": 2,
       "nameInternal": "CAK02",
-      "name": "Cake 2"
+      "name": "Orthographe d'usage 1-2"
     },
     {
       "world": 6,
       "level": 3,
       "nameInternal": "CAK03",
-      "name": "Cake 3"
+      "name": "Orthographe d'usage 1-3"
     },
     {
       "world": 6,
       "level": 4,
       "nameInternal": "CAK04",
-      "name": "Cake 4"
+      "name": "Orthographe d'usage 1-4"
     },
     {
       "world": 6,
       "level": 5,
       "nameInternal": "CAK05",
-      "name": "Cake 5"
+      "name": "Orthographe d'usage 1-5"
     },
     {
       "world": 6,
       "level": 16,
       "nameInternal": "CAK16",
-      "name": "Cake 16"
+      "name": "Analyse des nombres 1-1"
     },
     {
       "world": 6,
       "level": 17,
       "nameInternal": "CAK17",
-      "name": "Cake 17"
+      "name": "Analyse des nombres 1-2"
     },
     {
       "world": 6,
       "level": 18,
       "nameInternal": "CAK18",
-      "name": "Cake 18"
+      "name": "Analyse des nombres 1-3"
     },
     {
       "world": 6,
       "level": 19,
       "nameInternal": "CAK19",
-      "name": "Cake 19"
+      "name": "Analyse des nombres 1-4"
     },
     {
       "world": 6,
       "level": 20,
       "nameInternal": "CAK20",
-      "name": "Cake 20"
+      "name": "Analyse des nombres 1-5"
     },
     {
       "world": 6,
@@ -496,13 +496,13 @@
       "world": 6,
       "level": 53,
       "nameInternal": "CAK53",
-      "name": "Cake 53"
+      "name": "Entraînement super-hélicoptère 1-1"
     },
     {
       "world": 6,
       "level": 54,
       "nameInternal": "CAK54",
-      "name": "Cake 54"
+      "name": "Fin 1-1"
     }
   ]
 }

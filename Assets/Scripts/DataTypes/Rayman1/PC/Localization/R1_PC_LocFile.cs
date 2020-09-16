@@ -39,6 +39,9 @@ namespace R1Engine
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu && (s.GameSettings.EduVolume.StartsWith("IT") || s.GameSettings.EduVolume.StartsWith("CS")))
                 numLangNames = 5;
 
+            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu && (s.GameSettings.EduVolume.StartsWith("HN") || s.GameSettings.EduVolume.StartsWith("IS") || s.GameSettings.EduVolume.StartsWith("NL")))
+                numLangNames = 5;
+
             LanguageNames = s.SerializeStringArray(LanguageNames, numLangNames, 11, name: nameof(LanguageNames));
 
             var align = 3 + LanguageNames.Length * 11 + 8;
