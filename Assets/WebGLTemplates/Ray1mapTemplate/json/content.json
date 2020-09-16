@@ -258,10 +258,10 @@
 				{
 					"title": "Surf's Up",
 					"viewer": "ray1map",
-					"json": "gba\/surf's_up",
-					"image": ".\/img\/logo\/surf's_up.png",
+					"json": "gba\/surfs_up",
+					"image": ".\/img\/logo\/surfs_up.png",
 					"versions": [
-						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/surf's_up_eu1" }
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/surfs_up_eu1" }
 					]
 				}
 			]

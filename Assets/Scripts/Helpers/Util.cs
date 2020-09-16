@@ -242,6 +242,37 @@ namespace R1Engine {
             }
         }
 
+        public static void OutputGBAJSONForWeb(string dir, GameModeSelection mode)
+        {
+            var dirName = Path.GetFileName(dir);
+            var name = dirName.Substring(0, dirName.LastIndexOf('_'));
+            var settings = new GameSettings(mode, dir, 1, 1);
+
+            var m = settings.GetGameManager;
+
+            var worlds = m.GetLevels(settings).First().Worlds;
+
+            var jsonObj = new
+            {
+                name = $"{mode.GetAttribute<GameModeAttribute>().DisplayName.Replace(" - EU", "").Replace(" - US", "").Replace(" - EU 1", "").Replace(" - EU 2", "")}",
+                mode = mode.ToString(),
+                folder = $"gba/{dirName}",
+                levels = worlds.Select(w => w.Maps.OrderBy(x => x).Select(lvl => new
+                {
+                    world = w.Index,
+                    level = lvl,
+                    nameInternal = $"{lvl}",
+                    name = $"Map {lvl}"
+                })).SelectMany(x => x)
+            };
+
+            var outDir = Path.Combine(Path.GetDirectoryName(dir), "JSON", name);
+
+            Directory.CreateDirectory(outDir);
+
+            JsonHelpers.SerializeToFile(jsonObj, Path.Combine(outDir, $"{dirName.Substring(name.Length + 1)}.json"));
+        }
+
         public static void RenameFilesToUpper(string inputDir)
         {
             foreach (var file in Directory.GetFiles(inputDir, "*", SearchOption.AllDirectories))

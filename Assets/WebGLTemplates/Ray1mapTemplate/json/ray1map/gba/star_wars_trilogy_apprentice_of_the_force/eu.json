@@ -1,0 +1,607 @@
+{
+  "name": "Star Wars Trilogy: Apprentice of the Force (GBA)",
+  "mode": "StarWarsTrilogyApprenticeOfTheForceGBAEU",
+  "folder": "gba/star_wars_trilogy_apprentice_of_the_force_eu",
+  "levels": [
+    {
+      "world": 0,
+      "level": 0,
+      "nameInternal": "0",
+      "name": "Map 0"
+    },
+    {
+      "world": 0,
+      "level": 1,
+      "nameInternal": "1",
+      "name": "Map 1"
+    },
+    {
+      "world": 0,
+      "level": 2,
+      "nameInternal": "2",
+      "name": "Map 2"
+    },
+    {
+      "world": 0,
+      "level": 3,
+      "nameInternal": "3",
+      "name": "Map 3"
+    },
+    {
+      "world": 0,
+      "level": 4,
+      "nameInternal": "4",
+      "name": "Map 4"
+    },
+    {
+      "world": 0,
+      "level": 5,
+      "nameInternal": "5",
+      "name": "Map 5"
+    },
+    {
+      "world": 0,
+      "level": 6,
+      "nameInternal": "6",
+      "name": "Map 6"
+    },
+    {
+      "world": 0,
+      "level": 7,
+      "nameInternal": "7",
+      "name": "Map 7"
+    },
+    {
+      "world": 0,
+      "level": 8,
+      "nameInternal": "8",
+      "name": "Map 8"
+    },
+    {
+      "world": 0,
+      "level": 9,
+      "nameInternal": "9",
+      "name": "Map 9"
+    },
+    {
+      "world": 0,
+      "level": 10,
+      "nameInternal": "10",
+      "name": "Map 10"
+    },
+    {
+      "world": 0,
+      "level": 11,
+      "nameInternal": "11",
+      "name": "Map 11"
+    },
+    {
+      "world": 0,
+      "level": 12,
+      "nameInternal": "12",
+      "name": "Map 12"
+    },
+    {
+      "world": 0,
+      "level": 13,
+      "nameInternal": "13",
+      "name": "Map 13"
+    },
+    {
+      "world": 0,
+      "level": 14,
+      "nameInternal": "14",
+      "name": "Map 14"
+    },
+    {
+      "world": 0,
+      "level": 15,
+      "nameInternal": "15",
+      "name": "Map 15"
+    },
+    {
+      "world": 0,
+      "level": 16,
+      "nameInternal": "16",
+      "name": "Map 16"
+    },
+    {
+      "world": 0,
+      "level": 17,
+      "nameInternal": "17",
+      "name": "Map 17"
+    },
+    {
+      "world": 0,
+      "level": 18,
+      "nameInternal": "18",
+      "name": "Map 18"
+    },
+    {
+      "world": 0,
+      "level": 19,
+      "nameInternal": "19",
+      "name": "Map 19"
+    },
+    {
+      "world": 0,
+      "level": 20,
+      "nameInternal": "20",
+      "name": "Map 20"
+    },
+    {
+      "world": 0,
+      "level": 21,
+      "nameInternal": "21",
+      "name": "Map 21"
+    },
+    {
+      "world": 0,
+      "level": 22,
+      "nameInternal": "22",
+      "name": "Map 22"
+    },
+    {
+      "world": 0,
+      "level": 23,
+      "nameInternal": "23",
+      "name": "Map 23"
+    },
+    {
+      "world": 0,
+      "level": 24,
+      "nameInternal": "24",
+      "name": "Map 24"
+    },
+    {
+      "world": 0,
+      "level": 25,
+      "nameInternal": "25",
+      "name": "Map 25"
+    },
+    {
+      "world": 0,
+      "level": 26,
+      "nameInternal": "26",
+      "name": "Map 26"
+    },
+    {
+      "world": 0,
+      "level": 27,
+      "nameInternal": "27",
+      "name": "Map 27"
+    },
+    {
+      "world": 0,
+      "level": 28,
+      "nameInternal": "28",
+      "name": "Map 28"
+    },
+    {
+      "world": 0,
+      "level": 29,
+      "nameInternal": "29",
+      "name": "Map 29"
+    },
+    {
+      "world": 0,
+      "level": 30,
+      "nameInternal": "30",
+      "name": "Map 30"
+    },
+    {
+      "world": 0,
+      "level": 31,
+      "nameInternal": "31",
+      "name": "Map 31"
+    },
+    {
+      "world": 0,
+      "level": 32,
+      "nameInternal": "32",
+      "name": "Map 32"
+    },
+    {
+      "world": 0,
+      "level": 33,
+      "nameInternal": "33",
+      "name": "Map 33"
+    },
+    {
+      "world": 0,
+      "level": 34,
+      "nameInternal": "34",
+      "name": "Map 34"
+    },
+    {
+      "world": 0,
+      "level": 35,
+      "nameInternal": "35",
+      "name": "Map 35"
+    },
+    {
+      "world": 0,
+      "level": 36,
+      "nameInternal": "36",
+      "name": "Map 36"
+    },
+    {
+      "world": 0,
+      "level": 37,
+      "nameInternal": "37",
+      "name": "Map 37"
+    },
+    {
+      "world": 0,
+      "level": 38,
+      "nameInternal": "38",
+      "name": "Map 38"
+    },
+    {
+      "world": 0,
+      "level": 39,
+      "nameInternal": "39",
+      "name": "Map 39"
+    },
+    {
+      "world": 0,
+      "level": 40,
+      "nameInternal": "40",
+      "name": "Map 40"
+    },
+    {
+      "world": 0,
+      "level": 41,
+      "nameInternal": "41",
+      "name": "Map 41"
+    },
+    {
+      "world": 0,
+      "level": 42,
+      "nameInternal": "42",
+      "name": "Map 42"
+    },
+    {
+      "world": 0,
+      "level": 43,
+      "nameInternal": "43",
+      "name": "Map 43"
+    },
+    {
+      "world": 0,
+      "level": 44,
+      "nameInternal": "44",
+      "name": "Map 44"
+    },
+    {
+      "world": 0,
+      "level": 45,
+      "nameInternal": "45",
+      "name": "Map 45"
+    },
+    {
+      "world": 0,
+      "level": 46,
+      "nameInternal": "46",
+      "name": "Map 46"
+    },
+    {
+      "world": 0,
+      "level": 47,
+      "nameInternal": "47",
+      "name": "Map 47"
+    },
+    {
+      "world": 0,
+      "level": 48,
+      "nameInternal": "48",
+      "name": "Map 48"
+    },
+    {
+      "world": 0,
+      "level": 49,
+      "nameInternal": "49",
+      "name": "Map 49"
+    },
+    {
+      "world": 0,
+      "level": 50,
+      "nameInternal": "50",
+      "name": "Map 50"
+    },
+    {
+      "world": 0,
+      "level": 51,
+      "nameInternal": "51",
+      "name": "Map 51"
+    },
+    {
+      "world": 0,
+      "level": 52,
+      "nameInternal": "52",
+      "name": "Map 52"
+    },
+    {
+      "world": 0,
+      "level": 53,
+      "nameInternal": "53",
+      "name": "Map 53"
+    },
+    {
+      "world": 0,
+      "level": 54,
+      "nameInternal": "54",
+      "name": "Map 54"
+    },
+    {
+      "world": 0,
+      "level": 55,
+      "nameInternal": "55",
+      "name": "Map 55"
+    },
+    {
+      "world": 0,
+      "level": 56,
+      "nameInternal": "56",
+      "name": "Map 56"
+    },
+    {
+      "world": 0,
+      "level": 57,
+      "nameInternal": "57",
+      "name": "Map 57"
+    },
+    {
+      "world": 0,
+      "level": 58,
+      "nameInternal": "58",
+      "name": "Map 58"
+    },
+    {
+      "world": 0,
+      "level": 59,
+      "nameInternal": "59",
+      "name": "Map 59"
+    },
+    {
+      "world": 0,
+      "level": 60,
+      "nameInternal": "60",
+      "name": "Map 60"
+    },
+    {
+      "world": 0,
+      "level": 61,
+      "nameInternal": "61",
+      "name": "Map 61"
+    },
+    {
+      "world": 0,
+      "level": 62,
+      "nameInternal": "62",
+      "name": "Map 62"
+    },
+    {
+      "world": 0,
+      "level": 63,
+      "nameInternal": "63",
+      "name": "Map 63"
+    },
+    {
+      "world": 0,
+      "level": 64,
+      "nameInternal": "64",
+      "name": "Map 64"
+    },
+    {
+      "world": 0,
+      "level": 65,
+      "nameInternal": "65",
+      "name": "Map 65"
+    },
+    {
+      "world": 0,
+      "level": 66,
+      "nameInternal": "66",
+      "name": "Map 66"
+    },
+    {
+      "world": 0,
+      "level": 67,
+      "nameInternal": "67",
+      "name": "Map 67"
+    },
+    {
+      "world": 0,
+      "level": 68,
+      "nameInternal": "68",
+      "name": "Map 68"
+    },
+    {
+      "world": 0,
+      "level": 69,
+      "nameInternal": "69",
+      "name": "Map 69"
+    },
+    {
+      "world": 0,
+      "level": 70,
+      "nameInternal": "70",
+      "name": "Map 70"
+    },
+    {
+      "world": 0,
+      "level": 71,
+      "nameInternal": "71",
+      "name": "Map 71"
+    },
+    {
+      "world": 0,
+      "level": 72,
+      "nameInternal": "72",
+      "name": "Map 72"
+    },
+    {
+      "world": 0,
+      "level": 73,
+      "nameInternal": "73",
+      "name": "Map 73"
+    },
+    {
+      "world": 0,
+      "level": 74,
+      "nameInternal": "74",
+      "name": "Map 74"
+    },
+    {
+      "world": 0,
+      "level": 75,
+      "nameInternal": "75",
+      "name": "Map 75"
+    },
+    {
+      "world": 0,
+      "level": 76,
+      "nameInternal": "76",
+      "name": "Map 76"
+    },
+    {
+      "world": 0,
+      "level": 77,
+      "nameInternal": "77",
+      "name": "Map 77"
+    },
+    {
+      "world": 0,
+      "level": 78,
+      "nameInternal": "78",
+      "name": "Map 78"
+    },
+    {
+      "world": 0,
+      "level": 79,
+      "nameInternal": "79",
+      "name": "Map 79"
+    },
+    {
+      "world": 0,
+      "level": 80,
+      "nameInternal": "80",
+      "name": "Map 80"
+    },
+    {
+      "world": 0,
+      "level": 81,
+      "nameInternal": "81",
+      "name": "Map 81"
+    },
+    {
+      "world": 0,
+      "level": 82,
+      "nameInternal": "82",
+      "name": "Map 82"
+    },
+    {
+      "world": 0,
+      "level": 83,
+      "nameInternal": "83",
+      "name": "Map 83"
+    },
+    {
+      "world": 0,
+      "level": 84,
+      "nameInternal": "84",
+      "name": "Map 84"
+    },
+    {
+      "world": 0,
+      "level": 85,
+      "nameInternal": "85",
+      "name": "Map 85"
+    },
+    {
+      "world": 0,
+      "level": 86,
+      "nameInternal": "86",
+      "name": "Map 86"
+    },
+    {
+      "world": 0,
+      "level": 87,
+      "nameInternal": "87",
+      "name": "Map 87"
+    },
+    {
+      "world": 0,
+      "level": 88,
+      "nameInternal": "88",
+      "name": "Map 88"
+    },
+    {
+      "world": 0,
+      "level": 89,
+      "nameInternal": "89",
+      "name": "Map 89"
+    },
+    {
+      "world": 1,
+      "level": 120,
+      "nameInternal": "120",
+      "name": "Map 120"
+    },
+    {
+      "world": 1,
+      "level": 122,
+      "nameInternal": "122",
+      "name": "Map 122"
+    },
+    {
+      "world": 1,
+      "level": 123,
+      "nameInternal": "123",
+      "name": "Map 123"
+    },
+    {
+      "world": 1,
+      "level": 126,
+      "nameInternal": "126",
+      "name": "Map 126"
+    },
+    {
+      "world": 1,
+      "level": 128,
+      "nameInternal": "128",
+      "name": "Map 128"
+    },
+    {
+      "world": 1,
+      "level": 129,
+      "nameInternal": "129",
+      "name": "Map 129"
+    },
+    {
+      "world": 1,
+      "level": 134,
+      "nameInternal": "134",
+      "name": "Map 134"
+    },
+    {
+      "world": 1,
+      "level": 135,
+      "nameInternal": "135",
+      "name": "Map 135"
+    },
+    {
+      "world": 1,
+      "level": 137,
+      "nameInternal": "137",
+      "name": "Map 137"
+    },
+    {
+      "world": 1,
+      "level": 138,
+      "nameInternal": "138",
+      "name": "Map 138"
+    }
+  ]
+}
