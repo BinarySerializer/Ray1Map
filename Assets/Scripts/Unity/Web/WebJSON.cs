@@ -64,6 +64,8 @@ public class WebJSON {
 		public int? StateIndex { get; set; }
 
         // Rayman 1/2
+		public string[] R1_DESNames { get; set; }
+		public string[] R1_ETANames { get; set; } // Not in R2
 		public ushort? R1_Type { get; set; }
 		public int? R1_DESIndex { get; set; }
 		public int? R1_ETAIndex { get; set; } // Not in R2
@@ -80,11 +82,13 @@ public class WebJSON {
         public string[] R1_Commands { get; set; } // Not in R2
 
 		// Jaguar
+		public string[] R1Jaguar_EventDefinitionNames { get; set; }
 		public int? R1Jaguar_EventDefinitionIndex { get; set; }
 		public byte? R1Jaguar_ComplexState { get; set; }
 		public byte? R1Jaguar_State { get; set; }
 
 		// GBA
+		public string[] GBA_GraphicsDataNames { get; set; }
 		public byte? GBA_ActorID { get; set; }
 		public int? GBA_GraphicsDataIndex { get; set; }
 		public byte? GBA_State { get; set; }

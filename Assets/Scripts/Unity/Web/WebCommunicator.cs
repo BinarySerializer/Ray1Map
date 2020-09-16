@@ -153,10 +153,7 @@ public class WebCommunicator : MonoBehaviour {
 			}
 			webObj.StateIndex = obj.ObjData.CurrentUIState;
 
-			// TODO: Also add all remaining lists for properties that should have a dropdown (DES, ETA, GraphicsData, EventDefinition)
-
-
-			// Specific properties for type
+            // Specific properties for type
 			switch (obj.ObjData) {
 				case Unity_Object_R1 r1obj:
 					webObj.R1_Type = (ushort)r1obj.EventData.Type;
@@ -174,6 +171,8 @@ public class WebCommunicator : MonoBehaviour {
 
 					if (includeLists) {
 						webObj.R1_Commands = (r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]).Select(c => c.ToTranslatedString()).ToArray();
+						webObj.R1_DESNames = r1obj.ObjManager.DES.Select(x => x.DisplayName).ToArray();
+						webObj.R1_ETANames = r1obj.ObjManager.ETA.Select(x => x.DisplayName).ToArray();
 					}
 					break;
 
@@ -186,19 +185,28 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_OffsetBY = r2obj.EventData.CollisionData?.OffsetBY;
 					webObj.R1_OffsetHY = r2obj.EventData.CollisionData?.OffsetHY;
 					webObj.R1_DisplayPrio = r2obj.EventData.Layer;
-					break;
+
+                    if (includeLists)
+                        webObj.R1_DESNames = r2obj.ObjManager.AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
+                    break;
 
 				case Unity_Object_R1Jaguar r1jaguarObj:
 					webObj.R1Jaguar_EventDefinitionIndex = r1jaguarObj.EventDefinitionIndex;
 					webObj.R1Jaguar_ComplexState = r1jaguarObj.ComplexStateIndex;
 					webObj.R1Jaguar_State = r1jaguarObj.StateIndex;
+
+					if (includeLists)
+						webObj.R1Jaguar_EventDefinitionNames = r1jaguarObj.ObjManager.EventDefinitions.Select(x => x.DisplayName).ToArray();
 					break;
 
 				case Unity_Object_GBA gbaObj:
-					webObj.GBA_ActorID = (byte)gbaObj.Actor.ActorID;
+					webObj.GBA_ActorID = gbaObj.Actor.ActorID;
 					webObj.GBA_GraphicsDataIndex = gbaObj.GraphicsDataIndex;
 					webObj.GBA_State = gbaObj.Actor.StateIndex;
-					break;
+
+                    if (includeLists)
+                        webObj.GBA_GraphicsDataNames = gbaObj.ObjManager.GraphicsDatas.Select(x => x.Index.ToString()).ToArray();
+                    break;
 			}
 		}
 		return webObj;
