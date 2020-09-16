@@ -2,12 +2,6 @@
     "name": "Rayman Prototype (SNES)",
     "mode": "RaymanSNES",
     "folder": "snes/proto",
-	"icons": [
-		{
-			"image": ".\/img\/icon\/SNES\/proto_world.png",
-			"level": 0
-		}
-	],
     "levels": [
         { "world": 0, "level": 0, "nameInternal": "", "name": "Prototype" }
     ]
