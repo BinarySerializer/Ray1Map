@@ -715,7 +715,7 @@ namespace R1Engine
                 localization: loc, 
                 cellSize: 8, 
                 getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(),
-                sectors: scene?.Sectors.Select(x => new Unity_Sector(x.ActorIndices.Select(y => (int)y).ToList())).ToArray()
+                sectors: scene?.Sectors.Select(x => new Unity_Sector(x.NormalActorIndices.Concat(x.BoxTriggerActorIndices2 ?? new byte[0]).Select(y => (int)y).ToList())).ToArray()
                 );
 
             var mapDatas = new MapTile[mapLayers.Length][];
