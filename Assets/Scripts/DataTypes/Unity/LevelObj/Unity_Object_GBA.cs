@@ -63,7 +63,7 @@ namespace R1Engine
         public override bool FlipVertically => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip) ?? false;
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex);
-        public override byte AnimSpeed => CurrentAnimation.AnimSpeed.Value;
+        public override byte AnimSpeed => CurrentAnimation?.AnimSpeed.Value ?? 0;
 
         public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? Actor.StateIndex;
         public override IList<Sprite> Sprites => GraphicsData?.Graphics.Sprites;

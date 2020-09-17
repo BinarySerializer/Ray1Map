@@ -671,6 +671,11 @@ namespace R1Engine
                 if (graphicsData.Any(x => x.Index == actor.GraphicsDataIndex))
                     continue;
 
+                if (actor.Type == GBA_Actor.ActorType.Box
+                    || (context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow
+                    && (actor.Type == GBA_Actor.ActorType.Always2 || actor.Type == GBA_Actor.ActorType.Unk)))
+                    continue;
+
                 graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.GraphicsDataIndex, actor.GraphicData.States, GetCommonDesign(actor.GraphicData)));
             }
 
