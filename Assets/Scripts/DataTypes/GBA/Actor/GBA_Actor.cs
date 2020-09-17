@@ -15,10 +15,10 @@
 
         public byte StateIndex { get; set; }
 
-        public byte Link_0 { get; set; } = 255;
-        public byte Link_1 { get; set; } = 255;
-        public byte Link_2 { get; set; } = 255;
-        public byte Link_3 { get; set; } = 255;
+        public byte Link_0 { get; set; } = 0xFF;
+        public byte Link_1 { get; set; } = 0xFF;
+        public byte Link_2 { get; set; } = 0xFF;
+        public byte Link_3 { get; set; } = 0xFF;
 
         // For specific actor types
         public ActorType Type { get; set; }
@@ -49,6 +49,8 @@
         #region Parsed
 
         public GBA_ActorGraphicData GraphicData { get; set; }
+
+        public GBA_BoxTriggerActorData BoxActorBlock { get; set; }
 
         #endregion
 
