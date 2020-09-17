@@ -12,7 +12,7 @@ namespace R1Engine
     {
         #region Constructor
 
-        public Unity_Level(Unity_Map[] maps, Unity_ObjectManager objManager, List<Unity_Object> eventData = null, Unity_Object rayman = null, IReadOnlyDictionary<string, string[]> localization = null, int defaultMap = 0, int defaultCollisionMap = 0, int pixelsPerUnit = 16, int cellSize = 16, Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, Texture2D background = null, Texture2D parallaxBackground = null)
+        public Unity_Level(Unity_Map[] maps, Unity_ObjectManager objManager, List<Unity_Object> eventData = null, Unity_Object rayman = null, IReadOnlyDictionary<string, string[]> localization = null, int defaultMap = 0, int defaultCollisionMap = 0, int pixelsPerUnit = 16, int cellSize = 16, Func<byte, Unity_MapCollisionTypeGraphic> getCollisionTypeGraphicFunc = null, Texture2D background = null, Texture2D parallaxBackground = null, Unity_Sector[] sectors = null)
         {
             Maps = maps;
             ObjManager = objManager;
@@ -26,6 +26,7 @@ namespace R1Engine
             GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((R1_TileCollisionType)x).GetCollisionTypeGraphic());
             Background = background;
             ParallaxBackground = parallaxBackground;
+            Sectors = sectors;
         }
 
         #endregion
@@ -52,6 +53,8 @@ namespace R1Engine
 
         public Texture2D Background { get; }
         public Texture2D ParallaxBackground { get; }
+
+        public Unity_Sector[] Sectors { get; }
 
         #endregion
 

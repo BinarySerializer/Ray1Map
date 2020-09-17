@@ -19,7 +19,15 @@ namespace R1Engine
         public int Index { get; set; }
 
         public bool IsEnabled { get; set; } = true;
-        public bool IsVisible => IsEnabled && ObjData.IsVisible && (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
+        public bool IsVisible => 
+            // Obj is enabled (web only)
+            IsEnabled && 
+            // Obj is in current sector
+            (!LevelEditorData.ShowOnlyActiveSector || LevelEditorData.Level.Sectors[LevelEditorData.ActiveSector].Objects.Contains(Index)) && 
+            // Obj is visible
+            ObjData.IsVisible && 
+            // Obj is on current map layer
+            (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
         public int Layer => (ObjData.GetLayer(Index) ?? Index) * 256;
 
         #endregion

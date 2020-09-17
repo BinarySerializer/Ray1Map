@@ -273,6 +273,13 @@ public class SettingsWindow : UnityWindow
                     for (int i = 0; i < LevelEditorData.ShowEventsForMaps.Length; i++)
                         LevelEditorData.ShowEventsForMaps[i] = EditorField($"Show objects for layer {i}", LevelEditorData.ShowEventsForMaps[i]);
 
+                if (LevelEditorData.Level?.Sectors != null)
+                {
+                    LevelEditorData.ShowOnlyActiveSector = EditorField("Show only active sector", LevelEditorData.ShowOnlyActiveSector);
+
+                    LevelEditorData.ActiveSector = EditorField("Active sector", LevelEditorData.ActiveSector, LevelEditorData.Level.Sectors.Select((x, i) => i.ToString()).ToArray(), isVisible: LevelEditorData.ShowOnlyActiveSector);
+                }
+
                 if (PalOptions == null)
                     PalOptions = new string[]
                     {

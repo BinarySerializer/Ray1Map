@@ -708,7 +708,15 @@ namespace R1Engine
             }
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(new Unity_Map[mapLayers.Length], objManager, defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision), localization: loc, cellSize: 8, getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic());
+            Unity_Level level = new Unity_Level(
+                maps: new Unity_Map[mapLayers.Length], 
+                objManager: objManager, 
+                defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision), 
+                localization: loc, 
+                cellSize: 8, 
+                getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(),
+                sectors: scene?.Sectors.Select(x => new Unity_Sector(x.ActorIndices.Select(y => (int)y).ToList())).ToArray()
+                );
 
             var mapDatas = new MapTile[mapLayers.Length][];
 
