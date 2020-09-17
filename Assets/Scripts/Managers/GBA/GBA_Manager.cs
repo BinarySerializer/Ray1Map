@@ -283,7 +283,7 @@ namespace R1Engine
                     // Enumerate every graphic group
                     await UniTask.WaitForEndOfFrame();
 
-                    foreach (var spr in lvl.GetAllActors.Select(x => x.GraphicData.SpriteGroup).Distinct())
+                    foreach (var spr in lvl.GetAllActors(settings).Select(x => x.GraphicData.SpriteGroup).Distinct())
                         await ExportSpriteGroup(spr, false, -1);
                 }
             }
@@ -666,14 +666,12 @@ namespace R1Engine
 
             var graphicsData = new List<Unity_ObjectManager_GBA.GraphicsData>();
 
-            foreach (var actor in scene?.GetAllActors ?? new GBA_Actor[0])
+            foreach (var actor in scene?.GetAllActors(context.Settings) ?? new GBA_Actor[0])
             {
                 if (graphicsData.Any(x => x.Index == actor.GraphicsDataIndex))
                     continue;
 
-                if (actor.Type == GBA_Actor.ActorType.Box
-                    || (context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow
-                    && (actor.Type == GBA_Actor.ActorType.Always2 || actor.Type == GBA_Actor.ActorType.Unk)))
+                if (actor.GraphicData == null)
                     continue;
 
                 graphicsData.Add(new Unity_ObjectManager_GBA.GraphicsData(actor.GraphicsDataIndex, actor.GraphicData.States, GetCommonDesign(actor.GraphicData)));
@@ -869,37 +867,8 @@ namespace R1Engine
 
             // Add actors
             if (scene != null)
-            {
-                var actorIndex = 0;
-
-                for (int i = 0; i < scene.Always1Actors.Length; i++)
-                {
-                    addActor(scene.Always1Actors[i], true, actorIndex);
-                    actorIndex++;
-                }
-                for (int i = 0; i < scene.NormalActors.Length; i++)
-                {
-                    addActor(scene.NormalActors[i], false, actorIndex);
-                    actorIndex++;
-                }
-                for (int i = 0; i < scene.Always2Actors.Length; i++)
-                {
-                    addActor(scene.Always2Actors[i], true, actorIndex);
-                    actorIndex++;
-                }
-                for (int i = 0; i < scene.BoxActors.Length; i++) {
-                    addActor(scene.BoxActors[i], true, actorIndex);
-                    actorIndex++;
-                }
-
-                void addActor(GBA_Actor actor, bool isAlways, int index)
-                {
-                    level.EventData.Add(new Unity_Object_GBA(actor, objManager)
-                    {
-                        IsAlwaysEvent = isAlways
-                    });
-                }
-            }
+                foreach (var a in scene.GetAllActors(context.Settings))
+                    level.EventData.Add(new Unity_Object_GBA(a, objManager));
 
             return level;
         }

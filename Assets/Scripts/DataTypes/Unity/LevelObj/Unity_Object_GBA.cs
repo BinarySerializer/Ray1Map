@@ -54,8 +54,8 @@ namespace R1Engine
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
-        public bool IsAlwaysEvent { get; set; }
-        public override bool IsAlways => IsAlwaysEvent;
+        public override bool IsAlways => Actor.Type == GBA_Actor.ActorType.Always || Actor.Type == GBA_Actor.ActorType.Main;
+        public override bool IsEditor => Actor.Type == GBA_Actor.ActorType.BoxTrigger || Actor.Type == GBA_Actor.ActorType.Trigger;
         public override string PrimaryName => $"ID_{Actor.ActorID}";
         public override string SecondaryName => ObjManager.Context.Settings.Game == Game.GBA_Rayman3 ? $"{(GBA_R3_ActorID)Actor.ActorID}" : null;
 

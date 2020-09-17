@@ -14,25 +14,33 @@ namespace R1Engine
         public byte Unk_03 { get; set; }
 
         public byte ActorsCountTotal { get; set; }
-        public byte Always1ActorsCount { get; set; }
-        public byte NormalActorsCount { get; set; }
-        public byte Always2ActorsCount { get; set; }
 
-        public byte UnkActorsCount { get; set; }
-
-        public byte BoxActorsCount { get; set; }
+        public byte ActorsCount1 { get; set; }
+        public byte ActorsCount2 { get; set; }
+        public byte ActorsCount3 { get; set; }
+        public byte ActorsCount4 { get; set; }
+        public byte ActorsCount5 { get; set; }
 
         public byte Unk_0A { get; set; }
         public byte UnkSceneStructsCount { get; set; }
 
-        public GBA_Actor[] Always1Actors { get; set; }
+        public GBA_Actor[] MainActors { get; set; }
+        public GBA_Actor[] AlwaysActors { get; set; }
         public GBA_Actor[] NormalActors { get; set; }
-        public GBA_Actor[] Always2Actors { get; set; }
 
-        public GBA_Actor[] BoxActors { get; set; }
+        public GBA_Actor[] BoxTriggerActors { get; set; }
+        public GBA_Actor[] TriggerActors { get; set; }
         public GBA_Actor[] UnkActors { get; set; }
 
-        public IEnumerable<GBA_Actor> GetAllActors => Always1Actors.Concat(NormalActors).Concat(Always2Actors).Concat(BoxActors);
+        public IEnumerable<GBA_Actor> GetAllActors(GameSettings settings)
+        {
+            if (settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
+                return AlwaysActors.Concat(NormalActors).Concat(BoxTriggerActors).Concat(TriggerActors).Concat(UnkActors);
+            else if (settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+                return MainActors.Concat(NormalActors).Concat(AlwaysActors).Concat(BoxTriggerActors);
+            else
+                return AlwaysActors.Concat(NormalActors).Concat(BoxTriggerActors);
+        }
 
         public GBA_UnkSceneStruct[] UnkSceneStructs { get; set; }
 
@@ -56,32 +64,44 @@ namespace R1Engine
             Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
 
             ActorsCountTotal = s.Serialize<byte>(ActorsCountTotal, name: nameof(ActorsCountTotal));
-            Always1ActorsCount = s.Serialize<byte>(Always1ActorsCount, name: nameof(Always1ActorsCount));
-            NormalActorsCount = s.Serialize<byte>(NormalActorsCount, name: nameof(NormalActorsCount));
-            Always2ActorsCount = s.Serialize<byte>(Always2ActorsCount, name: nameof(Always2ActorsCount));
 
-            UnkActorsCount = s.Serialize<byte>(UnkActorsCount, name: nameof(UnkActorsCount));
-            BoxActorsCount = s.Serialize<byte>(BoxActorsCount, name: nameof(BoxActorsCount));
+            ActorsCount1 = s.Serialize<byte>(ActorsCount1, name: nameof(ActorsCount1));
+            ActorsCount2 = s.Serialize<byte>(ActorsCount2, name: nameof(ActorsCount2));
+            ActorsCount3 = s.Serialize<byte>(ActorsCount3, name: nameof(ActorsCount3));
+            ActorsCount4 = s.Serialize<byte>(ActorsCount4, name: nameof(ActorsCount4));
+            ActorsCount5 = s.Serialize<byte>(ActorsCount5, name: nameof(ActorsCount5));
+
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
+
             UnkSceneStructsCount = s.Serialize<byte>(UnkSceneStructsCount, name: nameof(UnkSceneStructsCount));
 
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
 
-                Always1Actors = s.SerializeObjectArray<GBA_Actor>(Always1Actors, Always1ActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always1, name: nameof(Always1Actors));
-                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, NormalActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
-                BoxActors = s.SerializeObjectArray<GBA_Actor>(BoxActors, BoxActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Box, name: nameof(BoxActors));
-                Always2Actors = s.SerializeObjectArray<GBA_Actor>(Always2Actors, Always2ActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always2, name: nameof(Always2Actors));
-                UnkActors = s.SerializeObjectArray<GBA_Actor>(UnkActors, UnkActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Unk, name: nameof(UnkActors));
-
-                UnkSceneStructs = s.SerializeObjectArray<GBA_UnkSceneStruct>(UnkSceneStructs, UnkSceneStructsCount, name: nameof(UnkSceneStructs));
-            } else {
-                Always1Actors = s.SerializeObjectArray<GBA_Actor>(Always1Actors, Always1ActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always1, name: nameof(Always1Actors));
-                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, NormalActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
-                Always2Actors = s.SerializeObjectArray<GBA_Actor>(Always2Actors, Always2ActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always2, name: nameof(Always2Actors));
-                BoxActors = s.SerializeObjectArray<GBA_Actor>(BoxActors, BoxActorsCount, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Box, name: nameof(BoxActors));
-
-                UnkSceneStructs = s.SerializeObjectArray<GBA_UnkSceneStruct>(UnkSceneStructs, UnkSceneStructsCount, name: nameof(UnkSceneStructs));
+                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always, name: nameof(AlwaysActors));
+                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
+                BoxTriggerActors = s.SerializeObjectArray<GBA_Actor>(BoxTriggerActors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.BoxTrigger, name: nameof(BoxTriggerActors));
+                TriggerActors = s.SerializeObjectArray<GBA_Actor>(TriggerActors, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Trigger, name: nameof(TriggerActors));
+                UnkActors = s.SerializeObjectArray<GBA_Actor>(UnkActors, ActorsCount4, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Unk, name: nameof(UnkActors));
             }
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+            {
+                MainActors = s.SerializeObjectArray<GBA_Actor>(MainActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Main, name: nameof(MainActors));
+                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
+                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always, name: nameof(AlwaysActors));
+                BoxTriggerActors = s.SerializeObjectArray<GBA_Actor>(BoxTriggerActors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.BoxTrigger, name: nameof(BoxTriggerActors));
+            }
+            else 
+            {
+                AlwaysActors = s.SerializeObjectArray<GBA_Actor>(AlwaysActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Always, name: nameof(AlwaysActors));
+                NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
+
+                if (ActorsCount3 > 0)
+                    Debug.LogWarning($"Unparsed actors for count 3 in level {s.GameSettings.Level}");
+
+                BoxTriggerActors = s.SerializeObjectArray<GBA_Actor>(BoxTriggerActors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.BoxTrigger, name: nameof(BoxTriggerActors));
+            }
+
+            UnkSceneStructs = s.SerializeObjectArray<GBA_UnkSceneStruct>(UnkSceneStructs, UnkSceneStructsCount, name: nameof(UnkSceneStructs));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
@@ -91,13 +111,11 @@ namespace R1Engine
                 PlayField = s.DoAt(OffsetTable.GetPointer(PlayFieldIndex), () => s.SerializeObject<GBA_PlayField>(PlayField, name: nameof(PlayField)));
 
             // Parse actor data
-            var actors = GetAllActors.ToArray();
+            var actors = GetAllActors(s.GameSettings).ToArray();
+
             for (var i = 0; i < actors.Length; i++)
             {
-
-                if (actors[i].Type == GBA_Actor.ActorType.Box
-                    || (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow
-                    && (actors[i].Type == GBA_Actor.ActorType.Always2 || actors[i].Type == GBA_Actor.ActorType.Unk)))
+                if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger || actors[i].Type == GBA_Actor.ActorType.Trigger || actors[i].Type == GBA_Actor.ActorType.Unk)
                     continue;
 
                 if (actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
