@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -42,14 +43,101 @@ namespace R1Engine
             set => Actor.YPos = (ushort)value;
         }
 
-        public override string DebugText => $"{nameof(Actor.Link_0)}: {Actor.Link_0}{Environment.NewLine}" +
-                                            $"{nameof(Actor.Link_1)}: {Actor.Link_1}{Environment.NewLine}" +
-                                            $"{nameof(Actor.Link_2)}: {Actor.Link_2}{Environment.NewLine}" +
-                                            $"{nameof(Actor.Link_3)}: {Actor.Link_3}{Environment.NewLine}" +
-                                            $"{nameof(Actor.Byte_04)}: {Actor.Byte_04}{Environment.NewLine}" +
-                                            $"{nameof(Actor.ActorID)}: {Actor.ActorID}{Environment.NewLine}" +
-                                            $"{nameof(Actor.GraphicsDataIndex)}: {Actor.GraphicsDataIndex}{Environment.NewLine}" +
-                                            $"{nameof(Actor.StateIndex)}: {Actor.StateIndex}";
+        public override string DebugText
+        {
+            get
+            {
+                var text = new StringBuilder();
+
+                text.AppendLine($"{nameof(Actor.Type)}: {Actor.Type}");
+
+                if (Actor.Type == GBA_Actor.ActorType.Unk)
+                {
+                    text.AppendLine($"{nameof(Actor.Index)}: {Actor.Index}");
+                    text.AppendLine($"{nameof(Actor.Unk_01)}: {Actor.Unk_01}");
+                    text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
+                    if (Actor.ActorSize >= 2)
+                    {
+                        text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
+                        text.AppendLine($"{nameof(Actor.GraphicsDataIndex)}: {Actor.GraphicsDataIndex}");
+                    }
+                    text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
+                }
+                else
+                {
+                    if (Actor.Type != GBA_Actor.ActorType.BoxTrigger)
+                    {
+                        text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
+                        text.AppendLine($"{nameof(Actor.ActorID)}: {Actor.ActorID}");
+
+                        if (ObjManager.Context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Actor.Type == GBA_Actor.ActorType.Normal || Actor.Type == GBA_Actor.ActorType.Always)
+                        {
+                            text.AppendLine($"{nameof(Actor.GraphicsDataIndex)}: {Actor.GraphicsDataIndex}");
+                            text.AppendLine($"{nameof(Actor.StateIndex)}: {Actor.StateIndex}");
+                        }
+
+                        if (ObjManager.Context.Settings.EngineVersion > EngineVersion.GBA_BatmanVengeance && ObjManager.Context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow)
+                        {
+                            text.AppendLine($"{nameof(Actor.Link_0)}: {Actor.Link_0}");
+                            text.AppendLine($"{nameof(Actor.Link_1)}: {Actor.Link_1}");
+                            text.AppendLine($"{nameof(Actor.Link_2)}: {Actor.Link_2}");
+                            text.AppendLine($"{nameof(Actor.Link_3)}: {Actor.Link_3}");
+                        }
+
+                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCell
+                            && ObjManager.Context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow)
+                        {
+                            text.AppendLine($"{nameof(Actor.Short_0C)}: {Actor.Short_0C}");
+                            text.AppendLine($"{nameof(Actor.Short_0E)}: {Actor.Short_0E}");
+                            text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
+                        }
+                        else if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
+                        {
+                            if (Actor.Type == GBA_Actor.ActorType.Trigger || Actor.Type == GBA_Actor.ActorType.Unk)
+                            {
+                                text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
+                                text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
+                            }
+                            else
+                            {
+                                text.AppendLine($"{nameof(Actor.Short_0C)}: {Actor.Short_0C}");
+                                text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
+                                text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
+                        text.AppendLine($"{nameof(Actor.BoxID)}: {Actor.BoxID}");
+                        
+                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
+                            text.AppendLine($"{nameof(Actor.UnkData1)}: {BitConverter.ToString(Actor.UnkData1)}");
+
+                        text.AppendLine($"{nameof(Actor.BoxActorBlockOffsetIndex)}: {Actor.BoxActorBlockOffsetIndex}");
+
+                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
+                        {
+                            text.AppendLine($"{nameof(Actor.UnkData2)}: {BitConverter.ToString(Actor.UnkData2)}");
+                            text.AppendLine($"{nameof(Actor.ActorSize)}: {Actor.ActorSize}");
+                        }
+                        else
+                        {
+                            text.AppendLine($"{nameof(Actor.UnkData2)}: {BitConverter.ToString(Actor.UnkData2)}");
+                        }
+                        text.AppendLine($"{nameof(Actor.BoxMinY)}: {Actor.BoxMinY}");
+                        text.AppendLine($"{nameof(Actor.BoxMinX)}: {Actor.BoxMinX}");
+                        text.AppendLine($"{nameof(Actor.BoxMaxY)}: {Actor.BoxMaxY}");
+                        text.AppendLine($"{nameof(Actor.BoxMaxX)}: {Actor.BoxMaxX}");
+
+                        if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
+                            text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
+                    }
+                }
+
+                return text.ToString();
+            }
+        }
 
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
