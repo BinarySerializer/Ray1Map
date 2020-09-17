@@ -36,7 +36,7 @@ namespace R1Engine
         {
             if (settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
                 return AlwaysActors.Concat(NormalActors).Concat(BoxTriggerActors).Concat(TriggerActors).Concat(UnkActors);
-            else if (settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+            else if (settings.EngineVersion < EngineVersion.GBA_R3_Proto)
                 return MainActors.Concat(NormalActors).Concat(AlwaysActors).Concat(BoxTriggerActors);
             else
                 return AlwaysActors.Concat(NormalActors).Concat(BoxTriggerActors);
@@ -83,7 +83,7 @@ namespace R1Engine
                 TriggerActors = s.SerializeObjectArray<GBA_Actor>(TriggerActors, ActorsCount3, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Trigger, name: nameof(TriggerActors));
                 UnkActors = s.SerializeObjectArray<GBA_Actor>(UnkActors, ActorsCount4, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Unk, name: nameof(UnkActors));
             }
-            else if (s.GameSettings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+            else if (s.GameSettings.EngineVersion < EngineVersion.GBA_R3_Proto)
             {
                 MainActors = s.SerializeObjectArray<GBA_Actor>(MainActors, ActorsCount1, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Main, name: nameof(MainActors));
                 NormalActors = s.SerializeObjectArray<GBA_Actor>(NormalActors, ActorsCount2, onPreSerialize: a => a.Type = GBA_Actor.ActorType.Normal, name: nameof(NormalActors));
