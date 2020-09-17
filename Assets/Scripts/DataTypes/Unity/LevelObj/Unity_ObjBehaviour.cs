@@ -57,6 +57,35 @@ namespace R1Engine
 
         public AudioClip currentSoundEffect;
 
+        public void Init() {
+            // Update x and y, and clamp them to not have objects appear too far away from the map
+            const int border = 250;
+
+            var maxWidth = LevelEditorData.MaxWidth;
+            var maxHeight = LevelEditorData.MaxHeight;
+            var x = (float)ObjData.XPosition;
+            var y = (float)ObjData.YPosition;
+            var maxX = (maxWidth * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.x;
+            var minX = -(border) - ObjData.Pivot.x;
+            var maxY = (maxHeight * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.y;
+            var minY = -(border) - ObjData.Pivot.y;
+
+            if (x > maxX)
+                x = maxX;
+
+            if (x < minX)
+                x = minX;
+
+            if (y > maxY)
+                y = maxY;
+
+            if (y < minY)
+                y = minY;
+
+            transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
+
+        }
+
         private void Start() 
         {
             transform.rotation = Quaternion.identity;

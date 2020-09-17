@@ -174,8 +174,7 @@ namespace R1Engine
             {
                 var prev = linkedEvents.Last();
 
-                foreach (var e in linkedEvents)
-                {
+                foreach (var e in linkedEvents) {
                     e.linkCube.position = prev.linkCube.position;
                     e.linkCubeLockPosition = e.linkCube.position;
                     prev = e;
@@ -746,6 +745,7 @@ namespace R1Engine
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
+            newEvent.Init();
 
             // Add to list
             return newEvent;
