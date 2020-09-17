@@ -24,8 +24,12 @@ namespace R1Engine
         
         public int GraphicsDataIndex
         {
-            get => ObjManager.GraphicsDatas.FindItemIndex(x => x.Index == Actor.GraphicsDataIndex);
-            set {
+            get => Actor.GraphicData == null ? -1 : ObjManager.GraphicsDatas.FindItemIndex(x => x.Index == Actor.GraphicsDataIndex);
+            set 
+            {
+                if (Actor.GraphicData == null)
+                    return;
+
                 OverrideAnimIndex = null;
                 Actor.GraphicsDataIndex = (byte)ObjManager.GraphicsDatas[value].Index;
             }
