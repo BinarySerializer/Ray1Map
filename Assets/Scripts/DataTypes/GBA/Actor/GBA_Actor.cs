@@ -69,11 +69,11 @@
                 XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
 
-                if (Type != ActorType.Box) {
+                if (Type != ActorType.BoxTrigger) {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
                     ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
 
-                    if (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Normal || Type == ActorType.Always1) {
+                    if (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Normal || Type == ActorType.Always) {
                         GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
                         StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
                     }
@@ -91,8 +91,10 @@
                         Short_0E = s.Serialize<short>(Short_0E, name: nameof(Short_0E));
                         int len = Short_0E & 0xF;
                         ExtraData = s.SerializeArray<byte>(ExtraData, len, name: nameof(ExtraData));
-                    } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
-                        if (Type == ActorType.Always2 || Type == ActorType.Unk) {
+                    } 
+                    else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) 
+                    {
+                        if (Type == ActorType.Trigger || Type == ActorType.Unk) {
                             ActorSize = s.Serialize<ushort>(ActorSize, name: nameof(ActorSize));
                             ExtraData = s.SerializeArray<byte>(ExtraData, ActorSize - 8, name: nameof(ExtraData));
                         } else {
@@ -132,10 +134,11 @@
 
 
         public enum ActorType {
-            Always1,
+            Main,
+            Always,
             Normal,
-            Always2,
-            Box,
+            BoxTrigger,
+            Trigger,
             Unk
         }
     }
