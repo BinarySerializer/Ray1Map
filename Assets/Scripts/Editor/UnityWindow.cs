@@ -128,7 +128,6 @@ public class UnityWindow : EditorWindow
     #region Editor GUI
 
     protected float YPos;
-    protected Dictionary<string, object> PrevValues = new Dictionary<string, object>();
     protected Dictionary<string, string[]> EnumOptions = new Dictionary<string, string[]>();
 
     public async UniTask OnGUI()
@@ -140,26 +139,17 @@ public class UnityWindow : EditorWindow
 
     protected virtual UniTask UpdateEditorFields() => UniTask.CompletedTask;
 
-    protected void CheckForValueChanged(string key, object newValue, Action onValueChanged)
-    {
-        if (PrevValues.ContainsKey(key) && !PrevValues[key].Equals(newValue))
-            onValueChanged?.Invoke();
-
-        PrevValues[key] = newValue;
-    }
-
     protected void DrawHeader(string header) => DrawHeader(ref YPos, header);
 
-    protected bool EditorField(string label, bool value, Action onValueChanged = null, bool isVisible = true)
+    protected bool EditorField(string label, bool value, bool isVisible = true)
     {
         if (!isVisible)
             return value;
 
-        CheckForValueChanged(label, value, onValueChanged);
         return EditorGUI.Toggle(GetNextRect(ref YPos), label, value);
     }
 
-    protected T EditorField<T>(string label, T value, Action onValueChanged = null, bool isVisible = true, Func<string[]> getEnumOptions = null)
+    protected T EditorField<T>(string label, T value, bool isVisible = true, Func<string[]> getEnumOptions = null)
         where T : Enum
     {
         if (!isVisible)
@@ -168,37 +158,29 @@ public class UnityWindow : EditorWindow
         if (!EnumOptions.ContainsKey(label))
             EnumOptions[label] = getEnumOptions == null ? EnumHelpers.GetValues<T>().Select(x => x.ToString()).ToArray() : getEnumOptions();
 
-        CheckForValueChanged(label, value, onValueChanged);
-
         return (T)(object)EditorGUI.Popup(GetNextRect(ref YPos), label, (int)(object)value, EnumOptions[label]);
     }
 
-    protected int EditorField(string label, int value, string[] options, Action onValueChanged = null, bool isVisible = true)
+    protected int EditorField(string label, int value, string[] options, bool isVisible = true)
     {
         if (!isVisible)
             return value;
-
-        CheckForValueChanged(label, value, onValueChanged);
 
         return EditorGUI.Popup(GetNextRect(ref YPos), label, value, options);
     }
 
-    protected string EditorField(string label, string value, Action onValueChanged = null, bool isVisible = true)
+    protected string EditorField(string label, string value, bool isVisible = true)
     {
         if (!isVisible)
             return value;
-
-        CheckForValueChanged(label, value, onValueChanged);
 
         return EditorGUI.TextField(GetNextRect(ref YPos), label, value);
     }
 
-    protected int EditorField(string label, int value, Action onValueChanged = null, bool isVisible = true)
+    protected int EditorField(string label, int value, bool isVisible = true)
     {
         if (!isVisible)
             return value;
-
-        CheckForValueChanged(label, value, onValueChanged);
 
         return EditorGUI.IntField(GetNextRect(ref YPos), label, value);
     }
