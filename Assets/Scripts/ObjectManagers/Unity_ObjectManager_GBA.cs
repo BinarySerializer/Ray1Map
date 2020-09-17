@@ -31,6 +31,7 @@ namespace R1Engine
                     x.Actor.Link_1,
                     x.Actor.Link_2,
                     x.Actor.Link_3,
+                    x.Actor.BoxActorBlock?.LinkedActor ?? 0xFF
                 }
             }).ToArray();
 

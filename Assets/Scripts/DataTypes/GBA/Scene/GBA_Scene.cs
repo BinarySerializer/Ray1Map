@@ -115,13 +115,18 @@ namespace R1Engine
 
             for (var i = 0; i < actors.Length; i++)
             {
-                if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger || actors[i].Type == GBA_Actor.ActorType.Trigger || actors[i].Type == GBA_Actor.ActorType.Unk)
-                    continue;
-
-                if (actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
+                if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger)
+                {
+                    actors[i].BoxActorBlock = s.DoAt(OffsetTable.GetPointer(actors[i].BoxActorBlockOffsetIndex),
+                        () => s.SerializeObject<GBA_BoxTriggerActorData>(actors[i].BoxActorBlock,
+                            name: $"{nameof(GBA_Actor.BoxActorBlock)}[{i}]"));
+                }
+                else if (actors[i].Type != GBA_Actor.ActorType.Trigger && actors[i].Type != GBA_Actor.ActorType.Unk && actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
+                {
                     actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(actors[i].GraphicsDataIndex),
                         () => s.SerializeObject<GBA_ActorGraphicData>(actors[i].GraphicData,
                             name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));
+                }
             }
         }
 

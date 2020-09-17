@@ -132,6 +132,13 @@ namespace R1Engine
 
                         if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
                             text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
+
+                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_00)}: {Actor.BoxActorBlock.Byte_00}");
+                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_01)}: {Actor.BoxActorBlock.Byte_01}");
+                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.LinkedActor)}: {Actor.BoxActorBlock.LinkedActor}");
+                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_03)}: {Actor.BoxActorBlock.Byte_03}");
+                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_04)}: {Actor.BoxActorBlock.Byte_04}");
+                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_05)}: {Actor.BoxActorBlock.Byte_05}");
                     }
                 }
 
