@@ -632,6 +632,8 @@ namespace R1Engine
                 }
             }
 
+            await Controller.WaitIfNecessary();
+
             // Get the map layers, skipping the text layers
             var mapLayers = playField.Layers.Where(x => x.StructType != GBA_TileLayer.Type.TextLayerMode7).ToArray();
 
@@ -1115,7 +1117,46 @@ namespace R1Engine
                 tiles[tilePal] = new Unity_TileTexture[tilesetLength];
                 tiles[tilePal][0] = empty;
             }
-            
+            Dictionary<int, Dictionary<int, Color>> paletteCache4 = new Dictionary<int, Dictionary<int, Color>>();
+            Dictionary<int, Dictionary<int, Color>> paletteCache8 = new Dictionary<int, Dictionary<int, Color>>();
+
+            Color GetColor(bool is8Bit, int palette, int index, int pal4bpp = 0) {
+                Color c;
+                if (is8Bit) {
+                    if (paletteCache8.ContainsKey(palette) && paletteCache8[palette].ContainsKey(index))
+                        return paletteCache8[palette][index];
+                } else {
+                    if (paletteCache4.ContainsKey(palette) && paletteCache4[palette].ContainsKey(pal4bpp * paletteSize + index))
+                        return paletteCache4[palette][pal4bpp * paletteSize + index];
+                }
+                if (is8Bit) {
+                    c = info.TilePalettes[palette].Palette[index].GetColor();
+                } else {
+                    c = info.TilePalettes[palette].Palette[pal4bpp * paletteSize + index].GetColor();
+                }
+                if (index != 0)
+                    c = new Color(c.r, c.g, c.b, 1f);
+
+                if (is8Bit) {
+                    if (!paletteCache8.ContainsKey(palette))
+                        paletteCache8[palette] = new Dictionary<int, Color>();
+                    paletteCache8[palette][index] = c;
+                } else {
+                    if (!paletteCache4.ContainsKey(palette))
+                        paletteCache4[palette] = new Dictionary<int, Color>();
+                    paletteCache4[palette][pal4bpp * paletteSize + index] = c;
+                }
+                return c;
+            }
+            Dictionary<int, int> tilesetPalettes = new Dictionary<int, int>();
+            for (int i = 0; i < mapData.Length; i++) {
+                var m = mapData[i];
+                if (!tilesetPalettes.ContainsKey(m.TileMapY)) {
+                    tilesetPalettes[m.TileMapY] = m.PaletteIndex;
+                } else if(tilesetPalettes[m.TileMapY] != m.PaletteIndex) {
+                    Debug.LogWarning($"Tile {m.TileMapY} has several possible palettes: {tilesetPalettes[m.TileMapY]} - {m.PaletteIndex}");
+                }
+            }
             for (int i = 1; i < tilesetLength; i++)
             {
                 Controller.DetailedState = $"Loading tileset {tilesetIndex + 1} (tile {i-1}/{tilesetLength-1})";
@@ -1124,20 +1165,28 @@ namespace R1Engine
                 int tileX = (i % wrap) * CellSize;
 
                 // Get the palette to use
-                var pals = mapData.Where(x => x.TileMapY == i).Select(x => x.PaletteIndex).Distinct().ToArray();
-
-                if (pals.Length < 1 && animatedTiles != null) {
-                    Unity_AnimatedTile animT = animatedTiles.FirstOrDefault(at => at.TileIndices.Contains(i));
-                    if (animT != null) {
-                        pals = mapData.Where(x => x.TileMapY == animT.TileIndices[0]).Select(x => x.PaletteIndex).Distinct().ToArray();
+                int p = 0;
+                if (!tilesetPalettes.ContainsKey(i)) {
+                    if (animatedTiles != null) {
+                        Unity_AnimatedTile animT = animatedTiles.FirstOrDefault(at => at.TileIndices.Contains(i));
+                        if (animT != null) {
+                            var pals = mapData.Where(x => x.TileMapY == animT.TileIndices[0]).Select(x => x.PaletteIndex).Distinct().ToArray();
+                            if (pals.Length > 1) {
+                                Debug.LogWarning($"Tile {i} has several possible palettes: {String.Join(", ", pals)}");
+                            } else if (pals.Length == 0) {
+                                continue; // Tile isn't referenced. Don't have to fill this in
+                            } else {
+                                p = pals[0];
+                            }
+                        } else continue;
+                    } else {
+                        continue;
                     }
+                } else {
+                    p = tilesetPalettes[i];
                 }
 
-                if (pals.Length > 1)
-                    Debug.LogWarning($"Tile {i} has several possible palettes: {String.Join(", ", pals)}");
-
-                int p = pals.FirstOrDefault();
-
+                // Fill in tile pixels
                 for (int y = 0; y < CellSize; y++)
                 {
                     for (int x = 0; x < CellSize; x++)
@@ -1150,10 +1199,7 @@ namespace R1Engine
                         {
                             var b = info.Tileset[index];
                             for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
-                                c = info.TilePalettes[tilePal].Palette[b].GetColor();
-
-                                if (b != 0)
-                                    c = new Color(c.r, c.g, c.b, 1f);
+                                c = GetColor(true, tilePal, b);
 
                                 tileSetTex.SetPixel(tileX + x, tileY + y + (tilePal * tilesY * CellSize), c);
                             }
@@ -1163,21 +1209,16 @@ namespace R1Engine
                             var b = info.Tileset[index];
                             var v = BitHelpers.ExtractBits(b, 4, x % 2 == 0 ? 0 : 4);
                             for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
-                                c = info.TilePalettes[tilePal].Palette[p * paletteSize + v].GetColor();
-
-                                if (v != 0)
-                                    c = new Color(c.r, c.g, c.b, 1f);
+                                c = GetColor(false, tilePal, v, pal4bpp: p);
 
                                 tileSetTex.SetPixel(tileX + x, tileY + y + (tilePal * tilesY * CellSize), c);
                             }
                         }
-
-
-                        for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
-                            // Create a tile
-                            tiles[tilePal][i] = tileSetTex.CreateTile(new Rect(tileX, tileY + (tilePal * tilesY * CellSize), CellSize, CellSize));
-                        }
                     }
+                }
+                for (int tilePal = 0; tilePal < info.TilePalettes.Length; tilePal++) {
+                    // Create a tile
+                    tiles[tilePal][i] = tileSetTex.CreateTile(new Rect(tileX, tileY + (tilePal * tilesY * CellSize), CellSize, CellSize));
                 }
             }
 
