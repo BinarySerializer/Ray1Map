@@ -32,7 +32,7 @@ namespace R1Engine
         public GBA_Actor[] BoxActors { get; set; }
         public GBA_Actor[] UnkActors { get; set; }
 
-        public IEnumerable<GBA_Actor> GetAllActors => Always1Actors.Concat(NormalActors).Concat(Always2Actors);
+        public IEnumerable<GBA_Actor> GetAllActors => Always1Actors.Concat(NormalActors).Concat(Always2Actors).Concat(BoxActors);
 
         public GBA_UnkSceneStruct[] UnkSceneStructs { get; set; }
 
@@ -94,7 +94,13 @@ namespace R1Engine
             var actors = GetAllActors.ToArray();
             for (var i = 0; i < actors.Length; i++)
             {
-                if (actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount && (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || actors[i].GraphicsDataIndex != 0))
+
+                if (actors[i].Type == GBA_Actor.ActorType.Box
+                    || (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow
+                    && (actors[i].Type == GBA_Actor.ActorType.Always2 || actors[i].Type == GBA_Actor.ActorType.Unk)))
+                    continue;
+
+                if (actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
                     actors[i].GraphicData = s.DoAt(OffsetTable.GetPointer(actors[i].GraphicsDataIndex),
                         () => s.SerializeObject<GBA_ActorGraphicData>(actors[i].GraphicData,
                             name: $"{nameof(GBA_Actor.GraphicData)}[{i}]"));

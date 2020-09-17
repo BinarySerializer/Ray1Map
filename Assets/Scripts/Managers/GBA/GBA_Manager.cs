@@ -887,6 +887,10 @@ namespace R1Engine
                     addActor(scene.Always2Actors[i], true, actorIndex);
                     actorIndex++;
                 }
+                for (int i = 0; i < scene.BoxActors.Length; i++) {
+                    addActor(scene.BoxActors[i], true, actorIndex);
+                    actorIndex++;
+                }
 
                 void addActor(GBA_Actor actor, bool isAlways, int index)
                 {

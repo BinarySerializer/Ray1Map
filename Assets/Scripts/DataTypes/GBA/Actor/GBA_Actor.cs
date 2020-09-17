@@ -30,6 +30,7 @@
         public ushort BoxMinX { get; set; }
         public ushort BoxMaxY { get; set; }
         public ushort BoxMaxX { get; set; }
+        public byte BoxID { get; set; }
 
         // Unk2
         public byte Index { get; set; }
@@ -68,10 +69,10 @@
                 XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
                 YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
 
-                Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-                ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
-
                 if (Type != ActorType.Box) {
+                    Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
+                    ActorID = s.Serialize<byte>(ActorID, name: nameof(ActorID));
+
                     if (s.GameSettings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow || Type == ActorType.Normal || Type == ActorType.Always1) {
                         GraphicsDataIndex = s.Serialize<byte>(GraphicsDataIndex, name: nameof(GraphicsDataIndex));
                         StateIndex = s.Serialize<byte>(StateIndex, name: nameof(StateIndex));
@@ -101,6 +102,8 @@
                         }
                     }
                 } else {
+                    Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
+                    BoxID = s.Serialize<byte>(BoxID, name: nameof(BoxID));
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         UnkData1 = s.SerializeArray<byte>(UnkData1, 2, name: nameof(UnkData1));
                     }
