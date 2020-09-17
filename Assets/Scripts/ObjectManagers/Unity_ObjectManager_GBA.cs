@@ -25,14 +25,13 @@ namespace R1Engine
             var eventList = objects.Cast<Unity_Object_GBA>().Select(x => new
             {
                 Data = x,
-                Links = new int[]
+                Links = new byte[]
                 {
                     x.Actor.Link_0,
                     x.Actor.Link_1,
                     x.Actor.Link_2,
-                    x.Actor.Link_3,
-                    x.Actor.BoxActorBlock?.LinkedActor ?? 0xFF
-                }
+                    x.Actor.Link_3
+                }.Concat(x.Actor.BoxActorBlock?.Data.Select(l => l.LinkedActor) ?? new byte[0]).ToArray()
             }).ToArray();
 
             for (int i = 0; i < eventList.Length; i++)

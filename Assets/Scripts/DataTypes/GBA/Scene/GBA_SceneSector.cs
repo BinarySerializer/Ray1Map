@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBA_UnkSceneStruct : R1Serializable
+    public class GBA_SceneSector : R1Serializable
     {
         public byte Length { get; set; }
 

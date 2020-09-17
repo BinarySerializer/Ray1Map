@@ -22,7 +22,7 @@ namespace R1Engine
         public byte ActorsCount5 { get; set; }
 
         public byte Unk_0A { get; set; }
-        public byte UnkSceneStructsCount { get; set; }
+        public byte SectorsCount { get; set; }
 
         public GBA_Actor[] MainActors { get; set; }
         public GBA_Actor[] AlwaysActors { get; set; }
@@ -42,7 +42,7 @@ namespace R1Engine
                 return AlwaysActors.Concat(NormalActors).Concat(BoxTriggerActors);
         }
 
-        public GBA_UnkSceneStruct[] UnkSceneStructs { get; set; }
+        public GBA_SceneSector[] Sectors { get; set; }
 
         public byte[] RemainingData { get; set; }
 
@@ -73,7 +73,7 @@ namespace R1Engine
 
             Unk_0A = s.Serialize<byte>(Unk_0A, name: nameof(Unk_0A));
 
-            UnkSceneStructsCount = s.Serialize<byte>(UnkSceneStructsCount, name: nameof(UnkSceneStructsCount));
+            SectorsCount = s.Serialize<byte>(SectorsCount, name: nameof(SectorsCount));
 
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
 
@@ -101,7 +101,7 @@ namespace R1Engine
                 BoxTriggerActors = s.SerializeObjectArray<GBA_Actor>(BoxTriggerActors, ActorsCount5, onPreSerialize: a => a.Type = GBA_Actor.ActorType.BoxTrigger, name: nameof(BoxTriggerActors));
             }
 
-            UnkSceneStructs = s.SerializeObjectArray<GBA_UnkSceneStruct>(UnkSceneStructs, UnkSceneStructsCount, name: nameof(UnkSceneStructs));
+            Sectors = s.SerializeObjectArray<GBA_SceneSector>(Sectors, SectorsCount, name: nameof(Sectors));
         }
 
         public override void SerializeOffsetData(SerializerObject s)
@@ -118,7 +118,7 @@ namespace R1Engine
                 if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger)
                 {
                     actors[i].BoxActorBlock = s.DoAt(OffsetTable.GetPointer(actors[i].BoxActorBlockOffsetIndex),
-                        () => s.SerializeObject<GBA_BoxTriggerActorData>(actors[i].BoxActorBlock,
+                        () => s.SerializeObject<GBA_BoxTriggerActorDataBlock>(actors[i].BoxActorBlock,
                             name: $"{nameof(GBA_Actor.BoxActorBlock)}[{i}]"));
                 }
                 else if (actors[i].Type != GBA_Actor.ActorType.Trigger && actors[i].Type != GBA_Actor.ActorType.Unk && actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)

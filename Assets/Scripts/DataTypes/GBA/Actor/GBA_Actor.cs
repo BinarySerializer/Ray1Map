@@ -30,7 +30,7 @@
         public ushort BoxMinX { get; set; }
         public ushort BoxMaxY { get; set; }
         public ushort BoxMaxX { get; set; }
-        public byte BoxID { get; set; }
+        public byte LinkedActorsCount { get; set; } // Only last 4 bits
 
         // Unk2
         public byte Index { get; set; }
@@ -50,7 +50,7 @@
 
         public GBA_ActorGraphicData GraphicData { get; set; }
 
-        public GBA_BoxTriggerActorData BoxActorBlock { get; set; }
+        public GBA_BoxTriggerActorDataBlock BoxActorBlock { get; set; }
 
         #endregion
 
@@ -107,7 +107,7 @@
                     }
                 } else {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-                    BoxID = s.Serialize<byte>(BoxID, name: nameof(BoxID));
+                    LinkedActorsCount = s.Serialize<byte>(LinkedActorsCount, name: nameof(LinkedActorsCount));
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         UnkData1 = s.SerializeArray<byte>(UnkData1, 2, name: nameof(UnkData1));
                     }

@@ -109,7 +109,7 @@ namespace R1Engine
                     else
                     {
                         text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
-                        text.AppendLine($"{nameof(Actor.BoxID)}: {Actor.BoxID}");
+                        text.AppendLine($"{nameof(Actor.LinkedActorsCount)}: {Actor.LinkedActorsCount}");
                         
                         if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
                             text.AppendLine($"{nameof(Actor.UnkData1)}: {BitConverter.ToString(Actor.UnkData1)}");
@@ -132,13 +132,6 @@ namespace R1Engine
 
                         if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow)
                             text.AppendLine($"{nameof(Actor.ExtraData)}: {BitConverter.ToString(Actor.ExtraData)}");
-
-                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_00)}: {Actor.BoxActorBlock.Byte_00}");
-                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_01)}: {Actor.BoxActorBlock.Byte_01}");
-                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.LinkedActor)}: {Actor.BoxActorBlock.LinkedActor}");
-                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_03)}: {Actor.BoxActorBlock.Byte_03}");
-                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_04)}: {Actor.BoxActorBlock.Byte_04}");
-                        text.AppendLine($"{nameof(Actor.BoxActorBlock)}.{nameof(Actor.BoxActorBlock.Byte_05)}: {Actor.BoxActorBlock.Byte_05}");
                     }
                 }
 
