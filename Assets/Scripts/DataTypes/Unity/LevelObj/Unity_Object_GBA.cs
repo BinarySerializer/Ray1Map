@@ -13,9 +13,14 @@ namespace R1Engine
             // Set properties
             Actor = actor;
             ObjManager = objManager;
+            InitialXPos = actor.XPos;
+            InitialYPos = actor.YPos;
         }
 
         public GBA_Actor Actor { get; }
+
+        protected short InitialXPos { get; }
+        protected short InitialYPos { get; }
 
         public Unity_ObjectManager_GBA ObjManager { get; }
 
@@ -38,13 +43,27 @@ namespace R1Engine
 
         public override short XPosition
         {
-            get => (short)Actor.XPos;
-            set => Actor.XPos = (ushort)value;
+            get => Actor.XPos;
+            set
+            {
+                var change = XPosition - value;
+                Actor.XPos = value;
+
+                Actor.BoxMinX = (short)(Actor.BoxMinX - change);
+                Actor.BoxMaxX = (short)(Actor.BoxMaxX - change);
+            }
         }
+
         public override short YPosition
         {
-            get => (short)Actor.YPos;
-            set => Actor.YPos = (ushort)value;
+            get => Actor.YPos;
+            set
+            {
+                var change = YPosition - value;
+                Actor.YPos = value;
+                Actor.BoxMinY = (short)(Actor.BoxMinY - change);
+                Actor.BoxMaxY = (short)(Actor.BoxMaxY - change);
+            }
         }
 
         public override string DebugText

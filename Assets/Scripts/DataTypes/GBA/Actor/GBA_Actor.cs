@@ -4,8 +4,8 @@
     {
         #region Actor Data
 
-        public ushort XPos { get; set; }
-        public ushort YPos { get; set; }
+        public short XPos { get; set; }
+        public short YPos { get; set; }
 
         public byte Byte_04 { get; set; }
         
@@ -26,10 +26,10 @@
         public byte BoxActorBlockOffsetIndex { get; set; }
         public byte[] UnkData1 { get; set; }
         public byte[] UnkData2 { get; set; }
-        public ushort BoxMinY { get; set; }
-        public ushort BoxMinX { get; set; }
-        public ushort BoxMaxY { get; set; }
-        public ushort BoxMaxX { get; set; }
+        public short BoxMinY { get; set; }
+        public short BoxMinX { get; set; }
+        public short BoxMaxY { get; set; }
+        public short BoxMaxX { get; set; }
         public BoxActorType BoxActorID { get; set; }
         public byte LinkedActorsCount { get; set; }
 
@@ -69,8 +69,8 @@
                 }
                 ExtraData = s.SerializeArray<byte>(ExtraData, ActorSize - (s.CurrentPointer - Offset), name: nameof(ExtraData));
             } else {
-                XPos = s.Serialize<ushort>(XPos, name: nameof(XPos));
-                YPos = s.Serialize<ushort>(YPos, name: nameof(YPos));
+                XPos = s.Serialize<short>(XPos, name: nameof(XPos));
+                YPos = s.Serialize<short>(YPos, name: nameof(YPos));
 
                 if (Type != ActorType.BoxTrigger) {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
@@ -135,10 +135,10 @@
                     } else {
                         UnkData2 = s.SerializeArray<byte>(UnkData2, 3, name: nameof(UnkData2));
                     }
-                    BoxMinY = s.Serialize<ushort>(BoxMinY, name: nameof(BoxMinY));
-                    BoxMinX = s.Serialize<ushort>(BoxMinX, name: nameof(BoxMinX));
-                    BoxMaxY = s.Serialize<ushort>(BoxMaxY, name: nameof(BoxMaxY));
-                    BoxMaxX = s.Serialize<ushort>(BoxMaxX, name: nameof(BoxMaxX));
+                    BoxMinY = s.Serialize<short>(BoxMinY, name: nameof(BoxMinY));
+                    BoxMinX = s.Serialize<short>(BoxMinX, name: nameof(BoxMinX));
+                    BoxMaxY = s.Serialize<short>(BoxMaxY, name: nameof(BoxMaxY));
+                    BoxMaxX = s.Serialize<short>(BoxMaxX, name: nameof(BoxMaxX));
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_SplinterCellPandoraTomorrow) {
                         ExtraData = s.SerializeArray<byte>(ExtraData, ActorSize - 20, name: nameof(ExtraData));
                     }
