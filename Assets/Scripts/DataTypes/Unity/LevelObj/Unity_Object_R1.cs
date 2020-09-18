@@ -173,8 +173,8 @@ namespace R1Engine
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().Select(x => new Unity_ObjAnimationCollisionPart
         {
-            XPosition = x.XPosition + (CurrentAnimation.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.XPosition ?? 0),
-            YPosition = x.YPosition + (CurrentAnimation.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.YPosition ?? 0),
+            XPosition = x.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.XPosition ?? 0),
+            YPosition = x.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.YPosition ?? 0),
             Width = x.Width,
             Height = x.Height,
             Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox

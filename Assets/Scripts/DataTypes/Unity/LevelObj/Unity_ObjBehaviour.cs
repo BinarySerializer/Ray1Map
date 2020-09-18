@@ -513,7 +513,7 @@ namespace R1Engine
 
             foreach (SpriteRenderer t in sprites) 
             {
-                GameObject g = t.gameObject;
+                GameObject g = t?.gameObject;
                 Destroy(t);
                 Destroy(g);
             }
