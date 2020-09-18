@@ -15,6 +15,7 @@ namespace R1Engine
         public float UpdateTimer { get; set; }
         public bool IsSelected { get; set; }
         public bool ShowOffsets => (IsSelected || Settings.ShowObjOffsets) && IsVisible;
+        public bool ShowCollision => (IsSelected || Settings.ShowObjCollision) && IsVisible;
 
         public int Index { get; set; }
 
@@ -356,7 +357,7 @@ namespace R1Engine
                 for (int i = 0; i < anim.Frames[frame].CollisionLayers.Length; i++)
                 {
                     SetCollisionBox(anim.Frames[frame].CollisionLayers[i], prefabRenderersCollision[i], pivot);
-                    prefabRenderersCollision[i].enabled = IsVisible && Settings.ShowObjCollision;
+                    prefabRenderersCollision[i].enabled = ShowCollision;
                 }
 
                 // Remove unused collision layers
@@ -386,7 +387,7 @@ namespace R1Engine
             if (ObjData.ObjCollision != null)
             {
                 SetCollisionBox(ObjData.ObjCollision, prefabRenderObjCollision, ObjData.Pivot);
-                prefabRenderObjCollision.enabled = IsVisible && Settings.ShowObjCollision;
+                prefabRenderObjCollision.enabled = ShowCollision;
             }
 
             // Update the follow sprite line (Rayman 1 only)
@@ -468,8 +469,7 @@ namespace R1Engine
             offsetOrigin.gameObject.SetActive(ShowOffsets);
             offsetCrossBX.gameObject.SetActive(ShowOffsets && offsetCrossBX.transform.position != Vector3.zero);
             offsetCrossHY.gameObject.SetActive(ShowOffsets && (ObjData is Unity_Object_R1 || ObjData is Unity_Object_R2) && offsetCrossHY.transform.position != Vector3.zero);
-            followSpriteLine.gameObject.SetActive(ShowOffsets);
-            followSpriteLine.gameObject.SetActive(ShowOffsets && ObjData is Unity_Object_R1 r1o && r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings));
+            followSpriteLine.gameObject.SetActive(ShowCollision && ObjData is Unity_Object_R1 r1o && r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings));
         }
 
         public void ChangeLinksVisibility(bool visible) {
