@@ -185,7 +185,7 @@ namespace R1Engine
         public override Unity_ObjAnimationCollisionPart ObjCollision => Actor.Type == GBA_Actor.ActorType.BoxTrigger ? new Unity_ObjAnimationCollisionPart()
         {
             XPosition = Actor.BoxMinX - XPosition,
-            YPosition = YPosition - Actor.BoxMinY,
+            YPosition = Actor.BoxMinY - YPosition,
             Width = Actor.BoxMaxX - Actor.BoxMinX,
             Height = Actor.BoxMaxY - Actor.BoxMinY,
             Type = Actor.BoxActorID == GBA_Actor.BoxActorType.Player ? Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox

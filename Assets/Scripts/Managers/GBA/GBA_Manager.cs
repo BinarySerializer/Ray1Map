@@ -949,34 +949,11 @@ namespace R1Engine
 
 
             Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationChannel l) {
-                /*if (l.ChannelType == GBA_AnimationChannel.Type.AttackBox) {
-                    return new Unity_ObjAnimationPart[1] {
-                        new Unity_ObjAnimationPart() {
-                            ImageIndex = boxIndex,
-                            XPosition = l.BoxX,
-                            YPosition = l.BoxY,
-                            TransformOriginX = l.BoxX,
-                            TransformOriginY = l.BoxY,
-                            Scale = new Vector2(l.BoxX2 - l.BoxX, l.BoxY2 - l.BoxY)
-                        }
-                    };
-                }
-                if (l.ChannelType == GBA_AnimationChannel.Type.VulnerabilityBox) {
-                    return new Unity_ObjAnimationPart[1] {
-                        new Unity_ObjAnimationPart() {
-                            ImageIndex = boxIndex+1,
-                            XPosition = l.BoxX,
-                            YPosition = l.BoxY,
-                            TransformOriginX = l.BoxX,
-                            TransformOriginY = l.BoxY,
-                            Scale = new Vector2(l.BoxX2 - l.BoxX, l.BoxY2 - l.BoxY)
-                        }
-                    };
-                }*/
                 if (l.RenderMode == GBA_AnimationChannel.GfxMode.Window
                     || l.RenderMode == GBA_AnimationChannel.GfxMode.Regular
-                   // || l.ChannelType == GBA_AnimationChannel.Type.Null
-                    || l.ChannelType != GBA_AnimationChannel.Type.Sprite) return new Unity_ObjAnimationPart[0];
+                    || l.ChannelType != GBA_AnimationChannel.Type.Sprite) 
+                    return new Unity_ObjAnimationPart[0];
+
                 if (l.Color == GBA_ColorMode.Color8bpp) {
                     Debug.LogWarning("Animation Layer @ " + l.Offset + " has 8bpp color mode, which is currently not supported.");
                     return new Unity_ObjAnimationPart[0];
@@ -1011,14 +988,41 @@ namespace R1Engine
                 return parts;
             }
 
+            Unity_ObjAnimationCollisionPart[] GetCollisionPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationChannel l) 
+            {
+                if (l.ChannelType != GBA_AnimationChannel.Type.AttackBox && l.ChannelType != GBA_AnimationChannel.Type.VulnerabilityBox) 
+                    return new Unity_ObjAnimationCollisionPart[0];
+
+                return new Unity_ObjAnimationCollisionPart[]
+                {
+                    new Unity_ObjAnimationCollisionPart() {
+
+                        XPosition = l.BoxX,
+                        YPosition = l.BoxY,
+                        Width = l.BoxX2 - l.BoxX,
+                        Height = l.BoxY2 - l.BoxY,
+                        Type = l.ChannelType == GBA_AnimationChannel.Type.AttackBox ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox : Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox
+                    }
+                };
+            }
+
             // Add animations
-            foreach (var a in spr.Animations) {
-                var unityAnim = new Unity_ObjAnimation();
-                unityAnim.AnimSpeed =  (byte)(1 + (a.Flags & 0xF));
+            foreach (var a in spr.Animations) 
+            {
+                var unityAnim = new Unity_ObjAnimation
+                {
+                    AnimSpeed = (byte) (1 + (a.Flags & 0xF))
+                };
+
                 var frames = new List<Unity_ObjAnimationFrame>();
+
                 for (int i = 0; i < a.FrameCount; i++) {
-                    frames.Add(new Unity_ObjAnimationFrame(a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray()));
+                    frames.Add(new Unity_ObjAnimationFrame(
+                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray(),
+                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetCollisionPartsForLayer(spr, a, i, l)).Reverse().ToArray()
+                        ));
                 }
+
                 unityAnim.Frames = frames.ToArray();
                 des.Animations.Add(unityAnim);
             }

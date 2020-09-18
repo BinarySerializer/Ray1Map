@@ -115,9 +115,12 @@ namespace R1Engine
 
         private void SetCollisionBox(Unity_ObjAnimationCollisionPart collision, SpriteRenderer collisionSpriteRenderer, Vector2 pivot)
         {
+            var mirroredX = ObjData.FlipHorizontally;
+            var mirroredY = ObjData.FlipVertically;
+
             Vector2 pos = new Vector2(
-                (collision.XPosition * ObjData.Scale) / LevelEditorData.Level.PixelsPerUnit,
-                (collision.YPosition * ObjData.Scale) / LevelEditorData.Level.PixelsPerUnit);
+                ((collision.XPosition - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit,
+                -(((collision.YPosition - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit));
 
             collisionSpriteRenderer.transform.localPosition = new Vector3(pos.x, pos.y, collisionSpriteRenderer.transform.localPosition.z);
             collisionSpriteRenderer.transform.localScale = new Vector3(collision.Width / (float)LevelEditorData.Level.PixelsPerUnit, collision.Height / (float)LevelEditorData.Level.PixelsPerUnit) * ObjData.Scale;
@@ -434,7 +437,7 @@ namespace R1Engine
 
                 Vector2 pos = new Vector2(
                     (ObjData.ObjCollision.XPosition * ObjData.Scale) / LevelEditorData.Level.PixelsPerUnit + boxCollider.size.x / 2f,
-                    (ObjData.ObjCollision.YPosition * ObjData.Scale) / LevelEditorData.Level.PixelsPerUnit - boxCollider.size.y / 2f);
+                    -((ObjData.ObjCollision.YPosition * ObjData.Scale) / LevelEditorData.Level.PixelsPerUnit + boxCollider.size.y / 2f));
 
                 boxCollider.offset = pos;
             }
