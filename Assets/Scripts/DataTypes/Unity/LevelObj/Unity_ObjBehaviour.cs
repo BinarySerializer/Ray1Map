@@ -50,7 +50,7 @@ namespace R1Engine
         // Reference to the created renderers
         public SpriteRenderer[] prefabRenderers;
         public SpriteRenderer[] prefabRenderersCollision;
-        public SpriteRenderer prefabRenderObjCollision;
+        public SpriteRenderer[] prefabRendersObjCollision;
         // Reference to box collider
         public BoxCollider2D boxCollider;
         // Reference to line renderer
@@ -174,7 +174,8 @@ namespace R1Engine
                 // If animation is null, use default renderer ("E")
                 if (ObjData.CurrentAnimation == null)
                 {
-                    ClearChildren();
+                    ClearSprites(prefabRenderers);
+                    ClearSprites(prefabRenderersCollision);
                 }
                 else
                 {
@@ -187,8 +188,9 @@ namespace R1Engine
                     // Get the amount of collision layers per frame
                     var collisionLength = ObjData.CurrentAnimation.Frames.Max(f => f.CollisionLayers?.Length ?? 0);
 
-                    // Clear old array
-                    ClearChildren();
+                    // Clear old arrays
+                    ClearSprites(prefabRenderers);
+                    ClearSprites(prefabRenderersCollision);
 
                     // Create arrays
                     prefabRenderers = new SpriteRenderer[spritesLength];
@@ -369,26 +371,35 @@ namespace R1Engine
                 }
             }
 
+            var col = ObjData.ObjCollision;
+
             // Update object collision
-            if (ObjData.ObjCollision != null && prefabRenderObjCollision == null)
+            if (prefabRendersObjCollision == null || col.Length != prefabRendersObjCollision.Length)
             {
-                // Instantiate prefab
-                prefabRenderObjCollision = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
-                prefabRenderObjCollision.sortingOrder = Layer;
+                // Clear old sprites
+                ClearSprites(prefabRendersObjCollision);
 
-                prefabRenderObjCollision.transform.localPosition = new Vector3(0, 0);
-                prefabRenderObjCollision.transform.localRotation = Quaternion.identity;
-                prefabRenderObjCollision.transform.localScale = Vector3.one * ObjData.Scale;
-            }
-            else if (ObjData.ObjCollision == null)
-            {
-                prefabRenderObjCollision = null;
+                prefabRendersObjCollision = new SpriteRenderer[col.Length];
+
+                // Instantiate prefabs
+                for (int i = 0; i < col.Length; i++)
+                {
+                    prefabRendersObjCollision[i] = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
+                    prefabRendersObjCollision[i].sortingOrder = Layer;
+
+                    prefabRendersObjCollision[i].transform.localPosition = new Vector3(0, 0, col.Length - i);
+                    prefabRendersObjCollision[i].transform.localRotation = Quaternion.identity;
+                    prefabRendersObjCollision[i].transform.localScale = Vector3.one * ObjData.Scale;
+                }
             }
 
-            if (ObjData.ObjCollision != null)
+            if (col != null)
             {
-                SetCollisionBox(ObjData.ObjCollision, prefabRenderObjCollision, ObjData.Pivot);
-                prefabRenderObjCollision.enabled = ShowCollision;
+                for (var i = 0; i < prefabRendersObjCollision.Length; i++)
+                {
+                    SetCollisionBox(col[i], prefabRendersObjCollision[i], ObjData.Pivot);
+                    prefabRendersObjCollision[i].enabled = ShowCollision;
+                }
             }
 
             // Update the follow sprite line (Rayman 1 only)
@@ -401,12 +412,14 @@ namespace R1Engine
             }
 
             // Update the collider size for when selecting the events
-            if (anim != null)
+            if (anim != null || col != null)
             {
+                var sprites = anim != null ? prefabRenderers : prefabRendersObjCollision;
+
                 // Set box collider size to be the combination of all parts
                 float leftX = 0, bottomY = 0, rightX = 0, topY = 0;
                 bool first = true;
-                foreach (SpriteRenderer part in prefabRenderers)
+                foreach (SpriteRenderer part in sprites)
                 {
                     if (part.sprite == null)
                         continue;
@@ -430,16 +443,6 @@ namespace R1Engine
                     boxCollider.size = new Vector2(w, h);
                     boxCollider.offset = new Vector2(leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f, (topY / LevelEditorData.Level.PixelsPerUnit - h / 2f));
                 }
-            }
-            else if (ObjData.ObjCollision != null)
-            {
-                boxCollider.size = new Vector2(ObjData.ObjCollision.Width / (float)LevelEditorData.Level.PixelsPerUnit, ObjData.ObjCollision.Height / (float)LevelEditorData.Level.PixelsPerUnit);
-
-                Vector2 pos = new Vector2(
-                    (ObjData.ObjCollision.XPosition * ObjData.Scale) / LevelEditorData.Level.PixelsPerUnit + boxCollider.size.x / 2f,
-                    -((ObjData.ObjCollision.YPosition * ObjData.Scale) / LevelEditorData.Level.PixelsPerUnit + boxCollider.size.y / 2f));
-
-                boxCollider.offset = pos;
             }
 
             // Update offset points
@@ -502,19 +505,20 @@ namespace R1Engine
             linkCube.gameObject.SetActive(visible);
         }
 
-        private void ClearChildren() {
+        private void ClearSprites(SpriteRenderer[] sprites) 
+        {
             // Clear old array
-            if (prefabRenderers == null) 
+            if (sprites == null) 
                 return;
 
-            foreach (SpriteRenderer t in prefabRenderers) {
+            foreach (SpriteRenderer t in sprites) 
+            {
                 GameObject g = t.gameObject;
                 Destroy(t);
                 Destroy(g);
             }
 
-            Array.Clear(prefabRenderers, 0, prefabRenderers.Length);
-            prefabRenderers = null;
+            Array.Clear(sprites, 0, sprites.Length);
         }
 
         // Delete this event properly
@@ -524,7 +528,9 @@ namespace R1Engine
             // Remove the data
             LevelEditorData.Level.EventData.Remove(ObjData);
             // Remove all children
-            ClearChildren();
+            ClearSprites(prefabRenderers);
+            ClearSprites(prefabRenderersCollision);
+            ClearSprites(prefabRendersObjCollision);
             // Remove self
             Destroy(gameObject);
         }

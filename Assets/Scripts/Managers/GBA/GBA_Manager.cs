@@ -932,21 +932,6 @@ namespace R1Engine
                     des.Sprites.Add(tex.CreateSprite());
                 }
             }
-            // Add boxes
-            /*int AddBox(Color c) {
-                int count = des.Sprites.Count;
-                var tex = TextureHelpers.CreateTexture2D(1,1);
-                tex.SetPixel(0, 0, c);
-                //tex.SetPixels(Enumerable.Repeat(c, width * height).ToArray());
-
-                tex.Apply();
-                des.Sprites.Add(tex.CreateSprite());
-                return count;
-            }
-            int boxIndex = des.Sprites.Count;
-            AddBox(new Color(1f, 0f, 0f, 0.5f));
-            AddBox(new Color(0f, 1f, 0f, 0.5f));*/
-
 
             Unity_ObjAnimationPart[] GetPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationChannel l) {
                 if (l.RenderMode == GBA_AnimationChannel.GfxMode.Window
@@ -988,7 +973,7 @@ namespace R1Engine
                 return parts;
             }
 
-            Unity_ObjAnimationCollisionPart[] GetCollisionPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, int frame, GBA_AnimationChannel l) 
+            Unity_ObjAnimationCollisionPart[] GetCollisionPartsForLayer(GBA_SpriteGroup s, GBA_Animation a, GBA_AnimationChannel l) 
             {
                 if (l.ChannelType != GBA_AnimationChannel.Type.AttackBox && l.ChannelType != GBA_AnimationChannel.Type.VulnerabilityBox) 
                     return new Unity_ObjAnimationCollisionPart[0];
@@ -997,10 +982,10 @@ namespace R1Engine
                 {
                     new Unity_ObjAnimationCollisionPart() {
 
-                        XPosition = l.BoxX,
-                        YPosition = l.BoxY,
-                        Width = l.BoxX2 - l.BoxX,
-                        Height = l.BoxY2 - l.BoxY,
+                        XPosition = l.Box_MinX,
+                        YPosition = l.Box_MinY,
+                        Width = l.Box_MaxX - l.Box_MinX,
+                        Height = l.Box_MaxY - l.Box_MinY,
                         Type = l.ChannelType == GBA_AnimationChannel.Type.AttackBox ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox : Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox
                     }
                 };
@@ -1019,7 +1004,7 @@ namespace R1Engine
                 for (int i = 0; i < a.FrameCount; i++) {
                     frames.Add(new Unity_ObjAnimationFrame(
                         a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray(),
-                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetCollisionPartsForLayer(spr, a, i, l)).Reverse().ToArray()
+                        a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetCollisionPartsForLayer(spr, a, l)).Reverse().ToArray()
                         ));
                 }
 

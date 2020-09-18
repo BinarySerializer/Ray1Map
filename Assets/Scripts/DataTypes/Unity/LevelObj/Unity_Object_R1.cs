@@ -22,6 +22,7 @@ namespace R1Engine
             EventData.RuntimeYPosition = (ushort)EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
             EventData.RuntimeHitPoints = EventData.HitPoints;
+            EventData.Runtime_TypeZDC = ObjManager.ZDC?.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
 
             // Find matching name from event sheet
             SecondaryName = ObjManager.FindMatchingEventInfo(EventData)?.Name;
@@ -86,8 +87,7 @@ namespace R1Engine
         }
 
         // TODO: Update for PS1
-        public override string DebugText => Settings.LoadFromMemory 
-            ? $"Pos: {EventData.XPosition}, {EventData.YPosition}{Environment.NewLine}" +
+        public override string DebugText => 
               $"RuntimePos: {EventData.RuntimeXPosition}, {EventData.RuntimeYPosition}{Environment.NewLine}" +
               $"Layer: {EventData.Layer}{Environment.NewLine}" +
               $"RuntimeLayer: {EventData.RuntimeLayer}{Environment.NewLine}" +
@@ -114,11 +114,13 @@ namespace R1Engine
               $"Unk_86: {EventData.Unk_86}{Environment.NewLine}" +
               $"Unk_88: {EventData.Unk_88}{Environment.NewLine}" +
               $"Unk_90: {EventData.Unk_90}{Environment.NewLine}" +
-              $"Runtime_ZdcIndex: {EventData.Runtime_ZdcIndex}{Environment.NewLine}" +
+              $"Runtime_ZdcIndex.ZDCCount: {EventData.Runtime_TypeZDC.ZDCCount}{Environment.NewLine}" +
+              $"Runtime_ZdcIndex.ZDCIndex: {EventData.Runtime_TypeZDC.ZDCIndex}{Environment.NewLine}" +
+              $"State.SoundIndex: {State.SoundIndex}{Environment.NewLine}" +
+              $"State.InteractionType: {State.InteractionType}{Environment.NewLine}" +
               $"Unk_94: {EventData.Unk_94}{Environment.NewLine}" +
               $"{Environment.NewLine}" +
-              $"Flags: {Convert.ToString((byte)EventData.PC_Flags, 2).PadLeft(8, '0')}{Environment.NewLine}" 
-            : $"Flags: {String.Join(", ", EventData.PC_Flags.GetFlags())}";
+              $"Flags: {EventData.PC_Flags}{Environment.NewLine}";
 
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
@@ -160,6 +162,23 @@ namespace R1Engine
                 return false;
             }
         }
+
+        protected IEnumerable<R1_ZDCData> GetObjZDC()
+        {
+            var typeZdc = EventData.Runtime_TypeZDC;
+
+            for (int i = 0; i < (typeZdc?.ZDCCount ?? 0); i++)
+                yield return ObjManager.ZDC.ZDCTable[typeZdc.ZDCIndex + i];
+        }
+
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().Select(x => new Unity_ObjAnimationCollisionPart
+        {
+            XPosition = x.XPosition + (CurrentAnimation.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.XPosition ?? 0),
+            YPosition = x.YPosition + (CurrentAnimation.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.YPosition ?? 0),
+            Width = x.Width,
+            Height = x.Height,
+            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+        }).ToArray();
 
         public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimationFrame
@@ -344,7 +363,11 @@ namespace R1Engine
             public ushort Type
             {
                 get => (ushort)Obj.EventData.Type;
-                set => Obj.EventData.Type = (R1_EventType)value;
+                set
+                {
+                    Obj.EventData.Type = (R1_EventType) value;
+                    Obj.EventData.Runtime_TypeZDC = Obj.ObjManager.ZDC?.TypeZDC?.ElementAtOrDefault((ushort)Obj.EventData.Type) ?? Obj.EventData.Runtime_TypeZDC;
+                }
             }
 
             public int DES

@@ -10,16 +10,22 @@ namespace R1Engine
     {
         public Unity_ObjectManager_R1(Context context, DataContainer<Unity_ObjGraphics>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true) : base(context)
         {
+            // Set properties
             DES = des;
             ETA = eta;
             LinkTable = linkTable;
             UsesPointers = usesPointers;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
+
+            // Serialize ZDC data
+            ZDC = new R1_ZDC();
+            ZDC.Serialize(context.Deserializer);
         }
 
         public DataContainer<Unity_ObjGraphics>[] DES { get; }
         public DataContainer<R1_EventState[][]>[] ETA { get; }
-        
+
+        public R1_ZDC ZDC { get; }
         public ushort[] LinkTable { get; }
 
         public bool UsesPointers { get; }

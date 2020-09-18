@@ -28,10 +28,10 @@ namespace R1Engine
         public int AffineMatrixIndex { get; set; }
 
         public Type ChannelType { get; set; } = Type.Sprite;
-        public sbyte BoxX { get; set; }
-        public sbyte BoxX2 { get; set; }
-        public sbyte BoxY { get; set; }
-        public sbyte BoxY2 { get; set; }
+        public sbyte Box_MinX { get; set; }
+        public sbyte Box_MaxX { get; set; }
+        public sbyte Box_MinY { get; set; }
+        public sbyte Box_MaxY { get; set; }
         public int Unknown8 { get; set; }
         public int UnknownC { get; set; }
 
@@ -155,10 +155,10 @@ namespace R1Engine
                 UnknownC = s.Serialize<int>(UnknownC, name: nameof(UnknownC));
             } else {
                 s.Log($"{nameof(ChannelType)}: {ChannelType}");
-                BoxX = s.Serialize<sbyte>(BoxX, name: nameof(BoxX));
-                BoxY = s.Serialize<sbyte>(BoxY, name: nameof(BoxY));
-                BoxY2 = s.Serialize<sbyte>(BoxY2, name: nameof(BoxY2));
-                BoxX2 = s.Serialize<sbyte>(BoxX2, name: nameof(BoxX2));
+                Box_MinX = s.Serialize<sbyte>(Box_MinX, name: nameof(Box_MinX));
+                Box_MinY = s.Serialize<sbyte>(Box_MinY, name: nameof(Box_MinY));
+                Box_MaxY = s.Serialize<sbyte>(Box_MaxY, name: nameof(Box_MaxY));
+                Box_MaxX = s.Serialize<sbyte>(Box_MaxX, name: nameof(Box_MaxX));
             }
         }
 
