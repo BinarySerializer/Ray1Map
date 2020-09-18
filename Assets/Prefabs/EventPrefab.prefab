@@ -378,6 +378,8 @@ MonoBehaviour:
   defautRenderer: {fileID: 5110095365168562726}
   prefabSpritepart: {fileID: 1118894001621329459, guid: 5bbcc489a4969e548950ae9aeb64bb4f,
     type: 3}
+  prefabBox: {fileID: 1118894001621329459, guid: 4d53572132f11a548ae6c556e54ebb7c,
+    type: 3}
   prefabRenderers: []
   boxCollider: {fileID: 8388059050577267216}
   lineRend: {fileID: 8273637944863852906}

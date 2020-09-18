@@ -42,6 +42,8 @@ namespace R1Engine
         public SpriteRenderer defautRenderer;
         // Reference to spritepart prefab
         public GameObject prefabSpritepart;
+        // Reference to the box prefab
+        public GameObject prefabBox;
         // Reference to the created renderers
         public SpriteRenderer[] prefabRenderers;
         // Reference to box collider

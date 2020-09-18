@@ -187,7 +187,7 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_DisplayPrio = r2obj.EventData.Layer;
 
                     if (includeLists)
-                        webObj.R1_DESNames = r2obj.ObjManager.AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
+                        webObj.R2_AnimGroupNames = r2obj.ObjManager.AnimGroups.Select(x => x.Pointer?.ToString() ?? "N/A").ToArray();
                     break;
 
 				case Unity_Object_R1Jaguar r1jaguarObj:
@@ -292,12 +292,48 @@ public class WebCommunicator : MonoBehaviour {
 		Unity_ObjBehaviour o = msg.Index == -1 ? Controller.obj.levelController.RaymanObject : objects[msg.Index];
 		if (o == null) return;
 
+		bool refreshObjectLists = false;
+
 		// Now we have the object, parse it
 		if (msg.X.HasValue) o.ObjData.XPosition = (short)msg.X.Value;
 		if (msg.Y.HasValue) o.ObjData.YPosition = (short)msg.Y.Value;
 		if (msg.IsEnabled.HasValue) o.IsEnabled = msg.IsEnabled.Value;
-		// TODO: Allow setting this
-		//if (msg.AnimSpeed.HasValue) o.ObjData.AnimSpeed = msg.AnimSpeed.Value;
+		if (msg.StateIndex.HasValue) o.ObjData.CurrentUIState = msg.StateIndex.Value;
+		switch (o.ObjData) {
+			case Unity_Object_R1 r1o:
+				if (msg.R1_ETAIndex.HasValue && r1o.ETAIndex != msg.R1_ETAIndex.Value) {
+					r1o.ETAIndex = msg.R1_ETAIndex.Value;
+					refreshObjectLists = true;
+				}
+				if (msg.R1_DESIndex.HasValue && r1o.DESIndex != msg.R1_DESIndex.Value) {
+					r1o.DESIndex = msg.R1_DESIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_R2 r2o:
+				if (msg.R2_AnimGroupIndex.HasValue && r2o.AnimGroupIndex != msg.R2_AnimGroupIndex.Value) {
+					r2o.AnimGroupIndex = msg.R2_AnimGroupIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_R1Jaguar r1jo:
+				if (msg.R1Jaguar_EventDefinitionIndex.HasValue && r1jo.EventDefinitionIndex != msg.R1Jaguar_EventDefinitionIndex.Value) {
+					r1jo.EventDefinitionIndex = msg.R1Jaguar_EventDefinitionIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+			case Unity_Object_GBA go:
+				if (msg.GBA_GraphicsDataIndex.HasValue && go.GraphicsDataIndex != msg.GBA_GraphicsDataIndex.Value) {
+					go.GraphicsDataIndex = msg.GBA_GraphicsDataIndex.Value;
+					refreshObjectLists = true;
+				}
+				break;
+		}
+		// TODO: More object settings?
+
+		if (refreshObjectLists) {
+			Send(GetSelectionMessageJSON(includeLists: true, includeDetails: true));
+		}
 
 	}
 	private void ParseRequestJSON(WebJSON.Request msg) {

@@ -65,9 +65,11 @@ public class WebJSON {
 
         // Rayman 1/2
 		public string[] R1_DESNames { get; set; }
+		public string[] R2_AnimGroupNames { get; set; }
 		public string[] R1_ETANames { get; set; } // Not in R2
 		public ushort? R1_Type { get; set; }
 		public int? R1_DESIndex { get; set; }
+		public int? R2_AnimGroupIndex { get; set; }
 		public int? R1_ETAIndex { get; set; } // Not in R2
 		public byte? R1_Etat { get; set; }
 	    public byte? R1_SubEtat { get; set; }
