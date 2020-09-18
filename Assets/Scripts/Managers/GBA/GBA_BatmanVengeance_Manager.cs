@@ -101,9 +101,7 @@ namespace R1Engine
                 var unityAnim = new Unity_ObjAnimation();
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
-                    frames.Add(new Unity_ObjAnimationFrame() {
-                        Layers = a.Frames[i].Layers/*.OrderByDescending(l => l.Priority)*/.SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup_BatmanVengeance, a, i, l)).Reverse().ToArray()
-                    });
+                    frames.Add(new Unity_ObjAnimationFrame(a.Frames[i].Layers/*.OrderByDescending(l => l.Priority)*/.SelectMany(l => GetPartsForLayer(graphicData.SpriteGroup_BatmanVengeance, a, i, l)).Reverse().ToArray()));
                 }
                 unityAnim.Frames = frames.ToArray();
                 unityAnim.AnimSpeed = 1;

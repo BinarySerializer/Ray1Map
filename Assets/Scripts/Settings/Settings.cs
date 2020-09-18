@@ -220,6 +220,7 @@ namespace R1Engine {
 
         public static bool ShowObjects { get; set; } = true;
         public static bool ShowCollision { get; set; } = false;
+        public static bool ShowObjCollision { get; set; } = true;
         public static bool ShowTiles { get; set; } = true;
 
         public static bool ScreenshotEnumeration { get; set; }
@@ -345,6 +346,7 @@ namespace R1Engine {
             ShowObjects = s.SerializeBool("ShowObjects", ShowObjects);
             ShowTiles = s.SerializeBool("ShowTiles", ShowTiles);
             ShowCollision = s.SerializeBool("ShowCollision", ShowCollision);
+            ShowObjCollision = s.SerializeBool("ShowObjCollision", ShowObjCollision);
 
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             AnimateTiles = s.SerializeBool("AnimateTiles", AnimateTiles);

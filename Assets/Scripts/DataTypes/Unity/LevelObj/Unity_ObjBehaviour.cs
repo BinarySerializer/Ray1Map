@@ -46,6 +46,8 @@ namespace R1Engine
         public GameObject prefabBox;
         // Reference to the created renderers
         public SpriteRenderer[] prefabRenderers;
+        public SpriteRenderer[] prefabRenderersCollision;
+        public SpriteRenderer prefabRenderObjCollision;
         // Reference to box collider
         public BoxCollider2D boxCollider;
         // Reference to line renderer
@@ -108,6 +110,43 @@ namespace R1Engine
 
         public void ForceUpdate() => Update();
 
+        private void SetCollisionBox(Unity_ObjAnimationCollisionPart collision, SpriteRenderer collisionSpriteRenderer, Vector2 pivot)
+        {
+            var mirroredX = ObjData.FlipHorizontally;
+            var mirroredY = ObjData.FlipVertically;
+
+            // scale
+            Vector2 pos = new Vector2(
+                ((collision.XPosition - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit,
+                ((collision.YPosition - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit);
+
+            collisionSpriteRenderer.transform.localPosition = new Vector3(pos.x, pos.y, collisionSpriteRenderer.transform.localPosition.z);
+            collisionSpriteRenderer.transform.localScale = new Vector3(collision.Width / (float)LevelEditorData.Level.PixelsPerUnit, collision.Height / (float)LevelEditorData.Level.PixelsPerUnit) * ObjData.Scale;
+
+            // Set color depending on the collision type
+            switch (collision.Type)
+            {
+                case Unity_ObjAnimationCollisionPart.CollisionType.AttackBox:
+                    collisionSpriteRenderer.color = new Color(1f, 0f, 0f, 0.5f);
+                    break;
+
+                case Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox:
+                    collisionSpriteRenderer.color = new Color(0f, 1f, 0f, 0.5f);
+                    break;
+
+                case Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox:
+                    collisionSpriteRenderer.color = new Color(0f, 0f, 1f, 0.5f);
+                    break;
+
+                case Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox:
+                    collisionSpriteRenderer.color = new Color(1f, 0f, 1f, 0.5f);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         void Update()
         {
             // Make sure the events have loaded
@@ -140,28 +179,45 @@ namespace R1Engine
                     // Reset the current frame
                     ObjData.ResetFrame();
 
-                    // Get the amount of layers per frame
-                    var len = ObjData.CurrentAnimation.Frames.Max(f => f.Layers.Length);
+                    // Get the amount of sprite layers per frame
+                    var spritesLength = ObjData.CurrentAnimation.Frames.Max(f => f.SpriteLayers.Length);
+
+                    // Get the amount of collision layers per frame
+                    var collisionLength = ObjData.CurrentAnimation.Frames.Max(f => f.CollisionLayers?.Length ?? 0);
 
                     // Clear old array
                     ClearChildren();
 
-                    // Create array
-                    prefabRenderers = new SpriteRenderer[len];
+                    // Create arrays
+                    prefabRenderers = new SpriteRenderer[spritesLength];
+                    prefabRenderersCollision = new SpriteRenderer[collisionLength];
 
-                    // Populate it with empty ones
-                    for (int i = 0; i < len; i++)
+                    // Populate sprites
+                    for (int i = 0; i < spritesLength; i++)
                     {
                         // Instantiate prefab
                         SpriteRenderer newRenderer = Instantiate(prefabSpritepart, transform).GetComponent<SpriteRenderer>();
                         newRenderer.sortingOrder = Layer + i;
 
-                        newRenderer.transform.localPosition = new Vector3(0, 0, len - i);
+                        newRenderer.transform.localPosition = new Vector3(0, 0, spritesLength - i);
                         newRenderer.transform.localRotation = Quaternion.identity;
                         newRenderer.transform.localScale = Vector3.one * ObjData.Scale;
 
                         // Add to list
                         prefabRenderers[i] = newRenderer;
+                    }
+
+                    // Populate collision boxes
+                    for (int i = 0; i < collisionLength; i++)
+                    {
+                        // Instantiate prefab
+                        var newRenderer = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
+                        newRenderer.sortingOrder = Layer + spritesLength + i;
+
+                        newRenderer.transform.localRotation = Quaternion.identity;
+
+                        // Add to list
+                        prefabRenderersCollision[i] = newRenderer;
                     }
                 }
             }
@@ -213,9 +269,11 @@ namespace R1Engine
                 var mirroredX = ObjData.FlipHorizontally;
                 var mirroredY = ObjData.FlipVertically;
 
-                for (int i = 0; i < anim.Frames[frame].Layers.Length; i++)
+                // Update sprites
+                for (int i = 0; i < anim.Frames[frame].SpriteLayers.Length; i++)
                 {
-                    var layer = anim.Frames[frame].Layers[i];
+                    var layer = anim.Frames[frame].SpriteLayers[i];
+
                     // Get the sprite index
                     var spriteIndex = layer.ImageIndex;
 
@@ -287,16 +345,54 @@ namespace R1Engine
                     prefabRenderers[i].enabled = IsVisible;
                     prefabRenderers[i].color = ObjData.IsDisabled ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
-                for(int i = anim.Frames[frame].Layers.Length; i < prefabRenderers.Length; i++) {
+
+                // Remove unused sprites
+                for(int i = anim.Frames[frame].SpriteLayers.Length; i < prefabRenderers.Length; i++) {
                     prefabRenderers[i].sprite = null;
                     prefabRenderers[i].enabled = false;
                 }
+
+                // Update collision
+                for (int i = 0; i < anim.Frames[frame].CollisionLayers.Length; i++)
+                {
+                    SetCollisionBox(anim.Frames[frame].CollisionLayers[i], prefabRenderersCollision[i], pivot);
+                    prefabRenderersCollision[i].enabled = IsVisible && Settings.ShowObjCollision;
+                }
+
+                // Remove unused collision layers
+                for (int i = anim.Frames[frame].CollisionLayers.Length; i < prefabRenderersCollision.Length; i++)
+                {
+                    prefabRenderersCollision[i].sprite = null;
+                    prefabRenderersCollision[i].enabled = false;
+                }
+            }
+
+            // Update object collision
+            if (ObjData.ObjCollision != null && prefabRenderObjCollision == null)
+            {
+                // Instantiate prefab
+                prefabRenderObjCollision = Instantiate(prefabBox, transform).GetComponent<SpriteRenderer>();
+                prefabRenderObjCollision.sortingOrder = Layer;
+
+                prefabRenderObjCollision.transform.localPosition = new Vector3(0, 0);
+                prefabRenderObjCollision.transform.localRotation = Quaternion.identity;
+                prefabRenderObjCollision.transform.localScale = Vector3.one * ObjData.Scale;
+            }
+            else if (ObjData.ObjCollision == null)
+            {
+                prefabRenderObjCollision = null;
+            }
+
+            if (ObjData.ObjCollision != null)
+            {
+                SetCollisionBox(ObjData.ObjCollision, prefabRenderObjCollision, ObjData.Pivot);
+                prefabRenderObjCollision.enabled = IsVisible && Settings.ShowObjCollision;
             }
 
             // Update the follow sprite line (Rayman 1 only)
-            if (ObjData is Unity_Object_R1 r1 && anim != null && r1.EventData.FollowSprite < anim.Frames[ObjData.AnimationFrame].Layers.Length)
+            if (ObjData is Unity_Object_R1 r1 && anim != null && r1.EventData.FollowSprite < anim.Frames[ObjData.AnimationFrame].SpriteLayers.Length)
             {
-                followSpriteLine.localPosition = new Vector2(anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].Layers[r1.EventData.FollowSprite].XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].Layers[r1.EventData.FollowSprite].YPosition / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
+                followSpriteLine.localPosition = new Vector2(anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].YPosition / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
 
                 var w = (prefabRenderers[r1.EventData.FollowSprite].sprite == null) ? 0 : prefabRenderers[r1.EventData.FollowSprite].sprite.texture.width;
                 followSpriteLine.localScale = new Vector2(w, 1f);
@@ -346,7 +442,7 @@ namespace R1Engine
                     int hy = -(r1bj.EventData.OffsetHY);
 
                     if (r1bj.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings))
-                        hy -= anim.Frames[r1bj.EventData.RuntimeCurrentAnimFrame].Layers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
+                        hy -= anim.Frames[r1bj.EventData.RuntimeCurrentAnimFrame].SpriteLayers.ElementAtOrDefault(r1bj.EventData.FollowSprite)?.YPosition ?? 0;
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy  / (float)LevelEditorData.Level.PixelsPerUnit);
                 }

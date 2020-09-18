@@ -60,13 +60,8 @@
             // Create each frame
             for (int i = 0; i < FrameCount; i++) {
                 // Create the frame
-                var frame = new Unity_ObjAnimationFrame() {
-                    FrameData = Frames?[i],
-                    Layers = new Unity_ObjAnimationPart[LayersPerFrame]
-                };
-                if (Frames?[i] == null) {
-                    frame.FrameData = new R1_AnimationFrame();
-                }
+                var frame = new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[LayersPerFrame]);
+
                 if (Layers != null) {
 
                     // Create each layer
@@ -93,7 +88,7 @@
                         }
 
                         // Add the part
-                        frame.Layers[layerIndex] = part;
+                        frame.SpriteLayers[layerIndex] = part;
                     }
                 }
                 // Set the frame

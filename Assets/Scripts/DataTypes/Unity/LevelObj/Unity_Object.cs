@@ -53,7 +53,7 @@ namespace R1Engine
         public virtual bool IsDisabled => Settings.LoadFromMemory && !IsActive;
 
         // Animations
-        // TODO: Expose current frame and use that mostly
+        public virtual Unity_ObjAnimationCollisionPart ObjCollision => null;
         public abstract Unity_ObjAnimation CurrentAnimation { get; }
         public virtual byte AnimationFrame { get; set; }
         public virtual byte AnimationIndex { get; set; }

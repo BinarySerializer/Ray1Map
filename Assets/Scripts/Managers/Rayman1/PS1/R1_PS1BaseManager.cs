@@ -555,14 +555,14 @@ namespace R1Engine
                 int? frameWidth = null;
                 int? frameHeight = null;
 
-                var layersPerFrame = anim.Frames.First().Layers.Length;
+                var layersPerFrame = anim.Frames.First().SpriteLayers.Length;
                 var frameCount = anim.Frames.Length;
 
                 for (int dummyFrame = 0; dummyFrame < frameCount; dummyFrame++)
                 {
                     for (int dummyLayer = 0; dummyLayer < layersPerFrame; dummyLayer++)
                     {
-                        var l = anim.Frames[dummyFrame].Layers[dummyLayer];
+                        var l = anim.Frames[dummyFrame].SpriteLayers[dummyLayer];
 
                         if (l.ImageIndex < textures.Length)
                         {
@@ -593,7 +593,7 @@ namespace R1Engine
                     // Write each layer
                     for (var layerIndex = 0; layerIndex < layersPerFrame; layerIndex++)
                     {
-                        var animationLayer = anim.Frames[frameIndex].Layers[layerIndex];
+                        var animationLayer = anim.Frames[frameIndex].SpriteLayers[layerIndex];
 
                         if (animationLayer.ImageIndex >= textures.Length)
                             continue;

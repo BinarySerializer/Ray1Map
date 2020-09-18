@@ -113,6 +113,7 @@ namespace R1Engine
                     else
                     {
                         text.AppendLine($"{nameof(Actor.Byte_04)}: {Actor.Byte_04}");
+                        text.AppendLine($"{nameof(Actor.BoxActorID)}: {Actor.BoxActorID}");
                         text.AppendLine($"{nameof(Actor.LinkedActorsCount)}: {Actor.LinkedActorsCount}");
                         
                         if (ObjManager.Context.Settings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia)
@@ -161,6 +162,15 @@ namespace R1Engine
 
         public override bool FlipHorizontally => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.HorizontalFlip) ?? false;
         public override bool FlipVertically => State?.Flags.HasFlag(GBA_ActorState.ActorStateFlags.VerticalFlip) ?? false;
+
+        public override Unity_ObjAnimationCollisionPart ObjCollision => Actor.Type == GBA_Actor.ActorType.BoxTrigger ? new Unity_ObjAnimationCollisionPart()
+        {
+            XPosition = Actor.BoxMinX - XPosition,
+            YPosition = YPosition - Actor.BoxMinY,
+            Width = Actor.BoxMaxX - Actor.BoxMinX,
+            Height = Actor.BoxMaxY - Actor.BoxMinY,
+            Type = Actor.BoxActorID == GBA_Actor.BoxActorType.Player ? Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox : Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox
+        } : null;
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimSpeed => CurrentAnimation?.AnimSpeed.Value ?? 0;

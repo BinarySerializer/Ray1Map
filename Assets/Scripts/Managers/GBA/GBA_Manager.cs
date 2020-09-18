@@ -411,7 +411,7 @@ namespace R1Engine
                     Vector2Int min = new Vector2Int();
                     Vector2Int max = new Vector2Int();
                     foreach (var frame in anim.Frames) {
-                        foreach (var layer in frame.Layers) {
+                        foreach (var layer in frame.SpriteLayers) {
                             Vector2 size = new Vector2Int(8, 8);
                             Vector2 pos = new Vector2(layer.XPosition, layer.YPosition);
                             if ((layer.Scale.HasValue && layer.Scale.Value != Vector2.one) || (layer.Rotation.HasValue && layer.Rotation.Value != 0f)) {
@@ -473,7 +473,7 @@ namespace R1Engine
                             frameImg.FilterType = FilterType.Point;
                             frameImg.Interpolate = PixelInterpolateMethod.Nearest;
                             int layerIndex = 0;
-                            foreach (var layer in frame.Layers)
+                            foreach (var layer in frame.SpriteLayers)
                             {
                                 MagickImage img = (MagickImage)sprites[layer.ImageIndex].Clone();
                                 Vector2 size = new Vector2(img.Width, img.Height);
@@ -1017,9 +1017,7 @@ namespace R1Engine
                 unityAnim.AnimSpeed =  (byte)(1 + (a.Flags & 0xF));
                 var frames = new List<Unity_ObjAnimationFrame>();
                 for (int i = 0; i < a.FrameCount; i++) {
-                    frames.Add(new Unity_ObjAnimationFrame() {
-                        Layers = a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray()
-                    });
+                    frames.Add(new Unity_ObjAnimationFrame(a.Layers[i].OrderByDescending(l => l.Priority).OrderByDescending(l => l.ChannelType).SelectMany(l => GetPartsForLayer(spr, a, i, l)).Reverse().ToArray()));
                 }
                 unityAnim.Frames = frames.ToArray();
                 des.Animations.Add(unityAnim);

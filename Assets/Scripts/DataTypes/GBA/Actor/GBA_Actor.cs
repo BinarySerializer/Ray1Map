@@ -30,7 +30,8 @@
         public ushort BoxMinX { get; set; }
         public ushort BoxMaxY { get; set; }
         public ushort BoxMaxX { get; set; }
-        public byte LinkedActorsCount { get; set; } // Only last 4 bits
+        public BoxActorType BoxActorID { get; set; }
+        public byte LinkedActorsCount { get; set; }
 
         // Unk2
         public byte Index { get; set; }
@@ -107,7 +108,20 @@
                     }
                 } else {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
-                    LinkedActorsCount = s.Serialize<byte>(LinkedActorsCount, name: nameof(LinkedActorsCount));
+
+                    byte value = 0;
+
+                    value = (byte)BitHelpers.SetBits(value, LinkedActorsCount, 5, 0);
+                    value = (byte)BitHelpers.SetBits(value, (byte)BoxActorID, 3, 5);
+
+                    value = s.Serialize<byte>(value, name: nameof(value));
+
+                    LinkedActorsCount = (byte)BitHelpers.ExtractBits(value, 5, 0);
+                    BoxActorID = (BoxActorType)BitHelpers.ExtractBits(value, 3, 5);
+
+                    s.Log($"{nameof(BoxActorID)}: {BoxActorID}");
+                    s.Log($"{nameof(LinkedActorsCount)}: {LinkedActorsCount}");
+
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         UnkData1 = s.SerializeArray<byte>(UnkData1, 2, name: nameof(UnkData1));
                     }
@@ -142,6 +156,22 @@
             BoxTrigger,
             Trigger,
             Unk
+        }
+
+        public enum BoxActorType : byte
+        {
+            // Triggers when the area is hit
+            Hit = 0,
+
+            // Triggers when the player is in the area
+            Player = 1,
+
+            Unk_2,
+            Unk_3,
+            Unk_4,
+            Unk_5,
+            Unk_6,
+            Unk_7,
         }
     }
 }

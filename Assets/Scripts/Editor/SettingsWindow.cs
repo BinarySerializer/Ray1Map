@@ -186,7 +186,9 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowTiles = EditorField("Show tiles", Settings.ShowTiles);
 
-        Settings.ShowCollision = EditorField("Show collision", Settings.ShowCollision);
+        Settings.ShowCollision = EditorField("Show tile collision", Settings.ShowCollision);
+
+        Settings.ShowObjCollision = EditorField("Show object collision", Settings.ShowObjCollision);
 
         Settings.StateSwitchingMode = EditorField("State switching", Settings.StateSwitchingMode);
 

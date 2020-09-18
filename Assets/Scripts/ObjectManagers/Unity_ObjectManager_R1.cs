@@ -285,24 +285,14 @@ namespace R1Engine
                     {
                         var newAnim = new Unity_ObjAnimation
                         {
-                            Frames = anim.Frames.Select(x => new Unity_ObjAnimationFrame()
+                            Frames = anim.Frames.Select(x => new Unity_ObjAnimationFrame(x.SpriteLayers.Select(l => new Unity_ObjAnimationPart()
                             {
-                                FrameData = new R1_AnimationFrame
-                                {
-                                    XPosition = (byte)(x.FrameData.XPosition / 2),
-                                    YPosition = (byte)(x.FrameData.YPosition / 2),
-                                    Width = (byte)(x.FrameData.Width / 2),
-                                    Height = (byte)(x.FrameData.Height / 2)
-                                },
-                                Layers = x.Layers.Select(l => new Unity_ObjAnimationPart()
-                                {
-                                    ImageIndex = l.ImageIndex,
-                                    XPosition = l.XPosition / 2,
-                                    YPosition = l.YPosition / 2,
-                                    IsFlippedHorizontally = l.IsFlippedHorizontally,
-                                    IsFlippedVertically = l.IsFlippedVertically,
-                                }).ToArray()
-                            }).ToArray()
+                                ImageIndex = l.ImageIndex,
+                                XPosition = l.XPosition / 2,
+                                YPosition = l.YPosition / 2,
+                                IsFlippedHorizontally = l.IsFlippedHorizontally,
+                                IsFlippedVertically = l.IsFlippedVertically,
+                            }).ToArray())).ToArray()
                         };
 
                         return newAnim;

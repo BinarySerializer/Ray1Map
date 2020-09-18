@@ -306,10 +306,8 @@ namespace R1Engine
 			// Create each frame
 			for (int i = 0; i < FrameCount; i++) {
 				// Create the frame
-				var frame = new Unity_ObjAnimationFrame() {
-					FrameData = new R1_AnimationFrame(),
-					Layers = new Unity_ObjAnimationPart[LayersPerFrame]
-				};
+				var frame = new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[LayersPerFrame]);
+
 				if (AnimationLayers != null) {
 
 					// Create each layer
@@ -336,7 +334,7 @@ namespace R1Engine
 						}
 
 						// Add the part
-						frame.Layers[layerIndex] = part;
+						frame.SpriteLayers[layerIndex] = part;
 					}
 				}
 				// Set the frame

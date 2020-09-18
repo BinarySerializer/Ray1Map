@@ -318,6 +318,11 @@ namespace R1Engine
                 Settings.ShowCollision = !Settings.ShowCollision;
                 updatedSettings = true;
             }
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                Settings.ShowObjCollision = !Settings.ShowObjCollision;
+                updatedSettings = true;
+            }
             if (Input.GetKeyDown(KeyCode.P))
             {
                 Settings.AnimateSprites = !Settings.AnimateSprites;

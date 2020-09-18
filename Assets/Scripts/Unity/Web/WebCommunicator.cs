@@ -238,6 +238,7 @@ public class WebCommunicator : MonoBehaviour {
 			ShowObjects = Settings.ShowObjects,
 			ShowTiles = Settings.ShowTiles,
 			ShowCollision = Settings.ShowCollision,
+            ShowObjCollision = Settings.ShowObjCollision,
 			AnimateSprites = Settings.AnimateSprites,
 			AnimateTiles = Settings.AnimateTiles,
 			ShowAlwaysEvents = Settings.ShowAlwaysEvents,
@@ -270,6 +271,7 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.ShowObjects.HasValue) Settings.ShowObjects = msg.ShowObjects.Value;
 		if (msg.ShowTiles.HasValue) Settings.ShowTiles = msg.ShowTiles.Value;
 		if (msg.ShowCollision.HasValue) Settings.ShowCollision = msg.ShowCollision.Value;
+		if (msg.ShowObjCollision.HasValue) Settings.ShowObjCollision = msg.ShowObjCollision.Value;
 		if (msg.AnimateSprites.HasValue) Settings.AnimateSprites = msg.AnimateSprites.Value;
 		if (msg.AnimateTiles.HasValue) Settings.AnimateTiles = msg.AnimateTiles.Value;
 		if (msg.ShowAlwaysEvents.HasValue) Settings.ShowAlwaysEvents = msg.ShowAlwaysEvents.Value;

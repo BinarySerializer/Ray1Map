@@ -28,14 +28,8 @@
             for (int i = 0; i < animationDescriptor.FrameCount; i++)
             {
                 // Create the frame
-                var frame = new Unity_ObjAnimationFrame()
-                {
-                    FrameData = frames?[i],
-                    Layers = new Unity_ObjAnimationPart[animationDescriptor.LayersPerFrame]
-                };
-                if (frame.FrameData == null) {
-                    frame.FrameData = new R1_AnimationFrame();
-                }
+                var frame = new Unity_ObjAnimationFrame(new Unity_ObjAnimationPart[animationDescriptor.LayersPerFrame]);
+
                 if (layers != null) {
 
                     // Create each layer
@@ -52,7 +46,7 @@
                         };
 
                         // Add the part
-                        frame.Layers[layerIndex] = part;
+                        frame.SpriteLayers[layerIndex] = part;
                     }
                 }
                 // Set the frame
