@@ -56,6 +56,8 @@ namespace R1Engine
         /// <returns>The big ray file path</returns>
         public override string GetBigRayFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + $"BIGRAY.DAT";
 
+        public override string GetCommonArchiveFilePath(GameSettings settings) => GetVolumePath(settings.EduVolume) + "COMMON.DAT";
+
         /// <summary>
         /// Gets the name for the file to use in the .grx files for BigRay
         /// </summary>
@@ -135,7 +137,7 @@ namespace R1Engine
         {
             return new Archive[]
             {
-                new Archive(GetCommonArchiveFilePath()), 
+                new Archive(GetCommonArchiveFilePath(settings)), 
             }.Concat(GetLevels(settings).Select(x => x.Name).SelectMany(x => new Archive[]
             {
                 new Archive(GetSpecialArchiveFilePath(x), x), 

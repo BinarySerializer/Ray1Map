@@ -53,7 +53,7 @@ namespace R1Engine
 
         public virtual string GetSamplesArchiveFilePath(string volume) => GetVolumePath(volume) + "SNDSMP.DAT";
         public virtual string GetSpecialArchiveFilePath(string volume) => GetVolumePath(volume) + "SPECIAL.DAT";
-        public virtual string GetCommonArchiveFilePath() => GetDataPath() + "COMMON.DAT";
+        public virtual string GetCommonArchiveFilePath(GameSettings settings) => GetDataPath() + "COMMON.DAT";
 
         /// <summary>
         /// Gets the levels for each world
@@ -72,7 +72,7 @@ namespace R1Engine
         {
             return new Archive[]
             {
-                new Archive(GetCommonArchiveFilePath()),
+                new Archive(GetCommonArchiveFilePath(settings)),
                 new Archive(GetSoundFilePath()),
                 new Archive(GetSoundManifestFilePath()),
             }.Concat(GetLevels(settings).SelectMany(x => new Archive[]
@@ -138,7 +138,7 @@ namespace R1Engine
             await base.LoadFilesAsync(context);
 
             // Common
-            await AddFile(context, GetCommonArchiveFilePath());
+            await AddFile(context, GetCommonArchiveFilePath(context.Settings));
 
             // Special
             await AddFile(context, GetSpecialArchiveFilePath(context.Settings.EduVolume));
