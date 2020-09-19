@@ -519,17 +519,17 @@ namespace R1Engine
         public Texture2D GetSpriteTexture(R1_ImageDescriptor d, ARGBColor[] pal, byte[] imgBuffer)
         {
             // Make sure the sprite is valid
-            if (d.OuterHeight == 0 || d.OuterWidth == 0 || d.Index == 0xFF)
+            if (d.Height == 0 || d.Width == 0 || d.Index == 0xFF)
                 return null;
 
             bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;
 
             // Make sure the index is not out of bounds
-            if (d.ImageBufferOffset + ((d.OuterHeight * d.OuterWidth) / (is8Bit ? 1 : 2)) > imgBuffer.Length)
+            if (d.ImageBufferOffset + ((d.Height * d.Width) / (is8Bit ? 1 : 2)) > imgBuffer.Length)
                 return null;
 
             // Create a texture
-            var tex = TextureHelpers.CreateTexture2D(d.OuterWidth, d.OuterHeight);
+            var tex = TextureHelpers.CreateTexture2D(d.Width, d.Height);
 
             var isFullyTransparent = true;
 

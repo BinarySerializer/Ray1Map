@@ -499,9 +499,9 @@ namespace R1Engine
                             uint curLength = img.ImageBufferOffset;
 
                             if (img.ImageType == 2)
-                                curLength += (uint)(img.OuterWidth / 2) * img.OuterHeight;
+                                curLength += (uint)(img.Width / 2) * img.Height;
                             else if (img.ImageType == 3)
-                                curLength += (uint)img.OuterWidth * img.OuterHeight;
+                                curLength += (uint)img.Width * img.Height;
 
                             if (curLength > length)
                                 length = curLength;

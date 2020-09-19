@@ -262,8 +262,8 @@ namespace R1Engine
             ImageBuffer buf = context.GetStoredObject<ImageBuffer>("vram");
 
             // Get the image properties
-            var width = img.OuterWidth;
-            var height = img.OuterHeight;
+            var width = img.Width;
+            var height = img.Height;
             var offset = img.ImageBufferOffset;
 
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);

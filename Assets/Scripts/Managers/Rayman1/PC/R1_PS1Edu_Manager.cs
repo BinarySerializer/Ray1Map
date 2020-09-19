@@ -265,7 +265,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The common event designs</returns>
-        public async UniTask<Unity_ObjGraphics[]> LoadSpritesAsync(Context context)
+        public async UniTask<Unity_ObjectManager_R1.DESData[]> LoadSpritesAsync(Context context)
         {
             Controller.DetailedState = $"Loading sprites";
             await Controller.WaitIfNecessary();
@@ -288,9 +288,9 @@ namespace R1Engine
             ushort[] levelIndices = (await LoadGRXFileAsync<R1_PS1Edu_GSP>(context, grx, GetGRXLevelName(context.Settings) + ".GSP", "LevelIndices"))?.Indices;
 
             if (levelTex == null || levelIndices == null)
-                return new Unity_ObjGraphics[0];
+                return new Unity_ObjectManager_R1.DESData[0];
 
-            Unity_ObjGraphics[] des = new Unity_ObjGraphics[allfix.DESCount + world.DESCount];
+            Unity_ObjectManager_R1.DESData[] des = new Unity_ObjectManager_R1.DESData[allfix.DESCount + world.DESCount];
             R1_ImageDescriptor[][] imageDescriptors = new R1_ImageDescriptor[allfix.DESCount + world.DESCount][];
             for (int i = 0; i < des.Length; i++) {
                 R1_PS1Edu_DESData d = null;
@@ -308,11 +308,11 @@ namespace R1Engine
                 // Check if it's multi-colored
                 var isMultiColored = IsDESMultiColored(context, i, LevelEditorData.EventInfoData);
 
-                des[i] = new Unity_ObjGraphics
+                des[i] = new Unity_ObjectManager_R1.DESData(new Unity_ObjGraphics
                 {
                     Sprites = new Sprite[d.ImageDescriptorsCount * (isMultiColored ? 6 : 1)].ToList(),
                     Animations = anims.Select(x => x.ToCommonAnimation()).ToList()
-                };
+                }, imageDescriptors[i]);
             }
 
             int globalGspIndex = 0;
@@ -388,7 +388,7 @@ namespace R1Engine
                         }
 
                         if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0)
-                            des[desIndex].Sprites[color * e.ImageDescriptorCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
+                            des[desIndex].Graphics.Sprites[color * e.ImageDescriptorCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
 
                         localGspIndex++;
                     }
@@ -485,11 +485,11 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context) : new Unity_ObjGraphics[0];
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context) : new Unity_ObjectManager_R1.DESData[0];
 
             var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.Settings));
 
-            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i)).ToArray();
+            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i)).ToArray();
             var allEta = GetCurrentEventStates(context).ToArray();
             var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i)).ToArray();
 

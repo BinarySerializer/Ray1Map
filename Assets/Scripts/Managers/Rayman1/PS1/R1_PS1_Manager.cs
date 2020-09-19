@@ -385,9 +385,7 @@ namespace R1Engine
                 context.AddFile(file);
                 var s = context.Deserializer;
 
-                // flag & 8 checks if the event hurts Rayman on contact
-                // flag & 4 checks if the event has collision - what do the rest do?
-                var flags = s.DoAt(file.StartPointer + 0x9CA94, () => s.SerializeArray<uint>(default, 256));
+                var flags = s.DoAt(file.StartPointer + 0x9CA94, () => s.SerializeArray<int>(default, 256));
 
                 using (var log = File.Create(outputFilePath))
                 {
@@ -398,7 +396,17 @@ namespace R1Engine
                             var type = (R1_EventType)i;
                             var attrFlag = type.GetAttribute<ObjTypeInfoAttribute>()?.Flag ?? ObjTypeFlag.Normal;
 
-                            logWriter.WriteLine($"{Convert.ToString(flags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}");
+                            string[] flagStrings = 
+                            {
+                                $"{(((BitHelpers.ExtractBits(flags[i], 1, 3)) == 1) ? "Damage" : "")}",
+                                $"{(((BitHelpers.ExtractBits(flags[i], 1, 2)) == 1) ? "Collision" : "")}",
+                                $"{(((BitHelpers.ExtractBits(flags[i], 1, 0)) == 1) ? "Always" : "")}",
+                                //$"{(((BitHelpers.ExtractBits(flags[i], 1, 17)) == 1) ? "IsVisible" : "")}", // Doesn't always match - palette swapper shouldn't be visible
+                            };
+
+                            var line = $"{Convert.ToString(flags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}";
+
+                            logWriter.WriteLine($"{line,-75} - {String.Join(", ", flagStrings.Where(x => !String.IsNullOrWhiteSpace(x)))}");
                         }
                     }
                 }

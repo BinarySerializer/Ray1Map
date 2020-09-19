@@ -75,8 +75,8 @@ namespace R1Engine
                         e.PC_ETAIndex = newEtaIndex;
 
                         // Set image and animation descriptor counts
-                        e.ImageDescriptorCount = (ushort)outputObjManager.DES[x.DESIndex].Data.Sprites.Count;
-                        e.AnimDescriptorCount = (byte)outputObjManager.DES[x.DESIndex].Data.Animations.Count;
+                        e.ImageDescriptorCount = (ushort)outputObjManager.DES[x.DESIndex].Data.Graphics.Sprites.Count;
+                        e.AnimDescriptorCount = (byte)outputObjManager.DES[x.DESIndex].Data.Graphics.Animations.Count;
 
                         return e;
                     }).ToArray();

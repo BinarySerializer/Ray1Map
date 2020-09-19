@@ -8,7 +8,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<Unity_ObjGraphics>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true) : base(context)
         {
             // Set properties
             DES = des;
@@ -22,7 +22,7 @@ namespace R1Engine
             ZDC.Serialize(context.Deserializer);
         }
 
-        public DataContainer<Unity_ObjGraphics>[] DES { get; }
+        public DataContainer<DESData>[] DES { get; }
         public DataContainer<R1_EventState[][]>[] ETA { get; }
 
         public R1_ZDC ZDC { get; }
@@ -274,7 +274,7 @@ namespace R1Engine
             var rayEvent = (Unity_Object_R1)level.Rayman ?? level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS);
 
             if (rayEvent != null)
-                rayDes = DES.ElementAtOrDefault(rayEvent.DESIndex)?.Data;
+                rayDes = DES.ElementAtOrDefault(rayEvent.DESIndex)?.Data.Graphics;
 
             if (rayDes == null)
                 return;
@@ -283,7 +283,7 @@ namespace R1Engine
 
             if (miniRay != null)
             {
-                var miniRayDes = DES.ElementAtOrDefault(miniRay.DESIndex)?.Data;
+                var miniRayDes = DES.ElementAtOrDefault(miniRay.DESIndex)?.Data.Graphics;
 
                 if (miniRayDes != null)
                 {
@@ -310,7 +310,7 @@ namespace R1Engine
 
             if (badRay != null)
             {
-                var badRayDes = DES.ElementAtOrDefault(badRay.DESIndex)?.Data;
+                var badRayDes = DES.ElementAtOrDefault(badRay.DESIndex)?.Data.Graphics;
 
                 if (badRayDes != null)
                     badRayDes.Animations = rayDes.Animations;
@@ -344,6 +344,18 @@ namespace R1Engine
             public string Name { get; }
             public int Index { get; }
             public string DisplayName => Name ?? (Pointer != null ? Pointer.ToString() : Index.ToString());
+        }
+
+        public class DESData
+        {
+            public DESData(Unity_ObjGraphics graphics, R1_ImageDescriptor[] imageDescriptors)
+            {
+                Graphics = graphics;
+                ImageDescriptors = imageDescriptors ?? new R1_ImageDescriptor[0];
+            }
+
+            public Unity_ObjGraphics Graphics { get; }
+            public R1_ImageDescriptor[] ImageDescriptors { get; }
         }
     }
 }

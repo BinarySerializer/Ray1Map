@@ -452,11 +452,11 @@ namespace R1Engine
         /// <returns>The texture</returns>
         public virtual Texture2D GetSpriteTexture(Context context, R1_GBA_EventGraphicsData e, R1_ImageDescriptor s, ARGB1555Color[] pal)
         {
-            if (s.Index == 0 || s.InnerWidth == 0 || s.InnerHeight == 0)
+            if (s.Index == 0 || s.HitBoxWidth == 0 || s.HitBoxHeight == 0)
                 return null;
 
             // Create the texture
-            Texture2D tex = TextureHelpers.CreateTexture2D(s.OuterWidth, s.OuterHeight, clear: true);
+            Texture2D tex = TextureHelpers.CreateTexture2D(s.Width, s.Height, clear: true);
 
             var offset = s.ImageBufferOffset;
             var curOff = (int)offset;
@@ -788,7 +788,7 @@ namespace R1Engine
                 }
             }
 
-            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>>();
+            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
             var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
 
             // Load Rayman's graphics
@@ -824,7 +824,7 @@ namespace R1Engine
                     finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => x.ToCommonAnimation()));
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, graphics.ImageDescriptorsPointer));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, graphics.ImageDescriptors), graphics.ImageDescriptorsPointer));
             }
 
             // Helper for loading ETA

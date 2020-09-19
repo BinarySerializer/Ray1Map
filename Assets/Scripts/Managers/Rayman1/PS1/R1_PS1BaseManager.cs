@@ -110,8 +110,8 @@ namespace R1Engine
             PS1_VRAM vram = context.GetStoredObject<PS1_VRAM>("vram");
 
             // Get the image properties
-            var width = s.OuterWidth;
-            var height = s.OuterHeight;
+            var width = s.Width;
+            var height = s.Height;
             var texturePageInfo = s.TexturePageInfo;
             var paletteInfo = s.PaletteInfo;
 
@@ -213,7 +213,7 @@ namespace R1Engine
         {
             Unity_MapTileMap tileSet = GetTileSet(context);
 
-            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>>();
+            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
             var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
 
             // Only load the v-ram if we're loading textures
@@ -242,7 +242,7 @@ namespace R1Engine
                 }
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, bg.Offset));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.BackgroundLayerInfos), bg.Offset));
             }
 
             // Load Rayman
@@ -275,7 +275,7 @@ namespace R1Engine
                     finalDesign.Animations.AddRange(e.AnimDescriptors.Select(x => x.ToCommonAnimation()));
 
                     // Add to the designs
-                    eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(finalDesign, e.ImageDescriptorsPointer));
+                    eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, e.ImageDescriptors), e.ImageDescriptorsPointer));
                 }
 
                 // Add if not found
@@ -393,7 +393,7 @@ namespace R1Engine
                         foreach (var des in objManager.DES)
                         {
                             // Get the export dir name
-                            var exportDirName = GetExportDirName(baseGameSettings, des.Data);
+                            var exportDirName = GetExportDirName(baseGameSettings, des.Data.Graphics);
 
                             if (!desIndexes.ContainsKey(exportDirName))
                                 desIndexes.Add(exportDirName, 0);
@@ -401,7 +401,7 @@ namespace R1Engine
                             var spriteIndex = -1;
 
                             // Enumerate every sprite
-                            foreach (var sprite in des.Data.Sprites.Where(x => x != null).Select(x => x.texture))
+                            foreach (var sprite in des.Data.Graphics.Sprites.Where(x => x != null).Select(x => x.texture))
                             {
                                 spriteIndex++;
 
@@ -484,9 +484,9 @@ namespace R1Engine
                             using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
                             {
                                 // Get the hash
-                                var hash = Convert.ToBase64String(sha1.ComputeHash(des.Data.Sprites
+                                var hash = Convert.ToBase64String(sha1.ComputeHash(des.Data.Graphics.Sprites
                                     .SelectMany(x => x?.texture?.GetRawTextureData() ?? new byte[0])
-                                    .Append((byte) des.Data.Animations.Count).ToArray()));
+                                    .Append((byte) des.Data.Graphics.Animations.Count).ToArray()));
 
                                 // Check if it's been used before
                                 if (hashList.Contains(hash))
@@ -497,12 +497,12 @@ namespace R1Engine
                             }
 
                             // Get the export dir name
-                            var exportDirName = GetExportDirName(baseGameSettings, des.Data);
+                            var exportDirName = GetExportDirName(baseGameSettings, des.Data.Graphics);
 
                             if (!desIndexes.ContainsKey(exportDirName))
                                 desIndexes.Add(exportDirName, 0);
 
-                            await ExportAnimationFramesAsync(baseGameSettings, level, i, des.Data,
+                            await ExportAnimationFramesAsync(baseGameSettings, level, i, des.Data.Graphics,
                                 Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]}"));
 
                             desIndexes[exportDirName]++;

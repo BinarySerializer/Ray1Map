@@ -738,8 +738,8 @@ namespace R1Engine
                 return null;
 
             // Get the image properties
-            var width = s.OuterWidth;
-            var height = s.OuterHeight;
+            var width = s.Width;
+            var height = s.Height;
             var offset = s.ImageBufferOffset;
 
             // Create the texture
@@ -1180,10 +1180,10 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="palette">The palette to use</param>
         /// <returns>The common event designs</returns>
-        public async UniTask<Unity_ObjGraphics[]> LoadSpritesAsync(Context context, IList<ARGBColor> palette)
+        public async UniTask<Unity_ObjectManager_R1.DESData[]> LoadSpritesAsync(Context context, IList<ARGBColor> palette)
         {
             // Create the output list
-            List<Unity_ObjGraphics> eventDesigns = new List<Unity_ObjGraphics>();
+            List<Unity_ObjectManager_R1.DESData> eventDesigns = new List<Unity_ObjectManager_R1.DESData>();
 
             Controller.DetailedState = $"Loading allfix";
 
@@ -1216,7 +1216,7 @@ namespace R1Engine
             int desIndex = 0;
 
             // Add dummy DES to index 0
-            eventDesigns.Add(new Unity_ObjGraphics());
+            eventDesigns.Add(new Unity_ObjectManager_R1.DESData(new Unity_ObjGraphics(), null));
 
             // Read every DES item
             foreach (R1_PC_DES d in des)
@@ -1229,7 +1229,7 @@ namespace R1Engine
                 var p = desIndex == des.Length - 1 && bigRayPalette != null ? bigRayPalette : palette;
 
                 // Add to the designs
-                eventDesigns.Add(GetCommonDesign(context, d, p, desIndex));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DESData(GetCommonDesign(context, d, p, desIndex), d.ImageDescriptors));
 
                 desIndex++;
             }
@@ -1254,14 +1254,14 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.MapData.ColorPalettes.First()) : new Unity_ObjGraphics[0];
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.MapData.ColorPalettes.First()) : new Unity_ObjectManager_R1.DESData[0];
 
             // Read the world data
             var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.Settings));
 
-            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjGraphics>(x, i, i == eventDesigns.Length - 1 ? bigRayName : worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray();
+            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, i == eventDesigns.Length - 1 ? bigRayName : worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray();
             var allEta = GetCurrentEventStates(context).ToArray();
             var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, i == allEta.Length - 1 ? bigRayName : worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray();
 
@@ -1488,8 +1488,8 @@ namespace R1Engine
                 if (r1Event.Unk_98 == null)
                     r1Event.Unk_98 = new byte[5];
 
-                r1Event.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.Sprites.Count;
-                r1Event.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Animations.Count;
+                r1Event.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
+                r1Event.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
                 // Add the event
                 events.Add(r1Event);

@@ -22,7 +22,7 @@ namespace R1Engine
             EventData.RuntimeYPosition = (ushort)EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
             EventData.RuntimeHitPoints = EventData.HitPoints;
-            EventData.Runtime_TypeZDC = ObjManager.ZDC?.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
+            UpdateZDC();
 
             // Find matching name from event sheet
             SecondaryName = ObjManager.FindMatchingEventInfo(EventData)?.Name;
@@ -163,24 +163,59 @@ namespace R1Engine
             }
         }
 
-        protected IEnumerable<R1_ZDCData> GetObjZDC()
+        protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC()
         {
-            var typeZdc = EventData.Runtime_TypeZDC;
+            if (EventData.HitSprite > 253)
+            {
+                var typeZdc = EventData.Runtime_TypeZDC;
 
-            for (int i = 0; i < (typeZdc?.ZDCCount ?? 0); i++)
-                yield return ObjManager.ZDC.ZDCTable[typeZdc.ZDCIndex + i];
+                for (int i = 0; i < (typeZdc?.ZDCCount ?? 0); i++)
+                {
+                    var zdc = ObjManager.ZDC.ZDCTable[typeZdc.ZDCIndex + i];
+
+                    yield return new Unity_ObjAnimationCollisionPart
+                    {
+                        XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
+                        YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
+                        Width = zdc.Width,
+                        Height = zdc.Height,
+                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                    };
+                }
+            }
+            else if (EventData.HitSprite < 253)
+            {
+                var engineVersion = ObjManager.Context.Settings.EngineVersion;
+                
+                var usesHitBoxSizes = !(engineVersion == EngineVersion.R1_PS1_JP || 
+                                        engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
+                                        engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || 
+                                        engineVersion == EngineVersion.R1_Saturn);
+
+                var animLayer = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(EventData.HitSprite);
+                var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(animLayer?.ImageIndex ?? -1);
+
+                if (imgDescr != null)
+                {
+                    yield return new Unity_ObjAnimationCollisionPart()
+                    {
+                        XPosition = animLayer?.XPosition ?? 0,
+                        YPosition = animLayer?.YPosition ?? 0,
+                        Width = usesHitBoxSizes ? imgDescr.HitBoxWidth : imgDescr.Width,
+                        Height = usesHitBoxSizes ? imgDescr.HitBoxHeight : imgDescr.Height,
+                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                    };
+                }
+            }
+            else
+            {
+                // Do nothing - the game hard-codes these
+            }
         }
 
-        public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().Select(x => new Unity_ObjAnimationCollisionPart
-        {
-            XPosition = x.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.XPosition ?? 0),
-            YPosition = x.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(x.LayerIndex)?.YPosition ?? 0),
-            Width = x.Width,
-            Height = x.Height,
-            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
-        }).ToArray();
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().ToArray();
 
-        public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations.ElementAtOrDefault(AnimationIndex);
+        public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimationFrame
         {
             get => EventData.RuntimeCurrentAnimFrame;
@@ -196,7 +231,7 @@ namespace R1Engine
         public override byte AnimSpeed => (byte)(EventData.Type.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0);
 
         public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
-        public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Sprites;
+        public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.OffsetBX, -EventData.OffsetBY);
 
 		public override string[] UIStateNames {
@@ -212,7 +247,7 @@ namespace R1Engine
                         }
                     }
                 }
-                var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations;
+                var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
                 if (anims != null) {
                     for (int i = 0; i < anims.Count; i++) {
                         if (usedAnims.Contains(i)) continue;
@@ -236,7 +271,7 @@ namespace R1Engine
                             }
                         }
                     }
-                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations;
+                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
                     if (anims != null) {
                         for (int i = 0; i < anims.Count; i++) {
                             if (usedAnims.Contains(i)) continue;
@@ -283,7 +318,7 @@ namespace R1Engine
                             }
                         }
                     }
-                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Animations;
+                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
                     if (anims != null) {
                         for (int i = 0; i < anims.Count; i++) {
                             if (usedAnims.Contains(i)) continue;
@@ -350,6 +385,8 @@ namespace R1Engine
             AnimationFrameFloat = 0;
         }
 
+        protected void UpdateZDC() => EventData.Runtime_TypeZDC = ObjManager.ZDC?.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
+
         [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
@@ -366,7 +403,7 @@ namespace R1Engine
                 set
                 {
                     Obj.EventData.Type = (R1_EventType) value;
-                    Obj.EventData.Runtime_TypeZDC = Obj.ObjManager.ZDC?.TypeZDC?.ElementAtOrDefault((ushort)Obj.EventData.Type) ?? Obj.EventData.Runtime_TypeZDC;
+                    Obj.UpdateZDC();
                 }
             }
 
