@@ -155,9 +155,9 @@ namespace R1Engine
                 UnknownC = s.Serialize<int>(UnknownC, name: nameof(UnknownC));
             } else {
                 s.Log($"{nameof(ChannelType)}: {ChannelType}");
-                Box_MinX = s.Serialize<sbyte>(Box_MinX, name: nameof(Box_MinX));
                 Box_MinY = s.Serialize<sbyte>(Box_MinY, name: nameof(Box_MinY));
                 Box_MaxY = s.Serialize<sbyte>(Box_MaxY, name: nameof(Box_MaxY));
+                Box_MinX = s.Serialize<sbyte>(Box_MinX, name: nameof(Box_MinX));
                 Box_MaxX = s.Serialize<sbyte>(Box_MaxX, name: nameof(Box_MaxX));
             }
         }
