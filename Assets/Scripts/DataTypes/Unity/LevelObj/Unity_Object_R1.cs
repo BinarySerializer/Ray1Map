@@ -117,7 +117,7 @@ namespace R1Engine
               $"Runtime_ZdcIndex.ZDCCount: {EventData.Runtime_TypeZDC.ZDCCount}{Environment.NewLine}" +
               $"Runtime_ZdcIndex.ZDCIndex: {EventData.Runtime_TypeZDC.ZDCIndex}{Environment.NewLine}" +
               $"State.SoundIndex: {State.SoundIndex}{Environment.NewLine}" +
-              $"State.InteractionType: {State.InteractionType}{Environment.NewLine}" +
+              $"State.ZDCData: {State.ZDCFlags}{Environment.NewLine}" +
               $"Unk_94: {EventData.Unk_94}{Environment.NewLine}" +
               $"{Environment.NewLine}" +
               $"Flags: {EventData.PC_Flags}{Environment.NewLine}";
@@ -165,6 +165,16 @@ namespace R1Engine
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC()
         {
+            // Make sure the current state and type supports collision
+            if (State == null || State.ZDCFlags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.NoCollision)))
+                yield break;
+
+            var colType = (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.HurtsRayman)) 
+                ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox 
+                : State.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectFist) 
+                    ? Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox 
+                    : Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox;
+
             if (EventData.HitSprite > 253)
             {
                 var typeZdc = EventData.Runtime_TypeZDC;
@@ -181,7 +191,7 @@ namespace R1Engine
                             YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
                             Width = zdc.Width,
                             Height = zdc.Height,
-                            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                            Type = colType
                         };
                     }
                 }
@@ -206,7 +216,7 @@ namespace R1Engine
                         YPosition = animLayer?.YPosition ?? 0,
                         Width = usesHitBoxSizes ? imgDescr.HitBoxWidth : imgDescr.Width,
                         Height = usesHitBoxSizes ? imgDescr.HitBoxHeight : imgDescr.Height,
-                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                        Type = colType
                     };
                 }
             }

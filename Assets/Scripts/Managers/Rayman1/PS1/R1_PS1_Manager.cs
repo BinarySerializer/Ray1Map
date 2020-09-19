@@ -385,7 +385,7 @@ namespace R1Engine
                 context.AddFile(file);
                 var s = context.Deserializer;
 
-                var flags = s.DoAt(file.StartPointer + 0x9CA94, () => s.SerializeArray<int>(default, 256));
+                var flags = s.DoAt(file.StartPointer + 0x9CA94, () => s.SerializeArray<R1_EventFlags>(default, 256));
 
                 using (var log = File.Create(outputFilePath))
                 {
@@ -396,17 +396,9 @@ namespace R1Engine
                             var type = (R1_EventType)i;
                             var attrFlag = type.GetAttribute<ObjTypeInfoAttribute>()?.Flag ?? ObjTypeFlag.Normal;
 
-                            string[] flagStrings = 
-                            {
-                                $"{(((BitHelpers.ExtractBits(flags[i], 1, 3)) == 1) ? "Damage" : "")}",
-                                $"{(((BitHelpers.ExtractBits(flags[i], 1, 2)) == 1) ? "Collision" : "")}",
-                                $"{(((BitHelpers.ExtractBits(flags[i], 1, 0)) == 1) ? "Always" : "")}",
-                                //$"{(((BitHelpers.ExtractBits(flags[i], 1, 17)) == 1) ? "IsVisible" : "")}", // Doesn't always match - palette swapper shouldn't be visible
-                            };
+                            var line = $"{Convert.ToString((int)flags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}";
 
-                            var line = $"{Convert.ToString(flags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}";
-
-                            logWriter.WriteLine($"{line,-75} - {String.Join(", ", flagStrings.Where(x => !String.IsNullOrWhiteSpace(x)))}");
+                            logWriter.WriteLine($"{line,-75} - {flags[i]}");
                         }
                     }
                 }

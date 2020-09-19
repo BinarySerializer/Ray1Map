@@ -8,7 +8,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null) : base(context)
         {
             // Set properties
             DES = des;
@@ -17,6 +17,7 @@ namespace R1Engine
             UsesPointers = usesPointers;
             TypeZDC = typeZDC;
             ZDCData = zdcData;
+            EventFlags = eventFlags;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
             TypeZDC = typeZDC;
             ZDCData = zdcData;
@@ -31,6 +32,7 @@ namespace R1Engine
 
         public R1_ZDCEntry[] TypeZDC { get; }
         public R1_ZDCData[] ZDCData { get; }
+        public R1_EventFlags[] EventFlags { get; }
 
         public GeneralEventInfoData[] AvailableEvents { get; }
 

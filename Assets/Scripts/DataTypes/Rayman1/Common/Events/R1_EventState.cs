@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common event state (etat) data
@@ -59,15 +61,8 @@
         public byte UnkDemo7 { get; set; }
         public byte UnkDemo8 { get; set; }
 
-        /// <summary>
-        /// The sound index
-        /// </summary>
-        public byte SoundIndex { get; set; }
-        
-        /// <summary>
-        /// The interaction type
-        /// </summary>
-        public byte InteractionType { get; set; }
+        public byte SoundIndex { get; set; } // Is it really a sound index?
+        public R1_ZDCFlags ZDCFlags { get; set; }
 
         // For GBA
         public bool IsFlippedHorizontally { get; set; }
@@ -152,9 +147,27 @@
                         UnkDemo4 = s.Serialize<byte>(UnkDemo4, name: nameof(UnkDemo4));
                     }
                     SoundIndex = s.Serialize<byte>(SoundIndex, name: nameof(SoundIndex));
-                    InteractionType = s.Serialize<byte>(InteractionType, name: nameof(InteractionType));
+                    ZDCFlags = s.Serialize<R1_ZDCFlags>(ZDCFlags, name: nameof(ZDCFlags));
                 }
             }
+        }
+
+        // Might not be correct
+        [Flags]
+        public enum R1_ZDCFlags : byte
+        {
+            None = 0,
+
+            Flag_00 = 1 << 0,
+            Flag_01 = 1 << 1,
+            Flag_02 = 1 << 2,
+
+            DetectFist = 1 << 3,
+            Flag_04 = 1 << 4,
+            DetectRay = 1 << 5,
+
+            Param1 = 1 << 6,
+            Param2 = 1 << 7,
         }
     }
 }

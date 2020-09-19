@@ -1265,18 +1265,21 @@ namespace R1Engine
             var allEta = GetCurrentEventStates(context).ToArray();
             var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, i == allEta.Length - 1 ? bigRayName : worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray();
 
-            // Load ZDC (collision)
+            // Load ZDC (collision) and event flags
             var typeZDCBytes = GetTypeZDCBytes;
             var zdcTableBytes = GetZDCTableBytes;
+            var eventFlagsBytes = GetEventFlagsBytes;
 
             R1_ZDCEntry[] typeZDC = context.Deserializer.SerializeFromBytes<ObjectArray<R1_ZDCEntry>>(typeZDCBytes, "TypeZDC", x => x.Length = (uint)(typeZDCBytes.Length / 2), name: "TypeZDC").Value;
             R1_ZDCData[] zdcData = context.Deserializer.SerializeFromBytes<ObjectArray<R1_ZDCData>>(zdcTableBytes, "ZDCTable", x => x.Length = (uint)(zdcTableBytes.Length / 8), name: "ZDCTable").Value;
+            R1_EventFlags[] eventFlags = context.Deserializer.SerializeFromBytes<Array<R1_EventFlags>>(eventFlagsBytes, "EventFlags", x => x.Length = (uint)(eventFlagsBytes.Length / 4), name: "EventFlags").Value;
 
             // Create the object manager
             var objManager = new Unity_ObjectManager_R1(context, des, eta, levelData.EventData.EventLinkingTable, 
                 usesPointers: false, 
                 typeZDC: typeZDC, 
-                zdcData: zdcData);
+                zdcData: zdcData,
+                eventFlags: eventFlags);
 
             // Create the maps
             var maps = new Unity_Map[]
@@ -1376,6 +1379,7 @@ namespace R1Engine
 
         public abstract byte[] GetTypeZDCBytes { get; }
         public abstract byte[] GetZDCTableBytes { get; }
+        public abstract byte[] GetEventFlagsBytes { get; }
 
         public abstract UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax);
 
