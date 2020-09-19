@@ -293,7 +293,7 @@ namespace R1Engine
                 return new Unity_ObjectManager_R2.AnimGroup(animGroup?.Offset, animGroup?.ETA.EventStates ?? new R1_EventState[0][], des);
             }
 
-            var objManager = new Unity_ObjectManager_R2(context, lvlData.EventLinkTable, animGroups);
+            var objManager = new Unity_ObjectManager_R2(context, lvlData.EventLinkTable, animGroups, lvlData.ZDC);
 
             Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();

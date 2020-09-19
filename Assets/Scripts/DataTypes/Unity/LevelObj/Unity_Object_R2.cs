@@ -71,8 +71,8 @@ namespace R1Engine
                                             $"Unk4: {String.Join("-", EventData.Unk4)}{Environment.NewLine}" +
                                             $"Flags: {String.Join(", ", EventData.Flags.GetFlags())}{Environment.NewLine}" +
                                             $"Unk5: {String.Join("-", EventData.Unk5)}{Environment.NewLine}" +
-                                            $"CollisionDataValues 1: {String.Join("-", EventData.CollisionData?.Unk1 ?? new byte[0])}{Environment.NewLine}" +
-                                            $"CollisionDataValues 2: {String.Join("-", EventData.CollisionData?.Unk2 ?? new byte[0])}{Environment.NewLine}";
+                                            $"ZDC.ZDCIndex: {EventData.CollisionData?.ZDC.ZDCIndex}{Environment.NewLine}" +
+                                            $"ZDC.ZDCCount: {EventData.CollisionData?.ZDC.ZDCCount}{Environment.NewLine}";
 
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
@@ -91,6 +91,33 @@ namespace R1Engine
 
         public override float Scale => MapLayer == 1 ? 0.5f : 1;
         public override bool FlipHorizontally => EventData.IsFlippedHorizontally;
+
+        protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC()
+        {
+            var zdcEntry = EventData.CollisionData?.ZDC;
+
+            for (int i = 0; i < (zdcEntry?.ZDCCount ?? 0); i++)
+            {
+                var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
+
+                if (zdc != null)
+                {
+                    yield return new Unity_ObjAnimationCollisionPart
+                    {
+                        // TODO: Fix this
+                        XPosition = zdc.XPosition,
+                        YPosition = zdc.YPosition,
+                        //XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
+                        //YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
+                        Width = zdc.Width,
+                        Height = zdc.Height,
+                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                    };
+                }
+            }
+        }
+
+        public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().ToArray();
 
         public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.DES?.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimationFrame

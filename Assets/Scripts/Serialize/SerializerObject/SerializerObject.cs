@@ -1,5 +1,6 @@
 ﻿using R1Engine.Serialize;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Cysharp.Threading.Tasks;
@@ -156,6 +157,21 @@ namespace R1Engine
                 return DoAt(p, () => SerializeChecksum(v, name));
             else
                 return SerializeChecksum(v, name);
+        }
+
+        public T SerializeFromBytes<T>(byte[] bytes, string key, Action<T> onPreSerialize = null, string name = null)
+            where T : R1Serializable, new()
+        {
+            if (bytes == null)
+                return default;
+
+            if (!Context.FileExists(key))
+            {
+                var typeStream = new MemoryStream(bytes);
+                Context.AddFile(new StreamFile(key, typeStream, Context));
+            }
+
+            return DoAt(Context.GetFile(key).StartPointer, () => SerializeObject<T>(default, onPreSerialize, name: name ?? key));
         }
 
         public virtual UniTask FillCacheForRead(int length) => UniTask.CompletedTask;

@@ -53,7 +53,7 @@
         public ushort UShort_46 { get; set; }
         public uint UInt_48 { get; set; }
 
-        public Pointer UnkPointer3 { get; set; }
+        public Pointer ZDCPointer { get; set; }
         public Pointer UnkPointer4 { get; set; }
         public Pointer UnkPointer5 { get; set; }
         public Pointer UnkPointer6 { get; set; }
@@ -65,7 +65,7 @@
 
         #endregion
 
-        #region Pointer Data
+        #region Parsed Data
 
         /// <summary>
         /// The events
@@ -81,6 +81,8 @@
         /// The allfix image descriptors
         /// </summary>
         public R1_ImageDescriptor[] FixImageDescriptors { get; set; }
+
+        public R1_ZDCData[] ZDC { get; set; }
 
         #endregion
 
@@ -116,7 +118,7 @@
             UShort_46 = s.Serialize<ushort>(UShort_46, name: nameof(UShort_46));
             UInt_48 = s.Serialize<uint>(UInt_48, name: nameof(UInt_48));
             
-            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3));
+            ZDCPointer = s.SerializePointer(ZDCPointer, name: nameof(ZDCPointer));
             UnkPointer4 = s.SerializePointer(UnkPointer4, name: nameof(UnkPointer4));
             UnkPointer5 = s.SerializePointer(UnkPointer5, name: nameof(UnkPointer5));
             UnkPointer6 = s.SerializePointer(UnkPointer6, name: nameof(UnkPointer6));
@@ -127,6 +129,9 @@
 
             s.DoAt(EventsPointer, () => Events = s.SerializeObjectArray<R1_R2EventData>(Events, EventCount, name: nameof(Events)));
             s.DoAt(AlwaysEventsPointer, () => AlwaysEvents = s.SerializeObjectArray<R1_R2EventData>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents)));
+
+            // TODO: Is there a length?
+            s.DoAt(ZDCPointer, () => ZDC = s.SerializeObjectArray<R1_ZDCData>(ZDC, 237, name: nameof(ZDC)));
         }
 
         #endregion

@@ -95,6 +95,9 @@ namespace R1Engine
 
         #region Manager Methods
 
+        public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.EduPC_Type_ZDC;
+        public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.EduPC_ZDCTable;
+
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
             UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
 

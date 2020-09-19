@@ -8,27 +8,29 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null) : base(context)
         {
             // Set properties
             DES = des;
             ETA = eta;
             LinkTable = linkTable;
             UsesPointers = usesPointers;
+            TypeZDC = typeZDC;
+            ZDCData = zdcData;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
-
-            // Serialize ZDC data
-            ZDC = new R1_ZDC();
-            ZDC.Serialize(context.Deserializer);
+            TypeZDC = typeZDC;
+            ZDCData = zdcData;
         }
 
         public DataContainer<DESData>[] DES { get; }
         public DataContainer<R1_EventState[][]>[] ETA { get; }
 
-        public R1_ZDC ZDC { get; }
         public ushort[] LinkTable { get; }
 
         public bool UsesPointers { get; }
+
+        public R1_ZDCEntry[] TypeZDC { get; }
+        public R1_ZDCData[] ZDCData { get; }
 
         public GeneralEventInfoData[] AvailableEvents { get; }
 

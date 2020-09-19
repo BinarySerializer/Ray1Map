@@ -619,6 +619,10 @@ namespace R1Engine
             }
         }
 
+        // EDU PS1 doesn't use ZDC tables
+        public override byte[] GetTypeZDCBytes => null;
+        public override byte[] GetZDCTableBytes => null;
+
         #endregion
     }
 }

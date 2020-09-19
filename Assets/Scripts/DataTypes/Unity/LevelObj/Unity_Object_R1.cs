@@ -171,16 +171,19 @@ namespace R1Engine
 
                 for (int i = 0; i < (typeZdc?.ZDCCount ?? 0); i++)
                 {
-                    var zdc = ObjManager.ZDC.ZDCTable[typeZdc.ZDCIndex + i];
+                    var zdc = ObjManager.ZDCData?.ElementAtOrDefault(typeZdc.ZDCIndex + i);
 
-                    yield return new Unity_ObjAnimationCollisionPart
+                    if (zdc != null)
                     {
-                        XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
-                        YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
-                        Width = zdc.Width,
-                        Height = zdc.Height,
-                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
-                    };
+                        yield return new Unity_ObjAnimationCollisionPart
+                        {
+                            XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
+                            YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
+                            Width = zdc.Width,
+                            Height = zdc.Height,
+                            Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                        };
+                    }
                 }
             }
             else if (EventData.HitSprite < 253)
@@ -385,7 +388,7 @@ namespace R1Engine
             AnimationFrameFloat = 0;
         }
 
-        protected void UpdateZDC() => EventData.Runtime_TypeZDC = ObjManager.ZDC?.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
+        protected void UpdateZDC() => EventData.Runtime_TypeZDC = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
 
         [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper

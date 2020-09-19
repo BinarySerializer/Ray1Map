@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class R1_TypeZDC : R1Serializable
+    public class R1_ZDCEntry : R1Serializable
     {
         public byte ZDCIndex { get; set; }
         public byte ZDCCount { get; set; }

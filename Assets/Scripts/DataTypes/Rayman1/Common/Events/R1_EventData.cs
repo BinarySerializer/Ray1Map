@@ -113,7 +113,7 @@ namespace R1Engine
         public ushort Unk_88 { get; set; }
         public ushort Unk_90 { get; set; }
 
-        public R1_TypeZDC Runtime_TypeZDC { get; set; }
+        public R1_ZDCEntry Runtime_TypeZDC { get; set; }
         public ushort Unk_94 { get; set; }
 
         public ushort PS1_Unk2 { get; set; }
@@ -370,7 +370,7 @@ namespace R1Engine
             
             Unk_88 = s.Serialize<ushort>(Unk_88, name: nameof(Unk_88));
             Unk_90 = s.Serialize<ushort>(Unk_90, name: nameof(Unk_90));
-            Runtime_TypeZDC = s.SerializeObject<R1_TypeZDC>(Runtime_TypeZDC, name: nameof(Runtime_TypeZDC));
+            Runtime_TypeZDC = s.SerializeObject<R1_ZDCEntry>(Runtime_TypeZDC, name: nameof(Runtime_TypeZDC));
             Unk_94 = s.Serialize<ushort>(Unk_94, name: nameof(Unk_94));
 
             if (IsPCFormat(s.GameSettings))
