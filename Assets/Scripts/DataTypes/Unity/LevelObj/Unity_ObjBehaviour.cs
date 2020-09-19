@@ -123,7 +123,9 @@ namespace R1Engine
                 -(((collision.YPosition - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit));
 
             collisionSpriteRenderer.transform.localPosition = new Vector3(pos.x, pos.y, collisionSpriteRenderer.transform.localPosition.z);
-            collisionSpriteRenderer.transform.localScale = new Vector3(collision.Width / (float)LevelEditorData.Level.PixelsPerUnit, collision.Height / (float)LevelEditorData.Level.PixelsPerUnit) * ObjData.Scale;
+            collisionSpriteRenderer.transform.localScale = new Vector3(
+                (collision.Width / (float)LevelEditorData.Level.PixelsPerUnit) * (mirroredX ? -1f : 1f),
+                (collision.Height / (float)LevelEditorData.Level.PixelsPerUnit) * (mirroredY ? -1f : 1f)) * ObjData.Scale;
 
             // Set color depending on the collision type
             switch (collision.Type)
