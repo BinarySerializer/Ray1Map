@@ -15,7 +15,7 @@
 
         Flash = 5,
 
-        Gendoor = 6,
+        Gendoor_Spawn = 6,
 
         HitEffect = 8,
 
@@ -35,7 +35,7 @@
         TrapCube = 36,
         Trampoline = 38,
 
-        Unk_48 = 48,
+        Gendoor_Trigger = 48,
 
         RaymanPosition = 49,
 

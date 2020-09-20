@@ -99,7 +99,7 @@ namespace R1Engine
             if (zdcEntry == null)
                 yield break;
 
-            if (EventData.EventType == R1_R2EventType.Gendoor)
+            if (EventData.EventType == R1_R2EventType.Gendoor_Spawn || EventData.EventType == R1_R2EventType.Gendoor_Trigger)
             {
                 // Function at 0x800e26c0
 
