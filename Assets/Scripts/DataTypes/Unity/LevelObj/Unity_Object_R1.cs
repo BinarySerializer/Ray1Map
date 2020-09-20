@@ -114,8 +114,8 @@ namespace R1Engine
               $"Unk_86: {EventData.Unk_86}{Environment.NewLine}" +
               $"Unk_88: {EventData.Unk_88}{Environment.NewLine}" +
               $"Unk_90: {EventData.Unk_90}{Environment.NewLine}" +
-              $"Runtime_ZdcIndex.ZDCCount: {EventData.Runtime_TypeZDC.ZDCCount}{Environment.NewLine}" +
-              $"Runtime_ZdcIndex.ZDCIndex: {EventData.Runtime_TypeZDC.ZDCIndex}{Environment.NewLine}" +
+              $"Runtime_ZdcIndex.ZDCCount: {EventData.Runtime_TypeZDC?.ZDCCount}{Environment.NewLine}" +
+              $"Runtime_ZdcIndex.ZDCIndex: {EventData.Runtime_TypeZDC?.ZDCIndex}{Environment.NewLine}" +
               $"State.SoundIndex: {State.SoundIndex}{Environment.NewLine}" +
               $"State.ZDCData: {State.ZDCFlags}{Environment.NewLine}" +
               $"Unk_94: {EventData.Unk_94}{Environment.NewLine}" +

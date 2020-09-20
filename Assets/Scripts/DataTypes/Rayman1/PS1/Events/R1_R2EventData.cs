@@ -131,8 +131,8 @@ namespace R1Engine
         // 68 (0x44)
 
         // These values always match the position. They get copied to Position2 during runtime which is in Unk1. According to source code it's 0x28 and 0x2C (as ints), but that doesn't match files.
-        public ushort XPosition3 { get; set; }
-        public ushort YPosition3 { get; set; }
+        public short XPosition3 { get; set; }
+        public short YPosition3 { get; set; }
 
         // 72 (0x48)
 
@@ -184,9 +184,13 @@ namespace R1Engine
              
              */
 
+        // 100 (0x64)
+
         public byte RuntimeMapLayer { get; set; }
 
         public byte[] Unk4 { get; set; }
+
+        // 104 (0x68)
 
         // First bit determines if the sprite should be flipped horizontally
         public byte RuntimeFlags1 { get; set; }
@@ -258,8 +262,8 @@ namespace R1Engine
             EventType = s.Serialize<R1_R2EventType>(EventType, name: nameof(EventType));
 
             // Serialize runtime values
-            XPosition3 = s.Serialize<ushort>(XPosition3, name: nameof(XPosition3));
-            YPosition3 = s.Serialize<ushort>(YPosition3, name: nameof(YPosition3));
+            XPosition3 = s.Serialize<short>(XPosition3, name: nameof(XPosition3));
+            YPosition3 = s.Serialize<short>(YPosition3, name: nameof(YPosition3));
 
             RuntimeOffset1 = s.Serialize<ushort>(RuntimeOffset1, name: nameof(RuntimeOffset1));
             RuntimeOffset2 = s.Serialize<ushort>(RuntimeOffset2, name: nameof(RuntimeOffset2));

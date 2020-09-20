@@ -131,19 +131,19 @@ namespace R1Engine
             switch (collision.Type)
             {
                 case Unity_ObjAnimationCollisionPart.CollisionType.AttackBox:
-                    collisionSpriteRenderer.color = new Color(1f, 0f, 0f, 0.5f);
+                    collisionSpriteRenderer.color = new Color(1f, 0f, 0f, 0.4f);
                     break;
 
                 case Unity_ObjAnimationCollisionPart.CollisionType.VulnerabilityBox:
-                    collisionSpriteRenderer.color = new Color(0f, 1f, 0f, 0.5f);
+                    collisionSpriteRenderer.color = new Color(0f, 1f, 0f, 0.4f);
                     break;
 
                 case Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox:
-                    collisionSpriteRenderer.color = new Color(0f, 0f, 1f, 0.5f);
+                    collisionSpriteRenderer.color = new Color(1f, 0.7f, 0f, 0.4f);
                     break;
 
                 case Unity_ObjAnimationCollisionPart.CollisionType.HitTriggerBox:
-                    collisionSpriteRenderer.color = new Color(1f, 0f, 1f, 0.5f);
+                    collisionSpriteRenderer.color = new Color(1f, 0f, 1f, 0.4f);
                     break;
 
                 default:
