@@ -17,14 +17,14 @@ namespace R1Engine
         public static R1_R2EventData GetRayman(R1_R2EventData rayPos, R1_R2AllfixFooter data) => new R1_R2EventData()
         {
             // Gets loaded at 0x80178DF0 during runtime
-            BehaviorPointer = data.RaymanBehaviorPointer,
+            UnkPointer = data.RaymanBehaviorPointer,
             CollisionDataPointer = data.RaymanCollisionDataPointer,
             AnimGroupPointer = data.RaymanAnimGroupPointer,
             XPosition = (short)(rayPos != null ? (rayPos.XPosition + rayPos.CollisionData.OffsetBX - data.RaymanCollisionData.OffsetBX) : 100),
             YPosition = (short)(rayPos != null ? (rayPos.YPosition + rayPos.CollisionData.OffsetBY - data.RaymanCollisionData.OffsetBY) : 0),
             Etat = 0,
             SubEtat = 19,
-            MapLayer = 1,
+            MapLayer = ObjMapLayer.Front,
             Unk2 = new byte[17],
             EventType = R1_R2EventType.Rayman,
             RuntimeBytes1 = new byte[7],
@@ -49,8 +49,8 @@ namespace R1Engine
         
         // 12 (0xC)
         
-        // Commands? This sets the object behavior.
-        public Pointer BehaviorPointer { get; set; }
+        // Points to structs of varying sizes
+        public Pointer UnkPointer { get; set; }
 
         // Leads to 16-byte long structures for collision data
         public Pointer CollisionDataPointer { get; set; }
@@ -58,7 +58,7 @@ namespace R1Engine
         public Pointer AnimGroupPointer { get; set; }
 
         // Always 0 in file - gets set to a pointer to a function during runtime which gets called whenever the event is initialized
-        public uint p_stHandlers { get; set; }
+        public uint RuntimeStHandlersPointer { get; set; }
         
         // 28 (0x1C)
 
@@ -84,8 +84,7 @@ namespace R1Engine
 
         public byte Unk_22 { get; set; }
 
-        // 1 = foreground, 2 = background
-        public byte MapLayer { get; set; }
+        public ObjMapLayer MapLayer { get; set; }
 
         // 26 (0x24)
 
@@ -232,10 +231,10 @@ namespace R1Engine
             UShort_0A = s.Serialize<ushort>(UShort_0A, name: nameof(UShort_0A));
 
             // Serialize pointers
-            BehaviorPointer = s.SerializePointer(BehaviorPointer, name: nameof(BehaviorPointer));
+            UnkPointer = s.SerializePointer(UnkPointer, name: nameof(UnkPointer));
             CollisionDataPointer = s.SerializePointer(CollisionDataPointer, name: nameof(CollisionDataPointer));
             AnimGroupPointer = s.SerializePointer(AnimGroupPointer, name: nameof(AnimGroupPointer));
-            p_stHandlers = s.Serialize<uint>(p_stHandlers, name: nameof(p_stHandlers));
+            RuntimeStHandlersPointer = s.Serialize<uint>(RuntimeStHandlersPointer, name: nameof(RuntimeStHandlersPointer));
 
             // Serialize positions
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
@@ -246,7 +245,7 @@ namespace R1Engine
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
             Unk_22 = s.Serialize<byte>(Unk_22, name: nameof(Unk_22));
-            MapLayer = s.Serialize<byte>(MapLayer, name: nameof(MapLayer));
+            MapLayer = s.Serialize<ObjMapLayer>(MapLayer, name: nameof(MapLayer));
 
             Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
             Flags = s.Serialize<PS1_R2Demo_EventFlags>(Flags, name: nameof(Flags));
@@ -318,6 +317,13 @@ namespace R1Engine
             UnkFlag_5 = 1 << 5,
             UnkFlag_6 = 1 << 6,
             FlippedHorizontally = 1 << 7,
+        }
+
+        public enum ObjMapLayer : byte
+        {
+            None = 0,
+            Front = 1,
+            Back = 2
         }
     }
 }

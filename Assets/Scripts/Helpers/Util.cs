@@ -56,7 +56,7 @@ namespace R1Engine {
             {
                 var length = p1[i + 1] - p1[i];
 
-                s.DoAt(p1[i], () => output.Add(String.Join(" ", s.SerializeArray<byte>(null, length).Select(x => x.ToString("X2")))));
+                s.DoAt(p1[i], () => output.Add($"{p1[i]}: byte[{length:000}] {String.Join(" ", s.SerializeArray<byte>(null, length).Select(x => x.ToString("X2")))}"));
             }
 
             File.WriteAllLines(path, output);

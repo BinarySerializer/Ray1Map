@@ -86,10 +86,9 @@ namespace R1Engine
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.Layer * 512));
 
-        // Clamp since some events have layer 0, which would get treated as -1 (these are the nulled out events)
-        public override int? MapLayer => IsAlways ? 0 : Mathf.Clamp(EventData.MapLayer - 1, 0, 3);
+        public override int? MapLayer => EventData.MapLayer == R1_R2EventData.ObjMapLayer.Back ? 2: 3;
 
-        public override float Scale => MapLayer == 1 ? 0.5f : 1;
+        public override float Scale => EventData.MapLayer == R1_R2EventData.ObjMapLayer.Back ? 0.5f : 1;
         public override bool FlipHorizontally => EventData.IsFlippedHorizontally;
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC()
