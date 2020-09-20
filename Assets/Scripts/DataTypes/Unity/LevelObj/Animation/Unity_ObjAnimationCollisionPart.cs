@@ -16,6 +16,8 @@
 
             HitTriggerBox,
             TriggerBox,
+
+            Gendoor
         }
     }
 }

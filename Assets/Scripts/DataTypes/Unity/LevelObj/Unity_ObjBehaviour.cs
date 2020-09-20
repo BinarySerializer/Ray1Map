@@ -146,6 +146,10 @@ namespace R1Engine
                     collisionSpriteRenderer.color = new Color(1f, 0f, 1f, 0.4f);
                     break;
 
+                case Unity_ObjAnimationCollisionPart.CollisionType.Gendoor:
+                    collisionSpriteRenderer.color = new Color(0f, 1f, 0.7f, 0.4f);
+                    break;
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }

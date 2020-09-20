@@ -117,7 +117,7 @@ namespace R1Engine
         public uint RuntimeCurrentStatePointer { get; set; }
 
         // Always 0 in file - gets set to a pointer during runtime
-        public uint RuntimePointer3 { get; set; }
+        public uint RuntimeCurrentAnimDescriptorPointer { get; set; }
 
         // 64 (0x40)
 
@@ -192,8 +192,8 @@ namespace R1Engine
 
         // 104 (0x68)
 
-        // First bit determines if the sprite should be flipped horizontally
-        public byte RuntimeFlags1 { get; set; }
+        // First bit determines if the sprite should be flipped horizontally (runtime?) - also used for gendoor collision
+        public byte UnkFlags { get; set; }
         // First bit determines if the sprite should be faded
         public byte RuntimeFlags2 { get; set; }
 
@@ -254,7 +254,7 @@ namespace R1Engine
             Unk2 = s.SerializeArray(Unk2, 17, name: nameof(Unk2));
 
             RuntimeCurrentStatePointer = s.Serialize<uint>(RuntimeCurrentStatePointer, name: nameof(RuntimeCurrentStatePointer));
-            RuntimePointer3 = s.Serialize<uint>(RuntimePointer3, name: nameof(RuntimePointer3));
+            RuntimeCurrentAnimDescriptorPointer = s.Serialize<uint>(RuntimeCurrentAnimDescriptorPointer, name: nameof(RuntimeCurrentAnimDescriptorPointer));
 
             EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
 
@@ -285,7 +285,7 @@ namespace R1Engine
 
             Unk4 = s.SerializeArray(Unk4, 3, name: nameof(Unk4));
 
-            RuntimeFlags1 = s.Serialize<byte>(RuntimeFlags1, name: nameof(RuntimeFlags1));
+            UnkFlags = s.Serialize<byte>(UnkFlags, name: nameof(UnkFlags));
             RuntimeFlags2 = s.Serialize<byte>(RuntimeFlags2, name: nameof(RuntimeFlags2));
 
             Unk5 = s.SerializeArray(Unk5, 2, name: nameof(Unk5));

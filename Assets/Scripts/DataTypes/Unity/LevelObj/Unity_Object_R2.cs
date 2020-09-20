@@ -96,23 +96,69 @@ namespace R1Engine
         {
             var zdcEntry = EventData.CollisionData?.ZDC;
 
-            for (int i = 0; i < (zdcEntry?.ZDCCount ?? 0); i++)
+            if (zdcEntry == null)
+                yield break;
+
+            if (EventData.EventType == R1_R2EventType.Gendoor)
             {
-                var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
+                // Function at 0x800e26c0
+
+                int zdcIndex;
+                var flags = EventData.UnkFlags & 0xfc;
+
+                if (flags == 0x04)
+                    zdcIndex = zdcEntry.ZDCIndex;
+                else if (flags == 0x08)
+                    zdcIndex = zdcEntry.ZDCIndex + 1;
+                else if (flags == 0x10)
+                    zdcIndex = zdcEntry.ZDCIndex + 2;
+                else if (flags == 0x20)
+                    zdcIndex = zdcEntry.ZDCIndex + 3;
+                else if (flags == 0x40)
+                    zdcIndex = zdcEntry.ZDCIndex + 4;
+                else
+                    yield break;
+
+                var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcIndex);
 
                 if (zdc != null)
                 {
                     yield return new Unity_ObjAnimationCollisionPart
                     {
-                        // TODO: Fix this
                         XPosition = zdc.XPosition,
                         YPosition = zdc.YPosition,
-                        //XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
-                        //YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
                         Width = zdc.Width,
                         Height = zdc.Height,
-                        Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                        Type = Unity_ObjAnimationCollisionPart.CollisionType.Gendoor
                     };
+                }
+            }
+            else
+            {
+                // Function at 0x800d7f90
+
+                for (int i = 0; i < zdcEntry.ZDCCount; i++)
+                {
+                    var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
+
+                    if (zdc != null)
+                    {
+                        if (((zdc.Byte_06 & 0x1F) == 0x1F))
+                        {
+                            yield return new Unity_ObjAnimationCollisionPart
+                            {
+                                XPosition = zdc.XPosition,
+                                YPosition = zdc.YPosition,
+                                Width = zdc.Width,
+                                Height = zdc.Height,
+                                Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                            };
+                        }
+                        else
+                        {
+                            // TODO: Show animation collision
+                        }
+                    }
                 }
             }
         }

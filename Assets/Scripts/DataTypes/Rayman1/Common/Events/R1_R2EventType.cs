@@ -15,7 +15,7 @@
 
         Flash = 5,
 
-        Unk_6 = 6,
+        Gendoor = 6,
 
         HitEffect = 8,
 
