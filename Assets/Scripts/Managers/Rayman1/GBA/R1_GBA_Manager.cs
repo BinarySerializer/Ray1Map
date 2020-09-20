@@ -870,7 +870,14 @@ namespace R1Engine
                 loadGraphics(eventData.GraphicData[graphicsIndex]);
             }
 
-            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.ToArray(), eventETA.ToArray(), linkTable);
+            var objManager = new Unity_ObjectManager_R1(
+                context: context, 
+                des: eventDesigns.ToArray(), 
+                eta: eventETA.ToArray(), 
+                linkTable: linkTable,
+                typeZDC: data.TypeZDC,
+                zdcData: data.ZdcData,
+                eventFlags: data.EventFlags);
             Unity_Level level = new Unity_Level(maps, objManager, localization: LoadLocalization(data));
 
             // Load the events

@@ -24,6 +24,10 @@
 
         StringPointers,
 
+        TypeZDC,
+        ZdcData,
+        EventFlags,
+
         // Graphics not referenced from events
         DrumWalkerGraphics,
         ClockGraphics,

@@ -67,6 +67,10 @@ namespace R1Engine
         public Pointer[] StringPointerTable { get; set; }
         public string[][] Strings { get; set; }
 
+        public R1_ZDCEntry[] TypeZDC { get; set; }
+        public R1_ZDCData[] ZdcData { get; set; }
+        public R1_EventFlags[] EventFlags { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -128,6 +132,11 @@ namespace R1Engine
                     }
                 }
             });
+
+            // Serialize tables
+            s.DoAt(pointerTable[R1_DSi_Pointer.TypeZDC], () => TypeZDC = s.SerializeObjectArray<R1_ZDCEntry>(TypeZDC, 262, name: nameof(TypeZDC)));
+            s.DoAt(pointerTable[R1_DSi_Pointer.ZdcData], () => ZdcData = s.SerializeObjectArray<R1_ZDCData>(ZdcData, 200, name: nameof(ZdcData)));
+            s.DoAt(pointerTable[R1_DSi_Pointer.EventFlags], () => EventFlags = s.SerializeArray<R1_EventFlags>(EventFlags, 262, name: nameof(EventFlags)));
         }
 
         /// <summary>

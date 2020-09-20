@@ -41,6 +41,10 @@ namespace R1Engine
 
                     [R1_GBA_ROMPointer.StringPointers] = 0x0854ADB4,
 
+                    [R1_GBA_ROMPointer.TypeZDC] = 0x0854A304,
+                    [R1_GBA_ROMPointer.ZdcData] = 0x08549CC4,
+                    [R1_GBA_ROMPointer.EventFlags] = 0x08549330,
+
                     [R1_GBA_ROMPointer.DrumWalkerGraphics] = 0x082C6C5C,
                     [R1_GBA_ROMPointer.ClockGraphics] = 0x082C90C8,
                     [R1_GBA_ROMPointer.InkGraphics] = 0x082D33D0,
@@ -76,6 +80,10 @@ namespace R1Engine
 
                     [R1_GBA_ROMPointer.StringPointers] = 0x0854ACE0,
 
+                    [R1_GBA_ROMPointer.TypeZDC] = 0x0854A230,
+                    [R1_GBA_ROMPointer.ZdcData] = 0x08549BF0,
+                    [R1_GBA_ROMPointer.EventFlags] = 0x0854925C,
+
                     [R1_GBA_ROMPointer.DrumWalkerGraphics] = 0x082C6B88,
                     [R1_GBA_ROMPointer.ClockGraphics] = 0x082C8FF4,
                     [R1_GBA_ROMPointer.InkGraphics] = 0x082D32FC,
@@ -109,6 +117,10 @@ namespace R1Engine
                 [R1_DSi_Pointer.SpecialPalettes] = 0x02268FEC,
 
                 [R1_DSi_Pointer.StringPointers] = 0x022604D0,
+
+                [R1_DSi_Pointer.TypeZDC] = 0x0225F73C,
+                [R1_DSi_Pointer.ZdcData] = 0x02262398,
+                [R1_DSi_Pointer.EventFlags] = 0x022600B8,
 
                 [R1_DSi_Pointer.WorldLevelOffsetTable] = 0x02236BF8,
 

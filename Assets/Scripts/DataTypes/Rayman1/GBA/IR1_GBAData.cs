@@ -49,5 +49,12 @@
         /// The strings
         /// </summary>
         string[][] Strings { get; }
+
+
+        R1_ZDCEntry[] TypeZDC { get; } 
+
+        R1_ZDCData[] ZdcData { get; }
+
+        R1_EventFlags[] EventFlags { get; }
     }
 }

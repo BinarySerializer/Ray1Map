@@ -13,6 +13,10 @@
 
         StringPointers,
 
+        TypeZDC,
+        ZdcData,
+        EventFlags,
+
         WorldLevelOffsetTable,
 
         EventGraphicsPointers,

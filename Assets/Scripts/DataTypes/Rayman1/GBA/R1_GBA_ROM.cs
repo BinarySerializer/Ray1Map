@@ -59,6 +59,9 @@ namespace R1Engine
         /// </summary>
         public string[][] Strings { get; set; }
 
+        public R1_ZDCEntry[] TypeZDC { get; set; }
+        public R1_ZDCData[] ZdcData { get; set; }
+        public R1_EventFlags[] EventFlags { get; set; }
 
         /// <summary>
         /// Handles the data serialization
@@ -156,6 +159,11 @@ namespace R1Engine
                     }
                 }
             });
+
+            // Serialize tables
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.TypeZDC], () => TypeZDC = s.SerializeObjectArray<R1_ZDCEntry>(TypeZDC, 262, name: nameof(TypeZDC)));
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.ZdcData], () => ZdcData = s.SerializeObjectArray<R1_ZDCData>(ZdcData, 200, name: nameof(ZdcData)));
+            s.DoAt(pointerTable[R1_GBA_ROMPointer.EventFlags], () => EventFlags = s.SerializeArray<R1_EventFlags>(EventFlags, 262, name: nameof(EventFlags)));
         }
     }
 
