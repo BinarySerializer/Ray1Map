@@ -194,10 +194,22 @@ namespace R1Engine
 
                     if (zdc != null)
                     {
-                        yield return new Unity_ObjAnimationCollisionPart
-                        {
-                            XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
-                            YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
+                        Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
+                        int addX = 0, addY = 0;
+                        if (p != null) {
+                            int w = 0, h = 0;
+                            if ((p.IsFlippedHorizontally || p.IsFlippedVertically) && p.ImageIndex < Sprites.Count) {
+                                var spr = Sprites[p.ImageIndex];
+                                w = spr?.texture?.width ?? 0;
+                                h = spr?.texture?.height ?? 0;
+                            }
+
+                            addX = p.XPosition + (p.IsFlippedHorizontally ? w : 0);
+                            addY = p.YPosition - (p.IsFlippedVertically ? h : 0);
+                        }
+                        yield return new Unity_ObjAnimationCollisionPart {
+                            XPosition = zdc.XPosition + addX,
+                            YPosition = zdc.YPosition + addY,
                             Width = zdc.Width,
                             Height = zdc.Height,
                             Type = colType
