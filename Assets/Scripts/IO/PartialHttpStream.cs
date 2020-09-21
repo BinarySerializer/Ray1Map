@@ -15,19 +15,19 @@ namespace R1Engine {
 
 		// Cache for short requests.
 		//private readonly byte[] cache;
-		private int cacheLen;
+		private long cacheLen;
 		//private Stream stream;
 		//private long position = 0;
 		private long? length;
 		//private long cachePosition;
 		//private int cacheCount;
-		private int lastRequestRead = 0;
+		private long lastRequestRead = 0;
 
-		public PartialHttpStream(string url, int cacheLen = CacheLen, long? length = null) {
+		public PartialHttpStream(string url, long cacheLen = CacheLen, long? length = null) {
 			if (string.IsNullOrEmpty(url))
 				throw new ArgumentException("url empty");
-			if (cacheLen <= 0)
-				throw new ArgumentException("cacheLen must be greater than 0");
+			if (cacheLen < 0)
+				throw new ArgumentException("cacheLen must not be less than 0");
 
 			Url = url;
 			this.cacheLen = cacheLen;
@@ -61,7 +61,7 @@ namespace R1Engine {
 		public int HttpRequestsCount { get; private set; }
 
 		public override void SetLength(long value) { throw new NotImplementedException(); }
-		public void SetCacheLength(int value) {
+		public void SetCacheLength(long value) {
 			cacheLen = value;
 		}
 
@@ -260,14 +260,14 @@ namespace R1Engine {
 			caches.Add(position, cache);
 		}
 
-		public async UniTask FillCacheForRead(int count) {
+		public async UniTask FillCacheForRead(long count) {
 			if (count <= 0) return;
 			await Controller.WaitIfNecessary();
 
 			// Try to read parts from cache
 			long lastPosition = Position;
 			int numRead = 0;
-			int countInitial = count;
+			long countInitial = count;
 			SortedList<int, int> filledRanges = new SortedList<int, int>();
 			/*IEnumerable<KeyValuePair<long, byte[]>> biggerCache = caches.Where((pair) => (pair.Key >= Position + count));
 			IEnumerable<KeyValuePair<long, byte[]>> smallerCache = caches.Where((pair) => (pair.Key + pair.Value.Length <= Position));
@@ -305,7 +305,7 @@ namespace R1Engine {
 			}
 			if (count > 0 && Position < Length) {
 				// Need to request from web
-				SortedList<int, int> downloadRanges = new SortedList<int, int>(); // range start relative to Position, range length
+				SortedList<long, long> downloadRanges = new SortedList<long, long>(); // range start relative to Position, range length
 				if (filledRanges.Count > 0) {
 					downloadRanges.Add(0, filledRanges.First().Key);
 					KeyValuePair<int, int> lastFilledRange = filledRanges.Last();
@@ -322,24 +322,25 @@ namespace R1Engine {
 				} else {
 					downloadRanges.Add(0, count);
 				}
-				foreach (KeyValuePair<int, int> range in downloadRanges) {
+				foreach (KeyValuePair<long, long> range in downloadRanges) {
 					//UnityEngine.Debug.Log("Download range: " + range.Key + " - " + range.Value);
-					if (range.Value > cacheLen) cacheLen = range.Value;
+					long curCacheLen = Math.Max(cacheLen, range.Value);
+					//if (range.Value > cacheLen) cacheLen = range.Value;
 					long rangePos = Position + range.Key;
 					IEnumerable<KeyValuePair<long, byte[]>> biggerCache = caches.Where(c => (c.Key >= rangePos + range.Value));
 					IEnumerable<KeyValuePair<long, byte[]>> smallerCache = caches.Where(c => (c.Key + c.Value.Length <= rangePos));
-					long newDataLength = Math.Min(cacheLen, Length - rangePos);
+					long newDataLength = Math.Min(curCacheLen, Length - rangePos);
 					long startPosition = rangePos;
 					long addLengthBefore = 0;
 					if (biggerCache.Count() > 0) {
-						newDataLength = Math.Min(cacheLen, biggerCache.First().Key - rangePos);
+						newDataLength = Math.Min(curCacheLen, biggerCache.First().Key - rangePos);
 					}
 					long addLengthAfter = newDataLength - range.Value;
-					if (newDataLength < cacheLen && rangePos > 0) {
+					if (newDataLength < curCacheLen && rangePos > 0) {
 						if (smallerCache.Count() > 0) {
-							addLengthBefore = Math.Min(cacheLen, rangePos - (smallerCache.Last().Key + smallerCache.Last().Value.Length));
+							addLengthBefore = Math.Min(curCacheLen, rangePos - (smallerCache.Last().Key + smallerCache.Last().Value.Length));
 						} else {
-							addLengthBefore = Math.Min(cacheLen, rangePos);
+							addLengthBefore = Math.Min(curCacheLen, rangePos);
 						}
 						startPosition -= addLengthBefore;
 						newDataLength += addLengthBefore;
@@ -347,8 +348,8 @@ namespace R1Engine {
 					//UnityEngine.Debug.Log(range.Key + " - " + range.Value + ": " + Length + " - " + rangePos + " - " + newDataLength);
 					byte[] newData = new byte[newDataLength];
 					await HttpRead(newData, 0, (int)newDataLength, startPosition);
-					int dataRead = lastRequestRead;
-					Array.Resize(ref newData, dataRead);
+					long dataRead = lastRequestRead;
+					Array.Resize(ref newData, (int)dataRead);
 					int numReadLocal = (int)Math.Min(range.Value, dataRead - addLengthBefore);
 					//Array.Copy(newData, addLengthBefore, buffer, offset + range.Key, numReadLocal);
 					AddCache(startPosition, newData);

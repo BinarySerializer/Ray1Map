@@ -278,6 +278,7 @@ namespace R1Engine
                 await Controller.WaitIfNecessary();
             }
             async UniTask<Unity_ObjectManager_R2.AnimGroup> GetGroup(R1_R2EventAnimGroup animGroup) {
+                await UniTask.CompletedTask;
                 // Create the DES
                 var des = new Unity_ObjGraphics()
                 {
