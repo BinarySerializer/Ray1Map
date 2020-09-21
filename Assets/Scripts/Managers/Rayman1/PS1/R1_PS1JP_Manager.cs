@@ -51,6 +51,8 @@ namespace R1Engine
             return worldJPFile.RawTiles;
         }
 
+        public override string GetExeFilePath => "PSX.EXE";
+
         /// <summary>
         /// Gets the tile set to use
         /// </summary>
@@ -187,8 +189,15 @@ namespace R1Engine
             // Load special tile set file
             await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings));
 
+            // Load the exe
+            await LoadExtraFile(context, GetExeFilePath, true);
+
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
+
+        public override uint? TypeZDCOffset => 0x98308;
+        public override uint? ZDCDataOffset => 0x97308;
+        public override uint? EventFlagsOffset => 0x96B08;
     }
 }

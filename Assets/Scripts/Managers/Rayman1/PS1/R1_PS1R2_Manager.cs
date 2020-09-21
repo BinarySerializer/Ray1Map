@@ -55,6 +55,8 @@ namespace R1Engine
                 }), 
             }).ToArray();
 
+        public override string GetExeFilePath => null;
+
         /// <summary>
         /// Gets the name for the specified map
         /// </summary>

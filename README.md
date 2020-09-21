@@ -72,8 +72,18 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
+    <td class="tg-yw4l">Rayman 1 (PS1 - US Demo)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+  <tr>
     <td class="tg-yw4l">Rayman 1 (Saturn)</td>
-    <td class="tg-yw4l">US, EU, JP</td>
+    <td class="tg-yw4l">US, EU, JP, US Demo</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
@@ -93,7 +103,7 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PC)</td>
-    <td class="tg-yw4l">1.00, 1.10, 1.12, 1.20, 1.21, 1.21 JP</td>
+    <td class="tg-yw4l">1.00, 1.10, 1.12, 1.20, 1.21, 1.21 JP, Demo1, Demo2</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>

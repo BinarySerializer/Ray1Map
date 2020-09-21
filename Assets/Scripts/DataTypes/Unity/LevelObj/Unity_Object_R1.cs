@@ -167,7 +167,7 @@ namespace R1Engine
         {
             var engineVersion = ObjManager.Context.Settings.EngineVersion;
 
-            // Ignore earlier games which use a different system
+            // Ignore earlier games
             if (engineVersion == EngineVersion.R1_PS1_JP ||
                 engineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
                 engineVersion == EngineVersion.R1_PS1_JPDemoVol6 ||
@@ -178,6 +178,7 @@ namespace R1Engine
             if (State == null || State.ZDCFlags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.NoCollision)))
                 yield break;
 
+            // Attempt to set the collision type
             var colType = (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.HurtsRayman)) 
                 ? Unity_ObjAnimationCollisionPart.CollisionType.AttackBox 
                 : State.ZDCFlags.HasFlag(R1_EventState.R1_ZDCFlags.DetectFist) 
@@ -192,35 +193,37 @@ namespace R1Engine
                 {
                     var zdc = ObjManager.ZDCData?.ElementAtOrDefault(typeZdc.ZDCIndex + i);
 
-                    if (zdc != null)
-                    {
-                        Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
-                        int addX = 0, addY = 0;
-                        if (p != null) {
-                            /*int w = 0, h = 0;
+                    if (zdc == null) 
+                        continue;
+                    
+                    Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
+                    
+                    int addX = 0, addY = 0;
+                    
+                    if (p != null) {
+                        /*int w = 0, h = 0;
                             if ((p.IsFlippedHorizontally || p.IsFlippedVertically) && p.ImageIndex < Sprites.Count) {
                                 var spr = Sprites[p.ImageIndex];
                                 w = spr?.texture?.width ?? 0;
                                 h = spr?.texture?.height ?? 0;
                             }*/
 
-                            addX = p.XPosition;// + (p.IsFlippedHorizontally ? w - zdc.Width : 0);
-                            addY = p.YPosition;// - (p.IsFlippedVertically ? h - zdc.Height : 0);
-                            var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(p.ImageIndex);
+                        addX = p.XPosition;// + (p.IsFlippedHorizontally ? w - zdc.Width : 0);
+                        addY = p.YPosition;// - (p.IsFlippedVertically ? h - zdc.Height : 0);
+                        var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(p.ImageIndex);
 
-                            if (imgDescr != null) {
-                                addX += imgDescr.HitBoxOffsetX;
-                                addY += imgDescr.HitBoxOffsetY;
-                            }
+                        if (imgDescr != null) {
+                            addX += imgDescr.HitBoxOffsetX;
+                            addY += imgDescr.HitBoxOffsetY;
                         }
-                        yield return new Unity_ObjAnimationCollisionPart {
-                            XPosition = zdc.XPosition + addX,
-                            YPosition = zdc.YPosition + addY,
-                            Width = zdc.Width,
-                            Height = zdc.Height,
-                            Type = colType
-                        };
                     }
+                    yield return new Unity_ObjAnimationCollisionPart {
+                        XPosition = zdc.XPosition + addX,
+                        YPosition = zdc.YPosition + addY,
+                        Width = zdc.Width,
+                        Height = zdc.Height,
+                        Type = colType
+                    };
                 }
             }
             else if (EventData.HitSprite < 253)

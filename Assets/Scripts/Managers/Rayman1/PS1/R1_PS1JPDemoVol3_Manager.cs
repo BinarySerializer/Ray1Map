@@ -76,6 +76,8 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(4)))
             .ToArray())).ToArray());
 
+        public override string GetExeFilePath => "RAY.EXE";
+
         /// <summary>
         /// Gets the tile set to use
         /// </summary>

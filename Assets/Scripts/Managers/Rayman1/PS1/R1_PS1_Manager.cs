@@ -1,6 +1,5 @@
 ﻿using R1Engine.Serialize;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -10,20 +9,12 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman 1 (PS1)
     /// </summary>
-    public class R1_PS1_Manager : R1_PS1BaseXXXManager
+    public abstract class R1_PS1_Manager : R1_PS1BaseXXXManager
     {
         /// <summary>
         /// The width of the tile set in tiles
         /// </summary>
         public override int TileSetWidth => 16;
-
-        public virtual string GetLanguageFilePath(string langCode) => GetDataPath() + $"IMA/CRD/RAY{langCode}.TXT";
-
-        /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => settings.GameModeSelection == GameModeSelection.RaymanPS1US ? PS1FileInfo.fileInfoUS : PS1FileInfo.fileInfoPAL;
 
         /// <summary>
         /// Gets the tile set to use
@@ -256,6 +247,9 @@ namespace R1Engine
             if (bgPath != null)
                 await LoadExtraFile(context, bgPath);
 
+            // Load the exe
+            await LoadExtraFile(context, GetExeFilePath, true);
+
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, bgPath == null ? null : level.BackgroundData);
         }
@@ -329,80 +323,6 @@ namespace R1Engine
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
             FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);*/
-        }
-
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
-        {
-            // The localization is compiled in the US/JP releases
-            if (context.Settings.GameModeSelection != GameModeSelection.RaymanPS1EU)
-                return null;
-
-            var langs = new[]
-            {
-                new
-                {
-                    LangCode = "US",
-                    Language = "English"
-                },
-                new
-                {
-                    LangCode = "FR",
-                    Language = "French"
-                },
-                new
-                {
-                    LangCode = "GR",
-                    Language = "German"
-                },
-            };
-
-            // Create the dictionary
-            var loc = new Dictionary<string, string[]>();
-
-            // Add each language
-            foreach (var lang in langs)
-            {
-                var filePath = GetLanguageFilePath(lang.LangCode);
-                await FileSystem.PrepareFile(filePath);
-                var langFile = FileFactory.ReadText<R1_TextLocFile>(filePath, context);
-                loc.Add(lang.Language, langFile.Strings);
-            }
-
-            return loc;
-        }
-
-        public void LogEventFlags(GameSettings settings, string outputFilePath)
-        {
-            if (settings.GameModeSelection != GameModeSelection.RaymanPS1US)
-                throw new NotSupportedException();
-
-            using (var context = new Context(settings))
-            {
-                var file = new LinearSerializedFile(context)
-                {
-                    filePath = "SLUS-000.05"
-                };
-                context.AddFile(file);
-                var s = context.Deserializer;
-
-                var flags = s.DoAt(file.StartPointer + 0x9CA94, () => s.SerializeArray<R1_EventFlags>(default, 256));
-
-                using (var log = File.Create(outputFilePath))
-                {
-                    using (var logWriter = new StreamWriter(log))
-                    {
-                        for (int i = 0; i < flags.Length; i++)
-                        {
-                            var type = (R1_EventType)i;
-                            var attrFlag = type.GetAttribute<ObjTypeInfoAttribute>()?.Flag ?? ObjTypeFlag.Normal;
-
-                            var line = $"{Convert.ToString((int)flags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}";
-
-                            logWriter.WriteLine($"{line,-75} - {flags[i]}");
-                        }
-                    }
-                }
-            }
         }
     }
 }

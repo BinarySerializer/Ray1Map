@@ -11,7 +11,7 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman 1 (Saturn)
     /// </summary>
-    public class R1_Saturn_Manager : R1_PS1BaseManager
+    public abstract class R1_Saturn_Manager : R1_PS1BaseManager
     {
         /// <summary>
         /// The width of the tile set in tiles
@@ -40,26 +40,7 @@ namespace R1Engine
         /// <summary>
         /// Gets the offset for the palettes in the game executable
         /// </summary>
-        /// <returns>The offset for the palettes in the game executable</returns>
-        public uint GetPalOffset(GameSettings settings)
-        {
-            if (settings.GameModeSelection == GameModeSelection.RaymanSaturnUS)
-                return 0x79224;
-            else if (settings.GameModeSelection == GameModeSelection.RaymanSaturnEU)
-                return 0x78D14;
-            else if (settings.GameModeSelection == GameModeSelection.RaymanSaturnJP)
-                return 0x791C4;
-            else if (settings.GameModeSelection == GameModeSelection.RaymanSaturnProto)
-                return 0x87754;
-            else
-                throw new ArgumentOutOfRangeException(nameof(settings.GameModeSelection), settings.GameModeSelection, "The requested game mode is not supported for Saturn");
-        }
-
-        /// <summary>
-        /// Gets the executable file path
-        /// </summary>
-        /// <returns>The executable file path</returns>
-        public string GetExeFilePath() => "0";
+        public abstract uint GetPalOffset { get; }
 
         /// <summary>
         /// Gets the allfix file path
@@ -125,6 +106,8 @@ namespace R1Engine
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(5)))
             .ToArray())).Select(x => x.Index == 1 ? new GameInfo_World(x.Index, x.Maps.Append(140).ToArray()) : x).ToArray());
+
+        public override string GetExeFilePath => "0";
 
         public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress = 0)
         {
@@ -268,7 +251,7 @@ namespace R1Engine
 
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
 
-            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(GetExeFilePath()).StartPointer + GetPalOffset(context.Settings), context, (s, x) => x.Length = 25 * 256 * 2);
+            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(GetExeFilePath).StartPointer + GetPalOffset, context, (s, x) => x.Length = 25 * 256 * 2);
 
             var palette = pal.Value;
             var paletteOffset = img.PaletteInfo;
@@ -362,8 +345,8 @@ namespace R1Engine
             await LoadFile(context, tileSetFilePath);
             await LoadFile(context, mapFilePath);
 
-            // Load executable to get the palettes
-            await LoadFile(context, GetExeFilePath());
+            // Load executable to get the palettes and tables
+            await LoadFile(context, GetExeFilePath);
 
             // Load the texture files
             await LoadFile(context, GetFixImageFilePath());
@@ -606,46 +589,6 @@ namespace R1Engine
             return $"Unknown/";
         }
 
-        protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
-        {
-            // The localization is compiled in the US/JP releases
-            if (context.Settings.GameModeSelection != GameModeSelection.RaymanSaturnEU)
-                return null;
-
-            var langs = new[]
-            {
-                new
-                {
-                    LangCode = "US",
-                    Language = "English"
-                },
-                new
-                {
-                    LangCode = "FR",
-                    Language = "French"
-                },
-                new
-                {
-                    LangCode = "GR",
-                    Language = "German"
-                },
-            };
-
-            // Create the dictionary
-            var loc = new Dictionary<string, string[]>();
-
-            // Add each language
-            foreach (var lang in langs)
-            {
-                var filePath = GetLanguageFilePath(lang.LangCode);
-                await FileSystem.PrepareFile(filePath);
-                var langFile = FileFactory.ReadText<R1_TextLocFile>(filePath, context);
-                loc.Add(lang.Language, langFile.Strings);
-            }
-
-            return loc;
-        }
-
         public override async UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames)
         {
             using (var menuContext = new Context(settings))
@@ -658,8 +601,8 @@ namespace R1Engine
                     await LoadFile(menuContext, GetFixImageFilePath());
                     
                     // Load exe
-                    await LoadFile(menuContext, GetExeFilePath());
-                    await LoadFile(bigRayContext, GetExeFilePath());
+                    await LoadFile(menuContext, GetExeFilePath);
+                    await LoadFile(bigRayContext, GetExeFilePath);
 
                     // Save font
                     menuContext.StoreObject("Font", fix.FontData);

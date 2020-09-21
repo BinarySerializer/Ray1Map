@@ -17,7 +17,7 @@ namespace R1Engine
         /// <returns>The world folder path</returns>
         public override string GetWorldFolderPath(R1_World world) => String.Empty;
 
-        public override string GetLanguageFilePath(string langCode) => $"IMA/RAY{langCode}.TXT";
+        public string GetLanguageFilePath(string langCode) => $"IMA/RAY{langCode}.TXT";
 
         /// <summary>
         /// Gets the base path for the game data
@@ -31,6 +31,8 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoPALDemo;
 
+        public override string GetExeFilePath => "RAY.EXE";
+
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
             var filePath = GetLanguageFilePath("US");
@@ -43,5 +45,9 @@ namespace R1Engine
                 ["English"] = FileFactory.ReadText<R1_TextLocFile>(filePath, context).Strings
             };
         }
+
+        public override uint? TypeZDCOffset => 0x93998;
+        public override uint? ZDCDataOffset => 0x92998;
+        public override uint? EventFlagsOffset => 0x92198;
     }
 }

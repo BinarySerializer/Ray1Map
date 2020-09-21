@@ -61,6 +61,8 @@ namespace R1Engine
         /// <returns>The levels</returns>
         public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
+        public abstract string GetExeFilePath { get; }
+
         #endregion
 
         #region Manager Methods
@@ -185,18 +187,29 @@ namespace R1Engine
             return tex;
         }
 
-        public virtual async UniTask LoadExtraFile(Context context, string path) {
+        public virtual async UniTask LoadExtraFile(Context context, string path, bool linear = false) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
             if (!FileSystem.FileExists(context.BasePath + path))
                 return;
 
-            Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
-            PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress, InvalidPointerMode) {
-                filePath = path,
-                Length = fileInfo[path].Size
-            };
-            context.AddFile(file);
+            if (linear)
+            {
+                context.AddFile(new LinearSerializedFile(context)
+                {
+                    filePath = path
+                });
+            }
+            else
+            {
+                Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
+                PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress, InvalidPointerMode)
+                {
+                    filePath = path,
+                    Length = fileInfo[path].Size
+                };
+                context.AddFile(file);
+            }
         }
 
         /// <summary>
@@ -284,7 +297,32 @@ namespace R1Engine
                     eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(e.ETA.EventStates, e.ETAPointer));
             }
 
-            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.ToArray(), eventETA.ToArray(), eventLinkingTable);
+            R1_ZDCEntry[] typeZDC = null;
+            R1_ZDCData[] zdcData = null;
+            R1_EventFlags[] eventFlags = null;
+
+            // Read tables from exe
+            if (GetExeFilePath != null && context.FileExists(GetExeFilePath))
+            {
+                var exeOffset = context.GetFile(GetExeFilePath).StartPointer;
+                var s = context.Deserializer;
+
+                if (TypeZDCOffset != null)
+                    typeZDC = s.DoAt(exeOffset + TypeZDCOffset.Value, () => s.SerializeObjectArray<R1_ZDCEntry>(default, TypeZDCCount, name: "TypeZDC"));
+                if (ZDCDataOffset != null)
+                    zdcData = s.DoAt(exeOffset + ZDCDataOffset.Value, () => s.SerializeObjectArray<R1_ZDCData>(default, ZDCDataCount, name: "ZDCData"));
+                if (EventFlagsOffset != null)
+                    eventFlags = s.DoAt(exeOffset + EventFlagsOffset.Value, () => s.SerializeArray<R1_EventFlags>(default, EventFlagsCount, name: "EventFlags"));
+            }
+
+            var objManager = new Unity_ObjectManager_R1(
+                context: context, 
+                des: eventDesigns.ToArray(), 
+                eta: eventETA.ToArray(), 
+                linkTable: eventLinkingTable,
+                typeZDC: typeZDC,
+                zdcData: zdcData,
+                eventFlags: eventFlags);
 
             await Controller.WaitIfNecessary();
 
@@ -317,6 +355,13 @@ namespace R1Engine
             // Return the level
             return level;
         }
+
+        public virtual uint? TypeZDCOffset => null;
+        public virtual long TypeZDCCount => 256;
+        public virtual uint? ZDCDataOffset => null;
+        public virtual long ZDCDataCount => 200;
+        public virtual uint? EventFlagsOffset => null;
+        public virtual long EventFlagsCount => 256;
 
         public virtual R1_EventData GetRaymanEvent(Context context) => null;
 
