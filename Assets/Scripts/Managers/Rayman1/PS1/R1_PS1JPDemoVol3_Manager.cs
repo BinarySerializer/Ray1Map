@@ -131,7 +131,7 @@ namespace R1Engine
 
             // Select correct palette
             var palette = s.ImageType == 3 ? pal8.Value : pal4.Value;
-            var paletteOffset = 16 * s.HitBoxOffsetX;
+            var paletteOffset = 16 * s.Unknown1;
 
             // Create the texture
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);

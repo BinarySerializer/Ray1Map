@@ -156,9 +156,13 @@ namespace R1Engine
                                     w = spr?.texture?.width ?? 0;
                                     h = spr?.texture?.height ?? 0;
                                 }*/
-
                                 addX = p.XPosition;// + (p.IsFlippedHorizontally ? w : 0);
                                 addY = p.YPosition;// - (p.IsFlippedVertically ? h : 0);
+                                if (p.ImageIndex < ObjManager.ImageDescriptors.Length) {
+                                    var img = ObjManager.ImageDescriptors[p.ImageIndex];
+                                    addX += img.HitBoxOffsetX;
+                                    addY += img.HitBoxOffsetY;
+                                }
                             }
                             yield return new Unity_ObjAnimationCollisionPart
                             {

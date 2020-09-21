@@ -416,7 +416,7 @@ namespace R1Engine
 
                 followSpriteLine.localPosition = new Vector2(
                     (anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].XPosition + (imgDescr?.HitBoxOffsetX ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit,
-                    -anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].YPosition / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
+                    -(anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].YPosition + (imgDescr?.HitBoxOffsetY ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
 
                 var w = (prefabRenderers[r1.EventData.FollowSprite].sprite == null) ? 0 : imgDescr?.HitBoxWidth ?? 0;
                 followSpriteLine.localScale = new Vector2(w, 1f);

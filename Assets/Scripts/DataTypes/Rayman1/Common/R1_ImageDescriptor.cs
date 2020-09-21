@@ -44,7 +44,11 @@
         public ushort ImageType { get; set; }
 
         // Some of these are hitbox related
-        public byte HitBoxOffsetX { get; set; }
+        public byte HitBoxOffsetXY { get; set; } // topmost 4 bits: Y offset, bottom 4 bits: X offset
+        public byte HitBoxOffsetX => (byte)(HitBoxOffsetXY & 0xF);
+        public byte HitBoxOffsetY => (byte)(HitBoxOffsetXY >> 4);
+        public byte Unknown1 { get; set; }
+        public byte Unknown2 { get; set; }
         public byte Unknown3 { get; set; }
         public byte Unknown4 { get; set; }
 
@@ -106,7 +110,7 @@
                         Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                         HitBoxWidth = s.Serialize<byte>(HitBoxWidth, name: nameof(HitBoxWidth));
                         HitBoxHeight = s.Serialize<byte>(HitBoxHeight, name: nameof(HitBoxHeight));
-                        Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
+                        HitBoxOffsetXY = s.Serialize<byte>(HitBoxOffsetXY, name: nameof(HitBoxOffsetXY));
                         Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
                         ImageOffsetInPageX = s.Serialize<byte>(ImageOffsetInPageX, name: nameof(ImageOffsetInPageX));
                         ImageOffsetInPageY = s.Serialize<byte>(ImageOffsetInPageY, name: nameof(ImageOffsetInPageY));
@@ -123,7 +127,8 @@
                         Height = s.Serialize<ushort>(Height, name: nameof(Height));
 
                         // Which value is this?
-                        HitBoxOffsetX = (byte)s.Serialize<ushort>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
+                        Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
+                        Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
                     }
                     else if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
                     {
@@ -139,7 +144,8 @@
                         PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
 
                         // Which value is this?
-                        HitBoxOffsetX = (byte)s.Serialize<ushort>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
+                        Unknown1 = s.Serialize<byte>(Unknown1, name: nameof(Unknown1));
+                        Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
                     }
                     else
                     {
@@ -148,7 +154,7 @@
                         Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                         HitBoxWidth = s.Serialize<byte>(HitBoxWidth, name: nameof(HitBoxWidth));
                         HitBoxHeight = s.Serialize<byte>(HitBoxHeight, name: nameof(HitBoxHeight));
-                        HitBoxOffsetX = s.Serialize<byte>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
+                        HitBoxOffsetXY = s.Serialize<byte>(HitBoxOffsetXY, name: nameof(HitBoxOffsetXY));
                     }
 
                     if (s.GameSettings.EngineVersion != EngineVersion.R1_Saturn && 
@@ -178,7 +184,7 @@
                     Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                     HitBoxWidth = s.Serialize<byte>(HitBoxWidth, name: nameof(HitBoxWidth));
                     HitBoxHeight = s.Serialize<byte>(HitBoxHeight, name: nameof(HitBoxHeight));
-                    HitBoxOffsetX = s.Serialize<byte>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
+                    HitBoxOffsetXY = s.Serialize<byte>(HitBoxOffsetXY, name: nameof(HitBoxOffsetXY));
                     Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
                     Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
                 }

@@ -206,6 +206,12 @@ namespace R1Engine
 
                             addX = p.XPosition;// + (p.IsFlippedHorizontally ? w - zdc.Width : 0);
                             addY = p.YPosition;// - (p.IsFlippedVertically ? h - zdc.Height : 0);
+                            var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(p.ImageIndex);
+
+                            if (imgDescr != null) {
+                                addX += imgDescr.HitBoxOffsetX;
+                                addY += imgDescr.HitBoxOffsetY;
+                            }
                         }
                         yield return new Unity_ObjAnimationCollisionPart {
                             XPosition = zdc.XPosition + addX,
