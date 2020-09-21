@@ -156,12 +156,12 @@ namespace R1Engine
                             };
                         }
                         // Relative to an animation layer
-                        else
-                        {
+                        else {
+                            Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
                             yield return new Unity_ObjAnimationCollisionPart
                             {
-                                XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
-                                YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
+                                XPosition = zdc.XPosition + (p?.XPosition ?? 0),
+                                YPosition = zdc.YPosition + (p?.YPosition ?? 0),
                                 Width = zdc.Width,
                                 Height = zdc.Height,
                                 Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox

@@ -120,7 +120,7 @@ namespace R1Engine
 
             Vector2 pos = new Vector2(
                 ((collision.XPosition - pivot.x) * (mirroredX ? -1f : 1f) * ObjData.Scale + pivot.x) / (float)LevelEditorData.Level.PixelsPerUnit,
-                -(((collision.YPosition - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit));
+                (((-collision.YPosition - pivot.y) * (mirroredY ? -1f : 1f) * ObjData.Scale + pivot.y) / (float)LevelEditorData.Level.PixelsPerUnit));
 
             collisionSpriteRenderer.transform.localPosition = new Vector3(pos.x, pos.y, collisionSpriteRenderer.transform.localPosition.z);
             collisionSpriteRenderer.transform.localScale = new Vector3(
