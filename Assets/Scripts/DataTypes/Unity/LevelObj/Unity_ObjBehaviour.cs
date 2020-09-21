@@ -409,11 +409,16 @@ namespace R1Engine
             }
 
             // Update the follow sprite line (Rayman 1 only)
-            if (ObjData is Unity_Object_R1 r1 && anim != null && r1.EventData.FollowSprite < anim.Frames[ObjData.AnimationFrame].SpriteLayers.Length)
+            if (ObjData is Unity_Object_R1 r1 && anim != null)
             {
-                followSpriteLine.localPosition = new Vector2(anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].YPosition / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
+                var animLayer = r1.CurrentAnimation?.Frames[r1.AnimationFrame].SpriteLayers.ElementAtOrDefault(r1.EventData.FollowSprite);
+                var imgDescr = r1.ObjManager.DES.ElementAtOrDefault(r1.DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(animLayer?.ImageIndex ?? -1);
 
-                var w = (prefabRenderers[r1.EventData.FollowSprite].sprite == null) ? 0 : prefabRenderers[r1.EventData.FollowSprite].sprite.texture.width;
+                followSpriteLine.localPosition = new Vector2(
+                    (anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].XPosition + (imgDescr?.HitBoxOffsetX ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit,
+                    -anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].YPosition / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
+
+                var w = (prefabRenderers[r1.EventData.FollowSprite].sprite == null) ? 0 : imgDescr?.HitBoxWidth ?? 0;
                 followSpriteLine.localScale = new Vector2(w, 1f);
             }
 
@@ -489,7 +494,13 @@ namespace R1Engine
             offsetOrigin.gameObject.SetActive(ShowOffsets);
             offsetCrossBX.gameObject.SetActive(ShowOffsets && offsetCrossBX.transform.position != Vector3.zero);
             offsetCrossHY.gameObject.SetActive(ShowOffsets && (ObjData is Unity_Object_R1 || ObjData is Unity_Object_R2) && offsetCrossHY.transform.position != Vector3.zero);
-            followSpriteLine.gameObject.SetActive(ShowCollision && ObjData is Unity_Object_R1 r1o && r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings));
+
+            var engineVersion = LevelEditorData.CurrentSettings.EngineVersion;
+            followSpriteLine.gameObject.SetActive(
+                ShowCollision && 
+                ObjData is Unity_Object_R1 r1o && 
+                r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings) && 
+                !(engineVersion == EngineVersion.R1_PS1_JP || engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || engineVersion == EngineVersion.R1_Saturn));
         }
 
         public void ChangeLinksVisibility(bool visible) {

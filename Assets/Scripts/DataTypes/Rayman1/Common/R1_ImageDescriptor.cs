@@ -44,7 +44,7 @@
         public ushort ImageType { get; set; }
 
         // Some of these are hitbox related
-        public byte Unknown2 { get; set; }
+        public byte HitBoxOffsetX { get; set; }
         public byte Unknown3 { get; set; }
         public byte Unknown4 { get; set; }
 
@@ -92,7 +92,13 @@
                 if (s.GameSettings.Game != Game.R1_Rayman2)
                     ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset, name: nameof(ImageBufferOffset));
 
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 || s.GameSettings.EngineVersion == EngineVersion.R1_Saturn || s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+                // PS1
+                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || 
+                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP || 
+                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
+                    s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 || 
+                    s.GameSettings.EngineVersion == EngineVersion.R1_Saturn || 
+                    s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
                 {
                     if (s.Context.Settings.Game == Game.R1_Rayman2)
                     {
@@ -107,13 +113,17 @@
                         PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
                         TexturePageInfo = s.Serialize<ushort>(TexturePageInfo, name: nameof(TexturePageInfo));
                     }
-                    else if (s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JP || s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+                    else if (s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JP || 
+                             s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
+                             s.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                     {
                         Index = s.Serialize<ushort>(Index, name: nameof(Index));
                         ImageType = s.Serialize<ushort>(ImageType, name: nameof(ImageType));
                         Width = s.Serialize<ushort>(Width, name: nameof(Width));
                         Height = s.Serialize<ushort>(Height, name: nameof(Height));
-                        Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
+
+                        // Which value is this?
+                        HitBoxOffsetX = (byte)s.Serialize<ushort>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
                     }
                     else if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
                     {
@@ -128,7 +138,8 @@
                         // Unsure below here...
                         PaletteInfo = s.Serialize<ushort>(PaletteInfo, name: nameof(PaletteInfo));
 
-                        Unknown2 = (byte)s.Serialize<ushort>(Unknown2, name: nameof(Unknown2));
+                        // Which value is this?
+                        HitBoxOffsetX = (byte)s.Serialize<ushort>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
                     }
                     else
                     {
@@ -137,11 +148,11 @@
                         Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                         HitBoxWidth = s.Serialize<byte>(HitBoxWidth, name: nameof(HitBoxWidth));
                         HitBoxHeight = s.Serialize<byte>(HitBoxHeight, name: nameof(HitBoxHeight));
-                        Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
+                        HitBoxOffsetX = s.Serialize<byte>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
                     }
 
-                    if (s.GameSettings.EngineVersion != EngineVersion.R1_Saturn
-                        && s.GameSettings.Game != Game.R1_Rayman2)
+                    if (s.GameSettings.EngineVersion != EngineVersion.R1_Saturn && 
+                        s.GameSettings.Game != Game.R1_Rayman2)
                     {
                         Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
                         Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
@@ -153,14 +164,21 @@
                         Unknown6 = s.Serialize<ushort>(Unknown6, name: nameof(Unknown6));
                     }
                 }
-                else if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC || s.GameSettings.EngineVersion == EngineVersion.R1_GBA || s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
+                // PC
+                else if (s.GameSettings.EngineVersion == EngineVersion.R1_PC || 
+                         s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || 
+                         s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || 
+                         s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu || 
+                         s.GameSettings.EngineVersion == EngineVersion.R1_PocketPC || 
+                         s.GameSettings.EngineVersion == EngineVersion.R1_GBA || 
+                         s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
                 {
                     Index = s.Serialize<byte>((byte)Index, name: nameof(Index));
                     Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
                     Height = s.Serialize<byte>((byte)Height, name: nameof(Height));
                     HitBoxWidth = s.Serialize<byte>(HitBoxWidth, name: nameof(HitBoxWidth));
                     HitBoxHeight = s.Serialize<byte>(HitBoxHeight, name: nameof(HitBoxHeight));
-                    Unknown2 = s.Serialize<byte>(Unknown2, name: nameof(Unknown2));
+                    HitBoxOffsetX = s.Serialize<byte>(HitBoxOffsetX, name: nameof(HitBoxOffsetX));
                     Unknown3 = s.Serialize<byte>(Unknown3, name: nameof(Unknown3));
                     Unknown4 = s.Serialize<byte>(Unknown4, name: nameof(Unknown4));
                 }
