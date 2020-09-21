@@ -98,6 +98,7 @@ namespace R1Engine
             if (zdcEntry == null)
                 yield break;
 
+            // Hard-coded for gendoors
             if (EventData.EventType == R1_R2EventType.Gendoor_Spawn || EventData.EventType == R1_R2EventType.Gendoor_Trigger)
             {
                 // Function at 0x800e26c0
@@ -142,7 +143,8 @@ namespace R1Engine
 
                     if (zdc != null)
                     {
-                        if (((zdc.Byte_06 & 0x1F) == 0x1F))
+                        // Relative to the event origin
+                        if (zdc.LayerIndex == 0x1F)
                         {
                             yield return new Unity_ObjAnimationCollisionPart
                             {
@@ -153,9 +155,17 @@ namespace R1Engine
                                 Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
                             };
                         }
+                        // Relative to an animation layer
                         else
                         {
-                            // TODO: Show animation collision
+                            yield return new Unity_ObjAnimationCollisionPart
+                            {
+                                XPosition = zdc.XPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.XPosition ?? 0),
+                                YPosition = zdc.YPosition + (CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex)?.YPosition ?? 0),
+                                Width = zdc.Width,
+                                Height = zdc.Height,
+                                Type = Unity_ObjAnimationCollisionPart.CollisionType.TriggerBox
+                            };
                         }
                     }
                 }

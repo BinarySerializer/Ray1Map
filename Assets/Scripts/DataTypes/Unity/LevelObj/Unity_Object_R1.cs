@@ -165,6 +165,15 @@ namespace R1Engine
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC()
         {
+            var engineVersion = ObjManager.Context.Settings.EngineVersion;
+
+            // Ignore earlier games which use a different system
+            if (engineVersion == EngineVersion.R1_PS1_JP ||
+                engineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                engineVersion == EngineVersion.R1_PS1_JPDemoVol6 ||
+                engineVersion == EngineVersion.R1_Saturn)
+                yield break;
+
             // Make sure the current state and type supports collision
             if (State == null || State.ZDCFlags == 0 || (ObjManager.EventFlags != null && ObjManager.EventFlags.ElementAtOrDefault((ushort)EventData.Type).HasFlag(R1_EventFlags.NoCollision)))
                 yield break;
@@ -198,13 +207,6 @@ namespace R1Engine
             }
             else if (EventData.HitSprite < 253)
             {
-                var engineVersion = ObjManager.Context.Settings.EngineVersion;
-                
-                var usesHitBoxSizes = !(engineVersion == EngineVersion.R1_PS1_JP || 
-                                        engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || 
-                                        engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || 
-                                        engineVersion == EngineVersion.R1_Saturn);
-
                 var animLayer = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(EventData.HitSprite);
                 var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(animLayer?.ImageIndex ?? -1);
 
@@ -214,8 +216,8 @@ namespace R1Engine
                     {
                         XPosition = animLayer?.XPosition ?? 0,
                         YPosition = animLayer?.YPosition ?? 0,
-                        Width = usesHitBoxSizes ? imgDescr.HitBoxWidth : imgDescr.Width,
-                        Height = usesHitBoxSizes ? imgDescr.HitBoxHeight : imgDescr.Height,
+                        Width = imgDescr.HitBoxWidth,
+                        Height = imgDescr.HitBoxHeight,
                         Type = colType
                     };
                 }

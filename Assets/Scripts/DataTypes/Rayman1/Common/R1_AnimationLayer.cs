@@ -96,7 +96,6 @@ namespace R1Engine
                 ushort value = 0;
 
                 value = (ushort)BitHelpers.SetBits(value, ImageIndex, 12, 0);
-                // TODO: There are most likely other flags here too, such as for flipping vertically (check the cannon target indicator sprite!)
                 value = (ushort)BitHelpers.SetBits(value, (int)Flags, 4, 12);
 
                 value = s.Serialize<ushort>(value, name: nameof(value));
