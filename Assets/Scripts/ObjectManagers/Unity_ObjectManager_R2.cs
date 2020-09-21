@@ -8,15 +8,17 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R2 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, R1_ZDCData[] zdc) : base(context)
+        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, R1_ZDCData[] zdc, R1_ImageDescriptor[] imageDescriptors) : base(context)
         {
             LinkTable = linkTable;
             AnimGroups = animGroups;
             ZDC = zdc;
+            ImageDescriptors = imageDescriptors;
         }
 
         public AnimGroup[] AnimGroups { get; }
         public R1_ZDCData[] ZDC { get; }
+        public R1_ImageDescriptor[] ImageDescriptors { get; }
 
         public ushort[] LinkTable { get; }
 

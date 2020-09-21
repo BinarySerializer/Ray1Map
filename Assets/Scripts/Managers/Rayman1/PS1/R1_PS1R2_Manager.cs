@@ -256,8 +256,12 @@ namespace R1Engine
             // Create the global design list
             var globalDesigns = new List<Sprite>();
 
+            var lvlImgDescriptors = FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC).Value;
+
+            var imgDescriptors = lvlData.FixImageDescriptors.Concat(lvlImgDescriptors).ToArray();
+
             // Add every sprite
-            foreach (var img in lvlData.FixImageDescriptors.Concat(FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC).Value))
+            foreach (var img in imgDescriptors)
             {
                 Texture2D tex = GetSpriteTexture(context, null, img);
 
@@ -294,7 +298,7 @@ namespace R1Engine
                 return new Unity_ObjectManager_R2.AnimGroup(animGroup?.Offset, animGroup?.ETA.EventStates ?? new R1_EventState[0][], des);
             }
 
-            var objManager = new Unity_ObjectManager_R2(context, lvlData.EventLinkTable, animGroups, lvlData.ZDC);
+            var objManager = new Unity_ObjectManager_R2(context, lvlData.EventLinkTable, animGroups, lvlData.ZDC, imgDescriptors);
 
             Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();
