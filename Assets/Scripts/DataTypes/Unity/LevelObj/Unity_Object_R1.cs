@@ -274,106 +274,66 @@ namespace R1Engine
         public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.OffsetBX, -EventData.OffsetBY);
 
+        protected UIState[] UIStates { get; set; }
+
 		public override string[] UIStateNames {
             get {
-                List<string> stateNames = new List<string>();
+                List<UIState> uiStates = new List<UIState>();
                 HashSet<int> usedAnims = new HashSet<int>();
                 var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
                 if (eta != null) {
-                    for (int i = 0; i < eta.Length; i++) {
-                        for (int j = 0; j < eta[i].Length; j++) {
+                    for (byte i = 0; i < eta.Length; i++) {
+                        for (byte j = 0; j < eta[i].Length; j++) {
                             usedAnims.Add(eta[i][j].AnimationIndex);
-                            stateNames.Add($"State {i}-{j}");
+                            uiStates.Add(new UIState($"State {i}-{j}", i, j));
                         }
                     }
                 }
                 var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
                 if (anims != null) {
-                    for (int i = 0; i < anims.Count; i++) {
+                    for (byte i = 0; i < anims.Count; i++) {
                         if (usedAnims.Contains(i)) continue;
-                        stateNames.Add("Animation " + i);
+                        uiStates.Add(new UIState($"Animation {i}", i));
                     }
                 }
-                return stateNames.ToArray();
+                return uiStates.Select(x => x.DisplayName).ToArray();
             }
         }
 
-		public override int CurrentUIState {
-            get {
-                var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
-                if (OverrideAnimIndex.HasValue) {
-                    int currentState = eta?.Sum(e => e.Length) ?? 0;
-                    HashSet<int> usedAnims = new HashSet<int>();
-                    if (eta != null) {
-                        for (int i = 0; i < eta.Length; i++) {
-                            for (int j = 0; j < eta[i].Length; j++) {
-                                usedAnims.Add(eta[i][j].AnimationIndex);
-                            }
-                        }
-                    }
-                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
-                    if (anims != null) {
-                        for (int i = 0; i < anims.Count; i++) {
-                            if (usedAnims.Contains(i)) continue;
-                            if (i == OverrideAnimIndex) {
-                                return currentState;
-                            } else if (i > OverrideAnimIndex) {
-                                return 0;
-                            }
-                            currentState++;
-                        }
-                    }
-                    return 0;
-                } else {
-                    int stateCount = 0;
-                    if (eta != null) {
-                        for (int i = 0; i < eta.Length; i++) {
-                            if (EventData.Etat == i) {
-                                if (EventData.SubEtat < eta[i].Length) {
-                                    return stateCount + EventData.SubEtat;
-                                } else return 0;
-                            }
-                            stateCount += eta[i].Length;
-                        }
-                    }
-                    return 0;
-                }
+        public override int CurrentUIState
+        {
+            get
+            {
+                int i;
+
+                if (OverrideAnimIndex.HasValue)
+                    i = UIStates.FindItemIndex(x => !x.IsState && x.AnimIndex == OverrideAnimIndex);
+                else
+                    i = UIStates.FindItemIndex(x => x.IsState && x.Etat == EventData.Etat && x.SubEtat == EventData.SubEtat);
+
+                return i == -1 ? 0 : i;
             }
-            set {
-                if (value != CurrentUIState) {
-                    HashSet<int> usedAnims = new HashSet<int>();
-                    var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
-                    int stateCount = 0;
-                    if (eta != null) {
-                        for (int i = 0; i < eta.Length; i++) {
-                            for (int j = 0; j < eta[i].Length; j++) {
-                                if (value == stateCount) {
-                                    EventData.Etat = EventData.RuntimeEtat = (byte)i;
-                                    EventData.SubEtat = EventData.RuntimeSubEtat = (byte)j;
-                                    OverrideAnimIndex = null;
-                                    return;
-                                }
-                                usedAnims.Add(eta[i][j].AnimationIndex);
-                                stateCount++;
-                            }
-                        }
-                    }
-                    var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
-                    if (anims != null) {
-                        for (int i = 0; i < anims.Count; i++) {
-                            if (usedAnims.Contains(i)) continue;
-                            if (value == stateCount) {
-                                OverrideAnimIndex = (byte)i;
-                                return;
-                            }
-                            stateCount++;
-                        }
-                    }
+            set
+            {
+                if (value == CurrentUIState)
+                    return;
+
+                var state = UIStates[value];
+
+                if (state.IsState)
+                {
+                    EventData.Etat = EventData.RuntimeEtat = state.Etat;
+                    EventData.SubEtat = EventData.RuntimeSubEtat = state.SubEtat;
+                    OverrideAnimIndex = null;
+                }
+                else
+                {
+                    OverrideAnimIndex = state.AnimIndex;
                 }
             }
         }
 
-		protected override bool ShouldUpdateFrame()
+        protected override bool ShouldUpdateFrame()
         {
             // Set frame based on hit points for special events
             if (EventData.Type.IsHPFrame())
@@ -426,6 +386,31 @@ namespace R1Engine
         }
 
         protected void UpdateZDC() => EventData.Runtime_TypeZDC = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
+
+        protected class UIState
+        {
+            public UIState(string displayName, byte etat, byte subEtat)
+            {
+                DisplayName = displayName;
+                IsState = true;
+                Etat = etat;
+                SubEtat = subEtat;
+            }
+            public UIState(string displayName, byte animIndex)
+            {
+                DisplayName = displayName;
+                IsState = false;
+                AnimIndex = animIndex;
+            }
+
+            public string DisplayName { get; }
+
+            public bool IsState { get; }
+
+            public byte Etat { get; }
+            public byte SubEtat { get; }
+            public byte AnimIndex { get; }
+        }
 
         [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
