@@ -378,13 +378,15 @@ namespace R1Engine
             // Clear old commands
             ClearCommands();
 
-            if (SelectedEvent.ObjData is Unity_Object_R1 r1obj) {
-                // Fill out the commands
-                foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
-                    CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<CommandLine>();
-                    cmd.command = c;
-                    cmd.transform.SetParent(commandListParent, false);
-                    commandLines.Add(cmd);
+            if (FileSystem.mode == FileSystem.Mode.Normal) {
+                if (SelectedEvent.ObjData is Unity_Object_R1 r1obj) {
+                    // Fill out the commands
+                    foreach (var c in r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]) {
+                        CommandLine cmd = Instantiate<GameObject>(prefabCommandLine, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<CommandLine>();
+                        cmd.command = c;
+                        cmd.transform.SetParent(commandListParent, false);
+                        commandLines.Add(cmd);
+                    }
                 }
             }
 
