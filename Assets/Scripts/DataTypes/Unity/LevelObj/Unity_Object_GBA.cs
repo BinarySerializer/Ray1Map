@@ -215,7 +215,7 @@ namespace R1Engine
                 if (anims != null) {
                     for (int i = 0; i < anims.Count; i++) {
                         if (usedAnims.Contains(i)) continue;
-                        stateNames.Add("(Unused) Animation " + i);
+                        stateNames.Add("Animation " + i);
                     }
                 }
                 return stateNames.ToArray();

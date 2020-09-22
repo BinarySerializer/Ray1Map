@@ -822,43 +822,36 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				graphicsLabel.text("Graphics Data");
 			}
 			if(obj.hasOwnProperty("R1_ETANames")) {
+				hasGraphics2 = true;
 				fillSelectorList(graphics2Selector, obj.R1_ETANames);
 				graphics2Selector.prop("selectedIndex", obj.R1_ETAIndex);
-				hasGraphics2 = true;
 				graphics2Label.text("ETA");
-			}
-
-			if(hasGraphics) {
-				graphicsInputGroup.removeClass('invisible');
-			} else {
-				graphicsInputGroup.addClass('invisible');
-			}
-			if(hasGraphics2) {
-				graphics2InputGroup.removeClass('invisible');
-			} else {
-				graphics2InputGroup.addClass('invisible');
-			}
-			if(hasStates) {
-				stateInputGroup.removeClass('invisible');
-			} else {
-				stateInputGroup.addClass('invisible');
 			}
 		} else {
 			if(obj.hasOwnProperty("R1_DESNames")) {
+				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.R1_DESIndex);
 			} else if(obj.hasOwnProperty("R2_AnimGroupNames")) {
+				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.R2_AnimGroupIndex);
 			} else if(obj.hasOwnProperty("R1Jaguar_EventDefinitionNames")) {
+				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.R1Jaguar_EventDefinitionIndex);
 			} else if(obj.hasOwnProperty("GBA_GraphicsDataNames")) {
+				hasGraphics = true;
 				graphicsSelector.prop("selectedIndex", obj.GBA_GraphicsDataIndex);
 			}
 			if(obj.hasOwnProperty("R1_ETANames")) {
+				hasGraphics2 = true;
 				graphics2Selector.prop("selectedIndex", obj.R1_ETAIndex);
 			}
 		}
 
 		$('.object-description').removeClass('invisible');
+
+		if(!hasGraphics) graphicsInputGroup.addClass('invisible');
+		if(!hasGraphics2) graphics2InputGroup.addClass('invisible');
+		if(!hasStates) stateInputGroup.addClass('invisible');
 	}
 	
 	/*if(so.hasOwnProperty("Perso")) {
@@ -1082,6 +1075,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	// R1
 	if(newObj.hasOwnProperty("R1_Type")) oldObj.R1_Type = newObj.R1_Type;
 	if(newObj.hasOwnProperty("R1_DESIndex")) oldObj.R1_DESIndex = newObj.R1_DESIndex;
+	if(newObj.hasOwnProperty("R1_ETAIndex")) oldObj.R1_ETAIndex = newObj.R1_ETAIndex;
 	if(newObj.hasOwnProperty("R1_Etat")) oldObj.R1_Etat = newObj.R1_Etat;
 	if(newObj.hasOwnProperty("R1_SubEtat")) oldObj.R1_SubEtat = newObj.R1_SubEtat;
 	if(newObj.hasOwnProperty("R1_OffsetBX")) oldObj.R1_OffsetBX = newObj.R1_OffsetBX;
