@@ -86,7 +86,7 @@ namespace R1Engine
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-        public override bool IsEditor => !AnimGroup.DES.Animations.Any() && EventData.EventType != R1_R2EventType.None;
+        public override bool IsEditor => !AnimGroup.Animations.Any() && EventData.EventType != R1_R2EventType.None;
 
         public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
         public override string SecondaryName => $"{EventData.EventType}";
@@ -187,7 +187,7 @@ namespace R1Engine
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().ToArray();
 
-        public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.DES?.Animations.ElementAtOrDefault(AnimationIndex);
+        public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.Animations.ElementAtOrDefault(AnimationIndex);
         public override byte AnimationFrame
         {
             get => EventData.RuntimeCurrentAnimFrame;
@@ -203,7 +203,7 @@ namespace R1Engine
         public override byte AnimSpeed => State?.AnimationSpeed ?? 0;
 
         public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
-        public override IList<Sprite> Sprites => AnimGroup?.DES?.Sprites;
+        public override IList<Sprite> Sprites => ObjManager.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.CollisionData?.OffsetBX ?? 0, -EventData.CollisionData?.OffsetBY ?? 0);
 
 
@@ -220,9 +220,9 @@ namespace R1Engine
                         }
                     }
                 }
-                var anims = AnimGroup?.DES?.Animations;
+                var anims = AnimGroup?.Animations;
                 if (anims != null) {
-                    for (int i = 0; i < anims.Count; i++) {
+                    for (int i = 0; i < anims.Length; i++) {
                         if (usedAnims.Contains(i)) continue;
                         stateNames.Add("Animation " + i);
                     }
@@ -244,9 +244,9 @@ namespace R1Engine
                             }
                         }
                     }
-                    var anims = AnimGroup?.DES?.Animations;
+                    var anims = AnimGroup?.Animations;
                     if (anims != null) {
-                        for (int i = 0; i < anims.Count; i++) {
+                        for (int i = 0; i < anims.Length; i++) {
                             if (usedAnims.Contains(i)) continue;
                             if (i == OverrideAnimIndex) {
                                 return currentState;
@@ -291,9 +291,9 @@ namespace R1Engine
                             }
                         }
                     }
-                    var anims = AnimGroup?.DES?.Animations;
+                    var anims = AnimGroup?.Animations;
                     if (anims != null) {
-                        for (int i = 0; i < anims.Count; i++) {
+                        for (int i = 0; i < anims.Length; i++) {
                             if (usedAnims.Contains(i)) continue;
                             if (value == stateCount) {
                                 OverrideAnimIndex = (byte)i;

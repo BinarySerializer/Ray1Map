@@ -3,7 +3,6 @@ using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -256,20 +255,13 @@ namespace R1Engine
 
 
             // Create the global design list
-            var globalDesigns = new List<Sprite>();
 
             var lvlImgDescriptors = FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(levelSPRPath, context, onPreSerialize: (s, a) => a.Length = s.CurrentLength / 0xC).Value;
 
             var imgDescriptors = lvlData.FixImageDescriptors.Concat(lvlImgDescriptors).ToArray();
 
-            // Add every sprite
-            foreach (var img in imgDescriptors)
-            {
-                Texture2D tex = GetSpriteTexture(context, null, img);
-
-                // Add it to the array
-                globalDesigns.Add(tex == null ? null : tex.CreateSprite());
-            }
+            // Get every sprite
+            var globalDesigns = imgDescriptors.Select(img => GetSpriteTexture(context, null, img)).Select(tex => tex == null ? null : tex.CreateSprite()).ToArray();
 
             // Get the events
             var events = lvlData.Events.Concat(lvlData.AlwaysEvents).ToArray();
@@ -280,27 +272,28 @@ namespace R1Engine
             var r2AnimGroups = events.Select(x => x.AnimGroup).Append(footer.RaymanAnimGroup).Distinct().ToArray();
             Unity_ObjectManager_R2.AnimGroup[] animGroups = new Unity_ObjectManager_R2.AnimGroup[r2AnimGroups.Length];
             for (int i = 0; i < animGroups.Length; i++) {
-                animGroups[i] = await GetGroup(r2AnimGroups[i]);
+                animGroups[i] = await getGroupAsync(r2AnimGroups[i]);
                 await Controller.WaitIfNecessary();
             }
-            async UniTask<Unity_ObjectManager_R2.AnimGroup> GetGroup(R1_R2EventAnimGroup animGroup) {
-                await UniTask.CompletedTask;
-                // Create the DES
-                var des = new Unity_ObjGraphics()
-                {
-                    Sprites = globalDesigns,
-                    Animations = new List<Unity_ObjAnimation>(),
-                    FilePath = animGroup?.AnimationDescriptorsPointer?.file.filePath
-                };
 
-                // Add animations
-                des.Animations.AddRange(animGroup?.AnimationDecriptors?.Select(x => x.ToCommonAnimation()) ?? new Unity_ObjAnimation[0]);
+            async UniTask<Unity_ObjectManager_R2.AnimGroup> getGroupAsync(R1_R2EventAnimGroup animGroup) 
+            {
+                await UniTask.CompletedTask;
 
                 // Add DES and ETA
-                return new Unity_ObjectManager_R2.AnimGroup(animGroup?.Offset, animGroup?.ETA.EventStates ?? new R1_EventState[0][], des);
+                return new Unity_ObjectManager_R2.AnimGroup(
+                    pointer: animGroup?.Offset, eta: animGroup?.ETA.EventStates ?? new R1_EventState[0][], 
+                    animations: animGroup?.AnimationDecriptors?.Select(x => x.ToCommonAnimation()).ToArray(), 
+                    filePath: animGroup?.AnimationDescriptorsPointer?.file.filePath);
             }
 
-            var objManager = new Unity_ObjectManager_R2(context, lvlData.EventLinkTable, animGroups, lvlData.ZDC, imgDescriptors);
+            var objManager = new Unity_ObjectManager_R2(
+                context: context, 
+                linkTable: lvlData.EventLinkTable, 
+                animGroups: animGroups, 
+                sprites: globalDesigns, 
+                imageDescriptors: imgDescriptors,
+                zdc: lvlData.ZDC);
 
             Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();

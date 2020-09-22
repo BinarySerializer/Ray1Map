@@ -1,24 +1,26 @@
-﻿using System;
+﻿using R1Engine.Serialize;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using R1Engine.Serialize;
+using UnityEngine;
 
 namespace R1Engine
 {
     public class Unity_ObjectManager_R2 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, R1_ZDCData[] zdc, R1_ImageDescriptor[] imageDescriptors) : base(context)
+        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, Sprite[] sprites, R1_ImageDescriptor[] imageDescriptors, R1_ZDCData[] zdc) : base(context)
         {
             LinkTable = linkTable;
             AnimGroups = animGroups;
-            ZDC = zdc;
+            Sprites = sprites;
             ImageDescriptors = imageDescriptors;
+            ZDC = zdc;
         }
 
         public AnimGroup[] AnimGroups { get; }
-        public R1_ZDCData[] ZDC { get; }
+        public Sprite[] Sprites { get; }
         public R1_ImageDescriptor[] ImageDescriptors { get; }
+        public R1_ZDCData[] ZDC { get; }
 
         public ushort[] LinkTable { get; }
 
@@ -63,18 +65,21 @@ namespace R1Engine
 
         public class AnimGroup
         {
-            public AnimGroup(Pointer pointer, R1_EventState[][] eta, Unity_ObjGraphics des)
+            public AnimGroup(Pointer pointer, R1_EventState[][] eta, Unity_ObjAnimation[] animations, string filePath)
             {
                 Pointer = pointer;
                 ETA = eta;
-                DES = des;
+                Animations = animations ?? new Unity_ObjAnimation[0];
+                FilePath = filePath;
             }
 
             public Pointer Pointer { get; }
 
             public R1_EventState[][] ETA { get; }
 
-            public Unity_ObjGraphics DES { get; }
+            public Unity_ObjAnimation[] Animations { get; }
+
+            public string FilePath { get; }
         }
     }
 }
