@@ -235,8 +235,8 @@ namespace R1Engine
                 {
                     yield return new Unity_ObjAnimationCollisionPart()
                     {
-                        XPosition = animLayer?.XPosition ?? 0,
-                        YPosition = animLayer?.YPosition ?? 0,
+                        XPosition = (animLayer?.XPosition ?? 0) + (imgDescr.HitBoxOffsetX),
+                        YPosition = (animLayer?.YPosition ?? 0) + (imgDescr.HitBoxOffsetY),
                         Width = imgDescr.HitBoxWidth,
                         Height = imgDescr.HitBoxHeight,
                         Type = colType
