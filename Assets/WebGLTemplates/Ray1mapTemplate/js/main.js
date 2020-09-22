@@ -791,9 +791,10 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			stateSelector.empty();
 			graphicsSelector.empty();
 			graphics2Selector.empty();
-			if(obj.hasOwnProperty("States") && obj.States.length > 0) {
+			
+			if(obj.hasOwnProperty("StateNames") && obj.StateNames.length > 0) {
 				hasStates = true;
-				$.each(obj.States, function (idx, state) {
+				$.each(obj.StateNames, function (idx, state) {
 					stateSelector.append("<option value='" + idx + "'>" + escapeHTML(state) + "</option>");
 				});
 				stateSelector.prop("selectedIndex", obj.StateIndex);
@@ -1006,16 +1007,16 @@ function sendObject() {
 		
 		if(currentObject.hasOwnProperty("R1_DESNames")) {
 			jsonObj.Object.R1_DESIndex = graphicsSelector.prop("selectedIndex");
-			graphicsSelector.prop("selectedIndex", obj.R1_DESIndex);
-		} else if(obj.hasOwnProperty("R2_AnimGroupNames")) {
+			graphicsSelector.prop("selectedIndex", currentObject.R1_DESIndex);
+		} else if(currentObject.hasOwnProperty("R2_AnimGroupNames")) {
 			jsonObj.Object.R2_AnimGroupIndex = graphicsSelector.prop("selectedIndex");
-			graphicsSelector.prop("selectedIndex", obj.R2_AnimGroupIndex);
-		} else if(obj.hasOwnProperty("R1Jaguar_EventDefinitionNames")) {
+			graphicsSelector.prop("selectedIndex", currentObject.R2_AnimGroupIndex);
+		} else if(currentObject.hasOwnProperty("R1Jaguar_EventDefinitionNames")) {
 			jsonObj.Object.R1Jaguar_EventDefinitionIndex = graphicsSelector.prop("selectedIndex");
-			graphicsSelector.prop("selectedIndex", obj.R1Jaguar_EventDefinitionIndex);
-		} else if(obj.hasOwnProperty("GBA_GraphicsDataNames")) {
+			graphicsSelector.prop("selectedIndex", currentObject.R1Jaguar_EventDefinitionIndex);
+		} else if(currentObject.hasOwnProperty("GBA_GraphicsDataNames")) {
 			jsonObj.Object.GBA_GraphicsDataIndex = graphicsSelector.prop("selectedIndex");
-			graphicsSelector.prop("selectedIndex", obj.GBA_GraphicsDataIndex);
+			graphicsSelector.prop("selectedIndex", currentObject.GBA_GraphicsDataIndex);
 		}
 		if(currentObject.hasOwnProperty("R1_ETANames")) {
 			jsonObj.Object.R1_ETAIndex = graphics2Selector.prop("selectedIndex");
@@ -1076,8 +1077,10 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 
 	if(newObj.hasOwnProperty("AnimIndex")) oldObj.AnimIndex = newObj.AnimIndex;
 	if(newObj.hasOwnProperty("IsEnabled")) oldObj.IsEnabled = newObj.IsEnabled;
+	if(newObj.hasOwnProperty("StateIndex")) oldObj.StateIndex = newObj.StateIndex;
 	
 	// R1
+	if(newObj.hasOwnProperty("R1_Type")) oldObj.R1_Type = newObj.R1_Type;
 	if(newObj.hasOwnProperty("R1_DESIndex")) oldObj.R1_DESIndex = newObj.R1_DESIndex;
 	if(newObj.hasOwnProperty("R1_Etat")) oldObj.R1_Etat = newObj.R1_Etat;
 	if(newObj.hasOwnProperty("R1_SubEtat")) oldObj.R1_SubEtat = newObj.R1_SubEtat;
@@ -1087,7 +1090,11 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("R1_FollowSprite")) oldObj.R1_FollowSprite = newObj.R1_FollowSprite;
 	if(newObj.hasOwnProperty("R1_HitPoints")) oldObj.R1_HitPoints = newObj.R1_HitPoints;
 	if(newObj.hasOwnProperty("R1_HitSprite")) oldObj.R1_HitSprite = newObj.R1_HitSprite;
+	if(newObj.hasOwnProperty("R1_FollowEnabled")) oldObj.R1_FollowEnabled = newObj.R1_FollowEnabled;
 	if(newObj.hasOwnProperty("R1_DisplayPrio")) oldObj.R1_DisplayPrio = newObj.R1_DisplayPrio;
+
+	// R2
+	if(newObj.hasOwnProperty("R2_AnimGroupIndex")) oldObj.R2_AnimGroupIndex = newObj.R2_AnimGroupIndex;
 
 	// R1Jaguar
 	if(newObj.hasOwnProperty("R1Jaguar_EventDefinitionIndex")) oldObj.R1Jaguar_EventDefinitionIndex = newObj.R1Jaguar_EventDefinitionIndex;
@@ -1100,10 +1107,13 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 	if(newObj.hasOwnProperty("GBA_State")) oldObj.GBA_State = newObj.GBA_State;
 
 	// Lists
+	if(newObj.hasOwnProperty("StateNames")) oldObj.StateNames = newObj.StateNames;
 	if(newObj.hasOwnProperty("R1_Commands")) oldObj.R1_Commands = newObj.R1_Commands;
-	/*if(newPerso.hasOwnProperty("States")) oldPerso.States = newPerso.States;
-	if(newPerso.hasOwnProperty("ObjectLists")) oldPerso.ObjectLists = newPerso.ObjectLists;
-	if(newPerso.hasOwnProperty("Brain")) oldPerso.Brain = newPerso.Brain;*/
+	if(newObj.hasOwnProperty("R1_DESNames")) oldObj.R1_DESNames = newObj.R1_DESNames;
+	if(newObj.hasOwnProperty("R1_ETANames")) oldObj.R1_ETANames = newObj.R1_ETANames;
+	if(newObj.hasOwnProperty("R2_AnimGroupNames")) oldObj.R2_AnimGroupNames = newObj.R2_AnimGroupNames;
+	if(newObj.hasOwnProperty("R1Jaguar_EventDefinitionNames")) oldObj.R1Jaguar_EventDefinitionNames = newObj.R1Jaguar_EventDefinitionNames;
+	if(newObj.hasOwnProperty("GBA_GraphicsDataNames")) oldObj.GBA_GraphicsDataNames = newObj.GBA_GraphicsDataNames;
 }
 function handleMessage_selection(msg) {
 	let selection = msg;
@@ -1122,7 +1132,8 @@ function handleMessage_selection(msg) {
 		let newcurrentObject = objectInList;
 		let isObjectChanged = newcurrentObject != currentObject;
 		currentObject = newcurrentObject;
-		showObjectDescription(currentObject, isObjectChanged);
+		let isListChanged = object.hasOwnProperty("StateNames");
+		showObjectDescription(currentObject, isObjectChanged, isListChanged);
 	} else if(obj_index == -1) {
 		
 	}

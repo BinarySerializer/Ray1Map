@@ -158,6 +158,7 @@ public class WebCommunicator : MonoBehaviour {
 				case Unity_Object_R1 r1obj:
 					webObj.R1_Type = (ushort)r1obj.EventData.Type;
 					webObj.R1_DESIndex = r1obj.DESIndex;
+					webObj.R1_ETAIndex = r1obj.ETAIndex;
 					webObj.R1_Etat = r1obj.EventData.Etat;
 					webObj.R1_SubEtat = r1obj.EventData.SubEtat;
 					webObj.R1_OffsetBX = r1obj.EventData.OffsetBX;
