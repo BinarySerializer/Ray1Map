@@ -34,7 +34,14 @@ namespace R1Engine
         public int AnimGroupIndex
         {
             get => ObjManager.AnimGroups.FindItemIndex(x => x.Pointer == EventData.AnimGroupPointer);
-            set => EventData.AnimGroupPointer = ObjManager.AnimGroups[value].Pointer;
+            set {
+                if (value != AnimGroupIndex) {
+                    EventData.Etat = EventData.RuntimeEtat = 0;
+                    EventData.SubEtat = EventData.RuntimeSubEtat = 0;
+                    OverrideAnimIndex = null;
+                    EventData.AnimGroupPointer = ObjManager.AnimGroups[value].Pointer;
+                }
+            }
         }
 
         protected ObjTypeInfoAttribute TypeInfo { get; set; }

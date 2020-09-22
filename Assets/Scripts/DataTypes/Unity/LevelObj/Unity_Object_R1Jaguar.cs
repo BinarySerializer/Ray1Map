@@ -38,7 +38,14 @@ namespace R1Engine
         public int EventDefinitionIndex
         {
             get => ObjManager.EventDefinitions.FindIndex(x => x.Pointer == EventDefinitionPointer);
-            set => EventDefinitionPointer = ObjManager.EventDefinitions[value].Pointer;
+            set {
+                if (value != EventDefinitionIndex) {
+                    ComplexStateIndex = RuntimeComplexStateIndex = 0;
+                    StateIndex = RuntimeStateIndex = 0;
+                    OverrideAnimIndex = null;
+                    EventDefinitionPointer = ObjManager.EventDefinitions[value].Pointer;
+                }
+            }
         }
 
         public byte RuntimeStateIndex { get; set; }

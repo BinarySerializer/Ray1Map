@@ -35,8 +35,11 @@ namespace R1Engine
                 if (Actor.GraphicData == null)
                     return;
 
-                OverrideAnimIndex = null;
-                Actor.GraphicsDataIndex = (byte)ObjManager.GraphicsDatas[value].Index;
+                if (value != GraphicsDataIndex) {
+                    Actor.StateIndex = 0;
+                    OverrideAnimIndex = null;
+                    Actor.GraphicsDataIndex = (byte)ObjManager.GraphicsDatas[value].Index;
+                }
             }
         }
 
