@@ -452,7 +452,7 @@ namespace R1Engine
         /// <returns>The texture</returns>
         public virtual Texture2D GetSpriteTexture(Context context, R1_GBA_EventGraphicsData e, R1_ImageDescriptor s, ARGB1555Color[] pal)
         {
-            if (s.Index == 0 || s.HitBoxWidth == 0 || s.HitBoxHeight == 0)
+            if (s.IsDummySprite())
                 return null;
 
             // Create the texture

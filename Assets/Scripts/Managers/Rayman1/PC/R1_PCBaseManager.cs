@@ -426,7 +426,7 @@ namespace R1Engine
                 var imgDescriptor = desItem.ImageDescriptors[i];
 
                 // Ignore dummy sprites
-                if (imgDescriptor.Index == 0)
+                if (imgDescriptor.IsDummySprite())
                     continue;
 
                 // Get the texture
@@ -734,7 +734,7 @@ namespace R1Engine
         public Texture2D GetSpriteTexture(R1_ImageDescriptor s, IList<ARGBColor> palette, byte[] processedImageData)
         {
             // Ignore dummy sprites
-            if (s.Index == 0)
+            if (s.IsDummySprite())
                 return null;
 
             // Get the image properties

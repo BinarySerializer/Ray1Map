@@ -519,7 +519,7 @@ namespace R1Engine
         public Texture2D GetSpriteTexture(R1_ImageDescriptor d, ARGBColor[] pal, byte[] imgBuffer)
         {
             // Make sure the sprite is valid
-            if (d.Height == 0 || d.Width == 0 || d.Index == 0xFF)
+            if (d.IsDummySprite())
                 return null;
 
             bool is8Bit = BitHelpers.ExtractBits(d.Jag_Byte0E, 1, 4) != 0;

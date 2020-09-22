@@ -69,6 +69,21 @@
         // Flags - bit 4 indicates if it's 8-bit (otherwise 4-bit)
         public byte Jag_Byte0E { get; set; }
 
+        public bool IsDummySprite()
+        {
+            // Get the settings
+            var settings = Context.Settings;
+
+            if (settings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
+                return Height == 0 || Width == 0 || Index == 0xFF;
+
+            // Rayman 2 doesn't have dummy sprites
+            if (settings.EngineVersion == EngineVersion.R2_PS1)
+                return false;
+
+            return Index == 0;
+        }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -93,7 +108,7 @@
             }
             else
             {
-                if (s.GameSettings.Game != Game.R1_Rayman2)
+                if (s.GameSettings.EngineVersion != EngineVersion.R2_PS1)
                     ImageBufferOffset = s.Serialize<uint>(ImageBufferOffset, name: nameof(ImageBufferOffset));
 
                 // PS1
@@ -104,7 +119,7 @@
                     s.GameSettings.EngineVersion == EngineVersion.R1_Saturn || 
                     s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
                 {
-                    if (s.Context.Settings.Game == Game.R1_Rayman2)
+                    if (s.Context.Settings.EngineVersion == EngineVersion.R2_PS1)
                     {
                         Width = s.Serialize<byte>((byte)Width, name: nameof(Width));
                         Height = s.Serialize<byte>((byte)Height, name: nameof(Height));

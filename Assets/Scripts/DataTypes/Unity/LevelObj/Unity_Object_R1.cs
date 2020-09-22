@@ -212,9 +212,13 @@ namespace R1Engine
                         addY = p.YPosition;// - (p.IsFlippedVertically ? h - zdc.Height : 0);
                         var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(p.ImageIndex);
 
-                        if (imgDescr != null) {
+                        if (imgDescr != null)
+                        {
                             addX += imgDescr.HitBoxOffsetX;
                             addY += imgDescr.HitBoxOffsetY;
+
+                            if (imgDescr.IsDummySprite())
+                                continue;
                         }
                     }
                     yield return new Unity_ObjAnimationCollisionPart {
@@ -231,7 +235,7 @@ namespace R1Engine
                 var animLayer = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(EventData.HitSprite);
                 var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(animLayer?.ImageIndex ?? -1);
 
-                if (imgDescr != null)
+                if (imgDescr != null && !imgDescr.IsDummySprite())
                 {
                     yield return new Unity_ObjAnimationCollisionPart()
                     {

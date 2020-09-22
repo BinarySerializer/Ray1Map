@@ -387,7 +387,7 @@ namespace R1Engine
                             p = newPal;
                         }
 
-                        if (imageDescriptors[e.PC_ImageDescriptorsIndex][i].Index != 0)
+                        if (!imageDescriptors[e.PC_ImageDescriptorsIndex][i].IsDummySprite())
                             des[desIndex].Graphics.Sprites[color * e.ImageDescriptorCount + i] = GetSpriteTexture(levelTex, d, p).CreateSprite();
 
                         localGspIndex++;

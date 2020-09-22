@@ -120,7 +120,7 @@ namespace R1Engine
                 return null;
 
             // Ignore dummy sprites
-            if (s.Index == 0)
+            if (s.IsDummySprite())
                 return null;
 
             // Get the image properties
