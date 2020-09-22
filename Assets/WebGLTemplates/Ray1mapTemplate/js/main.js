@@ -335,6 +335,7 @@ function handleMessage_settings(msg) {
 	$(".settings-toggle").removeClass("disabled-button");
 	
 	selectButton($("#btn-showCollision"), msg.ShowCollision);
+	selectButton($("#btn-showObjCollision"), msg.ShowObjCollision);
 	//selectButton($("#btn-viewGraphs"), msg.ViewGraphs);
 	//selectButton($("#btn-viewInvisible"), msg.ViewInvisible);
 	//selectButton($("#btn-displayInactive"), msg.DisplayInactive);
@@ -1192,6 +1193,7 @@ function sendSettings() {
 	let jsonObj = {
 		Settings: {
 			ShowCollision: $("#btn-showCollision").hasClass("selected"),
+			ShowObjCollision: $("#btn-showObjCollision").hasClass("selected"),
 			//ViewGraphs: $("#btn-viewGraphs").hasClass("selected"),
 			//ViewInvisible: $("#btn-viewInvisible").hasClass("selected"),
 			//DisplayInactive: $("#btn-displayInactive").hasClass("selected"),

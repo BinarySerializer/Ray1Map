@@ -220,7 +220,7 @@ namespace R1Engine {
 
         public static bool ShowObjects { get; set; } = true;
         public static bool ShowCollision { get; set; } = false;
-        public static bool ShowObjCollision { get; set; } = true;
+        public static bool ShowObjCollision { get; set; } = false;
         public static bool ShowTiles { get; set; } = true;
 
         public static bool ScreenshotEnumeration { get; set; }
