@@ -1375,6 +1375,12 @@ namespace R1Engine
                     eventData.StateIndex = eventData.RuntimeStateIndex = 7;
                     rayman = eventData;
                 }
+
+                // Load Mr Stone so the event def can be selected
+                var bb1 = eventDefs.FirstOrDefault(e => e.Offset == rom.GetProtoDataPointer(R1Jaguar_Proto_References.MS_bb1));
+                if (bb1 != null)
+                    loadEventDef(bb1);
+
                 /*foreach (var ed in eventDefs) {// Add the event
                     var eventData = CreateEventData(context, ed, eventDesigns, eventETA, eventETANames, loadTextures);
                     //uniqueEvents[e.EventIndex] = eventData;

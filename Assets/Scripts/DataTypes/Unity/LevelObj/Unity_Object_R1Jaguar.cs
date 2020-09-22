@@ -24,16 +24,16 @@ namespace R1Engine
 
         public override short XPosition { get; set; }
         public override short YPosition { get; set; }
-        public override string DebugText => $"{nameof(Instance.Unk_00)}: {Instance.Unk_00}{Environment.NewLine}" +
-                                            $"{nameof(Instance.Unk_0A)}: {Instance.Unk_0A}{Environment.NewLine}" +
-                                            $"{nameof(Instance.EventIndex)}: {Instance.EventIndex}{Environment.NewLine}" +
+        public override string DebugText => $"{nameof(Instance.Unk_00)}: {Instance?.Unk_00}{Environment.NewLine}" +
+                                            $"{nameof(Instance.Unk_0A)}: {Instance?.Unk_0A}{Environment.NewLine}" +
+                                            $"{nameof(Instance.EventIndex)}: {Instance?.EventIndex}{Environment.NewLine}" +
                                             $"{nameof(EventDefinitionPointer)}: {EventDefinitionPointer}{Environment.NewLine}" +
                                             $"IsComplex: {ObjManager.EventDefinitions[EventDefinitionIndex].Definition.ComplexData != null}{Environment.NewLine}" +
                                             $"CAR: {String.Join("-", ObjManager.EventDefinitions[EventDefinitionIndex].Definition.CarData ?? new byte[0])}{Environment.NewLine}" +
                                             $"Byte_25: {ObjManager.EventDefinitions[EventDefinitionIndex].Definition.Byte_25}{Environment.NewLine}" +
                                             $"Byte_26: {ObjManager.EventDefinitions[EventDefinitionIndex].Definition.Byte_26}{Environment.NewLine}" +
-                                            $"{nameof(Instance.OffsetX)}: {Instance.OffsetX}{Environment.NewLine}" +
-                                            $"{nameof(Instance.OffsetY)}: {Instance.OffsetY}{Environment.NewLine}";
+                                            $"{nameof(Instance.OffsetX)}: {Instance?.OffsetX}{Environment.NewLine}" +
+                                            $"{nameof(Instance.OffsetY)}: {Instance?.OffsetY}{Environment.NewLine}";
         protected Pointer EventDefinitionPointer { get; set; }
         public int EventDefinitionIndex
         {
