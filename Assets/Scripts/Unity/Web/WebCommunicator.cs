@@ -178,7 +178,7 @@ public class WebCommunicator : MonoBehaviour {
 
 				case Unity_Object_R2 r2obj:
 					webObj.R1_Type = (ushort)r2obj.EventData.EventType;
-					webObj.R1_DESIndex = r2obj.AnimGroupIndex;
+					webObj.R2_AnimGroupIndex = r2obj.AnimGroupIndex;
 					webObj.R1_Etat = r2obj.EventData.Etat;
 					webObj.R1_SubEtat = r2obj.EventData.SubEtat;
 					webObj.R1_OffsetBX = r2obj.EventData.CollisionData?.OffsetBX;

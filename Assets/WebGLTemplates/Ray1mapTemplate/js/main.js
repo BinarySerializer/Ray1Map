@@ -103,7 +103,7 @@ let currentBehaviorType = "";
 let wrapper, objects_content, unity_content, description_content, description_column;
 let gameColumnContent, screenshotResolutionRadio, screenshotSizeFactorRadio, screenshotResolutionW, screenshotResolutionH, screenshotSizeFactor = null;
 let screenshotResolutionSelected = false;
-let btn_close_description, stateSelector, objectListSelector, languageSelector, cameraPosSelector, cinematicSelector, cinematicActorSelector, highlight_tooltip, text_highlight_tooltip, text_highlight_content, objectListInputGroup;
+let btn_close_description, stateSelector, graphicsSelector, graphics2Selector, languageSelector, cameraPosSelector, highlight_tooltip, text_highlight_tooltip, text_highlight_content, graphicsInputGroup, graphics2InputGroup, stateInputGroup, graphicsLabel, graphics2Label;
 let previousState = -1;
 let games_content, versions_content, levels_content, levels_sidebar = null;
 let games_header, versions_header, levels_header = null;
@@ -753,7 +753,13 @@ function getCommandsHTML(commands) {
 }
 
 // PERSO OBJECT DESCRIPTION
-function showObjectDescription(obj, isChanged) {
+function fillSelectorList(selector, names) {
+	$.each(names, function (idx, name) {
+		selector.append("<option value='" + idx + "'>" + escapeHTML(name) + "</option>");
+	});
+}
+
+function showObjectDescription(obj, isChanged, isListChanged) {
 	if(obj === null) { 
 		$('.object-description').addClass('invisible');
 	} else {
@@ -776,6 +782,80 @@ function showObjectDescription(obj, isChanged) {
 			}
 		}
 
+		let hasGraphics = false;
+		let hasStates = false;
+		let hasGraphics2 = false;
+
+		if(isChanged || isListChanged) {
+			stateSelector.empty();
+			graphicsSelector.empty();
+			graphics2Selector.empty();
+			if(obj.hasOwnProperty("States") && obj.States.length > 0) {
+				hasStates = true;
+				$.each(obj.States, function (idx, state) {
+					stateSelector.append("<option value='" + idx + "'>" + escapeHTML(state) + "</option>");
+				});
+				stateSelector.prop("selectedIndex", obj.StateIndex);
+			}
+
+			if(obj.hasOwnProperty("R1_DESNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.R1_DESNames);
+				graphicsSelector.prop("selectedIndex", obj.R1_DESIndex);
+				graphicsLabel.text("DES");
+			} else if(obj.hasOwnProperty("R2_AnimGroupNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.R2_AnimGroupNames);
+				graphicsSelector.prop("selectedIndex", obj.R2_AnimGroupIndex);
+				graphicsLabel.text("Animation Group");
+			} else if(obj.hasOwnProperty("R1Jaguar_EventDefinitionNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.R1Jaguar_EventDefinitionNames);
+				graphicsSelector.prop("selectedIndex", obj.R1Jaguar_EventDefinitionIndex);
+				graphicsLabel.text("Event Definition");
+			} else if(obj.hasOwnProperty("GBA_GraphicsDataNames")) {
+				hasGraphics = true;
+				fillSelectorList(graphicsSelector, obj.GBA_GraphicsDataNames);
+				graphicsSelector.prop("selectedIndex", obj.GBA_GraphicsDataIndex);
+				graphicsLabel.text("Graphics Data");
+			}
+			if(obj.hasOwnProperty("R1_ETANames")) {
+				fillSelectorList(graphics2Selector, obj.R1_ETANames);
+				graphics2Selector.prop("selectedIndex", obj.R1_ETAIndex);
+				hasGraphics2 = true;
+				graphics2Label.text("ETA");
+			}
+
+			if(hasGraphics) {
+				graphicsInputGroup.removeClass('invisible');
+			} else {
+				graphicsInputGroup.addClass('invisible');
+			}
+			if(hasGraphics2) {
+				graphics2InputGroup.removeClass('invisible');
+			} else {
+				graphics2InputGroup.addClass('invisible');
+			}
+			if(hasStates) {
+				stateInputGroup.removeClass('invisible');
+			} else {
+				stateInputGroup.addClass('invisible');
+			}
+		} else {
+			if(obj.hasOwnProperty("R1_DESNames")) {
+				graphicsSelector.prop("selectedIndex", obj.R1_DESIndex);
+			} else if(obj.hasOwnProperty("R2_AnimGroupNames")) {
+				graphicsSelector.prop("selectedIndex", obj.R2_AnimGroupIndex);
+			} else if(obj.hasOwnProperty("R1Jaguar_EventDefinitionNames")) {
+				graphicsSelector.prop("selectedIndex", obj.R1Jaguar_EventDefinitionIndex);
+			} else if(obj.hasOwnProperty("GBA_GraphicsDataNames")) {
+				graphicsSelector.prop("selectedIndex", obj.GBA_GraphicsDataIndex);
+			}
+			if(obj.hasOwnProperty("R1_ETANames")) {
+				graphics2Selector.prop("selectedIndex", obj.R1_ETAIndex);
+			}
+		}
+
 		$('.object-description').removeClass('invisible');
 	}
 	
@@ -783,8 +863,8 @@ function showObjectDescription(obj, isChanged) {
 		let perso = so.Perso;
 		if(isSOChanged) {
 			stateSelector.empty();
-			objectListSelector.empty();
-			//objectListSelector.append("<option value='0'>None</option>");
+			graphicsSelector.empty();
+			//graphicsSelector.append("<option value='0'>None</option>");
 
 			if(perso.hasOwnProperty("States")) {
 				$.each(perso.States, function (idx, state) {
@@ -794,16 +874,16 @@ function showObjectDescription(obj, isChanged) {
 			}
 			if(perso.hasOwnProperty("ObjectLists")) {
 				$.each(perso.ObjectLists, function (idx, poList) {
-					objectListSelector.append("<option value='" + idx + "'>" + escapeHTML(poList) + "</option>");
+					graphicsSelector.append("<option value='" + idx + "'>" + escapeHTML(poList) + "</option>");
 				});
-				objectListSelector.prop("selectedIndex", perso.ObjectList);
+				graphicsSelector.prop("selectedIndex", perso.ObjectList);
 			}
 		} else {
 			stateSelector.prop("selectedIndex", perso.State);
-			objectListSelector.prop("selectedIndex", perso.ObjectList);
+			graphicsSelector.prop("selectedIndex", perso.ObjectList);
 		}
 		if(!perso.hasOwnProperty("ObjectLists") || perso.ObjectLists.length == 0 || (perso.ObjectLists.length == 1 && perso.ObjectLists[0] == "Null")) {
-			objectListInputGroup.addClass('invisible');
+			graphicsInputGroup.addClass('invisible');
 		}
 		
 		selectButton($("#btn-enabled"), perso.IsEnabled);
@@ -918,10 +998,26 @@ function sendObject() {
 		let jsonObj = {
 			Object: {
 				Index:		currentObject.Index,
-				//ObjectList: $("#objectList").prop('selectedIndex'),
-				//State: $("#state").prop('selectedIndex'),
+				StateIndex: $("#state").prop('selectedIndex'),
 				IsEnabled:	$("#btn-enabled").hasClass("selected"),
 			}
+		}
+		
+		if(currentObject.hasOwnProperty("R1_DESNames")) {
+			jsonObj.Object.R1_DESIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", obj.R1_DESIndex);
+		} else if(obj.hasOwnProperty("R2_AnimGroupNames")) {
+			jsonObj.Object.R2_AnimGroupIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", obj.R2_AnimGroupIndex);
+		} else if(obj.hasOwnProperty("R1Jaguar_EventDefinitionNames")) {
+			jsonObj.Object.R1Jaguar_EventDefinitionIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", obj.R1Jaguar_EventDefinitionIndex);
+		} else if(obj.hasOwnProperty("GBA_GraphicsDataNames")) {
+			jsonObj.Object.GBA_GraphicsDataIndex = graphicsSelector.prop("selectedIndex");
+			graphicsSelector.prop("selectedIndex", obj.GBA_GraphicsDataIndex);
+		}
+		if(currentObject.hasOwnProperty("R1_ETANames")) {
+			jsonObj.Object.R1_ETAIndex = graphics2Selector.prop("selectedIndex");
 		}
 		sendMessage(jsonObj);
 	}
@@ -1551,12 +1647,13 @@ $(function() {
 	description_column = $('.column-description');
 	btn_close_description = $('#btn-close-description');
 	stateSelector = $('#state');
-	objectListSelector = $('#objectList');
+	graphicsSelector = $('#graphics');
+	graphics2Selector = $('#graphics2');
 	languageSelector = $('#languageSelector');
 	cameraPosSelector = $('#cameraPosSelector');
-	cinematicSelector = $('#cinematicSelector');
-	cinematicActorSelector = $('#cinematicActorSelector');
-	objectListInputGroup = $('#objectListInputGroup')
+	graphicsInputGroup = $('#graphicsInputGroup');
+	graphics2InputGroup = $('#graphics2InputGroup');
+	stateInputGroup = $('#stateInputGroup');
 	highlight_tooltip = $("#highlight-tooltip");
 	text_highlight_tooltip = $('#text-highlight-tooltip');
 	text_highlight_content = $('#text-highlight-content');
@@ -1566,6 +1663,9 @@ $(function() {
 	screenshotResolutionW = $('#screenshotResolutionW');
 	screenshotResolutionH = $('#screenshotResolutionH');
 	screenshotSizeFactor = $('#screenshotSizeFactor');
+
+	graphicsLabel = $('#graphicsLabel');
+	graphics2Label = $('#graphics2Label');
 
 	games_content = $('#content-games');
 	versions_content = $('#content-versions');
@@ -1720,9 +1820,7 @@ $(function() {
 		return false;
 	});
 	
-	$(document).on('change', "#objectList", function() {
-		//let selectedIndex = $(this).prop('selectedIndex');
-		//setObjectList(selectedIndex);
+	$(document).on('change', "#state, #graphics, #graphics2", function() {
 		sendObject();
 		$(this).blur();
 		return false;
@@ -1738,13 +1836,6 @@ $(function() {
 		$(this).blur();
 		return false;
 	});
-	$(document).on('change', "#state", function() {
-		//let selectedIndex = $(this).prop('selectedIndex');
-		//setState(selectedIndex);
-		sendObject();
-		$(this).blur();
-		return false;
-	});
 	$(document).on('change', "#actor1Selector, #actor2Selector", function() {
 		updateLevelLinksActors();
 	});
@@ -1755,16 +1846,6 @@ $(function() {
 	});
 	$(document).on('change', "#cameraPosSelector", function() {
 		updateCameraPos();
-		$(this).blur();
-		return false;
-	});
-	$(document).on('change', "#cinematicSelector", function() {
-		updateCinematic();
-		$(this).blur();
-		return false;
-	});
-	$(document).on('change', "#cinematicActorSelector", function() {
-		selectCinematicActor();
 		$(this).blur();
 		return false;
 	});
