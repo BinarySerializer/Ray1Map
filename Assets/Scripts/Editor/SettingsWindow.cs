@@ -242,6 +242,19 @@ public class SettingsWindow : UnityWindow
                     }
                 }
 
+                if (LevelEditorData.ObjManager is Unity_ObjectManager_R1 r1 && r1.EventFlags != null)
+                {
+                    if (EditorButton("Copy event flag info"))
+                    {
+                        TextEditor te = new TextEditor
+                        {
+                            text = r1.GetEventFlagsDebugInfo()
+                        };
+                        te.SelectAll();
+                        te.Copy();
+                    }
+                }
+
                 if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
                     var bg = Controller.obj.levelController.controllerTilemap.background;
 

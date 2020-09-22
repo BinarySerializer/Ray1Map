@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace R1Engine
@@ -327,6 +328,26 @@ namespace R1Engine
         public override string[] LegacyDESNames => DES.Select(x => x.DisplayName).ToArray();
         [Obsolete]
         public override string[] LegacyETANames => ETA.Select(x => x.DisplayName).ToArray();
+
+        public string GetEventFlagsDebugInfo()
+        {
+            if (EventFlags == null)
+                return String.Empty;
+
+            var str = new StringBuilder();
+
+            for (int i = 0; i < EventFlags.Length; i++)
+            {
+                var type = (R1_EventType)i;
+                var attrFlag = type.GetAttribute<ObjTypeInfoAttribute>()?.Flag ?? ObjTypeFlag.Normal;
+
+                var line = $"{Convert.ToString((int)EventFlags[i], 2).PadLeft(32, '0')} - {type}{(attrFlag != ObjTypeFlag.Normal ? $" ({attrFlag})" : String.Empty)}";
+
+                str.AppendLine($"{line,-75} - {EventFlags[i]}");
+            }
+
+            return str.ToString();
+        }
 
         public class DataContainer<T>
         {

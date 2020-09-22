@@ -312,7 +312,12 @@ namespace R1Engine
                 if (ZDCDataOffset != null)
                     zdcData = s.DoAt(exeOffset + ZDCDataOffset.Value, () => s.SerializeObjectArray<R1_ZDCData>(default, ZDCDataCount, name: "ZDCData"));
                 if (EventFlagsOffset != null)
-                    eventFlags = s.DoAt(exeOffset + EventFlagsOffset.Value, () => s.SerializeArray<R1_EventFlags>(default, EventFlagsCount, name: "EventFlags"));
+                {
+                    if (context.Settings.EngineVersion == EngineVersion.R1_Saturn)
+                        eventFlags = s.DoAt(exeOffset + EventFlagsOffset.Value, () => s.SerializeArray<int>(default, EventFlagsCount, name: "EventFlags")).Select(BitHelpers.ReverseBits).Select(x => (R1_EventFlags)x).ToArray();
+                    else
+                        eventFlags = s.DoAt(exeOffset + EventFlagsOffset.Value, () => s.SerializeArray<R1_EventFlags>(default, EventFlagsCount, name: "EventFlags"));
+                }
             }
 
             var objManager = new Unity_ObjectManager_R1(
