@@ -411,14 +411,14 @@ namespace R1Engine
             // Update the follow sprite line (Rayman 1 only)
             if (ObjData is Unity_Object_R1 r1 && anim != null)
             {
-                var animLayer = r1.CurrentAnimation?.Frames[r1.AnimationFrame].SpriteLayers.ElementAtOrDefault(r1.EventData.FollowSprite);
+                var animLayer = anim.Frames[r1.AnimationFrame].SpriteLayers.ElementAtOrDefault(r1.EventData.FollowSprite);
                 var imgDescr = r1.ObjManager.DES.ElementAtOrDefault(r1.DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(animLayer?.ImageIndex ?? -1);
 
                 followSpriteLine.localPosition = new Vector2(
-                    (anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].XPosition + (imgDescr?.HitBoxOffsetX ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit,
-                    -(anim.Frames[r1.EventData.RuntimeCurrentAnimFrame].SpriteLayers[r1.EventData.FollowSprite].YPosition + (imgDescr?.HitBoxOffsetY ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
+                    ((animLayer?.XPosition ?? 0) + (imgDescr?.HitBoxOffsetX ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit,
+                    -((animLayer?.YPosition ?? 0) + (imgDescr?.HitBoxOffsetY ?? 0)) / (float)LevelEditorData.Level.PixelsPerUnit - (r1.EventData.OffsetHY / (float)LevelEditorData.Level.PixelsPerUnit));
 
-                var w = (prefabRenderers[r1.EventData.FollowSprite].sprite == null) ? 0 : imgDescr?.HitBoxWidth ?? 0;
+                var w = (prefabRenderers.ElementAtOrDefault(r1.EventData.FollowSprite)?.sprite == null) ? 0 : imgDescr?.HitBoxWidth ?? 0;
                 followSpriteLine.localScale = new Vector2(w, 1f);
             }
 
