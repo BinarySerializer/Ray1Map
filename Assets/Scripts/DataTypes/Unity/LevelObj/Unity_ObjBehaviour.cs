@@ -16,8 +16,9 @@ namespace R1Engine
         public bool IsSelected { get; set; }
         public bool ShowOffsets => (IsSelected || Settings.ShowObjOffsets) && EnableBoxCollider;
         public bool ShowCollision => (IsSelected || Settings.ShowObjCollision) && IsVisible;
-        public bool ShowDefaultRenderer => Settings.ShowDefaultObjIcons && ObjData.CurrentAnimation == null && IsVisible && ObjData.ObjCollision == null;
-        public bool EnableBoxCollider => IsVisible && (ObjData.CurrentAnimation != null || ShowDefaultRenderer || (ObjData.ObjCollision != null && ShowCollision));
+        public bool ShowDefaultRenderer => Settings.ShowDefaultObjIcons && ObjData.CurrentAnimation == null && IsVisible && !HasObjCollision;
+        public bool EnableBoxCollider => IsVisible && (ObjData.CurrentAnimation != null || ShowDefaultRenderer || (HasObjCollision && ShowCollision));
+        public bool HasObjCollision => ObjData.ObjCollision?.Any() == true;
 
         public int Index { get; set; }
 
@@ -166,6 +167,11 @@ namespace R1Engine
             UpdateTimer = 0.0f;
 
             defautRenderer.enabled = true;
+
+            if (ObjData.CurrentAnimation == null)
+            {
+
+            }
 
             if (ObjData.ShouldUpdateAnimation())
             {
