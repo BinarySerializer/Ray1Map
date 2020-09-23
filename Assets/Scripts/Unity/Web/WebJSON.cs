@@ -57,7 +57,7 @@ public class WebJSON {
 		public int Index { get; set; } // Identify by index, non-nullable
 		public bool? IsAlways { get; set; }
 		public bool? IsEditor { get; set; }
-		public byte? AnimIndex { get; set; }
+		public int? AnimIndex { get; set; }
 		public bool? IsEnabled { get; set; }
 		public int? X { get; set; }
 		public int? Y { get; set; }

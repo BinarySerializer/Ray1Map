@@ -256,84 +256,25 @@ namespace R1Engine
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().ToArray();
 
         public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex);
-        public override byte AnimationFrame
+        public override int AnimationFrame
         {
             get => EventData.RuntimeCurrentAnimFrame;
-            set => EventData.RuntimeCurrentAnimFrame = value;
+            set => EventData.RuntimeCurrentAnimFrame = (byte)value;
         }
 
-        public override byte AnimationIndex
+        public override int AnimationIndex
         {
             get => EventData.RuntimeCurrentAnimIndex;
-            set => EventData.RuntimeCurrentAnimIndex = value;
+            set => EventData.RuntimeCurrentAnimIndex = (byte)value;
         }
 
-        public override byte AnimSpeed => (byte)(EventData.Type.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0);
+        public override int AnimSpeed => (EventData.Type.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0);
 
-        public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
+        public override int GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.OffsetBX, -EventData.OffsetBY);
 
-        protected UIState[] UIStates { get; set; }
-
-		public override string[] UIStateNames {
-            get {
-                List<UIState> uiStates = new List<UIState>();
-                HashSet<int> usedAnims = new HashSet<int>();
-                var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
-                if (eta != null) {
-                    for (byte i = 0; i < eta.Length; i++) {
-                        for (byte j = 0; j < eta[i].Length; j++) {
-                            usedAnims.Add(eta[i][j].AnimationIndex);
-                            uiStates.Add(new UIState($"State {i}-{j}", i, j));
-                        }
-                    }
-                }
-                var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
-                if (anims != null) {
-                    for (byte i = 0; i < anims.Count; i++) {
-                        if (usedAnims.Contains(i)) continue;
-                        uiStates.Add(new UIState($"Animation {i}", i));
-                    }
-                }
-                return uiStates.Select(x => x.DisplayName).ToArray();
-            }
-        }
-
-        public override int CurrentUIState
-        {
-            get
-            {
-                int i;
-
-                if (OverrideAnimIndex.HasValue)
-                    i = UIStates.FindItemIndex(x => !x.IsState && x.AnimIndex == OverrideAnimIndex);
-                else
-                    i = UIStates.FindItemIndex(x => x.IsState && x.Etat == EventData.Etat && x.SubEtat == EventData.SubEtat);
-
-                return i == -1 ? 0 : i;
-            }
-            set
-            {
-                if (value == CurrentUIState)
-                    return;
-
-                var state = UIStates[value];
-
-                if (state.IsState)
-                {
-                    EventData.Etat = EventData.RuntimeEtat = state.Etat;
-                    EventData.SubEtat = EventData.RuntimeSubEtat = state.SubEtat;
-                    OverrideAnimIndex = null;
-                }
-                else
-                {
-                    OverrideAnimIndex = state.AnimIndex;
-                }
-            }
-        }
-
-        protected override bool ShouldUpdateFrame()
+		protected override bool ShouldUpdateFrame()
         {
             // Set frame based on hit points for special events
             if (EventData.Type.IsHPFrame())
@@ -386,31 +327,6 @@ namespace R1Engine
         }
 
         protected void UpdateZDC() => EventData.Runtime_TypeZDC = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
-
-        protected class UIState
-        {
-            public UIState(string displayName, byte etat, byte subEtat)
-            {
-                DisplayName = displayName;
-                IsState = true;
-                Etat = etat;
-                SubEtat = subEtat;
-            }
-            public UIState(string displayName, byte animIndex)
-            {
-                DisplayName = displayName;
-                IsState = false;
-                AnimIndex = animIndex;
-            }
-
-            public string DisplayName { get; }
-
-            public bool IsState { get; }
-
-            public byte Etat { get; }
-            public byte SubEtat { get; }
-            public byte AnimIndex { get; }
-        }
 
         [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
@@ -505,5 +421,68 @@ namespace R1Engine
                 set => Obj.EventData.SetFollowEnabled(Obj.ObjManager.Context.Settings, value);
             }
         }
+
+        #region UI States
+        protected int UIStates_ETAIndex { get; set; } = -2;
+        protected int UIStates_DESIndex { get; set; } = -2;
+        protected override bool IsUIStateArrayUpToDate => DESIndex == UIStates_DESIndex && ETAIndex == UIStates_ETAIndex;
+
+        protected override void RecalculateUIStates() {
+            UIStates_DESIndex = DESIndex;
+            UIStates_ETAIndex = ETAIndex;
+            List<UIState> uiStates = new List<UIState>();
+            HashSet<int> usedAnims = new HashSet<int>();
+            var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
+            if (eta != null) {
+                for (byte i = 0; i < eta.Length; i++) {
+                    for (byte j = 0; j < eta[i].Length; j++) {
+                        usedAnims.Add(eta[i][j].AnimationIndex);
+                        uiStates.Add(new R1_UIState($"State {i}-{j}", i, j));
+                    }
+                }
+            }
+            var anims = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations;
+            if (anims != null) {
+                for (int i = 0; i < anims.Count; i++) {
+                    if (usedAnims.Contains(i)) continue;
+                    uiStates.Add(new R1_UIState($"Animation {i}", i));
+                }
+            }
+            UIStates = uiStates.ToArray();
+        }
+
+        protected class R1_UIState : UIState {
+            public R1_UIState(string displayName, byte etat, byte subEtat) : base(displayName) {
+                Etat = etat;
+                SubEtat = subEtat;
+            }
+            public R1_UIState(string displayName, int animIndex) : base(displayName, animIndex) {}
+
+            public byte Etat { get; }
+            public byte SubEtat { get; }
+
+			public override void Apply(Unity_Object obj) {
+                if (IsState) {
+                    var r1obj = obj as Unity_Object_R1;
+                    r1obj.EventData.Etat = r1obj.EventData.RuntimeEtat = Etat;
+                    r1obj.EventData.SubEtat = r1obj.EventData.RuntimeSubEtat = SubEtat;
+                    obj.OverrideAnimIndex = null;
+                } else {
+                    obj.OverrideAnimIndex = AnimIndex;
+                }
+            }
+
+			public override bool IsCurrentState(Unity_Object obj) {
+
+                if (obj.OverrideAnimIndex.HasValue)
+                    return !IsState && AnimIndex == obj.OverrideAnimIndex;
+                else
+                    return IsState
+                        && Etat == (obj as Unity_Object_R1).EventData.RuntimeEtat
+                        && SubEtat == (obj as Unity_Object_R1).EventData.RuntimeSubEtat;
+
+            }
+        }
+        #endregion
     }
 }

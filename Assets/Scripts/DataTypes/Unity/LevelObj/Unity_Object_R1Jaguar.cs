@@ -68,67 +68,11 @@ namespace R1Engine
         public override string PrimaryName => ObjManager.EventDefinitions[EventDefinitionIndex].DisplayName;
         public override string SecondaryName => null;
         public override Unity_ObjAnimation CurrentAnimation => DES.Animations.ElementAtOrDefault(AnimationIndex);
-        public override byte AnimSpeed => (byte)(ForceNoAnimation ? 0 : State?.AnimSpeed ?? 1);
-        public override byte GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
+        public override int AnimSpeed => (ForceNoAnimation ? 0 : State?.AnimSpeed ?? 1);
+        public override int GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => DES.Sprites;
 
-        public override string[] UIStateNames {
-            get {
-                List<string> stateNames = new List<string>();
-                var eta = ETA;
-                if (eta != null) {
-                    for (int i = 0; i < eta.Length; i++) {
-                        for (int j = 0; j < eta[i].Length; j++) {
-                            if (eta[i][j].Name != null) {
-                                stateNames.Add($"State {i}-{j}: {eta[i][j].Name}");
-                            } else {
-                                stateNames.Add($"State {i}-{j}");
-                            }
-                        }
-                    }
-                }
-                return stateNames.ToArray();
-            }
-        }
-
-        public override int CurrentUIState {
-            get {
-                var eta = ETA;
-                int stateCount = 0;
-                if (eta != null) {
-                    for (int i = 0; i < eta.Length; i++) {
-                        if (RuntimeComplexStateIndex == i) {
-                            if (RuntimeStateIndex < eta[i].Length) {
-                                return stateCount + RuntimeStateIndex;
-                            } else return 0;
-                        }
-                        stateCount += eta[i].Length;
-                    }
-                }
-                return 0;
-            }
-            set {
-                if (value != CurrentUIState) {
-                    var eta = ETA;
-                    int stateCount = 0;
-                    if (eta != null) {
-                        for (int i = 0; i < eta.Length; i++) {
-                            for (int j = 0; j < eta[i].Length; j++) {
-                                if (value == stateCount) {
-                                    ComplexStateIndex = RuntimeComplexStateIndex = (byte)i;
-                                    StateIndex = RuntimeStateIndex = (byte)j;
-                                    OverrideAnimIndex = null;
-                                    return;
-                                }
-                                stateCount++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        protected override bool ShouldUpdateFrame()
+		protected override bool ShouldUpdateFrame()
         {
             if (ForceFrame != null && ForceNoAnimation)
             {
@@ -163,7 +107,7 @@ namespace R1Engine
             }
         }
 
-        [Obsolete]
+		[Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
             public LegacyEditorWrapper(Unity_Object_R1Jaguar obj)
@@ -212,5 +156,62 @@ namespace R1Engine
 
             public bool FollowEnabled { get; set; }
         }
+
+        #region UI States
+        protected int UIStates_EventDefinitionIndex { get; set; } = -2;
+        protected override bool IsUIStateArrayUpToDate => EventDefinitionIndex == UIStates_EventDefinitionIndex;
+
+        protected class R1Jaguar_UIState : UIState {
+            public R1Jaguar_UIState(string displayName, byte complexStateIndex, byte stateIndex) : base(displayName) {
+                ComplexStateIndex = complexStateIndex;
+                StateIndex = stateIndex;
+            }
+
+            public byte ComplexStateIndex { get; }
+            public byte StateIndex { get; }
+
+            public override void Apply(Unity_Object obj) {
+                if (IsState) {
+                    var r1jo = obj as Unity_Object_R1Jaguar;
+                    r1jo.RuntimeComplexStateIndex = r1jo.ComplexStateIndex = ComplexStateIndex;
+                    r1jo.RuntimeStateIndex = r1jo.StateIndex = StateIndex;
+                    obj.OverrideAnimIndex = null;
+                } else {
+                    obj.OverrideAnimIndex = AnimIndex;
+                }
+            }
+
+            public override bool IsCurrentState(Unity_Object obj) {
+
+                if (obj.OverrideAnimIndex.HasValue)
+                    return !IsState && AnimIndex == obj.OverrideAnimIndex;
+                else
+                    return IsState
+                        && ComplexStateIndex == (obj as Unity_Object_R1Jaguar).RuntimeComplexStateIndex
+                        && StateIndex == (obj as Unity_Object_R1Jaguar).RuntimeStateIndex;
+            }
+        }
+
+        protected override void RecalculateUIStates() {
+            UIStates_EventDefinitionIndex = EventDefinitionIndex;
+            HashSet<int> usedAnims = new HashSet<int>();
+            List<UIState> uiStates = new List<UIState>();
+
+            var eta = ETA;
+            if (eta != null) {
+                for (byte i = 0; i < eta.Length; i++) {
+                    for (byte j = 0; j < eta[i].Length; j++) {
+                        if (eta[i][j].Name != null) {
+                            uiStates.Add(new R1Jaguar_UIState($"State {i}-{j}: {eta[i][j].Name}", i, j));
+                        } else {
+                            uiStates.Add(new R1Jaguar_UIState($"State {i}-{j}", i, j));
+                        }
+                    }
+                }
+            }
+
+            UIStates = uiStates.ToArray();
+        }
+        #endregion
     }
 }

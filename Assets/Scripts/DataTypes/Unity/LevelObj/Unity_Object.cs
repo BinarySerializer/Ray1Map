@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
@@ -55,12 +56,12 @@ namespace R1Engine
         // Animations
         public virtual Unity_ObjAnimationCollisionPart[] ObjCollision => new Unity_ObjAnimationCollisionPart[0];
         public abstract Unity_ObjAnimation CurrentAnimation { get; }
-        public virtual byte AnimationFrame { get; set; }
-        public virtual byte AnimationIndex { get; set; }
-        public abstract byte AnimSpeed { get; }
+        public virtual int AnimationFrame { get; set; }
+        public virtual int AnimationIndex { get; set; }
+        public abstract int AnimSpeed { get; }
         public float AnimationFrameFloat { get; set; }
-        protected byte? PrevAnimIndex { get; set; }
-        public abstract byte GetAnimIndex { get; }
+        protected int? PrevAnimIndex { get; set; }
+        public abstract int GetAnimIndex { get; }
         public abstract IList<Sprite> Sprites { get; }
         public virtual Vector2 Pivot => Vector2.zero;
         public void UpdateFrame()
@@ -115,8 +116,57 @@ namespace R1Engine
             }
         }
 
-        public abstract string[] UIStateNames { get; }
-        public abstract int CurrentUIState { get; set; }
-        public byte? OverrideAnimIndex { get; set; }
-    }
+		#region UI States
+		public string[] UIStateNames {
+            get {
+                if (!IsUIStateArrayUpToDate) {
+                    RecalculateUIStates();
+                }
+
+                return UIStates.Select(x => x.DisplayName).ToArray();
+            }
+        }
+        public int CurrentUIState {
+            get {
+                if (!IsUIStateArrayUpToDate) {
+                    RecalculateUIStates();
+                }
+
+                int i;
+                i = UIStates.FindItemIndex(x => x.IsCurrentState(this));
+
+                return i == -1 ? 0 : i;
+            }
+            set {
+                if (value == CurrentUIState)
+                    return;
+
+                UIStates[value]?.Apply(this);
+            }
+        }
+        public int? OverrideAnimIndex { get; set; }
+        protected abstract bool IsUIStateArrayUpToDate { get; }
+        protected UIState[] UIStates { get; set; }
+        protected abstract void RecalculateUIStates();
+
+        protected abstract class UIState {
+            public UIState(string displayName) {
+                DisplayName = displayName;
+                IsState = true;
+            }
+            public UIState(string displayName, int animIndex) {
+                DisplayName = displayName;
+                IsState = false;
+                AnimIndex = animIndex;
+            }
+
+            public string DisplayName { get; protected set; }
+            public bool IsState { get; protected set; }
+            public int AnimIndex { get; protected set; }
+
+            public abstract void Apply(Unity_Object obj);
+            public abstract bool IsCurrentState(Unity_Object obj);
+        }
+		#endregion
+	}
 }
