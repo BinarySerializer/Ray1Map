@@ -21,6 +21,7 @@ public class WebCommunicator : MonoBehaviour {
 
 	Unity_ObjBehaviour highlightedObject_;
 	Unity_ObjBehaviour selectedObject_;
+	int x_, y_;
 
 	private Newtonsoft.Json.JsonSerializerSettings _jsonSettings;
 	public Newtonsoft.Json.JsonSerializerSettings JsonSettings {
@@ -63,13 +64,22 @@ public class WebCommunicator : MonoBehaviour {
 			if (selectedObject_ != Controller.obj.levelEventController.SelectedEvent) {
 				selectedObject_ = Controller.obj.levelEventController.SelectedEvent;
 				if (selectedObject_ != null) {
+					x_ = selectedObject_.ObjData.XPosition;
+					y_ = selectedObject_.ObjData.YPosition;
 					// TODO: keep state indices so updates on animation speed, etc. can be sent
 					//selectedPersoStateIndex_ = selectedPerso_.currentState;
 					Send(GetSelectionMessageJSON(includeLists: true, includeDetails: true));
 				}
 			}
 
-			// Check selected object's state
+			// Check selected object's changed values
+			if (selectedObject_ != null) {
+				if (selectedObject_.ObjData.XPosition != x_ || selectedObject_.ObjData.YPosition != y_) {
+					x_ = selectedObject_.ObjData.XPosition;
+					y_ = selectedObject_.ObjData.YPosition;
+					Send(GetSelectionMessageJSON(includeLists: false, includeDetails: false));
+				}
+			}
 		}
     }
 
@@ -142,12 +152,14 @@ public class WebCommunicator : MonoBehaviour {
 			IsAlways = obj.ObjData.IsAlways,
 			IsEnabled = obj.IsEnabled,
 			IsEditor = obj.ObjData.IsEditor,
+			// Updateable fields
+			X = obj.ObjData.XPosition,
+			Y = obj.ObjData.YPosition
 		};
+
 		if (includeDetails) {
 			// Common details
 			webObj.AnimIndex = obj.ObjData.AnimationIndex;
-			webObj.X = obj.ObjData.XPosition;
-			webObj.Y = obj.ObjData.YPosition;
 
 			if (includeLists) {
 				webObj.StateNames = obj.ObjData.UIStateNames;
