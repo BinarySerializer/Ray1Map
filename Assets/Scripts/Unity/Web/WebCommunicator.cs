@@ -224,7 +224,16 @@ public class WebCommunicator : MonoBehaviour {
 		};
 	}
 	public WebJSON.Localization GetLocalizationJSON() {
-		// TODO
+		var lvl = LevelEditorData.Level;
+		if (lvl?.Localization != null) {
+			var loc = lvl.Localization;
+			return new WebJSON.Localization() {
+				Languages = loc.Select(kv => new WebJSON.Localization.Language() {
+						Name = kv.Key,
+						Entries = kv.Value
+				}).ToArray()
+			};
+		}
 		return null;
 	}
 	private WebJSON.Message GetSettingsMessageJSON() {

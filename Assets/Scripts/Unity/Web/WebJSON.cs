@@ -110,7 +110,11 @@ public class WebJSON {
 		public Screenshot Screenshot { get; set; }
 	}
 	public class Localization {
-		// TODO
+		public Language[] Languages { get; set; }
+		public class Language {
+			public string Name { get; set; }
+			public string[] Entries { get; set; }
+		}
 	}
 	public class Screenshot {
 		public int? Width { get; set; }
