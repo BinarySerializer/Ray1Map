@@ -5,7 +5,7 @@
     /// </summary>
     public enum R1_R2EventType : ushort
     {
-        None = 0,
+        None = 0, // Most likely slots for always events
         Rayman = 1,
         Fist = 2,
         Oneup = 3,

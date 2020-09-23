@@ -265,6 +265,11 @@ namespace R1Engine
 
             // Get the events
             var events = lvlData.Events.Concat(lvlData.AlwaysEvents).ToArray();
+
+            // Ignore nulled out events on web
+            if (FileSystem.mode == FileSystem.Mode.Web)
+                events = events.Where(x => x.EventType != R1_R2EventType.None).ToArray();
+
             Controller.DetailedState = $"Loading animations";
             await Controller.WaitIfNecessary();
 

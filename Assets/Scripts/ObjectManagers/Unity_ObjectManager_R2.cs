@@ -30,6 +30,9 @@ namespace R1Engine
 
             for (int i = 0; i < LinkTable.Length; i++)
             {
+                if (i >= objects.Count)
+                    break;
+
                 // No link
                 if (LinkTable[i] == i)
                 {
