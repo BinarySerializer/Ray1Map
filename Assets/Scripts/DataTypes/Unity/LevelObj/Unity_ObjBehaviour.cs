@@ -168,11 +168,6 @@ namespace R1Engine
 
             defautRenderer.enabled = true;
 
-            if (ObjData.CurrentAnimation == null)
-            {
-
-            }
-
             if (ObjData.ShouldUpdateAnimation())
             {
                 // If animation is null, use default renderer ("E")
@@ -421,7 +416,7 @@ namespace R1Engine
             }
 
             // Update the collider size for when selecting the events
-            if (anim != null || col != null)
+            if (anim != null || col?.Any() == true)
             {
                 var sprites = anim != null ? prefabRenderers : prefabRendersObjCollision;
 
@@ -452,6 +447,11 @@ namespace R1Engine
                     boxCollider.size = new Vector2(w, h);
                     boxCollider.offset = new Vector2(leftX / LevelEditorData.Level.PixelsPerUnit + w / 2f, (topY / LevelEditorData.Level.PixelsPerUnit - h / 2f));
                 }
+            }
+            else
+            {
+                boxCollider.size = new Vector2(1, 1);
+                boxCollider.offset = new Vector2();
             }
 
             // Update offset points

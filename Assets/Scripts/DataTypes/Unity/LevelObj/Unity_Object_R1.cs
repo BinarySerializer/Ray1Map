@@ -255,22 +255,22 @@ namespace R1Engine
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().ToArray();
 
-        public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex);
+        public override Unity_ObjAnimation CurrentAnimation => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimationFrame
         {
             get => EventData.RuntimeCurrentAnimFrame;
             set => EventData.RuntimeCurrentAnimFrame = (byte)value;
         }
 
-        public override int AnimationIndex
+        public override int? AnimationIndex
         {
             get => EventData.RuntimeCurrentAnimIndex;
-            set => EventData.RuntimeCurrentAnimIndex = (byte)value;
+            set => EventData.RuntimeCurrentAnimIndex = (byte)(value ?? 0);
         }
 
         public override int AnimSpeed => (EventData.Type.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0);
 
-        public override int GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
         public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.OffsetBX, -EventData.OffsetBY);
 
