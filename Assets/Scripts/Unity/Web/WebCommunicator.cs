@@ -2,6 +2,7 @@
 using R1Engine;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -235,21 +236,55 @@ public class WebCommunicator : MonoBehaviour {
     }
 
 	private WebJSON.Settings GetSettingsJSON() {
-		return new WebJSON.Settings() {
+		WebJSON.Settings s = new WebJSON.Settings() {
 			ShowObjects = Settings.ShowObjects,
 			ShowTiles = Settings.ShowTiles,
 			ShowCollision = Settings.ShowCollision,
-            ShowObjCollision = Settings.ShowObjCollision,
+			ShowObjCollision = Settings.ShowObjCollision,
 			AnimateSprites = Settings.AnimateSprites,
 			AnimateTiles = Settings.AnimateTiles,
 			ShowAlwaysEvents = Settings.ShowAlwaysEvents,
 			ShowEditorEvents = Settings.ShowEditorEvents,
 			ShowDebugInfo = Settings.ShowDebugInfo,
-            ShowDefaultObjIcons = Settings.ShowDefaultObjIcons,
-            ShowObjOffsets = Settings.ShowObjOffsets,
+			ShowDefaultObjIcons = Settings.ShowDefaultObjIcons,
+			ShowObjOffsets = Settings.ShowObjOffsets,
 			ShowRayman = Settings.ShowRayman,
 			StateSwitchingMode = Settings.StateSwitchingMode
 		};
+
+		// Add layers
+		var lvl = LevelEditorData.Level;
+		if (lvl != null) {
+			List<WebJSON.Layer> layers = new List<WebJSON.Layer>();
+			if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
+				layers.Add(new WebJSON.Layer() {
+					Index = -2,
+					IsVisible = Controller.obj.levelController.controllerTilemap.background.gameObject.activeSelf
+				});
+			}
+
+			if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
+				layers.Add(new WebJSON.Layer() {
+					Index = -1,
+					IsVisible = Controller.obj.levelController.controllerTilemap.backgroundParallax.gameObject.activeSelf
+				});
+			}
+
+			if (Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
+				for (int i = 0; i < lvl.Maps.Length; i++) {
+					var tilemaps = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps;
+					layers.Add(new WebJSON.Layer() {
+						Index = i,
+						IsVisible = tilemaps[i].gameObject.activeSelf
+					});
+				}
+			}
+			if (layers.Count > 0) {
+				s.Layers = layers.ToArray();
+			}
+		}
+
+		return s;
 	}
 
     public void ParseMessage(string msgString) {
@@ -282,6 +317,40 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.ShowRayman.HasValue) Settings.ShowRayman = msg.ShowRayman.Value;
 		if (msg.ShowDebugInfo.HasValue) Settings.ShowDebugInfo = msg.ShowDebugInfo.Value;
 		if (msg.StateSwitchingMode.HasValue) Settings.StateSwitchingMode = msg.StateSwitchingMode.Value;
+
+		if (msg.Layers != null && msg.Layers.Length > 0) {
+			var lvl = LevelEditorData.Level;
+			if (lvl != null) {
+				foreach (var layer in msg.Layers) {
+					switch (layer.Index) {
+						case -2:
+							if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
+								var bg = Controller.obj.levelController.controllerTilemap.background;
+								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
+									bg.gameObject.SetActive(layer.IsVisible.Value);
+								}
+							}
+							break;
+						case -1:
+							if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
+								var bg = Controller.obj.levelController.controllerTilemap.backgroundParallax;
+								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
+									bg.gameObject.SetActive(layer.IsVisible.Value);
+								}
+							}
+							break;
+						default:
+							if (layer.Index < lvl.Maps.Length && Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
+								var tilemap = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps[layer.Index];
+								if (layer.IsVisible.HasValue && layer.IsVisible.Value != tilemap.gameObject.activeSelf) {
+									tilemap.gameObject.SetActive(layer.IsVisible.HasValue);
+								}
+							}
+							break;
+					}
+				}
+			}
+		}
 	}
 	private void ParseSelectionJSON(WebJSON.Selection msg) {
 		if (msg?.Object != null) {
