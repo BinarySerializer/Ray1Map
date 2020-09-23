@@ -551,6 +551,17 @@ function toggleCameraPopup() {
 
 let formattedTexts = {};
 
+function formatTextR1(text) {
+	text = text.replace(/\//gi, "\n"); // New Lines
+	text = text.replace(/\\/gi, "\n"); // New Lines
+	text = $.trim(text);
+	text = text.replace(/\n/gi, "<br/>"); // New Lines
+	return text;
+}
+function formatTextGBA(text) {
+	return text;
+}
+
 function formatOpenSpaceTextR2(text) {
 	let orgText = text;
 
@@ -618,23 +629,20 @@ function formatOpenSpaceTextR3(text) {
 
 	return text;
 }
-function formatOpenSpaceText(text) {
+function formatText(text) {
 	let orgText = text;
 	if (formattedTexts[text]!==undefined) {
 		// Regexes are expen$ive - RTS
 		return formattedTexts[text];
 	}
 	if(gameSettings != null){
-		if(gameSettings.EngineVersion === "R2") {
-			text = formatOpenSpaceTextR2(text);
-		} else if(gameSettings.EngineVersion === "R3") {
-			
-			text = formatOpenSpaceTextR3(text);
-		} else {
-			text = formatOpenSpaceTextR2(text);
+		if(gameSettings.MajorEngineVersion === "Rayman1" || gameSettings.MajorEngineVersion === "Rayman1Jaguar") {
+			text = formatTextR1(text);
+		} else if(gameSettings.MajorEngineVersion === "GBA") {
+			text = formatTextGBA(text);
 		}
 	} else {
-		text = formatOpenSpaceTextR2(text);
+		text = formatTextR1(text);
 	}
 	formattedTexts[orgText] = text;
 
@@ -642,7 +650,7 @@ function formatOpenSpaceText(text) {
 }
 function getLanguageHTML(lang, langStart) {
 	let fullHTML = [];
-	fullHTML.push("<div class='localization-item category'>" + lang.Name + " (" + lang.NameLocalized + ")</div>");
+	fullHTML.push("<div class='localization-item category'>" + lang.Name + "</div>");
 	$.each(lang.Entries, function (idx, val) {
 		fullHTML.push("<div class='localization-item localization-item-highlight' data-loc-item='" + (idx + langStart) + "'><div class='localization-item-index'>" + (idx + langStart) + "</div><div class='localization-item-text'>" + escapeHTML(val) + "</div></div>");
 	});
@@ -666,22 +674,8 @@ function updateLanguageDisplayed() {
 function handleMessage_localization(msg) {
 	$("#btn-localization").removeClass("disabled-button");
 	if(gameSettings != null){
-		if(gameSettings.Game === "R2" || gameSettings.Game === "R2Demo" || gameSettings.Game === "R2Revolution" || gameSettings.Game === "RRR" || gameSettings.Game === "RRush" || gameSettings.Game === "RedPlanet" || gameSettings.Game === "DD") {
-			if(gameSettings.EngineMode === "PS1" || gameSettings.EngineMode === "ROM") {
-				text_highlight_tooltip.addClass("rom");
-				if(gameSettings.Game === "RRR") {
-					text_highlight_tooltip.addClass("rrr");
-				} else {
-					text_highlight_tooltip.addClass("rayman-2");
-				}
-			} else {
-				text_highlight_tooltip.addClass("rayman-2");
-			}
-		} else if(gameSettings.Game === "R3" || gameSettings.Game === "RA" || gameSettings.Game === "RM") {
-			text_highlight_tooltip.addClass("rayman-3");
-			if(gameSettings.Game === "R3") {
-				text_highlight_tooltip.addClass("blue");
-			}
+		if(gameSettings.MajorEngineVersion === "Rayman1Jaguar" || gameSettings.MajorEngineVersion === "Rayman1") {
+			text_highlight_tooltip.addClass("rayman-1");
 		}
 	}
 	let fullHTML = [];
@@ -696,13 +690,13 @@ function handleMessage_localization(msg) {
 		
 		fullHTML.push("<div id='language-localized'>");
 		if(msg.Languages.length > 0) {
-			fullHTML.push(getLanguageHTML(msg.Languages[0], msg.LanguageStart));
+			fullHTML.push(getLanguageHTML(msg.Languages[0], 0));
 		}
 		fullHTML.push("</div>");
 	}
 	if(msg.hasOwnProperty("Common")) {
 		fullHTML.push("<div id='language-common'>");
-		fullHTML.push(getLanguageHTML(msg.Common, msg.CommonStart));
+		fullHTML.push(getLanguageHTML(msg.Common, 0));
 		fullHTML.push("</div>");
 	}
 	api.getContentPane().append(fullHTML.join(""));
@@ -1702,10 +1696,10 @@ $(function() {
 	});
 	$(document).on('mouseenter', ".localization-item-highlight", function() {
 		let text = $(this).find(".localization-item-text").text();
-		let formatted = formatOpenSpaceText(text);
+		let formatted = formatText(text);
 		if(/\S/.test(formatted)) {
 			// found something other than a space or line break
-			text_highlight_content.html(formatOpenSpaceText(text));
+			text_highlight_content.html(formatText(text));
 			text_highlight_tooltip.removeClass("hidden-tooltip");
 			text_highlight_tooltip.removeClass("right");
 		}
@@ -1719,10 +1713,10 @@ $(function() {
 		if(locItem !== undefined && locItem != null) {
 			let text = $("#content-localization").find(`.localization-item[data-loc-item='${locItem}']`).find(".localization-item-text").text();
 			if(text !== undefined && text != null) {
-				let formatted = formatOpenSpaceText(text);
+				let formatted = formatText(text);
 				if(/\S/.test(formatted)) {
 					// found something other than a space or line break
-					text_highlight_content.html(formatOpenSpaceText(text));
+					text_highlight_content.html(formatText(text));
 					text_highlight_tooltip.removeClass("hidden-tooltip");
 					text_highlight_tooltip.addClass("right");
 				}

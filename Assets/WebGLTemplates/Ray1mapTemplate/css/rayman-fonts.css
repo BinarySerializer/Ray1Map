@@ -7,6 +7,14 @@
 }
 
 @font-face{
+    font-family: 'Rayman 1';
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('../fonts/rayman_1.ttf') format('truetype');
+}
+
+@font-face{
     font-family: 'Rayman 2';
     font-weight: 300;
     font-style: normal;

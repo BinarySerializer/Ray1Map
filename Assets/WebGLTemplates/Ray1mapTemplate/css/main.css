@@ -740,6 +740,14 @@ a:focus {
     margin-right: 15px;
 	left: auto !important;
 }
+#text-highlight-tooltip.rayman-1 {
+	font-weight: 300;
+	font-family: 'Rayman 1', sans-serif;
+    line-height: 1.5em;
+	text-transform: lowercase;
+	font-size: 1.3em;
+	letter-spacing: 0.05em;
+}
 #text-highlight-tooltip.rayman-2,
 #text-highlight-tooltip.rrr {
 	font-weight: 300;
@@ -751,6 +759,9 @@ a:focus {
 /*#text-highlight-content {
 	white-space: pre-wrap;
 }*/
+#text-highlight-tooltip.rayman-1 > #text-highlight-content {
+	color: #e786ce !important;
+}
 #text-highlight-tooltip.rayman-2 > #text-highlight-content {
 	background: repeating-linear-gradient(to bottom, white 0em, white 0.25em, transparent 1.25em, transparent 1.5em);
 	background-color: #6EBEFF !important;
