@@ -76,8 +76,6 @@ namespace R1Engine
             //layerTypes.SetActive(currentMode == EditMode.Collisions);
             //layerEvents.SetActive(currentMode == EditMode.Events || currentMode == EditMode.Links);
 
-            lvlEventController.ToggleLinks(currentMode == EditMode.Links);
-
             tileSelectSquare.gameObject.SetActive(currentMode == EditMode.Tiles || currentMode == EditMode.Collisions);
             lvlTilemapController.tilemapPreview.gameObject.SetActive(currentMode == EditMode.Tiles);
 
@@ -102,6 +100,9 @@ namespace R1Engine
                 ChangeVisibButton(2, true);
                 Settings.ShowObjects = true;
                 //layerEvents.SetActive(true);
+            }
+            if (currentMode == EditMode.Links) {
+                Settings.ShowLinks = true;
             }
         }
 

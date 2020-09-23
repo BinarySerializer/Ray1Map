@@ -22,60 +22,7 @@ namespace R1Engine {
 
         #endregion
 
-        #region Events
-
-        /// <summary>
-        /// Occurs when a <see cref="SelectedGameMode"/> changes
-        /// </summary>
-        public static event EventHandler OnSelectedGameModeChanged;
-
-        /// <summary>
-        /// Occurs when a <see cref="World"/> changes
-        /// </summary>
-        public static event EventHandler OnWorldChanged;
-
-        /// <summary>
-        /// Occurs when a <see cref="Level"/> changes
-        /// </summary>
-        public static event EventHandler OnLevelChanged;
-
-        /// <summary>
-        /// Occurs when a <see cref="EduVolume"/> changes
-        /// </summary>
-        public static event EventHandler OnEduVolumeChanged;
-
-        /// <summary>
-        /// Occurs when a <see cref="UseHDCollisionSheet"/> changes
-        /// </summary>
-        public static event EventHandler OnUseHDCollisionSheetChanged;
-
-        /// <summary>
-        /// Occurs when a <see cref="AnimateSprites"/> changes
-        /// </summary>
-        public static event EventHandler OnAnimateSpritesChanged;
-
-        /// <summary>
-        /// Occurs when a <see cref="ShowAlwaysEvents"/> changes
-        /// </summary>
-        public static event EventHandler OnShowAlwaysEventsChanged;
-
-        /// <summary>
-        /// Occurs when a <see cref="ShowEditorEvents"/> changes
-        /// </summary>
-        public static event EventHandler OnShowEditorEventsChanged;
-
-        #endregion
-
         #region Private Fields
-
-        private static GameModeSelection _selectedGameMode;
-        private static int _world = 1;
-        private static int _level = 1;
-        private static string _eduVolume;
-        private static bool _useHdCollisionSheet;
-        private static bool _animateSprites = true;
-        private static bool _showAlwaysEvents = true;
-        private static bool _showEditorEvents = true;
 
         #endregion
 
@@ -84,66 +31,22 @@ namespace R1Engine {
         /// <summary>
         /// The selected game mode
         /// </summary>
-        public static GameModeSelection SelectedGameMode
-        {
-            get => _selectedGameMode;
-            set
-            {
-                if (_selectedGameMode == value)
-                    return;
-
-                _selectedGameMode = value;
-                OnSelectedGameModeChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static GameModeSelection SelectedGameMode { get; set; }
 
         /// <summary>
         /// The selected game world
         /// </summary>
-        public static int World
-        {
-            get => _world;
-            set
-            {
-                if (_world == value)
-                    return;
-
-                _world = value;
-                OnWorldChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static int World { get; set; } = 1;
 
         /// <summary>
         /// The selected level index, starting from 1
         /// </summary>
-        public static int Level
-        {
-            get => _level;
-            set 
-            {
-                if (_level == value)
-                    return;
-
-                _level = value;
-                OnLevelChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static int Level { get; set; } = 1;
 
         /// <summary>
         /// The selected educational game volume
         /// </summary>
-        public static string EduVolume
-        {
-            get => _eduVolume;
-            set
-            {
-                if (_eduVolume == value)
-                    return;
-
-                _eduVolume = value;
-                OnEduVolumeChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static string EduVolume { get; set; }
 
         public static bool LoadFromMemory { get; set; }
         
@@ -155,72 +58,29 @@ namespace R1Engine {
         /// <summary>
         /// True for the HD collision sheet to be used, false for the original Rayman Designer one to be used
         /// </summary>
-        public static bool UseHDCollisionSheet
-        {
-            get => _useHdCollisionSheet;
-            set
-            {
-                if (_useHdCollisionSheet == value)
-                    return;
-
-                _useHdCollisionSheet = value;
-                OnUseHDCollisionSheetChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static bool UseHDCollisionSheet { get; set; }
 
         /// <summary>
         /// Indicates if sprites should be animated in the editor
         /// </summary>
-        public static bool AnimateSprites
-        {
-            get => _animateSprites;
-            set
-            {
-                if (_animateSprites == value)
-                    return;
-
-                _animateSprites = value;
-                OnAnimateSpritesChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static bool AnimateSprites { get; set; } = true;
 
         public static bool AnimateTiles { get; set; } = true;
 
         /// <summary>
         /// Indicates if always events should be shown
         /// </summary>
-        public static bool ShowAlwaysEvents
-        {
-            get => _showAlwaysEvents;
-            set
-            {
-                if (_showAlwaysEvents == value)
-                    return;
-
-                _showAlwaysEvents = value;
-                OnShowAlwaysEventsChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static bool ShowAlwaysEvents { get; set; } = true;
 
         /// <summary>
         /// Indicates if editor events should be shown
         /// </summary>
-        public static bool ShowEditorEvents
-        {
-            get => _showEditorEvents;
-            set
-            {
-                if (_showEditorEvents == value)
-                    return;
-
-                _showEditorEvents = value;
-                OnShowEditorEventsChanged?.Invoke(null, EventArgs.Empty);
-            }
-        }
+        public static bool ShowEditorEvents { get; set; } = true;
 
         public static bool ShowObjects { get; set; } = true;
-        public static bool ShowCollision { get; set; } = false;
-        public static bool ShowObjCollision { get; set; } = false;
+        public static bool ShowCollision { get; set; }
+        public static bool ShowLinks { get; set; }
+        public static bool ShowObjCollision { get; set; }
         public static bool ShowTiles { get; set; } = true;
 
         public static bool ScreenshotEnumeration { get; set; }
@@ -346,6 +206,7 @@ namespace R1Engine {
             ShowObjects = s.SerializeBool("ShowObjects", ShowObjects);
             ShowTiles = s.SerializeBool("ShowTiles", ShowTiles);
             ShowCollision = s.SerializeBool("ShowCollision", ShowCollision);
+            ShowLinks = s.SerializeBool("ShowLinks", ShowLinks);
             ShowObjCollision = s.SerializeBool("ShowObjCollision", ShowObjCollision);
 
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);

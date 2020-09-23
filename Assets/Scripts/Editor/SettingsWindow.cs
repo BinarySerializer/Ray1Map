@@ -184,6 +184,8 @@ public class SettingsWindow : UnityWindow
 
         Settings.ShowObjects = EditorField("Show objects", Settings.ShowObjects);
 
+        Settings.ShowLinks = EditorField("Show links", Settings.ShowLinks);
+
         Settings.ShowTiles = EditorField("Show tiles", Settings.ShowTiles);
 
         Settings.ShowCollision = EditorField("Show tile collision", Settings.ShowCollision);

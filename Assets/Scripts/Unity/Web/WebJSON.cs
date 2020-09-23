@@ -35,6 +35,7 @@ public class WebJSON {
 		public bool? ShowObjects { get; set; }
 		public bool? ShowTiles { get; set; }
 		public bool? ShowCollision { get; set; }
+		public bool? ShowLinks { get; set; }
 		public bool? ShowObjCollision { get; set; }
 		public bool? AnimateSprites { get; set; }
 		public bool? AnimateTiles { get; set; }

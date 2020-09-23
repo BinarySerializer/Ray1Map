@@ -184,8 +184,6 @@ namespace R1Engine
 
             if (Settings.ScreenshotEnumeration)
             {
-                Settings.OnShowAlwaysEventsChanged -= controllerEvents.ChangeEventsVisibility;
-                Settings.OnShowEditorEventsChanged -= controllerEvents.ChangeEventsVisibility;
                 SceneManager.LoadScene("Dummy");
             }
         }
@@ -239,8 +237,6 @@ namespace R1Engine
 
                     return ee.ObjData.EditorLinkGroup != 0;
                 }
-
-                e.ChangeLinksVisibility(true);
 
                 if (e.ObjData.EditorLinkGroup == 0)
                 {
@@ -344,15 +340,14 @@ namespace R1Engine
                 updatedSettings = true;
             }
             if (Input.GetKeyDown(KeyCode.L)) {
-                // TODO: Use for ShowLinks
-                /*Settings.ShowDebugInfo = !Settings.ShowDebugInfo;
-                updatedSettings = true;*/
-            }
-            if (Input.GetKeyDown(KeyCode.L))
-            {
-                Settings.ShowDebugInfo = !Settings.ShowDebugInfo;
+                Settings.ShowLinks = !Settings.ShowLinks;
                 updatedSettings = true;
             }
+            //if (Input.GetKeyDown(KeyCode.L))
+            //{
+            //    Settings.ShowDebugInfo = !Settings.ShowDebugInfo;
+            //    updatedSettings = true;
+            //}
             if (Input.GetKeyDown(KeyCode.X))
             {
                 Settings.ShowObjOffsets = !Settings.ShowObjOffsets;

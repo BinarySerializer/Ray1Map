@@ -35,12 +35,6 @@ namespace R1Engine
 
         #endregion
 
-        #region Event Methods
-
-        public void RefreshEditorInfo() => ChangeLinksVisibility(false);
-
-        #endregion
-
         // Default sprite
         public SpriteRenderer defautRenderer;
         // Reference to spritepart prefab
@@ -104,8 +98,6 @@ namespace R1Engine
         private void Start() 
         {
             transform.rotation = Quaternion.identity;
-
-            RefreshEditorInfo();
 
             // Snap link cube position
             linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
@@ -490,6 +482,31 @@ namespace R1Engine
             lineRend.SetPosition(0, midpoint);
             lineRend.SetPosition(1, linkCube.position);
 
+            // Update link colors
+            if (ObjData.EditorLinkGroup == 0)
+            {
+                lineRend.startColor = Controller.obj.levelEventController.linkColorDeactive;
+                lineRend.endColor = Controller.obj.levelEventController.linkColorDeactive;
+                linkCube.GetComponent<SpriteRenderer>().color = Controller.obj.levelEventController.linkColorDeactive;
+            }
+            else
+            {
+                lineRend.startColor = Controller.obj.levelEventController.linkColorActive;
+                lineRend.endColor = Controller.obj.levelEventController.linkColorActive;
+                linkCube.GetComponent<SpriteRenderer>().color = Controller.obj.levelEventController.linkColorActive;
+            }
+
+            // Set link visibility
+            var showLinks = 
+                // Make sure the obj is visible
+                IsVisible && 
+                // Make sure links are set to show
+                Settings.ShowLinks && 
+                // Only show active links on web
+                !(FileSystem.mode == FileSystem.Mode.Web && ObjData.EditorLinkGroup == 0);
+            lineRend.enabled = showLinks;
+            linkCube.gameObject.SetActive(showLinks);
+
             // Change the offsets visibility
             offsetOrigin.gameObject.SetActive(ShowOffsets);
             offsetCrossBX.gameObject.SetActive(ShowOffsets && offsetCrossBX.transform.position != Vector3.zero);
@@ -501,25 +518,6 @@ namespace R1Engine
                 ObjData is Unity_Object_R1 r1o && 
                 r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings) && 
                 !(engineVersion == EngineVersion.R1_PS1_JP || engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || engineVersion == EngineVersion.R1_Saturn));
-        }
-
-        public void ChangeLinksVisibility(bool visible) {
-            if (visible && IsVisible) {
-
-                //Change link colors
-                if (ObjData.EditorLinkGroup == 0) {
-                    lineRend.startColor = Controller.obj.levelEventController.linkColorDeactive;
-                    lineRend.endColor = Controller.obj.levelEventController.linkColorDeactive;
-                    linkCube.GetComponent<SpriteRenderer>().color = Controller.obj.levelEventController.linkColorDeactive;
-                }
-                else {
-                    lineRend.startColor = Controller.obj.levelEventController.linkColorActive;
-                    lineRend.endColor = Controller.obj.levelEventController.linkColorActive;
-                    linkCube.GetComponent<SpriteRenderer>().color = Controller.obj.levelEventController.linkColorActive;
-                }
-            }
-            lineRend.enabled = visible;
-            linkCube.gameObject.SetActive(visible);
         }
 
         private void ClearSprites(SpriteRenderer[] sprites) 

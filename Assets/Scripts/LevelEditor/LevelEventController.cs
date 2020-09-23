@@ -54,8 +54,6 @@ namespace R1Engine
         public List<CommandLine> commandLines;
         public Transform commandListParent;
 
-        public bool areLinksVisible = false;
-
         public Color linkColorActive;
         public Color linkColorDeactive;
 
@@ -182,22 +180,10 @@ namespace R1Engine
             }
         }
 
-        private void Start() {
-            //Assign visibility refresh for the settings booleans
-            Settings.OnShowAlwaysEventsChanged += ChangeEventsVisibility;
-            Settings.OnShowEditorEventsChanged += ChangeEventsVisibility;
-
+        private void Start() 
+        {
             //Create empty list for commandlines
             commandLines = new List<CommandLine>();
-        }
-
-        public void ChangeEventsVisibility(object o, EventArgs e) {
-            if (LevelEditorData.Level != null) {
-                foreach (var eve in Controller.obj.levelController.GetAllObjects) {
-                    if (editor.currentMode == LevelEditorBehaviour.EditMode.Links)
-                        eve.ChangeLinksVisibility(true);
-                }
-            }
         }
 
         private float memoryLoadTimer = 0;
@@ -333,7 +319,6 @@ namespace R1Engine
                 // Change the link
                 if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null) {
                     SelectedEvent.ObjData.EditorLinkGroup = 0;
-                    SelectedEvent.ChangeLinksVisibility(true);
                 }
             } else {
                 if (SelectedEvent != null)
@@ -450,9 +435,6 @@ namespace R1Engine
                         LevelEditorData.Level.EventData.Add(eventData);
                         var eve = AddEvent(eventData);
 
-                        // Refresh the event
-                        eve.RefreshEditorInfo();
-
                         Controller.obj.levelController.Objects.Add(eve);
                     }
                 }
@@ -496,7 +478,7 @@ namespace R1Engine
                         }
 
                         // Else move links
-                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject) {
+                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && FileSystem.mode != FileSystem.Mode.Web) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
                         }
@@ -504,7 +486,7 @@ namespace R1Engine
                 }
 
                 //Confirm links with mmb
-                if (Input.GetMouseButtonDown(2) && modeLinks && SelectedEvent?.ObjData.EditorLinkGroup == 0)
+                if (Input.GetMouseButtonDown(2) && modeLinks && SelectedEvent?.ObjData.EditorLinkGroup == 0 && FileSystem.mode != FileSystem.Mode.Web)
                 {
                     bool alone = true;
                     
@@ -513,7 +495,6 @@ namespace R1Engine
                         Where(ee => ee != SelectedEvent))
                     {
                         ee.ObjData.EditorLinkGroup = currentId;
-                        ee.ChangeLinksVisibility(true);
                         ee.linkCubeLockPosition = ee.linkCube.position;
                         alone = false;
                     }
@@ -521,7 +502,6 @@ namespace R1Engine
                     if (!alone) 
                     {
                         SelectedEvent.ObjData.EditorLinkGroup = currentId;
-                        SelectedEvent.ChangeLinksVisibility(true);
                         SelectedEvent.linkCubeLockPosition = SelectedEvent.linkCube.position;
                     }
                     currentId++;
@@ -720,16 +700,6 @@ namespace R1Engine
                 Destroy(c.gameObject);
             }
             commandLines.Clear();
-        }
-
-        // Show/Hide links
-        public void ToggleLinks(bool t) {
-            if (LevelEditorData.Level != null && areLinksVisible != t) {
-                areLinksVisible = t;
-                foreach (var e in Controller.obj.levelController.Objects) {
-                    e.ChangeLinksVisibility(t);
-                }
-            }
         }
 
         // Converts linkID to linkIndex when saving
