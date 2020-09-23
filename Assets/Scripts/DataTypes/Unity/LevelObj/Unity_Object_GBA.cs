@@ -183,8 +183,12 @@ namespace R1Engine
         {
             get
             {
-                if (Actor.Type == GBA_Actor.ActorType.BoxTrigger || Actor.Type == GBA_Actor.ActorType.Unk)
+
+                if (Actor.Type == GBA_Actor.ActorType.Unk)
                     return null;
+                if (Actor.Type == GBA_Actor.ActorType.BoxTrigger) {
+                    return $"BOX_{(int)Actor.BoxActorID}";
+                }
 
                 return $"ID_{Actor.ActorID}";
             }
@@ -195,7 +199,7 @@ namespace R1Engine
             get
             {
                 if (Actor.Type == GBA_Actor.ActorType.BoxTrigger)
-                    return "Trigger";
+                    return $"Trigger ({Actor.BoxActorID})";
 
                 if (ObjManager.Context.Settings.Game == Game.GBA_Rayman3)
                     return $"{(GBA_R3_ActorID) Actor.ActorID}";
