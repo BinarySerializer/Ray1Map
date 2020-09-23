@@ -89,7 +89,15 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         public override AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings) => GetLevels(settings).Select(x => new AdditionalSoundArchive($"SMP ({x.Name})", GetSamplesArchiveFilePath(x.Name))).ToArray();
 
-        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesEdu[context.Settings.R1_World] == desIndex && ((R1_EventType)x.Type).IsMultiColored());
+        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents)
+        {
+            // Hacky fix for French with Rayman
+            if ((context.Settings.EduVolume[1] == 'F' || context.Settings.EduVolume[1] == 'f') && (context.Settings.R1_World == R1_World.Jungle || context.Settings.R1_World == R1_World.Cake))
+                desIndex -= 4;
+
+            return generalEvents.Any(x =>
+                x.DesEdu[context.Settings.R1_World] == desIndex && ((R1_EventType) x.Type).IsMultiColored());
+        }
 
         #endregion
 
