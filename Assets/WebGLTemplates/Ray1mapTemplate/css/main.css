@@ -577,6 +577,9 @@ a:focus {
 	flex: 1 1 auto;
 	padding: 0 0 0 0.5em;
 }
+.name-index + .name-secondary {
+    text-align: center;
+}
 .behaviors-item > .behavior-number {
 	text-align: center;
 	display: inline-block;
