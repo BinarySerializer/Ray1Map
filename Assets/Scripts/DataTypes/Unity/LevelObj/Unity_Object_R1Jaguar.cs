@@ -194,7 +194,7 @@ namespace R1Engine
 
         protected override void RecalculateUIStates() {
             UIStates_EventDefinitionIndex = EventDefinitionIndex;
-            HashSet<int> usedAnims = new HashSet<int>();
+            //HashSet<int> usedAnims = new HashSet<int>();
             List<UIState> uiStates = new List<UIState>();
 
             var eta = ETA;

@@ -336,7 +336,7 @@ function handleMessage_settings(msg) {
 	
 	selectButton($("#btn-showCollision"), msg.ShowCollision);
 	selectButton($("#btn-showObjCollision"), msg.ShowObjCollision);
-	//selectButton($("#btn-viewGraphs"), msg.ViewGraphs);
+	selectButton($("#btn-showLinks"), msg.ShowLinks);
 	//selectButton($("#btn-viewInvisible"), msg.ViewInvisible);
 	//selectButton($("#btn-displayInactive"), msg.DisplayInactive);
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
@@ -654,7 +654,7 @@ function updateLanguageDisplayed() {
 		let loc = fullData.Localization;
 		let selectedLanguage = languageSelector.prop("selectedIndex");
 		if(loc.hasOwnProperty("Languages") && loc.Languages.length > selectedLanguage) {
-			$("#language-localized").html(getLanguageHTML(loc.Languages[selectedLanguage], loc.LanguageStart));
+			$("#language-localized").html(getLanguageHTML(loc.Languages[selectedLanguage], 0));
 			
 			let api = $("#content-localization").data('jsp');
 			setTimeout(function(){
@@ -689,7 +689,7 @@ function handleMessage_localization(msg) {
 	if(msg.hasOwnProperty("Languages")) {
 		languageSelector.empty();
 		$.each(msg.Languages, function (idx, language) {
-			languageSelector.append("<option value='" + idx + "'>" + escapeHTML(language.Name) + " (" + escapeHTML(language.NameLocalized)+")</option>");
+			languageSelector.append("<option value='" + idx + "'>" + escapeHTML(language.Name) + "</option>");
 		});
 		languageSelector.prop("selectedIndex", 0);
 
@@ -844,6 +844,10 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			if(obj.hasOwnProperty("R1_ETANames")) {
 				hasGraphics2 = true;
 				graphics2Selector.prop("selectedIndex", obj.R1_ETAIndex);
+			}
+			if(obj.hasOwnProperty("StateNames") && obj.StateNames.length > 0) {
+				hasStates = true;
+				stateSelector.prop("selectedIndex", obj.StateIndex);
 			}
 		}
 
@@ -1199,7 +1203,7 @@ function sendSettings() {
 		Settings: {
 			ShowCollision: $("#btn-showCollision").hasClass("selected"),
 			ShowObjCollision: $("#btn-showObjCollision").hasClass("selected"),
-			//ViewGraphs: $("#btn-viewGraphs").hasClass("selected"),
+			ShowLinks: $("#btn-showLinks").hasClass("selected"),
 			//ViewInvisible: $("#btn-viewInvisible").hasClass("selected"),
 			//DisplayInactive: $("#btn-displayInactive").hasClass("selected"),
 			ShowObjects: $("#btn-showObjects").hasClass("selected"),
