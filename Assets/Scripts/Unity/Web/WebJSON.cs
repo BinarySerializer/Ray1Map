@@ -46,6 +46,8 @@ public class WebJSON {
 		public bool? ShowObjOffsets { get; set; }
         public bool? ShowRayman { get; set; }
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
+		
+		public Layer[] Layers { get; set; }
 	}
 	public class Hierarchy {
 		public Object Rayman { get; set; }
@@ -97,6 +99,10 @@ public class WebJSON {
 		public int? GBA_GraphicsDataIndex { get; set; }
 		public byte? GBA_State { get; set; }
 	}
+	public class Layer {
+		public int Index { get; set; }
+		public bool? IsVisible { get; set; }
+	}
 	public class Request {
 		public RequestType Type { get; set; }
 
@@ -105,7 +111,11 @@ public class WebJSON {
 		public Screenshot Screenshot { get; set; }
 	}
 	public class Localization {
-		// TODO
+		public Language[] Languages { get; set; }
+		public class Language {
+			public string Name { get; set; }
+			public string[] Entries { get; set; }
+		}
 	}
 	public class Screenshot {
 		public int? Width { get; set; }
