@@ -57,11 +57,11 @@ namespace R1Engine
         public virtual Unity_ObjAnimationCollisionPart[] ObjCollision => new Unity_ObjAnimationCollisionPart[0];
         public abstract Unity_ObjAnimation CurrentAnimation { get; }
         public virtual int AnimationFrame { get; set; }
-        public virtual int AnimationIndex { get; set; }
+        public virtual int? AnimationIndex { get; set; }
         public abstract int AnimSpeed { get; }
         public float AnimationFrameFloat { get; set; }
         protected int? PrevAnimIndex { get; set; }
-        public abstract int GetAnimIndex { get; }
+        public abstract int? GetAnimIndex { get; }
         public abstract IList<Sprite> Sprites { get; }
         public virtual Vector2 Pivot => Vector2.zero;
         public void UpdateFrame()

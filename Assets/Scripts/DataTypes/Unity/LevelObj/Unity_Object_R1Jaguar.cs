@@ -67,9 +67,9 @@ namespace R1Engine
 
         public override string PrimaryName => ObjManager.EventDefinitions[EventDefinitionIndex].DisplayName;
         public override string SecondaryName => null;
-        public override Unity_ObjAnimation CurrentAnimation => DES.Animations.ElementAtOrDefault(AnimationIndex);
+        public override Unity_ObjAnimation CurrentAnimation => DES.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => (ForceNoAnimation ? 0 : State?.AnimSpeed ?? 1);
-        public override int GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex;
         public override IList<Sprite> Sprites => DES.Sprites;
 
 		protected override bool ShouldUpdateFrame()

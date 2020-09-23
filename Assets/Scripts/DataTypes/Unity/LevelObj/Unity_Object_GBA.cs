@@ -223,10 +223,10 @@ namespace R1Engine
             }
         } : new Unity_ObjAnimationCollisionPart[0];
 
-        public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex);
+        public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Graphics.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed.Value ?? 0;
 
-        public override int GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? Actor.StateIndex;
+        public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? Actor.StateIndex;
         public override IList<Sprite> Sprites => GraphicsData?.Graphics.Sprites;
 
         [Obsolete]
