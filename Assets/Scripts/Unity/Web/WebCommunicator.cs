@@ -184,7 +184,7 @@ public class WebCommunicator : MonoBehaviour {
 					webObj.R1_DisplayPrio = r1obj.EventData.Layer;
 
 					if (includeLists) {
-						webObj.R1_Commands = (r1obj.EventData.Commands?.Commands ?? new R1_EventCommand[0]).Select(c => c.ToTranslatedString()).ToArray();
+						webObj.R1_Commands = r1obj.EventData.Commands?.ToTranslatedStrings(r1obj.EventData.LabelOffsets);
 						webObj.R1_DESNames = r1obj.ObjManager.DES.Select(x => x.DisplayName).ToArray();
 						webObj.R1_ETANames = r1obj.ObjManager.ETA.Select(x => x.DisplayName).ToArray();
 					}

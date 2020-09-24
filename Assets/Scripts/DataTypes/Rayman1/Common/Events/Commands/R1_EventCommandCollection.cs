@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using R1Engine.Serialize;
@@ -100,6 +101,23 @@ namespace R1Engine
                 // Serialize the commands
                 s.SerializeObjectArray(Commands, Commands.Length, name: nameof(Commands));
             }
+        }
+
+        public string[] ToTranslatedStrings(ushort[] labelOffsets) {
+            int[] lineNumbers;
+            if (Commands == null || Commands.Length == 0) return null;
+            if (labelOffsets != null || labelOffsets.Length == 0) {
+                int[] commandOffsets = new int[Commands.Length + 1];
+                int curOff = 0;
+                for (int i = 0; i < commandOffsets.Length; i++) {
+                    commandOffsets[i] = curOff;
+                    if(i < Commands.Length) curOff += Commands[i].Length;
+                }
+                lineNumbers = labelOffsets.Select(l => Array.IndexOf(commandOffsets, (int)l-1)).ToArray();
+            } else {
+                lineNumbers = new int[0];
+            }
+            return Commands.Select(c => c.ToTranslatedString(lineNumbers)).ToArray();
         }
     }
 }

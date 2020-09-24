@@ -103,9 +103,18 @@ namespace R1Engine
             }
         }
 
-        public string ToTranslatedString() {
+        public string ToTranslatedString(int[] labelOffsetsLineNumbers) {
             string cmd = Command.ToString();
             switch (Command) {
+                case R1_EventCommandType.RESERVED_GO_GOSUB:
+                case R1_EventCommandType.RESERVED_GO_GOTO:
+                case R1_EventCommandType.RESERVED_GO_GOTOF:
+                case R1_EventCommandType.RESERVED_GO_GOTOT:
+                case R1_EventCommandType.RESERVED_GO_SKIP:
+                case R1_EventCommandType.RESERVED_GO_SKIPF:
+                case R1_EventCommandType.RESERVED_GO_SKIPT:
+                    cmd = cmd.Replace("RESERVED_GO_", "");
+                    return $"\t{cmd} LINE {labelOffsetsLineNumbers[Arguments[0]]}";
                 case R1_EventCommandType.GO_LABEL:
                     return "LABEL " + Arguments[0] + ":";
                 case R1_EventCommandType.GO_RETURN:
