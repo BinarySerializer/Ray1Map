@@ -291,6 +291,7 @@ namespace R1Engine
         public override int AnimSpeed => (EventData.Type.IsHPFrame() ? 0 : State?.AnimationSpeed ?? 0);
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? 0;
+        protected override int GetSpriteID => DESIndex;
         public override IList<Sprite> Sprites => ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.Graphics?.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.OffsetBX, -EventData.OffsetBY);
 

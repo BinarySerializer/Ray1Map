@@ -227,6 +227,7 @@ namespace R1Engine
         public override int AnimSpeed => CurrentAnimation?.AnimSpeed.Value ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex ?? Actor.StateIndex;
+        protected override int GetSpriteID => GraphicsDataIndex;
         public override IList<Sprite> Sprites => GraphicsData?.Graphics.Sprites;
 
         [Obsolete]

@@ -70,6 +70,7 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => DES.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimSpeed => (ForceNoAnimation ? 0 : State?.AnimSpeed ?? 1);
         public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex;
+        protected override int GetSpriteID => EventDefinitionIndex;
         public override IList<Sprite> Sprites => DES.Sprites;
 
 		protected override bool ShouldUpdateFrame()

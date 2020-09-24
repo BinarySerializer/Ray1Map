@@ -209,6 +209,7 @@ namespace R1Engine
         public override int AnimSpeed => State?.AnimationSpeed ?? 0;
 
         public override int? GetAnimIndex => OverrideAnimIndex ?? State?.AnimationIndex;
+        protected override int GetSpriteID => AnimGroupIndex;
         public override IList<Sprite> Sprites => ObjManager.Sprites;
         public override Vector2 Pivot => new Vector2(EventData.CollisionData?.OffsetBX ?? 0, -EventData.CollisionData?.OffsetBY ?? 0);
 

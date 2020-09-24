@@ -62,6 +62,8 @@ namespace R1Engine
         public float AnimationFrameFloat { get; set; }
         protected int? PrevAnimIndex { get; set; }
         public abstract int? GetAnimIndex { get; }
+        private int PrevSpriteID { get; set; }
+        protected abstract int GetSpriteID { get; }
         public abstract IList<Sprite> Sprites { get; }
         public virtual Vector2 Pivot => Vector2.zero;
         public void UpdateFrame()
@@ -96,11 +98,12 @@ namespace R1Engine
             if (!Settings.LoadFromMemory)
                 AnimationIndex = GetAnimIndex;
 
-            // Check if the animation has changed
-            if (PrevAnimIndex != AnimationIndex)
+            // Check if the animation or sprites have changed
+            if (PrevAnimIndex != AnimationIndex || PrevSpriteID != GetSpriteID)
             {
                 // Update the animation index
                 PrevAnimIndex = AnimationIndex;
+                PrevSpriteID = GetSpriteID;
 
                 return true;
             }
