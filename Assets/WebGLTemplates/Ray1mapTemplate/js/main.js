@@ -103,7 +103,7 @@ let currentBehaviorType = "";
 let wrapper, objects_content, unity_content, description_content, description_column;
 let gameColumnContent, screenshotResolutionRadio, screenshotSizeFactorRadio, screenshotResolutionW, screenshotResolutionH, screenshotSizeFactor = null;
 let screenshotResolutionSelected = false;
-let btn_close_description, stateSelector, graphicsSelector, graphics2Selector, languageSelector, cameraPosSelector, highlight_tooltip, text_highlight_tooltip, text_highlight_content, graphicsInputGroup, graphics2InputGroup, stateInputGroup, graphicsLabel, graphics2Label;
+let btn_close_description, stateSelector, graphicsSelector, graphics2Selector, languageSelector, cameraPosSelector, highlight_tooltip, text_highlight_tooltip, text_highlight_content, graphicsInputGroup, graphics2InputGroup, stateInputGroup, graphicsLabel, graphics2Label, layer_buttons;
 let previousState = -1;
 let games_content, versions_content, levels_content, levels_sidebar = null;
 let games_header, versions_header, levels_header = null;
@@ -342,6 +342,32 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
+
+	if(msg.hasOwnProperty("Layers") && msg.Layers.length > 0 && layer_buttons.html() === "") {
+		let items = []
+		items.push("<div class='header-buttons-text'>Layers:</div>");
+		$.each(msg.Layers, function(i, l) {
+			let index = l.Index;
+			let active = (l.hasOwnProperty("IsVisible") && l.IsVisible) ? " selected" : "";
+			if(index < 0) {
+				if(index == -2) {
+					items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Background Layer"><div class="text">BG</div></div>');
+				} else if(index == -1) {
+					items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Parallax Background Layer"><div class="text">PAR</div></div>');
+				}
+			} else {
+				items.push('<div class="header-button settings-toggle layer-button' + active + '" data-layer-index="' + index + '" title="Toggle Layer ' + index + '"><div class="text">' + index + '</div></div>');
+			}
+		});
+		layer_buttons.html(items.join(" "));
+	} else if(msg.hasOwnProperty("Layers") && msg.Layers.length > 0) {
+		$.each(msg.Layers, function(i, l) {
+			let index = l.Index;
+			if(l.hasOwnProperty("IsVisible")) {
+				selectButton($(".layer-button[data-layer-index='" + index + "']"), l.IsVisible);
+			}
+		});
+	}
 }
 function getIndexFromObject(obj) {
 	if(obj !== null) {
@@ -706,7 +732,8 @@ function handleMessage_localization(msg) {
 }
 function setAllJSON(jsonString) {
 	//alert(jsonString);
-	//console.log(JSON.stringify(jsonString)); 
+	//console.log(JSON.stringify(jsonString));
+	//console.log(jsonString);
 	let msg = $.parseJSON(jsonString);
 	fullData = msg;
 	if(msg.hasOwnProperty("GameSettings")) {
@@ -1205,6 +1232,19 @@ function sendSettings() {
 			AnimateTiles: $("#btn-animateTiles").hasClass("selected")
 		}
 	}
+	let layers = $(".layer-button");
+	if(layers.length > 0) {
+		let layerSettings = [];
+		layers.each(function(i) {
+			let dataIndex = $(this).data("layerIndex");
+			let isVisible = $(this).hasClass("selected");
+			layerSettings.push({
+				Index: dataIndex,
+				IsVisible: isVisible
+			});
+		});
+		jsonObj.Settings.Layers = layerSettings;
+	}
 	sendMessage(jsonObj);
 }
 
@@ -1668,6 +1708,7 @@ $(function() {
 	screenshotResolutionW = $('#screenshotResolutionW');
 	screenshotResolutionH = $('#screenshotResolutionH');
 	screenshotSizeFactor = $('#screenshotSizeFactor');
+	layer_buttons = $('#layer-buttons');
 
 	graphicsLabel = $('#graphicsLabel');
 	graphics2Label = $('#graphics2Label');

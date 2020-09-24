@@ -343,30 +343,31 @@ public class WebCommunicator : MonoBehaviour {
 
 		if (msg.Layers != null && msg.Layers.Length > 0) {
 			var lvl = LevelEditorData.Level;
-			if (lvl != null) {
+			var tilemapController = Controller.obj?.levelController?.controllerTilemap;
+			if (lvl != null && tilemapController != null) {
 				foreach (var layer in msg.Layers) {
 					switch (layer.Index) {
 						case -2:
-							if (lvl.Background != null && Controller.obj?.levelController?.controllerTilemap?.background != null) {
-								var bg = Controller.obj.levelController.controllerTilemap.background;
+							if (lvl.Background != null && tilemapController.background != null) {
+								var bg = tilemapController.background;
 								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
 									bg.gameObject.SetActive(layer.IsVisible.Value);
 								}
 							}
 							break;
 						case -1:
-							if (lvl.ParallaxBackground != null && Controller.obj?.levelController?.controllerTilemap?.backgroundParallax != null) {
-								var bg = Controller.obj.levelController.controllerTilemap.backgroundParallax;
+							if (lvl.ParallaxBackground != null && tilemapController.backgroundParallax != null) {
+								var bg = tilemapController.backgroundParallax;
 								if (layer.IsVisible.HasValue && layer.IsVisible.Value != bg.gameObject.activeSelf) {
 									bg.gameObject.SetActive(layer.IsVisible.Value);
 								}
 							}
 							break;
 						default:
-							if (layer.Index < lvl.Maps.Length && Controller.obj?.levelController?.controllerTilemap?.GraphicsTilemaps != null) {
-								var tilemap = Controller.obj.levelController.controllerTilemap.GraphicsTilemaps[layer.Index];
+							if (layer.Index < lvl.Maps.Length && tilemapController.GraphicsTilemaps != null) {
+								var tilemap = tilemapController.GraphicsTilemaps[layer.Index];
 								if (layer.IsVisible.HasValue && layer.IsVisible.Value != tilemap.gameObject.activeSelf) {
-									tilemap.gameObject.SetActive(layer.IsVisible.HasValue);
+									tilemap.gameObject.SetActive(layer.IsVisible.Value);
 								}
 							}
 							break;

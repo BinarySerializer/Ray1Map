@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using static UnityEngine.Input;
 
 namespace R1Engine {
     public class EditorCam : MonoBehaviour {
@@ -12,7 +11,9 @@ namespace R1Engine {
         [HideInInspector] public float fricStart;
         [HideInInspector] public Vector3 pos;
         [HideInInspector] public Vector3 vel;
-        Vector3 mousePosPrev;
+        Vector3 lastMousePosition;
+        Vector3? panStart;
+        bool panning = false;
         LevelEditorBehaviour editor;
 
         public LevelTilemapController levelTilemapController;
@@ -34,30 +35,45 @@ namespace R1Engine {
             }
 
 
+            Vector3 mouseDeltaOrtho = Input.mousePosition - lastMousePosition;
+            lastMousePosition = Input.mousePosition;
+
+
             if (LevelEditorData.Level != null) {
                 // RMB scroling
-                if (GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {
-                    float xFactor = Camera.main.orthographicSize * 2.0f / Camera.main.pixelHeight;
-                    float yFactor = Camera.main.orthographicSize * 2.0f / Camera.main.pixelHeight;
+                if (Input.GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {
+                    if (!panStart.HasValue) {
+                        panStart = Input.mousePosition;
+                    }
+                    Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
 
-                    /*vel = 0.8f * Vector3.Lerp(vel, Vector3.ClampMagnitude(mousePosPrev - mousePosition, 50) * fov,
-                        inertia <= 0 ? 1 : Time.deltaTime * 1f / inertia);*/
-                    friction = fricStart;
-                    Vector3 mouseDeltaOrtho = mousePosition - mousePosPrev;
-                    pos += new Vector3(-mouseDeltaOrtho.x * xFactor, -mouseDeltaOrtho.y * yFactor);
+                    if (panning) {
+
+                        float xFactor = Camera.main.orthographicSize * 2.0f / Camera.main.pixelHeight;
+                        float yFactor = Camera.main.orthographicSize * 2.0f / Camera.main.pixelHeight;
+
+                        /*vel = 0.8f * Vector3.Lerp(vel, Vector3.ClampMagnitude(mousePosPrev - mousePosition, 50) * fov,
+                            inertia <= 0 ? 1 : Time.deltaTime * 1f / inertia);*/
+                        friction = fricStart;
+                        pos += new Vector3(-mouseDeltaOrtho.x * xFactor, -mouseDeltaOrtho.y * yFactor);
+                    } else if (Input.GetMouseButtonDown(1) && screenRect.Contains(Input.mousePosition)) { // Only start panning if within game window when you click
+                        panning = true;
+                    }
+                } else {
+                    panStart = null;
+                    panning = false;
                 }
-                mousePosPrev = mousePosition;
 
                 // Mouse wheel zooming
                 if (!EventSystem.current.IsPointerOverGameObject())
-                    fov = Mathf.Clamp(fov - 0.25f * mouseScrollDelta.y * fov, 3.75f, 50);
+                    fov = Mathf.Clamp(fov - 0.25f * Input.mouseScrollDelta.y * fov, 3.75f, 50);
 
 
                 // WASD scrolling
-                bool scrollLeft = GetKey(KeyCode.LeftArrow) || GetKey(KeyCode.A);
-                bool scrollRight = GetKey(KeyCode.RightArrow) || GetKey(KeyCode.D);
-                bool scrollUp = GetKey(KeyCode.UpArrow) || GetKey(KeyCode.W);
-                bool scrollDown = GetKey(KeyCode.DownArrow) || GetKey(KeyCode.S);
+                bool scrollLeft = Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A);
+                bool scrollRight = Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D);
+                bool scrollUp = Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W);
+                bool scrollDown = Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S);
                 bool scrolling = scrollLeft || scrollRight || scrollUp || scrollDown;
                 if (scrolling || editor.scrolling) friction = 30;
 
