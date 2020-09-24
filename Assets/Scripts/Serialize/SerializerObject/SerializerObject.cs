@@ -175,6 +175,8 @@ namespace R1Engine
         }
 
         public virtual UniTask FillCacheForRead(int length) => UniTask.CompletedTask;
+
+        public virtual bool FullSerialize => true;
     }
 
     /// <summary>

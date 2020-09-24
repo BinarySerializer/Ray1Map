@@ -295,6 +295,9 @@ namespace R1Engine
             if (CollisionDataPointer != null)
                 s.DoAt(CollisionDataPointer, () => CollisionData = s.SerializeObject<R1_R2EventCollision>(CollisionData, name: nameof(CollisionData)));
 
+            if (!s.FullSerialize)
+                return;
+
             // Serialize the animation group data
             if (AnimGroupPointer != null)
                 s.DoAt(AnimGroupPointer, () => AnimGroup = s.SerializeObject<R1_R2EventAnimGroup>(AnimGroup, name: nameof(AnimGroup)));

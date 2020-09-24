@@ -10,7 +10,7 @@ using UnityEngine;
 
 public class UnityWindow : EditorWindow
 {
-    protected Rect GetNextRect(ref float yPos, float padding = 4f, float height = 0f, float vPadding = 0f, float vPaddingBottom = 0f)
+    public Rect GetNextRect(ref float yPos, float padding = 4f, float height = 0f, float vPadding = 0f, float vPaddingBottom = 0f)
     {
         if (height == 0f) 
             height = EditorGUIUtility.singleLineHeight;
@@ -49,7 +49,7 @@ public class UnityWindow : EditorWindow
             action();
     }
 
-    protected string DirectoryField(Rect rect, string title, string value, bool includeLabel = true)
+    public string DirectoryField(Rect rect, string title, string value, bool includeLabel = true)
     {
         BrowseButton(rect, title, EditorGUIUtility.IconContent("Folder Icon"), () => 
         {
@@ -77,7 +77,7 @@ public class UnityWindow : EditorWindow
         return value;
     }
 
-    protected string FileField(Rect rect, string title, string value, bool save, string extension, bool includeLabel = true)
+    public string FileField(Rect rect, string title, string value, bool save, string extension, bool includeLabel = true)
     {
         BrowseButton(rect, title, EditorGUIUtility.IconContent("Folder Icon"), () => 
         {
@@ -127,7 +127,7 @@ public class UnityWindow : EditorWindow
 
     #region Editor GUI
 
-    protected float YPos;
+    public float YPos;
     protected Dictionary<string, string[]> EnumOptions = new Dictionary<string, string[]>();
 
     public async UniTask OnGUI()
@@ -139,9 +139,9 @@ public class UnityWindow : EditorWindow
 
     protected virtual UniTask UpdateEditorFieldsAsync() => UniTask.CompletedTask;
 
-    protected void DrawHeader(string header) => DrawHeader(ref YPos, header);
+    public void DrawHeader(string header) => DrawHeader(ref YPos, header);
 
-    protected bool EditorField(string label, bool value, bool isVisible = true)
+    public bool EditorField(string label, bool value, bool isVisible = true)
     {
         if (!isVisible)
             return value;
@@ -149,7 +149,7 @@ public class UnityWindow : EditorWindow
         return EditorGUI.Toggle(GetNextRect(ref YPos), label, value);
     }
 
-    protected T EditorField<T>(string label, T value, bool isVisible = true, Func<string[]> getEnumOptions = null)
+    public T EditorField<T>(string label, T value, bool isVisible = true, Func<string[]> getEnumOptions = null)
         where T : Enum
     {
         if (!isVisible)
@@ -161,7 +161,7 @@ public class UnityWindow : EditorWindow
         return (T)(object)EditorGUI.Popup(GetNextRect(ref YPos), label, (int)(object)value, EnumOptions[label]);
     }
 
-    protected int EditorField(string label, int value, string[] options, bool isVisible = true)
+    public int EditorField(string label, int value, string[] options, bool isVisible = true)
     {
         if (!isVisible)
             return value;
@@ -169,7 +169,7 @@ public class UnityWindow : EditorWindow
         return EditorGUI.Popup(GetNextRect(ref YPos), label, value, options);
     }
 
-    protected string EditorField(string label, string value, bool isVisible = true)
+    public string EditorField(string label, string value, bool isVisible = true)
     {
         if (!isVisible)
             return value;
@@ -177,7 +177,7 @@ public class UnityWindow : EditorWindow
         return EditorGUI.TextField(GetNextRect(ref YPos), label, value);
     }
 
-    protected int EditorField(string label, int value, bool isVisible = true)
+    public int EditorField(string label, int value, bool isVisible = true)
     {
         if (!isVisible)
             return value;
@@ -185,7 +185,31 @@ public class UnityWindow : EditorWindow
         return EditorGUI.IntField(GetNextRect(ref YPos), label, value);
     }
 
-    protected bool EditorButton(string label, bool isVisible = true)
+    public long EditorField(string label, long value, bool isVisible = true)
+    {
+        if (!isVisible)
+            return value;
+
+        return EditorGUI.LongField(GetNextRect(ref YPos), label, value);
+    }
+
+    public float EditorField(string label, float value, bool isVisible = true)
+    {
+        if (!isVisible)
+            return value;
+
+        return EditorGUI.FloatField(GetNextRect(ref YPos), label, value);
+    }
+
+    public double EditorField(string label, double value, bool isVisible = true)
+    {
+        if (!isVisible)
+            return value;
+
+        return EditorGUI.DoubleField(GetNextRect(ref YPos), label, value);
+    }
+
+    public bool EditorButton(string label, bool isVisible = true)
     {
         if (!isVisible)
             return false;

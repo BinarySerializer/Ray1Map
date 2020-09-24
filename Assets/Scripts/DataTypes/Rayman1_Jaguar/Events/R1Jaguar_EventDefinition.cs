@@ -154,7 +154,12 @@ namespace R1Engine
                 Byte_26 = s.Serialize<byte>(Byte_26, name: nameof(Byte_26));
 			}
 
-			// Serialize event states
+            s.DoAt(CarPointer, () => CarData = s.SerializeArray<byte>(CarData, 0x26, name: nameof(CarData)));
+
+			if (!s.FullSerialize)
+				return;
+
+            // Serialize event states
 			if (CurrentStatePointer != null) {
 				// TODO: Find way to get the length
 				// First look back to find current state index
@@ -282,9 +287,7 @@ namespace R1Engine
                     }
                 });
             }
-
-			s.DoAt(CarPointer, () => CarData = s.SerializeArray<byte>(CarData, 0x26, name: nameof(CarData)));
-		}
+        }
 
 
 

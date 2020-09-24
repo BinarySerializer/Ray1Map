@@ -477,7 +477,7 @@ namespace R1Engine
             }
 
             // Parse data from pointers only on PS1 and if we're not reading from processed memory
-            if (!IsPCFormat(s.GameSettings) && !(Offset.file is ProcessMemoryStreamFile))
+            if (!IsPCFormat(s.GameSettings) && !(Offset.file is ProcessMemoryStreamFile) && s.FullSerialize)
             {
                 // Serialize the image descriptors
                 s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorCount, name: nameof(ImageDescriptors)));
