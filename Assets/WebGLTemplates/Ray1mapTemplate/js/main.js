@@ -109,6 +109,7 @@ let games_content, versions_content, levels_content, levels_sidebar = null;
 let games_header, versions_header, levels_header = null;
 let current_game, current_version = null;
 let levels_actors_group, actor1_group, actor2_group, actor1_selector, actor2_selector = null;
+let commandsIsOpen = false;
 
 // FUNCTIONS
 function getNoCacheURL() {
@@ -765,7 +766,12 @@ function setAllJSON(jsonString) {
 }
 
 function getCommandsHTML(commands) {
-	let commandsString ="<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>+</div>Commands</div><div id='commands-collapse' style='display: none;'>";
+	let commandsString;
+	if(commandsIsOpen) {
+		commandsString ="<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>-</div>Commands</div><div id='commands-collapse'>";
+	} else {
+		commandsString ="<div class='commands-item category collapsible' data-collapse='commands-collapse'><div class='collapse-sign'>+</div>Commands</div><div id='commands-collapse' style='display: none;'>";
+	}
 	$.each(commands, function (idx, val) {
 		commandsString += "<div class='commands-item command'><div class='commands-item-line-number'>" + idx + "</div>";
 		commandsString += "<div class='commands-item-script'><pre><code class='commands-item-code c'>" + escapeHTML(val) + "</code></pre></div></div>";
@@ -1949,9 +1955,11 @@ $(function() {
 		let collapse_id = $(this).attr('data-collapse');
 		let collapse = $("#"+collapse_id);
 		if(collapse.is(":hidden")) {
+			if(collapse_id === "commands-collapse") commandsIsOpen = true;
 			collapse.show("fast", refreshScroll);
 			$(this).find(".collapse-sign").text("-");
 		} else {
+			if(collapse_id === "commands-collapse") commandsIsOpen = false;
 			collapse.hide("fast", refreshScroll);
 			$(this).find(".collapse-sign").text("+");
 		}
