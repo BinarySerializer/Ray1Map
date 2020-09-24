@@ -92,32 +92,35 @@ namespace R1Engine
               $"Layer: {EventData.Layer}{Environment.NewLine}" +
               $"RuntimeLayer: {EventData.RuntimeLayer}{Environment.NewLine}" +
               $"{Environment.NewLine}" +
-              $"Unk_24: {EventData.Unk_24}{Environment.NewLine}" +
-              $"Unk_28: {EventData.Unk_28}{Environment.NewLine}" +
-              $"Unk_32: {EventData.Unk_32}{Environment.NewLine}" +
-              $"Unk_36: {EventData.Unk_36}{Environment.NewLine}" +
-              $"{Environment.NewLine}" +
-              $"Unk_48: {EventData.Unk_48}{Environment.NewLine}" +
-              $"Unk_54: {EventData.Unk_54}{Environment.NewLine}" +
-              $"Unk_56: {EventData.Unk_56}{Environment.NewLine}" +
-              $"Unk_58: {EventData.Unk_58}{Environment.NewLine}" +
-              $"{Environment.NewLine}" +
-              $"Unk_64: {EventData.Unk_64}{Environment.NewLine}" +
-              $"Unk_66: {EventData.Unk_66}{Environment.NewLine}" +
-              $"{Environment.NewLine}" +
-              $"Unk_74: {EventData.Unk_74}{Environment.NewLine}" +
-              $"Unk_76: {EventData.Unk_76}{Environment.NewLine}" +
-              $"Unk_78: {EventData.Unk_78}{Environment.NewLine}" +
-              $"Unk_80: {EventData.Unk_80}{Environment.NewLine}" +
-              $"Unk_82: {EventData.Unk_82}{Environment.NewLine}" +
-              $"Unk_84: {EventData.Unk_84}{Environment.NewLine}" +
-              $"Unk_86: {EventData.Unk_86}{Environment.NewLine}" +
-              $"Unk_88: {EventData.Unk_88}{Environment.NewLine}" +
-              $"Unk_90: {EventData.Unk_90}{Environment.NewLine}" +
+              $"Etat: {EventData.Etat}{Environment.NewLine}" +
+              $"Etat: {EventData.SubEtat}{Environment.NewLine}" +
+              $"RuntimeEtat: {EventData.RuntimeEtat}{Environment.NewLine}" +
+              $"RuntimeSubEtat: {EventData.RuntimeSubEtat}{Environment.NewLine}" +
+              //$"{Environment.NewLine}" +
+              //$"Unk_24: {EventData.Unk_24}{Environment.NewLine}" +
+              //$"Unk_28: {EventData.Unk_28}{Environment.NewLine}" +
+              //$"Unk_32: {EventData.Unk_32}{Environment.NewLine}" +
+              //$"Unk_36: {EventData.Unk_36}{Environment.NewLine}" +
+              //$"{Environment.NewLine}" +
+              //$"Unk_48: {EventData.Unk_48}{Environment.NewLine}" +
+              //$"Unk_54: {EventData.Unk_54}{Environment.NewLine}" +
+              //$"Unk_56: {EventData.Unk_56}{Environment.NewLine}" +
+              //$"Unk_58: {EventData.Unk_58}{Environment.NewLine}" +
+              //$"{Environment.NewLine}" +
+              //$"Unk_64: {EventData.Unk_64}{Environment.NewLine}" +
+              //$"Unk_66: {EventData.Unk_66}{Environment.NewLine}" +
+              //$"{Environment.NewLine}" +
+              //$"Unk_74: {EventData.Unk_74}{Environment.NewLine}" +
+              //$"Unk_76: {EventData.Unk_76}{Environment.NewLine}" +
+              //$"Unk_78: {EventData.Unk_78}{Environment.NewLine}" +
+              //$"Unk_80: {EventData.Unk_80}{Environment.NewLine}" +
+              //$"Unk_82: {EventData.Unk_82}{Environment.NewLine}" +
+              //$"Unk_84: {EventData.Unk_84}{Environment.NewLine}" +
+              //$"Unk_86: {EventData.Unk_86}{Environment.NewLine}" +
+              //$"Unk_88: {EventData.Unk_88}{Environment.NewLine}" +
+              //$"Unk_90: {EventData.Unk_90}{Environment.NewLine}" +
               $"Runtime_ZdcIndex.ZDCCount: {EventData.Runtime_TypeZDC?.ZDCCount}{Environment.NewLine}" +
               $"Runtime_ZdcIndex.ZDCIndex: {EventData.Runtime_TypeZDC?.ZDCIndex}{Environment.NewLine}" +
-              $"State.SoundIndex: {State.SoundIndex}{Environment.NewLine}" +
-              $"State.ZDCData: {State.ZDCFlags}{Environment.NewLine}" +
               $"Unk_94: {EventData.Unk_94}{Environment.NewLine}" +
               $"{Environment.NewLine}" +
               $"Flags: {EventData.PC_Flags}{Environment.NewLine}";
@@ -313,6 +316,9 @@ namespace R1Engine
 
         protected override void OnFinishedAnimation()
         {
+            if (Settings.LoadFromMemory)
+                return;
+
             if (Settings.StateSwitchingMode != StateSwitchingMode.None)
             {
                 // Get the current state
@@ -331,6 +337,11 @@ namespace R1Engine
                     EventData.RuntimeEtat = state.LinkedEtat;
                     EventData.RuntimeSubEtat = state.LinkedSubEtat;
                 }
+            }
+            else
+            {
+                EventData.RuntimeEtat = EventData.Etat;
+                EventData.RuntimeSubEtat = EventData.SubEtat;
             }
         }
 
