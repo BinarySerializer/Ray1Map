@@ -92,7 +92,7 @@ namespace R1Engine
                             bytes = s.SerializeArray<byte>(default, size, name: nameof(bytes));
                         });
                         if (bytes != null) {
-                            s.Context.AddFile(new Serialize.MemoryMappedByteArrayFile("ETA_" + index, bytes, s.Context, memAddress));
+                            s.Context.AddMemoryMappedByteArrayFile("ETA_" + index, bytes, memAddress);
                         }
                     }
                     CreateFakeFile(0, 0x58);

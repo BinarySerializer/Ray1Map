@@ -950,20 +950,7 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public async UniTask LoadFilesAsync(Context context) => await LoadExtraFile(context, GetROMFilePath, GetROMBaseAddress);
-
-        public virtual async UniTask<GBAMemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
-        {
-            await FileSystem.PrepareFile(context.BasePath + path);
-
-            var file = new GBAMemoryMappedFile(context, baseAddress)
-            {
-                filePath = path,
-            };
-            context.AddFile(file);
-
-            return file;
-        }
+        public async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, GetROMBaseAddress);
 
         #endregion
     }

@@ -96,16 +96,7 @@ namespace R1Engine
         public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);
         public override GBA_LocLanguageTable LoadLocalization(Context context) => null;
 
-        public override async UniTask LoadFilesAsync(Context context)
-        {
-            await FileSystem.PrepareFile(context.BasePath + GetROMFilePath);
-
-            var file = new LinearSerializedFile(context)
-            {
-                filePath = GetROMFilePath,
-            };
-            context.AddFile(file);
-        }
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
 
         // NOTE: In order to use this the FileSystem class needs to be updated to allow file stream sharing for read/write streams. Also note that this method will overwrite the GBA rom file, so keep a backup! All N-Gage data is appended rather than replaced, so the data can be swapped out by changing the offsets. Only the level offsets are automatically changed to use the N-Gage versions, thus keeping the menu etc.
         public async UniTask AddNGageToGBAAsync(GameModeSelection gbaGameModeSelection)

@@ -39,7 +39,7 @@ namespace R1Engine
                     const string key = "PC_EventCommand";
 
                     // Add the stream
-                    context.AddFile(new StreamFile(key, memStream, context));
+                    context.AddStreamFile(key, memStream);
 
                     // Deserialize the bytes
                     return FileFactory.Read<R1_EventCommandCollection>(key, context);
@@ -61,7 +61,7 @@ namespace R1Engine
                     const string key = "PC_EventCommand";
 
                     // Add the stream
-                    context.AddFile(new StreamFile(key, memStream, context));
+                    context.AddStreamFile(key, memStream);
 
                     // TODO: Pass in this instance
                     // Serialize the command

@@ -594,14 +594,9 @@ namespace R1Engine
 
                 //s.DoAt(context.GetFile(GetGameCubeManifestFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMapManifest>(default, name: "GameCubeManifest"));
 
-                var mapFilePath = $"map.{context.Settings.Level:000}";
+                var gcnFile = await context.AddLinearSerializedFileAsync($"map.{context.Settings.Level:000}");
 
-                context.AddFile(new LinearSerializedFile(context)
-                {
-                    filePath = mapFilePath
-                });
-
-                var gcnMap = s.DoAt(context.GetFile(mapFilePath).StartPointer, () => s.SerializeObject<GBA_GameCubeMap>(default, name: "GameCubeMap"));
+                var gcnMap = s.DoAt(gcnFile.StartPointer, () => s.SerializeObject<GBA_GameCubeMap>(default, name: "GameCubeMap"));
 
                 playField = gcnMap.PlayField;
                 scene = gcnMap.Scene;
@@ -1200,16 +1195,7 @@ namespace R1Engine
 
         public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
-        public virtual async UniTask LoadFilesAsync(Context context)
-        {
-            await FileSystem.PrepareFile(context.BasePath + GetROMFilePath);
-
-            var file = new GBAMemoryMappedFile(context, 0x08000000)
-            {
-                filePath = GetROMFilePath,
-            };
-            context.AddFile(file);
-        }
+        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
 
         public enum LevelType
         {

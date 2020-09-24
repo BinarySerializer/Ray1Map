@@ -37,7 +37,7 @@ namespace R1Engine
         {
             var filePath = GetLanguageFilePath("US");
 
-            await FileSystem.PrepareFile(filePath);
+            await FileSystem.PrepareFile(context.BasePath + filePath);
 
             // Create the dictionary
             return new Dictionary<string, string[]>()

@@ -57,11 +57,6 @@ namespace R1Engine
 
         #region Manager Methods
 
-        public async UniTask LoadExtraFile(Context context, string path) {
-            await FileSystem.PrepareFile(context.BasePath + path);
-            context.AddFile(GetFile(context, path));
-        }
-
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -83,7 +78,7 @@ namespace R1Engine
                 ["pcx"] = GetPCXFilePath(context.Settings)
             };
             foreach (KeyValuePair<string, string> path in paths) {
-                await LoadExtraFile(context, path.Value);
+                await AddFile(context, path.Value);
             }
 
             // Read the map data
@@ -101,7 +96,7 @@ namespace R1Engine
             foreach (KeyValuePair<string, string> item in desCmdManifest.Skip(1)) {
                 await Controller.WaitIfNecessary();
                 string path = basePath + item.Value;
-                await LoadExtraFile(context, path);
+                await AddFile(context, path);
                 cmd.Add(item.Key, FileFactory.ReadText<R1_Mapper_EventCMD>(path, context));
             }
 

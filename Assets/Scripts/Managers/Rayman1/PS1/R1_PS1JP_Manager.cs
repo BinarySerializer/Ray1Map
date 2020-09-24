@@ -190,7 +190,7 @@ namespace R1Engine
             await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings));
 
             // Load the exe
-            await LoadExtraFile(context, GetExeFilePath, true);
+            await context.AddLinearSerializedFileAsync(GetExeFilePath);
 
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures);

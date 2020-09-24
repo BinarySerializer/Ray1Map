@@ -124,15 +124,6 @@ namespace R1Engine
 
         public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
-        public async UniTask LoadFilesAsync(Context context)
-        {
-            await FileSystem.PrepareFile(context.BasePath + GetROMFilePath);
-
-            var file = new LinearSerializedFile(context)
-            {
-                filePath = GetROMFilePath,
-            };
-            context.AddFile(file);
-        }
+        public async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
     }
 }

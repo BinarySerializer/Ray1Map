@@ -1,8 +1,7 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
-using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
 
 namespace R1Engine
 {
@@ -248,7 +247,7 @@ namespace R1Engine
                 await LoadExtraFile(context, bgPath);
 
             // Load the exe
-            await LoadExtraFile(context, GetExeFilePath, true);
+            await context.AddLinearSerializedFileAsync(GetExeFilePath);
 
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, bgPath == null ? null : level.BackgroundData);

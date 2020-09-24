@@ -1453,16 +1453,7 @@ namespace R1Engine
 
         public virtual async UniTask<MemoryMappedFile> LoadExtraFile(Context context, string path, uint baseAddress)
         {
-            await FileSystem.PrepareFile(context.BasePath + path);
-
-            var file = new MemoryMappedFile(context, baseAddress)
-            {
-                filePath = path,
-                Endianness = BinaryFile.Endian.Big
-            };
-            context.AddFile(file);
-
-            return file;
+            return await context.AddMemoryMappedFile(path, baseAddress, BinaryFile.Endian.Big);
         }
 
         #endregion

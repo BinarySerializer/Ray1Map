@@ -59,15 +59,6 @@ namespace R1Engine
 
         public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
 
-        public virtual async UniTask LoadFilesAsync(Context context)
-        {
-            await FileSystem.PrepareFile(context.BasePath + GetROMFilePath);
-
-            var file = new GBAMemoryMappedFile(context, 0x08000000)
-            {
-                filePath = GetROMFilePath,
-            };
-            context.AddFile(file);
-        }
+        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
     }
 }

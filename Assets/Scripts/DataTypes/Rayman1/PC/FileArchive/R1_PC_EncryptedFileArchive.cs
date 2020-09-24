@@ -79,7 +79,7 @@ namespace R1Engine
                 using (var headerStream = new MemoryStream(headerBytes))
                 {
                     var key = $"{Offset}_Header";
-                    s.Context.AddFile(new StreamFile(key, headerStream, s.Context));
+                    s.Context.AddStreamFile(key, headerStream);
 
                     Entries = s.DoAt(s.Context.GetFile(key).StartPointer, () => s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(Entries, headerLength, name: nameof(Entries)));
                 }

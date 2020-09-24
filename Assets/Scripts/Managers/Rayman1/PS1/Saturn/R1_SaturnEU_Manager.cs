@@ -36,7 +36,7 @@ namespace R1Engine
             foreach (var lang in langs)
             {
                 var filePath = GetLanguageFilePath(lang.LangCode);
-                await FileSystem.PrepareFile(filePath);
+                await FileSystem.PrepareFile(context.BasePath + filePath);
                 var langFile = FileFactory.ReadText<R1_TextLocFile>(filePath, context);
                 loc.Add(lang.Language, langFile.Strings);
             }

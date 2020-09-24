@@ -158,10 +158,9 @@ namespace R1Engine
             var headerLength = headerBytes.Length / 12;
 
             var headerStream = new MemoryStream(headerBytes);
-            var key = $"VIGNET_Header";
-            s.Context.AddFile(new StreamFile(key, headerStream, s.Context));
+            var file = s.Context.AddStreamFile($"VIGNET_Header", headerStream);
 
-            return s.DoAt(s.Context.GetFile(key).StartPointer, () => s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(default, headerLength, name: "Entries"));
+            return s.DoAt(file.StartPointer, () => s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(default, headerLength, name: "Entries"));
         }
 
         public override void ExtractVignette(GameSettings settings, string vigPath, string outputDir)
