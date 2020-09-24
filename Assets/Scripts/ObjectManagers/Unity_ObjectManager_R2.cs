@@ -24,40 +24,7 @@ namespace R1Engine
 
         public ushort[] LinkTable { get; }
 
-        public override void InitLinkGroups(IList<Unity_Object> objects)
-        {
-            int currentId = 1;
-
-            for (int i = 0; i < LinkTable.Length; i++)
-            {
-                if (i >= objects.Count)
-                    break;
-
-                // No link
-                if (LinkTable[i] == i)
-                {
-                    objects[i].EditorLinkGroup = 0;
-                }
-                else
-                {
-                    // Ignore already assigned ones
-                    if (objects[i].EditorLinkGroup != 0)
-                        continue;
-
-                    // Link found, loop through everyone on the link chain
-                    int nextEvent = LinkTable[i];
-                    objects[i].EditorLinkGroup = currentId;
-                    int prevEvent = i;
-                    while (nextEvent != i && nextEvent != prevEvent)
-                    {
-                        prevEvent = nextEvent;
-                        objects[nextEvent].EditorLinkGroup = currentId;
-                        nextEvent = LinkTable[nextEvent];
-                    }
-                    currentId++;
-                }
-            }
-        }
+        public override void InitR1LinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
 
         public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R2>().FindItem(x => x.EventData.EventType == R1_R2EventType.RaymanPosition);
 

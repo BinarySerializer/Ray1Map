@@ -202,37 +202,7 @@ namespace R1Engine
             return eventData;
         }
 
-        public override void InitLinkGroups(IList<Unity_Object> objects)
-        {
-            int currentId = 1;
-
-            for (int i = 0; i < objects.Count; i++)
-            {
-                // No link
-                if (LinkTable[i] == i)
-                {
-                    objects[i].EditorLinkGroup = 0;
-                }
-                else
-                {
-                    // Ignore already assigned ones
-                    if (objects[i].EditorLinkGroup != 0)
-                        continue;
-
-                    // Link found, loop through everyone on the link chain
-                    int nextEvent = LinkTable[i];
-                    objects[i].EditorLinkGroup = currentId;
-                    int prevEvent = i;
-                    while (nextEvent != i && nextEvent != prevEvent)
-                    {
-                        prevEvent = nextEvent;
-                        objects[nextEvent].EditorLinkGroup = currentId;
-                        nextEvent = LinkTable[nextEvent];
-                    }
-                    currentId++;
-                }
-            }
-        }
+        public override void InitR1LinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
         public override void SaveLinkGroups(IList<Unity_Object> objects)
         {
             /*

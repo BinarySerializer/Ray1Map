@@ -163,20 +163,43 @@ namespace R1Engine
 
         protected void InitializeEventLinks()
         {
-            var eventList = Controller.obj.levelController.Objects;
-
-            // Initialize links
-            LevelEditorData.ObjManager.InitLinkGroups(eventList.Select(x => x.ObjData).ToArray());
-
-            // Set link positions
-            foreach (var linkedEvents in eventList.Where(x => x.ObjData.EditorLinkGroup != 0).GroupBy(x => x.ObjData.EditorLinkGroup))
+            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
-                var prev = linkedEvents.Last();
+                foreach (var obj in Controller.obj.levelController.Objects)
+                {
+                    var linkCount = ((Unity_Object_GBA)obj.ObjData).GetLinkedActors().Count();
 
-                foreach (var e in linkedEvents) {
-                    e.linkCube.position = prev.linkCube.position;
-                    e.linkCubeLockPosition = e.linkCube.position;
-                    prev = e;
+                    obj.gbaLinkLines = new LineRenderer[linkCount];
+
+                    for (int i = 0; i < linkCount; i++)
+                    {
+                        LineRenderer lr = new GameObject("GBALinkLine").AddComponent<LineRenderer>();
+                        lr.material = linkLineMaterial;
+                        lr.material.color = Color.yellow;
+                        lr.positionCount = 2;
+                        lr.widthMultiplier = 0.5f;
+                        obj.gbaLinkLines[i] = lr;
+                    }
+                }
+            }
+            else
+            {
+                var objList = Controller.obj.levelController.Objects;
+
+                // Initialize links
+                LevelEditorData.ObjManager.InitR1LinkGroups(objList.Select(x => x.ObjData).ToArray());
+
+                // Set link positions
+                foreach (var linkedEvents in objList.Where(x => x.ObjData.R1_EditorLinkGroup != 0).GroupBy(x => x.ObjData.R1_EditorLinkGroup))
+                {
+                    var prev = linkedEvents.Last();
+
+                    foreach (var e in linkedEvents)
+                    {
+                        e.linkCube.position = prev.linkCube.position;
+                        e.linkCubeLockPosition = e.linkCube.position;
+                        prev = e;
+                    }
                 }
             }
         }
@@ -319,7 +342,7 @@ namespace R1Engine
 
                 // Change the link
                 if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null) {
-                    SelectedEvent.ObjData.EditorLinkGroup = 0;
+                    SelectedEvent.ObjData.R1_EditorLinkGroup = 0;
                 }
             } else {
                 if (SelectedEvent != null)
@@ -408,11 +431,12 @@ namespace R1Engine
             if (makingChanges) return;
             // Only do this if in event/link mode
             bool modeEvents = editor.currentMode == LevelEditorBehaviour.EditMode.Events;
-            bool modeLinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links;
+            bool modeR1Links = editor.currentMode == LevelEditorBehaviour.EditMode.Links && LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA && FileSystem.mode != FileSystem.Mode.Web;
+            bool modeGBALinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links && LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA && FileSystem.mode != FileSystem.Mode.Web;
 
             outlineManager.Highlight = editor.objectHighlight.highlightedObject;
             outlineManager.Active = SelectedEvent;
-            if ( modeEvents || modeLinks ) 
+            if ( modeEvents || modeR1Links ) 
             {
                 outlineManager.Active = SelectedEvent;
                 // Add events with mmb
@@ -479,7 +503,7 @@ namespace R1Engine
                         }
 
                         // Else move links
-                        if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && FileSystem.mode != FileSystem.Mode.Web) {
+                        if (modeR1Links && SelectedEvent != Controller.obj.levelController.RaymanObject) {
                             var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(mousePos.x), Mathf.FloorToInt(mousePos.y));
                         }
@@ -487,7 +511,7 @@ namespace R1Engine
                 }
 
                 //Confirm links with mmb
-                if (Input.GetMouseButtonDown(2) && modeLinks && SelectedEvent?.ObjData.EditorLinkGroup == 0 && FileSystem.mode != FileSystem.Mode.Web)
+                if (Input.GetMouseButtonDown(2) && modeR1Links && SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
                 {
                     bool alone = true;
                     
@@ -495,14 +519,14 @@ namespace R1Engine
                         Where(ee => ee.linkCube.position == SelectedEvent.linkCube.position).
                         Where(ee => ee != SelectedEvent))
                     {
-                        ee.ObjData.EditorLinkGroup = currentId;
+                        ee.ObjData.R1_EditorLinkGroup = currentId;
                         ee.linkCubeLockPosition = ee.linkCube.position;
                         alone = false;
                     }
 
                     if (!alone) 
                     {
-                        SelectedEvent.ObjData.EditorLinkGroup = currentId;
+                        SelectedEvent.ObjData.R1_EditorLinkGroup = currentId;
                         SelectedEvent.linkCubeLockPosition = SelectedEvent.linkCube.position;
                     }
                     currentId++;
@@ -547,7 +571,7 @@ namespace R1Engine
             } else {
                 outlineManager.Active = null;
             }
-            if (ClickedEvent != null && (!Input.GetMouseButton(0) || !(modeEvents || modeLinks))) {
+            if (ClickedEvent != null && (!Input.GetMouseButton(0) || !(modeEvents || modeR1Links))) {
                 ClickedEvent = null;
             }
             outlineManager.selecting = ClickedEvent != null;

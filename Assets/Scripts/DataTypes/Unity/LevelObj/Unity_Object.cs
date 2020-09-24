@@ -13,7 +13,7 @@ namespace R1Engine
 
         // Editor
         public abstract string DebugText { get; }
-        public int EditorLinkGroup { get; set; }
+        public int R1_EditorLinkGroup { get; set; }
         public bool HasPendingEdits { get; set; }
 
         // TODO: Remove this once we rework the editor

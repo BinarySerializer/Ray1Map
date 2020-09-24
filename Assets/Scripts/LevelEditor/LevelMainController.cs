@@ -235,10 +235,10 @@ namespace R1Engine
                                 r1Object.EventData.Type == R1_EventType.MS_super_kildoor ||
                                 r1Object.EventData.Type == R1_EventType.MS_compteur);
 
-                    return ee.ObjData.EditorLinkGroup != 0;
+                    return ee.ObjData.R1_EditorLinkGroup != 0;
                 }
 
-                if (e.ObjData.EditorLinkGroup == 0)
+                if (e.ObjData.R1_EditorLinkGroup == 0)
                 {
                     e.lineRend.enabled = false;
                     e.linkCube.gameObject.SetActive(false);
@@ -251,7 +251,7 @@ namespace R1Engine
                         e
                     };
 
-                    foreach (Unity_ObjBehaviour f in Objects.Where(f => f.ObjData.EditorLinkGroup == e.ObjData.EditorLinkGroup))
+                    foreach (Unity_ObjBehaviour f in Objects.Where(f => f.ObjData.R1_EditorLinkGroup == e.ObjData.R1_EditorLinkGroup))
                     {
                         allofSame.Add(f);
                         if (showLinksForObj(f))

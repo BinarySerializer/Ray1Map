@@ -22,6 +22,25 @@ namespace R1Engine
         protected short InitialXPos { get; }
         protected short InitialYPos { get; }
 
+        public IEnumerable<byte> GetLinkedActors()
+        {
+            if (Actor.Link_0 != 0xFF)
+                yield return Actor.Link_0;
+
+            if (Actor.Link_1 != 0xFF)
+                yield return Actor.Link_1;
+
+            if (Actor.Link_2 != 0xFF)
+                yield return Actor.Link_2;
+
+            if (Actor.Link_3 != 0xFF)
+                yield return Actor.Link_3;
+
+            if (Actor.BoxActorBlock != null)
+                foreach (var d in Actor.BoxActorBlock.Data)
+                    yield return d.LinkedActor;
+        }
+
         public Unity_ObjectManager_GBA ObjManager { get; }
 
         public GBA_ActorState State => GraphicsData?.States.ElementAtOrDefault(Actor.StateIndex);

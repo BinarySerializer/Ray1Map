@@ -15,64 +15,6 @@ namespace R1Engine
 
         public GraphicsData[] GraphicsDatas { get; }
 
-        public override void InitLinkGroups(IList<Unity_Object> objects)
-        {
-            var usesLinks = Context.Settings.EngineVersion > EngineVersion.GBA_BatmanVengeance && Context.Settings.EngineVersion < EngineVersion.GBA_SplinterCellPandoraTomorrow;
-
-            if (!usesLinks)
-                return;
-
-            var eventList = objects.Cast<Unity_Object_GBA>().Select(x => new
-            {
-                Data = x,
-                Links = new byte[]
-                {
-                    x.Actor.Link_0,
-                    x.Actor.Link_1,
-                    x.Actor.Link_2,
-                    x.Actor.Link_3
-                }.Concat(x.Actor.BoxActorBlock?.Data.Select(l => l.LinkedActor) ?? new byte[0]).ToArray()
-            }).ToArray();
-
-            for (int i = 0; i < eventList.Length; i++)
-            {
-                var data = eventList[i].Data;
-                var links = eventList[i].Links;
-
-                // Ignore already assigned ones
-                if (data.EditorLinkGroup != 0)
-                    continue;
-
-                // No link
-                if (links.All(x => x == 0xFF))
-                {
-                    data.EditorLinkGroup = 0;
-                }
-                // Link
-                else
-                {
-                    data.EditorLinkGroup = i + 1;
-
-                    foreach (var link in links)
-                    {
-                        if (link == 0xFF)
-                            continue;
-
-                        if (link >= eventList.Length)
-                        {
-                            Debug.LogWarning("Link ID " + link + " was too high (event count: " + eventList.Length);
-                            continue;
-                        }
-
-                        eventList[link].Data.EditorLinkGroup = i + 1;
-
-                        foreach (var linkedObj in eventList.Where(x => x.Data.EditorLinkGroup == 0 && x.Links.Contains(link)))
-                            linkedObj.Data.EditorLinkGroup = i + 1;
-                    }
-                }
-            }
-        }
-
         public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_GBA>().FindItem(x => x.Actor.ActorID == 0);
 
         [Obsolete]

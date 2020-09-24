@@ -36,6 +36,7 @@ namespace R1Engine
 
         #endregion
 
+        public LineRenderer[] gbaLinkLines;
         // Default sprite
         public SpriteRenderer defautRenderer;
         // Reference to spritepart prefab
@@ -257,7 +258,7 @@ namespace R1Engine
             transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
 
             // Don't move link cube if it's part of a link
-            if (ObjData.EditorLinkGroup != 0)
+            if (ObjData.R1_EditorLinkGroup != 0)
                 linkCube.position = linkCubeLockPosition;
             else
                 linkCubeLockPosition = linkCube.position;
@@ -489,7 +490,7 @@ namespace R1Engine
             lineRend.SetPosition(1, linkCube.position);
 
             // Update link colors
-            if (ObjData.EditorLinkGroup == 0)
+            if (ObjData.R1_EditorLinkGroup == 0)
             {
                 lineRend.startColor = Controller.obj.levelEventController.linkColorDeactive;
                 lineRend.endColor = Controller.obj.levelEventController.linkColorDeactive;
@@ -509,7 +510,9 @@ namespace R1Engine
                 // Make sure links are set to show
                 Settings.ShowLinks && 
                 // Only show active links on web
-                !(FileSystem.mode == FileSystem.Mode.Web && ObjData.EditorLinkGroup == 0);
+                !(FileSystem.mode == FileSystem.Mode.Web && ObjData.R1_EditorLinkGroup == 0) && 
+                // Don't show R1 links on GBA
+                LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA;
             lineRend.enabled = showLinks;
             linkCube.gameObject.SetActive(showLinks);
 
@@ -524,6 +527,55 @@ namespace R1Engine
                 ObjData is Unity_Object_R1 r1o && 
                 r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings) && 
                 !(engineVersion == EngineVersion.R1_PS1_JP || engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || engineVersion == EngineVersion.R1_Saturn));
+
+            // Update GBA link lines
+            if (ObjData is Unity_Object_GBA gba)
+            {
+                var index = 0;
+                var objects = Controller.obj.levelController.Objects;
+
+                foreach (var linkedActor in gba.GetLinkedActors())
+                {
+                    var lr = gbaLinkLines[index];
+
+                    Vector3 origin = midpoint;
+                    Vector3 target = objects[linkedActor].midpoint;
+
+                    lr.sortingLayerName = "Links";
+                    lr.SetPositions(new Vector3[]
+                    {
+                        origin,
+                        target
+                    });
+
+                    float AdaptiveSize = 1f / Vector3.Distance(origin, target);
+                    if (AdaptiveSize < 0.5f)
+                    {
+                        lr.widthCurve = new AnimationCurve(
+                            new Keyframe(0, 0f),
+                            new Keyframe(AdaptiveSize, 0.4f),
+                            new Keyframe(0.999f - AdaptiveSize, 0.4f),  // neck of arrow
+                            new Keyframe(1 - AdaptiveSize, 1f), // max width of arrow head
+                            new Keyframe(1, 0f)); // tip of arrow
+                        lr.positionCount = 5;
+                        lr.SetPositions(new Vector3[] {
+                            origin,
+                            Vector3.Lerp(origin, target, AdaptiveSize),
+                            Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
+                            Vector3.Lerp(origin, target, 1 - AdaptiveSize),
+                            target });
+                    }
+                    else
+                    {
+                        lr.positionCount = 2;
+                        lr.SetPositions(new Vector3[] { origin, target });
+                    }
+
+                    lr.enabled = EnableBoxCollider && Settings.ShowLinks;
+
+                    index++;
+                }
+            }
         }
 
         private void ClearSprites(SpriteRenderer[] sprites) 

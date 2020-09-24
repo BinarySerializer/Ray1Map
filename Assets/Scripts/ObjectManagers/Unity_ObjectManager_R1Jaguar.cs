@@ -15,7 +15,7 @@ namespace R1Engine
         public List<EventDefinition> EventDefinitions { get; }
 
         // TODO: Change this to use Jaguars link system instead
-        public override void InitLinkGroups(IList<Unity_Object> objects)
+        public override void InitR1LinkGroups(IList<Unity_Object> objects)
         {
             int currentId = 1;
 
@@ -24,22 +24,22 @@ namespace R1Engine
                 // No link
                 if (((Unity_Object_R1Jaguar)objects[i]).LinkIndex == i)
                 {
-                    objects[i].EditorLinkGroup = 0;
+                    objects[i].R1_EditorLinkGroup = 0;
                 }
                 else
                 {
                     // Ignore already assigned ones
-                    if (objects[i].EditorLinkGroup != 0)
+                    if (objects[i].R1_EditorLinkGroup != 0)
                         continue;
 
                     // Link found, loop through everyone on the link chain
                     int nextEvent = ((Unity_Object_R1Jaguar)objects[i]).LinkIndex;
-                    objects[i].EditorLinkGroup = currentId;
+                    objects[i].R1_EditorLinkGroup = currentId;
                     int prevEvent = i;
                     while (nextEvent != i && nextEvent != prevEvent)
                     {
                         prevEvent = nextEvent;
-                        objects[nextEvent].EditorLinkGroup = currentId;
+                        objects[nextEvent].R1_EditorLinkGroup = currentId;
                         nextEvent = ((Unity_Object_R1Jaguar)objects[nextEvent]).LinkIndex;
                     }
                     currentId++;
