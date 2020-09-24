@@ -97,7 +97,7 @@ namespace R1Engine {
         /// </summary>
         public static bool BackupFiles { get; set; }
 
-        public static StateSwitchingMode StateSwitchingMode { get; set; } = StateSwitchingMode.None;
+        public static StateSwitchingMode StateSwitchingMode { get; set; } = StateSwitchingMode.Loop;
 
         /// <summary>
         /// Indicates if debug info should be shown on event mouse hovering

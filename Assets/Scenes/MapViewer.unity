@@ -20748,6 +20748,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 1683842179}
+  debugMessages: 0
 --- !u!1 &1690469886
 GameObject:
   m_ObjectHideFlags: 0

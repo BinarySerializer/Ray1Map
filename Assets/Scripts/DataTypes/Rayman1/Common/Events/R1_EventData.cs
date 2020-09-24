@@ -526,7 +526,7 @@ namespace R1Engine
                             LabelOffsets = new ushort[length];
                         }
                         // Serialize the label offsets
-                        s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
+                        LabelOffsets = s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
 
                         // Null terminate it - not necessary
                         //s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");

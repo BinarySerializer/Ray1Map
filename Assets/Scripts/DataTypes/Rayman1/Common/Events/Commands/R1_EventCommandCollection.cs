@@ -106,7 +106,7 @@ namespace R1Engine
         public string[] ToTranslatedStrings(ushort[] labelOffsets) {
             int[] lineNumbers;
             if (Commands == null || Commands.Length == 0) return null;
-            if (labelOffsets != null || labelOffsets.Length == 0) {
+            if (labelOffsets != null && labelOffsets.Length > 0) {
                 int[] commandOffsets = new int[Commands.Length + 1];
                 int curOff = 0;
                 for (int i = 0; i < commandOffsets.Length; i++) {

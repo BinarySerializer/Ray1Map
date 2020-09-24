@@ -18,6 +18,7 @@ public class WebCommunicator : MonoBehaviour {
 	public Controller controller;
     bool sentHierarchy = false;
     string allJSON = null;
+	public bool debugMessages = false;
 
 	Unity_ObjBehaviour highlightedObject_;
 	Unity_ObjBehaviour selectedObject_;
@@ -51,7 +52,7 @@ public class WebCommunicator : MonoBehaviour {
             SendHierarchy();
             sentHierarchy = true;
 		}
-        if (Application.platform == RuntimePlatform.WebGLPlayer && Controller.LoadState == Controller.State.Finished) {
+        if ((Application.platform == RuntimePlatform.WebGLPlayer || debugMessages) && Controller.LoadState == Controller.State.Finished) {
 			// TODO: Handle highlight & selection changes like in raymap:
 			var hl = Controller.obj.levelController.editor.objectHighlight;
 			// TODO: Also check highlighted collision?
@@ -95,12 +96,17 @@ public class WebCommunicator : MonoBehaviour {
 		}
 	}
     public void Send(WebJSON.Message obj) {
-        if (Application.platform == RuntimePlatform.WebGLPlayer) {
-            if (Controller.LoadState == Controller.State.Finished) {
+		if (Application.platform == RuntimePlatform.WebGLPlayer) {
+			if (Controller.LoadState == Controller.State.Finished) {
 				string json = SerializeMessage(obj);
-                UnityJSMessage(json);
-            }
-        }
+				UnityJSMessage(json);
+			}
+		} else if(debugMessages) {
+			if (Controller.LoadState == Controller.State.Finished) {
+				string json = SerializeMessage(obj);
+				print(json);
+			}
+		}
     }
 	public string SerializeMessage(WebJSON.Message obj) {
 		string json = Newtonsoft.Json.JsonConvert.SerializeObject(obj, JsonSettings);

@@ -1171,7 +1171,8 @@ function sendSettings() {
 			//DisplayInactive: $("#btn-displayInactive").hasClass("selected"),
 			ShowObjects: $("#btn-showObjects").hasClass("selected"),
 			AnimateSprites: $("#btn-animateSprites").hasClass("selected"),
-			AnimateTiles: $("#btn-animateTiles").hasClass("selected")
+			AnimateTiles: $("#btn-animateTiles").hasClass("selected"),
+			StateSwitchingMode: global_settings.StateSwitchingMode
 		}
 	}
 	let layers = $(".layer-button");
