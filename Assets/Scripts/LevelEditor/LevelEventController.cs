@@ -56,6 +56,7 @@ namespace R1Engine
 
         public Color linkColorActive;
         public Color linkColorDeactive;
+        public Material linkLineMaterial;
 
         //Keeping track of used linkIds
         public int currentId = 1;
