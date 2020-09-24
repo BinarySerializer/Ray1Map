@@ -3,9 +3,8 @@ using System.IO;
 
 public class zzTransparencyCapture
 {
-    public static Texture2D Capture(Rect pRect, bool isTransparent)
+    public static Texture2D Capture(Camera lCamera, Rect pRect, bool isTransparent)
     {
-        Camera lCamera = Camera.main;
 		RenderTexture renderTexture = new RenderTexture((int)pRect.width, (int)pRect.height, 32);
         Texture2D lOut;
         if (isTransparent) {
@@ -74,9 +73,10 @@ public class zzTransparencyCapture
     /// Capture a screenshot(not include GUI)
     /// </summary>
     /// <returns></returns>
-    public static Texture2D CaptureScreenshot(int width, int height, bool isTransparent)
+    public static Texture2D CaptureScreenshot(int width, int height, bool isTransparent, Camera camera = null)
     {
-        return Capture(new Rect(0f, 0f, width, height), isTransparent);
+        if (camera == null) camera = Camera.main;
+        return Capture(camera, new Rect(0f, 0f, width, height), isTransparent);
     }
 
     /// <summary>

@@ -185,7 +185,11 @@ namespace R1Engine
                     var evLoc = FileFactory.Read<R1_Mapper_EventLocFile>(evLocPath, context);
 
                     // Add the localization
-                    localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray());
+                    if (FileSystem.mode == FileSystem.Mode.Web) {
+                        localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"<key>{x.LocKey}</key><name>{x.Name}</name><description>{x.Description}</description>").ToArray());
+                    } else {
+                        localization.Add($"EVNAME{i:00} ({locName})", evLoc.LocItems.Select(x => $"{x.LocKey}: {x.Name} - {x.Description}").ToArray());
+                    }
                 }
             }
 

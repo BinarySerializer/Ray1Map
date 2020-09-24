@@ -50,7 +50,7 @@ public class WebCommunicator : MonoBehaviour {
         if (Controller.LoadState == Controller.State.Finished && !sentHierarchy) {
             SendHierarchy();
             sentHierarchy = true;
-        }
+		}
         if (Application.platform == RuntimePlatform.WebGLPlayer && Controller.LoadState == Controller.State.Finished) {
 			// TODO: Handle highlight & selection changes like in raymap:
 			var hl = Controller.obj.levelController.editor.objectHighlight;
@@ -375,6 +375,11 @@ public class WebCommunicator : MonoBehaviour {
 				}
 			}
 		}
+
+		if (msg.BackgroundTint.HasValue) {
+			var bgTint = Controller.obj?.levelController?.controllerTilemap?.backgroundTint;
+			if (bgTint != null) bgTint.color = msg.BackgroundTint.Value;
+		}
 	}
 	private void ParseSelectionJSON(WebJSON.Selection msg) {
 		if (msg?.Object != null) {
@@ -442,18 +447,23 @@ public class WebCommunicator : MonoBehaviour {
 		}
 	}
 	async UniTaskVoid TakeScreenshot(WebJSON.Screenshot msg) {
-		// TODO: Fix
 		if (msg != null) {
 			TransparencyCaptureBehaviour tcb = Camera.main.GetComponent<TransparencyCaptureBehaviour>();
 			if (tcb != null) {
 				try {
-					Resolution res = TransparencyCaptureBehaviour.GetCurrentResolution();
-					int height = msg.Height ?? Mathf.RoundToInt(res.height * (msg.SizeFactor ?? 1));
-					int width = msg.Width ?? Mathf.RoundToInt(res.width * (msg.SizeFactor ?? 1));
-					if (width > 0 && height > 0) {
+					if (msg.Type == WebJSON.Screenshot.ScreenshotType.FullLevel) {
 						System.DateTime dateTime = System.DateTime.Now;
-						byte[] screenshotBytes = await tcb.Capture(width, height, msg.IsTransparent ?? true);
+						byte[] screenshotBytes = await tcb.CaptureFulllevel(msg.IsTransparent ?? true);
 						SaveFile(screenshotBytes, screenshotBytes.Length, $"Screenshot_{dateTime.ToString("yyyy_MM_dd HH_mm_ss")}.png");
+					} else {
+						Resolution res = TransparencyCaptureBehaviour.GetCurrentResolution();
+						int height = msg.Height ?? Mathf.RoundToInt(res.height * (msg.SizeFactor ?? 1));
+						int width = msg.Width ?? Mathf.RoundToInt(res.width * (msg.SizeFactor ?? 1));
+						if (width > 0 && height > 0) {
+							System.DateTime dateTime = System.DateTime.Now;
+							byte[] screenshotBytes = await tcb.Capture(width, height, msg.IsTransparent ?? true);
+							SaveFile(screenshotBytes, screenshotBytes.Length, $"Screenshot_{dateTime.ToString("yyyy_MM_dd HH_mm_ss")}.png");
+						}
 					}
 				} catch (Exception) {
 					Debug.Log("Screenshot failed");

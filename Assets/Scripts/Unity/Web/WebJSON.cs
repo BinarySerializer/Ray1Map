@@ -1,4 +1,6 @@
 ﻿using R1Engine;
+using System;
+using UnityEngine;
 
 public class WebJSON {
 	public class Message {
@@ -48,6 +50,8 @@ public class WebJSON {
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 		
 		public Layer[] Layers { get; set; }
+
+		public Color? BackgroundTint { get; set; }
 	}
 	public class Hierarchy {
 		public Object Rayman { get; set; }
@@ -118,10 +122,16 @@ public class WebJSON {
 		}
 	}
 	public class Screenshot {
+		public ScreenshotType? Type { get; set; }
 		public int? Width { get; set; }
 		public int? Height { get; set; }
 		public bool? IsTransparent { get; set; }
 		public float? SizeFactor { get; set; }
+
+		public enum ScreenshotType {
+			Normal,
+			FullLevel
+		}
 	}
 
 	#region Enums
