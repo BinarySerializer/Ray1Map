@@ -39,6 +39,8 @@ public class ObjPropertiesWindow : UnityWindow
             {
                 DrawHeader("Editor fields");
 
+                selectedObj.ObjData.CurrentUIState = EditorField("State", selectedObj.ObjData.CurrentUIState, selectedObj.ObjData.UIStateNames);
+
                 // TODO: Add DES/ETA drop-down, add state drop-down, show cmds as string
 
                 DrawHeader("Object data");

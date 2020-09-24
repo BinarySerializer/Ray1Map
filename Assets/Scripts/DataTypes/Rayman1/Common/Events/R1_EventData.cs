@@ -269,7 +269,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (!IsPCFormat(s.GameSettings) || Offset.file is ProcessMemoryStreamFile)
+            if (!IsPCFormat(s.GameSettings) || Offset?.file is ProcessMemoryStreamFile)
             {
                 ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
                 AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));
