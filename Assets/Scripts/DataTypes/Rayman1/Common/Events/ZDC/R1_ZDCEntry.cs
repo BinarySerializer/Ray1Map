@@ -2,7 +2,7 @@
 {
     public class R1_ZDCEntry : R1Serializable
     {
-        public byte ZDCIndex { get; set; }
+        public ushort ZDCIndex { get; set; }
         public byte ZDCCount { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
@@ -14,7 +14,7 @@
 
             value = s.Serialize<ushort>(value, name: nameof(value));
 
-            ZDCIndex = (byte)BitHelpers.ExtractBits(value, 11, 0);
+            ZDCIndex = (ushort)BitHelpers.ExtractBits(value, 11, 0);
             ZDCCount = (byte)BitHelpers.ExtractBits(value, 5, 11);
 
             s.Log($"{nameof(ZDCIndex)}: {ZDCIndex}");
