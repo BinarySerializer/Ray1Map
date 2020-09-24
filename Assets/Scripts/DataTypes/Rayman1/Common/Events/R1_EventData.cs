@@ -516,35 +516,20 @@ namespace R1Engine
                     s.DoAt(CommandsPointer, () => Commands = s.SerializeObject<R1_EventCommandCollection>(Commands, name: nameof(Commands)));
 
                 // Serialize the label offsets
-                if (LabelOffsetsPointer != null)
+                if (LabelOffsetsPointer != null && Commands != null && Commands.Commands.Length > 0)
                 {
                     s.DoAt(LabelOffsetsPointer, () =>
                     {
-                        if (LabelOffsets == null)
-                        {
-                            // Create a temporary list
-                            var l = new List<ushort>();
+                        if (LabelOffsets == null) {
+                            int length = Commands.Commands.Max(c => c.UsesLabelOffsets ? (int)c.Arguments[0] : -1) + 1;
 
-                            int index = 0;
-
-                            // Loop until we reach null
-                            while (l.LastOrDefault() != 0)
-                            {
-                                l.Add(s.Serialize((ushort)0, name: $"LabelOffsets [{index}]"));
-                                index++;
-                            }
-
-                            // Set the label offsets
-                            LabelOffsets = l.ToArray();
+                            LabelOffsets = new ushort[length];
                         }
-                        else
-                        {
-                            // Serialize the label offsets
-                            s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
+                        // Serialize the label offsets
+                        s.SerializeArray(LabelOffsets, LabelOffsets.Length, name: nameof(LabelOffsets));
 
-                            // Null terminate it
-                            s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");
-                        }
+                        // Null terminate it - not necessary
+                        //s.Serialize((byte)0, name: nameof(LabelOffsets) + " NULL");
                     });
                 }
 
