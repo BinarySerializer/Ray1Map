@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('../fonts/icomoon/icomoon.eot?9eh556');
-  src:  url('../fonts/icomoon/icomoon.eot?9eh556#iefix') format('embedded-opentype'),
-    url('../fonts/icomoon/icomoon.ttf?9eh556') format('truetype'),
-    url('../fonts/icomoon/icomoon.woff?9eh556') format('woff'),
-    url('../fonts/icomoon/icomoon.svg?9eh556#icomoon') format('svg');
+  src:  url('../fonts/icomoon/icomoon.eot?zg3695');
+  src:  url('../fonts/icomoon/icomoon.eot?zg3695#iefix') format('embedded-opentype'),
+    url('../fonts/icomoon/icomoon.ttf?zg3695') format('truetype'),
+    url('../fonts/icomoon/icomoon.woff?zg3695') format('woff'),
+    url('../fonts/icomoon/icomoon.svg?zg3695#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -111,6 +111,18 @@
 }
 .icon-visibility:before {
   content: "\e90f";
+}
+.icon-arrow-shuffle:before {
+  content: "\e949";
+}
+.icon-arrow-repeat:before {
+  content: "\e946";
+}
+.icon-arrow-sync:before {
+  content: "\e947";
+}
+.icon-refresh:before {
+  content: "\e948";
 }
 .icon-info-large:before {
   content: "\e941";

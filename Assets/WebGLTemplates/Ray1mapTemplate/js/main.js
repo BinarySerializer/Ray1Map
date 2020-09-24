@@ -110,6 +110,7 @@ let games_header, versions_header, levels_header = null;
 let current_game, current_version = null;
 let levels_actors_group, actor1_group, actor2_group, actor1_selector, actor2_selector = null;
 let commandsIsOpen = false;
+let global_settings = null;
 
 // FUNCTIONS
 function getNoCacheURL() {
@@ -333,7 +334,9 @@ function parseObjects(hierarchy) {
 	return items;
 }
 function handleMessage_settings(msg) {
+	global_settings = msg;
 	$(".settings-toggle").removeClass("disabled-button");
+	$(".settings-toggle-special").removeClass("disabled-button");
 	
 	selectButton($("#btn-showCollision"), msg.ShowCollision);
 	selectButton($("#btn-showObjCollision"), msg.ShowObjCollision);
@@ -344,6 +347,14 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 
+	if(msg.hasOwnProperty("StateSwitchingMode")) {
+		selectButton($("#btn-stateSwitching"), msg.StateSwitchingMode !== "None");
+		if(msg.StateSwitchingMode === "Original") {
+			$("#btn-stateSwitching").html('<i class="icon-arrow-shuffle"></i>');
+		} else {
+			$("#btn-stateSwitching").html('<i class="icon-arrow-repeat"></i>');
+		}
+	}
 	
 	$("#btn-camera").removeClass("disabled-button");
 
@@ -1753,6 +1764,30 @@ $(function() {
 	});
 	$(document).on('input', "#range-luminosity", function() {
 		sendSettings();
+		return false;
+	});
+
+	$(document).on('click', "#btn-stateSwitching", function() {
+		if(global_settings.hasOwnProperty("StateSwitchingMode")) {
+			switch(global_settings.StateSwitchingMode) {
+				case "None":
+					global_settings.StateSwitchingMode = "Loop";
+					break;
+				case "Loop":
+					global_settings.StateSwitchingMode = "Original";
+					break;
+				case "Original":
+					global_settings.StateSwitchingMode = "None";
+					break;
+			}
+			selectButton($("#btn-stateSwitching"), global_settings.StateSwitchingMode !== "None");
+			if(global_settings.StateSwitchingMode === "Original") {
+				$("#btn-stateSwitching").html('<i class="icon-arrow-shuffle"></i>');
+			} else {
+				$("#btn-stateSwitching").html('<i class="icon-arrow-repeat"></i>');
+			}
+			sendSettings();
+		}
 		return false;
 	});
 	
