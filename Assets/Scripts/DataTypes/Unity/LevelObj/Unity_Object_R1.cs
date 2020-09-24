@@ -195,12 +195,26 @@ namespace R1Engine
 
                     if (zdc == null) 
                         continue;
-                    
-                    Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
-                    
-                    int addX = 0, addY = 0;
-                    
-                    if (p != null) {
+
+                    // Relative to the event origin
+                    if (zdc.LayerIndex == 0xFF)
+                    {
+                        yield return new Unity_ObjAnimationCollisionPart
+                        {
+                            XPosition = zdc.XPosition,
+                            YPosition = zdc.YPosition,
+                            Width = zdc.Width,
+                            Height = zdc.Height,
+                            Type = colType
+                        };
+                    }
+                    else
+                    {
+                        Unity_ObjAnimationPart p = CurrentAnimation?.Frames[AnimationFrame].SpriteLayers.ElementAtOrDefault(zdc.LayerIndex);
+
+                        if (p == null)
+                            continue;
+
                         /*int w = 0, h = 0;
                             if ((p.IsFlippedHorizontally || p.IsFlippedVertically) && p.ImageIndex < Sprites.Count) {
                                 var spr = Sprites[p.ImageIndex];
@@ -208,26 +222,29 @@ namespace R1Engine
                                 h = spr?.texture?.height ?? 0;
                             }*/
 
-                        addX = p.XPosition;// + (p.IsFlippedHorizontally ? w - zdc.Width : 0);
-                        addY = p.YPosition;// - (p.IsFlippedVertically ? h - zdc.Height : 0);
+                        var addX = p.XPosition;
+                        var addY = p.YPosition;
+
                         var imgDescr = ObjManager.DES.ElementAtOrDefault(DESIndex)?.Data?.ImageDescriptors.ElementAtOrDefault(p.ImageIndex);
 
-                        if (imgDescr != null)
-                        {
-                            addX += imgDescr.HitBoxOffsetX;
-                            addY += imgDescr.HitBoxOffsetY;
+                        if (imgDescr == null)
+                            continue;
 
-                            if (imgDescr.IsDummySprite())
-                                continue;
-                        }
+                        addX += imgDescr.HitBoxOffsetX;
+                        addY += imgDescr.HitBoxOffsetY;
+
+                        if (imgDescr.IsDummySprite())
+                            continue;
+
+                        yield return new Unity_ObjAnimationCollisionPart
+                        {
+                            XPosition = zdc.XPosition + addX,
+                            YPosition = zdc.YPosition + addY,
+                            Width = zdc.Width,
+                            Height = zdc.Height,
+                            Type = colType
+                        };
                     }
-                    yield return new Unity_ObjAnimationCollisionPart {
-                        XPosition = zdc.XPosition + addX,
-                        YPosition = zdc.YPosition + addY,
-                        Width = zdc.Width,
-                        Height = zdc.Height,
-                        Type = colType
-                    };
                 }
             }
             else if (EventData.HitSprite < 253)

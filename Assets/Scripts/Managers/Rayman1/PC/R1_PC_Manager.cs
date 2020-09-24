@@ -161,8 +161,17 @@ namespace R1Engine
         public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.R1PC_ZDCTable;
         public override byte[] GetEventFlagsBytes => R1_PC_EventFlagTables.R1PC_Flags;
 
-        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
-            UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])?.ToTexture(true));
+        public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax)
+        {
+            // Return null if the parallax bg is the same as the normal one
+            if (parallax && level.ParallaxBackgroundIndex == level.BackgroundIndex)
+                return UniTask.FromResult<Texture2D>(null);
+
+            var tex = LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings),
+                world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])?.ToTexture(true);
+
+            return UniTask.FromResult(tex);
+        }
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {

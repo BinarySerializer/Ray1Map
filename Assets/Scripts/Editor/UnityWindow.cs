@@ -134,10 +134,10 @@ public class UnityWindow : EditorWindow
     {
         YPos = 0;
 
-        await UpdateEditorFields();
+        await UpdateEditorFieldsAsync();
     }
 
-    protected virtual UniTask UpdateEditorFields() => UniTask.CompletedTask;
+    protected virtual UniTask UpdateEditorFieldsAsync() => UniTask.CompletedTask;
 
     protected void DrawHeader(string header) => DrawHeader(ref YPos, header);
 

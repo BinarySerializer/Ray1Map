@@ -3,7 +3,7 @@
     public class R1_PC_VersionFile : R1Serializable
     {
         public byte VersionsCount { get; set; }
-        public byte Unk1 { get; set; }
+        public byte RuntimeCurrentVersion { get; set; }
 
         public string[] VersionCodes { get; set; }
 
@@ -22,7 +22,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             VersionsCount = s.Serialize<byte>(VersionsCount, name: nameof(VersionsCount));
-            Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
+            RuntimeCurrentVersion = s.Serialize<byte>(RuntimeCurrentVersion, name: nameof(RuntimeCurrentVersion));
 
             s.DoAt(Offset + 0x02, () => VersionCodes = s.SerializeStringArray(VersionCodes, VersionsCount, 5, name: nameof(VersionCodes)));
             s.DoAt(Offset + 0x52, () => VersionModes = s.SerializeStringArray(VersionModes, VersionsCount, 20, name: nameof(VersionModes)));
