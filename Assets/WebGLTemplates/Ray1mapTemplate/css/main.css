@@ -1159,6 +1159,9 @@ a:focus {
 	float: right;
 	position: relative;
 }
+#big-screenshot-button {
+	margin-top: 0.8em;
+}
 .header-button.small {
 	font-size: 0.7em;
 }
@@ -1506,7 +1509,7 @@ input[type=range]::-ms-fill-upper {
 	position: absolute;
 	bottom: 3em;
 	right: 0em;
-	width: 24em;
+	width: 20em;
 	height: 6em;
 	border-radius: 2em 0em 0em 0em;
 	padding: 1em 2em 1em 2em;
@@ -1525,8 +1528,6 @@ input[type=range]::-ms-fill-upper {
 }
 .camera-options {
 	display: block;
-	float: right;
-	width: 19em;
 	text-align: left;
 	font-size: 0.8em;
 }

@@ -344,6 +344,9 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 
+	
+	$("#btn-camera").removeClass("disabled-button");
+
 	if(msg.hasOwnProperty("Layers") && msg.Layers.length > 0 && layer_buttons.html() === "") {
 		let items = []
 		items.push("<div class='header-buttons-text'>Layers:</div>");
@@ -375,58 +378,6 @@ function getIndexFromObject(obj) {
 		return obj.Index;
 	}
 	return -2;
-}
-function updateCameraPos() {
-	let selectedCameraPos = cameraPosSelector.val();
-	let classString = "";
-	switch(selectedCameraPos) {
-		case "Front":
-			classString = "front";
-			break;
-		case "Back":
-			classString = "back";
-			break;
-		case "Left":
-			classString = "left";
-			break;
-		case "Right":
-			classString = "right";
-			break;
-		case "Top":
-			classString = "top";
-			break;
-		case "Bottom":
-			classString = "bottom";
-			break;
-		case "Initial":
-			classString = "initial";
-			break;
-		case "IsometricFront":
-			classString = "isometric-front";
-			break;
-		case "IsometricBack":
-			classString = "isometric-back";
-			break;
-		case "IsometricLeft":
-			classString = "isometric-left";
-			break;
-		case "IsometricRight":
-			classString = "isometric-right";
-			break;
-	}
-	if(classString !== "") {
-		$("#camera-cube").removeClass (function (index, className) {
-			return (className.match (/(^|\s)show-\S+/g) || []).join(' ');
-		});
-		$("#camera-cube").addClass("show-" + classString);
-		let jsonObj = {
-			Type: "Camera",
-			Camera: {
-				CameraPos: selectedCameraPos
-			}
-		};
-		sendMessage(jsonObj);
-	}
 }
 function recalculateAspectRatio() {
 	if(!$("#camera-popup").hasClass("hidden-popup") && $("input[name='screenshotRadio']:checked").val() === "resolution") {
@@ -471,6 +422,11 @@ function updateResolutionSelection() {
 				screenshotResolutionH.removeProp('disabled');
 				screenshotSizeFactor.prop('disabled', 'true');
 				break;
+			case "fullLevel":
+				screenshotResolutionW.prop('disabled', 'true');
+				screenshotResolutionH.prop('disabled', 'true');
+				screenshotSizeFactor.prop('disabled', 'true');
+				break;
 		}
 	}
 	recalculateAspectRatio();
@@ -513,50 +469,19 @@ function takeScreenshot() {
 					sendMessage(jsonObj);
 				}
 				break;
+			case "fullLevel":
+				let jsonObj = {
+					Request: {
+						Type: "Screenshot",
+						Screenshot: {
+							Type: "FullLevel",
+							IsTransparent: isTransparent
+						}
+					}
+				};
+				sendMessage(jsonObj);
 		}
 	}
-}
-function clickCameraCube(view) {
-	let selectedCameraPos = cameraPosSelector.val();
-	if(selectedCameraPos === view) {
-		switch(selectedCameraPos) {
-			case "Front":
-				view = "IsometricFront";
-				break;
-			case "Back":
-				view = "IsometricBack";
-				break;
-			case "Left":
-				view = "IsometricLeft";
-				break;
-			case "Right":
-				view = "IsometricRight";
-				break;
-			case "Top":
-				view = "Initial";
-				break;
-			case "Bottom":
-				view = "Initial";
-				break;
-			case "Initial":
-				view = "IsometricFront";
-				break;
-			case "IsometricFront":
-				view= "Front";
-				break;
-			case "IsometricBack":
-				view = "Back";
-				break;
-			case "IsometricLeft":
-				view = "Left";
-				break;
-			case "IsometricRight":
-				view = "Right";
-				break;
-		}
-	}
-	cameraPosSelector.val(view);
-	updateCameraPos();
 }
 function handleMessage_camera(msg) {
 	$("#btn-camera").removeClass("disabled-button");
@@ -1265,16 +1190,6 @@ function handleMessage(jsonString) {
 				handleMessage_selection(msg.Selection); break;
 			case "Settings":
 				handleMessage_settings(msg.Settings); break;
-			case "Macro":
-				handleMessage_comport(msg.Macro); break;
-			case "Comport":
-				handleMessage_comport(msg.Comport); break;
-			case "Camera":
-				handleMessage_camera(msg.Camera); break;
-			case "CineData":
-				handleMessage_cineData(msg.CineData); break;
-			case "TransitionExport":
-				handleMessage_transitionExport(msg.TransitionExport); break;
 			default:
 				console.log('default');break;
 		}
@@ -1894,16 +1809,6 @@ $(function() {
 	$(document).on('change', "#languageSelector", function() {
 		updateLanguageDisplayed();
 		$(this).blur();
-		return false;
-	});
-	$(document).on('change', "#cameraPosSelector", function() {
-		updateCameraPos();
-		$(this).blur();
-		return false;
-	});
-	$(document).on('click', '.cube__face', function() {
-		let view = $(this).data('view');
-		clickCameraCube(view);
 		return false;
 	});
 	$(document).on('focusin', ".input-typing", function() {
