@@ -93,15 +93,11 @@ namespace R1Engine
         public override void SerializeImpl(SerializerObject s) {
             if (s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
             {
-                ushort value = 0;
-
-                value = (ushort)BitHelpers.SetBits(value, ImageIndex, 12, 0);
-                value = (ushort)BitHelpers.SetBits(value, (int)Flags, 4, 12);
-
-                value = s.Serialize<ushort>(value, name: nameof(value));
-
-                ImageIndex = (ushort)(BitHelpers.ExtractBits(value, 12, 0));
-                Flags = (Common_AnimationLayerFlags)BitHelpers.ExtractBits(value, 4, 12);
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    ImageIndex = (ushort)bitFunc(ImageIndex, 12, name: nameof(ImageIndex));
+                    Flags = (Common_AnimationLayerFlags)bitFunc((byte)Flags, 4, name: nameof(Flags));
+                });
 
                 XPosition = s.Serialize<byte>(XPosition, name: nameof(XPosition));
                 YPosition = s.Serialize<byte>(YPosition, name: nameof(YPosition));

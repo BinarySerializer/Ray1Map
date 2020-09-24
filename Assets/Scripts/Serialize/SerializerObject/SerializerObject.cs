@@ -176,6 +176,46 @@ namespace R1Engine
 
         public virtual UniTask FillCacheForRead(int length) => UniTask.CompletedTask;
 
+        public void SerializeBitValues<T>(Action<SerializeBits> serializeFunc)
+            where T : new()
+        {
+            // Convert to int so we can work with it
+            var valueInt = Convert.ToInt32(new T());
+
+            PreSerializeBitValues(serializeFunc);
+
+            int pos = 0;
+
+            // Set bits
+            serializeFunc((v, length, name) =>
+            {
+                valueInt = BitHelpers.SetBits(valueInt, v, length, pos);
+                pos += length;
+                return v;
+            });
+
+            // Reset position
+            pos = 0;
+
+            // Serialize value
+            valueInt = Convert.ToInt32(Serialize<T>((T)Convert.ChangeType(valueInt, typeof(T)), name: "Value"));
+
+            // Extract bits
+            serializeFunc((v, length, name) =>
+            {
+                var bitValue = BitHelpers.ExtractBits(valueInt, length, pos);
+
+                Log($"  ({typeof(T)}) {name ?? "<no name>"}: {bitValue}");
+
+                pos += length;
+                return bitValue;
+            });
+        }
+
+        protected virtual void PreSerializeBitValues(Action<SerializeBits> serializeFunc) {}
+
+        public delegate int SerializeBits(int value, int length, string name = null);
+
         public virtual bool FullSerialize => true;
     }
 

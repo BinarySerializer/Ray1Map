@@ -110,7 +110,7 @@ public class UnityWindowSerializer : SerializerObject
     public override Pointer SerializePointer(Pointer obj, Pointer anchor = null, bool allowInvalid = false, string name = null)
     {
         EditorGUI.BeginDisabledGroup(true);
-        Window.EditorField(name, $"0x{obj.AbsoluteOffset:X8}");
+        Window.EditorField(name, $"0x{obj?.AbsoluteOffset:X8}");
         EditorGUI.EndDisabledGroup();
         //EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{name} {obj}");
 
@@ -189,8 +189,13 @@ public class UnityWindowSerializer : SerializerObject
 
     public override T[] SerializeArraySize<T, U>(T[] obj, string name = null) => obj;
 
+    protected override void PreSerializeBitValues(Action<SerializeBits> serializeFunc)
+    {
+        serializeFunc((value, length, name) => Window.EditorField(name, value));
+    }
+
     public override void Log(string logString)
     {
-        EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{logString}");
+        //EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{logString}");
     }
 }

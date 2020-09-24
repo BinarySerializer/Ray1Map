@@ -70,67 +70,50 @@ namespace R1Engine
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
-                int value = 0;
-
-                value = BitHelpers.SetBits(value, TileMapX, 10, 0);
-                value = BitHelpers.SetBits(value, TileMapY, 6, 10);
-                value = BitHelpers.SetBits(value, (int)CollisionType, 8, 16);
-
-                value = s.Serialize<int>(value, name: nameof(value));
-
-                TileMapX = (ushort)BitHelpers.ExtractBits(value, 10, 0);
-                TileMapY = (ushort)BitHelpers.ExtractBits(value, 6, 10);
-                CollisionType = (byte)BitHelpers.ExtractBits(value, 8, 16);
+                s.SerializeBitValues<int>(bitFunc =>
+                {
+                    TileMapX = (ushort)bitFunc(TileMapX, 10, name: nameof(TileMapX));
+                    TileMapY = (ushort)bitFunc(TileMapY, 6, name: nameof(TileMapY));
+                    CollisionType = (byte)bitFunc(CollisionType, 8, name: nameof(CollisionType));
+                });
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
             {
-                ushort value = 0;
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    TileMapX = (ushort)bitFunc(TileMapX, 4, name: nameof(TileMapX));
+                    TileMapY = (ushort)bitFunc(TileMapY, 12, name: nameof(TileMapY));
+                });
 
-                value = (ushort)BitHelpers.SetBits(value, TileMapX, 4, 0);
-                value = (ushort)BitHelpers.SetBits(value, TileMapY, 12, 4);
-
-                value = s.Serialize<ushort>(value, name: nameof(value));
-
-                TileMapX = (ushort)BitHelpers.ExtractBits(value, 4, 0);
-                TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 4);
-
-                CollisionType = s.Serialize<byte>((byte)CollisionType, name: nameof(CollisionType));
-
-                // TODO: Serialize this? Is it part of collision type? This appears in other PS1 versions too and is skipped there. It appears to always be 0 though.
-                s.Serialize<byte>(0);
+                CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
+                s.Serialize<byte>(0, name: "Padding");
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.Rayman1_Jaguar)
             {
-                ushort value = 0;
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    TileMapY = (ushort)bitFunc(TileMapY, 12, name: nameof(TileMapY));
+                    CollisionType = (byte)bitFunc(CollisionType, 4, name: nameof(CollisionType));
+                });
 
-                value = (ushort)BitHelpers.SetBits(value, TileMapY, 12, 0);
-                value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 4, 12);
-
-                value = s.Serialize<ushort>(value, name: nameof(value));
-
-                TileMapY = (ushort)BitHelpers.ExtractBits(value, 12, 0);
                 TileMapX = 0;
-                CollisionType = (byte)BitHelpers.ExtractBits(value, 4, 12);
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.SNES)
             {
-                ushort value = 0;
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
+                    HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                    VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                    CollisionType = (byte)bitFunc(CollisionType, 4, name: nameof(CollisionType));
+                });
 
-                value = (ushort)BitHelpers.SetBits(value, TileMapY, 10, 0);
-                value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, 10);
-                value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, 11);
-                value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 4, 12);
-
-                value = s.Serialize<ushort>(value, name: nameof(value));
-
-                TileMapY = (ushort)BitHelpers.ExtractBits(value, 10, 0);
                 TileMapX = 0;
-                HorizontalFlip = BitHelpers.ExtractBits(value, 1, 10) == 1;
-                VerticalFlip = BitHelpers.ExtractBits(value, 1, 11) == 1;
-                CollisionType = (byte)BitHelpers.ExtractBits(value, 4, 12);
             }
             else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBA)
             {
+                // TODO: Use SerializeBitValues
+
                 if ((GBATileType == GBA_TileType.BGTile || GBATileType == GBA_TileType.FGTile)
                     && s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
                     && s.GameSettings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
@@ -170,15 +153,14 @@ namespace R1Engine
                 } else if(GBATileType == GBA_TileType.Mode7Tile) {
 
                     ushort value = 0;
-                    int numBits = 9;
 
-                    value = (ushort)BitHelpers.SetBits(value, TileMapY, numBits, 0);
+                    value = (ushort)BitHelpers.SetBits(value, TileMapY, 9, 0);
                     //value = (ushort)BitHelpers.SetBits(value, VerticalFlip ? 1 : 0, 1, numBits);
-                    value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, numBits);
+                    value = (ushort)BitHelpers.SetBits(value, HorizontalFlip ? 1 : 0, 1, 9);
 
                     value = s.Serialize<ushort>(value, name: nameof(value));
 
-                    TileMapY = (ushort)BitHelpers.ExtractBits(value, numBits, 0);
+                    TileMapY = (ushort)BitHelpers.ExtractBits(value, 9, 0);
                     TileMapX = 0;
                     IsFirstBlock = BitHelpers.ExtractBits(value, 1, 9) == 1;
                     HorizontalFlip = BitHelpers.ExtractBits(value, 1, 10) == 1;
@@ -234,34 +216,22 @@ namespace R1Engine
                     s.Log($"{nameof(PaletteIndex)}: {PaletteIndex}");
                 }
             }
-
-            else
+            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
             {
-                ushort value = 0;
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+                s.SerializeBitValues<ushort>(bitFunc =>
                 {
-                    value = (ushort)BitHelpers.SetBits(value, TileMapX, 4, 0);
-                    value = (ushort)BitHelpers.SetBits(value, TileMapY, 6, 4);
-                    value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 6, 10);
-                }
-                else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP)
+                    TileMapX = (ushort)bitFunc(TileMapX, 4, name: nameof(TileMapX));
+                    TileMapY = (ushort)bitFunc(TileMapY, 6, name: nameof(TileMapY));
+                    CollisionType = (byte)bitFunc(CollisionType, 6, name: nameof(CollisionType));
+                });
+            }
+            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP)
+            {
+                s.SerializeBitValues<ushort>(bitFunc =>
                 {
-                    value = (ushort)BitHelpers.SetBits(value, TileMapX, 9, 0);
-                    value = (ushort)BitHelpers.SetBits(value, (int)CollisionType, 7, 9);
-                }
-                value = s.Serialize<ushort>(value, name: nameof(value));
-                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
-                {
-                    TileMapX = (ushort)BitHelpers.ExtractBits(value, 4, 0);
-                    TileMapY = (ushort)BitHelpers.ExtractBits(value, 6, 4);
-                    CollisionType = (byte)(BitHelpers.ExtractBits(value, 6, 10));
-                }
-                else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP)
-                {
-                    TileMapX = (ushort)BitHelpers.ExtractBits(value, 9, 0);
-                    TileMapY = 0;
-                    CollisionType = (byte)BitHelpers.ExtractBits(value, 7, 9);
-                }
+                    TileMapX = (ushort)bitFunc(TileMapX, 9, name: nameof(TileMapX));
+                    CollisionType = (byte)bitFunc(CollisionType, 7, name: nameof(CollisionType));
+                });
             }
         }
 

@@ -20,7 +20,7 @@ public class ObjPropertiesWindow : UnityWindow
 
     protected UnityWindowSerializer Serializer { get; set; }
 
-    protected override async UniTask UpdateEditorFieldsAsync() 
+    protected override UniTask UpdateEditorFieldsAsync() 
     {
         if (TotalyPos == 0f)
             TotalyPos = position.height;
@@ -28,7 +28,7 @@ public class ObjPropertiesWindow : UnityWindow
         scrollbarShown = TotalyPos > position.height;
         ScrollPosition = GUI.BeginScrollView(new Rect(0, 0, EditorGUIUtility.currentViewWidth, position.height), ScrollPosition, new Rect(0, 0, EditorGUIUtility.currentViewWidth - (scrollbarShown ? scrollbarWidth : 0f), TotalyPos));
 
-        if (Controller.LoadState == Controller.State.Finished)
+        if (Application.isPlaying && Controller.LoadState == Controller.State.Finished)
         {
             if (Serializer == null)
                 Serializer = new UnityWindowSerializer(LevelEditorData.MainContext, this);
@@ -73,6 +73,8 @@ public class ObjPropertiesWindow : UnityWindow
 
         TotalyPos = YPos;
         GUI.EndScrollView();
+
+        return UniTask.CompletedTask;
     }
 
     #region Private Properties

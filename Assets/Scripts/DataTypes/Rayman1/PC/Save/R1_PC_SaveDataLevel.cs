@@ -25,19 +25,13 @@
         /// <param name="s">The serializer object</param>
         public override void SerializeImpl(SerializerObject s)
         {
-            byte value = 0;
-
-            value = (byte)BitHelpers.SetBits(value, IsUnlocked ? 1 : 0, 1, 0);
-            value = (byte)BitHelpers.SetBits(value, Unk_01, 1, 1);
-            value = (byte)BitHelpers.SetBits(value, Cages, 3, 2);
-            value = (byte)BitHelpers.SetBits(value, Unk_05, 3, 5);
-
-            value = s.Serialize<byte>(value, name: nameof(value));
-
-            IsUnlocked = BitHelpers.ExtractBits(value, 1, 0) == 1;
-            Unk_01 = (byte)BitHelpers.ExtractBits(value, 1, 1);
-            Cages = (byte)BitHelpers.ExtractBits(value, 3, 2);
-            Unk_05 = (byte)BitHelpers.ExtractBits(value, 3, 5);
+            s.SerializeBitValues<byte>(bitFunc =>
+            {
+                IsUnlocked = bitFunc(IsUnlocked ? 1 : 0, 1, name: nameof(IsUnlocked)) == 1;
+                Unk_01 = (byte)bitFunc(Unk_01, 1, name: nameof(Unk_01));
+                Cages = (byte)bitFunc(Cages, 3, name: nameof(Cages));
+                Unk_05 = (byte)bitFunc(Unk_05, 3, name: nameof(Unk_05));
+            });
         }
     }
 }

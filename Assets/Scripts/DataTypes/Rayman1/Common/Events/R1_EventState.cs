@@ -112,27 +112,19 @@ namespace R1Engine
 
                 if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
                 {
-                    byte value = 0;
-
-                    value = (byte)BitHelpers.SetBits(value, Unk, 4, 0);
-                    value = (byte)BitHelpers.SetBits(value, AnimationSpeed, 4, 4);
-
-                    value = s.Serialize<byte>(value, name: nameof(value));
-
-                    Unk = (byte)BitHelpers.ExtractBits(value, 4, 0);
-                    AnimationSpeed = (byte)BitHelpers.ExtractBits(value, 4, 4);
+                    s.SerializeBitValues<byte>(bitFunc =>
+                    {
+                        Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
+                        AnimationSpeed = (byte)bitFunc(AnimationSpeed, 4, name: nameof(AnimationSpeed));
+                    });
                 }
                 else
                 {
-                    byte value = 0;
-
-                    value = (byte)BitHelpers.SetBits(value, AnimationSpeed, 4, 0);
-                    value = (byte)BitHelpers.SetBits(value, Unk, 4, 4);
-
-                    value = s.Serialize<byte>(value, name: nameof(value));
-
-                    AnimationSpeed = (byte)BitHelpers.ExtractBits(value, 4, 0);
-                    Unk = (byte)BitHelpers.ExtractBits(value, 4, 4);
+                    s.SerializeBitValues<byte>(bitFunc =>
+                    {
+                        AnimationSpeed = (byte)bitFunc(AnimationSpeed, 4, name: nameof(AnimationSpeed));
+                        Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
+                    });
                 }
 
                 if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)

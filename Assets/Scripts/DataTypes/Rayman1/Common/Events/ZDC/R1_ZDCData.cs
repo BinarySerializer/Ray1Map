@@ -19,18 +19,11 @@
 
             if (s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
             {
-                ushort value = 0;
-
-                value = (ushort)BitHelpers.SetBits(value, LayerIndex, 5, 0);
-                value = (ushort)BitHelpers.SetBits(value, R2_Flags, 11, 5);
-
-                value = s.Serialize<ushort>(value, name: nameof(value));
-
-                LayerIndex = (byte)BitHelpers.ExtractBits(value, 5, 0);
-                R2_Flags = (byte)BitHelpers.ExtractBits(value, 11, 5);
-
-                s.Log($"{nameof(LayerIndex)}: {LayerIndex}");
-                s.Log($"{nameof(R2_Flags)}: {R2_Flags}");
+                s.SerializeBitValues<ushort>(bitFunc =>
+                {
+                    LayerIndex = (byte)bitFunc(LayerIndex, 5, name: nameof(LayerIndex));
+                    R2_Flags = (ushort)bitFunc(R2_Flags, 11, name: nameof(R2_Flags));
+                });
             }
             else
             {

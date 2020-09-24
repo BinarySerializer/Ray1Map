@@ -7,18 +7,11 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            ushort value = 0;
-
-            value = (ushort)BitHelpers.SetBits(value, ZDCIndex, 11, 0);
-            value = (ushort)BitHelpers.SetBits(value, ZDCCount, 5, 11);
-
-            value = s.Serialize<ushort>(value, name: nameof(value));
-
-            ZDCIndex = (ushort)BitHelpers.ExtractBits(value, 11, 0);
-            ZDCCount = (byte)BitHelpers.ExtractBits(value, 5, 11);
-
-            s.Log($"{nameof(ZDCIndex)}: {ZDCIndex}");
-            s.Log($"{nameof(ZDCCount)}: {ZDCCount}");
+            s.SerializeBitValues<ushort>(bitFunc =>
+            {
+                ZDCIndex = (ushort)bitFunc(ZDCIndex, 11, name: nameof(ZDCIndex));
+                ZDCCount = (byte)bitFunc(ZDCCount, 5, name: nameof(ZDCCount));
+            });
         }
     }
 }

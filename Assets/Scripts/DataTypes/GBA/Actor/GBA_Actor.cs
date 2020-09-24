@@ -109,18 +109,11 @@
                 } else {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
 
-                    byte value = 0;
-
-                    value = (byte)BitHelpers.SetBits(value, LinkedActorsCount, 5, 0);
-                    value = (byte)BitHelpers.SetBits(value, (byte)BoxActorID, 3, 5);
-
-                    value = s.Serialize<byte>(value, name: nameof(value));
-
-                    LinkedActorsCount = (byte)BitHelpers.ExtractBits(value, 5, 0);
-                    BoxActorID = (BoxActorType)BitHelpers.ExtractBits(value, 3, 5);
-
-                    s.Log($"{nameof(BoxActorID)}: {BoxActorID}");
-                    s.Log($"{nameof(LinkedActorsCount)}: {LinkedActorsCount}");
+                    s.SerializeBitValues<byte>(bitFunc =>
+                    {
+                        LinkedActorsCount = (byte)bitFunc(LinkedActorsCount, 5, name: nameof(LinkedActorsCount));
+                        BoxActorID = (BoxActorType)bitFunc((byte)BoxActorID, 3, name: nameof(BoxActorID));
+                    });
 
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                         UnkData1 = s.SerializeArray<byte>(UnkData1, 2, name: nameof(UnkData1));
