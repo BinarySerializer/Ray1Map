@@ -23,28 +23,7 @@ public class SettingsWindow : UnityWindow
 		titleContent.text = "Settings";
 	}
 
-    public string[] DefaultMemoryOptionNames { get; } = new string[]
-    {
-        "Custom",
-        "DOSBox 0.74"
-    };
-
-    public string[] DefaultMemoryOptionProcessNames { get; } = new string[]
-    {
-        null,
-        "DOSBox.exe"
-    };
-
-    public int[] DefaultMemoryOptionPointers { get; } = new int[]
-    {
-        -1,
-        0x01D3A1A0
-    };
-
-    public int DefaultMemoryOptionsIndex { get; set; }
-    public int PreviousDefaultMemoryOptionsIndex { get; set; } = -1;
-
-    protected override async UniTask UpdateEditorFields() {
+    protected override async UniTask UpdateEditorFieldsAsync() {
         FileSystem.Mode fileMode = FileSystem.Mode.Normal;
         if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL) {
             fileMode = FileSystem.Mode.Web;
@@ -498,24 +477,49 @@ public class SettingsWindow : UnityWindow
     }
 
     private int RandomizerSeed { get; set; }
-
     private RandomizerFlags RandomizerFlags { get; set; }
 
     #endregion
 
-    #region Available Options
+    #region Default Memory Options
 
-    public string[] WorldOptions { get; set; } = new string[0];
-    public string[] PalOptions { get; set; } = null;
+    public string[] DefaultMemoryOptionNames { get; } = new string[]
+    {
+        "Custom",
+        "DOSBox 0.74"
+    };
+
+    public string[] DefaultMemoryOptionProcessNames { get; } = new string[]
+    {
+        null,
+        "DOSBox.exe"
+    };
+
+    public int[] DefaultMemoryOptionPointers { get; } = new int[]
+    {
+        -1,
+        0x01D3A1A0
+    };
 
     #endregion
 
+    #region Private Properties
+
+    // Properties
+    private float TotalyPos { get; set; }
+    private Vector2 ScrollPosition { get; set; } = Vector2.zero;
+
+    // Default memory options
+    public int DefaultMemoryOptionsIndex { get; set; }
+    public int PreviousDefaultMemoryOptionsIndex { get; set; } = -1;
+
+    // Available options
+    private GameAction[] CurrentGameActions { get; set; }
+    private string[] PalOptions { get; set; }
+
+    // Dropdowns
     private GameModeSelectionDropdown GameModeDropdown { get; set; }
     private MapSelectionDropdown MapSelectionDropdown { get; set; }
 
-    private GameAction[] CurrentGameActions { get; set; }
-
-    private float TotalyPos { get; set; }
-
-	private Vector2 ScrollPosition { get; set; } = Vector2.zero;
+    #endregion
 }
