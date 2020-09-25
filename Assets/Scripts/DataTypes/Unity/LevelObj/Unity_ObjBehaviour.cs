@@ -541,13 +541,6 @@ namespace R1Engine
                     Vector3 origin = midpoint;
                     Vector3 target = objects[linkedActor].midpoint;
 
-                    lr.sortingLayerName = "Links";
-                    lr.SetPositions(new Vector3[]
-                    {
-                        origin,
-                        target
-                    });
-
                     float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
                     if (AdaptiveSize < 0.25f)
                     {
@@ -612,6 +605,8 @@ namespace R1Engine
             ClearSprites(prefabRenderers);
             ClearSprites(prefabRenderersCollision);
             ClearSprites(prefabRendersObjCollision);
+            // Remove from the position dictionary
+            Controller.obj.levelEventController.ObjPositions.Remove(this);
             // Remove self
             Destroy(gameObject);
         }

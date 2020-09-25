@@ -19,6 +19,8 @@ namespace R1Engine
         public Unity_ObjBehaviour PrevSelectedEvent { get; set; }
         public Unity_ObjBehaviour ClickedEvent { get; set; }
 
+        public Dictionary<Unity_ObjBehaviour, Vector3> ObjPositions { get; set; } = new Dictionary<Unity_ObjBehaviour, Vector3>();
+
         // Prefabs
         public GameObject eventParent;
         public GameObject prefabEvent;
@@ -175,6 +177,7 @@ namespace R1Engine
                     {
                         LineRenderer lr = new GameObject("GBALinkLine").AddComponent<LineRenderer>();
                         //lr.transform.SetParent(transform);
+                        lr.sortingLayerName = "Links";
                         lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
                         lr.material = linkLineMaterial;
                         lr.material.color = linkColorActive;
@@ -414,6 +417,40 @@ namespace R1Engine
 
             // Update the fields
             UpdateEventFields();
+
+            // Check for changed obj positions on GBA
+            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
+            {
+                foreach (var obj in Controller.obj.levelController.Objects)
+                {
+                    var linkIndex = 0;
+
+                    foreach (var linkedActorIndex in ((Unity_Object_GBA)obj.ObjData).GetLinkedActors())
+                    {
+                        var linkedObj = Controller.obj.levelController.Objects[linkedActorIndex];
+                        var lr = obj.gbaLinkLines[linkIndex];
+
+                        if (obj.transform.position != ObjPositions[obj] || linkedObj.transform.position != ObjPositions[linkedObj])
+                        {
+                            Vector3 origin = obj.midpoint;
+                            Vector3 target = linkedObj.midpoint;
+
+                            // Update link positions
+                            lr.SetPositions(new Vector3[]
+                            {
+                                origin,
+                                target
+                            });
+                        }
+
+                        linkIndex++;
+                    }
+                }
+
+                // Update all positions
+                foreach (var obj in Controller.obj.levelController.Objects)
+                    ObjPositions[obj] = obj.transform.position;
+            }
 
             bool makingChanges = false;
             if (Settings.LoadFromMemory)
@@ -741,6 +778,9 @@ namespace R1Engine
             
             newEvent.ObjData = obj;
             newEvent.Index = LevelEditorData.Level.EventData.IndexOf(obj);
+
+            // Set positions
+            ObjPositions[newEvent] = Vector2.zero;
 
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
