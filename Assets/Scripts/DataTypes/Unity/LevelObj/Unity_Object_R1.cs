@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace R1Engine
 {
+    // TODO: On save we have to set (Sub)Etat to Runtime(Sub)Etat
+
     public class Unity_Object_R1 : Unity_Object
     {
         public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null)
@@ -39,7 +41,7 @@ namespace R1Engine
 
         public Unity_ObjectManager_R1 ObjManager { get; }
 
-        public R1_EventState State => ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data?.ElementAtOrDefault(EventData.RuntimeEtat)?.ElementAtOrDefault(EventData.RuntimeSubEtat);
+        public R1_EventState State => ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data?.ElementAtOrDefault(EventData.Etat)?.ElementAtOrDefault(EventData.SubEtat);
 
         public int DESIndex
         {
@@ -326,23 +328,25 @@ namespace R1Engine
                 var state = State;
 
                 // Check if we've reached the end of the linking chain and we're looping
-                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.RuntimeEtat == state.LinkedEtat && EventData.RuntimeSubEtat == state.LinkedSubEtat)
+                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && 
+                    EventData.Etat == state.LinkedEtat && 
+                    EventData.SubEtat == state.LinkedSubEtat)
                 {
                     // Reset the state
-                    EventData.RuntimeEtat = EventData.Etat;
-                    EventData.RuntimeSubEtat = EventData.SubEtat;
+                    EventData.Etat = EventData.RuntimeEtat;
+                    EventData.SubEtat = EventData.RuntimeSubEtat;
                 }
                 else
                 {
                     // Update state values to the linked one
-                    EventData.RuntimeEtat = state.LinkedEtat;
-                    EventData.RuntimeSubEtat = state.LinkedSubEtat;
+                    EventData.Etat = state.LinkedEtat;
+                    EventData.SubEtat = state.LinkedSubEtat;
                 }
             }
             else
             {
-                EventData.RuntimeEtat = EventData.Etat;
-                EventData.RuntimeSubEtat = EventData.SubEtat;
+                EventData.Etat = EventData.RuntimeEtat;
+                EventData.SubEtat = EventData.RuntimeSubEtat;
             }
         }
 
@@ -507,8 +511,8 @@ namespace R1Engine
                     return !IsState && AnimIndex == obj.OverrideAnimIndex;
                 else
                     return IsState
-                        && Etat == (obj as Unity_Object_R1).EventData.RuntimeEtat
-                        && SubEtat == (obj as Unity_Object_R1).EventData.RuntimeSubEtat;
+                        && Etat == ((Unity_Object_R1)obj).EventData.RuntimeEtat
+                        && SubEtat == ((Unity_Object_R1)obj).EventData.RuntimeSubEtat;
 
             }
         }
