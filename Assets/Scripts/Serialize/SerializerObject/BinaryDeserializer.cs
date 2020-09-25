@@ -359,6 +359,23 @@ namespace R1Engine
             return obj;
         }
 
+        public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) {
+
+            // Convert to int so we can work with it
+            var valueInt = Convert.ToInt32(Serialize<T>(default, name: "Value"));
+
+            // Extract bits
+            int pos = 0;
+            serializeFunc((v, length, name) => {
+                var bitValue = BitHelpers.ExtractBits(valueInt, length, pos);
+
+                Log($"  ({typeof(T)}) {name ?? "<no name>"}: {bitValue}");
+
+                pos += length;
+                return bitValue;
+            });
+        }
+
         public void Dispose() {
             foreach (KeyValuePair<BinaryFile, Reader> r in readers) {
                 r.Key.EndRead(r.Value);
@@ -410,5 +427,5 @@ namespace R1Engine
             if (reader.BaseStream is PartialHttpStream httpStream)
                 await httpStream.FillCacheForRead(length);
         }
-    }
+	}
 }

@@ -305,6 +305,22 @@ namespace R1Engine
             }*/
         }
 
+        public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) {
+            int valueInt = 0;
+            int pos = 0;
+
+            // Set bits
+            serializeFunc((v, length, name) => {
+                valueInt = BitHelpers.SetBits(valueInt, v, length, pos);
+                Log($"  ({typeof(T)}) {name ?? "<no name>"}: {v}");
+                pos += length;
+                return v;
+            });
+
+            // Serialize value
+            Serialize<T>((T)Convert.ChangeType(valueInt, typeof(T)), name: "Value");
+        }
+
         public void Dispose() {
             foreach (KeyValuePair <BinaryFile, Writer> w in writers) {
                 w.Key.EndWrite(w.Value);
@@ -357,5 +373,5 @@ namespace R1Engine
                 Context.Log.Log(LogPrefix + logString);
             }
         }
-    }
+	}
 }
