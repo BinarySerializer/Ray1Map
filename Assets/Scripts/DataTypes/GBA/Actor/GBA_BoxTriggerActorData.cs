@@ -21,12 +21,8 @@
         {
             if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                 Type = s.Serialize<byte>(Type, name: nameof(Type));
-                Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
-
-                s.SerializeBitValues<byte>(bitFunc => {
-                    LinkedActor = (byte)bitFunc(LinkedActor, 6, name: nameof(LinkedActor));
-                    UnkBits = (byte)bitFunc(UnkBits, 2, name: nameof(UnkBits));
-                });
+                LinkedActor = s.Serialize<byte>(LinkedActor, name: nameof(LinkedActor));
+                Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
                 Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
                 Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
                 Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));
