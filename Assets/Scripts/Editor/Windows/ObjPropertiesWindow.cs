@@ -49,6 +49,8 @@ public class ObjPropertiesWindow : UnityWindow
 
                 try
                 {
+                    EditorGUI.BeginChangeCheck();
+
                     if (selectedObjData is Unity_Object_R1 r1)
                         r1.EventData.SerializeImpl(Serializer);
                     else if (selectedObjData is Unity_Object_R2 r2)
@@ -57,6 +59,9 @@ public class ObjPropertiesWindow : UnityWindow
                         jag.Instance.SerializeImpl(Serializer);
                     else if (selectedObjData is Unity_Object_GBA gba)
                         gba.Actor.SerializeImpl(Serializer);
+
+                    if (EditorGUI.EndChangeCheck())
+                        selectedObjData.HasPendingEdits = true;
                 }
                 catch (Exception ex)
                 {

@@ -18,8 +18,8 @@ namespace R1Engine
             EventData.RuntimeEtat = EventData.Etat;
             EventData.RuntimeSubEtat = EventData.SubEtat;
             EventData.RuntimeLayer = EventData.Layer;
-            EventData.RuntimeXPosition = (ushort)EventData.XPosition;
-            EventData.RuntimeYPosition = (ushort)EventData.YPosition;
+            EventData.RuntimeXPosition = (short)EventData.XPosition;
+            EventData.RuntimeYPosition = (short)EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
             EventData.RuntimeHitPoints = EventData.HitPoints;
             UpdateZDC();
