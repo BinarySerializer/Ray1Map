@@ -19,7 +19,7 @@ namespace R1Engine
         public Unity_ObjBehaviour PrevSelectedEvent { get; set; }
         public Unity_ObjBehaviour ClickedEvent { get; set; }
 
-        public Dictionary<Unity_ObjBehaviour, Vector3> ObjPositions { get; set; } = new Dictionary<Unity_ObjBehaviour, Vector3>();
+        public Dictionary<Unity_ObjBehaviour, Vector3?> ObjPositions { get; set; } = new Dictionary<Unity_ObjBehaviour, Vector3?>();
 
         // Prefabs
         public GameObject eventParent;
@@ -430,17 +430,38 @@ namespace R1Engine
                         var linkedObj = Controller.obj.levelController.Objects[linkedActorIndex];
                         var lr = obj.gbaLinkLines[linkIndex];
 
-                        if (obj.transform.position != ObjPositions[obj] || linkedObj.transform.position != ObjPositions[linkedObj])
+                        if ((obj.transform.position != ObjPositions[obj] || linkedObj.transform.position != ObjPositions[linkedObj]) && obj.HasInitialized && linkedObj.HasInitialized)
                         {
                             Vector3 origin = obj.midpoint;
                             Vector3 target = linkedObj.midpoint;
 
-                            // Update link positions
-                            lr.SetPositions(new Vector3[]
+                            //Debug.Log($"Updated link arrow for actor {obj.Index} from {origin} to {target}");
+
+                            float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
+                            if (AdaptiveSize < 0.25f)
                             {
-                                origin,
-                                target
-                            });
+                                lr.widthCurve = new AnimationCurve(
+                                    new Keyframe(0, 0f),
+                                    new Keyframe(AdaptiveSize / 2, 0.095f),
+                                    new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
+                                    new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
+                                    new Keyframe(1, 0f)); // tip of arrow
+                                lr.positionCount = 5;
+                                lr.SetPositions(new Vector3[] {
+                                    origin,
+                                    Vector3.Lerp(origin, target, AdaptiveSize / 2),
+                                    Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
+                                    Vector3.Lerp(origin, target, 1 - AdaptiveSize),
+                                    target });
+                            }
+                            else
+                            {
+                                lr.widthCurve = new AnimationCurve(
+                                    new Keyframe(0, 0.095f),
+                                    new Keyframe(1, 0.095f)); // tip of arrow
+                                lr.positionCount = 2;
+                                lr.SetPositions(new Vector3[] { origin, target });
+                            }
                         }
 
                         linkIndex++;
@@ -448,7 +469,7 @@ namespace R1Engine
                 }
 
                 // Update all positions
-                foreach (var obj in Controller.obj.levelController.Objects)
+                foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized))
                     ObjPositions[obj] = obj.transform.position;
             }
 
@@ -779,13 +800,13 @@ namespace R1Engine
             newEvent.ObjData = obj;
             newEvent.Index = LevelEditorData.Level.EventData.IndexOf(obj);
 
-            // Set positions
-            ObjPositions[newEvent] = Vector2.zero;
-
             // Set as child of events gameobject
             newEvent.gameObject.transform.parent = eventParent.transform;
             newEvent.Init();
 
+            // Default position to null
+            ObjPositions[newEvent] = null;
+            
             // Add to list
             return newEvent;
         }

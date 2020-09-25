@@ -34,6 +34,8 @@ namespace R1Engine
             (ObjData.MapLayer == null || (LevelEditorData.ShowEventsForMaps?.ElementAtOrDefault(ObjData.MapLayer.Value) ?? false));
         public int Layer => (ObjData.GetLayer(Index) ?? Index) * 256;
 
+        public bool HasInitialized { get; set; }
+
         #endregion
 
         public LineRenderer[] gbaLinkLines;
@@ -68,34 +70,7 @@ namespace R1Engine
 
         public AudioClip currentSoundEffect;
 
-        public void Init() {
-            // Update x and y, and clamp them to not have objects appear too far away from the map
-            const int border = 250;
-
-            var maxWidth = LevelEditorData.MaxWidth;
-            var maxHeight = LevelEditorData.MaxHeight;
-            var x = (float)ObjData.XPosition;
-            var y = (float)ObjData.YPosition;
-            var maxX = (maxWidth * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.x;
-            var minX = -(border) - ObjData.Pivot.x;
-            var maxY = (maxHeight * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.y;
-            var minY = -(border) - ObjData.Pivot.y;
-
-            if (x > maxX)
-                x = maxX;
-
-            if (x < minX)
-                x = minX;
-
-            if (y > maxY)
-                y = maxY;
-
-            if (y < minY)
-                y = minY;
-
-            transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
-
-        }
+        public void Init() => UpdatePosition();
 
         private void Start() 
         {
@@ -147,6 +122,35 @@ namespace R1Engine
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void UpdatePosition()
+        {
+            // Update x and y, and clamp them to not have objects appear too far away from the map
+            const int border = 250;
+
+            var maxWidth = LevelEditorData.MaxWidth;
+            var maxHeight = LevelEditorData.MaxHeight;
+            var x = (float)ObjData.XPosition;
+            var y = (float)ObjData.YPosition;
+            var maxX = (maxWidth * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.x;
+            var minX = -(border) - ObjData.Pivot.x;
+            var maxY = (maxHeight * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.y;
+            var minY = -(border) - ObjData.Pivot.y;
+
+            if (x > maxX)
+                x = maxX;
+
+            if (x < minX)
+                x = minX;
+
+            if (y > maxY)
+                y = maxY;
+
+            if (y < minY)
+                y = minY;
+
+            transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
         }
 
         void Update()
@@ -231,31 +235,7 @@ namespace R1Engine
 
             defautRenderer.enabled = ShowDefaultRenderer;
 
-            // Update x and y, and clamp them to not have objects appear too far away from the map
-            const int border = 250;
-
-            var maxWidth = LevelEditorData.MaxWidth;
-            var maxHeight = LevelEditorData.MaxHeight;
-            var x = (float)ObjData.XPosition;
-            var y = (float)ObjData.YPosition;
-            var maxX = (maxWidth * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.x;
-            var minX = -(border) - ObjData.Pivot.x;
-            var maxY = (maxHeight * LevelEditorData.Level.CellSize) + border + ObjData.Pivot.y;
-            var minY = -(border) - ObjData.Pivot.y;
-
-            if (x > maxX)
-                x = maxX;
-
-            if (x < minX)
-                x = minX;
-
-            if (y > maxY)
-                y = maxY;
-
-            if (y < minY)
-                y = minY;
-
-            transform.position = new Vector3(x / LevelEditorData.Level.PixelsPerUnit, -(y / LevelEditorData.Level.PixelsPerUnit), 0);
+            UpdatePosition();
 
             // Don't move link cube if it's part of a link
             if (ObjData.R1_EditorLinkGroup != 0)
@@ -529,48 +509,11 @@ namespace R1Engine
                 !(engineVersion == EngineVersion.R1_PS1_JP || engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || engineVersion == EngineVersion.R1_Saturn));
 
             // Update GBA link lines
-            if (ObjData is Unity_Object_GBA gba)
-            {
-                var index = 0;
-                var objects = Controller.obj.levelController.Objects;
-
-                foreach (var linkedActor in gba.GetLinkedActors())
-                {
-                    var lr = gbaLinkLines[index];
-
-                    Vector3 origin = midpoint;
-                    Vector3 target = objects[linkedActor].midpoint;
-
-                    float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
-                    if (AdaptiveSize < 0.25f)
-                    {
-                        lr.widthCurve = new AnimationCurve(
-                            new Keyframe(0, 0f),
-                            new Keyframe(AdaptiveSize / 2, 0.095f),
-                            new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
-                            new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
-                            new Keyframe(1, 0f)); // tip of arrow
-                        lr.positionCount = 5;
-                        lr.SetPositions(new Vector3[] {
-                            origin,
-                            Vector3.Lerp(origin, target, AdaptiveSize / 2),
-                            Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
-                            Vector3.Lerp(origin, target, 1 - AdaptiveSize),
-                            target });
-                    }
-                    else {
-                        lr.widthCurve = new AnimationCurve(
-                            new Keyframe(0, 0.095f),
-                            new Keyframe(1, 0.095f)); // tip of arrow
-                        lr.positionCount = 2;
-                        lr.SetPositions(new Vector3[] { origin, target });
-                    }
-
+            if (gbaLinkLines != null)
+                foreach (var lr in gbaLinkLines)
                     lr.enabled = EnableBoxCollider && Settings.ShowLinks;
 
-                    index++;
-                }
-            }
+            HasInitialized = true;
         }
 
         private void ClearSprites(SpriteRenderer[] sprites) 
