@@ -546,14 +546,14 @@ namespace R1Engine
                     {
                         lr.widthCurve = new AnimationCurve(
                             new Keyframe(0, 0f),
-                            new Keyframe(AdaptiveSize, 0.095f),
+                            new Keyframe(AdaptiveSize / 2, 0.095f),
                             new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
                             new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
                             new Keyframe(1, 0f)); // tip of arrow
                         lr.positionCount = 5;
                         lr.SetPositions(new Vector3[] {
                             origin,
-                            Vector3.Lerp(origin, target, AdaptiveSize),
+                            Vector3.Lerp(origin, target, AdaptiveSize / 2),
                             Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
                             Vector3.Lerp(origin, target, 1 - AdaptiveSize),
                             target });
