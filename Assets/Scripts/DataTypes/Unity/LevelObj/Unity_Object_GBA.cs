@@ -38,7 +38,7 @@ namespace R1Engine
 
             if (Actor.BoxActorBlock != null)
                 foreach (var d in Actor.BoxActorBlock.Data) {
-                    if (d.Type != 1) {
+                    if (d.Type == 0) {
                         yield return d.LinkedActor;
                     }
                 }
