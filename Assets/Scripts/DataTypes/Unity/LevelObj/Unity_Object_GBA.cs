@@ -37,8 +37,11 @@ namespace R1Engine
                 yield return Actor.Link_3;
 
             if (Actor.BoxActorBlock != null)
-                foreach (var d in Actor.BoxActorBlock.Data)
-                    yield return d.LinkedActor;
+                foreach (var d in Actor.BoxActorBlock.Data) {
+                    if (d.Type != 1) {
+                        yield return d.LinkedActor;
+                    }
+                }
         }
 
         public Unity_ObjectManager_GBA ObjManager { get; }
