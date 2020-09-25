@@ -77,19 +77,19 @@ namespace R1Engine
         public int XPosition { get; set; }
         public int YPosition { get; set; }
 
-        public ushort PS1Demo_Unk3 { get; set; }
+        public short PS1Demo_Unk3 { get; set; }
 
         public uint Unk_48 { get; set; }
 
         // This index is used by the game to handle the event links during runtime
-        public ushort EventIndex { get; set; }
+        public short EventIndex { get; set; }
 
-        public ushort Unk_54 { get; set; }
-        public ushort Unk_56 { get; set; }
-        public ushort Unk_58 { get; set; }
+        public short Unk_54 { get; set; }
+        public short Unk_56 { get; set; }
+        public short Unk_58 { get; set; }
 
-        public ushort RuntimeXPosition { get; set; }
-        public ushort RuntimeYPosition { get; set; }
+        public short RuntimeXPosition { get; set; }
+        public short RuntimeYPosition { get; set; }
 
         public ushort PS1Demo_Unk4 { get; set; }
         public ushort Unk_64 { get; set; }
@@ -97,24 +97,24 @@ namespace R1Engine
 
         public ushort ImageDescriptorCount { get; set; }
 
-        public ushort RuntimeCurrentCommandOffset { get; set; }
-        public ushort RuntimeCurrentCommandArgument { get; set; }
-        public ushort Unk_74 { get; set; }
-        public ushort Unk_76 { get; set; }
-        public ushort Unk_78 { get; set; }
+        public short RuntimeCurrentCommandOffset { get; set; }
+        public short RuntimeCurrentCommandArgument { get; set; }
+        public short Unk_74 { get; set; }
+        public short Unk_76 { get; set; }
+        public short Unk_78 { get; set; }
 
         // This value is used for voice lines as a replacement of the normal HitPoints value in order to have a sample index higher than 255. When this is used HitPoints is always EDU_ExtHitPoints % 256.
         public uint EDU_ExtHitPoints { get; set; }
         
-        public ushort Unk_80 { get; set; }
-        public ushort Unk_82 { get; set; }
-        public ushort Unk_84 { get; set; }
-        public ushort Unk_86 { get; set; }
-        public ushort Unk_88 { get; set; }
-        public ushort Unk_90 { get; set; }
+        public short Unk_80 { get; set; }
+        public short Unk_82 { get; set; }
+        public short Unk_84 { get; set; }
+        public short Unk_86 { get; set; }
+        public short Unk_88 { get; set; }
+        public short Unk_90 { get; set; }
 
         public R1_ZDCEntry Runtime_TypeZDC { get; set; }
-        public ushort Unk_94 { get; set; }
+        public short Unk_94 { get; set; }
 
         public ushort PS1_Unk2 { get; set; }
         public ushort PS1_Unk3 { get; set; }
@@ -282,7 +282,7 @@ namespace R1Engine
                 {
                     PS1Demo_Unk1 = s.SerializeArray<byte>(PS1Demo_Unk1, 40, name: nameof(PS1Demo_Unk1));
 
-                    EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
+                    EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
 
                     PS1Demo_Unk2 = s.Serialize<uint>(PS1Demo_Unk2, name: nameof(PS1Demo_Unk2));
                 }
@@ -326,22 +326,21 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
             {
-                PS1Demo_Unk3 = s.Serialize<ushort>(PS1Demo_Unk3, name: nameof(PS1Demo_Unk3));
+                PS1Demo_Unk3 = s.Serialize<short>(PS1Demo_Unk3, name: nameof(PS1Demo_Unk3));
             }
             else
             {
                 if (IsPCFormat(s.GameSettings))
                     Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
 
-                EventIndex = s.Serialize<ushort>(EventIndex, name: nameof(EventIndex));
-                Unk_54 = s.Serialize<ushort>(Unk_54, name: nameof(Unk_54));
-                Unk_56 = s.Serialize<ushort>(Unk_56, name: nameof(Unk_56));
-                Unk_58 = s.Serialize<ushort>(Unk_58, name: nameof(Unk_58));
+                EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
+                Unk_54 = s.Serialize<short>(Unk_54, name: nameof(Unk_54));
+                Unk_56 = s.Serialize<short>(Unk_56, name: nameof(Unk_56));
+                Unk_58 = s.Serialize<short>(Unk_58, name: nameof(Unk_58));
             }
 
-            RuntimeXPosition = s.Serialize<ushort>(RuntimeXPosition, name: nameof(RuntimeXPosition));
-            RuntimeYPosition = s.Serialize<ushort>(RuntimeYPosition, name: nameof(RuntimeYPosition));
-
+            RuntimeXPosition = s.Serialize<short>(RuntimeXPosition, name: nameof(RuntimeXPosition));
+            RuntimeYPosition = s.Serialize<short>(RuntimeYPosition, name: nameof(RuntimeYPosition));
             // NOTE: This appears between here and ImageDescriptorCount - where does it belong?
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                 PS1Demo_Unk4 = s.Serialize<ushort>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
@@ -351,27 +350,27 @@ namespace R1Engine
 
             ImageDescriptorCount = s.Serialize<ushort>(ImageDescriptorCount, name: nameof(ImageDescriptorCount));
 
-            RuntimeCurrentCommandOffset = s.Serialize<ushort>(RuntimeCurrentCommandOffset, name: nameof(RuntimeCurrentCommandOffset));
+            RuntimeCurrentCommandOffset = s.Serialize<short>(RuntimeCurrentCommandOffset, name: nameof(RuntimeCurrentCommandOffset));
             
-            RuntimeCurrentCommandArgument = s.Serialize<ushort>(RuntimeCurrentCommandArgument, name: nameof(RuntimeCurrentCommandArgument));
-            Unk_74 = s.Serialize<ushort>(Unk_74, name: nameof(Unk_74));
-            Unk_76 = s.Serialize<ushort>(Unk_76, name: nameof(Unk_76));
-            Unk_78 = s.Serialize<ushort>(Unk_78, name: nameof(Unk_78));
+            RuntimeCurrentCommandArgument = s.Serialize<short>(RuntimeCurrentCommandArgument, name: nameof(RuntimeCurrentCommandArgument));
+            Unk_74 = s.Serialize<short>(Unk_74, name: nameof(Unk_74));
+            Unk_76 = s.Serialize<short>(Unk_76, name: nameof(Unk_76));
+            Unk_78 = s.Serialize<short>(Unk_78, name: nameof(Unk_78));
 
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || 
                 s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || 
                 s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu)
                 EDU_ExtHitPoints = s.Serialize<uint>(EDU_ExtHitPoints, name: nameof(EDU_ExtHitPoints));
 
-            Unk_80 = s.Serialize<ushort>(Unk_80, name: nameof(Unk_80));
-            Unk_82 = s.Serialize<ushort>(Unk_82, name: nameof(Unk_82));
-            Unk_84 = s.Serialize<ushort>(Unk_84, name: nameof(Unk_84));
-            Unk_86 = s.Serialize<ushort>(Unk_86, name: nameof(Unk_86));
+            Unk_80 = s.Serialize<short>(Unk_80, name: nameof(Unk_80));
+            Unk_82 = s.Serialize<short>(Unk_82, name: nameof(Unk_82));
+            Unk_84 = s.Serialize<short>(Unk_84, name: nameof(Unk_84));
+            Unk_86 = s.Serialize<short>(Unk_86, name: nameof(Unk_86));
             
-            Unk_88 = s.Serialize<ushort>(Unk_88, name: nameof(Unk_88));
-            Unk_90 = s.Serialize<ushort>(Unk_90, name: nameof(Unk_90));
+            Unk_88 = s.Serialize<short>(Unk_88, name: nameof(Unk_88));
+            Unk_90 = s.Serialize<short>(Unk_90, name: nameof(Unk_90));
             Runtime_TypeZDC = s.SerializeObject<R1_ZDCEntry>(Runtime_TypeZDC, name: nameof(Runtime_TypeZDC));
-            Unk_94 = s.Serialize<ushort>(Unk_94, name: nameof(Unk_94));
+            Unk_94 = s.Serialize<short>(Unk_94, name: nameof(Unk_94));
 
             if (IsPCFormat(s.GameSettings))
             {
