@@ -174,10 +174,12 @@ namespace R1Engine
                     for (int i = 0; i < linkCount; i++)
                     {
                         LineRenderer lr = new GameObject("GBALinkLine").AddComponent<LineRenderer>();
+                        //lr.transform.SetParent(transform);
+                        lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
                         lr.material = linkLineMaterial;
-                        lr.material.color = Color.yellow;
+                        lr.material.color = linkColorActive;
                         lr.positionCount = 2;
-                        lr.widthMultiplier = 0.5f;
+                        lr.widthMultiplier = 1f;
                         obj.gbaLinkLines[i] = lr;
                     }
                 }

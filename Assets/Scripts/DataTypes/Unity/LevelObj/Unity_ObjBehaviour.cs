@@ -548,14 +548,14 @@ namespace R1Engine
                         target
                     });
 
-                    float AdaptiveSize = 1f / Vector3.Distance(origin, target);
-                    if (AdaptiveSize < 0.5f)
+                    float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
+                    if (AdaptiveSize < 0.25f)
                     {
                         lr.widthCurve = new AnimationCurve(
                             new Keyframe(0, 0f),
-                            new Keyframe(AdaptiveSize, 0.4f),
-                            new Keyframe(0.999f - AdaptiveSize, 0.4f),  // neck of arrow
-                            new Keyframe(1 - AdaptiveSize, 1f), // max width of arrow head
+                            new Keyframe(AdaptiveSize, 0.095f),
+                            new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
+                            new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
                             new Keyframe(1, 0f)); // tip of arrow
                         lr.positionCount = 5;
                         lr.SetPositions(new Vector3[] {
@@ -565,8 +565,10 @@ namespace R1Engine
                             Vector3.Lerp(origin, target, 1 - AdaptiveSize),
                             target });
                     }
-                    else
-                    {
+                    else {
+                        lr.widthCurve = new AnimationCurve(
+                            new Keyframe(0, 0.095f),
+                            new Keyframe(1, 0.095f)); // tip of arrow
                         lr.positionCount = 2;
                         lr.SetPositions(new Vector3[] { origin, target });
                     }
@@ -600,6 +602,12 @@ namespace R1Engine
             Controller.obj.levelController.Objects.Remove(this);
             // Remove the data
             LevelEditorData.Level.EventData.Remove(ObjData);
+            // Remove GBA links
+            if (gbaLinkLines != null) {
+                foreach (var link in gbaLinkLines) {
+                    if(link != null) Destroy(link.gameObject);
+                }
+            }
             // Remove all children
             ClearSprites(prefabRenderers);
             ClearSprites(prefabRenderersCollision);
