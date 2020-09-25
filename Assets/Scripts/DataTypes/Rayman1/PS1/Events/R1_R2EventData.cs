@@ -129,7 +129,7 @@ namespace R1Engine
 
         // 68 (0x44)
 
-        // These values always match the position. They get copied to Position2 during runtime which is in Unk1. According to source code it's 0x28 and 0x2C (as ints), but that doesn't match files.
+        // These values always match the position. They get copied to Position2 during runtime which is in Unk1.
         public short XPosition3 { get; set; }
         public short YPosition3 { get; set; }
 
@@ -155,9 +155,9 @@ namespace R1Engine
         /// </summary>
         public byte RuntimeCurrentAnimFrame { get; set; }
 
-        public byte RuntimeEtat { get; set; }
-        public byte RuntimeSubEtat { get; set; }
-        public byte RuntimeUnkStateRelatedValue { get; set; }
+        public byte InitialEtat { get; set; }
+        public byte InitialSubEtat { get; set; }
+        public byte InitialUnkStateRelatedValue { get; set; }
         public byte Unk_58 { get; set; }
 
         // The layer to appear on (0-7)
@@ -271,9 +271,9 @@ namespace R1Engine
             RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
-            RuntimeEtat = s.Serialize<byte>(RuntimeEtat, name: nameof(RuntimeEtat));
-            RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
-            RuntimeUnkStateRelatedValue = s.Serialize<byte>(RuntimeUnkStateRelatedValue, name: nameof(RuntimeUnkStateRelatedValue));
+            InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
+            InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
+            InitialUnkStateRelatedValue = s.Serialize<byte>(InitialUnkStateRelatedValue, name: nameof(InitialUnkStateRelatedValue));
             Unk_58 = s.Serialize<byte>(Unk_58, name: nameof(Unk_58));
 
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));

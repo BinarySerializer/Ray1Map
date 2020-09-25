@@ -88,8 +88,8 @@ namespace R1Engine
         public short Unk_56 { get; set; }
         public short Unk_58 { get; set; }
 
-        public short RuntimeXPosition { get; set; }
-        public short RuntimeYPosition { get; set; }
+        public short InitialXPosition { get; set; }
+        public short InitialYPosition { get; set; }
 
         public ushort PS1Demo_Unk4 { get; set; }
         public ushort Unk_64 { get; set; }
@@ -135,8 +135,8 @@ namespace R1Engine
         public byte SubEtat { get; set; }
         public byte Etat { get; set; }
 
-        public byte RuntimeSubEtat { get; set; }
-        public byte RuntimeEtat { get; set; }
+        public byte InitialSubEtat { get; set; }
+        public byte InitialEtat { get; set; }
 
         public uint RuntimeCurrentCommand { get; set; }
 
@@ -160,7 +160,7 @@ namespace R1Engine
         }
 
         public byte HitPoints { get; set; }
-        public byte RuntimeHitPoints { get; set; }
+        public byte InitialHitPoints { get; set; }
 
         /// <summary>
         /// The layer the event sprite gets drawn to, between 1 and 7
@@ -180,7 +180,7 @@ namespace R1Engine
         public byte PS1Demo_Unk7 { get; set; }
         public byte PS1Demo_Unk8 { get; set; }
 
-        public byte RuntimeLayer { get; set; }
+        public byte RuntimeLayer { get; set; } // TODO: Is this an initial or runtime value?
 
         public byte Unk_127 { get; set; }
 
@@ -339,8 +339,8 @@ namespace R1Engine
                 Unk_58 = s.Serialize<short>(Unk_58, name: nameof(Unk_58));
             }
 
-            RuntimeXPosition = s.Serialize<short>(RuntimeXPosition, name: nameof(RuntimeXPosition));
-            RuntimeYPosition = s.Serialize<short>(RuntimeYPosition, name: nameof(RuntimeYPosition));
+            InitialXPosition = s.Serialize<short>(InitialXPosition, name: nameof(InitialXPosition));
+            InitialYPosition = s.Serialize<short>(InitialYPosition, name: nameof(InitialYPosition));
             // NOTE: This appears between here and ImageDescriptorCount - where does it belong?
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                 PS1Demo_Unk4 = s.Serialize<ushort>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
@@ -400,15 +400,15 @@ namespace R1Engine
                 SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
                 Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
 
-                RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
-                RuntimeEtat = s.Serialize<byte>(RuntimeEtat, name: nameof(RuntimeEtat));
+                InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
+                InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
             }
             else
             {
                 Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
-                RuntimeEtat = s.Serialize<byte>(RuntimeEtat, name: nameof(RuntimeEtat));
+                InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
                 SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
-                RuntimeSubEtat = s.Serialize<byte>(RuntimeSubEtat, name: nameof(RuntimeSubEtat));
+                InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
             }
 
             RuntimeCurrentCommand = s.Serialize<uint>(RuntimeCurrentCommand, name: nameof(RuntimeCurrentCommand));
@@ -420,7 +420,7 @@ namespace R1Engine
 
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
             HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
-            RuntimeHitPoints = s.Serialize<byte>(RuntimeHitPoints, name: nameof(RuntimeHitPoints));
+            InitialHitPoints = s.Serialize<byte>(InitialHitPoints, name: nameof(InitialHitPoints));
             Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
 
             if (!IsPCFormat(s.GameSettings))

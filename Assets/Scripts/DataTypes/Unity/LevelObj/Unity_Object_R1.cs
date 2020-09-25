@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    // TODO: On save we have to set (Sub)Etat to Runtime(Sub)Etat
+    // TODO: On save we have to set (Sub)Etat to Runtime(Sub)Etat and possibly other runtime values as well
 
     public class Unity_Object_R1 : Unity_Object
     {
@@ -17,13 +17,13 @@ namespace R1Engine
             TypeInfo = EventData.Type.GetAttribute<ObjTypeInfoAttribute>();
 
             // Set editor states
-            EventData.RuntimeEtat = EventData.Etat;
-            EventData.RuntimeSubEtat = EventData.SubEtat;
+            EventData.InitialEtat = EventData.Etat;
+            EventData.InitialSubEtat = EventData.SubEtat;
             EventData.RuntimeLayer = EventData.Layer;
-            EventData.RuntimeXPosition = (short)EventData.XPosition;
-            EventData.RuntimeYPosition = (short)EventData.YPosition;
+            EventData.InitialXPosition = (short)EventData.XPosition;
+            EventData.InitialYPosition = (short)EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
-            EventData.RuntimeHitPoints = EventData.HitPoints;
+            EventData.InitialHitPoints = EventData.HitPoints;
             UpdateZDC();
 
             // Find matching name from event sheet
@@ -63,8 +63,8 @@ namespace R1Engine
             get => (ObjManager.UsesPointers ? ObjManager.ETA.FindItemIndex(x => x.Pointer == EventData.ETAPointer) : (int)EventData.PC_ETAIndex);
             set {
                 if (value != ETAIndex) {
-                    EventData.Etat = EventData.RuntimeEtat = 0;
-                    EventData.SubEtat = EventData.RuntimeSubEtat = 0;
+                    EventData.Etat = EventData.InitialEtat = 0;
+                    EventData.SubEtat = EventData.InitialSubEtat = 0;
                     OverrideAnimIndex = null;
 
                     if (ObjManager.UsesPointers)
@@ -90,14 +90,14 @@ namespace R1Engine
 
         // TODO: Update for PS1
         public override string DebugText => 
-              $"RuntimePos: {EventData.RuntimeXPosition}, {EventData.RuntimeYPosition}{Environment.NewLine}" +
+              $"RuntimePos: {EventData.InitialXPosition}, {EventData.InitialYPosition}{Environment.NewLine}" +
               $"Layer: {EventData.Layer}{Environment.NewLine}" +
               $"RuntimeLayer: {EventData.RuntimeLayer}{Environment.NewLine}" +
               $"{Environment.NewLine}" +
               $"Etat: {EventData.Etat}{Environment.NewLine}" +
               $"Etat: {EventData.SubEtat}{Environment.NewLine}" +
-              $"RuntimeEtat: {EventData.RuntimeEtat}{Environment.NewLine}" +
-              $"RuntimeSubEtat: {EventData.RuntimeSubEtat}{Environment.NewLine}" +
+              $"RuntimeEtat: {EventData.InitialEtat}{Environment.NewLine}" +
+              $"RuntimeSubEtat: {EventData.InitialSubEtat}{Environment.NewLine}" +
               //$"{Environment.NewLine}" +
               //$"Unk_24: {EventData.Unk_24}{Environment.NewLine}" +
               //$"Unk_28: {EventData.Unk_28}{Environment.NewLine}" +
@@ -333,8 +333,8 @@ namespace R1Engine
                     EventData.SubEtat == state.LinkedSubEtat)
                 {
                     // Reset the state
-                    EventData.Etat = EventData.RuntimeEtat;
-                    EventData.SubEtat = EventData.RuntimeSubEtat;
+                    EventData.Etat = EventData.InitialEtat;
+                    EventData.SubEtat = EventData.InitialSubEtat;
                 }
                 else
                 {
@@ -345,8 +345,8 @@ namespace R1Engine
             }
             else
             {
-                EventData.Etat = EventData.RuntimeEtat;
-                EventData.SubEtat = EventData.RuntimeSubEtat;
+                EventData.Etat = EventData.InitialEtat;
+                EventData.SubEtat = EventData.InitialSubEtat;
             }
         }
 
@@ -396,13 +396,13 @@ namespace R1Engine
             public byte Etat
             {
                 get => Obj.EventData.Etat;
-                set => Obj.EventData.Etat = Obj.EventData.RuntimeEtat = value;
+                set => Obj.EventData.Etat = Obj.EventData.InitialEtat = value;
             }
 
             public byte SubEtat
             {
                 get => Obj.EventData.SubEtat;
-                set => Obj.EventData.SubEtat = Obj.EventData.RuntimeSubEtat = value;
+                set => Obj.EventData.SubEtat = Obj.EventData.InitialSubEtat = value;
             }
 
             public int EtatLength => Obj.ObjManager.ETA.ElementAtOrDefault(Obj.ETAIndex)?.Data.Length ?? 0;
@@ -438,7 +438,7 @@ namespace R1Engine
                 set
                 {
                     Obj.EventData.ActualHitPoints = value;
-                    Obj.EventData.RuntimeHitPoints = (byte)(value % 256);
+                    Obj.EventData.InitialHitPoints = (byte)(value % 256);
                 }
             }
 
@@ -497,8 +497,8 @@ namespace R1Engine
 			public override void Apply(Unity_Object obj) {
                 if (IsState) {
                     var r1obj = obj as Unity_Object_R1;
-                    r1obj.EventData.Etat = r1obj.EventData.RuntimeEtat = Etat;
-                    r1obj.EventData.SubEtat = r1obj.EventData.RuntimeSubEtat = SubEtat;
+                    r1obj.EventData.Etat = r1obj.EventData.InitialEtat = Etat;
+                    r1obj.EventData.SubEtat = r1obj.EventData.InitialSubEtat = SubEtat;
                     obj.OverrideAnimIndex = null;
                 } else {
                     obj.OverrideAnimIndex = AnimIndex;
@@ -511,8 +511,8 @@ namespace R1Engine
                     return !IsState && AnimIndex == obj.OverrideAnimIndex;
                 else
                     return IsState
-                        && Etat == ((Unity_Object_R1)obj).EventData.RuntimeEtat
-                        && SubEtat == ((Unity_Object_R1)obj).EventData.RuntimeSubEtat;
+                        && Etat == ((Unity_Object_R1)obj).EventData.InitialEtat
+                        && SubEtat == ((Unity_Object_R1)obj).EventData.InitialSubEtat;
 
             }
         }
