@@ -109,14 +109,16 @@
                 } else {
                     Byte_04 = s.Serialize<byte>(Byte_04, name: nameof(Byte_04));
 
-                    s.SerializeBitValues<byte>(bitFunc =>
-                    {
-                        LinkedActorsCount = (byte)bitFunc(LinkedActorsCount, 5, name: nameof(LinkedActorsCount));
-                        BoxActorID = (BoxActorType)bitFunc((byte)BoxActorID, 3, name: nameof(BoxActorID));
-                    });
-
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
-                        UnkData1 = s.SerializeArray<byte>(UnkData1, 2, name: nameof(UnkData1));
+                        UnkData1 = s.SerializeArray<byte>(UnkData1, 1, name: nameof(UnkData1));
+                        LinkedActorsCount = s.Serialize<byte>(LinkedActorsCount, name: nameof(LinkedActorsCount));
+                        BoxActorID = s.Serialize<BoxActorType>(BoxActorID, name: nameof(BoxActorID));
+                    } else {
+                        s.SerializeBitValues<byte>(bitFunc =>
+                        {
+                            LinkedActorsCount = (byte)bitFunc(LinkedActorsCount, 5, name: nameof(LinkedActorsCount));
+                            BoxActorID = (BoxActorType)bitFunc((byte)BoxActorID, 3, name: nameof(BoxActorID));
+                        });
                     }
                     BoxActorBlockOffsetIndex = s.Serialize<byte>(BoxActorBlockOffsetIndex, name: nameof(BoxActorBlockOffsetIndex));
 
