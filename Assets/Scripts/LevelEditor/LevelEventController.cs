@@ -410,6 +410,8 @@ namespace R1Engine
             SelectedEvent.IsSelected = true;
         }
 
+        public Context GameMemoryContext { get; set; }
+
         private void Update() 
         {
             if (!hasLoaded)
@@ -479,8 +481,9 @@ namespace R1Engine
                 memoryLoadTimer += Time.deltaTime;
                 if (memoryLoadTimer > 1.0f / 60.0f)
                 {
-                    makingChanges = UpdateFromMemory();
-                    if(!makingChanges) memoryLoadTimer = 0.0f;
+                    makingChanges = LevelEditorData.ObjManager.UpdateFromMemory(GameMemoryContext);
+                    if(!makingChanges) 
+                        memoryLoadTimer = 0.0f;
                 }
             }
             else
@@ -635,141 +638,6 @@ namespace R1Engine
                 ClickedEvent = null;
             }
             outlineManager.selecting = ClickedEvent != null;
-        }
-
-        public Context GameMemoryContext { get; set; }
-        public R1MemoryData GameMemoryData { get; } = new R1MemoryData();
-
-        // TODO: Move this to some main controller since we do tile stuff here too
-        public bool UpdateFromMemory()
-        {
-            var lvl = LevelEditorData.Level;
-            bool madeEdits = false;
-
-            // TODO: Dispose when we stop program?
-            if (GameMemoryContext == null)
-            {
-                GameMemoryContext = new Context(LevelEditorData.CurrentSettings);
-
-                try
-                {
-                    var file = new ProcessMemoryStreamFile("MemStream", Settings.ProcessName, GameMemoryContext);
-
-                    GameMemoryContext.AddFile(file);
-
-                    var offset = file.StartPointer;
-                    var basePtrPtr = offset + Settings.GameBasePointer;
-
-                    if (Settings.FindPointerAutomatically)
-                    {
-                        try
-                        {
-                            basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}); falling back on manual specification {basePtrPtr}");
-                        }
-                    }
-
-                    var s = GameMemoryContext.Deserializer;
-
-                    // Get the base pointer
-                    var baseOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default));
-                    file.anchorOffset = baseOffset.AbsoluteOffset;
-                    s.Goto(baseOffset);
-
-                    GameMemoryData.Update(s);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError(ex.Message);
-                    GameMemoryContext = null;
-                }
-            }
-
-            if (GameMemoryContext != null)
-            {
-                Pointer currentOffset;
-                SerializerObject s;
-
-                void SerializeEvent(Unity_Object_R1 ed)
-                {
-                    s = ed.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-                    s.Goto(currentOffset);
-                    ed.EventData.Init(s.CurrentPointer);
-                    ed.EventData.Serialize(s);
-                    if (s is BinarySerializer)
-                    {
-                        Debug.Log($"Edited event");
-                        madeEdits = true;
-                    }
-
-                    ed.HasPendingEdits = false;
-                    currentOffset = s.CurrentPointer;
-                }
-
-                // Events
-                if (GameMemoryData.EventArrayOffset != null)
-                {
-                    currentOffset = GameMemoryData.EventArrayOffset;
-                    foreach (var ed in lvl.EventData.OfType<Unity_Object_R1>())
-                        SerializeEvent(ed);
-                }
-
-                // Rayman
-                if (GameMemoryData.RayEventOffset != null && lvl.Rayman is Unity_Object_R1 r1Ray)
-                {
-                    currentOffset = GameMemoryData.RayEventOffset;
-                    SerializeEvent(r1Ray);
-                }
-
-                // Tiles
-                if (GameMemoryData.TileArrayOffset != null)
-                {
-                    currentOffset = GameMemoryData.TileArrayOffset;
-                    var map = lvl.Maps[0];
-
-                    for (int y = 0; y < map.Height; y++)
-                    {
-                        for (int x = 0; x < map.Width; x++)
-                        {
-                            var tileIndex = y * map.Width + x;
-                            var mapTile = map.MapTiles[tileIndex];
-
-                            s = mapTile.HasPendingEdits ? (SerializerObject)GameMemoryContext.Serializer : GameMemoryContext.Deserializer;
-
-                            s.Goto(currentOffset);
-
-                            var prevX = mapTile.Data.TileMapX;
-                            var prevY = mapTile.Data.TileMapY;
-
-                            mapTile.Data.Init(s.CurrentPointer);
-                            mapTile.Data.Serialize(s);
-
-                            if (s is BinarySerializer) 
-                                madeEdits = true;
-                            
-                            mapTile.HasPendingEdits = false;
-
-                            if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
-                                Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
-
-                            currentOffset = s.CurrentPointer;
-
-                            // On PC we need to also update the BigMap pointer table
-                            if (GameMemoryData.BigMap != null && s is BinarySerializer) {
-                                var pointerOffset = GameMemoryData.BigMap.MapTileTexturesPointersPointer + (4 * tileIndex);
-                                var newPointer = GameMemoryData.BigMap.TileTexturesPointer + (lvl.Maps[0].PCTileOffsetTable[mapTile.Data.TileMapY]).SerializedOffset;
-                                s.Goto(pointerOffset);
-
-                                s.SerializePointer(newPointer);
-                            }
-                        }
-                    }
-                }
-            }
-            return madeEdits;
         }
 
         private void ClearInfoWindow() {

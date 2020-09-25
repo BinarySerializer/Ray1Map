@@ -18,13 +18,11 @@
         // World map data for every level (last 6 are the save points)
         public R1_PC_SaveDataLevel[] Wi_Save_Zone { get; set; }
 
-        public RayEvtsFlags RayEvts { get; set; }
+        public R1_RayEvtsFlags RayEvts { get; set; }
 
-        // Fist stuff
-        // Byte 12 gets set to 0xC when you enter gold fist cheat
-        public byte[] Poing { get; set; }
+        public R1_Poing Poing { get; set; }
 
-        public R1_PC_SaveDataStatusBar StatusBar { get; set; }
+        public R1_StatusBar StatusBar { get; set; }
 
         // Always one less than actual health
         public byte CurrentHealth { get; set; }
@@ -52,9 +50,9 @@
             SaveName = s.SerializeString(SaveName, 4, name: nameof(SaveName));
             ContinuesCount = s.Serialize<byte>(ContinuesCount, name: nameof(ContinuesCount));
             Wi_Save_Zone = s.SerializeObjectArray<R1_PC_SaveDataLevel>(Wi_Save_Zone, 24, name: nameof(Wi_Save_Zone));
-            RayEvts = s.Serialize<RayEvtsFlags>(RayEvts, name: nameof(RayEvts));
-            Poing = s.SerializeArray<byte>(Poing, 20, name: nameof(Poing));
-            StatusBar = s.SerializeObject<R1_PC_SaveDataStatusBar>(StatusBar, name: nameof(StatusBar));
+            RayEvts = s.Serialize<R1_RayEvtsFlags>(RayEvts, name: nameof(RayEvts));
+            Poing = s.SerializeObject<R1_Poing>(Poing, name: nameof(Poing));
+            StatusBar = s.SerializeObject<R1_StatusBar>(StatusBar, name: nameof(StatusBar));
             CurrentHealth = s.Serialize<byte>(CurrentHealth, name: nameof(CurrentHealth));
 
             if (SaveZone == null)

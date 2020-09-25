@@ -13,7 +13,7 @@
 
         public byte[] LevelDefine_1 { get; set; }
         
-        public RayEvtsFlags RayEvts { get; set; }
+        public R1_RayEvtsFlags RayEvts { get; set; }
         public byte UnkByte { get; set; } // Padding?
 
         public byte BackgroundDefineNormalChecksum { get; set; }
@@ -40,7 +40,7 @@
                     BG_1 = s.Serialize<byte>(BG_1, name: nameof(BG_1));
                     BG_2 = s.Serialize<byte>(BG_2, name: nameof(BG_2));
                     LevelDefine_1 = s.SerializeArray<byte>(LevelDefine_1, 3, name: nameof(LevelDefine_1));
-                    RayEvts = s.Serialize<RayEvtsFlags>(RayEvts, name: nameof(RayEvts));
+                    RayEvts = s.Serialize<R1_RayEvtsFlags>(RayEvts, name: nameof(RayEvts));
                     UnkByte = s.Serialize<byte>(UnkByte, name: nameof(UnkByte));
                 });
             }, ChecksumPlacement.Before, calculateChecksum: isEncryptedAndChecksum, name: nameof(LevelDefineChecksum));

@@ -3,7 +3,7 @@
 namespace R1Engine
 {
     [Flags]
-    public enum RayEvtsFlags : ushort
+    public enum R1_RayEvtsFlags : ushort
     {
         None = 0,
 

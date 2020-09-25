@@ -1,19 +1,18 @@
 ﻿namespace R1Engine
 {
     /// <summary>
-    /// Status bar save data for Rayman 1 on PC
+    /// Status data for Rayman 1
     /// </summary>
-    public class R1_PC_SaveDataStatusBar : R1Serializable
+    public class R1_StatusBar : R1Serializable
     {
         /// <summary>
         /// The current number of lives, 0-99
         /// </summary>
         public byte LivesCount { get; set; }
 
-        // Some flags
-        public byte Unk_01 { get; set; }
-        public byte Unk_02 { get; set; }
-        public byte Unk_03 { get; set; }
+        public byte Unk_01 { get; set; } // Related to the graphics index for the lives count
+        public byte LivesDigit0 { get; set; }
+        public byte LivesDigit1 { get; set; }
         public byte Unk_04 { get; set; }
         public byte Unk_05 { get; set; }
 
@@ -21,8 +20,8 @@
         /// The current number of tings, 0-99
         /// </summary>
         public byte TingsCount { get; set; }
-        public byte Unk_07 { get; set; }
-        public byte Unk_08 { get; set; }
+        public byte TingsDigit0 { get; set; }
+        public byte TingsDigit1 { get; set; }
 
         /// <summary>
         /// The current maximum health count (always one less)
@@ -37,13 +36,13 @@
         {
             LivesCount = s.Serialize<byte>(LivesCount, name: nameof(LivesCount));
             Unk_01 = s.Serialize<byte>(Unk_01, name: nameof(Unk_01));
-            Unk_02 = s.Serialize<byte>(Unk_02, name: nameof(Unk_02));
-            Unk_03 = s.Serialize<byte>(Unk_03, name: nameof(Unk_03));
+            LivesDigit0 = s.Serialize<byte>(LivesDigit0, name: nameof(LivesDigit0));
+            LivesDigit1 = s.Serialize<byte>(LivesDigit1, name: nameof(LivesDigit1));
             Unk_04 = s.Serialize<byte>(Unk_04, name: nameof(Unk_04));
             Unk_05 = s.Serialize<byte>(Unk_05, name: nameof(Unk_05));
             TingsCount = s.Serialize<byte>(TingsCount, name: nameof(TingsCount));
-            Unk_07 = s.Serialize<byte>(Unk_07, name: nameof(Unk_07));
-            Unk_08 = s.Serialize<byte>(Unk_08, name: nameof(Unk_08));
+            TingsDigit0 = s.Serialize<byte>(TingsDigit0, name: nameof(TingsDigit0));
+            TingsDigit1 = s.Serialize<byte>(TingsDigit1, name: nameof(TingsDigit1));
             MaxHealth = s.Serialize<byte>(MaxHealth, name: nameof(MaxHealth));
         }
     }

@@ -319,6 +319,152 @@ namespace R1Engine
             return str.ToString();
         }
 
+        // Global data (for memory loading)
+        public R1MemoryData GameMemoryData { get; } = new R1MemoryData();
+        public R1_RuntimeGlobalData GlobalData { get; set; } = new R1_RuntimeGlobalData();
+        public bool GlobalPendingEdits { get; set; }
+
+        public override bool UpdateFromMemory(Context gameMemoryContext)
+        {
+            var lvl = LevelEditorData.Level;
+            bool madeEdits = false;
+
+            // TODO: Dispose when we stop program?
+            if (gameMemoryContext == null)
+            {
+                gameMemoryContext = new Context(LevelEditorData.CurrentSettings);
+
+                try
+                {
+                    var file = new ProcessMemoryStreamFile("MemStream", Settings.ProcessName, gameMemoryContext);
+
+                    gameMemoryContext.AddFile(file);
+
+                    var offset = file.StartPointer;
+                    var basePtrPtr = offset + Settings.GameBasePointer;
+
+                    if (Settings.FindPointerAutomatically)
+                    {
+                        try
+                        {
+                            basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}), falling back on manual specification {basePtrPtr}");
+                        }
+                    }
+
+                    var s = gameMemoryContext.Deserializer;
+
+                    // Get the base pointer
+                    var baseOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default));
+                    file.anchorOffset = baseOffset.AbsoluteOffset;
+
+                    s.Goto(baseOffset);
+                    GameMemoryData.Update(s);
+
+                    s.Goto(baseOffset);
+                    GlobalData.SetPointers(s);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError(ex.Message);
+                    gameMemoryContext = null;
+                }
+            }
+
+            if (gameMemoryContext != null)
+            {
+                Pointer currentOffset;
+                SerializerObject s;
+
+                void SerializeEvent(Unity_Object_R1 ed)
+                {
+                    s = ed.HasPendingEdits ? (SerializerObject)gameMemoryContext.Serializer : gameMemoryContext.Deserializer;
+                    s.Goto(currentOffset);
+                    ed.EventData.Init(s.CurrentPointer);
+                    ed.EventData.Serialize(s);
+
+                    if (s is BinarySerializer)
+                    {
+                        Debug.Log($"Edited event {ed.EventData.EventIndex}");
+                        madeEdits = true;
+                    }
+
+                    ed.HasPendingEdits = false;
+                    currentOffset = s.CurrentPointer;
+                }
+
+                // Events
+                if (GameMemoryData.EventArrayOffset != null)
+                {
+                    currentOffset = GameMemoryData.EventArrayOffset;
+                    foreach (var ed in lvl.EventData.OfType<Unity_Object_R1>())
+                        SerializeEvent(ed);
+                }
+
+                // Rayman
+                if (GameMemoryData.RayEventOffset != null && lvl.Rayman is Unity_Object_R1 r1Ray)
+                {
+                    currentOffset = GameMemoryData.RayEventOffset;
+                    SerializeEvent(r1Ray);
+                }
+
+                // Tiles
+                if (GameMemoryData.TileArrayOffset != null)
+                {
+                    currentOffset = GameMemoryData.TileArrayOffset;
+                    var map = lvl.Maps[0];
+
+                    for (int y = 0; y < map.Height; y++)
+                    {
+                        for (int x = 0; x < map.Width; x++)
+                        {
+                            var tileIndex = y * map.Width + x;
+                            var mapTile = map.MapTiles[tileIndex];
+
+                            s = mapTile.HasPendingEdits ? (SerializerObject)gameMemoryContext.Serializer : gameMemoryContext.Deserializer;
+
+                            s.Goto(currentOffset);
+
+                            var prevX = mapTile.Data.TileMapX;
+                            var prevY = mapTile.Data.TileMapY;
+
+                            mapTile.Data.Init(s.CurrentPointer);
+                            mapTile.Data.Serialize(s);
+
+                            if (s is BinarySerializer)
+                                madeEdits = true;
+
+                            mapTile.HasPendingEdits = false;
+
+                            if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
+                                Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
+
+                            currentOffset = s.CurrentPointer;
+
+                            // On PC we need to also update the BigMap pointer table
+                            if (GameMemoryData.BigMap != null && s is BinarySerializer)
+                            {
+                                var pointerOffset = GameMemoryData.BigMap.MapTileTexturesPointersPointer + (4 * tileIndex);
+                                var newPointer = GameMemoryData.BigMap.TileTexturesPointer + (lvl.Maps[0].PCTileOffsetTable[mapTile.Data.TileMapY]).SerializedOffset;
+                                s.Goto(pointerOffset);
+
+                                s.SerializePointer(newPointer);
+                            }
+                        }
+                    }
+                }
+
+                // Global values
+                GlobalData.Update(GlobalPendingEdits ? (SerializerObject)gameMemoryContext.Serializer : gameMemoryContext.Deserializer);
+
+                GlobalPendingEdits = false;
+            }
+            return madeEdits;
+        }
+
         public class DataContainer<T>
         {
             public DataContainer(T data, Pointer pointer, string name = null)
@@ -351,6 +497,42 @@ namespace R1Engine
 
             public Unity_ObjGraphics Graphics { get; }
             public R1_ImageDescriptor[] ImageDescriptors { get; }
+        }
+
+        public class R1_RuntimeGlobalData
+        {
+            public Pointer StatusBarOffset { get; set; }
+            public Pointer RayEventFlagsOffset { get; set; }
+            public Pointer RayModeOffset { get; set; }
+            public Pointer PoingOffset { get; set; }
+
+            public R1_StatusBar StatusBar { get; set; }
+            public R1_RayEvtsFlags RayEventFlags { get; set; }
+            public R1_RayMode RayMode { get; set; }
+            public R1_Poing Poing { get; set; }
+
+            public void SetPointers(SerializerObject s)
+            {
+                // Get the game memory offset
+                Pointer gameMemoryOffset = s.CurrentPointer;
+
+                // Rayman 1 (PC - 1.21)
+                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPC_1_21)
+                {
+                    StatusBarOffset = gameMemoryOffset + 0x16FF52;
+                    RayEventFlagsOffset = gameMemoryOffset + 0x17081A;
+                    RayModeOffset = gameMemoryOffset + 0x170868;
+                    PoingOffset = gameMemoryOffset + 0x16F770;
+                }
+            }
+
+            public void Update(SerializerObject s)
+            {
+                s.DoAt(StatusBarOffset, () => StatusBar = s.SerializeObject<R1_StatusBar>(StatusBar, name: nameof(StatusBar)));
+                s.DoAt(RayEventFlagsOffset, () => RayEventFlags = s.Serialize<R1_RayEvtsFlags>(RayEventFlags, name: nameof(RayEventFlags)));
+                s.DoAt(RayModeOffset, () => RayMode = s.Serialize<R1_RayMode>(RayMode, name: nameof(RayMode)));
+                s.DoAt(PoingOffset, () => Poing = s.SerializeObject<R1_Poing>(Poing, name: nameof(Poing)));
+            }
         }
     }
 }

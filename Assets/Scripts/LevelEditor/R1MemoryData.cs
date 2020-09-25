@@ -9,7 +9,7 @@ namespace R1Engine
 
         public Pointer TileArrayOffset { get; set; }
         public R1_PC_BigMap BigMap { get; set; }
-
+        
         public void Update(SerializerObject s)
         {
             // Get the game memory offset
