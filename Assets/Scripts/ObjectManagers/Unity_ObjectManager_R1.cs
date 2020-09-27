@@ -1,10 +1,11 @@
 ﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
@@ -326,7 +327,7 @@ namespace R1Engine
         public bool GlobalPendingEdits { get; set; }
         public HashSet<string> GlobalDataForceWrite { get; } = new HashSet<string>();
 
-        public override bool UpdateFromMemory(Context gameMemoryContext)
+        public override bool UpdateFromMemory(ref Context gameMemoryContext)
         {
             var lvl = LevelEditorData.Level;
             bool madeEdits = false;
@@ -344,35 +345,54 @@ namespace R1Engine
                     gameMemoryContext.AddFile(file);
 
                     var offset = file.StartPointer;
-                    var basePtrPtr = offset + Settings.GameBasePointer;
-
-                    if (Settings.FindPointerAutomatically)
-                    {
-                        try
-                        {
-                            basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}), falling back on manual specification {basePtrPtr}");
-                        }
-                    }
+                    long baseOffset;
 
                     var s = gameMemoryContext.Deserializer;
 
-                    // Get the base pointer
-                    var baseOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default));
-                    file.anchorOffset = baseOffset.AbsoluteOffset;
+                    if (Settings.IsGameBaseAPointer)
+                    {
+                        var basePtrPtr = offset + Settings.GameBasePointer;
 
-                    s.Goto(baseOffset);
+                        if (Settings.FindPointerAutomatically)
+                        {
+                            try
+                            {
+                                basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}), falling back on manual specification {basePtrPtr}");
+                            }
+                        }
+
+                        // Get the base pointer
+                        baseOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default)).AbsoluteOffset;
+                    }
+                    else
+                    {
+                        baseOffset = Settings.GameBasePointer;
+
+                        if (!String.IsNullOrWhiteSpace(Settings.ModuleName))
+                        {
+                            baseOffset += file.GetStream().process.Modules.Cast<ProcessModule>().First(x => x.ModuleName == Settings.ModuleName).BaseAddress.ToInt64();
+                        }
+                    }
+
+                    // TODO: Support 64-bit offsets
+
+                    var baseOffsetPointer = offset + baseOffset;
+
+                    file.anchorOffset = baseOffsetPointer.AbsoluteOffset;
+
+                    s.Goto(baseOffsetPointer);
                     GameMemoryData.Update(s);
 
-                    s.Goto(baseOffset);
+                    s.Goto(baseOffsetPointer);
                     GlobalData.SetPointers(s);
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError(ex.Message);
+                    Debug.LogError($"{ex.Message}{Environment.NewLine}{ex}");
                     gameMemoryContext = null;
                 }
             }
@@ -382,9 +402,9 @@ namespace R1Engine
                 Pointer currentOffset;
                 SerializerObject s;
 
-                void SerializeEvent(Unity_Object_R1 ed)
+                void SerializeEvent(Unity_Object_R1 ed, Context context)
                 {
-                    s = ed.HasPendingEdits ? (SerializerObject)gameMemoryContext.Serializer : gameMemoryContext.Deserializer;
+                    s = ed.HasPendingEdits ? (SerializerObject)context.Serializer : context.Deserializer;
                     s.Goto(currentOffset);
                     ed.EventData.Init(s.CurrentPointer);
                     ed.EventData.Serialize(s);
@@ -404,14 +424,14 @@ namespace R1Engine
                 {
                     currentOffset = GameMemoryData.EventArrayOffset;
                     foreach (var ed in lvl.EventData.OfType<Unity_Object_R1>())
-                        SerializeEvent(ed);
+                        SerializeEvent(ed, gameMemoryContext);
                 }
 
                 // Rayman
                 if (GameMemoryData.RayEventOffset != null && lvl.Rayman is Unity_Object_R1 r1Ray)
                 {
                     currentOffset = GameMemoryData.RayEventOffset;
-                    SerializeEvent(r1Ray);
+                    SerializeEvent(r1Ray, gameMemoryContext);
                 }
 
                 // Tiles

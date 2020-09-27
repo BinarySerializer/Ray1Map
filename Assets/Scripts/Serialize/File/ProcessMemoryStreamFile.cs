@@ -16,9 +16,11 @@ namespace R1Engine.Serialize
 			filePath = name;
 			stream = null;
         }
+
+        public ProcessMemoryStream GetStream() => stream ?? (stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess));
         
         public Pointer GetPointerByName(string name) {
-			if(stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
+            GetStream();
 
             var exestream = new FileStream(stream.ExeFile, FileMode.Open, FileAccess.Read);
             try {
@@ -84,14 +86,13 @@ namespace R1Engine.Serialize
 
         public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
 		public override Reader CreateReader() {
-			if(stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
-			Reader reader = new Reader(new BufferedStream(new NonClosingStreamWrapper(stream)), isLittleEndian: Endianness == Endian.Little);
+			Reader reader = new Reader(new BufferedStream(new NonClosingStreamWrapper(GetStream())), isLittleEndian: Endianness == Endian.Little);
 			return reader;
 		}
 
 		public override Writer CreateWriter() {
 			if (stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
-			Writer writer = new Writer(new BufferedStream(new NonClosingStreamWrapper(stream)), isLittleEndian: Endianness == Endian.Little);
+			Writer writer = new Writer(new BufferedStream(new NonClosingStreamWrapper(GetStream())), isLittleEndian: Endianness == Endian.Little);
 			return writer;
 		}
 

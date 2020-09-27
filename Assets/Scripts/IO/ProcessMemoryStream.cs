@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace R1Engine {
         public static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("kernel32.dll")]
-        public static extern bool ReadProcessMemory(IntPtr hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesRead);
+        public static extern bool ReadProcessMemory(IntPtr hProcess, long lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool WriteProcessMemory(IntPtr hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesWritten);
@@ -68,7 +69,7 @@ namespace R1Engine {
         }
 
 #if (ISWINDOWS || ISLINUX)
-        Process process;
+        public Process process;
         IntPtr processHandle = IntPtr.Zero;
 #endif
         long currentAddress = 0;
@@ -217,7 +218,7 @@ namespace R1Engine {
 #if ISWINDOWS
             UIntPtr numBytesRead = UIntPtr.Zero;
             byte[] tempBuf = new byte[count];
-            bool success = ReadProcessMemory(processHandle, (int)currentAddress, tempBuf, count, ref numBytesRead);
+            bool success = ReadProcessMemory(processHandle, currentAddress, tempBuf, count, ref numBytesRead);
             if (numBytesRead != UIntPtr.Zero) {
                 Seek(numBytesRead.ToUInt32(), SeekOrigin.Current);
                 Array.Copy(tempBuf, 0, buffer, offset, numBytesRead.ToUInt32());

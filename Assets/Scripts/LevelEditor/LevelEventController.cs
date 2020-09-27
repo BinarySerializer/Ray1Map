@@ -410,7 +410,7 @@ namespace R1Engine
             SelectedEvent.IsSelected = true;
         }
 
-        public Context GameMemoryContext { get; set; }
+        public Context GameMemoryContext;
 
         private void Update() 
         {
@@ -481,7 +481,7 @@ namespace R1Engine
                 memoryLoadTimer += Time.deltaTime;
                 if (memoryLoadTimer > 1.0f / 60.0f)
                 {
-                    makingChanges = LevelEditorData.ObjManager.UpdateFromMemory(GameMemoryContext);
+                    makingChanges = LevelEditorData.ObjManager.UpdateFromMemory(ref GameMemoryContext);
                     if(!makingChanges) 
                         memoryLoadTimer = 0.0f;
                 }

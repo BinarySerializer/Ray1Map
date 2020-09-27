@@ -61,6 +61,6 @@ namespace R1Engine
         [Obsolete]
         public virtual string[] LegacyETANames => new string[0];
 
-        public virtual bool UpdateFromMemory(Context gameMemoryContext) => false;
+        public virtual bool UpdateFromMemory(ref Context gameMemoryContext) => false;
     }
 }
