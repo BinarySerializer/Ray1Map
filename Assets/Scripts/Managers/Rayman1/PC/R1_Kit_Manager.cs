@@ -161,6 +161,7 @@ namespace R1Engine
                 new GameAction("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
 		new GameAction("Import ETA/DES from Rayman 1", false, false, (input, output) => ImportDESETA(settings, false)),
 		new GameAction("Import ETA/DES from EDU", false, false, (input, output) => ImportDESETA(settings, true)),
+		new GameAction("Increase DES/WLD memory allocation", false, false, (input, output) => IncreaseMemAlloc(settings)),
             };
         }
 
@@ -349,14 +350,22 @@ namespace R1Engine
                         FileFactory.Write<R1_PC_WorldFile>(wldPath, context);
                     }
                 }
+            }
 
-                /*// Beef up the memory allocation if necessary.
-                const int newMemAlloc = 2048; // 2 MiB should be enough!
+            // Beef up the memory allocation if necessary.
+            await IncreaseMemAlloc(settings);
+        }
+	
+        public async UniTask IncreaseMemAlloc(GameSettings settings)
+        {
+            const int newMemAlloc = 2048; // 2 MiB should be enough!
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
                 var commonDat = FileFactory.Read<R1_PC_EncryptedFileArchive>(GetCommonArchiveFilePath(), context);
-                var datInitialOffset = commonDat.Offset;
                 var versionFileName = R1_PC_ArchiveFileName.VERSION.ToString();
-                var versionFileIdx = commonDat.Entries.FindItemIndex(x => x.FileName == versionFileName);
-                var versionFile = commonDat.ReadFile<R1_PC_VersionFile>(context, versionFileIdx);
+                var versionFile = commonDat.ReadFile<R1_PC_VersionFile>(context, versionFileName);
 
                 // Increase the memory allocated for each version.
                 foreach (var verMemInfo in versionFile.VersionMemoryInfos) {
@@ -366,16 +375,14 @@ namespace R1Engine
                         verMemInfo.TailleMainMemSprite = newMemAlloc;
                 }
 
-                // Reserialize the object
-                var s = context.Serializer;
-                var versionEntry = commonDat.Entries[versionFileIdx];
-                s.DoAt(datInitialOffset + versionEntry.FileOffset, () =>
-                        {
-                        s.DoXOR(versionEntry.XORKey, () => s.SerializeObject<R1_PC_VersionFile>(versionFile, null, name: versionFileName));
-                        });
-
-                // Save out the updated archive.
-                FileFactory.Write<R1_PC_EncryptedFileArchive>(GetCommonArchiveFilePath(), context);*/
+                // Reserialize and save out the updated archive.
+                commonDat.RepackArchive(context, new Dictionary<string, Action<SerializerObject>> {
+                                {versionFileName, x => {
+				x.SerializeObject<R1_PC_VersionFile>(versionFile, name: versionFileName);
+				// PluM: Hacky fix to make sure the size is set correctly.
+				x.Goto(x.CurrentPointer + 0x392 + 10);
+				}}
+                                });
             }
         }
     }
