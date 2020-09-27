@@ -77,8 +77,7 @@ public class SettingsWindow : UnityWindow
                         DefaultMemoryConfigs[x].ModuleName == Settings.ModuleName &&
                         DefaultMemoryConfigs[x].Offset == Settings.GameBasePointer);
 
-                    if (match > 0)
-                        DefaultMemoryOptionsIndex = match + 1;
+                    DefaultMemoryOptionsIndex = match + 1;
                 }
                 
                 PreviousDefaultMemoryOptionsIndex = DefaultMemoryOptionsIndex;

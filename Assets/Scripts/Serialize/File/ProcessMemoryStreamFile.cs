@@ -91,7 +91,6 @@ namespace R1Engine.Serialize
 		}
 
 		public override Writer CreateWriter() {
-			if (stream == null) stream = new ProcessMemoryStream(filename, ProcessMemoryStream.Mode.AllAccess);
 			Writer writer = new Writer(new BufferedStream(new NonClosingStreamWrapper(GetStream())), isLittleEndian: Endianness == Endian.Little);
 			return writer;
 		}
