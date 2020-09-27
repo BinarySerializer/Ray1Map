@@ -39,6 +39,8 @@ namespace R1Engine
             return output;
         }
 
+        public byte[] ReadFileBytes(Context context, string fileName) => ReadFileBytes(context, Entries.FindItemIndex(x => x.FileName == fileName));
+
         public byte[] ReadFileBytes(Context context, int index)
         {
             // Make sure the index is not out of bounds
@@ -56,6 +58,71 @@ namespace R1Engine
             });
 
             return output;
+        }
+
+        public void RepackArchive(Context context, Dictionary<string, Action<SerializerObject>> fileWriter)
+        {
+            if (context.Settings.EngineVersion == EngineVersion.R1_PC || context.Settings.EngineVersion == EngineVersion.R1_PocketPC)
+                throw new NotImplementedException("Repacking is not supported for Rayman 1"); // The header is in the exe
+
+            // Get every file before we start writing
+            foreach (var entry in Entries.Where(x => !fileWriter.ContainsKey(x.FileName)))
+            {
+                var data = new Array<byte>
+                {
+                    Value = ReadFileBytes(context, entry.FileName)
+                };
+
+                fileWriter.Add(entry.FileName, x => x.SerializeObject(data, name: entry.FileName));
+            }
+
+            var s = context.Serializer;
+
+            // Keep track of the offset
+            uint offset = (uint)((Entries.Length + 1) * 19 + 12);
+
+            // Write every file
+            foreach (var entry in Entries)
+            {
+                // Set the file offset
+                entry.FileOffset = offset;
+                var fileOffset = Offset + entry.FileOffset;
+                s.Goto(fileOffset);
+
+                // Calculate the checksum
+                s.BeginCalculateChecksum(new Checksum8Calculator(false));
+
+                // Serialize file
+                fileWriter[entry.FileName](s);
+
+                // Set the file size
+                entry.FileSize = (uint)(s.CurrentPointer - fileOffset);
+                
+                // Remove xor encryption
+                entry.XORKey = 0;
+
+                // Set the checksum
+                entry.Checksum = s.EndCalculateChecksum<byte>();
+
+                // Increment the offset by the size
+                offset += entry.FileSize;
+            }
+
+            // Write the header
+            s.DoAt(Offset, () =>
+            {
+                // Write PC header
+                base.SerializeImpl(s);
+
+                // Write file entries
+                s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(Entries, Entries.Length, name: nameof(Entries));
+
+                // Write end file
+                s.SerializeObject<R1_PC_EncryptedFileArchiveEntry>(new R1_PC_EncryptedFileArchiveEntry
+                {
+                    FileName = "ENDFILE"
+                }, name: "ENDFILE");
+            });
         }
 
         /// <summary>
@@ -98,7 +165,10 @@ namespace R1Engine
                 }
                 else
                 {
-                    s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(Entries, Entries.Length, name: nameof(Entries));
+                    if (s is BinarySerializer)
+                        throw new Exception($"Use {nameof(RepackArchive)} for writing");
+
+                    //s.SerializeObjectArray<R1_PC_EncryptedFileArchiveEntry>(Entries, Entries.Length, name: nameof(Entries));
                 }
             }
         }
