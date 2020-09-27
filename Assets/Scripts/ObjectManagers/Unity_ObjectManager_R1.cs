@@ -55,7 +55,11 @@ namespace R1Engine
                     return LevelEditorData.EventInfoData.Where(x => x.DesR1.TryGetItem(Context.Settings.R1_World) != null && x.EtaR1.TryGetItem(Context.Settings.R1_World) != null);
 
                 case EngineVersion.R1_PC_Kit:
-                    return LevelEditorData.EventInfoData.Where(x => x.DesKit.TryGetItem(Context.Settings.R1_World) != null && x.EtaKit.TryGetItem(Context.Settings.R1_World) != null);
+                    return LevelEditorData.EventInfoData.Where(x => {
+                        var desName = x.DesKit.TryGetItem(Context.Settings.R1_World);
+                        var etaName = x.EtaKit.TryGetItem(Context.Settings.R1_World);
+                        return desName != null && etaName != null && DES.Any(des => des.Name == $"{desName}.DES") && ETA.Any(eta => eta.Name == $"{etaName}.ETA");
+                        });
 
                 case EngineVersion.R1_PC_Edu:
                 case EngineVersion.R1_PS1_Edu:
