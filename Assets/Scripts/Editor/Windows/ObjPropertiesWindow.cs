@@ -1,6 +1,6 @@
-﻿using System;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using R1Engine;
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,7 +31,7 @@ public class ObjPropertiesWindow : UnityWindow
         if (Application.isPlaying && Controller.LoadState == Controller.State.Finished)
         {
             if (Serializer == null)
-                Serializer = new UnityWindowSerializer(LevelEditorData.MainContext, this);
+                Serializer = new UnityWindowSerializer(LevelEditorData.MainContext, this, null);
 
             var selectedObj = Controller.obj.levelController.controllerEvents.SelectedEvent;
 

@@ -34,7 +34,13 @@ public class UnityWindow : EditorWindow
             EditorGUI.LabelField(rect, new GUIContent(header), EditorStyles.toolbarButton);
         }
     }
-    protected Rect PrefixToggle(Rect rect, ref bool value) {
+
+    public Rect AffixToggle(Rect rect, ref bool value)
+    {
+        value = EditorGUI.Toggle(new Rect(rect.x + rect.width - rect.height, rect.y, rect.height, rect.height), value);
+        return new Rect(rect.x, rect.y, rect.width - rect.height, rect.height);
+    }
+    public Rect PrefixToggle(Rect rect, ref bool value) {
         value = EditorGUI.Toggle(new Rect(rect.x, rect.y, rect.height, rect.height), value);
         return new Rect(rect.x + rect.height, rect.y, rect.width - rect.height, rect.height);
     }
@@ -141,15 +147,15 @@ public class UnityWindow : EditorWindow
 
     public void DrawHeader(string header) => DrawHeader(ref YPos, header);
 
-    public bool EditorField(string label, bool value, bool isVisible = true)
+    public bool EditorField(string label, bool value, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return value;
 
-        return EditorGUI.Toggle(GetNextRect(ref YPos), label, value);
+        return EditorGUI.Toggle(rect ?? GetNextRect(ref YPos), label, value);
     }
 
-    public T EditorField<T>(string label, T value, bool isVisible = true, Func<string[]> getEnumOptions = null)
+    public T EditorField<T>(string label, T value, bool isVisible = true, Func<string[]> getEnumOptions = null, Rect? rect = null)
         where T : Enum
     {
         if (!isVisible)
@@ -158,63 +164,63 @@ public class UnityWindow : EditorWindow
         if (!EnumOptions.ContainsKey(label))
             EnumOptions[label] = getEnumOptions == null ? EnumHelpers.GetValues<T>().Select(x => x.ToString()).ToArray() : getEnumOptions();
 
-        return (T)(object)EditorGUI.Popup(GetNextRect(ref YPos), label, (int)(object)value, EnumOptions[label]);
+        return (T)(object)EditorGUI.Popup(rect ?? GetNextRect(ref YPos), label, (int)(object)value, EnumOptions[label]);
     }
 
-    public int EditorField(string label, int value, string[] options, bool isVisible = true)
+    public int EditorField(string label, int value, string[] options, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return value;
 
-        return EditorGUI.Popup(GetNextRect(ref YPos), label, value, options);
+        return EditorGUI.Popup(rect ?? GetNextRect(ref YPos), label, value, options);
     }
 
-    public string EditorField(string label, string value, bool isVisible = true)
+    public string EditorField(string label, string value, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return value;
 
-        return EditorGUI.TextField(GetNextRect(ref YPos), label, value);
+        return EditorGUI.TextField(rect ?? GetNextRect(ref YPos), label, value);
     }
 
-    public int EditorField(string label, int value, bool isVisible = true)
+    public int EditorField(string label, int value, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return value;
 
-        return EditorGUI.IntField(GetNextRect(ref YPos), label, value);
+        return EditorGUI.IntField(rect ?? GetNextRect(ref YPos), label, value);
     }
 
-    public long EditorField(string label, long value, bool isVisible = true)
+    public long EditorField(string label, long value, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return value;
 
-        return EditorGUI.LongField(GetNextRect(ref YPos), label, value);
+        return EditorGUI.LongField(rect ?? GetNextRect(ref YPos), label, value);
     }
 
-    public float EditorField(string label, float value, bool isVisible = true)
+    public float EditorField(string label, float value, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return value;
 
-        return EditorGUI.FloatField(GetNextRect(ref YPos), label, value);
+        return EditorGUI.FloatField(rect ?? GetNextRect(ref YPos), label, value);
     }
 
-    public double EditorField(string label, double value, bool isVisible = true)
+    public double EditorField(string label, double value, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return value;
 
-        return EditorGUI.DoubleField(GetNextRect(ref YPos), label, value);
+        return EditorGUI.DoubleField(rect ?? GetNextRect(ref YPos), label, value);
     }
 
-    public bool EditorButton(string label, bool isVisible = true)
+    public bool EditorButton(string label, bool isVisible = true, Rect? rect = null)
     {
         if (!isVisible)
             return false;
 
-        return GUI.Button(GetNextRect(ref YPos), label);
+        return GUI.Button(rect ?? GetNextRect(ref YPos), label);
     }
 
     #endregion

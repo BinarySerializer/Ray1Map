@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public enum R1_RayMode : sbyte
+    public enum R1_RayMode : short
     {
         PlaceRay = -1, // All other values are PlaceRay, but the game uses -1
         Rayman = 1,

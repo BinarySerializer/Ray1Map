@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine
@@ -323,11 +324,13 @@ namespace R1Engine
         public R1MemoryData GameMemoryData { get; } = new R1MemoryData();
         public R1_RuntimeGlobalData GlobalData { get; set; } = new R1_RuntimeGlobalData();
         public bool GlobalPendingEdits { get; set; }
+        public HashSet<string> GlobalDataForceWrite { get; } = new HashSet<string>();
 
         public override bool UpdateFromMemory(Context gameMemoryContext)
         {
             var lvl = LevelEditorData.Level;
             bool madeEdits = false;
+            const string memFileKey = "MemStream";
 
             // TODO: Dispose when we stop program?
             if (gameMemoryContext == null)
@@ -336,7 +339,7 @@ namespace R1Engine
 
                 try
                 {
-                    var file = new ProcessMemoryStreamFile("MemStream", Settings.ProcessName, gameMemoryContext);
+                    var file = new ProcessMemoryStreamFile(memFileKey, Settings.ProcessName, gameMemoryContext);
 
                     gameMemoryContext.AddFile(file);
 
@@ -458,7 +461,7 @@ namespace R1Engine
                 }
 
                 // Global values
-                GlobalData.Update(GlobalPendingEdits ? (SerializerObject)gameMemoryContext.Serializer : gameMemoryContext.Deserializer);
+                GlobalData.Update(new ToggleSerializer(gameMemoryContext, x => GlobalPendingEdits || GlobalDataForceWrite.Contains(x), gameMemoryContext.GetFile(memFileKey).StartPointer));
 
                 GlobalPendingEdits = false;
             }
@@ -501,15 +504,28 @@ namespace R1Engine
 
         public class R1_RuntimeGlobalData
         {
-            public Pointer StatusBarOffset { get; set; }
-            public Pointer RayEventFlagsOffset { get; set; }
-            public Pointer RayModeOffset { get; set; }
-            public Pointer PoingOffset { get; set; }
+            public Dictionary<string, Pointer> Pointers { get; set; }
 
-            public R1_StatusBar StatusBar { get; set; }
-            public R1_RayEvtsFlags RayEventFlags { get; set; }
-            public R1_RayMode RayMode { get; set; }
+            public int MapTime { get; set; }
             public R1_Poing Poing { get; set; }
+            public R1_StatusBar StatusBar { get; set; }
+            public short ActiveObjCount { get; set; }
+            public R1_RayEvtsFlags RayEventFlags { get; set; }
+            public short NumLevelChoice { get; set; }
+            public short NumWorldChoice { get; set; }
+            public R1_RayMode RayMode { get; set; }
+            public short RayWindForce { get; set; }
+            public short NumLevel { get; set; }
+            public short NumWorld { get; set; }
+            public short NewWorld { get; set; }
+            public short HelicoTime { get; set; }
+            public short XMap { get; set; }
+            public short YMap { get; set; }
+            public bool RayOnPoelle { get; set; }
+            public byte RayModeSpeed { get; set; }
+            public byte DeadTime { get; set; }
+            public byte CurrentPalID { get; set; }
+            public short OldNumLevelChoice { get; set; }
 
             public void SetPointers(SerializerObject s)
             {
@@ -519,19 +535,56 @@ namespace R1Engine
                 // Rayman 1 (PC - 1.21)
                 if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPC_1_21)
                 {
-                    StatusBarOffset = gameMemoryOffset + 0x16FF52;
-                    RayEventFlagsOffset = gameMemoryOffset + 0x17081A;
-                    RayModeOffset = gameMemoryOffset + 0x170868;
-                    PoingOffset = gameMemoryOffset + 0x16F770;
+                    // In IDA with 1.21 the difference from memory is 0xA1000
+
+                    Pointers = new Dictionary<string, Pointer>()
+                    {
+                        [nameof(MapTime)] = gameMemoryOffset + 0x16E8C0,
+                        [nameof(Poing)] = gameMemoryOffset + 0x16F770,
+                        [nameof(StatusBar)] = gameMemoryOffset + 0x16FF52,
+                        [nameof(ActiveObjCount)] = gameMemoryOffset + 0x170024,
+                        [nameof(RayEventFlags)] = gameMemoryOffset + 0x17081A,
+                        [nameof(NumLevelChoice)] = gameMemoryOffset + 0x17082E,
+                        [nameof(NumWorldChoice)] = gameMemoryOffset + 0x170838,
+                        [nameof(RayMode)] = gameMemoryOffset + 0x170868,
+                        [nameof(RayWindForce)] = gameMemoryOffset + 0x170870,
+                        [nameof(NumLevel)] = gameMemoryOffset + 0x17087C,
+                        [nameof(NumWorld)] = gameMemoryOffset + 0x17088C,
+                        [nameof(NewWorld)] = gameMemoryOffset + 0x170892,
+                        [nameof(HelicoTime)] = gameMemoryOffset + 0x170898,
+                        [nameof(XMap)] = gameMemoryOffset + 0x17089E,
+                        [nameof(YMap)] = gameMemoryOffset + 0x1708A6,
+                        [nameof(RayOnPoelle)] = gameMemoryOffset + 0x170A54,
+                        [nameof(RayModeSpeed)] = gameMemoryOffset + 0x170A73,
+                        [nameof(DeadTime)] = gameMemoryOffset + 0x170A7E,
+                        [nameof(CurrentPalID)] = gameMemoryOffset + 0x170A82,
+                        [nameof(OldNumLevelChoice)] = gameMemoryOffset + 0x17F80E,
+                    };
                 }
             }
 
             public void Update(SerializerObject s)
             {
-                s.DoAt(StatusBarOffset, () => StatusBar = s.SerializeObject<R1_StatusBar>(StatusBar, name: nameof(StatusBar)));
-                s.DoAt(RayEventFlagsOffset, () => RayEventFlags = s.Serialize<R1_RayEvtsFlags>(RayEventFlags, name: nameof(RayEventFlags)));
-                s.DoAt(RayModeOffset, () => RayMode = s.Serialize<R1_RayMode>(RayMode, name: nameof(RayMode)));
-                s.DoAt(PoingOffset, () => Poing = s.SerializeObject<R1_Poing>(Poing, name: nameof(Poing)));
+                s.DoAt(Pointers.TryGetItem(nameof(MapTime)), () => MapTime = s.Serialize<int>(MapTime, name: nameof(MapTime)));
+                s.DoAt(Pointers.TryGetItem(nameof(Poing)), () => Poing = s.SerializeObject<R1_Poing>(Poing, name: nameof(Poing)));
+                s.DoAt(Pointers.TryGetItem(nameof(StatusBar)), () => StatusBar = s.SerializeObject<R1_StatusBar>(StatusBar, name: nameof(StatusBar)));
+                s.DoAt(Pointers.TryGetItem(nameof(ActiveObjCount)), () => ActiveObjCount = s.Serialize<short>(ActiveObjCount, name: nameof(ActiveObjCount)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayEventFlags)), () => RayEventFlags = s.Serialize<R1_RayEvtsFlags>(RayEventFlags, name: nameof(RayEventFlags)));
+                s.DoAt(Pointers.TryGetItem(nameof(NumLevelChoice)), () => NumLevelChoice = s.Serialize<short>(NumLevelChoice, name: nameof(NumLevelChoice)));
+                s.DoAt(Pointers.TryGetItem(nameof(NumWorldChoice)), () => NumWorldChoice = s.Serialize<short>(NumWorldChoice, name: nameof(NumWorldChoice)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayMode)), () => RayMode = s.Serialize<R1_RayMode>(RayMode, name: nameof(RayMode)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayWindForce)), () => RayWindForce = s.Serialize<short>(RayWindForce, name: nameof(RayWindForce)));
+                s.DoAt(Pointers.TryGetItem(nameof(NumLevel)), () => NumLevel = s.Serialize<short>(NumLevel, name: nameof(NumLevel)));
+                s.DoAt(Pointers.TryGetItem(nameof(NumWorld)), () => NumWorld = s.Serialize<short>(NumWorld, name: nameof(NumWorld)));
+                s.DoAt(Pointers.TryGetItem(nameof(NewWorld)), () => NewWorld = s.Serialize<short>(NewWorld, name: nameof(NewWorld)));
+                s.DoAt(Pointers.TryGetItem(nameof(HelicoTime)), () => HelicoTime = s.Serialize<short>(HelicoTime, name: nameof(HelicoTime)));
+                s.DoAt(Pointers.TryGetItem(nameof(XMap)), () => XMap = s.Serialize<short>(XMap, name: nameof(XMap)));
+                s.DoAt(Pointers.TryGetItem(nameof(YMap)), () => YMap = s.Serialize<short>(YMap, name: nameof(YMap)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayOnPoelle)), () => RayOnPoelle = s.Serialize<bool>(RayOnPoelle, name: nameof(RayOnPoelle)));
+                s.DoAt(Pointers.TryGetItem(nameof(RayModeSpeed)), () => RayModeSpeed = s.Serialize<byte>(RayModeSpeed, name: nameof(RayModeSpeed)));
+                s.DoAt(Pointers.TryGetItem(nameof(DeadTime)), () => DeadTime = s.Serialize<byte>(DeadTime, name: nameof(DeadTime)));
+                s.DoAt(Pointers.TryGetItem(nameof(CurrentPalID)), () => CurrentPalID = s.Serialize<byte>(CurrentPalID, name: nameof(CurrentPalID)));
+                s.DoAt(Pointers.TryGetItem(nameof(OldNumLevelChoice)), () => OldNumLevelChoice = s.Serialize<short>(OldNumLevelChoice, name: nameof(OldNumLevelChoice)));
             }
         }
     }

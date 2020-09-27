@@ -56,6 +56,7 @@
         /// </summary>
         public byte[] DataBlock { get; set; }
 
+        // Sound related data?
         public byte[] SecondBlock { get; set; }
 
         /// <summary>
