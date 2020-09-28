@@ -145,6 +145,16 @@ namespace R1Engine {
 #endif
         }
 
+        public long GetProcessBaseAddress(string moduleName = null)
+        {
+#if (ISWINDOWS || ISLINUX)
+
+            return (String.IsNullOrWhiteSpace(moduleName) ? process.MainModule : process.Modules.Cast<ProcessModule>().First(x => x.ModuleName == moduleName)).BaseAddress.ToInt64();
+#else
+            return 0;
+#endif
+        }
+
         public long BaseStreamOffset { get; set; }
 
         public long BaseAddress {

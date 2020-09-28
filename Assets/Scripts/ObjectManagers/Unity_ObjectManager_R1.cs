@@ -346,8 +346,7 @@ namespace R1Engine
 
                     var offset = file.StartPointer;
                     long baseStreamOffset;
-                    var process = file.GetStream().process;
-                    var processBase = (String.IsNullOrWhiteSpace(Settings.ModuleName) ? process.MainModule : process.Modules.Cast<ProcessModule>().First(x => x.ModuleName == Settings.ModuleName)).BaseAddress.ToInt64();
+                    var processBase = file.GetStream().GetProcessBaseAddress(Settings.ModuleName);
 
                     var s = gameMemoryContext.Deserializer;
 
