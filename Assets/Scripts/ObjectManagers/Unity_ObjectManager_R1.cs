@@ -375,6 +375,7 @@ namespace R1Engine
                         baseStreamOffset = Settings.GameBasePointer + processBase;
                     }
 
+                    // TODO: Find better way to handle this
                     if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
                         baseStreamOffset -= 0x80000000;
 

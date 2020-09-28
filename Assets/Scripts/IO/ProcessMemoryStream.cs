@@ -40,7 +40,7 @@ namespace R1Engine {
         public static extern bool ReadProcessMemory(IntPtr hProcess, long lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool WriteProcessMemory(IntPtr hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesWritten);
+        public static extern bool WriteProcessMemory(IntPtr hProcess, long lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesWritten);
 #elif ISLINUX
         // It so happens that the one syscall needed here is still "TODO" in
         // Mono.Posix.NETStandard, so here's a manual wrapping...
@@ -323,7 +323,11 @@ namespace R1Engine {
             UIntPtr numBytesWritten = UIntPtr.Zero;
             byte[] tempBuf = new byte[count];
             Array.Copy(buffer, offset, tempBuf, 0, count);
-            bool success = WriteProcessMemory(processHandle, (int)currentAddress, tempBuf, count, ref numBytesWritten);
+            bool success = WriteProcessMemory(processHandle, currentAddress, tempBuf, count, ref numBytesWritten);
+
+            if (!success)
+                throw new Win32Exception();
+
             if (numBytesWritten != UIntPtr.Zero) {
                 Seek(numBytesWritten.ToUInt32(), SeekOrigin.Current);
             }
