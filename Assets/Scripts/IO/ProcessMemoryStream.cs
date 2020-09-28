@@ -145,9 +145,11 @@ namespace R1Engine {
 #endif
         }
 
-        public int BaseAddress {
+        public long BaseStreamOffset { get; set; }
+
+        public long BaseAddress {
 #if (ISWINDOWS || ISLINUX)
-            get { return process.MainModule.BaseAddress.ToInt32(); }
+            get { return process.MainModule.BaseAddress.ToInt64(); }
 #else
             get { return 0; }
 #endif
@@ -194,18 +196,18 @@ namespace R1Engine {
         public override long Length {
             get {
                 if (!CanSeek) throw new NotSupportedException();
-                return MemorySize;
+                return MemorySize - BaseStreamOffset;
             }
         }
 
         public override long Position {
             get {
                 if (!CanSeek) throw new NotSupportedException();
-                return currentAddress;
+                return currentAddress - BaseStreamOffset;
             }
             set {
                 if (!CanSeek) throw new NotSupportedException();
-                currentAddress = value;
+                currentAddress = value + BaseStreamOffset;
             }
         }
 
@@ -219,6 +221,10 @@ namespace R1Engine {
             UIntPtr numBytesRead = UIntPtr.Zero;
             byte[] tempBuf = new byte[count];
             bool success = ReadProcessMemory(processHandle, currentAddress, tempBuf, count, ref numBytesRead);
+
+            if (!success)
+                throw new Win32Exception();
+
             if (numBytesRead != UIntPtr.Zero) {
                 Seek(numBytesRead.ToUInt32(), SeekOrigin.Current);
                 Array.Copy(tempBuf, 0, buffer, offset, numBytesRead.ToUInt32());
@@ -293,7 +299,7 @@ namespace R1Engine {
             if (!CanSeek) throw new NotSupportedException();
             switch (origin) {
                 case SeekOrigin.Begin:
-                    currentAddress = offset;
+                    currentAddress = offset + BaseStreamOffset;
                     break;
                 case SeekOrigin.Current:
                     currentAddress += offset;
@@ -302,7 +308,7 @@ namespace R1Engine {
                     currentAddress = BaseAddress + MemorySize - offset;
                     break;
             }
-            return currentAddress;
+            return currentAddress - BaseStreamOffset;
         }
 
         public override void SetLength(long value) {

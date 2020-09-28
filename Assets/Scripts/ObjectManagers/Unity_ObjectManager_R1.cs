@@ -345,7 +345,9 @@ namespace R1Engine
                     gameMemoryContext.AddFile(file);
 
                     var offset = file.StartPointer;
-                    long baseOffset;
+                    long baseStreamOffset;
+                    var process = file.GetStream().process;
+                    var processBase = (String.IsNullOrWhiteSpace(Settings.ModuleName) ? process.MainModule : process.Modules.Cast<ProcessModule>().First(x => x.ModuleName == Settings.ModuleName)).BaseAddress.ToInt64();
 
                     var s = gameMemoryContext.Deserializer;
 
@@ -366,28 +368,19 @@ namespace R1Engine
                         }
 
                         // Get the base pointer
-                        baseOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default)).AbsoluteOffset;
+                        baseStreamOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default)).AbsoluteOffset;
                     }
                     else
                     {
-                        baseOffset = Settings.GameBasePointer;
-
-                        if (!String.IsNullOrWhiteSpace(Settings.ModuleName))
-                        {
-                            baseOffset += file.GetStream().process.Modules.Cast<ProcessModule>().First(x => x.ModuleName == Settings.ModuleName).BaseAddress.ToInt64();
-                        }
+                        baseStreamOffset = Settings.GameBasePointer + processBase;
                     }
 
-                    // TODO: Support 64-bit offsets
+                    file.BaseStreamOffset = baseStreamOffset;
 
-                    var baseOffsetPointer = offset + baseOffset;
-
-                    file.anchorOffset = baseOffsetPointer.AbsoluteOffset;
-
-                    s.Goto(baseOffsetPointer);
+                    s.Goto(offset);
                     GameMemoryData.Update(s);
 
-                    s.Goto(baseOffsetPointer);
+                    s.Goto(offset);
                     GlobalData.SetPointers(s);
                 }
                 catch (Exception ex)
