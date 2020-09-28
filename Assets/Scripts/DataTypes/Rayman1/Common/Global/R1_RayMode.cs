@@ -7,6 +7,6 @@
         RayOnMS = 2,
         MortDeRayman1 = 3,
         MortDeRayman2 = 4,
-        RayCasseBrique = 5,
+        RayCasseBrique = 5, // PC only
     }
 }

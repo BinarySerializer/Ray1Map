@@ -581,6 +581,13 @@ namespace R1Engine
                         [nameof(OldNumLevelChoice)] = gameMemoryOffset + 0x17F80E,
                     };
                 }
+                else  if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1US)
+                {
+                    Pointers = new Dictionary<string, Pointer>()
+                    {
+                        [nameof(RayMode)] = gameMemoryOffset + 0x801E5420,
+                    };
+                }
                 else
                 {
                     Pointers = new Dictionary<string, Pointer>();
