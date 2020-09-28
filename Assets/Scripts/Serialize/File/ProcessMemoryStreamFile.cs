@@ -28,7 +28,7 @@ namespace R1Engine.Serialize
             {
                 baseStreamOffset = value;
 
-                Debug.Log($"Set memory stream base offset to {BaseStreamOffset:X8}");
+                Debug.Log($"Set memory stream base offset to 0x{BaseStreamOffset:X8}");
 
                 if (stream != null)
                     stream.BaseStreamOffset = value;

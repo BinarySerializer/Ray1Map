@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -59,9 +60,24 @@ namespace R1Engine
                 RayEventOffset = null;
             }
 
+            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
+            {
+                var manager = (R1_PS1BaseXXXManager)s.GameSettings.GetGameManager;
+                EventArrayOffset = gameMemoryOffset + (FileFactory.Read<R1_PS1_LevFile>(manager.GetLevelFilePath(s.GameSettings), LevelEditorData.MainContext).EventData.EventsPointer.AbsoluteOffset);
+
+                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1US)
+                    RayEventOffset = gameMemoryOffset + 0x801F61A0;
+
+                // TODO: Set
+                TileArrayOffset = null;
+            }
 
             else
                 throw new NotImplementedException("The selected game mode does currently not support memory loading");
+
+            Debug.Log($"EventArrayOffset: {EventArrayOffset:X8}");
+            Debug.Log($"RayEventOffset: {RayEventOffset:X8}");
+            Debug.Log($"TileArrayOffset: {TileArrayOffset:X8}");
         }
     }
 }

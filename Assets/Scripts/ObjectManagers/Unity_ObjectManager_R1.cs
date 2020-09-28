@@ -375,6 +375,9 @@ namespace R1Engine
                         baseStreamOffset = Settings.GameBasePointer + processBase;
                     }
 
+                    if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
+                        baseStreamOffset -= 0x80000000;
+
                     file.BaseStreamOffset = baseStreamOffset;
 
                     s.Goto(offset);
@@ -573,6 +576,10 @@ namespace R1Engine
                         [nameof(CurrentPalID)] = gameMemoryOffset + 0x170A82,
                         [nameof(OldNumLevelChoice)] = gameMemoryOffset + 0x17F80E,
                     };
+                }
+                else
+                {
+                    Pointers = new Dictionary<string, Pointer>();
                 }
             }
 
