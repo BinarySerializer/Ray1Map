@@ -81,6 +81,7 @@
 						{ "json": "ps1_fg1", "image": ".\/img\/version\/ps1.png", "name": "French 🡒 English 1 (FG1)", "volume": "FG1", "folder": "r1/quiz/ps1_eu1" },
 						{ "json": "pc_fd", "image": ".\/img\/version\/msdos.png", "name": "French 🡒 German 1/2/3 (FD)", "volume": "FD", "folder": "r1/quiz/pc_fd" },
 						{ "json": "pc_fe", "image": ".\/img\/version\/msdos.png", "name": "French 🡒 Spanish 1/2/3 (FE)", "volume": "FE", "folder": "r1/quiz/pc_fe" },
+						{ "json": "pc_dg1", "image": ".\/img\/version\/msdos.png", "name": "German 🡒 English 1 (DG1)", "volume": "DG1", "folder": "r1/quiz/pc_dg1" },
 						{ "json": "ps1_dg1", "image": ".\/img\/version\/ps1.png", "name": "German 🡒 English 1 (DG1)", "volume": "DG1", "folder": "r1/quiz/ps1_eu1" },
 						{ "json": "ps1_eg1", "image": ".\/img\/version\/ps1.png", "name": "Spanish 🡒 English 1 (EG1)", "volume": "EG1", "folder": "r1/quiz/ps1_eu1" },
 						{ "json": "ps1_ig1", "image": ".\/img\/version\/ps1.png", "name": "Italian 🡒 English 1 (IG1)", "volume": "IG1", "folder": "r1/quiz/ps1_eu1" },
