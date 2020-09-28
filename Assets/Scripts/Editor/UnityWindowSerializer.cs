@@ -13,16 +13,17 @@ public class UnityWindowSerializer : SerializerObject
     {
         Window = window;
         ForceWrite = forceWrite;
-        Foldouts = new Dictionary<R1Serializable, bool>();
+        Foldouts = new Dictionary<string, bool>();
         CurrentName = new List<string>();
     }
 
     public UnityWindow Window { get; }
     public HashSet<string> ForceWrite { get; }
-    public Dictionary<R1Serializable, bool> Foldouts { get; }
+    public Dictionary<string, bool> Foldouts { get; }
     public override bool FullSerialize => false;
     private bool tempFlag = false;
     protected List<string> CurrentName { get; }
+    public string GetFullName(string name) => String.Join(".", CurrentName.Append(name));
 
     public override uint CurrentLength => 0;
     public override Pointer CurrentPointer => null;
@@ -37,7 +38,7 @@ public class UnityWindowSerializer : SerializerObject
 
         if (ForceWrite != null)
         {
-            var fullName = String.Join(".", CurrentName.Append(name));
+            var fullName = GetFullName(name);
 
             tempFlag = ForceWrite.Contains(fullName);
 
@@ -124,12 +125,14 @@ public class UnityWindowSerializer : SerializerObject
     {
         CurrentName.Add(name);
 
-        if (!Foldouts.ContainsKey(obj))
-            Foldouts[obj] = true;
+        var fullName = GetFullName(name);
 
-        Foldouts[obj] = EditorGUI.Foldout(Window.GetNextRect(ref Window.YPos), Foldouts[obj], $"{name}", true);
+        if (!Foldouts.ContainsKey(fullName))
+            Foldouts[fullName] = true;
 
-        if (Foldouts[obj])
+        Foldouts[fullName] = EditorGUI.Foldout(Window.GetNextRect(ref Window.YPos), Foldouts[fullName], $"{name}", true);
+
+        if (Foldouts[fullName])
         {
             Window.IndentLevel++;
             obj.SerializeImpl(this);
