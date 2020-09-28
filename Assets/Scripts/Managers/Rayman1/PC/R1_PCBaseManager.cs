@@ -1484,17 +1484,14 @@ namespace R1Engine
                 }
             }
 
+            // Update link table
+            lvlData.EventData.EventLinkingTable = objManager.LinkTable;
+
             // Temporary event lists
             var events = new List<R1_EventData>();
             var eventCommands = new List<R1_PC_EventCommand>();
 
             // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
-
-            // Get file names if available
-            var desNames = worldData.DESFileNames ?? new string[0];
-            var etaNames = worldData.ETAFileNames ?? new string[0];
-
             foreach (var e in level.EventData.Cast<Unity_Object_R1>())
             {
                 var r1Event = e.EventData;

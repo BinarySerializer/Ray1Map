@@ -105,10 +105,15 @@ namespace R1Engine
             }
         }
 
-        public void SaveLevelTEMP() {
-            // Set events
-            Controller.obj.levelEventController.CalculateLinkIndexes();
+        public void SaveLevelTEMP() 
+        {
+            // Save link groups
+            LevelEditorData.ObjManager.SaveLinkGroups(LevelEditorData.Level.EventData);
 
+            // Save objects
+            LevelEditorData.ObjManager.SaveObjects(LevelEditorData.Level.EventData);
+
+            // Save level
             using (serializeContext)
                 Settings.GetGameManager.SaveLevel(serializeContext, LevelEditorData.Level);
 

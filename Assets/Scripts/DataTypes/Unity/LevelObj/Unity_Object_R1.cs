@@ -5,8 +5,6 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    // TODO: On save we have to set (Sub)Etat to Runtime(Sub)Etat and possibly other runtime values as well
-
     public class Unity_Object_R1 : Unity_Object
     {
         public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null)

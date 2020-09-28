@@ -29,7 +29,7 @@ namespace R1Engine
         public DataContainer<DESData>[] DES { get; }
         public DataContainer<R1_EventState[][]>[] ETA { get; }
 
-        public ushort[] LinkTable { get; }
+        public ushort[] LinkTable { get; set; }
 
         public bool UsesPointers { get; }
 
@@ -205,45 +205,9 @@ namespace R1Engine
         }
 
         public override void InitR1LinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
-        public override void SaveLinkGroups(IList<Unity_Object> objects)
-        {
-            /*
-            List<int> alreadyChained = new List<int>();
-            foreach (Unity_ObjBehaviour ee in Controller.obj.levelController.Events)
-            {
-                // No link
-                if (ee.ObjData.EditorLinkGroup == 0)
-                {
-                    ee.Data.LinkIndex = Controller.obj.levelController.Events.IndexOf(ee);
-                }
-                else
-                {
-                    // Skip if already chained
-                    if (alreadyChained.Contains(Controller.obj.levelController.Events.IndexOf(ee)))
-                        continue;
+        public override void SaveLinkGroups(IList<Unity_Object> objects) => LinkTable = SaveR1LinkGroups(objects);
 
-                    // Find all the events with the same linkId and store their indexes
-                    List<int> indexesOfSameId = new List<int>();
-                    int cur = ee.ObjData.EditorLinkGroup;
-                    foreach (Unity_ObjBehaviour e in Controller.obj.levelController.Events.Where<Unity_ObjBehaviour>(e => e.ObjData.EditorLinkGroup == cur))
-                    {
-                        indexesOfSameId.Add(Controller.obj.levelController.Events.IndexOf(e));
-                        alreadyChained.Add(Controller.obj.levelController.Events.IndexOf(e));
-                    }
-                    // Loop through and chain them
-                    for (int j = 0; j < indexesOfSameId.Count; j++)
-                    {
-                        int next = j + 1;
-                        if (next == indexesOfSameId.Count)
-                            next = 0;
-
-                        Controller.obj.levelController.Events[indexesOfSameId[j]].Data.LinkIndex = indexesOfSameId[next];
-                    }
-                }
-            }*/
-        }
-
-        public override void InitEvents(Unity_Level level)
+        public override void InitObjects(Unity_Level level)
         {
             // Hard-code event animations for the different Rayman types
             Unity_ObjGraphics rayDes = null;
@@ -295,6 +259,17 @@ namespace R1Engine
         }
 
         public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_R1>().FindItem(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS || x.EventData.Type == R1_EventType.TYPE_PANCARTE);
+
+        public override void SaveObjects(IList<Unity_Object> objects)
+        {
+            foreach (var obj in objects.OfType<Unity_Object_R1>())
+            {
+                obj.EventData.Etat = obj.EventData.InitialEtat;
+                obj.EventData.SubEtat = obj.EventData.InitialSubEtat;
+
+                // TODO: Set other runtime values like hp etc.?
+            }
+        }
 
         [Obsolete]
         public override string[] LegacyDESNames => DES.Select(x => x.DisplayName).ToArray();

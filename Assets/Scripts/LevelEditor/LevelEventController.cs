@@ -136,7 +136,7 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
-            LevelEditorData.ObjManager.InitEvents(LevelEditorData.Level);
+            LevelEditorData.ObjManager.InitObjects(LevelEditorData.Level);
 
             // Initialize links
             InitializeEventLinks();
@@ -654,9 +654,6 @@ namespace R1Engine
             }
             commandLines.Clear();
         }
-
-        // Converts linkID to linkIndex when saving
-        public void CalculateLinkIndexes() => LevelEditorData.ObjManager.SaveLinkGroups(LevelEditorData.Level.EventData);
 
         // Add events to the list via the managers
         public Unity_ObjBehaviour AddEvent(Unity_Object obj)
