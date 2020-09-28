@@ -29,19 +29,26 @@ public class GamePropertiesWindow : UnityWindow
 
         if (Application.isPlaying && Controller.LoadState == Controller.State.Finished)
         {
-            var objManager = LevelEditorData.ObjManager;
-
-            if (objManager is Unity_ObjectManager_R1 r1)
+            if (Settings.LoadFromMemory)
             {
-                if (Serializer == null)
-                    Serializer = new UnityWindowSerializer(LevelEditorData.MainContext, this, r1.GlobalDataForceWrite);
+                var objManager = LevelEditorData.ObjManager;
 
-                EditorGUI.BeginChangeCheck();
+                if (objManager is Unity_ObjectManager_R1 r1)
+                {
+                    if (Serializer == null)
+                        Serializer = new UnityWindowSerializer(LevelEditorData.MainContext, this, r1.GlobalDataForceWrite);
 
-                r1.GlobalData.Update(Serializer);
+                    EditorGUI.BeginChangeCheck();
 
-                if (EditorGUI.EndChangeCheck())
-                    r1.GlobalPendingEdits = true;
+                    r1.GlobalData.Update(Serializer);
+
+                    if (EditorGUI.EndChangeCheck())
+                        r1.GlobalPendingEdits = true;
+                }
+            }
+            else
+            {
+                EditorGUI.HelpBox(GetNextRect(ref YPos, height: 40f), "Game properties are only available when loading from memory.", MessageType.Warning);
             }
         }
         else

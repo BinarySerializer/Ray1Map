@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine;
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,6 +20,8 @@ public class ObjPropertiesWindow : UnityWindow
     }
 
     protected UnityWindowSerializer Serializer { get; set; }
+
+    public bool R1_CmdPanelOpen { get; set; }
 
     protected override UniTask UpdateEditorFieldsAsync() 
     {
@@ -52,7 +55,21 @@ public class ObjPropertiesWindow : UnityWindow
                     EditorGUI.BeginChangeCheck();
 
                     if (selectedObjData is Unity_Object_R1 r1)
+                    {
+                        R1_CmdPanelOpen = EditorGUI.Foldout(GetNextRect(ref YPos), R1_CmdPanelOpen, "Commands");
+
+                        if (R1_CmdPanelOpen)
+                        {
+                            // TODO: Cache the commands, but make sure to update if modified
+                            var cmdLines = r1.EventData.Commands?.ToTranslatedStrings(r1.EventData.LabelOffsets);
+
+                            if (cmdLines?.Any() == true)
+                                // TODO: Better way to get height?
+                                EditorGUI.TextArea(GetNextRect(ref YPos, height: cmdLines.Length * 15 + 2), String.Join(Environment.NewLine, cmdLines));
+                        }
+
                         r1.EventData.SerializeImpl(Serializer);
+                    }
                     else if (selectedObjData is Unity_Object_R2 r2)
                         r2.EventData.SerializeImpl(Serializer);
                     else if (selectedObjData is Unity_Object_R1Jaguar jag)
