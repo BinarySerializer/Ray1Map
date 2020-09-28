@@ -376,7 +376,10 @@ namespace R1Engine
                     }
 
                     // TODO: Find better way to handle this
-                    if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
+                    if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 ||
+                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP ||
+                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
                         baseStreamOffset -= 0x80000000;
 
                     file.BaseStreamOffset = baseStreamOffset;

@@ -91,7 +91,8 @@ namespace R1Engine
         public short InitialXPosition { get; set; }
         public short InitialYPosition { get; set; }
 
-        public ushort PS1Demo_Unk4 { get; set; }
+        public bool PS1Demo_DetectZone { get; set; }
+        public byte PS1Demo_Unk4 { get; set; }
         public ushort Unk_64 { get; set; }
         public ushort Unk_66 { get; set; }
 
@@ -198,7 +199,13 @@ namespace R1Engine
 
         #region Helper Data
 
-        public bool IsPCFormat(GameSettings settings) => settings.EngineVersion == EngineVersion.R1_PC || settings.EngineVersion == EngineVersion.R1_PC_Kit || settings.EngineVersion == EngineVersion.R1_PC_Edu || settings.EngineVersion == EngineVersion.R1_PS1_Edu || settings.EngineVersion == EngineVersion.R1_PocketPC || settings.EngineVersion == EngineVersion.R1_GBA || settings.EngineVersion == EngineVersion.R1_DSi;
+        public bool IsPCFormat(GameSettings settings) => settings.EngineVersion == EngineVersion.R1_PC || 
+                                                         settings.EngineVersion == EngineVersion.R1_PC_Kit || 
+                                                         settings.EngineVersion == EngineVersion.R1_PC_Edu || 
+                                                         settings.EngineVersion == EngineVersion.R1_PS1_Edu || 
+                                                         settings.EngineVersion == EngineVersion.R1_PocketPC || 
+                                                         settings.EngineVersion == EngineVersion.R1_GBA || 
+                                                         settings.EngineVersion == EngineVersion.R1_DSi;
 
         public bool GetFollowEnabled(GameSettings settings)
         {
@@ -341,9 +348,12 @@ namespace R1Engine
 
             InitialXPosition = s.Serialize<short>(InitialXPosition, name: nameof(InitialXPosition));
             InitialYPosition = s.Serialize<short>(InitialYPosition, name: nameof(InitialYPosition));
-            // NOTE: This appears between here and ImageDescriptorCount - where does it belong?
+
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
-                PS1Demo_Unk4 = s.Serialize<ushort>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
+            {
+                PS1Demo_DetectZone = s.Serialize<bool>(PS1Demo_DetectZone, name: nameof(PS1Demo_DetectZone));
+                PS1Demo_Unk4 = s.Serialize<byte>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
+            }
 
             Unk_64 = s.Serialize<ushort>(Unk_64, name: nameof(Unk_64));
             Unk_66 = s.Serialize<ushort>(Unk_66, name: nameof(Unk_66));

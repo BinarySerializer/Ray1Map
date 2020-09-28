@@ -60,16 +60,44 @@ namespace R1Engine
                 RayEventOffset = null;
             }
 
-            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
+            // Rayman 1 (PS1 - US/EU/JP)
+            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP)
             {
                 var manager = (R1_PS1BaseXXXManager)s.GameSettings.GetGameManager;
                 var lvl = FileFactory.Read<R1_PS1_LevFile>(manager.GetLevelFilePath(s.GameSettings), LevelEditorData.MainContext);
                 EventArrayOffset = gameMemoryOffset + lvl.EventData.EventsPointer.AbsoluteOffset;
 
-                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1US)
+                // US
+                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1US || s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1USDemo)
                     RayEventOffset = gameMemoryOffset + 0x801F61A0;
 
-                TileArrayOffset = gameMemoryOffset + lvl.MapData.Tiles[0].Offset.AbsoluteOffset;
+                // TODO: Find ray event offset for PAL, PAL demo & JP
+
+                TileArrayOffset = gameMemoryOffset + lvl.MapData.Offset.AbsoluteOffset + 4; // skip the width + height ushorts
+            }
+
+            // Rayman 1 (PS1 - JP Demo 3/6)
+            else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
+            {
+                var lvlPath = (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 
+                    ? ((R1_PS1JPDemoVol3_Manager)s.GameSettings.GetGameManager).GetLevelFilePath(s.GameSettings) 
+                    : ((R1_PS1JPDemoVol6_Manager)s.GameSettings.GetGameManager).GetLevelFilePath(s.GameSettings));
+
+                var mapPath = (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 
+                    ? ((R1_PS1JPDemoVol3_Manager)s.GameSettings.GetGameManager).GetMapFilePath(s.GameSettings) 
+                    : ((R1_PS1JPDemoVol6_Manager)s.GameSettings.GetGameManager).GetMapFilePath(s.GameSettings));
+
+                var lvl = FileFactory.Read<R1_PS1JPDemo_LevFile>(lvlPath, LevelEditorData.MainContext);
+                var map = FileFactory.Read<MapData>(mapPath, LevelEditorData.MainContext);
+
+                EventArrayOffset = gameMemoryOffset + lvl.EventsPointer.AbsoluteOffset;
+
+                if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                    RayEventOffset = gameMemoryOffset + 0x801DA898;
+
+                // TODO: Get ray event offset for vol 6
+                
+                TileArrayOffset = gameMemoryOffset + map.Offset.AbsoluteOffset + 4; // skip the width + height ushorts
             }
 
             else

@@ -140,10 +140,22 @@ namespace R1Engine
             get
             {
                 if (IsPCFormat)
+                {
                     // Unk_28 is also some active flag, but it's 0 for Rayman
                     return EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.SwitchedOn) && EventData.Unk_36 == 1;
+                }
                 else
-                    return EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.SwitchedOn);
+                {
+                    if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                    {
+                        // TODO: Find actual flag
+                        return EventData.PS1_Unk5 == 0;
+                    }
+                    else
+                    {
+                        return EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.SwitchedOn);
+                    }
+                }
             }
         }
 
@@ -167,8 +179,16 @@ namespace R1Engine
                     }
                     else
                     {
-                        if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.DetectZone))
-                            return true;
+                        if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                        {
+                            if (EventData.PS1Demo_DetectZone)
+                                return true;
+                        }
+                        else
+                        {
+                            if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.DetectZone))
+                                return true;
+                        }
                     }
 
                     return false;
