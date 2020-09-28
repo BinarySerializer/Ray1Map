@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -36,10 +37,10 @@ namespace R1Engine {
         public static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("kernel32.dll")]
-        public static extern bool ReadProcessMemory(IntPtr hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesRead);
+        public static extern bool ReadProcessMemory(IntPtr hProcess, long lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool WriteProcessMemory(IntPtr hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesWritten);
+        public static extern bool WriteProcessMemory(IntPtr hProcess, long lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesWritten);
 #elif ISLINUX
         // It so happens that the one syscall needed here is still "TODO" in
         // Mono.Posix.NETStandard, so here's a manual wrapping...
@@ -68,7 +69,7 @@ namespace R1Engine {
         }
 
 #if (ISWINDOWS || ISLINUX)
-        Process process;
+        public Process process;
         IntPtr processHandle = IntPtr.Zero;
 #endif
         long currentAddress = 0;
@@ -144,9 +145,21 @@ namespace R1Engine {
 #endif
         }
 
-        public int BaseAddress {
+        public long GetProcessBaseAddress(string moduleName = null)
+        {
 #if (ISWINDOWS || ISLINUX)
-            get { return process.MainModule.BaseAddress.ToInt32(); }
+
+            return (String.IsNullOrWhiteSpace(moduleName) ? process.MainModule : process.Modules.Cast<ProcessModule>().First(x => x.ModuleName == moduleName)).BaseAddress.ToInt64();
+#else
+            return 0;
+#endif
+        }
+
+        public long BaseStreamOffset { get; set; }
+
+        public long BaseAddress {
+#if (ISWINDOWS || ISLINUX)
+            get { return process.MainModule.BaseAddress.ToInt64(); }
 #else
             get { return 0; }
 #endif
@@ -193,18 +206,18 @@ namespace R1Engine {
         public override long Length {
             get {
                 if (!CanSeek) throw new NotSupportedException();
-                return MemorySize;
+                return MemorySize - BaseStreamOffset;
             }
         }
 
         public override long Position {
             get {
                 if (!CanSeek) throw new NotSupportedException();
-                return currentAddress;
+                return currentAddress - BaseStreamOffset;
             }
             set {
                 if (!CanSeek) throw new NotSupportedException();
-                currentAddress = value;
+                currentAddress = value + BaseStreamOffset;
             }
         }
 
@@ -217,7 +230,11 @@ namespace R1Engine {
 #if ISWINDOWS
             UIntPtr numBytesRead = UIntPtr.Zero;
             byte[] tempBuf = new byte[count];
-            bool success = ReadProcessMemory(processHandle, (int)currentAddress, tempBuf, count, ref numBytesRead);
+            bool success = ReadProcessMemory(processHandle, currentAddress, tempBuf, count, ref numBytesRead);
+
+            if (!success)
+                throw new Win32Exception();
+
             if (numBytesRead != UIntPtr.Zero) {
                 Seek(numBytesRead.ToUInt32(), SeekOrigin.Current);
                 Array.Copy(tempBuf, 0, buffer, offset, numBytesRead.ToUInt32());
@@ -292,7 +309,7 @@ namespace R1Engine {
             if (!CanSeek) throw new NotSupportedException();
             switch (origin) {
                 case SeekOrigin.Begin:
-                    currentAddress = offset;
+                    currentAddress = offset + BaseStreamOffset;
                     break;
                 case SeekOrigin.Current:
                     currentAddress += offset;
@@ -301,7 +318,7 @@ namespace R1Engine {
                     currentAddress = BaseAddress + MemorySize - offset;
                     break;
             }
-            return currentAddress;
+            return currentAddress - BaseStreamOffset;
         }
 
         public override void SetLength(long value) {
@@ -316,7 +333,11 @@ namespace R1Engine {
             UIntPtr numBytesWritten = UIntPtr.Zero;
             byte[] tempBuf = new byte[count];
             Array.Copy(buffer, offset, tempBuf, 0, count);
-            bool success = WriteProcessMemory(processHandle, (int)currentAddress, tempBuf, count, ref numBytesWritten);
+            bool success = WriteProcessMemory(processHandle, currentAddress, tempBuf, count, ref numBytesWritten);
+
+            if (!success)
+                throw new Win32Exception();
+
             if (numBytesWritten != UIntPtr.Zero) {
                 Seek(numBytesWritten.ToUInt32(), SeekOrigin.Current);
             }

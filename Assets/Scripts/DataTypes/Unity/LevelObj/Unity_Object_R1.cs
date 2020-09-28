@@ -5,8 +5,6 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    // TODO: On save we have to set (Sub)Etat to Runtime(Sub)Etat and possibly other runtime values as well
-
     public class Unity_Object_R1 : Unity_Object
     {
         public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null)
@@ -45,7 +43,7 @@ namespace R1Engine
 
         public int DESIndex
         {
-            get => (ObjManager.UsesPointers ? ObjManager.DES.FindItemIndex(x => x.Pointer == EventData.ImageDescriptorsPointer) : (int)EventData.PC_ImageDescriptorsIndex);
+            get => (ObjManager.UsesPointers ? ObjManager.DES.FindItemIndex(x => x.Pointer.AbsoluteOffset == EventData.ImageDescriptorsPointer.AbsoluteOffset) : (int)EventData.PC_ImageDescriptorsIndex);
             set {
                 if (value != DESIndex) {
                     OverrideAnimIndex = null;
@@ -125,16 +123,40 @@ namespace R1Engine
               $"Runtime_ZdcIndex.ZDCIndex: {EventData.Runtime_TypeZDC?.ZDCIndex}{Environment.NewLine}" +
               $"Unk_94: {EventData.Unk_94}{Environment.NewLine}" +
               $"{Environment.NewLine}" +
-              $"Flags: {EventData.PC_Flags}{Environment.NewLine}";
+              $"PC_Flags: {EventData.PC_Flags}{Environment.NewLine}" +
+              $"PS1_RuntimeFlags: {EventData.PS1_RuntimeFlags}{Environment.NewLine}";
+
+        public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.Settings);
 
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
         public override bool IsAlways => TypeInfo?.Flag == ObjTypeFlag.Always && !(ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 && EventData.Type == R1_EventType.TYPE_DARK2_PINK_FLY);
         public override bool IsEditor => TypeInfo?.Flag == ObjTypeFlag.Editor;
 
-        // TODO: Check PS1 flags
-        // Unk_28 is also some active flag, but it's 0 for Rayman
-        public override bool IsActive => EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.SwitchedOn) && EventData.Unk_36 == 1;
+        public override bool IsActive
+        {
+            get
+            {
+                if (IsPCFormat)
+                {
+                    // Unk_28 is also some active flag, but it's 0 for Rayman
+                    return EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.SwitchedOn) && EventData.Unk_36 == 1;
+                }
+                else
+                {
+                    if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                    {
+                        // TODO: Find actual flag
+                        return EventData.PS1_Unk5 == 0;
+                    }
+                    else
+                    {
+                        return EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.SwitchedOn);
+                    }
+                }
+            }
+        }
+
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
         public override string SecondaryName { get; }
 
@@ -148,10 +170,24 @@ namespace R1Engine
                 // If loading from memory, check runtime flags
                 if (Settings.LoadFromMemory)
                 {
-                    if (EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.DetectZone))
-                        return true;
-
-                    // TODO: Check PS1 flags
+                    if (IsPCFormat)
+                    {
+                        if (EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.DetectZone))
+                            return true;
+                    }
+                    else
+                    {
+                        if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
+                        {
+                            if (EventData.PS1Demo_DetectZone)
+                                return true;
+                        }
+                        else
+                        {
+                            if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.DetectZone))
+                                return true;
+                        }
+                    }
 
                     return false;
                 }

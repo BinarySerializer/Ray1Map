@@ -62,31 +62,41 @@ public class SettingsWindow : UnityWindow
 
         // Memory
 
-        if (Settings.LoadFromMemory) {
+        if (Settings.LoadFromMemory) 
+        {
             DrawHeader("Memory");
 
-            DefaultMemoryOptionsIndex = EditorField("Default memory options", DefaultMemoryOptionsIndex, DefaultMemoryOptionNames);
+            DefaultMemoryOptionsIndex = EditorField("Default memory options", DefaultMemoryOptionsIndex, DefaultMemoryOptionDisplayNames);
 
-            if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex) {
+            if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex) 
+            {
                 if (PreviousDefaultMemoryOptionsIndex == -1) {
-                    var match = Enumerable.Range(0, DefaultMemoryOptionNames.Length).FirstOrDefault(x => DefaultMemoryOptionProcessNames[x] == Settings.ProcessName && DefaultMemoryOptionPointers[x] == Settings.GameBasePointer);
+                    var match = Enumerable.Range(0, DefaultMemoryOptionDisplayNames.Length).FirstOrDefault(x => 
+                        DefaultMemoryConfigs[x].IsPointer == Settings.IsGameBaseAPointer &&
+                        DefaultMemoryConfigs[x].ProcessName == Settings.ProcessName &&
+                        DefaultMemoryConfigs[x].ModuleName == Settings.ModuleName &&
+                        DefaultMemoryConfigs[x].Offset == Settings.GameBasePointer);
 
-                    if (match > 0)
-                        DefaultMemoryOptionsIndex = match;
+                    DefaultMemoryOptionsIndex = match + 1;
                 }
-
+                
                 PreviousDefaultMemoryOptionsIndex = DefaultMemoryOptionsIndex;
 
-                if (DefaultMemoryOptionsIndex != 0) {
-                    Settings.ProcessName = DefaultMemoryOptionProcessNames[DefaultMemoryOptionsIndex];
-                    Settings.GameBasePointer = DefaultMemoryOptionPointers[DefaultMemoryOptionsIndex];
+                if (DefaultMemoryOptionsIndex != 0) 
+                {
+                    Settings.IsGameBaseAPointer = DefaultMemoryConfigs[DefaultMemoryOptionsIndex - 1].IsPointer;
+                    Settings.ProcessName = DefaultMemoryConfigs[DefaultMemoryOptionsIndex - 1].ProcessName;
+                    Settings.ModuleName = DefaultMemoryConfigs[DefaultMemoryOptionsIndex - 1].ModuleName;
+                    Settings.GameBasePointer = DefaultMemoryConfigs[DefaultMemoryOptionsIndex - 1].Offset;
                 }
             }
 
             EditorGUI.BeginDisabledGroup(DefaultMemoryOptionsIndex != 0);
 
             Settings.ProcessName = EditorField("Process name", Settings.ProcessName);
-            Settings.GameBasePointer = EditorField("Game memory pointer", Settings.GameBasePointer);
+            Settings.ModuleName = EditorField("Module name", Settings.ModuleName);
+            Settings.GameBasePointer = EditorField("Game memory offset", Settings.GameBasePointer);
+            Settings.IsGameBaseAPointer = EditorField("Is offset a pointer", Settings.IsGameBaseAPointer);
 
             EditorGUI.EndDisabledGroup();
 
@@ -483,23 +493,34 @@ public class SettingsWindow : UnityWindow
 
     #region Default Memory Options
 
-    public string[] DefaultMemoryOptionNames { get; } = new string[]
+    public string[] DefaultMemoryOptionDisplayNames { get; } = new string[]
     {
-        "Custom",
-        "DOSBox 0.74"
+        "Custom"
+    }.Concat(DefaultMemoryConfigs.Select(x => x.DisplayName)).ToArray();
+
+    protected static DefaultMemoryConfig[] DefaultMemoryConfigs = new DefaultMemoryConfig[]
+    {
+        new DefaultMemoryConfig("DOSBox 0.74", 0x01D3A1A0, true, "DOSBox.exe", String.Empty), 
+        new DefaultMemoryConfig("BizHawk 2.4.0", 0x0011D880, false, "EmuHawk.exe", "octoshock.dll"),
     };
 
-    public string[] DefaultMemoryOptionProcessNames { get; } = new string[]
+    public class DefaultMemoryConfig
     {
-        null,
-        "DOSBox.exe"
-    };
+        public DefaultMemoryConfig(string displayName, int offset, bool isPointer, string processName, string moduleName)
+        {
+            DisplayName = displayName;
+            Offset = offset;
+            IsPointer = isPointer;
+            ProcessName = processName;
+            ModuleName = moduleName;
+        }
 
-    public int[] DefaultMemoryOptionPointers { get; } = new int[]
-    {
-        -1,
-        0x01D3A1A0
-    };
+        public string DisplayName { get; }
+        public int Offset { get; }
+        public bool IsPointer { get; }
+        public string ProcessName { get; }
+        public string ModuleName { get; }
+    }
 
     #endregion
 

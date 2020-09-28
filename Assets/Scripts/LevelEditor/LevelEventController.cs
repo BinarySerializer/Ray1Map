@@ -136,7 +136,7 @@ namespace R1Engine
 
         public void InitializeEvents() 
         {
-            LevelEditorData.ObjManager.InitEvents(LevelEditorData.Level);
+            LevelEditorData.ObjManager.InitObjects(LevelEditorData.Level);
 
             // Initialize links
             InitializeEventLinks();
@@ -410,7 +410,7 @@ namespace R1Engine
             SelectedEvent.IsSelected = true;
         }
 
-        public Context GameMemoryContext { get; set; }
+        public Context GameMemoryContext;
 
         private void Update() 
         {
@@ -481,7 +481,7 @@ namespace R1Engine
                 memoryLoadTimer += Time.deltaTime;
                 if (memoryLoadTimer > 1.0f / 60.0f)
                 {
-                    makingChanges = LevelEditorData.ObjManager.UpdateFromMemory(GameMemoryContext);
+                    makingChanges = LevelEditorData.ObjManager.UpdateFromMemory(ref GameMemoryContext);
                     if(!makingChanges) 
                         memoryLoadTimer = 0.0f;
                 }
@@ -654,9 +654,6 @@ namespace R1Engine
             }
             commandLines.Clear();
         }
-
-        // Converts linkID to linkIndex when saving
-        public void CalculateLinkIndexes() => LevelEditorData.ObjManager.SaveLinkGroups(LevelEditorData.Level.EventData);
 
         // Add events to the list via the managers
         public Unity_ObjBehaviour AddEvent(Unity_Object obj)

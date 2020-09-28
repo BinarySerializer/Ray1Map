@@ -10,7 +10,7 @@
         public byte Byte_05 { get; set; }
         public byte Byte_06 { get; set; }
         public byte Byte_07 { get; set; }
-        public byte Byte_08 { get; set; }
+        public byte FistChargedLevel { get; set; }
         public byte Byte_09 { get; set; }
         public byte Byte_0A { get; set; }
         public byte Byte_0B { get; set; }
@@ -36,7 +36,7 @@
             Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));
             Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
             Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
-            Byte_08 = s.Serialize<byte>(Byte_08, name: nameof(Byte_08));
+            FistChargedLevel = s.Serialize<byte>(FistChargedLevel, name: nameof(FistChargedLevel));
             Byte_09 = s.Serialize<byte>(Byte_09, name: nameof(Byte_09));
             Byte_0A = s.Serialize<byte>(Byte_0A, name: nameof(Byte_0A));
             Byte_0B = s.Serialize<byte>(Byte_0B, name: nameof(Byte_0B));

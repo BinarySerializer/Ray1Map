@@ -5,18 +5,25 @@ using System.Text;
 using R1Engine;
 using R1Engine.Serialize;
 using UnityEditor;
+using UnityEngine;
 
 public class UnityWindowSerializer : SerializerObject
 {
-    public UnityWindowSerializer(Context context, UnityWindow window) : base(context)
+    public UnityWindowSerializer(Context context, UnityWindow window, HashSet<string> forceWrite) : base(context)
     {
         Window = window;
-        Foldouts = new Dictionary<R1Serializable, bool>();
+        ForceWrite = forceWrite;
+        Foldouts = new Dictionary<string, bool>();
+        CurrentName = new List<string>();
     }
 
     public UnityWindow Window { get; }
-    public Dictionary<R1Serializable, bool> Foldouts { get; }
+    public HashSet<string> ForceWrite { get; }
+    public Dictionary<string, bool> Foldouts { get; }
     public override bool FullSerialize => false;
+    private bool tempFlag = false;
+    protected List<string> CurrentName { get; }
+    public string GetFullName(string name) => String.Join(".", CurrentName.Append(name));
 
     public override uint CurrentLength => 0;
     public override Pointer CurrentPointer => null;
@@ -24,8 +31,32 @@ public class UnityWindowSerializer : SerializerObject
 
     public override void DoEncoded(IStreamEncoder encoder, Action action) { }
 
+    protected Rect PrefixEditorField(string name)
+    {
+        Rect rect = Window.GetNextRect(ref Window.YPos);
+        rect = EditorGUI.PrefixLabel(rect, new GUIContent(name));
+
+        if (ForceWrite != null)
+        {
+            var fullName = GetFullName(name);
+
+            tempFlag = ForceWrite.Contains(fullName);
+
+            rect = Window.AffixToggle(rect, ref tempFlag);
+
+            if (tempFlag)
+                ForceWrite.Add(fullName);
+            else
+                ForceWrite.Remove(fullName);
+        }
+
+        return rect;
+    }
+
     public override T Serialize<T>(T obj, string name = null)
     {
+        var rect = PrefixEditorField(name);
+
         // Get the type
         var type = typeof(T);
 
@@ -34,48 +65,48 @@ public class UnityWindowSerializer : SerializerObject
         if (type.IsEnum)
         {
             if (type.GetCustomAttributes(false).OfType<FlagsAttribute>().Any())
-                return (T)(object)EditorGUI.EnumFlagsField(Window.GetNextRect(ref Window.YPos), name, (Enum)(object)obj);
+                return (T)(object)EditorGUI.EnumFlagsField(rect, String.Empty, (Enum)(object)obj);
             else
-                return (T)(object)EditorGUI.EnumPopup(Window.GetNextRect(ref Window.YPos), name, (Enum)(object)obj);
+                return (T)(object)EditorGUI.EnumPopup(rect, String.Empty, (Enum)(object)obj);
         }
 
         switch (typeCode)
         {
             case TypeCode.Boolean:
-                return (T)(object)Window.EditorField(name, (bool)(object)obj);
+                return (T)(object)Window.EditorField(String.Empty, (bool)(object)obj, rect: rect);
 
             case TypeCode.SByte:
-                return (T)(object)(sbyte)Window.EditorField(name, (sbyte)(object)obj);
+                return (T)(object)(sbyte)Window.EditorField(String.Empty, (sbyte)(object)obj, rect: rect);
 
             case TypeCode.Byte:
-                return (T)(object)(byte)Window.EditorField(name, (byte)(object)obj);
+                return (T)(object)(byte)Window.EditorField(String.Empty, (byte)(object)obj, rect: rect);
 
             case TypeCode.Int16:
-                return (T)(object)(short)Window.EditorField(name, (short)(object)obj);
+                return (T)(object)(short)Window.EditorField(String.Empty, (short)(object)obj, rect: rect);
 
             case TypeCode.UInt16:
-                return (T)(object)(ushort)Window.EditorField(name, (ushort)(object)obj);
+                return (T)(object)(ushort)Window.EditorField(String.Empty, (ushort)(object)obj, rect: rect);
 
             case TypeCode.Int32:
-                return (T)(object)Window.EditorField(name, (int)(object)obj);
+                return (T)(object)Window.EditorField(String.Empty, (int)(object)obj, rect: rect);
 
             case TypeCode.UInt32:
-                return (T)(object)(uint)Window.EditorField(name, (uint)(object)obj);
+                return (T)(object)(uint)Window.EditorField(String.Empty, (uint)(object)obj, rect: rect);
 
             case TypeCode.Int64:
-                return (T)(object)Window.EditorField(name, (long)(object)obj);
+                return (T)(object)Window.EditorField(String.Empty, (long)(object)obj, rect: rect);
 
             case TypeCode.UInt64:
-                return (T)(object)(ulong)Window.EditorField(name, (long)(ulong)(object)obj);
+                return (T)(object)(ulong)Window.EditorField(String.Empty, (long)(ulong)(object)obj, rect: rect);
 
             case TypeCode.Single:
-                return (T)(object)Window.EditorField(name, (float)(object)obj);
+                return (T)(object)Window.EditorField(String.Empty, (float)(object)obj, rect: rect);
 
             case TypeCode.Double:
-                return (T)(object)Window.EditorField(name, (double)(object)obj);
+                return (T)(object)Window.EditorField(String.Empty, (double)(object)obj, rect: rect);
 
             case TypeCode.String:
-                return (T)(object)Window.EditorField(name, (string)(object)obj);
+                return (T)(object)Window.EditorField(String.Empty, (string)(object)obj, rect: rect);
 
             case TypeCode.Decimal:
             case TypeCode.Char:
@@ -92,17 +123,23 @@ public class UnityWindowSerializer : SerializerObject
 
     public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null)
     {
-        if (!Foldouts.ContainsKey(obj))
-            Foldouts[obj] = true;
+        CurrentName.Add(name);
 
-        Foldouts[obj] = EditorGUI.Foldout(Window.GetNextRect(ref Window.YPos), Foldouts[obj], $"{name}", true);
+        var fullName = GetFullName(name);
 
-        if (Foldouts[obj])
+        if (!Foldouts.ContainsKey(fullName))
+            Foldouts[fullName] = true;
+
+        Foldouts[fullName] = EditorGUI.Foldout(Window.GetNextRect(ref Window.YPos), Foldouts[fullName], $"{name}", true);
+
+        if (Foldouts[fullName])
         {
-            EditorGUI.indentLevel++;
+            Window.IndentLevel++;
             obj.SerializeImpl(this);
-            EditorGUI.indentLevel--;
+            Window.IndentLevel--;
         }
+
+        CurrentName.RemoveAt(CurrentName.Count - 1);
 
         return obj;
     }
@@ -173,7 +210,9 @@ public class UnityWindowSerializer : SerializerObject
 
     public override string SerializeString(string obj, long? length = null, Encoding encoding = null, string name = null)
     {
-        return Window.EditorField(name, obj);
+        var rect = PrefixEditorField(name);
+
+        return Window.EditorField(String.Empty, obj, rect: rect);
     }
 
     public override string[] SerializeStringArray(string[] obj, long count, int length, Encoding encoding = null, string name = null)
@@ -189,8 +228,14 @@ public class UnityWindowSerializer : SerializerObject
 
     public override T[] SerializeArraySize<T, U>(T[] obj, string name = null) => obj;
 
-    public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) {
-        serializeFunc((value, length, name) => Window.EditorField(name, value));
+    public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) 
+    {
+        serializeFunc((value, length, name) =>
+        {
+            var rect = PrefixEditorField(name);
+
+            return Window.EditorField(String.Empty, value, rect: rect);
+        });
     }
 
     public override void Log(string logString)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using R1Engine.Serialize;
 
 namespace R1Engine
@@ -52,15 +53,60 @@ namespace R1Engine
             }
         }
         public virtual void SaveLinkGroups(IList<Unity_Object> objects) { }
+        protected ushort[] SaveR1LinkGroups(IList<Unity_Object> objects)
+        {
+            var linkTable = new ushort[objects.Count];
 
-        public virtual void InitEvents(Unity_Level level) { }
+            List<int> alreadyChained = new List<int>();
+
+            for (ushort i = 0; i < objects.Count; i++)
+            {
+                var obj = objects[i];
+                
+                // No link
+                if (obj.R1_EditorLinkGroup == 0)
+                {
+                    linkTable[i] = i;
+                }
+                else
+                {
+                    // Skip if already chained
+                    if (alreadyChained.Contains(i))
+                        continue;
+
+                    // Find all the events with the same linkId and store their indexes
+                    List<ushort> indexesOfSameId = new List<ushort>();
+                    int cur = obj.R1_EditorLinkGroup;
+                    foreach (var e in objects.Where(e => e.R1_EditorLinkGroup == cur))
+                    {
+                        indexesOfSameId.Add((ushort)objects.IndexOf(e));
+                        alreadyChained.Add(objects.IndexOf(e));
+                    }
+
+                    // Loop through and chain them
+                    for (int j = 0; j < indexesOfSameId.Count; j++)
+                    {
+                        int next = j + 1;
+                        if (next == indexesOfSameId.Count)
+                            next = 0;
+
+                        linkTable[indexesOfSameId[j]] = indexesOfSameId[next];
+                    }
+                }
+            }
+
+            return linkTable;
+        }
+
+        public virtual void InitObjects(Unity_Level level) { }
         public virtual Unity_Object GetMainObject(IList<Unity_Object> objects) => null;
+        public virtual void SaveObjects(IList<Unity_Object> objects) { }
 
         [Obsolete]
         public virtual string[] LegacyDESNames => new string[0];
         [Obsolete]
         public virtual string[] LegacyETANames => new string[0];
 
-        public virtual bool UpdateFromMemory(Context gameMemoryContext) => false;
+        public virtual bool UpdateFromMemory(ref Context gameMemoryContext) => false;
     }
 }

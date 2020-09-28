@@ -51,8 +51,10 @@ namespace R1Engine {
         public static bool LoadFromMemory { get; set; }
         
         public static string ProcessName { get; set; }
+        public static string ModuleName { get; set; }
 
         public static int GameBasePointer { get; set; }
+        public static bool IsGameBaseAPointer { get; set; } = true;
         public static bool FindPointerAutomatically { get; set; }
 
         /// <summary>
@@ -199,7 +201,9 @@ namespace R1Engine {
             Level = s.SerializeInt("SelectedLevelFile", Level, "level", "lvl", "map");
             LoadFromMemory = s.SerializeBool("LoadFromMemory", LoadFromMemory);
             ProcessName = s.SerializeString("ProcessName", ProcessName);
+            ModuleName = s.SerializeString("ModuleName", ModuleName);
             GameBasePointer = s.SerializeInt("GameBasePointer", GameBasePointer);
+            IsGameBaseAPointer = s.SerializeBool("IsPointer", IsGameBaseAPointer);
             FindPointerAutomatically = s.SerializeBool("FindPointerAutomatically", FindPointerAutomatically);
             UseHDCollisionSheet = s.SerializeBool("UseHDCollisionSheet", UseHDCollisionSheet);
 

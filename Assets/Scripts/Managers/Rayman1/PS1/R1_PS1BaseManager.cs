@@ -425,7 +425,7 @@ namespace R1Engine
                         var level = await LoadAsync(context, true);
 
                         // Set up animations
-                        level.ObjManager.InitEvents(level);
+                        level.ObjManager.InitObjects(level);
 
                         var objManager = (Unity_ObjectManager_R1)level.ObjManager;
 
@@ -513,7 +513,7 @@ namespace R1Engine
                         var objManage = (Unity_ObjectManager_R1)level.ObjManager;
 
                         // Set up animations
-                        objManage.InitEvents(level);
+                        objManage.InitObjects(level);
 
                         // Enumerate every design
                         for (var i = 0; i < objManage.DES.Length; i++)

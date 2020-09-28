@@ -91,7 +91,8 @@ namespace R1Engine
         public short InitialXPosition { get; set; }
         public short InitialYPosition { get; set; }
 
-        public ushort PS1Demo_Unk4 { get; set; }
+        public bool PS1Demo_DetectZone { get; set; }
+        public byte PS1Demo_Unk4 { get; set; }
         public ushort Unk_64 { get; set; }
         public ushort Unk_66 { get; set; }
 
@@ -188,7 +189,7 @@ namespace R1Engine
 
         public PC_EventFlags PC_Flags { get; set; }
 
-        public byte PS1_Unk6 { get; set; }
+        public PS1_EventFlags PS1_RuntimeFlags { get; set; }
         public byte PS1_Flags { get; set; }
         public byte PS1_Unk7 { get; set; }
 
@@ -198,7 +199,13 @@ namespace R1Engine
 
         #region Helper Data
 
-        public bool IsPCFormat(GameSettings settings) => settings.EngineVersion == EngineVersion.R1_PC || settings.EngineVersion == EngineVersion.R1_PC_Kit || settings.EngineVersion == EngineVersion.R1_PC_Edu || settings.EngineVersion == EngineVersion.R1_PS1_Edu || settings.EngineVersion == EngineVersion.R1_PocketPC || settings.EngineVersion == EngineVersion.R1_GBA || settings.EngineVersion == EngineVersion.R1_DSi;
+        public bool IsPCFormat(GameSettings settings) => settings.EngineVersion == EngineVersion.R1_PC || 
+                                                         settings.EngineVersion == EngineVersion.R1_PC_Kit || 
+                                                         settings.EngineVersion == EngineVersion.R1_PC_Edu || 
+                                                         settings.EngineVersion == EngineVersion.R1_PS1_Edu || 
+                                                         settings.EngineVersion == EngineVersion.R1_PocketPC || 
+                                                         settings.EngineVersion == EngineVersion.R1_GBA || 
+                                                         settings.EngineVersion == EngineVersion.R1_DSi;
 
         public bool GetFollowEnabled(GameSettings settings)
         {
@@ -341,9 +348,12 @@ namespace R1Engine
 
             InitialXPosition = s.Serialize<short>(InitialXPosition, name: nameof(InitialXPosition));
             InitialYPosition = s.Serialize<short>(InitialYPosition, name: nameof(InitialYPosition));
-            // NOTE: This appears between here and ImageDescriptorCount - where does it belong?
+
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
-                PS1Demo_Unk4 = s.Serialize<ushort>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
+            {
+                PS1Demo_DetectZone = s.Serialize<bool>(PS1Demo_DetectZone, name: nameof(PS1Demo_DetectZone));
+                PS1Demo_Unk4 = s.Serialize<byte>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
+            }
 
             Unk_64 = s.Serialize<ushort>(Unk_64, name: nameof(Unk_64));
             Unk_66 = s.Serialize<ushort>(Unk_66, name: nameof(Unk_66));
@@ -462,16 +472,13 @@ namespace R1Engine
             {
                 if (s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3)
                 {
-                    // Appears to be some form of runtime flags for if the event is in view, should be drawn etc. (not in demos though)
-                    PS1_Unk6 = s.Serialize<byte>(PS1_Unk6, name: nameof(PS1_Unk6));
-
                     if (s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol6)
                     {
+                        PS1_RuntimeFlags = s.Serialize<PS1_EventFlags>(PS1_RuntimeFlags, name: nameof(PS1_RuntimeFlags));
                         PS1_Flags = s.Serialize<byte>(PS1_Flags, name: nameof(PS1_Flags));
-
-                        // Always 0, even in memory
-                        PS1_Unk7 = s.Serialize<byte>(PS1_Unk7, name: nameof(PS1_Unk7));
                     }
+
+                    PS1_Unk7 = s.Serialize<byte>(PS1_Unk7, name: nameof(PS1_Unk7));
                 }
             }
 
@@ -614,6 +621,21 @@ namespace R1Engine
             UnkFlag_6 = 1 << 6,
 
             // Appears related to the displaying animation. Changes a lot when an animation is playing.
+            UnkFlag_7 = 1 << 7,
+        }
+
+        [Flags]
+        public enum PS1_EventFlags : byte
+        {
+            None = 0,
+
+            UnkFlag_0 = 1 << 0,
+            UnkFlag_1 = 1 << 1,
+            UnkFlag_2 = 1 << 2,
+            SwitchedOn = 1 << 3,
+            UnkFlag_4 = 1 << 4,
+            UnkFlag_5 = 1 << 5,
+            DetectZone = 1 << 6,
             UnkFlag_7 = 1 << 7,
         }
     }

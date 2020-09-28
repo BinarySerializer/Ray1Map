@@ -29,13 +29,13 @@ public class GamePropertiesWindow : UnityWindow
 
         if (Application.isPlaying && Controller.LoadState == Controller.State.Finished)
         {
-            if (Serializer == null)
-                Serializer = new UnityWindowSerializer(LevelEditorData.MainContext, this);
-
             var objManager = LevelEditorData.ObjManager;
 
             if (objManager is Unity_ObjectManager_R1 r1)
             {
+                if (Serializer == null)
+                    Serializer = new UnityWindowSerializer(LevelEditorData.MainContext, this, r1.GlobalDataForceWrite);
+
                 EditorGUI.BeginChangeCheck();
 
                 r1.GlobalData.Update(Serializer);
