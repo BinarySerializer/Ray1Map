@@ -498,7 +498,7 @@ namespace R1Engine
 
         public class R1_RuntimeGlobalData
         {
-            public Dictionary<string, Pointer> Pointers { get; set; }
+            public Dictionary<string, Pointer> Pointers { get; set; } = new Dictionary<string, Pointer>();
 
             public int MapTime { get; set; }
             public R1_Poing Poing { get; set; }
@@ -561,10 +561,6 @@ namespace R1Engine
                     {
                         [nameof(RayMode)] = gameMemoryOffset + 0x801E5420,
                     };
-                }
-                else
-                {
-                    Pointers = new Dictionary<string, Pointer>();
                 }
             }
 
