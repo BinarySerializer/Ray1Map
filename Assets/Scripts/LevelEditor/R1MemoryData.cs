@@ -63,13 +63,13 @@ namespace R1Engine
             else if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1)
             {
                 var manager = (R1_PS1BaseXXXManager)s.GameSettings.GetGameManager;
-                EventArrayOffset = gameMemoryOffset + (FileFactory.Read<R1_PS1_LevFile>(manager.GetLevelFilePath(s.GameSettings), LevelEditorData.MainContext).EventData.EventsPointer.AbsoluteOffset);
+                var lvl = FileFactory.Read<R1_PS1_LevFile>(manager.GetLevelFilePath(s.GameSettings), LevelEditorData.MainContext);
+                EventArrayOffset = gameMemoryOffset + lvl.EventData.EventsPointer.AbsoluteOffset;
 
                 if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPS1US)
                     RayEventOffset = gameMemoryOffset + 0x801F61A0;
 
-                // TODO: Set
-                TileArrayOffset = null;
+                TileArrayOffset = gameMemoryOffset + lvl.MapData.Tiles[0].Offset.AbsoluteOffset;
             }
 
             else

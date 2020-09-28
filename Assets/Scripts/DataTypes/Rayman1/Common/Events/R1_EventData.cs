@@ -188,7 +188,7 @@ namespace R1Engine
 
         public PC_EventFlags PC_Flags { get; set; }
 
-        public byte PS1_Unk6 { get; set; }
+        public PS1_EventFlags PS1_RuntimeFlags { get; set; }
         public byte PS1_Flags { get; set; }
         public byte PS1_Unk7 { get; set; }
 
@@ -462,16 +462,13 @@ namespace R1Engine
             {
                 if (s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol3)
                 {
-                    // Appears to be some form of runtime flags for if the event is in view, should be drawn etc. (not in demos though)
-                    PS1_Unk6 = s.Serialize<byte>(PS1_Unk6, name: nameof(PS1_Unk6));
-
                     if (s.GameSettings.EngineVersion != EngineVersion.R1_PS1_JPDemoVol6)
                     {
+                        PS1_RuntimeFlags = s.Serialize<PS1_EventFlags>(PS1_RuntimeFlags, name: nameof(PS1_RuntimeFlags));
                         PS1_Flags = s.Serialize<byte>(PS1_Flags, name: nameof(PS1_Flags));
-
-                        // Always 0, even in memory
-                        PS1_Unk7 = s.Serialize<byte>(PS1_Unk7, name: nameof(PS1_Unk7));
                     }
+
+                    PS1_Unk7 = s.Serialize<byte>(PS1_Unk7, name: nameof(PS1_Unk7));
                 }
             }
 
@@ -614,6 +611,21 @@ namespace R1Engine
             UnkFlag_6 = 1 << 6,
 
             // Appears related to the displaying animation. Changes a lot when an animation is playing.
+            UnkFlag_7 = 1 << 7,
+        }
+
+        [Flags]
+        public enum PS1_EventFlags : byte
+        {
+            None = 0,
+
+            UnkFlag_0 = 1 << 0,
+            UnkFlag_1 = 1 << 1,
+            UnkFlag_2 = 1 << 2,
+            SwitchedOn = 1 << 3,
+            UnkFlag_4 = 1 << 4,
+            UnkFlag_5 = 1 << 5,
+            DetectZone = 1 << 6,
             UnkFlag_7 = 1 << 7,
         }
     }
