@@ -10,12 +10,13 @@ using UnityEngine;
 
 public class UnityWindow : EditorWindow
 {
-    public Rect GetNextRect(ref float yPos, float padding = 4f, float height = 0f, float vPadding = 0f, float vPaddingBottom = 0f)
+    public Rect GetNextRect(ref float yPos, float padding = 4f, float height = 0f, float vPadding = 0f, float vPaddingBottom = 0f, bool ignoreIndent = false)
     {
         if (height == 0f) 
             height = EditorGUIUtility.singleLineHeight;
+        float indent = (ignoreIndent ? 0f : (IndentLevel * 16f));
 
-        Rect rect = new Rect(padding, yPos + vPadding, Mathf.Max(0f, EditorGUIUtility.currentViewWidth - padding * 2f - (scrollbarShown ? scrollbarWidth : 0f)), height);
+        Rect rect = new Rect(padding + indent, yPos + vPadding, Mathf.Max(0f, EditorGUIUtility.currentViewWidth - padding * 2f - indent - (scrollbarShown ? scrollbarWidth : 0f)), height);
 
         yPos += height + vPadding * 2f + vPaddingBottom;
 
@@ -35,10 +36,10 @@ public class UnityWindow : EditorWindow
         }
     }
 
-    public Rect AffixToggle(Rect rect, ref bool value)
+    public Rect AffixToggle(Rect rect, ref bool value, float paddingLeft = 4f)
     {
         value = EditorGUI.Toggle(new Rect(rect.x + rect.width - rect.height, rect.y, rect.height, rect.height), value);
-        return new Rect(rect.x, rect.y, rect.width - rect.height, rect.height);
+        return new Rect(rect.x, rect.y, rect.width - rect.height - paddingLeft, rect.height);
     }
     public Rect PrefixToggle(Rect rect, ref bool value) {
         value = EditorGUI.Toggle(new Rect(rect.x, rect.y, rect.height, rect.height), value);
@@ -122,6 +123,8 @@ public class UnityWindow : EditorWindow
     protected float scrollbarWidth { get; set; } = 16f;
 
     protected const int ButtonWidth = 24;
+
+    public int IndentLevel { get; set; } = 0;
 
     protected void OnInspectorUpdate()
     {
@@ -222,6 +225,5 @@ public class UnityWindow : EditorWindow
 
         return GUI.Button(rect ?? GetNextRect(ref YPos), label);
     }
-
     #endregion
 }

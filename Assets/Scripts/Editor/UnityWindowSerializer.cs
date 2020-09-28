@@ -41,7 +41,7 @@ public class UnityWindowSerializer : SerializerObject
 
             tempFlag = ForceWrite.Contains(fullName);
 
-            rect = Window.PrefixToggle(rect, ref tempFlag);
+            rect = Window.AffixToggle(rect, ref tempFlag);
 
             if (tempFlag)
                 ForceWrite.Add(fullName);
@@ -131,9 +131,9 @@ public class UnityWindowSerializer : SerializerObject
 
         if (Foldouts[obj])
         {
-            EditorGUI.indentLevel++;
+            Window.IndentLevel++;
             obj.SerializeImpl(this);
-            EditorGUI.indentLevel--;
+            Window.IndentLevel--;
         }
 
         CurrentName.RemoveAt(CurrentName.Count - 1);
