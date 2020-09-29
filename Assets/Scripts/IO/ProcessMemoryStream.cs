@@ -138,18 +138,6 @@ namespace R1Engine {
             process = processes[0];
             if (String.Equals(exeFile,"")) exeFile = process.MainModule.FileName;
 #endif
-            
-            // Check bit flavour...
-#if ISWINDOWS
-            bool is32bit;
-            IsWow64Process(processHandle, is32bit);
-            is64bit = !is32bit;
-#elif ISLINUX
-            var exestream = new FileStream(process.MainModule.FileName, FileMode.Open, FileAccess.Read);
-            var exereader = new EndianBinaryReader(exestream, EndianBitConverter.NativeEndianness);
-            ElfFile elfFile = ElfFile.ReadElfFile(exereader);
-            is64bit = (elfFile.Header.Class == BinaryTools.Elf.ElfClass.Elf64);
-#endif
             this.mode = mode;
 
 #if ISWINDOWS
@@ -163,6 +151,18 @@ namespace R1Engine {
                     accessLevel = PROCESS_ALL_ACCESS; break;
             }
             processHandle = OpenProcess(accessLevel, false, process.Id);
+#endif
+            
+            // Check bit flavour...
+#if ISWINDOWS
+            bool is32bit;
+            IsWow64Process(processHandle, is32bit);
+            is64bit = !is32bit;
+#elif ISLINUX
+            var exestream = new FileStream(process.MainModule.FileName, FileMode.Open, FileAccess.Read);
+            var exereader = new EndianBinaryReader(exestream, EndianBitConverter.NativeEndianness);
+            ElfFile elfFile = ElfFile.ReadElfFile(exereader);
+            is64bit = (elfFile.Header.Class == BinaryTools.Elf.ElfClass.Elf64);
 #endif
         }
 
