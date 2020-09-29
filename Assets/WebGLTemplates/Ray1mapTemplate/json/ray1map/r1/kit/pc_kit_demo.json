@@ -22,7 +22,7 @@
 	],
     "levels": [
         { "world": 2, "level": 1, "nameInternal": "MUS01", "name": "Gone with the Wind" },
-        { "world": 4, "level": 2, "nameInternal": "IMA02", "name": "Pencil Pentathalon" },
+        { "world": 4, "level": 2, "nameInternal": "IMA01", "name": "Pencil Pentathalon" },
         { "world": 5, "level": 1, "nameInternal": "CAV01", "name": "Peaks and Rocks" },
         { "world": 6, "level": 1, "nameInternal": "CAK01", "name": "Chocolate Trap" }
     ]
