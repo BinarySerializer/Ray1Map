@@ -50,6 +50,8 @@ public class WebJSON {
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 		
 		public Layer[] Layers { get; set; }
+		public string[] Palettes { get; set; }
+		public int? Palette { get; set; }
 
 		public Color? BackgroundTint { get; set; }
 	}

@@ -310,6 +310,11 @@ public class WebCommunicator : MonoBehaviour {
 			if (layers.Count > 0) {
 				s.Layers = layers.ToArray();
 			}
+			s.Palettes = new string[] { "Auto" }
+			.Concat(Enumerable.Range(0, lvl.Maps.Max(x => x.TileSet.Length)).Select(x => x.ToString())).ToArray();
+
+			if (Controller.obj?.levelController?.controllerTilemap != null)
+				s.Palette = Controller.obj.levelController.controllerTilemap.currentPalette;
 		}
 
 		return s;
@@ -380,6 +385,10 @@ public class WebCommunicator : MonoBehaviour {
 					}
 				}
 			}
+		}
+		if (msg.Palette.HasValue) {
+			if (Controller.obj?.levelController?.controllerTilemap != null)
+				Controller.obj.levelController.controllerTilemap.currentPalette = msg.Palette.Value;
 		}
 
 		if (msg.BackgroundTint.HasValue) {

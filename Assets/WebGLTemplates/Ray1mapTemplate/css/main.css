@@ -1276,7 +1276,8 @@ a:focus {
 	padding-right: 1em;
 	text-align: right;
 }
-.levels-actor-input-group {
+.levels-actor-input-group,
+.palette-group {
 	font-size: 0.6em;
 	padding: 0.25em 3em 0 3em;
 	text-align: center;
@@ -1289,8 +1290,23 @@ a:focus {
 	flex: 0 1 auto;
 	box-sizing: border-box;
 }
-.levels-actor-input.invisible {
+.levels-actor-input.invisible,
+.palette-input.invisible {
 	display: none;
+}
+#palettes-group {
+	display: inline-block;
+	padding: 0.15em 0.3em 0.3em 0.3em;
+	width: 8em;
+}
+.palette-input {
+	display: flex;
+	width: 100%;
+	flex: 0 1 auto;
+	box-sizing: border-box;
+}
+#layer-buttons {
+	display: inline-block;
 }
 .small-footer-right {
 	display: block;
@@ -1353,6 +1369,11 @@ a:focus {
 }
 .header-button.disabled-button {
 	pointer-events: none;
+}
+.settings-input-group.disabled {
+	pointer-events: none;
+	display: none;
+	visibility: hidden;
 }
 .header-slider-container {
 	display: inline-block;
