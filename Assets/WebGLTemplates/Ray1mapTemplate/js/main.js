@@ -363,7 +363,7 @@ function handleMessage_settings(msg) {
 		$.each(msg.Palettes, function (idx, pal) {
 			paletteSelector.append("<option value='" + idx + "'>" + escapeHTML(pal) + "</option>");
 		});
-		paletteSelector.removeClass("disabled");
+		$("#palettes-group").removeClass("disabled");
 	}
 	if(msg.hasOwnProperty("Palette")) paletteSelector.prop("selectedIndex", msg.Palette);
 	
@@ -746,10 +746,12 @@ function getObjVars(obj) {
 	// R1Jaguar
 
 	// GBA
+
+	return objVars;
 }
 
 
-function getDsgVarIcon(objVar) {
+function getObjVarIcon(objVar) {
 	let dsgString = "<div class='objvar-icon'>";
 	if(objVar.hasOwnProperty("Type")) {
 		let type = objVar.Type;
@@ -810,7 +812,7 @@ function getObjVarTypeString(valueType, val) {
 	let objString = "<div class='objvar-value objvar-value-" + valueType + " objvar-value-text'>" + val + "</div>";
 	return objString;
 }
-function getObjvarsHTML(objVars) {
+function getObjVarsHTML(objVars) {
 	let objVarsString;
 	if(objVarsIsOpen) {
 		objVarsString ="<div class='objvars-item category collapsible' data-collapse='objvars-collapse'><div class='collapse-sign'>-</div>Additional Properties</div><div id='objvars-collapse'>";
@@ -821,7 +823,7 @@ function getObjvarsHTML(objVars) {
 		
 		objVarsString += "<div class='objvars-item objvar'><div class='objvar-type'>" + getObjVarIcon(objVar) + "</div>";
 		objVarsString += "<div class='objvar-name'>" + objVar.Name + "</div>";
-		if(objVar.hasOwnProperty("Value")) objVarsString += getObjgVarTypeString("current", objVar.Value);
+		if(objVar.hasOwnProperty("Value")) objVarsString += getObjVarTypeString("current", objVar.Value);
 		objVarsString += "</div>";
 	});
 	objVarsString += "</div>";
@@ -862,7 +864,7 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 			$("#content-objvars").empty();
 			if(objVars.length > 0) {
 				let objVarsString = getObjVarsHTML(objVars);
-				$("#content-objVars").append(objVarsString);
+				$("#content-objvars").append(objVarsString);
 			}
 		}
 
@@ -2007,12 +2009,12 @@ $(function() {
 		let collapse = $("#"+collapse_id);
 		if(collapse.is(":hidden")) {
 			if(collapse_id === "commands-collapse") commandsIsOpen = true;
-			else if(collapse_id === "objvars-collapse") commandsIsOpen = true;
+			else if(collapse_id === "objvars-collapse") objVarsIsOpen = true;
 			collapse.show("fast", refreshScroll);
 			$(this).find(".collapse-sign").text("-");
 		} else {
 			if(collapse_id === "commands-collapse") commandsIsOpen = false;
-			else if(collapse_id === "objvars-collapse") commandsIsOpen = false;
+			else if(collapse_id === "objvars-collapse") objVarsIsOpen = false;
 			collapse.hide("fast", refreshScroll);
 			$(this).find(".collapse-sign").text("+");
 		}

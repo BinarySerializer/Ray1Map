@@ -437,6 +437,7 @@ a:focus {
 .objects-item.object-IPO,
 .objects-item.object-sector,
 .behaviors-item.category,
+.objvars-item.category,
 .commands-item.category,
 .transitions-item.category,
 .objvar-array,
@@ -465,6 +466,7 @@ a:focus {
 .commands-item.category,
 .transitions-item.category,
 .localization-item.category,
+.objvars-item.category,
 .script-item.category {
 	box-sizing: border-box;
 	white-space: nowrap;
@@ -475,6 +477,7 @@ a:focus {
 	line-height: 3em;
 }
 .behaviors-item.category > .collapse-sign,
+.objvars-item > .collapse-sign,
 .commands-item > .collapse-sign,
 .transitions-item.category > .collapse-sign {
 	display: inline-block;
@@ -1296,8 +1299,11 @@ a:focus {
 }
 #palettes-group {
 	display: inline-block;
-	padding: 0.15em 0.3em 0.3em 0.3em;
+	padding: 0.2em 0.3em 0.3em 0.3em;
 	width: 8em;
+	font-size: 0.9em;
+	vertical-align: top;
+	height: 1.3em;
 }
 .palette-input {
 	display: flex;

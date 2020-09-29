@@ -120,6 +120,7 @@ body {
 .objects-item.object-sector,
 .levels-item.game,
 .behaviors-item.category,
+.objvars-item.category,
 .transitions-item.category,
 .localization-item.category,
 .script-item.category,
@@ -148,6 +149,7 @@ body {
 
 .objects-item.object-sector:hover,
 .behaviors-item.category:hover,
+.objvars-item.category:hover,
 .transitions-item.category:hover,
 .commands-item.category:hover {
   background-color: #01212d;
