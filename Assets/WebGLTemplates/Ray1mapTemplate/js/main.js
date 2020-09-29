@@ -742,6 +742,7 @@ function getObjVars(obj) {
 	if(obj.hasOwnProperty("R1_DisplayPrio")) objVars.push({"Name": "DisplayPriority", "Value": obj.R1_DisplayPrio});
 
 	// R2
+	if(obj.hasOwnProperty("R2_MapLayer")) objVars.push({"Name": "MapLayer", "Value": obj.R2_MapLayer});
 
 	// R1Jaguar
 
@@ -1178,6 +1179,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 
 	// R2
 	if(newObj.hasOwnProperty("R2_AnimGroupIndex")) oldObj.R2_AnimGroupIndex = newObj.R2_AnimGroupIndex;
+	if(newObj.hasOwnProperty("R2_MapLayer")) oldObj.R2_MapLayer = newObj.R2_MapLayer;
 
 	// R1Jaguar
 	if(newObj.hasOwnProperty("R1Jaguar_EventDefinitionIndex")) oldObj.R1Jaguar_EventDefinitionIndex = newObj.R1Jaguar_EventDefinitionIndex;
