@@ -39,7 +39,11 @@ namespace R1Engine
 
         public GeneralEventInfoData[] AvailableEvents { get; }
 
-        public bool UsesLocalCommands => Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit || Context.Settings.EngineVersion == EngineVersion.R1_GBA || Context.Settings.EngineVersion == EngineVersion.R1_DSi;
+        public bool UsesLocalCommands => Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit || 
+                                         Context.Settings.EngineVersion == EngineVersion.R1_GBA || 
+                                         Context.Settings.EngineVersion == EngineVersion.R1_DSi ||
+                                         Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                                         Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6;
 
         protected IEnumerable<GeneralEventInfoData> GetGeneralEventInfoData()
         {
