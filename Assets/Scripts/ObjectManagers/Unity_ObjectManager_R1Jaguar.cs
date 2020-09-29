@@ -52,19 +52,15 @@ namespace R1Engine
 
         public class State
         {
-            public State(byte animationIndex, byte animSpeed, byte linkedComplexStateIndex, byte linkedStateIndex, string name)
+            public State(byte animationIndex, byte animSpeed, string name)
             {
                 AnimationIndex = animationIndex;
                 AnimSpeed = animSpeed;
-                LinkedComplexStateIndex = linkedComplexStateIndex;
-                LinkedStateIndex = linkedStateIndex;
                 Name = name;
             }
 
             public byte AnimationIndex { get; }
             public byte AnimSpeed { get; }
-            public byte LinkedComplexStateIndex { get; }
-            public byte LinkedStateIndex { get; }
             public string Name { get; }
         }
 
