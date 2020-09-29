@@ -61,7 +61,10 @@ namespace R1Engine
 
         private Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[] animatedTiles;
 
-        public bool Has3Palettes => LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC || LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PocketPC || LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC_Kit;
+        public bool HasAutoPaletteOption => LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC || 
+                                            LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PocketPC ||
+                                            LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PS1_Edu ||
+                                            LevelEditorData.CurrentSettings.EngineVersion == EngineVersion.R1_PC_Edu;
 
         public void InitializeTilemaps() {
             var level = LevelEditorData.Level;
@@ -84,7 +87,7 @@ namespace R1Engine
             ResizeBackgroundTint(LevelEditorData.MaxWidth, LevelEditorData.MaxHeight);
 
             // Disable palette buttons based on if there are 3 palettes or not
-            if (!Has3Palettes) {
+            if (!HasAutoPaletteOption) {
                 paletteText.SetActive(false);
                 paletteButtons[0].gameObject.SetActive(false);
                 paletteButtons[1].gameObject.SetActive(false);
@@ -150,7 +153,7 @@ namespace R1Engine
                 Debug.LogWarning($"The following collision types are not supported: {String.Join(", ", unsupportedTiles)}");
 
             // Fill out tiles
-            currentPalette = Has3Palettes ? 0 : 1;
+            currentPalette = HasAutoPaletteOption ? 0 : 1;
             RefreshTiles(currentPalette);
 
             var maxWidth = LevelEditorData.MaxWidth;
