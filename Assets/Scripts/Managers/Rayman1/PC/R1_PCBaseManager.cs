@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BinaryTools.Elf.Io;
 using UnityEngine;
 
 namespace R1Engine
@@ -1589,7 +1590,7 @@ namespace R1Engine
             filePath = filePath
         };
 
-        public async UniTask AddFile(Context context, string filePath, bool isBigFile = false)
+        public async UniTask AddFile(Context context, string filePath, bool isBigFile = false, BinaryFile.Endian endianness = BinaryFile.Endian.Little)
         {
             if (isBigFile)
                 await FileSystem.PrepareBigFile(context.BasePath + filePath, 8);
@@ -1599,7 +1600,11 @@ namespace R1Engine
             if (!FileSystem.FileExists(context.BasePath + filePath))
                 return;
 
-            context.AddFile(GetFile(context, filePath));
+            var file = GetFile(context, filePath);
+
+            file.Endianness = endianness;
+
+            context.AddFile(file);
         }
 
         /// <summary>

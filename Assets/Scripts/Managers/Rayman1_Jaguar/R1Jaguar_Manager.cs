@@ -1215,11 +1215,11 @@ namespace R1Engine
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
                 // Get the map base position, based on the event map
-                var mapPos = rom.EventData.EventIndexMap.FindItemIndex(z => z == i + 1);
+                var mapPos = rom.EventData.MapEvents.EventIndexMap.FindItemIndex(z => z == i + 1);
 
                 // Get the x and y positions
-                var mapY = (uint)Math.Floor(mapPos / (double)(rom.EventData.Width));
-                var mapX = (uint)(mapPos - (mapY * rom.EventData.Width));
+                var mapY = (uint)Math.Floor(mapPos / (double)(rom.EventData.MapEvents.Width));
+                var mapX = (uint)(mapPos - (mapY * rom.EventData.MapEvents.Width));
 
                 // Calculate the actual position on the map
                 mapX *= 4 * (uint)Settings.CellSize;

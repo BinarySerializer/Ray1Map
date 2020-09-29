@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace R1Engine
@@ -28,15 +29,21 @@ namespace R1Engine
         protected Encoding Encoding { get; }
 
         protected byte CurrentXOR { get; set; }
+        protected byte? BufferByte { get; set; }
 
-        protected byte ReadByte()
+        public bool SupportsComments { get; set; } = true;
+        public bool SeparateAtPadding { get; set; } = false;
+
+        protected byte? ReadByte()
         {
             // Read the next byte
-            var bi = Stream.ReadByte();
+            var bi = BufferByte ?? Stream.ReadByte();
+
+            BufferByte = null;
 
             // Make sure it's valid
             if (bi == -1)
-                throw new Exception("Mapper command byte could not be read");
+                return null;
 
             // Decrypt it
             bi ^= CurrentXOR;
@@ -45,14 +52,23 @@ namespace R1Engine
             return (byte)bi;
         }
 
+        // This is a combination of the different file parsing functions in RayKit
         public string ReadValue(bool readAsString = false, Encoding encoding = null)
         {
+            // Make sure we're not at the end of the file
+            if (Stream.Position >= Stream.Length)
+                return null;
+
             var buffer = new List<byte>();
 
             while (true)
             {
                 // Read the next byte
                 var b = ReadByte();
+
+                // Make sure we're not at the end of the file
+                if (b == null)
+                    break;
 
                 // Stop reading if we reached the terminator ('*')
                 if (b == 0x2A)
@@ -62,12 +78,18 @@ namespace R1Engine
                 }
 
                 // Skip comments ('/')
-                if (b == 0x2F && !readAsString)
+                if (b == 0x2F && !readAsString && SupportsComments)
                 {
                     do
                     {
                         b = ReadByte();
-                    } while (b != 0x2F);
+                    } while (b != 0x2F && b != null);
+
+                    b = ReadByte();
+
+                    // Make sure we're not at the end of the file
+                    if (b == null)
+                        break;
                 }
 
                 // Stop reading if we reached a value separator (',') or (';') for Classic
@@ -86,7 +108,24 @@ namespace R1Engine
                 if (!readAsString)
                 {
                     if (b <= 0x20)
-                        continue;
+                    {
+                        // Read remaining padding
+                        while (b <= 0x20)
+                            b = ReadByte();
+
+                        // Make sure we're not at the end of the file
+                        if (b == null)
+                            break;
+
+                        // Save first valid byte for next read
+                        BufferByte = b;
+
+                        // Only break if we have read something and are separate at padding
+                        if (SeparateAtPadding && buffer.Any())
+                            break;
+                        else
+                            continue;
+                    }
                 }
                 else
                 {
@@ -95,7 +134,7 @@ namespace R1Engine
                 }
 
                 // Add to the buffer and continue reading
-                buffer.Add(b);
+                buffer.Add(b.Value);
             }
 
             // Return the value as a string, or null if reached the end
