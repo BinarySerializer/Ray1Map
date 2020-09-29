@@ -1,13 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using Newtonsoft.Json;
 using R1Engine.Serialize;
 
 namespace R1Engine
 {
     public abstract class R1TextSerializable
     {
+        [JsonIgnore]
         protected bool isFirstLoad = true;
+        [JsonIgnore]
         public Context Context { get; protected set; }
 
         public void Serialize(string path, Context context, bool read, Encoding encoding)

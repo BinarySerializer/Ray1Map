@@ -50,6 +50,8 @@ public class WebJSON {
 		public StateSwitchingMode? StateSwitchingMode { get; set; }
 		
 		public Layer[] Layers { get; set; }
+		public string[] Palettes { get; set; }
+		public int? Palette { get; set; }
 
 		public Color? BackgroundTint { get; set; }
 	}
@@ -78,6 +80,7 @@ public class WebJSON {
 		public ushort? R1_Type { get; set; }
 		public int? R1_DESIndex { get; set; }
 		public int? R2_AnimGroupIndex { get; set; }
+		public int? R2_MapLayer { get; set; }
 		public int? R1_ETAIndex { get; set; } // Not in R2
 		public byte? R1_Etat { get; set; }
 	    public byte? R1_SubEtat { get; set; }

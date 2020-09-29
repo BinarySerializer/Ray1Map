@@ -99,7 +99,7 @@ body {
 .objects-item,
 .levels-item,
 .behaviors-item,
-.dsgvars-item,
+.objvars-item,
 .localization-item,
 .entryactions-item,
 .commands-item {
@@ -120,6 +120,7 @@ body {
 .objects-item.object-sector,
 .levels-item.game,
 .behaviors-item.category,
+.objvars-item.category,
 .transitions-item.category,
 .localization-item.category,
 .script-item.category,
@@ -128,26 +129,27 @@ body {
   background-color: #aeaeae;
 }
 
-.dsgvars-item > .dsgvar-name,
-.dsgvars-item > .dsgvar-type,
+.objvars-item > .objvar-name,
+.objvars-item > .objvar-type,
 .localization-item > .localization-item-index,
 .entryactions-item > .entryactions-item-name,
 .commands-item-line-number {
   background-color: #aeaeae;
 }
 
-.dsgvars-item.dsgvar-array:hover > .dsgvar-name,
-.dsgvars-item.dsgvar-array:hover > .dsgvar-type {
+.objvars-item.objvar-array:hover > .objvar-name,
+.objvars-item.objvar-array:hover > .objvar-type {
   background-color: #8a8a8a;
 }
 
-.dsgvars-item.dsgvars-header,
+.objvars-item.objvars-header,
 .transitions-item.transitions-header {
   background-color: #aeaeae;
 }
 
 .objects-item.object-sector:hover,
 .behaviors-item.category:hover,
+.objvars-item.category:hover,
 .transitions-item.category:hover,
 .commands-item.category:hover {
   background-color: #8a8a8a;
@@ -165,7 +167,7 @@ body {
 .levels-item.level:hover,
 .behaviors-item.behavior:hover,
 .commands-item.command:hover,
-.entryactions-item:hover .dsgvars-item:hover,
+.entryactions-item:hover .objvars-item:hover,
 .selectState:hover,
 .localization-item:hover {
   background-color: #aeaeae;

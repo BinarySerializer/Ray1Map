@@ -277,7 +277,7 @@ a:focus {
 .levels-item,
 .behaviors-item,
 .commands-item,
-.dsgvars-item,
+.objvars-item,
 .transitions-item,
 .localization-item,
 .entryactions-item {
@@ -320,7 +320,7 @@ a:focus {
 	min-height: 2em;
 	height: auto;
 }
-.dsgvars-item.dsgvar-array > *,
+.objvars-item.objvar-array > *,
 .selectState {
 	-o-transition: color .4s, background-color .4s, font-weight .4s, opacity .5s;
     -ms-transition: color .4s, background-color .4s, font-weight .4s, opacity .5s;
@@ -415,10 +415,10 @@ a:focus {
 .levels-item.level.current-levels-item {
 	cursor: default;
 }
-/*.dsgvars-item {
+/*.objvars-item {
 	padding: 0 0.5em 0 0.5em;
 }*/
-.dsgvars-item {
+.objvars-item {
 	padding: 0 0 0 0;
 	display: flex;
 }
@@ -430,16 +430,17 @@ a:focus {
 .transitions-item {
 	padding: 0 0 0 0;
 }
-.dsgvars-item.dsgvars-header,
+.objvars-item.objvars-header,
 .transitions-item.transitions-header {
 	font-weight: bold;
 }
 .objects-item.object-IPO,
 .objects-item.object-sector,
 .behaviors-item.category,
+.objvars-item.category,
 .commands-item.category,
 .transitions-item.category,
-.dsgvar-array,
+.objvar-array,
 .selectState {
 	cursor: pointer;
 }
@@ -447,7 +448,7 @@ a:focus {
 .objects-item > *,
 .behaviors-item > *,
 .commands-item > *,
-.dsgvars-item > * {
+.objvars-item > * {
 	display: block;
 	padding: 0;
 	margin: 0;
@@ -455,7 +456,7 @@ a:focus {
 .transitions-item > * {
 	display: inline-block;
 }
-#content-commands {
+#content-objvars {
 	margin-top: 1em;
 }
 
@@ -465,6 +466,7 @@ a:focus {
 .commands-item.category,
 .transitions-item.category,
 .localization-item.category,
+.objvars-item.category,
 .script-item.category {
 	box-sizing: border-box;
 	white-space: nowrap;
@@ -475,6 +477,7 @@ a:focus {
 	line-height: 3em;
 }
 .behaviors-item.category > .collapse-sign,
+.objvars-item > .collapse-sign,
 .commands-item > .collapse-sign,
 .transitions-item.category > .collapse-sign {
 	display: inline-block;
@@ -630,7 +633,7 @@ a:focus {
 .commands-item-script > pre {
 	margin: 0;
 }
-.dsgvars-item > .dsgvar-type {
+.objvars-item > .objvar-type {
 	text-align: center;
 	display: inline-block;
 	height: 2em;
@@ -644,10 +647,10 @@ a:focus {
 	text-overflow: ellipsis;
 	flex: 0 0 auto;
 }
-.dsgvar-type > .dsgvar-icon {
+.objvar-type > .objvar-icon {
 	font-size: 1.5em;
 }
-.dsgvars-item > .dsgvar-name {
+.objvars-item > .objvar-name {
 	text-align: right;
 	display: inline-block;
 	padding: 0 0.5em 0 0.5em;
@@ -660,10 +663,10 @@ a:focus {
 	text-overflow: ellipsis;
 	flex: 1 1 auto;
 }
-.dsgvars-item.dsgvar-array > .dsgvar-name {
+.objvars-item.objvar-array > .objvar-name {
 	text-align: center;
 }
-.dsgvars-item > .dsgvar-value {
+.objvars-item > .objvar-value {
 	text-align: left;
 	display: inline-block;
 	box-sizing: border-box;
@@ -1276,7 +1279,8 @@ a:focus {
 	padding-right: 1em;
 	text-align: right;
 }
-.levels-actor-input-group {
+.levels-actor-input-group,
+.palette-group {
 	font-size: 0.6em;
 	padding: 0.25em 3em 0 3em;
 	text-align: center;
@@ -1289,8 +1293,26 @@ a:focus {
 	flex: 0 1 auto;
 	box-sizing: border-box;
 }
-.levels-actor-input.invisible {
+.levels-actor-input.invisible,
+.palette-input.invisible {
 	display: none;
+}
+#palettes-group {
+	display: inline-block;
+	padding: 0.2em 0.3em 0.3em 0.3em;
+	width: 8em;
+	font-size: 0.9em;
+	vertical-align: top;
+	height: 1.3em;
+}
+.palette-input {
+	display: flex;
+	width: 100%;
+	flex: 0 1 auto;
+	box-sizing: border-box;
+}
+#layer-buttons {
+	display: inline-block;
 }
 .small-footer-right {
 	display: block;
@@ -1353,6 +1375,11 @@ a:focus {
 }
 .header-button.disabled-button {
 	pointer-events: none;
+}
+.settings-input-group.disabled {
+	pointer-events: none;
+	display: none;
+	visibility: hidden;
 }
 .header-slider-container {
 	display: inline-block;

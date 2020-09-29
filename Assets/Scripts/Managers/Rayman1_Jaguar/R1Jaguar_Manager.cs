@@ -908,8 +908,8 @@ namespace R1Engine
                                     new Unity_ObjectManager_R1Jaguar.State(
                                         animationIndex: 0, 
                                         animSpeed: 1, 
-                                        linkedStateIndex: 0, 
-                                        linkedComplexStateIndex: 0, 
+                                        //linkedStateIndex: 0, 
+                                        //linkedComplexStateIndex: 0, 
                                         name: GetPointerName(ed.AnimationPointer - 4))
                                 }
                             };
@@ -935,8 +935,8 @@ namespace R1Engine
                                     new Unity_ObjectManager_R1Jaguar.State(
                                         animationIndex: s, 
                                         animSpeed: (byte)(validStates[s].AnimationSpeed & 0b1111),
-                                        linkedComplexStateIndex: 0,
-                                        linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
+                                        //linkedComplexStateIndex: 0,
+                                        //linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
                                         name: GetPointerName(validStates[s].AnimationPointer, s))
                                 };
                             }
@@ -969,8 +969,8 @@ namespace R1Engine
                                 substates[s] = new Unity_ObjectManager_R1Jaguar.State(
                                     animationIndex: (byte)curAnimIndex++, 
                                     animSpeed: (byte)(validStates[s].UnkBytes[0] & 0b1111), 
-                                    linkedComplexStateIndex: (byte)states.Count, 
-                                    linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
+                                    //linkedComplexStateIndex: (byte)states.Count, 
+                                    //linkedStateIndex: (byte)(stateLinkIndex == -1 ? s : stateLinkIndex), 
                                     name: GetPointerName(validStates[s].AnimationPointer - 4, s));
                             }
 
@@ -1215,11 +1215,11 @@ namespace R1Engine
             for (var i = 0; i < rom.EventData.EventData.Length; i++)
             {
                 // Get the map base position, based on the event map
-                var mapPos = rom.EventData.EventIndexMap.FindItemIndex(z => z == i + 1);
+                var mapPos = rom.EventData.MapEvents.EventIndexMap.FindItemIndex(z => z == i + 1);
 
                 // Get the x and y positions
-                var mapY = (uint)Math.Floor(mapPos / (double)(rom.EventData.Width));
-                var mapX = (uint)(mapPos - (mapY * rom.EventData.Width));
+                var mapY = (uint)Math.Floor(mapPos / (double)(rom.EventData.MapEvents.Width));
+                var mapX = (uint)(mapPos - (mapY * rom.EventData.MapEvents.Width));
 
                 // Calculate the actual position on the map
                 mapX *= 4 * (uint)Settings.CellSize;

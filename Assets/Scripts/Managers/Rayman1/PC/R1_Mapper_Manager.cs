@@ -11,7 +11,8 @@ namespace R1Engine
     /// <summary>
     /// The game manager for Rayman Mapper (PC)
     /// </summary>
-    public class R1_Mapper_Manager : R1_Kit_Manager {
+    public class R1_Mapper_Manager : R1_Kit_Manager 
+    {
         #region Values and paths
 
         /// <summary>
@@ -27,6 +28,12 @@ namespace R1Engine
 
             return GetWorldName(context.Settings.R1_World) + "/" + $"MAP_{context.Settings.Level}" + "/";
         }
+
+        public string GetMapFilePath(string levelDir) => levelDir + "EVENT.MAP";
+        public string GetMapEventsFilePath(string levelDir) => levelDir + "EVENT.MEV";
+        public string GetSaveEventsFilePath(string levelDir) => levelDir + "EVENT.SEV";
+
+        public string GetEventManfiestFilePath(R1_World world) => GetWorldFolderPath(world) + $"EVE.MLT";
 
         /// <summary>
         /// Gets the folder path for the specified world
@@ -65,45 +72,43 @@ namespace R1Engine
         /// <returns>The level</returns>
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
-            Controller.DetailedState = $"Loading Mapper map data for {context.Settings.World} {context.Settings.Level}";
-
             // Get the level folder path
             var basePath = await GetLevelFolderPath(context);
 
-            // Load new files
-            Dictionary<string, string> paths = new Dictionary<string, string>
-            {
-                ["event.map"] = basePath + "EVENT.MAP",
-                ["ray.lev"] = basePath + "RAY.LEV",
-                ["pcx"] = GetPCXFilePath(context.Settings)
-            };
-            foreach (KeyValuePair<string, string> path in paths) {
-                await AddFile(context, path.Value);
-            }
+            // TODO: Parse .ini file to get background etc.
+            // Get file paths
+            var mapPath = GetMapFilePath(basePath);
+            var mapEventsPath = GetMapEventsFilePath(basePath);
+            var saveEventsPath = GetSaveEventsFilePath(basePath);
+            var pcxPath = GetPCXFilePath(context.Settings);
+            var eventsCsvPath = GetEventManfiestFilePath(context.Settings.R1_World);
 
-            // Read the map data
-            var mapData = FileFactory.Read<MapData>(paths["event.map"], context);
+            // Load files to context
+            await AddFile(context, mapPath);
+            await AddFile(context, mapEventsPath, endianness: BinaryFile.Endian.Big); // Big endian just like on Jaguar
+            await AddFile(context, pcxPath);
 
+            // Read the files
+
+            Controller.DetailedState = $"Loading map data";
             await Controller.WaitIfNecessary();
 
-            Controller.DetailedState = $"Loading Mapper files";
+            var mapData = FileFactory.Read<MapData>(mapPath, context);
 
-            // Read the DES CMD manifest
-            var desCmdManifest = FileFactory.ReadText<R1_Mapper_RayLev>(paths["ray.lev"], context).DESManifest;
-
-            // Read the CMD files
-            Dictionary<string, R1_Mapper_EventCMD> cmd = new Dictionary<string, R1_Mapper_EventCMD>();
-            foreach (KeyValuePair<string, string> item in desCmdManifest.Skip(1)) {
-                await Controller.WaitIfNecessary();
-                string path = basePath + item.Value;
-                await AddFile(context, path);
-                cmd.Add(item.Key, FileFactory.ReadText<R1_Mapper_EventCMD>(path, context));
-            }
-
+            Controller.DetailedState = $"Loading event data";
             await Controller.WaitIfNecessary();
+
+            var mapEvents = FileFactory.Read<R1Jaguar_MapEvents>(mapEventsPath, context);
+            var saveEvents = FileFactory.ReadText<R1_Mapper_SaveEvents>(saveEventsPath, context);
+            var csv = FileFactory.ReadText<R1_Mapper_EventManifest>(eventsCsvPath, context);
+
+            Controller.DetailedState = $"Loading tileset";
+            await Controller.WaitIfNecessary();
+
+            var pcx = FileFactory.Read<PCX>(pcxPath, context);
 
             // Get the palette from the PCX file
-            var vgaPalette = FileFactory.Read<PCX>(paths["pcx"], context).VGAPalette;
+            var vgaPalette = pcx.VGAPalette;
 
             // Load the sprites
             var eventDesigns = loadTextures ? await LoadSpritesAsync(context, vgaPalette) : new Unity_ObjectManager_R1.DESData[0];
@@ -126,28 +131,17 @@ namespace R1Engine
                 }
             };
 
-            var index = 0;
-
-            // Get the events
-            var events = cmd.SelectMany(x => x.Value.Events.Concat<R1_Mapper_EventDefinition>(x.Value.AlwaysEvents).Select(y => new
-            {
-                DESFileName = x.Key,
-                EventData = y
-            })).ToArray();
-
-            // Get the event count
-            var eventCount = events.Length;
+            var allEventInstances = saveEvents.SaveEventInstances.SelectMany(x => x).ToArray();
 
             // Create a linking table
-            var linkTable = new ushort[eventCount];
+            var linkTable = new ushort[allEventInstances.Length];
 
             // Handle each event link group
-            foreach (var linkedEvents in events.Select((x, i) => new
+            foreach (var linkedEvents in allEventInstances.Select((x, i) => new
             {
                 Index = i,
-                Data = x,
-                LinkID = x.EventData is R1_Mapper_EventCMDItem ei ? ei.LinkID : -1
-            }).GroupBy(x => x.LinkID))
+                Data = x
+            }).GroupBy(x => x.Data.LinkID))
             {
                 // Get the group
                 var group = linkedEvents.ToArray();
@@ -158,9 +152,7 @@ namespace R1Engine
                     // Get the item
                     var item = group[i];
 
-                    if (item.Data.EventData.Name == "always")
-                        linkTable[item.Index] = (ushort)item.Index;
-                    else if (group.Length == i + 1)
+                    if (group.Length == i + 1)
                         linkTable[item.Index] = (ushort)group[0].Index;
                     else
                         linkTable[item.Index] = (ushort)group[i + 1].Index;
@@ -168,83 +160,114 @@ namespace R1Engine
             }
 
             // Create the object manager
-            var objManager = new Unity_ObjectManager_R1(context, eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), linkTable, usesPointers: false);
+            var objManager = new Unity_ObjectManager_R1(
+                context: context, 
+                des: eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), 
+                eta: GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), 
+                linkTable: linkTable, 
+                usesPointers: false);
+
+            Controller.DetailedState = $"Loading events";
+            await Controller.WaitIfNecessary();
 
             var levelEvents = new List<Unity_Object>();
 
-            // Handle each event
-            foreach (var eventData in events)
+            // Create events
+            for (var i = 0; i < saveEvents.SaveEventInstances.Length; i++)
             {
-                Controller.DetailedState = $"Loading event {index}/{eventCount}";
+                // Get the map base position, based on the event map
+                var mapPos = mapEvents.EventIndexMap.FindItemIndex(z => z == i + 1);
 
-                await Controller.WaitIfNecessary();
+                // Get the x and y positions
+                var mapY = (uint) Math.Floor(mapPos / (double) (mapEvents.Width));
+                var mapX = (uint) (mapPos - (mapY * mapEvents.Width));
 
-                // Get the data
-                var e = eventData.EventData;
-                
-                var ed = new R1_EventData()
+                // Calculate the actual position on the map
+                mapX *= 4 * (uint) Settings.CellSize;
+                mapY *= 4 * (uint) Settings.CellSize;
+
+                // Add every instance
+                foreach (var instance in saveEvents.SaveEventInstances[i])
                 {
-                    Type = e.Type,
-                    Etat = e.Etat,
-                    SubEtat = e.SubEtat,
-                    XPosition = e.XPosition,
-                    YPosition = e.YPosition,
-                    OffsetBX = e.OffsetBX,
-                    OffsetBY = e.OffsetBY,
-                    OffsetHY = e.OffsetHY,
-                    FollowSprite = e.FollowSprite,
-                    ActualHitPoints = e.HitPoints,
-                    Layer = e.DisplayPrio,
-                    HitSprite = e.HitSprite,
+                    // Get the definition
+                    var def = csv.EventDefinitions.FirstOrDefault(x => x.Name == instance.EventDefinitionKey);
 
-                    PS1Demo_Unk1 = new byte[40],
-                    Unk_98 = new byte[5],
+                    if (def == null)
+                        throw new Exception($"No matching event definition found for {instance.EventDefinitionKey}");
 
-                    LabelOffsets = new ushort[0],
-                    Commands = R1_EventCommandCollection.FromBytes(e.EventCommands.Select(x => (byte)x).ToArray(), context.Settings),
-                };
+                    var ed = new R1_EventData()
+                    {
+                        Type = def.Type,
+                        Etat = def.Etat,
+                        SubEtat = def.SubEtat,
+                        XPosition = (short)(mapX + instance.OffsetX),
+                        YPosition = (short)(mapY + instance.OffsetY),
+                        OffsetBX = def.OffsetBX,
+                        OffsetBY = def.OffsetBY,
+                        OffsetHY = def.OffsetHY,
+                        FollowSprite = def.FollowSprite,
+                        ActualHitPoints = (uint)instance.HitPoints,
+                        Layer = instance.Layer,
+                        HitSprite = def.HitSprite,
 
-                ed.SetFollowEnabled(context.Settings, e.FollowEnabled > 0);
+                        PS1Demo_Unk1 = new byte[40],
+                        Unk_98 = new byte[5],
 
-                // Add the event
-                levelEvents.Add(new Unity_Object_R1(ed, objManager, ETAIndex: worldData.ETAFileNames.FindItemIndex(x => x == e.ETAFile))
-                {
-                    DESIndex = worldData.DESFileNames.FindItemIndex(x => x == eventData.DESFileName)
-                });
+                        LabelOffsets = new ushort[0],
+                        Commands = R1_EventCommandCollection.FromBytes(def.EventCommands, context.Settings),
+                    };
 
-                index++;
+                    ed.SetFollowEnabled(context.Settings, def.FollowEnabled > 0);
+
+                    // Add the event
+                    levelEvents.Add(new Unity_Object_R1(
+                        eventData: ed, 
+                        objManager: objManager, 
+                        ETAIndex: worldData.ETAFileNames.FindItemIndex(x => x == def.ETAFile))
+                    {
+                        DESIndex = worldData.DESFileNames.FindItemIndex(x => x.Length > 4 && x.Substring(0, x.Length - 4) == def.DESFile)
+                    });
+                }
             }
 
             // Convert levelData to common level format
             var level = new Unity_Level(maps, objManager, levelEvents, rayman: new Unity_Object_R1(R1_EventData.GetRayman(levelEvents.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData), objManager));
 
+            Controller.DetailedState = $"Creating tileset";
             await Controller.WaitIfNecessary();
 
-            Controller.DetailedState = $"Loading tile set";
+            // Load the tile set
+            level.Maps[0].TileSet[0] = LoadTileSet(pcx);
 
-            // Read the .pcx file and get the texture
-            var pcxtex = FileFactory.Read<PCX>(paths["pcx"], context).ToTexture();
+            // Return the level
+            return level;
+        }
 
-            var tileSetWidth = pcxtex.width / Settings.CellSize;
-            var tileSetHeight = pcxtex.height / Settings.CellSize;
+        public Unity_MapTileMap LoadTileSet(PCX pcx)
+        {
+            // Get the tilemap texture
+            var tileMap = pcx.ToTexture();
+
+            var tileSetWidth = tileMap.width / Settings.CellSize;
+            var tileSetHeight = tileMap.height / Settings.CellSize;
 
             // Create the tile array
             var tiles = new Unity_TileTexture[tileSetWidth * tileSetHeight];
 
             // Get the transparency color
-            var transparencyColor = pcxtex.GetPixel(0, 0);
-            
+            var transparencyColor = tileMap.GetPixel(0, 0);
+
             // Replace the transparency color with true transparency
-            for (int y = 0; y < pcxtex.height; y++)
+            for (int y = 0; y < tileMap.height; y++)
             {
-                for (int x = 0; x < pcxtex.width; x++)
+                for (int x = 0; x < tileMap.width; x++)
                 {
-                    if (pcxtex.GetPixel(x, y) == transparencyColor) 
-                        pcxtex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                    if (tileMap.GetPixel(x, y) == transparencyColor)
+                        tileMap.SetPixel(x, y, new Color(0, 0, 0, 0));
                 }
             }
 
-            pcxtex.Apply();
+            tileMap.Apply();
 
             // Split the .pcx into a tile-set
             for (int ty = 0; ty < tileSetHeight; ty++)
@@ -252,15 +275,11 @@ namespace R1Engine
                 for (int tx = 0; tx < tileSetWidth; tx++)
                 {
                     // Create a tile
-                    tiles[ty * tileSetWidth + tx] = pcxtex.CreateTile(new Rect(tx * Settings.CellSize, ty * Settings.CellSize, Settings.CellSize, Settings.CellSize));
+                    tiles[ty * tileSetWidth + tx] = tileMap.CreateTile(new Rect(tx * Settings.CellSize, ty * Settings.CellSize, Settings.CellSize, Settings.CellSize));
                 }
             }
 
-            // Set the tile-set
-            level.Maps[0].TileSet[0] = new Unity_MapTileMap(tiles);
-
-            // Return the level
-            return level;
+            return new Unity_MapTileMap(tiles);
         }
 
         #endregion

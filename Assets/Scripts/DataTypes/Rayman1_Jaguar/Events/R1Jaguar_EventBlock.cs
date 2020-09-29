@@ -8,15 +8,7 @@ namespace R1Engine
     /// </summary>
     public class R1Jaguar_EventBlock : R1Serializable
     {
-        // Is this correct?
-        public bool HasEvents { get; set; }
-
-        // Event map dimensions, always the map size divided by 4
-        public ushort Width { get; set; }
-        public ushort Height { get; set; }
-
-        // Mapped to a 2D plane based on width and height
-        public ushort[] EventIndexMap { get; set; }
+        public R1Jaguar_MapEvents MapEvents { get; set; }
 
         // Indexed, with offsets to the data table
         public ushort[] EventOffsetTable { get; set; }
@@ -33,17 +25,10 @@ namespace R1Engine
             var offsetTableOffset = s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto ? Offset + 0x1208 : new R1Jaguar_Proto_Manager().GetDataPointer(s.Context, R1Jaguar_Proto_References.test_offlist);
             var eventTableOffset = s.GameSettings.EngineVersion != EngineVersion.R1Jaguar_Proto ? Offset + 0x1608 : new R1Jaguar_Proto_Manager().GetDataPointer(s.Context, R1Jaguar_Proto_References.test_event);
 
-            HasEvents = s.Serialize<bool>(HasEvents, name: nameof(HasEvents));
-            s.SerializeArray<byte>(new byte[3], 3, name: "Padding");
-            
-            // Serialize event map dimensions
-            Width = s.Serialize<ushort>(Width, name: nameof(Width));
-            Height = s.Serialize<ushort>(Height, name: nameof(Height));
-
-            EventIndexMap = s.SerializeArray<ushort>(EventIndexMap, Width * Height, name: nameof(EventIndexMap));
+            MapEvents = s.SerializeObject<R1Jaguar_MapEvents>(MapEvents, name: nameof(MapEvents));
 
             // Serialize next data block, skipping the padding
-            s.DoAt(offsetTableOffset, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, EventIndexMap.Max(), name: nameof(EventOffsetTable)));
+            s.DoAt(offsetTableOffset, () => EventOffsetTable = s.SerializeArray<ushort>(EventOffsetTable, MapEvents.EventIndexMap.Max(), name: nameof(EventOffsetTable)));
 
             if (EventData == null)
                 EventData = new R1Jaguar_EventInstance[EventOffsetTable.Length][];

@@ -103,13 +103,15 @@ let currentBehaviorType = "";
 let wrapper, objects_content, unity_content, description_content, description_column;
 let gameColumnContent, screenshotResolutionRadio, screenshotSizeFactorRadio, screenshotResolutionW, screenshotResolutionH, screenshotSizeFactor = null;
 let screenshotResolutionSelected = false;
-let btn_close_description, stateSelector, graphicsSelector, graphics2Selector, languageSelector, cameraPosSelector, highlight_tooltip, text_highlight_tooltip, text_highlight_content, graphicsInputGroup, graphics2InputGroup, stateInputGroup, graphicsLabel, graphics2Label, layer_buttons;
+let btn_close_description, stateSelector, graphicsSelector, graphics2Selector, languageSelector, cameraPosSelector, paletteSelector;
+let highlight_tooltip, text_highlight_tooltip, text_highlight_content, graphicsInputGroup, graphics2InputGroup, stateInputGroup;
+let graphicsLabel, graphics2Label, layer_buttons;
 let previousState = -1;
 let games_content, versions_content, levels_content, levels_sidebar = null;
 let games_header, versions_header, levels_header = null;
 let current_game, current_version = null;
 let levels_actors_group, actor1_group, actor2_group, actor1_selector, actor2_selector = null;
-let commandsIsOpen = false;
+let commandsIsOpen, objVarsIsOpen = false;
 let global_settings = null;
 
 // FUNCTIONS
@@ -313,6 +315,12 @@ function parseObjects(hierarchy) {
 			normalObjects.push(obj);
 		}
 	});
+	if(normalObjects.length > 0) {
+		items.push("<div class='objects-item object-world level-0' alt='Objects'>Objects</div>");
+		$.each(normalObjects, function(i, obj) {
+			items.push(getObjectListEntryHTML(obj));
+		});
+	}
 	if(alwaysObjects.length > 0) {
 		items.push("<div class='objects-item object-world level-0' alt='Always objects'>Always objects</div>");
 		$.each(alwaysObjects, function(i, obj) {
@@ -325,18 +333,13 @@ function parseObjects(hierarchy) {
 			items.push(getObjectListEntryHTML(obj));
 		});
 	}
-	if(normalObjects.length > 0) {
-		items.push("<div class='objects-item object-world level-0' alt='Objects'>Objects</div>");
-		$.each(normalObjects, function(i, obj) {
-			items.push(getObjectListEntryHTML(obj));
-		});
-	}
 	return items;
 }
 function handleMessage_settings(msg) {
 	global_settings = msg;
 	$(".settings-toggle").removeClass("disabled-button");
 	$(".settings-toggle-special").removeClass("disabled-button");
+	/*$(".settings-input-group").removeClass("disabled");*/
 	
 	selectButton($("#btn-showCollision"), msg.ShowCollision);
 	selectButton($("#btn-showObjCollision"), msg.ShowObjCollision);
@@ -355,6 +358,14 @@ function handleMessage_settings(msg) {
 			$("#btn-stateSwitching").html('<i class="icon-arrow-repeat"></i>');
 		}
 	}
+	if(msg.hasOwnProperty("Palettes") && msg.Palettes.length > 1) {
+		paletteSelector.empty();
+		$.each(msg.Palettes, function (idx, pal) {
+			paletteSelector.append("<option value='" + idx + "'>" + escapeHTML(pal) + "</option>");
+		});
+		$("#palettes-group").removeClass("disabled");
+	}
+	if(msg.hasOwnProperty("Palette")) paletteSelector.prop("selectedIndex", msg.Palette);
 	
 	$("#btn-camera").removeClass("disabled-button");
 
@@ -716,6 +727,110 @@ function getCommandsHTML(commands) {
 	return commandsString;
 }
 
+function getObjVars(obj) {
+
+	let objVars = [];
+	
+	// R1
+	if(obj.hasOwnProperty("R1_OffsetBX")) objVars.push({"Name": "OffsetBX", "Value": obj.R1_OffsetBX});
+	if(obj.hasOwnProperty("R1_OffsetBY")) objVars.push({"Name": "OffsetBY", "Value": obj.R1_OffsetBY});
+	if(obj.hasOwnProperty("R1_OffsetHY")) objVars.push({"Name": "OffsetHY", "Value": obj.R1_OffsetHY});
+	if(obj.hasOwnProperty("R1_FollowSprite")) objVars.push({"Name": "FollowSprite", "Value": obj.R1_FollowSprite});
+	if(obj.hasOwnProperty("R1_HitPoints")) objVars.push({"Name": "HitPoints", "Value": obj.R1_HitPoints});
+	if(obj.hasOwnProperty("R1_HitSprite")) objVars.push({"Name": "HitSprite", "Value": obj.R1_HitSprite});
+	if(obj.hasOwnProperty("R1_FollowEnabled")) objVars.push({"Name": "FollowEnabled", "Value": obj.R1_FollowEnabled});
+	if(obj.hasOwnProperty("R1_DisplayPrio")) objVars.push({"Name": "DisplayPriority", "Value": obj.R1_DisplayPrio});
+
+	// R2
+	if(obj.hasOwnProperty("R2_MapLayer")) objVars.push({"Name": "MapLayer", "Value": obj.R2_MapLayer});
+
+	// R1Jaguar
+
+	// GBA
+
+	return objVars;
+}
+
+
+function getObjVarIcon(objVar) {
+	let dsgString = "<div class='objvar-icon'>";
+	if(objVar.hasOwnProperty("Type")) {
+		let type = objVar.Type;
+		switch(type) {
+			case "Boolean":
+				//dsgString += "<i class='icon-input-checked'></i>";
+				break;
+			case "Byte":
+				break;
+			case "UByte":
+				break;
+			case "Short":
+				break;
+			case "UShort":
+				break;
+			case "Int":
+				break;
+			case "UInt":
+				break;
+			case "Float":
+				break;
+			case "Caps":
+				break;
+			case "Text":
+				dsgString += "<i class='icon-commenting'></i>";
+				break;
+			case "Vector":
+				break;
+			case "Perso":
+				dsgString += "<i class='icon-user'></i>";
+				break;
+			case "SuperObject":
+				break;
+			case "WayPoint":
+				dsgString += "<i class='icon-location-pin'></i>";
+				break;
+			case "Graph":
+				dsgString += "<i class='icon-flow-children'></i>";
+				break;
+			case "Action":
+				dsgString += "<i class='icon-media-play'></i>";
+				break;
+			case "SoundEvent":
+				dsgString += "<i class='icon-volume-medium'></i>";
+			default:
+				break;
+		}
+	}
+	dsgString += "</div>";
+	return dsgString;
+}
+
+function getObjVarTypeString(valueType, val) {
+	if(val === undefined || val === null) {
+		let objString = "<div class='objvar-value objvar-value-null'></div>";
+		return objString;
+	}
+	let objString = "<div class='objvar-value objvar-value-" + valueType + " objvar-value-text'>" + val + "</div>";
+	return objString;
+}
+function getObjVarsHTML(objVars) {
+	let objVarsString;
+	if(objVarsIsOpen) {
+		objVarsString ="<div class='objvars-item category collapsible' data-collapse='objvars-collapse'><div class='collapse-sign'>-</div>Additional Properties</div><div id='objvars-collapse'>";
+	} else {
+		objVarsString ="<div class='objvars-item category collapsible' data-collapse='objvars-collapse'><div class='collapse-sign'>+</div>Additional Properties</div><div id='objvars-collapse' style='display: none;'>";
+	}
+	$.each(objVars, function (idx, objVar) {
+		
+		objVarsString += "<div class='objvars-item objvar'><div class='objvar-type'>" + getObjVarIcon(objVar) + "</div>";
+		objVarsString += "<div class='objvar-name'>" + objVar.Name + "</div>";
+		if(objVar.hasOwnProperty("Value")) objVarsString += getObjVarTypeString("current", objVar.Value);
+		objVarsString += "</div>";
+	});
+	objVarsString += "</div>";
+	return objVarsString;
+}
+
 // PERSO OBJECT DESCRIPTION
 function fillSelectorList(selector, names) {
 	$.each(names, function (idx, name) {
@@ -743,6 +858,14 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 				$(".commands-item-code").each(function() {
 					hljs.highlightBlock($(this).get(0));
 				})
+			}
+
+			// Object vars
+			let objVars = getObjVars(obj);
+			$("#content-objvars").empty();
+			if(objVars.length > 0) {
+				let objVarsString = getObjVarsHTML(objVars);
+				$("#content-objvars").append(objVarsString);
 			}
 		}
 
@@ -924,20 +1047,20 @@ function showObjectDescription(obj, isChanged, isListChanged) {
 					allBehaviors.push("</div>");
 				}
 				if(brain.hasOwnProperty("DsgVars") && brain.DsgVars.length > 0) {
-					allBehaviors.push("<div class='behaviors-item category collapsible' data-collapse='dsgvars-collapse'><div class='collapse-sign'>+</div>DSG Variables</div><div id='dsgvars-collapse' style='display: none;'>");
+					allBehaviors.push("<div class='behaviors-item category collapsible' data-collapse='objvars-collapse'><div class='collapse-sign'>+</div>DSG Variables</div><div id='objvars-collapse' style='display: none;'>");
 					let hasCurrent = brain.DsgVars.some(d => d.hasOwnProperty("ValueCurrent"));
 					let hasInitial = brain.DsgVars.some(d => d.hasOwnProperty("ValueInitial"));
 					let hasModel = brain.DsgVars.some(d => d.hasOwnProperty("ValueModel"));
 					// Header
-					allBehaviors.push("<div class='dsgvars-item dsgvars-header'><div class='dsgvar-type'></div><div class='dsgvar-name'></div>")
-					if(hasCurrent) allBehaviors.push("<div class='dsgvar-value'>Current</div>");
-					if(hasInitial) allBehaviors.push("<div class='dsgvar-value'>Initial</div>");
-					if(hasModel) allBehaviors.push("<div class='dsgvar-value'>Model</div>");
+					allBehaviors.push("<div class='objvars-item objvars-header'><div class='objvar-type'></div><div class='objvar-name'></div>")
+					if(hasCurrent) allBehaviors.push("<div class='objvar-value'>Current</div>");
+					if(hasInitial) allBehaviors.push("<div class='objvar-value'>Initial</div>");
+					if(hasModel) allBehaviors.push("<div class='objvar-value'>Model</div>");
 					allBehaviors.push("</div>")
 					// DsgVars
-					$.each(brain.DsgVars, function (idx, dsg) {
-						let dsgString = getDsgVarString(idx, dsg, hasCurrent, hasInitial, hasModel);
-						allBehaviors.push(dsgString);
+					$.each(brain.DsgVars, function (idx, obj) {
+						let objString = getDsgVarString(idx, obj, hasCurrent, hasInitial, hasModel);
+						allBehaviors.push(objString);
 					});
 					allBehaviors.push("</div>");
 				}
@@ -1056,6 +1179,7 @@ function handleMessage_selection_updateObject(oldObj, newObj) {
 
 	// R2
 	if(newObj.hasOwnProperty("R2_AnimGroupIndex")) oldObj.R2_AnimGroupIndex = newObj.R2_AnimGroupIndex;
+	if(newObj.hasOwnProperty("R2_MapLayer")) oldObj.R2_MapLayer = newObj.R2_MapLayer;
 
 	// R1Jaguar
 	if(newObj.hasOwnProperty("R1Jaguar_EventDefinitionIndex")) oldObj.R1Jaguar_EventDefinitionIndex = newObj.R1Jaguar_EventDefinitionIndex;
@@ -1143,22 +1267,6 @@ function handleMessage_highlight(msg) {
 		highlight_tooltip.addClass("hidden-tooltip");
 	}
 }
-function requestTransitionExport() {
-	let jsonObj = {
-		Request: {
-			Type: "TransitionExport"
-		}
-	}
-	sendMessage(jsonObj);
-}
-function handleMessage_transitionExport(msg) {
-	//console.log(msg);
-	let popupWin = window.open('statediagram.html','transitionExport','');
-	popupWin.inputJSON = msg;
-	popupWin.addEventListener('load', (event) => {
-		popupWin.CreateBehaviorDiagram();
-	});
-}
 
 // SETTINGS
 function sendSettings() {
@@ -1172,7 +1280,8 @@ function sendSettings() {
 			ShowObjects: $("#btn-showObjects").hasClass("selected"),
 			AnimateSprites: $("#btn-animateSprites").hasClass("selected"),
 			AnimateTiles: $("#btn-animateTiles").hasClass("selected"),
-			StateSwitchingMode: global_settings.StateSwitchingMode
+			StateSwitchingMode: global_settings.StateSwitchingMode,
+			Palette: paletteSelector.prop("selectedIndex")
 		}
 	}
 	let layers = $(".layer-button");
@@ -1659,6 +1768,7 @@ $(function() {
 	actor2_group = $('#actor2-group');
 	actor1_selector = $('#actor1Selector');
 	actor2_selector = $('#actor2Selector');
+	paletteSelector = $('#paletteSelector');
 	
 	if(window.location.protocol == "file:") {
 		baseURL = baseURL_local;
@@ -1682,7 +1792,7 @@ $(function() {
 		text_highlight_content.html("");
 		text_highlight_tooltip.addClass("hidden-tooltip");
 	});
-	$(document).on('mouseenter', ".dsgvar-value-Text", function() {
+	/*$(document).on('mouseenter', ".objvar-value-Text", function() {
 		let locItem = $(this).data("localizationItem");
 		if(locItem !== undefined && locItem != null) {
 			let text = $("#content-localization").find(`.localization-item[data-loc-item='${locItem}']`).find(".localization-item-text").text();
@@ -1697,10 +1807,10 @@ $(function() {
 			}
 		}
 	});
-	$(document).on('mouseleave', ".dsgvar-value-Text", function() {
+	$(document).on('mouseleave', ".objvar-value-Text", function() {
 		text_highlight_content.html("");
 		text_highlight_tooltip.addClass("hidden-tooltip");
-	});
+	});*/
 	$(document).on('click', ".objects-item.object-event", function() {
 		let index = $(this).data("index");
 		//$(".objects-item").removeClass("current-objects-item");
@@ -1842,6 +1952,10 @@ $(function() {
 	$(document).on('change', "#actor1Selector, #actor2Selector", function() {
 		updateLevelLinksActors();
 	});
+	$(document).on('change', "#paletteSelector", function() {
+		sendSettings();
+		return false;
+	});
 	$(document).on('change', "#languageSelector", function() {
 		updateLanguageDisplayed();
 		$(this).blur();
@@ -1897,17 +2011,15 @@ $(function() {
 		let collapse = $("#"+collapse_id);
 		if(collapse.is(":hidden")) {
 			if(collapse_id === "commands-collapse") commandsIsOpen = true;
+			else if(collapse_id === "objvars-collapse") objVarsIsOpen = true;
 			collapse.show("fast", refreshScroll);
 			$(this).find(".collapse-sign").text("-");
 		} else {
 			if(collapse_id === "commands-collapse") commandsIsOpen = false;
+			else if(collapse_id === "objvars-collapse") objVarsIsOpen = false;
 			collapse.hide("fast", refreshScroll);
 			$(this).find(".collapse-sign").text("+");
 		}
-		return false;
-	});
-	$(document).on('click', ".stateTransitionExport", function () {
-		requestTransitionExport();
 		return false;
 	});
 	
