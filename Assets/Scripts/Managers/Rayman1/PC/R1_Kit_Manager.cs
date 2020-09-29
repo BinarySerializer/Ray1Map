@@ -241,7 +241,7 @@ namespace R1Engine
             const int desAllfixCount = 9;
             const int etaAllfixCount = 5;
             int otherDesAllfixCount = edu ? 8 : 7;
-            int otherEtaAllfixCount = edu ? 4 : 5;
+            int otherEtaAllfixCount = edu ? 5 : 4;
 
             // Load in Events.csv to get our mappings
             const string file = "Events.csv";
@@ -342,7 +342,7 @@ namespace R1Engine
                         }
                         foreach (var mapping in etaMappings) {
                             Debug.Log($"Attempting to port ETA {mapping}");
-                            wld.Eta = wld.Eta.Append(otherWld.Eta[mapping.Key - otherEtaAllfixCount - 1]).ToArray();
+                            wld.Eta = wld.Eta.Append(otherWld.Eta[mapping.Key - otherEtaAllfixCount]).ToArray();
                             wld.ETAFileNames[wld.Eta.Length + etaAllfixCount - 1] = mapping.Value;
                         }
 
