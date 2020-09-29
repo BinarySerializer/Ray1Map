@@ -243,6 +243,7 @@ namespace R1Engine
             else
                 linkCubeLockPosition = linkCube.position;
 
+            var isVisible = IsVisible;
             // Update sprite parts in the animation
             if (anim != null)
             {
@@ -326,7 +327,7 @@ namespace R1Engine
                     }
 
                     // Get visibility
-                    prefabRenderers[i].enabled = IsVisible;
+                    prefabRenderers[i].enabled = isVisible;
                     prefabRenderers[i].color = ObjData.IsDisabled ? new Color(1, 1, 1, 0.5f) : Color.white;
                 }
 
@@ -486,7 +487,7 @@ namespace R1Engine
             // Set link visibility
             var showLinks = 
                 // Make sure the obj is visible
-                IsVisible && 
+                isVisible && 
                 // Make sure links are set to show
                 Settings.ShowLinks && 
                 // Only show active links on web
