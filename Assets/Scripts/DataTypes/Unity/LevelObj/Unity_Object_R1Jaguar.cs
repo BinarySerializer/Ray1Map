@@ -85,29 +85,6 @@ namespace R1Engine
             return true;
         }
 
-        protected override void OnFinishedAnimation()
-        {
-            if (Settings.StateSwitchingMode != StateSwitchingMode.None)
-            {
-                // Get the current state
-                var state = State;
-
-                // Check if we've reached the end of the linking chain and we're looping
-                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && RuntimeComplexStateIndex == state.LinkedComplexStateIndex && RuntimeStateIndex == state.LinkedStateIndex)
-                {
-                    // Reset the state
-                    RuntimeComplexStateIndex = ComplexStateIndex;
-                    RuntimeStateIndex = StateIndex;
-                }
-                else
-                {
-                    // Update state values to the linked one
-                    RuntimeComplexStateIndex = state.LinkedComplexStateIndex;
-                    RuntimeStateIndex = state.LinkedStateIndex;
-                }
-            }
-        }
-
 		[Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper
         {
