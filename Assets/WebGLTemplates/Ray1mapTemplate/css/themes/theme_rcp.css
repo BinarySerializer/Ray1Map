@@ -99,7 +99,7 @@ body {
 .objects-item,
 .levels-item,
 .behaviors-item,
-.dsgvars-item,
+.objvars-item,
 .localization-item,
 .entryactions-item,
 .commands-item {
@@ -128,20 +128,20 @@ body {
   background-color: #2c2c2c;
 }
 
-.dsgvars-item > .dsgvar-name,
-.dsgvars-item > .dsgvar-type,
+.objvars-item > .objvar-name,
+.objvars-item > .objvar-type,
 .localization-item > .localization-item-index,
 .entryactions-item > .entryactions-item-name,
 .commands-item-line-number {
   background-color: #2c2c2c;
 }
 
-.dsgvars-item.dsgvar-array:hover > .dsgvar-name,
-.dsgvars-item.dsgvar-array:hover > .dsgvar-type {
+.objvars-item.objvar-array:hover > .objvar-name,
+.objvars-item.objvar-array:hover > .objvar-type {
   background-color: #1a1a1a;
 }
 
-.dsgvars-item.dsgvars-header,
+.objvars-item.objvars-header,
 .transitions-item.transitions-header {
   background-color: #2c2c2c;
 }
@@ -165,7 +165,7 @@ body {
 .levels-item.level:hover,
 .behaviors-item.behavior:hover,
 .commands-item.command:hover,
-.entryactions-item:hover .dsgvars-item:hover,
+.entryactions-item:hover .objvars-item:hover,
 .selectState:hover,
 .localization-item:hover {
   background-color: #2c2c2c;
