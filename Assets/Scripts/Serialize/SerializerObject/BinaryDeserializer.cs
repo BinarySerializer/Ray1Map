@@ -143,7 +143,15 @@ namespace R1Engine
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(String[" + count + "]) " + (name ?? "<no name>"));
             }
-            var buffer = new string[(int)count];
+            string[] buffer;
+            if (obj != null) {
+                buffer = obj;
+                if (buffer.Length != count) {
+                    Array.Resize(ref buffer, (int)count);
+                }
+            } else {
+                buffer = new string[(int)count];
+            }
 
             for (int i = 0; i < count; i++)
                 // Read the value
@@ -224,12 +232,16 @@ namespace R1Engine
         public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null) {
             Pointer current = CurrentPointer;
             T instance = Context.Cache.FromOffset<T>(current);
-            if (instance == null) {
-                instance = new T();
+            if (instance == null || currentFile is ProcessMemoryStreamFile) {
+                bool newInstance = false;
+                if (instance == null) {
+                    newInstance = true;
+                    instance = new T();
+                }
                 instance.Init(current);
 
-                // Do not cache objects from memory stream files as they auto-update
-                if (!(currentFile is ProcessMemoryStreamFile))
+                // Do not cache already created objects
+                if (newInstance)
                     Context.Cache.Add<T>(instance);
                 
                 if (Settings.Log) {
@@ -295,12 +307,19 @@ namespace R1Engine
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
             }
-
-            var buffer = new T[(int)count];
+            T[] buffer;
+            if (obj != null) {
+                buffer = obj;
+                if (buffer.Length != count) {
+                    Array.Resize(ref buffer, (int)count);
+                }
+            } else {
+                buffer = new T[(int)count];
+            }
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = Serialize<T>(default, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = Serialize<T>(buffer[i], name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
@@ -310,11 +329,19 @@ namespace R1Engine
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Object[]: " + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
             }
-            var buffer = new T[(int)count];
+            T[] buffer;
+            if (obj != null) {
+                buffer = obj;
+                if (buffer.Length != count) {
+                    Array.Resize(ref buffer, (int)count);
+                }
+            } else {
+                buffer = new T[(int)count];
+            }
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = SerializeObject<T>(default, onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = SerializeObject<T>(buffer[i], onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
@@ -324,11 +351,19 @@ namespace R1Engine
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Pointer[" + count + "]) " + (name ?? "<no name>"));
             }
-            var buffer = new Pointer[(int)count];
+            Pointer[] buffer;
+            if (obj != null) {
+                buffer = obj;
+                if (buffer.Length != count) {
+                    Array.Resize(ref buffer, (int)count);
+                }
+            } else {
+                buffer = new Pointer[(int)count];
+            }
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = SerializePointer(default, anchor: anchor, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = SerializePointer(buffer[i], anchor: anchor, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
@@ -338,11 +373,19 @@ namespace R1Engine
                 string logString = LogPrefix;
                 Context.Log.Log(logString + "(Pointer<" + typeof(T) + ">[" + count + "]) " + (name ?? "<no name>"));
             }
-            var buffer = new Pointer<T>[(int)count];
+            Pointer<T>[] buffer;
+            if (obj != null) {
+                buffer = obj;
+                if (buffer.Length != count) {
+                    Array.Resize(ref buffer, (int)count);
+                }
+            } else {
+                buffer = new Pointer<T>[(int)count];
+            }
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                buffer[i] = SerializePointer<T>(default, resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
+                buffer[i] = SerializePointer<T>(buffer[i], resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
             return buffer;
         }
@@ -351,10 +394,12 @@ namespace R1Engine
             //U Size = (U)Convert.ChangeType((obj?.Length) ?? 0, typeof(U));
             U Size = default; // For performance reasons, don't supply this argument
             Size = Serialize<U>(Size, name: name + ".Length");
+            // Convert size to int, slow
+            int intSize = (int)Convert.ChangeType(Size, typeof(int));
             if (obj == null) {
-                // Create the array, slow
-                int intSize = (int)Convert.ChangeType(Size, typeof(int));
                 obj = new T[intSize];
+            } else if (obj.Length != intSize) {
+                Array.Resize(ref obj, intSize);
             }
             return obj;
         }

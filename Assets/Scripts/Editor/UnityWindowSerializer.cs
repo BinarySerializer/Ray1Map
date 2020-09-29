@@ -134,9 +134,11 @@ public class UnityWindowSerializer : SerializerObject
 
         if (Foldouts[fullName])
         {
+            Depth++;
             Window.IndentLevel++;
             obj.SerializeImpl(this);
             Window.IndentLevel--;
+            Depth--;
         }
 
         CurrentName.RemoveAt(CurrentName.Count - 1);
@@ -155,43 +157,35 @@ public class UnityWindowSerializer : SerializerObject
     }
 
     public override Pointer<T> SerializePointer<T>(Pointer<T> obj, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null,
-        bool allowInvalid = false, string name = null)
-    {
+        bool allowInvalid = false, string name = null) {
         EditorGUI.LabelField(Window.GetNextRect(ref Window.YPos), $"{name} {obj}");
 
         return obj;
     }
 
-    public override T[] SerializeArray<T>(T[] obj, long count, string name = null)
-    {
-        if (obj != null)
-        {
-            for (int i = 0; i < obj.Length; i++)
-                Serialize(obj[i], name: $"{name}[{i}]");
-        }
-
+    public override T[] SerializeArray<T>(T[] obj, long count, string name = null) {
+        if (obj == null) obj = new T[count];
+        else if (count != obj.Length) Array.Resize(ref obj, (int)count);
+        for (int i = 0; i < obj.Length; i++)
+			Serialize(obj[i], name: $"{name}[{i}]");
         return obj;
     }
 
-    public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T> onPreSerialize = null, string name = null)
-    {
-        if (obj != null)
-        {
-            for (int i = 0; i < obj.Length; i++)
-                SerializeObject(obj[i], name: $"{name}[{i}]");
-        }
+    public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T> onPreSerialize = null, string name = null) {
+        if (obj == null) obj = new T[count];
+        else if (count != obj.Length) Array.Resize(ref obj, (int)count);
+        for (int i = 0; i < obj.Length; i++)
+			SerializeObject(obj[i], name: $"{name}[{i}]");
 
         return obj;
     }
 
     public override Pointer[] SerializePointerArray(Pointer[] obj, long count, Pointer anchor = null, bool allowInvalid = false,
-        string name = null)
-    {
-        if (obj != null)
-        {
-            for (int i = 0; i < obj.Length; i++)
-                SerializePointer(obj[i], name: $"{name}[{i}]");
-        }
+        string name = null) {
+        if (obj == null) obj = new Pointer[count];
+        else if (count != obj.Length) Array.Resize(ref obj, (int)count);
+		for (int i = 0; i < obj.Length; i++)
+			SerializePointer(obj[i], name: $"{name}[{i}]");
 
         return obj;
     }
@@ -199,11 +193,10 @@ public class UnityWindowSerializer : SerializerObject
     public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, Pointer anchor = null, bool resolve = false,
         Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null)
     {
-        if (obj != null)
-        {
-            for (int i = 0; i < obj.Length; i++)
-                SerializePointer(obj[i], name: $"{name}[{i}]");
-        }
+        if (obj == null) obj = new Pointer<T>[count];
+        else if (count != obj.Length) Array.Resize(ref obj, (int)count);
+		for (int i = 0; i < obj.Length; i++)
+			SerializePointer(obj[i], name: $"{name}[{i}]");
 
         return obj;
     }
@@ -217,11 +210,10 @@ public class UnityWindowSerializer : SerializerObject
 
     public override string[] SerializeStringArray(string[] obj, long count, int length, Encoding encoding = null, string name = null)
     {
-        if (obj != null)
-        {
-            for (int i = 0; i < obj.Length; i++)
-                SerializeString(obj[i], name: $"{name}[{i}]");
-        }
+        if (obj == null) obj = new string[count];
+        else if (count != obj.Length) Array.Resize(ref obj, (int)count);
+		for (int i = 0; i < obj.Length; i++)
+			SerializeString(obj[i], name: $"{name}[{i}]");
 
         return obj;
     }
