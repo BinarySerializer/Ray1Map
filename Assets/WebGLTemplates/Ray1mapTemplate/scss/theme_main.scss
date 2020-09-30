@@ -15,7 +15,10 @@
     $color_cube_back:   hsl(301, 54.9%, 20%),
     $color_cube_left:   hsl(301, 54.9%, 10%),
     $color_cube_top:    hsl(301, 54.9%, 35%),
-    $color_cube_bottom: hsl(301, 54.9%, 15%)
+    $color_cube_bottom: hsl(301, 54.9%, 15%),
+
+    $color_bg_tint_dark: hsl(280, 50%, 9%),
+    $color_bg_tint_light: hsl(282, 44%, 18%)
 );
 
 .game-item-logo,

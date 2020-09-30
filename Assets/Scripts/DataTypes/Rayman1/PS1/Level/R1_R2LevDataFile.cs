@@ -13,7 +13,7 @@
         /// <summary>
         /// Pointer to the events
         /// </summary>
-        public Pointer EventsPointer { get; set; }
+        public Pointer LoadedEventsPointer { get; set; }
 
         /// <summary>
         /// Pointer to the always events
@@ -27,18 +27,11 @@
         
         public byte[] Unk3 { get; set; }
 
-        /// <summary>
-        /// The event count
-        /// </summary>
-        public ushort EventCount { get; set; }
+        public ushort LoadedEventCount { get; set; } // NormalEventCount + AlwaysEventSlotsCount
+        public ushort AlwaysEventsCount { get; set; } // These are not in the normal event array
+        public ushort NormalEventCount { get; set; } // Normal events
+        public ushort AlwaysEventSlotsCount { get; set; } // Dummy slots for always events during runtime
 
-        /// <summary>
-        /// The always event count
-        /// </summary>
-        public ushort AlwaysEventsCount { get; set; }
-
-        public ushort UShort_36 { get; set; }
-        public ushort UShort_38 { get; set; }
         public ushort UShort_3A { get; set; }
 
         /// <summary>
@@ -51,7 +44,7 @@
         public ushort UShort_42 { get; set; }
         public ushort UShort_44 { get; set; }
         public ushort UShort_46 { get; set; }
-        public uint UInt_48 { get; set; }
+        public uint DevPointer_48 { get; set; } // Dev pointer
 
         public Pointer ZDCPointer { get; set; }
         public Pointer UnkPointer4 { get; set; }
@@ -59,7 +52,7 @@
         public Pointer UnkPointer6 { get; set; }
 
         /// <summary>
-        /// The event link table. This does not include the always events.
+        /// The event link table for all loaded events
         /// </summary>
         public ushort[] EventLinkTable { get; set; }
 
@@ -97,18 +90,18 @@
             Unk1 = s.Serialize<int>(Unk1, name: nameof(Unk1));
             Unk2 = s.Serialize<int>(Unk2, name: nameof(Unk2));
 
-            EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
+            LoadedEventsPointer = s.SerializePointer(LoadedEventsPointer, name: nameof(LoadedEventsPointer));
 
             AlwaysEventsPointer = s.SerializePointer(AlwaysEventsPointer, name: nameof(AlwaysEventsPointer));
             FixImageDescriptorsPointer = s.SerializePointer(FixImageDescriptorsPointer, name: nameof(FixImageDescriptorsPointer));
 
             Unk3 = s.SerializeArray<byte>(Unk3, 30, name: nameof(Unk3));
 
-            EventCount = s.Serialize<ushort>(EventCount, name: nameof(EventCount));
+            LoadedEventCount = s.Serialize<ushort>(LoadedEventCount, name: nameof(LoadedEventCount));
 
             AlwaysEventsCount = s.Serialize<ushort>(AlwaysEventsCount, name: nameof(AlwaysEventsCount));
-            UShort_36 = s.Serialize<ushort>(UShort_36, name: nameof(UShort_36));
-            UShort_38 = s.Serialize<ushort>(UShort_38, name: nameof(UShort_38));
+            NormalEventCount = s.Serialize<ushort>(NormalEventCount, name: nameof(NormalEventCount));
+            AlwaysEventSlotsCount = s.Serialize<ushort>(AlwaysEventSlotsCount, name: nameof(AlwaysEventSlotsCount));
             UShort_3A = s.Serialize<ushort>(UShort_3A, name: nameof(UShort_3A));
             NumFixImageDescriptors = s.Serialize<ushort>(NumFixImageDescriptors, name: nameof(NumFixImageDescriptors));
             UShort_3E = s.Serialize<ushort>(UShort_3E, name: nameof(UShort_3E));
@@ -116,18 +109,18 @@
             UShort_42 = s.Serialize<ushort>(UShort_42, name: nameof(UShort_42));
             UShort_44 = s.Serialize<ushort>(UShort_44, name: nameof(UShort_44));
             UShort_46 = s.Serialize<ushort>(UShort_46, name: nameof(UShort_46));
-            UInt_48 = s.Serialize<uint>(UInt_48, name: nameof(UInt_48));
+            DevPointer_48 = s.Serialize<uint>(DevPointer_48, name: nameof(DevPointer_48));
             
             ZDCPointer = s.SerializePointer(ZDCPointer, name: nameof(ZDCPointer));
             UnkPointer4 = s.SerializePointer(UnkPointer4, name: nameof(UnkPointer4));
             UnkPointer5 = s.SerializePointer(UnkPointer5, name: nameof(UnkPointer5));
             UnkPointer6 = s.SerializePointer(UnkPointer6, name: nameof(UnkPointer6));
 
-            EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, EventCount, name: nameof(EventLinkTable));
+            EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, LoadedEventCount, name: nameof(EventLinkTable));
 
             s.DoAt(FixImageDescriptorsPointer, () => FixImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(FixImageDescriptors, NumFixImageDescriptors, name: nameof(FixImageDescriptors)));
 
-            s.DoAt(EventsPointer, () => Events = s.SerializeObjectArray<R1_R2EventData>(Events, EventCount, name: nameof(Events)));
+            s.DoAt(LoadedEventsPointer, () => Events = s.SerializeObjectArray<R1_R2EventData>(Events, LoadedEventCount, name: nameof(Events)));
             s.DoAt(AlwaysEventsPointer, () => AlwaysEvents = s.SerializeObjectArray<R1_R2EventData>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents)));
 
             // TODO: Is there a length?

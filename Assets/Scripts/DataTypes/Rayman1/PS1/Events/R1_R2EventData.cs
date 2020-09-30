@@ -1,4 +1,5 @@
 ﻿using System;
+using R1Engine.Serialize;
 
 namespace R1Engine
 {
@@ -62,20 +63,13 @@ namespace R1Engine
         
         // 28 (0x1C)
 
-        /// <summary>
-        /// The event x position on the map
-        /// </summary>
-        public short XPosition { get; set; }
-
-        /// <summary>
-        /// The event y position on the map
-        /// </summary>
-        public short YPosition { get; set; }
+        public short InitialXPosition { get; set; }
+        public short InitialYPosition { get; set; }
 
         // 32 (0x20)
 
-        public byte Etat { get; set; }
-        public byte SubEtat { get; set; }
+        public byte InitialEtat { get; set; }
+        public byte InitialSubEtat { get; set; }
 
         // Appears to closely resemble the hitpoints value from R1
         public byte UnkStateRelatedValue { get; set; }
@@ -89,21 +83,6 @@ namespace R1Engine
         // 26 (0x24)
 
         public byte Unk1 { get; set; }
-
-        /// <summary>
-        /// Indicates if the event sprite is flipped horizontally
-        /// </summary>
-        public bool IsFlippedHorizontally
-        {
-            get => Flags.HasFlag(PS1_R2Demo_EventFlags.FlippedHorizontally);
-            set
-            {
-                if (value)
-                    Flags |= PS1_R2Demo_EventFlags.FlippedHorizontally;
-                else
-                    Flags &= ~PS1_R2Demo_EventFlags.FlippedHorizontally;
-            }
-        }
 
         public PS1_R2Demo_EventFlags Flags { get; set; }
 
@@ -129,9 +108,8 @@ namespace R1Engine
 
         // 68 (0x44)
 
-        // These values always match the position. They get copied to Position2 during runtime which is in Unk1.
-        public short XPosition3 { get; set; }
-        public short YPosition3 { get; set; }
+        public short XPosition { get; set; }
+        public short YPosition { get; set; }
 
         // 72 (0x48)
 
@@ -155,8 +133,8 @@ namespace R1Engine
         /// </summary>
         public byte RuntimeCurrentAnimFrame { get; set; }
 
-        public byte InitialEtat { get; set; }
-        public byte InitialSubEtat { get; set; }
+        public byte Etat { get; set; }
+        public byte SubEtat { get; set; }
         public byte InitialUnkStateRelatedValue { get; set; }
         public byte Unk_58 { get; set; }
 
@@ -185,16 +163,17 @@ namespace R1Engine
 
         // 100 (0x64)
 
-        public byte RuntimeMapLayer { get; set; }
+        public ObjMapLayer RuntimeMapLayer { get; set; }
 
         public byte[] Unk4 { get; set; }
 
+        public PS1_R2Demo_EventRuntimeFlags1 RuntimeFlags1 { get; set; }
+
         // 104 (0x68)
 
-        // First bit determines if the sprite should be flipped horizontally (runtime?) - also used for gendoor collision
-        public byte UnkFlags { get; set; }
+        public PS1_R2Demo_EventRuntimeFlags2 RuntimeFlags2 { get; set; }
         // First bit determines if the sprite should be faded
-        public byte RuntimeFlags2 { get; set; }
+        public byte RuntimeFlags3 { get; set; }
 
         public byte[] Unk5 { get; set; }
 
@@ -237,12 +216,12 @@ namespace R1Engine
             RuntimeStHandlersPointer = s.Serialize<uint>(RuntimeStHandlersPointer, name: nameof(RuntimeStHandlersPointer));
 
             // Serialize positions
-            XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
-            YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
+            InitialXPosition = s.Serialize<short>(InitialXPosition, name: nameof(InitialXPosition));
+            InitialYPosition = s.Serialize<short>(InitialYPosition, name: nameof(InitialYPosition));
 
             // Serialize state data
-            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
-            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
+            InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
+            InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
             UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
             Unk_22 = s.Serialize<byte>(Unk_22, name: nameof(Unk_22));
             MapLayer = s.Serialize<ObjMapLayer>(MapLayer, name: nameof(MapLayer));
@@ -261,8 +240,8 @@ namespace R1Engine
             EventType = s.Serialize<R1_R2EventType>(EventType, name: nameof(EventType));
 
             // Serialize runtime values
-            XPosition3 = s.Serialize<short>(XPosition3, name: nameof(XPosition3));
-            YPosition3 = s.Serialize<short>(YPosition3, name: nameof(YPosition3));
+            XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
+            YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
 
             RuntimeOffset1 = s.Serialize<ushort>(RuntimeOffset1, name: nameof(RuntimeOffset1));
             RuntimeOffset2 = s.Serialize<ushort>(RuntimeOffset2, name: nameof(RuntimeOffset2));
@@ -271,8 +250,8 @@ namespace R1Engine
             RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
-            InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
-            InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
+            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
+            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             InitialUnkStateRelatedValue = s.Serialize<byte>(InitialUnkStateRelatedValue, name: nameof(InitialUnkStateRelatedValue));
             Unk_58 = s.Serialize<byte>(Unk_58, name: nameof(Unk_58));
 
@@ -280,12 +259,13 @@ namespace R1Engine
 
             Unk3 = s.SerializeArray(Unk3, 10, name: nameof(Unk3));
 
-            RuntimeMapLayer = s.Serialize<byte>(RuntimeMapLayer, name: nameof(RuntimeMapLayer));
+            RuntimeMapLayer = s.Serialize<ObjMapLayer>(RuntimeMapLayer, name: nameof(RuntimeMapLayer));
 
-            Unk4 = s.SerializeArray(Unk4, 3, name: nameof(Unk4));
+            Unk4 = s.SerializeArray(Unk4, 2, name: nameof(Unk4));
 
-            UnkFlags = s.Serialize<byte>(UnkFlags, name: nameof(UnkFlags));
-            RuntimeFlags2 = s.Serialize<byte>(RuntimeFlags2, name: nameof(RuntimeFlags2));
+            RuntimeFlags1 = s.Serialize<PS1_R2Demo_EventRuntimeFlags1>(RuntimeFlags1, name: nameof(RuntimeFlags1));
+            RuntimeFlags2 = s.Serialize<PS1_R2Demo_EventRuntimeFlags2>(RuntimeFlags2, name: nameof(RuntimeFlags2));
+            RuntimeFlags3 = s.Serialize<byte>(RuntimeFlags3, name: nameof(RuntimeFlags3));
 
             Unk5 = s.SerializeArray(Unk5, 2, name: nameof(Unk5));
 
@@ -295,7 +275,7 @@ namespace R1Engine
             if (CollisionDataPointer != null)
                 s.DoAt(CollisionDataPointer, () => CollisionData = s.SerializeObject<R1_R2EventCollision>(CollisionData, name: nameof(CollisionData)));
 
-            if (!s.FullSerialize)
+            if (!s.FullSerialize || Offset.file is ProcessMemoryStreamFile)
                 return;
 
             // Serialize the animation group data
@@ -327,6 +307,46 @@ namespace R1Engine
             None = 0,
             Front = 1,
             Back = 2
+        }
+
+        [Flags]
+        public enum PS1_R2Demo_EventRuntimeFlags1 : byte
+        {
+            None = 0,
+            UnkFlag_0 = 1 << 0,
+            UnkFlag_1 = 1 << 1,
+            UnkFlag_2 = 1 << 2,
+            UnkFlag_3 = 1 << 3,
+
+            /// <summary>
+            /// Indicates if the event should be drawn on screen
+            /// </summary>
+            SwitchedOn = 1 << 4,
+
+            UnkFlag_5 = 1 << 5,
+            UnkFlag_6 = 1 << 6,
+            UnkFlag_7 = 1 << 7,
+        }
+
+        [Flags]
+        public enum PS1_R2Demo_EventRuntimeFlags2 : byte
+        {
+            None = 0,
+
+            /// <summary>
+            /// Indicates if the event should be flipped
+            /// </summary>
+            DetectZone = 1 << 0,
+
+            UnkFlag_1 = 1 << 1,
+
+            // For collision
+            UnkFlag_2 = 1 << 2,
+            UnkFlag_3 = 1 << 3,
+            UnkFlag_4 = 1 << 4,
+            UnkFlag_5 = 1 << 5,
+            UnkFlag_6 = 1 << 6,
+            UnkFlag_7 = 1 << 7,
         }
     }
 }

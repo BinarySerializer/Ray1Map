@@ -32,6 +32,8 @@ $color_cube_top: hsl(193, 90%, 35%) !default;
 $color_cube_bottom: hsl(193, 90%, 15%) !default;
 
 $color_hljs_comment: #888888 !default;
+$color_bg_tint_dark: hsl(193, 50%, 9%) !default;
+$color_bg_tint_light: hsl(193, 44%, 15%) !default;
 
 html {
 	/*background: url('../img/background.jpg') no-repeat center center fixed;*/
@@ -564,4 +566,9 @@ a.config-header:hover {
 
 .hljs-meta-string {
   color: #4d99bf;
+}
+
+.bg-tint {
+	color: $color_bg_tint_light;
+	background-color: $color_bg_tint_dark;
 }

@@ -585,6 +585,11 @@ a.config-header:hover {
   color: #4d99bf;
 }
 
+.bg-tint {
+  color: #1d1b32;
+  background-color: #0f0e1b;
+}
+
 .column-header {
   background-color: #5950b9;
 }

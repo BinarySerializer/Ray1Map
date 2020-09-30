@@ -45,6 +45,7 @@ public class WebCommunicator : MonoBehaviour {
 	}
 
 	public void Start() {
+		Send(new WebJSON.Message() { Type = WebJSON.MessageType.Awake }, allowIfUnloaded: true);
     }
 
     public void Update() {
@@ -95,14 +96,14 @@ public class WebCommunicator : MonoBehaviour {
 			Send(GetSettingsMessageJSON());
 		}
 	}
-    public void Send(WebJSON.Message obj) {
+    public void Send(WebJSON.Message obj, bool allowIfUnloaded = false) {
 		if (Application.platform == RuntimePlatform.WebGLPlayer) {
-			if (Controller.LoadState == Controller.State.Finished) {
+			if (allowIfUnloaded || Controller.LoadState == Controller.State.Finished) {
 				string json = SerializeMessage(obj);
 				UnityJSMessage(json);
 			}
 		} else if(debugMessages) {
-			if (Controller.LoadState == Controller.State.Finished) {
+			if (allowIfUnloaded || Controller.LoadState == Controller.State.Finished) {
 				string json = SerializeMessage(obj);
 				print(json);
 			}
@@ -412,6 +413,12 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.BackgroundTint.HasValue) {
 			var bgTint = Controller.obj?.levelController?.controllerTilemap?.backgroundTint;
 			if (bgTint != null) bgTint.color = msg.BackgroundTint.Value;
+		}
+		if (msg.BackgroundTintDark.HasValue) {
+			Camera.main.backgroundColor = msg.BackgroundTintDark.Value;
+			if (Controller.obj?.levelController?.renderCamera != null) {
+				Controller.obj.levelController.renderCamera.backgroundColor = msg.BackgroundTintDark.Value;
+			}
 		}
 	}
 	private void ParseSelectionJSON(WebJSON.Selection msg) {

@@ -43,7 +43,7 @@ namespace R1Engine
 
         public int DESIndex
         {
-            get => (ObjManager.UsesPointers ? ObjManager.DES.FindItemIndex(x => x.Pointer.AbsoluteOffset == EventData.ImageDescriptorsPointer.AbsoluteOffset) : (int)EventData.PC_ImageDescriptorsIndex);
+            get => (ObjManager.UsesPointers ? ObjManager.DESLookup.TryGetItem(EventData.ImageDescriptorsPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PC_ImageDescriptorsIndex);
             set {
                 if (value != DESIndex) {
                     OverrideAnimIndex = null;
@@ -58,7 +58,7 @@ namespace R1Engine
 
         public int ETAIndex
         {
-            get => (ObjManager.UsesPointers ? ObjManager.ETA.FindItemIndex(x => x.Pointer == EventData.ETAPointer) : (int)EventData.PC_ETAIndex);
+            get => (ObjManager.UsesPointers ? ObjManager.ETALookup.TryGetItem(EventData.ETAPointer?.AbsoluteOffset ?? 0, -1) : (int)EventData.PC_ETAIndex);
             set {
                 if (value != ETAIndex) {
                     EventData.Etat = EventData.InitialEtat = 0;

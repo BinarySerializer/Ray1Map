@@ -51,7 +51,7 @@ namespace R1Engine
         
         public int GraphicsDataIndex
         {
-            get => Actor.GraphicData == null ? -1 : ObjManager.GraphicsDatas.FindItemIndex(x => x.Index == Actor.GraphicsDataIndex);
+            get => Actor.GraphicData == null ? -1 : ObjManager.GraphicsDataLookup.TryGetItem(Actor.GraphicsDataIndex, -1);
             set 
             {
                 if (Actor.GraphicData == null)

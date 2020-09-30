@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using R1Engine.Serialize;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -24,7 +25,7 @@ namespace R1Engine
 
             for (int i = 0; i < objects.Count; i++)
             {
-                if (i >= objects.Count)
+                if (i >= linkTable.Length)
                     break;
 
                 // No link
@@ -107,6 +108,79 @@ namespace R1Engine
         [Obsolete]
         public virtual string[] LegacyETANames => new string[0];
 
-        public virtual bool UpdateFromMemory(ref Context gameMemoryContext) => false;
+        public bool UpdateFromMemory(ref Context gameMemoryContext)
+        {
+            const string memFileKey = "MemStream";
+
+            // TODO: Dispose when we stop program?
+            if (gameMemoryContext == null)
+            {
+                gameMemoryContext = new Context(LevelEditorData.CurrentSettings);
+
+                try
+                {
+                    var file = new ProcessMemoryStreamFile(memFileKey, Settings.ProcessName, gameMemoryContext);
+
+                    gameMemoryContext.AddFile(file);
+
+                    var offset = file.StartPointer;
+                    long baseStreamOffset;
+                    var processBase = file.GetStream().GetProcessBaseAddress(Settings.ModuleName);
+
+                    var s = gameMemoryContext.Deserializer;
+
+                    if (Settings.IsGameBaseAPointer)
+                    {
+                        var basePtrPtr = offset + Settings.GameBasePointer;
+
+                        if (Settings.FindPointerAutomatically)
+                        {
+                            try
+                            {
+                                basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}), falling back on manual specification {basePtrPtr}");
+                            }
+                        }
+
+                        // Get the base pointer
+                        baseStreamOffset = file.GetStream().Is64BitProcess ? 
+                            s.DoAt(basePtrPtr, () => s.Serialize<long>(default)) :
+                            s.DoAt(basePtrPtr, () => s.SerializePointer(default)).AbsoluteOffset;
+                    }
+                    else
+                    {
+                        baseStreamOffset = Settings.GameBasePointer + processBase;
+                    }
+
+                    // TODO: Find better way to handle this
+                    if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 ||
+                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP ||
+                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
+                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ||
+                        s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+                        baseStreamOffset -= 0x80000000;
+
+                    file.BaseStreamOffset = baseStreamOffset;
+
+                    InitMemoryLoading(s, offset);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"{ex.Message}{Environment.NewLine}{ex}");
+                    gameMemoryContext = null;
+                }
+            }
+
+            if (gameMemoryContext != null)
+                return DoMemoryLoading(gameMemoryContext, gameMemoryContext.GetFile(memFileKey).StartPointer);
+
+            return false;
+        }
+
+        protected virtual void InitMemoryLoading(SerializerObject s, Pointer offset) { }
+        protected virtual bool DoMemoryLoading(Context gameMemoryContext, Pointer offset) => false;
     }
 }

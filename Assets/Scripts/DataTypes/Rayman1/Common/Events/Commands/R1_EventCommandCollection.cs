@@ -113,7 +113,7 @@ namespace R1Engine
                     commandOffsets[i] = curOff;
                     if(i < Commands.Length) curOff += Commands[i].Length;
                 }
-                lineNumbers = labelOffsets.Select(l => Array.IndexOf(commandOffsets, (int)l-1)).ToArray();
+                lineNumbers = labelOffsets.Select(l => Array.IndexOf(commandOffsets, (int)l+1)).ToArray();
             } else {
                 lineNumbers = new int[0];
             }

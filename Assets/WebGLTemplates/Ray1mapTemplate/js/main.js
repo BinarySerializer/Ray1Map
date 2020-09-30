@@ -67,6 +67,47 @@ function escapeHTML (string) {
 	});
 }
 
+
+function GetPropertyFromClass(className, propertyName) {
+	var el = document.createElement('div');
+	document.body.appendChild(el);
+	el.className = className;
+	var computedStyle = getComputedStyle(el);
+	if(computedStyle == null) return null;
+	var result = computedStyle[propertyName];
+	document.body.removeChild(el);
+	return result;
+}
+function hexToRgb(hex) {
+	// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+	hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+	  return r + r + g + g + b + b;
+	});
+  
+	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	return result ? {
+	  r: parseInt(result[1], 16) / 255.0,
+	  g: parseInt(result[2], 16) / 255.0,
+	  b: parseInt(result[3], 16) / 255.0,
+	  a: 1
+	} : null;
+}
+  
+function getUnityColor(rgb) {
+    if (/^#[0-9A-F]{6}$/i.test(rgb)) {
+		return hexToRgb(rgb);
+	}
+
+    rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+	return rgb ? {
+	  r: parseInt(rgb[1]) / 255.0,
+	  g: parseInt(rgb[2]) / 255.0,
+	  b: parseInt(rgb[3]) / 255.0,
+	  a: 1
+	} : null;
+}
+
 // Animation support
 let transEndEventNames = {
 	'WebkitTransition' : 'webkitTransitionEnd',
@@ -113,6 +154,7 @@ let current_game, current_version = null;
 let levels_actors_group, actor1_group, actor2_group, actor1_selector, actor2_selector = null;
 let commandsIsOpen, objVarsIsOpen = false;
 let global_settings = null;
+let unitySceneLoaded = false;
 
 // FUNCTIONS
 function getNoCacheURL() {
@@ -684,6 +726,7 @@ function setAllJSON(jsonString) {
 	//console.log(jsonString);
 	let msg = $.parseJSON(jsonString);
 	fullData = msg;
+	unitySceneLoaded = true;
 	if(msg.hasOwnProperty("GameSettings")) {
 		gameSettings = msg.GameSettings;
 	}
@@ -1305,12 +1348,14 @@ function handleMessage(jsonString) {
 	let msg = $.parseJSON(jsonString);
 	if(msg != null && msg.hasOwnProperty("Type")) {
 		switch(msg.Type) {
+			case "Awake":
+				unitySceneLoaded = true; setStyleSettings(); break;
 			case "Highlight":
-				handleMessage_highlight(msg.Highlight); break;
+				handleMessage_highlight(msg.Highlight); unitySceneLoaded = true; break;
 			case "Selection":
-				handleMessage_selection(msg.Selection); break;
+				handleMessage_selection(msg.Selection); unitySceneLoaded = true; break;
 			case "Settings":
-				handleMessage_settings(msg.Settings); break;
+				handleMessage_settings(msg.Settings); unitySceneLoaded = true; break;
 			default:
 				console.log('default');break;
 		}
@@ -1699,6 +1744,24 @@ function selectNewStyleItem(styleName) {
 		}
 	}
 }
+function setStyleSettings() {
+	if(!unitySceneLoaded) return;
+	let c_bg_tint_light = GetPropertyFromClass("bg-tint", "color");
+	if(c_bg_tint_light === null) return;
+	let c_bg_tint_dark = GetPropertyFromClass("bg-tint", "background-color");
+	if(c_bg_tint_dark === null) return;
+	let c_bg_tint_light_unity = getUnityColor(c_bg_tint_light);
+	if(c_bg_tint_light_unity === null) return;
+	let c_bg_tint_dark_unity = getUnityColor(c_bg_tint_dark);
+	if(c_bg_tint_dark_unity === null) return;
+	let jsonObj = {
+		Settings: {
+			BackgroundTint: c_bg_tint_light_unity,
+			BackgroundTintDark: c_bg_tint_dark_unity
+		}
+	}
+	sendMessage(jsonObj);
+}
 
 function init() {
 	initContent();
@@ -2067,6 +2130,7 @@ $(function() {
 		
 		waitForFinalEvent(function(){
 			setStyleCookie();
+			setStyleSettings();
 		}, 100, "styleChange");
 		return false;
 	});

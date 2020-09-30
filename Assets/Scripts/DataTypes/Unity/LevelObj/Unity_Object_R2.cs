@@ -18,22 +18,23 @@ namespace R1Engine
             EventData.InitialEtat = EventData.Etat;
             EventData.InitialSubEtat = EventData.SubEtat;
             //EventData.RuntimeLayer = EventData.Layer;
-            //EventData.RuntimeXPosition = (ushort)EventData.XPosition;
-            //EventData.RuntimeYPosition = (ushort)EventData.YPosition;
+            EventData.InitialXPosition = EventData.XPosition;
+            EventData.InitialYPosition = EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
+            EventData.RuntimeMapLayer = EventData.MapLayer;
         }
 
         public R1_R2EventData EventData { get; }
 
         public Unity_ObjectManager_R2 ObjManager { get; }
 
-        public R1_EventState State => AnimGroup?.ETA?.ElementAtOrDefault(EventData.InitialEtat)?.ElementAtOrDefault(EventData.InitialSubEtat);
+        public R1_EventState State => AnimGroup?.ETA?.ElementAtOrDefault(EventData.Etat)?.ElementAtOrDefault(EventData.SubEtat);
 
         public Unity_ObjectManager_R2.AnimGroup AnimGroup => ObjManager.AnimGroups.ElementAtOrDefault(AnimGroupIndex);
 
         public int AnimGroupIndex
         {
-            get => ObjManager.AnimGroups.FindItemIndex(x => x.Pointer == EventData.AnimGroupPointer);
+            get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimGroupPointer?.AbsoluteOffset ?? 0, -1);
             set {
                 if (value != AnimGroupIndex) {
                     EventData.Etat = EventData.InitialEtat = 0;
@@ -63,6 +64,7 @@ namespace R1Engine
                                             $"UShort_06: {EventData.UShort_06}{Environment.NewLine}" +
                                             $"UShort_08: {EventData.UShort_08}{Environment.NewLine}" +
                                             $"UShort_0A: {EventData.UShort_0A}{Environment.NewLine}" +
+                                            $"HasUnkAnimData: {EventData.AnimGroup?.AnimationDecriptors?.ElementAtOrDefault(EventData.RuntimeCurrentAnimIndex)?.UnkAnimData?.Any() == true}{Environment.NewLine}" +
                                             $"UnkStateRelatedValue: {EventData.UnkStateRelatedValue}{Environment.NewLine}" +
                                             $"Unk_22: {EventData.Unk_22}{Environment.NewLine}" +
                                             $"MapLayer: {EventData.MapLayer}{Environment.NewLine}" +
@@ -77,6 +79,9 @@ namespace R1Engine
                                             $"Unk3: {String.Join("-", EventData.Unk3)}{Environment.NewLine}" +
                                             $"Unk4: {String.Join("-", EventData.Unk4)}{Environment.NewLine}" +
                                             $"Flags: {String.Join(", ", EventData.Flags.GetFlags())}{Environment.NewLine}" +
+                                            $"RuntimeFlags1: {EventData.RuntimeFlags1}{Environment.NewLine}" +
+                                            $"RuntimeFlags2: {EventData.RuntimeFlags2}{Environment.NewLine}" +
+                                            $"RuntimeFlags3: {EventData.RuntimeFlags3}{Environment.NewLine}" +
                                             $"Unk5: {String.Join("-", EventData.Unk5)}{Environment.NewLine}" +
                                             $"ZDC.ZDCIndex: {EventData.CollisionData?.ZDC.ZDCIndex}{Environment.NewLine}" +
                                             $"ZDC.ZDCCount: {EventData.CollisionData?.ZDC.ZDCCount}{Environment.NewLine}";
@@ -86,17 +91,19 @@ namespace R1Engine
 
         public bool IsAlwaysEvent { get; set; }
         public override bool IsAlways => IsAlwaysEvent;
-        public override bool IsEditor => !AnimGroup.Animations.Any() && EventData.EventType != R1_R2EventType.None;
+        public override bool IsEditor => AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.None;
+
+        public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.None && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.SwitchedOn)));
 
         public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
         public override string SecondaryName => $"{EventData.EventType}";
         // TODO: Fix
         public override int? GetLayer(int index) => -(index + (EventData.Layer * 512));
 
-        public override int? MapLayer => EventData.MapLayer == R1_R2EventData.ObjMapLayer.Back ? 2: 3;
+        public override int? MapLayer => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 2: 3;
 
-        public override float Scale => EventData.MapLayer == R1_R2EventData.ObjMapLayer.Back ? 0.5f : 1;
-        public override bool FlipHorizontally => EventData.IsFlippedHorizontally;
+        public override float Scale => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 0.5f : 1;
+        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlags2.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags2.DetectZone) : EventData.Flags.HasFlag(R1_R2EventData.PS1_R2Demo_EventFlags.FlippedHorizontally);
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC() {
             var zdcEntry = EventData.CollisionData?.ZDC;
@@ -109,7 +116,7 @@ namespace R1Engine
                 // Function at 0x800e26c0
 
                 int zdcIndex;
-                var flags = EventData.UnkFlags & 0xfc;
+                var flags = ((byte)EventData.RuntimeFlags2) & 0xfc;
 
                 if (flags == 0x04)
                     zdcIndex = zdcEntry.ZDCIndex;
@@ -124,7 +131,7 @@ namespace R1Engine
                 else
                     yield break;
 
-                var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcIndex);
+                var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcIndex);
 
                 if (zdc != null) {
                     yield return new Unity_ObjAnimationCollisionPart {
@@ -139,7 +146,7 @@ namespace R1Engine
                 // Function at 0x800d7f90
 
                 for (int i = 0; i < zdcEntry.ZDCCount; i++) {
-                    var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
+                    var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
 
                     if (zdc == null)
                         continue;
@@ -196,7 +203,7 @@ namespace R1Engine
         public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimationFrame
         {
-            get => EventData.RuntimeCurrentAnimFrame;
+            get => Mathf.Clamp(EventData.RuntimeCurrentAnimFrame, 0, CurrentAnimation?.Frames.Length - 1 ?? 0);
             set => EventData.RuntimeCurrentAnimFrame = (byte)value;
         }
 
@@ -221,17 +228,17 @@ namespace R1Engine
                 var state = State;
 
                 // Check if we've reached the end of the linking chain and we're looping
-                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.InitialEtat == state.LinkedEtat && EventData.InitialSubEtat == state.LinkedSubEtat)
+                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.Etat == state.LinkedEtat && EventData.SubEtat == state.LinkedSubEtat)
                 {
                     // Reset the state
-                    EventData.InitialEtat = EventData.Etat;
-                    EventData.InitialSubEtat = EventData.SubEtat;
+                    EventData.Etat = EventData.InitialEtat;
+                    EventData.SubEtat = EventData.InitialSubEtat;
                 }
                 else
                 {
                     // Update state values to the linked one
-                    EventData.InitialEtat = state.LinkedEtat;
-                    EventData.InitialSubEtat = state.LinkedSubEtat;
+                    EventData.Etat = state.LinkedEtat;
+                    EventData.SubEtat = state.LinkedSubEtat;
                 }
             }
         }
@@ -372,8 +379,8 @@ namespace R1Engine
                     return !IsState && AnimIndex == obj.OverrideAnimIndex;
                 else
                     return IsState
-                        && Etat == (obj as Unity_Object_R2).EventData.InitialEtat
-                        && SubEtat == (obj as Unity_Object_R2).EventData.InitialSubEtat;
+                        && Etat == ((Unity_Object_R2)obj).EventData.InitialEtat
+                        && SubEtat == ((Unity_Object_R2)obj).EventData.InitialSubEtat;
             }
         }
         #endregion
