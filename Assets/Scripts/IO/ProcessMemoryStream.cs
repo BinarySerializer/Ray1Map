@@ -155,9 +155,15 @@ namespace R1Engine {
             
             // Check bit flavour...
 #if ISWINDOWS
-            bool is32bit;
-            IsWow64Process(processHandle, is32bit);
-            is64bit = !is32bit;
+#if UNITY_64
+	    bool win64 = true;
+#else
+	    bool win64;
+	    IsWow64Process(Process.GetCurrentProcess().Handle, win64);
+#endif
+            bool isWow64;
+            IsWow64Process(processHandle, isWow64);
+            is64bit = win64 && !isWow64;
 #elif ISLINUX
             var exestream = new FileStream(process.MainModule.FileName, FileMode.Open, FileAccess.Read);
             var exereader = new EndianBinaryReader(exestream, EndianBitConverter.NativeEndianness);
