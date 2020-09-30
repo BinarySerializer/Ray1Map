@@ -64,6 +64,7 @@ namespace R1Engine
                                             $"UShort_06: {EventData.UShort_06}{Environment.NewLine}" +
                                             $"UShort_08: {EventData.UShort_08}{Environment.NewLine}" +
                                             $"UShort_0A: {EventData.UShort_0A}{Environment.NewLine}" +
+                                            $"HasUnkAnimData: {EventData.AnimGroup?.AnimationDecriptors?.ElementAtOrDefault(EventData.RuntimeCurrentAnimIndex)?.UnkAnimData?.Any() == true}{Environment.NewLine}" +
                                             $"UnkStateRelatedValue: {EventData.UnkStateRelatedValue}{Environment.NewLine}" +
                                             $"Unk_22: {EventData.Unk_22}{Environment.NewLine}" +
                                             $"MapLayer: {EventData.MapLayer}{Environment.NewLine}" +

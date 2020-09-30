@@ -21,7 +21,7 @@ namespace R1Engine
 
         // TODO: Parse the data from this pointer
         // Unknown - usually null
-        public Pointer UnkPointer3 { get; set; }
+        public Pointer UnkAnimDataPointer { get; set; }
 
         /// <summary>
         /// The amount of layers per frame
@@ -33,8 +33,7 @@ namespace R1Engine
         /// </summary>
         public byte FrameCount { get; set; }
 
-        // Most likely related to UnkPointer3 - usually 0 - 1 or 2 when UnkPointer3 is valid
-        public byte Unk2 { get; set; }
+        public byte UnkAnimDataCount { get; set; }
 
         #endregion
 
@@ -54,6 +53,8 @@ namespace R1Engine
         /// The animation frames
         /// </summary>
         public R1_AnimationFrame[] Frames { get; set; }
+
+        public R1_R2UnknownAnimData[] UnkAnimData { get; set; }
 
         #endregion
 
@@ -80,12 +81,12 @@ namespace R1Engine
             // Serialize pointers
             LayersPointer = s.SerializePointer(LayersPointer, name: nameof(LayersPointer));
             FramesPointer = s.SerializePointer(FramesPointer, name: nameof(FramesPointer));
-            UnkPointer3 = s.SerializePointer(UnkPointer3, name: nameof(UnkPointer3)); // ^points to 8 bytes
+            UnkAnimDataPointer = s.SerializePointer(UnkAnimDataPointer, name: nameof(UnkAnimDataPointer)); // ^points to 8 bytes
 
             // Serialize values
             LayersPerFrame = s.Serialize<ushort>(LayersPerFrame, name: nameof(LayersPerFrame));
             FrameCount = s.Serialize<byte>(FrameCount, name: nameof(FrameCount));
-            Unk2 = s.Serialize<byte>(Unk2, name: nameof(Unk2));
+            UnkAnimDataCount = s.Serialize<byte>(UnkAnimDataCount, name: nameof(UnkAnimDataCount));
 
             // Serialize layers
             s.DoAt(LayersPointer, () =>
@@ -102,7 +103,10 @@ namespace R1Engine
             });
 
             // Serialize frames
-            s.DoAt(FramesPointer, () => Frames = s.SerializeObjectArray(Frames, FrameCount, name: nameof(Frames)));
+            s.DoAt(FramesPointer, () => Frames = s.SerializeObjectArray<R1_AnimationFrame>(Frames, FrameCount, name: nameof(Frames)));
+
+            // Serialize unknown animation data
+            s.DoAt(UnkAnimDataPointer, () => UnkAnimData = s.SerializeObjectArray<R1_R2UnknownAnimData>(UnkAnimData, UnkAnimDataCount, name: nameof(UnkAnimData)));
         }
     }
 }
