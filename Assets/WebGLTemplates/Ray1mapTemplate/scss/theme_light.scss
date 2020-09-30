@@ -15,7 +15,10 @@
     $color_cube_back:   hsl(0, 0%, 40%),
     $color_cube_left:   hsl(0, 0%, 30%),
     $color_cube_top:    hsl(0, 0%, 55%),
-    $color_cube_bottom: hsl(0, 0%, 35%)
+    $color_cube_bottom: hsl(0, 0%, 35%),
+
+    $color_bg_tint_dark: hsl(0, 0%, 40%),
+    $color_bg_tint_light: hsl(0, 0%, 55%)
 );
 body {
 	font-weight: 400;

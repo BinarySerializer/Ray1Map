@@ -54,6 +54,7 @@ public class WebJSON {
 		public int? Palette { get; set; }
 
 		public Color? BackgroundTint { get; set; }
+		public Color? BackgroundTintDark { get; set; }
 	}
 	public class Hierarchy {
 		public Object Rayman { get; set; }
@@ -144,7 +145,8 @@ public class WebJSON {
 		Highlight,
 		Selection,
 		Request,
-		Commands
+		Commands,
+		Awake
 	}
 	public enum ObjectType {
 		Instance,

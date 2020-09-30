@@ -585,6 +585,11 @@ a.config-header:hover {
   color: #4d99bf;
 }
 
+.bg-tint {
+  color: #361a42;
+  background-color: #1b0b22;
+}
+
 .game-item-logo,
 .version-item-image {
   filter: drop-shadow(2px 2px 0.5px #0004);
