@@ -269,16 +269,13 @@ namespace R1Engine
 
             Unk5 = s.SerializeArray(Unk5, 2, name: nameof(Unk5));
 
-            if (Offset.file is ProcessMemoryStreamFile)
-                return;
-
             // Parse data from pointers
 
             // Serialize collision data
             if (CollisionDataPointer != null)
                 s.DoAt(CollisionDataPointer, () => CollisionData = s.SerializeObject<R1_R2EventCollision>(CollisionData, name: nameof(CollisionData)));
 
-            if (!s.FullSerialize)
+            if (!s.FullSerialize || Offset.file is ProcessMemoryStreamFile)
                 return;
 
             // Serialize the animation group data

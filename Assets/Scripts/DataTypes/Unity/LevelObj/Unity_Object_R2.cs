@@ -32,8 +32,6 @@ namespace R1Engine
 
         public Unity_ObjectManager_R2.AnimGroup AnimGroup => ObjManager.AnimGroups.ElementAtOrDefault(AnimGroupIndex);
 
-        public bool IsInactiveEvent => Settings.LoadFromMemory && (EventData.EventType == R1_R2EventType.None || (EventData.XPosition == -3200 && EventData.YPosition == -3200));
-
         public int AnimGroupIndex
         {
             get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimGroupPointer?.AbsoluteOffset ?? 0, -1);
@@ -51,12 +49,12 @@ namespace R1Engine
 
         public override short XPosition
         {
-            get => !IsInactiveEvent ? EventData.XPosition : (short)0;
+            get => EventData.XPosition;
             set => EventData.XPosition = value;
         }
         public override short YPosition
         {
-            get => !IsInactiveEvent ? EventData.YPosition : (short)0;
+            get => EventData.YPosition;
             set => EventData.YPosition = value;
         }
 
@@ -94,7 +92,7 @@ namespace R1Engine
         public override bool IsAlways => IsAlwaysEvent;
         public override bool IsEditor => AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.None;
 
-        public override bool IsActive => !Settings.LoadFromMemory || !EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.UnkFlag_0);
+        public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.None && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.UnkFlag_4)));
 
         public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
         public override string SecondaryName => $"{EventData.EventType}";
@@ -201,10 +199,10 @@ namespace R1Engine
 
         public override Unity_ObjAnimationCollisionPart[] ObjCollision => GetObjZDC().ToArray();
 
-        public override Unity_ObjAnimation CurrentAnimation => !IsInactiveEvent ? AnimGroup?.Animations.ElementAtOrDefault(AnimationIndex ?? -1) : null;
+        public override Unity_ObjAnimation CurrentAnimation => AnimGroup?.Animations.ElementAtOrDefault(AnimationIndex ?? -1);
         public override int AnimationFrame
         {
-            get => EventData.RuntimeCurrentAnimFrame;
+            get => Mathf.Clamp(EventData.RuntimeCurrentAnimFrame, 0, CurrentAnimation?.Frames.Length - 1 ?? 0);
             set => EventData.RuntimeCurrentAnimFrame = (byte)value;
         }
 
