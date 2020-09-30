@@ -24,7 +24,7 @@ namespace R1Engine
 
             for (int i = 0; i < objects.Count; i++)
             {
-                if (i >= objects.Count)
+                if (i >= linkTable.Length)
                     break;
 
                 // No link

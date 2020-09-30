@@ -124,7 +124,7 @@ namespace R1Engine
                 else
                     yield break;
 
-                var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcIndex);
+                var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcIndex);
 
                 if (zdc != null) {
                     yield return new Unity_ObjAnimationCollisionPart {
@@ -139,7 +139,7 @@ namespace R1Engine
                 // Function at 0x800d7f90
 
                 for (int i = 0; i < zdcEntry.ZDCCount; i++) {
-                    var zdc = ObjManager.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
+                    var zdc = ObjManager.LevData.ZDC?.ElementAtOrDefault(zdcEntry.ZDCIndex + i);
 
                     if (zdc == null)
                         continue;

@@ -8,13 +8,13 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R2 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, Sprite[] sprites, R1_ImageDescriptor[] imageDescriptors, R1_ZDCData[] zdc) : base(context)
+        public Unity_ObjectManager_R2(Context context, ushort[] linkTable, AnimGroup[] animGroups, Sprite[] sprites, R1_ImageDescriptor[] imageDescriptors, R1_R2LevDataFile levData) : base(context)
         {
             LinkTable = linkTable;
             AnimGroups = animGroups;
             Sprites = sprites;
             ImageDescriptors = imageDescriptors;
-            ZDC = zdc;
+            LevData = levData;
             for (int i = 0; i < AnimGroups.Length; i++) {
                 AnimGroupsLookup[AnimGroups[i].Pointer?.AbsoluteOffset ?? 0] = i;
             }
@@ -24,7 +24,7 @@ namespace R1Engine
         public Dictionary<uint, int> AnimGroupsLookup { get; } = new Dictionary<uint, int>();
         public Sprite[] Sprites { get; }
         public R1_ImageDescriptor[] ImageDescriptors { get; }
-        public R1_ZDCData[] ZDC { get; }
+        public R1_R2LevDataFile LevData { get; }
 
         public ushort[] LinkTable { get; }
 
