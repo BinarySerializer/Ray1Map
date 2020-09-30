@@ -374,7 +374,7 @@ namespace R1Engine
                 var col = ObjData.ObjCollision;
 
                 // Update object collision
-                if (CurrentShowCollision && ((prefabRendersObjCollision == null && col != null && col.Length > 0) || col.Length != prefabRendersObjCollision.Length)) {
+                if (CurrentShowCollision && ((prefabRendersObjCollision == null && col != null && col.Length > 0) || col.Length != prefabRendersObjCollision?.Length)) {
                     // Clear old sprites
                     ClearSprites(prefabRendersObjCollision);
 
