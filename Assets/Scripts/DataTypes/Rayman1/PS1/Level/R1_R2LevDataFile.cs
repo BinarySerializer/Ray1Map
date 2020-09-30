@@ -13,7 +13,7 @@
         /// <summary>
         /// Pointer to the events
         /// </summary>
-        public Pointer EventsPointer { get; set; }
+        public Pointer LoadedEventsPointer { get; set; }
 
         /// <summary>
         /// Pointer to the always events
@@ -90,7 +90,7 @@
             Unk1 = s.Serialize<int>(Unk1, name: nameof(Unk1));
             Unk2 = s.Serialize<int>(Unk2, name: nameof(Unk2));
 
-            EventsPointer = s.SerializePointer(EventsPointer, name: nameof(EventsPointer));
+            LoadedEventsPointer = s.SerializePointer(LoadedEventsPointer, name: nameof(LoadedEventsPointer));
 
             AlwaysEventsPointer = s.SerializePointer(AlwaysEventsPointer, name: nameof(AlwaysEventsPointer));
             FixImageDescriptorsPointer = s.SerializePointer(FixImageDescriptorsPointer, name: nameof(FixImageDescriptorsPointer));
@@ -120,7 +120,7 @@
 
             s.DoAt(FixImageDescriptorsPointer, () => FixImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(FixImageDescriptors, NumFixImageDescriptors, name: nameof(FixImageDescriptors)));
 
-            s.DoAt(EventsPointer, () => Events = s.SerializeObjectArray<R1_R2EventData>(Events, LoadedEventCount, name: nameof(Events)));
+            s.DoAt(LoadedEventsPointer, () => Events = s.SerializeObjectArray<R1_R2EventData>(Events, LoadedEventCount, name: nameof(Events)));
             s.DoAt(AlwaysEventsPointer, () => AlwaysEvents = s.SerializeObjectArray<R1_R2EventData>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents)));
 
             // TODO: Is there a length?

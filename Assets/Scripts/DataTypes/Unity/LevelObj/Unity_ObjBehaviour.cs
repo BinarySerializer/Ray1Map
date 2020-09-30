@@ -269,6 +269,9 @@ namespace R1Engine
                 var mirroredX = ObjData.FlipHorizontally;
                 var mirroredY = ObjData.FlipVertically;
 
+                if (frame >= anim.Frames.Length)
+                    throw new Exception($"Invalid frame index {frame} with length {anim.Frames.Length} for obj {Index}. {ObjData.PrimaryName}-{ObjData.SecondaryName}");
+
                 // Update sprites
                 for (int i = 0; i < anim.Frames[frame].SpriteLayers.Length; i++)
                 {
@@ -472,7 +475,7 @@ namespace R1Engine
                 }
                 else if (ObjData is Unity_Object_R2 r2bj)
                 {
-                    var hy = -(r2bj.EventData.CollisionData.OffsetHY);
+                    var hy = -(r2bj.EventData.CollisionData?.OffsetHY ?? 0);
 
                     offsetCrossHY.localPosition = new Vector2(pivot.x / LevelEditorData.Level.PixelsPerUnit, hy / (float)LevelEditorData.Level.PixelsPerUnit);
                 }

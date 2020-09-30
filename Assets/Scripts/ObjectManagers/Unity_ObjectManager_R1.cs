@@ -315,163 +315,104 @@ namespace R1Engine
         public bool GlobalPendingEdits { get; set; }
         public HashSet<string> GlobalDataForceWrite { get; } = new HashSet<string>();
 
-        public override bool UpdateFromMemory(ref Context gameMemoryContext)
+        protected override void InitMemoryLoading(SerializerObject s, Pointer offset)
+        {
+            s.Goto(offset);
+            GameMemoryData.Update(s);
+
+            s.Goto(offset);
+            GlobalData.SetPointers(s);
+        }
+        protected override bool DoMemoryLoading(Context gameMemoryContext, Pointer offset)
         {
             var lvl = LevelEditorData.Level;
             bool madeEdits = false;
-            const string memFileKey = "MemStream";
+            Pointer currentOffset;
+            SerializerObject s;
 
-            // TODO: Dispose when we stop program?
-            if (gameMemoryContext == null)
+            void SerializeEvent(Unity_Object_R1 ed, Context context)
             {
-                gameMemoryContext = new Context(LevelEditorData.CurrentSettings);
+                s = ed.HasPendingEdits ? (SerializerObject)context.Serializer : context.Deserializer;
+                s.Goto(currentOffset);
+                ed.EventData.Init(s.CurrentPointer);
+                ed.EventData.Serialize(s);
 
-                try
+                if (s is BinarySerializer)
                 {
-                    var file = new ProcessMemoryStreamFile(memFileKey, Settings.ProcessName, gameMemoryContext);
-
-                    gameMemoryContext.AddFile(file);
-
-                    var offset = file.StartPointer;
-                    long baseStreamOffset;
-                    var processBase = file.GetStream().GetProcessBaseAddress(Settings.ModuleName);
-
-                    var s = gameMemoryContext.Deserializer;
-
-                    if (Settings.IsGameBaseAPointer)
-                    {
-                        var basePtrPtr = offset + Settings.GameBasePointer;
-
-                        if (Settings.FindPointerAutomatically)
-                        {
-                            try
-                            {
-                                basePtrPtr = file.GetPointerByName("MemBase"); // MemBase is the variable name in Dosbox.
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.LogWarning($"Couldn't find pointer automatically ({ex.Message}), falling back on manual specification {basePtrPtr}");
-                            }
-                        }
-
-                        // Get the base pointer
-                        baseStreamOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default)).AbsoluteOffset;
-                    }
-                    else
-                    {
-                        baseStreamOffset = Settings.GameBasePointer + processBase;
-                    }
-
-                    // TODO: Find better way to handle this
-                    if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1 ||
-                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JP ||
-                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
-                        s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6)
-                        baseStreamOffset -= 0x80000000;
-
-                    file.BaseStreamOffset = baseStreamOffset;
-
-                    s.Goto(offset);
-                    GameMemoryData.Update(s);
-
-                    s.Goto(offset);
-                    GlobalData.SetPointers(s);
+                    Debug.Log($"Edited event {ed.EventData.EventIndex}");
+                    madeEdits = true;
                 }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"{ex.Message}{Environment.NewLine}{ex}");
-                    gameMemoryContext = null;
-                }
+
+                ed.HasPendingEdits = false;
+                currentOffset = s.CurrentPointer;
             }
 
-            if (gameMemoryContext != null)
+            // Events
+            if (GameMemoryData.EventArrayOffset != null)
             {
-                Pointer currentOffset;
-                SerializerObject s;
+                currentOffset = GameMemoryData.EventArrayOffset;
+                foreach (var ed in lvl.EventData.OfType<Unity_Object_R1>())
+                    SerializeEvent(ed, gameMemoryContext);
+            }
 
-                void SerializeEvent(Unity_Object_R1 ed, Context context)
+            // Rayman
+            if (GameMemoryData.RayEventOffset != null && lvl.Rayman is Unity_Object_R1 r1Ray)
+            {
+                currentOffset = GameMemoryData.RayEventOffset;
+                SerializeEvent(r1Ray, gameMemoryContext);
+            }
+
+            // Tiles
+            if (GameMemoryData.TileArrayOffset != null)
+            {
+                currentOffset = GameMemoryData.TileArrayOffset;
+                var map = lvl.Maps[0];
+
+                for (int y = 0; y < map.Height; y++)
                 {
-                    s = ed.HasPendingEdits ? (SerializerObject)context.Serializer : context.Deserializer;
-                    s.Goto(currentOffset);
-                    ed.EventData.Init(s.CurrentPointer);
-                    ed.EventData.Serialize(s);
-
-                    if (s is BinarySerializer)
+                    for (int x = 0; x < map.Width; x++)
                     {
-                        Debug.Log($"Edited event {ed.EventData.EventIndex}");
-                        madeEdits = true;
-                    }
+                        var tileIndex = y * map.Width + x;
+                        var mapTile = map.MapTiles[tileIndex];
 
-                    ed.HasPendingEdits = false;
-                    currentOffset = s.CurrentPointer;
-                }
+                        s = mapTile.HasPendingEdits ? (SerializerObject)gameMemoryContext.Serializer : gameMemoryContext.Deserializer;
 
-                // Events
-                if (GameMemoryData.EventArrayOffset != null)
-                {
-                    currentOffset = GameMemoryData.EventArrayOffset;
-                    foreach (var ed in lvl.EventData.OfType<Unity_Object_R1>())
-                        SerializeEvent(ed, gameMemoryContext);
-                }
+                        s.Goto(currentOffset);
 
-                // Rayman
-                if (GameMemoryData.RayEventOffset != null && lvl.Rayman is Unity_Object_R1 r1Ray)
-                {
-                    currentOffset = GameMemoryData.RayEventOffset;
-                    SerializeEvent(r1Ray, gameMemoryContext);
-                }
+                        var prevX = mapTile.Data.TileMapX;
+                        var prevY = mapTile.Data.TileMapY;
 
-                // Tiles
-                if (GameMemoryData.TileArrayOffset != null)
-                {
-                    currentOffset = GameMemoryData.TileArrayOffset;
-                    var map = lvl.Maps[0];
+                        mapTile.Data.Init(s.CurrentPointer);
+                        mapTile.Data.Serialize(s);
 
-                    for (int y = 0; y < map.Height; y++)
-                    {
-                        for (int x = 0; x < map.Width; x++)
+                        if (s is BinarySerializer)
+                            madeEdits = true;
+
+                        mapTile.HasPendingEdits = false;
+
+                        if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
+                            Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
+
+                        currentOffset = s.CurrentPointer;
+
+                        // On PC we need to also update the BigMap pointer table
+                        if (GameMemoryData.BigMap != null && s is BinarySerializer)
                         {
-                            var tileIndex = y * map.Width + x;
-                            var mapTile = map.MapTiles[tileIndex];
+                            var pointerOffset = GameMemoryData.BigMap.MapTileTexturesPointersPointer + (4 * tileIndex);
+                            var newPointer = GameMemoryData.BigMap.TileTexturesPointer + (lvl.Maps[0].PCTileOffsetTable[mapTile.Data.TileMapY]).SerializedOffset;
+                            s.Goto(pointerOffset);
 
-                            s = mapTile.HasPendingEdits ? (SerializerObject)gameMemoryContext.Serializer : gameMemoryContext.Deserializer;
-
-                            s.Goto(currentOffset);
-
-                            var prevX = mapTile.Data.TileMapX;
-                            var prevY = mapTile.Data.TileMapY;
-
-                            mapTile.Data.Init(s.CurrentPointer);
-                            mapTile.Data.Serialize(s);
-
-                            if (s is BinarySerializer)
-                                madeEdits = true;
-
-                            mapTile.HasPendingEdits = false;
-
-                            if (prevX != mapTile.Data.TileMapX || prevY != mapTile.Data.TileMapY)
-                                Controller.obj.levelController.controllerTilemap.SetTileAtPos(x, y, mapTile);
-
-                            currentOffset = s.CurrentPointer;
-
-                            // On PC we need to also update the BigMap pointer table
-                            if (GameMemoryData.BigMap != null && s is BinarySerializer)
-                            {
-                                var pointerOffset = GameMemoryData.BigMap.MapTileTexturesPointersPointer + (4 * tileIndex);
-                                var newPointer = GameMemoryData.BigMap.TileTexturesPointer + (lvl.Maps[0].PCTileOffsetTable[mapTile.Data.TileMapY]).SerializedOffset;
-                                s.Goto(pointerOffset);
-
-                                s.SerializePointer(newPointer);
-                            }
+                            s.SerializePointer(newPointer);
                         }
                     }
                 }
-
-                // Global values
-                GlobalData.Update(new ToggleSerializer(gameMemoryContext, x => GlobalPendingEdits || GlobalDataForceWrite.Contains(x), gameMemoryContext.GetFile(memFileKey).StartPointer));
-
-                GlobalPendingEdits = false;
             }
+
+            // Global values
+            GlobalData.Update(new ToggleSerializer(gameMemoryContext, x => GlobalPendingEdits || GlobalDataForceWrite.Contains(x), offset));
+
+            GlobalPendingEdits = false;
+
             return madeEdits;
         }
 

@@ -100,6 +100,18 @@ namespace R1Engine
                 TileArrayOffset = gameMemoryOffset + map.Offset.AbsoluteOffset + 4; // skip the width + height ushorts
             }
 
+            // Rayman 2 (PS1)
+            else if (s.GameSettings.EngineVersion == EngineVersion.R2_PS1)
+            {
+                var manager = (R1_PS1R2_Manager)s.GameSettings.GetGameManager;
+
+                EventArrayOffset = gameMemoryOffset + FileFactory.Read<R1_R2LevDataFile>(manager.GetLevelDataPath(s.GameSettings), LevelEditorData.MainContext).LoadedEventsPointer.AbsoluteOffset;
+                RayEventOffset = gameMemoryOffset + 0x80178df0;
+
+                // TODO: Find tile offsets
+                //TileArrayOffset = gameMemoryOffset + lvl.MapData.Offset.AbsoluteOffset + 4; // skip the width + height ushorts
+            }
+
             else
                 throw new NotImplementedException("The selected game mode does currently not support memory loading");
 
