@@ -104,6 +104,11 @@ namespace R1Engine.Serialize
                     throw new InvalidDataException($"{stream.ExeFile} could not be parsed as a PE file ({result})");
             }
         }
+        public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
+            if(serializedValue == 0) return null;
+            Pointer ptr = new Pointer(serializedValue, this, anchor: anchor);
+            return ptr;
+        }
 
         public override Pointer StartPointer => new Pointer((uint)baseAddress, this);
 		public override Reader CreateReader() {
