@@ -73,6 +73,7 @@ function GetPropertyFromClass(className, propertyName) {
 	document.body.appendChild(el);
 	el.className = className;
 	var computedStyle = getComputedStyle(el);
+	if(computedStyle == null) return null;
 	var result = computedStyle[propertyName];
 	document.body.removeChild(el);
 	return result;
@@ -99,12 +100,12 @@ function getUnityColor(rgb) {
 	}
 
     rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-	return {
+	return rgb ? {
 	  r: parseInt(rgb[1]) / 255.0,
 	  g: parseInt(rgb[2]) / 255.0,
 	  b: parseInt(rgb[3]) / 255.0,
 	  a: 1
-	};
+	} : null;
 }
 
 // Animation support
@@ -1746,9 +1747,13 @@ function selectNewStyleItem(styleName) {
 function setStyleSettings() {
 	if(!unitySceneLoaded) return;
 	let c_bg_tint_light = GetPropertyFromClass("bg-tint", "color");
+	if(c_bg_tint_light === null) return;
 	let c_bg_tint_dark = GetPropertyFromClass("bg-tint", "background-color");
+	if(c_bg_tint_dark === null) return;
 	let c_bg_tint_light_unity = getUnityColor(c_bg_tint_light);
+	if(c_bg_tint_light_unity === null) return;
 	let c_bg_tint_dark_unity = getUnityColor(c_bg_tint_dark);
+	if(c_bg_tint_dark_unity === null) return;
 	let jsonObj = {
 		Settings: {
 			BackgroundTint: c_bg_tint_light_unity,
