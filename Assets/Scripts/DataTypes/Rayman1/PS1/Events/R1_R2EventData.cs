@@ -68,8 +68,8 @@ namespace R1Engine
 
         // 32 (0x20)
 
-        public byte Etat { get; set; }
-        public byte SubEtat { get; set; }
+        public byte InitialEtat { get; set; }
+        public byte InitialSubEtat { get; set; }
 
         // Appears to closely resemble the hitpoints value from R1
         public byte UnkStateRelatedValue { get; set; }
@@ -133,8 +133,8 @@ namespace R1Engine
         /// </summary>
         public byte RuntimeCurrentAnimFrame { get; set; }
 
-        public byte InitialEtat { get; set; }
-        public byte InitialSubEtat { get; set; }
+        public byte Etat { get; set; }
+        public byte SubEtat { get; set; }
         public byte InitialUnkStateRelatedValue { get; set; }
         public byte Unk_58 { get; set; }
 
@@ -220,8 +220,8 @@ namespace R1Engine
             InitialYPosition = s.Serialize<short>(InitialYPosition, name: nameof(InitialYPosition));
 
             // Serialize state data
-            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
-            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
+            InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
+            InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
             UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
             Unk_22 = s.Serialize<byte>(Unk_22, name: nameof(Unk_22));
             MapLayer = s.Serialize<ObjMapLayer>(MapLayer, name: nameof(MapLayer));
@@ -250,8 +250,8 @@ namespace R1Engine
             RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
             RuntimeCurrentAnimFrame = s.Serialize<byte>(RuntimeCurrentAnimFrame, name: nameof(RuntimeCurrentAnimFrame));
 
-            InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
-            InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
+            Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
+            SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));
             InitialUnkStateRelatedValue = s.Serialize<byte>(InitialUnkStateRelatedValue, name: nameof(InitialUnkStateRelatedValue));
             Unk_58 = s.Serialize<byte>(Unk_58, name: nameof(Unk_58));
 
@@ -317,7 +317,12 @@ namespace R1Engine
             UnkFlag_1 = 1 << 1,
             UnkFlag_2 = 1 << 2,
             UnkFlag_3 = 1 << 3,
-            UnkFlag_4 = 1 << 4,
+
+            /// <summary>
+            /// Indicates if the event should be drawn on screen
+            /// </summary>
+            SwitchedOn = 1 << 4,
+
             UnkFlag_5 = 1 << 5,
             UnkFlag_6 = 1 << 6,
             UnkFlag_7 = 1 << 7,

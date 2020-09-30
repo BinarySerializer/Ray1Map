@@ -28,7 +28,7 @@ namespace R1Engine
 
         public Unity_ObjectManager_R2 ObjManager { get; }
 
-        public R1_EventState State => AnimGroup?.ETA?.ElementAtOrDefault(EventData.InitialEtat)?.ElementAtOrDefault(EventData.InitialSubEtat);
+        public R1_EventState State => AnimGroup?.ETA?.ElementAtOrDefault(EventData.Etat)?.ElementAtOrDefault(EventData.SubEtat);
 
         public Unity_ObjectManager_R2.AnimGroup AnimGroup => ObjManager.AnimGroups.ElementAtOrDefault(AnimGroupIndex);
 
@@ -92,7 +92,7 @@ namespace R1Engine
         public override bool IsAlways => IsAlwaysEvent;
         public override bool IsEditor => AnimGroup?.Animations?.Any() != true && EventData.EventType != R1_R2EventType.None;
 
-        public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.None && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.UnkFlag_4)));
+        public override bool IsActive => !Settings.LoadFromMemory || (EventData.EventType != R1_R2EventType.None && (EventData.RuntimeFlags1.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags1.SwitchedOn)));
 
         public override string PrimaryName => $"TYPE_{(ushort)EventData.EventType}";
         public override string SecondaryName => $"{EventData.EventType}";
@@ -227,17 +227,17 @@ namespace R1Engine
                 var state = State;
 
                 // Check if we've reached the end of the linking chain and we're looping
-                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.InitialEtat == state.LinkedEtat && EventData.InitialSubEtat == state.LinkedSubEtat)
+                if (Settings.StateSwitchingMode == StateSwitchingMode.Loop && EventData.Etat == state.LinkedEtat && EventData.SubEtat == state.LinkedSubEtat)
                 {
                     // Reset the state
-                    EventData.InitialEtat = EventData.Etat;
-                    EventData.InitialSubEtat = EventData.SubEtat;
+                    EventData.Etat = EventData.InitialEtat;
+                    EventData.SubEtat = EventData.InitialSubEtat;
                 }
                 else
                 {
                     // Update state values to the linked one
-                    EventData.InitialEtat = state.LinkedEtat;
-                    EventData.InitialSubEtat = state.LinkedSubEtat;
+                    EventData.Etat = state.LinkedEtat;
+                    EventData.SubEtat = state.LinkedSubEtat;
                 }
             }
         }
@@ -378,8 +378,8 @@ namespace R1Engine
                     return !IsState && AnimIndex == obj.OverrideAnimIndex;
                 else
                     return IsState
-                        && Etat == (obj as Unity_Object_R2).EventData.InitialEtat
-                        && SubEtat == (obj as Unity_Object_R2).EventData.InitialSubEtat;
+                        && Etat == ((Unity_Object_R2)obj).EventData.InitialEtat
+                        && SubEtat == ((Unity_Object_R2)obj).EventData.InitialSubEtat;
             }
         }
         #endregion
