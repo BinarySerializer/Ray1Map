@@ -105,7 +105,7 @@ namespace R1Engine.Serialize
             }
         }
         public override Pointer GetPointer(uint serializedValue, Pointer anchor = null) {
-            if(serializedValue == 0) return null;
+            if(serializedValue == 0 || serializedValue == 0xFFFFFFFF) return null;
             Pointer ptr = new Pointer(serializedValue, this, anchor: anchor);
             return ptr;
         }
