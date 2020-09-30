@@ -24,10 +24,19 @@ namespace R1Engine
             AvailableEvents = GetGeneralEventInfoData().ToArray();
             TypeZDC = typeZDC;
             ZDCData = zdcData;
+
+            for (int i = 0; i < DES.Length; i++) {
+                DESLookup[DES[i]?.Pointer?.AbsoluteOffset ?? 0] = i;
+            }
+            for (int i = 0; i < ETA.Length; i++) {
+                ETALookup[ETA[i]?.Pointer?.AbsoluteOffset ?? 0] = i;
+            }
         }
 
         public DataContainer<DESData>[] DES { get; }
         public DataContainer<R1_EventState[][]>[] ETA { get; }
+        public Dictionary<uint, int> DESLookup { get; } = new Dictionary<uint, int>();
+        public Dictionary<uint, int> ETALookup { get; } = new Dictionary<uint, int>();
 
         public ushort[] LinkTable { get; set; }
 

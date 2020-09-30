@@ -15,9 +15,13 @@ namespace R1Engine
             Sprites = sprites;
             ImageDescriptors = imageDescriptors;
             ZDC = zdc;
+            for (int i = 0; i < AnimGroups.Length; i++) {
+                AnimGroupsLookup[AnimGroups[i].Pointer?.AbsoluteOffset ?? 0] = i;
+            }
         }
 
         public AnimGroup[] AnimGroups { get; }
+        public Dictionary<uint, int> AnimGroupsLookup { get; } = new Dictionary<uint, int>();
         public Sprite[] Sprites { get; }
         public R1_ImageDescriptor[] ImageDescriptors { get; }
         public R1_ZDCData[] ZDC { get; }

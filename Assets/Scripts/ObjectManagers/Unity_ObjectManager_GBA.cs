@@ -11,9 +11,15 @@ namespace R1Engine
         public Unity_ObjectManager_GBA(Context context, GraphicsData[] graphicsDatas) : base(context)
         {
             GraphicsDatas = graphicsDatas;
+            if (GraphicsDatas != null) {
+                for (int i = 0; i < GraphicsDatas.Length; i++) {
+                    GraphicsDataLookup[GraphicsDatas[i]?.Index ?? 0] = i;
+                }
+            }
         }
 
         public GraphicsData[] GraphicsDatas { get; }
+        public Dictionary<int, int> GraphicsDataLookup { get; } = new Dictionary<int, int>();
 
         public override Unity_Object GetMainObject(IList<Unity_Object> objects) => objects.Cast<Unity_Object_GBA>().FindItem(x => x.Actor.ActorID == 0);
 

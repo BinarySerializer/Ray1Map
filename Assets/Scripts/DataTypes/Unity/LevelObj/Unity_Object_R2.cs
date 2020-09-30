@@ -33,7 +33,7 @@ namespace R1Engine
 
         public int AnimGroupIndex
         {
-            get => ObjManager.AnimGroups.FindItemIndex(x => x.Pointer == EventData.AnimGroupPointer);
+            get => ObjManager.AnimGroupsLookup.TryGetItem(EventData.AnimGroupPointer?.AbsoluteOffset ?? 0, -1);
             set {
                 if (value != AnimGroupIndex) {
                     EventData.Etat = EventData.InitialEtat = 0;
