@@ -482,7 +482,7 @@ namespace R1Engine
         /// <param name="baseGameSettings">The game settings</param>
         /// <param name="outputDir">The output directory</param>
         /// <returns>The task</returns>
-        public async UniTask ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
+        public virtual async UniTask ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
         {
             // Keep track of the hash for every DES
             var hashList = new List<string>();
@@ -500,25 +500,21 @@ namespace R1Engine
                 {
                     baseGameSettings.Level = lvl;
 
-                    // If Rayman 2, only include first map (since all 4 have same events)
-                    if (baseGameSettings.EngineVersion == EngineVersion.R2_PS1 && lvl != 0)
-                        continue;
-
                     // Create the context
                     using (var context = new Context(baseGameSettings))
                     {
                         // Load the level
                         var level = await LoadAsync(context, true);
 
-                        var objManage = (Unity_ObjectManager_R1)level.ObjManager;
+                        var objManager = (Unity_ObjectManager_R1)level.ObjManager;
 
                         // Set up animations
-                        objManage.InitObjects(level);
+                        objManager.InitObjects(level);
 
                         // Enumerate every design
-                        for (var i = 0; i < objManage.DES.Length; i++)
+                        for (var i = 0; i < objManager.DES.Length; i++)
                         {
-                            var des = objManage.DES[i];
+                            var des = objManager.DES[i];
                             
                             // Check the hash
                             using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
@@ -542,8 +538,20 @@ namespace R1Engine
                             if (!desIndexes.ContainsKey(exportDirName))
                                 desIndexes.Add(exportDirName, 0);
 
-                            await ExportAnimationFramesAsync(baseGameSettings, level, i, des.Data.Graphics,
-                                Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]}"));
+                            // Find all events where this DES is used
+                            var matchingEvents = level.EventData.Append(level.Rayman).Cast<Unity_Object_R1>().Where(x => x.DESIndex == i);
+
+                            // Find matching ETA for this DES from the level events
+                            var matchingStates = matchingEvents.SelectMany(lvlEvent => objManager.ETA[lvlEvent.ETAIndex].Data.SelectMany(x => x)).ToArray();
+
+                            // Get the textures
+                            var textures = des.Data.Graphics.Sprites?.Select(x => x?.texture).ToArray() ?? new Texture2D[0];
+
+                            ExportAnimationFrames(textures, des.Data.Graphics.Animations.ToArray(),
+                                Path.Combine(outputDir, $"{exportDirName}{desIndexes[exportDirName]}"), matchingStates);
+
+                            // Unload textures
+                            await Resources.UnloadUnusedAssets();
 
                             desIndexes[exportDirName]++;
                         }
@@ -552,36 +560,10 @@ namespace R1Engine
             }
         }
 
-        /// <summary>
-        /// Exports the animation frames from a common design
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        /// <param name="level">The current editor manager</param>
-        /// <param name="desValuePair">The common design and its key</param>
-        /// <param name="outputDir">The output directory to export to</param>
-        /// <returns>The task</returns>
-        public async UniTask ExportAnimationFramesAsync(GameSettings settings, Unity_Level level, int index, Unity_ObjGraphics des, string outputDir)
+        public void ExportAnimationFrames(Texture2D[] textures, Unity_ObjAnimation[] spriteAnim, string outputDir, R1_EventState[] matchingStates)
         {
-            var objManager = (Unity_ObjectManager_R1)level.ObjManager;
-
-            // Find all events where this DES is used
-            var matchingEvents = level.EventData.Cast<Unity_Object_R1>().Where(x => x.DESIndex == index);
-
-            // Find matching ETA for this DES from the level events
-            var matchingStates = matchingEvents.SelectMany(lvlEvent => objManager.ETA[lvlEvent.ETAIndex].Data.SelectMany(x => x)).ToArray();
-
-            // Correct Rayman's ETA for Rayman 2
-            if (settings.EngineVersion == EngineVersion.R2_PS1 && !matchingStates.Any())
-                matchingStates = objManager.ETA.Last().Data.SelectMany(x => x).ToArray();
-
-            // Get the animations
-            var spriteAnim = des.Animations;
-
-            // Get the textures
-            var textures = des.Sprites?.Select(x => x?.texture).ToArray() ?? new Texture2D[0];
-
             // Enumerate the animations
-            for (var j = 0; j < spriteAnim.Count; j++)
+            for (var j = 0; j < spriteAnim.Length; j++)
             {
                 // Get the animation descriptor
                 var anim = spriteAnim[j];
@@ -652,7 +634,7 @@ namespace R1Engine
                                 var c = sprite.GetPixel(x, sprite.height - y - 1);
 
                                 var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
-                                var yPosition = y + animationLayer.YPosition;
+                                var yPosition = (animationLayer.IsFlippedVertically ? (sprite.height - 1 - y) : y) + animationLayer.YPosition;
 
                                 if (xPosition >= tex.width)
                                     throw new Exception("Horizontal overflow!");
@@ -674,9 +656,6 @@ namespace R1Engine
                     Util.ByteArrayToFile(Path.Combine(animFolderPath, $"{frameIndex}.png"), tex.EncodeToPNG());
                 }
             }
-
-            // Unload textures
-            await Resources.UnloadUnusedAssets();
         }
 
         /// <summary>
