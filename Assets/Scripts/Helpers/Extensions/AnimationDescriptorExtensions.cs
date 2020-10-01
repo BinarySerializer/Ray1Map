@@ -42,7 +42,8 @@
                             ImageIndex = animationLayer.ImageIndex,
                             XPosition = animationLayer.XPosition,
                             YPosition = animationLayer.YPosition,
-                            IsFlippedHorizontally = animationLayer.IsFlippedHorizontally
+                            IsFlippedHorizontally = animationLayer.IsFlippedHorizontally,
+                            IsFlippedVertically = animationLayer.IsFlippedVertically
                         };
 
                         // Add the part

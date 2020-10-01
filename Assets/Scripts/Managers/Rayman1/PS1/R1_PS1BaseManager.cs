@@ -966,7 +966,7 @@ namespace R1Engine
                                         var c = sprite.GetPixel(x, sprite.height - y - 1);
 
                                         var xPosition = (animationLayer.IsFlippedHorizontally ? (sprite.width - 1 - x) : x) + animationLayer.XPosition;
-                                        var yPosition = y + animationLayer.YPosition;
+                                        var yPosition = (animationLayer.IsFlippedVertically ? (sprite.height - 1 - y) : y) + animationLayer.YPosition;
 
                                         if (xPosition >= tex.width)
                                             throw new Exception("Horizontal overflow!");
