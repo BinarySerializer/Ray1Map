@@ -345,8 +345,10 @@ function parseObjects(hierarchy) {
 	let editorObjects = [];
 	let normalObjects = [];
 	if(raymanObject !== null) {
+		let selected = (global_settings === null || !global_settings.hasOwnProperty("ShowRayman") || global_settings.ShowRayman) ? " selected" : "";
 		items.push("<div class='objects-item object-world level-0' alt='Rayman object'>Rayman object"
-		+ "<div class='header-buttons-right'><div id='btn-showRayman' class='header-button settings-toggle' title='Show Rayman Object (R)'><i class='icon-eye'></i></div></div>"
+		+ "<div class='header-buttons-right'><div id='btn-showRayman' class='header-button settings-toggle" + selected
+		+ "' title='Show Rayman Object (R)'><i class='icon-eye'></i></div></div>"
 		+ "</div>");
 		items.push(getObjectListEntryHTML(raymanObject));
 	}
@@ -366,16 +368,20 @@ function parseObjects(hierarchy) {
 		});
 	}
 	if(alwaysObjects.length > 0) {
+		let selected = (global_settings === null || !global_settings.hasOwnProperty("ShowAlwaysObjects") || global_settings.ShowAlwaysObjects) ? " selected" : "";
 		items.push("<div class='objects-item object-world level-0' alt='Always objects'>Always objects"
-			+ "<div class='header-buttons-right'><div id='btn-showAlwaysObjects' class='header-button settings-toggle' title='Show Always Objects (G)'><i class='icon-eye'></i></div></div>"
+			+ "<div class='header-buttons-right'><div id='btn-showAlwaysObjects' class='header-button settings-toggle" + selected
+			+ "' title='Show Always Objects (G)'><i class='icon-eye'></i></div></div>"
 			+ "</div>");
 		$.each(alwaysObjects, function(i, obj) {
 			items.push(getObjectListEntryHTML(obj));
 		});
 	}
 	if(editorObjects.length > 0) {
+		let selected = (global_settings === null || !global_settings.hasOwnProperty("ShowEditorObjects") || global_settings.ShowEditorObjects) ? " selected" : "";
 		items.push("<div class='objects-item object-world level-0' alt='Editor objects'>Editor objects"
-			+ "<div class='header-buttons-right'><div id='btn-showEditorObjects' class='header-button settings-toggle' title='Show Editor Objects (E)'><i class='icon-eye'></i></div></div>"
+			+ "<div class='header-buttons-right'><div id='btn-showEditorObjects' class='header-button settings-toggle" + selected
+			+ "' title='Show Editor Objects (E)'><i class='icon-eye'></i></div></div>"
 			+ "</div>");
 		$.each(editorObjects, function(i, obj) {
 			items.push(getObjectListEntryHTML(obj));
@@ -399,6 +405,7 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
 	selectButton($("btn-showEditorObjects"), msg.ShowEditorObjects);
 	selectButton($("btn-showAlwaysObjects"), msg.ShowAlwaysObjects);
+	selectButton($("btn-showRayman"), msg.ShowRayman);
 
 	if(msg.hasOwnProperty("StateSwitchingMode")) {
 		selectButton($("#btn-stateSwitching"), msg.StateSwitchingMode !== "None");
@@ -738,6 +745,12 @@ function setAllJSON(jsonString) {
 	if(msg.hasOwnProperty("GameSettings")) {
 		gameSettings = msg.GameSettings;
 	}
+	if(msg.hasOwnProperty("Settings")) {
+		handleMessage_settings(msg.Settings);
+	}
+	if(msg.hasOwnProperty("Localization")) {
+		handleMessage_localization(msg.Localization);
+	}
 	if(msg.hasOwnProperty("Hierarchy")) {
 		hierarchy = msg.Hierarchy;
 		if(hierarchy != null) {
@@ -754,12 +767,6 @@ function setAllJSON(jsonString) {
 				}, 100);
 			}
 		}
-	}
-	if(msg.hasOwnProperty("Settings")) {
-		handleMessage_settings(msg.Settings);
-	}
-	if(msg.hasOwnProperty("Localization")) {
-		handleMessage_localization(msg.Localization);
 	}
 }
 
