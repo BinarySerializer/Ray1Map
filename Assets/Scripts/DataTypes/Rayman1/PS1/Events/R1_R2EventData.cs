@@ -29,7 +29,7 @@ namespace R1Engine
             Unk2 = new byte[17],
             EventType = R1_R2EventType.Rayman,
             RuntimeBytes1 = new byte[7],
-            Layer = 7,
+            DisplayPrio = 7,
             Unk3 = new byte[10],
             Unk4 = new byte[3],
             Unk5 = new byte[2],
@@ -139,7 +139,7 @@ namespace R1Engine
         public byte Unk_58 { get; set; }
 
         // The layer to appear on (0-7)
-        public byte Layer { get; set; }
+        public byte DisplayPrio { get; set; }
 
         // 90 (0x5A)
 
@@ -255,7 +255,7 @@ namespace R1Engine
             InitialUnkStateRelatedValue = s.Serialize<byte>(InitialUnkStateRelatedValue, name: nameof(InitialUnkStateRelatedValue));
             Unk_58 = s.Serialize<byte>(Unk_58, name: nameof(Unk_58));
 
-            Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
+            DisplayPrio = s.Serialize<byte>(DisplayPrio, name: nameof(DisplayPrio));
 
             Unk3 = s.SerializeArray(Unk3, 10, name: nameof(Unk3));
 

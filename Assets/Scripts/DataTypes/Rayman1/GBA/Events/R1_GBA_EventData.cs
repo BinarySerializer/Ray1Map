@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace R1Engine
 {
@@ -15,9 +14,8 @@ namespace R1Engine
         public short XPosition { get; set; }
         public short YPosition { get; set; }
 
-        public ushort Layer { get; set; }
+        public ushort DisplayPrio { get; set; }
 
-        //*(_WORD*) (2 * eventIndex + v8549200) = *(_WORD*) (eventStruct1CurrentPointer + 14); - linkindex???
         public ushort LinkGroup { get; set; }
 
         public byte Etat { get; set; }
@@ -57,7 +55,7 @@ namespace R1Engine
             CommandsPointer = s.SerializePointer(CommandsPointer, name: nameof(CommandsPointer));
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
-            Layer = s.Serialize<ushort>(Layer, name: nameof(Layer));
+            DisplayPrio = s.Serialize<ushort>(DisplayPrio, name: nameof(DisplayPrio));
             LinkGroup = s.Serialize<ushort>(LinkGroup, name: nameof(LinkGroup));
             Etat = s.Serialize<byte>(Etat, name: nameof(Etat));
             SubEtat = s.Serialize<byte>(SubEtat, name: nameof(SubEtat));

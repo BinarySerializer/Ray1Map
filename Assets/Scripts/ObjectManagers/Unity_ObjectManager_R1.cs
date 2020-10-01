@@ -168,7 +168,7 @@ namespace R1Engine
                 OffsetBY = e.OffsetBY,
                 OffsetHY = e.OffsetHY,
                 FollowSprite = e.FollowSprite,
-                Layer = 0,
+                DisplayPrio = 0,
                 HitSprite = e.HitSprite,
                 Commands = cmds,
                 LabelOffsets = labelOffsets

@@ -901,7 +901,7 @@ namespace R1Engine
                         OffsetHY = dat.OffsetHY,
                         FollowSprite = dat.FollowSprite,
                         ActualHitPoints = dat.HitPoints,
-                        Layer = (byte)dat.Layer,
+                        DisplayPrio = (byte)dat.DisplayPrio,
                         HitSprite = dat.HitSprite,
 
                         ImageDescriptorsPointer = graphics.ImageDescriptorsPointer,

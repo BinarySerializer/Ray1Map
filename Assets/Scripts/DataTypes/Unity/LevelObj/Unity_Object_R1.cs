@@ -17,7 +17,7 @@ namespace R1Engine
             // Set editor states
             EventData.InitialEtat = EventData.Etat;
             EventData.InitialSubEtat = EventData.SubEtat;
-            EventData.RuntimeLayer = EventData.Layer;
+            EventData.RuntimeDisplayPrio = EventData.DisplayPrio;
             EventData.InitialXPosition = (short)EventData.XPosition;
             EventData.InitialYPosition = (short)EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
@@ -89,8 +89,8 @@ namespace R1Engine
         // TODO: Update for PS1
         public override string DebugText => 
               $"RuntimePos: {EventData.InitialXPosition}, {EventData.InitialYPosition}{Environment.NewLine}" +
-              $"Layer: {EventData.Layer}{Environment.NewLine}" +
-              $"RuntimeLayer: {EventData.RuntimeLayer}{Environment.NewLine}" +
+              $"DisplayPrio: {EventData.DisplayPrio}{Environment.NewLine}" +
+              $"RuntimeLayer: {EventData.RuntimeDisplayPrio}{Environment.NewLine}" +
               $"{Environment.NewLine}" +
               $"Etat: {EventData.Etat}{Environment.NewLine}" +
               $"Etat: {EventData.SubEtat}{Environment.NewLine}" +
@@ -161,7 +161,7 @@ namespace R1Engine
         public override string SecondaryName { get; }
 
         // TODO: Fix
-        public override int? GetLayer(int index) => -(index + (EventData.RuntimeLayer * 512));
+        public override int? GetLayer(int index) => -(index + (EventData.RuntimeDisplayPrio * 512));
 
         public override bool FlipHorizontally
         {

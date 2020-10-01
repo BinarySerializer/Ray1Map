@@ -166,7 +166,7 @@ namespace R1Engine
         /// <summary>
         /// The layer the event sprite gets drawn to, between 1 and 7
         /// </summary>
-        public byte Layer { get; set; }
+        public byte DisplayPrio { get; set; }
 
         public byte HitSprite { get; set; }
 
@@ -181,7 +181,7 @@ namespace R1Engine
         public byte PS1Demo_Unk7 { get; set; }
         public byte PS1Demo_Unk8 { get; set; }
 
-        public byte RuntimeLayer { get; set; } // TODO: Is this an initial or runtime value?
+        public byte RuntimeDisplayPrio { get; set; } // TODO: Is this an initial or runtime value?
 
         public byte Unk_127 { get; set; }
 
@@ -431,7 +431,7 @@ namespace R1Engine
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
             HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
             InitialHitPoints = s.Serialize<byte>(InitialHitPoints, name: nameof(InitialHitPoints));
-            Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
+            DisplayPrio = s.Serialize<byte>(DisplayPrio, name: nameof(DisplayPrio));
 
             if (!IsPCFormat(s.GameSettings))
                 Type = (R1_EventType)s.Serialize<byte>((byte)Type, name: nameof(Type));
@@ -458,7 +458,7 @@ namespace R1Engine
                 }
             }
 
-            RuntimeLayer = s.Serialize<byte>(RuntimeLayer, name: nameof(RuntimeLayer));
+            RuntimeDisplayPrio = s.Serialize<byte>(RuntimeDisplayPrio, name: nameof(RuntimeDisplayPrio));
             Unk_127 = s.Serialize<byte>(Unk_127, name: nameof(Unk_127));
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
@@ -572,7 +572,7 @@ namespace R1Engine
             OffsetHY = 20;
             FollowSprite = 0;
             HitPoints = 0;
-            Layer = 7;
+            DisplayPrio = 7;
             HitSprite = 0;
 
             PC_ImageDescriptorsIndex = 1;
