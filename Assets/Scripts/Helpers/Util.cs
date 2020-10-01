@@ -343,5 +343,25 @@ namespace R1Engine {
             // Log the result
             Debug.Log($"Matching encodings for all: {String.Join(", ", matches.Select(x => $"{x.EncodingName} ({x.CodePage})"))}");
         }
+
+        public static void ExportWAVChunks(Context context, WAVChunk[] chunks, string outputDir)
+        {
+            var index = 0;
+
+            foreach (var chunk in chunks)
+            {
+                if (chunk.ChunkHeader == "LIST")
+                {
+                    var list = chunk.SerializeTo<WAVListChunk>(context);
+                    ExportWAVChunks(context, list.Chunks, Path.Combine(outputDir, $"{index}_{list.ListHeader}"));
+                }
+                else
+                {
+                    Util.ByteArrayToFile(Path.Combine(outputDir, $"{index}_{chunk.ChunkHeader}"), chunk.Data);
+                }
+
+                index++;
+            }
+        }
     }
 }

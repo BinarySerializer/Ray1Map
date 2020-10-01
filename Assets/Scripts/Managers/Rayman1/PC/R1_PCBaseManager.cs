@@ -1000,36 +1000,32 @@ namespace R1Engine
                     foreach (var soundGroupEntry in soundGroup.Entries)
                     {
                         // Create WAV data
-                        var wav = new WAV
+                        var formatChunk = new WAVFormatChunk()
                         {
-                            Magic = new byte[]
-                            {
-                                0x52, 0x49, 0x46, 0x46
-                            },
-                            FileSize = (44 - 8) + (uint)soundGroupEntry.RawSoundData.Length,
-                            FileTypeHeader = new byte[]
-                            {
-                                0x57, 0x41, 0x56, 0x45
-                            },
-                            FormatChunkMarker = new byte[]
-                            {
-                                0x66, 0x6D, 0x74, 0x20
-                            },
-                            FormatDataLength = 0x10,
+                            ChunkHeader = "fmt ",
                             FormatType = 1,
                             ChannelCount = 1,
                             SampleRate = 11025,
                             BitsPerSample = (ushort)soundGroup.BitsPerSample,
-                            DataChunkHeader = new byte[]
-                            {
-                                0x64, 0x61, 0x74, 0x61
-                            },
-                            DataSize = (uint)soundGroupEntry.RawSoundData.Length,
-                            Data = soundGroupEntry.RawSoundData
                         };
 
-                        wav.ByteRate = (wav.SampleRate * wav.BitsPerSample * wav.ChannelCount) / 8;
-                        wav.BlockAlign = (ushort)((wav.BitsPerSample * wav.ChannelCount) / 8);
+                        var wav = new WAV
+                        {
+                            Magic = "RIFF",
+                            FileTypeHeader = "WAVE",
+                            Chunks = new WAVChunk[]
+                            {
+                                formatChunk,
+                                new WAVChunk()
+                                {
+                                    ChunkHeader = "data",
+                                    Data = soundGroupEntry.RawSoundData
+                                }
+                            }
+                        };
+
+                        formatChunk.ByteRate = (formatChunk.SampleRate * formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8;
+                        formatChunk.BlockAlign = (ushort)((formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8);
 
                         // Get the output path
                         var outputFilePath = Path.Combine(groupOutputDir, soundGroupEntry.FileName + ".wav");
