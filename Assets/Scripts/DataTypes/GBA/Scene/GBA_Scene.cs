@@ -117,9 +117,12 @@ namespace R1Engine
             {
                 if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger)
                 {
-                    actors[i].BoxActorBlock = s.DoAt(OffsetTable.GetPointer(actors[i].BoxActorBlockOffsetIndex),
+                    actors[i].BoxActorBlock = s.DoAt(OffsetTable.GetPointer(actors[i].BoxActorBlockOffsetIndex, isRelativeOffset: IsGCNBlock),
                         () => s.SerializeObject<GBA_BoxTriggerActorDataBlock>(actors[i].BoxActorBlock,
-                            name: $"{nameof(GBA_Actor.BoxActorBlock)}[{i}]"));
+                        onPreSerialize: bab => {
+                            bab.IsGCNBlock = IsGCNBlock;
+                            bab.Length = actors[i].LinkedActorsCount;
+                            }, name: $"{nameof(GBA_Actor.BoxActorBlock)}[{i}]"));
                 }
                 else if (actors[i].Type != GBA_Actor.ActorType.Trigger && actors[i].Type != GBA_Actor.ActorType.Unk && actors[i].GraphicsDataIndex < OffsetTable.OffsetsCount)
                 {
@@ -130,6 +133,23 @@ namespace R1Engine
             }
         }
 
-        #endregion
-    }
+		public override int GetOffsetTableLengthGCN(SerializerObject s) {
+            int max = PlayFieldIndex + 1;
+            // Parse actor data
+            var actors = GetAllActors(s.GameSettings).ToArray();
+
+            for (var i = 0; i < actors.Length; i++) {
+                if (actors[i].Type == GBA_Actor.ActorType.BoxTrigger) {
+                    var ind = actors[i].BoxActorBlockOffsetIndex;
+                    if (ind != 0xFF && (ind + 1) >= max) max = ind + 1;
+                } else if (actors[i].Type != GBA_Actor.ActorType.Trigger && actors[i].Type != GBA_Actor.ActorType.Unk) {
+                    var ind = actors[i].GraphicsDataIndex;
+                    if (ind != 0xFF && (ind + 1) >= max) max = ind + 1;
+                }
+            }
+            return max;
+		}
+
+		#endregion
+	}
 }

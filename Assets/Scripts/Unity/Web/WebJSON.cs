@@ -41,9 +41,9 @@ public class WebJSON {
 		public bool? ShowObjCollision { get; set; }
 		public bool? AnimateSprites { get; set; }
 		public bool? AnimateTiles { get; set; }
-		public bool? ShowAlwaysEvents { get; set; }
+		public bool? ShowAlwaysObjects { get; set; }
 		public bool? ShowDebugInfo { get; set; }
-		public bool? ShowEditorEvents { get; set; }
+		public bool? ShowEditorObjects { get; set; }
 		public bool? ShowDefaultObjIcons { get; set; }
 		public bool? ShowObjOffsets { get; set; }
         public bool? ShowRayman { get; set; }

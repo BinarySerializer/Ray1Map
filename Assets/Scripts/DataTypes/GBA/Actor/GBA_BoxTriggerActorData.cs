@@ -17,9 +17,22 @@
         public byte Byte_06 { get; set; }
         public byte Byte_07 { get; set; }
 
+        // Batman Vengeance
+        public uint UInt_08 { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
-            if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
+            if (s.GameSettings.EngineVersion <= EngineVersion.GBA_BatmanVengeance) {
+                Type = s.Serialize<byte>(Type, name: nameof(Type));
+                Byte_01 = s.Serialize<byte>(Byte_01, name: nameof(Byte_01));
+                Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+                Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+                LinkedActor = s.Serialize<byte>(LinkedActor, name: nameof(LinkedActor));
+                Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));
+                Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
+                Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+                UInt_08 = s.Serialize<uint>(UInt_08, name: nameof(UInt_08));
+            } else if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia) {
                 Type = s.Serialize<byte>(Type, name: nameof(Type));
                 LinkedActor = s.Serialize<byte>(LinkedActor, name: nameof(LinkedActor));
                 Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));

@@ -42,10 +42,10 @@ namespace R1Engine
                     return Settings.ShowRayman;
 
                 if (IsEditor)
-                    return Settings.ShowEditorEvents;
+                    return Settings.ShowEditorObjects;
 
                 if (IsAlways)
-                    return Settings.ShowAlwaysEvents || (Settings.LoadFromMemory && IsActive);
+                    return Settings.ShowAlwaysObjects || (Settings.LoadFromMemory && IsActive);
 
                 // Default to visible
                 return true;

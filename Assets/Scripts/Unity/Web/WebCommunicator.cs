@@ -273,8 +273,8 @@ public class WebCommunicator : MonoBehaviour {
             ShowObjCollision = Settings.ShowObjCollision,
 			AnimateSprites = Settings.AnimateSprites,
 			AnimateTiles = Settings.AnimateTiles,
-			ShowAlwaysEvents = Settings.ShowAlwaysEvents,
-			ShowEditorEvents = Settings.ShowEditorEvents,
+			ShowAlwaysObjects = Settings.ShowAlwaysObjects,
+			ShowEditorObjects = Settings.ShowEditorObjects,
 			ShowDebugInfo = Settings.ShowDebugInfo,
 			ShowDefaultObjIcons = Settings.ShowDefaultObjIcons,
 			ShowObjOffsets = Settings.ShowObjOffsets,
@@ -357,8 +357,8 @@ public class WebCommunicator : MonoBehaviour {
 		if (msg.ShowObjCollision.HasValue) Settings.ShowObjCollision = msg.ShowObjCollision.Value;
 		if (msg.AnimateSprites.HasValue) Settings.AnimateSprites = msg.AnimateSprites.Value;
 		if (msg.AnimateTiles.HasValue) Settings.AnimateTiles = msg.AnimateTiles.Value;
-		if (msg.ShowAlwaysEvents.HasValue) Settings.ShowAlwaysEvents = msg.ShowAlwaysEvents.Value;
-		if (msg.ShowEditorEvents.HasValue) Settings.ShowEditorEvents = msg.ShowEditorEvents.Value;
+		if (msg.ShowAlwaysObjects.HasValue) Settings.ShowAlwaysObjects = msg.ShowAlwaysObjects.Value;
+		if (msg.ShowEditorObjects.HasValue) Settings.ShowEditorObjects = msg.ShowEditorObjects.Value;
 		if (msg.ShowObjOffsets.HasValue) Settings.ShowObjOffsets = msg.ShowObjOffsets.Value;
 		if (msg.ShowDefaultObjIcons.HasValue) Settings.ShowDefaultObjIcons = msg.ShowDefaultObjIcons.Value;
 		if (msg.ShowRayman.HasValue) Settings.ShowRayman = msg.ShowRayman.Value;

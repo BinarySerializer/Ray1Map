@@ -20,6 +20,7 @@
         public GBA_OffsetTable OffsetTable { get; set; }
 
         public bool IsBlockCompressed { get; set; }
+        public bool IsGCNBlock { get; set; }
 
 		public override void SerializeImpl(SerializerObject s) {
             SerializeBlockSize(s);
@@ -39,12 +40,13 @@
                     s.Goto(s.CurrentPointer.file.StartPointer + s.CurrentLength); // no warning
                 });
             } else {
-                SerializeOffsetTable(s);
+                if (!IsGCNBlock) SerializeOffsetTable(s);
                 SerializeBlock(s);
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage || IsGCNBlock) {
                     s.Align();
                 }
                 CheckBlockSize(s);
+                if(IsGCNBlock) SerializeOffsetTable(s);
                 // Serialize data from the offset table
                 SerializeOffsetData(s);
             }
@@ -62,19 +64,24 @@
             }
         }
         private void SerializeBlockSize(SerializerObject s) {
-            s.DoAt(Offset - 4, () => {
+            if (IsGCNBlock) {
                 // Serialize the size
                 BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
-                if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
-                    if (BitHelpers.ExtractBits((int)BlockSize, 1, 31) == 1) {
-                        IsBlockCompressed = true;
-                        CompressedBlockSize = (uint)BitHelpers.ExtractBits((int)BlockSize, 31, 0);
+            } else {
+                s.DoAt(Offset - 4, () => {
+                    // Serialize the size
+                    BlockSize = s.Serialize<uint>(BlockSize, name: nameof(BlockSize));
+                    if (s.GameSettings.EngineVersion == EngineVersion.GBA_SplinterCell_NGage) {
+                        if (BitHelpers.ExtractBits((int)BlockSize, 1, 31) == 1) {
+                            IsBlockCompressed = true;
+                            CompressedBlockSize = (uint)BitHelpers.ExtractBits((int)BlockSize, 31, 0);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
         private void SerializeOffsetTable(SerializerObject s) {
-            s.DoAt(s.CurrentPointer + BlockSize, () => {
+            s.DoAt((IsGCNBlock ? Offset : s.CurrentPointer) + BlockSize, () => {
                 // Align
                 s.Align();
                 // Serialize the offset table
@@ -84,5 +91,6 @@
 
         public abstract void SerializeBlock(SerializerObject s);
         public virtual void SerializeOffsetData(SerializerObject s) { }
+        public virtual int GetOffsetTableLengthGCN(SerializerObject s) { return 0; }
     }
 }

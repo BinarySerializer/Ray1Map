@@ -345,7 +345,9 @@ function parseObjects(hierarchy) {
 	let editorObjects = [];
 	let normalObjects = [];
 	if(raymanObject !== null) {
-		items.push("<div class='objects-item object-world level-0' alt='Rayman object'>Rayman object</div>");
+		items.push("<div class='objects-item object-world level-0' alt='Rayman object'>Rayman object"
+		+ "<div class='header-buttons-right'><div id='btn-showRayman' class='header-button settings-toggle' title='Show Rayman Object (R)'><i class='icon-eye'></i></div></div>"
+		+ "</div>");
 		items.push(getObjectListEntryHTML(raymanObject));
 	}
 	$.each(objectsList, function(i, obj) {
@@ -364,13 +366,17 @@ function parseObjects(hierarchy) {
 		});
 	}
 	if(alwaysObjects.length > 0) {
-		items.push("<div class='objects-item object-world level-0' alt='Always objects'>Always objects</div>");
+		items.push("<div class='objects-item object-world level-0' alt='Always objects'>Always objects"
+			+ "<div class='header-buttons-right'><div id='btn-showAlwaysObjects' class='header-button settings-toggle' title='Show Always Objects (G)'><i class='icon-eye'></i></div></div>"
+			+ "</div>");
 		$.each(alwaysObjects, function(i, obj) {
 			items.push(getObjectListEntryHTML(obj));
 		});
 	}
 	if(editorObjects.length > 0) {
-		items.push("<div class='objects-item object-world level-0' alt='Editor objects'>Editor objects</div>");
+		items.push("<div class='objects-item object-world level-0' alt='Editor objects'>Editor objects"
+			+ "<div class='header-buttons-right'><div id='btn-showEditorObjects' class='header-button settings-toggle' title='Show Editor Objects (E)'><i class='icon-eye'></i></div></div>"
+			+ "</div>");
 		$.each(editorObjects, function(i, obj) {
 			items.push(getObjectListEntryHTML(obj));
 		});
@@ -391,6 +397,8 @@ function handleMessage_settings(msg) {
 	selectButton($("#btn-showObjects"), msg.ShowObjects);
 	selectButton($("#btn-animateSprites"), msg.AnimateSprites);
 	selectButton($("#btn-animateTiles"), msg.AnimateTiles);
+	selectButton($("btn-showEditorObjects"), msg.ShowEditorObjects);
+	selectButton($("btn-showAlwaysObjects"), msg.ShowAlwaysObjects);
 
 	if(msg.hasOwnProperty("StateSwitchingMode")) {
 		selectButton($("#btn-stateSwitching"), msg.StateSwitchingMode !== "None");
@@ -1156,6 +1164,8 @@ function setObjectTransform() {
 		let posY = $('#posY').val();
 		
 		if($.isNumeric(posX) && $.isNumeric(posY)) {
+			posX = Math.floor(posX);
+			posY = Math.floor(posY);
 			let jsonObj = {
 				Object: {
 					Index:   currentObject.Index,
@@ -1327,6 +1337,9 @@ function sendSettings() {
 			Palette: paletteSelector.prop("selectedIndex")
 		}
 	}
+	if($("#btn-showAlwaysObjects").length) jsonObj.Settings.ShowAlwaysObjects = $("#btn-showAlwaysObjects").hasClass("selected");
+	if($("#btn-showEditorObjects").length) jsonObj.Settings.ShowEditorObjects = $("#btn-showEditorObjects").hasClass("selected");
+	if($("#btn-showRayman").length) jsonObj.Settings.ShowRayman = $("#btn-showRayman").hasClass("selected");
 	let layers = $(".layer-button");
 	if(layers.length > 0) {
 		let layerSettings = [];
