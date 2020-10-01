@@ -279,6 +279,7 @@ namespace R1Engine
             {
                 obj.EventData.Etat = obj.EventData.InitialEtat;
                 obj.EventData.SubEtat = obj.EventData.InitialSubEtat;
+                obj.EventData.DisplayPrio = obj.EventData.InitialDisplayPrio;
 
                 // TODO: Set other runtime values like hp etc.?
             }

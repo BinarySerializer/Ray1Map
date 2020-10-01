@@ -17,7 +17,7 @@ namespace R1Engine
             // Set editor states
             EventData.InitialEtat = EventData.Etat;
             EventData.InitialSubEtat = EventData.SubEtat;
-            //EventData.RuntimeLayer = EventData.Layer;
+            EventData.InitialDisplayPrio = EventData.DisplayPrio;
             EventData.InitialXPosition = EventData.XPosition;
             EventData.InitialYPosition = EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
@@ -66,14 +66,14 @@ namespace R1Engine
                                             $"UShort_0A: {EventData.UShort_0A}{Environment.NewLine}" +
                                             $"HasUnkAnimData: {EventData.AnimGroup?.AnimationDecriptors?.ElementAtOrDefault(EventData.RuntimeCurrentAnimIndex)?.UnkAnimData?.Any() == true}{Environment.NewLine}" +
                                             $"UnkStateRelatedValue: {EventData.UnkStateRelatedValue}{Environment.NewLine}" +
-                                            $"Unk_22: {EventData.Unk_22}{Environment.NewLine}" +
+                                            $"Unk_22: {EventData.InitialDisplayPrio}{Environment.NewLine}" +
                                             $"MapLayer: {EventData.MapLayer}{Environment.NewLine}" +
                                             $"Unk1: {EventData.Unk1}{Environment.NewLine}" +
                                             $"Unk2: {String.Join("-", EventData.Unk2)}{Environment.NewLine}" +
                                             $"RuntimeUnk1: {EventData.EventIndex}{Environment.NewLine}" +
                                             $"EventType: {EventData.EventType}{Environment.NewLine}" +
-                                            $"RuntimeOffset1: {EventData.RuntimeOffset1}{Environment.NewLine}" +
-                                            $"RuntimeOffset2: {EventData.RuntimeOffset2}{Environment.NewLine}" +
+                                            $"RuntimeOffset1: {EventData.ScreenXPosition}{Environment.NewLine}" +
+                                            $"RuntimeOffset2: {EventData.ScreenYPosition}{Environment.NewLine}" +
                                             $"RuntimeBytes1: {String.Join("-", EventData.RuntimeBytes1)}{Environment.NewLine}" +
                                             $"Unk_58: {EventData.Unk_58}{Environment.NewLine}" +
                                             $"Unk3: {String.Join("-", EventData.Unk3)}{Environment.NewLine}" +
