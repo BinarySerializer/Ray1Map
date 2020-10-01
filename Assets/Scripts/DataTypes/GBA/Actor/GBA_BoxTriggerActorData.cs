@@ -41,6 +41,12 @@
                 Byte_05 = s.Serialize<byte>(Byte_05, name: nameof(Byte_05));
                 Byte_06 = s.Serialize<byte>(Byte_06, name: nameof(Byte_06));
                 Byte_07 = s.Serialize<byte>(Byte_07, name: nameof(Byte_07));
+            } else if(s.GameSettings.EngineVersion == EngineVersion.GBA_Sabrina) {
+                Type = 1; // Disable links for Sabrina. No clear actor byte
+                UShort_00 = s.Serialize<ushort>(UShort_00, name: nameof(UShort_00));
+                Byte_02 = s.Serialize<byte>(Byte_02, name: nameof(Byte_02));
+                Byte_03 = s.Serialize<byte>(Byte_03, name: nameof(Byte_03));
+                UShort_04 = s.Serialize<ushort>(UShort_04, name: nameof(UShort_04));
             } else {
                 UShort_00 = s.Serialize<ushort>(UShort_00, name: nameof(UShort_00));
                 LinkedActor = s.Serialize<byte>(LinkedActor, name: nameof(LinkedActor));
