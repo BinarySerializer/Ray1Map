@@ -71,7 +71,7 @@ public class SettingsWindow : UnityWindow
             if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex) 
             {
                 if (PreviousDefaultMemoryOptionsIndex == -1) {
-                    var match = Enumerable.Range(0, DefaultMemoryOptionDisplayNames.Length).FirstOrDefault(x => 
+                    var match = Enumerable.Range(0, DefaultMemoryOptionDisplayNames.Length - 1).FirstOrDefault(x => 
                         DefaultMemoryConfigs[x].IsPointer == Settings.IsGameBaseAPointer &&
                         DefaultMemoryConfigs[x].ProcessName == Settings.ProcessName &&
                         DefaultMemoryConfigs[x].ModuleName == Settings.ModuleName &&
@@ -189,9 +189,9 @@ public class SettingsWindow : UnityWindow
 
         Settings.AnimateTiles = EditorField("Animate tiles", Settings.AnimateTiles);
 
-        Settings.ShowAlwaysEvents = EditorField("Show always events", Settings.ShowAlwaysEvents);
+        Settings.ShowAlwaysObjects = EditorField("Show always objects", Settings.ShowAlwaysObjects);
 
-        Settings.ShowEditorEvents = EditorField("Show editor events", Settings.ShowEditorEvents);
+        Settings.ShowEditorObjects = EditorField("Show editor objects", Settings.ShowEditorObjects);
 
         Settings.ShowDefaultObjIcons = EditorField("Show default object icons", Settings.ShowDefaultObjIcons);
 

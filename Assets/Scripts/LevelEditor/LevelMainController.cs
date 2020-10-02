@@ -336,12 +336,12 @@ namespace R1Engine
             }
             if (Input.GetKeyDown(KeyCode.G))
             {
-                Settings.ShowAlwaysEvents = !Settings.ShowAlwaysEvents;
+                Settings.ShowAlwaysObjects = !Settings.ShowAlwaysObjects;
                 updatedSettings = true;
             }
             if (Input.GetKeyDown(KeyCode.E))
             {
-                Settings.ShowEditorEvents = !Settings.ShowEditorEvents;
+                Settings.ShowEditorObjects = !Settings.ShowEditorObjects;
                 updatedSettings = true;
             }
             if (Input.GetKeyDown(KeyCode.L)) {

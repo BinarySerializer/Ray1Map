@@ -29,7 +29,7 @@ namespace R1Engine
             Unk2 = new byte[17],
             EventType = R1_R2EventType.Rayman,
             RuntimeBytes1 = new byte[7],
-            Layer = 7,
+            DisplayPrio = 7,
             Unk3 = new byte[10],
             Unk4 = new byte[3],
             Unk5 = new byte[2],
@@ -76,7 +76,7 @@ namespace R1Engine
 
         // 24 (0x22)
 
-        public byte Unk_22 { get; set; }
+        public byte InitialDisplayPrio { get; set; }
 
         public ObjMapLayer MapLayer { get; set; }
 
@@ -86,7 +86,6 @@ namespace R1Engine
 
         public PS1_R2Demo_EventFlags Flags { get; set; }
 
-        // Between 40-44 is where x and y pos is stored during runtime
         public byte[] Unk2 { get; set; }
 
         // 56 (0x38)
@@ -113,9 +112,8 @@ namespace R1Engine
 
         // 72 (0x48)
 
-        // Some runtime offset for the current sprite animation - setting to 0 places sprite in its origin point during runtime
-        public ushort RuntimeOffset1 { get; set; }
-        public ushort RuntimeOffset2 { get; set; }
+        public short ScreenXPosition { get; set; }
+        public short ScreenYPosition { get; set; }
 
         // 76 (0x4C)
 
@@ -139,7 +137,7 @@ namespace R1Engine
         public byte Unk_58 { get; set; }
 
         // The layer to appear on (0-7)
-        public byte Layer { get; set; }
+        public byte DisplayPrio { get; set; }
 
         // 90 (0x5A)
 
@@ -223,7 +221,7 @@ namespace R1Engine
             InitialEtat = s.Serialize<byte>(InitialEtat, name: nameof(InitialEtat));
             InitialSubEtat = s.Serialize<byte>(InitialSubEtat, name: nameof(InitialSubEtat));
             UnkStateRelatedValue = s.Serialize<byte>(UnkStateRelatedValue, name: nameof(UnkStateRelatedValue));
-            Unk_22 = s.Serialize<byte>(Unk_22, name: nameof(Unk_22));
+            InitialDisplayPrio = s.Serialize<byte>(InitialDisplayPrio, name: nameof(InitialDisplayPrio));
             MapLayer = s.Serialize<ObjMapLayer>(MapLayer, name: nameof(MapLayer));
 
             Unk1 = s.Serialize<byte>(Unk1, name: nameof(Unk1));
@@ -239,12 +237,11 @@ namespace R1Engine
             // Serialize the type
             EventType = s.Serialize<R1_R2EventType>(EventType, name: nameof(EventType));
 
-            // Serialize runtime values
             XPosition = s.Serialize<short>(XPosition, name: nameof(XPosition));
             YPosition = s.Serialize<short>(YPosition, name: nameof(YPosition));
 
-            RuntimeOffset1 = s.Serialize<ushort>(RuntimeOffset1, name: nameof(RuntimeOffset1));
-            RuntimeOffset2 = s.Serialize<ushort>(RuntimeOffset2, name: nameof(RuntimeOffset2));
+            ScreenXPosition = s.Serialize<short>(ScreenXPosition, name: nameof(ScreenXPosition));
+            ScreenYPosition = s.Serialize<short>(ScreenYPosition, name: nameof(ScreenYPosition));
 
             RuntimeBytes1 = s.SerializeArray(RuntimeBytes1, 7, name: nameof(RuntimeBytes1));
             RuntimeCurrentAnimIndex = s.Serialize<byte>(RuntimeCurrentAnimIndex, name: nameof(RuntimeCurrentAnimIndex));
@@ -255,7 +252,7 @@ namespace R1Engine
             InitialUnkStateRelatedValue = s.Serialize<byte>(InitialUnkStateRelatedValue, name: nameof(InitialUnkStateRelatedValue));
             Unk_58 = s.Serialize<byte>(Unk_58, name: nameof(Unk_58));
 
-            Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
+            DisplayPrio = s.Serialize<byte>(DisplayPrio, name: nameof(DisplayPrio));
 
             Unk3 = s.SerializeArray(Unk3, 10, name: nameof(Unk3));
 

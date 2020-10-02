@@ -72,12 +72,12 @@ namespace R1Engine {
         /// <summary>
         /// Indicates if always events should be shown
         /// </summary>
-        public static bool ShowAlwaysEvents { get; set; } = true;
+        public static bool ShowAlwaysObjects { get; set; } = true;
 
         /// <summary>
         /// Indicates if editor events should be shown
         /// </summary>
-        public static bool ShowEditorEvents { get; set; } = true;
+        public static bool ShowEditorObjects { get; set; } = true;
 
         public static bool ShowObjects { get; set; } = true;
         public static bool ShowCollision { get; set; }
@@ -215,12 +215,12 @@ namespace R1Engine {
 
             AnimateSprites = s.SerializeBool("AnimateSprites", AnimateSprites);
             AnimateTiles = s.SerializeBool("AnimateTiles", AnimateTiles);
-            ShowAlwaysEvents = s.SerializeBool("ShowAlwaysEvents", ShowAlwaysEvents);
+            ShowAlwaysObjects = s.SerializeBool("ShowAlwaysObjects", ShowAlwaysObjects);
 
             string stateModeString = s.SerializeString("StateSwitchingMode", StateSwitchingMode.ToString());
             StateSwitchingMode = Enum.TryParse(stateModeString, out StateSwitchingMode stateMode) ? stateMode : StateSwitchingMode;
             
-            ShowEditorEvents = s.SerializeBool("ShowEditorEvents", ShowEditorEvents);
+            ShowEditorObjects = s.SerializeBool("ShowEditorObjects", ShowEditorObjects);
             ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
             ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo);

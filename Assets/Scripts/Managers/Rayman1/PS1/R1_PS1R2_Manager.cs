@@ -2,7 +2,9 @@
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -366,6 +368,49 @@ namespace R1Engine
             return String.Empty;
         }
 
-        public override UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotImplementedException();
+        public override UniTask ExportMenuSpritesAsync(GameSettings settings, string outputPath, bool exportAnimFrames) => throw new NotSupportedException("Rayman 2 does not have menu sprites");
+
+        /// <summary>
+        /// Exports every animation frame from the game
+        /// </summary>
+        /// <param name="baseGameSettings">The game settings</param>
+        /// <param name="outputDir">The output directory</param>
+        /// <returns>The task</returns>
+        public override async UniTask ExportAllAnimationFramesAsync(GameSettings baseGameSettings, string outputDir)
+        {
+            // Create the context
+            using (var context = new Context(baseGameSettings))
+            {
+                // Load the level
+                var level = await LoadAsync(context, true);
+
+                var objManager = (Unity_ObjectManager_R2)level.ObjManager;
+                var sprites = objManager.Sprites.Select(x => x?.texture).ToArray();
+
+                var index = 0;
+
+                // Enumerate every animation group
+                for (var i = 0; i < objManager.AnimGroups.Length; i++)
+                {
+                    var des = objManager.AnimGroups[i];
+
+                    if (des?.Animations?.Any() != true)
+                        continue;
+
+                    // Find all events where this DES is used
+                    var matchingEvents = level.EventData.Append(level.Rayman).Cast<Unity_Object_R2>().Where(x => x.AnimGroupIndex == i);
+
+                    // Find matching ETA for this DES from the level events
+                    var matchingStates = matchingEvents.SelectMany(lvlEvent => objManager.AnimGroups[lvlEvent.AnimGroupIndex].ETA.SelectMany(x => x)).Distinct().ToArray();
+
+                    ExportAnimationFrames(sprites, des.Animations, Path.Combine(outputDir, "Jungle", index.ToString()), matchingStates);
+
+                    index++;
+                }
+
+                // Unload textures
+                await Resources.UnloadUnusedAssets();
+            }
+        }
     }
 }

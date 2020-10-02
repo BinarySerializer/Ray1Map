@@ -84,8 +84,8 @@ namespace R1Engine
         // This index is used by the game to handle the event links during runtime
         public short EventIndex { get; set; }
 
-        public short Unk_54 { get; set; }
-        public short Unk_56 { get; set; }
+        public short ScreenXPosition { get; set; }
+        public short ScreenYPosition { get; set; }
         public short Unk_58 { get; set; }
 
         public short InitialXPosition { get; set; }
@@ -166,7 +166,7 @@ namespace R1Engine
         /// <summary>
         /// The layer the event sprite gets drawn to, between 1 and 7
         /// </summary>
-        public byte Layer { get; set; }
+        public byte DisplayPrio { get; set; }
 
         public byte HitSprite { get; set; }
 
@@ -181,7 +181,7 @@ namespace R1Engine
         public byte PS1Demo_Unk7 { get; set; }
         public byte PS1Demo_Unk8 { get; set; }
 
-        public byte RuntimeLayer { get; set; } // TODO: Is this an initial or runtime value?
+        public byte InitialDisplayPrio { get; set; }
 
         public byte Unk_127 { get; set; }
 
@@ -341,8 +341,8 @@ namespace R1Engine
                     Unk_48 = s.Serialize<uint>(Unk_48, name: nameof(Unk_48));
 
                 EventIndex = s.Serialize<short>(EventIndex, name: nameof(EventIndex));
-                Unk_54 = s.Serialize<short>(Unk_54, name: nameof(Unk_54));
-                Unk_56 = s.Serialize<short>(Unk_56, name: nameof(Unk_56));
+                ScreenXPosition = s.Serialize<short>(ScreenXPosition, name: nameof(ScreenXPosition));
+                ScreenYPosition = s.Serialize<short>(ScreenYPosition, name: nameof(ScreenYPosition));
                 Unk_58 = s.Serialize<short>(Unk_58, name: nameof(Unk_58));
             }
 
@@ -431,7 +431,7 @@ namespace R1Engine
             FollowSprite = s.Serialize<byte>(FollowSprite, name: nameof(FollowSprite));
             HitPoints = s.Serialize<byte>(HitPoints, name: nameof(HitPoints));
             InitialHitPoints = s.Serialize<byte>(InitialHitPoints, name: nameof(InitialHitPoints));
-            Layer = s.Serialize<byte>(Layer, name: nameof(Layer));
+            DisplayPrio = s.Serialize<byte>(DisplayPrio, name: nameof(DisplayPrio));
 
             if (!IsPCFormat(s.GameSettings))
                 Type = (R1_EventType)s.Serialize<byte>((byte)Type, name: nameof(Type));
@@ -458,7 +458,7 @@ namespace R1Engine
                 }
             }
 
-            RuntimeLayer = s.Serialize<byte>(RuntimeLayer, name: nameof(RuntimeLayer));
+            InitialDisplayPrio = s.Serialize<byte>(InitialDisplayPrio, name: nameof(InitialDisplayPrio));
             Unk_127 = s.Serialize<byte>(Unk_127, name: nameof(Unk_127));
 
             AnimDescriptorCount = s.Serialize<byte>(AnimDescriptorCount, name: nameof(AnimDescriptorCount));
@@ -572,7 +572,7 @@ namespace R1Engine
             OffsetHY = 20;
             FollowSprite = 0;
             HitPoints = 0;
-            Layer = 7;
+            DisplayPrio = 7;
             HitSprite = 0;
 
             PC_ImageDescriptorsIndex = 1;

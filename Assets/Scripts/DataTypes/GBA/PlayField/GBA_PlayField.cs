@@ -144,7 +144,9 @@ namespace R1Engine
 
                 if (StructType == Type.PlayField2D) {
                     for (int i = 0; i < ClusterCount; i++) {
-                        Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i]), () => s.SerializeObject<GBA_Cluster>(Clusters[i], name: $"{nameof(Clusters)}[{i}]"));
+                        Clusters[i] = s.DoAt(OffsetTable.GetPointer(ClusterTable[i], isRelativeOffset: IsGCNBlock), () => {
+                            return s.SerializeObject<GBA_Cluster>(Clusters[i], onPreSerialize: c => c.IsGCNBlock = IsGCNBlock, name: $"{nameof(Clusters)}[{i}]");
+                        });
                     }
                 }
 
@@ -161,7 +163,9 @@ namespace R1Engine
                     }
                 } else {
                     for (int i = 0; i < LayerCount; i++) {
-                        Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i]), () => s.SerializeObject<GBA_TileLayer>(Layers[i], name: $"{nameof(Layers)}[{i}]"));
+                        Layers[i] = s.DoAt(OffsetTable.GetPointer(LayerTable[i], isRelativeOffset: IsGCNBlock), () => {
+                            return s.SerializeObject<GBA_TileLayer>(Layers[i], onPreSerialize: l => l.IsGCNBlock = IsGCNBlock, name: $"{nameof(Layers)}[{i}]");
+                        });
 
                         if (StructType == Type.PlayField2D) Layers[i].Cluster = Clusters[Layers[i].ClusterIndex];
                     }
@@ -175,7 +179,12 @@ namespace R1Engine
                 // This game has no BGTileTable
                 if (s.GameSettings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage) {
                     // Serialize tilemap
-                    BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex), () => s.SerializeObject<GBA_BGTileTable>(BGTileTable, onPreSerialize: b => b.HasExtraData = StructType == Type.PlayFieldPoP, name: nameof(BGTileTable)));
+                    BGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex, isRelativeOffset: IsGCNBlock), () => {
+                        return s.SerializeObject<GBA_BGTileTable>(BGTileTable, onPreSerialize: b => {
+                            b.HasExtraData = StructType == Type.PlayFieldPoP;
+                            b.IsGCNBlock = IsGCNBlock;
+                        }, name: nameof(BGTileTable));
+                    });
 
                     if (s.GameSettings.EngineVersion >= EngineVersion.GBA_PrinceOfPersia && StructType != Type.PlayFieldPoP) {
                         FGTileTable = s.DoAt(OffsetTable.GetPointer(BGTileTableOffsetIndex+1), () => s.SerializeObject<GBA_BGTileTable>(FGTileTable, name: nameof(FGTileTable)));
@@ -199,9 +208,13 @@ namespace R1Engine
             }
         }
 
-        #endregion
+		public override int GetOffsetTableLengthGCN(SerializerObject s) {
+			return TileKitOffsetIndex + 1;
+        }
 
-        public class GBA_Batman_TileLayer : R1Serializable {
+		#endregion
+
+		public class GBA_Batman_TileLayer : R1Serializable {
             public byte LayerID { get; set; }
             public bool IsCollisionBlock { get; set; }
             public bool IsCompressed { get; set; }

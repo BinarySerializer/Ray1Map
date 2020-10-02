@@ -41,9 +41,9 @@ public class WebJSON {
 		public bool? ShowObjCollision { get; set; }
 		public bool? AnimateSprites { get; set; }
 		public bool? AnimateTiles { get; set; }
-		public bool? ShowAlwaysEvents { get; set; }
+		public bool? ShowAlwaysObjects { get; set; }
 		public bool? ShowDebugInfo { get; set; }
-		public bool? ShowEditorEvents { get; set; }
+		public bool? ShowEditorObjects { get; set; }
 		public bool? ShowDefaultObjIcons { get; set; }
 		public bool? ShowObjOffsets { get; set; }
         public bool? ShowRayman { get; set; }
@@ -81,7 +81,7 @@ public class WebJSON {
 		public ushort? R1_Type { get; set; }
 		public int? R1_DESIndex { get; set; }
 		public int? R2_AnimGroupIndex { get; set; }
-		public int? R2_MapLayer { get; set; }
+		public string R2_MapLayer { get; set; }
 		public int? R1_ETAIndex { get; set; } // Not in R2
 		public byte? R1_Etat { get; set; }
 	    public byte? R1_SubEtat { get; set; }

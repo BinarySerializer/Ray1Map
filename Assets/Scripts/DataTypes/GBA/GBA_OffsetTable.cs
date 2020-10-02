@@ -19,7 +19,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="index">The offset index</param>
         /// <returns>The pointer</returns>
-        public Pointer GetPointer(int index)
+        public Pointer GetPointer(int index, bool isRelativeOffset = false)
         {
             UsedOffsets[index] = true;
             var pointerTable = PointerTables.GBA_PointerTable(Offset.Context.Settings.GameModeSelection, Context.GetFile(((GBA_Manager)Offset.Context.Settings.GetGameManager).GetROMFilePath));
@@ -34,14 +34,23 @@ namespace R1Engine
                     }
                 }
             } else {
-                return pointerTable[GBA_Pointer.UiOffsetTable] + (Offsets[index] * 4);
+
+                if (isRelativeOffset && Block != null) {
+                    return Block.Offset + Offsets[index];
+                } else {
+                    return pointerTable[GBA_Pointer.UiOffsetTable] + (Offsets[index] * 4);
+                }
             }
         }
 
         public override void SerializeImpl(SerializerObject s)
         {
             // Serialize the offset table
-            OffsetsCount = s.Serialize<int>(OffsetsCount, name: nameof(OffsetsCount));
+            if (Block != null && Block.IsGCNBlock) {
+                OffsetsCount = Block.GetOffsetTableLengthGCN(s);
+            } else {
+                OffsetsCount = s.Serialize<int>(OffsetsCount, name: nameof(OffsetsCount));
+            }
             if (OffsetsCount > 0) {
                 Offsets = s.SerializeArray<int>(Offsets, OffsetsCount, name: nameof(Offsets));
                 UsedOffsets = new bool[OffsetsCount];
