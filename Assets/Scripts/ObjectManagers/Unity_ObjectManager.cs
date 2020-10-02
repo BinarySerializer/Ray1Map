@@ -146,7 +146,9 @@ namespace R1Engine
                         }
 
                         // Get the base pointer
-                        baseStreamOffset = s.DoAt(basePtrPtr, () => s.SerializePointer(default)).AbsoluteOffset;
+                        baseStreamOffset = file.GetStream().Is64BitProcess ? 
+                            s.DoAt(basePtrPtr, () => s.Serialize<long>(default)) :
+                            s.DoAt(basePtrPtr, () => s.SerializePointer(default)).AbsoluteOffset;
                     }
                     else
                     {

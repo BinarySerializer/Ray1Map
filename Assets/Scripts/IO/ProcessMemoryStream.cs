@@ -14,6 +14,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using BinaryTools.Elf; // To determine whether Linux EXE is 32- or 64-bit
+using BinaryTools.Elf.Io; // Make sure it has a reader it's happy with...
 
 #if ISLINUX
 using c_uint = System.UInt32;
@@ -41,6 +43,9 @@ namespace R1Engine {
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool WriteProcessMemory(IntPtr hProcess, long lpBaseAddress, byte[] lpBuffer, int dwSize, ref UIntPtr lpNumberOfBytesWritten);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool IsWow64Process(IntPtr hProcess, out bool wow64Process);
 #elif ISLINUX
         // It so happens that the one syscall needed here is still "TODO" in
         // Mono.Posix.NETStandard, so here's a manual wrapping...
@@ -75,8 +80,11 @@ namespace R1Engine {
         long currentAddress = 0;
         Mode mode = Mode.Read;
         string exeFile = "";
+        bool is64bit = false;
 
         public string ExeFile => exeFile;
+
+        public bool Is64BitProcess => is64bit;
 
         public ProcessMemoryStream(string name, Mode mode) {
 #if (ISWINDOWS || ISLINUX)
@@ -90,7 +98,7 @@ namespace R1Engine {
                 Process[] wineProcesses = Process.GetProcessesByName("wine-preloader");
                 foreach (var wineProcess in wineProcesses) {
                     string cmdLine = File.ReadAllLines($"/proc/{wineProcess.Id}/cmdline")[0].Split(new Char[] {'\0'})[0];
-                    string realName = cmdLine.Split(new Char[] {'/'}).Last();
+                    string realName = cmdLine.Split(new Char[] {'/', '\\'}).Last();
                     if (String.Equals(realName,name)) {
                         processes = new Process[] {wineProcess};
                         if (cmdLine.StartsWith("/"))
@@ -108,8 +116,9 @@ namespace R1Engine {
                 Process[] wineProcesses = Process.GetProcessesByName("wine64-preloader");
                 foreach (var wineProcess in wineProcesses) {
                     string cmdLine = File.ReadAllLines($"/proc/{wineProcess.Id}/cmdline")[0].Split(new Char[] {'\0'})[0];
-                    string realName = cmdLine.Split(new Char[] {'/'}).Last();
+                    string realName = cmdLine.Split(new Char[] {'/', '\\'}).Last();
                     if (String.Equals(realName,name)) {
+                        is64bit = true;
                         processes = new Process[] {wineProcess};
                         if (cmdLine.StartsWith("/"))
                             // It's an absolute path.
@@ -142,6 +151,24 @@ namespace R1Engine {
                     accessLevel = PROCESS_ALL_ACCESS; break;
             }
             processHandle = OpenProcess(accessLevel, false, process.Id);
+#endif
+            
+            // Check bit flavour...
+#if ISWINDOWS
+#if UNITY_64
+	        const bool win64 = true;
+#else
+            IsWow64Process(Process.GetCurrentProcess().Handle, out var win64);
+#endif
+            IsWow64Process(processHandle, out var isWow64);
+            is64bit = win64 && !isWow64;
+            UnityEngine.Debug.Log($"Is current process 64-bit: {win64}");
+            UnityEngine.Debug.Log($"Is game process 64-bit: {!isWow64}");
+#elif ISLINUX
+            var exestream = new FileStream(process.MainModule.FileName, FileMode.Open, FileAccess.Read);
+            var exereader = new EndianBinaryReader(exestream, EndianBitConverter.NativeEndianness);
+            ElfFile elfFile = ElfFile.ReadElfFile(exereader);
+            is64bit = (elfFile.Header.Class == BinaryTools.Elf.ElfClass.Elf64);
 #endif
         }
 
@@ -187,7 +214,7 @@ namespace R1Engine {
 #if ISWINDOWS
             get { return processHandle != IntPtr.Zero; }
 #elif ISLINUX
-	    get { return process.Id != 0; } // No handle on Linux - we just ptrace every time we want to do something.
+            get { return process.Id != 0; } // No handle on Linux - we just ptrace every time we want to do something.
 #else
             get { return false; }
 #endif
