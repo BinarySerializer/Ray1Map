@@ -156,14 +156,14 @@ namespace R1Engine {
             // Check bit flavour...
 #if ISWINDOWS
 #if UNITY_64
-	    bool win64 = true;
+	        const bool win64 = true;
 #else
-	    bool win64;
-	    IsWow64Process(Process.GetCurrentProcess().Handle, win64);
+            IsWow64Process(Process.GetCurrentProcess().Handle, out var win64);
 #endif
-            bool isWow64;
-            IsWow64Process(processHandle, isWow64);
+            IsWow64Process(processHandle, out var isWow64);
             is64bit = win64 && !isWow64;
+            UnityEngine.Debug.Log($"Is current process 64-bit: {win64}");
+            UnityEngine.Debug.Log($"Is game process 64-bit: {!isWow64}");
 #elif ISLINUX
             var exestream = new FileStream(process.MainModule.FileName, FileMode.Open, FileAccess.Read);
             var exereader = new EndianBinaryReader(exestream, EndianBitConverter.NativeEndianness);
