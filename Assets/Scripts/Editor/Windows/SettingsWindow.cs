@@ -71,7 +71,7 @@ public class SettingsWindow : UnityWindow
             if (DefaultMemoryOptionsIndex != PreviousDefaultMemoryOptionsIndex) 
             {
                 if (PreviousDefaultMemoryOptionsIndex == -1) {
-                    var match = Enumerable.Range(0, DefaultMemoryOptionDisplayNames.Length).FirstOrDefault(x => 
+                    var match = Enumerable.Range(0, DefaultMemoryOptionDisplayNames.Length - 1).FirstOrDefault(x => 
                         DefaultMemoryConfigs[x].IsPointer == Settings.IsGameBaseAPointer &&
                         DefaultMemoryConfigs[x].ProcessName == Settings.ProcessName &&
                         DefaultMemoryConfigs[x].ModuleName == Settings.ModuleName &&
