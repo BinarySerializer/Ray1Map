@@ -1,12 +1,15 @@
 ﻿## Ray1Map
-Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, with special thanks to PluMGMK for helping out with the project. The goal of the project is to support map viewing for all tile-based Rayman games.
+<img alt="Logo" src="https://raw.githubusercontent.com/Adsolution/Ray1Map/master/Assets/WebGLTemplates/Ray1mapTemplate/img/ray1map_logo_transparent.png" width="600">
+ 
+Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution with special thanks to PluMGMK for helping out with the project. The goal of the project is to support map viewing for all tile-based Rayman games, with focus on the Rayman 1 games.
 
 ### Features
 * Tile viewing and editing
 * Collision viewing and editing
-* Object viewing and editing, including displaying real-time animations, object states, follow hitboxes and offsets
+* Object viewing and editing, including animations, object states and hitboxes
 * Object linking viewing and editing
 * Game tools for exporting assets
+* Memory loading, for allowing real-time editing while the game is running
 
 ### Supported Games (Rayman 1)
 
@@ -18,16 +21,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
-    <th class="tg-yw4l"><b>Memory Loading</b></th>
-    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1)</td>
     <td class="tg-yw4l">US, EU</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -38,16 +37,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - JP Demo Vol3)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -58,16 +53,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PS1 - EU Demo)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -78,16 +69,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Saturn)</td>
     <td class="tg-yw4l">US, EU, JP, US Demo</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -98,8 +85,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (PC)</td>
@@ -108,8 +93,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Gold (PC - Demo)</td>
@@ -118,8 +101,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Designer (PC)</td>
@@ -128,8 +109,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Mapper (PC)</td>
@@ -137,8 +116,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -148,8 +125,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 60 Levels (PC)</td>
@@ -158,8 +133,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Educational (PC)</td>
@@ -168,8 +141,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Educational (PS1)</td>
@@ -177,8 +148,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
   <tr>
@@ -188,8 +157,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman Classic (Mobile)</td>
@@ -198,16 +165,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (GBA)</td>
     <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -218,8 +181,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">The correct number of states does not get read</td>
   </tr>  
   <tr>
     <td class="tg-yw4l">Rayman 2 (PS1 - Demo)</td>
@@ -228,8 +189,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l">Currently each map layer has to be loaded separately</td>
   </tr>
 </table>
 
@@ -243,16 +202,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
-    <th class="tg-yw4l"><b>Memory Loading</b></th>
-    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (Jaguar)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -263,16 +218,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman 1 (Jaguar - Demo)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -288,15 +239,11 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
-    <th class="tg-yw4l"><b>Memory Loading</b></th>
-    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman (SNES - Prototype)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -313,8 +260,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
-    <th class="tg-yw4l"><b>Memory Loading</b></th>
-    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 1 (GBC)</td>
@@ -323,13 +268,9 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 2 (GBC)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -348,16 +289,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <th class="tg-yw4l"><b>Object Viewing</b></th>
     <th class="tg-yw4l"><b>Object Adding</b></th>
     <th class="tg-yw4l"><b>Saving</b></th>
-    <th class="tg-yw4l"><b>Memory Loading</b></th>
-    <th class="tg-yw4l"><b>Notes</b></th>
   </tr>
   <tr>
     <td class="tg-yw4l">Batman Vengeance (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -368,16 +305,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 3 (GBA)</td>
     <td class="tg-yw4l">EU, US, EU Beta</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -388,8 +321,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 3 (N-Gage)</td>
@@ -398,13 +329,9 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Rayman 3 (DigiBlast)</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
@@ -418,16 +345,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Splinter Cell (N-Gage)</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -438,16 +361,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Batman: Rise of Sin Tzu (GBA)</td>
     <td class="tg-yw4l">US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -458,16 +377,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Star Wars Trilogy: Apprentice of the Force (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -478,16 +393,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">King Kong (GBA)</td>
     <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -498,8 +409,6 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">TMNT (GBA)</td>
@@ -508,16 +417,12 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
   </tr>
   <tr>
     <td class="tg-yw4l">Surf's Up (GBA)</td>
     <td class="tg-yw4l">EU 1, EU 2, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
@@ -534,13 +439,14 @@ Ray1Map is a map viewer/editor by Adsolution, Droolie, RayCarrot and Ryemanni, w
 ## Get Started
 NOTE: This project is currently in its early stages and may be unstable. Saving edits may corrupt your files for certain games, so make sure to back up your files first!
 
-* Clone or download the repo
-* Open the project with Unity (through Unity Hub)
-* Open the Ray1Map settings from the toolbar and fill out the game directories
-* Select the game mode, world and level
-* Start the project in Unity
+* Clone or download the repo.
+* Open the project with Unity (through Unity Hub). Version 2019.4.10f1 is recommended.
+* Open the Ray1Map settings from the toolbar and fill out the game directories.
+* Select the game mode and level.
+* Open the MapViewer scene.
+* Press play in Unity.
 
-Editor tutorial: https://github.com/Adsolution/Ray1Map/wiki/Editor-(tutorial)
+Editor tutorial (Rayman 1): https://github.com/Adsolution/Ray1Map/wiki/Editor-(tutorial)
 
 ## Screenshots
 
