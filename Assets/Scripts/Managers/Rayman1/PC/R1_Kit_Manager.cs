@@ -131,7 +131,10 @@ namespace R1Engine
 
             var nameWithoutExt = name.Length > 4 ? name.Substring(0, name.Length - 4) : name;
 
-            return generalEvents.Any(x => x.DesKit[context.Settings.R1_World] == nameWithoutExt && ((R1_EventType)x.Type).IsMultiColored());
+            return generalEvents.Any(x => (x.DesKit[context.Settings.R1_World] == nameWithoutExt 
+                        || x.DesNameR1[context.Settings.R1_World] == nameWithoutExt
+                        || x.DesNameEdu[context.Settings.R1_World] == nameWithoutExt)
+                    && ((R1_EventType)x.Type).IsMultiColored());
         }
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.KitPC_Type_ZDC;
@@ -305,43 +308,48 @@ namespace R1Engine
                         var r1wld = otherContext.Settings.R1_World;
                         foreach (var eve in eventInfoData)
                         {
-                            // First see if there's a DES specified for our source game.
-                            var otherDes = edu ? eve.DesEdu.TryGetItem(r1wld) : eve.DesR1.TryGetItem(r1wld);
-                            if (otherDes is int iOtherDes) {
-                                // See if there's a DES also specified for KIT.
-                                var desMapping = eve.DesKit.TryGetItem(r1wld);
-                                if (desMapping != null && desMapping != "" && !desNames.Contains($"{desMapping}.DES")) {
-                                    // The DES is specified in Events.csv, but doesn't exist in the WLD file.
-                                    // Add it to the copy list!
-                                    desMappings[iOtherDes] = $"{desMapping}.DES";
+                            // Don't bother doing anything if there's a DES listed for stock Kit.
+                            var stockDes = eve.DesKit.TryGetItem(r1wld);
+                            if (stockDes == null || stockDes == "") {
+                                // First see if there's a DES specified for our source game.
+                                var otherDes = edu ? eve.DesEdu.TryGetItem(r1wld) : eve.DesR1.TryGetItem(r1wld);
+                                if (otherDes is int iOtherDes) {
+                                    var desMapping = edu ? eve.DesNameEdu.TryGetItem(r1wld) : eve.DesNameR1.TryGetItem(r1wld);
+                                    if (desMapping != null && desMapping != "" && !desNames.Contains($"{desMapping}.DES")) {
+                                        // The DES is specified in Events.csv, but doesn't exist in the WLD file.
+                                        // Add it to the copy list.
+                                        desMappings[iOtherDes] = $"{desMapping}.DES";
 
-                                    Debug.Log($"Mapping DES {iOtherDes} to {desMapping} based on {eve.Name}");
+                                        Debug.Log($"Mapping DES {iOtherDes} to {desMapping} based on {eve.Name}");
+                                    }
                                 }
                             }
 
                             // Do the same thing for the ETA.
-                            var otherEta = edu ? eve.EtaEdu.TryGetItem(r1wld) : eve.EtaR1.TryGetItem(r1wld);
-                            if (otherEta is int iOtherEta) {
-                                // See if there's an ETA also specified for KIT.
-                                var etaMapping = eve.EtaKit.TryGetItem(r1wld);
-                                if (etaMapping != null && etaMapping != "" && !etaNames.Contains($"{etaMapping}.ETA")) {
-                                    // The ETA is specified in Events.csv, but doesn't exist in the WLD file.
-                                    // Add it to the copy list!
-                                    etaMappings[iOtherEta] = $"{etaMapping}.ETA";
-                                    Debug.Log($"Mapping ETA {iOtherEta} to {etaMapping} based on {eve.Name}");
+                            var stockEta = eve.EtaKit.TryGetItem(r1wld);
+                            if (stockEta == null || stockEta == "") {
+                                var otherEta = edu ? eve.EtaEdu.TryGetItem(r1wld) : eve.EtaR1.TryGetItem(r1wld);
+                                if (otherEta is int iOtherEta) {
+                                    var etaMapping = edu ? eve.EtaNameEdu.TryGetItem(r1wld) : eve.EtaNameR1.TryGetItem(r1wld);
+                                    if (etaMapping != null && etaMapping != "" && !etaNames.Contains($"{etaMapping}.ETA")) {
+                                        // The ETA is specified in Events.csv, but doesn't exist in the WLD file.
+                                        // Add it to the copy list.
+                                        etaMappings[iOtherEta] = $"{etaMapping}.ETA";
+                                        Debug.Log($"Mapping ETA {iOtherEta} to {etaMapping} based on {eve.Name}");
+                                    }
                                 }
                             }
                         }
 
                         // Now that we've set up the mappings, carry out the copies!
                         foreach (var mapping in desMappings) {
-                            Debug.Log($"Attempting to port DES {mapping}");
+                            Debug.Log($"Attempting to port DES {mapping.Key} -> {mapping.Value}");
                             wld.DesItems = wld.DesItems.Append(otherWld.DesItems[mapping.Key - otherDesAllfixCount - 1]).ToArray();
                             wld.DesItemCount = (ushort)wld.DesItems.Length;
                             wld.DESFileNames[wld.DesItemCount + desAllfixCount - 1] = mapping.Value;
                         }
                         foreach (var mapping in etaMappings) {
-                            Debug.Log($"Attempting to port ETA {mapping}");
+                            Debug.Log($"Attempting to port ETA {mapping.Key} -> {mapping.Value}");
                             wld.Eta = wld.Eta.Append(otherWld.Eta[mapping.Key - otherEtaAllfixCount]).ToArray();
                             wld.ETAFileNames[wld.Eta.Length + etaAllfixCount - 1] = mapping.Value;
                         }
@@ -363,10 +371,12 @@ namespace R1Engine
             {
                 await LoadFilesAsync(context);
 
+                Debug.Log("Opening version file...");
                 var commonDat = FileFactory.Read<R1_PC_EncryptedFileArchive>(GetCommonArchiveFilePath(), context);
                 var versionFileName = R1_PC_ArchiveFileName.VERSION.ToString();
                 var versionFile = commonDat.ReadFile<R1_PC_VersionFile>(context, versionFileName);
 
+                Debug.Log("Increasing memory allocation...");
                 // Increase the memory allocated for each version.
                 foreach (var verMemInfo in versionFile.VersionMemoryInfos) {
                     if (verMemInfo.TailleMainMemWorld < newMemAlloc)
@@ -375,14 +385,12 @@ namespace R1Engine
                         verMemInfo.TailleMainMemSprite = newMemAlloc;
                 }
 
+                Debug.Log("Saving version file...");
                 // Reserialize and save out the updated archive.
                 commonDat.RepackArchive(context, new Dictionary<string, Action<SerializerObject>> {
-                                {versionFileName, x => {
-				x.SerializeObject<R1_PC_VersionFile>(versionFile, name: versionFileName);
-				// PluM: Hacky fix to make sure the size is set correctly.
-				x.Goto(x.CurrentPointer + 0x392 + 10);
-				}}
+                                {versionFileName, x => x.SerializeObject<R1_PC_VersionFile>(versionFile, name: versionFileName)}
                                 });
+                Debug.Log("Version file saved.");
             }
         }
     }

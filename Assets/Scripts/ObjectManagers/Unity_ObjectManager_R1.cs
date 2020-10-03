@@ -71,9 +71,24 @@ namespace R1Engine
 
                 case EngineVersion.R1_PC_Kit:
                     return LevelEditorData.EventInfoData.Where(x => {
-                        var desName = x.DesKit.TryGetItem(Context.Settings.R1_World);
-                        var etaName = x.EtaKit.TryGetItem(Context.Settings.R1_World);
-                        return desName != null && etaName != null && DES.Any(des => des.Name == $"{desName}.DES") && ETA.Any(eta => eta.Name == $"{etaName}.ETA");
+                        // If it's listed as being in stock KIT, then we know it has to be there.
+                        if (x.DesKit.TryGetItem(Context.Settings.R1_World) != null && x.EtaKit.TryGetItem(Context.Settings.R1_World) != null)
+                            return true;
+
+                        // Check if the DES/ETA has been ported from R1.
+                        var desName = x.DesNameR1.TryGetItem(Context.Settings.R1_World);
+                        var etaName = x.EtaNameR1.TryGetItem(Context.Settings.R1_World);
+                        if (desName != null && etaName != null && DES.Any(des => des.Name == $"{desName}.DES") && ETA.Any(eta => eta.Name == $"{etaName}.ETA"))
+                            return true;
+
+                        // Check if the DES/ETA has been ported from EDU.
+                        desName = x.DesNameEdu.TryGetItem(Context.Settings.R1_World);
+                        etaName = x.EtaNameEdu.TryGetItem(Context.Settings.R1_World);
+                        if (desName != null && etaName != null && DES.Any(des => des.Name == $"{desName}.DES") && ETA.Any(eta => eta.Name == $"{etaName}.ETA"))
+                            return true;
+
+                        // It ain't there.
+                        return false;
                         });
 
                 case EngineVersion.R1_PC_Edu:
@@ -202,8 +217,8 @@ namespace R1Engine
                     break;
 
                 case EngineVersion.R1_PC_Kit:
-                    eventData.EventData.PC_ImageDescriptorsIndex = eventData.EventData.PC_ImageBufferIndex = eventData.EventData.PC_AnimationDescriptorsIndex = (uint)DES.First(x => x.Name == e.DesKit[Context.Settings.R1_World]).Index;
-                    eventData.EventData.PC_ETAIndex = (uint)ETA.First(x => x.Name == e.EtaKit[Context.Settings.R1_World]).Index;
+                    eventData.EventData.PC_ImageDescriptorsIndex = eventData.EventData.PC_ImageBufferIndex = eventData.EventData.PC_AnimationDescriptorsIndex = (uint)DES.First(x => x.Name == e.DesKit[Context.Settings.R1_World] || x.Name == e.DesNameR1[Context.Settings.R1_World] || x.Name == e.DesNameEdu[Context.Settings.R1_World]).Index;
+                    eventData.EventData.PC_ETAIndex = (uint)ETA.First(x => x.Name == e.EtaKit[Context.Settings.R1_World] || x.Name == e.EtaNameR1[Context.Settings.R1_World] || x.Name == e.EtaNameEdu[Context.Settings.R1_World]).Index;
                     break;
 
                 case EngineVersion.R1_PC_Edu:
