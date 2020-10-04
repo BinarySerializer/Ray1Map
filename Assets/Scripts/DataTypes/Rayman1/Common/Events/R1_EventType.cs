@@ -140,7 +140,9 @@
         [ObjTypeInfo(ObjTypeFlag.Always)]
         TYPE_PAILLETTE = 75,
         
+        [ObjTypeInfo(ObjTypeFlag.Editor)]
         TYPE_DESTROYING_DOOR = 76,
+
         TYPE_PIRATE_GUETTEUR = 77,
         
         [ObjTypeInfo(ObjTypeFlag.Always)]

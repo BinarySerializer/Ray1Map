@@ -211,7 +211,7 @@ namespace R1Engine
             }
         }
 
-        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBA_TileCollisionType collisionType)
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBA_TileCollisionType collisionType, EngineVersion engineVersion)
         {
             switch (collisionType)
             {
@@ -219,7 +219,7 @@ namespace R1Engine
                     return Unity_MapCollisionTypeGraphic.None;
 
                 case GBA_TileCollisionType.Slippery:
-                    return Unity_MapCollisionTypeGraphic.Slippery;
+                    return engineVersion != EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Slippery : Unity_MapCollisionTypeGraphic.Solid;
 
                 case GBA_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
@@ -230,7 +230,7 @@ namespace R1Engine
 
                 case GBA_TileCollisionType.Solid:
                 case GBA_TileCollisionType.EndSlippery:
-                    return Unity_MapCollisionTypeGraphic.Solid;
+                    return engineVersion != EngineVersion.GBA_BatmanVengeance ? Unity_MapCollisionTypeGraphic.Solid : Unity_MapCollisionTypeGraphic.None;
 
                 case GBA_TileCollisionType.Climb:
                     return Unity_MapCollisionTypeGraphic.Climb_Full;

@@ -9,7 +9,7 @@ namespace R1Engine
     /// </summary>
     public class LZSSEncoder : IStreamEncoder
     {
-        public LZSSEncoder(uint length) => Length = length - 4;
+        public LZSSEncoder(uint length) => Length = length;
         protected uint Length { get; }
 
         /// <summary>

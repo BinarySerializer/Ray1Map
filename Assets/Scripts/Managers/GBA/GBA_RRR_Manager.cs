@@ -2,6 +2,8 @@
 using R1Engine.Serialize;
 using System;
 using System.IO;
+using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -43,9 +45,43 @@ namespace R1Engine
 
                     if (block.Length > 4 && block[0] == 0x67 && block[1] == 0x45 && block[2] == 0x23 && block[3] == 0x01) {
                         s.DoAt(blockPointer, () => {
-                            s.DoEncoded(new LZSSEncoder(blockSize), () => {
-                                block = s.SerializeArray<byte>(default, s.CurrentLength);
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{blockPointer.AbsoluteOffset:X8}_decompressed.dat"), block);
+                            s.DoEncoded(new LZSSEncoder(blockSize), () => 
+                            {
+                                const int width = 240;
+                                const int height = 160;
+
+                                // Check if it's a vignette...
+                                if (s.CurrentLength == (256 * 2) + (width * height))
+                                {
+                                    // Serialize palette
+                                    var pal = s.SerializeObjectArray<ARGB1555Color>(default, 256).Select(x =>
+                                    {
+                                        var c = x.GetColor();
+                                        c.a = 1;
+                                        return c;
+                                    }).ToArray();
+
+                                    var tex = TextureHelpers.CreateTexture2D(width, height, true);
+
+                                    for (int y = 0; y < height; y++)
+                                    {
+                                        for (int x = 0; x < width; x++)
+                                        {
+                                            var b = s.Serialize<byte>(default);
+
+                                            tex.SetPixel(x, height - y - 1, pal[b]);
+                                        }
+                                    }
+
+                                    tex.Apply();
+
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{blockPointer.AbsoluteOffset:X8}_decompressed.png"), tex.EncodeToPNG());
+                                }
+                                else
+                                {
+                                    block = s.SerializeArray<byte>(default, s.CurrentLength);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{blockPointer.AbsoluteOffset:X8}_decompressed.dat"), block);
+                                }
                             });
                         });
                     } else {

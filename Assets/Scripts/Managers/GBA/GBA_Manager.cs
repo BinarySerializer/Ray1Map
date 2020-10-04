@@ -709,7 +709,7 @@ namespace R1Engine
                 defaultCollisionMap: mapLayers.FindItemIndex(x => x.StructType == GBA_TileLayer.Type.Collision), 
                 localization: loc, 
                 cellSize: 8, 
-                getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(),
+                getCollisionTypeGraphicFunc: x => ((GBA_TileCollisionType)x).GetCollisionTypeGraphic(context.Settings.EngineVersion),
                 sectors: scene?.Sectors.Select(x => new Unity_Sector(x.NormalActorIndices.Concat(x.BoxTriggerActorIndices2 ?? new byte[0]).Select(y => (int)y).ToList())).ToArray()
                 );
 
