@@ -131,7 +131,10 @@ namespace R1Engine
 
             var nameWithoutExt = name.Length > 4 ? name.Substring(0, name.Length - 4) : name;
 
-            return generalEvents.Any(x => x.DesKit[context.Settings.R1_World] == nameWithoutExt && ((R1_EventType)x.Type).IsMultiColored());
+            return generalEvents.Any(x => (x.DesKit[context.Settings.R1_World] == nameWithoutExt 
+                        || x.DesNameR1[context.Settings.R1_World] == nameWithoutExt
+                        || x.DesNameEdu[context.Settings.R1_World] == nameWithoutExt)
+                    && ((R1_EventType)x.Type).IsMultiColored());
         }
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.KitPC_Type_ZDC;
@@ -140,6 +143,30 @@ namespace R1Engine
 
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => 
             UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
+
+        /// <summary>
+        /// Gets the available game actions
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game actions</returns>
+        public override GameAction[] GetGameActions(GameSettings settings)
+        {
+            return new GameAction[]
+            {
+                new GameAction("Export Sprites", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, false)),
+                new GameAction("Export Animation Frames", false, true, (input, output) => ExportSpriteTexturesAsync(settings, output, true)),
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignette(settings, GetVignetteFilePath(settings), output)),
+                new GameAction("Export Archives", false, true, (input, output) => ExtractArchives(output)),
+                new GameAction("Export Sound", false, true, (input, output) => ExtractSoundAsync(settings, output)),
+                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
+                new GameAction("Log Archive Files", false, false, (input, output) => LogArchives(settings)),
+                new GameAction("Export ETA Info", false, true, (input, output) => ExportETAInfo(settings, output, false)),
+                new GameAction("Export ETA Info (extended)", false, true, (input, output) => ExportETAInfo(settings, output, true)),
+		new GameAction("Import ETA/DES from Rayman 1", false, false, (input, output) => ImportDESETA(settings, false)),
+		new GameAction("Import ETA/DES from EDU", false, false, (input, output) => ImportDESETA(settings, true)),
+		new GameAction("Increase DES/WLD memory allocation", false, false, (input, output) => IncreaseMemAlloc(settings)),
+            };
+        }
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
@@ -209,6 +236,162 @@ namespace R1Engine
             // Special
             foreach (var version in LoadArchiveFile<R1_PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
                 await AddFile(context, GetSpecialArchiveFilePath(version));
+        }
+
+        public async UniTask ImportDESETA(GameSettings settings, bool edu)
+        {
+            // TODO: Not hard-code these?
+            const int desAllfixCount = 9;
+            const int etaAllfixCount = 5;
+            int otherDesAllfixCount = edu ? 8 : 7;
+            int otherEtaAllfixCount = edu ? 5 : 4;
+
+            // Load in Events.csv to get our mappings
+            const string file = "Events.csv";
+            GeneralEventInfoData[] eventInfoData;
+            await FileSystem.PrepareFile(file);
+            if (FileSystem.FileExists(file))
+            {
+                // Load the event info data
+                using (var csvFile = FileSystem.GetFileReadStream(file))
+                    eventInfoData = GeneralEventInfoData.ReadCSV(csvFile);
+                Debug.Log($"{file} has been loaded with {eventInfoData.Length} events");
+            }
+            else
+            {
+                eventInfoData = new GeneralEventInfoData[0];
+                Debug.Log($"{file} has not been loaded");
+            }
+
+            using (var context = new Context(settings))
+            {
+                GameSettings otherSettings = new GameSettings(GameModeSelection.RaymanEducationalPC, Settings.GameDirectories[GameModeSelection.RaymanEducationalPC], settings.World, settings.Level);
+                if (!edu) {
+                    // Find the first Rayman 1 version that the user has actually set up.
+                    foreach (var mode in EnumHelpers.GetValues<GameModeSelection>().Where(x => x.GetAttribute<GameModeAttribute>().EngineVersion == EngineVersion.R1_PC)) {
+                        if (Settings.GameDirectories.ContainsKey(mode) && Directory.Exists(Settings.GameDirectories[mode])) {
+                            otherSettings = new GameSettings(mode, Settings.GameDirectories[mode], settings.World, settings.Level);
+                            break;
+                        }
+                    }
+                }
+
+                using (var otherContext = new Context(otherSettings)) {
+                    // Create manager for the other game, and load its files.
+                    R1_PCBaseManager otherGame;
+                    if (edu) {
+                        otherGame = new R1_PCEdu_Manager();
+                        otherContext.Settings.EduVolume = otherGame.GetLevels(otherContext.Settings).First().Name;
+                    } else
+                        otherGame = new R1_PC_Manager();
+
+                    // Loop through the worlds.
+                    for (int w = 1; w < 7; w++)
+                    {
+                        context.Settings.World = otherContext.Settings.World = w;
+                        var wldPath = GetWorldFilePath(context.Settings);
+
+                        await LoadFilesAsync(context);
+                        await otherGame.LoadFilesAsync(otherContext);
+
+                        // Load our WLD file and the other game's.
+                        var wld = FileFactory.Read<R1_PC_WorldFile>(wldPath, context);
+                        var otherWld = FileFactory.Read<R1_PC_WorldFile>(otherGame.GetWorldFilePath(otherContext.Settings), otherContext);
+
+                        // Get the list of existing ETA and DES files so we know what's missing.
+                        var desNames = wld.DESFileNames.ToArray();
+                        var etaNames = wld.ETAFileNames.ToArray();
+
+                        // Use Events.csv to get mappings from the other game onto this one.
+                        var desMappings = new Dictionary<int, string>() {};
+                        var etaMappings = new Dictionary<int, string>() {};
+                        var r1wld = otherContext.Settings.R1_World;
+                        foreach (var eve in eventInfoData)
+                        {
+                            // Don't bother doing anything if there's a DES listed for stock Kit.
+                            var stockDes = eve.DesKit.TryGetItem(r1wld);
+                            if (stockDes == null || stockDes == "") {
+                                // First see if there's a DES specified for our source game.
+                                var otherDes = edu ? eve.DesEdu.TryGetItem(r1wld) : eve.DesR1.TryGetItem(r1wld);
+                                if (otherDes is int iOtherDes) {
+                                    var desMapping = edu ? eve.DesNameEdu.TryGetItem(r1wld) : eve.DesNameR1.TryGetItem(r1wld);
+                                    if (desMapping != null && desMapping != "" && !desNames.Contains($"{desMapping}.DES")) {
+                                        // The DES is specified in Events.csv, but doesn't exist in the WLD file.
+                                        // Add it to the copy list.
+                                        desMappings[iOtherDes] = $"{desMapping}.DES";
+
+                                        Debug.Log($"Mapping DES {iOtherDes} to {desMapping} based on {eve.Name}");
+                                    }
+                                }
+                            }
+
+                            // Do the same thing for the ETA.
+                            var stockEta = eve.EtaKit.TryGetItem(r1wld);
+                            if (stockEta == null || stockEta == "") {
+                                var otherEta = edu ? eve.EtaEdu.TryGetItem(r1wld) : eve.EtaR1.TryGetItem(r1wld);
+                                if (otherEta is int iOtherEta) {
+                                    var etaMapping = edu ? eve.EtaNameEdu.TryGetItem(r1wld) : eve.EtaNameR1.TryGetItem(r1wld);
+                                    if (etaMapping != null && etaMapping != "" && !etaNames.Contains($"{etaMapping}.ETA")) {
+                                        // The ETA is specified in Events.csv, but doesn't exist in the WLD file.
+                                        // Add it to the copy list.
+                                        etaMappings[iOtherEta] = $"{etaMapping}.ETA";
+                                        Debug.Log($"Mapping ETA {iOtherEta} to {etaMapping} based on {eve.Name}");
+                                    }
+                                }
+                            }
+                        }
+
+                        // Now that we've set up the mappings, carry out the copies!
+                        foreach (var mapping in desMappings) {
+                            Debug.Log($"Attempting to port DES {mapping.Key} -> {mapping.Value}");
+                            wld.DesItems = wld.DesItems.Append(otherWld.DesItems[mapping.Key - otherDesAllfixCount - 1]).ToArray();
+                            wld.DesItemCount = (ushort)wld.DesItems.Length;
+                            wld.DESFileNames[wld.DesItemCount + desAllfixCount - 1] = mapping.Value;
+                        }
+                        foreach (var mapping in etaMappings) {
+                            Debug.Log($"Attempting to port ETA {mapping.Key} -> {mapping.Value}");
+                            wld.Eta = wld.Eta.Append(otherWld.Eta[mapping.Key - otherEtaAllfixCount]).ToArray();
+                            wld.ETAFileNames[wld.Eta.Length + etaAllfixCount - 1] = mapping.Value;
+                        }
+
+                        // Save the WLD
+                        FileFactory.Write<R1_PC_WorldFile>(wldPath, context);
+                    }
+                }
+            }
+
+            // Beef up the memory allocation if necessary.
+            await IncreaseMemAlloc(settings);
+        }
+	
+        public async UniTask IncreaseMemAlloc(GameSettings settings)
+        {
+            const int newMemAlloc = 2048; // 2 MiB should be enough!
+            using (var context = new Context(settings))
+            {
+                await LoadFilesAsync(context);
+
+                Debug.Log("Opening version file...");
+                var commonDat = FileFactory.Read<R1_PC_EncryptedFileArchive>(GetCommonArchiveFilePath(), context);
+                var versionFileName = R1_PC_ArchiveFileName.VERSION.ToString();
+                var versionFile = commonDat.ReadFile<R1_PC_VersionFile>(context, versionFileName);
+
+                Debug.Log("Increasing memory allocation...");
+                // Increase the memory allocated for each version.
+                foreach (var verMemInfo in versionFile.VersionMemoryInfos) {
+                    if (verMemInfo.TailleMainMemWorld < newMemAlloc)
+                        verMemInfo.TailleMainMemWorld = newMemAlloc;
+                    if (verMemInfo.TailleMainMemSprite < newMemAlloc)
+                        verMemInfo.TailleMainMemSprite = newMemAlloc;
+                }
+
+                Debug.Log("Saving version file...");
+                // Reserialize and save out the updated archive.
+                commonDat.RepackArchive(context, new Dictionary<string, Action<SerializerObject>> {
+                                {versionFileName, x => x.SerializeObject<R1_PC_VersionFile>(versionFile, name: versionFileName)}
+                                });
+                Debug.Log("Version file saved.");
+            }
         }
     }
 }

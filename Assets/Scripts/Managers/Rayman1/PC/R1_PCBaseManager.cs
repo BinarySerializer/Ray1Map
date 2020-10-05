@@ -539,6 +539,10 @@ namespace R1Engine
                         {
                             if (ei.DesKit.TryGetValue(context.Settings.R1_World, out string desKit) && desKit == desName.Substring(0, desName.Length - 4))
                                 matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaKit[context.Settings.R1_World])];
+                            else if (ei.DesNameR1.TryGetValue(context.Settings.R1_World, out string desNameR1) && desNameR1 == desName.Substring(0, desName.Length - 4))
+                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaNameR1[context.Settings.R1_World])];
+                            else if (ei.DesNameEdu.TryGetValue(context.Settings.R1_World, out string desNameEdu) && desNameEdu == desName.Substring(0, desName.Length - 4))
+                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaNameEdu[context.Settings.R1_World])];
                         }
                         else
                         {

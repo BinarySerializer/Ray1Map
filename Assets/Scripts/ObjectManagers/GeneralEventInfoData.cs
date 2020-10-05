@@ -19,7 +19,9 @@ namespace R1Engine
             ushort type, string typeName, 
             byte etat, byte subEtat, 
             IDictionary<R1_World, int?> desR1, IDictionary<R1_World, int?> etaR1, 
+            IDictionary<R1_World, string> desNameR1, IDictionary<R1_World, string> etaNameR1,
             IDictionary<R1_World, int?> desEdu, IDictionary<R1_World, int?> etaEdu, 
+            IDictionary<R1_World, string> desNameEdu, IDictionary<R1_World, string> etaNameEdu,
             IDictionary<R1_World, string> desKit, IDictionary<R1_World, string> etaKit,
             byte offsetBx, byte offsetBy, byte offsetHy,
             byte followSprite, uint hitPoints, byte hitSprite, bool followEnabled, 
@@ -33,8 +35,12 @@ namespace R1Engine
             SubEtat = subEtat;
             DesR1 = new ReadOnlyDictionary<R1_World, int?>(desR1);
             EtaR1 = new ReadOnlyDictionary<R1_World, int?>(etaR1);
+            DesNameR1 = new ReadOnlyDictionary<R1_World, string>(desNameR1);
+            EtaNameR1 = new ReadOnlyDictionary<R1_World, string>(etaNameR1);
             DesEdu = new ReadOnlyDictionary<R1_World, int?>(desEdu);
             EtaEdu = new ReadOnlyDictionary<R1_World, int?>(etaEdu);
+            DesNameEdu = new ReadOnlyDictionary<R1_World, string>(desNameEdu);
+            EtaNameEdu = new ReadOnlyDictionary<R1_World, string>(etaNameEdu);
             DesKit = new ReadOnlyDictionary<R1_World, string>(desKit);
             EtaKit = new ReadOnlyDictionary<R1_World, string>(etaKit);
             OffsetBX = offsetBx;
@@ -63,9 +69,13 @@ namespace R1Engine
 
         public IReadOnlyDictionary<R1_World, int?> DesR1 { get; }
         public IReadOnlyDictionary<R1_World, int?> EtaR1 { get; }
+        public IReadOnlyDictionary<R1_World, string> DesNameR1 { get; }
+        public IReadOnlyDictionary<R1_World, string> EtaNameR1 { get; }
 
         public IReadOnlyDictionary<R1_World, int?> DesEdu { get; }
         public IReadOnlyDictionary<R1_World, int?> EtaEdu { get; }
+        public IReadOnlyDictionary<R1_World, string> DesNameEdu { get; }
+        public IReadOnlyDictionary<R1_World, string> EtaNameEdu { get; }
 
         public IReadOnlyDictionary<R1_World, string> DesKit { get; }
         public IReadOnlyDictionary<R1_World, string> EtaKit { get; }
@@ -147,7 +157,9 @@ namespace R1Engine
                             type: nextUShortValue(), typeName: nextValue(), 
                             etat: nextByteValue(), subEtat: nextByteValue(), 
                             desR1: toDictionary(next32NullableArrayValue()), etaR1: toDictionary(next32NullableArrayValue()), 
+                            desNameR1: toDictionary(nextStringArrayValue()), etaNameR1: toDictionary(nextStringArrayValue()), 
                             desEdu: toDictionary(next32NullableArrayValue()), etaEdu: toDictionary(next32NullableArrayValue()), 
+                            desNameEdu: toDictionary(nextStringArrayValue()), etaNameEdu: toDictionary(nextStringArrayValue()), 
                             desKit: toDictionary(nextStringArrayValue()), etaKit: toDictionary(nextStringArrayValue()), 
                             offsetBx: nextByteValue(), offsetBy: nextByteValue(), offsetHy: nextByteValue(), 
                             followSprite: nextByteValue(), hitPoints: nextUIntValue(), hitSprite: nextByteValue(), followEnabled: nextBoolValue(), 
@@ -223,7 +235,9 @@ namespace R1Engine
                     "Type", "TypeName", 
                     "Etat", "SubEtat", 
                     "DesR1", "EtaR1", 
+                    "DesNameR1", "EtaNameR1", 
                     "DesEdu", "EtaEdu", 
+                    "DesNameEdu", "EtaNameEdu", 
                     "DesKit", "EtaKit", 
                     "OffsetBX", "OffsetBY", "OffsetHY", 
                     "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", 
@@ -240,7 +254,9 @@ namespace R1Engine
                         e.Type, e.TypeName, 
                         e.Etat, e.SubEtat, 
                         e.DesR1, e.EtaR1, 
+                        e.DesNameR1, e.EtaNameR1, 
                         e.DesEdu, e.EtaEdu, 
+                        e.DesNameEdu, e.EtaNameEdu, 
                         e.DesKit, e.EtaKit, 
                         e.OffsetBX, e.OffsetBY, e.OffsetHY, 
                         e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, 

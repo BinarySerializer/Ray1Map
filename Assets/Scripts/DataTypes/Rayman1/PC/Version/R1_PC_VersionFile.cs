@@ -34,6 +34,9 @@
                 DefaultSecondaryHeader = s.SerializeString(DefaultSecondaryHeader, 5, name: nameof(DefaultSecondaryHeader));
                 UnkHeaderValue = s.Serialize<ushort>(UnkHeaderValue, name: nameof(UnkHeaderValue));
             });
+
+            // Make sure we actually end up at the end of the file.
+            s.Goto(Offset + (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit ? 0x39E : 0x31E));
         }
     }
 }
