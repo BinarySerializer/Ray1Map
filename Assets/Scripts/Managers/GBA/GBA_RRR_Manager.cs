@@ -104,25 +104,30 @@ namespace R1Engine
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            var tilemap = LoadTileSet(rom.TileMap);
+            var tilemap = LoadTileSet(rom.TileMap, false);
+            var alphaBlendingTilemap = LoadTileSet(rom.AlphaTileMap, true);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
 
-            var map = LoadMap(rom.LevelMap, rom.CollisionMap, tilemap);
+            var primaryMap = LoadMap(rom.LevelMap, rom.CollisionMap, tilemap);
+            var alphaMap = LoadMap(rom.AlphaBlendingMap, null, alphaBlendingTilemap);
 
             await Controller.WaitIfNecessary();
 
             return new Unity_Level(
                 maps: new Unity_Map[]
                 {
-                    map
+                    primaryMap,
+                    alphaMap
                 }, 
                 objManager: new Unity_ObjectManager_GBARRR(context),
                 eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x)).ToList(),
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                 cellSize: CellSize,
-                localization: LoadLocalization(rom.Localization)
+                localization: LoadLocalization(rom.Localization),
+                defaultCollisionMap: 0,
+                defaultMap: 1
             );
         }
 
@@ -149,33 +154,35 @@ namespace R1Engine
 
                     var index_32 = y * mapBlock.MapWidth + x;
                     var tile_32 = mapBlock.Indices_32[index_32];
-                    var col_32 = collisionBlock.Indices_32[index_32];
+                    var col_32 = collisionBlock?.Indices_32[index_32];
 
                     var tiles_16 = mapBlock.Indices_16[tile_32];
-                    var col_16 = collisionBlock.Indices_16[col_32];
+                    var col_16 = col_32 != null ? collisionBlock.Indices_16[col_32.Value] : null;
 
                     setTiles16(0, 0, 0);
                     setTiles16(2, 0, 1);
                     setTiles16(0, 2, 2);
                     setTiles16(2, 2, 3);
-
+                    
                     void setTiles16(int offX, int offY, int index)
                     {
-                        var tiles_8 = mapBlock.TileIndices_8[tiles_16.TileIndices[index]];
-                        var col_8 = collisionBlock.CollisionTypes_8[col_16.TileIndices[index]];
+                        var tiles_8 = mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending 
+                            ? mapBlock.AlphaTileIndices_8[tiles_16.TileIndices[index]].TileInfos.Select(tileInfo => tileInfo.TileIndex).ToArray() 
+                            : mapBlock.TileIndices_8[tiles_16.TileIndices[index]].TileIndices;
+                        var col_8 = col_16 != null ? collisionBlock?.CollisionTypes_8[col_16.TileIndices[index]] : null;
 
-                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8.TileIndices[0], (byte)col_8.CollisionTypes[0]);
-                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8.TileIndices[1], (byte)col_8.CollisionTypes[1]);
-                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8.TileIndices[2], (byte)col_8.CollisionTypes[2]);
-                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8.TileIndices[3], (byte)col_8.CollisionTypes[3]);
+                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8[0], (byte?)col_8?.CollisionTypes[0]);
+                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8[1], (byte?)col_8?.CollisionTypes[1]);
+                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8[2], (byte?)col_8?.CollisionTypes[2]);
+                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8[3], (byte?)col_8?.CollisionTypes[3]);
                     }
 
-                    void setTileAt(int tileX, int tileY, ushort tileIndex, byte collisionType)
+                    void setTileAt(int tileX, int tileY, ushort tileIndex, byte? collisionType)
                     {
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
                             TileMapX = tileIndex,
-                            CollisionType = collisionType
+                            CollisionType = collisionType ?? 0
                         });
                     }
                 }
@@ -184,97 +191,59 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(GBARRR_TileMap tilemap)
+        public Unity_MapTileMap LoadTileSet(GBARRR_TileMap tilemap, bool is4bit)
         {
-            const int block_size = 0x40;
+            int block_size = is4bit ? 0x20 : 0x40;
             const float texWidth = 256f;
             var tileCount = tilemap.Data.Length / block_size;
+            var palCount = is4bit ? 16 : 1; // Duplicate tiles for every palette if 4-bit
+            var texHeight = Mathf.CeilToInt((tileCount) / (texWidth / CellSize)) * CellSize;
 
             // Get the tile-set texture
-            var tex = TextureHelpers.CreateTexture2D((int)texWidth, Mathf.CeilToInt(tileCount / (texWidth / CellSize)) * CellSize);
+            var tex = TextureHelpers.CreateTexture2D((int)texWidth, texHeight * palCount);
 
-            var tileIndex = 0;
-
-            for (int y = 0; y < tex.height; y += CellSize)
+            for (int p = 0; p < palCount; p++)
             {
-                for (int x = 0; x < tex.width; x += CellSize)
+                var tileIndex = 0;
+
+                for (int y = 0; y < tex.height; y += CellSize)
                 {
-                    if (tileIndex >= tileCount)
-                        break;
-
-                    var offset = tileIndex * block_size;
-
-                    for (int yy = 0; yy < CellSize; yy++)
+                    for (int x = 0; x < tex.width; x += CellSize)
                     {
-                        for (int xx = 0; xx < CellSize; xx++)
+                        if (tileIndex >= tileCount)
+                            break;
+
+                        var offset = tileIndex * block_size;
+
+                        for (int yy = 0; yy < CellSize; yy++)
                         {
-                            var b = tilemap.Data[offset + (yy * CellSize) + xx];
+                            for (int xx = 0; xx < CellSize; xx++)
+                            {
+                                Color c;
 
-                            Color c = tilemap.Palette[b].GetColor();
+                                if (is4bit)
+                                {
+                                    var off = offset + ((yy * CellSize) + xx) / 2;
+                                    var b = tilemap.Data[off];
+                                    b = (byte)BitHelpers.ExtractBits(b, 4, off % 2 == 0 ? 0 : 4);
+                                    c = tilemap.Palette[p * 16 + b].GetColor();
+                                    c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
+                                }
+                                else
+                                {
+                                    var b = tilemap.Data[offset + (yy * CellSize) + xx];
+                                    c = tilemap.Palette[b].GetColor();
+                                    c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
+                                }
 
-                            c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
-
-                            tex.SetPixel(x + xx, y + yy, c);
+                                tex.SetPixel(x + xx, p * texHeight + y + yy, c);
+                            }
                         }
-                    }
 
-                    tileIndex++;
+                        tileIndex++;
+                    }
                 }
             }
-
-            //var primaryRefIndex = 0;
-
-            //for (int y = 0; y < tex.height; y += CellSize)
-            //{
-            //    for (int x = 0; x < tex.width; x += CellSize)
-            //    {
-            //        if (primaryRefIndex >= map.PrimaryTileReferences.Length)
-            //            break;
-
-            //        var primaryRef = map.PrimaryTileReferences[primaryRefIndex];
-
-            //        var primaryRelX = x / tileSize;
-            //        var primaryRelY = y / tileSize;
-
-            //        fill(0, 0, 0);
-            //        fill(2, 0, 1);
-            //        fill(0, 2, 2);
-            //        fill(2, 2, 3);
-
-            //        void fill(int relX, int relY, int index)
-            //        {
-            //            fillAt(primaryRelX + relX, primaryRelY + relY, block_size * map.SecondaryTileReferences[primaryRef.TileIndices[index]].TileIndices[0]);
-            //            fillAt(primaryRelX + relX + 1, primaryRelY + relY, block_size * map.SecondaryTileReferences[primaryRef.TileIndices[index]].TileIndices[1]);
-            //            fillAt(primaryRelX + relX, primaryRelY + relY + 1, block_size * map.SecondaryTileReferences[primaryRef.TileIndices[index]].TileIndices[2]);
-            //            fillAt(primaryRelX + relX + 1, primaryRelY + relY + 1, block_size * map.SecondaryTileReferences[primaryRef.TileIndices[index]].TileIndices[3]);
-            //        }
-
-            //        void fillAt(int relX, int relY, int offset)
-            //        {
-            //            if (offset >= tilemap.Data.Length)
-            //                return;
-
-            //            for (int yy = 0; yy < 8; yy++)
-            //            {
-            //                for (int xx = 0; xx < 8; xx++)
-            //                {
-            //                    int actualX = relX * 8 + xx;
-            //                    int actualY = relY * 8 + yy;
-
-            //                    var b = tilemap.Data[offset + (yy * 8) + xx];
-
-            //                    Color c = tilemap.Palette[b].GetColor();
-
-            //                    c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
-
-            //                    tex.SetPixel(actualX, actualY, c);
-            //                }
-            //            }
-            //        }
-
-            //        primaryRefIndex++;
-            //    }
-            //}
 
             tex.Apply();
 

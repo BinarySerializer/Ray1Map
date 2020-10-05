@@ -7,11 +7,12 @@
         public GBARRR_LocalizationBlock Localization { get; set; }
 
         public GBARRR_TileMap TileMap { get; set; }
+        public GBARRR_TileMap AlphaTileMap { get; set; }
 
         public GBARRR_Scene LevelScene { get; set; }
         public GBARRR_MapBlock CollisionMap { get; set; }
         public GBARRR_MapBlock LevelMap { get; set; }
-        public GBARRR_MapBlock LightMap { get; set; }
+        public GBARRR_MapBlock AlphaBlendingMap { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -31,9 +32,11 @@
             OffsetTable.DoAtBlock(s.Context, 3, size =>
                 Localization = s.SerializeObject<GBARRR_LocalizationBlock>(Localization, name: nameof(Localization)));
 
-            // Serialize tile map
+            // Serialize tile maps
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].TileMapIndex, size =>
-                TileMap = s.SerializeObject<GBARRR_TileMap>(TileMap, name: nameof(TileMap)));
+                TileMap = s.SerializeObject<GBARRR_TileMap>(TileMap, name: nameof(TileMap), onPreSerialize: x => x.BlockSize = size));
+            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].AlphaTileMapIndex, size =>
+                AlphaTileMap = s.SerializeObject<GBARRR_TileMap>(AlphaTileMap, name: nameof(AlphaTileMap), onPreSerialize: x => x.BlockSize = size));
 
             // Serialize level scene
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].SceneIndex, size => LevelScene = s.SerializeObject<GBARRR_Scene>(LevelScene, name: nameof(LevelScene)));
@@ -43,8 +46,8 @@
                 CollisionMap = s.SerializeObject<GBARRR_MapBlock>(CollisionMap, name: nameof(CollisionMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Collision));
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].LevelMapIndex, size => 
                 LevelMap = s.SerializeObject<GBARRR_MapBlock>(LevelMap, name: nameof(LevelMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Tiles));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].LightMapIndex, size => 
-                LightMap = s.SerializeObject<GBARRR_MapBlock>(LightMap, name: nameof(LightMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Light));
+            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].AlphaBlendingMapIndex, size => 
+                AlphaBlendingMap = s.SerializeObject<GBARRR_MapBlock>(AlphaBlendingMap, name: nameof(AlphaBlendingMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.AlphaBlending));
         }
     }
 }
