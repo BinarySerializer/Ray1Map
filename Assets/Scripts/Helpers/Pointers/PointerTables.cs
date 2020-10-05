@@ -352,5 +352,26 @@ namespace R1Engine
                     return null;
             }
         }
+
+        /// <summary>
+        /// Gets the pointer table for the specified GBA RRR version
+        /// </summary>
+        /// <param name="gameMode">The GBA game mode</param>
+        /// <param name="romFile">The rom file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<GBARRR_Pointer, Pointer> GBARRR_PointerTable(GameModeSelection gameMode, BinaryFile romFile)
+        {
+            switch (gameMode)
+            {
+                case GameModeSelection.RaymanRavingRabbidsGBAEU:
+                    return new Dictionary<GBARRR_Pointer, uint>() {
+                        [GBARRR_Pointer.LevelInfo] = 0x08055FC4,
+                        [GBARRR_Pointer.OffsetTable] = 0x08722374,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                default:
+                    return null;
+            }
+        }
     }
 }

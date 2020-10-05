@@ -9,6 +9,7 @@
         Rayman1_Jaguar,
         SNES,
         //GBC,
-        GBA
+        GBA,
+        GBARRR
     }
 }

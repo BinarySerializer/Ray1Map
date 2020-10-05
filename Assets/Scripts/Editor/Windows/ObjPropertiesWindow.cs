@@ -76,6 +76,8 @@ public class ObjPropertiesWindow : UnityWindow
                         jag.Instance.SerializeImpl(Serializer);
                     else if (selectedObjData is Unity_Object_GBA gba)
                         gba.Actor.SerializeImpl(Serializer);
+                    else if (selectedObjData is Unity_Object_GBARRR gbaRRR)
+                        gbaRRR.Actor.SerializeImpl(Serializer);
 
                     if (EditorGUI.EndChangeCheck())
                         selectedObjData.HasPendingEdits = true;

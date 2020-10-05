@@ -25,6 +25,9 @@ namespace R1Engine
                 case Game.GBA_Rayman3:
                     return Rayman3GBAMapNames;
 
+                case Game.GBARRR_RavingRabbids:
+                    return RavingRabbidsNames;
+
                 case Game.R1_Mapper:
                 case Game.R1_ByHisFans:
                 case Game.R1_60Levels:
@@ -282,9 +285,6 @@ namespace R1Engine
             },
         };
 
-        /// <summary>
-        /// The Rayman Designer map names
-        /// </summary>
         private static Dictionary<int, Dictionary<int, string>> Rayman3GBAMapNames { get; } = new Dictionary<int, Dictionary<int, string>>()
         {
             [0] = new Dictionary<int, string>()
@@ -384,6 +384,43 @@ namespace R1Engine
             {
                 [91] = "Menu",
                 [117] = "Ubisoft Logo",
+            },
+        };
+
+        private static Dictionary<int, Dictionary<int, string>> RavingRabbidsNames { get; } = new Dictionary<int, Dictionary<int, string>>()
+        {
+            [0] = new Dictionary<int, string>()
+            {
+                [0] = "Wailing jail",
+                [1] = "Boss Prison",
+                [2] = "Child's play",
+                [3] = "The kids' hamlet",
+                [4] = "The toy chase",
+                [5] = "Toy box",
+                [6] = "Celestial castle",
+                [7] = "Dream forest",
+                [8] = "The leafy valley",
+                [9] = "Colonial jungle",
+                [10] = "The lush mountaintops",
+                [11] = "Hidden burrow",
+                [12] = "Stomach circuit",
+                [13] = "Gastric rivers",
+                [14] = "Living cavern",
+                [15] = "Swallowed treasures",
+                [16] = "The sticky lair",
+                [17] = "The desert of desserts",
+                [18] = "Cake race",
+                [19] = "The sweet islands",
+                [20] = "Not a piece of cake!",
+                [21] = "Tart tunnels",
+                [22] = "Ginger-bunny-bread",
+                [23] = "Filthy corridors",
+                [24] = "Agony jails",
+                [25] = "Infernal escape",
+                [26] = "Spikes and yikes!",
+                [27] = "The rabbids' lair",
+                [28] = "Village",
+                [29] = "Shooting Range",
             },
         };
     }

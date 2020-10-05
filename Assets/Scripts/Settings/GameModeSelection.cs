@@ -233,7 +233,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SurfsUp, Game.GBA_SurfsUp, "Surf's Up (GBA - US)", typeof(GBA_SurfsUp_Manager))]
         SurfsUpUS,
 
-        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman Raving Rabbids (GBA)", typeof(GBA_RRR_Manager))]
-        RaymanRavingRabbidsGBA,
+        // GBA RRR
+
+        [GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - EU)", typeof(GBA_RRR_Manager))]
+        RaymanRavingRabbidsGBAEU,
     }
 }

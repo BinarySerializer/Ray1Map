@@ -36,5 +36,9 @@
         GBA_OpenSeason,
         GBA_SurfsUp,
         GBA_TMNT,
+
+        // GBA RRR
+        
+        GBARRR_RavingRabbids
     }
 }

@@ -53,5 +53,9 @@ namespace R1Engine
         GBA_OpenSeason,                  // 2006
         GBA_TMNT,                        // 2007
         GBA_SurfsUp,                     // 2007
+
+        // GBA RRR
+
+        GBARRR
     }
 }

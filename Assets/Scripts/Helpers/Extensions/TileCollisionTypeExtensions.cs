@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public static class TileCollisionTypeExtensions
     {
@@ -307,6 +305,33 @@ namespace R1Engine
 
                 case GBA_TileCollisionType.Cliff:
                     return Unity_MapCollisionTypeGraphic.Cliff;
+
+                default:
+                    return Unity_MapCollisionTypeGraphic.Unknown0;
+            }
+        }
+
+        public static Unity_MapCollisionTypeGraphic GetCollisionTypeGraphic(this GBARRR_TileCollisionType collisionType)
+        {
+            switch (collisionType)
+            {
+                case GBARRR_TileCollisionType.Empty:
+                    return Unity_MapCollisionTypeGraphic.None;
+
+                case GBARRR_TileCollisionType.Solid:
+                    return Unity_MapCollisionTypeGraphic.Solid;
+
+                case GBARRR_TileCollisionType.Climb:
+                    return Unity_MapCollisionTypeGraphic.Climb_Full;
+
+                case GBARRR_TileCollisionType.Damage:
+                    return Unity_MapCollisionTypeGraphic.Damage;
+
+                case GBARRR_TileCollisionType.Solid_Right_1:
+                    return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
+
+                case GBARRR_TileCollisionType.Solid_Right_2:
+                    return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
