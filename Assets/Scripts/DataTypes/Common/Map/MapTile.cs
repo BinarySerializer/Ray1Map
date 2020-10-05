@@ -40,6 +40,8 @@ namespace R1Engine
         public bool Is8Bpp { get; set; }
         public bool IsFirstBlock { get; set; }
 
+        public GBARRR_MapBlock.MapType GBARRRType { get; set; }
+
         public enum GBA_TileType {
             BGTile,
             Normal,
@@ -232,6 +234,27 @@ namespace R1Engine
                     TileMapX = (ushort)bitFunc(TileMapX, 9, name: nameof(TileMapX));
                     CollisionType = (byte)bitFunc(CollisionType, 7, name: nameof(CollisionType));
                 });
+            }
+            else if (s.GameSettings.MajorEngineVersion == MajorEngineVersion.GBARRR)
+            {
+                if (GBARRRType == GBARRR_MapBlock.MapType.Collision)
+                {
+                    CollisionType = s.Serialize<byte>(CollisionType, name: nameof(CollisionType));
+                }
+                else if (GBARRRType == GBARRR_MapBlock.MapType.Tiles)
+                {
+                    TileMapX = s.Serialize<ushort>(TileMapX, name: nameof(TileMapX));
+                }
+                else if (GBARRRType == GBARRR_MapBlock.MapType.AlphaBlending)
+                {
+                    s.SerializeBitValues<ushort>(bitFunc =>
+                    {
+                        TileMapX = (ushort)bitFunc(TileMapX, 10, name: nameof(TileMapX));
+                        HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
+                        VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
+                        //Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
+                    });
+                }
             }
         }
 

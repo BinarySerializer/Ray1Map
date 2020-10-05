@@ -6,7 +6,7 @@
         public uint Index_01 { get; set; }
         public uint Index_02 { get; set; }
         public uint AlphaTileMapIndex { get; set; }
-        public uint Index_04 { get; set; } // Tilemap - background?
+        public uint BG1TileMapIndex { get; set; }
         public uint Index_05 { get; set; } // Some scene-like struct with objects
         public uint SceneIndex { get; set; }
         public uint CollisionMapIndex { get; set; }
@@ -20,7 +20,7 @@
             Index_01 = s.Serialize<uint>(Index_01, name: nameof(Index_01));
             Index_02 = s.Serialize<uint>(Index_02, name: nameof(Index_02));
             AlphaTileMapIndex = s.Serialize<uint>(AlphaTileMapIndex, name: nameof(AlphaTileMapIndex));
-            Index_04 = s.Serialize<uint>(Index_04, name: nameof(Index_04));
+            BG1TileMapIndex = s.Serialize<uint>(BG1TileMapIndex, name: nameof(BG1TileMapIndex));
             Index_05 = s.Serialize<uint>(Index_05, name: nameof(Index_05));
             SceneIndex = s.Serialize<uint>(SceneIndex, name: nameof(SceneIndex));
             CollisionMapIndex = s.Serialize<uint>(CollisionMapIndex, name: nameof(CollisionMapIndex));

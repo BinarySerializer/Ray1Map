@@ -145,6 +145,10 @@ namespace R1Engine
                 MapTiles = new Unity_Tile[mapBlock.MapWidth * 4 * mapBlock.MapHeight * 4]
             };
 
+            // TODO: Fix this
+            if (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending)
+                map.Alpha = 0.5f;
+
             for (int y = 0; y < mapBlock.MapHeight; y++)
             {
                 for (int x = 0; x < mapBlock.MapWidth; x++)
@@ -166,24 +170,31 @@ namespace R1Engine
                     
                     void setTiles16(int offX, int offY, int index)
                     {
-                        var tiles_8 = mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending 
-                            ? mapBlock.AlphaTileIndices_8[tiles_16.TileIndices[index]].TileInfos.Select(tileInfo => tileInfo.TileIndex).ToArray() 
-                            : mapBlock.TileIndices_8[tiles_16.TileIndices[index]].TileIndices;
-                        var col_8 = col_16 != null ? collisionBlock?.CollisionTypes_8[col_16.TileIndices[index]] : null;
+                        var i = tiles_16.TileIndices[index];
+                        var tiles_8 = mapBlock.Tiles_8[i].Tiles;
+                        var col_8 = col_16 != null ? collisionBlock?.Tiles_8[col_16.TileIndices[index]].Tiles : null;
 
-                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8[0], (byte?)col_8?.CollisionTypes[0]);
-                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8[1], (byte?)col_8?.CollisionTypes[1]);
-                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8[2], (byte?)col_8?.CollisionTypes[2]);
-                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8[3], (byte?)col_8?.CollisionTypes[3]);
+                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8[0], col_8?[0].CollisionType, $"{i}-0");
+                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8[1], col_8?[1].CollisionType, $"{i}-1");
+                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8[2], col_8?[2].CollisionType, $"{i}-2");
+                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8[3], col_8?[3].CollisionType, $"{i}-3");
                     }
 
-                    void setTileAt(int tileX, int tileY, ushort tileIndex, byte? collisionType)
+                    void setTileAt(int tileX, int tileY, MapTile tile, byte? collisionType, string debugString)
                     {
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
-                            TileMapX = tileIndex,
-                            CollisionType = collisionType ?? 0
-                        });
+                            TileMapX = mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending 
+                                // TODO: Which palette to use? 0xD works in map 0 for some things.
+                                ? (ushort)(tile.TileMapX + 0xD * (tilemap.Tiles.Length / 16)) 
+                                : tile.TileMapX,
+                            CollisionType = collisionType ?? 0,
+                            HorizontalFlip = tile.HorizontalFlip,
+                            VerticalFlip = tile.VerticalFlip
+                        })
+                        {
+                            DebugText = debugString
+                        };
                     }
                 }
             }

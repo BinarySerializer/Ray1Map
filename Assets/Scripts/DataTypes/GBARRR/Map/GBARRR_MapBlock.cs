@@ -14,11 +14,9 @@
 
         public ushort[] Indices_32 { get; set; } // 32x32 tiles
 
-        public GBARRR_CollisionTypes[] CollisionTypes_8 { get; set; } // 8x8 collision types
-        public GBARRR_TileReference[] TileIndices_8 { get; set; } // 8x8 tile indices
-        public GBARRR_AlphaTileReference[] AlphaTileIndices_8 { get; set; } // 8x8 alpha tile indices
+        public GBARRR_MapTiles[] Tiles_8 { get; set; } // 8x8 tile indices
 
-        public GBARRR_TileReference[] Indices_16 { get; set; } // 16x16 secondary tile indices
+        public GBARRR_TileReferences[] Indices_16 { get; set; } // 16x16 secondary tile indices
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -34,14 +32,9 @@
 
             Indices_32 = s.SerializeArray<ushort>(Indices_32, MapWidth * MapHeight, name: nameof(Indices_32));
 
-            if (Type == MapType.Collision)
-                CollisionTypes_8 = s.DoAt(Offset + Indices_8Offset, () => s.SerializeObjectArray<GBARRR_CollisionTypes>(CollisionTypes_8, Indices_8Count, name: nameof(CollisionTypes_8)));
-            else if (Type == MapType.Tiles)
-                TileIndices_8 = s.DoAt(Offset + Indices_8Offset, () => s.SerializeObjectArray<GBARRR_TileReference>(TileIndices_8, Indices_8Count, name: nameof(TileIndices_8)));
-            else if (Type == MapType.AlphaBlending)
-                AlphaTileIndices_8 = s.DoAt(Offset + Indices_8Offset, () => s.SerializeObjectArray<GBARRR_AlphaTileReference>(AlphaTileIndices_8, Indices_8Count, name: nameof(AlphaTileIndices_8)));
+            Tiles_8 = s.DoAt(Offset + Indices_8Offset, () => s.SerializeObjectArray<GBARRR_MapTiles>(Tiles_8, Indices_8Count, name: nameof(Tiles_8), onPreSerialize: x => x.Type = Type));
 
-            Indices_16 = s.DoAt(Offset + Indices_16Offset, () => s.SerializeObjectArray<GBARRR_TileReference>(Indices_16, Indices_16Count, name: nameof(Indices_16)));
+            Indices_16 = s.DoAt(Offset + Indices_16Offset, () => s.SerializeObjectArray<GBARRR_TileReferences>(Indices_16, Indices_16Count, name: nameof(Indices_16)));
         }
 
         public enum MapType
@@ -51,17 +44,7 @@
             AlphaBlending
         }
 
-        public class GBARRR_CollisionTypes : R1Serializable
-        {
-            public GBARRR_TileCollisionType[] CollisionTypes { get; set; }
-
-            public override void SerializeImpl(SerializerObject s)
-            {
-                CollisionTypes = s.SerializeArray<GBARRR_TileCollisionType>(CollisionTypes, 4, name: nameof(CollisionTypes));
-            }
-        }
-
-        public class GBARRR_TileReference : R1Serializable
+        public class GBARRR_TileReferences : R1Serializable
         {
             public ushort[] TileIndices { get; set; }
 
@@ -71,28 +54,15 @@
             }
         }
 
-        public class GBARRR_AlphaTileReference : R1Serializable
+        public class GBARRR_MapTiles : R1Serializable
         {
-            public GBARRR_AlphaTileInfo[] TileInfos { get; set; }
+            public MapType Type { get; set; }
+
+            public MapTile[] Tiles { get; set; }
 
             public override void SerializeImpl(SerializerObject s)
             {
-                TileInfos = s.SerializeObjectArray<GBARRR_AlphaTileInfo>(TileInfos, 4, name: nameof(TileInfos));
-            }
-
-            public class GBARRR_AlphaTileInfo : R1Serializable
-            {
-                public ushort TileIndex { get; set; }
-                public byte Unk { get; set; } // Either 0 or 15 - palette index? Alpha flag?
-
-                public override void SerializeImpl(SerializerObject s)
-                {
-                    s.SerializeBitValues<ushort>(bitFunc =>
-                    {
-                        TileIndex = (ushort)bitFunc(TileIndex, 12, name: nameof(TileIndex));
-                        Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
-                    });
-                }
+                Tiles = s.SerializeObjectArray<MapTile>(Tiles, 4, name: nameof(Tiles), onPreSerialize: x => x.GBARRRType = Type);
             }
         }
     }
