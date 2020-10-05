@@ -324,14 +324,35 @@
                 case GBARRR_TileCollisionType.Climb:
                     return Unity_MapCollisionTypeGraphic.Climb_Full;
 
+                case GBARRR_TileCollisionType.Hang:
+                    return Unity_MapCollisionTypeGraphic.Climb_Hang;
+
+                case GBARRR_TileCollisionType.ClimbableWalls:
+                    return Unity_MapCollisionTypeGraphic.Climb;
+
                 case GBARRR_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
+
+                case GBARRR_TileCollisionType.Solid_Left_1:
+                    return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
+
+                case GBARRR_TileCollisionType.Solid_Left_2:
+                    return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_2;
+
+                case GBARRR_TileCollisionType.Solid_Right_2:
+                    return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
 
                 case GBARRR_TileCollisionType.Solid_Right_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_1;
 
-                case GBARRR_TileCollisionType.Solid_Right_2:
-                    return Unity_MapCollisionTypeGraphic.Hill_Slight_Right_2;
+                case GBARRR_TileCollisionType.Solid_Left:
+                    return Unity_MapCollisionTypeGraphic.Hill_Steep_Left;
+
+                case GBARRR_TileCollisionType.Solid_Right:
+                    return Unity_MapCollisionTypeGraphic.Hill_Steep_Right;
+
+                case GBARRR_TileCollisionType.InstaKill:
+                    return Unity_MapCollisionTypeGraphic.Spikes;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;
