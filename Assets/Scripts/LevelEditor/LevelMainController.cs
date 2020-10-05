@@ -55,7 +55,7 @@ namespace R1Engine
 
             using (serializeContext) {
                 // Init editor data
-                await LevelEditorData.Init();
+                await LevelEditorData.InitAsync();
                 await Controller.WaitIfNecessary();
 
                 // Load the level

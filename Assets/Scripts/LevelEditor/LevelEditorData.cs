@@ -24,7 +24,7 @@ namespace R1Engine
         public static bool ShowOnlyActiveSector { get; set; }
         public static int ActiveSector { get; set; }
 
-        public static async UniTask Init()
+        public static async UniTask InitAsync()
         {
             const string file = "Events.csv";
 
