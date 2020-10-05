@@ -4,6 +4,7 @@
     {
         public GBARRR_OffsetTable OffsetTable { get; set; }
         public GBARRR_LevelInfo[] LevelInfo { get; set; }
+        public GBARRR_LocalizationBlock Localization { get; set; }
 
         public GBARRR_TileMap TileMap { get; set; }
 
@@ -25,6 +26,10 @@
 
             // Serialize level info
             LevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.LevelInfo], () => s.SerializeObjectArray<GBARRR_LevelInfo>(LevelInfo, 29, name: nameof(LevelInfo)));
+
+            // Serialize localization
+            OffsetTable.DoAtBlock(s.Context, 3, size =>
+                Localization = s.SerializeObject<GBARRR_LocalizationBlock>(Localization, name: nameof(Localization)));
 
             // Serialize tile map
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].TileMapIndex, size =>

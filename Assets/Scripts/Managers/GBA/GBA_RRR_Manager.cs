@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -120,7 +121,8 @@ namespace R1Engine
                 objManager: new Unity_ObjectManager_GBARRR(context),
                 eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x)).ToList(),
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
-                cellSize: CellSize
+                cellSize: CellSize,
+                localization: LoadLocalization(rom.Localization)
             );
         }
 
@@ -277,6 +279,26 @@ namespace R1Engine
             tex.Apply();
 
             return new Unity_MapTileMap(tex, CellSize);
+        }
+
+        public IReadOnlyDictionary<string, string[]> LoadLocalization(GBARRR_LocalizationBlock loc)
+        {
+            var dictionary = new Dictionary<string, string[]>();
+
+            var languages = new string[]
+            {
+                "English",
+                "French",
+                "German",
+                "Italian",
+                "Dutch",
+                "Spanish"
+            };
+
+            for (int i = 0; i < loc.Strings.Length; i++)
+                dictionary.Add(languages[i], loc.Strings[i].Where(x => !String.IsNullOrWhiteSpace(x)).ToArray());
+
+            return dictionary;
         }
 
         public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
