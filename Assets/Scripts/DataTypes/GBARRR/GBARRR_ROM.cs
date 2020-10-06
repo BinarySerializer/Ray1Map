@@ -14,8 +14,8 @@
         public GBARRR_Tileset BG1TileSet { get; set; }
 
         // Map data
-        // TODO: BG0 Map
-        // TODO: BG1 Map
+        public GBARRR_BGMapBlock BG0Map { get; set; }
+        public GBARRR_BGMapBlock BG1Map { get; set; }
         public GBARRR_Scene LevelScene { get; set; }
         public GBARRR_MapBlock CollisionMap { get; set; }
         public GBARRR_MapBlock LevelMap { get; set; }
@@ -57,6 +57,10 @@
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].SceneIndex, size => LevelScene = s.SerializeObject<GBARRR_Scene>(LevelScene, name: nameof(LevelScene)));
 
             // Serialize maps
+            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].BG0MapIndex, size => 
+                BG0Map = s.SerializeObject<GBARRR_BGMapBlock>(BG0Map, name: nameof(BG0Map)));
+            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].BG1MapIndex, size => 
+                BG1Map = s.SerializeObject<GBARRR_BGMapBlock>(BG1Map, name: nameof(BG1Map)));
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].CollisionMapIndex, size => 
                 CollisionMap = s.SerializeObject<GBARRR_MapBlock>(CollisionMap, name: nameof(CollisionMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Collision));
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].LevelMapIndex, size => 

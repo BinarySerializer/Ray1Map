@@ -111,30 +111,50 @@ namespace R1Engine
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            var tileset = LoadTileSet(rom.LevelTileset, false);
-            var foregroundTileset = LoadTileSet(rom.FGTileSet, true);
+            var bg0Tileset = LoadTileSet(rom.BG0TileSet, true, 15, 1);
+            var bg1Tileset = LoadTileSet(rom.BG1TileSet, true, 12, 1);
+            var levelTileset = LoadTileSet(rom.LevelTileset, false);
+            var fgTileset = LoadTileSet(rom.FGTileSet, true, 0, 16); // TODO: Only serialize palettes 12, 13 and 14?
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
 
-            var primaryMap = LoadMap(rom.LevelMap, rom.CollisionMap, tileset);
-            var foregroundMap = LoadMap(rom.FGMap, null, foregroundTileset);
+            var bg0Map = new Unity_Map()
+            {
+                Width = 32,
+                Height = 32,
+                TileSetWidth = 1,
+                TileSet = new Unity_MapTileMap[] { bg0Tileset },
+                MapTiles = rom.BG0Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
+            };
+            var bg1Map = new Unity_Map()
+            {
+                Width = 32,
+                Height = 32,
+                TileSetWidth = 1,
+                TileSet = new Unity_MapTileMap[] { bg1Tileset },
+                MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
+            };
+            var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset);
+            var fgMap = LoadMap(rom.FGMap, null, fgTileset);
 
             await Controller.WaitIfNecessary();
 
             return new Unity_Level(
                 maps: new Unity_Map[]
                 {
-                    primaryMap,
-                    foregroundMap
+                    bg0Map,
+                    bg1Map,
+                    levelMap,
+                    fgMap
                 }, 
                 objManager: new Unity_ObjectManager_GBARRR(context),
                 eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x)).ToList(),
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                 cellSize: CellSize,
                 localization: LoadLocalization(rom.Localization),
-                defaultCollisionMap: 0,
-                defaultMap: 1
+                defaultCollisionMap: 2,
+                defaultMap: 2
             );
         }
 
@@ -152,7 +172,7 @@ namespace R1Engine
                 MapTiles = new Unity_Tile[mapBlock.MapWidth * 4 * mapBlock.MapHeight * 4]
             };
 
-            // TODO: Fix this
+            // TODO: Correct alpha level and only do this on maps which use it
             if (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground) {
                 map.IsAdditive = true;
                 map.Alpha = 0.5f;
@@ -213,13 +233,12 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(GBARRR_Tileset tilemap, bool is4bit)
+        public Unity_MapTileMap LoadTileSet(GBARRR_Tileset tilemap, bool is4bit, int palStart = 0, int palCount = 1)
         {
             int block_size = is4bit ? 0x20 : 0x40;
             const float texWidth = 256f;
-            var tilesWidth = texWidth / CellSize;
+            const float tilesWidth = texWidth / CellSize;
             var tileCount = tilemap.Data.Length / block_size;
-            var palCount = is4bit ? 16 : 1; // Duplicate tiles for every palette if 4-bit
             var texHeight = Mathf.CeilToInt(tileCount / tilesWidth) * CellSize;
             //UnityEngine.Debug.Log(tileCount + " - " + block_size);
 
@@ -250,7 +269,7 @@ namespace R1Engine
                                     var relOff = ((yy * CellSize) + xx);
                                     var b = tilemap.Data[off];
                                     b = (byte)BitHelpers.ExtractBits(b, 4, relOff % 2 == 0 ? 0 : 4);
-                                    c = tilemap.Palette[p * 16 + b].GetColor();
+                                    c = tilemap.Palette[(p + palStart) * 16 + b].GetColor();
                                     c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
                                 }
                                 else
