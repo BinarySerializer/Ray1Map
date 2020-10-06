@@ -23,57 +23,6 @@ namespace R1Engine
             new GameInfo_World(5, Enumerable.Range(26, 5).ToArray()),
             new GameInfo_World(6, Enumerable.Range(0, 3).Concat(Enumerable.Range(31, 4)).ToArray()),
         });
-        /*
-         * [0] = new Dictionary<int, string>() {
-                [3] = "Wailing jail",
-                [4] = "Boss Prison",
-            },
-            [1] = new Dictionary<int, string>() {
-                [5] = "Child's play",
-                [6] = "The kids' hamlet",
-                [7] = "The toy chase",
-                [8] = "Toy box",
-                [9] = "Celestial castle",
-            },
-            [2] = new Dictionary<int, string>() {
-                [10] = "Dream forest",
-                [11] = "The leafy valley",
-                [12] = "Colonial jungle",
-                [13] = "The lush mountaintops",
-                [14] = "Hidden burrow",
-            },
-            [3] = new Dictionary<int, string>() {
-                [15] = "Stomach circuit",
-                [16] = "Gastric rivers",
-                [17] = "Living cavern",
-                [18] = "Swallowed treasures",
-                [19] = "The sticky lair",
-            },
-            [4] = new Dictionary<int, string>() {
-                [20] = "The desert of desserts",
-                [21] = "Cake race",
-                [22] = "The sweet islands",
-                [23] = "Not a piece of cake!",
-                [24] = "Tart tunnels",
-                [25] = "Ginger-bunny-bread",
-            },
-            [5] = new Dictionary<int, string>() {
-                [26] = "Filthy corridors",
-                [27] = "Agony jails",
-                [28] = "Infernal escape",
-                [29] = "Spikes and yikes!",
-                [30] = "The rabbids' lair",
-            },
-            [6] = new Dictionary<int, string>() {
-                [0] = "Village 0",
-                [1] = "Village 1",
-                [2] = "Village 2",
-                [31] = "Village 3",
-                [32] = "Shooting Range 1",
-                [33] = "Title Screen",
-                [34] = "Shooting Range 2",
-            },
-         * */
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
@@ -162,14 +111,14 @@ namespace R1Engine
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            var tilemap = LoadTileSet(rom.TileMap, false);
-            var alphaBlendingTilemap = LoadTileSet(rom.AlphaTileMap, true);
+            var tileset = LoadTileSet(rom.LevelTileset, false);
+            var foregroundTileset = LoadTileSet(rom.FGTileSet, true);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
 
-            var primaryMap = LoadMap(rom.LevelMap, rom.CollisionMap, tilemap);
-            var alphaMap = LoadMap(rom.AlphaBlendingMap, null, alphaBlendingTilemap);
+            var primaryMap = LoadMap(rom.LevelMap, rom.CollisionMap, tileset);
+            var foregroundMap = LoadMap(rom.FGMap, null, foregroundTileset);
 
             await Controller.WaitIfNecessary();
 
@@ -177,7 +126,7 @@ namespace R1Engine
                 maps: new Unity_Map[]
                 {
                     primaryMap,
-                    alphaMap
+                    foregroundMap
                 }, 
                 objManager: new Unity_ObjectManager_GBARRR(context),
                 eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x)).ToList(),
@@ -189,7 +138,7 @@ namespace R1Engine
             );
         }
 
-        public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tilemap)
+        public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset)
         {
             var map = new Unity_Map
             {
@@ -198,13 +147,13 @@ namespace R1Engine
                 TileSetWidth = 1,
                 TileSet = new Unity_MapTileMap[]
                 {
-                    tilemap
+                    tileset
                 },
                 MapTiles = new Unity_Tile[mapBlock.MapWidth * 4 * mapBlock.MapHeight * 4]
             };
 
             // TODO: Fix this
-            if (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending) {
+            if (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground) {
                 map.IsAdditive = true;
                 map.Alpha = 0.5f;
             }
@@ -242,14 +191,14 @@ namespace R1Engine
 
                     void setTileAt(int tileX, int tileY, MapTile tile, byte? collisionType, string debugString)
                     {
-                        var tilemapX = (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending && tile.TileMapX > 1) ? (ushort)(tile.TileMapX - 2) : tile.TileMapX;
+                        var tilemapX = (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && tile.TileMapX > 1) ? (ushort)(tile.TileMapX - 2) : tile.TileMapX;
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
                             /*TileMapX = mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending 
                                 // TODO: Which palette to use? 0xD works in map 0 for some things.
                                 ? (ushort)(tile.TileMapX + 0xD * (tilemap.Tiles.Length / 16)) 
                                 : tile.TileMapX,*/
-                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending && tile.TileMapX > 1) ? (ushort)(tilemapX + (0xE - tile.PaletteIndex) * (tilemap.Tiles.Length / 16)) : tilemapX,
+                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && tile.TileMapX > 1) ? (ushort)(tilemapX + ((0xE + tile.PaletteIndex) % 16) * (tileset.Tiles.Length / 16)) : tilemapX,
                             CollisionType = collisionType ?? 0,
                             HorizontalFlip = tile.HorizontalFlip,
                             VerticalFlip = tile.VerticalFlip
@@ -264,7 +213,7 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(GBARRR_TileMap tilemap, bool is4bit)
+        public Unity_MapTileMap LoadTileSet(GBARRR_Tileset tilemap, bool is4bit)
         {
             int block_size = is4bit ? 0x20 : 0x40;
             const float texWidth = 256f;

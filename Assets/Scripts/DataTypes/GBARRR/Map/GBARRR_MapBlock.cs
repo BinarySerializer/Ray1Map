@@ -44,7 +44,7 @@
         {
             Collision,
             Tiles,
-            AlphaBlending
+            Foreground
         }
 
         public class GBARRR_TileReferences : R1Serializable

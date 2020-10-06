@@ -1,6 +1,6 @@
 ﻿namespace R1Engine
 {
-    public class GBARRR_TileMap : R1Serializable
+    public class GBARRR_Tileset : R1Serializable
     {
         public uint BlockSize { get; set; }
 
