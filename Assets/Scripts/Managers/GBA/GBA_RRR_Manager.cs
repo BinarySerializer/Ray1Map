@@ -146,8 +146,10 @@ namespace R1Engine
             };
 
             // TODO: Fix this
-            if (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending)
+            if (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending) {
+                map.IsAdditive = true;
                 map.Alpha = 0.5f;
+            }
 
             for (int y = 0; y < mapBlock.MapHeight; y++)
             {
@@ -189,7 +191,7 @@ namespace R1Engine
                                 // TODO: Which palette to use? 0xD works in map 0 for some things.
                                 ? (ushort)(tile.TileMapX + 0xD * (tilemap.Tiles.Length / 16)) 
                                 : tile.TileMapX,*/
-                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending && tile.TileMapX > 1) ? (ushort)(tilemapX + + tile.PaletteIndex * (tilemap.Tiles.Length / 16)) : tilemapX,
+                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending && tile.TileMapX > 1) ? (ushort)(tilemapX + (0xE - tile.PaletteIndex) * (tilemap.Tiles.Length / 16)) : tilemapX,
                             CollisionType = collisionType ?? 0,
                             HorizontalFlip = tile.HorizontalFlip,
                             VerticalFlip = tile.VerticalFlip

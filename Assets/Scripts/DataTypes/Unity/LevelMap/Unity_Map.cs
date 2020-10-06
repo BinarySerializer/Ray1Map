@@ -53,6 +53,7 @@ namespace R1Engine
         public bool IsForeground { get; set; }
 
         public float? Alpha { get; set; }
+        public bool IsAdditive { get; set; }
 
         #endregion
 

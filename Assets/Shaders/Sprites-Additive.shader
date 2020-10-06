@@ -23,7 +23,7 @@ Shader "Sprites/Additive"
 			Cull Off
 			Lighting Off
 			ZWrite Off
-			Blend One One
+			Blend SrcAlpha One
 
 			Pass
 			{
@@ -71,11 +71,6 @@ Shader "Sprites/Additive"
 				{
 					fixed4 color = tex2D(_MainTex, uv);
 
-	#if ETC1_EXTERNAL_ALPHA
-					// get the color from an external texture (usecase: Alpha support for ETC1 on android)
-					color.a = tex2D(_AlphaTex, uv).r;
-	#endif //ETC1_EXTERNAL_ALPHA
-
 					return color;
 				}
 
@@ -83,8 +78,8 @@ Shader "Sprites/Additive"
 				{
 					fixed4 c = SampleSpriteTexture(IN.texcoord) * IN.color;
 
-					c.rgb = c.rgb + _Color.rgb;
-					c.rgb *= c.a * 2;
+					c.rgb = c.rgb * _Color.rgb;
+					//c.rgb *= c.a * 2;
 
 					return c;
 				}

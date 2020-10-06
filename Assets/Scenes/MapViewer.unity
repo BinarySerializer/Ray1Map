@@ -2214,6 +2214,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 376e5d4f731376d458ff540942313d24, type: 2}
   camMaxX: 1
   camMaxY: 1
+  additiveMaterial: {fileID: 2100000, guid: 21adcdf655be5494f98451d29d5667d6, type: 2}
 --- !u!114 &172781304
 MonoBehaviour:
   m_ObjectHideFlags: 0

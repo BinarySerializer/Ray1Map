@@ -252,7 +252,7 @@ namespace R1Engine
                         TileMapX = (ushort)bitFunc(TileMapX, 10, name: nameof(TileMapX));
                         HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                         VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
-                        PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
+                        PaletteIndex = (byte)bitFunc(PaletteIndex, 1, name: nameof(PaletteIndex));
                         //Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
                     });
                 }

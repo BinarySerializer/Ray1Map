@@ -57,6 +57,8 @@ namespace R1Engine
         public int camMaxX = 1;
         public int camMaxY = 1;
 
+        public Material additiveMaterial;
+
         public float CellSizeInUnits { get; set; } = 1f;
 
         private Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>[] animatedTiles;
@@ -204,6 +206,9 @@ namespace R1Engine
             for (int mapIndex = 0; mapIndex < LevelEditorData.Level.Maps.Length; mapIndex++) {
                 var map = lvl.Maps[mapIndex];
                 animatedTiles[mapIndex] = new Dictionary<Unity_AnimatedTile, List<Unity_AnimatedTile.Instance>>();
+                if (map.IsAdditive) {
+                    GraphicsTilemaps[mapIndex].material = additiveMaterial;
+                }
                 if (map.Alpha.HasValue) {
                     GraphicsTilemaps[mapIndex].color = new Color(1f, 1f, 1f, map.Alpha.Value);
                 }
