@@ -17,7 +17,7 @@ namespace R1Engine
             var header = s.DoAt(pointer, () => s.Serialize<uint>(default, name: "BlockHeaderCheck"));
 
             if (header == 0x1234567)
-                s.DoAt(pointer, () => s.DoEncoded(new LZSSEncoder(offset.BlockSize), () => action(offset.BlockSize)));
+                s.DoAt(pointer, () => s.DoEncoded(new LZSSEncoder(offset.BlockSize), () => action(s.CurrentLength)));
             else
                 s.DoAt(pointer, () => action(offset.BlockSize));
         }

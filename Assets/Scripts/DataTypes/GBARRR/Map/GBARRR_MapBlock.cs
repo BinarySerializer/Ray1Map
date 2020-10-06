@@ -35,6 +35,9 @@
             Tiles_8 = s.DoAt(Offset + Indices_8Offset, () => s.SerializeObjectArray<GBARRR_MapTiles>(Tiles_8, Indices_8Count, name: nameof(Tiles_8), onPreSerialize: x => x.Type = Type));
 
             Indices_16 = s.DoAt(Offset + Indices_16Offset, () => s.SerializeObjectArray<GBARRR_TileReferences>(Indices_16, Indices_16Count, name: nameof(Indices_16)));
+
+            // Move to end of block so block size can be checked correctly
+            s.Goto(Offset + Indices_16Offset + Indices_16Count * 4 * 2);
         }
 
         public enum MapType

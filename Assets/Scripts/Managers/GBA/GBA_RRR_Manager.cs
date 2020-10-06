@@ -182,12 +182,14 @@ namespace R1Engine
 
                     void setTileAt(int tileX, int tileY, MapTile tile, byte? collisionType, string debugString)
                     {
+                        var tilemapX = (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending && tile.TileMapX > 1) ? (ushort)(tile.TileMapX - 2) : tile.TileMapX;
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
-                            TileMapX = mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending 
+                            /*TileMapX = mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending 
                                 // TODO: Which palette to use? 0xD works in map 0 for some things.
                                 ? (ushort)(tile.TileMapX + 0xD * (tilemap.Tiles.Length / 16)) 
-                                : tile.TileMapX,
+                                : tile.TileMapX,*/
+                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending && tile.TileMapX > 1) ? (ushort)(tilemapX + + tile.PaletteIndex * (tilemap.Tiles.Length / 16)) : tilemapX,
                             CollisionType = collisionType ?? 0,
                             HorizontalFlip = tile.HorizontalFlip,
                             VerticalFlip = tile.VerticalFlip
@@ -206,9 +208,11 @@ namespace R1Engine
         {
             int block_size = is4bit ? 0x20 : 0x40;
             const float texWidth = 256f;
+            var tilesWidth = texWidth / CellSize;
             var tileCount = tilemap.Data.Length / block_size;
             var palCount = is4bit ? 16 : 1; // Duplicate tiles for every palette if 4-bit
-            var texHeight = Mathf.CeilToInt((tileCount) / (texWidth / CellSize)) * CellSize;
+            var texHeight = Mathf.CeilToInt(tileCount / tilesWidth) * CellSize;
+            //UnityEngine.Debug.Log(tileCount + " - " + block_size);
 
             // Get the tile-set texture
             var tex = TextureHelpers.CreateTexture2D((int)texWidth, texHeight * palCount);
@@ -232,11 +236,11 @@ namespace R1Engine
                             {
                                 Color c;
 
-                                if (is4bit)
-                                {
+                                if (is4bit) {
                                     var off = offset + ((yy * CellSize) + xx) / 2;
+                                    var relOff = ((yy * CellSize) + xx);
                                     var b = tilemap.Data[off];
-                                    b = (byte)BitHelpers.ExtractBits(b, 4, off % 2 == 0 ? 0 : 4);
+                                    b = (byte)BitHelpers.ExtractBits(b, 4, relOff % 2 == 0 ? 0 : 4);
                                     c = tilemap.Palette[p * 16 + b].GetColor();
                                     c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
                                 }
