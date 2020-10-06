@@ -3,16 +3,22 @@
     public class GBARRR_LevelInfo : R1Serializable
     {
         public uint LevelTilesetIndex { get; set; }
+
         public uint BG0MapIndex { get; set; }
         public uint BG0TilesetIndex { get; set; }
+
         public uint FGTilesetIndex { get; set; }
+
         public uint BG1TilesetIndex { get; set; }
-        public uint BG1MapIndex { get; set; } // Some scene-like struct with objects
+        public uint BG1MapIndex { get; set; }
+
         public uint SceneIndex { get; set; }
+
         public uint CollisionMapIndex { get; set; }
         public uint LevelMapIndex { get; set; }
         public uint FGMapIndex { get; set; }
-        public uint PaletteIndex { get; set; } // 512 bytes - palette?
+
+        public uint SpritePaletteIndex { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -26,7 +32,7 @@
             CollisionMapIndex = s.Serialize<uint>(CollisionMapIndex, name: nameof(CollisionMapIndex));
             LevelMapIndex = s.Serialize<uint>(LevelMapIndex, name: nameof(LevelMapIndex));
             FGMapIndex = s.Serialize<uint>(FGMapIndex, name: nameof(FGMapIndex));
-            PaletteIndex = s.Serialize<uint>(PaletteIndex, name: nameof(PaletteIndex));
+            SpritePaletteIndex = s.Serialize<uint>(SpritePaletteIndex, name: nameof(SpritePaletteIndex));
         }
     }
 }
