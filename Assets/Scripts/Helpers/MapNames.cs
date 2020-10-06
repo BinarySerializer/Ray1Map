@@ -77,7 +77,16 @@ namespace R1Engine
                         [8] = "Menu",
                         [9] = "GameCube",
                     };
-
+                case Game.GBARRR_RavingRabbids:
+                    return new Dictionary<int, string>() {
+                        [0] = "Dark (Intro)",
+                        [1] = "Child",
+                        [2] = "Forest",
+                        [3] = "Organic Cave",
+                        [4] = "Sweets",
+                        [5] = "Dark",
+                        [6] = "Extra",
+                    };
                 case Game.GBA_PrinceOfPersiaTheSandsOfTime:
                 case Game.GBA_SabrinaTheTeenageWitchPotionCommotion:
                 case Game.GBA_SplinterCell:
@@ -387,40 +396,55 @@ namespace R1Engine
             },
         };
 
-        private static Dictionary<int, Dictionary<int, string>> RavingRabbidsNames { get; } = new Dictionary<int, Dictionary<int, string>>()
-        {
-            [0] = new Dictionary<int, string>()
-            {
-                [0] = "Wailing jail",
-                [1] = "Boss Prison",
-                [2] = "Child's play",
-                [3] = "The kids' hamlet",
-                [4] = "The toy chase",
-                [5] = "Toy box",
-                [6] = "Celestial castle",
-                [7] = "Dream forest",
-                [8] = "The leafy valley",
-                [9] = "Colonial jungle",
-                [10] = "The lush mountaintops",
-                [11] = "Hidden burrow",
-                [12] = "Stomach circuit",
-                [13] = "Gastric rivers",
-                [14] = "Living cavern",
-                [15] = "Swallowed treasures",
-                [16] = "The sticky lair",
-                [17] = "The desert of desserts",
-                [18] = "Cake race",
-                [19] = "The sweet islands",
-                [20] = "Not a piece of cake!",
-                [21] = "Tart tunnels",
-                [22] = "Ginger-bunny-bread",
-                [23] = "Filthy corridors",
-                [24] = "Agony jails",
-                [25] = "Infernal escape",
-                [26] = "Spikes and yikes!",
-                [27] = "The rabbids' lair",
-                [28] = "Village",
-                [29] = "Shooting Range",
+        private static Dictionary<int, Dictionary<int, string>> RavingRabbidsNames { get; } = new Dictionary<int, Dictionary<int, string>>() {
+            [0] = new Dictionary<int, string>() {
+                [3] = "Wailing jail",
+                [4] = "Boss Prison",
+            },
+            [1] = new Dictionary<int, string>() {
+                [5] = "Child's play",
+                [6] = "The kids' hamlet",
+                [7] = "The toy chase",
+                [8] = "Toy box",
+                [9] = "Celestial castle",
+            },
+            [2] = new Dictionary<int, string>() {
+                [10] = "Dream forest",
+                [11] = "The leafy valley",
+                [12] = "Colonial jungle",
+                [13] = "The lush mountaintops",
+                [14] = "Hidden burrow",
+            },
+            [3] = new Dictionary<int, string>() {
+                [15] = "Stomach circuit",
+                [16] = "Gastric rivers",
+                [17] = "Living cavern",
+                [18] = "Swallowed treasures",
+                [19] = "The sticky lair",
+            },
+            [4] = new Dictionary<int, string>() {
+                [20] = "The desert of desserts",
+                [21] = "Cake race",
+                [22] = "The sweet islands",
+                [23] = "Not a piece of cake!",
+                [24] = "Tart tunnels",
+                [25] = "Ginger-bunny-bread",
+            },
+            [5] = new Dictionary<int, string>() {
+                [26] = "Filthy corridors",
+                [27] = "Agony jails",
+                [28] = "Infernal escape",
+                [29] = "Spikes and yikes!",
+                [30] = "The rabbids' lair",
+            },
+            [6] = new Dictionary<int, string>() {
+                [0] = "Village 0",
+                [1] = "Village 1",
+                [2] = "Village 2",
+                [31] = "Village 3",
+                [32] = "Shooting Range 1",
+                [33] = "Title Screen",
+                [34] = "Shooting Range 2",
             },
         };
     }

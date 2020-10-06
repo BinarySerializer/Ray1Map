@@ -12,10 +12,68 @@ namespace R1Engine
     {
         public const int CellSize = 8;
 
+        // TODO: There are actually 36 maps + 1 single layer map - are the other ones menus?
         public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new GameInfo_World(0, Enumerable.Range(0, 29).ToArray()), // TODO: There are actually 36 maps + 1 single layer map - are the other ones menus?
+            new GameInfo_World(0, Enumerable.Range(3, 2).ToArray()),
+            new GameInfo_World(1, Enumerable.Range(5, 5).ToArray()),
+            new GameInfo_World(2, Enumerable.Range(10, 5).ToArray()),
+            new GameInfo_World(3, Enumerable.Range(15, 5).ToArray()),
+            new GameInfo_World(4, Enumerable.Range(20, 6).ToArray()),
+            new GameInfo_World(5, Enumerable.Range(26, 5).ToArray()),
+            new GameInfo_World(6, Enumerable.Range(0, 3).Concat(Enumerable.Range(31, 4)).ToArray()),
         });
+        /*
+         * [0] = new Dictionary<int, string>() {
+                [3] = "Wailing jail",
+                [4] = "Boss Prison",
+            },
+            [1] = new Dictionary<int, string>() {
+                [5] = "Child's play",
+                [6] = "The kids' hamlet",
+                [7] = "The toy chase",
+                [8] = "Toy box",
+                [9] = "Celestial castle",
+            },
+            [2] = new Dictionary<int, string>() {
+                [10] = "Dream forest",
+                [11] = "The leafy valley",
+                [12] = "Colonial jungle",
+                [13] = "The lush mountaintops",
+                [14] = "Hidden burrow",
+            },
+            [3] = new Dictionary<int, string>() {
+                [15] = "Stomach circuit",
+                [16] = "Gastric rivers",
+                [17] = "Living cavern",
+                [18] = "Swallowed treasures",
+                [19] = "The sticky lair",
+            },
+            [4] = new Dictionary<int, string>() {
+                [20] = "The desert of desserts",
+                [21] = "Cake race",
+                [22] = "The sweet islands",
+                [23] = "Not a piece of cake!",
+                [24] = "Tart tunnels",
+                [25] = "Ginger-bunny-bread",
+            },
+            [5] = new Dictionary<int, string>() {
+                [26] = "Filthy corridors",
+                [27] = "Agony jails",
+                [28] = "Infernal escape",
+                [29] = "Spikes and yikes!",
+                [30] = "The rabbids' lair",
+            },
+            [6] = new Dictionary<int, string>() {
+                [0] = "Village 0",
+                [1] = "Village 1",
+                [2] = "Village 2",
+                [31] = "Village 3",
+                [32] = "Shooting Range 1",
+                [33] = "Title Screen",
+                [34] = "Shooting Range 2",
+            },
+         * */
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
