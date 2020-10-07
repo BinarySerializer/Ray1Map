@@ -28,78 +28,65 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-            new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output)), 
+            new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)), 
+            new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, true)), 
         };
 
-        public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath)
+        public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, bool exportVignette)
         {
+            const int vigWidth = 240;
+            const int vigHeight = 160;
+
             using (var context = new Context(settings))
             {
                 var s = context.Deserializer;
 
                 await LoadFilesAsync(context);
 
-                var baseOffset = context.GetFile(GetROMFilePath).StartPointer + 0x722374;
-                
-                s.Goto(baseOffset);
+                // Load the rom
+                var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
 
-                var length = s.Serialize<uint>(default);
-
-                for (int i = 0; i < length; i++)
+                // Enumerate every block in the offset table
+                for (int i = 0; i < rom.OffsetTable.OffsetTableCount; i++)
                 {
-                    s.Serialize<uint>(default);
-                    var blockSize = s.Serialize<uint>(default);
-                    var blockOffset = s.Serialize<uint>(default);
-                    s.Serialize<uint>(default);
+                    // Get the offset
+                    var offset = rom.OffsetTable.OffsetTable[i];
 
-                    var blockPointer = baseOffset + blockOffset;
+                    var absoluteOffset = (rom.OffsetTable.Offset + offset.BlockOffset).AbsoluteOffset;
 
-                    var block = s.DoAt(blockPointer, () => s.SerializeArray<byte>(default, blockSize));
+                    rom.OffsetTable.DoAtBlock(context, i, size =>
+                    {
+                        if (size == (256 * 2) + (vigWidth * vigHeight) && exportVignette)
+                        {
+                            var vig = s.SerializeObject<GBARRR_Vignette>(default, name: $"Vignette[{i}]");
 
-                    if (block.Length > 4 && block[0] == 0x67 && block[1] == 0x45 && block[2] == 0x23 && block[3] == 0x01) {
-                        s.DoAt(blockPointer, () => {
-                            s.DoEncoded(new LZSSEncoder(blockSize), () => 
+                            var tex = TextureHelpers.CreateTexture2D(vigWidth, vigHeight, true);
+
+                            foreach (var c in vig.Palette)
+                                c.Alpha = 255;
+
+                            var index = 0;
+                            for (int y = 0; y < vigHeight; y++)
                             {
-                                const int width = 240;
-                                const int height = 160;
-
-                                // Check if it's a vignette...
-                                if (s.CurrentLength == (256 * 2) + (width * height))
+                                for (int x = 0; x < vigWidth; x++)
                                 {
-                                    // Serialize palette
-                                    var pal = s.SerializeObjectArray<ARGB1555Color>(default, 256).Select(x =>
-                                    {
-                                        var c = x.GetColor();
-                                        c.a = 1;
-                                        return c;
-                                    }).ToArray();
-
-                                    var tex = TextureHelpers.CreateTexture2D(width, height, true);
-
-                                    for (int y = 0; y < height; y++)
-                                    {
-                                        for (int x = 0; x < width; x++)
-                                        {
-                                            var b = s.Serialize<byte>(default);
-
-                                            tex.SetPixel(x, height - y - 1, pal[b]);
-                                        }
-                                    }
-
-                                    tex.Apply();
-
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{blockPointer.AbsoluteOffset:X8}_decompressed.png"), tex.EncodeToPNG());
+                                    tex.SetPixel(x, vigHeight - y - 1, vig.Palette[vig.ImgData[index]].GetColor());
+                                    
+                                    index++;
                                 }
-                                else
-                                {
-                                    block = s.SerializeArray<byte>(default, s.CurrentLength);
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{blockPointer.AbsoluteOffset:X8}_decompressed.dat"), block);
-                                }
-                            });
-                        });
-                    } else {
-                        Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{blockPointer.AbsoluteOffset:X8}.dat"), block);
-                    }
+                            }
+
+                            tex.Apply();
+
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
+                        }
+                        else if (!exportVignette)
+                        {
+                            var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
+
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
+                        }
+                    });
                 }
             }
         }
