@@ -7,21 +7,21 @@ namespace R1Engine {
         Unity_Level lvl => LevelEditorData.Level;
         Image main, overlay;
         LevelMainController tileController;
-        float xs, ys, xe, ye;
+        int xs, ys, xe, ye;
 
         public Color color;
         public bool HasSelection { get; private set; }
-        public float XStart { get; private set; }
-        public float YStart { get; private set; }
-        public float XEnd { get; private set; }
-        public float YEnd { get; private set; }
+        public int XStart { get; private set; }
+        public int YStart { get; private set; }
+        public int XEnd { get; private set; }
+        public int YEnd { get; private set; }
 
-        public void SetStartCorner(float x, float y) {
+        public void SetStartCorner(int x, int y) {
             xs = x; ys = y;
             HasSelection = true;
             UpdateVisual();
         }
-        public void SetEndCorner(float x, float y) {
+        public void SetEndCorner(int x, int y) {
             xe = x; ye = y;
             HasSelection = true;
             UpdateVisual();
@@ -82,8 +82,14 @@ namespace R1Engine {
                 YStart = temp;
             }
 
-            transform.position = new Vector3(XStart, -YStart, 2);
-            rectTransform.sizeDelta = Vector2.one + (new Vector2(XEnd, YEnd) - new Vector2(transform.position.x, -transform.position.y));
+            transform.position =
+                new Vector3(
+                    XStart * tileController.controllerTilemap.CellSizeInUnits,
+                    -YStart * tileController.controllerTilemap.CellSizeInUnits, 2);
+            rectTransform.sizeDelta = Vector2.one * tileController.controllerTilemap.CellSizeInUnits
+                + (new Vector2(
+                    (XEnd - XStart) * tileController.controllerTilemap.CellSizeInUnits,
+                    (YEnd - YStart) * tileController.controllerTilemap.CellSizeInUnits));
         }
     }
 }

@@ -207,7 +207,7 @@ namespace R1Engine
                 // Left click begins drag and assigns the starting corner of the selection square
                 if (!dragging && mouseTile != null) {
                     if (GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
-                        tileSelectSquare.SetStartCorner(mousePositionTile.x, -mousePositionTile.y);
+                        tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
                         dragging = true;
                         selecting = !GetKey(KeyCode.LeftControl);
                         //Clear old preview tilemap
@@ -218,8 +218,8 @@ namespace R1Engine
 
                 if (dragging) {
                     // During drag, set the end corner
-                    var endX = Mathf.Clamp(mousePositionTile.x, 0, (lvlTilemapController.camMaxX - 1) * lvlTilemapController.CellSizeInUnits);
-                    var endY = Mathf.Clamp(-mousePositionTile.y, 0, (lvlTilemapController.camMaxY - 1) * lvlTilemapController.CellSizeInUnits);
+                    var endX = Mathf.Clamp(mouseTileInt.x, 0, (lvlTilemapController.camMaxX - 1));
+                    var endY = Mathf.Clamp(mouseTileInt.y, 0, (lvlTilemapController.camMaxY - 1));
                     if (selecting) {
                         tileSelectSquare.color = colorSelect;
                         tileSelectSquare.SetEndCorner(endX, endY);
@@ -231,7 +231,7 @@ namespace R1Engine
                         if (currentMode == EditMode.Tiles) 
                         {
                             // Change preview position
-                            lvlTilemapController.tilemapPreview.transform.position = new Vector3((int)tileSelectSquare.XStart, -(int)tileSelectSquare.YStart);
+                            lvlTilemapController.tilemapPreview.transform.position = new Vector3(tileSelectSquare.XStart * lvlTilemapController.CellSizeInUnits, tileSelectSquare.YStart * lvlTilemapController.CellSizeInUnits);
 
                             // Expand the preview tiles
                             if (selection != null) {
@@ -283,6 +283,7 @@ namespace R1Engine
                             int yi = 0;
 
                             // Save the selected area
+                            //print(tileSelectSquare.XStart + " - " + tileSelectSquare.XEnd + " - " + tileSelectSquare.YStart + " - " + tileSelectSquare.YEnd);
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) 
                             {
                                 for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
@@ -387,8 +388,8 @@ namespace R1Engine
                         int yi = 0;
                         int w = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].Width;
                         int h = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap].Height;
-                        int my = -(int)mousePositionTile.y;
-                        int mx = (int)mousePositionTile.x;
+                        int my = mouseTileInt.y;
+                        int mx = mouseTileInt.x;
                         // "Paste" the selection
                         for (int y = my; y <= my+selection.GetLength(1)-1; y++) {
                             for (int x = mx; x <= mx+selection.GetLength(0)-1; x++) {
