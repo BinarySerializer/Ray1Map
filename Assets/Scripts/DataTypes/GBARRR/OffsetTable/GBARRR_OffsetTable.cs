@@ -14,9 +14,7 @@ namespace R1Engine
             var pointer = Offset + offset.BlockOffset;
             var s = context.Deserializer;
 
-            var header = s.DoAt(pointer, () => s.Serialize<uint>(default, name: "BlockHeaderCheck"));
-
-            if (header == 0x1234567)
+            if (offset.Header == GBARRR_OffsetTableEntryHeader.Compressed)
                 s.DoAt(pointer, () => s.DoEncoded(new LZSSEncoder(offset.BlockSize), () => action(s.CurrentLength)));
             else
                 s.DoAt(pointer, () => action(offset.BlockSize));
