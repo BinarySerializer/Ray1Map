@@ -260,15 +260,14 @@ namespace R1Engine
         /// <param name="lvl">The level</param>
         public override void SaveLevel(Context context, Unity_Level lvl)
         {
-            /*
-            var em = (R1_PS1_EditorManager)level;
-            var commonLevelData = level.Level;
-
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
 
             // Get the level data
             var lvlData = context.GetMainFileObject<R1_PS1_LevFile>(lvlPath);
+
+            // Get the object manager
+            var objManager = (Unity_ObjectManager_R1)lvl.ObjManager;
 
             // Update the tiles
             for (int y = 0; y < lvlData.MapData.Height; y++)
@@ -276,17 +275,13 @@ namespace R1Engine
                 for (int x = 0; x < lvlData.MapData.Width; x++)
                 {
                     // Set the tile
-                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = commonLevelData.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data;
+                    lvlData.MapData.Tiles[y * lvlData.MapData.Width + x] = lvl.Maps[0].MapTiles[y * lvlData.MapData.Width + x].Data;
                 }
             }
 
-            var newEvents = commonLevelData.EventData.Select(e =>
+            var newEvents = lvl.EventData.Cast<Unity_Object_R1>().Select(e =>
             {
-                // Get the DES data
-                var des = em.DESCollection[e.DESKey];
-                var eta = em.ETACollection[e.ETAKey];
-
-                var ed = e.Data;
+                var ed = e.EventData;
 
                 if (ed.PS1Demo_Unk1 == null)
                     ed.PS1Demo_Unk1 = new byte[40];
@@ -294,25 +289,18 @@ namespace R1Engine
                 if (ed.Unk_98 == null)
                     ed.Unk_98 = new byte[5];
 
-                ed.ImageDescriptorsPointer = des.ImageDescriptorsPointer;
-                ed.AnimDescriptorsPointer = des.AnimDescriptorsPointer;
-                ed.ImageBufferPointer = des.ImageBufferPointer;
-                ed.ETAPointer = eta.ETAPointer;
+                ed.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
+                ed.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
-                ed.ImageDescriptorCount = (ushort)des.ImageDescriptors.Length;
-                ed.AnimDescriptorCount = (byte)des.AnimDescriptors.Length;
-
-                ed.ImageDescriptors = des.ImageDescriptors;
-                ed.AnimDescriptors = des.AnimDescriptors;
-                ed.Commands = e.CommandCollection;
-                ed.LabelOffsets = e.LabelOffsets;
-                ed.ETA = eta.ETA;
-                ed.ImageBuffer = des.ImageBuffer;
+                //ed.ImageDescriptors = des.ImageDescriptors;
+                //ed.AnimDescriptors = des.AnimDescriptors;
+                //ed.ETA = eta.ETA;
+                //ed.ImageBuffer = des.ImageBuffer;
 
                 return ed;
             }).ToArray();
 
-            var newEventLinkTable = commonLevelData.EventData.Select(x => (byte)x.LinkIndex).ToArray();
+            var newEventLinkTable = objManager.LinkTable.Select(x => (byte)x).ToArray();
 
             // Create the edited block which we append to the file
             lvlData.EditedBlock = new R1_PS1_EditedLevelBlock();
@@ -321,7 +309,7 @@ namespace R1Engine
 
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
-            FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);*/
+            FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);
         }
     }
 }
