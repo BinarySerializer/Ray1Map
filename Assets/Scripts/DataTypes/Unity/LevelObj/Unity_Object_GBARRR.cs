@@ -18,7 +18,6 @@ namespace R1Engine
             get => Actor.XPosition;
             set => Actor.XPosition = value;
         }
-
         public override short YPosition
         {
             get => Actor.YPosition;
@@ -28,8 +27,12 @@ namespace R1Engine
         public override string DebugText => String.Empty;
 
         public override ILegacyEditorWrapper LegacyWrapper { get; }
+
+        public override bool IsEditor => Actor.Byte_2A == 0;
+
         public override string PrimaryName => String.Empty;
         public override string SecondaryName => String.Empty;
+
         public override Unity_ObjAnimation CurrentAnimation => null;
         public override int AnimSpeed => 0;
         public override int? GetAnimIndex => 0;
