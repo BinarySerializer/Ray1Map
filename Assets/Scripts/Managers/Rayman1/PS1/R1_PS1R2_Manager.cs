@@ -34,12 +34,31 @@ namespace R1Engine
         public string GetSubMapPalettePath(int level) => $"JUNGLE/{GetMapName(level)}.PAL";
         public string GetSubMapPath(int level) => $"JUNGLE/{GetMapName(level)}.MPU";
 
-
-        /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoR2PS1;
+        public static Dictionary<string, uint> FileSizes { get; } = new Dictionary<string, uint>() 
+        {
+            ["LOGO_UBI.TIM"] = 0x25818,
+            ["../VIDEO/15FPS.STR"] = 0x3BD8E0,
+            ["RAY.INF"] = 0xA5,
+            ["RAY.DTA"] = 0x459E6,
+            ["RAY.GRP"] = 0x15100,
+            ["SPR.PLS"] = 0x1000,
+            ["JUNGLE/JUN01.DTA"] = 0x25CC8,
+            ["JUNGLE/JUN01.SPR"] = 0x10B0,
+            ["JUNGLE/JUN01.GRP"] = 0x53B00,
+            ["JUNGLE/PL1.RAW"] = 0x19000,
+            ["JUNGLE/PL2.RAW"] = 0x15000,
+            ["JUNGLE/FD1.RAW"] = 0x10000,
+            ["JUNGLE/NEWFND16.TIM"] = 0x1F414,
+            ["JUNGLE/JUN!01.PLT"] = 0x22D,
+            ["JUNGLE/FD1.PAL"] = 0x200,
+            ["JUNGLE/FD2.PAL"] = 0x200,
+            ["JUNGLE/PL1.MPU"] = 0x81E8,
+            ["JUNGLE/PL2.MPU"] = 0x2C9E,
+            ["JUNGLE/FD1.MPU"] = 0x3F4,
+            ["JUNGLE/FD2.MPU"] = 0x164,
+            ["RAY.BBX"] = 0x41520,
+            ["JUNGLE/JUN.BBX"] = 0
+        };
 
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
@@ -56,7 +75,8 @@ namespace R1Engine
                 }), 
             }).ToArray();
 
-        public override string GetExeFilePath => null;
+        public override string ExeFilePath => null;
+        public override uint? ExeBaseAddress => null;
 
         /// <summary>
         /// Gets the name for the specified map
@@ -177,24 +197,25 @@ namespace R1Engine
         public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress) {
             await FileSystem.PrepareFile(context.BasePath + path);
 
-            Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
             if (baseAddress != 0) {
                 PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, baseAddress, InvalidPointerMode) {
                     filePath = path,
-                    Length = fileInfo[path].Size
+                    Length = FileSizes[path]
                 };
                 context.AddFile(file);
 
-                return fileInfo[path].Size;
+                return FileSizes[path];
             } else {
                 LinearSerializedFile file = new LinearSerializedFile(context) {
                     filePath = path,
-                    length = fileInfo.ContainsKey(path) ? fileInfo[path].Size : 0
+                    length = FileSizes.ContainsKey(path) ? FileSizes[path] : 0
                 };
                 context.AddFile(file);
                 return 0;
             }
         }
+
+        public override FileTableInfo[] FileTableInfos => new FileTableInfo[0];
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -213,8 +234,8 @@ namespace R1Engine
             var fixGRPPath = FixGraphicsPath;
             var sprPLSPath = SpritePalettesPath;
             var levelDTAPath = GetLevelDataPath(context.Settings);
-            var levelSPRPath = GetLevelImageDescriptorsPath(context.Settings); // SPRites?
-            var levelGRPPath = GetLevelGraphicsPath(context.Settings); // GRaPhics/graphismes
+            var levelSPRPath = GetLevelImageDescriptorsPath(context.Settings);
+            var levelGRPPath = GetLevelGraphicsPath(context.Settings);
 
             baseAddress += await LoadFile(context, fixDTAPath, baseAddress);
             baseAddress -= 94; // FIX.DTA header size

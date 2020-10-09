@@ -22,12 +22,6 @@ namespace R1Engine
 
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
-        /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => null;
-
         public uint BaseAddress => 0x00200000;
 
         /// <summary>
@@ -107,7 +101,10 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(5)))
             .ToArray())).Select(x => x.Index == 1 ? new GameInfo_World(x.Index, x.Maps.Append(140).ToArray()) : x).ToArray());
 
-        public override string GetExeFilePath => "0";
+        public override string ExeFilePath => "0";
+        public override uint? ExeBaseAddress => null;
+
+        public override FileTableInfo[] FileTableInfos => new FileTableInfo[0];
 
         public async UniTask<uint> LoadFile(Context context, string path, uint baseAddress = 0)
         {
@@ -251,7 +248,7 @@ namespace R1Engine
 
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
 
-            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(GetExeFilePath).StartPointer + GetPalOffset, context, (s, x) => x.Length = 25 * 256 * 2);
+            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(ExeFilePath).StartPointer + GetPalOffset, context, (s, x) => x.Length = 25 * 256 * 2);
 
             var palette = pal.Value;
             var paletteOffset = img.PaletteInfo;
@@ -344,9 +341,6 @@ namespace R1Engine
             await LoadFile(context, tileSetPaletteIndexTableFilePath);
             await LoadFile(context, tileSetFilePath);
             await LoadFile(context, mapFilePath);
-
-            // Load executable to get the palettes and tables
-            await LoadFile(context, GetExeFilePath);
 
             // Load the texture files
             await LoadFile(context, GetFixImageFilePath());
@@ -601,8 +595,8 @@ namespace R1Engine
                     await LoadFile(menuContext, GetFixImageFilePath());
                     
                     // Load exe
-                    await LoadFile(menuContext, GetExeFilePath);
-                    await LoadFile(bigRayContext, GetExeFilePath);
+                    await LoadFile(menuContext, ExeFilePath);
+                    await LoadFile(bigRayContext, ExeFilePath);
 
                     // Save font
                     menuContext.StoreObject("Font", fix.FontData);

@@ -17,12 +17,6 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 40;
 
-        /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoDemoVol6;
-
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
         /// <summary>
@@ -74,7 +68,13 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(3)))
             .ToArray())).ToArray());
 
-        public override string GetExeFilePath => "RAY_GAME.EXE";
+        public override string ExeFilePath => "RAY_GAME.EXE";
+        public override uint? ExeBaseAddress => 0x80150000 - 0x800;
+
+        public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
+        {
+            new FileTableInfo(ExeBaseAddress.Value + 0x6811C, 455, "Files"), 
+        };
 
         /// <summary>
         /// Gets the tile set to use
@@ -160,6 +160,8 @@ namespace R1Engine
 
         public override async UniTask LoadFilesAsync(Context context)
         {
+            await base.LoadFilesAsync(context);
+
             // Get the file paths
             var allfixPath = GetAllfixFilePath();
             var worldPath = GetWorldFilePath(context.Settings);

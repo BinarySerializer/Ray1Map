@@ -25,13 +25,8 @@ namespace R1Engine
         /// <returns>The data path</returns>
         public override string GetDataPath() => String.Empty;
 
-        /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoPALDemo;
-
-        public override string GetExeFilePath => "RAY.EXE";
+        public override string ExeFilePath => "RAY.EXE";
+        public override uint? ExeBaseAddress => 0x8012F000 - 0x800;
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {
@@ -46,8 +41,30 @@ namespace R1Engine
             };
         }
 
-        public override uint? TypeZDCOffset => 0x93998;
-        public override uint? ZDCDataOffset => 0x92998;
-        public override uint? EventFlagsOffset => 0x92198;
+        public override uint? TypeZDCOffset => ExeBaseAddress + 0x93998;
+        public override uint? ZDCDataOffset => ExeBaseAddress + 0x92998;
+        public override uint? EventFlagsOffset => ExeBaseAddress + 0x92198;
+
+        public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
+        {
+            new FileTableInfo(0x801c42dc,3,"img_file"),
+            new FileTableInfo(0x801c4228,2,"ldr_file"),
+            new FileTableInfo(0x801c44d4,2,"div_file"),
+            new FileTableInfo(0x801c3fa0,0x12,"vdo_file[0]"),
+            new FileTableInfo(0x801c6118,0x35,"trk_file"),
+            new FileTableInfo(0x801c451c,3,"lang_file"),
+            new FileTableInfo(0x801c4348,5,"pre_file"),
+            new FileTableInfo(0x801c43fc,6,"crd_file"),
+            new FileTableInfo(0x801c4588,6,"gam_file"),
+            new FileTableInfo(0x801c4660,6,"vig_wld_file"),
+            new FileTableInfo(0x801c4a2c,6,"wld_file"),
+            new FileTableInfo(0x801c4b04,0x7e,"map_file[0]"),
+            new FileTableInfo(0x801c5cbc,0x1f,"fnd_file"),
+            new FileTableInfo(0x801c4834,7,"vab_file"),
+            new FileTableInfo(0x801c4738,7,"big_file"),
+            new FileTableInfo(0x801c4930,7,"vab4sep_file"),
+            new FileTableInfo(0x801c4294,2,"filefxs"),
+            new FileTableInfo(0x801c4270,1,"ini_file"),
+        };
     }
 }

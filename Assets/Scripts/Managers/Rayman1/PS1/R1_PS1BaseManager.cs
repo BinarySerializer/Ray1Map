@@ -21,12 +21,6 @@ namespace R1Engine
         /// </summary>
         public abstract int TileSetWidth { get; }
 
-        /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected abstract Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings);
-
         protected virtual PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.DevPointerXOR;
 
         /// <summary>
@@ -61,7 +55,8 @@ namespace R1Engine
         /// <returns>The levels</returns>
         public abstract GameInfo_Volume[] GetLevels(GameSettings settings);
 
-        public abstract string GetExeFilePath { get; }
+        public abstract string ExeFilePath { get; }
+        public abstract uint? ExeBaseAddress { get; }
 
         #endregion
 
@@ -187,17 +182,23 @@ namespace R1Engine
             return tex;
         }
 
-        public virtual async UniTask LoadExtraFile(Context context, string path) {
+        public virtual async UniTask LoadExtraFile(Context context, string path) 
+        {
             await FileSystem.PrepareFile(context.BasePath + path);
 
             if (!FileSystem.FileExists(context.BasePath + path))
                 return;
 
-            Dictionary<string, PS1FileInfo> fileInfo = GetFileInfo(context.Settings);
-            PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, fileInfo[path].BaseAddress, InvalidPointerMode)
+            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+            var entry = exe.FileTable.FirstOrDefault(x => x.ProcessedFilePath == path);
+
+            if (entry == null)
+                throw new Exception($"No file entry found for path: {path}");
+
+            PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, entry.MemoryAddress, InvalidPointerMode)
             {
                 filePath = path,
-                Length = fileInfo[path].Size
+                Length = entry.FileSize
             };
             context.AddFile(file);
         }
@@ -287,37 +288,17 @@ namespace R1Engine
                     eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(e.ETA.EventStates, e.ETAPointer));
             }
 
-            R1_ZDCEntry[] typeZDC = null;
-            R1_ZDCData[] zdcData = null;
-            R1_EventFlags[] eventFlags = null;
-
             // Read tables from exe
-            if (GetExeFilePath != null && context.FileExists(GetExeFilePath))
-            {
-                var exeOffset = context.GetFile(GetExeFilePath).StartPointer;
-                var s = context.Deserializer;
-
-                if (TypeZDCOffset != null)
-                    typeZDC = s.DoAt(exeOffset + TypeZDCOffset.Value, () => s.SerializeObjectArray<R1_ZDCEntry>(default, TypeZDCCount, name: "TypeZDC"));
-                if (ZDCDataOffset != null)
-                    zdcData = s.DoAt(exeOffset + ZDCDataOffset.Value, () => s.SerializeObjectArray<R1_ZDCData>(default, ZDCDataCount, name: "ZDCData"));
-                if (EventFlagsOffset != null)
-                {
-                    if (context.Settings.EngineVersion == EngineVersion.R1_Saturn)
-                        eventFlags = s.DoAt(exeOffset + EventFlagsOffset.Value, () => s.SerializeArray<int>(default, EventFlagsCount, name: "EventFlags")).Select(BitHelpers.ReverseBits).Select(x => (R1_EventFlags)x).ToArray();
-                    else
-                        eventFlags = s.DoAt(exeOffset + EventFlagsOffset.Value, () => s.SerializeArray<R1_EventFlags>(default, EventFlagsCount, name: "EventFlags"));
-                }
-            }
+            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
 
             var objManager = new Unity_ObjectManager_R1(
                 context: context, 
                 des: eventDesigns.ToArray(), 
                 eta: eventETA.ToArray(), 
                 linkTable: eventLinkingTable,
-                typeZDC: typeZDC,
-                zdcData: zdcData,
-                eventFlags: eventFlags);
+                typeZDC: exe?.TypeZDC,
+                zdcData: exe?.ZDCData,
+                eventFlags: exe?.EventFlags);
 
             await Controller.WaitIfNecessary();
 
@@ -358,6 +339,8 @@ namespace R1Engine
         public virtual uint? EventFlagsOffset => null;
         public virtual long EventFlagsCount => 256;
 
+        public abstract FileTableInfo[] FileTableInfos { get; }
+
         public virtual R1_EventData GetRaymanEvent(Context context) => null;
 
         /// <summary>
@@ -379,9 +362,12 @@ namespace R1Engine
         /// Preloads all the necessary files into the context
         /// </summary>
         /// <param name="context">The serialization context</param>
-        public virtual async UniTask LoadFilesAsync(Context context) {
-            // PS1 loads files in order. We can't really load anything here
-            await UniTask.CompletedTask;
+        public virtual UniTask LoadFilesAsync(Context context)
+        {
+            // Load the exe
+            return ExeBaseAddress == null
+                ? (UniTask)context.AddLinearSerializedFileAsync(ExeFilePath)
+                : context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress.Value);
         }
 
         /// <summary>
@@ -1025,6 +1011,20 @@ namespace R1Engine
             Level,
             Menu,
             BigRay
+        }
+
+        public class FileTableInfo
+        {
+            public FileTableInfo(uint offset, uint count, string name)
+            {
+                Offset = offset;
+                Count = count;
+                Name = name;
+            }
+
+            public uint Offset { get; }
+            public uint Count { get; }
+            public string Name { get; }
         }
 
         #endregion

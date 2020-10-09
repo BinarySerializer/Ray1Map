@@ -16,12 +16,6 @@ namespace R1Engine
         /// </summary>
         public override int TileSetWidth => 1;
 
-        /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoJP;
-
         protected override PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.Allow;
 
         public string GetSpecialTileSetPath(GameSettings settings) => GetWorldFolderPath(settings.R1_World) + $"{GetWorldName(settings.R1_World)}{settings.Level:00}.BLC";
@@ -51,7 +45,8 @@ namespace R1Engine
             return worldJPFile.RawTiles;
         }
 
-        public override string GetExeFilePath => "PSX.EXE";
+        public override string ExeFilePath => "PSX.EXE";
+        public override uint? ExeBaseAddress => 0x80128000 - 0x800;
 
         /// <summary>
         /// Gets the tile set to use
@@ -190,14 +185,33 @@ namespace R1Engine
             await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings));
 
             // Load the exe
-            await context.AddLinearSerializedFileAsync(GetExeFilePath);
+            await context.AddLinearSerializedFileAsync(ExeFilePath);
 
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
-        public override uint? TypeZDCOffset => 0x98308;
-        public override uint? ZDCDataOffset => 0x97308;
-        public override uint? EventFlagsOffset => 0x96B08;
+        public override uint? TypeZDCOffset => ExeBaseAddress + 0x98308;
+        public override uint? ZDCDataOffset => ExeBaseAddress + 0x97308;
+        public override uint? EventFlagsOffset => ExeBaseAddress + 0x96B08;
+
+        public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
+        {
+            new FileTableInfo(0x801c1770,3,"img_file"),
+            new FileTableInfo(0x801c17dc,2,"ldr_file"),
+            new FileTableInfo(0x801c1824,6,"vdo_file"),
+            new FileTableInfo(0x801c18fc,0x31,"trk_file"),
+            new FileTableInfo(0x801c1fe0,5,"pre_file"),
+            new FileTableInfo(0x801c2094,6,"crd_file"),
+            new FileTableInfo(0x801c216c,6,"gam_file"),
+            new FileTableInfo(0x801c2244,6,"vig_wld_file"),
+            new FileTableInfo(0x801c231c,6,"wld_file"),
+            new FileTableInfo(0x801c23f4,0x7e,"map_file[0]"),
+            new FileTableInfo(0x801c35ac,8,"blc_file"),
+            new FileTableInfo(0x801c36cc,0x1f,"fnd_file"),
+            new FileTableInfo(0x801c3b28,6,"vab_file"),
+            new FileTableInfo(0x801c3c00,2,"filefxs"),
+            new FileTableInfo(0x801c3c48,1,"ini_file"),
+        };
     }
 }

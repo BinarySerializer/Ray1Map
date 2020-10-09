@@ -19,12 +19,6 @@ namespace R1Engine
         public override int TileSetWidth => 40;
 
         /// <summary>
-        /// Gets the file info to use
-        /// </summary>
-        /// <param name="settings">The game settings</param>
-        protected override Dictionary<string, PS1FileInfo> GetFileInfo(GameSettings settings) => PS1FileInfo.fileInfoDemoVol3;
-
-        /// <summary>
         /// Gets the file path for the allfix file
         /// </summary>
         /// <returns>The allfix file path</returns>
@@ -76,7 +70,21 @@ namespace R1Engine
             .Select(x => Int32.Parse(x.Substring(4)))
             .ToArray())).ToArray());
 
-        public override string GetExeFilePath => "RAY.EXE";
+        public override string ExeFilePath => "RAY.EXE";
+        public override uint? ExeBaseAddress => 0x80180000 - 0x800;
+
+        public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
+        {
+            // Unofficial names
+            new FileTableInfo(0x801b5f3c, 1, "Palette"),
+            new FileTableInfo(0x801b5f74, 4, "Vignette"),
+            new FileTableInfo(0x801b6054, 1, "WorldMap"),
+            new FileTableInfo(0x801b608c, 1, "Allfix"),
+            new FileTableInfo(0x801b60c4, 0xb, "World1"),
+            new FileTableInfo(0x801b6594, 0xb, "World2"),
+            new FileTableInfo(0x801b67fc, 4, "Background"),
+            new FileTableInfo(0x801b68fc, 1, "Track")
+        };
 
         /// <summary>
         /// Gets the tile set to use
@@ -203,6 +211,8 @@ namespace R1Engine
 
         public override async UniTask LoadFilesAsync(Context context)
         {
+            await base.LoadFilesAsync(context);
+
             // Get the file paths
             var allfixPath = GetAllfixFilePath();
             var worldPath = GetWorldFilePath(context.Settings);

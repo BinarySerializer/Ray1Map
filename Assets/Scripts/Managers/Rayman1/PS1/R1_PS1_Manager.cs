@@ -246,9 +246,6 @@ namespace R1Engine
             if (bgPath != null)
                 await LoadExtraFile(context, bgPath);
 
-            // Load the exe
-            await context.AddLinearSerializedFileAsync(GetExeFilePath);
-
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, bgPath == null ? null : level.BackgroundData);
         }
