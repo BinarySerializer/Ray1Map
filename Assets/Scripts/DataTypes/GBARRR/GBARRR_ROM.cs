@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     public class GBARRR_ROM : GBA_ROMBase
     {
@@ -24,6 +26,13 @@
         // Palettes
         //public ARGB1555Color[] TilePalette { get; set; } // TODO: Use GetLevelTilePaletteOffsetIndex to get correct tile palette
         public ARGB1555Color[] SpritePalette { get; set; }
+
+        // Tables
+        public GBARRR_GraphicsTableEntry[][] GraphicsTable0 { get; set; }
+        public uint[][] GraphicsTable1 { get; set; }
+        public uint[][] GraphicsTable2 { get; set; }
+        public uint[][] GraphicsTable3 { get; set; }
+        public uint[][] GraphicsTable4 { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -71,6 +80,27 @@
             // Serialize sprite palette
             OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].SpritePaletteIndex, size =>
                 SpritePalette = s.SerializeObjectArray<ARGB1555Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
+
+            // Serialize tables
+            s.DoAt(pointerTable[GBARRR_Pointer.GraphicsTables], () =>
+            {
+                var counts = new uint[] { 0x47, 0x40, 0x45, 0x44, 0x50, 0x42 };
+
+                if (GraphicsTable0 == null) GraphicsTable0 = new GBARRR_GraphicsTableEntry[counts.Length][];
+                if (GraphicsTable1 == null) GraphicsTable1 = new uint[counts.Length][];
+                if (GraphicsTable2 == null) GraphicsTable2 = new uint[counts.Length][];
+                if (GraphicsTable3 == null) GraphicsTable3 = new uint[counts.Length][];
+                if (GraphicsTable4 == null) GraphicsTable4 = new uint[counts.Length][];
+
+                for (int i = 0; i < counts.Length; i++)
+                {
+                    GraphicsTable0[i] = s.SerializeObjectArray<GBARRR_GraphicsTableEntry>(GraphicsTable0[i], counts[i], name: $"{nameof(GraphicsTable0)}[{i}]");
+                    GraphicsTable1[i] = s.SerializeArray<uint>(GraphicsTable1[i], counts[i], name: $"{nameof(GraphicsTable1)}[{i}]");
+                    GraphicsTable2[i] = s.SerializeArray<uint>(GraphicsTable2[i], counts[i], name: $"{nameof(GraphicsTable2)}[{i}]");
+                    GraphicsTable3[i] = s.SerializeArray<uint>(GraphicsTable3[i], counts[i], name: $"{nameof(GraphicsTable3)}[{i}]");
+                    GraphicsTable4[i] = s.SerializeArray<uint>(GraphicsTable4[i], counts[i], name: $"{nameof(GraphicsTable4)}[{i}]");
+                }
+            });
         }
 
         // Recreated from level load function

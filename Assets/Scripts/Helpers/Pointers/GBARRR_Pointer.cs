@@ -4,5 +4,6 @@
     {
         LevelInfo,
         OffsetTable,
+        GraphicsTables
     }
 }
