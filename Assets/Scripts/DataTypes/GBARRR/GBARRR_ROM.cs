@@ -99,6 +99,7 @@ namespace R1Engine
                     GraphicsTable2[i] = s.SerializeArray<uint>(GraphicsTable2[i], counts[i], name: $"{nameof(GraphicsTable2)}[{i}]");
                     GraphicsTable3[i] = s.SerializeArray<uint>(GraphicsTable3[i], counts[i], name: $"{nameof(GraphicsTable3)}[{i}]");
                     GraphicsTable4[i] = s.SerializeArray<uint>(GraphicsTable4[i], counts[i], name: $"{nameof(GraphicsTable4)}[{i}]");
+                    if(i == 2 || i == 3) s.Serialize<uint>(1, name: "Padding");
                 }
             });
         }
