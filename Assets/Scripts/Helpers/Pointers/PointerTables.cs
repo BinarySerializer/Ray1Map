@@ -211,6 +211,11 @@ namespace R1Engine
                         [GBA_Pointer.UiOffsetTable] = 0x0
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.Rayman3Digiblast:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x1F9928
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.PrinceOfPersiaGBAEU:
                     return new Dictionary<GBA_Pointer, uint>() {
                         [GBA_Pointer.UiOffsetTable] = 0x08165920,

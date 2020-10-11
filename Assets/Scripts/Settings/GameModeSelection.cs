@@ -164,6 +164,9 @@ namespace R1Engine
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3_NGage, Game.GBA_Rayman3, "Rayman 3 (N-Gage)", typeof(GBA_R3NGage_Manager))]
         Rayman3NGage,
 
+        [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_R3, Game.GBA_Rayman3, "Rayman 3 (Digiblast)", typeof(GBA_R3Digiblast_Manager))]
+        Rayman3Digiblast,
+
         [GameMode(MajorEngineVersion.GBA, EngineVersion.GBA_SplinterCell, Game.GBA_SplinterCell, "Splinter Cell (GBA - EU)", typeof(GBA_SplinterCell_Manager))]
         SplinterCellGBAEU,
 
