@@ -82,7 +82,15 @@ namespace R1Engine
             return base.GetGameActions(settings).Concat(new GameAction[]
             {
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImageAsync(settings, output)),
+                new GameAction("Test BIN Reader", false, false, (input,output) => TestBinRead(settings))
             }).ToArray();
+        }
+
+        public async UniTask TestBinRead(GameSettings settings) {
+            using (var context = new Context(settings)) {
+                await context.AddLinearSerializedFileAsync("disc.bin");
+                var binFile = FileFactory.Read<ISO9960_BinFile>("disc.bin", context);
+            }
         }
 
         /// <summary>
