@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     // See: https://wiki.osdev.org/ISO_9660
     public class ISO9960_DirectoryRecord : R1Serializable {
@@ -10,7 +12,7 @@
         public uint ExtentLBA { get; set; }
         public uint ExtentSize { get; set; }
         public byte[] RecordingDateTime { get; set; }
-        public byte FileFlags { get; set; }
+        public RecordFileFlags FileFlags { get; set; }
         public byte InterleaveFileUnitSize { get; set; }
         public byte InterleaveFileGapSize { get; set; }
         public ushort VolumeSequenceNumber { get; set; }
@@ -33,7 +35,7 @@
             BigEndianValue = s.SerializeArray<byte>(BigEndianValue, 4, name: nameof(BigEndianValue));
 
             RecordingDateTime = s.SerializeArray<byte>(RecordingDateTime, 7, name: nameof(RecordingDateTime));
-            FileFlags = s.Serialize<byte>(FileFlags, name: nameof(FileFlags));
+            FileFlags = s.Serialize<RecordFileFlags>(FileFlags, name: nameof(FileFlags));
             InterleaveFileUnitSize = s.Serialize<byte>(InterleaveFileUnitSize, name: nameof(InterleaveFileUnitSize));
             InterleaveFileGapSize = s.Serialize<byte>(InterleaveFileGapSize, name: nameof(InterleaveFileGapSize));
 
@@ -51,6 +53,20 @@
             }
 
             s.Goto(Offset + Length);
+        }
+
+        [Flags]
+        public enum RecordFileFlags : byte
+        {
+            None = 0,
+            Hidden = 1 << 0,
+            Directory = 1 << 1,
+            AssociatedFile = 1 << 2,
+            FormatInfo = 1 << 3,
+            HasOwnerAndGroupPermissions = 1 << 4,
+            Reserved1 = 1 << 5,
+            Reserved2 = 1 << 6,
+            NotFinalDir = 1 << 7,
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Boo.Lang;
+﻿using System;
 using System.Linq;
 
 namespace R1Engine
@@ -35,6 +35,49 @@ namespace R1Engine
 
         public Pointer LBAToPointer(uint lba) {
             return Offset + lba * SectorSize;
+        }
+
+        public uint GetFileLBA(string filePath)
+        {
+            if (filePath == null) 
+                throw new ArgumentNullException(nameof(filePath));
+
+            // Get the paths
+            var paths = filePath.Trim('\\').Split('\\');
+
+            if (!paths.Any())
+                throw new Exception("The file path can't be empty");
+
+            // Default to root
+            var dirIndex = 0;
+            uint lba = PathTable.Object.Entries.First().ExtentLBA;
+
+            // Get the directory LBA
+            foreach (var dir in paths.Take(paths.Length - 1))
+            {
+                dirIndex = PathTable.Object.Entries.FindItemIndex(x => x.ParentDirectoryIndex == dirIndex + 1 && x.DirectoryIdentifier == dir);
+
+                if (dirIndex == -1)
+                    throw new Exception($"Directory {dir} not found");
+
+                lba = PathTable.Object.Entries[dirIndex].ExtentLBA;
+            }
+
+            // Get the directory records to find the file
+            var dirRecords = Directories.FirstOrDefault(x => x.Object.Entries.First().ExtentLBA == lba)?.Object.Entries;
+
+            if (dirRecords == null)
+                throw new Exception($"Directory not found for LBA {lba}");
+
+            // Find the file
+            var fileName = paths.Last();
+
+            var file = dirRecords.FirstOrDefault(x => x.FileIdentifier == fileName && !x.FileFlags.HasFlag(ISO9960_DirectoryRecord.RecordFileFlags.Directory));
+
+            if (file == null)
+                throw new Exception($"File {fileName} not found in directory with LBA {lba}");
+
+            return file.ExtentLBA;
         }
     }
 }
