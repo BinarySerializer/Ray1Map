@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System;
+
+namespace R1Engine
 {
     public class R1_PS1_FileTableEntry : R1Serializable
     {
@@ -6,8 +8,26 @@
         public uint MemoryAddress { get; set; } // Retail units have access to memory ranges between 0x80000000 and 0x801FFFFF
         public uint DevMemoryAddress { get; set; } // Dev units have access to memory ranges between 0x80000000 and 0x807FFFFF
         public byte DiscMinute { get; set; }
+        public int DiscMinuteValue
+        {
+            get => FromBCD(DiscMinute);
+            set => DiscMinute = ToBCD(value);
+        }
+
         public byte DiscSecond { get; set; }
+        public int DiscSecondValue
+        {
+            get => FromBCD(DiscSecond);
+            set => DiscSecond = ToBCD(value);
+        }
+
         public byte DiscFrame { get; set; }
+        public int DiscFrameValue
+        {
+            get => FromBCD(DiscFrame);
+            set => DiscFrame = ToBCD(value);
+        }
+
         public uint FileSize { get; set; }
         public string FileName { get; set; }
 
@@ -16,14 +36,30 @@
 
         public int LBA
         {
-            get => (DiscFrame + (DiscSecond * 75) + (DiscMinute * 60 * 75)) - 150;
+            get => (DiscFrameValue + (DiscSecondValue * 75) + (DiscMinuteValue * 60 * 75)) - 150;
             set
             {
                 var tmp = value + 150;
-                DiscFrame = (byte)(tmp % 75);
-                DiscSecond = (byte)((tmp / 75) % 60);
-                DiscMinute = (byte)(tmp / 75 / 60);
+                DiscFrameValue = (byte)(tmp % 75);
+                DiscSecondValue = (byte)((tmp / 75) % 60);
+                DiscMinuteValue = (byte)(tmp / 75 / 60);
             }
+        }
+
+        protected int FromBCD(byte bcd)
+        {
+            var result = 0;
+            result *= 100;
+            result += (10 * (bcd >> 4));
+            result += bcd & 0xf;
+            return result;
+        }
+
+        protected byte ToBCD(int value)
+        {
+            int tens = value / 10;
+            int units = value % 10;
+            return (byte)((tens << 4) | units);
         }
 
         public override void SerializeImpl(SerializerObject s)
