@@ -1,7 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using Debug = UnityEngine.Debug;
 
 namespace R1Engine
 {
@@ -255,7 +258,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="lvl">The level</param>
-        public override void SaveLevel(Context context, Unity_Level lvl)
+        public override async UniTask SaveLevelAsync(Context context, Unity_Level lvl)
         {
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
@@ -286,9 +289,11 @@ namespace R1Engine
                 if (ed.Unk_98 == null)
                     ed.Unk_98 = new byte[5];
 
+                // TODO: Do this in the Unity_Object instead
                 ed.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
                 ed.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
+                // TODO: Update these
                 //ed.ImageDescriptors = des.ImageDescriptors;
                 //ed.AnimDescriptors = des.AnimDescriptors;
                 //ed.ETA = eta.ETA;
@@ -307,6 +312,74 @@ namespace R1Engine
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
             FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);
+
+            // Get the ISO file
+            const string isoFilePath = "disc.bin";
+
+            context.Close();
+
+            // Recreate the ISO with the edited level file
+            RunPS1ISOEditTool(context.BasePath + isoFilePath, lvlPath, context.BasePath + lvlPath, true);
+
+            // Update the LBA for every file in the exe file table
+            using (var isoContext = new Context(context.Settings))
+            {
+                await isoContext.AddLinearSerializedFileAsync(isoFilePath);
+
+                // Read the edited ISO
+                var iso = FileFactory.Read<ISO9960_BinFile>(isoFilePath, isoContext);
+
+                // Read the game exe
+                var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+
+                // Update every file path in the file table
+                foreach (var fileEntry in exe.FileTable)
+                {
+                    // Update the LBA
+                    var lba = iso.GetFileLBA(fileEntry.FilePath, false);
+
+                    if (lba != null)
+                        fileEntry.LBA = (int)lba.Value;
+                    else
+                        Debug.Log($"LBA not updated for {fileEntry.FilePath}");
+
+                    // Update the file size if it's the level path
+                    if (fileEntry.ProcessedFilePath == lvlPath)
+                        fileEntry.FileSize = (uint)new FileInfo(context.BasePath + lvlPath).Length;
+                }
+
+                // Write the game exe
+                FileFactory.Write<R1_PS1_Executable>(ExeFilePath, context);
+            }
+
+            context.Close();
+
+            // Recreate the ISO with the edited exe file (the size stays the same, thus the LBA values won't change)
+            RunPS1ISOEditTool(context.BasePath + isoFilePath, ExeFilePath, context.BasePath + ExeFilePath, true);
+        }
+
+        protected void RunPS1ISOEditTool(string isoPath, string pathOnDisc, string filePath, bool waitForExit)
+        {
+            using (var p = new Process())
+            {
+                string getPath(string input) => $"\"{input.Replace('/', '\\')}\"";
+
+                p.StartInfo = new ProcessStartInfo(Settings.PS1ISOEditToolPath, String.Format(Settings.PS1ISOEditToolArgs, getPath(isoPath), getPath($"\\{pathOnDisc}"), getPath(filePath)))
+                {
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true
+                };
+
+                UnityEngine.Debug.Log($"Starting process {p.StartInfo.FileName} with arguments: {p.StartInfo.Arguments}");
+
+                p.Start();
+
+                if (waitForExit)
+                {
+                    p.WaitForExit();
+                    UnityEngine.Debug.Log($"Process output: {p.StandardOutput.ReadToEnd()}");
+                }
+            }
         }
     }
 }

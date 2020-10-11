@@ -300,7 +300,7 @@ namespace R1Engine
             return dictionary;
         }
 
-        public void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
+        public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
     }

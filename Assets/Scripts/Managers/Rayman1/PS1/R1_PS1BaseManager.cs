@@ -356,7 +356,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="level">The level</param>
-        public virtual void SaveLevel(Context context, Unity_Level level) => throw new NotImplementedException();
+        public virtual UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
         /// <summary>
         /// Preloads all the necessary files into the context

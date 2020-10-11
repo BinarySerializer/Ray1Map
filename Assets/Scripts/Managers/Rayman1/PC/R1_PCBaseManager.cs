@@ -1466,7 +1466,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="level">The level</param>
-        public void SaveLevel(Context context, Unity_Level level) 
+        public UniTask SaveLevelAsync(Context context, Unity_Level level) 
         {
             // Get the object manager
             var objManager = (Unity_ObjectManager_R1)level.ObjManager;
@@ -1526,6 +1526,8 @@ namespace R1Engine
 
             // Save the file
             FileFactory.Write<R1_PC_LevFile>(lvlPath, context);
+
+            return UniTask.CompletedTask;
         }
 
         public virtual async UniTask LoadFilesAsync(Context context)

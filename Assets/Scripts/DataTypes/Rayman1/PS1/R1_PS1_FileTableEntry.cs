@@ -14,7 +14,17 @@
         public string FilePath { get; set; }
         public string ProcessedFilePath { get; set; }
 
-        public int LBA => (DiscFrame + (DiscSecond * 75) + (DiscMinute * 60 * 75)) - 150;
+        public int LBA
+        {
+            get => (DiscFrame + (DiscSecond * 75) + (DiscMinute * 60 * 75)) - 150;
+            set
+            {
+                var tmp = value + 150;
+                DiscFrame = (byte)(tmp % 75);
+                DiscSecond = (byte)((tmp / 75) % 60);
+                DiscMinute = (byte)(tmp / 75 / 60);
+            }
+        }
 
         public override void SerializeImpl(SerializerObject s)
         {

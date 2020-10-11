@@ -37,7 +37,7 @@ namespace R1Engine
             return Offset + lba * SectorSize;
         }
 
-        public uint GetFileLBA(string filePath)
+        public uint? GetFileLBA(string filePath, bool throwOnError)
         {
             if (filePath == null) 
                 throw new ArgumentNullException(nameof(filePath));
@@ -46,7 +46,12 @@ namespace R1Engine
             var paths = filePath.Trim('\\').Split('\\');
 
             if (!paths.Any())
-                throw new Exception("The file path can't be empty");
+            {
+                if (throwOnError)
+                    throw new Exception("The file path can't be empty");
+                else
+                    return null;
+            }
 
             // Default to root
             var dirIndex = 0;
@@ -58,7 +63,12 @@ namespace R1Engine
                 dirIndex = PathTable.Object.Entries.FindItemIndex(x => x.ParentDirectoryIndex == dirIndex + 1 && x.DirectoryIdentifier == dir);
 
                 if (dirIndex == -1)
-                    throw new Exception($"Directory {dir} not found");
+                {
+                    if (throwOnError)
+                        throw new Exception($"Directory {dir} not found");
+                    else
+                        return null;
+                }
 
                 lba = PathTable.Object.Entries[dirIndex].ExtentLBA;
             }
@@ -67,7 +77,12 @@ namespace R1Engine
             var dirRecords = Directories.FirstOrDefault(x => x.Object.Entries.First().ExtentLBA == lba)?.Object.Entries;
 
             if (dirRecords == null)
-                throw new Exception($"Directory not found for LBA {lba}");
+            {
+                if (throwOnError)
+                    throw new Exception($"Directory not found for LBA {lba}");
+                else
+                    return null;
+            }
 
             // Find the file
             var fileName = paths.Last();
@@ -75,7 +90,12 @@ namespace R1Engine
             var file = dirRecords.FirstOrDefault(x => x.FileIdentifier == fileName && !x.FileFlags.HasFlag(ISO9960_DirectoryRecord.RecordFileFlags.Directory));
 
             if (file == null)
-                throw new Exception($"File {fileName} not found in directory with LBA {lba}");
+            {
+                if (throwOnError)
+                    throw new Exception($"File {fileName} not found in directory with LBA {lba}");
+                else
+                    return null;
+            }
 
             return file.ExtentLBA;
         }

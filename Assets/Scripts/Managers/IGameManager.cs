@@ -35,7 +35,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="level">The level</param>
-        void SaveLevel(Context context, Unity_Level level);
+        UniTask SaveLevelAsync(Context context, Unity_Level level);
 
         /// <summary>
         /// Preloads all the necessary files into the context

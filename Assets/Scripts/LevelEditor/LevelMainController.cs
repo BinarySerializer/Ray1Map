@@ -105,19 +105,26 @@ namespace R1Engine
             }
         }
 
-        public void SaveLevelTEMP() 
+        public async void SaveLevelTEMP() 
         {
-            // Save link groups
-            LevelEditorData.ObjManager.SaveLinkGroups(LevelEditorData.Level.EventData);
+            try
+            {
+                // Save link groups
+                LevelEditorData.ObjManager.SaveLinkGroups(LevelEditorData.Level.EventData);
 
-            // Save objects
-            LevelEditorData.ObjManager.SaveObjects(LevelEditorData.Level.EventData);
+                // Save objects
+                LevelEditorData.ObjManager.SaveObjects(LevelEditorData.Level.EventData);
 
-            // Save level
-            using (serializeContext)
-                Settings.GetGameManager.SaveLevel(serializeContext, LevelEditorData.Level);
+                // Save level
+                using (serializeContext)
+                    await Settings.GetGameManager.SaveLevelAsync(serializeContext, LevelEditorData.Level);
 
-            Debug.Log("Saved");
+                Debug.Log("Saved");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error saving level: {ex.Message}{Environment.NewLine}{ex}");
+            }
         }
 
         public void ExportTileset() 

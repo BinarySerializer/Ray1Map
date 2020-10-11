@@ -216,6 +216,14 @@ public class SettingsWindow : UnityWindow
         if (Settings.Log)
             Settings.LogFile = FileField(rect, "Serialization log File", Settings.LogFile, true, "txt", includeLabel: false);
 
+        // External Tools
+
+        DrawHeader("External Tools");
+
+        Settings.PS1ISOEditToolPath = FileField(GetNextRect(ref YPos), "PS1 ISO Edit Tool", Settings.PS1ISOEditToolPath, false, "exe");
+
+        Settings.PS1ISOEditToolArgs = EditorField("PS1 ISO Edit Tools Arguments", Settings.PS1ISOEditToolArgs);
+
         // Editor Tools
         if (Application.isPlaying && Controller.LoadState == Controller.State.Finished) {
             var lvl = LevelEditorData.Level;
@@ -499,7 +507,7 @@ public class SettingsWindow : UnityWindow
                 //Randomizer.Randomize(editorManager, flag, (int)world.Index + lvl + RandomizerSeed, 0);
 
                 // Save the level
-                manager.SaveLevel(context, editorManager);
+                await manager.SaveLevelAsync(context, editorManager);
             }
         }
     }

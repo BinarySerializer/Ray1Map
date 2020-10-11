@@ -31,12 +31,23 @@ namespace R1Engine
                         () => s.SerializeArray<R1_EventFlags>(EventFlags, manager.EventFlagsCount, name: nameof(EventFlags)));
             }
 
-            var fileTable = new List<R1_PS1_FileTableEntry>();
+            var fileTableInfos = manager.FileTableInfos;
 
-            foreach (var info in manager.FileTableInfos)
-                fileTable.AddRange(s.DoAt(new Pointer(info.Offset, Offset.file), () => s.SerializeObjectArray<R1_PS1_FileTableEntry>(default, info.Count, name: $"{nameof(FileTable)}_{info.Name}")));
+            if (FileTable == null)
+                FileTable = new R1_PS1_FileTableEntry[fileTableInfos.Sum(x => x.Count)];
 
-            FileTable = fileTable.ToArray();
+            var index = 0;
+            foreach (var info in fileTableInfos)
+            {
+                s.DoAt(new Pointer(info.Offset, Offset.file), () =>
+                {
+                    for (int i = 0; i < info.Count; i++)
+                    {
+                        FileTable[index] = s.SerializeObject<R1_PS1_FileTableEntry>(FileTable[index], name: $"{nameof(FileTable)}_{info.Name}[{i}]");
+                        index++;
+                    }
+                });
+            }
         }
     }
 }

@@ -932,7 +932,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="editorManager">The level</param>
-        public void SaveLevel(Context context, Unity_Level editorManager) => throw new NotImplementedException();
+        public UniTask SaveLevelAsync(Context context, Unity_Level editorManager) => throw new NotImplementedException();
 
         public virtual IReadOnlyDictionary<string, string[]> LoadLocalization(IR1_GBAData data)
         {
