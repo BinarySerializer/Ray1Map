@@ -1,7 +1,7 @@
 {
-  "name": "Rayman 3 (N-Gage)",
-  "mode": "Rayman3NGage",
-  "folder": "gba/r3_ngage",
+  "name": "Rayman 3 (Digiblast)",
+  "mode": "Rayman3Digiblast",
+  "folder": "gba/r3_digiblast",
   "icons": [
     {
       "image": ".\/img\/icon\/R3GBA\/World1.gif",
@@ -27,14 +27,14 @@
   "levels": [
     {
       "world": 8,
-      "level": 131,
-      "nameInternal": "131",
+      "level": 117,
+      "nameInternal": "117",
       "name": "(Menu) Ubisoft Logo"
     },
     {
       "world": 8,
-      "level": 103,
-      "nameInternal": "103",
+      "level": 91,
+      "nameInternal": "91",
       "name": "(Menu) Main Menu"
     },
     {
@@ -83,7 +83,7 @@
       "world": 0,
       "level": 4,
       "nameInternal": "4",
-      "name": "Ascension"
+      "name": "Swamp of Bégoniax"
     },
     {
       "world": 0,
@@ -125,7 +125,7 @@
       "world": 1,
       "level": 8,
       "nameInternal": "8",
-      "name": "Ly's Punch Challenge 1"
+      "name": "Magma Mayhem"
     },
     {
       "world": 1,
@@ -179,13 +179,13 @@
       "world": 4,
       "level": 45,
       "nameInternal": "45",
-      "name": "Ly's Punch Challenge 2"
+      "name": "Ly's Punch Challenge 1"
     },
     {
       "world": 1,
       "level": 16,
       "nameInternal": "16",
-      "name": "Free Falling"
+      "name": "Swamp of Bégoniax 2"
     },
     {
       "world": 4,
@@ -341,7 +341,7 @@
       "world": 3,
       "level": 35,
       "nameInternal": "35",
-      "name": "Falling Down"
+      "name": "Magma Mayhem 2"
     },
     {
       "world": 3,
@@ -359,13 +359,13 @@
       "world": 4,
       "level": 46,
       "nameInternal": "46",
-      "name": "Ly's Punch Challenge 3"
+      "name": "Ly's Punch Challenge 2"
     },
     {
       "world": 4,
       "level": 47,
       "nameInternal": "47",
-      "name": "Ly's Punch Challenge 4 (Unused)"
+      "name": "Ly's Punch Challenge 3 (Unused)"
     },
     {
       "world": 3,
@@ -395,60 +395,36 @@
       "world": 7,
       "level": 59,
       "nameInternal": "59",
-      "name": "(Multiplayer) Middle Ground"
+      "name": "(Multiplayer) Bumper Race"
     },
     {
       "world": 7,
       "level": 60,
       "nameInternal": "60",
-      "name": "(Multiplayer) Floors"
+      "name": "(Multiplayer) Bumper Arena"
     },
     {
       "world": 7,
       "level": 61,
       "nameInternal": "61",
-      "name": "(Multiplayer) One for All"
+      "name": "(Multiplayer) Web Tag"
     },
     {
       "world": 7,
       "level": 62,
       "nameInternal": "62",
-      "name": "(Multiplayer) All for One"
+      "name": "(Multiplayer) Slide Tag"
     },
     {
       "world": 7,
       "level": 63,
       "nameInternal": "63",
-      "name": "(Multiplayer) Team Work"
+      "name": "(Multiplayer) Steal n’ Slide"
     },
     {
       "world": 7,
       "level": 64,
       "nameInternal": "64",
-      "name": "(Multiplayer) Team Player"
-    },
-    {
-      "world": 7,
-      "level": 65,
-      "nameInternal": "65",
-      "name": "(Multiplayer) Web Tag"
-    },
-    {
-      "world": 7,
-      "level": 66,
-      "nameInternal": "66",
-      "name": "(Multiplayer) Slide Tag"
-    },
-    {
-      "world": 7,
-      "level": 67,
-      "nameInternal": "67",
-      "name": "(Multiplayer) Steal n’ Slide"
-    },
-    {
-      "world": 7,
-      "level": 68,
-      "nameInternal": "68",
       "name": "(Multiplayer) Steal n’ Spider"
     }
   ]

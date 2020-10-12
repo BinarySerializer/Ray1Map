@@ -146,6 +146,7 @@
 					"image": ".\/img\/logo\/r3.png",
 					"versions": [
 						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba/r3_eu" },
+						{ "json": "digiblast", "image": ".\/img\/version\/digiblast.png", "name": "Digiblast", "folder": "gba/r3_digiblast" },
 						{ "json": "ngage", "image": ".\/img\/version\/ngage.png", "name": "N-Gage", "folder": "gba/r3_ngage" },
 						{ "json": "us_proto", "image": ".\/img\/version\/gba.png", "name": "GBA Prototype", "folder": "gba/r3_us_proto" }
 					]
