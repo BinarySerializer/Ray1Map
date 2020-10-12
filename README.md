@@ -333,8 +333,8 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   <tr>
     <td class="tg-yw4l">Rayman 3 (DigiBlast)</td>
     <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
-    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
     <td class="tg-yw4l"></td>
   </tr>
