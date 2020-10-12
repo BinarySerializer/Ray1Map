@@ -220,9 +220,7 @@ public class SettingsWindow : UnityWindow
 
         DrawHeader("External Tools");
 
-        Settings.PS1ISOEditToolPath = FileField(GetNextRect(ref YPos), "PS1 ISO Edit Tool", Settings.PS1ISOEditToolPath, false, "exe");
-
-        Settings.PS1ISOEditToolArgs = EditorField("PS1 ISO Edit Tools Arguments", Settings.PS1ISOEditToolArgs);
+        Settings.Tool_mkpsxiso_filePath = FileField(GetNextRect(ref YPos), "mkpsxiso path", Settings.Tool_mkpsxiso_filePath, false, "exe");
 
         // Editor Tools
         if (Application.isPlaying && Controller.LoadState == Controller.State.Finished) {

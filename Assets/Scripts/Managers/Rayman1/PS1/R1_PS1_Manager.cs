@@ -1,9 +1,10 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -313,72 +314,144 @@ namespace R1Engine
             // Save the file
             FileFactory.Write<R1_PS1_LevFile>(lvlPath, context);
 
-            // Get the ISO file
-            const string isoFilePath = "disc.bin";
-
-            context.Close();
-
-            // Recreate the ISO with the edited level file
-            RunPS1ISOEditTool(context.BasePath + isoFilePath, lvlPath, context.BasePath + lvlPath, true);
-
-            // Update the LBA for every file in the exe file table
-            using (var isoContext = new Context(context.Settings))
-            {
-                await isoContext.AddLinearSerializedFileAsync(isoFilePath);
-
-                // Read the edited ISO
-                var iso = FileFactory.Read<ISO9960_BinFile>(isoFilePath, isoContext);
-
-                // Read the game exe
-                var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
-
-                // Update every file path in the file table
-                foreach (var fileEntry in exe.FileTable)
-                {
-                    // Update the LBA
-                    var lba = iso.GetFileLBA(fileEntry.FilePath, false);
-
-                    if (lba != null)
-                        fileEntry.LBA = (int)lba.Value;
-                    else
-                        Debug.Log($"LBA not updated for {fileEntry.FilePath}");
-
-                    // Update the file size if it's the level path
-                    if (fileEntry.ProcessedFilePath == lvlPath)
-                        fileEntry.FileSize = (uint)new FileInfo(context.BasePath + lvlPath).Length;
-                }
-
-                // Write the game exe
-                FileFactory.Write<R1_PS1_Executable>(ExeFilePath, context);
-            }
-
-            context.Close();
-
-            // Recreate the ISO with the edited exe file (the size stays the same, thus the LBA values won't change)
-            RunPS1ISOEditTool(context.BasePath + isoFilePath, ExeFilePath, context.BasePath + ExeFilePath, true);
+            // Create ISO for the modified data
+            CreateISO(context);
         }
 
-        protected void RunPS1ISOEditTool(string isoPath, string pathOnDisc, string filePath, bool waitForExit)
+        protected void CreateISO(Context context)
         {
-            using (var p = new Process())
+            // Get the ISO file
+            const string isoFilePath = "disc.bin";
+            const string xmlFilePath = "disc.xml";
+
+            // Close the context so the files can be accessed by other processes
+            context.Close();
+
+            // Create a temporary file for the LBA log
+            using (var lbaLogFile = new TempFile())
             {
-                string getPath(string input) => $"\"{input.Replace('/', '\\')}\"";
-
-                p.StartInfo = new ProcessStartInfo(Settings.PS1ISOEditToolPath, String.Format(Settings.PS1ISOEditToolArgs, getPath(isoPath), getPath($"\\{pathOnDisc}"), getPath(filePath)))
+                // Recalculate the LBA for the files on the disc
+                ProcessHelpers.RunProcess(Settings.Tool_mkpsxiso_filePath, new string[]
                 {
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true
-                };
+                    "-lba", ProcessHelpers.GetStringAsPathArg(lbaLogFile.TempPath), // Specify LBA log path
+                    "-noisogen", // Don't generate an ISO now
+                    xmlFilePath // The xml path
+                }, workingDir: context.BasePath);
 
-                UnityEngine.Debug.Log($"Starting process {p.StartInfo.FileName} with arguments: {p.StartInfo.Arguments}");
-
-                p.Start();
-
-                if (waitForExit)
+                // Read the LBA log
+                using (var lbaLogStream = lbaLogFile.OpenRead())
                 {
-                    p.WaitForExit();
-                    UnityEngine.Debug.Log($"Process output: {p.StandardOutput.ReadToEnd()}");
+                    using (var reader = new StreamReader(lbaLogStream))
+                    {
+                        // Skip initial lines
+                        for (int i = 0; i < 8; i++)
+                            reader.ReadLine();
+
+                        var logEntries = new List<LBALogEntry>();
+                        var currentDirs = new List<string>();
+
+                        // Read all log entries
+                        while (!reader.EndOfStream)
+                        {
+                            var line = reader.ReadLine();
+
+                            if (line == null)
+                                break;
+
+                            var words = line.Split(' ').Where(x => !String.IsNullOrWhiteSpace(x)).ToArray();
+
+                            if (!words.Any())
+                                continue;
+
+                            var entry = new LBALogEntry(words, currentDirs);
+
+                            logEntries.Add(entry);
+
+                            if (entry.EntryType == LBALogEntry.Type.Dir)
+                                currentDirs.Add(entry.Name);
+
+                            if (entry.EntryType == LBALogEntry.Type.End)
+                                currentDirs.RemoveAt(currentDirs.Count - 1);
+                        }
+
+                        // Read the game exe
+                        var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+
+                        // Update every file path in the file table
+                        foreach (var fileEntry in exe.FileTable)
+                        {
+                            // Get the matching entry
+                            var entry = logEntries.FirstOrDefault(x => x.FullPath == fileEntry.FilePath);
+
+                            if (entry == null)
+                            {
+                                Debug.Log($"LBA not updated for {fileEntry.FilePath}");
+                                continue;
+                            }
+
+                            // Update the LBA and size
+                            fileEntry.LBA = entry.LBA;
+                            fileEntry.FileSize = (uint)entry.Bytes;
+                        }
+
+                        // Write the game exe
+                        FileFactory.Write<R1_PS1_Executable>(ExeFilePath, context);
+                    }
                 }
+            }
+
+            // Close context again so the exe can be accessed
+            context.Close();
+
+            // Create a backup of previous ISO
+            if (File.Exists(context.BasePath + isoFilePath))
+                File.Move(context.BasePath + isoFilePath, context.BasePath + isoFilePath + ".bak");
+
+            // Create a new ISO
+            ProcessHelpers.RunProcess(Settings.Tool_mkpsxiso_filePath, new string[]
+            {
+                "-y", // Set to always overwrite
+                xmlFilePath // The xml path
+            }, workingDir: context.BasePath);
+        }
+
+        private class LBALogEntry
+        {
+            public LBALogEntry(IReadOnlyList<string> words, IReadOnlyList<string> dirs)
+            {
+                EntryType = (Type)Enum.Parse(typeof(Type), words[0], true);
+                Name = words[1];
+
+                if (EntryType == Type.End)
+                    return;
+
+                Length = Int32.Parse(words[2]);
+                LBA = Int32.Parse(words[3]);
+                TimeCode = words[4];
+                Bytes = Int32.Parse(words[5]);
+                
+                if (EntryType == Type.File || EntryType == Type.STR)
+                    SourceFile = words[6];
+
+                FullPath = $"\\{String.Join("\\", dirs.Append(Name))}";
+            }
+
+            public Type EntryType { get; }
+            public string Name { get; }
+            public int Length { get; }
+            public int LBA { get; }
+            public string TimeCode { get; }
+            public int Bytes { get; }
+            public string SourceFile { get; }
+
+            public string FullPath { get; }
+
+            public enum Type
+            {
+                File,
+                STR,
+                Dir,
+                End
             }
         }
     }

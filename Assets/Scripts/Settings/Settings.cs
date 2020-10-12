@@ -92,8 +92,7 @@ namespace R1Engine {
         public static bool ShowObjOffsets { get; set; }
         public static bool FollowRaymanInMemoryMode { get; set; } = true;
 
-        public static string PS1ISOEditToolPath { get; set; }
-        public static string PS1ISOEditToolArgs { get; set; } = "{0} {1} {2}";
+        public static string Tool_mkpsxiso_filePath { get; set; }
 
         public static bool HideDirSettings { get; set; }
 
@@ -231,8 +230,7 @@ namespace R1Engine {
             ShowObjOffsets = s.SerializeBool("ShowObjOffsets", ShowObjOffsets);
             ShowRayman = s.SerializeBool("ShowRayman", ShowRayman);
             FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
-            PS1ISOEditToolPath = s.SerializeString("PS1ISOEditToolPath", PS1ISOEditToolPath);
-            PS1ISOEditToolArgs = s.SerializeString("PS1ISOEditToolArgs", PS1ISOEditToolArgs);
+            Tool_mkpsxiso_filePath = s.SerializeString("Tool_mkpsxiso_filePath", Tool_mkpsxiso_filePath);
             HideDirSettings = s.SerializeBool("HideDirSettings", HideDirSettings);
 
             Log = s.SerializeBool("Log", Log);
