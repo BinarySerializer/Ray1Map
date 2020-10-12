@@ -7,6 +7,8 @@
     {
         UiOffsetTable,
         LevelInfo,
-        Localization
+        Localization,
+        VignettePalettes,
+        Vignette
     }
 }

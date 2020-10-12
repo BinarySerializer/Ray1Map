@@ -186,6 +186,9 @@ namespace R1Engine
                         [GBA_Pointer.UiOffsetTable] = 0x0829BEEC,
                         [GBA_Pointer.LevelInfo] = 0x080D4080,
                         [GBA_Pointer.Localization] = 0x080d4058,
+                        [GBA_Pointer.Vignette] = 0x0820ED94,
+                        [GBA_Pointer.VignettePalettes] = 0x080B37C0,
+
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Rayman3GBAUS:
@@ -204,6 +207,8 @@ namespace R1Engine
                     {
                         [GBA_Pointer.UiOffsetTable] = 0x084C1478,
                         [GBA_Pointer.Localization] = 0x080F20C0,
+                        [GBA_Pointer.Vignette] = 0x0845FE3C,
+                        [GBA_Pointer.VignettePalettes] = 0x080DC46A,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.Rayman3NGage:
@@ -213,7 +218,9 @@ namespace R1Engine
 
                 case GameModeSelection.Rayman3Digiblast:
                     return new Dictionary<GBA_Pointer, uint>() {
-                        [GBA_Pointer.UiOffsetTable] = 0x1F9928
+                        [GBA_Pointer.UiOffsetTable] = 0x1F9928,
+                        [GBA_Pointer.Vignette] = 0x1666A0,
+                        [GBA_Pointer.VignettePalettes] = 0x1451E8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 case GameModeSelection.PrinceOfPersiaGBAEU:

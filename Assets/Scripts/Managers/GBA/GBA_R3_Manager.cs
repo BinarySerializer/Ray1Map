@@ -51,20 +51,17 @@ namespace R1Engine
                 // Get the deserialize
                 var s = context.Deserializer;
 
-                var isPrototype = settings.GameModeSelection == GameModeSelection.Rayman3GBAUSPrototype;
+                var pointerTable = PointerTables.GBA_PointerTable(settings.GameModeSelection, file);
 
-                // TODO: Move pointers to pointer table
-                int vigCount = isPrototype ? 18 : 20;
-                uint palOffset = (uint)(isPrototype ? 0x0DC46A : 0x0B37C0);
-                uint vigOffset = (uint)(isPrototype ? 0x45FE3C : 0x20ED94);
+                int vigCount = settings.GameModeSelection == GameModeSelection.Rayman3GBAUSPrototype ? 18 : 20;
 
                 var palettes = new ARGB1555Color[vigCount][];
 
                 for (int i = 0; i < vigCount; i++)
-                    palettes[i] = s.DoAt((file.StartPointer + palOffset) + (512 * i), () => s.SerializeObjectArray<ARGB1555Color>(default, 256));
+                    palettes[i] = s.DoAt(pointerTable[GBA_Pointer.VignettePalettes] + (512 * i), () => s.SerializeObjectArray<ARGB1555Color>(default, 256));
 
                 // Go to vignette offset
-                s.Goto(file.StartPointer + vigOffset);
+                s.Goto(pointerTable[GBA_Pointer.Vignette]);
 
                 // Export every vignette
                 for (int i = 0; i < vigCount; i++)
@@ -100,7 +97,7 @@ namespace R1Engine
 
                     var palIndex = i;
 
-                    if (isPrototype)
+                    if (settings.GameModeSelection == GameModeSelection.Rayman3GBAUSPrototype)
                     {
                         // Palettes for 5 and 6 are swapped
                         if (palIndex == 5)
@@ -108,7 +105,7 @@ namespace R1Engine
                         else if (palIndex == 6)
                             palIndex = 5;
                     }
-                    else
+                    else if (settings.GameModeSelection != GameModeSelection.Rayman3Digiblast)
                     {
                         // Palettes for 6 and 7 are swapped
                         if (palIndex == 6)
@@ -141,7 +138,7 @@ namespace R1Engine
                     s.Align();
                 }
 
-                if (!isPrototype)
+                if (settings.GameModeSelection != GameModeSelection.Rayman3GBAUSPrototype)
                     ExtractVignetteCreditsIcons(context, LoadDataBlock(context), 127, outputDir);
             }
         }
