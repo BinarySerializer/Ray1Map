@@ -7,7 +7,6 @@
 
         public Header[] Headers { get; set; }
         public byte[][] TileData { get; set; }
-        public byte[][] TileDataDecompr { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
