@@ -471,42 +471,52 @@ public class SettingsWindow : UnityWindow
 
     private async UniTask BatchRandomizeAsync()
     {
-        // Get the settings
-        var settings = Settings.GetGameSettings;
-
-        // Get the manager
-        var manager = Settings.GetGameManager;
-
-        // Get the flags
-        var flag = RandomizerFlags;
-
-        // Enumerate every world
-        foreach (var world in manager.GetLevels(settings).First().Worlds)
+        try
         {
-            // Set the world
-            settings.World = world.Index;
+            // Get the settings
+            var settings = Settings.GetGameSettings;
 
-            // Enumerate every level
-            foreach (var lvl in world.Maps)
+            // Init
+            await LevelEditorData.InitAsync();
+
+            // Get the manager
+            var manager = Settings.GetGameManager;
+
+            // Get the flags
+            var flag = RandomizerFlags;
+
+            // Enumerate every world
+            foreach (var world in manager.GetLevels(settings).First().Worlds)
             {
-                // Set the level
-                settings.Level = lvl;
+                // Set the world
+                settings.World = world.Index;
 
-                // Create the context
-                var context = new Context(settings);
+                // Enumerate every level
+                foreach (var lvl in world.Maps)
+                {
+                    // Set the level
+                    settings.Level = lvl;
 
-                // Load the files
-                await manager.LoadFilesAsync(context);
+                    // Create the context
+                    var context = new Context(settings);
 
-                // Load the level
-                var editorManager = await manager.LoadAsync(context, false);
+                    // Load the files
+                    await manager.LoadFilesAsync(context);
 
-                // Randomize (only first map for now)
-                //Randomizer.Randomize(editorManager, flag, (int)world.Index + lvl + RandomizerSeed, 0);
+                    // Load the level
+                    var level = await manager.LoadAsync(context, true);
 
-                // Save the level
-                await manager.SaveLevelAsync(context, editorManager);
+                    // Randomize (only first map for now)
+                    Randomizer.Randomize(level, flag, world.Index + lvl + RandomizerSeed, 0);
+
+                    // Save the level
+                    await manager.SaveLevelAsync(context, level);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(ex);
         }
     }
 
