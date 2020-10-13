@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -386,7 +385,9 @@ namespace R1Engine
 
                             if (entry == null)
                             {
-                                Debug.Log($"LBA not updated for {fileEntry.FilePath}");
+                                if (!String.IsNullOrWhiteSpace(fileEntry.FilePath))
+                                    Debug.Log($"LBA not updated for {fileEntry.FilePath}");
+
                                 continue;
                             }
 

@@ -79,7 +79,7 @@
 
             // Only serialize if there is data at the end of the file or if the block is not null (then we're assumed to be writing)
             if (s.CurrentLength > FileSize || EditedBlock != null)
-                EditedBlock = s.SerializeObject<R1_PS1_EditedLevelBlock>(EditedBlock, name: nameof(EditedBlock));
+                s.DoAt(Offset + FileSize, () => EditedBlock = s.SerializeObject<R1_PS1_EditedLevelBlock>(EditedBlock, name: nameof(EditedBlock)));
         }
     }
 }
