@@ -73,12 +73,12 @@ namespace R1Engine {
             }
         }
 
-		public static Stream GetFileWriteStream(string path) {
+		public static Stream GetFileWriteStream(string path, bool recreateOnWrite = true) {
 			if (path == null || path.Trim() == "") return null;
 			if (FileSystem.mode == FileSystem.Mode.Web) { // || (Application.isEditor && UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.WebGL)) {
 				return null; // Can't write in web mode
 			} else {
-				return File.Create(path);
+				return recreateOnWrite ? File.Create(path) : File.OpenWrite(path);
 			}
 		}
 

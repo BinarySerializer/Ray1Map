@@ -223,13 +223,13 @@ namespace R1Engine
             var pal8Path = GetPalettePath(context.Settings, 8);
 
             // Load the files
-            await LoadExtraFile(context, allfixPath);
-            await LoadExtraFile(context, worldPath);
-            await LoadExtraFile(context, levelPath);
-            await LoadExtraFile(context, mapPath);
-            await LoadExtraFile(context, tileSetPath);
-            await LoadExtraFile(context, pal4Path);
-            await LoadExtraFile(context, pal8Path);
+            await LoadExtraFile(context, allfixPath, false);
+            await LoadExtraFile(context, worldPath, false);
+            await LoadExtraFile(context, levelPath, true);
+            await LoadExtraFile(context, mapPath, true);
+            await LoadExtraFile(context, tileSetPath, true);
+            await LoadExtraFile(context, pal4Path, true);
+            await LoadExtraFile(context, pal8Path, true);
         }
 
         /// <summary>

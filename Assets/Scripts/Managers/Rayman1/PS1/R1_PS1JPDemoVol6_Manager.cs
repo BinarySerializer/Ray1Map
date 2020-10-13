@@ -170,19 +170,19 @@ namespace R1Engine
             var tileSetPath = GetTileSetFilePath(context.Settings);
 
             // sprites
-            await LoadExtraFile(context, GetAllfixSpritePath());
-            await LoadExtraFile(context, GetWorldSpritePath(context.Settings));
-            await LoadExtraFile(context, GetLevelSpritePath(context.Settings));
-            await LoadExtraFile(context, GetPalettePath(context.Settings, 4));
-            await LoadExtraFile(context, GetPalettePath(context.Settings, 8));
-            await LoadExtraFile(context, GetFontPalettePath());
+            await LoadExtraFile(context, GetAllfixSpritePath(), true);
+            await LoadExtraFile(context, GetWorldSpritePath(context.Settings), true);
+            await LoadExtraFile(context, GetLevelSpritePath(context.Settings), true);
+            await LoadExtraFile(context, GetPalettePath(context.Settings, 4), false);
+            await LoadExtraFile(context, GetPalettePath(context.Settings, 8), false);
+            await LoadExtraFile(context, GetFontPalettePath(), true);
 
             // Load the files
-            await LoadExtraFile(context, allfixPath);
-            await LoadExtraFile(context, worldPath);
-            await LoadExtraFile(context, levelPath);
-            await LoadExtraFile(context, mapPath);
-            await LoadExtraFile(context, tileSetPath);
+            await LoadExtraFile(context, allfixPath, false);
+            await LoadExtraFile(context, worldPath, false);
+            await LoadExtraFile(context, levelPath, true);
+            await LoadExtraFile(context, mapPath, true);
+            await LoadExtraFile(context, tileSetPath, true);
         }
 
         /// <summary>

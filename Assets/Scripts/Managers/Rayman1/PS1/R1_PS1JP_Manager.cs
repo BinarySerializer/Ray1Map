@@ -164,7 +164,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading allfix";
 
             // Read the allfix file
-            await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
+            await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
             FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             Controller.DetailedState = $"Loading world file";
@@ -172,17 +172,17 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Read the world file
-            await LoadExtraFile(context, GetWorldFilePath(context.Settings));
+            await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
             FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             Controller.DetailedState = $"Loading map data";
 
             // Read the level data
-            await LoadExtraFile(context, GetLevelFilePath(context.Settings));
+            await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
             var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load special tile set file
-            await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings));
+            await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings), true);
 
             // Load the exe
             await context.AddLinearSerializedFileAsync(ExeFilePath);

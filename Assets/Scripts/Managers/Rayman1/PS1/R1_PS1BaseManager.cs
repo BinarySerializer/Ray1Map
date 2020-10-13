@@ -182,7 +182,7 @@ namespace R1Engine
             return tex;
         }
 
-        public virtual async UniTask LoadExtraFile(Context context, string path) 
+        public virtual async UniTask LoadExtraFile(Context context, string path, bool recreateOnWrite) 
         {
             await FileSystem.PrepareFile(context.BasePath + path);
 
@@ -198,7 +198,8 @@ namespace R1Engine
             PS1MemoryMappedFile file = new PS1MemoryMappedFile(context, entry.MemoryAddress, InvalidPointerMode)
             {
                 filePath = path,
-                Length = entry.FileSize
+                Length = entry.FileSize,
+                RecreateOnWrite = recreateOnWrite
             };
             context.AddFile(file);
         }
@@ -366,8 +367,8 @@ namespace R1Engine
         {
             // Load the exe
             return ExeBaseAddress == null
-                ? (UniTask)context.AddLinearSerializedFileAsync(ExeFilePath)
-                : context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress.Value);
+                ? (UniTask)context.AddLinearSerializedFileAsync(ExeFilePath, recreateOnWrite: false)
+                : context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress.Value, recreateOnWrite: false);
         }
 
         /// <summary>

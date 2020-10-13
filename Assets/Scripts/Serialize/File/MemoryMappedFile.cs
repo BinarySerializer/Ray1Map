@@ -22,7 +22,7 @@ namespace R1Engine.Serialize {
 
 		public override Writer CreateWriter() {
 			CreateBackupFile();
-			Stream s = FileSystem.GetFileWriteStream(AbsolutePath);
+			Stream s = FileSystem.GetFileWriteStream(AbsolutePath, RecreateOnWrite);
 			length = (uint)s.Length;
 			Writer writer = new Writer(s, isLittleEndian: Endianness == Endian.Little);
 			return writer;

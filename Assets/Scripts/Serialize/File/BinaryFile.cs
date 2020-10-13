@@ -53,17 +53,13 @@ namespace R1Engine.Serialize {
 		}
 
 		protected void CreateBackupFile() {
-			if (Settings.BackupFiles) {
-				if (!FileSystem.FileExists(AbsolutePath + ".BAK")) {
-					if (FileSystem.FileExists(AbsolutePath)) {
-						using (Stream s = FileSystem.GetFileReadStream(AbsolutePath)) {
-							using (Stream sb = FileSystem.GetFileWriteStream(AbsolutePath + ".BAK")) {
-								s.CopyTo(sb);
-							}
-						}
-					}
-				}
-			}
+			if (Settings.BackupFiles && !FileSystem.FileExists(AbsolutePath + ".BAK") && FileSystem.FileExists(AbsolutePath)) {
+                using (Stream s = FileSystem.GetFileReadStream(AbsolutePath)) {
+                    using (Stream sb = FileSystem.GetFileWriteStream(AbsolutePath + ".BAK")) {
+                        s.CopyTo(sb);
+                    }
+                }
+            }
 		}
 
 		public virtual void Dispose() { }
@@ -73,5 +69,10 @@ namespace R1Engine.Serialize {
 			Little,
 			Big
 		}
-	}
+
+		/// <summary>
+		/// Indicates if the file should be recreated when writing to it
+		/// </summary>
+		public bool RecreateOnWrite { get; set; } = true;
+    }
 }

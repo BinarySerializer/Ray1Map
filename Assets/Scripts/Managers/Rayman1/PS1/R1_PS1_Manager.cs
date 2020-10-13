@@ -228,7 +228,7 @@ namespace R1Engine
         public override async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             // Read the allfix file
-            await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
+            await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
             FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
             Controller.DetailedState = $"Loading world file";
@@ -236,19 +236,19 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Read the world file
-            await LoadExtraFile(context, GetWorldFilePath(context.Settings));
+            await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
             FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
             Controller.DetailedState = $"Loading map data";
 
             // Read the level data
-            await LoadExtraFile(context, GetLevelFilePath(context.Settings));
+            await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
             var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
 
             // Load the background
             var bgPath = GetLevelBackgroundFilePath(context.Settings, true);
             if (bgPath != null)
-                await LoadExtraFile(context, bgPath);
+                await LoadExtraFile(context, bgPath, true);
 
             // Load the level
             return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, bgPath == null ? null : level.BackgroundData);
@@ -409,7 +409,7 @@ namespace R1Engine
             {
                 "-y", // Set to always overwrite
                 xmlFilePath // The xml path
-            }, workingDir: context.BasePath);
+            }, workingDir: context.BasePath, logInfo: false);
         }
 
         private class LBALogEntry

@@ -226,11 +226,11 @@ namespace R1Engine
                 using (var context = new Context(settings))
                 {
                     // Read the allfix file
-                    await LoadExtraFile(context, GetAllfixFilePath(context.Settings));
+                    await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
                     var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
                     // Read the BigRay file
-                    await LoadExtraFile(context, GetBigRayFilePath(context.Settings));
+                    await LoadExtraFile(context, GetBigRayFilePath(context.Settings), false);
                     var br = FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(context.Settings), context);
 
                     Add(spritePals, allfix.Palette1);
@@ -243,7 +243,7 @@ namespace R1Engine
                     Add(spritePals, br.Palette2);
 
                     // Read the world file
-                    await LoadExtraFile(context, GetWorldFilePath(context.Settings));
+                    await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
                     var wld = FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
                     Add(spritePals, wld.EventPalette1);
@@ -265,12 +265,12 @@ namespace R1Engine
                 using (var bigRayContext = new Context(settings))
                 {
                     // Read the allfix & font files for the menu
-                    await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.Settings));
+                    await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.Settings), false);
                     var fix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(menuContext.Settings), menuContext);
-                    await LoadExtraFile(menuContext, GetFontFilePath(menuContext.Settings));
+                    await LoadExtraFile(menuContext, GetFontFilePath(menuContext.Settings), false);
 
                     // Read the BigRay file
-                    await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.Settings));
+                    await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.Settings), false);
                     var br = FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.Settings), bigRayContext);
 
                     // Correct font palette

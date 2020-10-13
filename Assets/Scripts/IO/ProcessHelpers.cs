@@ -17,8 +17,8 @@ namespace R1Engine
                 // Set the start info
                 p.StartInfo = new ProcessStartInfo(filePath, String.Join(" ", args))
                 {
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
+                    UseShellExecute = !logInfo,
+                    RedirectStandardOutput = logInfo,
                     WorkingDirectory = workingDir ?? Path.GetDirectoryName(filePath)
                 };
 
