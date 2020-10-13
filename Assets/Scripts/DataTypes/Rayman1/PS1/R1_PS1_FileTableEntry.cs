@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace R1Engine
+﻿namespace R1Engine
 {
     public class R1_PS1_FileTableEntry : R1Serializable
     {

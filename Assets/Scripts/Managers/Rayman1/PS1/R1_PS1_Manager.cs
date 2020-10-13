@@ -259,7 +259,7 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The serialization context</param>
         /// <param name="lvl">The level</param>
-        public override async UniTask SaveLevelAsync(Context context, Unity_Level lvl)
+        public override UniTask SaveLevelAsync(Context context, Unity_Level lvl)
         {
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
@@ -316,12 +316,13 @@ namespace R1Engine
 
             // Create ISO for the modified data
             CreateISO(context);
+
+            return UniTask.CompletedTask;
         }
 
         protected void CreateISO(Context context)
         {
-            // Get the ISO file
-            const string isoFilePath = "disc.bin";
+            // Get the xml file
             const string xmlFilePath = "disc.xml";
 
             // Close the context so the files can be accessed by other processes
@@ -403,10 +404,6 @@ namespace R1Engine
             // Close context again so the exe can be accessed
             context.Close();
 
-            // Create a backup of previous ISO
-            if (File.Exists(context.BasePath + isoFilePath))
-                File.Move(context.BasePath + isoFilePath, context.BasePath + isoFilePath + ".bak");
-
             // Create a new ISO
             ProcessHelpers.RunProcess(Settings.Tool_mkpsxiso_filePath, new string[]
             {
@@ -430,7 +427,7 @@ namespace R1Engine
                 TimeCode = words[4];
                 Bytes = Int32.Parse(words[5]);
                 
-                if (EntryType == Type.File || EntryType == Type.STR)
+                if (EntryType != Type.Dir)
                     SourceFile = words[6];
 
                 FullPath = $"\\{String.Join("\\", dirs.Append(Name))}";
@@ -450,6 +447,8 @@ namespace R1Engine
             {
                 File,
                 STR,
+                XA,
+                CDDA,
                 Dir,
                 End
             }
