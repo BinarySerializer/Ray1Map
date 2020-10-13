@@ -9,8 +9,12 @@ namespace R1Engine
     /// </summary>
     public class LZSSEncoder : IStreamEncoder
     {
-        public LZSSEncoder(uint length) => Length = length;
+        public LZSSEncoder(uint length, bool hasHeader = true) {
+            Length = length;
+            HasHeader = hasHeader;
+        }
         protected uint Length { get; }
+        protected bool HasHeader { get; }
 
         /// <summary>
         /// Decodes the data and returns it in a stream
@@ -22,10 +26,12 @@ namespace R1Engine
             var decompressedStream = new MemoryStream();
 
             Reader reader = new Reader(s, isLittleEndian: true); // No using, because we don't want to close the stream
-            uint magic = reader.ReadUInt32();
+            if (HasHeader) {
+                uint magic = reader.ReadUInt32();
 
-            if (magic != 0x01234567)
-                throw new InvalidDataException("The data is not LZSS compressed!");
+                if (magic != 0x01234567)
+                    throw new InvalidDataException("The data is not LZSS compressed!");
+            }
 
             byte[] bytes = reader.ReadBytes((int)Length);
 
