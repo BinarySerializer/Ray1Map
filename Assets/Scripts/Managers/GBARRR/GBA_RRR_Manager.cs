@@ -28,8 +28,9 @@ namespace R1Engine
 
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
-            new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)), 
-            new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
+            new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Normal)), 
+            new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Vignette)),
+            new GameAction("Export Actor Graphics (Used & Unused, No Palette)", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.All)),
             new GameAction("Export Actor Graphics", false, true, (input, output) => ExportGraphicsAsync(settings, output)),
         };
 
@@ -75,7 +76,15 @@ namespace R1Engine
             }
         }
 
-        public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, bool exportVignette)
+        [Flags]
+        public enum ExportFlags {
+            Normal = 1 << 0,
+            Vignette = 1 << 1,
+            Graphics = 1 << 2,
+            All = Normal | Vignette | Graphics
+        }
+
+        public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, ExportFlags flags)
         {
             const int vigWidth = 240;
             const int vigHeight = 160;
@@ -89,6 +98,8 @@ namespace R1Engine
                 // Load the rom
                 var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
 
+                ARGBColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(16, true) : null;
+
                 // Enumerate every block in the offset table
                 for (int i = 0; i < rom.OffsetTable.OffsetTableCount; i++)
                 {
@@ -99,32 +110,45 @@ namespace R1Engine
 
                     rom.OffsetTable.DoAtBlock(context, i, size =>
                     {
-                        if (size == (256 * 2) + (vigWidth * vigHeight) && exportVignette)
-                        {
-                            var vig = s.SerializeObject<GBARRR_Vignette>(default, name: $"Vignette[{i}]");
+                        bool exported = false;
+                        if (flags.HasFlag(ExportFlags.Vignette)) {
+                            if (size == (256 * 2) + (vigWidth * vigHeight)) {
+                                var vig = s.SerializeObject<GBARRR_Vignette>(default, name: $"Vignette[{i}]");
 
-                            var tex = TextureHelpers.CreateTexture2D(vigWidth, vigHeight, true);
+                                var tex = TextureHelpers.CreateTexture2D(vigWidth, vigHeight, true);
 
-                            foreach (var c in vig.Palette)
-                                c.Alpha = 255;
+                                foreach (var c in vig.Palette)
+                                    c.Alpha = 255;
 
-                            var index = 0;
-                            for (int y = 0; y < vigHeight; y++)
-                            {
-                                for (int x = 0; x < vigWidth; x++)
-                                {
-                                    tex.SetPixel(x, vigHeight - y - 1, vig.Palette[vig.ImgData[index]].GetColor());
-                                    
-                                    index++;
+                                var index = 0;
+                                for (int y = 0; y < vigHeight; y++) {
+                                    for (int x = 0; x < vigWidth; x++) {
+                                        tex.SetPixel(x, vigHeight - y - 1, vig.Palette[vig.ImgData[index]].GetColor());
+
+                                        index++;
+                                    }
                                 }
+
+                                tex.Apply();
+                                exported = true;
+                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
                             }
-
-                            tex.Apply();
-
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
                         }
-                        else if (!exportVignette)
-                        {
+                        if (!exported && flags.HasFlag(ExportFlags.Graphics)) {
+                            try {
+                                var gb = s.SerializeObject<GBARRR_GraphicsBlock>(default, name: $"GraphicsBlock[{i}]");
+                                if (gb.Count != 0) {
+                                    int tileDataSize = gb.TileData[0].Length;
+                                    if (!gb.TileData.Any(td => td.Length != tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
+                                        gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
+                                        ExportSpriteFrames(gb, pal, 0, Path.Combine(outputPath, $"{i}/"));
+                                        exported = true;
+                                    }
+                                }
+                            } catch (Exception ex) {
+                            }
+                        }
+                        if (!exported && flags.HasFlag(ExportFlags.Normal)) {
                             var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
 
                             Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);

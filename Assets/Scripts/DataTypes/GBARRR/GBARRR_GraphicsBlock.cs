@@ -10,7 +10,15 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            Headers = s.SerializeObjectArray<Header>(Headers, Count+1, name: nameof(Headers));
+            if (Count == 0) {
+                Headers = s.SerializeObjectArray<Header>(Headers, 1, name: nameof(Headers));
+
+                if(Headers[0].TileOffset % 4 != 0 || Headers[0].ExtraBytes >= 4 || (Headers[0].TileOffset / 4) < 2) return; // Invalid
+                Count = (uint)(Headers[0].TileOffset / 4) - 1;
+
+                s.Goto(Offset);
+            }
+            Headers = s.SerializeObjectArray<Header>(Headers, Count + 1, name: nameof(Headers));
             if (TileData == null) {
                 TileData = new byte[Count][];
                 for (int i = 0; i < Count; i++) {
