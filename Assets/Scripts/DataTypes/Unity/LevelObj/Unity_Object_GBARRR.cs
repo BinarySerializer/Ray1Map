@@ -28,7 +28,7 @@ namespace R1Engine
 
         public override ILegacyEditorWrapper LegacyWrapper { get; }
 
-        public override bool IsEditor => Actor.Byte_2A == 0;
+        public override bool IsEditor => Actor.ObjectType == 0;
 
         public override string PrimaryName => String.Empty;
         public override string SecondaryName => String.Empty;

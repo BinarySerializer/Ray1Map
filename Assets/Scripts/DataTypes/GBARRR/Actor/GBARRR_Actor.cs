@@ -21,7 +21,7 @@
         public byte Runtime_Byte_27 { get; set; }
         public byte RuntimeSpriteWidth { get; set; }
         public byte RuntimeSpriteHeight { get; set; }
-        public byte Byte_2A { get; set; } // Used as index (-1) in function table at 0x0800e86c in ROM
+        public byte ObjectType { get; set; } // Used as index (-1) in function table at 0x0800e86c in ROM
         public byte Runtime_Byte_2B { get; set; }
         public ushort Runtime_Ushort_2C { get; set; }
         public ushort Runtime_Ushort_2E { get; set; }
@@ -29,6 +29,31 @@
         public uint Runtime_Uint_34 { get; set; }
         public int RuntimeAnimFrame { get; set; }
         public uint RuntimeAnimOffset { get; set; } // Is this correct? Changes with the anim index.
+
+        // Parsed
+        public uint P_GraphicsIndex { get; set; }
+        public uint P_GraphicsOffset { get; set; }
+        public uint P_30 { get; set; }
+        public uint P_AnimIndex { get; set; }
+        public uint P_PaletteIndex { get; set; }
+        public uint P_FunctionPointer { get; set; }
+        public uint P_Field12 { get; set; }
+        public uint P_Field14 { get; set; }
+        public uint P_Field18 { get; set; }
+        public uint P_Field20 { get; set; }
+        public short P_RuntimeXPos { get; set; }
+        public short P_RuntimeAnimFrame { get; set; }
+        public short P_Field2E { get; set; }
+        public uint P_Field2C { get; set; }
+        public short P_Field10 { get; set; }
+        public uint P_Field34 { get; set; }
+        public uint P_Field0E { get; set; }
+        public uint P_Field08 { get; set; }
+        public uint P_SpriteHeight { get; set; }
+        public uint P_SpriteWidth { get; set; }
+        
+        public GBARRR_GraphicsBlock GraphicsBlock { get; set; }
+        public GBARRR_Palette Palette { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -51,7 +76,7 @@
             Runtime_Byte_27 = s.Serialize<byte>(Runtime_Byte_27, name: nameof(Runtime_Byte_27));
             RuntimeSpriteWidth = s.Serialize<byte>(RuntimeSpriteWidth, name: nameof(RuntimeSpriteWidth));
             RuntimeSpriteHeight = s.Serialize<byte>(RuntimeSpriteHeight, name: nameof(RuntimeSpriteHeight));
-            Byte_2A = s.Serialize<byte>(Byte_2A, name: nameof(Byte_2A));
+            ObjectType = s.Serialize<byte>(ObjectType, name: nameof(ObjectType));
             Runtime_Byte_2B = s.Serialize<byte>(Runtime_Byte_2B, name: nameof(Runtime_Byte_2B));
             Runtime_Ushort_2C = s.Serialize<ushort>(Runtime_Ushort_2C, name: nameof(Runtime_Ushort_2C));
             Runtime_Ushort_2E = s.Serialize<ushort>(Runtime_Ushort_2E, name: nameof(Runtime_Ushort_2E));
