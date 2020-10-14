@@ -401,7 +401,17 @@ namespace R1Engine
             AnimationFrameFloat = 0;
         }
 
-        protected void UpdateZDC() => EventData.Runtime_TypeZDC = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type) ?? EventData.Runtime_TypeZDC;
+        protected void UpdateZDC()
+        {
+            var zdc = ObjManager.TypeZDC?.ElementAtOrDefault((ushort)EventData.Type);
+
+            if (zdc != null)
+                EventData.Runtime_TypeZDC = new R1_ZDCEntry()
+                {
+                    ZDCCount = zdc.ZDCCount,
+                    ZDCIndex = zdc.ZDCIndex
+                };
+        }
 
         [Obsolete]
         private class LegacyEditorWrapper : ILegacyEditorWrapper

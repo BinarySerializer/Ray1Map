@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -10,19 +11,14 @@ namespace R1Engine
     /// A binary serializer used for serializing
     /// </summary>
     public class BinarySerializer : SerializerObject, IDisposable {
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        /// <param name="baseStream">The base stream</param>
-        /// <param name="filePath">The path of the file being serialized</param>
-        /// <param name="settings">The game settings</param>
-        public BinarySerializer(Context context) : base(context)
-        { }
+        public BinarySerializer(Context context) : base(context) { }
 
         protected Writer writer;
         protected BinaryFile currentFile;
         protected Dictionary<BinaryFile, Writer> writers = new Dictionary<BinaryFile, Writer>();
         private string LogPrefix => Settings.Log ? ("(WRITE) " + CurrentPointer + ":" + new string(' ', (Depth + 1) * 2)) : null;
+
+        protected HashSet<R1Serializable> WrittenObjects { get; } = new HashSet<R1Serializable>();
 
         public override Pointer CurrentPointer {
             get {
@@ -191,18 +187,31 @@ namespace R1Engine
             return calculatedChecksum;
         }
 
-        public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null) {
-            if (Settings.Log) {
-                Context.Log.Log(LogPrefix + "(Object: " + typeof(T) + ") " + (name ?? "<no name>"));
+        public override T SerializeObject<T>(T obj, Action<T> onPreSerialize = null, string name = null) 
+        {
+            if (WrittenObjects.Contains(obj))
+            {
+                //Debug.Log($"Skipped {obj} of size {obj.Size} from {CurrentPointer}");
+                Goto(CurrentPointer + obj.Size);
+                return obj;
             }
+
+            if (Settings.Log)
+                Context.Log.Log(LogPrefix + "(Object: " + typeof(T) + ") " + (name ?? "<no name>"));
+
             Depth++;
             onPreSerialize?.Invoke(obj);
+
             if (obj.Context == null || obj.Context != Context) {
                 // reinitialize object
                 obj.Init(CurrentPointer);
             }
+
             obj.Serialize(this);
             Depth--;
+
+            WrittenObjects.Add(obj);
+
             return obj;
         }
 
