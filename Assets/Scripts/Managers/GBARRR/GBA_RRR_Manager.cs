@@ -29,8 +29,51 @@ namespace R1Engine
         public GameAction[] GetGameActions(GameSettings settings) => new GameAction[]
         {
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, false)), 
-            new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, true)), 
+            new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, true)),
+            new GameAction("Export Actor Graphics", false, true, (input, output) => ExportGraphicsAsync(settings, output)),
         };
+
+        public async UniTask ExportGraphicsAsync(GameSettings settings, string outputPath) {
+
+            using (var context = new Context(settings)) {
+                var s = context.Deserializer;
+
+                await LoadFilesAsync(context);
+
+                // Load the rom
+                var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
+
+                for (int w = 0; w < 6; w++) {
+                    for (int l = 0; l < 0x1d; l++) {
+                        var dict = LoadActorGraphics(s, rom, l, w);
+                        for (int i = 0; i < rom.GraphicsTable0[w].Length; i++) {
+                            var act = new GBARRR_Actor() {
+                                Ushort_0C = (ushort)(rom.GraphicsTable0[w][i].Key * 2)
+                            };
+                            AssignActorValues(act, rom, l, w);
+                            if (act.P_GraphicsOffset != 0) {
+                                if (!dict.ContainsKey(act.P_GraphicsOffset)) continue;
+                                act.GraphicsBlock = dict[act.P_GraphicsOffset];
+                                /*    UnityEngine.Debug.Log("Graphics with offset " + string.Format("{0:X8}", act.P_GraphicsOffset) + " weren't loaded!");
+                                } else {
+                                    act.GraphicsBlock = dict[act.P_GraphicsOffset];
+                                }*/
+                                if (act.P_PaletteIndex < 16) {
+                                    // UnityEngine.Debug.Log(act.P_PaletteIndex);
+                                    // Use rom.spritepalette to test for now
+                                    ExportSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex, outputPath + $"/{w}/{l}/rompalette/");
+                                } else {
+                                    rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex, (size) => {
+                                        act.Palette = s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette));
+                                        ExportSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0, outputPath + $"/{w}/{l}/blockpalette/");
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, bool exportVignette)
         {
@@ -127,11 +170,12 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            if(context.Settings.Level == 3) {
+            // TODO: Use similar code to show graphics in Unity
+            /*if(context.Settings.Level == 4) {
                 SerializerObject s = context.Deserializer;
-                var dict = LoadActorGraphics(s, rom, 0, 4);
+                var dict = LoadActorGraphics(s, rom, 1, 4);
                 foreach (var act in rom.LevelScene.Actors) {
-                    AssignActorValues(act, rom, 0, 4);
+                    AssignActorValues(act, rom, 1, 4);
                     if (act.P_GraphicsOffset != 0) {
                         if (!dict.ContainsKey(act.P_GraphicsOffset)) {
                             UnityEngine.Debug.Log("Graphics with offset " + string.Format("{0:X8}", act.P_GraphicsOffset) + " weren't loaded!");
@@ -141,15 +185,17 @@ namespace R1Engine
                         if (act.P_PaletteIndex < 16) {
                             // UnityEngine.Debug.Log(act.P_PaletteIndex);
                             // Use rom.spritepalette to test for now
+                            ExportSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex, context.BasePath + "sprites_badpalette/");
                         } else {
                             rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex, (size) => {
                                 act.Palette = s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette));
+                                ExportSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0, context.BasePath + "sprites_palette/");
                             });
                         }
 
                     }
                 }
-            }
+            }*/
 
             return new Unity_Level(
                 maps: new Unity_Map[]
@@ -167,6 +213,47 @@ namespace R1Engine
                 defaultCollisionMap: 2,
                 defaultMap: 2
             );
+        }
+
+        protected void ExportSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex, string outputDir) {
+            try {
+                // For each frame
+                int width = (int)spr.TileSize;
+                int height = (int)spr.TileSize;
+                for (int i = 0; i < spr.Count; i++) {
+                    var tex = TextureHelpers.CreateTexture2D(width, height, true);
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < width; x++) {
+                            int tileX = x / 8;
+                            int tileY = y / 8;
+                            int inTileX = x % 8;
+                            int inTileY = y % 8;
+                            int tileIndex = tileX + (tileY * width / 8);
+                            int index = tileIndex * (8 * 4) + (inTileY * 8 + inTileX) / 2;
+
+                            if (index < spr.TileData[i].Length) {
+                                var v = BitHelpers.ExtractBits(spr.TileData[i][index], 4, x % 2 == 0 ? 0 : 4);
+
+                                Color c = palette[paletteIndex * 16 + v].GetColor();
+
+                                if (v != 0)
+                                    c = new Color(c.r, c.g, c.b, 1f);
+                                else
+                                    c = new Color(c.r, c.g, c.b, 0f);
+
+                                tex.SetPixel(x, height - y - 1, c);
+                            } else {
+                                Debug.Log($"{spr.Offset.AbsoluteOffset:X8} - " + spr.TileData[i].Length + " - " + width + " - " + index);
+                            }
+                        }
+                    }
+                    tex.Apply();
+                    var fileName = $"Sprites_{spr.Offset.AbsoluteOffset:X8}_Pal{paletteIndex}/{i}.png";
+                    Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
+                }
+            } catch (Exception ex) {
+                Debug.LogError($"Error for GraphicsBlock {spr.Offset.AbsoluteOffset:X8} - Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");
+            }
         }
 
         public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset)
@@ -846,7 +933,7 @@ namespace R1Engine
                             memAddressDict[0x03002544] = LoadGraphicsBlock(0x00000261, 4, 0x20);
                             memAddressDict[0x030023B4] = LoadGraphicsBlock(0x00000263, 0x14, 0x20);
                             memAddressDict[0x030050EC] = LoadGraphicsBlock(0x0000026A, 8, 0x20);
-                            memAddressDict[0x03004308] = LoadGraphicsBlock(0x0000026B, 4, 0x40);
+                            memAddressDict[0x03004308] = LoadGraphicsBlock(0x0000026B, 4, 0x20);
                             memAddressDict[0x03003728] = LoadGraphicsBlock(0x00000269, 0xe, 0x40);
 
                             if (level == 1) {
@@ -885,7 +972,7 @@ namespace R1Engine
                             memAddressDict[0x03004260] = LoadGraphicsBlock(0x00000171, 0x16, 0x20);
                             memAddressDict[0x03002EB4] = LoadGraphicsBlock(0x170, 0x16, 0x10);
 
-                            memAddressDict[0x03003F58] = LoadGraphicsBlock(0x03000010 + 0xb + 0x00000169, 8, 0x40); // is this right?
+                            memAddressDict[0x03003F58] = LoadGraphicsBlock(/*0x03000010 + 0xb +*/ 0x00000169, 8, 0x40); // is this right?
                             break;
                     }
                     LoadGraphicsBlock(0x10, 1, 0x20); // What is this? It loads at the end of every world block and I have no idea at what address
