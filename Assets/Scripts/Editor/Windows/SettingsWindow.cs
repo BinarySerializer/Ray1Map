@@ -477,7 +477,7 @@ public class SettingsWindow : UnityWindow
             var settings = Settings.GetGameSettings;
 
             // Init
-            await LevelEditorData.InitAsync();
+            await LevelEditorData.InitAsync(settings);
 
             // Get the manager
             var manager = Settings.GetGameManager;

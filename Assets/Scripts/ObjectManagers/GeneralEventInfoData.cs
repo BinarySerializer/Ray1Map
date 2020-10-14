@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -18,11 +17,8 @@ namespace R1Engine
         public GeneralEventInfoData(string name, 
             ushort type, string typeName, 
             byte etat, byte subEtat, 
-            IDictionary<R1_World, int?> desR1, IDictionary<R1_World, int?> etaR1, 
-            IDictionary<R1_World, string> desNameR1, IDictionary<R1_World, string> etaNameR1,
-            IDictionary<R1_World, int?> desEdu, IDictionary<R1_World, int?> etaEdu, 
-            IDictionary<R1_World, string> desNameEdu, IDictionary<R1_World, string> etaNameEdu,
-            IDictionary<R1_World, string> desKit, IDictionary<R1_World, string> etaKit,
+            string des, string eta,
+            R1_World[] worlds, Engine[] engines,
             byte offsetBx, byte offsetBy, byte offsetHy,
             byte followSprite, uint hitPoints, byte hitSprite, bool followEnabled, 
             string[] connectedEvents, 
@@ -33,16 +29,10 @@ namespace R1Engine
             TypeName = typeName;
             Etat = etat;
             SubEtat = subEtat;
-            DesR1 = new ReadOnlyDictionary<R1_World, int?>(desR1);
-            EtaR1 = new ReadOnlyDictionary<R1_World, int?>(etaR1);
-            DesNameR1 = new ReadOnlyDictionary<R1_World, string>(desNameR1);
-            EtaNameR1 = new ReadOnlyDictionary<R1_World, string>(etaNameR1);
-            DesEdu = new ReadOnlyDictionary<R1_World, int?>(desEdu);
-            EtaEdu = new ReadOnlyDictionary<R1_World, int?>(etaEdu);
-            DesNameEdu = new ReadOnlyDictionary<R1_World, string>(desNameEdu);
-            EtaNameEdu = new ReadOnlyDictionary<R1_World, string>(etaNameEdu);
-            DesKit = new ReadOnlyDictionary<R1_World, string>(desKit);
-            EtaKit = new ReadOnlyDictionary<R1_World, string>(etaKit);
+            DES = des;
+            ETA = eta;
+            Worlds = worlds;
+            Engines = engines;
             OffsetBX = offsetBx;
             OffsetBY = offsetBy;
             OffsetHY = offsetHy;
@@ -67,18 +57,11 @@ namespace R1Engine
         public byte Etat { get; }
         public byte SubEtat { get; }
 
-        public IReadOnlyDictionary<R1_World, int?> DesR1 { get; }
-        public IReadOnlyDictionary<R1_World, int?> EtaR1 { get; }
-        public IReadOnlyDictionary<R1_World, string> DesNameR1 { get; }
-        public IReadOnlyDictionary<R1_World, string> EtaNameR1 { get; }
+        public string DES { get; }
+        public string ETA { get; }
 
-        public IReadOnlyDictionary<R1_World, int?> DesEdu { get; }
-        public IReadOnlyDictionary<R1_World, int?> EtaEdu { get; }
-        public IReadOnlyDictionary<R1_World, string> DesNameEdu { get; }
-        public IReadOnlyDictionary<R1_World, string> EtaNameEdu { get; }
-
-        public IReadOnlyDictionary<R1_World, string> DesKit { get; }
-        public IReadOnlyDictionary<R1_World, string> EtaKit { get; }
+        public R1_World[] Worlds { get; }
+        public Engine[] Engines { get; } // R1, EDU, KIT
 
         public byte OffsetBX { get; }
         public byte OffsetBY { get; }
@@ -93,6 +76,17 @@ namespace R1Engine
 
         public ushort[] LabelOffsets { get; }
         public byte[] Commands { get; }
+
+        #endregion
+
+        #region Enums
+
+        public enum Engine
+        {
+            R1,
+            EDU,
+            KIT
+        }
 
         #endregion
 
@@ -139,6 +133,7 @@ namespace R1Engine
                         //T? nextEnumValue<T>() where T : struct => Enum.TryParse(nextValue(), out T parsedEnum) ? (T?)parsedEnum : null;
                         ushort[] next16ArrayValue() => nextValue().Split('-').Where(x => !String.IsNullOrWhiteSpace(x)).Select(UInt16.Parse).ToArray();
                         int?[] next32NullableArrayValue() => nextValue().Split('-').Select(x => String.IsNullOrWhiteSpace(x) ? null : (int?)Int32.Parse(x)).ToArray();
+                        int[] next32ArrayValue() => nextValue().Split('-').Select(Int32.Parse).ToArray();
                         byte[] next8ArrayValue() => nextValue().Split('-').Where(x => !String.IsNullOrWhiteSpace(x)).Select(Byte.Parse).ToArray();
                         string[] nextStringArrayValue() => nextValue().Split('-').ToArray();
 
@@ -156,11 +151,8 @@ namespace R1Engine
                         output.Add(new GeneralEventInfoData(name: nextValue(), 
                             type: nextUShortValue(), typeName: nextValue(), 
                             etat: nextByteValue(), subEtat: nextByteValue(), 
-                            desR1: toDictionary(next32NullableArrayValue()), etaR1: toDictionary(next32NullableArrayValue()), 
-                            desNameR1: toDictionary(nextStringArrayValue()), etaNameR1: toDictionary(nextStringArrayValue()), 
-                            desEdu: toDictionary(next32NullableArrayValue()), etaEdu: toDictionary(next32NullableArrayValue()), 
-                            desNameEdu: toDictionary(nextStringArrayValue()), etaNameEdu: toDictionary(nextStringArrayValue()), 
-                            desKit: toDictionary(nextStringArrayValue()), etaKit: toDictionary(nextStringArrayValue()), 
+                            des: nextValue(), eta: nextValue(),
+                            worlds: next32ArrayValue().Select(x => (R1_World)x).ToArray(), engines: nextStringArrayValue().Select(x => (Engine)Enum.Parse(typeof(Engine), x)).ToArray(),
                             offsetBx: nextByteValue(), offsetBy: nextByteValue(), offsetHy: nextByteValue(), 
                             followSprite: nextByteValue(), hitPoints: nextUIntValue(), hitSprite: nextByteValue(), followEnabled: nextBoolValue(), 
                             connectedEvents: nextStringArrayValue(), 
@@ -234,11 +226,8 @@ namespace R1Engine
                 WriteLine("Name", 
                     "Type", "TypeName", 
                     "Etat", "SubEtat", 
-                    "DesR1", "EtaR1", 
-                    "DesNameR1", "EtaNameR1", 
-                    "DesEdu", "EtaEdu", 
-                    "DesNameEdu", "EtaNameEdu", 
-                    "DesKit", "EtaKit", 
+                    "DES", "ETA", 
+                    "Worlds", "Engines",
                     "OffsetBX", "OffsetBY", "OffsetHY", 
                     "FollowSprite", "HitPoints", "HitSprite", "FollowEnabled", 
                     "ConnectedEvents", 
@@ -253,11 +242,8 @@ namespace R1Engine
                     WriteLine(e.Name, 
                         e.Type, e.TypeName, 
                         e.Etat, e.SubEtat, 
-                        e.DesR1, e.EtaR1, 
-                        e.DesNameR1, e.EtaNameR1, 
-                        e.DesEdu, e.EtaEdu, 
-                        e.DesNameEdu, e.EtaNameEdu, 
-                        e.DesKit, e.EtaKit, 
+                        e.DES, e.ETA, 
+                        e.Worlds.Select(x => (int)x), e.Engines.Select(x => x.ToString()),
                         e.OffsetBX, e.OffsetBY, e.OffsetHY, 
                         e.FollowSprite, e.HitPoints, e.HitSprite, e.FollowEnabled, 
                         e.ConnectedEvents, 

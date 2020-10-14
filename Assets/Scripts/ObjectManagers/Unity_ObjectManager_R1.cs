@@ -1,10 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Cysharp.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
 namespace R1Engine
@@ -48,7 +47,7 @@ namespace R1Engine
 
         public GeneralEventInfoData[] AvailableEvents { get; }
 
-        public bool UsesLocalCommands => Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit || 
+        public bool UsesLocalCommands => Context.Settings.GameModeSelection == GameModeSelection.MapperPC || 
                                          Context.Settings.EngineVersion == EngineVersion.R1_GBA || 
                                          Context.Settings.EngineVersion == EngineVersion.R1_DSi ||
                                          Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 ||
@@ -56,48 +55,14 @@ namespace R1Engine
 
         protected IEnumerable<GeneralEventInfoData> GetGeneralEventInfoData()
         {
-            switch (Context.Settings.EngineVersion)
-            {
-                case EngineVersion.R1_PS1:
-                case EngineVersion.R1_PS1_JP:
-                case EngineVersion.R1_PS1_JPDemoVol3:
-                case EngineVersion.R1_PS1_JPDemoVol6:
-                case EngineVersion.R1_Saturn:
-                case EngineVersion.R1_PC:
-                case EngineVersion.R1_PocketPC:
-                case EngineVersion.R1_GBA:
-                case EngineVersion.R1_DSi:
-                    return LevelEditorData.EventInfoData.Where(x => x.DesR1.TryGetItem(Context.Settings.R1_World) != null && x.EtaR1.TryGetItem(Context.Settings.R1_World) != null);
+            var engine = GeneralEventInfoData.Engine.R1;
 
-                case EngineVersion.R1_PC_Kit:
-                    return LevelEditorData.EventInfoData.Where(x => {
-                        // If it's listed as being in stock KIT, then we know it has to be there.
-                        if (x.DesKit.TryGetItem(Context.Settings.R1_World) != null && x.EtaKit.TryGetItem(Context.Settings.R1_World) != null)
-                            return true;
+            if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || Context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu)
+                engine = GeneralEventInfoData.Engine.EDU;
+            else if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
+                engine = GeneralEventInfoData.Engine.KIT;
 
-                        // Check if the DES/ETA has been ported from R1.
-                        var desName = x.DesNameR1.TryGetItem(Context.Settings.R1_World);
-                        var etaName = x.EtaNameR1.TryGetItem(Context.Settings.R1_World);
-                        if (desName != null && etaName != null && DES.Any(des => des.Name == $"{desName}.DES") && ETA.Any(eta => eta.Name == $"{etaName}.ETA"))
-                            return true;
-
-                        // Check if the DES/ETA has been ported from EDU.
-                        desName = x.DesNameEdu.TryGetItem(Context.Settings.R1_World);
-                        etaName = x.EtaNameEdu.TryGetItem(Context.Settings.R1_World);
-                        if (desName != null && etaName != null && DES.Any(des => des.Name == $"{desName}.DES") && ETA.Any(eta => eta.Name == $"{etaName}.ETA"))
-                            return true;
-
-                        // It ain't there.
-                        return false;
-                        });
-
-                case EngineVersion.R1_PC_Edu:
-                case EngineVersion.R1_PS1_Edu:
-                    return LevelEditorData.EventInfoData.Where(x => x.DesEdu.TryGetItem(Context.Settings.R1_World) != null && x.EtaEdu.TryGetItem(Context.Settings.R1_World) != null);
-
-                default:
-                    throw new Exception($"{nameof(Unity_ObjectManager_R1)} does not support the current engine version: {Context.Settings.EngineVersion}");
-            }
+            return LevelEditorData.EventInfoData.Where(x => x.Worlds.Contains(Context.Settings.R1_World) && x.Engines.Contains(engine) && DES.Any(d => d.Name == x.DES) && ETA.Any(e => e.Name == x.ETA));
         }
         
         public GeneralEventInfoData FindMatchingEventInfo(R1_EventData e)
@@ -191,47 +156,15 @@ namespace R1Engine
                 HitSprite = e.HitSprite,
                 Commands = cmds,
                 LabelOffsets = labelOffsets
-            }, this);
+            }, this, ETAIndex: ETA.FindItemIndex(x => x.Name == e.ETA));
 
             eventData.EventData.SetFollowEnabled(Context.Settings, e.FollowEnabled);
 
             // We need to set the hit points after the type
             eventData.EventData.ActualHitPoints = e.HitPoints;
 
-            // Set DES & ETA
-            switch (Context.Settings.EngineVersion)
-            {
-                case EngineVersion.R1_PS1:
-                case EngineVersion.R1_PS1_JP:
-                case EngineVersion.R1_PS1_JPDemoVol3:
-                case EngineVersion.R1_PS1_JPDemoVol6:
-                case EngineVersion.R1_Saturn:
-                case EngineVersion.R1_GBA:
-                case EngineVersion.R1_DSi:
-                    throw new Exception($"{Context.Settings.EngineVersion} does currently not support adding events");
-
-                case EngineVersion.R1_PC:
-                case EngineVersion.R1_PocketPC:
-                    eventData.EventData.PC_ImageDescriptorsIndex = eventData.EventData.PC_ImageBufferIndex = eventData.EventData.PC_AnimationDescriptorsIndex = (uint)e.DesR1[Context.Settings.R1_World].Value;
-                    eventData.EventData.PC_ETAIndex = (uint)e.EtaR1[Context.Settings.R1_World].Value;
-                    break;
-
-                case EngineVersion.R1_PC_Kit:
-                    eventData.EventData.PC_ImageDescriptorsIndex = eventData.EventData.PC_ImageBufferIndex = eventData.EventData.PC_AnimationDescriptorsIndex = (uint)DES.First(x => x.Name == e.DesKit[Context.Settings.R1_World] || x.Name == e.DesNameR1[Context.Settings.R1_World] || x.Name == e.DesNameEdu[Context.Settings.R1_World]).Index;
-                    eventData.EventData.PC_ETAIndex = (uint)ETA.First(x => x.Name == e.EtaKit[Context.Settings.R1_World] || x.Name == e.EtaNameR1[Context.Settings.R1_World] || x.Name == e.EtaNameEdu[Context.Settings.R1_World]).Index;
-                    break;
-
-                case EngineVersion.R1_PC_Edu:
-                case EngineVersion.R1_PS1_Edu:
-                    eventData.EventData.PC_ImageDescriptorsIndex = eventData.EventData.PC_ImageBufferIndex = eventData.EventData.PC_AnimationDescriptorsIndex = (uint)e.DesEdu[Context.Settings.R1_World].Value;
-                    eventData.EventData.PC_ETAIndex = (uint)e.EtaEdu[Context.Settings.R1_World].Value;
-                    break;
-
-                default:
-                    throw new Exception($"{nameof(Unity_ObjectManager_R1)} does not support the current engine version: {Context.Settings.EngineVersion}");
-            }
-
-            // TODO: Update link table
+            // Set DES
+            eventData.DESIndex = DES.FindItemIndex(x => x.Name == e.DES);
 
             return eventData;
         }
@@ -455,7 +388,18 @@ namespace R1Engine
             public Pointer Pointer { get; }
             public string Name { get; }
             public int Index { get; }
-            public string DisplayName => Name ?? (Pointer != null ? Pointer.ToString() : Index.ToString());
+            public string DisplayName
+            {
+                get
+                {
+                    if (Name != null && 
+                        // Only display the official KIT names for web
+                        (LevelEditorData.MainContext.Settings.EngineVersion == EngineVersion.R1_PC_Kit || FileSystem.mode == FileSystem.Mode.Normal))
+                        return Name;
+
+                    return (Pointer != null ? Pointer.ToString() : Index.ToString());
+                }
+            }
         }
 
         public class DESData

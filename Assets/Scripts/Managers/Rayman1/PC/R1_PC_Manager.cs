@@ -84,8 +84,6 @@ namespace R1Engine
             new AdditionalSoundArchive("VIG", GetSoundVignetteFilePath(), 16),
         };
 
-        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents) => generalEvents.Any(x => x.DesR1[context.Settings.R1_World] == desIndex && ((R1_EventType)x.Type).IsMultiColored());
-
         /// <summary>
         /// Gets the available game actions
         /// </summary>
@@ -156,6 +154,9 @@ namespace R1Engine
                 }
             }
         }
+
+        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_R1PCDES[context.Settings.World - 1];
+        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_R1PCETA[context.Settings.World - 1];
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.R1PC_Type_ZDC;
         public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.R1PC_ZDCTable;
