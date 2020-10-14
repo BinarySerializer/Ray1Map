@@ -293,10 +293,12 @@ namespace R1Engine
                 ed.ImageDescriptorCount = (ushort)objManager.DES[e.DESIndex].Data.ImageDescriptors.Length;
                 ed.AnimDescriptorCount = (byte)objManager.DES[e.DESIndex].Data.Graphics.Animations.Count;
 
-                // TODO: Update these
-                //ed.ImageDescriptors = des.ImageDescriptors;
-                //ed.AnimDescriptors = des.AnimDescriptors;
-                //ed.ETA = eta.ETA;
+                // TODO: Get from DESData in obj manager instead?
+                ed.ImageDescriptors = FileFactory.Read<ObjectArray<R1_ImageDescriptor>>(ed.ImageDescriptorsPointer, context, (s, o) => o.Length = ed.ImageDescriptorCount).Value;
+                ed.AnimDescriptors = FileFactory.Read<ObjectArray<R1_PS1_AnimationDescriptor>>(ed.AnimDescriptorsPointer, context, (s, o) => o.Length = ed.AnimDescriptorCount).Value;
+                ed.ETA = context.Cache.FromOffset<R1_PS1_ETA>(ed.ETAPointer);
+                
+                // TODO: Update this
                 //ed.ImageBuffer = des.ImageBuffer;
 
                 return ed;

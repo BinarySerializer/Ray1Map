@@ -799,7 +799,7 @@ namespace R1Engine
             void loadGraphics(R1_GBA_EventGraphicsData graphics)
             {
                 // Add if not found
-                if (graphics.ImageDescriptorsPointer == null || eventDesigns.Any(x => x.Pointer == graphics.ImageDescriptorsPointer))
+                if (graphics.ImageDescriptorsPointer == null || eventDesigns.Any(x => x.Data.ImageDescriptorPointer == graphics.ImageDescriptorsPointer))
                     return;
 
                 Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
@@ -824,14 +824,14 @@ namespace R1Engine
                     finalDesign.Animations.AddRange(graphics.AnimDescriptors.Select(x => x.ToCommonAnimation()));
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, graphics.ImageDescriptors), graphics.ImageDescriptorsPointer));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, graphics.ImageDescriptors, graphics.ImageDescriptorsPointer, graphics.AnimDescriptorsPointer, graphics.ImageBufferPointer), graphics.ImageDescriptorsPointer));
             }
 
             // Helper for loading ETA
             void loadETA(R1_GBA_EventData dat)
             {
                 // Add if not found
-                if (dat.ETAPointer != null && eventETA.All(x => x.Pointer != dat.ETAPointer))
+                if (dat.ETAPointer != null && eventETA.All(x => x.PrimaryPointer != dat.ETAPointer))
                 {
                     // Add to the ETA
                     eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(dat.ETA, dat.ETAPointer));
@@ -839,7 +839,7 @@ namespace R1Engine
                 else if (dat.ETAPointer != null && context.Settings.EngineVersion == EngineVersion.R1_DSi)
                 {
                     // Temporary solution - combine ETA
-                    var current = eventETA.First(x => x.Pointer == dat.ETAPointer).Data;
+                    var current = eventETA.First(x => x.PrimaryPointer == dat.ETAPointer).Data;
 
                     if (dat.ETA.Length > current.Length)
                         Array.Resize(ref current, dat.ETA.Length);
@@ -856,7 +856,7 @@ namespace R1Engine
                             current[ii][jj] = dat.ETA[ii][jj];
                     }
 
-                    eventETA[eventETA.FindItemIndex(x => x.Pointer == dat.ETAPointer)] = new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(current, dat.ETAPointer);
+                    eventETA[eventETA.FindItemIndex(x => x.PrimaryPointer == dat.ETAPointer)] = new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(current, dat.ETAPointer);
                 }
             }
 

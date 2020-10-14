@@ -29,7 +29,7 @@ namespace R1Engine
 
             if (ETAIndex.HasValue) {
                 if (ObjManager.UsesPointers)
-                    EventData.ETAPointer = ObjManager.ETA[ETAIndex.Value].Pointer;
+                    EventData.ETAPointer = ObjManager.ETA[ETAIndex.Value].PrimaryPointer;
                 else
                     EventData.PC_ETAIndex = (uint)ETAIndex.Value;
             }
@@ -49,9 +49,15 @@ namespace R1Engine
                     OverrideAnimIndex = null;
 
                     if (ObjManager.UsesPointers)
-                        EventData.ImageDescriptorsPointer = ObjManager.DES[value].Pointer;
+                    {
+                        EventData.ImageDescriptorsPointer = ObjManager.DES[value].Data.ImageDescriptorPointer;
+                        EventData.AnimDescriptorsPointer = ObjManager.DES[value].Data.AnimationDescriptorPointer;
+                        EventData.ImageBufferPointer = ObjManager.DES[value].Data.ImageBufferPointer;
+                    }
                     else
+                    {
                         EventData.PC_ImageDescriptorsIndex = EventData.PC_AnimationDescriptorsIndex = EventData.PC_ImageBufferIndex = (uint)value;
+                    }
                 }
             }
         }
@@ -66,7 +72,7 @@ namespace R1Engine
                     OverrideAnimIndex = null;
 
                     if (ObjManager.UsesPointers)
-                        EventData.ETAPointer = ObjManager.ETA[value].Pointer;
+                        EventData.ETAPointer = ObjManager.ETA[value].PrimaryPointer;
                     else
                         EventData.PC_ETAIndex = (uint)value;
                 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
@@ -13,6 +14,8 @@ namespace R1Engine
         public static string[][] NameTable_R1PCETA { get; private set; }
         public static string[][] NameTable_EDUDES { get; private set; }
         public static string[][] NameTable_EDUETA { get; private set; }
+        public static Dictionary<string, Dictionary<string, R1_DESPointers>> NameTable_R1PS1DES { get; private set; }
+        public static Dictionary<string, Dictionary<string, uint>> NameTable_R1PS1ETA { get; private set; }
 
         public static Context MainContext { get; set; }
         public static GameSettings CurrentSettings => MainContext?.Settings;
@@ -79,12 +82,22 @@ namespace R1Engine
                 {
                     // Do nothing - Kit has its own mapping table
                 }
-                
-                if (loadAll || settings.EngineVersion == EngineVersion.R1_PS1 || settings.EngineVersion == EngineVersion.R1_PS1_JP || settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 || settings.EngineVersion == EngineVersion.R1_Saturn || settings.EngineVersion == EngineVersion.R1_GBA || settings.EngineVersion == EngineVersion.R1_DSi)
+
+                if (loadAll || settings.GameModeSelection == GameModeSelection.RaymanPS1US || settings.GameModeSelection == GameModeSelection.RaymanPS1USDemo)
                 {
-                    // TODO: Load pointer mapping tables
+                    await loadFile(dir + "r1_ps1_des.json",
+                        file => NameTable_R1PS1DES = JsonHelpers.DeserializeFromFile<Dictionary<string, Dictionary<string, R1_DESPointers>>>(file));
+                    await loadFile(dir + "r1_ps1_eta.json",
+                        file => NameTable_R1PS1ETA = JsonHelpers.DeserializeFromFile<Dictionary<string, Dictionary<string, uint>>>(file));
                 }
             }
+        }
+
+        public class R1_DESPointers
+        {
+            public uint? ImageDescriptors { get; set; }
+            public uint? AnimationDescriptors { get; set; }
+            public uint? ImageBuffer { get; set; }
         }
     }
 }

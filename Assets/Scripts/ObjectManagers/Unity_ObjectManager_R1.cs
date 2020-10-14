@@ -25,10 +25,10 @@ namespace R1Engine
             ZDCData = zdcData;
 
             for (int i = 0; i < DES.Length; i++) {
-                DESLookup[DES[i]?.Pointer?.AbsoluteOffset ?? 0] = i;
+                DESLookup[DES[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
             }
             for (int i = 0; i < ETA.Length; i++) {
-                ETALookup[ETA[i]?.Pointer?.AbsoluteOffset ?? 0] = i;
+                ETALookup[ETA[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
             }
         }
 
@@ -371,10 +371,10 @@ namespace R1Engine
 
         public class DataContainer<T>
         {
-            public DataContainer(T data, Pointer pointer, string name = null)
+            public DataContainer(T data, Pointer primaryPointer, string name = null)
             {
                 Data = data;
-                Pointer = pointer;
+                PrimaryPointer = primaryPointer;
                 Name = name;
             }
             public DataContainer(T data, int index, string name = null)
@@ -385,9 +385,9 @@ namespace R1Engine
             }
 
             public T Data { get; }
-            public Pointer Pointer { get; }
             public string Name { get; }
             public int Index { get; }
+            public Pointer PrimaryPointer { get; }
             public string DisplayName
             {
                 get
@@ -397,21 +397,27 @@ namespace R1Engine
                         (LevelEditorData.MainContext.Settings.EngineVersion == EngineVersion.R1_PC_Kit || FileSystem.mode == FileSystem.Mode.Normal))
                         return Name;
 
-                    return (Pointer != null ? Pointer.ToString() : Index.ToString());
+                    return (PrimaryPointer != null ? PrimaryPointer.ToString() : Index.ToString());
                 }
             }
         }
 
         public class DESData
         {
-            public DESData(Unity_ObjGraphics graphics, R1_ImageDescriptor[] imageDescriptors)
+            public DESData(Unity_ObjGraphics graphics, R1_ImageDescriptor[] imageDescriptors, Pointer imageDescriptorPointer = null, Pointer animationDescriptorPointer = null, Pointer imageBufferPointer = null)
             {
                 Graphics = graphics;
                 ImageDescriptors = imageDescriptors ?? new R1_ImageDescriptor[0];
+                ImageDescriptorPointer = imageDescriptorPointer;
+                AnimationDescriptorPointer = animationDescriptorPointer;
+                ImageBufferPointer = imageBufferPointer;
             }
 
             public Unity_ObjGraphics Graphics { get; }
             public R1_ImageDescriptor[] ImageDescriptors { get; }
+            public Pointer ImageDescriptorPointer { get; }
+            public Pointer AnimationDescriptorPointer { get; }
+            public Pointer ImageBufferPointer { get; }
         }
 
         public class R1_RuntimeGlobalData

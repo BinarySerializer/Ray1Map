@@ -1,0 +1,2983 @@
+{
+  "RAY/RAY.XXX": {
+    "PNG": {
+      "ImageDescriptors": 2147758424,
+      "AnimationDescriptors": 2147757644,
+      "ImageBuffer": null
+    },
+    "ELE": {
+      "ImageDescriptors": 2147841468,
+      "AnimationDescriptors": 2147841192,
+      "ImageBuffer": null
+    },
+    "RAY": {
+      "ImageDescriptors": 2147554080,
+      "AnimationDescriptors": 2147552496,
+      "ImageBuffer": null
+    },
+    "DIV": {
+      "ImageDescriptors": 2147729168,
+      "AnimationDescriptors": 2147728856,
+      "ImageBuffer": null
+    },
+    "RED": {
+      "ImageDescriptors": 2147719676,
+      "AnimationDescriptors": 2147552496,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN01.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148204348,
+      "AnimationDescriptors": 2148204024,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148258948,
+      "AnimationDescriptors": 2148258912,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN.XXX": {
+    "SPL": {
+      "ImageDescriptors": 2147845792,
+      "AnimationDescriptors": 2147845780,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2147874128,
+      "AnimationDescriptors": 2147874044,
+      "ImageBuffer": null
+    },
+    "LIV": {
+      "ImageDescriptors": 2147846200,
+      "AnimationDescriptors": 2147845948,
+      "ImageBuffer": null
+    },
+    "PIR": {
+      "ImageDescriptors": 2147881420,
+      "AnimationDescriptors": 2147881384,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN02.XXX": {
+    "BLK": {
+      "ImageDescriptors": 2148212456,
+      "AnimationDescriptors": 2148212312,
+      "ImageBuffer": null
+    },
+    "BLR": {
+      "ImageDescriptors": 2148212456,
+      "AnimationDescriptors": 2148212312,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148217492,
+      "AnimationDescriptors": 2148217168,
+      "ImageBuffer": null
+    },
+    "NEN": {
+      "ImageDescriptors": 2148217492,
+      "AnimationDescriptors": 2148217168,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148271796,
+      "AnimationDescriptors": 2148271340,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148329832,
+      "AnimationDescriptors": 2148329796,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN03.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148200700,
+      "AnimationDescriptors": 2148200376,
+      "ImageBuffer": null
+    },
+    "FEE": {
+      "ImageDescriptors": 2148255236,
+      "AnimationDescriptors": 2148255152,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148273444,
+      "AnimationDescriptors": 2148273408,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN04.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148208884,
+      "AnimationDescriptors": 2148208560,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148266188,
+      "AnimationDescriptors": 2148265732,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148324224,
+      "AnimationDescriptors": 2148324188,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN05.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148207356,
+      "AnimationDescriptors": 2148207032,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148207356,
+      "AnimationDescriptors": 2148207032,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148261220,
+      "AnimationDescriptors": 2148261196,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148262100,
+      "AnimationDescriptors": 2148261644,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148320136,
+      "AnimationDescriptors": 2148320100,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN06.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148204348,
+      "AnimationDescriptors": 2148204024,
+      "ImageBuffer": null
+    },
+    "MST": {
+      "ImageDescriptors": 2148258388,
+      "AnimationDescriptors": 2148258100,
+      "ImageBuffer": null
+    },
+    "RMS": {
+      "ImageDescriptors": 2148290428,
+      "AnimationDescriptors": 2148290224,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148349932,
+      "AnimationDescriptors": 2148349896,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN07.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148220928,
+      "AnimationDescriptors": 2148220604,
+      "ImageBuffer": null
+    },
+    "FRP": {
+      "ImageDescriptors": 2148274748,
+      "AnimationDescriptors": 2148274736,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148281596,
+      "AnimationDescriptors": 2148281452,
+      "ImageBuffer": null
+    },
+    "RMS": {
+      "ImageDescriptors": 2148286544,
+      "AnimationDescriptors": 2148286340,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148346592,
+      "AnimationDescriptors": 2148346136,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148404628,
+      "AnimationDescriptors": 2148404592,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN08.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148201952,
+      "AnimationDescriptors": 2148201628,
+      "ImageBuffer": null
+    },
+    "FEE": {
+      "ImageDescriptors": 2148255800,
+      "AnimationDescriptors": 2148255716,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148274008,
+      "AnimationDescriptors": 2148273972,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN09.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148205040,
+      "AnimationDescriptors": 2148204716,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148205040,
+      "AnimationDescriptors": 2148204716,
+      "ImageBuffer": null
+    },
+    "EAU": {
+      "ImageDescriptors": 2148258856,
+      "AnimationDescriptors": 2148258808,
+      "ImageBuffer": null
+    },
+    "TRZ": {
+      "ImageDescriptors": 2148259900,
+      "AnimationDescriptors": 2148259816,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148272680,
+      "AnimationDescriptors": 2148272224,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148330716,
+      "AnimationDescriptors": 2148330680,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN10.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148207964,
+      "AnimationDescriptors": 2148207640,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148207964,
+      "AnimationDescriptors": 2148207640,
+      "ImageBuffer": null
+    },
+    "BLR": {
+      "ImageDescriptors": 2148263408,
+      "AnimationDescriptors": 2148263264,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148263408,
+      "AnimationDescriptors": 2148263264,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148268296,
+      "AnimationDescriptors": 2148267840,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148326332,
+      "AnimationDescriptors": 2148326296,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN11.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148216024,
+      "AnimationDescriptors": 2148215700,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148216024,
+      "AnimationDescriptors": 2148215700,
+      "ImageBuffer": null
+    },
+    "FRP": {
+      "ImageDescriptors": 2148270016,
+      "AnimationDescriptors": 2148270004,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148277492,
+      "AnimationDescriptors": 2148277036,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148335528,
+      "AnimationDescriptors": 2148335492,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN12.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148215628,
+      "AnimationDescriptors": 2148215604,
+      "ImageBuffer": null
+    },
+    "NEN": {
+      "ImageDescriptors": 2148216292,
+      "AnimationDescriptors": 2148215968,
+      "ImageBuffer": null
+    },
+    "BLR": {
+      "ImageDescriptors": 2148270240,
+      "AnimationDescriptors": 2148270096,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148270240,
+      "AnimationDescriptors": 2148270096,
+      "ImageBuffer": null
+    },
+    "TEN": {
+      "ImageDescriptors": 2148274812,
+      "AnimationDescriptors": 2148274776,
+      "ImageBuffer": null
+    },
+    "FRP": {
+      "ImageDescriptors": 2148276080,
+      "AnimationDescriptors": 2148276068,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148282092,
+      "AnimationDescriptors": 2148281636,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148340128,
+      "AnimationDescriptors": 2148340092,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN13.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148208980,
+      "AnimationDescriptors": 2148208656,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148208980,
+      "AnimationDescriptors": 2148208656,
+      "ImageBuffer": null
+    },
+    "BLR": {
+      "ImageDescriptors": 2148263344,
+      "AnimationDescriptors": 2148263200,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148263344,
+      "AnimationDescriptors": 2148263200,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148268960,
+      "AnimationDescriptors": 2148268504,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148326996,
+      "AnimationDescriptors": 2148326960,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN14.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148205464,
+      "AnimationDescriptors": 2148205140,
+      "ImageBuffer": null
+    },
+    "BLR": {
+      "ImageDescriptors": 2148259472,
+      "AnimationDescriptors": 2148259328,
+      "ImageBuffer": null
+    },
+    "FRP": {
+      "ImageDescriptors": 2148263868,
+      "AnimationDescriptors": 2148263856,
+      "ImageBuffer": null
+    },
+    "MST": {
+      "ImageDescriptors": 2148270392,
+      "AnimationDescriptors": 2148270104,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148301496,
+      "AnimationDescriptors": 2148301460,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN15.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148207144,
+      "AnimationDescriptors": 2148206820,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148262036,
+      "AnimationDescriptors": 2148262000,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN16.XXX": {
+    "MST2": {
+      "ImageDescriptors": 2148234828,
+      "AnimationDescriptors": 2148234540,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148265944,
+      "AnimationDescriptors": 2148265908,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN17.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148201532,
+      "AnimationDescriptors": 2148201508,
+      "ImageBuffer": null
+    },
+    "FEE": {
+      "ImageDescriptors": 2148202636,
+      "AnimationDescriptors": 2148202552,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148220820,
+      "AnimationDescriptors": 2148220784,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN18.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148202420,
+      "AnimationDescriptors": 2148202096,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148256948,
+      "AnimationDescriptors": 2148256912,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN19.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148206692,
+      "AnimationDescriptors": 2148206368,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148262032,
+      "AnimationDescriptors": 2148261996,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN20.XXX": {
+    "EXP": {
+      "ImageDescriptors": 2148201712,
+      "AnimationDescriptors": 2148201676,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/JUN/JUN21.XXX": {
+    "NEN": {
+      "ImageDescriptors": 2148201628,
+      "AnimationDescriptors": 2148201304,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148256232,
+      "AnimationDescriptors": 2148256196,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS01.XXX": {
+    "BLK": {
+      "ImageDescriptors": 2148184712,
+      "AnimationDescriptors": 2148184568,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148190016,
+      "AnimationDescriptors": 2148189812,
+      "ImageBuffer": null
+    },
+    "MIT": {
+      "ImageDescriptors": 2148193784,
+      "AnimationDescriptors": 2148193580,
+      "ImageBuffer": null
+    },
+    "PIC": {
+      "ImageDescriptors": 2148201472,
+      "AnimationDescriptors": 2148201460,
+      "ImageBuffer": null
+    },
+    "CCL": {
+      "ImageDescriptors": 2148202920,
+      "AnimationDescriptors": 2148202872,
+      "ImageBuffer": null
+    },
+    "BAG": {
+      "ImageDescriptors": 2148206404,
+      "AnimationDescriptors": 2148206320,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148209268,
+      "AnimationDescriptors": 2148209220,
+      "ImageBuffer": null
+    },
+    "CLE": {
+      "ImageDescriptors": 2148211652,
+      "AnimationDescriptors": 2148211640,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148211808,
+      "AnimationDescriptors": 2148211772,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148212408,
+      "AnimationDescriptors": 2148212324,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148218196,
+      "AnimationDescriptors": 2148217992,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148241656,
+      "AnimationDescriptors": 2148241200,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148299680,
+      "AnimationDescriptors": 2148299656,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS02.XXX": {
+    "BLK": {
+      "ImageDescriptors": 2148184556,
+      "AnimationDescriptors": 2148184412,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148189212,
+      "AnimationDescriptors": 2148189164,
+      "ImageBuffer": null
+    },
+    "MIT": {
+      "ImageDescriptors": 2148191792,
+      "AnimationDescriptors": 2148191588,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148199924,
+      "AnimationDescriptors": 2148199720,
+      "ImageBuffer": null
+    },
+    "PIC": {
+      "ImageDescriptors": 2148203516,
+      "AnimationDescriptors": 2148203504,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148205280,
+      "AnimationDescriptors": 2148205076,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148229304,
+      "AnimationDescriptors": 2148229268,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148229904,
+      "AnimationDescriptors": 2148229820,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148235944,
+      "AnimationDescriptors": 2148235488,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148293968,
+      "AnimationDescriptors": 2148293944,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS03.XXX": {
+    "BLK": {
+      "ImageDescriptors": 2148188020,
+      "AnimationDescriptors": 2148187876,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148192392,
+      "AnimationDescriptors": 2148192188,
+      "ImageBuffer": null
+    },
+    "PIC": {
+      "ImageDescriptors": 2148215896,
+      "AnimationDescriptors": 2148215884,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148217688,
+      "AnimationDescriptors": 2148217484,
+      "ImageBuffer": null
+    },
+    "MIT": {
+      "ImageDescriptors": 2148221196,
+      "AnimationDescriptors": 2148220992,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148229052,
+      "AnimationDescriptors": 2148229004,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148231500,
+      "AnimationDescriptors": 2148231464,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148232100,
+      "AnimationDescriptors": 2148232016,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148238140,
+      "AnimationDescriptors": 2148237684,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148296164,
+      "AnimationDescriptors": 2148296140,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS04.XXX": {
+    "BYE": {
+      "ImageDescriptors": 2148184984,
+      "AnimationDescriptors": 2148184936,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148187468,
+      "AnimationDescriptors": 2148187444,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148187916,
+      "AnimationDescriptors": 2148187772,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148193188,
+      "AnimationDescriptors": 2148192984,
+      "ImageBuffer": null
+    },
+    "MIT": {
+      "ImageDescriptors": 2148196716,
+      "AnimationDescriptors": 2148196512,
+      "ImageBuffer": null
+    },
+    "PIC": {
+      "ImageDescriptors": 2148204404,
+      "AnimationDescriptors": 2148204392,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148205892,
+      "AnimationDescriptors": 2148205808,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148213388,
+      "AnimationDescriptors": 2148213352,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148213988,
+      "AnimationDescriptors": 2148213904,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148219776,
+      "AnimationDescriptors": 2148219572,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148243232,
+      "AnimationDescriptors": 2148242776,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148301256,
+      "AnimationDescriptors": 2148301232,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS05.XXX": {
+    "PIC": {
+      "ImageDescriptors": 2148186796,
+      "AnimationDescriptors": 2148186784,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148188532,
+      "AnimationDescriptors": 2148188388,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148193256,
+      "AnimationDescriptors": 2148193052,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148217288,
+      "AnimationDescriptors": 2148217084,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148220824,
+      "AnimationDescriptors": 2148220776,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148223288,
+      "AnimationDescriptors": 2148223204,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148230784,
+      "AnimationDescriptors": 2148230748,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148231384,
+      "AnimationDescriptors": 2148231300,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148237428,
+      "AnimationDescriptors": 2148236972,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148295452,
+      "AnimationDescriptors": 2148295428,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS06.XXX": {
+    "PIC": {
+      "ImageDescriptors": 2148179904,
+      "AnimationDescriptors": 2148179892,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148181380,
+      "AnimationDescriptors": 2148181332,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148183976,
+      "AnimationDescriptors": 2148183772,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148187880,
+      "AnimationDescriptors": 2148187676,
+      "ImageBuffer": null
+    },
+    "BTR": {
+      "ImageDescriptors": 2148211764,
+      "AnimationDescriptors": 2148211584,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148240028,
+      "AnimationDescriptors": 2148239944,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148247632,
+      "AnimationDescriptors": 2148247488,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148251704,
+      "AnimationDescriptors": 2148251668,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148252304,
+      "AnimationDescriptors": 2148252220,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148257916,
+      "AnimationDescriptors": 2148257892,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS07.XXX": {
+    "CLE": {
+      "ImageDescriptors": 2148186232,
+      "AnimationDescriptors": 2148186220,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148187320,
+      "AnimationDescriptors": 2148187284,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148187920,
+      "AnimationDescriptors": 2148187836,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148193708,
+      "AnimationDescriptors": 2148193504,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148217164,
+      "AnimationDescriptors": 2148216708,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148275192,
+      "AnimationDescriptors": 2148275168,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS08.XXX": {
+    "TRP": {
+      "ImageDescriptors": 2148181908,
+      "AnimationDescriptors": 2148181776,
+      "ImageBuffer": null
+    },
+    "PIC": {
+      "ImageDescriptors": 2148187520,
+      "AnimationDescriptors": 2148187508,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148189128,
+      "AnimationDescriptors": 2148188924,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148192436,
+      "AnimationDescriptors": 2148192400,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148193036,
+      "AnimationDescriptors": 2148192952,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148198824,
+      "AnimationDescriptors": 2148198620,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148222280,
+      "AnimationDescriptors": 2148221824,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148280304,
+      "AnimationDescriptors": 2148280280,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS09.XXX": {
+    "NMP": {
+      "ImageDescriptors": 2148181224,
+      "AnimationDescriptors": 2148181020,
+      "ImageBuffer": null
+    },
+    "BAG": {
+      "ImageDescriptors": 2148204680,
+      "AnimationDescriptors": 2148204596,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148208380,
+      "AnimationDescriptors": 2148208236,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148213036,
+      "AnimationDescriptors": 2148212832,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148216452,
+      "AnimationDescriptors": 2148216404,
+      "ImageBuffer": null
+    },
+    "CCL": {
+      "ImageDescriptors": 2148218880,
+      "AnimationDescriptors": 2148218832,
+      "ImageBuffer": null
+    },
+    "BON": {
+      "ImageDescriptors": 2148222456,
+      "AnimationDescriptors": 2148222252,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148247412,
+      "AnimationDescriptors": 2148247376,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148248012,
+      "AnimationDescriptors": 2148247928,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148254056,
+      "AnimationDescriptors": 2148253600,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148312080,
+      "AnimationDescriptors": 2148312056,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS10.XXX": {
+    "NOT": {
+      "ImageDescriptors": 2148187544,
+      "AnimationDescriptors": 2148187460,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148194284,
+      "AnimationDescriptors": 2148194080,
+      "ImageBuffer": null
+    },
+    "CLE": {
+      "ImageDescriptors": 2148197576,
+      "AnimationDescriptors": 2148197564,
+      "ImageBuffer": null
+    },
+    "SAX": {
+      "ImageDescriptors": 2148197896,
+      "AnimationDescriptors": 2148197716,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148216612,
+      "AnimationDescriptors": 2148216576,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148217332,
+      "AnimationDescriptors": 2148217128,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148240356,
+      "AnimationDescriptors": 2148240332,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS11.XXX": {
+    "FEE": {
+      "ImageDescriptors": 2148168560,
+      "AnimationDescriptors": 2148168476,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148187440,
+      "AnimationDescriptors": 2148187404,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148188040,
+      "AnimationDescriptors": 2148187956,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148193828,
+      "AnimationDescriptors": 2148193624,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148216856,
+      "AnimationDescriptors": 2148216832,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS12.XXX": {
+    "BON": {
+      "ImageDescriptors": 2148180124,
+      "AnimationDescriptors": 2148179920,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148205184,
+      "AnimationDescriptors": 2148205040,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148209476,
+      "AnimationDescriptors": 2148209272,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148232904,
+      "AnimationDescriptors": 2148232700,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148236388,
+      "AnimationDescriptors": 2148236352,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148236988,
+      "AnimationDescriptors": 2148236904,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148243028,
+      "AnimationDescriptors": 2148242572,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148301052,
+      "AnimationDescriptors": 2148301028,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS13.XXX": {
+    "BAG": {
+      "ImageDescriptors": 2148180428,
+      "AnimationDescriptors": 2148180344,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148183936,
+      "AnimationDescriptors": 2148183888,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148186532,
+      "AnimationDescriptors": 2148186388,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148190940,
+      "AnimationDescriptors": 2148190736,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148194272,
+      "AnimationDescriptors": 2148194236,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148194872,
+      "AnimationDescriptors": 2148194788,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148200660,
+      "AnimationDescriptors": 2148200456,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148224116,
+      "AnimationDescriptors": 2148223660,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148282140,
+      "AnimationDescriptors": 2148282116,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS14.XXX": {
+    "BLK": {
+      "ImageDescriptors": 2148188172,
+      "AnimationDescriptors": 2148188028,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148192860,
+      "AnimationDescriptors": 2148192812,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148195456,
+      "AnimationDescriptors": 2148195252,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148199092,
+      "AnimationDescriptors": 2148198888,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148223224,
+      "AnimationDescriptors": 2148223200,
+      "ImageBuffer": null
+    },
+    "BON": {
+      "ImageDescriptors": 2148223844,
+      "AnimationDescriptors": 2148223640,
+      "ImageBuffer": null
+    },
+    "MIT": {
+      "ImageDescriptors": 2148248964,
+      "AnimationDescriptors": 2148248760,
+      "ImageBuffer": null
+    },
+    "CYM": {
+      "ImageDescriptors": 2148256748,
+      "AnimationDescriptors": 2148256640,
+      "ImageBuffer": null
+    },
+    "PIC": {
+      "ImageDescriptors": 2148261484,
+      "AnimationDescriptors": 2148261472,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148262916,
+      "AnimationDescriptors": 2148262880,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148263516,
+      "AnimationDescriptors": 2148263432,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148269560,
+      "AnimationDescriptors": 2148269104,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148327584,
+      "AnimationDescriptors": 2148327560,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS15.XXX": {
+    "SAX": {
+      "ImageDescriptors": 2148179680,
+      "AnimationDescriptors": 2148179500,
+      "ImageBuffer": null
+    },
+    "PIC": {
+      "ImageDescriptors": 2148197724,
+      "AnimationDescriptors": 2148197712,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148199260,
+      "AnimationDescriptors": 2148199176,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148204896,
+      "AnimationDescriptors": 2148204860,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148205616,
+      "AnimationDescriptors": 2148205412,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148228640,
+      "AnimationDescriptors": 2148228616,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS16.XXX": {
+    "SAX": {
+      "ImageDescriptors": 2148168204,
+      "AnimationDescriptors": 2148168024,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148186940,
+      "AnimationDescriptors": 2148186904,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148187540,
+      "AnimationDescriptors": 2148187456,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148193352,
+      "AnimationDescriptors": 2148193148,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148216376,
+      "AnimationDescriptors": 2148216352,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS17.XXX": {
+    "EXP": {
+      "ImageDescriptors": 2148170244,
+      "AnimationDescriptors": 2148170208,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148170844,
+      "AnimationDescriptors": 2148170760,
+      "ImageBuffer": null
+    },
+    "NMP": {
+      "ImageDescriptors": 2148176632,
+      "AnimationDescriptors": 2148176428,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148199656,
+      "AnimationDescriptors": 2148199632,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MUS/MUS18.XXX": {
+    "NMP": {
+      "ImageDescriptors": 2148170176,
+      "AnimationDescriptors": 2148169972,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148194160,
+      "AnimationDescriptors": 2148194124,
+      "ImageBuffer": null
+    },
+    "NOT": {
+      "ImageDescriptors": 2148194760,
+      "AnimationDescriptors": 2148194676,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148200368,
+      "AnimationDescriptors": 2148200344,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON01.XXX": {
+    "TIP": {
+      "ImageDescriptors": 2148180328,
+      "AnimationDescriptors": 2148180256,
+      "ImageBuffer": null
+    },
+    "HP": {
+      "ImageDescriptors": 2148185044,
+      "AnimationDescriptors": 2148184840,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148219044,
+      "AnimationDescriptors": 2148219020,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148219584,
+      "AnimationDescriptors": 2148219380,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148223072,
+      "AnimationDescriptors": 2148222988,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148230700,
+      "AnimationDescriptors": 2148230532,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148231652,
+      "AnimationDescriptors": 2148231616,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148232624,
+      "AnimationDescriptors": 2148232168,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON02.XXX": {
+    "BB1": {
+      "ImageDescriptors": 2148188436,
+      "AnimationDescriptors": 2148187944,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148262436,
+      "AnimationDescriptors": 2148262412,
+      "ImageBuffer": null
+    },
+    "MUS": {
+      "ImageDescriptors": 2148263084,
+      "AnimationDescriptors": 2148262772,
+      "ImageBuffer": null
+    },
+    "TIP": {
+      "ImageDescriptors": 2148282500,
+      "AnimationDescriptors": 2148282428,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148286800,
+      "AnimationDescriptors": 2148286596,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148290300,
+      "AnimationDescriptors": 2148290192,
+      "ImageBuffer": null
+    },
+    "HP": {
+      "ImageDescriptors": 2148304940,
+      "AnimationDescriptors": 2148304736,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148338468,
+      "AnimationDescriptors": 2148338384,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148346964,
+      "AnimationDescriptors": 2148346796,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148347916,
+      "AnimationDescriptors": 2148347880,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON03.XXX": {
+    "NUA": {
+      "ImageDescriptors": 2148187824,
+      "AnimationDescriptors": 2148187620,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148191852,
+      "AnimationDescriptors": 2148191744,
+      "ImageBuffer": null
+    },
+    "HP": {
+      "ImageDescriptors": 2148206860,
+      "AnimationDescriptors": 2148206656,
+      "ImageBuffer": null
+    },
+    "PIS": {
+      "ImageDescriptors": 2148240844,
+      "AnimationDescriptors": 2148240544,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148248244,
+      "AnimationDescriptors": 2148248220,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148248696,
+      "AnimationDescriptors": 2148248612,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148256324,
+      "AnimationDescriptors": 2148256156,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148257276,
+      "AnimationDescriptors": 2148257240,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148258248,
+      "AnimationDescriptors": 2148257792,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON04.XXX": {
+    "BLK": {
+      "ImageDescriptors": 2148186816,
+      "AnimationDescriptors": 2148186672,
+      "ImageBuffer": null
+    },
+    "HP": {
+      "ImageDescriptors": 2148192484,
+      "AnimationDescriptors": 2148192280,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148226108,
+      "AnimationDescriptors": 2148225904,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148229872,
+      "AnimationDescriptors": 2148229764,
+      "ImageBuffer": null
+    },
+    "MUS": {
+      "ImageDescriptors": 2148245084,
+      "AnimationDescriptors": 2148244772,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148264484,
+      "AnimationDescriptors": 2148264400,
+      "ImageBuffer": null
+    },
+    "PIS": {
+      "ImageDescriptors": 2148272252,
+      "AnimationDescriptors": 2148271952,
+      "ImageBuffer": null
+    },
+    "TIP": {
+      "ImageDescriptors": 2148278040,
+      "AnimationDescriptors": 2148277968,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148281604,
+      "AnimationDescriptors": 2148281436,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148282556,
+      "AnimationDescriptors": 2148282520,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148283528,
+      "AnimationDescriptors": 2148283072,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON05.XXX": {
+    "HP": {
+      "ImageDescriptors": 2148186192,
+      "AnimationDescriptors": 2148185988,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148220388,
+      "AnimationDescriptors": 2148220184,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148223980,
+      "AnimationDescriptors": 2148223872,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148238732,
+      "AnimationDescriptors": 2148238564,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148239684,
+      "AnimationDescriptors": 2148239648,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148240656,
+      "AnimationDescriptors": 2148240200,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON06.XXX": {
+    "CPL": {
+      "ImageDescriptors": 2148187040,
+      "AnimationDescriptors": 2148186932,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148202992,
+      "AnimationDescriptors": 2148202848,
+      "ImageBuffer": null
+    },
+    "PIS": {
+      "ImageDescriptors": 2148207856,
+      "AnimationDescriptors": 2148207556,
+      "ImageBuffer": null
+    },
+    "MUS": {
+      "ImageDescriptors": 2148214016,
+      "AnimationDescriptors": 2148213704,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148233512,
+      "AnimationDescriptors": 2148233344,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148234632,
+      "AnimationDescriptors": 2148234428,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148237988,
+      "AnimationDescriptors": 2148237952,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148238960,
+      "AnimationDescriptors": 2148238504,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON07.XXX": {
+    "PIS": {
+      "ImageDescriptors": 2148170700,
+      "AnimationDescriptors": 2148170400,
+      "ImageBuffer": null
+    },
+    "EAU": {
+      "ImageDescriptors": 2148176812,
+      "AnimationDescriptors": 2148176764,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148178764,
+      "AnimationDescriptors": 2148178596,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148179884,
+      "AnimationDescriptors": 2148179680,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148183240,
+      "AnimationDescriptors": 2148183204,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148184212,
+      "AnimationDescriptors": 2148183756,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON08.XXX": {
+    "NUA": {
+      "ImageDescriptors": 2148182424,
+      "AnimationDescriptors": 2148182220,
+      "ImageBuffer": null
+    },
+    "TOR": {
+      "ImageDescriptors": 2148186336,
+      "AnimationDescriptors": 2148186300,
+      "ImageBuffer": null
+    },
+    "HP": {
+      "ImageDescriptors": 2148187492,
+      "AnimationDescriptors": 2148187288,
+      "ImageBuffer": null
+    },
+    "MUS": {
+      "ImageDescriptors": 2148221476,
+      "AnimationDescriptors": 2148221164,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148240936,
+      "AnimationDescriptors": 2148240792,
+      "ImageBuffer": null
+    },
+    "EAU": {
+      "ImageDescriptors": 2148245048,
+      "AnimationDescriptors": 2148245000,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148246180,
+      "AnimationDescriptors": 2148246012,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148247132,
+      "AnimationDescriptors": 2148247096,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148248104,
+      "AnimationDescriptors": 2148247648,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON09.XXX": {
+    "CPL": {
+      "ImageDescriptors": 2148186100,
+      "AnimationDescriptors": 2148185992,
+      "ImageBuffer": null
+    },
+    "HP": {
+      "ImageDescriptors": 2148200768,
+      "AnimationDescriptors": 2148200564,
+      "ImageBuffer": null
+    },
+    "PIS": {
+      "ImageDescriptors": 2148234772,
+      "AnimationDescriptors": 2148234472,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148241488,
+      "AnimationDescriptors": 2148241344,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148246860,
+      "AnimationDescriptors": 2148246656,
+      "ImageBuffer": null
+    },
+    "TIP": {
+      "ImageDescriptors": 2148250320,
+      "AnimationDescriptors": 2148250248,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148253884,
+      "AnimationDescriptors": 2148253716,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148254836,
+      "AnimationDescriptors": 2148254800,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148255808,
+      "AnimationDescriptors": 2148255352,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON10.XXX": {
+    "BB1": {
+      "ImageDescriptors": 2148169872,
+      "AnimationDescriptors": 2148169380,
+      "ImageBuffer": null
+    },
+    "TOR": {
+      "ImageDescriptors": 2148243996,
+      "AnimationDescriptors": 2148243960,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148246008,
+      "AnimationDescriptors": 2148245840,
+      "ImageBuffer": null
+    },
+    "MUS": {
+      "ImageDescriptors": 2148247236,
+      "AnimationDescriptors": 2148246924,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148266616,
+      "AnimationDescriptors": 2148266412,
+      "ImageBuffer": null
+    },
+    "TIP": {
+      "ImageDescriptors": 2148270008,
+      "AnimationDescriptors": 2148269936,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148273580,
+      "AnimationDescriptors": 2148273544,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148274124,
+      "AnimationDescriptors": 2148274100,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON11.XXX": {
+    "FEE": {
+      "ImageDescriptors": 2148166984,
+      "AnimationDescriptors": 2148166900,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148186088,
+      "AnimationDescriptors": 2148185920,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148187236,
+      "AnimationDescriptors": 2148187032,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148190592,
+      "AnimationDescriptors": 2148190556,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON12.XXX": {
+    "NUA": {
+      "ImageDescriptors": 2148173652,
+      "AnimationDescriptors": 2148173448,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148178160,
+      "AnimationDescriptors": 2148177992,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148179112,
+      "AnimationDescriptors": 2148179076,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/MON/MON13.XXX": {
+    "NUA": {
+      "ImageDescriptors": 2148168704,
+      "AnimationDescriptors": 2148168500,
+      "ImageBuffer": null
+    },
+    "ECL": {
+      "ImageDescriptors": 2148173020,
+      "AnimationDescriptors": 2148172852,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148173972,
+      "AnimationDescriptors": 2148173936,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG01.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148181764,
+      "AnimationDescriptors": 2148181740,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148182228,
+      "AnimationDescriptors": 2148182084,
+      "ImageBuffer": null
+    },
+    "IPL": {
+      "ImageDescriptors": 2148186676,
+      "AnimationDescriptors": 2148186472,
+      "ImageBuffer": null
+    },
+    "PUN": {
+      "ImageDescriptors": 2148194836,
+      "AnimationDescriptors": 2148194824,
+      "ImageBuffer": null
+    },
+    "ENC": {
+      "ImageDescriptors": 2148200840,
+      "AnimationDescriptors": 2148200792,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148201816,
+      "AnimationDescriptors": 2148201804,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148205884,
+      "AnimationDescriptors": 2148205848,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148206868,
+      "AnimationDescriptors": 2148206412,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148264892,
+      "AnimationDescriptors": 2148264868,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG02.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148179852,
+      "AnimationDescriptors": 2148179828,
+      "ImageBuffer": null
+    },
+    "GOM": {
+      "ImageDescriptors": 2148180180,
+      "AnimationDescriptors": 2148180156,
+      "ImageBuffer": null
+    },
+    "SPA": {
+      "ImageDescriptors": 2148180820,
+      "AnimationDescriptors": 2148180496,
+      "ImageBuffer": null
+    },
+    "IPL": {
+      "ImageDescriptors": 2148207736,
+      "AnimationDescriptors": 2148207532,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148215820,
+      "AnimationDescriptors": 2148215808,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148219888,
+      "AnimationDescriptors": 2148219852,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148220876,
+      "AnimationDescriptors": 2148220420,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148278900,
+      "AnimationDescriptors": 2148278876,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG03.XXX": {
+    "IPL": {
+      "ImageDescriptors": 2148181676,
+      "AnimationDescriptors": 2148181472,
+      "ImageBuffer": null
+    },
+    "SPA": {
+      "ImageDescriptors": 2148189480,
+      "AnimationDescriptors": 2148189156,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148216992,
+      "AnimationDescriptors": 2148216848,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148221660,
+      "AnimationDescriptors": 2148221636,
+      "ImageBuffer": null
+    },
+    "GOM": {
+      "ImageDescriptors": 2148221988,
+      "AnimationDescriptors": 2148221964,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148222296,
+      "AnimationDescriptors": 2148222248,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148224684,
+      "AnimationDescriptors": 2148224672,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148228752,
+      "AnimationDescriptors": 2148228716,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148229740,
+      "AnimationDescriptors": 2148229284,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148287764,
+      "AnimationDescriptors": 2148287740,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG04.XXX": {
+    "SMA": {
+      "ImageDescriptors": 2148166516,
+      "AnimationDescriptors": 2148166216,
+      "ImageBuffer": null
+    },
+    "RID": {
+      "ImageDescriptors": 2148189828,
+      "AnimationDescriptors": 2148189792,
+      "ImageBuffer": null
+    },
+    "GUE": {
+      "ImageDescriptors": 2148190584,
+      "AnimationDescriptors": 2148190296,
+      "ImageBuffer": null
+    },
+    "NGA": {
+      "ImageDescriptors": 2148207808,
+      "AnimationDescriptors": 2148207616,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148217420,
+      "AnimationDescriptors": 2148217408,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148222196,
+      "AnimationDescriptors": 2148222160,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148222748,
+      "AnimationDescriptors": 2148222724,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG05.XXX": {
+    "IPL": {
+      "ImageDescriptors": 2148185972,
+      "AnimationDescriptors": 2148185768,
+      "ImageBuffer": null
+    },
+    "SPA": {
+      "ImageDescriptors": 2148193924,
+      "AnimationDescriptors": 2148193600,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148220688,
+      "AnimationDescriptors": 2148220664,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148221436,
+      "AnimationDescriptors": 2148221352,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148229104,
+      "AnimationDescriptors": 2148228900,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148233124,
+      "AnimationDescriptors": 2148233076,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148235508,
+      "AnimationDescriptors": 2148235496,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148239576,
+      "AnimationDescriptors": 2148239540,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148240564,
+      "AnimationDescriptors": 2148240108,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148298588,
+      "AnimationDescriptors": 2148298564,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG06.XXX": {
+    "CHA": {
+      "ImageDescriptors": 2148184944,
+      "AnimationDescriptors": 2148184860,
+      "ImageBuffer": null
+    },
+    "IPL": {
+      "ImageDescriptors": 2148192608,
+      "AnimationDescriptors": 2148192404,
+      "ImageBuffer": null
+    },
+    "GOM": {
+      "ImageDescriptors": 2148200116,
+      "AnimationDescriptors": 2148200092,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148200520,
+      "AnimationDescriptors": 2148200376,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148204660,
+      "AnimationDescriptors": 2148204648,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148208728,
+      "AnimationDescriptors": 2148208692,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148209712,
+      "AnimationDescriptors": 2148209256,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148267736,
+      "AnimationDescriptors": 2148267712,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG07.XXX": {
+    "BYE": {
+      "ImageDescriptors": 2148184376,
+      "AnimationDescriptors": 2148184328,
+      "ImageBuffer": null
+    },
+    "IPL": {
+      "ImageDescriptors": 2148187672,
+      "AnimationDescriptors": 2148187468,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148195524,
+      "AnimationDescriptors": 2148195320,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148198844,
+      "AnimationDescriptors": 2148198820,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148199176,
+      "AnimationDescriptors": 2148199164,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148203244,
+      "AnimationDescriptors": 2148203208,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148204228,
+      "AnimationDescriptors": 2148203772,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148262252,
+      "AnimationDescriptors": 2148262228,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG08.XXX": {
+    "IPL": {
+      "ImageDescriptors": 2148187968,
+      "AnimationDescriptors": 2148187764,
+      "ImageBuffer": null
+    },
+    "GOM": {
+      "ImageDescriptors": 2148195520,
+      "AnimationDescriptors": 2148195496,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148196028,
+      "AnimationDescriptors": 2148196004,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148196596,
+      "AnimationDescriptors": 2148196452,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148200888,
+      "AnimationDescriptors": 2148200684,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148204304,
+      "AnimationDescriptors": 2148204220,
+      "ImageBuffer": null
+    },
+    "SPA": {
+      "ImageDescriptors": 2148212092,
+      "AnimationDescriptors": 2148211768,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148238780,
+      "AnimationDescriptors": 2148238768,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148242848,
+      "AnimationDescriptors": 2148242812,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148243836,
+      "AnimationDescriptors": 2148243380,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148301860,
+      "AnimationDescriptors": 2148301836,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG09.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148178220,
+      "AnimationDescriptors": 2148178196,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148179556,
+      "AnimationDescriptors": 2148179412,
+      "ImageBuffer": null
+    },
+    "IPL": {
+      "ImageDescriptors": 2148184072,
+      "AnimationDescriptors": 2148183868,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148191736,
+      "AnimationDescriptors": 2148191532,
+      "ImageBuffer": null
+    },
+    "SPA": {
+      "ImageDescriptors": 2148195336,
+      "AnimationDescriptors": 2148195012,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148222064,
+      "AnimationDescriptors": 2148221980,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148229544,
+      "AnimationDescriptors": 2148229532,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148233612,
+      "AnimationDescriptors": 2148233576,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148234596,
+      "AnimationDescriptors": 2148234140,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148292620,
+      "AnimationDescriptors": 2148292596,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG10.XXX": {
+    "IPL": {
+      "ImageDescriptors": 2148182956,
+      "AnimationDescriptors": 2148182752,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148191720,
+      "AnimationDescriptors": 2148191516,
+      "ImageBuffer": null
+    },
+    "GOM": {
+      "ImageDescriptors": 2148195056,
+      "AnimationDescriptors": 2148195032,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148195368,
+      "AnimationDescriptors": 2148195344,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148195692,
+      "AnimationDescriptors": 2148195680,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148199760,
+      "AnimationDescriptors": 2148199724,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148200744,
+      "AnimationDescriptors": 2148200288,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148258768,
+      "AnimationDescriptors": 2148258744,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG11.XXX": {
+    "SMA2": {
+      "ImageDescriptors": 2148170536,
+      "AnimationDescriptors": 2148169948,
+      "ImageBuffer": null
+    },
+    "RID": {
+      "ImageDescriptors": 2148221780,
+      "AnimationDescriptors": 2148221744,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148222264,
+      "AnimationDescriptors": 2148222252,
+      "ImageBuffer": null
+    },
+    "SMAB": {
+      "ImageDescriptors": 2148227148,
+      "AnimationDescriptors": 2148227004,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148229644,
+      "AnimationDescriptors": 2148229608,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148230196,
+      "AnimationDescriptors": 2148230172,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG12.XXX": {
+    "GOM": {
+      "ImageDescriptors": 2148165928,
+      "AnimationDescriptors": 2148165904,
+      "ImageBuffer": null
+    },
+    "PAI": {
+      "ImageDescriptors": 2148166996,
+      "AnimationDescriptors": 2148166984,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148171068,
+      "AnimationDescriptors": 2148171032,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148171620,
+      "AnimationDescriptors": 2148171596,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/IMG/IMG13.XXX": {
+    "PAI": {
+      "ImageDescriptors": 2148166148,
+      "AnimationDescriptors": 2148166136,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148170220,
+      "AnimationDescriptors": 2148170184,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148170772,
+      "AnimationDescriptors": 2148170748,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV01.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148183044,
+      "AnimationDescriptors": 2148183020,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148183680,
+      "AnimationDescriptors": 2148183572,
+      "ImageBuffer": null
+    },
+    "MUV": {
+      "ImageDescriptors": 2148198540,
+      "AnimationDescriptors": 2148198228,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148218312,
+      "AnimationDescriptors": 2148217856,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148276336,
+      "AnimationDescriptors": 2148276312,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148276852,
+      "AnimationDescriptors": 2148276840,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV02.XXX": {
+    "NUA": {
+      "ImageDescriptors": 2148187476,
+      "AnimationDescriptors": 2148187272,
+      "ImageBuffer": null
+    },
+    "HPV": {
+      "ImageDescriptors": 2148191180,
+      "AnimationDescriptors": 2148190976,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148225420,
+      "AnimationDescriptors": 2148225312,
+      "ImageBuffer": null
+    },
+    "SPI": {
+      "ImageDescriptors": 2148240932,
+      "AnimationDescriptors": 2148240596,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148267988,
+      "AnimationDescriptors": 2148267844,
+      "ImageBuffer": null
+    },
+    "MUV": {
+      "ImageDescriptors": 2148272416,
+      "AnimationDescriptors": 2148272104,
+      "ImageBuffer": null
+    },
+    "PIV": {
+      "ImageDescriptors": 2148292028,
+      "AnimationDescriptors": 2148291728,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148298304,
+      "AnimationDescriptors": 2148298280,
+      "ImageBuffer": null
+    },
+    "BYE": {
+      "ImageDescriptors": 2148298736,
+      "AnimationDescriptors": 2148298688,
+      "ImageBuffer": null
+    },
+    "ECV": {
+      "ImageDescriptors": 2148301276,
+      "AnimationDescriptors": 2148301108,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148302648,
+      "AnimationDescriptors": 2148302192,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148360672,
+      "AnimationDescriptors": 2148360648,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148361188,
+      "AnimationDescriptors": 2148361176,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV03.XXX": {
+    "ENS": {
+      "ImageDescriptors": 2148162636,
+      "AnimationDescriptors": 2148162600,
+      "ImageBuffer": null
+    },
+    "JOE": {
+      "ImageDescriptors": 2148178384,
+      "AnimationDescriptors": 2148178252,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148206296,
+      "AnimationDescriptors": 2148206272,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148206812,
+      "AnimationDescriptors": 2148206800,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV04.XXX": {
+    "NUA": {
+      "ImageDescriptors": 2148174712,
+      "AnimationDescriptors": 2148174508,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148178904,
+      "AnimationDescriptors": 2148178760,
+      "ImageBuffer": null
+    },
+    "HPV": {
+      "ImageDescriptors": 2148183324,
+      "AnimationDescriptors": 2148183120,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148216820,
+      "AnimationDescriptors": 2148216736,
+      "ImageBuffer": null
+    },
+    "ECV": {
+      "ImageDescriptors": 2148224452,
+      "AnimationDescriptors": 2148224284,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148225824,
+      "AnimationDescriptors": 2148225368,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148283848,
+      "AnimationDescriptors": 2148283824,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148284364,
+      "AnimationDescriptors": 2148284352,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV05.XXX": {
+    "CPL": {
+      "ImageDescriptors": 2148186804,
+      "AnimationDescriptors": 2148186696,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148201648,
+      "AnimationDescriptors": 2148201444,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148205408,
+      "AnimationDescriptors": 2148205384,
+      "ImageBuffer": null
+    },
+    "TIP": {
+      "ImageDescriptors": 2148205820,
+      "AnimationDescriptors": 2148205748,
+      "ImageBuffer": null
+    },
+    "HPV": {
+      "ImageDescriptors": 2148209984,
+      "AnimationDescriptors": 2148209780,
+      "ImageBuffer": null
+    },
+    "MUV": {
+      "ImageDescriptors": 2148243736,
+      "AnimationDescriptors": 2148243424,
+      "ImageBuffer": null
+    },
+    "PIV": {
+      "ImageDescriptors": 2148263344,
+      "AnimationDescriptors": 2148263044,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148269420,
+      "AnimationDescriptors": 2148269276,
+      "ImageBuffer": null
+    },
+    "ECV": {
+      "ImageDescriptors": 2148273900,
+      "AnimationDescriptors": 2148273732,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148275272,
+      "AnimationDescriptors": 2148274816,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148333296,
+      "AnimationDescriptors": 2148333272,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148333812,
+      "AnimationDescriptors": 2148333800,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV06.XXX": {
+    "HPV": {
+      "ImageDescriptors": 2148175156,
+      "AnimationDescriptors": 2148174952,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148208696,
+      "AnimationDescriptors": 2148208588,
+      "ImageBuffer": null
+    },
+    "IDC": {
+      "ImageDescriptors": 2148223352,
+      "AnimationDescriptors": 2148223172,
+      "ImageBuffer": null
+    },
+    "SPI": {
+      "ImageDescriptors": 2148228560,
+      "AnimationDescriptors": 2148228224,
+      "ImageBuffer": null
+    },
+    "PRI": {
+      "ImageDescriptors": 2148255516,
+      "AnimationDescriptors": 2148255480,
+      "ImageBuffer": null
+    },
+    "TIP": {
+      "ImageDescriptors": 2148255804,
+      "AnimationDescriptors": 2148255732,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148259084,
+      "AnimationDescriptors": 2148259060,
+      "ImageBuffer": null
+    },
+    "PIV": {
+      "ImageDescriptors": 2148260384,
+      "AnimationDescriptors": 2148260084,
+      "ImageBuffer": null
+    },
+    "ECV": {
+      "ImageDescriptors": 2148266240,
+      "AnimationDescriptors": 2148266072,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148267180,
+      "AnimationDescriptors": 2148267156,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148267696,
+      "AnimationDescriptors": 2148267684,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV07.XXX": {
+    "IDC": {
+      "ImageDescriptors": 2148185852,
+      "AnimationDescriptors": 2148185672,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148191152,
+      "AnimationDescriptors": 2148190948,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148194472,
+      "AnimationDescriptors": 2148194448,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148194892,
+      "AnimationDescriptors": 2148194784,
+      "ImageBuffer": null
+    },
+    "HPV": {
+      "ImageDescriptors": 2148209588,
+      "AnimationDescriptors": 2148209384,
+      "ImageBuffer": null
+    },
+    "PIV": {
+      "ImageDescriptors": 2148243300,
+      "AnimationDescriptors": 2148243000,
+      "ImageBuffer": null
+    },
+    "ECV": {
+      "ImageDescriptors": 2148249556,
+      "AnimationDescriptors": 2148249388,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148250928,
+      "AnimationDescriptors": 2148250472,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148308952,
+      "AnimationDescriptors": 2148308928,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148309468,
+      "AnimationDescriptors": 2148309456,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV08.XXX": {
+    "ENS": {
+      "ImageDescriptors": 2148171112,
+      "AnimationDescriptors": 2148171076,
+      "ImageBuffer": null
+    },
+    "JOE": {
+      "ImageDescriptors": 2148186864,
+      "AnimationDescriptors": 2148186732,
+      "ImageBuffer": null
+    },
+    "BOUEE": {
+      "ImageDescriptors": 2148214064,
+      "AnimationDescriptors": 2148214040,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148215244,
+      "AnimationDescriptors": 2148215136,
+      "ImageBuffer": null
+    },
+    "GRP": {
+      "ImageDescriptors": 2148230468,
+      "AnimationDescriptors": 2148230444,
+      "ImageBuffer": null
+    },
+    "CHA": {
+      "ImageDescriptors": 2148230868,
+      "AnimationDescriptors": 2148230784,
+      "ImageBuffer": null
+    },
+    "DUN": {
+      "ImageDescriptors": 2148238344,
+      "AnimationDescriptors": 2148238332,
+      "ImageBuffer": null
+    },
+    "POI": {
+      "ImageDescriptors": 2148238604,
+      "AnimationDescriptors": 2148238436,
+      "ImageBuffer": null
+    },
+    "EAU": {
+      "ImageDescriptors": 2148250380,
+      "AnimationDescriptors": 2148250332,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148251800,
+      "AnimationDescriptors": 2148251344,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148309824,
+      "AnimationDescriptors": 2148309800,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148310340,
+      "AnimationDescriptors": 2148310328,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV09.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148173060,
+      "AnimationDescriptors": 2148173036,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148173572,
+      "AnimationDescriptors": 2148173464,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148188556,
+      "AnimationDescriptors": 2148188352,
+      "ImageBuffer": null
+    },
+    "MED": {
+      "ImageDescriptors": 2148192324,
+      "AnimationDescriptors": 2148191868,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148250348,
+      "AnimationDescriptors": 2148250324,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148250864,
+      "AnimationDescriptors": 2148250852,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV10.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148168276,
+      "AnimationDescriptors": 2148168252,
+      "ImageBuffer": null
+    },
+    "SKO": {
+      "ImageDescriptors": 2148169540,
+      "AnimationDescriptors": 2148169264,
+      "ImageBuffer": null
+    },
+    "CPL": {
+      "ImageDescriptors": 2148255856,
+      "AnimationDescriptors": 2148255748,
+      "ImageBuffer": null
+    },
+    "LAV": {
+      "ImageDescriptors": 2148270320,
+      "AnimationDescriptors": 2148270308,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148271824,
+      "AnimationDescriptors": 2148271800,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148272340,
+      "AnimationDescriptors": 2148272328,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV11.XXX": {
+    "SKO": {
+      "ImageDescriptors": 2148165136,
+      "AnimationDescriptors": 2148164860,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148252076,
+      "AnimationDescriptors": 2148252052,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148252592,
+      "AnimationDescriptors": 2148252580,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAV/CAV12.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148166016,
+      "AnimationDescriptors": 2148165992,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148167224,
+      "AnimationDescriptors": 2148167200,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148167740,
+      "AnimationDescriptors": 2148167728,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAK/CAK01.XXX": {
+    "POE": {
+      "ImageDescriptors": 2148168276,
+      "AnimationDescriptors": 2148168264,
+      "ImageBuffer": null
+    },
+    "GOU": {
+      "ImageDescriptors": 2148169324,
+      "AnimationDescriptors": 2148169276,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148170632,
+      "AnimationDescriptors": 2148170596,
+      "ImageBuffer": null
+    },
+    "TNT": {
+      "ImageDescriptors": 2148171232,
+      "AnimationDescriptors": 2148171148,
+      "ImageBuffer": null
+    },
+    "VIR": {
+      "ImageDescriptors": 2148178912,
+      "AnimationDescriptors": 2148178744,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148199872,
+      "AnimationDescriptors": 2148199860,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAK/CAK02.XXX": {
+    "GRP": {
+      "ImageDescriptors": 2148177352,
+      "AnimationDescriptors": 2148177328,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148177884,
+      "AnimationDescriptors": 2148177680,
+      "ImageBuffer": null
+    },
+    "VIR": {
+      "ImageDescriptors": 2148182180,
+      "AnimationDescriptors": 2148182012,
+      "ImageBuffer": null
+    },
+    "GOU": {
+      "ImageDescriptors": 2148203188,
+      "AnimationDescriptors": 2148203140,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148204472,
+      "AnimationDescriptors": 2148204436,
+      "ImageBuffer": null
+    },
+    "TNT": {
+      "ImageDescriptors": 2148205072,
+      "AnimationDescriptors": 2148204988,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148212600,
+      "AnimationDescriptors": 2148212588,
+      "ImageBuffer": null
+    },
+    "YAR": {
+      "ImageDescriptors": 2148212776,
+      "AnimationDescriptors": 2148212776,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAK/CAK03.XXX": {
+    "BIG": {
+      "ImageDescriptors": 2148178672,
+      "AnimationDescriptors": 2148178588,
+      "ImageBuffer": null
+    },
+    "TNT": {
+      "ImageDescriptors": 2148186372,
+      "AnimationDescriptors": 2148186288,
+      "ImageBuffer": null
+    },
+    "NUA": {
+      "ImageDescriptors": 2148194976,
+      "AnimationDescriptors": 2148194772,
+      "ImageBuffer": null
+    },
+    "BLK": {
+      "ImageDescriptors": 2148198620,
+      "AnimationDescriptors": 2148198476,
+      "ImageBuffer": null
+    },
+    "VIR": {
+      "ImageDescriptors": 2148203012,
+      "AnimationDescriptors": 2148202844,
+      "ImageBuffer": null
+    },
+    "WAT": {
+      "ImageDescriptors": 2148224956,
+      "AnimationDescriptors": 2148224860,
+      "ImageBuffer": null
+    },
+    "GOU": {
+      "ImageDescriptors": 2148233256,
+      "AnimationDescriptors": 2148233208,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148234540,
+      "AnimationDescriptors": 2148234504,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148235072,
+      "AnimationDescriptors": 2148235060,
+      "ImageBuffer": null
+    }
+  },
+  "RAY/CAK/CAK04.XXX": {
+    "VIR": {
+      "ImageDescriptors": 2148175088,
+      "AnimationDescriptors": 2148174920,
+      "ImageBuffer": null
+    },
+    "HYB": {
+      "ImageDescriptors": 2148196540,
+      "AnimationDescriptors": 2148196204,
+      "ImageBuffer": null
+    },
+    "GOU": {
+      "ImageDescriptors": 2148231608,
+      "AnimationDescriptors": 2148231560,
+      "ImageBuffer": null
+    },
+    "EXP": {
+      "ImageDescriptors": 2148232916,
+      "AnimationDescriptors": 2148232880,
+      "ImageBuffer": null
+    },
+    "TNT": {
+      "ImageDescriptors": 2148233516,
+      "AnimationDescriptors": 2148233432,
+      "ImageBuffer": null
+    },
+    "FUM": {
+      "ImageDescriptors": 2148241052,
+      "AnimationDescriptors": 2148241028,
+      "ImageBuffer": null
+    },
+    "FLM": {
+      "ImageDescriptors": 2148241624,
+      "AnimationDescriptors": 2148241564,
+      "ImageBuffer": null
+    },
+    "SPL": {
+      "ImageDescriptors": 2148244596,
+      "AnimationDescriptors": 2148244584,
+      "ImageBuffer": null
+    }
+  }
+}

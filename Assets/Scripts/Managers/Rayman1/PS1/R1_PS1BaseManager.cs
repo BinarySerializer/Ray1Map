@@ -247,7 +247,7 @@ namespace R1Engine
                 }
 
                 // Add to the designs
-                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.BackgroundLayerInfos), bg.Offset));
+                eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.BackgroundLayerInfos, bg.BackgroundLayerInfos.First().Offset, null, null), bg.Offset));
             }
 
             // Load Rayman
@@ -257,7 +257,7 @@ namespace R1Engine
             foreach (R1_EventData e in (events ?? (events = new R1_EventData[0])).Append(rayman).Where(x => x != null))
             {
                 // Add if not found
-                if (e.ImageDescriptorsPointer != null && eventDesigns.All(x => x.Pointer != e.ImageDescriptorsPointer))
+                if (e.ImageDescriptorsPointer != null && eventDesigns.All(x => x.Data.ImageDescriptorPointer != e.ImageDescriptorsPointer))
                 {
                     Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                     {
@@ -279,14 +279,23 @@ namespace R1Engine
                     // Add animations
                     finalDesign.Animations.AddRange(e.AnimDescriptors.Select(x => x.ToCommonAnimation()));
 
+                    var desName = LevelEditorData.NameTable_R1PS1DES.TryGetItem(e.ImageDescriptorsPointer?.file.filePath)?.FindItem(x =>
+                        x.Value.ImageDescriptors == e.ImageDescriptorsPointer?.AbsoluteOffset &&
+                        x.Value.AnimationDescriptors == e.AnimDescriptorsPointer?.AbsoluteOffset &&
+                        x.Value.ImageBuffer == e.ImageBufferPointer?.AbsoluteOffset).Key;
+
                     // Add to the designs
-                    eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, e.ImageDescriptors), e.ImageDescriptorsPointer));
+                    eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, e.ImageDescriptors, e.ImageDescriptorsPointer, e.AnimDescriptorsPointer, e.ImageBufferPointer), e.ImageDescriptorsPointer, name: desName));
                 }
 
                 // Add if not found
-                if (e.ETAPointer != null && eventETA.All(x => x.Pointer != e.ETAPointer))
+                if (e.ETAPointer != null && eventETA.All(x => x.PrimaryPointer != e.ETAPointer))
+                {
+                    var etaName = LevelEditorData.NameTable_R1PS1ETA.TryGetItem(e.ETAPointer.file.filePath)?.FindItem(x => x.Value == e.ETAPointer.AbsoluteOffset).Key;
+
                     // Add to the ETA
-                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(e.ETA.EventStates, e.ETAPointer));
+                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(e.ETA.EventStates, e.ETAPointer, name: etaName));
+                }
             }
 
             // Read tables from exe
