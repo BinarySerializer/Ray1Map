@@ -144,8 +144,12 @@ namespace R1Engine
         public short ReadShortValue() => Int16.TryParse(ReadValue(), out var b) ? b : (short)0;
         public uint ReadUIntValue() => UInt32.TryParse(ReadValue(), out var b) ? b : 0;
 
-        public void WriteString(string value)
+        public void WriteString(object value, bool addComma = true) => WriteString(value.ToString(), addComma);
+        public void WriteString(string value, bool addComma = true)
         {
+            if (addComma)
+                value += ",";
+
             var buffer = Encoding.GetBytes(value);
 
             for (int i = 0; i < buffer.Length; i++)
@@ -157,6 +161,7 @@ namespace R1Engine
         {
             Stream.WriteByte((byte)(0x0A ^ CurrentXOR));
         }
+        public void WriteTerminator() => Stream.WriteByte((byte)(0x2A ^ CurrentXOR));
 
         public void BeginXOR(byte xor) => CurrentXOR = xor;
         public void EndXOR() => CurrentXOR = 0;

@@ -112,5 +112,85 @@ namespace R1Engine
             EventDefinitions = ed.ToArray();
             AlwaysEventDefinitions = aed.ToArray();
         }
+
+        public override void Write(R1TextParser parser)
+        {
+            foreach (var ms in EventDefinitions.Concat<R1_Mapper_BaseEventDefinition>(AlwaysEventDefinitions))
+            {
+                // Write definition tag
+                parser.WriteString("£def");
+
+                // Write name
+                parser.WriteString(ms.Name);
+
+                // Write if values
+                if (ms is R1_Mapper_AlwaysEventDefinition always && always.IfCommand?.Any() == true)
+                {
+                    parser.WriteString("£if");
+
+                    foreach (var i in always.IfCommand)
+                        parser.WriteString(i);
+
+                    parser.WriteString("£endif");
+                }
+
+                // Write header values
+                parser.WriteString(ms.DESFile);
+                parser.WriteString(ms.DisplayPrio);
+
+                parser.WriteNewLine();
+
+                parser.WriteString(ms.ETAFile);
+
+                parser.WriteNewLine();
+
+                // Write commands
+                foreach (var c in ms.EventCommands)
+                    parser.WriteString(c);
+
+                parser.WriteNewLine();
+
+                // Write position
+                parser.WriteString(ms.XPosition);
+                parser.WriteString(ms.YPosition);
+
+                parser.WriteNewLine();
+
+                // Write state
+                parser.WriteString(ms.Etat);
+                parser.WriteString(ms.SubEtat);
+
+                parser.WriteNewLine();
+
+                // Write offsets
+                parser.WriteString(ms.OffsetBX);
+                parser.WriteString(ms.OffsetBY);
+                parser.WriteString(ms.OffsetHY);
+
+                parser.WriteNewLine();
+
+                // Write collision data
+                parser.WriteString(ms.FollowEnabled);
+                parser.WriteString(ms.FollowSprite);
+                parser.WriteString(ms.HitPoints);
+
+                parser.WriteNewLine();
+
+                // Write type
+                parser.WriteString((ushort)ms.Type);
+
+                parser.WriteString(ms.HitSprite);
+
+                if (ms is R1_Mapper_EventDefinition e)
+                    parser.WriteString(e.DesignerGroup);
+
+                parser.WriteNewLine();
+            }
+
+            parser.WriteNewLine();
+
+            // Write terminator
+            parser.WriteTerminator();
+        }
     }
 }

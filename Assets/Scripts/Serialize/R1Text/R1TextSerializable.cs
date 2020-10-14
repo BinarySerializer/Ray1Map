@@ -20,22 +20,35 @@ namespace R1Engine
 
             if (read)
             {
-                Stream s = context.GetFileStream(path);
-
-                if (s != null && s.Length > 0)
+                using (var s = FileSystem.GetFileReadStream(context.BasePath + path))
                 {
-                    OnPreSerialize(path);
-                    
-                    using (R1TextParser parser = new R1TextParser(context.Settings, s, encoding))
-                        Read(parser);
+                    if (s != null && s.Length > 0)
+                    {
+                        OnPreSerialize(path);
 
-                    OnPostSerialize(path);
-                    isFirstLoad = false;
+                        using (R1TextParser parser = new R1TextParser(context.Settings, s, encoding))
+                            Read(parser);
+
+                        OnPostSerialize(path);
+                        isFirstLoad = false;
+                    }
                 }
             }
             else
             {
-                throw new NotImplementedException();
+                using (var s = FileSystem.GetFileWriteStream(context.BasePath + path))
+                {
+                    if (s != null)
+                    {
+                        OnPreSerialize(path);
+
+                        using (R1TextParser parser = new R1TextParser(context.Settings, s, encoding))
+                            Write(parser);
+
+                        OnPostSerialize(path);
+                        isFirstLoad = false;
+                    }
+                }
             }
         }
 
