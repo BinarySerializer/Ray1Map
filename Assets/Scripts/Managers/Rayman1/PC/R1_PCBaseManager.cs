@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BinaryTools.Elf.Io;
 using UnityEngine;
 
 namespace R1Engine
@@ -133,7 +132,18 @@ namespace R1Engine
         /// <param name="settings">The game settings</param>
         public abstract AdditionalSoundArchive[] GetAdditionalSoundArchives(GameSettings settings);
 
-        public abstract bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents);
+        public bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents)
+        {
+            // Hacky fix for French with Rayman
+            if ((context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu) &&
+                (context.Settings.EduVolume[1] == 'F' || context.Settings.EduVolume[1] == 'f') && 
+                (context.Settings.R1_World == R1_World.Jungle || context.Settings.R1_World == R1_World.Cake))
+                desIndex -= 4;
+
+            var name = GetDESNameTable(context).ElementAtOrDefault(desIndex);
+
+            return generalEvents.Any(x => (x.DES == name && x.Worlds.Contains(context.Settings.R1_World)) && ((R1_EventType)x.Type).IsMultiColored());
+        }
 
         #endregion
 
@@ -484,9 +494,9 @@ namespace R1Engine
                 var ei = eventInfo.FindItem(x => x.Type == (int)R1_EventType.TYPE_DEMI_RAYMAN);
 
                 if (context.Settings.EngineVersion == EngineVersion.R1_PC)
-                    smallRayDES = ei.DesR1[R1_World.Jungle];
+                    smallRayDES = LevelEditorData.NameTable_R1PCDES[0].FindItemIndex(x => x == ei.DES);
                 else if (context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
-                    smallRayDES = desNames.FindItemIndex(x => ei.DesKit[R1_World.Jungle] == x.Substring(0, x.Length - 4)) + 1;
+                    smallRayDES = desNames.FindItemIndex(x => ei.DES == x.Substring(0, x.Length - 4)) + 1;
                 else
                     throw new NotImplementedException();
             }
@@ -497,9 +507,9 @@ namespace R1Engine
                 var ei = eventInfo.FindItem(x => x.Type == (int)R1_EventType.TYPE_BLACK_RAY);
 
                 if (context.Settings.EngineVersion == EngineVersion.R1_PC)
-                    darkRayDES = ei.DesR1[R1_World.Cake];
+                    darkRayDES = LevelEditorData.NameTable_R1PCDES[6 - 1].FindItemIndex(x => x == ei.DES);
                 else if (context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
-                    darkRayDES = desNames.FindItemIndex(x => ei.DesKit[R1_World.Cake] == x.Substring(0, x.Length - 4)) + 1;
+                    darkRayDES = desNames.FindItemIndex(x => ei.DES == x.Substring(0, x.Length - 4)) + 1;
                 else
                     throw new NotImplementedException();
             }
@@ -525,29 +535,16 @@ namespace R1Engine
                     foreach (var lvlEvent in levels.SelectMany(x => x.EventData.Events).Where(x => x.PC_ImageDescriptorsIndex == desIndex))
                         matchingStates.AddRange(eta[lvlEvent.PC_ETAIndex].States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
 
+                    var desNameTable = GetDESNameTable(context);
+                    var etaNameTable = GetETANameTable(context);
+
                     // Search event info
                     foreach (var ei in eventInfo)
                     {
                         R1_PC_ETA matchingEta = null;
 
-                        if (context.Settings.EngineVersion == EngineVersion.R1_PC)
-                        {
-                            if (ei.DesR1.TryGetValue(context.Settings.R1_World, out int? desR1) && desR1 == desIndex)
-                                matchingEta = eta[ei.EtaR1[context.Settings.R1_World].Value];
-                        }
-                        else if (context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
-                        {
-                            if (ei.DesKit.TryGetValue(context.Settings.R1_World, out string desKit) && desKit == desName.Substring(0, desName.Length - 4))
-                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaKit[context.Settings.R1_World])];
-                            else if (ei.DesNameR1.TryGetValue(context.Settings.R1_World, out string desNameR1) && desNameR1 == desName.Substring(0, desName.Length - 4))
-                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaNameR1[context.Settings.R1_World])];
-                            else if (ei.DesNameEdu.TryGetValue(context.Settings.R1_World, out string desNameEdu) && desNameEdu == desName.Substring(0, desName.Length - 4))
-                                matchingEta = eta[etaNames.FindItemIndex(x => x == ei.EtaNameEdu[context.Settings.R1_World])];
-                        }
-                        else
-                        {
-                            throw new NotImplementedException();
-                        }
+                        if (ei.DES == desNameTable[desIndex])
+                            matchingEta = eta[etaNameTable.FindItemIndex(x => x == ei.ETA)];
 
                         if (matchingEta != null)
                             matchingStates.AddRange(matchingEta.States.SelectMany(x => x).Where(x => !matchingStates.Contains(x)));
@@ -1239,6 +1236,9 @@ namespace R1Engine
             return eventDesigns.ToArray();
         }
 
+        public abstract string[] GetDESNameTable(Context context);
+        public abstract string[] GetETANameTable(Context context);
+
         /// <summary>
         /// Loads the specified level for the editor
         /// </summary>
@@ -1262,9 +1262,12 @@ namespace R1Engine
 
             var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.Settings));
 
-            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, i == eventDesigns.Length - 1 ? bigRayName : worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray();
+            var desNameTable = GetDESNameTable(context);
+            var etaNameTable = GetETANameTable(context);
+
+            var des = eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, i == eventDesigns.Length - 1 ? bigRayName : desNameTable?.ElementAtOrDefault(i))).ToArray();
             var allEta = GetCurrentEventStates(context).ToArray();
-            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, i == allEta.Length - 1 ? bigRayName : worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray();
+            var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, i == allEta.Length - 1 ? bigRayName : etaNameTable?.ElementAtOrDefault(i))).ToArray();
 
             // Load ZDC (collision) and event flags
             var typeZDCBytes = GetTypeZDCBytes;

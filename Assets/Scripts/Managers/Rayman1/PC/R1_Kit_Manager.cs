@@ -125,17 +125,9 @@ namespace R1Engine
                 Select(Path.GetFileName).
                 Select(x => new AdditionalSoundArchive($"SMP ({x})", GetSamplesArchiveFilePath(x))).ToArray();
 
-        public override bool IsDESMultiColored(Context context, int desIndex, GeneralEventInfoData[] generalEvents)
-        {
-            var name = GetDESFileName(context, desIndex);
+        public override string[] GetDESNameTable(Context context) => FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-            var nameWithoutExt = name.Length > 4 ? name.Substring(0, name.Length - 4) : name;
-
-            return generalEvents.Any(x => (x.DesKit[context.Settings.R1_World] == nameWithoutExt 
-                        || x.DesNameR1[context.Settings.R1_World] == nameWithoutExt
-                        || x.DesNameEdu[context.Settings.R1_World] == nameWithoutExt)
-                    && ((R1_EventType)x.Type).IsMultiColored());
-        }
+        public override string[] GetETANameTable(Context context) => FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.KitPC_Type_ZDC;
         public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.KitPC_ZDCTable;
@@ -238,7 +230,7 @@ namespace R1Engine
             int otherEtaAllfixCount = edu ? 5 : 4;
 
             // Load in Events.csv to get our mappings
-            await LevelEditorData.InitAsync();
+            await LevelEditorData.InitAsync(settings);
 
             using (var context = new Context(settings))
             {
@@ -285,37 +277,37 @@ namespace R1Engine
                         var etaMappings = new Dictionary<int, string>();
                         var r1wld = otherContext.Settings.R1_World;
 
+                        var desNameTable = otherGame.GetDESNameTable(otherContext);
+                        var etaNameTable = otherGame.GetETANameTable(otherContext);
+
                         foreach (var eve in LevelEditorData.EventInfoData)
                         {
                             // Don't bother doing anything if there's a DES listed for stock Kit.
-                            var stockDes = eve.DesKit.TryGetItem(r1wld);
-
-                            if (String.IsNullOrEmpty(stockDes)) {
+                            if (!eve.Engines.Contains(GeneralEventInfoData.Engine.KIT)) {
+                                var desName = eve.DES;
                                 // First see if there's a DES specified for our source game.
-                                var otherDes = edu ? eve.DesEdu.TryGetItem(r1wld) : eve.DesR1.TryGetItem(r1wld);
-                                if (otherDes is int iOtherDes) {
-                                    var desMapping = edu ? eve.DesNameEdu.TryGetItem(r1wld) : eve.DesNameR1.TryGetItem(r1wld);
-                                    if (!String.IsNullOrEmpty(desMapping) && !desNames.Contains($"{desMapping}.DES")) {
+                                var otherDes = desNameTable.FindItemIndex(x => x == desName);
+                                if (otherDes != -1) {
+                                    if (!desNames.Contains($"{desName}.DES")) {
                                         // The DES is specified in Events.csv, but doesn't exist in the WLD file.
                                         // Add it to the copy list.
-                                        desMappings[iOtherDes] = $"{desMapping}.DES";
+                                        desMappings[otherDes] = $"{desName}.DES";
 
-                                        Debug.Log($"Mapping DES {iOtherDes} to {desMapping} based on {eve.Name}");
+                                        Debug.Log($"Mapping DES {otherDes} to {desName} based on {eve.Name}");
                                     }
                                 }
                             }
 
                             // Do the same thing for the ETA.
-                            var stockEta = eve.EtaKit.TryGetItem(r1wld);
-                            if (String.IsNullOrEmpty(stockEta)) {
-                                var otherEta = edu ? eve.EtaEdu.TryGetItem(r1wld) : eve.EtaR1.TryGetItem(r1wld);
-                                if (otherEta is int iOtherEta) {
-                                    var etaMapping = edu ? eve.EtaNameEdu.TryGetItem(r1wld) : eve.EtaNameR1.TryGetItem(r1wld);
-                                    if (!String.IsNullOrEmpty(etaMapping) && !etaNames.Contains($"{etaMapping}.ETA")) {
+                            if (!eve.Engines.Contains(GeneralEventInfoData.Engine.KIT)) {
+                                var etaName = eve.ETA;
+                                var otherEta = etaNameTable.FindItemIndex(x => x == etaName);
+                                if (otherEta != -1) {
+                                    if (!etaNames.Contains($"{etaName}.ETA")) {
                                         // The ETA is specified in Events.csv, but doesn't exist in the WLD file.
                                         // Add it to the copy list.
-                                        etaMappings[iOtherEta] = $"{etaMapping}.ETA";
-                                        Debug.Log($"Mapping ETA {iOtherEta} to {etaMapping} based on {eve.Name}");
+                                        etaMappings[otherEta] = $"{etaName}.ETA";
+                                        Debug.Log($"Mapping ETA {otherEta} to {etaName} based on {eve.Name}");
                                     }
                                 }
                             }
