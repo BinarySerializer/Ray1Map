@@ -44,16 +44,14 @@ namespace R1Engine
         {
             int length = optionalLength ?? palette.Count;
             int wrap = optionalWrap ?? length;
-            var tex = TextureHelpers.CreateTexture2D(Mathf.Min(length, wrap) * scale, Mathf.CeilToInt(length / (float)wrap) * scale);
+            var tex = TextureHelpers.CreateTexture2D(Mathf.Min(length, wrap) * scale, Mathf.CeilToInt(length / (float)wrap) * scale, clear: true);
 
-            tex.wrapMode = TextureWrapMode.Repeat;
-
-            for (int i = offset; i < offset + length; i++)
+            for (int i = 0; i < length; i++)
             {
-                int mainY = tex.height - 1 - ((i - offset) / wrap);
-                int mainX = (i - offset) % wrap;
+                int mainY = (tex.height/scale) - 1 - (i / wrap);
+                int mainX = i % wrap;
                 
-                Color col = palette[i].GetColor();
+                Color col = palette[offset + i].GetColor();
                 
                 for (int y = 0; y < scale; y++)
                 {

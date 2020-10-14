@@ -147,7 +147,7 @@ namespace R1Engine
 
                                 tex.Apply();
                                 exported = true;
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
+                                Util.ByteArrayToFile(Path.Combine(outputPath, $"Vignette/{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
                             }
                         }
 
@@ -159,7 +159,7 @@ namespace R1Engine
                                     int tileDataSize = gb.TileData[0].Length;
                                     if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
                                         gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
-                                        ExportSpriteFrames(gb, pal, 0, Path.Combine(outputPath, $"{i}/"));
+                                        ExportSpriteFrames(gb, pal, 0, Path.Combine(outputPath, $"ActorGraphics/{i}_{absoluteOffset:X8}/"));
                                         exported = true;
                                     }
                                 }
@@ -173,7 +173,7 @@ namespace R1Engine
                             if (size == 512)
                             {
                                 var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette[{i}]");
-                                PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                                PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Palette/{i}_{absoluteOffset:X8}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
                                 exported = true;
                             }
                         }
@@ -188,7 +188,7 @@ namespace R1Engine
                         if (!exported && flags.HasFlag(ExportFlags.Normal)) {
                             var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
 
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
+                            Util.ByteArrayToFile(Path.Combine(outputPath, $"Uncategorized/{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
                         }
                     });
                 }
