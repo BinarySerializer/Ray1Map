@@ -46,6 +46,8 @@ namespace R1Engine
             int wrap = optionalWrap ?? length;
             var tex = TextureHelpers.CreateTexture2D(Mathf.Min(length, wrap) * scale, Mathf.CeilToInt(length / (float)wrap) * scale);
 
+            tex.wrapMode = TextureWrapMode.Repeat;
+
             for (int i = offset; i < offset + length; i++)
             {
                 int mainY = tex.height - 1 - ((i - offset) / wrap);

@@ -81,7 +81,8 @@ namespace R1Engine
             Normal = 1 << 0,
             Vignette = 1 << 1,
             Graphics = 1 << 2,
-            All = Normal | Vignette | Graphics
+            Palettes = 1 << 3,
+            All = Normal | Vignette | Graphics | Palettes
         }
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, ExportFlags flags)
@@ -111,6 +112,8 @@ namespace R1Engine
                     rom.OffsetTable.DoAtBlock(context, i, size =>
                     {
                         bool exported = false;
+
+                        // Vignette
                         if (flags.HasFlag(ExportFlags.Vignette)) {
                             if (size == (256 * 2) + (vigWidth * vigHeight)) {
                                 var vig = s.SerializeObject<GBARRR_Vignette>(default, name: $"Vignette[{i}]");
@@ -134,12 +137,14 @@ namespace R1Engine
                                 Util.ByteArrayToFile(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
                             }
                         }
+
+                        // Graphics
                         if (!exported && flags.HasFlag(ExportFlags.Graphics)) {
                             try {
                                 var gb = s.SerializeObject<GBARRR_GraphicsBlock>(default, name: $"GraphicsBlock[{i}]");
                                 if (gb.Count != 0) {
                                     int tileDataSize = gb.TileData[0].Length;
-                                    if (!gb.TileData.Any(td => td.Length != tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
+                                    if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
                                         gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
                                         ExportSpriteFrames(gb, pal, 0, Path.Combine(outputPath, $"{i}/"));
                                         exported = true;
@@ -148,6 +153,19 @@ namespace R1Engine
                             } catch (Exception ex) {
                             }
                         }
+
+                        // Palettes
+                        if (!exported && flags.HasFlag(ExportFlags.Palettes))
+                        {
+                            if (size == 512)
+                            {
+                                var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette[{i}]");
+                                PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                                exported = true;
+                            }
+                        }
+
+                        // Binary
                         if (!exported && flags.HasFlag(ExportFlags.Normal)) {
                             var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
 
