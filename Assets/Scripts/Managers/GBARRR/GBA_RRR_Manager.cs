@@ -82,7 +82,10 @@ namespace R1Engine
             Vignette = 1 << 1,
             Graphics = 1 << 2,
             Palettes = 1 << 3,
-            All = Normal | Vignette | Graphics | Palettes
+            SkipLevelBlocks = 1 << 4,
+
+            AllNoSkip = Normal | Vignette | Graphics | Palettes,
+            All = AllNoSkip | SkipLevelBlocks
         }
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, ExportFlags flags)
@@ -101,8 +104,18 @@ namespace R1Engine
 
                 ARGBColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(16, true) : null;
 
+                var lvlBlocks = rom.LevelInfo.SelectMany(x => new uint[]
+                {
+                    // Tilesets
+                    x.LevelTilesetIndex, x.BG0TilesetIndex, x.FGTilesetIndex, x.BG1TilesetIndex,
+                    // Maps & scene
+                    x.BG0MapIndex, x.BG1MapIndex, x.CollisionMapIndex, x.LevelMapIndex, x.FGMapIndex, x.SceneIndex,
+                    // Palette
+                    x.SpritePaletteIndex
+                }).ToArray();
+
                 // Enumerate every block in the offset table
-                for (int i = 0; i < rom.OffsetTable.OffsetTableCount; i++)
+                for (uint i = 0; i < rom.OffsetTable.OffsetTableCount; i++)
                 {
                     // Get the offset
                     var offset = rom.OffsetTable.OffsetTable[i];
@@ -114,7 +127,7 @@ namespace R1Engine
                         bool exported = false;
 
                         // Vignette
-                        if (flags.HasFlag(ExportFlags.Vignette)) {
+                        if (!exported && flags.HasFlag(ExportFlags.Vignette)) {
                             if (size == (256 * 2) + (vigWidth * vigHeight)) {
                                 var vig = s.SerializeObject<GBARRR_Vignette>(default, name: $"Vignette[{i}]");
 
@@ -163,6 +176,12 @@ namespace R1Engine
                                 PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{i}_{absoluteOffset:X8}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
                                 exported = true;
                             }
+                        }
+
+                        if (!exported && flags.HasFlag(ExportFlags.SkipLevelBlocks))
+                        {
+                            if (lvlBlocks.Contains(i))
+                                exported = true;
                         }
 
                         // Binary
