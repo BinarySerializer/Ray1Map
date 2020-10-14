@@ -1512,13 +1512,19 @@ namespace R1Engine
                 // Add the event
                 events.Add(r1Event);
 
+                var cmds = e.EventData.Commands ?? new R1_EventCommandCollection()
+                {
+                    Commands = new R1_EventCommand[0]
+                };
+                var labelOffsets = e.EventData.LabelOffsets ?? new ushort[0];
+
                 // Add the event commands
                 eventCommands.Add(new R1_PC_EventCommand()
                 {
-                    CommandLength = (ushort)(e.EventData.Commands.Commands.Select(x => x.Length).Sum()),
-                    Commands = e.EventData.Commands,
-                    LabelOffsetCount = (ushort)e.EventData.LabelOffsets.Length,
-                    LabelOffsetTable = e.EventData.LabelOffsets
+                    CommandLength = (ushort)(cmds.Commands.Select(x => x.Length).Sum()),
+                    Commands = cmds,
+                    LabelOffsetCount = (ushort)labelOffsets.Length,
+                    LabelOffsetTable = labelOffsets
                 });
             }
 

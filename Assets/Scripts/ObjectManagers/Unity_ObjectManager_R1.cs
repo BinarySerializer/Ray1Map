@@ -115,32 +115,18 @@ namespace R1Engine
             var e = AvailableEvents[index];
 
             // Get the commands and label offsets
-            R1_EventCommandCollection cmds;
-            ushort[] labelOffsets;
+            R1_EventCommandCollection cmds = null;
+            ushort[] labelOffsets = null;
 
             // If local (non-compiled) commands are used, attempt to get them from the event info or decompile the compiled ones
             if (UsesLocalCommands)
             {
                 cmds = EventCommandCompiler.Decompile(new EventCommandCompiler.CompiledEventCommandData(R1_EventCommandCollection.FromBytes(e.Commands, Context.Settings), e.LabelOffsets), e.Commands);
-
-                // Local commands don't use label offsets
-                labelOffsets = new ushort[0];
             }
-            else
+            else if (e.Commands.Any())
             {
-                if (e.Commands.Any())
-                {
-                    cmds = R1_EventCommandCollection.FromBytes(e.Commands, Context.Settings);
-                    labelOffsets = e.LabelOffsets;
-                }
-                else
-                {
-                    cmds = new R1_EventCommandCollection()
-                    {
-                        Commands = new R1_EventCommand[0]
-                    };
-                    labelOffsets = new ushort[0];
-                }
+                cmds = R1_EventCommandCollection.FromBytes(e.Commands, Context.Settings);
+                labelOffsets = e.LabelOffsets.Any() ? e.LabelOffsets : null;
             }
 
             var eventData = new Unity_Object_R1(new R1_EventData()
