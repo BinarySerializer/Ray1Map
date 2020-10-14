@@ -21,8 +21,6 @@ namespace R1Engine
             ZDCData = zdcData;
             EventFlags = eventFlags;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
-            TypeZDC = typeZDC;
-            ZDCData = zdcData;
 
             for (int i = 0; i < DES.Length; i++) {
                 DESLookup[DES[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
