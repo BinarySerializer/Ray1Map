@@ -96,8 +96,11 @@ namespace R1Engine
         public class R1_DESPointers
         {
             public uint? ImageDescriptors { get; set; }
+            public ushort ImageDescriptorsCount { get; set; }
             public uint? AnimationDescriptors { get; set; }
+            public byte AnimationDescriptorsCount { get; set; }
             public uint? ImageBuffer { get; set; }
+            public uint ImageBufferLength { get; set; }
         }
     }
 }

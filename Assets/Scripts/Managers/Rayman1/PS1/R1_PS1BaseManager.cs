@@ -253,48 +253,62 @@ namespace R1Engine
             // Load Rayman
             var rayman = GetRaymanEvent(context);
 
+            var allEvents = (events ?? (events = new R1_EventData[0])).Append(rayman).Where(x => x != null).ToArray();
+
             // Load graphics
-            foreach (R1_EventData e in (events ?? (events = new R1_EventData[0])).Append(rayman).Where(x => x != null))
+            foreach (var des in GetLevelDES(context, allEvents))
             {
                 // Add if not found
-                if (e.ImageDescriptorsPointer != null && eventDesigns.All(x => x.Data.ImageDescriptorPointer != e.ImageDescriptorsPointer))
+                if (des.ImageDescriptorsPointer != null && eventDesigns.All(x => x.Data.ImageDescriptorPointer != des.ImageDescriptorsPointer))
                 {
                     Unity_ObjGraphics finalDesign = new Unity_ObjGraphics
                     {
                         Sprites = new List<Sprite>(),
                         Animations = new List<Unity_ObjAnimation>(),
-                        FilePath = e.ImageDescriptorsPointer.file.filePath
+                        FilePath = des.ImageDescriptorsPointer.file.filePath
                     };
 
+                    var s = context.Deserializer;
+                    var imgDescriptors = des.EventData?.ImageDescriptors ?? s.DoAt(des.ImageDescriptorsPointer, () => s.SerializeObjectArray<R1_ImageDescriptor>(default, des.ImageDescriptorCount, name: $"ImageDescriptors"));
+                    var animDescriptors = des.EventData?.AnimDescriptors ?? s.DoAt(des.AnimationDescriptorsPointer, () => s.SerializeObjectArray<R1_PS1_AnimationDescriptor>(default, des.AnimationDescriptorCount, name: $"AnimationDescriptors"));
+                    var imageBuffer = des.EventData?.ImageBuffer ?? s.DoAt(des.ImageBufferPointer, () => s.SerializeArray<byte>(default, des.ImageBufferLength ?? 0, name: $"ImageBuffer"));
+
                     // Get every sprite
-                    foreach (R1_ImageDescriptor i in e.ImageDescriptors)
+                    foreach (R1_ImageDescriptor i in imgDescriptors)
                     {
                         // Get the texture for the sprite, or null if not loading textures
-                        Texture2D tex = loadTextures ? GetSpriteTexture(context, e.ImageBuffer, i) : null;
+                        Texture2D tex = loadTextures ? GetSpriteTexture(context, imageBuffer, i) : null;
 
                         // Add it to the array
                         finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
                     }
 
                     // Add animations
-                    finalDesign.Animations.AddRange(e.AnimDescriptors.Select(x => x.ToCommonAnimation()));
+                    finalDesign.Animations.AddRange(animDescriptors.Select(x => x.ToCommonAnimation()));
 
-                    var desName = LevelEditorData.NameTable_R1PS1DES.TryGetItem(e.ImageDescriptorsPointer?.file.filePath)?.FindItem(x =>
-                        x.Value.ImageDescriptors == e.ImageDescriptorsPointer?.AbsoluteOffset &&
-                        x.Value.AnimationDescriptors == e.AnimDescriptorsPointer?.AbsoluteOffset &&
-                        x.Value.ImageBuffer == e.ImageBufferPointer?.AbsoluteOffset).Key;
+                    var desName = des.Name ?? LevelEditorData.NameTable_R1PS1DES?.TryGetItem(des.ImageDescriptorsPointer?.file.filePath)?.FindItem(x =>
+                        x.Value.ImageDescriptors == des.ImageDescriptorsPointer?.AbsoluteOffset &&
+                        x.Value.AnimationDescriptors == des.AnimationDescriptorsPointer?.AbsoluteOffset &&
+                        x.Value.ImageBuffer == des.ImageBufferPointer?.AbsoluteOffset).Key;
 
                     // Add to the designs
-                    eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, e.ImageDescriptors, e.ImageDescriptorsPointer, e.AnimDescriptorsPointer, e.ImageBufferPointer), e.ImageDescriptorsPointer, name: desName));
+                    eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, imgDescriptors, des.ImageDescriptorsPointer, des.AnimationDescriptorsPointer, des.ImageBufferPointer), des.ImageDescriptorsPointer, name: desName));
                 }
+            }
 
+            foreach (var eta in GetLevelETA(context, allEvents))
+            {
                 // Add if not found
-                if (e.ETAPointer != null && eventETA.All(x => x.PrimaryPointer != e.ETAPointer))
+                if (eta.ETAPointer != null && eventETA.All(x => x.PrimaryPointer != eta.ETAPointer))
                 {
-                    var etaName = LevelEditorData.NameTable_R1PS1ETA.TryGetItem(e.ETAPointer.file.filePath)?.FindItem(x => x.Value == e.ETAPointer.AbsoluteOffset).Key;
+                    var etaName = eta.Name ?? LevelEditorData.NameTable_R1PS1ETA?.TryGetItem(eta.ETAPointer.file.filePath)?.FindItem(x => x.Value == eta.ETAPointer.AbsoluteOffset).Key;
+
+                    var s = context.Deserializer;
+
+                    var etaObj = eta.EventData?.ETA ?? s.DoAt(eta.ETAPointer, () => s.SerializeObject<R1_PS1_ETA>(default, name: $"ETA"));
 
                     // Add to the ETA
-                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(e.ETA.EventStates, e.ETAPointer, name: etaName));
+                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(etaObj.EventStates, eta.ETAPointer, name: etaName));
                 }
             }
 
@@ -970,6 +984,46 @@ namespace R1Engine
             }
         }
 
+        protected IEnumerable<DES> GetLevelDES(Context context, IEnumerable<R1_EventData> events)
+        {
+            return events.Select(x => new DES
+            {
+                ImageDescriptorsPointer = x.ImageDescriptorsPointer,
+                AnimationDescriptorsPointer = x.AnimDescriptorsPointer,
+                ImageBufferPointer = x.ImageBufferPointer,
+                ImageDescriptorCount = x.ImageDescriptorCount,
+                AnimationDescriptorCount = x.AnimDescriptorCount,
+                ImageBufferLength = null,
+                Name = null,
+                EventData = x
+            }).Concat(LevelEditorData.NameTable_R1PS1DES?.Where(d => context.FileExists(d.Key)).SelectMany(d => d.Value.Select(des => new DES
+            {
+                ImageDescriptorsPointer = des.Value.ImageDescriptors != null ? new Pointer(des.Value.ImageDescriptors.Value, context.GetFile(d.Key)) : null,
+                AnimationDescriptorsPointer = des.Value.AnimationDescriptors != null ? new Pointer(des.Value.AnimationDescriptors.Value, context.GetFile(d.Key)) : null,
+                ImageBufferPointer = des.Value.ImageBuffer != null ? new Pointer(des.Value.ImageBuffer.Value, context.GetFile(d.Key)) : null,
+                ImageDescriptorCount = des.Value.ImageDescriptorsCount,
+                AnimationDescriptorCount = des.Value.AnimationDescriptorsCount,
+                ImageBufferLength = des.Value.ImageBufferLength,
+                Name = des.Key,
+                EventData = null
+            })) ?? new DES[0]);
+        }
+
+        protected IEnumerable<ETA> GetLevelETA(Context context, IEnumerable<R1_EventData> events)
+        {
+            return events.Select(x => new ETA
+            {
+                ETAPointer = x.ETAPointer,
+                Name = null,
+                EventData = x
+            }).Concat(LevelEditorData.NameTable_R1PS1ETA?.Where(d => context.FileExists(d.Key)).SelectMany(d => d.Value.Select(des => new ETA
+            {
+                ETAPointer = new Pointer(des.Value, context.GetFile(d.Key)),
+                Name = des.Key,
+                EventData = null
+            })) ?? new ETA[0]);
+        }
+
         #endregion
 
         #region Value Types
@@ -1035,6 +1089,24 @@ namespace R1Engine
             public uint Offset { get; }
             public uint Count { get; }
             public string Name { get; }
+        }
+
+        protected class DES
+        {
+            public Pointer ImageDescriptorsPointer { get; set; }
+            public Pointer AnimationDescriptorsPointer { get; set; }
+            public Pointer ImageBufferPointer { get; set; }
+            public ushort ImageDescriptorCount { get; set; }
+            public byte AnimationDescriptorCount { get; set; }
+            public uint? ImageBufferLength { get; set; }
+            public string Name { get; set; }
+            public R1_EventData EventData { get; set; }
+        }
+        protected class ETA
+        {
+            public Pointer ETAPointer { get; set; }
+            public string Name { get; set; }
+            public R1_EventData EventData { get; set; }
         }
 
         #endregion
