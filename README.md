@@ -23,8 +23,16 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
     <th class="tg-yw4l"><b>Saving</b></th>
   </tr>
   <tr>
-    <td class="tg-yw4l">Rayman 1 (PS1)</td>
-    <td class="tg-yw4l">US, EU</td>
+    <td class="tg-yw4l">Rayman 1 (PS1 - US)</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+  </tr>
+  <tr>
+    <td class="tg-yw4l">Rayman 1 (PS1 - EU)</td>
+    <td class="tg-yw4l"></td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>
