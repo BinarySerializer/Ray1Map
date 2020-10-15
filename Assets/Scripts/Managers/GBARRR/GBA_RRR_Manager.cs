@@ -279,32 +279,61 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            // TODO: Use similar code to show graphics in Unity
-            /*if(context.Settings.Level == 4) {
-                SerializerObject s = context.Deserializer;
-                var dict = LoadActorGraphics(s, rom, 1, 4);
-                foreach (var act in rom.LevelScene.Actors) {
-                    AssignActorValues(act, rom, 1, 4);
-                    if (act.P_GraphicsOffset != 0) {
-                        if (!dict.ContainsKey(act.P_GraphicsOffset)) {
-                            UnityEngine.Debug.Log("Graphics with offset " + string.Format("{0:X8}", act.P_GraphicsOffset) + " weren't loaded!");
-                        } else {
-                            act.GraphicsBlock = dict[act.P_GraphicsOffset];
-                        }
-                        if (act.P_PaletteIndex < 16) {
-                            // UnityEngine.Debug.Log(act.P_PaletteIndex);
-                            // Use rom.spritepalette to test for now
-                            ExportSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex, context.BasePath + "sprites_badpalette/");
-                        } else {
-                            rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex, (size) => {
-                                act.Palette = s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette));
-                                ExportSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0, context.BasePath + "sprites_palette/");
-                            });
-                        }
+            SerializerObject s = context.Deserializer;
+            var dict = LoadActorGraphics(s, rom, 1, 4);
+            var graphicsData = new List<Unity_ObjectManager_GBARRR.GraphicsData>();
 
+            var lvl = context.Settings.Level;
+
+            if (GetCurrentGameMode(context.Settings) == GameMode.Village)
+                lvl = 28;
+
+            Debug.Log($"RRR level: {context.Settings.World}-{lvl} ({GetCurrentGameMode(context.Settings)})");
+
+            var actorIndex = 0;
+
+            // Enumerate every actor
+            foreach (var act in rom.LevelScene.Actors)
+            {
+                Controller.DetailedState = $"Loading actor {actorIndex + 1}/{rom.LevelScene.Actors.Length}";
+                await Controller.WaitIfNecessary();
+
+                AssignActorValues(act, rom, context.Settings.World, lvl);
+
+                if (act.P_GraphicsOffset != 0)
+                {
+                    if (!dict.ContainsKey(act.P_GraphicsOffset))
+                        Debug.Log($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
+                    else
+                        act.GraphicsBlock = dict[act.P_GraphicsOffset];
+
+                    if (act.GraphicsBlock == null)
+                        continue;
+
+                    if (act.P_PaletteIndex < 16)
+                    {
+                        graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset, GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex).Select(x => x.CreateSprite()).ToArray()));
                     }
+                    else
+                    {
+                        rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex, size => act.Palette = s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
+
+                        graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset, GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite()).ToArray()));
+                    }
+
                 }
-            }*/
+
+                actorIndex++;
+            }
+
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom.Localization);
+
+            var objManager = new Unity_ObjectManager_GBARRR(context, graphicsData.ToArray());
+
+            await Controller.WaitIfNecessary();
 
             return new Unity_Level(
                 maps: new Unity_Map[]
@@ -314,51 +343,68 @@ namespace R1Engine
                     levelMap,
                     fgMap
                 }, 
-                objManager: new Unity_ObjectManager_GBARRR(context),
-                eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x)).ToList(),
+                objManager: objManager,
+                eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager)).ToList(),
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                 cellSize: CellSize,
-                localization: LoadLocalization(rom.Localization),
+                localization: loc,
                 defaultCollisionMap: 2,
                 defaultMap: 2
             );
         }
 
-        protected void ExportSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex, string outputDir) {
-            try {
-                // For each frame
-                int width = (int)spr.TileSize;
-                int height = (int)spr.TileSize;
-                for (int i = 0; i < spr.Count; i++) {
-                    var tex = TextureHelpers.CreateTexture2D(width, height, true);
-                    for (int y = 0; y < height; y++) {
-                        for (int x = 0; x < width; x++) {
-                            int tileX = x / 8;
-                            int tileY = y / 8;
-                            int inTileX = x % 8;
-                            int inTileY = y % 8;
-                            int tileIndex = tileX + (tileY * width / 8);
-                            int index = tileIndex * (8 * 4) + (inTileY * 8 + inTileX) / 2;
+        protected IEnumerable<Texture2D> GetSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex)
+        {
+            // For each frame
+            int width = (int)spr.TileSize;
+            int height = (int)spr.TileSize;
+            for (int i = 0; i < spr.Count; i++)
+            {
+                var tex = TextureHelpers.CreateTexture2D(width, height, true);
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int tileX = x / 8;
+                        int tileY = y / 8;
+                        int inTileX = x % 8;
+                        int inTileY = y % 8;
+                        int tileIndex = tileX + (tileY * width / 8);
+                        int index = tileIndex * (8 * 4) + (inTileY * 8 + inTileX) / 2;
 
-                            if (index < spr.TileData[i].Length) {
-                                var v = BitHelpers.ExtractBits(spr.TileData[i][index], 4, x % 2 == 0 ? 0 : 4);
+                        if (index < spr.TileData[i].Length)
+                        {
+                            var v = BitHelpers.ExtractBits(spr.TileData[i][index], 4, x % 2 == 0 ? 0 : 4);
 
-                                Color c = palette[paletteIndex * 16 + v].GetColor();
+                            Color c = palette[paletteIndex * 16 + v].GetColor();
 
-                                if (v != 0)
-                                    c = new Color(c.r, c.g, c.b, 1f);
-                                else
-                                    c = new Color(c.r, c.g, c.b, 0f);
+                            c = v != 0 ? new Color(c.r, c.g, c.b, 1f) : new Color(c.r, c.g, c.b, 0f);
 
-                                tex.SetPixel(x, height - y - 1, c);
-                            } else {
-                                Debug.Log($"{spr.Offset.AbsoluteOffset:X8} - " + spr.TileData[i].Length + " - " + width + " - " + index);
-                            }
+                            tex.SetPixel(x, height - y - 1, c);
+                        }
+                        else
+                        {
+                            Debug.Log($"{spr.Offset.AbsoluteOffset:X8} - " + spr.TileData[i].Length + " - " + width + " - " + index);
                         }
                     }
-                    tex.Apply();
-                    var fileName = $"Sprites_{spr.Offset.AbsoluteOffset:X8}_Pal{paletteIndex}/{i}.png";
+                }
+                tex.Apply();
+
+                yield return tex;
+            }
+        }
+
+        protected void ExportSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex, string outputDir) {
+            try 
+            {
+                var index = 0;
+
+                // For each frame
+                foreach (var tex in GetSpriteFrames(spr, palette, paletteIndex))
+                {
+                    var fileName = $"Sprites_{spr.Offset.AbsoluteOffset:X8}_Pal{paletteIndex}/{index}.png";
                     Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
+                    index++;
                 }
             } catch (Exception ex) {
                 Debug.LogError($"Error for GraphicsBlock {spr.Offset.AbsoluteOffset:X8} - Message: {ex.Message}{Environment.NewLine}StackTrace: {ex.StackTrace}");

@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace R1Engine
 {
     public class Unity_Object_GBARRR : Unity_Object
     {
-        public Unity_Object_GBARRR(GBARRR_Actor actor)
+        public Unity_Object_GBARRR(GBARRR_Actor actor, Unity_ObjectManager_GBARRR objManager)
         {
             Actor = actor;
+            ObjManager = objManager;
         }
 
         public GBARRR_Actor Actor { get; }
+        public Unity_ObjectManager_GBARRR ObjManager { get; }
 
         public override short XPosition
         {
@@ -30,14 +33,28 @@ namespace R1Engine
 
         public override bool IsEditor => Actor.ObjectType == 0;
 
-        public override string PrimaryName => String.Empty;
+        public override string PrimaryName => $"Type_{Actor.ObjectType}";
         public override string SecondaryName => String.Empty;
 
-        public override Unity_ObjAnimation CurrentAnimation => null;
-        public override int AnimSpeed => 0;
+        public Unity_ObjectManager_GBARRR.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(GraphicsDataIndex);
+        public int GraphicsDataIndex
+        {
+            get => ObjManager.GraphicsDataLookup.TryGetItem(Actor.P_GraphicsOffset, -1);
+            set
+            {
+                if (value != GraphicsDataIndex)
+                {
+                    OverrideAnimIndex = null;
+                    Actor.P_GraphicsOffset = (byte)ObjManager.GraphicsDatas[value].GraphicsOffset;
+                }
+            }
+        }
+
+        public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
+        public override int AnimSpeed => 2; // TODO: Fix
         public override int? GetAnimIndex => 0;
-        protected override int GetSpriteID => 0;
-        public override IList<Sprite> Sprites => new Sprite[0];
+        protected override int GetSpriteID => GraphicsDataIndex;
+        public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
         protected override bool IsUIStateArrayUpToDate => false;
         protected override void RecalculateUIStates() => UIStates = new UIState[0];
     }
