@@ -25,7 +25,7 @@ namespace R1Engine
         public GBARRR_MapBlock FGMap { get; set; }
 
         // Palettes
-        //public ARGB1555Color[] TilePalette { get; set; } // TODO: Use GetLevelTilePaletteOffsetIndex to get correct tile palette
+        public ARGB1555Color[] TilePalette { get; set; }
         public ARGB1555Color[] SpritePalette { get; set; }
 
         // Tables
@@ -116,10 +116,13 @@ namespace R1Engine
                     FGMap = s.SerializeObject<GBARRR_MapBlock>(FGMap, name: nameof(FGMap),
                         onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Foreground));
 
-                // Serialize sprite palette
+                // Serialize palettes
+                var tilePalIndex = GetLevelTilePaletteOffsetIndex(s.GameSettings);
+                if (tilePalIndex != null)
+                    OffsetTable.DoAtBlock(s.Context, tilePalIndex.Value, size =>
+                        TilePalette = s.SerializeObjectArray<ARGB1555Color>(TilePalette, 0x100, name: nameof(TilePalette)));
                 OffsetTable.DoAtBlock(s.Context, lvlInfo.SpritePaletteIndex, size =>
-                    SpritePalette =
-                        s.SerializeObjectArray<ARGB1555Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
+                    SpritePalette = s.SerializeObjectArray<ARGB1555Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
 
                 // Serialize tables
                 s.DoAt(pointerTable[GBARRR_Pointer.GraphicsTables], () =>

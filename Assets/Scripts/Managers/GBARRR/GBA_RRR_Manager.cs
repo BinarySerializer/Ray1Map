@@ -212,7 +212,7 @@ namespace R1Engine
                                     var tileset = s.SerializeObject<GBARRR_Tileset>(default, onPreSerialize: t => t.BlockSize = size, name: $"Tileset[{i}]");
                                     int length = tileset.Data.Length;
                                     bool is4Bit = (length % 0x40 != 0);
-                                    var ts = LoadTileSet(tileset, is4Bit, palCount: is4Bit ? 16 : 1);
+                                    var ts = LoadTileSet(tileset.Data, is4Bit, tileset.Palette, palCount: is4Bit ? 16 : 1);
                                     Util.ByteArrayToFile(Path.Combine(outputPath, $"Tilesets/{i}_{absoluteOffset:X8}.png"), ts.Tiles[0].texture.EncodeToPNG());
                                     exported = true;
                                 } catch (Exception ex) {
@@ -258,10 +258,10 @@ namespace R1Engine
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            var bg0Tileset = LoadTileSet(rom.BG0TileSet, true, 15, 1);
-            var bg1Tileset = LoadTileSet(rom.BG1TileSet, true, 12, 1);
-            var levelTileset = LoadTileSet(rom.LevelTileset, false);
-            var fgTileset = LoadTileSet(rom.FGTileSet, true, 0, 16); // TODO: Only serialize palettes 12, 13 and 14?
+            var bg0Tileset = LoadTileSet(rom.BG0TileSet.Data, true, rom.TilePalette ?? rom.BG0TileSet.Palette, 15, 1);
+            var bg1Tileset = LoadTileSet(rom.BG1TileSet.Data, true, rom.TilePalette ?? rom.BG1TileSet.Palette, 12, 1);
+            var levelTileset = LoadTileSet(rom.LevelTileset.Data, false, rom.TilePalette ?? rom.LevelTileset.Palette);
+            var fgTileset = LoadTileSet(rom.FGTileSet.Data, true, rom.TilePalette ?? rom.FGTileSet.Palette, 0, 16); // TODO: Only serialize palettes 12, 13 and 14?
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
@@ -432,7 +432,7 @@ namespace R1Engine
             };
 
             // TODO: Correct alpha level
-            if (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && world == 2 || world == 3 || world == 4) {
+            if (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && (world == 2 || world == 3 || world == 4)) {
                 map.IsAdditive = true;
                 map.Alpha = 0.5f;
             }
@@ -492,12 +492,12 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(GBARRR_Tileset tilemap, bool is4bit, int palStart = 0, int palCount = 1)
+        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, ARGB1555Color[] palette, int palStart = 0, int palCount = 1)
         {
             int block_size = is4bit ? 0x20 : 0x40;
             const float texWidth = 256f;
             const float tilesWidth = texWidth / CellSize;
-            var tileCount = tilemap.Data.Length / block_size;
+            var tileCount = tilemap.Length / block_size;
             var texHeight = Mathf.CeilToInt(tileCount / tilesWidth) * CellSize;
             //UnityEngine.Debug.Log(tileCount + " - " + block_size);
 
@@ -526,15 +526,15 @@ namespace R1Engine
                                 if (is4bit) {
                                     var off = offset + ((yy * CellSize) + xx) / 2;
                                     var relOff = ((yy * CellSize) + xx);
-                                    var b = tilemap.Data[off];
+                                    var b = tilemap[off];
                                     b = (byte)BitHelpers.ExtractBits(b, 4, relOff % 2 == 0 ? 0 : 4);
-                                    c = tilemap.Palette[(p + palStart) * 16 + b].GetColor();
+                                    c = palette[(p + palStart) * 16 + b].GetColor();
                                     c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
                                 }
                                 else
                                 {
-                                    var b = tilemap.Data[offset + (yy * CellSize) + xx];
-                                    c = tilemap.Palette[b].GetColor();
+                                    var b = tilemap[offset + (yy * CellSize) + xx];
+                                    c = palette[b].GetColor();
                                     c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
                                 }
 
