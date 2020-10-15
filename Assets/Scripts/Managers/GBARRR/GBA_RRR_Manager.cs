@@ -30,9 +30,9 @@ namespace R1Engine
             }),
             new GameInfo_Volume(GameMode.Mode7.ToString(), new GameInfo_World[]
             {
-                new GameInfo_World(0, Enumerable.Range(4, 1).ToArray()),
-                new GameInfo_World(2, Enumerable.Range(12, 1).ToArray()),
-                new GameInfo_World(3, Enumerable.Range(18, 1).ToArray()),
+                new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
+                new GameInfo_World(2, Enumerable.Range(1, 1).ToArray()),
+                new GameInfo_World(3, Enumerable.Range(2, 1).ToArray()),
             }), 
         };
 
