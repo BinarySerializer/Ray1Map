@@ -13,16 +13,37 @@ namespace R1Engine
         public const int CellSize = 8;
 
         // TODO: There are actually 36 maps + 1 single layer map - are the other ones menus?
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => new GameInfo_Volume[]
         {
-            new GameInfo_World(0, Enumerable.Range(3, 2).ToArray()),
-            new GameInfo_World(1, Enumerable.Range(5, 5).ToArray()),
-            new GameInfo_World(2, Enumerable.Range(10, 5).ToArray()),
-            new GameInfo_World(3, Enumerable.Range(15, 5).ToArray()),
-            new GameInfo_World(4, Enumerable.Range(20, 6).ToArray()),
-            new GameInfo_World(5, Enumerable.Range(26, 5).ToArray()),
-            new GameInfo_World(6, Enumerable.Range(0, 3).Concat(Enumerable.Range(31, 4)).ToArray()),
-        });
+            new GameInfo_Volume(GameMode.Game.ToString(), new GameInfo_World[]
+            {
+                new GameInfo_World(0, Enumerable.Range(2, 5).Append(29).ToArray()), // Child
+                new GameInfo_World(1, Enumerable.Range(7, 5).ToArray()), // Forest
+                new GameInfo_World(2, Enumerable.Range(12, 5).ToArray()), // Organic Cave
+                new GameInfo_World(3, Enumerable.Range(17, 6).Append(31).ToArray()), // Sweets
+                new GameInfo_World(4, Enumerable.Range(0, 2).Concat(Enumerable.Range(23, 5)).ToArray()), // Dark
+                new GameInfo_World(5, Enumerable.Range(30, 1).ToArray()), // Menu
+            }),
+            new GameInfo_Volume(GameMode.Village.ToString(), new GameInfo_World[]
+            {
+                new GameInfo_World(5, Enumerable.Range(0, 3).ToArray()), // These are all actually level 28, but since there are 3 variants in a separate array it's easier to separate them like this 
+            }),
+            new GameInfo_Volume(GameMode.Mode7.ToString(), new GameInfo_World[]
+            {
+                new GameInfo_World(0, Enumerable.Range(4, 1).ToArray()),
+                new GameInfo_World(2, Enumerable.Range(12, 1).ToArray()),
+                new GameInfo_World(3, Enumerable.Range(18, 1).ToArray()),
+            }), 
+        };
+
+        public enum GameMode
+        {
+            Game,
+            Village,
+            Mode7
+        }
+
+        public static GameMode GetCurrentGameMode(GameSettings s) => (GameMode)Enum.Parse(typeof(GameMode), s.EduVolume);
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
@@ -40,7 +61,7 @@ namespace R1Engine
                 var s = context.Deserializer;
 
                 await LoadFilesAsync(context);
-
+                
                 // Load the rom
                 var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
 
@@ -83,7 +104,8 @@ namespace R1Engine
             Graphics = 1 << 2,
             Palettes = 1 << 3,
             LevelBlocks = 1 << 4,
-            Tilesets = 1 << 5,
+            LevelTilesets = 1 << 5,
+            Tilesets = 1 << 6,
 
             All = Normal | Vignette | Graphics | Palettes | LevelBlocks | Tilesets
         }

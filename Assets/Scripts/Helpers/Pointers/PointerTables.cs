@@ -377,7 +377,8 @@ namespace R1Engine
             {
                 case GameModeSelection.RaymanRavingRabbidsGBAEU:
                     return new Dictionary<GBARRR_Pointer, uint>() {
-                        [GBARRR_Pointer.LevelInfo] = 0x08055F40,
+                        [GBARRR_Pointer.VillageLevelInfo] = 0x08055F40,
+                        [GBARRR_Pointer.LevelInfo] = 0x08055FC4,
                         [GBARRR_Pointer.OffsetTable] = 0x08722374,
                         [GBARRR_Pointer.GraphicsTables] = 0x08056544,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));

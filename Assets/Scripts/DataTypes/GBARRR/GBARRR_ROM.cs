@@ -6,6 +6,7 @@ namespace R1Engine
     {
         // Global data
         public GBARRR_OffsetTable OffsetTable { get; set; }
+        public GBARRR_LevelInfo[] VillageLevelInfo { get; set; }
         public GBARRR_LevelInfo[] LevelInfo { get; set; }
         public GBARRR_LocalizationBlock Localization { get; set; }
 
@@ -45,69 +46,130 @@ namespace R1Engine
             // Serialize offset table
             OffsetTable = s.DoAt(pointerTable[GBARRR_Pointer.OffsetTable], () => s.SerializeObject<GBARRR_OffsetTable>(OffsetTable, name: nameof(OffsetTable)));
 
-            // Serialize level info
-            LevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.LevelInfo], () => s.SerializeObjectArray<GBARRR_LevelInfo>(LevelInfo, 35, name: nameof(LevelInfo)));
-
             // Serialize localization
             OffsetTable.DoAtBlock(s.Context, 3, size =>
                 Localization = s.SerializeObject<GBARRR_LocalizationBlock>(Localization, name: nameof(Localization)));
 
-            // Serialize tile maps
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].LevelTilesetIndex, size =>
-                LevelTileset = s.SerializeObject<GBARRR_Tileset>(LevelTileset, name: nameof(LevelTileset), onPreSerialize: x => x.BlockSize = size));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].BG0TilesetIndex, size =>
-                BG0TileSet = s.SerializeObject<GBARRR_Tileset>(BG0TileSet, name: nameof(BG0TileSet), onPreSerialize: x => x.BlockSize = size));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].FGTilesetIndex, size =>
-                FGTileSet = s.SerializeObject<GBARRR_Tileset>(FGTileSet, name: nameof(FGTileSet), onPreSerialize: x => x.BlockSize = size));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].BG1TilesetIndex, size =>
-                BG1TileSet = s.SerializeObject<GBARRR_Tileset>(BG1TileSet, name: nameof(BG1TileSet), onPreSerialize: x => x.BlockSize = size));
-
-            // Serialize level scene
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].SceneIndex, size => LevelScene = s.SerializeObject<GBARRR_Scene>(LevelScene, name: nameof(LevelScene)));
-
-            // Serialize maps
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].BG0MapIndex, size => 
-                BG0Map = s.SerializeObject<GBARRR_BGMapBlock>(BG0Map, name: nameof(BG0Map)));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].BG1MapIndex, size => 
-                BG1Map = s.SerializeObject<GBARRR_BGMapBlock>(BG1Map, name: nameof(BG1Map)));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].CollisionMapIndex, size => 
-                CollisionMap = s.SerializeObject<GBARRR_MapBlock>(CollisionMap, name: nameof(CollisionMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Collision));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].LevelMapIndex, size => 
-                LevelMap = s.SerializeObject<GBARRR_MapBlock>(LevelMap, name: nameof(LevelMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Tiles));
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].FGMapIndex, size => 
-                FGMap = s.SerializeObject<GBARRR_MapBlock>(FGMap, name: nameof(FGMap), onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Foreground));
-
-            // Serialize sprite palette
-            OffsetTable.DoAtBlock(s.Context, LevelInfo[s.GameSettings.Level].SpritePaletteIndex, size =>
-                SpritePalette = s.SerializeObjectArray<ARGB1555Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
-
-            // Serialize tables
-            s.DoAt(pointerTable[GBARRR_Pointer.GraphicsTables], () =>
+            if (GBA_RRR_Manager.GetCurrentGameMode(s.GameSettings) != GBA_RRR_Manager.GameMode.Mode7)
             {
-                var counts = new uint[] { 0x47, 0x40, 0x45, 0x44, 0x50, 0x42 };
+                // Serialize level info
+                VillageLevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.VillageLevelInfo],
+                    () => s.SerializeObjectArray<GBARRR_LevelInfo>(VillageLevelInfo, 3,
+                        name: nameof(VillageLevelInfo)));
+                LevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.LevelInfo],
+                    () => s.SerializeObjectArray<GBARRR_LevelInfo>(LevelInfo, 32, name: nameof(LevelInfo)));
 
-                if (GraphicsTable0 == null) GraphicsTable0 = new GBARRR_GraphicsTableEntry[counts.Length][];
-                if (GraphicsTable1 == null) GraphicsTable1 = new uint[counts.Length][];
-                if (GraphicsTable2 == null) GraphicsTable2 = new uint[counts.Length][];
-                if (GraphicsTable3 == null) GraphicsTable3 = new uint[counts.Length][];
-                if (GraphicsTable4 == null) GraphicsTable4 = new uint[counts.Length][];
+                // Get the current level info
+                var lvlInfo = GetLevelInfo(s.GameSettings);
 
-                for (int i = 0; i < counts.Length; i++)
+                // Serialize tile maps
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.LevelTilesetIndex, size =>
+                    LevelTileset = s.SerializeObject<GBARRR_Tileset>(LevelTileset, name: nameof(LevelTileset),
+                        onPreSerialize: x => x.BlockSize = size));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.BG0TilesetIndex, size =>
+                    BG0TileSet = s.SerializeObject<GBARRR_Tileset>(BG0TileSet, name: nameof(BG0TileSet),
+                        onPreSerialize: x => x.BlockSize = size));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.FGTilesetIndex, size =>
+                    FGTileSet = s.SerializeObject<GBARRR_Tileset>(FGTileSet, name: nameof(FGTileSet),
+                        onPreSerialize: x => x.BlockSize = size));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.BG1TilesetIndex, size =>
+                    BG1TileSet = s.SerializeObject<GBARRR_Tileset>(BG1TileSet, name: nameof(BG1TileSet),
+                        onPreSerialize: x => x.BlockSize = size));
+
+                // Serialize level scene
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.SceneIndex,
+                    size => LevelScene = s.SerializeObject<GBARRR_Scene>(LevelScene, name: nameof(LevelScene)));
+
+                // Serialize maps
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.BG0MapIndex, size =>
+                    BG0Map = s.SerializeObject<GBARRR_BGMapBlock>(BG0Map, name: nameof(BG0Map)));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.BG1MapIndex, size =>
+                    BG1Map = s.SerializeObject<GBARRR_BGMapBlock>(BG1Map, name: nameof(BG1Map)));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.CollisionMapIndex, size =>
+                    CollisionMap = s.SerializeObject<GBARRR_MapBlock>(CollisionMap, name: nameof(CollisionMap),
+                        onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Collision));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.LevelMapIndex, size =>
+                    LevelMap = s.SerializeObject<GBARRR_MapBlock>(LevelMap, name: nameof(LevelMap),
+                        onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Tiles));
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.FGMapIndex, size =>
+                    FGMap = s.SerializeObject<GBARRR_MapBlock>(FGMap, name: nameof(FGMap),
+                        onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Foreground));
+
+                // Serialize sprite palette
+                OffsetTable.DoAtBlock(s.Context, lvlInfo.SpritePaletteIndex, size =>
+                    SpritePalette =
+                        s.SerializeObjectArray<ARGB1555Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
+
+                // Serialize tables
+                s.DoAt(pointerTable[GBARRR_Pointer.GraphicsTables], () =>
                 {
-                    GraphicsTable0[i] = s.SerializeObjectArray<GBARRR_GraphicsTableEntry>(GraphicsTable0[i], counts[i], name: $"{nameof(GraphicsTable0)}[{i}]");
-                    GraphicsTable1[i] = s.SerializeArray<uint>(GraphicsTable1[i], counts[i], name: $"{nameof(GraphicsTable1)}[{i}]");
-                    GraphicsTable2[i] = s.SerializeArray<uint>(GraphicsTable2[i], counts[i], name: $"{nameof(GraphicsTable2)}[{i}]");
-                    GraphicsTable3[i] = s.SerializeArray<uint>(GraphicsTable3[i], counts[i], name: $"{nameof(GraphicsTable3)}[{i}]");
-                    GraphicsTable4[i] = s.SerializeArray<uint>(GraphicsTable4[i], counts[i], name: $"{nameof(GraphicsTable4)}[{i}]");
-                    if(i == 2 || i == 3) s.Serialize<uint>(1, name: "Padding");
-                }
-            });
+                    var counts = new uint[] {0x47, 0x40, 0x45, 0x44, 0x50, 0x42};
+
+                    if (GraphicsTable0 == null) GraphicsTable0 = new GBARRR_GraphicsTableEntry[counts.Length][];
+                    if (GraphicsTable1 == null) GraphicsTable1 = new uint[counts.Length][];
+                    if (GraphicsTable2 == null) GraphicsTable2 = new uint[counts.Length][];
+                    if (GraphicsTable3 == null) GraphicsTable3 = new uint[counts.Length][];
+                    if (GraphicsTable4 == null) GraphicsTable4 = new uint[counts.Length][];
+
+                    for (int i = 0; i < counts.Length; i++)
+                    {
+                        GraphicsTable0[i] = s.SerializeObjectArray<GBARRR_GraphicsTableEntry>(GraphicsTable0[i],
+                            counts[i], name: $"{nameof(GraphicsTable0)}[{i}]");
+                        GraphicsTable1[i] = s.SerializeArray<uint>(GraphicsTable1[i], counts[i],
+                            name: $"{nameof(GraphicsTable1)}[{i}]");
+                        GraphicsTable2[i] = s.SerializeArray<uint>(GraphicsTable2[i], counts[i],
+                            name: $"{nameof(GraphicsTable2)}[{i}]");
+                        GraphicsTable3[i] = s.SerializeArray<uint>(GraphicsTable3[i], counts[i],
+                            name: $"{nameof(GraphicsTable3)}[{i}]");
+                        GraphicsTable4[i] = s.SerializeArray<uint>(GraphicsTable4[i], counts[i],
+                            name: $"{nameof(GraphicsTable4)}[{i}]");
+                        if (i == 2 || i == 3) s.Serialize<uint>(1, name: "Padding");
+                    }
+                });
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public GBARRR_LevelInfo GetLevelInfo(GameSettings settings)
+        {
+            switch (GBA_RRR_Manager.GetCurrentGameMode(settings))
+            {
+                case GBA_RRR_Manager.GameMode.Game:
+                    return LevelInfo[settings.Level];
+
+                case GBA_RRR_Manager.GameMode.Village:
+                    return VillageLevelInfo[settings.Level];
+
+                case GBA_RRR_Manager.GameMode.Mode7:
+                    throw new Exception("Mode7 maps do not use level info");
+                
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         // Recreated from level load function
-        public int? GetLevelTilePaletteOffsetIndex(int level)
+        public int? GetLevelTilePaletteOffsetIndex(GameSettings settings)
         {
-            switch (level)
+            if (GBA_RRR_Manager.GetCurrentGameMode(settings) == GBA_RRR_Manager.GameMode.Village)
+            {
+                switch (settings.Level)
+                {
+                    case 0:
+                        return 0x3A6;
+
+                    case 1:
+                        return 0x3A7;
+
+                    case 2:
+                        return 0x3A8;
+                }
+            }
+
+            switch (settings.Level)
             {
                 case 0:
                 case 24:
@@ -171,7 +233,7 @@ namespace R1Engine
                 case 27:
                     return 0x394;
 
-                // 28 uses 0x3A6, 0x3A7 and 0x3A8
+                // 28 is village
 
                 case 29:
                 case 31:
