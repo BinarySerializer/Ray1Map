@@ -29,6 +29,15 @@ namespace R1Engine
                     s.DoAt(Offset + Headers[i].TileOffset, () => {
                         int length = (Headers[i + 1].TileOffset - Headers[i].TileOffset - Headers[i].ExtraBytes);
 
+                        if (determineTileSize && i == 0) {
+                            if (Math.Sqrt(length * 2) % 1 == 0) {
+                                int val = Mathf.RoundToInt(Mathf.Sqrt(length * 2));
+                                if ((val != 0) && ((val & (val - 1)) == 0)) {
+                                    TileSize = (uint)val;
+                                }
+                            }
+                        }
+
                         if (length != TileSize * TileSize / 2) {
                             s.DoEncoded(new LZSSEncoder((uint)length, hasHeader: false), () => {
                                 TileData[i] = s.SerializeArray<byte>(TileData[i], s.CurrentLength, name: $"{nameof(TileData)}[{i}]");
