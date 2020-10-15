@@ -333,6 +333,21 @@
                 case GBARRR_TileCollisionType.Damage:
                     return Unity_MapCollisionTypeGraphic.Damage;
 
+                case GBARRR_TileCollisionType.PinObj:
+                    return Unity_MapCollisionTypeGraphic.LedgeGrab;
+
+                case GBARRR_TileCollisionType.Trigger_Right:
+                    return Unity_MapCollisionTypeGraphic.Direction_Right;
+
+                case GBARRR_TileCollisionType.Trigger_Left:
+                    return Unity_MapCollisionTypeGraphic.Direction_Left;
+
+                case GBARRR_TileCollisionType.Trigger_Up:
+                    return Unity_MapCollisionTypeGraphic.Direction_Up;
+
+                case GBARRR_TileCollisionType.Trigger_Down:
+                    return Unity_MapCollisionTypeGraphic.Direction_Down;
+
                 case GBARRR_TileCollisionType.Solid_Left_1:
                     return Unity_MapCollisionTypeGraphic.Hill_Slight_Left_1;
 
@@ -353,6 +368,9 @@
 
                 case GBARRR_TileCollisionType.InstaKill:
                     return Unity_MapCollisionTypeGraphic.Spikes;
+
+                case GBARRR_TileCollisionType.Slippery:
+                    return Unity_MapCollisionTypeGraphic.Slippery;
 
                 default:
                     return Unity_MapCollisionTypeGraphic.Unknown0;

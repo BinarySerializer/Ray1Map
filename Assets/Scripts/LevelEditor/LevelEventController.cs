@@ -517,13 +517,16 @@ namespace R1Engine
                     {
                         var eventData = LevelEditorData.ObjManager.CreateObject(eventDropdown.value);
 
-                        eventData.XPosition = (short)(mox - eventData.Pivot.x);
-                        eventData.YPosition = (short)(-moy + eventData.Pivot.y);
+                        if (eventData != null)
+                        {
+                            eventData.XPosition = (short)(mox - eventData.Pivot.x);
+                            eventData.YPosition = (short)(-moy + eventData.Pivot.y);
 
-                        LevelEditorData.Level.EventData.Add(eventData);
-                        var eve = AddEvent(eventData);
+                            LevelEditorData.Level.EventData.Add(eventData);
+                            var eve = AddEvent(eventData);
 
-                        Controller.obj.levelController.Objects.Add(eve);
+                            Controller.obj.levelController.Objects.Add(eve);
+                        }
                     }
                 }
                 //Detect event under mouse when clicked

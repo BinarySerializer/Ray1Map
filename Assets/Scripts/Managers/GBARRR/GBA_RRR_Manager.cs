@@ -104,8 +104,7 @@ namespace R1Engine
             Graphics = 1 << 2,
             Palettes = 1 << 3,
             LevelBlocks = 1 << 4,
-            LevelTilesets = 1 << 5,
-            Tilesets = 1 << 6,
+            Tilesets = 1 << 5,
 
             All = Normal | Vignette | Graphics | Palettes | LevelBlocks | Tilesets
         }
