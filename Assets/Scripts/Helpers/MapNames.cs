@@ -419,9 +419,9 @@ namespace R1Engine
                 [16] = "The sticky lair",
             },
             [3] = new Dictionary<int, string>() {
-                [27] = "The desert of desserts",
-                [28] = "Cake race",
-                [29] = "The sweet islands",
+                [17] = "The desert of desserts",
+                [18] = "Cake race",
+                [19] = "The sweet islands",
                 [20] = "Not a piece of cake!",
                 [21] = "Tart tunnels",
                 [22] = "Ginger-bunny-bread",

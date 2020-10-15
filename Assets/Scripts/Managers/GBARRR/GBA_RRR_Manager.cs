@@ -247,6 +247,14 @@ namespace R1Engine
         {
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
 
+            var lvl = context.Settings.Level;
+            var world = context.Settings.World;
+
+            if (GetCurrentGameMode(context.Settings) == GameMode.Village)
+                lvl = 28;
+
+            Debug.Log($"RRR level: {world}-{lvl} ({GetCurrentGameMode(context.Settings)})");
+
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
@@ -274,20 +282,13 @@ namespace R1Engine
                 TileSet = new Unity_MapTileMap[] { bg1Tileset },
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
-            var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset);
-            var fgMap = LoadMap(rom.FGMap, null, fgTileset);
+            var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset, world);
+            var fgMap = LoadMap(rom.FGMap, null, fgTileset, world);
 
             await Controller.WaitIfNecessary();
 
-            var lvl = context.Settings.Level;
-
-            if (GetCurrentGameMode(context.Settings) == GameMode.Village)
-                lvl = 28;
-
-            Debug.Log($"RRR level: {context.Settings.World}-{lvl} ({GetCurrentGameMode(context.Settings)})");
-
             SerializerObject s = context.Deserializer;
-            var dict = LoadActorGraphics(s, rom, lvl, context.Settings.World);
+            var dict = LoadActorGraphics(s, rom, lvl, world);
             var graphicsData = new List<Unity_ObjectManager_GBARRR.GraphicsData>();
 
             var actorIndex = 0;
@@ -298,7 +299,7 @@ namespace R1Engine
                 Controller.DetailedState = $"Loading actor {actorIndex + 1}/{rom.LevelScene.Actors.Length}";
                 await Controller.WaitIfNecessary();
 
-                AssignActorValues(act, rom, lvl, context.Settings.World);
+                AssignActorValues(act, rom, lvl, world);
 
                 if (act.P_GraphicsOffset != 0)
                 {
@@ -416,7 +417,7 @@ namespace R1Engine
             }
         }
 
-        public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset)
+        public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, int world)
         {
             var map = new Unity_Map
             {
@@ -430,8 +431,8 @@ namespace R1Engine
                 MapTiles = new Unity_Tile[mapBlock.MapWidth * 4 * mapBlock.MapHeight * 4]
             };
 
-            // TODO: Correct alpha level and only do this on maps which use it
-            if (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground) {
+            // TODO: Correct alpha level
+            if (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && world == 2 || world == 3 || world == 4) {
                 map.IsAdditive = true;
                 map.Alpha = 0.5f;
             }

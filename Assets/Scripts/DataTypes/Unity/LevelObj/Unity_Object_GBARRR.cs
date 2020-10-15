@@ -51,7 +51,7 @@ namespace R1Engine
         }
 
         public override Unity_ObjAnimation CurrentAnimation => GraphicsData?.Animation;
-        public override int AnimSpeed => 2; // TODO: Fix
+        public override int AnimSpeed => 5; // TODO: Fix
         public override int? GetAnimIndex => 0;
         protected override int GetSpriteID => GraphicsDataIndex;
         public override IList<Sprite> Sprites => GraphicsData?.AnimFrames;
