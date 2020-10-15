@@ -30,7 +30,7 @@ namespace R1Engine
         {
             new GameAction("Export Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Normal)), 
             new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Vignette)),
-            new GameAction("Export Actor Graphics (Used & Unused, No Palette)", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.All)),
+            new GameAction("Export Categorized & Converted Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.All)),
             new GameAction("Export Actor Graphics", false, true, (input, output) => ExportGraphicsAsync(settings, output)),
         };
 
@@ -82,10 +82,10 @@ namespace R1Engine
             Vignette = 1 << 1,
             Graphics = 1 << 2,
             Palettes = 1 << 3,
-            SkipLevelBlocks = 1 << 4,
+            LevelBlocks = 1 << 4,
+            Tilesets = 1 << 5,
 
-            AllNoSkip = Normal | Vignette | Graphics | Palettes,
-            All = AllNoSkip | SkipLevelBlocks
+            All = Normal | Vignette | Graphics | Palettes | LevelBlocks | Tilesets
         }
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, ExportFlags flags)
@@ -124,10 +124,22 @@ namespace R1Engine
 
                     rom.OffsetTable.DoAtBlock(context, i, size =>
                     {
+                        Pointer blockOff = s.CurrentPointer;
                         bool exported = false;
+
+                        // Level blocks
+                        if (!exported && flags.HasFlag(ExportFlags.LevelBlocks)) {
+                            if (lvlBlocks.Contains(i)) {
+                                exported = true;
+                                var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
+
+                                Util.ByteArrayToFile(Path.Combine(outputPath, $"LevelBlocks/{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
+                            }
+                        }
 
                         // Vignette
                         if (!exported && flags.HasFlag(ExportFlags.Vignette)) {
+                            s.Goto(blockOff);
                             if (size == (256 * 2) + (vigWidth * vigHeight)) {
                                 var vig = s.SerializeObject<GBARRR_Vignette>(default, name: $"Vignette[{i}]");
 
@@ -153,24 +165,43 @@ namespace R1Engine
 
                         // Graphics
                         if (!exported && flags.HasFlag(ExportFlags.Graphics)) {
+                            s.Goto(blockOff);
                             try {
                                 var gb = s.SerializeObject<GBARRR_GraphicsBlock>(default, name: $"GraphicsBlock[{i}]");
                                 if (gb.Count != 0) {
                                     int tileDataSize = gb.TileData[0].Length;
                                     if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
-                                        gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
+                                        //gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
                                         ExportSpriteFrames(gb, pal, 0, Path.Combine(outputPath, $"ActorGraphics/{i}_{absoluteOffset:X8}/"));
                                         exported = true;
-                                    }
+                                    }/* else {
+                                        UnityEngine.Debug.Log($"Possible Graphics block {i}: {Math.Sqrt(tileDataSize * 2)} - {tileDataSize}");
+                                    }*/
                                 }
                             } catch (Exception ex) {
                             }
                         }
 
+                        // Tilesets
+                        if (!exported && flags.HasFlag(ExportFlags.Tilesets)) {
+                            s.Goto(blockOff);
+                            if (size > 0x200 && ((size - 0x200) % 0x20) == 0) {
+                                try {
+                                    var tileset = s.SerializeObject<GBARRR_Tileset>(default, onPreSerialize: t => t.BlockSize = size, name: $"Tileset[{i}]");
+                                    int length = tileset.Data.Length;
+                                    bool is4Bit = (length % 0x40 != 0);
+                                    var ts = LoadTileSet(tileset, is4Bit, palCount: is4Bit ? 16 : 1);
+                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"Tilesets/{i}_{absoluteOffset:X8}.png"), ts.Tiles[0].texture.EncodeToPNG());
+                                    exported = true;
+                                } catch (Exception ex) {
+                                }
+                            }
+                        }
+
                         // Palettes
-                        if (!exported && flags.HasFlag(ExportFlags.Palettes))
-                        {
-                            if (size == 512)
+                        if (!exported && flags.HasFlag(ExportFlags.Palettes)) {
+                            s.Goto(blockOff);
+                            if (size == 0x200)
                             {
                                 var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette[{i}]");
                                 PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Palette/{i}_{absoluteOffset:X8}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
@@ -178,14 +209,9 @@ namespace R1Engine
                             }
                         }
 
-                        if (!exported && flags.HasFlag(ExportFlags.SkipLevelBlocks))
-                        {
-                            if (lvlBlocks.Contains(i))
-                                exported = true;
-                        }
-
                         // Binary
                         if (!exported && flags.HasFlag(ExportFlags.Normal)) {
+                            s.Goto(blockOff);
                             var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
 
                             Util.ByteArrayToFile(Path.Combine(outputPath, $"Uncategorized/{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);

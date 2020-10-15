@@ -1,4 +1,7 @@
-﻿namespace R1Engine
+﻿using System;
+using UnityEngine;
+
+namespace R1Engine
 {
     public class GBARRR_GraphicsBlock : R1Serializable
     {
@@ -10,12 +13,13 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
+            bool determineTileSize = false;
             if (Count == 0) {
-                Headers = s.SerializeObjectArray<Header>(Headers, 1, name: nameof(Headers));
+                Headers = s.SerializeObjectArray<Header>(Headers, 2, name: nameof(Headers));
 
                 if(Headers[0].TileOffset % 4 != 0 || Headers[0].ExtraBytes >= 4 || (Headers[0].TileOffset / 4) < 2) return; // Invalid
                 Count = (uint)(Headers[0].TileOffset / 4) - 1;
-
+                determineTileSize = true;
                 s.Goto(Offset);
             }
             Headers = s.SerializeObjectArray<Header>(Headers, Count + 1, name: nameof(Headers));
@@ -31,6 +35,12 @@
                             });
                         } else {
                             TileData[i] = s.SerializeArray<byte>(TileData[i], length, name: $"{nameof(TileData)}[{i}]");
+                        }
+                        if (determineTileSize && i == 0) {
+                            int len = TileData[i].Length;
+                            if (Math.Sqrt(len * 2) % 1 == 0) {
+                                TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(len * 2));
+                            }
                         }
                     });
                 }
