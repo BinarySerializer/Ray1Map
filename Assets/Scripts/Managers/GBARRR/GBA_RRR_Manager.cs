@@ -279,16 +279,16 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            SerializerObject s = context.Deserializer;
-            var dict = LoadActorGraphics(s, rom, 1, 4);
-            var graphicsData = new List<Unity_ObjectManager_GBARRR.GraphicsData>();
-
             var lvl = context.Settings.Level;
 
             if (GetCurrentGameMode(context.Settings) == GameMode.Village)
                 lvl = 28;
 
             Debug.Log($"RRR level: {context.Settings.World}-{lvl} ({GetCurrentGameMode(context.Settings)})");
+
+            SerializerObject s = context.Deserializer;
+            var dict = LoadActorGraphics(s, rom, lvl, context.Settings.World);
+            var graphicsData = new List<Unity_ObjectManager_GBARRR.GraphicsData>();
 
             var actorIndex = 0;
 
@@ -298,29 +298,34 @@ namespace R1Engine
                 Controller.DetailedState = $"Loading actor {actorIndex + 1}/{rom.LevelScene.Actors.Length}";
                 await Controller.WaitIfNecessary();
 
-                AssignActorValues(act, rom, context.Settings.World, lvl);
+                AssignActorValues(act, rom, lvl, context.Settings.World);
 
                 if (act.P_GraphicsOffset != 0)
                 {
                     if (!dict.ContainsKey(act.P_GraphicsOffset))
-                        Debug.Log($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
+                        Debug.LogWarning($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
                     else
                         act.GraphicsBlock = dict[act.P_GraphicsOffset];
 
-                    if (act.GraphicsBlock == null)
-                        continue;
-
-                    if (act.P_PaletteIndex < 16)
+                    if (act.GraphicsBlock != null)
                     {
-                        graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset, GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex).Select(x => x.CreateSprite()).ToArray()));
-                    }
-                    else
-                    {
-                        rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex, size => act.Palette = s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
+                        if (act.P_PaletteIndex < 16)
+                        {
+                            graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
+                                GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int) act.P_PaletteIndex)
+                                    .Select(x => x.CreateSprite()).ToArray()));
+                        }
+                        else
+                        {
+                            rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex,
+                                size => act.Palette =
+                                    s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
 
-                        graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset, GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite()).ToArray()));
+                            graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
+                                GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite())
+                                    .ToArray()));
+                        }
                     }
-
                 }
 
                 actorIndex++;
