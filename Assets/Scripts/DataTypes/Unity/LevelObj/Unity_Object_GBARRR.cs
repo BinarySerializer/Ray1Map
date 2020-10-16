@@ -27,7 +27,10 @@ namespace R1Engine
             set => Actor.YPosition = value;
         }
 
-        public override string DebugText => String.Empty;
+        public override string DebugText =>
+              $"UShort_0C: {Actor.Ushort_0C}{Environment.NewLine}" +
+              $"P_GraphicsIndex: {Actor.P_GraphicsIndex}{Environment.NewLine}" +
+              $"P_GraphicsOffset: {Actor.P_GraphicsOffset:X8}{Environment.NewLine}";
 
         public override ILegacyEditorWrapper LegacyWrapper { get; }
 

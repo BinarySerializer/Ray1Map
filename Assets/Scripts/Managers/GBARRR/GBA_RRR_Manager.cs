@@ -1137,14 +1137,15 @@ namespace R1Engine
                     }
                     LoadGraphicsBlock(0x10, 1, 0x20); // What is this? It loads at the end of every world block and I have no idea at what address
                 }
+            } else {
+                memAddressDict[0x03002E78] = LoadGraphicsBlock(0x000002EF, 7, 0x20);
+                memAddressDict[0x0300372C] = LoadGraphicsBlock(0x0000019D, 0x1d, 0x40);
+                memAddressDict[0x03005204] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
+                memAddressDict[0x030028C4] = LoadGraphicsBlock(0x19e, 0x21, 0x40);
+                memAddressDict[0x0300258C] = LoadGraphicsBlock(0x0000019F, 10, 0x40);
+                memAddressDict[0x03004378] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
+                memAddressDict[0x03002F0C] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
             }
-            memAddressDict[0x03002E78] = LoadGraphicsBlock(0x000002EF, 7, 0x20);
-            memAddressDict[0x0300372C] = LoadGraphicsBlock(0x0000019D, 0x1d, 0x40);
-            memAddressDict[0x03005204] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
-            memAddressDict[0x030028C4] = LoadGraphicsBlock(0x19e, 0x21, 0x40);
-            memAddressDict[0x0300258C] = LoadGraphicsBlock(0x0000019F, 10, 0x40);
-            memAddressDict[0x03004378] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
-            memAddressDict[0x03002F0C] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
 
             return memAddressDict;
         }
@@ -1156,7 +1157,7 @@ namespace R1Engine
             if (graphicsEntry == null) return;
             actor.P_GraphicsIndex = graphicsEntry.Value;
             actor.P_30 = rom.GraphicsTable1[world][actor.P_GraphicsIndex];
-            actor.P_AnimIndex = rom.GraphicsTable2[world][actor.P_GraphicsIndex];
+            actor.P_FrameCount = rom.GraphicsTable2[world][actor.P_GraphicsIndex];
 
             switch (world) {
                 case 0:
@@ -1283,7 +1284,7 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x2e) {
                         actor.P_GraphicsOffset = 0x03002F0C;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 0x00000195;
                         actor.P_Field12 = 6;
                         actor.P_Field34 = actor.P_Field34 | 0x200;
@@ -1301,13 +1302,13 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x34) {
                         actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
                     if (actor.P_GraphicsIndex == 0x35) {
                         actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
@@ -1366,7 +1367,7 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x42) {
                         actor.P_GraphicsOffset = 0x030022B8;
-                        actor.P_Field18 = 0x0300234C;
+                        actor.P_OtherGraphicsOffset = 0x0300234C;
                         actor.P_Field20 = 100;
                         actor.P_PaletteIndex = 0x148;
                     }
@@ -1446,7 +1447,7 @@ namespace R1Engine
                     if (actor.P_GraphicsIndex == 0x2b) {
                         actor.P_GraphicsOffset = 0x030051A0;
                         actor.P_PaletteIndex = 0x1dc;
-                        actor.P_AnimIndex = 5;
+                        actor.P_FrameCount = 5;
                         actor.P_Field34 = actor.P_Field12;
                     }
                     if (actor.P_GraphicsIndex == 0x2c) {
@@ -1475,13 +1476,13 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x34) {
                         actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
                     if (actor.P_GraphicsIndex == 0x35) {
                         actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
@@ -1551,13 +1552,13 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x34) {
                         actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
                     if (actor.P_GraphicsIndex == 0x35) {
                         actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
@@ -1694,7 +1695,7 @@ namespace R1Engine
                         actor.P_SpriteHeight = 0;
                         //actor.P_Field0E = actor.RuntimeXPosition << 2;
                         actor.P_Field2E = (short)0x00000341;
-                        actor.P_AnimIndex = 0xb;
+                        actor.P_FrameCount = 0xb;
                         actor.P_RuntimeAnimFrame = 1;
                         actor.P_Field10 = 1;
                         actor.P_Field14 = 200;
@@ -1748,13 +1749,13 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x34) {
                         actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
                     if (actor.P_GraphicsIndex == 0x35) {
                         actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
@@ -1851,7 +1852,7 @@ namespace R1Engine
                     if (actor.P_GraphicsIndex == 0x28) {
                         if (level == 0) {
                             actor.P_GraphicsOffset = 0x030051B8;
-                            actor.P_AnimIndex = 0xd;
+                            actor.P_FrameCount = 0xd;
                             actor.P_PaletteIndex = 0x00000282;
                         } else {
                             if (level == 0x18) {
@@ -1871,7 +1872,7 @@ namespace R1Engine
                     if (actor.P_GraphicsIndex == 0x2a) {
                         if (level == 0) {
                             actor.P_GraphicsOffset = 0x03004338;
-                            actor.P_AnimIndex = 0x1d;
+                            actor.P_FrameCount = 0x1d;
                             actor.P_PaletteIndex = 0x288;
                         } else {
                             if (level == 0x18) {
@@ -1886,7 +1887,7 @@ namespace R1Engine
                     if (actor.P_GraphicsIndex == 0x2b) {
                         if (level == 0) {
                             actor.P_GraphicsOffset = 0x03004330;
-                            actor.P_AnimIndex = 6;
+                            actor.P_FrameCount = 6;
                             actor.P_PaletteIndex = 0x284;
                         } else {
                             if (level == 0x18) {
@@ -1901,7 +1902,7 @@ namespace R1Engine
                     if (actor.P_GraphicsIndex == 0x2c) {
                         if (level == 0) {
                             actor.P_GraphicsOffset = 0x03002580;
-                            actor.P_AnimIndex = 6;
+                            actor.P_FrameCount = 6;
                             actor.P_PaletteIndex = 0x00000286;
                         } else {
                             if (level == 0x18) {
@@ -1915,7 +1916,7 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x2e) {
                         actor.P_GraphicsOffset = 0x03002F0C;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 0x00000195;
                         actor.P_Field12 = 6;
                         actor.P_Field34 = actor.P_Field34 | 0x200;
@@ -1947,19 +1948,19 @@ namespace R1Engine
                             if (level == 0) {
                                 actor.P_Field34 = actor.P_Field34 | 0x200;
                             } else {
-                                actor.P_AnimIndex = 1;
+                                actor.P_FrameCount = 1;
                             }
                         }
                     }
                     if (actor.P_GraphicsIndex == 0x34) {
                         actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
                     if (actor.P_GraphicsIndex == 0x35) {
                         actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
@@ -1974,7 +1975,7 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x38) {
                         actor.P_GraphicsOffset = 0x03004340;
-                        actor.P_Field18 = 0x03004010;
+                        actor.P_OtherGraphicsOffset = 0x03004010;
                         actor.P_PaletteIndex = 0x2ac;
                         actor.P_Field12 = 0;
                     }
@@ -1993,7 +1994,7 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x3c) {
                         actor.P_GraphicsOffset = 0x030022B8;
-                        actor.P_Field18 = 0x0300234C;
+                        actor.P_OtherGraphicsOffset = 0x0300234C;
                         actor.P_Field14 = 0x03004020;
                         actor.P_Field0E = 4;
                         actor.P_Field10 = 0x40;
@@ -2034,7 +2035,7 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x27) {
                         actor.P_Field34 = actor.P_Field34 | 0x200;
-                        actor.P_AnimIndex = 5;
+                        actor.P_FrameCount = 5;
                         actor.P_Field2E = 0x32c;
                         actor.P_PaletteIndex = 0x328;
                         actor.P_Field34 = actor.P_Field34 | 1;
@@ -2155,7 +2156,7 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x2e) {
                         actor.P_GraphicsOffset = 0x03002F0C;
-                        actor.P_AnimIndex = 10;
+                        actor.P_FrameCount = 10;
                         actor.P_PaletteIndex = 0x19c;
                         actor.P_Field12 = 6;
                         actor.P_Field34 = actor.P_Field34 | 0x200;
@@ -2163,13 +2164,13 @@ namespace R1Engine
                     }
                     if (actor.P_GraphicsIndex == 0x34) {
                         actor.P_GraphicsOffset = 0x03002324;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
                     if (actor.P_GraphicsIndex == 0x35) {
                         actor.P_GraphicsOffset = 0x03004264;
-                        actor.P_AnimIndex = 8;
+                        actor.P_FrameCount = 8;
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }

@@ -34,12 +34,12 @@
         public uint P_GraphicsIndex { get; set; }
         public uint P_GraphicsOffset { get; set; }
         public uint P_30 { get; set; }
-        public uint P_AnimIndex { get; set; }
+        public uint P_FrameCount { get; set; }
         public uint P_PaletteIndex { get; set; }
         public uint P_FunctionPointer { get; set; }
         public uint P_Field12 { get; set; }
         public uint P_Field14 { get; set; }
-        public uint P_Field18 { get; set; }
+        public uint P_OtherGraphicsOffset { get; set; }
         public uint P_Field20 { get; set; }
         public short P_RuntimeXPos { get; set; }
         public short P_RuntimeAnimFrame { get; set; }
