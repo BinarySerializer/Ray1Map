@@ -497,13 +497,15 @@ namespace R1Engine
             bool modeR1Links = editor.currentMode == LevelEditorBehaviour.EditMode.Links && LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA && FileSystem.mode != FileSystem.Mode.Web;
             bool modeGBALinks = editor.currentMode == LevelEditorBehaviour.EditMode.Links && LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA && FileSystem.mode != FileSystem.Mode.Web;
 
+            bool lctrl = Input.GetKey(KeyCode.LeftControl);
+
             outlineManager.Highlight = editor.objectHighlight.highlightedObject;
             outlineManager.Active = SelectedEvent;
             if ( modeEvents || modeR1Links ) 
             {
                 outlineManager.Active = SelectedEvent;
-                // Add events with rmb
-                if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject() && modeEvents && FileSystem.mode != FileSystem.Mode.Web) 
+                // Add events with ctrl+lmb
+                if (lctrl && Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject() && modeEvents && FileSystem.mode != FileSystem.Mode.Web) 
                 {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     var mox = mousepo.x * LevelEditorData.Level.PixelsPerUnit;
@@ -530,7 +532,7 @@ namespace R1Engine
                     }
                 }
                 //Detect event under mouse when clicked
-                if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) 
+                if (!lctrl && Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) 
                 {
                     var e = editor.objectHighlight.highlightedObject;
                     if (e != null) ClickedEvent = e;
@@ -548,7 +550,7 @@ namespace R1Engine
                 }
                 if (ClickedEvent != null) {
                     if (FileSystem.mode == FileSystem.Mode.Web) {
-                        if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject()) {
+                        if (!lctrl && Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject()) {
                             var e = editor.objectHighlight.highlightedObject;
                             ClickEvent(ClickedEvent);
                         }
@@ -556,7 +558,7 @@ namespace R1Engine
                 }
 
                 // Drag and move the event
-                if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
+                if (!lctrl && Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) 
                 {
                     if (SelectedEvent != null && SelectedEvent == ClickedEvent) 
                     {
@@ -576,8 +578,8 @@ namespace R1Engine
                     }
                 }
 
-                //Confirm links with rmb
-                if (Input.GetMouseButtonDown(1) && modeR1Links && SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
+                //Confirm links with ctrl+lmb
+                if (lctrl && Input.GetMouseButtonDown(0) && modeR1Links && SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
                 {
                     bool alone = true;
                     

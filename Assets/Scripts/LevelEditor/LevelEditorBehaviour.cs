@@ -12,6 +12,7 @@ namespace R1Engine
         //Settings
         public int autoScrollMargin = 60;
         public float autoScrollSpeed = 5;
+        public bool selectSwitch = true;
         //Colours for selections
         public Color colorSelect, colorNew, colorDelete;
         //References
@@ -29,6 +30,8 @@ namespace R1Engine
         public GameObject layerTiles;
         public GameObject layerTypes;
         public GameObject layerEvents;
+        //Text for mode
+        public Text selectSwitchText;
 
         //Current tile under the mouse
         public Unity_Tile mouseTile;
@@ -210,6 +213,17 @@ namespace R1Engine
         
             //Tile editing
             if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
+                //Switch for changing if selecting/drawing
+                if (Input.GetKeyDown(KeyCode.LeftControl)) {
+                    selectSwitch = !selectSwitch;
+                    if (selectSwitch) {
+                        selectSwitchText.text = "Selecting";
+                    }
+                    else {
+                        selectSwitchText.text = "Pasting";
+                    }
+                }
+
                 // Get the tile under the mouse
                 Vector3 mousePositionTile = lvlController.controllerTilemap.MouseToTileCoords(mousePosition);
                 Vector2Int mouseTileInt = lvlController.controllerTilemap.MouseToTileInt(mousePosition);
@@ -224,7 +238,7 @@ namespace R1Engine
                 // Left click begins drag and assigns the starting corner of the selection square
                 if (!dragging && mouseTile != null) {
                     if (!EventSystem.current.IsPointerOverGameObject()) {
-                        if (GetMouseButtonDown(0)) {
+                        if (GetMouseButtonDown(0) && selectSwitch) {
                             tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
                             dragging = true;
                             selecting = true;
@@ -232,7 +246,7 @@ namespace R1Engine
                             if (currentMode == EditMode.Tiles)
                                 lvlTilemapController.ClearPreviewTilemap();
                         }
-                        if (GetMouseButtonDown(1)) {
+                        if (GetMouseButtonDown(0) && !selectSwitch) {
                             tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
                             dragging = true;
                             selecting = false;
@@ -300,7 +314,7 @@ namespace R1Engine
                     if (currentMode == EditMode.Tiles) 
                     {
                         // If dragging and selecting mouse up, record the selection
-                        if (selecting && !GetMouseButton(0)) {
+                        if (selecting && !GetMouseButton(0) && selectSwitch) {
                             dragging = false;
 
                             // Create array for selected area
@@ -328,7 +342,7 @@ namespace R1Engine
                             }
                         }
                         // If dragging and painting mouse up, set the selection
-                        if (!selecting && GetMouseButtonUp(1)) {
+                        if (!selecting && GetMouseButtonUp(0) && !selectSwitch) {
                             dragging = false;
                             if (selection != null) {
                                 if (!lvlTilemapController.focusedOnTemplate) {
@@ -368,7 +382,7 @@ namespace R1Engine
                     else if (currentMode == EditMode.Collisions) 
                     {
                         //If dragging and selecting mouse up; clear types
-                        if (selecting && !GetMouseButton(0))
+                        if (selecting && !GetMouseButton(0) && selectSwitch)
                         {
                             dragging = false;
 
@@ -388,7 +402,7 @@ namespace R1Engine
                             }
                         }
                         // Fill with selected type
-                        if (!selecting && GetMouseButtonUp(1)) {
+                        if (!selecting && GetMouseButtonUp(0) && !selectSwitch) {
                             dragging = false;
                             // "Paste" the selection
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
