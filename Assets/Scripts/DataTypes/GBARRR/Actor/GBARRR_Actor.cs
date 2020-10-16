@@ -1,4 +1,7 @@
-﻿namespace R1Engine
+﻿using System;
+using UnityEngine;
+
+namespace R1Engine
 {
     public class GBARRR_Actor : R1Serializable
     {
@@ -21,7 +24,7 @@
         public byte Runtime_Byte_27 { get; set; }
         public byte RuntimeSpriteWidth { get; set; }
         public byte RuntimeSpriteHeight { get; set; }
-        public byte ObjectType { get; set; } // Used as index (-1) in function table at 0x0800e86c in ROM
+        public GBARRR_ActorType ObjectType { get; set; } // Used as index (-1) in function table at 0x0800e86c in ROM
         public byte Runtime_Byte_2B { get; set; }
         public ushort Runtime_Ushort_2C { get; set; }
         public ushort Runtime_Ushort_2E { get; set; }
@@ -76,7 +79,7 @@
             Runtime_Byte_27 = s.Serialize<byte>(Runtime_Byte_27, name: nameof(Runtime_Byte_27));
             RuntimeSpriteWidth = s.Serialize<byte>(RuntimeSpriteWidth, name: nameof(RuntimeSpriteWidth));
             RuntimeSpriteHeight = s.Serialize<byte>(RuntimeSpriteHeight, name: nameof(RuntimeSpriteHeight));
-            ObjectType = s.Serialize<byte>(ObjectType, name: nameof(ObjectType));
+            ObjectType = s.Serialize<GBARRR_ActorType>(ObjectType, name: nameof(ObjectType));
             Runtime_Byte_2B = s.Serialize<byte>(Runtime_Byte_2B, name: nameof(Runtime_Byte_2B));
             Runtime_Ushort_2C = s.Serialize<ushort>(Runtime_Ushort_2C, name: nameof(Runtime_Ushort_2C));
             Runtime_Ushort_2E = s.Serialize<ushort>(Runtime_Ushort_2E, name: nameof(Runtime_Ushort_2E));
@@ -84,6 +87,9 @@
             Runtime_Uint_34 = s.Serialize<uint>(Runtime_Uint_34, name: nameof(Runtime_Uint_34));
             RuntimeAnimFrame = s.Serialize<int>(RuntimeAnimFrame, name: nameof(RuntimeAnimFrame));
             RuntimeAnimOffset = s.Serialize<uint>(RuntimeAnimOffset, name: nameof(RuntimeAnimOffset));
+
+            if (!Enum.IsDefined(typeof(GBARRR_ActorType), ObjectType))
+                Debug.LogWarning($"Actor type {ObjectType} is not defined");
         }
     }
 }

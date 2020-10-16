@@ -36,8 +36,8 @@ namespace R1Engine
 
         public override bool IsEditor => Actor.ObjectType == 0;
 
-        public override string PrimaryName => $"Type_{Actor.ObjectType}";
-        public override string SecondaryName => String.Empty;
+        public override string PrimaryName => $"Type_{(byte)Actor.ObjectType}";
+        public override string SecondaryName => $"{Actor.ObjectType}";
 
         public Unity_ObjectManager_GBARRR.GraphicsData GraphicsData => ObjManager.GraphicsDatas.ElementAtOrDefault(GraphicsDataIndex);
         public int GraphicsDataIndex
