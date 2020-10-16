@@ -252,6 +252,12 @@ namespace R1Engine
             if (GetCurrentGameMode(context.Settings) == GameMode.Village)
                 lvl = 28;
 
+            // Shooting Range 2 should be set to the values of Shooting Range 1
+            if (lvl == 31) {
+                lvl = 29;
+                world = 0;
+            }
+
             Debug.Log($"RRR level: {world}-{lvl} ({GetCurrentGameMode(context.Settings)})");
 
             Controller.DetailedState = $"Loading tile set";
@@ -2178,7 +2184,6 @@ namespace R1Engine
                         actor.P_PaletteIndex = 2;
                         actor.P_Field12 = 0;
                     }
-                    actor.P_GraphicsIndex = actor.P_GraphicsIndex;
                     if (actor.P_GraphicsIndex == 0x3a) {
                         actor.P_GraphicsOffset = 0x03004F6C;
                         actor.P_PaletteIndex = 0x0000017F;
