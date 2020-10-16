@@ -106,6 +106,38 @@ namespace R1Engine
             return match;
         }
 
+        public override int MaxObjectCount
+        {
+            get
+            {
+                switch (Context.Settings.EngineVersion)
+                {
+                    case EngineVersion.R1_PS1_JPDemoVol3:
+                    case EngineVersion.R1_PS1_JPDemoVol6:
+                    case EngineVersion.R1_PS1:
+                    case EngineVersion.R1_PS1_JP:
+                    case EngineVersion.R1_Saturn:
+                        return 254; // Event index is a byte, 0xFF is Rayman
+
+                    case EngineVersion.R2_PS1:
+                        return 254; // Event index is a short, so might be higher
+
+                    case EngineVersion.R1_PC:
+                    case EngineVersion.R1_PocketPC:
+                    case EngineVersion.R1_GBA:
+                    case EngineVersion.R1_DSi:
+                        return 254; // Event index is a short, so might be higher
+
+                    case EngineVersion.R1_PC_Kit:
+                    case EngineVersion.R1_PC_Edu:
+                    case EngineVersion.R1_PS1_Edu:
+                        return 700; // This is the max in KIT - same in EDU?
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
         public override string[] GetAvailableObjects => AvailableEvents.Select(x => x.Name).ToArray();
         public override Unity_Object CreateObject(int index)
         {

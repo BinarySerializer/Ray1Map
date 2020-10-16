@@ -517,17 +517,21 @@ namespace R1Engine
                     // Don't add if clicked outside of the level bounds
                     if (mox > 0 && -moy > 0 && mox < maxWidth * LevelEditorData.Level.CellSize && -moy < maxHeight * LevelEditorData.Level.CellSize) 
                     {
-                        var eventData = LevelEditorData.ObjManager.CreateObject(eventDropdown.value);
-
-                        if (eventData != null)
+                        // Make sure we haven't exceeded the max count
+                        if (LevelEditorData.Level.EventData.Count < LevelEditorData.ObjManager.MaxObjectCount)
                         {
-                            eventData.XPosition = (short)(mox - eventData.Pivot.x);
-                            eventData.YPosition = (short)(-moy + eventData.Pivot.y);
+                            var eventData = LevelEditorData.ObjManager.CreateObject(eventDropdown.value);
 
-                            LevelEditorData.Level.EventData.Add(eventData);
-                            var eve = AddEvent(eventData);
+                            if (eventData != null)
+                            {
+                                eventData.XPosition = (short)(mox - eventData.Pivot.x);
+                                eventData.YPosition = (short)(-moy + eventData.Pivot.y);
 
-                            Controller.obj.levelController.Objects.Add(eve);
+                                LevelEditorData.Level.EventData.Add(eventData);
+                                var eve = AddEvent(eventData);
+
+                                Controller.obj.levelController.Objects.Add(eve);
+                            }
                         }
                     }
                 }

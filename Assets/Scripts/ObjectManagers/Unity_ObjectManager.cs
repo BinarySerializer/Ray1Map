@@ -15,6 +15,7 @@ namespace R1Engine
 
         public Context Context { get; }
 
+        public virtual int MaxObjectCount => Byte.MaxValue;
         public virtual string[] GetAvailableObjects => new string[0];
         public virtual Unity_Object CreateObject(int index) => null;
 
