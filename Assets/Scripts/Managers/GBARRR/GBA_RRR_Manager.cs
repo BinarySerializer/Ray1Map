@@ -282,8 +282,10 @@ namespace R1Engine
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
 
+            var hasFGMap = !(GetCurrentGameMode(context.Settings) == GameMode.Village && context.Settings.Level == 2);
+
             var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
-            var fgMap = LoadMap(rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl));
+            var fgMap = hasFGMap ? LoadMap(rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
 
             await Controller.WaitIfNecessary();
 
@@ -342,12 +344,17 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             return new Unity_Level(
-                maps: new Unity_Map[]
+                maps: hasFGMap ? new Unity_Map[]
                 {
                     bg0Map,
                     bg1Map,
                     levelMap,
                     fgMap
+                } : new Unity_Map[]
+                {
+                    bg0Map,
+                    bg1Map,
+                    levelMap,
                 }, 
                 objManager: objManager,
                 eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager)).ToList(),
@@ -2301,6 +2308,7 @@ namespace R1Engine
                 case 20:
                 case 21:
                 case 22:
+                case 28:
                     return 14;
                 
                 default:
@@ -2309,7 +2317,7 @@ namespace R1Engine
         }
 
         protected bool HasAlphaBlending(int world, int level) =>
-            (world == 2 || world == 3 || world == 4 || level == 11 || level == 29 || level == 31) && level != 27;
+            (world == 2 || world == 3 || world == 4 || level == 11 || level == 28 || level == 29 || level == 31) && level != 27;
 
         protected bool IsForeground(int world, int level) => !(world == 3 || level == 30);
     }
