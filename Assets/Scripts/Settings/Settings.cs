@@ -225,12 +225,12 @@ namespace R1Engine {
             ShowEditorObjects = s.SerializeBool("ShowEditorObjects", ShowEditorObjects);
             ScreenshotEnumeration = s.SerializeBool("ScreenshotEnumeration", ScreenshotEnumeration);
             BackupFiles = s.SerializeBool("BackupFiles", BackupFiles);
-            ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo);
+            ShowDebugInfo = s.SerializeBool("ShowDebugInfo", ShowDebugInfo, "debug");
             ShowDefaultObjIcons = s.SerializeBool("ShowDefaultObjIcons", ShowDefaultObjIcons);
             ShowObjOffsets = s.SerializeBool("ShowObjOffsets", ShowObjOffsets);
             ShowRayman = s.SerializeBool("ShowRayman", ShowRayman);
             FollowRaymanInMemoryMode = s.SerializeBool("FollowRaymanInMemoryMode", FollowRaymanInMemoryMode);
-            Tool_mkpsxiso_filePath = s.SerializeString("Tool_mkpsxiso_filePath", Tool_mkpsxiso_filePath);
+            Tool_mkpsxiso_filePath = s.SerializeString("Tool_mkpsxiso_filePath", Tool_mkpsxiso_filePath, "mkpsxiso");
             HideDirSettings = s.SerializeBool("HideDirSettings", HideDirSettings);
 
             Log = s.SerializeBool("Log", Log);
