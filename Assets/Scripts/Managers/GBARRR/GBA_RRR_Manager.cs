@@ -257,10 +257,10 @@ namespace R1Engine
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            var bg0Tileset = LoadTileSet(rom.BG0TileSet.Data, true, rom.TilePalette ?? rom.BG0TileSet.Palette, 15, 1);
-            var bg1Tileset = LoadTileSet(rom.BG1TileSet.Data, true, rom.TilePalette ?? rom.BG1TileSet.Palette, 12, 1);
+            var bg0Tileset = LoadTileSet(rom.BG0TileSet.Data, true, rom.TilePalette ?? rom.BG0TileSet.Palette, GetBG0Palette(lvl), 1);
+            var bg1Tileset = LoadTileSet(rom.BG1TileSet.Data, true, rom.TilePalette ?? rom.BG1TileSet.Palette, GetBG1Palette(lvl), 1);
             var levelTileset = LoadTileSet(rom.LevelTileset.Data, false, rom.TilePalette ?? rom.LevelTileset.Palette);
-            var fgTileset = LoadTileSet(rom.FGTileSet.Data, true, rom.TilePalette ?? rom.FGTileSet.Palette, 0, 16); // TODO: Only serialize palettes 12, 13 and 14?
+            var fgTileset = LoadTileSet(rom.FGTileSet.Data, true, rom.TilePalette ?? rom.FGTileSet.Palette, 0, 16);
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
@@ -281,8 +281,9 @@ namespace R1Engine
                 TileSet = new Unity_MapTileMap[] { bg1Tileset },
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
-            var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset, world);
-            var fgMap = LoadMap(rom.FGMap, null, fgTileset, world);
+
+            var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
+            var fgMap = LoadMap(rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl));
 
             await Controller.WaitIfNecessary();
 
@@ -354,7 +355,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: loc,
                 defaultCollisionMap: 2,
-                defaultMap: 2
+                defaultMap: 1
             );
         }
 
@@ -416,7 +417,7 @@ namespace R1Engine
             }
         }
 
-        public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, int world)
+        public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, bool hasAlphaBlending, bool foreground, int palIndex)
         {
             var map = new Unity_Map
             {
@@ -427,11 +428,11 @@ namespace R1Engine
                 {
                     tileset
                 },
-                MapTiles = new Unity_Tile[mapBlock.MapWidth * 4 * mapBlock.MapHeight * 4]
+                MapTiles = new Unity_Tile[mapBlock.MapWidth * 4 * mapBlock.MapHeight * 4],
+                IsForeground = foreground
             };
 
-            // TODO: Correct alpha level
-            if (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && (world == 2 || world == 3 || world == 4)) {
+            if (hasAlphaBlending) {
                 map.IsAdditive = true;
                 map.Alpha = 0.5f;
             }
@@ -472,11 +473,7 @@ namespace R1Engine
                         var tilemapX = (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && tile.TileMapX > 1) ? (ushort)(tile.TileMapX - 2) : tile.TileMapX;
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
-                            /*TileMapX = mapBlock.Type == GBARRR_MapBlock.MapType.AlphaBlending 
-                                // TODO: Which palette to use? 0xD works in map 0 for some things.
-                                ? (ushort)(tile.TileMapX + 0xD * (tilemap.Tiles.Length / 16)) 
-                                : tile.TileMapX,*/
-                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && tile.TileMapX > 1) ? (ushort)(tilemapX + ((0xE + tile.PaletteIndex) % 16) * (tileset.Tiles.Length / 16)) : tilemapX,
+                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && tile.TileMapX > 1) ? (ushort)(tilemapX + ((palIndex + tile.PaletteIndex) % 16) * (tileset.Tiles.Length / 16)) : tilemapX,
                             CollisionType = collisionType ?? 0,
                             HorizontalFlip = tile.HorizontalFlip,
                             VerticalFlip = tile.VerticalFlip
@@ -2254,5 +2251,66 @@ namespace R1Engine
                 //0x03004278 = actor;
             }
         }
+
+        protected int GetFGPalette(int level)
+        {
+            switch (level)
+            {
+                case 12:
+                    return 13;
+
+                default:
+                    return 14;
+            }
+        }
+        protected int GetBG0Palette(int level)
+        {
+            switch (level)
+            {
+                case 21:
+                case 30:
+                    return 13;
+
+                default:
+                    return 15;
+            }
+        }
+        protected int GetBG1Palette(int level)
+        {
+            switch (level)
+            {
+                case 30:
+                    return 15;
+
+                case 0:
+                case 1:
+                case 24:
+                case 25:
+                case 26:
+                case 27:
+                    return 12;
+
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                    return 14;
+                
+                default:
+                    return 13;
+            }
+        }
+
+        protected bool HasAlphaBlending(int world, int level) =>
+            (world == 2 || world == 3 || world == 4 || level == 11 || level == 29 || level == 31) && level != 27;
+
+        protected bool IsForeground(int world, int level) => !(world == 3 || level == 30);
     }
 }
