@@ -75,7 +75,7 @@ namespace R1Engine
             //What to show/hide with each mode
             //layerTypes.SetActive(currentMode == EditMode.Collisions);
             //layerEvents.SetActive(currentMode == EditMode.Events || currentMode == EditMode.Links);
-
+            
             tileSelectSquare.gameObject.SetActive(currentMode == EditMode.Tiles || currentMode == EditMode.Collisions);
             lvlTilemapController.tilemapPreview.gameObject.SetActive(currentMode == EditMode.Tiles);
 
@@ -84,39 +84,49 @@ namespace R1Engine
                     lvlTilemapController.ShowHideTemplate();
                 }
             }
-
+            
+            //In the end visibility options should not be tied to the edit mode
+            /*
             //Change some of the visibility buttons
             if (currentMode == EditMode.Tiles) {
-                ChangeVisibButton(0, true);
-                Settings.ShowTiles = true;
+                
+                //Settings.ShowTiles = true;
                 //layerTiles.SetActive(true);
             }
             if (currentMode == EditMode.Collisions) {
                 ChangeVisibButton(1, true);
-                Settings.ShowCollision = true;
+                //Settings.ShowCollision = true;
                 //layerTypes.SetActive(true);
             }
             if (currentMode == EditMode.Events) {
                 ChangeVisibButton(2, true);
-                Settings.ShowObjects = true;
+                //Settings.ShowObjects = true;
                 //layerEvents.SetActive(true);
             }
             if (currentMode == EditMode.Links) {
-                Settings.ShowLinks = true;
+                //Settings.ShowLinks = true;
             }
+            */
         }
 
         public void SetLayerVisibility(int index) {
-            if (index == 0 && currentMode != EditMode.Tiles) {
-                Settings.ShowTiles = !Settings.ShowTiles;
-            } else if (index == 1) {// && currentMode != EditMode.Collisions) {
-                Settings.ShowCollision = !Settings.ShowCollision;
-            } else if (index == 2) {// && currentMode != EditMode.Events && currentMode != EditMode.Links) {
-                Settings.ShowObjects = !Settings.ShowObjects;
+            switch (index) {
+                case 0: Settings.ShowTiles = !Settings.ShowTiles; break;
+                case 1: Settings.ShowCollision = !Settings.ShowCollision; break;
+                case 2: Settings.ShowObjects = !Settings.ShowObjects; break;
+                case 3: Settings.ShowLinks = !Settings.ShowLinks; break;
             }
         }
 
-        private void ChangeVisibButton(int which, bool on) {
+        private void ChangeVisibButton(int which) {
+            bool on = false;
+            switch (which) {
+                case 0: on = Settings.ShowTiles; break;
+                case 1: on = Settings.ShowCollision; break;
+                case 2: on = Settings.ShowObjects; break;
+                case 3: on = Settings.ShowLinks; break;
+            }
+
             ColorBlock b = visibilityButtons[which].colors;
             if (on) {
                 b.normalColor = new Color(1, 1, 1);
@@ -160,6 +170,11 @@ namespace R1Engine
         void Start() {
             //Default to events
             SetEditMode(2);
+            //Set visibility buttons
+            ChangeVisibButton(0);
+            ChangeVisibButton(1);
+            ChangeVisibButton(2);
+            ChangeVisibButton(3);
         }
 
         public void SetCurrentType(int type)
@@ -175,18 +190,20 @@ namespace R1Engine
 
         void Update() 
         {
+            //Take care of showing and hiding tiles, types and events -layers
             if (Settings.ShowTiles != layerTiles.activeSelf) {
                 layerTiles.SetActive(!layerTiles.activeSelf);
-                ChangeVisibButton(0, layerTiles.activeSelf);
+                ChangeVisibButton(0);
             }
             if (Settings.ShowCollision != layerTypes.activeSelf) {
                 layerTypes.SetActive(!layerTypes.activeSelf);
-                ChangeVisibButton(1, layerTypes.activeSelf);
+                ChangeVisibButton(1);
             }
             if (Settings.ShowObjects != layerEvents.activeSelf) {
                 layerEvents.SetActive(!layerEvents.activeSelf);
-                ChangeVisibButton(2, layerEvents.activeSelf);
+                ChangeVisibButton(2);
             }
+
             if (Controller.LoadState != Controller.State.Finished || LevelEditorData.Level == null) return;
 
             var map = LevelEditorData.Level.Maps[LevelEditorData.CurrentMap];
@@ -206,13 +223,23 @@ namespace R1Engine
 
                 // Left click begins drag and assigns the starting corner of the selection square
                 if (!dragging && mouseTile != null) {
-                    if (GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) {
-                        tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
-                        dragging = true;
-                        selecting = !GetKey(KeyCode.LeftControl);
-                        //Clear old preview tilemap
-                        if (currentMode == EditMode.Tiles)
-                            lvlTilemapController.ClearPreviewTilemap();
+                    if (!EventSystem.current.IsPointerOverGameObject()) {
+                        if (GetMouseButtonDown(0)) {
+                            tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
+                            dragging = true;
+                            selecting = true;
+                            //Clear old preview tilemap
+                            if (currentMode == EditMode.Tiles)
+                                lvlTilemapController.ClearPreviewTilemap();
+                        }
+                        if (GetMouseButtonDown(1)) {
+                            tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
+                            dragging = true;
+                            selecting = false;
+                            //Clear old preview tilemap
+                            if (currentMode == EditMode.Tiles)
+                                lvlTilemapController.ClearPreviewTilemap();
+                        }
                     }
                 }
 
@@ -231,7 +258,7 @@ namespace R1Engine
                         if (currentMode == EditMode.Tiles) 
                         {
                             // Change preview position
-                            lvlTilemapController.tilemapPreview.transform.position = new Vector3(tileSelectSquare.XStart * lvlTilemapController.CellSizeInUnits, tileSelectSquare.YStart * lvlTilemapController.CellSizeInUnits);
+                            lvlTilemapController.tilemapPreview.transform.position = new Vector3(tileSelectSquare.XStart * lvlTilemapController.CellSizeInUnits, -(tileSelectSquare.YStart * lvlTilemapController.CellSizeInUnits));
 
                             // Expand the preview tiles
                             if (selection != null) {
@@ -301,7 +328,7 @@ namespace R1Engine
                             }
                         }
                         // If dragging and painting mouse up, set the selection
-                        if (!selecting && GetMouseButtonUp(0)) {
+                        if (!selecting && GetMouseButtonUp(1)) {
                             dragging = false;
                             if (selection != null) {
                                 if (!lvlTilemapController.focusedOnTemplate) {
@@ -361,7 +388,7 @@ namespace R1Engine
                             }
                         }
                         // Fill with selected type
-                        if (!selecting && GetMouseButtonUp(0)) {
+                        if (!selecting && GetMouseButtonUp(1)) {
                             dragging = false;
                             // "Paste" the selection
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {

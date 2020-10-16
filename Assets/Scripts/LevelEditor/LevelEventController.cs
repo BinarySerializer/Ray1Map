@@ -502,8 +502,8 @@ namespace R1Engine
             if ( modeEvents || modeR1Links ) 
             {
                 outlineManager.Active = SelectedEvent;
-                // Add events with mmb
-                if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject() && modeEvents && FileSystem.mode != FileSystem.Mode.Web) 
+                // Add events with rmb
+                if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject() && modeEvents && FileSystem.mode != FileSystem.Mode.Web) 
                 {
                     Vector2 mousepo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     var mox = mousepo.x * LevelEditorData.Level.PixelsPerUnit;
@@ -576,8 +576,8 @@ namespace R1Engine
                     }
                 }
 
-                //Confirm links with mmb
-                if (Input.GetMouseButtonDown(2) && modeR1Links && SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
+                //Confirm links with rmb
+                if (Input.GetMouseButtonDown(1) && modeR1Links && SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
                 {
                     bool alone = true;
                     

@@ -348,6 +348,7 @@ namespace R1Engine
                     FillInTilePixels(tex, tile, newTile, x, y, cellSize, applyTexture: false);
                 }
             }
+            tex.filterMode = FilterMode.Point;
             tex.Apply();
             tilemapPreview.sprite = Sprite.Create(tex, new Rect(0,0,tex.width, tex.height), new Vector2(0, 0), LevelEditorData.Level.PixelsPerUnit, 0, SpriteMeshType.FullRect);
         }

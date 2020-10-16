@@ -40,8 +40,8 @@ namespace R1Engine {
 
 
             if (LevelEditorData.Level != null) {
-                // RMB scroling
-                if (Input.GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {
+                // MMB scroling
+                if (Input.GetMouseButton(2) && !Input.GetKey(KeyCode.LeftControl)) {
                     if (!panStart.HasValue) {
                         panStart = Input.mousePosition;
                     }
@@ -56,7 +56,7 @@ namespace R1Engine {
                             inertia <= 0 ? 1 : Time.deltaTime * 1f / inertia);*/
                         friction = fricStart;
                         pos += new Vector3(-mouseDeltaOrtho.x * xFactor, -mouseDeltaOrtho.y * yFactor);
-                    } else if (Input.GetMouseButtonDown(1) && screenRect.Contains(Input.mousePosition)) { // Only start panning if within game window when you click
+                    } else if (Input.GetMouseButtonDown(2) && screenRect.Contains(Input.mousePosition)) { // Only start panning if within game window when you click
                         panning = true;
                     }
                 } else {
