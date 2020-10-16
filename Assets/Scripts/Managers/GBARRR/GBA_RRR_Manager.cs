@@ -2242,7 +2242,7 @@ namespace R1Engine
             }
 
             // Ly
-            if (actor.P_GraphicsIndex == 0x2e && world < 5 && (level == 6 || level == 0xb || level == 0x10 || level == 0x16 || level == 0x1b)) {
+            if (actor.P_GraphicsIndex == 0x2e && world < 5 && (level == 1 || level == 6 || level == 0xb || level == 0x10 || level == 0x16 || level == 0x1b)) {
                 actor.P_GraphicsOffset = 0x03002F0C;
                 actor.P_FrameCount = 10;
                 actor.P_PaletteIndex = 0x19c;
