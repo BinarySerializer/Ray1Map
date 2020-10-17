@@ -71,6 +71,9 @@ namespace R1Engine
         public R1_ZDCData[] ZdcData { get; set; }
         public R1_EventFlags[] EventFlags { get; set; }
 
+        public Pointer[] WorldVignetteIndicesPointers { get; set; }
+        public byte[] WorldVignetteIndices { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -137,6 +140,18 @@ namespace R1Engine
             s.DoAt(pointerTable[R1_DSi_Pointer.TypeZDC], () => TypeZDC = s.SerializeObjectArray<R1_ZDCEntry>(TypeZDC, 262, name: nameof(TypeZDC)));
             s.DoAt(pointerTable[R1_DSi_Pointer.ZdcData], () => ZdcData = s.SerializeObjectArray<R1_ZDCData>(ZdcData, 200, name: nameof(ZdcData)));
             s.DoAt(pointerTable[R1_DSi_Pointer.EventFlags], () => EventFlags = s.SerializeArray<R1_EventFlags>(EventFlags, 262, name: nameof(EventFlags)));
+
+            WorldVignetteIndicesPointers = s.DoAt(pointerTable[R1_DSi_Pointer.WorldVignetteIndices], () => s.SerializePointerArray(WorldVignetteIndicesPointers, 7, name: nameof(WorldVignetteIndicesPointers)));
+            WorldVignetteIndices = s.DoAt(WorldVignetteIndicesPointers[s.GameSettings.World], () => s.SerializeArray<byte>(WorldVignetteIndices, 8, name: nameof(WorldVignetteIndices))); // The max size is 8
+
+            // Get the background indices
+            s.DoAt(pointerTable[R1_DSi_Pointer.LevelMapsBGIndices] + (levelIndex * 32), () =>
+            {
+                LevelMapData.Unk_10 = s.Serialize<byte>(LevelMapData.Unk_10, name: nameof(LevelMapData.Unk_10));
+                LevelMapData.Unk_11 = s.Serialize<byte>(LevelMapData.Unk_11, name: nameof(LevelMapData.Unk_11));
+                LevelMapData.BackgroundIndex = s.Serialize<byte>(LevelMapData.BackgroundIndex, name: nameof(LevelMapData.BackgroundIndex));
+                LevelMapData.ParallaxBackgroundIndex = s.Serialize<byte>(LevelMapData.ParallaxBackgroundIndex, name: nameof(LevelMapData.ParallaxBackgroundIndex));
+            });
         }
 
         /// <summary>

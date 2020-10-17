@@ -56,5 +56,7 @@
         R1_ZDCData[] ZdcData { get; }
 
         R1_EventFlags[] EventFlags { get; }
+
+        byte[] WorldVignetteIndices { get; }
     }
 }

@@ -17,6 +17,9 @@
         ZdcData,
         EventFlags,
 
+        WorldVignetteIndices,
+        LevelMapsBGIndices,
+
         WorldLevelOffsetTable,
 
         EventGraphicsPointers,

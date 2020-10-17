@@ -28,6 +28,8 @@
         ZdcData,
         EventFlags,
 
+        WorldVignetteIndices,
+
         // Graphics not referenced from events
         DrumWalkerGraphics,
         ClockGraphics,

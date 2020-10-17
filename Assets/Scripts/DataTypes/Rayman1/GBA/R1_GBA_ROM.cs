@@ -63,6 +63,9 @@ namespace R1Engine
         public R1_ZDCData[] ZdcData { get; set; }
         public R1_EventFlags[] EventFlags { get; set; }
 
+        public Pointer[] WorldVignetteIndicesPointers { get; set; }
+        public byte[] WorldVignetteIndices { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -164,6 +167,9 @@ namespace R1Engine
             s.DoAt(pointerTable[R1_GBA_ROMPointer.TypeZDC], () => TypeZDC = s.SerializeObjectArray<R1_ZDCEntry>(TypeZDC, 262, name: nameof(TypeZDC)));
             s.DoAt(pointerTable[R1_GBA_ROMPointer.ZdcData], () => ZdcData = s.SerializeObjectArray<R1_ZDCData>(ZdcData, 200, name: nameof(ZdcData)));
             s.DoAt(pointerTable[R1_GBA_ROMPointer.EventFlags], () => EventFlags = s.SerializeArray<R1_EventFlags>(EventFlags, 262, name: nameof(EventFlags)));
+
+            WorldVignetteIndicesPointers = s.DoAt(pointerTable[R1_GBA_ROMPointer.WorldVignetteIndices], () => s.SerializePointerArray(WorldVignetteIndicesPointers, 9, name: nameof(WorldVignetteIndicesPointers)));
+            WorldVignetteIndices = s.DoAt(WorldVignetteIndicesPointers[s.GameSettings.World], () => s.SerializeArray<byte>(WorldVignetteIndices, 8, name: nameof(WorldVignetteIndices))); // The max size is 8
         }
     }
 

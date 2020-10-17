@@ -878,7 +878,12 @@ namespace R1Engine
                 typeZDC: data.TypeZDC,
                 zdcData: data.ZdcData,
                 eventFlags: data.EventFlags);
-            Unity_Level level = new Unity_Level(maps, objManager, localization: LoadLocalization(data));
+            Unity_Level level = new Unity_Level(
+                maps: maps, 
+                objManager: objManager, 
+                localization: LoadLocalization(data),
+                background: GetVignetteTexture(data.BackgroundVignettes[data.WorldVignetteIndices[map.BackgroundIndex]]),
+                parallaxBackground: GetVignetteTexture(data.BackgroundVignettes[data.WorldVignetteIndices[map.ParallaxBackgroundIndex]]));
 
             // Load the events
             for (int i = 0; i < eventData.GraphicsGroupCount; i++)

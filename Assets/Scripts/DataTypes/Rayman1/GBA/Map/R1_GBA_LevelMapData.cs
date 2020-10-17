@@ -45,7 +45,10 @@ namespace R1Engine
 
         public uint UnkDword_DSi_1C { get; set; }
 
-        public byte[] Unk_GBA_10 { get; set; }
+        public byte Unk_10 { get; set; }
+        public byte Unk_11 { get; set; }
+        public byte BackgroundIndex { get; set; }
+        public byte ParallaxBackgroundIndex { get; set; }
 
         // 1 << 0: Compress map data
         // 1 << 1: Compress tile palette indices
@@ -89,7 +92,10 @@ namespace R1Engine
                 TilePaletteIndicesPointer = s.SerializePointer(TilePaletteIndicesPointer, name: nameof(TilePaletteIndicesPointer));
                 TileBlockIndicesPointer = s.SerializePointer(TileBlockIndicesPointer, name: nameof(TileBlockIndicesPointer));
                 TilePalettePointer = s.SerializePointer(TilePalettePointer, name: nameof(TilePalettePointer));
-                Unk_GBA_10 = s.SerializeArray<byte>(Unk_GBA_10, 4, name: nameof(Unk_GBA_10));
+                Unk_10 = s.Serialize<byte>(Unk_10, name: nameof(Unk_10));
+                Unk_11 = s.Serialize<byte>(Unk_11, name: nameof(Unk_11));
+                BackgroundIndex = s.Serialize<byte>(BackgroundIndex, name: nameof(BackgroundIndex));
+                ParallaxBackgroundIndex = s.Serialize<byte>(ParallaxBackgroundIndex, name: nameof(ParallaxBackgroundIndex));
                 CompressionFlags = s.Serialize<uint>(CompressionFlags, name: nameof(CompressionFlags));
             }
             else if (s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
