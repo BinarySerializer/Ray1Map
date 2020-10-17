@@ -37,6 +37,8 @@ namespace R1Engine
         /// Gets the offset for the palettes in the game executable
         /// </summary>
         public abstract uint GetPalOffset { get; }
+        public abstract uint GetFndFileTableOffset { get; }
+        public abstract uint GetFndIndexTableOffset { get; }
 
         /// <summary>
         /// Gets the allfix file path
@@ -249,9 +251,8 @@ namespace R1Engine
             var offset = img.ImageBufferOffset;
 
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
-            var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(ExeFilePath).StartPointer + GetPalOffset, context, (s, x) => x.Length = 25 * 256 * 2);
 
-            var palette = pal.Value;
+            var palette = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).Saturn_Palettes;
             var paletteOffset = img.PaletteInfo;
 
             var isBigRay = img.Offset.file.filePath == GetBigRayFilePath();
@@ -617,5 +618,21 @@ namespace R1Engine
         }
 
         public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1_AllfixBlock>(GetAllfixFilePath(), context, onPreSerialize: (s, o) => o.Length = s.CurrentLength).MenuEvents[0];
+
+        public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
+        {
+            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+
+            var bgFile = exe.Saturn_FNDFileTable[context.Settings.World - 1][exe.Saturn_FNDIndexTable[context.Settings.World][context.Settings.Level - 1]];
+
+            var bgFilePath = GetWorldFolderPath(context.Settings.R1_World) + bgFile;
+
+            await LoadFile(context, bgFilePath);
+
+            var bit = FileFactory.Read<BIT>(bgFilePath, context);
+
+            // TODO: Get width
+            return bit.ToTexture(384, invertYAxis: true);
+        }
     }
 }

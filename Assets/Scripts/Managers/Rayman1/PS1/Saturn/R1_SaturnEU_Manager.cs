@@ -7,6 +7,8 @@ namespace R1Engine
     public class R1_SaturnEU_Manager : R1_Saturn_Manager
     {
         public override uint GetPalOffset => 0x78D14;
+        public override uint GetFndFileTableOffset => 0x8142C;
+        public override uint GetFndIndexTableOffset => 0x8175B;
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)
         {

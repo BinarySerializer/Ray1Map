@@ -12,6 +12,10 @@ namespace R1Engine
 
         public R1_PS1_FileTableEntry[] FileTable { get; set; }
 
+        public ARGB1555Color[] Saturn_Palettes { get; set; }
+        public string[][] Saturn_FNDFileTable { get; set; }
+        public byte[][] Saturn_FNDIndexTable { get; set; }
+
         public int GetFileTypeIndex(R1_PS1BaseManager manager, R1_PS1_FileType type) => FileTable.FindItemIndex(x => x.Offset.AbsoluteOffset == manager.FileTableInfos.FirstOrDefault(t => t.FileType == type)?.Offset);
 
         public override void SerializeImpl(SerializerObject s)
@@ -61,6 +65,31 @@ namespace R1Engine
                         FileTable[index] = s.SerializeObject<R1_PS1_FileTableEntry>(FileTable[index], name: $"{nameof(FileTable)}_{info.FileType}[{i}]");
                         index++;
                     }
+                });
+            }
+
+            if (s.GameSettings.EngineVersion == EngineVersion.R1_Saturn)
+            {
+                var saturnManager = (R1_Saturn_Manager)manager;
+
+                Saturn_Palettes = s.DoAt(new Pointer(saturnManager.GetPalOffset, Offset.file), () => s.SerializeObjectArray<ARGB1555Color>(Saturn_Palettes, 25 * 256 * 2, name: nameof(Saturn_Palettes)));
+
+                if (Saturn_FNDFileTable == null)
+                    Saturn_FNDFileTable = new string[6][];
+
+                s.DoAt(new Pointer(saturnManager.GetFndFileTableOffset, Offset.file), () =>
+                {
+                    for (int i = 0; i < Saturn_FNDFileTable.Length; i++)
+                        Saturn_FNDFileTable[i] = s.SerializeStringArray(Saturn_FNDFileTable[i], 10, 12, name: $"{nameof(Saturn_FNDFileTable)}[{i}]");
+                });
+
+                if (Saturn_FNDIndexTable == null)
+                    Saturn_FNDIndexTable = new byte[7][];
+
+                s.DoAt(new Pointer(saturnManager.GetFndIndexTableOffset, Offset.file), () =>
+                {
+                    for (int i = 0; i < Saturn_FNDIndexTable.Length; i++)
+                        Saturn_FNDIndexTable[i] = s.SerializeArray<byte>(Saturn_FNDIndexTable[i], 25, name: $"{nameof(Saturn_FNDIndexTable)}[{i}]");
                 });
             }
         }
