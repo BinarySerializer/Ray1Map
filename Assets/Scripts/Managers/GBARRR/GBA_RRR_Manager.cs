@@ -245,11 +245,42 @@ namespace R1Engine
         public async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
+            var gameMode = GetCurrentGameMode(context.Settings);
+
+            Controller.DetailedState = $"Loading localization";
+            await Controller.WaitIfNecessary();
+
+            var loc = LoadLocalization(rom.Localization);
+
+            if (gameMode == GameMode.Mode7)
+            {
+                var collisionMap = new Unity_Map
+                {
+                    Width = 256,
+                    Height = 256,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        new Unity_MapTileMap(TextureHelpers.CreateTexture2D(CellSize, CellSize, true, true), CellSize), 
+                    },
+                    MapTiles = rom.Mode7_CollisionMap.Select(x => new Unity_Tile(x)).ToArray(),
+                };
+
+                return new Unity_Level(
+                    maps: new Unity_Map[]
+                    {
+                        collisionMap
+                    },
+                    objManager: new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]),
+                    getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
+                    cellSize: CellSize,
+                    localization: loc
+                );
+            }
 
             var lvl = context.Settings.Level;
             var world = context.Settings.World;
 
-            if (GetCurrentGameMode(context.Settings) == GameMode.Village)
+            if (gameMode == GameMode.Village)
                 lvl = 28;
 
             // Shooting Range 2 should be set to the values of Shooting Range 1
@@ -258,7 +289,7 @@ namespace R1Engine
                 world = 0;
             }
 
-            Debug.Log($"RRR level: {world}-{lvl} ({GetCurrentGameMode(context.Settings)})");
+            Debug.Log($"RRR level: {world}-{lvl} ({gameMode})");
 
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
@@ -288,7 +319,7 @@ namespace R1Engine
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
 
-            var hasFGMap = !(GetCurrentGameMode(context.Settings) == GameMode.Village && context.Settings.Level == 2);
+            var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2);
 
             var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
             var fgMap = hasFGMap ? LoadMap(rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
@@ -339,11 +370,6 @@ namespace R1Engine
 
                 actorIndex++;
             }
-
-            Controller.DetailedState = $"Loading localization";
-            await Controller.WaitIfNecessary();
-
-            var loc = LoadLocalization(rom.Localization);
 
             var objManager = new Unity_ObjectManager_GBARRR(context, graphicsData.ToArray());
 

@@ -13,7 +13,7 @@
         Mode7_Unk1Tiles,
         Mode7_BG0Tiles,
         Mode7_Unk2Tiles,
-        Mode7_Map,
+        Mode7_CollisionMap,
         Mode7_TilePalette,
         Mode7_SpritePalette1,
         Mode7_SpritePalette2,
