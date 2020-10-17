@@ -147,14 +147,12 @@ namespace R1Engine
                     {
                         Pointer blockOff = s.CurrentPointer;
                         bool exported = false;
+                        string outPath = outputPath;
 
                         // Level blocks
-                        if (!exported && flags.HasFlag(ExportFlags.LevelBlocks)) {
+                        if (flags.HasFlag(ExportFlags.LevelBlocks)) {
                             if (lvlBlocks.Contains(i)) {
-                                exported = true;
-                                var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
-
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"LevelBlocks/{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
+                                outPath += "/LevelBlocks/";
                             }
                         }
 
@@ -180,7 +178,7 @@ namespace R1Engine
 
                                 tex.Apply();
                                 exported = true;
-                                Util.ByteArrayToFile(Path.Combine(outputPath, $"Vignette/{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
+                                Util.ByteArrayToFile(Path.Combine(outPath, $"Vignette/{i}_{absoluteOffset:X8}.png"), tex.EncodeToPNG());
                             }
                         }
 
@@ -193,7 +191,7 @@ namespace R1Engine
                                     int tileDataSize = gb.TileData[0].Length;
                                     if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
                                         //gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
-                                        ExportSpriteFrames(gb, pal, 0, Path.Combine(outputPath, $"ActorGraphics/{i}_{absoluteOffset:X8}/"));
+                                        ExportSpriteFrames(gb, pal, 0, Path.Combine(outPath, $"ActorGraphics/{i}_{absoluteOffset:X8}/"));
                                         exported = true;
                                     }/* else {
                                         UnityEngine.Debug.Log($"Possible Graphics block {i}: {Math.Sqrt(tileDataSize * 2)} - {tileDataSize}");
@@ -212,7 +210,7 @@ namespace R1Engine
                                     int length = tileset.Data.Length;
                                     bool is4Bit = (length % 0x40 != 0);
                                     var ts = LoadTileSet(tileset.Data, is4Bit, tileset.Palette, palCount: is4Bit ? 16 : 1);
-                                    Util.ByteArrayToFile(Path.Combine(outputPath, $"Tilesets/{i}_{absoluteOffset:X8}.png"), ts.Tiles[0].texture.EncodeToPNG());
+                                    Util.ByteArrayToFile(Path.Combine(outPath, $"Tilesets/{i}_{absoluteOffset:X8}.png"), ts.Tiles[0].texture.EncodeToPNG());
                                     exported = true;
                                 } catch (Exception ex) {
                                 }
@@ -225,8 +223,9 @@ namespace R1Engine
                             if (size == 0x200)
                             {
                                 var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette[{i}]");
-                                PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"Palette/{i}_{absoluteOffset:X8}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                                PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette/{i}_{absoluteOffset:X8}.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
                                 exported = true;
+                                if(p != null) pal = p.Palette;
                             }
                         }
 
@@ -235,7 +234,7 @@ namespace R1Engine
                             s.Goto(blockOff);
                             var bytes = s.SerializeArray<byte>(default, size, name: $"Block[{i}]");
 
-                            Util.ByteArrayToFile(Path.Combine(outputPath, $"Uncategorized/{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
+                            Util.ByteArrayToFile(Path.Combine(outPath, $"Uncategorized/{i}_{absoluteOffset:X8}{(s.CurrentPointer.file is StreamFile ? "_decompressed" : String.Empty)}.dat"), bytes);
                         }
                     });
                 }
