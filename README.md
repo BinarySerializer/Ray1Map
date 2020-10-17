@@ -442,7 +442,24 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
 
 ### Supported Games (RRR GBA)
 
-...
+<table class="tg">
+  <tr>
+    <th class="tg-yw4l"><b>Game</b></th>
+    <th class="tg-yw4l"><b>Variants</b></th>
+    <th class="tg-yw4l"><b>Map Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Viewing</b></th>
+    <th class="tg-yw4l"><b>Object Adding</b></th>
+    <th class="tg-yw4l"><b>Saving</b></th>
+  </tr>
+    <tr>
+    <td class="tg-yw4l">Rayman Raving Rabbids (GBA)</td>
+    <td class="tg-yw4l">EU</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l">✔</td>
+    <td class="tg-yw4l"></td>
+    <td class="tg-yw4l"></td>
+  </tr>
+</table>
 
 ## Get Started
 NOTE: This project is currently in its early stages and may be unstable. Saving edits may corrupt your files for certain games, so make sure to back up your files first!
