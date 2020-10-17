@@ -446,7 +446,7 @@ namespace R1Engine
                 // For each frame
                 foreach (var tex in GetSpriteFrames(spr, palette, paletteIndex))
                 {
-                    var fileName = $"Sprites_{spr.Offset.AbsoluteOffset:X8}_Pal{paletteIndex}/{index}.png";
+                    var fileName = $"Sprites_{spr.Offset.AbsoluteOffset:X8}_Pal{paletteIndex}-1/{index}.png";
                     Util.ByteArrayToFile(Path.Combine(outputDir, fileName), tex.EncodeToPNG());
                     index++;
                 }

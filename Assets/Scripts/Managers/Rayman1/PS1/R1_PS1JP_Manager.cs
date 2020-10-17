@@ -194,24 +194,25 @@ namespace R1Engine
         public override uint? TypeZDCOffset => ExeBaseAddress + 0x98308;
         public override uint? ZDCDataOffset => ExeBaseAddress + 0x97308;
         public override uint? EventFlagsOffset => ExeBaseAddress + 0x96B08;
+        public override uint? LevelBackgroundIndexTableOffset => ExeBaseAddress + 0x99B58;
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {
-            new FileTableInfo(0x801c1770,3,"img_file"),
-            new FileTableInfo(0x801c17dc,2,"ldr_file"),
-            new FileTableInfo(0x801c1824,6,"vdo_file"),
-            new FileTableInfo(0x801c18fc,0x31,"trk_file"),
-            new FileTableInfo(0x801c1fe0,5,"pre_file"),
-            new FileTableInfo(0x801c2094,6,"crd_file"),
-            new FileTableInfo(0x801c216c,6,"gam_file"),
-            new FileTableInfo(0x801c2244,6,"vig_wld_file"),
-            new FileTableInfo(0x801c231c,6,"wld_file"),
-            new FileTableInfo(0x801c23f4,0x7e,"map_file[0]"),
-            new FileTableInfo(0x801c35ac,8,"blc_file"),
-            new FileTableInfo(0x801c36cc,0x1f,"fnd_file"),
-            new FileTableInfo(0x801c3b28,6,"vab_file"),
-            new FileTableInfo(0x801c3c00,2,"filefxs"),
-            new FileTableInfo(0x801c3c48,1,"ini_file"),
+            new FileTableInfo(0x801c1770,3,R1_PS1_FileType.img_file),
+            new FileTableInfo(0x801c17dc,2,R1_PS1_FileType.ldr_file),
+            new FileTableInfo(0x801c1824,6,R1_PS1_FileType.vdo_file),
+            new FileTableInfo(0x801c18fc,0x31,R1_PS1_FileType.trk_file),
+            new FileTableInfo(0x801c1fe0,5,R1_PS1_FileType.pre_file),
+            new FileTableInfo(0x801c2094,6,R1_PS1_FileType.crd_file),
+            new FileTableInfo(0x801c216c,6,R1_PS1_FileType.gam_file),
+            new FileTableInfo(0x801c2244,6,R1_PS1_FileType.vig_wld_file),
+            new FileTableInfo(0x801c231c,6,R1_PS1_FileType.wld_file),
+            new FileTableInfo(0x801c23f4,0x7e,R1_PS1_FileType.map_file),
+            new FileTableInfo(0x801c35ac,8,R1_PS1_FileType.blc_file),
+            new FileTableInfo(0x801c36cc,0x1f,R1_PS1_FileType.fnd_file),
+            new FileTableInfo(0x801c3b28,6,R1_PS1_FileType.vab_file),
+            new FileTableInfo(0x801c3c00,2,R1_PS1_FileType.filefxs),
+            new FileTableInfo(0x801c3c48,1,R1_PS1_FileType.ini_file),
         };
     }
 }

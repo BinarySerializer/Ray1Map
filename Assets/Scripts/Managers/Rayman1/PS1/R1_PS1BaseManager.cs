@@ -324,6 +324,9 @@ namespace R1Engine
                 zdcData: exe?.ZDCData,
                 eventFlags: exe?.EventFlags);
 
+            // Load the level background
+            var lvlBg = await LoadLevelBackgroundAsync(context);
+
             await Controller.WaitIfNecessary();
 
             var maps = new Unity_Map[]
@@ -348,7 +351,13 @@ namespace R1Engine
             rayman?.InitRayman(events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS));
 
             // Convert levelData to common level format
-            Unity_Level level = new Unity_Level(maps, objManager, eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), rayman: rayman != null ? new Unity_Object_R1(rayman, objManager) : null, localization: await LoadLocalizationAsync(context));
+            Unity_Level level = new Unity_Level(
+                maps: maps, 
+                objManager: objManager, 
+                eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), 
+                rayman: rayman != null ? new Unity_Object_R1(rayman, objManager) : null, 
+                localization: await LoadLocalizationAsync(context),
+                background: lvlBg);
 
             await Controller.WaitIfNecessary();
 
@@ -356,12 +365,15 @@ namespace R1Engine
             return level;
         }
 
+        public virtual UniTask<Texture2D> LoadLevelBackgroundAsync(Context context) => UniTask.FromResult<Texture2D>(null);
+
         public virtual uint? TypeZDCOffset => null;
         public virtual long TypeZDCCount => 256;
         public virtual uint? ZDCDataOffset => null;
         public virtual long ZDCDataCount => 200;
         public virtual uint? EventFlagsOffset => null;
         public virtual long EventFlagsCount => 256;
+        public virtual uint? LevelBackgroundIndexTableOffset => null;
 
         public abstract FileTableInfo[] FileTableInfos { get; }
 
@@ -752,32 +764,7 @@ namespace R1Engine
                             imageBlock = FileFactory.Read<R1_PS1_VignetteBlockGroup>(fileInfo.FilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2));
 
                         // Create the texture
-                        textures.Add(TextureHelpers.CreateTexture2D(imageBlock.Width, imageBlock.Height));
-
-                        // Get the block width
-                        var blockWdith = imageBlock.GetBlockWidth(context.Settings.EngineVersion);
-
-                        // Write each block
-                        for (int blockIndex = 0; blockIndex < imageBlock.ImageBlocks.Length; blockIndex++)
-                        {
-                            // Get the block data
-                            var blockData = imageBlock.ImageBlocks[blockIndex];
-
-                            // Write the block
-                            for (int y = 0; y < imageBlock.Height; y++)
-                            {
-                                for (int x = 0; x < blockWdith; x++)
-                                {
-                                    // Get the color
-                                    var c = blockData[x + (y * blockWdith)];
-
-                                    c.Alpha = Byte.MaxValue;
-
-                                    // Set the pixel
-                                    textures.First().SetPixel((x + (blockIndex * blockWdith)), textures.First().height - y - 1, c.GetColor());
-                                }
-                            }
-                        }
+                        textures.Add(imageBlock.ToTexture(context));
                     }
 
                     // Apply the pixels
@@ -1079,16 +1066,16 @@ namespace R1Engine
 
         public class FileTableInfo
         {
-            public FileTableInfo(uint offset, uint count, string name)
+            public FileTableInfo(uint offset, uint count, R1_PS1_FileType fileType)
             {
                 Offset = offset;
                 Count = count;
-                Name = name;
+                FileType = fileType;
             }
 
             public uint Offset { get; }
             public uint Count { get; }
-            public string Name { get; }
+            public R1_PS1_FileType FileType { get; }
         }
 
         protected class DES
