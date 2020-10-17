@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -306,5 +307,27 @@ namespace R1Engine
         }
 
         public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context).AllfixData.MenuEvents[0];
+
+        public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
+        {
+            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+
+            if (exe.LevelBackgroundIndexTable == null)
+                return null;
+
+            var bgIndex = exe.LevelBackgroundIndexTable[context.Settings.World - 1][context.Settings.Level - 1];
+            var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
+
+            if (fndStartIndex == -1)
+                return null;
+
+            var bgFilePath = exe.FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
+
+            await LoadExtraFile(context, bgFilePath, true);
+
+            var bg = FileFactory.Read<R1_PS1_BackgroundVignetteFile>(bgFilePath, context);
+
+            return bg.ImageBlock.ToTexture(context);
+        }
     }
 }

@@ -75,15 +75,14 @@ namespace R1Engine
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {
-            // Unofficial names
-            new FileTableInfo(0x801b5f3c, 1, "Palette"),
-            new FileTableInfo(0x801b5f74, 4, "Vignette"),
-            new FileTableInfo(0x801b6054, 1, "WorldMap"),
-            new FileTableInfo(0x801b608c, 1, "Allfix"),
-            new FileTableInfo(0x801b60c4, 0xb, "World1"),
-            new FileTableInfo(0x801b6594, 0xb, "World2"),
-            new FileTableInfo(0x801b67fc, 4, "Background"),
-            new FileTableInfo(0x801b68fc, 1, "Track")
+            new FileTableInfo(0x801b5f3c, 1, R1_PS1_FileType.pal_file),
+            new FileTableInfo(0x801b5f74, 4, R1_PS1_FileType.demo_vig),
+            new FileTableInfo(0x801b6054, 1, R1_PS1_FileType.img_file),
+            new FileTableInfo(0x801b608c, 1, R1_PS1_FileType.filefxs),
+            new FileTableInfo(0x801b60c4, 0xb, R1_PS1_FileType.demo_w1),
+            new FileTableInfo(0x801b6594, 0xb, R1_PS1_FileType.demo_w2),
+            new FileTableInfo(0x801b67fc, 4, R1_PS1_FileType.fnd_file),
+            new FileTableInfo(0x801b68fc, 1, R1_PS1_FileType.demo_track)
         };
 
         /// <summary>
@@ -293,5 +292,24 @@ namespace R1Engine
         }
 
         public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context).RaymanEvent;
+
+        public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
+        {
+            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+
+            var bgIndex = context.Settings.R1_World == R1_World.Jungle ? 0 : 2;
+            var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
+
+            if (fndStartIndex == -1)
+                return null;
+
+            var bgFilePath = exe.FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
+
+            await LoadExtraFile(context, bgFilePath, true);
+
+            var bg = FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2));
+
+            return bg.ToTexture(context);
+        }
     }
 }

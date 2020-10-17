@@ -1,4 +1,8 @@
-﻿namespace R1Engine
+﻿using System;
+using R1Engine.Serialize;
+using UnityEngine;
+
+namespace R1Engine
 {
     /// <summary>
     /// Vignette block group data for Rayman 1 (PS1)
@@ -63,6 +67,41 @@
             // Serialize blocks
             for (int i = 0; i < ImageBlocks.Length; i++)
                 ImageBlocks[i] = s.SerializeObjectArray<ARGB1555Color>(ImageBlocks[i], blockWidth * Height, name: nameof(ImageBlocks) + "[" + i + "]");
+        }
+
+        public Texture2D ToTexture(Context context)
+        {
+            // Create the texture
+            var tex = TextureHelpers.CreateTexture2D(Width, Height);
+
+            // Get the block width
+            var blockWidth = GetBlockWidth(context.Settings.EngineVersion);
+
+            // Write each block
+            for (int blockIndex = 0; blockIndex < ImageBlocks.Length; blockIndex++)
+            {
+                // Get the block data
+                var blockData = ImageBlocks[blockIndex];
+
+                // Write the block
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int x = 0; x < blockWidth; x++)
+                    {
+                        // Get the color
+                        var c = blockData[x + (y * blockWidth)];
+
+                        c.Alpha = Byte.MaxValue;
+
+                        // Set the pixel
+                        tex.SetPixel((x + (blockIndex * blockWidth)), tex.height - y - 1, c.GetColor());
+                    }
+                }
+            }
+
+            tex.Apply();
+
+            return tex;
         }
     }
 }

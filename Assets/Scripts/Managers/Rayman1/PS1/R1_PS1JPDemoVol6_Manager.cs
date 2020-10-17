@@ -1,9 +1,9 @@
-﻿using R1Engine.Serialize;
+﻿using Cysharp.Threading.Tasks;
+using R1Engine.Serialize;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -73,7 +73,7 @@ namespace R1Engine
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {
-            new FileTableInfo(ExeBaseAddress.Value + 0x6811C, 455, "Files"), 
+            new FileTableInfo(ExeBaseAddress.Value + 0x6811C, 455, R1_PS1_FileType.demo_file), // TODO: Get separate arrays 
         };
 
         /// <summary>
@@ -243,5 +243,16 @@ namespace R1Engine
         }
 
         public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context).RaymanEvent;
+
+        public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
+        {
+            const string bgFilePath = "JUN_F01.R16";
+
+            await LoadExtraFile(context, bgFilePath, true);
+
+            var bg = FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2));
+
+            return bg.ToTexture(context);
+        }
     }
 }

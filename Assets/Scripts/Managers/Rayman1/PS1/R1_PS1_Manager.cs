@@ -62,69 +62,6 @@ namespace R1Engine
             return new Unity_MapTileMap(pixels, TileSetWidth, Settings.CellSize);
         }
 
-        // TODO: Fix & support for JP version
-        public string GetLevelBackgroundFilePath(GameSettings settings, bool returnNullIfNoParallax)
-        {
-            return null;
-
-            // Commented because of unreachable code warnings, uncomment when we fix this
-            /*var index = -1;
-
-            // TODO: Add bonus levels
-            if (settings.World == World.Jungle)
-            {
-                switch (settings.Level)
-                {
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 14:
-                    case 15:
-                    case 17:
-                        index = returnNullIfNoParallax ? -1 : 1;
-                        break;
-
-                    case 1:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 13:
-                        index = 2;
-                        break;
-
-                    case 9:
-                        index = returnNullIfNoParallax ? -1 : 3;
-                        break;
-
-                    case 16:
-                        index = returnNullIfNoParallax ? -1 : 4;
-                        break;
-                }
-            }
-            else if (settings.World == World.Music)
-            {
-                switch (settings.Level)
-                {
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 5:
-                        index = 2;
-                        break;
-
-                    case 4:
-                        index = returnNullIfNoParallax ? -1 : 3;
-                        break;
-                }
-            }
-
-            return index == -1 ? null : $"RAY/IMA/FND/{GetWorldName(settings.World)}F{index}.XXX";*/
-        }
-
         /// <summary>
         /// Fills the PS1 v-ram and returns it
         /// </summary>
@@ -244,13 +181,10 @@ namespace R1Engine
             await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
             var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
 
-            // Load the background
-            var bgPath = GetLevelBackgroundFilePath(context.Settings, true);
-            if (bgPath != null)
-                await LoadExtraFile(context, bgPath, true);
-
             // Load the level
-            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, bgPath == null ? null : level.BackgroundData);
+            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, 
+                // TODO: Include bg block once we parse the palette correctly
+                null);
         }
 
         /// <summary>
