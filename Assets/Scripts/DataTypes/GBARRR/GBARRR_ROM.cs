@@ -50,7 +50,7 @@ namespace R1Engine
         public byte[] Mode7_Unk1Tiles { get; set; }
         public byte[] Mode7_BG0Tiles { get; set; }
         public byte[] Mode7_Unk2Tiles { get; set; }
-        public ushort[] Mode7_Map { get; set; }
+        public MapTile[] Mode7_CollisionMap { get; set; }
         public ARGB1555Color[] Mode7_TilePalette { get; set; }
         public ARGB1555Color[] Mode7_SpritePalette1 { get; set; }
         public ARGB1555Color[] Mode7_SpritePalette2 { get; set; }
@@ -158,7 +158,7 @@ namespace R1Engine
                 Mode7_Unk1TilesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Unk1Tiles], () => s.SerializePointerArray(Mode7_Unk1TilesPointers, 3, name: nameof(Mode7_Unk1TilesPointers)));
                 Mode7_BG0TilesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_BG0Tiles], () => s.SerializePointerArray(Mode7_BG0TilesPointers, 3, name: nameof(Mode7_BG0TilesPointers)));
                 Mode7_Unk2TilesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Unk2Tiles], () => s.SerializePointerArray(Mode7_Unk2TilesPointers, 3, name: nameof(Mode7_Unk2TilesPointers)));
-                Mode7_MapPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_Map], () => s.SerializePointerArray(Mode7_MapPointers, 3, name: nameof(Mode7_MapPointers)));
+                Mode7_MapPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_CollisionMap], () => s.SerializePointerArray(Mode7_MapPointers, 3, name: nameof(Mode7_MapPointers)));
                 Mode7_TilePalettePointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_TilePalette], () => s.SerializePointerArray(Mode7_TilePalettePointers, 3, name: nameof(Mode7_TilePalettePointers)));
                 Mode7_SpritePalette1Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_SpritePalette1], () => s.SerializePointerArray(Mode7_SpritePalette1Pointers, 3, name: nameof(Mode7_SpritePalette1Pointers)));
                 Mode7_SpritePalette2Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_SpritePalette2], () => s.SerializePointerArray(Mode7_SpritePalette2Pointers, 3, name: nameof(Mode7_SpritePalette2Pointers)));
@@ -169,12 +169,10 @@ namespace R1Engine
                 //Mode7_Unk1Tiles =
                 //Mode7_BG0Tiles =
                 //Mode7_Unk2Tiles =
-                Mode7_Map = s.DoAt(Mode7_MapPointers[s.GameSettings.Level], () => s.SerializeArray<ushort>(Mode7_Map, 128 * 128, name: nameof(Mode7_Map)));
+                Mode7_CollisionMap = s.DoAt(Mode7_MapPointers[s.GameSettings.Level], () => s.SerializeObjectArray<MapTile>(Mode7_CollisionMap, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Collision, name: nameof(Mode7_CollisionMap)));
                 Mode7_TilePalette = s.DoAt(Mode7_TilePalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_TilePalette, 16 * 16, name: nameof(Mode7_TilePalette)));
                 Mode7_SpritePalette1 = s.DoAt(Mode7_SpritePalette1Pointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_SpritePalette1, 16, name: nameof(Mode7_SpritePalette1)));
                 Mode7_SpritePalette2 = s.DoAt(Mode7_SpritePalette2Pointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_SpritePalette2, 16, name: nameof(Mode7_SpritePalette2)));
-
-                throw new NotImplementedException();
             }
         }
 

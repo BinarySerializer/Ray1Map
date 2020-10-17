@@ -387,7 +387,7 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_Unk1Tiles] = 0x08721970,
                         [GBARRR_Pointer.Mode7_BG0Tiles] = 0x08721940,
                         [GBARRR_Pointer.Mode7_Unk2Tiles] = 0x0872194c,
-                        [GBARRR_Pointer.Mode7_Map] = 0x08721904,
+                        [GBARRR_Pointer.Mode7_CollisionMap] = 0x08721904,
                         [GBARRR_Pointer.Mode7_TilePalette] = 0x08721928,
                         [GBARRR_Pointer.Mode7_SpritePalette1] = 0x0872197c,
                         [GBARRR_Pointer.Mode7_SpritePalette2] = 0x08721958,
