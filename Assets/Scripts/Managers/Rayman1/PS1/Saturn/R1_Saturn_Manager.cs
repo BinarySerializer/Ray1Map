@@ -24,6 +24,8 @@ namespace R1Engine
 
         public uint BaseAddress => 0x00200000;
 
+        public override BinaryFile.Endian Endianness { get; } = BinaryFile.Endian.Big;
+
         /// <summary>
         /// Gets the folder path for the specified world
         /// </summary>
@@ -247,7 +249,6 @@ namespace R1Engine
             var offset = img.ImageBufferOffset;
 
             Texture2D tex = TextureHelpers.CreateTexture2D(width, height);
-
             var pal = FileFactory.Read<ObjectArray<ARGB1555Color>>(context.GetFile(ExeFilePath).StartPointer + GetPalOffset, context, (s, x) => x.Length = 25 * 256 * 2);
 
             var palette = pal.Value;
@@ -341,6 +342,9 @@ namespace R1Engine
             await LoadFile(context, tileSetPaletteIndexTableFilePath);
             await LoadFile(context, tileSetFilePath);
             await LoadFile(context, mapFilePath);
+
+            // Load executable to get the palettes and tables
+            await LoadFile(context, ExeFilePath);
 
             // Load the texture files
             await LoadFile(context, GetFixImageFilePath());

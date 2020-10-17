@@ -23,6 +23,8 @@ namespace R1Engine
 
         protected virtual PS1MemoryMappedFile.InvalidPointerMode InvalidPointerMode => PS1MemoryMappedFile.InvalidPointerMode.DevPointerXOR;
 
+        public virtual BinaryFile.Endian Endianness { get; } = BinaryFile.Endian.Little;
+
         /// <summary>
         /// Gets the name for the world
         /// </summary>
@@ -390,8 +392,8 @@ namespace R1Engine
         {
             // Load the exe
             return ExeBaseAddress == null
-                ? (UniTask)context.AddLinearSerializedFileAsync(ExeFilePath, recreateOnWrite: false)
-                : context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress.Value, recreateOnWrite: false);
+                ? (UniTask)context.AddLinearSerializedFileAsync(ExeFilePath, recreateOnWrite: false, endianness: Endianness)
+                : context.AddMemoryMappedFile(ExeFilePath, ExeBaseAddress.Value, recreateOnWrite: false, endianness: Endianness);
         }
 
         /// <summary>
