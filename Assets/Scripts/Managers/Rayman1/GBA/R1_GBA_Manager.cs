@@ -197,10 +197,14 @@ namespace R1Engine
                     var s = context.Deserializer;
                     var extDES = 0;
 
+                    // Hard-code to 64x64 for now
+                    const ushort width = 64;
+                    const ushort height = 64;
+
                     s.DoAt(gbaPointerTable[R1_GBA_ROMPointer.MultiplayerImgBuffers], () =>
                     {
                         for (int i = 0; i < 16; i++)
-                            exportExtDES((ushort)(i < 8 ? 16 : 32), (ushort)(i < 8 ? 32 : 64), i);
+                            exportExtDES(i);
                     });
 
                     extDES++;
@@ -208,10 +212,10 @@ namespace R1Engine
                     s.DoAt(gbaPointerTable[R1_GBA_ROMPointer.ExtFontImgBuffers], () =>
                     {
                         for (int i = 0; i < 44; i++)
-                            exportExtDES((ushort)(i < 22 ? 16 : 32), (ushort)(i < 22 ? 16 : 32), i);
+                            exportExtDES(i);
                     });
 
-                    void exportExtDES(ushort width, ushort height, int index)
+                    void exportExtDES(int index)
                     {
                         var length = ((width * height / 2) / 32) * 4 + (width * height / 2);
 
