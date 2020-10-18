@@ -10,14 +10,14 @@
         // Mode7
         Mode7_MapTiles,
         Mode7_BG1Tiles,
-        Mode7_Unk1Tiles,
+        Mode7_Bg1Map,
         Mode7_BG0Tiles,
-        Mode7_Unk2Tiles,
-        Mode7_CollisionMapData, // 0x02001D64
+        Mode7_BG0Map,
+        Mode7_UnkMapData, // 0x02001D64
         Mode7_MapData,
         Mode7_TilePalette,
-        Mode7_SpritePalette1,
-        Mode7_SpritePalette2,
+        Mode7_BG1Palette,
+        Mode7_BG0Palette,
 
         // TODO: Add remaining non-compressed data:
         /*

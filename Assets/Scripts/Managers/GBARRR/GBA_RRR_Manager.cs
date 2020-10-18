@@ -237,9 +237,9 @@ namespace R1Engine
                     pal = Util.CreateDummyPalette(256, true, wrap: 16);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MapTiles], "Mode7_MapTiles", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_BG1Tiles], "Mode7_BG1Tiles", 3);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Unk1Tiles], "Mode7_Unk1Tiles", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Bg1Map], "Mode7_Unk1Tiles", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_BG0Tiles], "Mode7_BG0Tiles", 3);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Unk2Tiles], "Mode7_Unk2Tiles", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_BG0Map], "Mode7_Unk2Tiles", 3);
                 }
 
                 // Enumerate every block in the offset table
@@ -366,24 +366,47 @@ namespace R1Engine
                     Height = 256,
                     TileSet = new Unity_MapTileMap[]
                     {
-                        LoadTileSet(rom.Mode7_MapTiles, false, rom.Mode7_TilePalette), 
+                        LoadTileSet(rom.Mode7_MapTiles, false, rom.Mode7_TilemapPalette), 
                     },
                     MapTiles = rom.Mode7_MapData.Select((x, i) =>
                     {
-                        x.CollisionType = rom.Mode7_CollisionMapData[i].CollisionType;
+                        //x.CollisionType = rom.Mode7_CollisionMapData[i].CollisionType;
                         return new Unity_Tile(x);
                     }).ToArray(),
+                };
+                var bg0 = new Unity_Map
+                {
+                    Width = 32,
+                    Height = 32,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        LoadTileSet(rom.Mode7_BG0Tiles, false, rom.Mode7_TilemapPalette), 
+                    },
+                    MapTiles = rom.Mode7_BG0MapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
+                };
+                var bg1 = new Unity_Map
+                {
+                    Width = 32,
+                    Height = 32,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        LoadTileSet(rom.Mode7_BG1Tiles, false, rom.Mode7_TilemapPalette), 
+                    },
+                    MapTiles = rom.Mode7_BG1MapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
                 };
 
                 return new Unity_Level(
                     maps: new Unity_Map[]
                     {
-                        map
+                        map, // Put the map first so the backgrounds are visible
+                        bg0,
+                        bg1,
                     },
                     objManager: new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]),
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
-                    localization: loc
+                    localization: loc,
+                    defaultMap: 0
                 );
             }
 
@@ -504,7 +527,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: loc,
                 defaultCollisionMap: 2,
-                defaultMap: 1
+                defaultMap: 2
             );
         }
 
