@@ -8,6 +8,7 @@ namespace R1Engine
     {
         public override uint GetPalOffset => 0x78D14;
         public override uint GetFndFileTableOffset => 0x8142C;
+        public override uint GetFndSPFileTableOffset => 0x81823;
         public override uint GetFndIndexTableOffset => 0x8175B;
 
         protected override async UniTask<IReadOnlyDictionary<string, string[]>> LoadLocalizationAsync(Context context)

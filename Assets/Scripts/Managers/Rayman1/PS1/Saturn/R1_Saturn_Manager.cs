@@ -38,6 +38,7 @@ namespace R1Engine
         /// </summary>
         public abstract uint GetPalOffset { get; }
         public abstract uint GetFndFileTableOffset { get; }
+        public abstract uint GetFndSPFileTableOffset { get; }
         public abstract uint GetFndIndexTableOffset { get; }
 
         /// <summary>
@@ -385,183 +386,118 @@ namespace R1Engine
         public override void ExportVignetteTextures(GameSettings settings, string outputDir)
         {
             // Create a new context
-            var context = new Context(settings);
-
-            void exportBit(string file, int width = 16, bool swizzled = true, int blockWidth = 8, int blockHeight = 8, IList<Vector2> sizes = null)
+            using (var context = new Context(settings))
             {
-                // Add the file to the context
-                context.AddFile(new LinearSerializedFile(context)
+                void exportBit(string file, int width = 16, bool swizzled = true, int blockWidth = 8, int blockHeight = 8, IList<Vector2> sizes = null)
                 {
-                    filePath = file,
-                    Endianness = BinaryFile.Endian.Big
-                });
+                    // Add the file to the context
+                    context.AddFile(new LinearSerializedFile(context)
+                    {
+                        filePath = file,
+                        Endianness = BinaryFile.Endian.Big
+                    });
 
-                // Read the file
-                BIT bit = FileFactory.Read<BIT>(file, context);
+                    // Read the file
+                    BIT bit = FileFactory.Read<BIT>(file, context);
 
-                // Get the texture
-                var tex = bit.ToTexture(width, swizzled: swizzled, blockWidth: blockWidth, blockHeight: blockHeight, invertYAxis: true);
+                    // Get the texture
+                    var tex = bit.ToTexture(width, swizzled: swizzled, blockWidth: blockWidth, blockHeight: blockHeight, invertYAxis: true);
 
-                if (sizes?.Any() == true)
-                {
-                    // Get the pixels
-                    var pixels = tex.GetPixels();
+                    if (sizes?.Any() == true)
+                    {
+                        // Get the pixels
+                        var pixels = tex.GetPixels();
 
-                    var pixelOffset = 0;
+                        var pixelOffset = 0;
 
-                    // TODO: This doesn't work...
-                    for (int i = 0; i < sizes.Count; i++)
+                        // TODO: This doesn't work...
+                        for (int i = 0; i < sizes.Count; i++)
+                        {
+                            // Get the output file path
+                            var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $" - {i}.png"));
+
+                            // Create a new texture
+                            var newTex = TextureHelpers.CreateTexture2D((int)sizes[i].x, (int)sizes[i].y);
+
+                            // Set the pixels
+                            newTex.SetPixels(pixels.Reverse().Skip(pixelOffset).Take(newTex.width * newTex.height).ToArray());
+
+                            newTex.Apply();
+
+                            pixelOffset += newTex.width * newTex.height;
+
+                            Util.ByteArrayToFile(outputPath, newTex.EncodeToPNG());
+                        }
+                    }
+                    else
                     {
                         // Get the output file path
-                        var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $" - {i}.png"));
+                        var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
 
-                        // Create a new texture
-                        var newTex = TextureHelpers.CreateTexture2D((int)sizes[i].x, (int)sizes[i].y);
-
-                        // Set the pixels
-                        newTex.SetPixels(pixels.Reverse().Skip(pixelOffset).Take(newTex.width * newTex.height).ToArray());
-
-                        newTex.Apply();
-
-                        pixelOffset += newTex.width * newTex.height;
-                    
-                        Util.ByteArrayToFile(outputPath, newTex.EncodeToPNG());
+                        Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
                     }
                 }
-                else
+
+                void exportVig(string file, int width)
                 {
+                    // Add the file to the context
+                    context.AddFile(new LinearSerializedFile(context)
+                    {
+                        filePath = file,
+                        Endianness = BinaryFile.Endian.Big
+                    });
+
+                    // Read the raw data
+                    var rawData = FileFactory.Read<ObjectArray<ARGB1555Color>>(file, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
+
+                    // Create the texture
+                    var tex = TextureHelpers.CreateTexture2D(width, (int)(rawData.Length / width));
+
+                    // Set the pixels
+                    for (int y = 0; y < tex.height; y++)
+                    {
+                        for (int x = 0; x < tex.width; x++)
+                        {
+                            var c = rawData.Value[y * tex.width + x];
+
+                            tex.SetPixel(x, tex.height - y - 1, c.GetColor());
+                        }
+                    }
+
+                    // Apply the pixels
+                    tex.Apply();
+
                     // Get the output file path
                     var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
 
                     Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
                 }
-            }
 
-            void exportVig(string file, int width)
-            {
-                // Add the file to the context
-                context.AddFile(new LinearSerializedFile(context)
+                foreach (var bitFile in Directory.GetFiles(settings.GameDirectory, "*.bit", SearchOption.AllDirectories))
                 {
-                    filePath = file,
-                    Endianness = BinaryFile.Endian.Big
-                });
+                    var relativePath = bitFile.Substring(context.BasePath.Length).Replace('\\', '/');
 
-                // Read the raw data
-                var rawData = FileFactory.Read<ObjectArray<ARGB1555Color>>(file, context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
-
-                // Create the texture
-                var tex = TextureHelpers.CreateTexture2D(width, (int)(rawData.Length / width));
-
-                // Set the pixels
-                for (int y = 0; y < tex.height; y++)
-                {
-                    for (int x = 0; x < tex.width; x++)
+                    if (!VigWidths.ContainsKey(relativePath))
                     {
-                        var c = rawData.Value[y * tex.width + x];
-
-                        tex.SetPixel(x, tex.height - y - 1, c.GetColor());
+                        Debug.LogWarning($"Vignette file {relativePath} has no width");
+                        continue;
                     }
+
+                    exportBit(relativePath, width: VigWidths[relativePath]);
                 }
+                foreach (var vigFile in Directory.GetFiles(settings.GameDirectory, "*.vig", SearchOption.AllDirectories))
+                {
+                    var relativePath = vigFile.Substring(context.BasePath.Length).Replace('\\', '/');
 
-                // Apply the pixels
-                tex.Apply();
+                    if (!VigWidths.ContainsKey(relativePath))
+                    {
+                        Debug.LogWarning($"Vignette file {relativePath} has no width");
+                        continue;
+                    }
 
-                // Get the output file path
-                var outputPath = Path.Combine(outputDir, FileSystem.ChangeFilePathExtension(file, $".png"));
-
-                Util.ByteArrayToFile(outputPath, tex.EncodeToPNG());
+                    exportVig(relativePath, width: VigWidths[relativePath]);
+                }
             }
-
-            // TODO: The width isn't right for all of these - this only includes files from the EU release! US/JP are the same.
-            // Export the files
-            exportBit("CAK/CAK_01.BIT", 320);
-            exportBit("CAK/EXPLOSE.BIT", 320);
-            exportBit("CAK/GAT1_SP.BIT", 320);
-            exportBit("CAK/GAT3_SP.BIT", 320);
-            exportBit("CAK/GAT_F01P.BIT", 320);
-            exportBit("CAK/GAT_F03.BIT", 320);
-            exportBit("CAK/GAT_F04P.BIT", 320);
-            exportBit("CAK/MDK_F01P.BIT", 320);
-            exportBit("CAK/VITRAUX.BIT", 320);
-
-            exportBit("CAV/CAV1_SP.BIT", 320);
-            exportBit("CAV/CAV_01.BIT", 320);
-            exportBit("CAV/CAV_F01.BIT", 320);
-            exportBit("CAV/CAV_F04P.BIT", 320);
-            exportBit("CAV/CAV_F1.BIT", 320);
-            exportBit("CAV/CAV_FJOE.BIT", 320);
-            exportBit("CAV/CAV_FSKO.BIT", 320);
-            exportBit("CAV/FD_JOPAL.BIT", 320);
-
-            exportBit("IMG/IMG2_SP.BIT", 320);
-            exportBit("IMG/IMG4_SP.BIT", 320);
-            exportBit("IMG/IMG5_SP.BIT", 320);
-            exportBit("IMG/IMG_01.BIT", 320);
-            exportBit("IMG/IMG_F01B.BIT", 320);
-            exportBit("IMG/IMG_F02.BIT", 320);
-            exportBit("IMG/IMG_F04.BIT", 320);
-            exportBit("IMG/IMG_F05P.BIT", 320);
-            exportBit("IMG/IMG_F06P.BIT", 320);
-
-            exportBit("JUN/JUN2_SP.BIT", 320);
-            exportBit("JUN/JUN3_SP.BIT", 320);
-            exportBit("JUN/JUN_01.BIT", 320);
-            exportBit("JUN/JUN_F01P.BIT", 320);
-            exportBit("JUN/JUN_F2JM.BIT", 320);
-            exportBit("JUN/JUN_F3JM.BIT", 320);
-            exportBit("JUN/JUN_MOPA.BIT", 320);
-
-            exportBit("MON/MON1_SP.BIT", 320);
-            exportBit("MON/MON2_SP.BIT", 320);
-            exportBit("MON/MON7_SP.BIT", 320);
-            exportBit("MON/MON_01.BIT", 320);
-            exportBit("MON/MON_F01.BIT", 320);
-            exportBit("MON/MON_F02.BIT", 320);
-            exportBit("MON/MON_F04.BIT", 320);
-            exportBit("MON/MON_F05P.BIT", 320);
-
-            exportBit("MUS/MUS2_SP.BIT", 320);
-            exportBit("MUS/MUS3_SP.BIT", 320);
-            exportBit("MUS/MUS4_SP.BIT", 320);
-            exportBit("MUS/MUS_01.BIT", 320);
-            exportBit("MUS/MUS_F02.BIT", 320);
-            exportBit("MUS/MUS_F04.BIT", 320);
-            exportBit("MUS/MUS_F05P.BIT", 320);
-            exportBit("MUS/MUS_F1.BIT", 320);
-            exportBit("MUS/MUS_F2D.BIT", 320);
-
-            exportBit("VIGNET/CONTINUE.BIT", 320);
-            exportBit("VIGNET/END_01.BIT", 320);
-            exportBit("VIGNET/FD01SATP.BIT", 320);
-            exportBit("VIGNET/LOGO.BIT", 320);
-            exportBit("VIGNET/NWORLD.BIT", 384);
-            exportBit("VIGNET/RAYMAN.BIT", 320);
-            exportBit("VIGNET/SEGA.BIT", 55);
-
-            // Make an export for each size
-            exportBit("VIGNET/VRAM_A.BIT", sizes: new []
-            {
-                // TODO: The height is not right...
-                new Vector2(208, 208), 
-                new Vector2(182, 208),
-                new Vector2(208, 208), 
-            });
-            // TODO: Add multiple sizes
-            exportBit("VIGNET/VRAM_B.BIT", 208);
-
-            exportVig("VIGNET/VIG_01R.VIG", 219);
-            exportVig("VIGNET/VIG_02R.VIG", 231);
-            exportVig("VIGNET/VIG_03R.VIG", 257);
-            exportVig("VIGNET/VIG_04R.VIG", 200);
-            exportVig("VIGNET/VIG_05R.VIG", 146);
-            exportVig("VIGNET/VIG_06R.VIG", 203);
-            exportVig("VIGNET/VIG_DRK.VIG", 180);
-            exportVig("VIGNET/VIG_END.VIG", 191);
-            exportVig("VIGNET/VIG_JOE.VIG", 162);
-            exportVig("VIGNET/VIG_MUS.VIG", 159);
-            exportVig("VIGNET/VIG_RAP.VIG", 255);
-            exportVig("VIGNET/VIG_TRZ.VIG", 178);
-            exportVig("LANGUE.VIG", 320);
         }
 
         /// <summary>
@@ -622,17 +558,130 @@ namespace R1Engine
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+            var worldIndex = context.Settings.World - 1;
+            var lvlIndex = context.Settings.Level - 1;
 
-            var bgFile = exe.Saturn_FNDFileTable[context.Settings.World - 1][exe.Saturn_FNDIndexTable[context.Settings.World][context.Settings.Level - 1]];
+            if (lvlIndex >= 25)
+                return null;
+
+            var bgIndex = exe.Saturn_FNDIndexTable[context.Settings.World][lvlIndex];
+            var bgFile = exe.Saturn_FNDFileTable[worldIndex][bgIndex];
+
+            if (String.IsNullOrEmpty(bgFile))
+                return null;
 
             var bgFilePath = GetWorldFolderPath(context.Settings.R1_World) + bgFile;
-
+            
             await LoadFile(context, bgFilePath);
 
             var bit = FileFactory.Read<BIT>(bgFilePath, context);
 
-            // TODO: Get width
-            return bit.ToTexture(384, invertYAxis: true);
+            return bit.ToTexture(VigWidths[bgFilePath], invertYAxis: true);
         }
+
+        public Dictionary<string, int> VigWidths { get; } = new Dictionary<string, int>()
+        {
+            //["CAK/CAK_01.BIT"] = ,
+            //["CAK/EXPLOSE.BIT"] = ,
+            //["CAK/GAT1_SP.BIT"] = ,
+            //["CAK/GAT3_SP.BIT"] = ,
+            ["CAK/GAT_F01P.BIT"] = 384,
+            ["CAK/GAT_F01E.BIT"] = 384,
+            ["CAK/GAT_F03.BIT"] = 384,
+            ["CAK/GAT_F04.BIT"] = 320,
+            ["CAK/GAT_F04P.BIT"] = 320,
+            ["CAK/MDK_F01P.BIT"] = 320,
+            ["CAK/MBLK_F01.BIT"] = 320,
+            //["CAK/VITRAUX.BIT"] = ,
+
+            //["CAV/CAV1_SP.BIT"] = ,
+            //["CAV/CAV_01.BIT"] = ,
+            ["CAV/CAV_F01.BIT"] = 384,
+            ["CAV/CAV_F01M.BIT"] = 384,
+            ["CAV/CAV_F04P.BIT"] = 320,
+            ["CAV/CAV_F04.BIT"] = 320,
+            ["CAV/CAV_F1.BIT"] = 384,
+            ["CAV/CAV_FJOE.BIT"] = 192,
+            //["CAV/JOE_01.BIT"] = ,
+            ["CAV/CAV_FSKO.BIT"] = 384,
+            ["CAV/FD_JOPAL.BIT"] = 320,
+            ["CAV/FD_PBLJO.BIT"] = 320,
+
+            //["IMG/IMG2_SP.BIT"] = ,
+            //["IMG/IMG4_SP.BIT"] = ,
+            //["IMG/IMG5_SP.BIT"] = ,
+            //["IMG/IMG_01.BIT"] = ,
+            ["IMG/IMG_F01.BIT"] = 192,
+            ["IMG/IMG_F01B.BIT"] = 192,
+            ["IMG/IMG_F02.BIT"] = 384,
+            ["IMG/IMG_F04.BIT"] = 384,
+            ["IMG/IMG_F05.BIT"] = 320,
+            ["IMG/IMG_F05P.BIT"] = 320,
+            ["IMG/IMG_F06P.BIT"] = 320,
+            ["IMG/IMG_F06.BIT"] = 320,
+
+            //["JUN/JUN2_SP.BIT"] = ,
+            //["JUN/JUN3_SP.BIT"] = ,
+            //["JUN/JUN_01.BIT"] = ,
+            ["JUN/JUN_F01P.BIT"] = 192,
+            ["JUN/JUN_F01.BIT"] = 192,
+            ["JUN/JUN_F2JM.BIT"] = 384,
+            ["JUN/JUN_F3JM.BIT"] = 384,
+            ["JUN/JUN_MOPA.BIT"] = 320,
+            ["JUN/JUN_MOSK.BIT"] = 320,
+
+            //["MON/MON1_SP.BIT"] = 320,
+            //["MON/MON2_SP.BIT"] = 320,
+            //["MON/MON7_SP.BIT"] = 320,
+            //["MON/MON_01.BIT"] = 320,
+            ["MON/MON_F01.BIT"] = 192,
+            ["MON/MON_F02.BIT"] = 384,
+            ["MON/MON_F2W.BIT"] = 384,
+            ["MON/MON_F04.BIT"] = 384,
+            ["MON/MON_F05.BIT"] = 192,
+            ["MON/MON_F05P.BIT"] = 192,
+
+            //["MUS/MUS2_SP.BIT"] = 320,
+            //["MUS/MUS3_SP.BIT"] = 320,
+            //["MUS/MUS4_SP.BIT"] = 320,
+            //["MUS/MUS_01.BIT"] = 320,
+            ["MUS/MUS_F02.BIT"] = 384,
+            ["MUS/MUS_F03.BIT"] = 320,
+            ["MUS/MUS_F04.BIT"] = 384,
+            ["MUS/MUS_F05P.BIT"] = 320,
+            ["MUS/MUS_F1.BIT"] = 384,
+            ["MUS/MUS_F2D.BIT"] = 384,
+
+            ["VIGNET/CONTINUE.BIT"] = 320,
+            ["VIGNET/END_01.BIT"] = 320,
+            ["VIGNET/FD01SATP.BIT"] = 320,
+            ["VIGNET/FD01SAT.BIT"] = 320,
+            ["VIGNET/FND02.BIT"] = 320,
+            ["VIGNET/LOGO.BIT"] = 320,
+            ["VIGNET/NWORLD.BIT"] = 384,
+            ["VIGNET/RAYMAN.BIT"] = 320,
+            //["VIGNET/SEGA.BIT"] = 55,
+
+            ["VIGNET/VIG_PR1.VIG"] = 254,
+            ["VIGNET/VIG_PR2.VIG"] = 208,
+            ["VIGNET/VIG_PR3.VIG"] = 200,
+            ["VIGNET/VIG_PR4.VIG"] = 200,
+            ["VIGNET/VIG_PR5.VIG"] = 146,
+            ["VIGNET/VIG_01R.VIG"] = 219,
+            ["VIGNET/VIG_02R.VIG"] = 231,
+            ["VIGNET/VIG_03R.VIG"] = 257,
+            ["VIGNET/VIG_04R.VIG"] = 200,
+            ["VIGNET/VIG_05R.VIG"] = 146,
+            ["VIGNET/VIG_06R.VIG"] = 203,
+            ["VIGNET/VIG_DRK.VIG"] = 251,
+            ["VIGNET/VIG_END.VIG"] = 191,
+            ["VIGNET/VIG_JOE.VIG"] = 162,
+            ["VIGNET/VIG_MUS.VIG"] = 159,
+            ["VIGNET/VIG_RAP.VIG"] = 255,
+            ["VIGNET/VIG_TRZ.VIG"] = 178,
+            ["LANGUE.VIG"] = 320,
+
+            // VIGNET/VRAM_A.BIT and VIGNET/VRAM_B.BIT contain multiple images
+        };
     }
 }
