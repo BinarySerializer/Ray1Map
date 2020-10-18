@@ -173,6 +173,13 @@ namespace R1Engine
                 Mode7_TilePalette = s.DoAt(Mode7_TilePalettePointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_TilePalette, 16 * 16, name: nameof(Mode7_TilePalette)));
                 Mode7_SpritePalette1 = s.DoAt(Mode7_SpritePalette1Pointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_SpritePalette1, 16, name: nameof(Mode7_SpritePalette1)));
                 Mode7_SpritePalette2 = s.DoAt(Mode7_SpritePalette2Pointers[s.GameSettings.Level], () => s.SerializeObjectArray<ARGB1555Color>(Mode7_SpritePalette2, 16, name: nameof(Mode7_SpritePalette2)));
+
+                // Example for mode7 compressed blocks
+                s.DoAt(Mode7_MapTilesPointers[s.GameSettings.Level], () => {
+                    s.DoEncoded(new RNCEncoder(hasHeader: false), () => {
+                        var b = s.SerializeArray<byte>(default, s.CurrentLength, name: "test");
+                    });
+                });
             }
         }
 

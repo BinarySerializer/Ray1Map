@@ -7,7 +7,11 @@ namespace R1Engine {
     /// </summary>
     public class RNCEncoder : IStreamEncoder
     {
+        public bool HasHeader { get; }
 
+        public RNCEncoder(bool hasHeader = true) {
+            HasHeader = HasHeader;
+        }
 
         // Huffman decoding
         private enum Command {
@@ -205,6 +209,111 @@ namespace R1Engine {
             return uncompressed;
         }
 
+
+
+        private byte[] DecompressRNC2(Reader reader) {
+            int currentBit = 0;
+            byte? currentBitByte = null;
+            int currentOutByte = 0;
+
+            byte[] uncompressed = null;
+            using (MemoryStream ms = new MemoryStream()) {
+                // Helpers
+                void GetNewBitByte() {
+                    currentBit = 0;
+                    currentBitByte = ReadByte();
+                }
+                int ReadBit() {
+                    if (!currentBitByte.HasValue || currentBit > 7) {
+                        GetNewBitByte();
+                    }
+                    // Bit numbering scheme MSB 0!
+                    int bit = BitHelpers.ExtractBits(currentBitByte.Value, 1, 7 - currentBit);
+                    currentBit++;
+                    return bit;
+                }
+                byte ReadByte() {
+                    return reader.ReadByte();
+                }
+                void WriteByte(byte b) {
+                    ms.WriteByte(b);
+                    currentOutByte++;
+                }
+                byte GetDistanceByte(int distance) {
+                    long pos = ms.Position;
+                    ms.Position = pos - distance;
+                    int b = ms.ReadByte();
+                    ms.Position = pos;
+                    if(b < 0) return 0;
+                    return (byte)b;
+                }
+                int ReadDistance() {
+                    int distMult = distanceDecoder.GetValue(ReadBit);
+                    int distByte = ReadByte();
+                    return (distByte | (distMult << 8)) + 1;
+                }
+                void MoveBytes(int distance, int count) {
+                    if (count == 0) throw new Exception("Decompression error");
+                    for (int i = 0; i < count; i++) {
+                        //Controller.print(currentOutByte + " - " + distance + " - " + currentByte + " - " + currentBit);
+                        WriteByte(GetDistanceByte(distance));
+                    }
+                };
+
+                // Unused
+                ReadBit();
+                ReadBit();
+                byte foundChunks = 0;
+                bool done = false;
+                while (!done) {
+                    Command cmd = cmdDecoder.GetValue(ReadBit);
+                    //Controller.print(cmd);
+                    switch (cmd) {
+                        case Command.LIT: // Literal
+                            WriteByte(ReadByte());
+                            break;
+                        case Command.MOV: {
+                                byte count = lengthDecoder.GetValue(ReadBit);
+                                if (count != 9)
+                                    MoveBytes(ReadDistance(), count);
+                                else {
+                                    uint rep = 0;
+                                    for (uint i = 0; i < 4; i++)
+                                        rep = (rep << 1) | (uint)ReadBit();
+                                    rep = (rep + 3) * 4;
+                                    for (uint i = 0; i < rep; i++) {
+                                        WriteByte(ReadByte());
+                                    }
+                                }
+                            }
+                            break;
+
+                        case Command.MV2:
+                            MoveBytes(ReadByte() + 1, 2);
+                            break;
+
+                        case Command.MV3:
+                            MoveBytes(ReadDistance(), 3);
+                            break;
+                        case Command.CND: {
+                                byte count = ReadByte();
+                                if (count != 0)
+                                    MoveBytes(ReadDistance(), count + 8);
+                                else {
+                                    foundChunks++;
+                                    done = ReadBit() == 0;
+                                }
+
+                            }
+                            break;
+                    }
+                }
+                ms.Position = 0;
+                uncompressed = ms.ToArray();
+            }
+            return uncompressed;
+        }
+
         /// <summary>
         /// Decodes the data and returns it in a stream
         /// </summary>
@@ -212,23 +321,29 @@ namespace R1Engine {
         /// <returns>The stream with the decoded data</returns>
         public Stream DecodeStream(Stream s) {
             Reader reader = new Reader(s, isLittleEndian: false);
-            string header = reader.ReadString(0x3);
-            if (header != "RNC") {
-                throw new Exception("Data is not compressed with RNC!");
-            }
-            byte method = reader.ReadByte();
-            if (method != 2) {
-                throw new Exception("Data is not compressed with RNC method 2!");
-            }
-            uint decompressedSize = reader.ReadUInt32();
-            uint compressedSize = reader.ReadUInt32();
-            ushort decompressedCRC = reader.ReadUInt16();
-            ushort compressedCRC = reader.ReadUInt16();
-            byte leeway = reader.ReadByte();
-            byte packChunks = reader.ReadByte();
-            byte[] compressedData = reader.ReadBytes((int)compressedSize);
+            byte[] decompressed = null;
+            if (HasHeader) {
+                string header = reader.ReadString(0x3);
+                if (header != "RNC") {
+                    throw new Exception("Data is not compressed with RNC!");
+                }
+                byte method = reader.ReadByte();
+                if (method != 2) {
+                    throw new Exception("Data is not compressed with RNC method 2!");
+                }
+                uint decompressedSize = reader.ReadUInt32();
+                uint compressedSize = reader.ReadUInt32();
+                ushort decompressedCRC = reader.ReadUInt16();
+                ushort compressedCRC = reader.ReadUInt16();
+                byte leeway = reader.ReadByte();
+                byte packChunks = reader.ReadByte();
 
-            byte[] decompressed = DecompressRNC2(compressedData, decompressedSize, leeway, packChunks);
+                byte[] compressedData = reader.ReadBytes((int)compressedSize);
+
+                decompressed = DecompressRNC2(compressedData, decompressedSize, leeway, packChunks);
+            } else {
+                decompressed = DecompressRNC2(reader);
+            }
             
             var decompressedStream = new MemoryStream(decompressed);
 
