@@ -17,5 +17,20 @@
         Mode7_TilePalette,
         Mode7_SpritePalette1,
         Mode7_SpritePalette2,
+
+        // Mode7Unk
+        Mode7_Compr1,
+        Mode7_Compr2,
+        Mode7_Compr3,
+        Mode7_Compr4,
+        Mode7_Compr5,
+        Mode7_Compr6,
+        Mode7_ComprArray1,
+        Mode7_ComprArray2,
+        Mode7_ComprArray3,
+        Mode7_ComprArray4,
+        Mode7_ComprArray5,
+        Mode7_SpriteArray1,
+        Mode7_SpriteArray2,
     }
 }

@@ -105,8 +105,9 @@ namespace R1Engine
             Palettes = 1 << 3,
             LevelBlocks = 1 << 4,
             Tilesets = 1 << 5,
+            Mode7Compressed = 1 << 6,
 
-            All = Normal | Vignette | Graphics | Palettes | LevelBlocks | Tilesets
+            All = Normal | Vignette | Graphics | Palettes | LevelBlocks | Tilesets | Mode7Compressed
         }
 
         public async UniTask ExportBlocksAsync(GameSettings settings, string outputPath, ExportFlags flags)
@@ -123,7 +124,6 @@ namespace R1Engine
                 // Load the rom
                 var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
 
-                ARGBColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(16, true) : null;
 
                 var lvlBlocks = rom.LevelInfo.SelectMany(x => new uint[]
                 {
@@ -134,6 +134,56 @@ namespace R1Engine
                     // Palette
                     x.SpritePaletteIndex
                 }).ToArray();
+
+                ARGBColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(16, true) : null;
+
+                // Helper
+                void ExportMode7Block(Pointer ptr, string path, bool compressed = true, int length = 0x200) {
+                    s.DoAt(ptr, () => {
+                        if (compressed) {
+                            s.DoEncoded(new RNCEncoder(hasHeader: false), () => {
+                                var b = s.SerializeArray<byte>(default, s.CurrentLength, name: path);
+                                Util.ByteArrayToFile($"{outputPath}/Mode7Compressed/{path}.bin", b);
+                            });
+                        } else {
+                            var b = s.SerializeArray<byte>(default, length, name: path);
+                            Util.ByteArrayToFile($"{outputPath}/Mode7Uncompressed/{path}.bin", b);
+                        }
+                    });
+                }
+                void ExportMode7Array(Pointer ptr, string path, int length, bool compressed = true) {
+                    s.DoAt(ptr, () => {
+                        Pointer[] ptrs = s.SerializePointerArray(null, length, name: path);
+                        for (int i = 0; i < length; i++) {
+                            ExportMode7Block(ptrs[i], $"{path}/{i}", compressed);
+                        }
+                    });
+                }
+
+                if (flags.HasFlag(ExportFlags.Mode7Compressed)) {
+                    var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
+
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7_Compr1], "Mode7_Compr1");
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7_Compr2], "Mode7_Compr2");
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7_Compr3], "Mode7_Compr3");
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7_Compr4], "Mode7_Compr4");
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7_Compr5], "Mode7_Compr5");
+                    ExportMode7Block(pointerTable[GBARRR_Pointer.Mode7_Compr6], "Mode7_Compr6");
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray1], "Mode7_ComprArray1", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray2], "Mode7_ComprArray2", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray3], "Mode7_ComprArray3", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray4], "Mode7_ComprArray4", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray5], "Mode7_ComprArray5", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray1], "Mode7_SpriteArray1", 2);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray2], "Mode7_SpriteArray2", 2);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray1] + 8, "Mode7_SpriteArray1_Pal", 10, compressed: false);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray2] + 8, "Mode7_SpriteArray2_Pal", 31, compressed: false);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MapTiles], "Mode7_MapTiles", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_BG1Tiles], "Mode7_BG1Tiles", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Unk1Tiles], "Mode7_Unk1Tiles", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_BG0Tiles], "Mode7_BG0Tiles", 3);
+                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Unk2Tiles], "Mode7_Unk2Tiles", 3);
+                }
 
                 // Enumerate every block in the offset table
                 for (uint i = 0; i < rom.OffsetTable.OffsetTableCount; i++)
