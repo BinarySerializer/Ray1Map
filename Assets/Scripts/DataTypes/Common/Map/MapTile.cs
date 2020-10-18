@@ -256,6 +256,9 @@ namespace R1Engine
                         //Unk = (byte)bitFunc(Unk, 4, name: nameof(Unk));
                     });
                 }
+                else if (GBARRRType == GBARRR_MapBlock.MapType.Mode7Tiles) {
+                    TileMapX = s.Serialize<byte>((byte)TileMapX, name: nameof(TileMapX));
+                }
             }
         }
 

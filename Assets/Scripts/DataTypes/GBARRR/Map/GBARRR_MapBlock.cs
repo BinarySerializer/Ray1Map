@@ -44,7 +44,8 @@
         {
             Collision,
             Tiles,
-            Foreground
+            Foreground,
+            Mode7Tiles
         }
 
         public class GBARRR_TileReferences : R1Serializable

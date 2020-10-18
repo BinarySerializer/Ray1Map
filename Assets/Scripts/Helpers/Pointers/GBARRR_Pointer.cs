@@ -13,23 +13,35 @@
         Mode7_Unk1Tiles,
         Mode7_BG0Tiles,
         Mode7_Unk2Tiles,
-        Mode7_CollisionMap,
+        Mode7_CollisionMapData, // 0x02001D64
+        Mode7_MapData,
         Mode7_TilePalette,
         Mode7_SpritePalette1,
         Mode7_SpritePalette2,
 
+        // TODO: Add remaining non-compressed data:
+        /*
+         
+        087218e4[3] > 040000D4 or 02000240 (length 0x7D0)
+        087218c0[3] > 05000200 (length 0x100)
+        087218d8[3] > 05000200 (length 0x80)
+        086a6128 > 05000200 (length 0x10)
+         
+         */
+
         // Mode7Unk
-        Mode7_Compr1,
-        Mode7_Compr2,
-        Mode7_Compr3,
-        Mode7_Compr4,
-        Mode7_Compr5,
-        Mode7_Compr6,
-        Mode7_ComprArray1,
-        Mode7_ComprArray2,
-        Mode7_ComprArray3,
-        Mode7_ComprArray4,
-        Mode7_ComprArray5,
+        Mode7_ComprArray1, // 0x06015000 (12 288 bytes)
+        Mode7_ComprArray2, // 0x020150D0 (1024 bytes)
+        Mode7_ComprArray3, // 0x020127B0 (32-byte structs)
+        Mode7_ComprArray4, // 0x06010A00
+
+        // Unknown compressed data 
+        Mode7_Compr1, // 0x06010000
+        Mode7_Compr2, // 0x06010800
+        Mode7_Compr3, // 0x06002000
+        Mode7_Compr4, // 0x02015500
+        Mode7_Compr5, // 0x06016900
+        Mode7_Compr6, // 0x06010000
         Mode7_MenuArray,
     }
 }

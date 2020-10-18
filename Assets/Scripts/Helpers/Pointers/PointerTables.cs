@@ -400,7 +400,8 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_Unk1Tiles] = 0x08721970,
                         [GBARRR_Pointer.Mode7_BG0Tiles] = 0x08721940,
                         [GBARRR_Pointer.Mode7_Unk2Tiles] = 0x0872194c,
-                        [GBARRR_Pointer.Mode7_CollisionMap] = 0x08721904,
+                        [GBARRR_Pointer.Mode7_MapData] = 0x08721904,
+                        [GBARRR_Pointer.Mode7_CollisionMapData] = 0x08721910,
                         [GBARRR_Pointer.Mode7_TilePalette] = 0x08721928,
                         [GBARRR_Pointer.Mode7_SpritePalette1] = 0x0872197c,
                         [GBARRR_Pointer.Mode7_SpritePalette2] = 0x08721958,
@@ -411,11 +412,11 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_Compr4] = 0x086fb7b4,
                         [GBARRR_Pointer.Mode7_Compr5] = 0x086dbae8,
                         [GBARRR_Pointer.Mode7_Compr6] = 0x086d6941,
+
                         [GBARRR_Pointer.Mode7_ComprArray1] = 0x087218b4,
                         [GBARRR_Pointer.Mode7_ComprArray2] = 0x08721934,
                         [GBARRR_Pointer.Mode7_ComprArray3] = 0x0872191c,
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x087218cc,
-                        [GBARRR_Pointer.Mode7_ComprArray5] = 0x087218b4,
 
                         [GBARRR_Pointer.Mode7_MenuArray] = 0x08721f44,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));

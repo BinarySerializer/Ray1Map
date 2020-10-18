@@ -226,7 +226,6 @@ namespace R1Engine
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray2], "Mode7_ComprArray2", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray3], "Mode7_ComprArray3", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray4], "Mode7_ComprArray4", 3);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray5], "Mode7_ComprArray5", 3);
                     for (int i = 0; i < 15; i++) { // Only some are compressed
                         // Export palette first so it's cached
                         ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MenuArray] + i * 0xC + 0x8, $"Mode7_MenuArray_Pal/{i}", 1, compressed: false);
@@ -361,21 +360,25 @@ namespace R1Engine
 
             if (gameMode == GameMode.Mode7)
             {
-                var collisionMap = new Unity_Map
+                var map = new Unity_Map
                 {
                     Width = 256,
                     Height = 256,
                     TileSet = new Unity_MapTileMap[]
                     {
-                        new Unity_MapTileMap(TextureHelpers.CreateTexture2D(CellSize, CellSize, true, true), CellSize), 
+                        LoadTileSet(rom.Mode7_MapTiles, false, rom.Mode7_TilePalette), 
                     },
-                    MapTiles = rom.Mode7_CollisionMap.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = rom.Mode7_MapData.Select((x, i) =>
+                    {
+                        x.CollisionType = rom.Mode7_CollisionMapData[i].CollisionType;
+                        return new Unity_Tile(x);
+                    }).ToArray(),
                 };
 
                 return new Unity_Level(
                     maps: new Unity_Map[]
                     {
-                        collisionMap
+                        map
                     },
                     objManager: new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]),
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
