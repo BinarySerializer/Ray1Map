@@ -517,7 +517,7 @@ namespace R1Engine
                     // Don't add if clicked outside of the level bounds
                     if (mox > 0 && -moy > 0 && mox < maxWidth * LevelEditorData.Level.CellSize && -moy < maxHeight * LevelEditorData.Level.CellSize) 
                     {
-                        // Make sure we haven't exceeded the max count
+                        // Make sure we haven't exceeded the max count or are the main event
                         if (LevelEditorData.Level.EventData.Count < LevelEditorData.ObjManager.MaxObjectCount)
                         {
                             var eventData = LevelEditorData.ObjManager.CreateObject(eventDropdown.value);
@@ -631,7 +631,11 @@ namespace R1Engine
                 }
 
                 // Delete selected event
-                if (Input.GetKeyDown(KeyCode.Delete) && modeEvents && SelectedEvent != null && Application.platform != RuntimePlatform.WebGLPlayer)
+                if (Input.GetKeyDown(KeyCode.Delete) && 
+                    modeEvents && 
+                    SelectedEvent != null && 
+                    Application.platform != RuntimePlatform.WebGLPlayer &&
+                    SelectedEvent != Controller.obj.levelController.RaymanObject)
                 {
                     if (SelectedEvent != null)
                         SelectedEvent.IsSelected = false;
