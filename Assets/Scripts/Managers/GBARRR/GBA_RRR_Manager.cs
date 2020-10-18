@@ -135,19 +135,72 @@ namespace R1Engine
                     x.SpritePaletteIndex
                 }).ToArray();
 
-                ARGBColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(16, true) : null;
+                ARGBColor[] pal = flags.HasFlag(ExportFlags.Graphics) ? Util.CreateDummyPalette(256, true, wrap: 16) : null;
 
                 // Helper
+                void ExportConvertedMode7Block(string outPath, uint length) {
+                    bool exported = false;
+                    Pointer blockOff = s.CurrentPointer;
+
+                    // Graphics
+                    /*if (!exported && flags.HasFlag(ExportFlags.Graphics)) {
+                        s.Goto(blockOff);
+                        try {
+                            var gb = s.SerializeObject<GBARRR_GraphicsBlock>(default, name: $"GraphicsBlock[{i}]");
+                            if (gb.Count != 0) {
+                                int tileDataSize = gb.TileData[0].Length;
+                                if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
+                                    //gb.TileSize = (uint)Mathf.RoundToInt(Mathf.Sqrt(tileDataSize * 2));
+                                    ExportSpriteFrames(gb, pal, 0, Path.Combine(outPath, $"ActorGraphics/{i}_{absoluteOffset:X8}/"));
+                                    exported = true;
+                                }
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }*/
+
+                    // Palettes
+                    if (!exported && flags.HasFlag(ExportFlags.Palettes)) {
+                        s.Goto(blockOff);
+                        if (length == 0x200) {
+                            var p = s.SerializeObject<GBARRR_Palette>(default, name: $"Palette");
+                            PaletteHelpers.ExportPalette(Path.Combine(outPath, $"Palette.png"), p.Palette.Select(x => new ARGBColor(x.Red, x.Green, x.Blue)).ToArray(), optionalWrap: 16);
+                            exported = true;
+                            if (p != null) pal = p.Palette;
+                        }
+                    }
+
+                    // Tilesets
+                    if (!exported && flags.HasFlag(ExportFlags.Tilesets)) {
+                        s.Goto(blockOff);
+                        if ((length % 0x20) == 0) {
+                            try {
+                                var bytes = s.SerializeArray<byte>(default, length, name: $"Block");
+                                bool is4Bit = (length % 0x40 != 0);
+                                var ts = LoadTileSet(bytes, is4Bit, pal, palCount: is4Bit ? 16 : 1);
+                                Util.ByteArrayToFile(Path.Combine(outPath, $"Tileset.png"), ts.Tiles[0].texture.EncodeToPNG());
+                                exported = true;
+                            } catch (Exception ex) {
+                            }
+                        }
+                    }
+
+                    // Binary
+                    if (flags.HasFlag(ExportFlags.Normal)) {
+                        s.Goto(blockOff);
+                        var bytes = s.SerializeArray<byte>(default, length, name: $"Block");
+
+                        Util.ByteArrayToFile(Path.Combine(outPath, $"Binary.dat"), bytes);
+                    }
+                }
                 void ExportMode7Block(Pointer ptr, string path, bool compressed = true, int length = 0x200) {
                     s.DoAt(ptr, () => {
                         if (compressed) {
                             s.DoEncoded(new RNCEncoder(hasHeader: false), () => {
-                                var b = s.SerializeArray<byte>(default, s.CurrentLength, name: path);
-                                Util.ByteArrayToFile($"{outputPath}/Mode7Compressed/{path}.bin", b);
+                                ExportConvertedMode7Block($"{outputPath}/Mode7/Compressed/{path}", s.CurrentLength);
                             });
                         } else {
-                            var b = s.SerializeArray<byte>(default, length, name: path);
-                            Util.ByteArrayToFile($"{outputPath}/Mode7Uncompressed/{path}.bin", b);
+                            ExportConvertedMode7Block($"{outputPath}/Mode7/{path}", 0x200);
                         }
                     });
                 }
@@ -174,10 +227,15 @@ namespace R1Engine
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray3], "Mode7_ComprArray3", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray4], "Mode7_ComprArray4", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_ComprArray5], "Mode7_ComprArray5", 3);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray1], "Mode7_SpriteArray1", 2);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray2], "Mode7_SpriteArray2", 2);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray1] + 8, "Mode7_SpriteArray1_Pal", 10, compressed: false);
-                    ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_SpriteArray2] + 8, "Mode7_SpriteArray2_Pal", 31, compressed: false);
+                    for (int i = 0; i < 15; i++) { // Only some are compressed
+                        // Export palette first so it's cached
+                        ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MenuArray] + i * 0xC + 0x8, $"Mode7_MenuArray_Pal/{i}", 1, compressed: false);
+                        try {
+                            ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MenuArray] + i * 0xC, $"Mode7_MenuArray/{i}", 2);
+                        } catch (Exception ex) {
+                        }
+                    }
+                    pal = Util.CreateDummyPalette(256, true, wrap: 16);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MapTiles], "Mode7_MapTiles", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_BG1Tiles], "Mode7_BG1Tiles", 3);
                     ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_Unk1Tiles], "Mode7_Unk1Tiles", 3);
@@ -576,7 +634,7 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, ARGB1555Color[] palette, int palStart = 0, int palCount = 1)
+        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, ARGBColor[] palette, int palStart = 0, int palCount = 1)
         {
             int block_size = is4bit ? 0x20 : 0x40;
             const float texWidth = 256f;

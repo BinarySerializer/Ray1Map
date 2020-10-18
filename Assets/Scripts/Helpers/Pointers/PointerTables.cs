@@ -417,8 +417,7 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x087218cc,
                         [GBARRR_Pointer.Mode7_ComprArray5] = 0x087218b4,
 
-                        [GBARRR_Pointer.Mode7_SpriteArray1] = 0x08721f44,
-                        [GBARRR_Pointer.Mode7_SpriteArray2] = 0x08721f74,
+                        [GBARRR_Pointer.Mode7_MenuArray] = 0x08721f44,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

@@ -39,13 +39,14 @@ namespace R1Engine {
 
 			return string.Format("{0:n" + decimalPlaces + "} {1}", dValue, SizeSuffixes[i]);
 		}
-        public static ARGBColor[] CreateDummyPalette(int length, bool firstTransparent = true) {
+        public static ARGBColor[] CreateDummyPalette(int length, bool firstTransparent = true, int? wrap = null) {
             ARGBColor[] pal = new ARGBColor[length];
+            if(wrap == null) wrap = length;
             if (firstTransparent) {
                 pal[0] = new ARGBColor(0,0,0,0);
             }
             for (int i = firstTransparent ? 1 : 0; i < length; i++) {
-                float val = (float)i / (length - 1);
+                float val = (float)(i % wrap.Value) / (wrap.Value - 1);
                 byte bv = (byte)Mathf.RoundToInt(val * 255f);
                 pal[i] = new ARGBColor(255,bv,bv,bv);
             }

@@ -30,7 +30,6 @@
         Mode7_ComprArray3,
         Mode7_ComprArray4,
         Mode7_ComprArray5,
-        Mode7_SpriteArray1,
-        Mode7_SpriteArray2,
+        Mode7_MenuArray,
     }
 }
