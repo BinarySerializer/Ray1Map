@@ -3,11 +3,13 @@ using UnityEngine.EventSystems;
 
 namespace R1Engine {
     public class EditorCam : MonoBehaviour {
+
         public bool pixelSnap;
         public float fov = 15;
         public float inertia = 0.05f;
         public float friction = 3;
         public float WASDScrollSpeed = 5;
+
         [HideInInspector] public float fricStart;
         [HideInInspector] public Vector3 pos;
         [HideInInspector] public Vector3 vel;
@@ -26,6 +28,9 @@ namespace R1Engine {
 
         void Update() {
 
+            //Allow RMB panning only in certain modes, otherwise force wasd movement
+            bool canPan = (editor.currentMode == LevelEditorBehaviour.EditMode.Events || editor.currentMode == LevelEditorBehaviour.EditMode.Links);
+
             if (Settings.LoadFromMemory && Controller.obj.levelEventController.hasLoaded && Settings.FollowRaymanInMemoryMode)
             {
                 var rayman = LevelEditorData.Level.Rayman;
@@ -34,14 +39,12 @@ namespace R1Engine {
                     pos = new Vector3(rayman.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(rayman.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
             }
 
-
             Vector3 mouseDeltaOrtho = Input.mousePosition - lastMousePosition;
             lastMousePosition = Input.mousePosition;
 
-
             if (LevelEditorData.Level != null) {
-                // MMB scroling
-                if (Input.GetMouseButton(1) && !Input.GetKey(KeyCode.LeftControl)) {
+                // RMB scroling
+                if (Input.GetMouseButton(1) && canPan) {
                     if (!panStart.HasValue) {
                         panStart = Input.mousePosition;
                     }

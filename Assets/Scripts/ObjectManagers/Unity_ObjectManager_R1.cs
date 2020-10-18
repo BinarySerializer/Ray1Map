@@ -528,5 +528,14 @@ namespace R1Engine
                 s.DoAt(Pointers.TryGetItem(nameof(OldNumLevelChoice)), () => OldNumLevelChoice = s.Serialize<short>(OldNumLevelChoice, name: nameof(OldNumLevelChoice)));
             }
         }
+
+        public override bool IsObjectAlways(int index) {
+            // Get the event
+            var e = AvailableEvents[index];
+
+            var flag = ((R1_EventType)e.Type).GetAttribute<ObjTypeInfoAttribute>()?.Flag;
+
+            return flag == ObjTypeFlag.Always;
+        }
     }
 }

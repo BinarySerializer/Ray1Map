@@ -12,7 +12,6 @@ namespace R1Engine
         //Settings
         public int autoScrollMargin = 60;
         public float autoScrollSpeed = 5;
-        public bool selectSwitch = true;
         //Colours for selections
         public Color colorSelect, colorNew, colorDelete;
         //References
@@ -30,8 +29,6 @@ namespace R1Engine
         public GameObject layerTiles;
         public GameObject layerTypes;
         public GameObject layerEvents;
-        //Text for mode
-        public Text selectSwitchText;
 
         //Current tile under the mouse
         public Unity_Tile mouseTile;
@@ -75,41 +72,15 @@ namespace R1Engine
                 modeButtons[i].colors = b;
             }
 
-            //What to show/hide with each mode
-            //layerTypes.SetActive(currentMode == EditMode.Collisions);
-            //layerEvents.SetActive(currentMode == EditMode.Events || currentMode == EditMode.Links);
-            
+            //Show tile selection square and the preview in tiles and types modes
             tileSelectSquare.gameObject.SetActive(currentMode == EditMode.Tiles || currentMode == EditMode.Collisions);
             lvlTilemapController.tilemapPreview.gameObject.SetActive(currentMode == EditMode.Tiles);
-
+            
             if (currentMode != EditMode.Tiles) {
                 if (lvlTilemapController.focusedOnTemplate) {
                     lvlTilemapController.ShowHideTemplate();
                 }
             }
-            
-            //In the end visibility options should not be tied to the edit mode
-            /*
-            //Change some of the visibility buttons
-            if (currentMode == EditMode.Tiles) {
-                
-                //Settings.ShowTiles = true;
-                //layerTiles.SetActive(true);
-            }
-            if (currentMode == EditMode.Collisions) {
-                ChangeVisibButton(1, true);
-                //Settings.ShowCollision = true;
-                //layerTypes.SetActive(true);
-            }
-            if (currentMode == EditMode.Events) {
-                ChangeVisibButton(2, true);
-                //Settings.ShowObjects = true;
-                //layerEvents.SetActive(true);
-            }
-            if (currentMode == EditMode.Links) {
-                //Settings.ShowLinks = true;
-            }
-            */
         }
 
         public void SetLayerVisibility(int index) {
@@ -173,17 +144,13 @@ namespace R1Engine
         void Start() {
             //Default to events
             SetEditMode(2);
-            //Set visibility buttons
-            ChangeVisibButton(0);
-            ChangeVisibButton(1);
-            ChangeVisibButton(2);
-            ChangeVisibButton(3);
         }
 
         public void SetCurrentType(int type)
         {
             currentType = (R1_TileCollisionType)type;
         }
+
         public void ClearSelection() {
             selection = null;
             tileSelectSquare.Clear();
@@ -206,6 +173,7 @@ namespace R1Engine
                 layerEvents.SetActive(!layerEvents.activeSelf);
                 ChangeVisibButton(2);
             }
+            ChangeVisibButton(3);
 
             if (Controller.LoadState != Controller.State.Finished || LevelEditorData.Level == null) return;
 
@@ -213,17 +181,6 @@ namespace R1Engine
         
             //Tile editing
             if (currentMode == EditMode.Tiles || currentMode == EditMode.Collisions) {
-                //Switch for changing if selecting/drawing
-                if (Input.GetKeyDown(KeyCode.LeftControl)) {
-                    selectSwitch = !selectSwitch;
-                    if (selectSwitch) {
-                        selectSwitchText.text = "Selecting";
-                    }
-                    else {
-                        selectSwitchText.text = "Pasting";
-                    }
-                }
-
                 // Get the tile under the mouse
                 Vector3 mousePositionTile = lvlController.controllerTilemap.MouseToTileCoords(mousePosition);
                 Vector2Int mouseTileInt = lvlController.controllerTilemap.MouseToTileInt(mousePosition);
@@ -238,7 +195,7 @@ namespace R1Engine
                 // Left click begins drag and assigns the starting corner of the selection square
                 if (!dragging && mouseTile != null) {
                     if (!EventSystem.current.IsPointerOverGameObject()) {
-                        if (GetMouseButtonDown(0) && selectSwitch) {
+                        if (GetMouseButtonDown(0)) {
                             tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
                             dragging = true;
                             selecting = true;
@@ -246,13 +203,10 @@ namespace R1Engine
                             if (currentMode == EditMode.Tiles)
                                 lvlTilemapController.ClearPreviewTilemap();
                         }
-                        if (GetMouseButtonDown(0) && !selectSwitch) {
+                        else if (GetMouseButtonDown(1)) {
                             tileSelectSquare.SetStartCorner(mouseTileInt.x, mouseTileInt.y);
                             dragging = true;
                             selecting = false;
-                            //Clear old preview tilemap
-                            if (currentMode == EditMode.Tiles)
-                                lvlTilemapController.ClearPreviewTilemap();
                         }
                     }
                 }
@@ -314,7 +268,7 @@ namespace R1Engine
                     if (currentMode == EditMode.Tiles) 
                     {
                         // If dragging and selecting mouse up, record the selection
-                        if (selecting && !GetMouseButton(0) && selectSwitch) {
+                        if (selecting && !GetMouseButton(0)) {
                             dragging = false;
 
                             // Create array for selected area
@@ -342,7 +296,7 @@ namespace R1Engine
                             }
                         }
                         // If dragging and painting mouse up, set the selection
-                        if (!selecting && GetMouseButtonUp(0) && !selectSwitch) {
+                        if (!selecting && GetMouseButtonUp(1)) {
                             dragging = false;
                             if (selection != null) {
                                 if (!lvlTilemapController.focusedOnTemplate) {
@@ -381,38 +335,34 @@ namespace R1Engine
                     }
                     else if (currentMode == EditMode.Collisions) 
                     {
-                        //If dragging and selecting mouse up; clear types
-                        if (selecting && !GetMouseButton(0) && selectSwitch)
+                        //Fill with selected type
+                        if (selecting && !GetMouseButton(0))
                         {
                             dragging = false;
-
-                            // "Paste" the selection
-                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) 
-                            {
-                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
-                                {
+                            //Paste the current type
+                            for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
                                     var t = map.GetMapTile(x, y);
                                     TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, (byte)currentType);
+
                                     t.HasPendingEdits = true;
 
                                     TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
                                 }
                             }
                         }
-                        // Fill with selected type
-                        if (!selecting && GetMouseButtonUp(0) && !selectSwitch) {
+                        //Fill with empty
+                        if (!selecting && GetMouseButtonUp(1)) {
                             dragging = false;
-                            // "Paste" the selection
+
                             for (int y = (int)tileSelectSquare.YStart; y <= tileSelectSquare.YEnd; y++) {
-                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) 
-                                {
+                                for (int x = (int)tileSelectSquare.XStart; x <= tileSelectSquare.XEnd; x++) {
                                     var t = map.GetMapTile(x, y);
                                     TempPrevTileHistory.Add(new Ray1MapEditorHistoryTile(t.CloneObj(), x, y));
 
-                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, (byte)currentType);
-
+                                    var tile = lvlController.controllerTilemap.SetTypeAtPos(x, y, 0);
                                     t.HasPendingEdits = true;
 
                                     TempTileHistory.Add(new Ray1MapEditorHistoryTile(tile.CloneObj(), x, y));
