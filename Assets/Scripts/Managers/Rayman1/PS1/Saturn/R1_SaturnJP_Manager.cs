@@ -4,6 +4,7 @@
     {
         public override uint GetPalOffset => 0x791C4;
         public override uint GetFndFileTableOffset => 0x818E8;
+        public override uint GetFndSPFileTableOffset => 0x81CDF;
         public override uint GetFndIndexTableOffset => 0x81C17;
 
         public override uint? TypeZDCOffset => 0x7EFD2;

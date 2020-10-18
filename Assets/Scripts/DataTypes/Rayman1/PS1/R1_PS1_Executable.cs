@@ -14,6 +14,7 @@ namespace R1Engine
 
         public ARGB1555Color[] Saturn_Palettes { get; set; }
         public string[][] Saturn_FNDFileTable { get; set; }
+        public string[][] Saturn_FNDSPFileTable { get; set; }
         public byte[][] Saturn_FNDIndexTable { get; set; }
 
         public int GetFileTypeIndex(R1_PS1BaseManager manager, R1_PS1_FileType type) => FileTable.FindItemIndex(x => x.Offset.AbsoluteOffset == manager.FileTableInfos.FirstOrDefault(t => t.FileType == type)?.Offset);
@@ -81,6 +82,15 @@ namespace R1Engine
                 {
                     for (int i = 0; i < Saturn_FNDFileTable.Length; i++)
                         Saturn_FNDFileTable[i] = s.SerializeStringArray(Saturn_FNDFileTable[i], 10, 12, name: $"{nameof(Saturn_FNDFileTable)}[{i}]");
+                });
+
+                if (Saturn_FNDSPFileTable == null)
+                    Saturn_FNDSPFileTable = new string[6][];
+
+                s.DoAt(new Pointer(saturnManager.GetFndSPFileTableOffset, Offset.file), () =>
+                {
+                    for (int i = 0; i < Saturn_FNDSPFileTable.Length; i++)
+                        Saturn_FNDSPFileTable[i] = s.SerializeStringArray(Saturn_FNDSPFileTable[i], 5, 12, name: $"{nameof(Saturn_FNDSPFileTable)}[{i}]");
                 });
 
                 if (Saturn_FNDIndexTable == null)
