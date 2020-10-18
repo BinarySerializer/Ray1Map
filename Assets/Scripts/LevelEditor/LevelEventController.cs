@@ -148,10 +148,24 @@ namespace R1Engine
             }));
 
             // Fill the dropdown menu
-            eventDropdown.options = LevelEditorData.ObjManager.GetAvailableObjects.Select(x => new Dropdown.OptionData
-            {
-                text = x
-            }).ToList();
+            var objs = LevelEditorData.ObjManager.GetAvailableObjects;
+            var list = new List<Dropdown.OptionData>();
+            for (int i=0; i<objs.Length; i++) {
+                var entry = new Dropdown.OptionData();
+
+                if (LevelEditorData.ObjManager.IsObjectAlways(i)) {
+                    entry.text = "A-" + objs[i];
+                }
+                else {
+                    entry.text = objs[i];
+                }
+
+                list.Add(entry);
+            }
+            eventDropdown.options = list;
+            //eventDropdown.options = LevelEditorData.ObjManager.GetAvailableObjects.Select(x => new Dropdown.OptionData {
+            //    text = x               
+            //}).ToList();
 
             // Default to the first event
             eventDropdown.captionText.text = eventDropdown.options.FirstOrDefault()?.text;

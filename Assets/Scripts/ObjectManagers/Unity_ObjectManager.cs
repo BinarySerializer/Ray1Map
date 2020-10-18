@@ -183,5 +183,7 @@ namespace R1Engine
 
         protected virtual void InitMemoryLoading(SerializerObject s, Pointer offset) { }
         protected virtual bool DoMemoryLoading(Context gameMemoryContext, Pointer offset) => false;
+
+        public virtual bool IsObjectAlways(int index) => false;
     }
 }

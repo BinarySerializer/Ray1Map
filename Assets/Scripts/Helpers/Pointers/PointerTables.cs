@@ -55,6 +55,9 @@ namespace R1Engine
                     [R1_GBA_ROMPointer.PinsGraphics] = 0x0832CBF4,
 
                     [R1_GBA_ROMPointer.PinsGraphics] = 0x0835F9B4,
+
+                    [R1_GBA_ROMPointer.ExtFontImgBuffers] = 0x086DCEE8,
+                    [R1_GBA_ROMPointer.MultiplayerImgBuffers] = 0x086DCF98,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
             }
             else if (gameMode == GameModeSelection.RaymanAdvanceGBAEU || gameMode == GameModeSelection.RaymanAdvanceGBAEUBeta)
@@ -96,6 +99,9 @@ namespace R1Engine
                     [R1_GBA_ROMPointer.PinsGraphics] = 0x0832CB20,
 
                     [R1_GBA_ROMPointer.RaymanGraphics] = 0x0835F8E0,
+
+                    [R1_GBA_ROMPointer.ExtFontImgBuffers] = 0x086dce14,
+                    [R1_GBA_ROMPointer.MultiplayerImgBuffers] = 0x086dcec4,
                 }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile) - offset);
             }
             else
