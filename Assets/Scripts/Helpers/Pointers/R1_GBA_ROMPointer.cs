@@ -38,6 +38,9 @@
         FontLargeGraphics,
         PinsGraphics,
 
-        RaymanGraphics
+        RaymanGraphics,
+
+        ExtFontImgBuffers,
+        MultiplayerImgBuffers,
     }
 }

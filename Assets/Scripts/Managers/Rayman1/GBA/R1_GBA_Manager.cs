@@ -174,7 +174,7 @@ namespace R1Engine
                     foreach (var img in g.ImageDescriptors)
                     {
                         // Get the texture
-                        var tex = GetSpriteTexture(context, g, img, gp.Value?.FirstOrDefault().Value ?? data.GetSpritePalettes(baseGameSettings));
+                        var tex = GetSpriteTexture(context, g.ImageBuffer, img, gp.Value?.FirstOrDefault().Value ?? data.GetSpritePalettes(baseGameSettings));
 
                         // Make sure it's not null
                         if (tex == null)
@@ -189,6 +189,53 @@ namespace R1Engine
                     }
 
                     desIndex++;
+                }
+
+                // Export extended graphics
+                if (isGBA)
+                {
+                    var s = context.Deserializer;
+                    var extDES = 0;
+
+                    s.DoAt(gbaPointerTable[R1_GBA_ROMPointer.MultiplayerImgBuffers], () =>
+                    {
+                        for (int i = 0; i < 16; i++)
+                            exportExtDES((ushort)(i < 8 ? 16 : 32), (ushort)(i < 8 ? 32 : 64), i);
+                    });
+
+                    extDES++;
+
+                    s.DoAt(gbaPointerTable[R1_GBA_ROMPointer.ExtFontImgBuffers], () =>
+                    {
+                        for (int i = 0; i < 44; i++)
+                            exportExtDES((ushort)(i < 22 ? 16 : 32), (ushort)(i < 22 ? 16 : 32), i);
+                    });
+
+                    void exportExtDES(ushort width, ushort height, int index)
+                    {
+                        var length = ((width * height / 2) / 32) * 4 + (width * height / 2);
+
+                        s.DoAt(s.SerializePointer(default), () =>
+                        {
+                            var buffer = s.SerializeArray<byte>(default, length);
+                            var d = new R1_ImageDescriptor()
+                            {
+                                Width = width,
+                                Height = height,
+                                Index = 1 // Make sure it's not treated as a dummy sprite
+                            };
+
+                            d.Init(s.CurrentPointer); // Init so it has a context, which is used for a check
+
+                            var tex = GetSpriteTexture(context, buffer, d, data.GetSpritePalettes(context.Settings));
+
+                            Util.ByteArrayToFile(Path.Combine(outputDir, "Extended", $"{extDES} - {index}.png"), tex.EncodeToPNG());
+                        });
+                    }
+                }
+                else
+                {
+                    // TODO: Find on DSi
                 }
 
                 // Unload textures
@@ -269,7 +316,7 @@ namespace R1Engine
                         foreach (var img in g.ImageDescriptors)
                         {
                             // Get the texture
-                            var tex = GetSpriteTexture(context, g, img, data.GetSpritePalettes(baseGameSettings));
+                            var tex = GetSpriteTexture(context, g.ImageBuffer, img, data.GetSpritePalettes(baseGameSettings));
 
                             // Make sure it's not null
                             if (tex == null)
@@ -446,11 +493,11 @@ namespace R1Engine
         /// Gets the sprite texture for an event
         /// </summary>
         /// <param name="context">The context</param>
-        /// <param name="e">The event</param>
+        /// <param name="imgBuffer">The image buffer</param>
         /// <param name="s">The image descriptor to use</param>
         /// <param name="pal">The sprite palette</param>
         /// <returns>The texture</returns>
-        public virtual Texture2D GetSpriteTexture(Context context, R1_GBA_EventGraphicsData e, R1_ImageDescriptor s, ARGB1555Color[] pal)
+        public virtual Texture2D GetSpriteTexture(Context context, byte[] imgBuffer, R1_ImageDescriptor s, ARGB1555Color[] pal)
         {
             if (s.IsDummySprite())
                 return null;
@@ -469,16 +516,16 @@ namespace R1Engine
 
             //Controller.print((e.ImageBufferPointer + offset) + " - " + offset);
 
-            while (e.ImageBuffer[curOff] != 0xFF)
+            while (curOff < imgBuffer.Length && imgBuffer[curOff] != 0xFF)
             {
-                if (e.ImageBuffer[curOff] == 0xFE) {
+                if (imgBuffer[curOff] == 0xFE) {
                     curOff++;
                     continue;
                 }
-                var structure = e.ImageBuffer[curOff];
-                var blockX = e.ImageBuffer[curOff + 1];
-                var blockY = e.ImageBuffer[curOff + 2];
-                var paletteInd = UsesPaletteIndex ? e.ImageBuffer[curOff + 3] : 0;
+                var structure = imgBuffer[curOff];
+                var blockX = imgBuffer[curOff + 1];
+                var blockY = imgBuffer[curOff + 2];
+                var paletteInd = UsesPaletteIndex ? imgBuffer[curOff + 3] : 0;
                 bool doubleScale = (structure & 0x10) != 0;
                 curOff += UsesPaletteIndex ? 4 : 3;
                 switch (structure & 0xF)
@@ -488,7 +535,7 @@ namespace R1Engine
                         {
                             for (int x = 0; x < 4; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
                         }
@@ -498,7 +545,7 @@ namespace R1Engine
                         {
                             for (int x = 0; x < 2; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
                         }
@@ -506,7 +553,7 @@ namespace R1Engine
                     case 9:
                         for (int y = 0; y < 4; y++)
                         {
-                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                             curOff += block_size;
                         }
                         break;
@@ -514,7 +561,7 @@ namespace R1Engine
                         // 2 blocks vertically
                         for (int y = 0; y < 2; y++)
                         {
-                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            FillSpriteTextureBlock(tex, blockX, blockY, 0, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                             curOff += block_size;
                         }
                         break;
@@ -523,7 +570,7 @@ namespace R1Engine
                         {
                             for (int x = 0; x < 8; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
                         }
@@ -533,7 +580,7 @@ namespace R1Engine
                         {
                             for (int x = 0; x < 4; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
                         }
@@ -541,7 +588,7 @@ namespace R1Engine
                     case 5:
                         for (int x = 0; x < 4; x++)
                         {
-                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, imgBuffer, curOff, pal, paletteInd, doubleScale);
                             curOff += block_size;
                         }
                         //curOff += block_size * 4;
@@ -550,14 +597,14 @@ namespace R1Engine
                         // 2 blocks horizontally
                         for (int x = 0; x < 2; x++)
                         {
-                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                            FillSpriteTextureBlock(tex, blockX, blockY, x, 0, imgBuffer, curOff, pal, paletteInd, doubleScale);
                             curOff += block_size;
                         }
                         break;
                     case 3:
                         for (int y = 0; y < 8; y++) {
                             for (int x = 0; x < 8; x++) {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
                         }
@@ -567,7 +614,7 @@ namespace R1Engine
                         {
                             for (int x = 0; x < 4; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
                         }
@@ -578,19 +625,19 @@ namespace R1Engine
                         {
                             for (int x = 0; x < 2; x++)
                             {
-                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                                FillSpriteTextureBlock(tex, blockX, blockY, x, y, imgBuffer, curOff, pal, paletteInd, doubleScale);
                                 curOff += block_size;
                             }
                         }
                         break;
                     case 0:
                         // 1 block
-                        FillSpriteTextureBlock(tex, blockX, blockY, 0, 0, e.ImageBuffer, curOff, pal, paletteInd, doubleScale);
+                        FillSpriteTextureBlock(tex, blockX, blockY, 0, 0, imgBuffer, curOff, pal, paletteInd, doubleScale);
                         curOff += block_size;
                         break;
-                    default:
-                        Controller.print("Didn't recognize command " + structure + " - " + e.ImageBufferPointer + " - " + curOff + (e.ImageBufferPointer + offset));
-                        break;
+                    //default:
+                    //    Controller.print("Didn't recognize command " + structure + " - " + e.ImageBufferPointer + " - " + curOff + (e.ImageBufferPointer + offset));
+                    //    break;
                 }
             }
 
@@ -813,7 +860,7 @@ namespace R1Engine
                 foreach (R1_ImageDescriptor img in graphics.ImageDescriptors)
                 {
                     // Get the texture for the sprite, or null if not loading textures
-                    Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics, img, spritePalette) : null;
+                    Texture2D tex = loadTextures ? GetSpriteTexture(context, graphics.ImageBuffer, img, spritePalette) : null;
 
                     // Add it to the array
                     finalDesign.Sprites.Add(tex == null ? null : tex.CreateSprite());
