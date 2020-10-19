@@ -83,9 +83,11 @@ namespace R1Engine
                                 Ushort_0C = (ushort)(rom.GraphicsTable0[w][i].Key * 2)
                             };
                             AssignActorValues(act, rom, l, w);
-                            if (act.P_GraphicsOffset != 0) {
-                                if (!dict.ContainsKey(act.P_GraphicsOffset)) continue;
-                                act.GraphicsBlock = dict[act.P_GraphicsOffset];
+                            if (act.P_GraphicsOffset != 0 || act.GraphicsBlock != null) {
+                                if (act.GraphicsBlock == null) {
+                                    if (!dict.ContainsKey(act.P_GraphicsOffset)) continue;
+                                    act.GraphicsBlock = dict[act.P_GraphicsOffset];
+                                }
                                 /*    UnityEngine.Debug.Log("Graphics with offset " + string.Format("{0:X8}", act.P_GraphicsOffset) + " weren't loaded!");
                                 } else {
                                     act.GraphicsBlock = dict[act.P_GraphicsOffset];
@@ -190,7 +192,7 @@ namespace R1Engine
                                 var ts = LoadTileSet(bytes, is4Bit, pal, palCount: is4Bit ? 16 : 1);
                                 Util.ByteArrayToFile(Path.Combine(outPath, $"Tileset.png"), ts.Tiles[0].texture.EncodeToPNG());
                                 exported = true;
-                            } catch (Exception ex) {
+                            } catch (Exception) {
                             }
                         }
                     }
@@ -241,7 +243,7 @@ namespace R1Engine
                         ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MenuArray] + i * 0xC + 0x8, $"Mode7_MenuArray_Pal/{i}", 1, compressed: false);
                         try {
                             ExportMode7Array(pointerTable[GBARRR_Pointer.Mode7_MenuArray] + i * 0xC, $"Mode7_MenuArray/{i}", 2);
-                        } catch (Exception ex) {
+                        } catch (Exception) {
                         }
                     }
                     pal = Util.CreateDummyPalette(256, true, wrap: 16);
@@ -317,7 +319,7 @@ namespace R1Engine
                                         UnityEngine.Debug.Log($"Possible Graphics block {i}: {Math.Sqrt(tileDataSize * 2)} - {tileDataSize}");
                                     }*/
                                 }
-                            } catch (Exception ex) {
+                            } catch (Exception) {
                             }
                         }
 
@@ -332,7 +334,7 @@ namespace R1Engine
                                     var ts = LoadTileSet(tileset.Data, is4Bit, tileset.Palette, palCount: is4Bit ? 16 : 1);
                                     Util.ByteArrayToFile(Path.Combine(outPath, $"Tilesets/{i}_{absoluteOffset:X8}.png"), ts.Tiles[0].texture.EncodeToPNG());
                                     exported = true;
-                                } catch (Exception ex) {
+                                } catch (Exception) {
                                 }
                             }
                         }
@@ -623,12 +625,18 @@ namespace R1Engine
 
                 AssignActorValues(act, rom, level, world);
 
-                if (act.P_GraphicsOffset != 0)
+                if (act.P_GraphicsOffset != 0 || act.GraphicsBlock != null)
                 {
-                    if (!dict.ContainsKey(act.P_GraphicsOffset))
-                        Debug.LogWarning($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
-                    else
-                        act.GraphicsBlock = dict[act.P_GraphicsOffset];
+                    if (act.GraphicsBlock == null) {
+                        if (!dict.ContainsKey(act.P_GraphicsOffset))
+                            Debug.LogWarning($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
+                        else
+                            act.GraphicsBlock = dict[act.P_GraphicsOffset];
+                    }
+                    Vector2? pivot = null;
+                    if (act.P_GraphicsIndex == 2) { // Rayman has a different pivot
+                        pivot = new Vector2(0.5f, 0f);
+                    }
 
                     if (act.GraphicsBlock != null)
                     {
@@ -636,7 +644,7 @@ namespace R1Engine
                         {
                             graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
                                 GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex)
-                                    .Select(x => x.CreateSprite()).ToArray()));
+                                    .Select(x => x.CreateSprite(pivot: pivot)).ToArray()));
                         }
                         else
                         {
@@ -645,7 +653,7 @@ namespace R1Engine
                                     s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
 
                             graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
-                                GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite())
+                                GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite(pivot: pivot))
                                     .ToArray()));
                         }
                     }
@@ -895,11 +903,13 @@ namespace R1Engine
         public Dictionary<uint, GBARRR_GraphicsBlock> LoadActorGraphics(SerializerObject s, GBARRR_ROM rom, int level, int world) {
 
             Dictionary<uint, GBARRR_GraphicsBlock> indexDict = new Dictionary<uint, GBARRR_GraphicsBlock>();
+            Dictionary<uint, GBARRR_GraphicsBlock> memAddressDict = new Dictionary<uint, GBARRR_GraphicsBlock>();
             GBARRR_GraphicsBlock LoadGraphicsBlock(uint index, uint count, uint tileSize) {
                 GBARRR_GraphicsBlock obj = null;
                 if(indexDict.ContainsKey(index)) return indexDict[index];
                 rom.OffsetTable.DoAtBlock(s.Context, index, size => {
                     obj = s.SerializeObject<GBARRR_GraphicsBlock>(null, onPreSerialize: gb => {
+                        gb.BlockIndex = (int)index;
                         gb.Count = count;
                         gb.TileSize = tileSize;
                     }, name: "Graphics");
@@ -908,10 +918,23 @@ namespace R1Engine
                     }
                 });
                 indexDict[index] = obj;
+                memAddressDict[index] = obj;
+                return obj;
+            }
+            GBARRR_GraphicsBlock LoadGraphicsBlockUnknown(uint index) {
+                GBARRR_GraphicsBlock obj = null;
+                if (indexDict.ContainsKey(index)) return indexDict[index];
+                rom.OffsetTable.DoAtBlock(s.Context, index, size => {
+                    obj = s.SerializeObject<GBARRR_GraphicsBlock>(null, pb => pb.BlockIndex = (int)index, name: "Graphics");
+                    if (FixedSpriteSizes.ContainsKey((int)index)) {
+                        obj.AnimationAssemble = FixedSpriteSizes[(int)index];
+                    }
+                });
+                indexDict[index] = obj;
+                memAddressDict[index] = obj;
                 return obj;
             }
 
-            Dictionary<uint, GBARRR_GraphicsBlock> memAddressDict = new Dictionary<uint, GBARRR_GraphicsBlock>();
             memAddressDict[0x03003F6C] = LoadGraphicsBlock(0x12, 3, 0x10);
             memAddressDict[0x03004310] = LoadGraphicsBlock(0x16, 9, 0x10);
             memAddressDict[0x0300432C] = LoadGraphicsBlock(0x19, 4, 0x10);
@@ -1465,6 +1488,29 @@ namespace R1Engine
                 memAddressDict[0x0300258C] = LoadGraphicsBlock(0x0000019F, 10, 0x40);
                 memAddressDict[0x03004378] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
                 memAddressDict[0x03002F0C] = LoadGraphicsBlock(0x000001A1, 10, 0x40);
+            }
+
+            // Load extra blocks
+            for (uint i = 145; i <= 230; i++) { // Rayman
+                LoadGraphicsBlockUnknown(i);
+            }
+            for (uint i = 232; i <= 246; i++) { // Gangster
+                LoadGraphicsBlockUnknown(i);
+            }
+            for (uint i = 248; i <= 263; i++) { // Punk
+                LoadGraphicsBlockUnknown(i);
+            }
+            for (uint i = 265; i <= 278; i++) { // Granny
+                LoadGraphicsBlockUnknown(i);
+            }
+            for (uint i = 280; i <= 281; i++) { // Granny carrot
+                LoadGraphicsBlockUnknown(i);
+            }
+            for (uint i = 283; i <= 295; i++) { // Rocker
+                LoadGraphicsBlockUnknown(i);
+            }
+            for (uint i = 297; i <= 311; i++) { // Disco
+                LoadGraphicsBlockUnknown(i);
             }
 
             return memAddressDict;
@@ -2571,6 +2617,14 @@ namespace R1Engine
                 actor.P_Field12 = 6;
                 actor.P_Field34 = actor.P_Field34 | 0x200;
                 //0x03004278 = actor;
+            }
+            // Rayman
+            if (actor.P_GraphicsIndex == 2) {
+                actor.P_GraphicsOffset = 148;
+                actor.P_PaletteIndex = 144;
+                if (level == 0) {
+                    actor.P_GraphicsOffset = 226;
+                }
             }
         }
 

@@ -12,6 +12,7 @@ namespace R1Engine
         public byte[][] TileData { get; set; }
 
         // Custom
+        public int BlockIndex { get; set; }
         public GBA_RRR_Manager.AnimationAssemble AnimationAssemble { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
