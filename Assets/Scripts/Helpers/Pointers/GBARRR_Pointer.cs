@@ -30,10 +30,10 @@
          */
 
         // Mode7Unk
-        Mode7_ComprArray1, // 0x06015000 (12 288 bytes)
+        Mode7_ComprArray1, // 0x06015000 world-specific sprites
         Mode7_ComprArray2, // 0x020150D0 (1024 bytes)
         Mode7_ComprArray3, // 0x020127B0 (32-byte structs)
-        Mode7_ComprArray4, // 0x06010A00
+        Mode7_ComprArray4, // 0x06010A00 hud sprites
 
         // Unknown compressed data 
         Mode7_Compr1, // 0x06010000

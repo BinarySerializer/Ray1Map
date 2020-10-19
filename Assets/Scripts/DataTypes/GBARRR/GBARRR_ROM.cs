@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using UnityEngine;
 
 namespace R1Engine
 {
@@ -74,7 +75,9 @@ namespace R1Engine
             OffsetTable.DoAtBlock(s.Context, 3, size =>
                 Localization = s.SerializeObject<GBARRR_LocalizationBlock>(Localization, name: nameof(Localization)));
 
-            if (GBA_RRR_Manager.GetCurrentGameMode(s.GameSettings) != GBA_RRR_Manager.GameMode.Mode7)
+            var gameMode = GBA_RRR_Manager.GetCurrentGameMode(s.GameSettings);
+
+            if (gameMode == GBA_RRR_Manager.GameMode.Game || gameMode == GBA_RRR_Manager.GameMode.Village)
             {
                 // Serialize level info
                 VillageLevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.VillageLevelInfo],
@@ -154,7 +157,7 @@ namespace R1Engine
                     }
                 });
             }
-            else
+            else if (gameMode == GBA_RRR_Manager.GameMode.Mode7)
             {
                 // Serialize pointer tables
                 Mode7_MapTilesPointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_MapTiles], () => s.SerializePointerArray(Mode7_MapTilesPointers, 3, name: nameof(Mode7_MapTilesPointers)));
@@ -208,6 +211,21 @@ namespace R1Engine
                 for (int i = 0; i < 16; i++)
                     Mode7_TilemapPalette[14 * 16 + i] = Mode7_BG1Palette[i];
             }
+            else if (gameMode == GBA_RRR_Manager.GameMode.Mode7Unused)
+            {
+                OffsetTable.DoAtBlock(s.Context, 1180, size =>
+                {
+                    LevelScene = s.SerializeObject<GBARRR_Scene>(LevelScene, onPreSerialize: x => x.IsUnusedMode7 = true, name: nameof(LevelScene));
+                    Mode7_MapData = s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Foreground, name: nameof(Mode7_MapData));
+                });
+                OffsetTable.DoAtBlock(s.Context, 1181, size =>
+                    CollisionMap = s.SerializeObject<GBARRR_MapBlock>(CollisionMap, name: nameof(CollisionMap),
+                        onPreSerialize: x => x.Type = GBARRR_MapBlock.MapType.Collision));
+
+                OffsetTable.DoAtBlock(s.Context, 1177, size => BG0TileSet = s.SerializeObject<GBARRR_Tileset>(BG0TileSet, onPreSerialize: x => x.BlockSize = size, name: nameof(BG0TileSet)));
+                OffsetTable.DoAtBlock(s.Context, 1178, size => BG1TileSet = s.SerializeObject<GBARRR_Tileset>(BG1TileSet, onPreSerialize: x => x.BlockSize = size, name: nameof(BG1TileSet)));
+                OffsetTable.DoAtBlock(s.Context, 1179, size => LevelTileset = s.SerializeObject<GBARRR_Tileset>(LevelTileset, onPreSerialize: x => x.BlockSize = size, name: nameof(LevelTileset)));
+            }
         }
 
         public GBARRR_LevelInfo GetLevelInfo(GameSettings settings)
@@ -221,6 +239,7 @@ namespace R1Engine
                     return VillageLevelInfo[settings.Level];
 
                 case GBA_RRR_Manager.GameMode.Mode7:
+                case GBA_RRR_Manager.GameMode.Mode7Unused:
                     throw new Exception("Mode7 maps do not use level info");
                 
                 default:

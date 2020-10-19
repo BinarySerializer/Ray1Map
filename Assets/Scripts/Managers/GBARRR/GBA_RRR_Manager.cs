@@ -34,13 +34,18 @@ namespace R1Engine
                 new GameInfo_World(2, Enumerable.Range(1, 1).ToArray()),
                 new GameInfo_World(3, Enumerable.Range(2, 1).ToArray()),
             }), 
+            new GameInfo_Volume(GameMode.Mode7Unused.ToString(), new GameInfo_World[]
+            {
+                new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
+            }), 
         };
 
         public enum GameMode
         {
             Game,
             Village,
-            Mode7
+            Mode7,
+            Mode7Unused
         }
 
         public static GameMode GetCurrentGameMode(GameSettings s) => (GameMode)Enum.Parse(typeof(GameMode), s.EduVolume);
@@ -353,6 +358,21 @@ namespace R1Engine
             var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
             var gameMode = GetCurrentGameMode(context.Settings);
 
+            var lvl = context.Settings.Level;
+            var world = context.Settings.World;
+
+            if (gameMode == GameMode.Village)
+                lvl = 28;
+
+            // Shooting Range 2 should be set to the values of Shooting Range 1
+            if (lvl == 31)
+            {
+                lvl = 29;
+                world = 0;
+            }
+
+            Debug.Log($"RRR level: {world}-{lvl} ({gameMode})");
+
             Controller.DetailedState = $"Loading localization";
             await Controller.WaitIfNecessary();
 
@@ -410,19 +430,72 @@ namespace R1Engine
                 );
             }
 
-            var lvl = context.Settings.Level;
-            var world = context.Settings.World;
+            if (gameMode == GameMode.Mode7Unused)
+            {
+                // Create a collision map and copy over to normal map
+                var cmap = LoadMap(rom.CollisionMap.MapWidth, rom.CollisionMap.MapHeight, null, rom.CollisionMap, null, false, false, 0);
 
-            if (gameMode == GameMode.Village)
-                lvl = 28;
+                // Create the map
+                var map = new Unity_Map
+                {
+                    Width = 256,
+                    Height = 256,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        LoadTileSet(rom.LevelTileset.Data, false, rom.LevelTileset.Palette),
+                    },
+                    MapTiles = rom.Mode7_MapData.Select((x, i) =>
+                    {
+                        x.CollisionType = cmap.MapTiles[i].Data.CollisionType;
+                        return new Unity_Tile(x);
+                    }).ToArray(),
+                };
 
-            // Shooting Range 2 should be set to the values of Shooting Range 1
-            if (lvl == 31) {
-                lvl = 29;
-                world = 0;
+                // Map data appears to be missing for these
+                var bg0 = new Unity_Map
+                {
+                    Width = 32,
+                    Height = 8,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        LoadTileSet(rom.BG0TileSet.Data, false, rom.BG0TileSet.Palette),
+                    },
+                    MapTiles = Enumerable.Range(1, 32 * 8).Select(x => new Unity_Tile(new MapTile()
+                    {
+                        TileMapX = (ushort)x
+                    })).ToArray(),
+                };
+                var bg1 = new Unity_Map
+                {
+                    Width = 32,
+                    Height = 7,
+                    TileSet = new Unity_MapTileMap[]
+                    {
+                        LoadTileSet(rom.BG1TileSet.Data, false, rom.BG1TileSet.Palette),
+                    },
+                    MapTiles = Enumerable.Range(1, 32 * 7).Select(x => new Unity_Tile(new MapTile()
+                    {
+                        TileMapX = (ushort)x
+                    })).ToArray(),
+                };
+
+                var o = new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]);
+
+                return new Unity_Level(
+                    maps: new Unity_Map[]
+                    {
+                        map, // Put the map first so the backgrounds are visible
+                        bg0,
+                        bg1,
+                    },
+                    objManager: o,
+                    eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, o)).ToList(),
+                    getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
+                    cellSize: CellSize,
+                    localization: loc,
+                    defaultMap: 0
+                );
             }
-
-            Debug.Log($"RRR level: {world}-{lvl} ({gameMode})");
 
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
@@ -454,57 +527,12 @@ namespace R1Engine
 
             var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2);
 
-            var levelMap = LoadMap(rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
-            var fgMap = hasFGMap ? LoadMap(rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
+            var levelMap = LoadMap(rom.LevelMap.MapWidth, rom.LevelMap.MapHeight, rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
+            var fgMap = hasFGMap ? LoadMap(rom.FGMap.MapWidth, rom.FGMap.MapHeight, rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
 
             await Controller.WaitIfNecessary();
 
-            SerializerObject s = context.Deserializer;
-            var dict = LoadActorGraphics(s, rom, lvl, world);
-            var graphicsData = new List<Unity_ObjectManager_GBARRR.GraphicsData>();
-
-            var actorIndex = 0;
-
-            // Enumerate every actor
-            foreach (var act in rom.LevelScene.Actors)
-            {
-                Controller.DetailedState = $"Loading actor {actorIndex + 1}/{rom.LevelScene.Actors.Length}";
-                await Controller.WaitIfNecessary();
-
-                AssignActorValues(act, rom, lvl, world);
-
-                if (act.P_GraphicsOffset != 0)
-                {
-                    if (!dict.ContainsKey(act.P_GraphicsOffset))
-                        Debug.LogWarning($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
-                    else
-                        act.GraphicsBlock = dict[act.P_GraphicsOffset];
-
-                    if (act.GraphicsBlock != null)
-                    {
-                        if (act.P_PaletteIndex < 16)
-                        {
-                            graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
-                                GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int) act.P_PaletteIndex)
-                                    .Select(x => x.CreateSprite()).ToArray()));
-                        }
-                        else
-                        {
-                            rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex,
-                                size => act.Palette =
-                                    s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
-
-                            graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
-                                GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite())
-                                    .ToArray()));
-                        }
-                    }
-                }
-
-                actorIndex++;
-            }
-
-            var objManager = new Unity_ObjectManager_GBARRR(context, graphicsData.ToArray());
+            var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom.LevelScene, rom, lvl, world));
 
             await Controller.WaitIfNecessary();
 
@@ -529,6 +557,57 @@ namespace R1Engine
                 defaultCollisionMap: 2,
                 defaultMap: 2
             );
+        }
+
+
+        protected async UniTask<Unity_ObjectManager_GBARRR.GraphicsData[]> LoadGraphicsDataAsync(Context context, GBARRR_Scene scene, GBARRR_ROM rom, int level, int world)
+        {
+            SerializerObject s = context.Deserializer;
+            var dict = LoadActorGraphics(s, rom, level, world);
+            var graphicsData = new List<Unity_ObjectManager_GBARRR.GraphicsData>();
+
+            var actorIndex = 0;
+
+            // Enumerate every actor
+            foreach (var act in scene.Actors)
+            {
+                Controller.DetailedState = $"Loading actor {actorIndex + 1}/{scene.Actors.Length}";
+                await Controller.WaitIfNecessary();
+
+                AssignActorValues(act, rom, level, world);
+
+                if (act.P_GraphicsOffset != 0)
+                {
+                    if (!dict.ContainsKey(act.P_GraphicsOffset))
+                        Debug.LogWarning($"Graphics with offset {act.P_GraphicsOffset:X8} wasn't loaded!");
+                    else
+                        act.GraphicsBlock = dict[act.P_GraphicsOffset];
+
+                    if (act.GraphicsBlock != null)
+                    {
+                        if (act.P_PaletteIndex < 16)
+                        {
+                            graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
+                                GetSpriteFrames(act.GraphicsBlock, rom.SpritePalette, (int)act.P_PaletteIndex)
+                                    .Select(x => x.CreateSprite()).ToArray()));
+                        }
+                        else
+                        {
+                            rom.OffsetTable.DoAtBlock(context, act.P_PaletteIndex,
+                                size => act.Palette =
+                                    s.SerializeObject<GBARRR_Palette>(act.Palette, name: nameof(act.Palette)));
+
+                            graphicsData.Add(new Unity_ObjectManager_GBARRR.GraphicsData(act.P_GraphicsOffset,
+                                GetSpriteFrames(act.GraphicsBlock, act.Palette.Palette, 0).Select(x => x.CreateSprite())
+                                    .ToArray()));
+                        }
+                    }
+                }
+
+                actorIndex++;
+            }
+
+            return graphicsData.ToArray();
         }
 
         protected IEnumerable<Texture2D> GetSpriteFrames(GBARRR_GraphicsBlock spr, ARGBColor[] palette, int paletteIndex)
@@ -589,18 +668,18 @@ namespace R1Engine
             }
         }
 
-        public Unity_Map LoadMap(GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, bool hasAlphaBlending, bool foreground, int palIndex)
+        public Unity_Map LoadMap(uint width, uint height, GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, bool hasAlphaBlending, bool foreground, int palIndex)
         {
             var map = new Unity_Map
             {
-                Width = (ushort)(mapBlock.MapWidth * 4), // The game uses 32x32 tiles, made out of 8x8 tiles
-                Height = (ushort)(mapBlock.MapHeight * 4),
+                Width = (ushort)(width * 4), // The game uses 32x32 tiles, made out of 8x8 tiles
+                Height = (ushort)(height * 4),
                 TileSetWidth = 1,
                 TileSet = new Unity_MapTileMap[]
                 {
                     tileset
                 },
-                MapTiles = new Unity_Tile[mapBlock.MapWidth * 4 * mapBlock.MapHeight * 4],
+                MapTiles = new Unity_Tile[width * 4 * height * 4],
                 IsForeground = foreground
             };
 
@@ -609,18 +688,18 @@ namespace R1Engine
                 map.Alpha = 0.5f;
             }
 
-            for (int y = 0; y < mapBlock.MapHeight; y++)
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < mapBlock.MapWidth; x++)
+                for (int x = 0; x < width; x++)
                 {
                     var actualX = x * 4;
                     var actualY = y * 4;
 
-                    var index_32 = y * mapBlock.MapWidth + x;
-                    var tile_32 = mapBlock.Indices_32[index_32];
+                    var index_32 = y * width + x;
+                    var tile_32 = mapBlock?.Indices_32[index_32];
                     var col_32 = collisionBlock?.Indices_32[index_32];
 
-                    var tiles_16 = mapBlock.Indices_16[tile_32];
+                    var tiles_16 = tile_32 != null ? mapBlock.Indices_16[tile_32.Value] : null;
                     var col_16 = col_32 != null ? collisionBlock.Indices_16[col_32.Value] : null;
 
                     setTiles16(0, 0, 0);
@@ -630,25 +709,30 @@ namespace R1Engine
                     
                     void setTiles16(int offX, int offY, int index)
                     {
-                        var i = tiles_16.TileIndices[index];
-                        var tiles_8 = mapBlock.Tiles_8[i].Tiles;
+                        var i = tiles_16?.TileIndices[index];
+                        var tiles_8 = i != null ? mapBlock?.Tiles_8[i.Value].Tiles : null;
                         var col_8 = col_16 != null ? collisionBlock?.Tiles_8[col_16.TileIndices[index]].Tiles : null;
 
-                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8[0], col_8?[0].CollisionType, $"{i}-0");
-                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8[1], col_8?[1].CollisionType, $"{i}-1");
-                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8[2], col_8?[2].CollisionType, $"{i}-2");
-                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8[3], col_8?[3].CollisionType, $"{i}-3");
+                        setTileAt(actualX + offX + 0, actualY + offY + 0, tiles_8?[0], col_8?[0].CollisionType, $"{i}-0");
+                        setTileAt(actualX + offX + 1, actualY + offY + 0, tiles_8?[1], col_8?[1].CollisionType, $"{i}-1");
+                        setTileAt(actualX + offX + 0, actualY + offY + 1, tiles_8?[2], col_8?[2].CollisionType, $"{i}-2");
+                        setTileAt(actualX + offX + 1, actualY + offY + 1, tiles_8?[3], col_8?[3].CollisionType, $"{i}-3");
                     }
 
                     void setTileAt(int tileX, int tileY, MapTile tile, byte? collisionType, string debugString)
                     {
-                        var tilemapX = (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && tile.TileMapX > 1) ? (ushort)(tile.TileMapX - 2) : tile.TileMapX;
+                        var tilemapX = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapX > 1) 
+                            ? (ushort)(tile?.TileMapX - 2 ?? 0) 
+                            : tile?.TileMapX ?? 0;
+
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
-                            TileMapX = (mapBlock.Type == GBARRR_MapBlock.MapType.Foreground && tile.TileMapX > 1) ? (ushort)(tilemapX + ((palIndex + tile.PaletteIndex) % 16) * (tileset.Tiles.Length / 16)) : tilemapX,
+                            TileMapX = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapX > 1) 
+                                ? (ushort)(tilemapX + ((palIndex + tile?.PaletteIndex) % 16) * (tileset.Tiles.Length / 16)) 
+                                : tilemapX,
                             CollisionType = collisionType ?? 0,
-                            HorizontalFlip = tile.HorizontalFlip,
-                            VerticalFlip = tile.VerticalFlip
+                            HorizontalFlip = tile?.HorizontalFlip ?? false,
+                            VerticalFlip = tile?.VerticalFlip ?? false
                         })
                         {
                             DebugText = debugString
