@@ -261,7 +261,7 @@ namespace R1Engine
                     else
                     {
                         s.DoAt(Menu_Pointers[lvl * 3 + 0], () =>
-                            Menu_Tiles[i] = s.SerializeArray<byte>(Menu_Tiles[i], 0x4B00, name: $"{nameof(Menu_Tiles)}[{i}]"));
+                            Menu_Tiles[i] = s.SerializeArray<byte>(Menu_Tiles[i], 0x4B00*2, name: $"{nameof(Menu_Tiles)}[{i}]"));
                         s.DoAt(Menu_Pointers[lvl * 3 + 1], () =>
                             Menu_MapData[i] = s.SerializeObjectArray<MapTile>(Menu_MapData[i], size.Width * size.Height, onPreSerialize: x => x.GBARRRType = mapType, name: $"{nameof(Menu_MapData)}[{i}]"));
                     }
