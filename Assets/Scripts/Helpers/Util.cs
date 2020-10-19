@@ -376,5 +376,82 @@ namespace R1Engine {
                 index++;
             }
         }
+
+        public static void ExportAllCompressedData(Context context, Pointer offset, IStreamEncoder encoder, byte[] header, string outputDir, int alignment = 4, int minDecompSize = 33)
+        {
+            var s = context.Deserializer;
+
+            s.Goto(offset);
+
+            // Keep track of blocks
+            var blocks = new List<Tuple<long, long, int>>();
+
+            // Enumerate every byte
+            for (int i = 0; i < s.CurrentLength; i += alignment)
+            {
+                // Go to the offset
+                s.Goto(offset + i);
+
+                // Check for compression header
+                if (s.SerializeArray<byte>(default, header.Length).SequenceEqual(header))
+                {
+                    if (encoder is GBA_LZSSEncoder)
+                    {
+                        // Get the decompressed size
+                        var decompressedSizeValue = s.SerializeArray<byte>(default, 3);
+                        Array.Resize(ref decompressedSizeValue, 4);
+                        var decompressedSize = BitConverter.ToUInt32(decompressedSizeValue, 0);
+
+                        // Skip if the decompressed size is too low
+                        if (decompressedSize < minDecompSize)
+                            continue;
+                    }
+
+                    // Go back to the offset
+                    s.Goto(offset + i);
+
+                    // Attempt to decompress
+                    try
+                    {
+                        byte[] data = null;
+
+                        s.DoEncoded(encoder, () => data = s.SerializeArray<byte>(default, s.CurrentLength));
+
+                        // Make sure we got some data
+                        if (data != null && data.Length >= minDecompSize)
+                        {
+                            ByteArrayToFile(Path.Combine(outputDir, $"Block_0x{(offset + i).AbsoluteOffset:X8}.dat"), data);
+
+                            blocks.Add(new Tuple<long, long, int>((offset + i).AbsoluteOffset, s.CurrentPointer - (offset + i), data.Length));
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore exceptions...
+                    }
+                }
+            }
+
+            var log = new List<string>();
+
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                var (off, compressedSize, size) = blocks[i];
+
+                var end = off + compressedSize;
+
+                log.Add($"0x{off:X8} - 0x{end:X8} (0x{compressedSize:X8} - 0x{size:X8}) - ");
+
+                if (i != blocks.Count - 1)
+                {
+                    var dif = blocks[i + 1].Item1 - end;
+
+                    if (dif >= 4)
+                        log.Add($"0x{end:X8} - 0x{end + dif:X8} (0x{dif:X8})              - ");
+                }
+            }
+
+            File.WriteAllLines(Path.Combine(outputDir, "blocks_log.txt"), log);
+        }
     }
 }
