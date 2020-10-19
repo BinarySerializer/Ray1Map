@@ -11,6 +11,9 @@ namespace R1Engine
         public Header[] Headers { get; set; }
         public byte[][] TileData { get; set; }
 
+        // Custom
+        public GBA_RRR_Manager.AnimationAssemble AnimationAssemble { get; set; }
+
         public override void SerializeImpl(SerializerObject s)
         {
             bool determineTileSize = false;

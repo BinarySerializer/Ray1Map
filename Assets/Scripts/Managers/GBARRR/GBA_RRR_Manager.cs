@@ -304,6 +304,9 @@ namespace R1Engine
                             s.Goto(blockOff);
                             try {
                                 var gb = s.SerializeObject<GBARRR_GraphicsBlock>(default, name: $"GraphicsBlock[{i}]");
+                                if (FixedSpriteSizes.ContainsKey((int)i)) {
+                                    gb.AnimationAssemble = FixedSpriteSizes[(int)i];
+                                }
                                 if (gb.Count != 0) {
                                     int tileDataSize = gb.TileData[0].Length;
                                     if (gb.TileData.All(td => td.Length == tileDataSize) && Math.Sqrt(tileDataSize * 2) % 1 == 0) {
@@ -659,33 +662,50 @@ namespace R1Engine
             // For each frame
             int width = (int)spr.TileSize;
             int height = (int)spr.TileSize;
-            for (int i = 0; i < spr.Count; i++)
+            int frameCount = (int)spr.Count;
+
+            int blockWidth = 1;
+            int blockHeight = 1;
+            AnimationAssemble.AssembleOrder order = AnimationAssemble.AssembleOrder.Row;
+            if (spr.AnimationAssemble != null) {
+                blockWidth = spr.AnimationAssemble.Width;
+                blockHeight = spr.AnimationAssemble.Height;
+                order = spr.AnimationAssemble.Order;
+                frameCount = frameCount / (blockWidth * blockHeight);
+            }
+
+            for (int frame = 0; frame < frameCount; frame++)
             {
-                var tex = TextureHelpers.CreateTexture2D(width, height, true);
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        int tileX = x / 8;
-                        int tileY = y / 8;
-                        int inTileX = x % 8;
-                        int inTileY = y % 8;
-                        int tileIndex = tileX + (tileY * width / 8);
-                        int index = tileIndex * (8 * 4) + (inTileY * 8 + inTileX) / 2;
-
-                        if (index < spr.TileData[i].Length)
-                        {
-                            var v = BitHelpers.ExtractBits(spr.TileData[i][index], 4, x % 2 == 0 ? 0 : 4);
-
-                            Color c = palette[paletteIndex * 16 + v].GetColor();
-
-                            c = v != 0 ? new Color(c.r, c.g, c.b, 1f) : new Color(c.r, c.g, c.b, 0f);
-
-                            tex.SetPixel(x, height - y - 1, c);
+                var tex = TextureHelpers.CreateTexture2D(width * blockWidth, height * blockHeight, true);
+                for(int bx = 0; bx < blockWidth; bx++) {
+                    for (int by = 0; by < blockHeight; by++) {
+                        int i = frame * blockWidth * blockHeight;
+                        if (order == AnimationAssemble.AssembleOrder.Column) {
+                            i += blockHeight * bx + by;
+                        } else {
+                            i += blockWidth * by + bx;
                         }
-                        else
-                        {
-                            Debug.Log($"{spr.Offset.AbsoluteOffset:X8} - " + spr.TileData[i].Length + " - " + width + " - " + index);
+                        for (int y = 0; y < height; y++) {
+                            for (int x = 0; x < width; x++) {
+                                int tileX = x / 8;
+                                int tileY = y / 8;
+                                int inTileX = x % 8;
+                                int inTileY = y % 8;
+                                int tileIndex = tileX + (tileY * width / 8);
+                                int index = tileIndex * (8 * 4) + (inTileY * 8 + inTileX) / 2;
+
+                                if (index < spr.TileData[i].Length) {
+                                    var v = BitHelpers.ExtractBits(spr.TileData[i][index], 4, x % 2 == 0 ? 0 : 4);
+
+                                    Color c = palette[paletteIndex * 16 + v].GetColor();
+
+                                    c = v != 0 ? new Color(c.r, c.g, c.b, 1f) : new Color(c.r, c.g, c.b, 0f);
+
+                                    tex.SetPixel(x + bx * width, (blockHeight * height) - (by * height) - y - 1, c);
+                                } else {
+                                    Debug.Log($"{spr.Offset.AbsoluteOffset:X8} - " + spr.TileData[i].Length + " - " + width + " - " + index);
+                                }
+                            }
                         }
                     }
                 }
@@ -883,6 +903,9 @@ namespace R1Engine
                         gb.Count = count;
                         gb.TileSize = tileSize;
                     }, name: "Graphics");
+                    if (FixedSpriteSizes.ContainsKey((int)index)) {
+                        obj.AnimationAssemble = FixedSpriteSizes[(int)index];
+                    }
                 });
                 indexDict[index] = obj;
                 return obj;
@@ -1453,7 +1476,7 @@ namespace R1Engine
             GBARRR_GraphicsTableEntry graphicsEntry = rom.GraphicsTable0[world].LastOrDefault(e => e.Key * 2 == actor.Ushort_0C);
             if (graphicsEntry == null) return;
             actor.P_GraphicsIndex = graphicsEntry.Value;
-            actor.P_30 = rom.GraphicsTable1[world][actor.P_GraphicsIndex];
+            actor.P_SpriteSize = rom.GraphicsTable1[world][actor.P_GraphicsIndex];
             actor.P_FrameCount = rom.GraphicsTable2[world][actor.P_GraphicsIndex];
 
             switch (world) {
@@ -1501,47 +1524,47 @@ namespace R1Engine
                     if (actor.P_GraphicsIndex == 0x32) {
                         actor.P_GraphicsOffset = 0x0300290C;
                         actor.P_PaletteIndex = 0x290;
-                        actor.P_30 = 0x40;
+                        actor.P_SpriteSize = 0x40;
                     }
                     if (actor.P_GraphicsIndex == 0x1c) {
                         actor.P_GraphicsOffset = 0x03003FF0;
                         actor.P_PaletteIndex = 0x290;
-                        actor.P_30 = 0x40;
+                        actor.P_SpriteSize = 0x40;
                     }
                     if (actor.P_GraphicsIndex == 0x1e) {
                         actor.P_GraphicsOffset = 0x03002E40;
                         actor.P_PaletteIndex = 0x0000028A;
-                        actor.P_30 = 0x40;
+                        actor.P_SpriteSize = 0x40;
                     }
                     if (actor.P_GraphicsIndex == 0x43) {
                         actor.P_GraphicsOffset = 0x030030A4;
                         actor.P_PaletteIndex = 0x28c;
-                        actor.P_30 = 0x20;
+                        actor.P_SpriteSize = 0x20;
                     }
                     if (actor.P_GraphicsIndex == 0x1d) {
                         actor.P_GraphicsOffset = 0x0300514C;
                         actor.P_PaletteIndex = 0x0000028E;
-                        actor.P_30 = 0x40;
+                        actor.P_SpriteSize = 0x40;
                     }
                     if (actor.P_GraphicsIndex == 0x46) {
                         actor.P_GraphicsOffset = 0x03002540;
                         actor.P_PaletteIndex = 0x00000295;
-                        actor.P_30 = 0x20;
+                        actor.P_SpriteSize = 0x20;
                     }
                     if (actor.P_GraphicsIndex == 0x44) {
                         actor.P_GraphicsOffset = 0x03004024;
                         actor.P_PaletteIndex = 0x00000297;
-                        actor.P_30 = 0x20;
+                        actor.P_SpriteSize = 0x20;
                     }
                     if (actor.P_GraphicsIndex == 0x45) {
                         actor.P_GraphicsOffset = 0x03004388;
                         actor.P_PaletteIndex = 0x00000297;
-                        actor.P_30 = 0x20;
+                        actor.P_SpriteSize = 0x20;
                     }
                     if (actor.P_GraphicsIndex == 0x1f) {
                         actor.P_GraphicsOffset = 0x0300232C;
                         actor.P_PaletteIndex = 0x00000293;
-                        actor.P_30 = 0x20;
+                        actor.P_SpriteSize = 0x20;
                     }
                     if (actor.P_GraphicsIndex == 0x28) {
                         actor.P_GraphicsOffset = 0x030023BC;
@@ -2679,5 +2702,65 @@ namespace R1Engine
             public ushort Width { get; }
             public ushort Height { get; }
         }
+
+        public class AnimationAssemble {
+            public AnimationAssemble(ushort width, ushort height, AssembleOrder order = AssembleOrder.Row) {
+                Width = width;
+                Height = height;
+                Order = order;
+            }
+
+            public ushort Width { get; }
+            public ushort Height { get; }
+            public AssembleOrder Order { get; }
+            public enum AssembleOrder { Column, Row }
+        }
+
+        public Dictionary<int, AnimationAssemble> FixedSpriteSizes => new Dictionary<int, AnimationAssemble>() {
+            [18]  = new AnimationAssemble(3, 1),
+            [331] = new AnimationAssemble(1, 2),
+            [711] = new AnimationAssemble(1, 3),
+            [712] = new AnimationAssemble(1, 3),
+            [714] = new AnimationAssemble(1, 3),
+            [716] = new AnimationAssemble(1, 3),
+            [753] = new AnimationAssemble(2, 1),
+
+            // Boss Prison
+            [809] = new AnimationAssemble(5, 5),
+            [810] = new AnimationAssemble(5, 5),
+            [811] = new AnimationAssemble(5, 5),
+            [812] = new AnimationAssemble(5, 5),
+            [813] = new AnimationAssemble(5, 5),
+            [814] = new AnimationAssemble(5, 5),
+            [815] = new AnimationAssemble(5, 5),
+            [816] = new AnimationAssemble(5, 5),
+            [817] = new AnimationAssemble(5, 5),
+            [818] = new AnimationAssemble(5, 5),
+            [819] = new AnimationAssemble(5, 5),
+            [820] = new AnimationAssemble(5, 5),
+            [821] = new AnimationAssemble(5, 5),
+            [822] = new AnimationAssemble(5, 5),
+            [823] = new AnimationAssemble(5, 5),
+
+            // Bunny boss
+            [828] = new AnimationAssemble(5, 5),
+            [829] = new AnimationAssemble(5, 5),
+            [830] = new AnimationAssemble(5, 5),
+            [831] = new AnimationAssemble(5, 5),
+            [832] = new AnimationAssemble(5, 5),
+            [833] = new AnimationAssemble(5, 5),
+            [834] = new AnimationAssemble(5, 5),
+            [835] = new AnimationAssemble(5, 5),
+            [836] = new AnimationAssemble(5, 5),
+            [837] = new AnimationAssemble(5, 5),
+            [838] = new AnimationAssemble(5, 5),
+            [839] = new AnimationAssemble(5, 5),
+            [840] = new AnimationAssemble(5, 5),
+            [841] = new AnimationAssemble(5, 5),
+            [842] = new AnimationAssemble(5, 5),
+            [843] = new AnimationAssemble(5, 5),
+            [844] = new AnimationAssemble(5, 5),
+            [845] = new AnimationAssemble(5, 5),
+        };
     }
 }

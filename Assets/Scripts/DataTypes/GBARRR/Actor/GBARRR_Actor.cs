@@ -14,7 +14,8 @@ namespace R1Engine
         public ushort Ushort_0E { get; set; }
         public ushort Ushort_10 { get; set; }
         public ushort RuntimeStateIndex { get; set; } // Is this correct? Changing this changes the animation.
-        public uint Runtime_Uint_14 { get; set; }
+        public ushort Runtime_UShort_14 { get; set; }
+        public ushort Runtime_UShort_16 { get; set; }
         public uint Runtime_Uint_18 { get; set; }
         public uint RuntimeFunctionPointer { get; set; }
         public ushort Runtime_Ushort_20 { get; set; }
@@ -36,7 +37,7 @@ namespace R1Engine
         // Parsed
         public uint P_GraphicsIndex { get; set; }
         public uint P_GraphicsOffset { get; set; }
-        public uint P_30 { get; set; }
+        public uint P_SpriteSize { get; set; }
         public uint P_FrameCount { get; set; }
         public uint P_PaletteIndex { get; set; }
         public uint P_FunctionPointer { get; set; }
@@ -69,7 +70,8 @@ namespace R1Engine
             Ushort_0E = s.Serialize<ushort>(Ushort_0E, name: nameof(Ushort_0E));
             Ushort_10 = s.Serialize<ushort>(Ushort_10, name: nameof(Ushort_10));
             RuntimeStateIndex = s.Serialize<ushort>(RuntimeStateIndex, name: nameof(RuntimeStateIndex));
-            Runtime_Uint_14 = s.Serialize<uint>(Runtime_Uint_14, name: nameof(Runtime_Uint_14));
+            Runtime_UShort_14 = s.Serialize<ushort>(Runtime_UShort_14, name: nameof(Runtime_UShort_14));
+            Runtime_UShort_16 = s.Serialize<ushort>(Runtime_UShort_16, name: nameof(Runtime_UShort_16));
             Runtime_Uint_18 = s.Serialize<uint>(Runtime_Uint_18, name: nameof(Runtime_Uint_18));
             RuntimeFunctionPointer = s.Serialize<uint>(RuntimeFunctionPointer, name: nameof(RuntimeFunctionPointer));
             Runtime_Ushort_20 = s.Serialize<ushort>(Runtime_Ushort_20, name: nameof(Runtime_Ushort_20));

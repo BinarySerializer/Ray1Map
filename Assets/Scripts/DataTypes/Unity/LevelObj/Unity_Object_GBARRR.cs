@@ -30,7 +30,9 @@ namespace R1Engine
         public override string DebugText =>
               $"UShort_0C: {Actor.Ushort_0C}{Environment.NewLine}" +
               $"P_GraphicsIndex: {Actor.P_GraphicsIndex}{Environment.NewLine}" +
-              $"P_GraphicsOffset: {Actor.P_GraphicsOffset:X8}{Environment.NewLine}";
+              $"P_GraphicsOffset: {Actor.P_GraphicsOffset:X8}{Environment.NewLine}" +
+              $"P_SpriteSize: {Actor.P_SpriteSize}{Environment.NewLine}" +
+              $"P_FrameCount: {Actor.P_FrameCount}{Environment.NewLine}";
 
         public override ILegacyEditorWrapper LegacyWrapper { get; }
 
