@@ -38,6 +38,10 @@ namespace R1Engine
             {
                 new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
             }), 
+            new GameInfo_Volume(GameMode.Menu.ToString(), new GameInfo_World[]
+            {
+                new GameInfo_World(0, Enumerable.Range(0, 13).ToArray()),
+            }), 
         };
 
         public enum GameMode
@@ -45,7 +49,8 @@ namespace R1Engine
             Game,
             Village,
             Mode7,
-            Mode7Unused
+            Mode7Unused,
+            Menu
         }
 
         public static GameMode GetCurrentGameMode(GameSettings s) => (GameMode)Enum.Parse(typeof(GameMode), s.EduVolume);
@@ -422,6 +427,45 @@ namespace R1Engine
                         bg0,
                         bg1,
                     },
+                    objManager: new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]),
+                    getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
+                    cellSize: CellSize,
+                    localization: loc,
+                    defaultMap: 0
+                );
+            }
+
+            if (gameMode == GameMode.Menu)
+            {
+                var mapLevels = GetMenuLevels(context.Settings.Level);
+                var maps = new Unity_Map[mapLevels.Length];
+
+                for (int i = 0; i < mapLevels.Length; i++)
+                {
+                    var menulevel = mapLevels[i];
+                    var palIndex = GetMenuPalIndex(menulevel);
+                    var size = GetMenuSize(menulevel);
+
+                    maps[i] = new Unity_Map
+                    {
+                        Width = size.Width,
+                        Height = size.Height,
+                        TileSet = new Unity_MapTileMap[]
+                        {
+                            LoadTileSet(rom.Menu_Tiles[i], palIndex != null, rom.Menu_Palette[i], palIndex ?? 0),
+                        },
+                        MapTiles = rom.Menu_MapData[i].Select(x => new Unity_Tile(x)).ToArray(),
+                    };
+
+                    if (HasMenuAlphaBlending(menulevel))
+                    {
+                        maps[i].Alpha = 0.5f;
+                        maps[i].IsAdditive = true;
+                    }
+                }
+
+                return new Unity_Level(
+                    maps: maps,
                     objManager: new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]),
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
@@ -2568,5 +2612,72 @@ namespace R1Engine
             (world == 2 || world == 3 || world == 4 || level == 11 || level == 28 || level == 29 || level == 31) && level != 27;
 
         protected bool IsForeground(int world, int level) => !(world == 3 || level == 30);
+
+        public Size GetMenuSize(int level)
+        {
+            switch (level)
+            {
+                case 0:
+                    return new Size(32, 8);
+
+                default:
+                    return new Size(30, 20);
+            }
+        }
+        protected int? GetMenuPalIndex(int level)
+        {
+            switch (level)
+            {
+                case 0:
+                    return 15;
+                
+                case 4:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                case 14:
+                    return 0;
+
+                default:
+                    return null;
+            }
+        }
+
+        public int[] GetMenuLevels(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return new int[] {0, 1, 4}; // Menu
+
+                case 1:
+                    return new int[] {0, 2, 4}; // Credits
+
+                case 2:
+                    return new int[] {0, 3, 4}; // Options
+
+                default:
+                    return new int[] { index + 2 };
+            }
+        }
+
+        public bool IsMenuCompressed(int level) => !(level == 5 || level == 6 || level == 13);
+
+        public bool HasMenuAlphaBlending(int level) => level == 4;
+
+        public class Size
+        {
+            public Size(ushort width, ushort height)
+            {
+                Width = width;
+                Height = height;
+            }
+
+            public ushort Width { get; }
+            public ushort Height { get; }
+        }
     }
 }

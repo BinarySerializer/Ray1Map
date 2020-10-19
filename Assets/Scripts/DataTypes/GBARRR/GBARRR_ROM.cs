@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using UnityEngine;
 
 namespace R1Engine
 {
@@ -58,6 +56,12 @@ namespace R1Engine
         public ARGB1555Color[] Mode7_BG1Palette { get; set; }
         public ARGB1555Color[] Mode7_BG0Palette { get; set; }
         public ARGB1555Color[] Mode7_TilemapPalette { get; set; }
+
+        // Menu
+        public Pointer[] Menu_Pointers { get; set; }
+        public byte[][] Menu_Tiles { get; set; }
+        public MapTile[][] Menu_MapData { get; set; }
+        public ARGB1555Color[][] Menu_Palette { get; set; }
 
 
         public override void SerializeImpl(SerializerObject s)
@@ -226,11 +230,52 @@ namespace R1Engine
                 OffsetTable.DoAtBlock(s.Context, 1178, size => BG1TileSet = s.SerializeObject<GBARRR_Tileset>(BG1TileSet, onPreSerialize: x => x.BlockSize = size, name: nameof(BG1TileSet)));
                 OffsetTable.DoAtBlock(s.Context, 1179, size => LevelTileset = s.SerializeObject<GBARRR_Tileset>(LevelTileset, onPreSerialize: x => x.BlockSize = size, name: nameof(LevelTileset)));
             }
+            else if (gameMode == GBA_RRR_Manager.GameMode.Menu)
+            {
+                Menu_Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_MenuArray], () => s.SerializePointerArray(Menu_Pointers, 15 * 3, name: nameof(Menu_Pointers)));
+
+                var manager = (GBA_RRR_Manager)s.GameSettings.GetGameManager;
+                var menuLevels = manager.GetMenuLevels(s.GameSettings.Level);
+
+                Menu_Tiles = new byte[menuLevels.Length][];
+                Menu_MapData = new MapTile[menuLevels.Length][];
+                Menu_Palette = new ARGB1555Color[menuLevels.Length][];
+
+                for (int i = 0; i < menuLevels.Length; i++)
+                {
+                    var lvl = menuLevels[i];
+                    var size = manager.GetMenuSize(lvl);
+                    var isCompressed = manager.IsMenuCompressed(lvl);
+                    var mapType = manager.HasMenuAlphaBlending(lvl) ? GBARRR_MapBlock.MapType.Menu : GBARRR_MapBlock.MapType.Foreground;
+
+                    if (isCompressed)
+                    {
+                        s.DoAt(Menu_Pointers[lvl * 3 + 0], () => {
+                            s.DoEncoded(new RNCEncoder(hasHeader: false), () => Menu_Tiles[i] = s.SerializeArray<byte>(Menu_Tiles[i], s.CurrentLength, name: $"{nameof(Menu_Tiles)}[{i}]"));
+                        });
+                        s.DoAt(Menu_Pointers[lvl * 3 + 1], () =>
+                        {
+                            s.DoEncoded(new RNCEncoder(hasHeader: false), () => Menu_MapData[i] = s.SerializeObjectArray<MapTile>(Menu_MapData[i], size.Width * size.Height, onPreSerialize: x => x.GBARRRType = mapType, name: $"{nameof(Menu_MapData)}[{i}]"));
+                        });
+                    }
+                    else
+                    {
+                        s.DoAt(Menu_Pointers[lvl * 3 + 0], () =>
+                            Menu_Tiles[i] = s.SerializeArray<byte>(Menu_Tiles[i], 0x4B00, name: $"{nameof(Menu_Tiles)}[{i}]"));
+                        s.DoAt(Menu_Pointers[lvl * 3 + 1], () =>
+                            Menu_MapData[i] = s.SerializeObjectArray<MapTile>(Menu_MapData[i], size.Width * size.Height, onPreSerialize: x => x.GBARRRType = mapType, name: $"{nameof(Menu_MapData)}[{i}]"));
+                    }
+
+                    Menu_Palette[i] = s.DoAt(Menu_Pointers[lvl * 3 + 2], () => s.SerializeObjectArray<ARGB1555Color>(Menu_Palette[i], 16 * 16, name: $"{nameof(Menu_Palette)}[{i}]"));
+                }
+            }
         }
 
         public GBARRR_LevelInfo GetLevelInfo(GameSettings settings)
         {
-            switch (GBA_RRR_Manager.GetCurrentGameMode(settings))
+            var mode = GBA_RRR_Manager.GetCurrentGameMode(settings);
+
+            switch (mode)
             {
                 case GBA_RRR_Manager.GameMode.Game:
                     return LevelInfo[settings.Level];
@@ -238,12 +283,8 @@ namespace R1Engine
                 case GBA_RRR_Manager.GameMode.Village:
                     return VillageLevelInfo[settings.Level];
 
-                case GBA_RRR_Manager.GameMode.Mode7:
-                case GBA_RRR_Manager.GameMode.Mode7Unused:
-                    throw new Exception("Mode7 maps do not use level info");
-                
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new Exception($"{mode} maps do not use level info");
             }
         }
 
