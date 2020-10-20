@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
@@ -34,17 +35,18 @@ namespace R1Engine
 
         public static async UniTask InitAsync(GameSettings settings, bool loadAll = false)
         {
-            async UniTask loadFile(string fileName, Action<string> func)
+            async UniTask loadFile(string filePath, Action<Stream> func)
             {
-                await FileSystem.PrepareFile(fileName);
+                await FileSystem.PrepareFile(filePath);
 
-                if (FileSystem.FileExists(fileName))
+                if (FileSystem.FileExists(filePath))
                 {
-                    func(fileName);
+                    using (var stream = FileSystem.GetFileReadStream(filePath))
+                        func(stream);
                 }
                 else
                 {
-                    Debug.Log($"{fileName} has not been loaded");
+                    Debug.Log($"{filePath} has not been loaded");
                 }
             }
 
@@ -54,12 +56,8 @@ namespace R1Engine
                 const string dir = "EventManifests/";
 
                 // Load global event manifest
-                await loadFile(dir + "Events.csv", file =>
-                {
-                    // Load the event info data
-                    using (var csvFile = FileSystem.GetFileReadStream(file))
-                        EventInfoData = GeneralEventInfoData.ReadCSV(csvFile);
-                });
+                await loadFile(dir + "Events.csv", 
+                    file => EventInfoData = GeneralEventInfoData.ReadCSV(file));
 
                 // Load version specific mapping tables
                 if (loadAll || settings.EngineVersion == EngineVersion.R1_PC || settings.EngineVersion == EngineVersion.R1_PocketPC)
