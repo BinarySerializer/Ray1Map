@@ -494,7 +494,13 @@ namespace R1Engine
             var eta = allEta.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i)).ToArray();
 
             // Create the object manager
-            var objManager = new Unity_ObjectManager_R1(context, des, eta, levelData.EventLinkTable, usesPointers: false);
+            var objManager = new Unity_ObjectManager_R1(
+                context: context, 
+                des: des, 
+                eta: eta, 
+                linkTable: levelData.EventLinkTable, 
+                usesPointers: false,
+                hasDefinedDesEtaNames: true);
 
             var maps = new Unity_Map[]
             {

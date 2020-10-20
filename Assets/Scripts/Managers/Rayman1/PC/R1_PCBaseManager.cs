@@ -1283,7 +1283,8 @@ namespace R1Engine
                 usesPointers: false, 
                 typeZDC: typeZDC, 
                 zdcData: zdcData,
-                eventFlags: eventFlags);
+                eventFlags: eventFlags,
+                hasDefinedDesEtaNames: true);
 
             // Create the maps
             var maps = new Unity_Map[]

@@ -10,7 +10,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false) : base(context)
         {
             // Set properties
             DES = des;
@@ -20,6 +20,7 @@ namespace R1Engine
             TypeZDC = typeZDC;
             ZDCData = zdcData;
             EventFlags = eventFlags;
+            HasDefinedDesEtaNames = hasDefinedDesEtaNames;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
 
             for (int i = 0; i < DES.Length; i++) {
@@ -42,6 +43,7 @@ namespace R1Engine
         public R1_ZDCEntry[] TypeZDC { get; }
         public R1_ZDCData[] ZDCData { get; }
         public R1_EventFlags[] EventFlags { get; }
+        public bool HasDefinedDesEtaNames { get; }
 
         public GeneralEventInfoData[] AvailableEvents { get; }
 
@@ -60,7 +62,10 @@ namespace R1Engine
             else if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
                 engine = GeneralEventInfoData.Engine.KIT;
 
-            return LevelEditorData.EventInfoData.Where(x => x.Worlds.Contains(Context.Settings.R1_World) && x.Engines.Contains(engine) && DES.Any(d => d.Name == x.DES) && ETA.Any(e => e.Name == x.ETA));
+            return LevelEditorData.EventInfoData.Where(x => 
+                x.Worlds.Contains(Context.Settings.R1_World) && 
+                x.Engines.Contains(engine) && 
+                (!HasDefinedDesEtaNames || (DES.Any(d => d.Name == x.DES) && ETA.Any(e => e.Name == x.ETA))));
         }
         
         public GeneralEventInfoData FindMatchingEventInfo(R1_EventData e)
@@ -138,7 +143,7 @@ namespace R1Engine
                 }
             }
         }
-        public override string[] GetAvailableObjects => AvailableEvents.Select(x => x.Name).ToArray();
+        public override string[] GetAvailableObjects => HasDefinedDesEtaNames ? AvailableEvents.Select(x => x.Name).ToArray() : new string[0];
         public override Unity_Object CreateObject(int index)
         {
             // Get the event

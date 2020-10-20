@@ -324,7 +324,8 @@ namespace R1Engine
                 linkTable: eventLinkingTable,
                 typeZDC: exe?.TypeZDC,
                 zdcData: exe?.ZDCData,
-                eventFlags: exe?.EventFlags);
+                eventFlags: exe?.EventFlags,
+                hasDefinedDesEtaNames: LevelEditorData.NameTable_R1PS1DES != null);
 
             // Load the level background
             var lvlBg = await LoadLevelBackgroundAsync(context);
