@@ -700,7 +700,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: loc,
                 defaultCollisionMap: 2,
-                defaultMap: 0
+                defaultMap: 2
             );
         }
 
