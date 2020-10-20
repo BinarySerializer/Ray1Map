@@ -1,0 +1,343 @@
+{
+  "name": "Rayman Raving Rabbids (GBA)",
+  "mode": "RaymanRavingRabbidsGBAEU",
+  "folder": "gba_rrr/rrr_eu",
+  "icons": [
+    {
+      "image": ".\/img\/icon\/RRR\/Intro.gif",
+      "level": 0
+    },
+    {
+      "image": ".\/img\/icon\/RRR\/Child.gif",
+      "level": 2
+    },
+    {
+      "image": ".\/img\/icon\/RRR\/Forest.gif",
+      "level": 8
+    },
+    {
+      "image": ".\/img\/icon\/RRR\/Organic.gif",
+      "level": 13
+    },
+    {
+      "image": ".\/img\/icon\/RRR\/Sweets.gif",
+      "level": 18
+    },
+    {
+      "image": ".\/img\/icon\/RRR\/Dark.gif",
+      "level": 25
+    },
+    {
+      "image": ".\/img\/icon\/RRR\/Extra.gif",
+      "level": 30
+    }
+  ],
+  "levels": [
+    {
+      "world": 4,
+      "level": 0,
+      "nameInternal": "0",
+      "name": "Wailing jail"
+    },
+    {
+      "world": 4,
+      "level": 1,
+      "nameInternal": "1",
+      "name": "Boss Prison"
+    },
+    {
+      "world": 0,
+      "level": 2,
+      "nameInternal": "2",
+      "name": "Child's play"
+    },
+    {
+      "world": 0,
+      "level": 3,
+      "nameInternal": "3",
+      "name": "The kids' hamlet"
+    },
+    {
+      "world": 0,
+      "level": 29,
+      "nameInternal": "29",
+      "name": "Shooting Range (The kids' hamlet)"
+    },
+    {
+      "world": 11,
+      "level": 0,
+      "nameInternal": "",
+      "name": "The toy chase"
+    },
+    {
+      "world": 0,
+      "level": 5,
+      "nameInternal": "5",
+      "name": "Toy box"
+    },
+    {
+      "world": 0,
+      "level": 6,
+      "nameInternal": "6",
+      "name": "Celestial castle"
+    },
+    {
+      "world": 1,
+      "level": 7,
+      "nameInternal": "7",
+      "name": "Dream forest"
+    },
+    {
+      "world": 1,
+      "level": 8,
+      "nameInternal": "8",
+      "name": "The leafy valley"
+    },
+    {
+      "world": 1,
+      "level": 9,
+      "nameInternal": "9",
+      "name": "Colonial jungle"
+    },
+    {
+      "world": 1,
+      "level": 10,
+      "nameInternal": "10",
+      "name": "The lush mountaintops"
+    },
+    {
+      "world": 1,
+      "level": 11,
+      "nameInternal": "11",
+      "name": "Hidden burrow"
+    },
+    {
+      "world": 11,
+      "level": 1,
+      "nameInternal": "",
+      "name": "Stomach circuit"
+    },
+    {
+      "world": 2,
+      "level": 13,
+      "nameInternal": "13",
+      "name": "Gastric rivers"
+    },
+    {
+      "world": 2,
+      "level": 14,
+      "nameInternal": "14",
+      "name": "Living cavern"
+    },
+    {
+      "world": 2,
+      "level": 15,
+      "nameInternal": "15",
+      "name": "Swallowed treasures"
+    },
+    {
+      "world": 2,
+      "level": 16,
+      "nameInternal": "16",
+      "name": "The sticky lair"
+    },
+    {
+      "world": 3,
+      "level": 17,
+      "nameInternal": "17",
+      "name": "The desert of desserts"
+    },
+    {
+      "world": 11,
+      "level": 2,
+      "nameInternal": "",
+      "name": "Cake race"
+    },
+    {
+      "world": 3,
+      "level": 19,
+      "nameInternal": "19",
+      "name": "The sweet islands"
+    },
+    {
+      "world": 3,
+      "level": 20,
+      "nameInternal": "20",
+      "name": "Not a piece of cake!"
+    },
+    {
+      "world": 3,
+      "level": 31,
+      "nameInternal": "31",
+      "name": "Shooting Range (Not a piece of cake!)"
+    },
+    {
+      "world": 3,
+      "level": 21,
+      "nameInternal": "21",
+      "name": "Tart tunnels"
+    },
+    {
+      "world": 3,
+      "level": 22,
+      "nameInternal": "22",
+      "name": "Ginger-bunny-bread"
+    },
+    {
+      "world": 4,
+      "level": 23,
+      "nameInternal": "23",
+      "name": "Filthy corridors"
+    },
+    {
+      "world": 4,
+      "level": 24,
+      "nameInternal": "24",
+      "name": "Agony jails"
+    },
+    {
+      "world": 4,
+      "level": 25,
+      "nameInternal": "25",
+      "name": "Infernal escape"
+    },
+    {
+      "world": 4,
+      "level": 26,
+      "nameInternal": "26",
+      "name": "Spikes and yikes!"
+    },
+    {
+      "world": 4,
+      "level": 27,
+      "nameInternal": "27",
+      "name": "The rabbids' lair"
+    },
+    {
+      "world": 10,
+      "level": 0,
+      "nameInternal": "28",
+      "name": "Village (Version 1)"
+    },
+    {
+      "world": 10,
+      "level": 1,
+      "nameInternal": "28",
+      "name": "Village (Version 2)"
+    },
+    {
+      "world": 10,
+      "level": 2,
+      "nameInternal": "28",
+      "name": "Village (Version 3)"
+    },
+    {
+      "world": 0,
+      "level": 4,
+      "nameInternal": "4",
+      "name": "(Unused) Child"
+    },
+    {
+      "world": 2,
+      "level": 12,
+      "nameInternal": "12",
+      "name": "(Unused) Organic Cave"
+    },
+    {
+      "world": 3,
+      "level": 18,
+      "nameInternal": "18",
+      "name": "(Unused) Sweets"
+    },
+    {
+      "world": 12,
+      "level": 0,
+      "nameInternal": "",
+      "name": "(Unused) Race Track"
+    },
+    {
+      "world": 5,
+      "level": 30,
+      "nameInternal": "27",
+      "name": "(Menu) Title Screen"
+    },
+    {
+      "world": 13,
+      "level": 11,
+      "nameInternal": "",
+      "name": "(Menu) Language Selection"
+    },
+    {
+      "world": 13,
+      "level": 0,
+      "nameInternal": "",
+      "name": "(Menu) Main Menu"
+    },
+    {
+      "world": 13,
+      "level": 1,
+      "nameInternal": "",
+      "name": "(Menu) Credits"
+    },
+    {
+      "world": 13,
+      "level": 2,
+      "nameInternal": "",
+      "name": "(Menu) Options"
+    },
+    {
+      "world": 13,
+      "level": 3,
+      "nameInternal": "",
+      "name": "(Menu) Game Over"
+    },
+    {
+      "world": 13,
+      "level": 4,
+      "nameInternal": "",
+      "name": "(Menu) Continue?"
+    },
+    {
+      "world": 13,
+      "level": 12,
+      "nameInternal": "",
+      "name": "(Menu) Health and Safety"
+    },
+    {
+      "world": 13,
+      "level": 5,
+      "nameInternal": "",
+      "name": "(Menu) Health and Safety (English)"
+    },
+    {
+      "world": 13,
+      "level": 6,
+      "nameInternal": "",
+      "name": "(Menu) Health and Safety (French)"
+    },
+    {
+      "world": 13,
+      "level": 7,
+      "nameInternal": "",
+      "name": "(Menu) Health and Safety (German)"
+    },
+    {
+      "world": 13,
+      "level": 8,
+      "nameInternal": "",
+      "name": "(Menu) Health and Safety (Italian)"
+    },
+    {
+      "world": 13,
+      "level": 9,
+      "nameInternal": "",
+      "name": "(Menu) Health and Safety (Dutch)"
+    },
+    {
+      "world": 13,
+      "level": 10,
+      "nameInternal": "",
+      "name": "(Menu) Health and Safety (Spanish)"
+    }
+  ]
+}
