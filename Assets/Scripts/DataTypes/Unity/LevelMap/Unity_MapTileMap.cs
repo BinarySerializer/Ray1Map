@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace R1Engine
 {
@@ -83,6 +82,6 @@ namespace R1Engine
 
         public Unity_AnimatedTile[] AnimatedTiles { get; set; }
 
-        public int GBARRR_PalCount { get; set; }
+        public int[] GBARRR_PalOffsets { get; set; }
     }
 }

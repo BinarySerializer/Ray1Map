@@ -565,7 +565,12 @@ namespace R1Engine
                 Height = 32,
                 TileSetWidth = 1,
                 TileSet = new Unity_MapTileMap[] { bg0Tileset },
-                MapTiles = rom.BG0Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
+                MapTiles = rom.BG0Map.MapTiles.Select(x =>
+                {
+                    // Modify the index for animated tiles
+                    x.TileMapY = (ushort)(bg0Tileset.GBARRR_PalOffsets[0] + x.TileMapY);
+                    return new Unity_Tile(x);
+                }).ToArray()
             };
             var bg1Map = new Unity_Map()
             {
@@ -606,7 +611,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: loc,
                 defaultCollisionMap: 2,
-                defaultMap: 3
+                defaultMap: 0
             );
         }
 
@@ -802,7 +807,7 @@ namespace R1Engine
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
                             TileMapY = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapY > 1) 
-                                ? (ushort)(tileMapY + ((palIndex + tile?.PaletteIndex) % 16) * (tileset.Tiles.Length / tileset.GBARRR_PalCount)) 
+                                ? (ushort)(tileMapY + tileset.GBARRR_PalOffsets[(palIndex + tile?.PaletteIndex) % 16 ?? 0]) 
                                 : tileMapY,
                             CollisionType = collisionType ?? 0,
                             HorizontalFlip = tile?.HorizontalFlip ?? false,
@@ -827,11 +832,13 @@ namespace R1Engine
             var tileCount = tilemap.Length / block_size;
             var texHeight = Mathf.CeilToInt(tileCount / tilesWidth) * CellSize;
             List<Unity_AnimatedTile> unityAnimTiles = new List<Unity_AnimatedTile>();
-            var totalPalCount = palCount + animtedTileInfos.Sum(x => x.PalCount - 1);
+            var totalPalCount = palCount + animtedTileInfos.Sum(x => x.PalCount);
             //UnityEngine.Debug.Log(tileCount + " - " + block_size);
+            var palOffsets = new int[palCount];
 
             // Get the tile-set texture
             var tex = TextureHelpers.CreateTexture2D((int)texWidth, texHeight * totalPalCount);
+            var palBlockSize = (tex.width * tex.height / (CellSize * CellSize)) / totalPalCount;
 
             var currentBlockIndex = 0;
 
@@ -839,6 +846,7 @@ namespace R1Engine
             for (int i = 0; i < palCount; i++)
             {
                 fillTiles(palette, (i + palStart) * 16, i);
+                palOffsets[i] = i * palBlockSize;
                 currentBlockIndex++;
             }
 
@@ -846,24 +854,21 @@ namespace R1Engine
             foreach (var animTileInfo in animtedTileInfos)
             {
                 // Fill in tiles for all animated tile versions (skipping the first one as we already have that from the normal palette)
-                for (int i = 0; i < animTileInfo.PalCount - 1; i++)
-                    fillTiles(animTileInfo.AnimatedPalette, (i + 1) * 16, currentBlockIndex + i);
-
-                var palBlockSize = (tex.width * tex.height / (CellSize * CellSize)) / totalPalCount;
-                var initialBase = animTileInfo.TilePalIndex * palBlockSize;
+                for (int i = 0; i < animTileInfo.PalCount; i++)
+                    fillTiles(animTileInfo.AnimatedPalette, i * 16, currentBlockIndex + i);
 
                 for (int i = 0; i < tileCount; i++)
                 {
-                    var initialIndex = i + initialBase;
-
                     unityAnimTiles.Add(new Unity_AnimatedTile()
                     {
                         AnimationSpeed = 1,
-                        TileIndices = new int[0].Append(initialIndex).Concat(Enumerable.Range(0, animTileInfo.PalCount - 1).Select(x => (currentBlockIndex + x) * palBlockSize + i)).ToArray()
+                        TileIndices = Enumerable.Range(0, animTileInfo.PalCount).Select(x => (currentBlockIndex + x) * palBlockSize + i).ToArray()
                     });
                 }
 
-                currentBlockIndex += animTileInfo.PalCount - 1;
+                palOffsets[animTileInfo.TilePalIndex] = currentBlockIndex * palBlockSize;
+
+                currentBlockIndex += animTileInfo.PalCount;
             }
 
             void fillTiles(ARGBColor[] pal, int palOffset, int blockIndex)
@@ -915,7 +920,7 @@ namespace R1Engine
             return new Unity_MapTileMap(tex, CellSize)
             {
                 AnimatedTiles = unityAnimTiles?.ToArray(),
-                GBARRR_PalCount = totalPalCount
+                GBARRR_PalOffsets = palOffsets
             };
         }
 
