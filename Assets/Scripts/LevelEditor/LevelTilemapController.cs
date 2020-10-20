@@ -236,7 +236,6 @@ namespace R1Engine
                             }
                             animatedTiles[mapIndex][at].Add(atInstance);
                         }
-
                         FillInTilePixels(tex, tile, t, x, y, cellSize);
 
                         /*GraphicsTilemaps[mapIndex].SetTile(new Vector3Int(x, y, 0), map.GetTile(t, LevelEditorData.CurrentSettings));
@@ -415,30 +414,7 @@ namespace R1Engine
                 tex.SetPixels(texX, texY, cellSize, cellSize, new Color[cellSize * cellSize]);
             } else {
                 var tileTex = tile.texture;
-                var baseX = (int)tile.rect.x;
-                var baseY = (int)tile.rect.y;
-                if (baseX != 0 || baseY != 0 || tileTex.width != cellSize || tileTex.height != cellSize) {
-                    for (int j = 0; j < cellSize; j++) {
-                        for (int k = 0; k < cellSize; k++) {
-                            int tileY = flipY ? (cellSize - 1 - j) : j;
-                            int tileX = flipX ? (cellSize - 1 - k) : k;
-                            tex.SetPixel(texX + tileX, texY + tileY, tileTex.GetPixel(k + baseX, j + baseY));
-                        }
-                    }
-                } else {
-                    Color[] pixels = tileTex.GetPixels();
-                    if (flipX || flipY) {
-                        for (int j = 0; j < cellSize; j++) {
-                            for (int k = 0; k < cellSize; k++) {
-                                int tileY = flipY ? (cellSize - 1 - j) : j;
-                                int tileX = flipX ? (cellSize - 1 - k) : k;
-                                tex.SetPixel(texX + tileX, texY + tileY, pixels[j * cellSize + k]);
-                            }
-                        }
-                    } else {
-                        tex.SetPixels(texX, texY, cellSize, cellSize, pixels);
-                    }
-                }
+                tex.SetPixels(texX, texY, cellSize, cellSize, tile.GetPixels(flipX, flipY));
             }
             if (applyTexture) tex.Apply();
         }
@@ -546,7 +522,6 @@ namespace R1Engine
                         at.currentTimer -= frames * animSpeed;
                     }
                 }
-
                 if (changedTile)
                     tex.Apply();
             }
