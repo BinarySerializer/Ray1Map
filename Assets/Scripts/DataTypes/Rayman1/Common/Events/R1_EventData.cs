@@ -234,7 +234,7 @@ namespace R1Engine
             {
                 var offset = settings.EngineVersion == EngineVersion.R1_Saturn ? 7 : 0;
 
-                BitHelpers.SetBits(PS1_Flags, value ? 1 : 0, 1, offset);
+                PS1_Flags = (byte)BitHelpers.SetBits(PS1_Flags, value ? 1 : 0, 1, offset);
             }
         }
 
