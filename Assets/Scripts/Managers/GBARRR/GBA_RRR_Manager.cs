@@ -2833,7 +2833,7 @@ namespace R1Engine
         protected bool HasAlphaBlending(int world, int level) =>
             (world == 2 || world == 3 || world == 4 || level == 11 || level == 28 || level == 29 || level == 31) && level != 27;
 
-        protected bool IsForeground(int world, int level) => !(world == 3 || level == 30);
+        protected bool IsForeground(int world, int level) => !(world == 3 || level == 30 || level == 27);
 
         public Size GetMenuSize(int level)
         {
