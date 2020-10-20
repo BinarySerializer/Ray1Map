@@ -4,32 +4,28 @@
   "folder": "gba_rrr/rrr_eu",
   "icons": [
     {
-      "image": ".\/img\/icon\/RRR\/Intro.gif",
+      "image": ".\/img\/icon\/RRR\/Child.gif",
       "level": 0
     },
     {
-      "image": ".\/img\/icon\/RRR\/Child.gif",
-      "level": 2
-    },
-    {
       "image": ".\/img\/icon\/RRR\/Forest.gif",
-      "level": 8
+      "level": 7
     },
     {
       "image": ".\/img\/icon\/RRR\/Organic.gif",
-      "level": 13
+      "level": 12
     },
     {
       "image": ".\/img\/icon\/RRR\/Sweets.gif",
-      "level": 18
+      "level": 17
     },
     {
       "image": ".\/img\/icon\/RRR\/Dark.gif",
-      "level": 25
+      "level": 23
     },
     {
       "image": ".\/img\/icon\/RRR\/Extra.gif",
-      "level": 30
+      "level": 28
     }
   ],
   "levels": [
@@ -56,12 +52,6 @@
       "level": 3,
       "nameInternal": "3",
       "name": "The kids' hamlet"
-    },
-    {
-      "world": 0,
-      "level": 29,
-      "nameInternal": "29",
-      "name": "Shooting Range (The kids' hamlet)"
     },
     {
       "world": 11,
@@ -167,12 +157,6 @@
     },
     {
       "world": 3,
-      "level": 31,
-      "nameInternal": "31",
-      "name": "Shooting Range (Not a piece of cake!)"
-    },
-    {
-      "world": 3,
       "level": 21,
       "nameInternal": "21",
       "name": "Tart tunnels"
@@ -212,6 +196,18 @@
       "level": 27,
       "nameInternal": "27",
       "name": "The rabbids' lair"
+    },
+    {
+      "world": 0,
+      "level": 29,
+      "nameInternal": "29",
+      "name": "Shooting Range (The kids' hamlet)"
+    },
+    {
+      "world": 3,
+      "level": 31,
+      "nameInternal": "31",
+      "name": "Shooting Range (Not a piece of cake!)"
     },
     {
       "world": 10,
