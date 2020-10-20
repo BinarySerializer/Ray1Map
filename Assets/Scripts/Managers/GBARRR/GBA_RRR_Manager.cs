@@ -2847,7 +2847,7 @@ namespace R1Engine
                 case 16:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[2], 13), // Purple light on walls // TODO: Default is not first frame!
+                        new AnimTileInfo(animtedPalettes[2], 13), // Pink light on walls
                     };
 
                 default:
