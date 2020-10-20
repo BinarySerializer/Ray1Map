@@ -958,7 +958,7 @@ namespace R1Engine
                 {
                     unityAnimTiles.Add(new Unity_AnimatedTile()
                     {
-                        AnimationSpeed = 1,
+                        AnimationSpeed = animTileInfo.AnimSpeed,
                         TileIndices = Enumerable.Range(0, animTileInfo.PalCount).Select(x => (currentBlockIndex + x) * palBlockSize + i).ToArray()
                     });
                 }
@@ -2909,7 +2909,7 @@ namespace R1Engine
                 case 16:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[4], palCount: 15), 
+                        new AnimTileInfo(animtedPalettes[4], 5, palCount: 15), 
                     };
 
                 default:
@@ -2927,14 +2927,14 @@ namespace R1Engine
                 case 25:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[0], 13), // Fire
-                        new AnimTileInfo(animtedPalettes[1], 14), // Green slime
+                        new AnimTileInfo(animtedPalettes[0], 4, 13), // Fire
+                        new AnimTileInfo(animtedPalettes[1], 2, 14), // Green toxic waste
                     };
                 case 23:
                 case 26:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[3], 13), // Blue light
+                        new AnimTileInfo(animtedPalettes[3], 8, 13), // Blue light
                     };
 
                 // Organic cave
@@ -2944,7 +2944,7 @@ namespace R1Engine
                 case 16:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[2], 13), // Pink light on walls
+                        new AnimTileInfo(animtedPalettes[2], 5, 13), // Pink light on walls
                     };
 
                 default:
@@ -2954,14 +2954,16 @@ namespace R1Engine
 
         public class AnimTileInfo
         {
-            public AnimTileInfo(ARGBColor[] animatedPalette, int tilePalIndex = 0, int palCount = 16)
+            public AnimTileInfo(ARGBColor[] animatedPalette, int animSpeed, int tilePalIndex = 0, int palCount = 16)
             {
                 AnimatedPalette = animatedPalette;
+                AnimSpeed = animSpeed;
                 TilePalIndex = tilePalIndex;
                 PalCount = palCount;
             }
 
             public ARGBColor[] AnimatedPalette { get; }
+            public int AnimSpeed { get; }
             public int TilePalIndex { get; }
             public int PalCount { get; }
         }
