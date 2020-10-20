@@ -43,5 +43,9 @@
         Mode7_Compr5, // 0x06016900
         Mode7_Compr6, // 0x06010000
         Mode7_MenuArray,
+
+        MusicTable,
+        MusicSampleTable,
+        SoundEffectSampleTable,
     }
 }

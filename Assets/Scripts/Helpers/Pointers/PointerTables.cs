@@ -419,6 +419,10 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x087218cc,
 
                         [GBARRR_Pointer.Mode7_MenuArray] = 0x08721f44,
+
+                        [GBARRR_Pointer.MusicTable] = 0x08607f10,
+                        [GBARRR_Pointer.MusicSampleTable] = 0x083c3a9c,
+                        [GBARRR_Pointer.SoundEffectSampleTable] = 0x08606ae8,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
                 default:

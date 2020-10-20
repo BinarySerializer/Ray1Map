@@ -63,6 +63,7 @@ namespace R1Engine
             new GameAction("Export Vignette", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.Vignette)),
             new GameAction("Export Categorized & Converted Blocks", false, true, (input, output) => ExportBlocksAsync(settings, output, ExportFlags.All)),
             new GameAction("Export Actor Graphics", false, true, (input, output) => ExportGraphicsAsync(settings, output)),
+            new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output)),
         };
 
         public async UniTask ExportGraphicsAsync(GameSettings settings, string outputPath) {
@@ -106,6 +107,88 @@ namespace R1Engine
                         }
                     }
                 }
+            }
+        }
+
+
+
+        public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
+            using (var context = new Context(settings)) {
+                var s = context.Deserializer;
+
+                void ExportSample(string directory, string filename, byte[] data, uint freq, ushort channels) {
+                    // Create the directory
+                    Directory.CreateDirectory(directory);
+
+                    // Create WAV data
+                    var formatChunk = new WAVFormatChunk() {
+                        ChunkHeader = "fmt ",
+                        FormatType = 1,
+                        ChannelCount = channels,
+                        SampleRate = freq,
+                        BitsPerSample = 8,
+                    };
+
+                    var wav = new WAV {
+                        Magic = "RIFF",
+                        FileTypeHeader = "WAVE",
+                        Chunks = new WAVChunk[]
+                        {
+                            formatChunk,
+                            new WAVChunk()
+                            {
+                                ChunkHeader = "data",
+                                Data = data
+                            }
+                        }
+                    };
+
+                    formatChunk.ByteRate = (formatChunk.SampleRate * formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8;
+                    formatChunk.BlockAlign = (ushort)((formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8);
+
+                    // Get the output path
+                    var outputFilePath = Path.Combine(directory, filename + ".wav");
+
+                    // Create and open the output file
+                    using (var outputStream = File.Create(outputFilePath)) {
+                        // Create a context
+                        using (var wavContext = new Context(settings)) {
+                            // Create a key
+                            const string wavKey = "wav";
+
+                            // Add the file to the context
+                            wavContext.AddFile(new StreamFile(wavKey, outputStream, wavContext));
+
+                            // Write the data
+                            FileFactory.Write<WAV>(wavKey, wav, wavContext);
+                        }
+                    }
+                }
+
+                await LoadFilesAsync(context);
+
+                // Load the rom
+                var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
+                var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
+                s.DoAt(pointerTable[GBARRR_Pointer.MusicSampleTable], () => {
+                    var sampleTable = s.SerializeObject<GBARRR_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
+                    string outPath = outputPath + "/MusicSamples/";
+                    for (int i = 0; i < sampleTable.Length; i++) {
+                        var e = sampleTable.Entries[i];
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15768, 2);
+                    }
+                });
+                s.DoAt(pointerTable[GBARRR_Pointer.SoundEffectSampleTable], () => {
+                    var sampleTable = s.SerializeObject<GBARRR_SampleTable>(default, onPreSerialize: st => st.Length = 186, name: "SampleTable2");
+                    string outPath = outputPath + "/SoundEffects/";
+                    for (int i = 0; i < sampleTable.Length; i++) {
+                        var e = sampleTable.Entries[i];
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15768, 1);
+                    }
+                });
+                s.DoAt(pointerTable[GBARRR_Pointer.MusicTable], () => {
+                    var musicTable = s.SerializePointerArray<GBARRR_MusicTableEntry>(default, 0x1f, resolve: true, name: "MusicTable");
+                });
             }
         }
 
