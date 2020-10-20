@@ -82,5 +82,7 @@ namespace R1Engine
         public Unity_TileTexture[] Tiles { get; }
 
         public Unity_AnimatedTile[] AnimatedTiles { get; set; }
+
+        public int GBARRR_PalCount { get; set; }
     }
 }

@@ -244,12 +244,12 @@ namespace R1Engine
                 }
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Tiles)
                 {
-                    TileMapX = s.Serialize<ushort>(TileMapX, name: nameof(TileMapX));
+                    TileMapY = s.Serialize<ushort>(TileMapY, name: nameof(TileMapY));
                 }
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Foreground) {
                     s.SerializeBitValues<ushort>(bitFunc =>
                     {
-                        TileMapX = (ushort)bitFunc(TileMapX, 10, name: nameof(TileMapX));
+                        TileMapY = (ushort)bitFunc(TileMapY, 10, name: nameof(TileMapY));
                         HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                         VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
                         PaletteIndex = (byte)bitFunc(PaletteIndex, 4, name: nameof(PaletteIndex));
@@ -259,7 +259,7 @@ namespace R1Engine
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Menu) {
                     s.SerializeBitValues<ushort>(bitFunc =>
                     {
-                        TileMapX = (ushort)bitFunc(TileMapX, 8, name: nameof(TileMapX));
+                        TileMapY = (ushort)bitFunc(TileMapY, 8, name: nameof(TileMapY));
                         GBARRR_MenuUnk = (byte)bitFunc(GBARRR_MenuUnk, 2, name: nameof(GBARRR_MenuUnk));
                         HorizontalFlip = bitFunc(HorizontalFlip ? 1 : 0, 1, name: nameof(HorizontalFlip)) == 1;
                         VerticalFlip = bitFunc(VerticalFlip ? 1 : 0, 1, name: nameof(VerticalFlip)) == 1;
@@ -268,7 +268,7 @@ namespace R1Engine
                     });
                 }
                 else if (GBARRRType == GBARRR_MapBlock.MapType.Mode7Tiles) {
-                    TileMapX = s.Serialize<byte>((byte)TileMapX, name: nameof(TileMapX));
+                    TileMapY = s.Serialize<byte>((byte)TileMapY, name: nameof(TileMapY));
                 }
             }
         }

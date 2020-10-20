@@ -511,7 +511,7 @@ namespace R1Engine
                     },
                     MapTiles = Enumerable.Range(1, 32 * 8).Select(x => new Unity_Tile(new MapTile()
                     {
-                        TileMapX = (ushort)x
+                        TileMapY = (ushort)x
                     })).ToArray(),
                 };
                 var bg1 = new Unity_Map
@@ -524,7 +524,7 @@ namespace R1Engine
                     },
                     MapTiles = Enumerable.Range(1, 32 * 7).Select(x => new Unity_Tile(new MapTile()
                     {
-                        TileMapX = (ushort)x
+                        TileMapY = (ushort)x
                     })).ToArray(),
                 };
 
@@ -549,10 +549,12 @@ namespace R1Engine
             Controller.DetailedState = $"Loading tile set";
             await Controller.WaitIfNecessary();
 
-            var bg0Tileset = LoadTileSet(rom.BG0TileSet.Data, true, rom.TilePalette ?? rom.BG0TileSet.Palette, GetBG0Palette(lvl), 1);
+            var bg0Tileset = LoadTileSet(rom.BG0TileSet.Data, true, rom.TilePalette ?? rom.BG0TileSet.Palette, GetBG0Palette(lvl), 1,
+                GetBG0AnimTileInfo(lvl, rom.AnimatedPalettes));
             var bg1Tileset = LoadTileSet(rom.BG1TileSet.Data, true, rom.TilePalette ?? rom.BG1TileSet.Palette, GetBG1Palette(lvl), 1);
             var levelTileset = LoadTileSet(rom.LevelTileset.Data, false, rom.TilePalette ?? rom.LevelTileset.Palette);
-            var fgTileset = LoadTileSet(rom.FGTileSet.Data, true, rom.TilePalette ?? rom.FGTileSet.Palette, 0, 16);
+            var fgTileset = LoadTileSet(rom.FGTileSet.Data, true, rom.TilePalette ?? rom.FGTileSet.Palette, 0, 16,
+                GetFGAnimTileInfo(lvl, rom.AnimatedPalettes));
 
             Controller.DetailedState = $"Loading maps";
             await Controller.WaitIfNecessary();
@@ -578,7 +580,7 @@ namespace R1Engine
 
             var levelMap = LoadMap(rom.LevelMap.MapWidth, rom.LevelMap.MapHeight, rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
             var fgMap = hasFGMap ? LoadMap(rom.FGMap.MapWidth, rom.FGMap.MapHeight, rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
-
+            
             await Controller.WaitIfNecessary();
 
             var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom.LevelScene, rom, lvl, world));
@@ -604,7 +606,7 @@ namespace R1Engine
                 cellSize: CellSize,
                 localization: loc,
                 defaultCollisionMap: 2,
-                defaultMap: 2
+                defaultMap: 3
             );
         }
 
@@ -793,15 +795,15 @@ namespace R1Engine
 
                     void setTileAt(int tileX, int tileY, MapTile tile, byte? collisionType, string debugString)
                     {
-                        var tilemapX = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapX > 1) 
-                            ? (ushort)(tile?.TileMapX - 2 ?? 0) 
-                            : tile?.TileMapX ?? 0;
+                        var tileMapY = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapY > 1) 
+                            ? (ushort)(tile?.TileMapY - 2 ?? 0) 
+                            : tile?.TileMapY ?? 0;
 
                         map.MapTiles[tileY * map.Width + tileX] = new Unity_Tile(new MapTile()
                         {
-                            TileMapX = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapX > 1) 
-                                ? (ushort)(tilemapX + ((palIndex + tile?.PaletteIndex) % 16) * (tileset.Tiles.Length / 16)) 
-                                : tilemapX,
+                            TileMapY = (mapBlock?.Type == GBARRR_MapBlock.MapType.Foreground && tile?.TileMapY > 1) 
+                                ? (ushort)(tileMapY + ((palIndex + tile?.PaletteIndex) % 16) * (tileset.Tiles.Length / tileset.GBARRR_PalCount)) 
+                                : tileMapY,
                             CollisionType = collisionType ?? 0,
                             HorizontalFlip = tile?.HorizontalFlip ?? false,
                             VerticalFlip = tile?.VerticalFlip ?? false
@@ -816,19 +818,55 @@ namespace R1Engine
             return map;
         }
 
-        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, ARGBColor[] palette, int palStart = 0, int palCount = 1)
+        public Unity_MapTileMap LoadTileSet(byte[] tilemap, bool is4bit, ARGBColor[] palette, int palStart = 0, int palCount = 1, AnimTileInfo[] animtedTileInfos = null)
         {
+            animtedTileInfos = animtedTileInfos ?? new AnimTileInfo[0];
             int block_size = is4bit ? 0x20 : 0x40;
             const float texWidth = 256f;
             const float tilesWidth = texWidth / CellSize;
             var tileCount = tilemap.Length / block_size;
             var texHeight = Mathf.CeilToInt(tileCount / tilesWidth) * CellSize;
+            List<Unity_AnimatedTile> unityAnimTiles = new List<Unity_AnimatedTile>();
+            var totalPalCount = palCount + animtedTileInfos.Sum(x => x.PalCount - 1);
             //UnityEngine.Debug.Log(tileCount + " - " + block_size);
 
             // Get the tile-set texture
-            var tex = TextureHelpers.CreateTexture2D((int)texWidth, texHeight * palCount);
+            var tex = TextureHelpers.CreateTexture2D((int)texWidth, texHeight * totalPalCount);
 
-            for (int p = 0; p < palCount; p++)
+            var currentBlockIndex = 0;
+
+            // Add tiles for all normal palettes
+            for (int i = 0; i < palCount; i++)
+            {
+                fillTiles(palette, (i + palStart) * 16, i);
+                currentBlockIndex++;
+            }
+
+            // Add animated tile data
+            foreach (var animTileInfo in animtedTileInfos)
+            {
+                // Fill in tiles for all animated tile versions (skipping the first one as we already have that from the normal palette)
+                for (int i = 0; i < animTileInfo.PalCount - 1; i++)
+                    fillTiles(animTileInfo.AnimatedPalette, (i + 1) * 16, currentBlockIndex + i);
+
+                var palBlockSize = (tex.width * tex.height / (CellSize * CellSize)) / totalPalCount;
+                var initialBase = animTileInfo.TilePalIndex * palBlockSize;
+
+                for (int i = 0; i < tileCount; i++)
+                {
+                    var initialIndex = i + initialBase;
+
+                    unityAnimTiles.Add(new Unity_AnimatedTile()
+                    {
+                        AnimationSpeed = 1,
+                        TileIndices = new int[0].Append(initialIndex).Concat(Enumerable.Range(0, animTileInfo.PalCount - 1).Select(x => (currentBlockIndex + x) * palBlockSize + i)).ToArray()
+                    });
+                }
+
+                currentBlockIndex += animTileInfo.PalCount - 1;
+            }
+
+            void fillTiles(ARGBColor[] pal, int palOffset, int blockIndex)
             {
                 var tileIndex = 0;
 
@@ -847,22 +885,23 @@ namespace R1Engine
                             {
                                 Color c;
 
-                                if (is4bit) {
+                                if (is4bit)
+                                {
                                     var off = offset + ((yy * CellSize) + xx) / 2;
                                     var relOff = ((yy * CellSize) + xx);
                                     var b = tilemap[off];
                                     b = (byte)BitHelpers.ExtractBits(b, 4, relOff % 2 == 0 ? 0 : 4);
-                                    c = palette[(p + palStart) * 16 + b].GetColor();
+                                    c = pal[palOffset + b].GetColor();
                                     c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
                                 }
                                 else
                                 {
                                     var b = tilemap[offset + (yy * CellSize) + xx];
-                                    c = palette[b].GetColor();
+                                    c = pal[b].GetColor();
                                     c = new Color(c.r, c.g, c.b, b != 0 ? 1f : 0f);
                                 }
 
-                                tex.SetPixel(x + xx, p * texHeight + y + yy, c);
+                                tex.SetPixel(x + xx, blockIndex * texHeight + y + yy, c);
                             }
                         }
 
@@ -873,7 +912,11 @@ namespace R1Engine
 
             tex.Apply();
 
-            return new Unity_MapTileMap(tex, CellSize);
+            return new Unity_MapTileMap(tex, CellSize)
+            {
+                AnimatedTiles = unityAnimTiles?.ToArray(),
+                GBARRR_PalCount = totalPalCount
+            };
         }
 
         public IReadOnlyDictionary<string, string[]> LoadLocalization(GBARRR_LocalizationBlock loc)
@@ -2755,6 +2798,70 @@ namespace R1Engine
 
             public ushort Width { get; }
             public ushort Height { get; }
+        }
+
+        public AnimTileInfo[] GetBG0AnimTileInfo(int level, ARGBColor[][] animtedPalettes)
+        {
+            switch (level)
+            {
+                case 16:
+                    return new AnimTileInfo[]
+                    {
+                        new AnimTileInfo(animtedPalettes[4], palCount: 15), 
+                    };
+
+                default:
+                    return null;
+            }
+        }
+        public AnimTileInfo[] GetFGAnimTileInfo(int level, ARGBColor[][] animtedPalettes)
+        {
+            switch (level)
+            {
+                // Dark
+                case 0:
+                case 1:
+                case 24:
+                case 25:
+                    return new AnimTileInfo[]
+                    {
+                        new AnimTileInfo(animtedPalettes[0], 13), // Fire
+                        new AnimTileInfo(animtedPalettes[1], 14), // Green slime
+                    };
+                case 23:
+                case 26:
+                    return new AnimTileInfo[]
+                    {
+                        new AnimTileInfo(animtedPalettes[3], 13), // Blue light
+                    };
+
+                // Organic cave
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                    return new AnimTileInfo[]
+                    {
+                        new AnimTileInfo(animtedPalettes[2], 13), // Purple light on walls // TODO: Default is not first frame!
+                    };
+
+                default:
+                    return null;
+            }
+        }
+
+        public class AnimTileInfo
+        {
+            public AnimTileInfo(ARGBColor[] animatedPalette, int tilePalIndex = 0, int palCount = 16)
+            {
+                AnimatedPalette = animatedPalette;
+                TilePalIndex = tilePalIndex;
+                PalCount = palCount;
+            }
+
+            public ARGBColor[] AnimatedPalette { get; }
+            public int TilePalIndex { get; }
+            public int PalCount { get; }
         }
 
         public class AnimationAssemble {

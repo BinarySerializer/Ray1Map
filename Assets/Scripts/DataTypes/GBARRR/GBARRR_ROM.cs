@@ -23,6 +23,7 @@ namespace R1Engine
         public GBARRR_MapBlock CollisionMap { get; set; }
         public GBARRR_MapBlock LevelMap { get; set; }
         public GBARRR_MapBlock FGMap { get; set; }
+        public ARGB1555Color[][] AnimatedPalettes { get; set; }
 
         // Palettes
         public ARGB1555Color[] TilePalette { get; set; }
@@ -133,6 +134,13 @@ namespace R1Engine
                         TilePalette = s.SerializeObjectArray<ARGB1555Color>(TilePalette, 0x100, name: nameof(TilePalette)));
                 OffsetTable.DoAtBlock(s.Context, lvlInfo.SpritePaletteIndex, size =>
                     SpritePalette = s.SerializeObjectArray<ARGB1555Color>(SpritePalette, 0x100, name: nameof(SpritePalette)));
+
+                if (AnimatedPalettes == null)
+                    AnimatedPalettes = new ARGB1555Color[5][];
+
+                for (int i = 0; i < AnimatedPalettes.Length; i++)
+                    OffsetTable.DoAtBlock(s.Context, 764 + i, size => 
+                        AnimatedPalettes[i] = s.SerializeObjectArray<ARGB1555Color>(AnimatedPalettes[i], 0x100, name: $"{nameof(AnimatedPalettes)}[{i}]"));
 
                 // Serialize tables
                 s.DoAt(pointerTable[GBARRR_Pointer.GraphicsTables], () =>
