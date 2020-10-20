@@ -454,7 +454,10 @@ namespace R1Engine
             var world = context.Settings.World;
 
             if (gameMode == GameMode.Village)
+            {
                 lvl = 28;
+                world = 5;
+            }
 
             // Shooting Range 2 should be set to the values of Shooting Range 1
             if (lvl == 31)
@@ -670,7 +673,7 @@ namespace R1Engine
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
 
-            var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2);
+            var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2); // Disable rain
 
             var levelMap = LoadMap(rom.LevelMap.MapWidth, rom.LevelMap.MapHeight, rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
             var fgMap = hasFGMap ? LoadMap(rom.FGMap.MapWidth, rom.FGMap.MapHeight, rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
@@ -680,6 +683,11 @@ namespace R1Engine
             var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom.LevelScene, rom, lvl, world));
 
             await Controller.WaitIfNecessary();
+
+            var objects = rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager));
+
+            if (gameMode == GameMode.Village && context.Settings.Level == 2)
+                objects = objects.Where(x => ((Unity_Object_GBARRR)x).Actor.ObjectType != GBARRR_ActorType.Scenery2); // Disable rain
 
             return new Unity_Level(
                 maps: hasFGMap ? new Unity_Map[]
@@ -695,7 +703,7 @@ namespace R1Engine
                     levelMap,
                 }, 
                 objManager: objManager,
-                eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager)).ToList(),
+                eventData: objects.ToList(),
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                 cellSize: CellSize,
                 localization: loc,
