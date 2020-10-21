@@ -14,7 +14,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine {
-	public class MidiWriter {
+	public class R1Jaguar_MidiWriter {
 		public void Write(R1Jaguar_MusicDescriptor file, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();

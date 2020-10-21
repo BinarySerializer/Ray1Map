@@ -187,6 +187,14 @@ namespace R1Engine
                 });
                 s.DoAt(pointerTable[GBARRR_Pointer.MusicTable], () => {
                     var musicTable = s.SerializePointerArray<GBARRR_MusicTableEntry>(default, 0x1f, resolve: true, name: "MusicTable");
+                    // For each entry
+                    GBARRR_MidiWriter w = new GBARRR_MidiWriter();
+                    Directory.CreateDirectory(Path.Combine(outputPath, "midi"));
+                    for (int i = 0; i < musicTable.Length; i++) {
+                        w.Write(musicTable[i].Value,
+                            Path.Combine(outputPath, "midi",
+                            $"{musicTable[i].Value.ParsedName}.mid"));
+                    }
                 });
             }
         }

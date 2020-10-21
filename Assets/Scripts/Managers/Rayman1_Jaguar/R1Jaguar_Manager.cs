@@ -702,7 +702,7 @@ namespace R1Engine
                     // Immediately after this: pointer to sample buffer?
 
                     // For each entry
-                    MidiWriter w = new MidiWriter();
+                    R1Jaguar_MidiWriter w = new R1Jaguar_MidiWriter();
                     for (int i = 0; i < MusicTable.Length; i++) {
                         w.Write(MusicTable[i],
                             Path.Combine(outputPath,
