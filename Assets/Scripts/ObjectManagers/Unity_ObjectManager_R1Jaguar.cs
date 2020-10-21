@@ -15,7 +15,7 @@ namespace R1Engine
         public List<EventDefinition> EventDefinitions { get; }
 
         // TODO: Change this to use Jaguars link system instead
-        public override void InitR1LinkGroups(IList<Unity_Object> objects)
+        public override int InitR1LinkGroups(IList<Unity_Object> objects)
         {
             int currentId = 1;
 
@@ -45,6 +45,8 @@ namespace R1Engine
                     currentId++;
                 }
             }
+
+            return currentId;
         }
 
         [Obsolete]

@@ -190,7 +190,7 @@ namespace R1Engine
             return eventData;
         }
 
-        public override void InitR1LinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
+        public override int InitR1LinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
         public override void SaveLinkGroups(IList<Unity_Object> objects) => LinkTable = SaveR1LinkGroups(objects);
 
         public override void InitObjects(Unity_Level level)

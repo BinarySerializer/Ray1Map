@@ -79,7 +79,7 @@ namespace R1Engine
             transform.rotation = Quaternion.identity;
 
             // Snap link cube position
-            linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
+            linkCube.position = new Vector2(Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y));
         }
 
         public void ForceUpdate() => Update();
@@ -249,6 +249,7 @@ namespace R1Engine
             UpdatePosition();
 
             // Don't move link cube if it's part of a link
+
             if (ObjData.R1_EditorLinkGroup != 0)
                 linkCube.position = linkCubeLockPosition;
             else
