@@ -24,6 +24,9 @@ namespace R1Engine
             HasDefinedDesEtaNames = hasDefinedDesEtaNames;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
 
+            // Set initial random index to a random value
+            RandomIndex = (byte)new Random().Next(0, 256);
+
             // Create lookup tables
             for (int i = 0; i < DES.Length; i++)
                 DESLookup[DES[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
