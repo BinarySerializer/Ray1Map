@@ -426,6 +426,138 @@ namespace R1Engine
             return madeEdits;
         }
 
+        public byte GetDisplayPrio(R1_EventType type, int hitPoints, byte originalDisplayPrio)
+        {
+            var typeValue = (ushort)type;
+
+            if (typeValue > 255)
+                return originalDisplayPrio;
+
+            switch (typeValue)
+            {
+                default:
+                    return 4;
+
+                case 30:
+                case 98:
+                case 141:
+                case 158:
+                case 164:
+                case 181:
+                case 199:
+                case 204:
+                case 213:
+                case 236:
+                case 238:
+                case 245:
+                    return 0;
+
+                case 123:
+                    return (byte)(Context.Settings.World == 1 && Context.Settings.Level == 14 ? 3 : 2);
+
+                case 2:
+                case 31:
+                case 55:
+                case 82:
+                case 95:
+                case 137:
+                case 142:
+                case 148:
+                case 173:
+                    return 6;
+
+                case 4:
+                case 42:
+                case 88:
+                case 252:
+                    return 7;
+
+                case 147:
+                    return (byte)(hitPoints < 1 ? 2 : 0);
+
+                case 149:
+                case 157:
+                case 197:
+                    return 1;
+
+                case 7:
+                case 20:
+                case 96:
+                case 109:
+                case 111:
+                case 112:
+                case 246:
+                case 251:
+                    return 5;
+
+                case 11:
+                case 19:
+                case 21:
+                case 41:
+                case 45:
+                case 48:
+                case 57:
+                case 75:
+                case 78:
+                case 79:
+                case 83:
+                case 90:
+                case 91:
+                case 92:
+                case 93:
+                case 94:
+                case 102:
+                case 110:
+                case 121:
+                case 135:
+                case 143:
+                case 146:
+                case 150:
+                case 161:
+                case 168:
+                case 170:
+                case 220:
+                case 221:
+                case 224:
+                case 234:
+                case 248:
+                    return 2;
+
+                case 28:
+                case 44:
+                case 46:
+                case 58:
+                case 59:
+                case 66:
+                case 72:
+                case 73:
+                case 74:
+                case 77:
+                case 86:
+                case 97:
+                case 119:
+                case 133:
+                case 138:
+                case 154:
+                case 155:
+                case 180:
+                case 183:
+                case 187:
+                case 190:
+                case 198:
+                case 200:
+                case 201:
+                case 203:
+                case 211:
+                case 239:
+                case 249:
+                    return 3;
+
+                case 253:
+                    return 4; // Note: This is 7 if there is no pirate ship event in the level
+            }
+        }
+
         public class DataContainer<T>
         {
             public DataContainer(T data, Pointer primaryPointer, string name = null)
