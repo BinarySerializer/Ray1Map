@@ -405,7 +405,7 @@ namespace R1Engine
         }
 
         public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) {
-
+            string logPrefix = LogPrefix;
             // Convert to int so we can work with it
             var valueInt = Convert.ToInt32(Serialize<T>(default, name: "Value"));
 
@@ -414,7 +414,9 @@ namespace R1Engine
             serializeFunc((v, length, name) => {
                 var bitValue = BitHelpers.ExtractBits(valueInt, length, pos);
 
-                Log($"  ({typeof(T)}) {name ?? "<no name>"}: {bitValue}");
+                if (Settings.Log) {
+                    Context.Log.Log(logPrefix + $"  ({typeof(T)}) {name ?? "<no name>"}: {bitValue}");
+                }
 
                 pos += length;
                 return bitValue;

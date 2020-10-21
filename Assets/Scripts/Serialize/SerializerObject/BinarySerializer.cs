@@ -317,11 +317,14 @@ namespace R1Engine
         public override void SerializeBitValues<T>(Action<SerializeBits> serializeFunc) {
             int valueInt = 0;
             int pos = 0;
+            string logPrefix = LogPrefix;
 
             // Set bits
             serializeFunc((v, length, name) => {
                 valueInt = BitHelpers.SetBits(valueInt, v, length, pos);
-                Log($"  ({typeof(T)}) {name ?? "<no name>"}: {v}");
+                if (Settings.Log) {
+                    Context.Log.Log(logPrefix + $"  ({typeof(T)}) {name ?? "<no name>"}: {v}");
+                }
                 pos += length;
                 return v;
             });
