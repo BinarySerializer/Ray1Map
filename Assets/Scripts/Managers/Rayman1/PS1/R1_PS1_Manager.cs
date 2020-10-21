@@ -240,10 +240,8 @@ namespace R1Engine
 
             var newEventLinkTable = objManager.LinkTable.Select(x => (byte)x).ToArray();
 
-            // Create the edited block which we append to the file
-            lvlData.EditedBlock = new R1_PS1_EditedLevelBlock();
-
-            lvlData.EditedBlock.UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, newEvents, newEventLinkTable, context.Settings);
+            // Relocate pointers to a new block of data we append to the level file
+            UpdateAndFillDataBlock(lvlData.Offset + lvlData.FileSize, lvlData.EventData, newEvents, newEventLinkTable, context.Settings);
 
             // TODO: When writing make sure that ONLY the level file gets recreated - do not touch the other files (ignore DoAt if the file needs to be switched based on some setting?)
             // Save the file
@@ -253,6 +251,47 @@ namespace R1Engine
             CreateISO(context);
 
             return UniTask.CompletedTask;
+        }
+
+        public void UpdateAndFillDataBlock(Pointer offset, R1_PS1_EventBlock originalBlock, R1_EventData[] events, byte[] eventLinkingTable, GameSettings settings)
+        {
+            long currentOffset = 0;
+            Pointer getCurrentBlockPointer() => offset + (1 * 4) + currentOffset;
+
+            originalBlock.EventCount = (byte)events.Length;
+            originalBlock.EventsPointer = getCurrentBlockPointer();
+            originalBlock.Events = events;
+
+            currentOffset += events.Length * 112;
+
+            originalBlock.EventLinkCount = (byte)eventLinkingTable.Length;
+            originalBlock.EventLinksPointer = getCurrentBlockPointer();
+            originalBlock.EventLinkingTable = eventLinkingTable;
+
+            currentOffset += eventLinkingTable.Length;
+
+            foreach (var e in events)
+            {
+                if (e.Commands != null)
+                {
+                    e.CommandsPointer = getCurrentBlockPointer();
+                    currentOffset += e.Commands.ToBytes(settings).Length;
+                }
+                else
+                {
+                    e.CommandsPointer = null;
+                }
+
+                if (e.LabelOffsets != null)
+                {
+                    e.LabelOffsetsPointer = getCurrentBlockPointer();
+                    currentOffset += e.LabelOffsets.Length * 2;
+                }
+                else
+                {
+                    e.LabelOffsetsPointer = null;
+                }
+            }
         }
 
         protected void CreateISO(Context context)
