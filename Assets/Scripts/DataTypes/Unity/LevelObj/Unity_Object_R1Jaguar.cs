@@ -34,6 +34,9 @@ namespace R1Engine
                                             $"Byte_26: {ObjManager.EventDefinitions[EventDefinitionIndex].Definition.Byte_26}{Environment.NewLine}" +
                                             $"{nameof(Instance.OffsetX)}: {Instance?.OffsetX}{Environment.NewLine}" +
                                             $"{nameof(Instance.OffsetY)}: {Instance?.OffsetY}{Environment.NewLine}";
+
+        public override bool R1_CanBeLinked => true;
+
         protected Pointer EventDefinitionPointer { get; set; }
         public int EventDefinitionIndex
         {

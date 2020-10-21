@@ -360,7 +360,7 @@ namespace R1Engine
                 selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
 
                 // Change the link
-                if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null) {
+                if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null && SelectedEvent.ObjData.R1_CanBeLinked) {
                     SelectedEvent.ObjData.R1_EditorLinkGroup = 0;
                 }
             } else {

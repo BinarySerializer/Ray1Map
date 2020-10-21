@@ -7,7 +7,7 @@ namespace R1Engine
     {
         None = 0,
 
-        Flag_00 = 1 << 0, // Seems to be if it's an always event
+        IsAlways = 1 << 0, // If true the game sets the pos to (-32000, -32000) on init
         Flag_01 = 1 << 1,
         NoCollision = 1 << 2, // Indicates if the event has no collision - does not include follow
         HurtsRayman = 1 << 3, // Indicates if the event damages Rayman
@@ -17,7 +17,7 @@ namespace R1Engine
         Flag_07 = 1 << 7,
 
         Flag_08 = 1 << 8,
-        Flag_09 = 1 << 9,
+        IsCollectible = 1 << 9, // Indicates if the event can be collected and thus not respawn again
         Flag_0A = 1 << 10,
         Flag_0B = 1 << 11,
         Flag_0C = 1 << 12,
@@ -39,8 +39,8 @@ namespace R1Engine
         Flag_1A = 1 << 26,
         Flag_1B = 1 << 27,
         Flag_1C = 1 << 28,
-        Flag_1D = 1 << 29,
-        Flag_1E = 1 << 30,
+        LinkRequiresGendoor = 1 << 29, // Indicates if the object requires a gendoor in the link group to be valid
+        NoLink = 1 << 30, // Indicates that the event can't be linked
         Flag_1F = 1 << 31,
     }
 }

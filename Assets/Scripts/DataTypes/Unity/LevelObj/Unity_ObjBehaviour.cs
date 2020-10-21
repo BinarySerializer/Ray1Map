@@ -513,8 +513,9 @@ namespace R1Engine
                 Settings.ShowLinks && 
                 // Only show active links on web
                 !(FileSystem.mode == FileSystem.Mode.Web && ObjData.R1_EditorLinkGroup == 0) && 
-                // Don't show R1 links on GBA
-                LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA;
+                // Only show if available
+                ObjData.R1_CanBeLinked;
+
             lineRend.enabled = showLinks;
             linkCube.gameObject.SetActive(showLinks);
 

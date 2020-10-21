@@ -163,6 +163,8 @@ namespace R1Engine
             }
         }
 
+        public override bool R1_CanBeLinked => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(R1_EventFlags.NoLink) ?? false);
+
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
         public override string SecondaryName { get; }
 
