@@ -501,13 +501,13 @@ namespace R1Engine
                 var bg0 = new Unity_Map
                 {
                     Width = 32,
-                    Height = 32,
+                    Height = 12, // Height is actually 32, but the remaining tiles are always transparent, but with a solid color
                     TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         LoadTileSet(rom.Mode7_BG0Tiles, false, rom.Mode7_TilemapPalette), 
                     },
-                    MapTiles = rom.Mode7_BG0MapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
+                    MapTiles = rom.Mode7_BG0MapData.Take(12 * 32).Select((x, i) => new Unity_Tile(x)).ToArray(),
                 };
                 var bg1 = new Unity_Map
                 {
@@ -521,6 +521,8 @@ namespace R1Engine
                     MapTiles = rom.Mode7_BG1MapData.Select((x, i) => new Unity_Tile(x)).ToArray(),
                 };
 
+                var objmanager = new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]);
+
                 return new Unity_Level(
                     maps: new Unity_Map[]
                     {
@@ -528,10 +530,14 @@ namespace R1Engine
                         bg0,
                         bg1,
                     },
-                    objManager: new Unity_ObjectManager_GBARRR(context, new Unity_ObjectManager_GBARRR.GraphicsData[0]),
+                    objManager: objmanager,
                     getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                     cellSize: CellSize,
                     localization: loc,
+                    eventData: new List<Unity_Object>()
+                    {
+                        new Unity_Object_GBARRR(new GBARRR_Actor(), objmanager)
+                    },
                     defaultMap: 0
                 );
             }
