@@ -17,12 +17,17 @@ namespace R1Engine
             // Set editor states
             EventData.InitialEtat = EventData.Etat;
             EventData.InitialSubEtat = EventData.SubEtat;
-            EventData.InitialDisplayPrio = EventData.DisplayPrio;
+            //EventData.InitialDisplayPrio = EventData.DisplayPrio;
+            EventData.InitialDisplayPrio = objManager.GetDisplayPrio(EventData.Type, EventData.HitPoints, EventData.DisplayPrio);
             EventData.InitialXPosition = (short)EventData.XPosition;
             EventData.InitialYPosition = (short)EventData.YPosition;
             EventData.RuntimeCurrentAnimIndex = 0;
             EventData.InitialHitPoints = EventData.HitPoints;
             UpdateZDC();
+
+            // Set random frame
+            if (EventData.Type.UsesRandomFrame())
+                ForceFrame = (byte)ObjManager.GetNextRandom(CurrentAnimation?.Frames.Length ?? 1);
 
             // Find matching name from event sheet
             SecondaryName = ObjManager.FindMatchingEventInfo(EventData)?.Name;
@@ -36,6 +41,7 @@ namespace R1Engine
         }
 
         public R1_EventData EventData { get; }
+        public byte ForceFrame { get; set; }
 
         public Unity_ObjectManager_R1 ObjManager { get; }
 
@@ -163,11 +169,13 @@ namespace R1Engine
             }
         }
 
+        public override bool R1_CanBeLinked => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(R1_EventFlags.NoLink) ?? false);
+
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
         public override string SecondaryName { get; }
 
         // TODO: Fix
-        public override int? GetLayer(int index) => -(index + (EventData.InitialDisplayPrio * 512));
+        public override int? GetLayer(int index) => (index + (EventData.InitialDisplayPrio * 512));
 
         public override bool FlipHorizontally
         {
@@ -351,6 +359,12 @@ namespace R1Engine
             else if (EventData.Type.UsesEditorFrame())
             {
                 AnimationFrameFloat = EventData.RuntimeCurrentAnimFrame;
+                return false;
+            }
+            else if (EventData.Type.UsesRandomFrame() || EventData.Type.UsesFrameFromLinkChain())
+            {
+                EventData.RuntimeCurrentAnimFrame = ForceFrame;
+                AnimationFrameFloat = ForceFrame;
                 return false;
             }
             else

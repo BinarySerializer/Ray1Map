@@ -69,6 +69,8 @@ namespace R1Engine
 
         public bool LogModifications => false;
 
+        private bool updateLinkPos = false;
+
         #endregion
 
         #region Field Changed Methods
@@ -206,7 +208,7 @@ namespace R1Engine
                 var objList = Controller.obj.levelController.Objects;
 
                 // Initialize links
-                LevelEditorData.ObjManager.InitR1LinkGroups(objList.Select(x => x.ObjData).ToArray());
+                currentId = LevelEditorData.ObjManager.InitR1LinkGroups(objList.Select(x => x.ObjData).ToArray());
 
                 // Set link positions
                 foreach (var linkedEvents in objList.Where(x => x.ObjData.R1_EditorLinkGroup != 0).GroupBy(x => x.ObjData.R1_EditorLinkGroup))
@@ -216,7 +218,7 @@ namespace R1Engine
                     foreach (var e in linkedEvents)
                     {
                         e.linkCube.position = prev.linkCube.position;
-                        e.linkCubeLockPosition = e.linkCube.position;
+                        e.linkCubeLockPosition = new Vector2(Mathf.FloorToInt(e.linkCube.position.x), Mathf.FloorToInt(e.linkCube.position.y));
                         prev = e;
                     }
                 }
@@ -360,7 +362,19 @@ namespace R1Engine
                 selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
 
                 // Change the link
-                if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null) {
+                if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null && SelectedEvent.ObjData.R1_CanBeLinked) {
+                    
+                    //If someone is left alone in a group, unlink them too
+                    var objList = Controller.obj.levelController.Objects;
+                    var allLinkedEvents = objList.Where(x => x.ObjData.R1_EditorLinkGroup == SelectedEvent.ObjData.R1_EditorLinkGroup).ToList();
+                    
+                    if (allLinkedEvents.Count <= 2) {
+                        foreach (var ev in allLinkedEvents) {
+                            ev.ObjData.R1_EditorLinkGroup = 0;
+                        }
+                    }
+
+                    //Unlink self
                     SelectedEvent.ObjData.R1_EditorLinkGroup = 0;
                 }
             } else {
@@ -422,6 +436,7 @@ namespace R1Engine
                 Controller.obj.levelEventController.editor.cam.pos = new Vector3(SelectedEvent.ObjData.XPosition / (float)LevelEditorData.Level.PixelsPerUnit, -(SelectedEvent.ObjData.YPosition / (float)LevelEditorData.Level.PixelsPerUnit));
 
             SelectedEvent.IsSelected = true;
+            //Debug.Log("GenId is: " + SelectedEvent.ObjData.R1_EditorLinkGroup.ToString());
         }
 
         public Context GameMemoryContext;
@@ -586,6 +601,8 @@ namespace R1Engine
 
                             FieldUpdated(x => SelectedEvent.ObjData.XPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt((mousePos.x - selectedPosition.x) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.XPosition, "XPos");
                             FieldUpdated(x => SelectedEvent.ObjData.YPosition = x, (short)Mathf.Clamp(Mathf.RoundToInt(-(mousePos.y - selectedPosition.y) * LevelEditorData.Level.PixelsPerUnit), Int16.MinValue, Int16.MaxValue), () => SelectedEvent.ObjData.YPosition, "YPos");
+
+                            updateLinkPos = true;
                         }
 
                         // Else move links
@@ -665,6 +682,19 @@ namespace R1Engine
                 ClickedEvent = null;
             }
             outlineManager.selecting = ClickedEvent != null;
+        }
+
+        private void LateUpdate() {
+            if (updateLinkPos) {
+                updateLinkPos = false;
+                var e = editor.objectHighlight.highlightedObject;
+                if (e != null) {
+                    if (SelectedEvent != null) {
+                        if (SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
+                            SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(e.transform.position.x), Mathf.FloorToInt(e.transform.position.y));
+                    }
+                }
+            }
         }
 
         private void ClearInfoWindow() {

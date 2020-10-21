@@ -379,7 +379,15 @@ namespace R1Engine
                 return t;
             }
 
-            return map.GetMapTile(x, y);
+            var shallow_tile = map.GetMapTile(x, y);
+            Unity_Tile u;
+            if (shallow_tile == null) {
+                u = new Unity_Tile(new MapTile());
+            }
+            else {
+                u = shallow_tile.CloneObj();
+            }
+            return u;
         }
 
         public void SetTileBlockAtPos(int x, int y, int w, int h, Unity_Tile[] newTiles) {

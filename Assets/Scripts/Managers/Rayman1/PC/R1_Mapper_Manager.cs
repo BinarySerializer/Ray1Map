@@ -165,7 +165,8 @@ namespace R1Engine
                 des: eventDesigns.Select((x, i) => new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(x, i, worldData.DESFileNames?.ElementAtOrDefault(i))).ToArray(), 
                 eta: GetCurrentEventStates(context).Select((x, i) => new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(x.States, i, worldData.ETAFileNames?.ElementAtOrDefault(i))).ToArray(), 
                 linkTable: linkTable, 
-                usesPointers: false);
+                usesPointers: false,
+                hasDefinedDesEtaNames: true);
 
             Controller.DetailedState = $"Loading events";
             await Controller.WaitIfNecessary();

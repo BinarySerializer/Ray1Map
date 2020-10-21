@@ -84,7 +84,11 @@ namespace R1Engine
                         [2] = "Organic Cave",
                         [3] = "Sweets",
                         [4] = "Dark",
-                        [5] = "Menu",
+                        [5] = "Title Screen",
+                        [10] = "Village",
+                        [11] = "Mode7",
+                        [12] = "Unused Mode7",
+                        [13] = "Menu",
                     };
                 case Game.GBA_PrinceOfPersiaTheSandsOfTime:
                 case Game.GBA_SabrinaTheTeenageWitchPotionCommotion:
@@ -399,7 +403,7 @@ namespace R1Engine
             [0] = new Dictionary<int, string>() {
                 [2] = "Child's play",
                 [3] = "The kids' hamlet",
-                [4] = "The toy chase",
+                [4] = "Unused (Child)",
                 [5] = "Toy box",
                 [6] = "Celestial castle",
                 [29] = "Shooting Range",
@@ -412,7 +416,7 @@ namespace R1Engine
                 [11] = "Hidden burrow",
             },
             [2] = new Dictionary<int, string>() {
-                [12] = "Stomach circuit",
+                [12] = "Unused (Organic Cave)",
                 [13] = "Gastric rivers",
                 [14] = "Living cavern",
                 [15] = "Swallowed treasures",
@@ -420,7 +424,7 @@ namespace R1Engine
             },
             [3] = new Dictionary<int, string>() {
                 [17] = "The desert of desserts",
-                [18] = "Cake race",
+                [18] = "Unused (Sweets)",
                 [19] = "The sweet islands",
                 [20] = "Not a piece of cake!",
                 [21] = "Tart tunnels",
@@ -438,6 +442,34 @@ namespace R1Engine
             },
             [5] = new Dictionary<int, string>() {
                 [30] = "Title Screen",
+            },
+            [10] = new Dictionary<int, string>() {
+                [0] = "Village 1",
+                [1] = "Village 2",
+                [2] = "Village 3",
+            },
+            [11] = new Dictionary<int, string>() {
+                [0] = "The toy chase",
+                [1] = "Stomach circuit",
+                [2] = "Cake race",
+            },
+            [12] = new Dictionary<int, string>() {
+                [0] = "Unused"
+            },
+            [13] = new Dictionary<int, string>() {
+                [0] = "Main Menu",
+                [1] = "Credits",
+                [2] = "Options",
+                [3] = "Game Over",
+                [4] = "Continue?",
+                [5] = "Health and Safety (English)",
+                [6] = "Health and Safety (French)",
+                [7] = "Health and Safety (German)",
+                [8] = "Health and Safety (Italian)",
+                [9] = "Health and Safety (Dutch)",
+                [10] = "Health and Safety (Spanish)",
+                [11] = "Language Selection",
+                [12] = "Health and Safety",
             },
         };
     }

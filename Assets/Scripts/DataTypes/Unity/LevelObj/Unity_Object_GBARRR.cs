@@ -36,7 +36,7 @@ namespace R1Engine
 
         public override ILegacyEditorWrapper LegacyWrapper { get; }
 
-        public override bool IsEditor => Actor.ObjectType == 0;
+        public override bool IsEditor => CurrentAnimation == null;
 
         public override string PrimaryName => $"Type_{(byte)Actor.ObjectType}";
         public override string SecondaryName => $"{Actor.ObjectType}";

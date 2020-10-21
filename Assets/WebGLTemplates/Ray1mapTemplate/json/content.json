@@ -150,6 +150,15 @@
 						{ "json": "ngage", "image": ".\/img\/version\/ngage.png", "name": "N-Gage", "folder": "gba/r3_ngage" },
 						{ "json": "us_proto", "image": ".\/img\/version\/gba.png", "name": "GBA Prototype", "folder": "gba/r3_us_proto" }
 					]
+				},
+				{
+					"title": "Rayman Raving Rabbids",
+					"viewer": "ray1map",
+					"json": "gba_rrr\/rrr",
+					"image": ".\/img\/logo\/rrr.png",
+					"versions": [
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba_rrr/rrr_eu" }
+					]
 				}
 			]
 		},

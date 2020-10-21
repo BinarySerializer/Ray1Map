@@ -24,6 +24,7 @@ namespace R1Engine
         public virtual bool IsAlways => false;
         public virtual bool IsEditor => false;
         public virtual bool IsActive => true;
+        public virtual bool R1_CanBeLinked => false;
 
         // Display properties
         public abstract string PrimaryName { get; } // Official

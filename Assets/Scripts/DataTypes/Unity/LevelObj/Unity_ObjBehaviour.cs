@@ -79,7 +79,7 @@ namespace R1Engine
             transform.rotation = Quaternion.identity;
 
             // Snap link cube position
-            linkCube.position = new Vector2(Mathf.FloorToInt(linkCube.position.x), Mathf.FloorToInt(linkCube.position.y));
+            linkCube.position = new Vector2(Mathf.FloorToInt(transform.position.x), Mathf.FloorToInt(transform.position.y));
         }
 
         public void ForceUpdate() => Update();
@@ -249,6 +249,7 @@ namespace R1Engine
             UpdatePosition();
 
             // Don't move link cube if it's part of a link
+
             if (ObjData.R1_EditorLinkGroup != 0)
                 linkCube.position = linkCubeLockPosition;
             else
@@ -513,8 +514,9 @@ namespace R1Engine
                 Settings.ShowLinks && 
                 // Only show active links on web
                 !(FileSystem.mode == FileSystem.Mode.Web && ObjData.R1_EditorLinkGroup == 0) && 
-                // Don't show R1 links on GBA
-                LevelEditorData.CurrentSettings.MajorEngineVersion != MajorEngineVersion.GBA;
+                // Only show if available
+                ObjData.R1_CanBeLinked;
+
             lineRend.enabled = showLinks;
             linkCube.gameObject.SetActive(showLinks);
 

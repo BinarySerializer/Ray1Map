@@ -2,6 +2,7 @@
 using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Debug = UnityEngine.Debug;
@@ -10,7 +11,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false) : base(context)
         {
             // Set properties
             DES = des;
@@ -20,20 +21,34 @@ namespace R1Engine
             TypeZDC = typeZDC;
             ZDCData = zdcData;
             EventFlags = eventFlags;
+            HasDefinedDesEtaNames = hasDefinedDesEtaNames;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
 
-            for (int i = 0; i < DES.Length; i++) {
+            // Create lookup tables
+            for (int i = 0; i < DES.Length; i++)
                 DESLookup[DES[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
-            }
-            for (int i = 0; i < ETA.Length; i++) {
+
+            for (int i = 0; i < ETA.Length; i++)
                 ETALookup[ETA[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
-            }
+
+            // Parse random array
+            var r = context.AddStreamFile("RandomArrayData", new MemoryStream(RandomArrayData));
+            var s = context.Deserializer;
+            RandomArray = s.DoAt(r.StartPointer, () => s.SerializeArray<ushort>(default, 256, name: nameof(RandomArray)));
         }
 
         public DataContainer<DESData>[] DES { get; }
         public DataContainer<R1_EventState[][]>[] ETA { get; }
         public Dictionary<uint, int> DESLookup { get; } = new Dictionary<uint, int>();
         public Dictionary<uint, int> ETALookup { get; } = new Dictionary<uint, int>();
+
+        public ushort[] RandomArray { get; }
+        public byte RandomIndex { get; set; }
+        public ushort GetNextRandom(int max)
+        {
+            RandomIndex++;
+            return (ushort)(RandomArray[RandomIndex] % max);
+        }
 
         public ushort[] LinkTable { get; set; }
 
@@ -42,6 +57,7 @@ namespace R1Engine
         public R1_ZDCEntry[] TypeZDC { get; }
         public R1_ZDCData[] ZDCData { get; }
         public R1_EventFlags[] EventFlags { get; }
+        public bool HasDefinedDesEtaNames { get; }
 
         public GeneralEventInfoData[] AvailableEvents { get; }
 
@@ -60,7 +76,10 @@ namespace R1Engine
             else if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
                 engine = GeneralEventInfoData.Engine.KIT;
 
-            return LevelEditorData.EventInfoData.Where(x => x.Worlds.Contains(Context.Settings.R1_World) && x.Engines.Contains(engine) && DES.Any(d => d.Name == x.DES) && ETA.Any(e => e.Name == x.ETA));
+            return LevelEditorData.EventInfoData.Where(x => 
+                x.Worlds.Contains(Context.Settings.R1_World) && 
+                x.Engines.Contains(engine) && 
+                (!HasDefinedDesEtaNames || (DES.Any(d => d.Name == x.DES) && ETA.Any(e => e.Name == x.ETA))));
         }
         
         public GeneralEventInfoData FindMatchingEventInfo(R1_EventData e)
@@ -138,7 +157,7 @@ namespace R1Engine
                 }
             }
         }
-        public override string[] GetAvailableObjects => AvailableEvents.Select(x => x.Name).ToArray();
+        public override string[] GetAvailableObjects => HasDefinedDesEtaNames ? AvailableEvents.Select(x => x.Name).ToArray() : new string[0];
         public override Unity_Object CreateObject(int index)
         {
             // Get the event
@@ -185,7 +204,7 @@ namespace R1Engine
             return eventData;
         }
 
-        public override void InitR1LinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
+        public override int InitR1LinkGroups(IList<Unity_Object> objects) => InitR1LinkGroups(objects, LinkTable);
         public override void SaveLinkGroups(IList<Unity_Object> objects) => LinkTable = SaveR1LinkGroups(objects);
 
         public override void InitObjects(Unity_Level level)
@@ -236,6 +255,28 @@ namespace R1Engine
 
                 if (badRayDes != null)
                     badRayDes.Animations = rayDes.Animations;
+            }
+
+            // Set frames for linked events
+            for (int i = 0; i < level.EventData.Count; i++)
+            {
+                var baseEvent = (Unity_Object_R1)level.EventData[i];
+
+                if (baseEvent.EventData.Type.UsesRandomFrame())
+                {
+                    // Recreated from allocateOtherPosts
+                    var index = 0;
+                    var linkedIndex = LinkTable[i];
+
+                    do
+                    {
+                        index++;
+
+                        ((Unity_Object_R1)level.EventData[linkedIndex]).ForceFrame = (byte)((baseEvent.ForceFrame + index) % ((Unity_Object_R1)level.EventData[linkedIndex]).CurrentAnimation?.Frames.Length ?? 1);
+
+                        linkedIndex = LinkTable[linkedIndex];
+                    } while (i != linkedIndex);
+                }
             }
         }
 
@@ -383,6 +424,138 @@ namespace R1Engine
             GlobalPendingEdits = false;
 
             return madeEdits;
+        }
+
+        public byte GetDisplayPrio(R1_EventType type, int hitPoints, byte originalDisplayPrio)
+        {
+            var typeValue = (ushort)type;
+
+            if (typeValue > 255)
+                return originalDisplayPrio;
+
+            switch (typeValue)
+            {
+                default:
+                    return 4;
+
+                case 30:
+                case 98:
+                case 141:
+                case 158:
+                case 164:
+                case 181:
+                case 199:
+                case 204:
+                case 213:
+                case 236:
+                case 238:
+                case 245:
+                    return 0;
+
+                case 123:
+                    return (byte)(Context.Settings.World == 1 && Context.Settings.Level == 14 ? 3 : 2);
+
+                case 2:
+                case 31:
+                case 55:
+                case 82:
+                case 95:
+                case 137:
+                case 142:
+                case 148:
+                case 173:
+                    return 6;
+
+                case 4:
+                case 42:
+                case 88:
+                case 252:
+                    return 7;
+
+                case 147:
+                    return (byte)(hitPoints < 1 ? 2 : 0);
+
+                case 149:
+                case 157:
+                case 197:
+                    return 1;
+
+                case 7:
+                case 20:
+                case 96:
+                case 109:
+                case 111:
+                case 112:
+                case 246:
+                case 251:
+                    return 5;
+
+                case 11:
+                case 19:
+                case 21:
+                case 41:
+                case 45:
+                case 48:
+                case 57:
+                case 75:
+                case 78:
+                case 79:
+                case 83:
+                case 90:
+                case 91:
+                case 92:
+                case 93:
+                case 94:
+                case 102:
+                case 110:
+                case 121:
+                case 135:
+                case 143:
+                case 146:
+                case 150:
+                case 161:
+                case 168:
+                case 170:
+                case 220:
+                case 221:
+                case 224:
+                case 234:
+                case 248:
+                    return 2;
+
+                case 28:
+                case 44:
+                case 46:
+                case 58:
+                case 59:
+                case 66:
+                case 72:
+                case 73:
+                case 74:
+                case 77:
+                case 86:
+                case 97:
+                case 119:
+                case 133:
+                case 138:
+                case 154:
+                case 155:
+                case 180:
+                case 183:
+                case 187:
+                case 190:
+                case 198:
+                case 200:
+                case 201:
+                case 203:
+                case 211:
+                case 239:
+                case 249:
+                    return 3;
+
+                case 253:
+                    return 4; // Note: This is 7 if there is no pirate ship event in the level
+            }
         }
 
         public class DataContainer<T>
@@ -537,5 +710,52 @@ namespace R1Engine
 
             return flag == ObjTypeFlag.Always;
         }
+
+        protected byte[] RandomArrayData { get; } = 
+        {
+            0xDE, 0x00, 0x25, 0x02, 0xC8, 0x00, 0xCD, 0x02, 0xCC, 0x03, 0x19, 0x01,
+            0xC6, 0x01, 0x6F, 0x00, 0xCA, 0x02, 0x41, 0x02, 0x2A, 0x00, 0xA9, 0x00,
+            0x43, 0x03, 0xBD, 0x02, 0x0E, 0x03, 0x4F, 0x03, 0xD6, 0x03, 0xE0, 0x00,
+            0xB5, 0x01, 0xCF, 0x03, 0x5B, 0x03, 0xB1, 0x03, 0x3E, 0x03, 0xCD, 0x01,
+            0x6B, 0x02, 0xA5, 0x02, 0x66, 0x02, 0x32, 0x02, 0xE1, 0x02, 0x74, 0x00,
+            0x9F, 0x01, 0x7C, 0x00, 0xAF, 0x02, 0xE6, 0x01, 0xF6, 0x01, 0x41, 0x02,
+            0x60, 0x01, 0x79, 0x03, 0x0E, 0x01, 0xB8, 0x00, 0xB1, 0x01, 0xC7, 0x02,
+            0xA7, 0x00, 0x27, 0x02, 0x94, 0x02, 0x7E, 0x02, 0x03, 0x00, 0x26, 0x03,
+            0x13, 0x01, 0xD8, 0x01, 0x8B, 0x01, 0x81, 0x01, 0x53, 0x02, 0x69, 0x02,
+            0x1E, 0x01, 0xAE, 0x00, 0x38, 0x03, 0x2E, 0x01, 0x55, 0x01, 0xA2, 0x01,
+            0xF6, 0x00, 0xA7, 0x01, 0x37, 0x00, 0xF9, 0x01, 0xEF, 0x03, 0x01, 0x00,
+            0xA3, 0x01, 0x47, 0x00, 0x4B, 0x00, 0x04, 0x01, 0xE6, 0x03, 0x6B, 0x01,
+            0x9E, 0x01, 0xC9, 0x00, 0xC9, 0x00, 0xD8, 0x00, 0xFF, 0x00, 0x08, 0x03,
+            0x8E, 0x03, 0x9F, 0x03, 0xF1, 0x02, 0xD8, 0x01, 0x20, 0x02, 0x24, 0x00,
+            0x85, 0x00, 0xD5, 0x01, 0xEF, 0x01, 0x63, 0x02, 0x03, 0x01, 0x75, 0x00,
+            0xCE, 0x02, 0x98, 0x02, 0x8B, 0x03, 0x80, 0x03, 0x2B, 0x00, 0x36, 0x02,
+            0x0A, 0x02, 0x7B, 0x02, 0x15, 0x03, 0x03, 0x01, 0xDE, 0x00, 0xF1, 0x00,
+            0x57, 0x01, 0x43, 0x02, 0x88, 0x00, 0x74, 0x02, 0x1F, 0x00, 0xCB, 0x03,
+            0xD9, 0x00, 0x3B, 0x03, 0x84, 0x02, 0xDC, 0x02, 0xED, 0x02, 0x35, 0x02,
+            0x49, 0x02, 0xAC, 0x00, 0x54, 0x01, 0x7A, 0x03, 0x4C, 0x03, 0x75, 0x02,
+            0xD0, 0x03, 0xF7, 0x03, 0xED, 0x03, 0xF3, 0x02, 0x0A, 0x02, 0x2E, 0x01,
+            0xDF, 0x02, 0x24, 0x01, 0x8F, 0x02, 0xF8, 0x01, 0xB3, 0x00, 0x3C, 0x02,
+            0x89, 0x01, 0x19, 0x03, 0x8E, 0x01, 0x9A, 0x02, 0x82, 0x00, 0x94, 0x00,
+            0x58, 0x01, 0xAD, 0x03, 0x9E, 0x02, 0x98, 0x02, 0xD6, 0x02, 0x9F, 0x02,
+            0xA5, 0x02, 0xE2, 0x02, 0xFD, 0x03, 0xAF, 0x01, 0x3F, 0x02, 0x81, 0x01,
+            0xEF, 0x03, 0x0F, 0x00, 0xC4, 0x03, 0xCF, 0x01, 0xF3, 0x00, 0x2F, 0x02,
+            0xFA, 0x01, 0x81, 0x02, 0xD4, 0x02, 0x55, 0x02, 0x28, 0x03, 0xBA, 0x01,
+            0x03, 0x00, 0x57, 0x03, 0xDD, 0x02, 0xF2, 0x03, 0xD4, 0x01, 0x69, 0x01,
+            0xC1, 0x03, 0x93, 0x02, 0x42, 0x02, 0xCB, 0x02, 0xE4, 0x00, 0x3D, 0x01,
+            0x97, 0x03, 0x49, 0x00, 0xD4, 0x03, 0x73, 0x02, 0x53, 0x00, 0x63, 0x03,
+            0xE8, 0x02, 0xB2, 0x02, 0xB3, 0x03, 0xF9, 0x01, 0x24, 0x01, 0xB9, 0x02,
+            0x3D, 0x01, 0x6B, 0x01, 0x05, 0x03, 0xE8, 0x03, 0xAF, 0x03, 0xFA, 0x00,
+            0xA4, 0x01, 0xA7, 0x03, 0xAD, 0x01, 0x5A, 0x01, 0x8B, 0x03, 0x95, 0x00,
+            0x94, 0x00, 0x4A, 0x01, 0x9B, 0x00, 0x7F, 0x02, 0xCC, 0x03, 0x13, 0x01,
+            0x66, 0x00, 0xEB, 0x03, 0xFB, 0x00, 0xDD, 0x00, 0x57, 0x00, 0x1C, 0x02,
+            0x82, 0x03, 0x9E, 0x03, 0x0F, 0x01, 0x75, 0x02, 0x93, 0x03, 0x9F, 0x02,
+            0x55, 0x00, 0x10, 0x02, 0x4A, 0x03, 0x64, 0x03, 0xF4, 0x02, 0x74, 0x02,
+            0x30, 0x02, 0xE5, 0x03, 0xEE, 0x03, 0x41, 0x00, 0x77, 0x01, 0xEB, 0x02,
+            0x63, 0x00, 0xB9, 0x02, 0x5A, 0x01, 0x76, 0x00, 0x84, 0x01, 0x02, 0x01,
+            0x04, 0x02, 0x14, 0x00, 0xFC, 0x03, 0x01, 0x00, 0x54, 0x00, 0xFD, 0x00,
+            0x2B, 0x02, 0xB0, 0x01, 0xE1, 0x00, 0xD6, 0x01, 0x95, 0x00, 0xD1, 0x00,
+            0xA9, 0x01, 0x09, 0x00, 0xDB, 0x01, 0xD2, 0x01, 0xBA, 0x00, 0x0A, 0x00,
+            0x07, 0x03, 0x1B, 0x07, 0x07, 0x03, 0x1B, 0x03
+        };
     }
 }

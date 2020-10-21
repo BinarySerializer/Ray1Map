@@ -12,37 +12,21 @@ namespace R1Engine
     {
         public const int CellSize = 8;
 
-        // TODO: There are actually 36 maps + 1 single layer map - are the other ones menus?
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => new GameInfo_Volume[]
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(new GameInfo_World[]
         {
-            new GameInfo_Volume(GameMode.Game.ToString(), new GameInfo_World[]
-            {
-                new GameInfo_World(0, Enumerable.Range(2, 5).Append(29).ToArray()), // Child
-                new GameInfo_World(1, Enumerable.Range(7, 5).ToArray()), // Forest
-                new GameInfo_World(2, Enumerable.Range(12, 5).ToArray()), // Organic Cave
-                new GameInfo_World(3, Enumerable.Range(17, 6).Append(31).ToArray()), // Sweets
-                new GameInfo_World(4, Enumerable.Range(0, 2).Concat(Enumerable.Range(23, 5)).ToArray()), // Dark
-                new GameInfo_World(5, Enumerable.Range(30, 1).ToArray()), // Menu
-            }),
-            new GameInfo_Volume(GameMode.Village.ToString(), new GameInfo_World[]
-            {
-                new GameInfo_World(5, Enumerable.Range(0, 3).ToArray()), // These are all actually level 28, but since there are 3 variants in a separate array it's easier to separate them like this 
-            }),
-            new GameInfo_Volume(GameMode.Mode7.ToString(), new GameInfo_World[]
-            {
-                new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
-                new GameInfo_World(2, Enumerable.Range(1, 1).ToArray()),
-                new GameInfo_World(3, Enumerable.Range(2, 1).ToArray()),
-            }), 
-            new GameInfo_Volume(GameMode.Mode7Unused.ToString(), new GameInfo_World[]
-            {
-                new GameInfo_World(0, Enumerable.Range(0, 1).ToArray()),
-            }), 
-            new GameInfo_Volume(GameMode.Menu.ToString(), new GameInfo_World[]
-            {
-                new GameInfo_World(0, Enumerable.Range(0, 13).ToArray()),
-            }), 
-        };
+            new GameInfo_World(0, Enumerable.Range(2, 5).Append(29).ToArray()), // Child
+            new GameInfo_World(1, Enumerable.Range(7, 5).ToArray()), // Forest
+            new GameInfo_World(2, Enumerable.Range(12, 5).ToArray()), // Organic Cave
+            new GameInfo_World(3, Enumerable.Range(17, 6).Append(31).ToArray()), // Sweets
+            new GameInfo_World(4, Enumerable.Range(0, 2).Concat(Enumerable.Range(23, 5)).ToArray()), // Dark
+            new GameInfo_World(5, Enumerable.Range(30, 1).ToArray()), // Menu
+
+            // Special:
+            new GameInfo_World(10, Enumerable.Range(0, 3).ToArray()), // Village (these are all actually level 28, but since there are 3 variants in a separate array it's easier to separate them like this)
+            new GameInfo_World(11, Enumerable.Range(0, 3).ToArray()), // Mode7
+            new GameInfo_World(12, Enumerable.Range(0, 1).ToArray()), // Unused Mode7
+            new GameInfo_World(13, Enumerable.Range(0, 13).ToArray()), // Menu
+        });
 
         public enum GameMode
         {
@@ -53,7 +37,22 @@ namespace R1Engine
             Menu
         }
 
-        public static GameMode GetCurrentGameMode(GameSettings s) => (GameMode)Enum.Parse(typeof(GameMode), s.EduVolume);
+        public static GameMode GetCurrentGameMode(GameSettings s)
+        {
+            switch (s.World)
+            {
+                case 10:
+                    return GameMode.Village;
+                case 11:
+                    return GameMode.Mode7;
+                case 12:
+                    return GameMode.Mode7Unused;
+                case 13:
+                    return GameMode.Menu;
+                default:
+                    return GameMode.Game;
+            }
+        }
 
         public virtual string GetROMFilePath => $"ROM.gba";
 
@@ -455,7 +454,10 @@ namespace R1Engine
             var world = context.Settings.World;
 
             if (gameMode == GameMode.Village)
+            {
                 lvl = 28;
+                world = 5;
+            }
 
             // Shooting Range 2 should be set to the values of Shooting Range 1
             if (lvl == 31)
@@ -671,7 +673,7 @@ namespace R1Engine
                 MapTiles = rom.BG1Map.MapTiles.Select(x => new Unity_Tile(x)).ToArray()
             };
 
-            var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2);
+            var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2); // Disable rain
 
             var levelMap = LoadMap(rom.LevelMap.MapWidth, rom.LevelMap.MapHeight, rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
             var fgMap = hasFGMap ? LoadMap(rom.FGMap.MapWidth, rom.FGMap.MapHeight, rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
@@ -681,6 +683,11 @@ namespace R1Engine
             var objManager = new Unity_ObjectManager_GBARRR(context, await LoadGraphicsDataAsync(context, rom.LevelScene, rom, lvl, world));
 
             await Controller.WaitIfNecessary();
+
+            var objects = rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager));
+
+            if (gameMode == GameMode.Village && context.Settings.Level == 2)
+                objects = objects.Where(x => ((Unity_Object_GBARRR)x).Actor.ObjectType != GBARRR_ActorType.Scenery2); // Disable rain
 
             return new Unity_Level(
                 maps: hasFGMap ? new Unity_Map[]
@@ -696,12 +703,12 @@ namespace R1Engine
                     levelMap,
                 }, 
                 objManager: objManager,
-                eventData: rom.LevelScene.Actors.Select(x => (Unity_Object)new Unity_Object_GBARRR(x, objManager)).ToList(),
+                eventData: objects.ToList(),
                 getCollisionTypeGraphicFunc: x => ((GBARRR_TileCollisionType)x).GetCollisionTypeGraphic(),
                 cellSize: CellSize,
                 localization: loc,
                 defaultCollisionMap: 2,
-                defaultMap: 0
+                defaultMap: 2
             );
         }
 
@@ -951,7 +958,7 @@ namespace R1Engine
                 {
                     unityAnimTiles.Add(new Unity_AnimatedTile()
                     {
-                        AnimationSpeed = 1,
+                        AnimationSpeed = animTileInfo.AnimSpeed,
                         TileIndices = Enumerable.Range(0, animTileInfo.PalCount).Select(x => (currentBlockIndex + x) * palBlockSize + i).ToArray()
                     });
                 }
@@ -2826,7 +2833,7 @@ namespace R1Engine
         protected bool HasAlphaBlending(int world, int level) =>
             (world == 2 || world == 3 || world == 4 || level == 11 || level == 28 || level == 29 || level == 31) && level != 27;
 
-        protected bool IsForeground(int world, int level) => !(world == 3 || level == 30);
+        protected bool IsForeground(int world, int level) => !(world == 3 || level == 30 || level == 27);
 
         public Size GetMenuSize(int level)
         {
@@ -2902,7 +2909,7 @@ namespace R1Engine
                 case 16:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[4], palCount: 15), 
+                        new AnimTileInfo(animtedPalettes[4], 5, palCount: 15), 
                     };
 
                 default:
@@ -2920,14 +2927,14 @@ namespace R1Engine
                 case 25:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[0], 13), // Fire
-                        new AnimTileInfo(animtedPalettes[1], 14), // Green slime
+                        new AnimTileInfo(animtedPalettes[0], 4, 13), // Fire
+                        new AnimTileInfo(animtedPalettes[1], 2, 14), // Green toxic waste
                     };
                 case 23:
                 case 26:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[3], 13), // Blue light
+                        new AnimTileInfo(animtedPalettes[3], 8, 13), // Blue light
                     };
 
                 // Organic cave
@@ -2937,7 +2944,7 @@ namespace R1Engine
                 case 16:
                     return new AnimTileInfo[]
                     {
-                        new AnimTileInfo(animtedPalettes[2], 13), // Pink light on walls
+                        new AnimTileInfo(animtedPalettes[2], 5, 13), // Pink light on walls
                     };
 
                 default:
@@ -2947,14 +2954,16 @@ namespace R1Engine
 
         public class AnimTileInfo
         {
-            public AnimTileInfo(ARGBColor[] animatedPalette, int tilePalIndex = 0, int palCount = 16)
+            public AnimTileInfo(ARGBColor[] animatedPalette, int animSpeed, int tilePalIndex = 0, int palCount = 16)
             {
                 AnimatedPalette = animatedPalette;
+                AnimSpeed = animSpeed;
                 TilePalIndex = tilePalIndex;
                 PalCount = palCount;
             }
 
             public ARGBColor[] AnimatedPalette { get; }
+            public int AnimSpeed { get; }
             public int TilePalIndex { get; }
             public int PalCount { get; }
         }

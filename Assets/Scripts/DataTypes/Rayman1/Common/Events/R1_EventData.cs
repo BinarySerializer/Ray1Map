@@ -108,7 +108,7 @@ namespace R1Engine
         public uint EDU_ExtHitPoints { get; set; }
         
         public short Unk_80 { get; set; }
-        public short Unk_82 { get; set; }
+        public short Unk_82 { get; set; } // Linked event index?
         public short Unk_84 { get; set; }
         public short Unk_86 { get; set; }
         public short Unk_88 { get; set; }
