@@ -46,10 +46,10 @@
         public ushort UShort_46 { get; set; }
         public uint DevPointer_48 { get; set; } // Dev pointer
 
-        public Pointer ZDCPointer { get; set; }
-        public Pointer UnkPointer4 { get; set; }
-        public Pointer UnkPointer5 { get; set; }
-        public Pointer UnkPointer6 { get; set; }
+        public Pointer ZDCDataPointer { get; set; }
+        public Pointer ZDCArray1Pointer { get; set; } // Indexed using ZDCEntry.ZDCIndex
+        public Pointer ZDCArray2Pointer { get; set; } // Indexed using ZDCEntry.ZDCIndex and additional value
+        public Pointer ZDCArray3Pointer { get; set; } // Indexed using UnkPointer5 values
 
         /// <summary>
         /// The event link table for all loaded events
@@ -76,6 +76,9 @@
         public R1_ImageDescriptor[] FixImageDescriptors { get; set; }
 
         public R1_ZDCData[] ZDC { get; set; }
+        public byte[] ZDCArray1 { get; set; }
+        public ushort[] ZDCArray2 { get; set; }
+        public R1_R2ZDCUnkData[] ZDCArray3 { get; set; }
 
         #endregion
 
@@ -111,10 +114,10 @@
             UShort_46 = s.Serialize<ushort>(UShort_46, name: nameof(UShort_46));
             DevPointer_48 = s.Serialize<uint>(DevPointer_48, name: nameof(DevPointer_48));
             
-            ZDCPointer = s.SerializePointer(ZDCPointer, name: nameof(ZDCPointer));
-            UnkPointer4 = s.SerializePointer(UnkPointer4, name: nameof(UnkPointer4));
-            UnkPointer5 = s.SerializePointer(UnkPointer5, name: nameof(UnkPointer5));
-            UnkPointer6 = s.SerializePointer(UnkPointer6, name: nameof(UnkPointer6));
+            ZDCDataPointer = s.SerializePointer(ZDCDataPointer, name: nameof(ZDCDataPointer));
+            ZDCArray1Pointer = s.SerializePointer(ZDCArray1Pointer, name: nameof(ZDCArray1Pointer));
+            ZDCArray2Pointer = s.SerializePointer(ZDCArray2Pointer, name: nameof(ZDCArray2Pointer));
+            ZDCArray3Pointer = s.SerializePointer(ZDCArray3Pointer, name: nameof(ZDCArray3Pointer));
 
             EventLinkTable = s.SerializeArray<ushort>(EventLinkTable, LoadedEventCount, name: nameof(EventLinkTable));
 
@@ -124,7 +127,10 @@
             s.DoAt(AlwaysEventsPointer, () => AlwaysEvents = s.SerializeObjectArray<R1_R2EventData>(AlwaysEvents, AlwaysEventsCount, name: nameof(AlwaysEvents)));
 
             // TODO: Is there a length?
-            s.DoAt(ZDCPointer, () => ZDC = s.SerializeObjectArray<R1_ZDCData>(ZDC, 237, name: nameof(ZDC)));
+            s.DoAt(ZDCDataPointer, () => ZDC = s.SerializeObjectArray<R1_ZDCData>(ZDC, 237, name: nameof(ZDC)));
+            s.DoAt(ZDCArray1Pointer, () => ZDCArray1 = s.SerializeArray<byte>(ZDCArray1, 240, name: nameof(ZDCArray1)));
+            s.DoAt(ZDCArray2Pointer, () => ZDCArray2 = s.SerializeArray<ushort>(ZDCArray2, 474, name: nameof(ZDCArray2)));
+            s.DoAt(ZDCArray3Pointer, () => ZDCArray3 = s.SerializeObjectArray<R1_R2ZDCUnkData>(ZDCArray3, 16, name: nameof(ZDCArray3)));
         }
 
         #endregion

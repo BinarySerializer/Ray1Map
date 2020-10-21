@@ -24,6 +24,9 @@ namespace R1Engine
             HasDefinedDesEtaNames = hasDefinedDesEtaNames;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
 
+            // Set initial random index to a random value
+            RandomIndex = (byte)new Random().Next(0, 256);
+
             // Create lookup tables
             for (int i = 0; i < DES.Length; i++)
                 DESLookup[DES[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
@@ -260,19 +263,22 @@ namespace R1Engine
             // Set frames for linked events
             for (int i = 0; i < level.EventData.Count; i++)
             {
+                // Recreated from allocateOtherPosts
                 var baseEvent = (Unity_Object_R1)level.EventData[i];
+                var linkedIndex = LinkTable[i];
 
-                if (baseEvent.EventData.Type.UsesRandomFrame())
+                if (baseEvent.EventData.Type.UsesRandomFrame() && i != linkedIndex)
                 {
-                    // Recreated from allocateOtherPosts
                     var index = 0;
-                    var linkedIndex = LinkTable[i];
 
                     do
                     {
                         index++;
 
-                        ((Unity_Object_R1)level.EventData[linkedIndex]).ForceFrame = (byte)((baseEvent.ForceFrame + index) % ((Unity_Object_R1)level.EventData[linkedIndex]).CurrentAnimation?.Frames.Length ?? 1);
+                        var e = (Unity_Object_R1)level.EventData[linkedIndex];
+                        e.ForceFrame = (byte)((baseEvent.ForceFrame + index) % (e.CurrentAnimation?.Frames.Length ?? 1));
+                        e.XPosition = (short)(baseEvent.EventData.XPosition + 32 * index * (baseEvent.EventData.HitPoints - 2));
+                        e.YPosition = baseEvent.YPosition;
 
                         linkedIndex = LinkTable[linkedIndex];
                     } while (i != linkedIndex);
