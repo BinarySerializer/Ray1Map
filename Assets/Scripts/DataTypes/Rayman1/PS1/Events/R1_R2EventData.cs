@@ -333,7 +333,7 @@ namespace R1Engine
             /// <summary>
             /// Indicates if the event should be flipped
             /// </summary>
-            DetectZone = 1 << 0,
+            IsFlipped = 1 << 0,
 
             UnkFlag_1 = 1 << 1,
 

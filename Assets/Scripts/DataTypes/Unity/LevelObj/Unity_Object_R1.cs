@@ -186,19 +186,19 @@ namespace R1Engine
                 {
                     if (IsPCFormat)
                     {
-                        if (EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.DetectZone))
+                        if (EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.IsFlipped))
                             return true;
                     }
                     else
                     {
                         if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                         {
-                            if (EventData.PS1Demo_DetectZone)
+                            if (EventData.PS1Demo_IsFlipped)
                                 return true;
                         }
                         else
                         {
-                            if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.DetectZone))
+                            if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.IsFlipped))
                                 return true;
                         }
                     }

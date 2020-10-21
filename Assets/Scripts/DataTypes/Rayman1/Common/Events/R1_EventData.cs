@@ -91,7 +91,7 @@ namespace R1Engine
         public short InitialXPosition { get; set; }
         public short InitialYPosition { get; set; }
 
-        public bool PS1Demo_DetectZone { get; set; }
+        public bool PS1Demo_IsFlipped { get; set; }
         public byte PS1Demo_Unk4 { get; set; }
         public ushort Unk_64 { get; set; }
         public ushort Unk_66 { get; set; }
@@ -351,7 +351,7 @@ namespace R1Engine
 
             if (s.GameSettings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
             {
-                PS1Demo_DetectZone = s.Serialize<bool>(PS1Demo_DetectZone, name: nameof(PS1Demo_DetectZone));
+                PS1Demo_IsFlipped = s.Serialize<bool>(PS1Demo_IsFlipped, name: nameof(PS1Demo_IsFlipped));
                 PS1Demo_Unk4 = s.Serialize<byte>(PS1Demo_Unk4, name: nameof(PS1Demo_Unk4));
             }
 
@@ -606,9 +606,9 @@ namespace R1Engine
             /// <summary>
             /// Indicates if the event should be flipped
             /// </summary>
-            DetectZone = 1 << 3,
+            IsFlipped = 1 << 3,
 
-            ExecuteCommands = 1 << 4,
+            UnkFlag_4 = 1 << 4,
             
             /// <summary>
             /// Indicates if the event has collision
@@ -632,7 +632,7 @@ namespace R1Engine
             SwitchedOn = 1 << 3,
             UnkFlag_4 = 1 << 4,
             UnkFlag_5 = 1 << 5,
-            DetectZone = 1 << 6,
+            IsFlipped = 1 << 6,
             UnkFlag_7 = 1 << 7,
         }
     }

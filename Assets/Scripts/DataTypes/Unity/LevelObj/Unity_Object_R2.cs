@@ -104,7 +104,7 @@ namespace R1Engine
         public override int? MapLayer => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 2: 3;
 
         public override float Scale => EventData.RuntimeMapLayer == R1_R2EventData.ObjMapLayer.Back ? 0.5f : 1;
-        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlags2.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags2.DetectZone) : EventData.Flags.HasFlag(R1_R2EventData.PS1_R2Demo_EventFlags.FlippedHorizontally);
+        public override bool FlipHorizontally => Settings.LoadFromMemory ? EventData.RuntimeFlags2.HasFlag(R1_R2EventData.PS1_R2Demo_EventRuntimeFlags2.IsFlipped) : EventData.Flags.HasFlag(R1_R2EventData.PS1_R2Demo_EventFlags.FlippedHorizontally);
 
         protected IEnumerable<Unity_ObjAnimationCollisionPart> GetObjZDC() {
             var zdcEntry = EventData.CollisionData?.ZDC;
