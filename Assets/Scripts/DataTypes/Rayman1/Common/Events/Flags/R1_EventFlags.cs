@@ -14,7 +14,7 @@ namespace R1Engine
         Flag_04 = 1 << 4,
         Flag_05 = 1 << 5,
         Flag_06 = 1 << 6,
-        Flag_07 = 1 << 7,
+        IsBoss = 1 << 7, // Indicates if the boss bar should show
 
         Flag_08 = 1 << 8,
         IsCollectible = 1 << 9, // Indicates if the event can be collected and thus not respawn again
