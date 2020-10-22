@@ -453,7 +453,7 @@ Ray1Map is a map viewer/editor by RayCarrot, Droolie, Ryemanni and Adsolution wi
   </tr>
     <tr>
     <td class="tg-yw4l">Rayman Raving Rabbids (GBA)</td>
-    <td class="tg-yw4l">EU</td>
+    <td class="tg-yw4l">EU, US</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l">✔</td>
     <td class="tg-yw4l"></td>

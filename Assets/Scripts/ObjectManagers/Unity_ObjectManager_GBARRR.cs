@@ -15,6 +15,28 @@ namespace R1Engine
                 GraphicsDataLookup[GraphicsDatas[i]?.GraphicsOffset ?? 0] = i;
         }
 
+        public override int InitR1LinkGroups(IList<Unity_Object> objects)
+        {
+            var links = new Dictionary<int, List<Unity_Object_GBARRR>>();
+
+            foreach (var obj in objects.Cast<Unity_Object_GBARRR>())
+            {
+                if (obj.Actor.LinkGroup == 0)
+                    continue;
+
+                if (!links.ContainsKey(obj.Actor.LinkGroup))
+                    links[obj.Actor.LinkGroup] = new List<Unity_Object_GBARRR>();
+
+                links[obj.Actor.LinkGroup].Add(obj);
+            }
+
+            foreach (var l in links.Where(x => x.Value.Count > 1))
+                foreach (var obj in l.Value)
+                    obj.R1_EditorLinkGroup = l.Key;
+
+            return objects.Max(x => x.R1_EditorLinkGroup) + 1;
+        }
+
         public GraphicsData[] GraphicsDatas { get; }
         public Dictionary<uint, int> GraphicsDataLookup { get; } = new Dictionary<uint, int>();
 

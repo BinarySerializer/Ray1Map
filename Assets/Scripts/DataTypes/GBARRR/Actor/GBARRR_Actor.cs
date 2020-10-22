@@ -12,7 +12,7 @@ namespace R1Engine
         public ushort Ushort_0A { get; set; }
         public ushort Ushort_0C { get; set; } // 2 bytes?
         public ushort Ushort_0E { get; set; }
-        public ushort Ushort_10 { get; set; }
+        public ushort LinkGroup { get; set; }
         public ushort RuntimeStateIndex { get; set; } // Is this correct? Changing this changes the animation.
         public ushort Runtime_UShort_14 { get; set; }
         public ushort Runtime_UShort_16 { get; set; }
@@ -68,7 +68,7 @@ namespace R1Engine
             Ushort_0A = s.Serialize<ushort>(Ushort_0A, name: nameof(Ushort_0A));
             Ushort_0C = s.Serialize<ushort>(Ushort_0C, name: nameof(Ushort_0C));
             Ushort_0E = s.Serialize<ushort>(Ushort_0E, name: nameof(Ushort_0E));
-            Ushort_10 = s.Serialize<ushort>(Ushort_10, name: nameof(Ushort_10));
+            LinkGroup = s.Serialize<ushort>(LinkGroup, name: nameof(LinkGroup));
             RuntimeStateIndex = s.Serialize<ushort>(RuntimeStateIndex, name: nameof(RuntimeStateIndex));
             Runtime_UShort_14 = s.Serialize<ushort>(Runtime_UShort_14, name: nameof(Runtime_UShort_14));
             Runtime_UShort_16 = s.Serialize<ushort>(Runtime_UShort_16, name: nameof(Runtime_UShort_16));

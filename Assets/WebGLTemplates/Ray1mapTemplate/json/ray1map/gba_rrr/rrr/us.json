@@ -1,7 +1,7 @@
 {
-  "name": "Rayman Raving Rabbids (GBA - EU)",
-  "mode": "RaymanRavingRabbidsGBAEU",
-  "folder": "gba_rrr/rrr_eu",
+  "name": "Rayman Raving Rabbids (GBA - US)",
+  "mode": "RaymanRavingRabbidsGBAUS",
+  "folder": "gba_rrr/rrr_us",
   "icons": [
     {
       "image": ".\/img\/icon\/RRR\/Child.gif",
