@@ -133,21 +133,19 @@ namespace R1Engine
             // Fill out types first
             for (int y = 0; y < collisionMap.Height; y++) {
                 for (int x = 0; x < collisionMap.Width; x++) {
+                    var collisionIndex = collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType;
+
                     // Get the collision index
-                    var collisionType = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionMap.MapTiles[y * collisionMap.Width + x].Data.CollisionType);
+                    var collisionType = LevelEditorData.Level.GetCollisionTypeGraphicFunc(collisionIndex);
 
                     // Make sure it's not out of bounds
                     if(collisionType != Unity_MapCollisionTypeGraphic.None &&
-                        (!CurrentCollisionIcons.ContainsKey(collisionType)
-                        || (CurrentCollisionIcons[collisionType].sprite?.name.Contains("Unknown") ?? false)
-                        || collisionType.ToString().Contains("Unknown"))) {
-                        unsupportedTiles.Add((int)collisionType);
-                    }
+                        ((CurrentCollisionIcons[collisionType].sprite?.name.Contains("Unknown") ?? false) || collisionType.ToString().Contains("Unknown")))
+                        unsupportedTiles.Add(collisionIndex);
 
                     // Set the collision tile
-                    for (int i = 0; i < CollisionTilemaps.Length; i++) {
-                        CollisionTilemaps[i].SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), CurrentCollisionIcons.TryGetItem(collisionType));
-                    }
+                    foreach (var t in CollisionTilemaps)
+                        t.SetTile(new Vector3Int(x, y, LevelEditorData.CurrentCollisionMap), CurrentCollisionIcons.TryGetItem(collisionType));
                 }
             }
 
