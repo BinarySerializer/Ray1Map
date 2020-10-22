@@ -157,7 +157,8 @@
 					"json": "gba_rrr\/rrr",
 					"image": ".\/img\/logo\/rrr.png",
 					"versions": [
-						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA", "folder": "gba_rrr/rrr_eu" }
+						{ "json": "eu", "image": ".\/img\/version\/gba.png", "name": "GBA (EU)", "folder": "gba_rrr/rrr_eu" },
+						{ "json": "us", "image": ".\/img\/version\/gba.png", "name": "GBA (US)", "folder": "gba_rrr/rrr_us" }
 					]
 				}
 			]

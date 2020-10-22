@@ -38,6 +38,20 @@ namespace R1Engine
 
         public override bool IsEditor => CurrentAnimation == null;
 
+        public override bool FlipHorizontally => BitHelpers.ExtractBits(Actor.Data1[3], 1, 4) == 1;
+        public override Vector2 Pivot
+        {
+            get
+            {
+                var sprite = Sprites?.ElementAtOrDefault(CurrentAnimation?.Frames.ElementAtOrDefault(AnimationFrame)?.SpriteLayers.FirstOrDefault()?.ImageIndex ?? 0);
+
+                // Set the pivot to the center of the sprite
+                return new Vector2((sprite?.rect.width ?? 0) / 2, (sprite?.rect.height ?? 0) / 2);
+            }
+        }
+
+        public override bool R1_CanBeLinked => true;
+
         public override string PrimaryName => $"Type_{(byte)Actor.ObjectType}";
         public override string SecondaryName => $"{Actor.ObjectType}";
 
