@@ -8,41 +8,39 @@
         GraphicsTables,
 
         // Mode7
-        Mode7_MapTiles,
-        Mode7_BG1Tiles,
-        Mode7_Bg1Map,
-        Mode7_BG0Tiles,
-        Mode7_BG0Map,
+        Mode7_MapTiles, // 0x0x6000000
+        Mode7_BG1Tiles, // 0x06008000
+        Mode7_Bg1Map, // 0x0600B800
+        Mode7_BG0Tiles, // 0x06004000
+        Mode7_BG0Map, // 0x06007800
         Mode7_UnkMapData, // 0x02001D64
-        Mode7_MapData,
-        Mode7_TilePalette,
-        Mode7_BG1Palette,
-        Mode7_BG0Palette,
+        Mode7_MapData, // 0x02001D80
+        Mode7_TilePalette, // 0x5000000
+        Mode7_BG1Palette, // 0x050001C0
+        Mode7_BG0Palette, // 0x05000180
 
-        // TODO: Add remaining non-compressed data:
-        /*
-         
-        087218e4[3] > 040000D4 or 02000240 (length 0x7D0)
-        087218c0[3] > 05000200 (length 0x100)
-        087218d8[3] > 05000200 (length 0x80)
-        086a6128 > 05000200 (length 0x10)
-         
-         */
+        // Unknown non-compressed Mode7 pointer arrays
+        Mode7_Array1, // 0x02000240 (length 0x7D0)
+        Mode7_Array2, // 0x05000200 (length 0x100) - sprite palette?
+        Mode7_Array3, // 0x05000200 (length 0x80)
 
-        // Mode7Unk
+        Mode7UnknownPal, // 05000200 (length 0x10) - this is not in an array and not compressed
+
+        // Unknown compressed Mode7 pointer arrays
         Mode7_ComprArray1, // 0x06015000 world-specific sprites
         Mode7_ComprArray2, // 0x020150D0 (1024 bytes)
         Mode7_ComprArray3, // 0x020127B0 (32-byte structs)
         Mode7_ComprArray4, // 0x06010A00 hud sprites
 
         // Unknown compressed data 
-        Mode7_Compr1, // 0x06010000
-        Mode7_Compr2, // 0x06010800
-        Mode7_Compr3, // 0x06002000
-        Mode7_Compr4, // 0x02015500
-        Mode7_Compr5, // 0x06016900
-        Mode7_Compr6, // 0x06010000
-        Mode7_MenuArray,
+        RNC_0, // 0x06010000
+        RNC_1, // 0x06010800
+        RNC_2, // 0x06002000
+        RNC_3, // 0x02015500
+        RNC_4, // 0x06016900
+        RNC_5, // 0x06010000
+
+        MenuArray,
 
         MusicTable,
         MusicSampleTable,

@@ -240,5 +240,8 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - EU)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBAEU,
+
+        [GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - US)", typeof(GBA_RRR_Manager))]
+        RaymanRavingRabbidsGBAUS,
     }
 }
