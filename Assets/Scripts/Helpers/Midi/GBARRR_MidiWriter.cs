@@ -15,6 +15,13 @@ using UnityEngine;
 
 namespace R1Engine {
 	public class GBARRR_MidiWriter {
+        /// <summary>
+        /// Export single soundfont.
+        /// Advantages: 1 soundfont for all tracks
+        /// Disadvantages: Midi seems to only support 128 instruments. Game has more than that (in total)
+        /// </summary>
+        bool exportSingleSoundfont = false;
+
         public void Write(GAX2_SongHeader song, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();
@@ -50,8 +57,12 @@ namespace R1Engine {
                     GAX2_MusicCommand cmd = gaxTrack.Commands[i];
                     switch (cmd.Command) {
                         case GAX2_MusicCommand.Cmd.Note:
-                             
-                            if(cmd.Instrument == 250 || song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.Sample >= 128) continue;
+                            if(cmd.Instrument == 250) continue;
+                            if (exportSingleSoundfont) {
+                                if (song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.Sample >= 128) continue;
+                            } else {
+                                if (song.InstrumentSet[cmd.Instrument]?.Value == null || Array.IndexOf(song.InstrumentIndices, cmd.Instrument) >= 128) continue;
+                            }
                             // Note off
                             if (lastNoteOn.HasValue) {
                                 builder.Command = ChannelCommand.NoteOff;
@@ -64,7 +75,12 @@ namespace R1Engine {
                             }
                             // Program change
                             {
-                                int instrument = song.InstrumentSet[cmd.Instrument].Value.Sample;
+                                int instrument = 0;
+                                if (exportSingleSoundfont) {
+                                    instrument = song.InstrumentSet[cmd.Instrument].Value.Sample;
+                                } else {
+                                    instrument = Array.IndexOf(song.InstrumentIndices, cmd.Instrument);
+                                }
                                 builder.MidiChannel = 0;
                                 builder.Command = ChannelCommand.ProgramChange;
                                 builder.Data1 = instrument;

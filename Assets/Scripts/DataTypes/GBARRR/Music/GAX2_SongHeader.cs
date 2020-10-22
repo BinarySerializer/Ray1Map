@@ -29,6 +29,7 @@ namespace R1Engine
         public GAX2_PatternEntry[][] PatternTable { get; set; }
         public GAX2_MusicTrack[][] Tracks { get; set; }
         public Pointer<GAX2_Instrument>[] InstrumentSet { get; set; }
+        public int[] InstrumentIndices { get; set; }
 
         public override void SerializeImpl(SerializerObject s)
         {
@@ -68,8 +69,8 @@ namespace R1Engine
                         }
                     });
                 }
-                instruments = instruments.Distinct().ToList();
-                s.Log("Instrument Count: " + instruments.Count);
+                InstrumentIndices = instruments.Distinct().ToArray();
+                s.Log("Instrument Count: " + InstrumentIndices.Length);
                 Pointer endOffset = Tracks.Max(ta => ta.Max(t => t.EndOffset));
                 s.DoAt(endOffset, () => {
                     Name = s.Serialize<string>(Name, name: nameof(Name));
