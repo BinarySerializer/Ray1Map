@@ -388,6 +388,49 @@ namespace R1Engine
         {
             switch (gameMode)
             {
+                case GameModeSelection.RaymanRavingRabbidsGBAUS:
+                    return new Dictionary<GBARRR_Pointer, uint>() {
+                        [GBARRR_Pointer.VillageLevelInfo] = 0x08055C60,
+                        [GBARRR_Pointer.LevelInfo] = 0x08055CE4,
+                        [GBARRR_Pointer.OffsetTable] = 0x08708C04,
+                        [GBARRR_Pointer.GraphicsTables] = 0x08056264,
+
+                        [GBARRR_Pointer.Mode7_MapTiles] = 0x08708188,
+                        [GBARRR_Pointer.Mode7_BG1Tiles] = 0x087081f4,
+                        [GBARRR_Pointer.Mode7_Bg1Map] = 0x08708200,
+                        [GBARRR_Pointer.Mode7_BG0Tiles] = 0x087081d0,
+                        [GBARRR_Pointer.Mode7_BG0Map] = 0x087081dc,
+                        [GBARRR_Pointer.Mode7_MapData] = 0x08708194, // It's compressed! // TODO: Add to export
+                        [GBARRR_Pointer.Mode7_UnkMapData] = 0x087081a0, // It's compressed! // TODO: Add to export
+                        [GBARRR_Pointer.Mode7_TilePalette] = 0x087081b8,
+                        [GBARRR_Pointer.Mode7_BG1Palette] = 0x0870820c,
+                        [GBARRR_Pointer.Mode7_BG0Palette] = 0x087081e8,
+
+                        [GBARRR_Pointer.Mode7_Array1] = 0x08708174, // Appears to be very different than on EU
+                        [GBARRR_Pointer.Mode7_Array2] = 0x08708150,
+                        [GBARRR_Pointer.Mode7_Array3] = 0x08708168,
+
+                        [GBARRR_Pointer.Mode7UnknownPal] = 0x0868C9B8,
+
+                        [GBARRR_Pointer.RNC_0] = 0x086C20EC,
+                        [GBARRR_Pointer.RNC_1] = 0x08701318,
+                        [GBARRR_Pointer.RNC_2] = 0x086E1164,
+                        [GBARRR_Pointer.RNC_3] = 0x086E2044,
+                        [GBARRR_Pointer.RNC_4] = 0x086c2378,
+                        [GBARRR_Pointer.RNC_5] = 0x086bd1d1,
+
+                        [GBARRR_Pointer.Mode7_ComprArray1] = 0x08708144,
+                        [GBARRR_Pointer.Mode7_ComprArray2] = 0x087081C4,
+                        [GBARRR_Pointer.Mode7_ComprArray3] = 0x087081ac,
+                        [GBARRR_Pointer.Mode7_ComprArray4] = 0x0870815c,
+
+                        [GBARRR_Pointer.MenuArray] = 0x087087D4,
+
+                        [GBARRR_Pointer.MusicTable] = 0x0866E710,
+                        [GBARRR_Pointer.MusicSampleTable] = 0x083C37BC,
+                        [GBARRR_Pointer.SoundEffectSampleTable] = 0x0866D2E8,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.RaymanRavingRabbidsGBAEU:
                     return new Dictionary<GBARRR_Pointer, uint>() {
                         [GBARRR_Pointer.VillageLevelInfo] = 0x08055F40,
@@ -406,19 +449,25 @@ namespace R1Engine
                         [GBARRR_Pointer.Mode7_BG1Palette] = 0x0872197c,
                         [GBARRR_Pointer.Mode7_BG0Palette] = 0x08721958,
 
-                        [GBARRR_Pointer.Mode7_Compr1] = 0x086db85c,
-                        [GBARRR_Pointer.Mode7_Compr2] = 0x0871aa88,
-                        [GBARRR_Pointer.Mode7_Compr3] = 0x086fa8d4,
-                        [GBARRR_Pointer.Mode7_Compr4] = 0x086fb7b4,
-                        [GBARRR_Pointer.Mode7_Compr5] = 0x086dbae8,
-                        [GBARRR_Pointer.Mode7_Compr6] = 0x086d6941,
+                        [GBARRR_Pointer.Mode7_Array1] = 0x087218e4,
+                        [GBARRR_Pointer.Mode7_Array2] = 0x087218c0,
+                        [GBARRR_Pointer.Mode7_Array3] = 0x087218d8,
+
+                        [GBARRR_Pointer.Mode7UnknownPal] = 0x086a6128,
+
+                        [GBARRR_Pointer.RNC_0] = 0x086db85c,
+                        [GBARRR_Pointer.RNC_1] = 0x0871aa88,
+                        [GBARRR_Pointer.RNC_2] = 0x086fa8d4,
+                        [GBARRR_Pointer.RNC_3] = 0x086fb7b4,
+                        [GBARRR_Pointer.RNC_4] = 0x086dbae8,
+                        [GBARRR_Pointer.RNC_5] = 0x086d6941,
 
                         [GBARRR_Pointer.Mode7_ComprArray1] = 0x087218b4,
                         [GBARRR_Pointer.Mode7_ComprArray2] = 0x08721934,
                         [GBARRR_Pointer.Mode7_ComprArray3] = 0x0872191c,
                         [GBARRR_Pointer.Mode7_ComprArray4] = 0x087218cc,
 
-                        [GBARRR_Pointer.Mode7_MenuArray] = 0x08721f44,
+                        [GBARRR_Pointer.MenuArray] = 0x08721f44,
 
                         [GBARRR_Pointer.MusicTable] = 0x08607f10,
                         [GBARRR_Pointer.MusicSampleTable] = 0x083c3a9c,

@@ -195,7 +195,18 @@ namespace R1Engine
                 });
 
                 // Serialize map data
-                Mode7_MapData = s.DoAt(Mode7_MapPointers[s.GameSettings.Level], () => s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Mode7Tiles, name: nameof(Mode7_MapData)));
+                if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAEU)
+                {
+                    Mode7_MapData = s.DoAt(Mode7_MapPointers[s.GameSettings.Level], () => s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Mode7Tiles, name: nameof(Mode7_MapData)));
+                }
+                else
+                {
+                    s.DoAt(Mode7_MapPointers[s.GameSettings.Level], () =>
+                    {
+                        s.DoEncoded(new RNCEncoder(hasHeader: false), () =>
+                            Mode7_MapData = s.SerializeObjectArray<MapTile>(Mode7_MapData, 256 * 256, onPreSerialize: x => x.GBARRRType = GBARRR_MapBlock.MapType.Mode7Tiles, name: nameof(Mode7_MapData)));
+                    });
+                }
                 s.DoAt(Mode7_BG0MapPointers[s.GameSettings.Level], () =>
                 {
                     s.DoEncoded(new RNCEncoder(hasHeader: false), () => Mode7_BG0MapData = s.SerializeObjectArray<MapTile>(Mode7_BG0MapData, 32 * 32,
@@ -240,7 +251,7 @@ namespace R1Engine
             }
             else if (gameMode == GBA_RRR_Manager.GameMode.Menu)
             {
-                Menu_Pointers = s.DoAt(pointerTable[GBARRR_Pointer.Mode7_MenuArray], () => s.SerializePointerArray(Menu_Pointers, 15 * 3, name: nameof(Menu_Pointers)));
+                Menu_Pointers = s.DoAt(pointerTable[GBARRR_Pointer.MenuArray], () => s.SerializePointerArray(Menu_Pointers, 15 * 3, name: nameof(Menu_Pointers)));
 
                 var manager = (GBA_RRR_Manager)s.GameSettings.GetGameManager;
                 var menuLevels = manager.GetMenuLevels(s.GameSettings.Level);
