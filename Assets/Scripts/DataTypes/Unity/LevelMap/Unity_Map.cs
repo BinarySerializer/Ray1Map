@@ -85,6 +85,11 @@ namespace R1Engine
                 {
                     tileIndex = 509;
                 }
+                // Hacky fix for RRR
+                else if (settings.EngineVersion == EngineVersion.GBARRR && settings.Level == 25)
+                {
+                    tileIndex = 4082;
+                }
                 else
                 {
                     Debug.LogWarning($"Out of bounds tile with index {tileIndex} in {settings.GameModeSelection} - {settings.World}{settings.Level}");
