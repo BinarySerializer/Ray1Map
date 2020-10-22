@@ -708,7 +708,7 @@ namespace R1Engine
             if (gameMode == GameMode.Mode7Unused)
             {
                 // Create a collision map and copy over to normal map
-                var cmap = LoadMap(rom.CollisionMap.MapWidth, rom.CollisionMap.MapHeight, null, rom.CollisionMap, null, false, false, 0);
+                var cmap = LoadMap(rom.CollisionMap.MapWidth, rom.CollisionMap.MapHeight, null, rom.CollisionMap, null, 0, false, 0);
 
                 // Create the map
                 var map = new Unity_Map
@@ -812,8 +812,10 @@ namespace R1Engine
 
             var hasFGMap = !(gameMode == GameMode.Village && context.Settings.Level == 2); // Disable rain
 
-            var levelMap = LoadMap(rom.LevelMap.MapWidth, rom.LevelMap.MapHeight, rom.LevelMap, rom.CollisionMap, levelTileset, false, false, 0);
-            var fgMap = hasFGMap ? LoadMap(rom.FGMap.MapWidth, rom.FGMap.MapHeight, rom.FGMap, null, fgTileset, HasAlphaBlending(world, lvl), IsForeground(world, lvl), GetFGPalette(lvl)) : null;
+            var properties = rom.LevelProperties[lvl];
+
+            var levelMap = LoadMap(rom.LevelMap.MapWidth, rom.LevelMap.MapHeight, rom.LevelMap, rom.CollisionMap, levelTileset, 0, false, 0);
+            var fgMap = hasFGMap ? LoadMap(rom.FGMap.MapWidth, rom.FGMap.MapHeight, rom.FGMap, null, fgTileset, properties.AlphaBlendingValue, IsForeground(world, lvl), GetFGPalette(lvl)) : null;
             
             await Controller.WaitIfNecessary();
 
@@ -983,7 +985,7 @@ namespace R1Engine
             }
         }
 
-        public Unity_Map LoadMap(uint width, uint height, GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, bool hasAlphaBlending, bool foreground, int palIndex)
+        public Unity_Map LoadMap(uint width, uint height, GBARRR_MapBlock mapBlock, GBARRR_MapBlock collisionBlock, Unity_MapTileMap tileset, byte alphaBlending, bool foreground, int palIndex)
         {
             var map = new Unity_Map
             {
@@ -998,9 +1000,9 @@ namespace R1Engine
                 IsForeground = foreground
             };
 
-            if (hasAlphaBlending) {
+            if (alphaBlending != 0) {
                 map.IsAdditive = true;
-                map.Alpha = 0.5f;
+                map.Alpha = alphaBlending / 16f;
             }
 
             for (int y = 0; y < height; y++)
@@ -2968,9 +2970,6 @@ namespace R1Engine
                     return 13;
             }
         }
-
-        protected bool HasAlphaBlending(int world, int level) =>
-            (world == 2 || world == 3 || world == 4 || level == 11 || level == 28 || level == 29 || level == 31) && level != 27;
 
         protected bool IsForeground(int world, int level) => !(world == 3 || level == 30 || level == 27);
 

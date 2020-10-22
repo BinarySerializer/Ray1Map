@@ -8,6 +8,7 @@ namespace R1Engine
         public GBARRR_OffsetTable OffsetTable { get; set; }
         public GBARRR_LevelInfo[] VillageLevelInfo { get; set; }
         public GBARRR_LevelInfo[] LevelInfo { get; set; }
+        public GBARRR_LevelProperties[] LevelProperties { get; set; }
         public GBARRR_LocalizationBlock Localization { get; set; }
 
         // Tilesets
@@ -90,6 +91,8 @@ namespace R1Engine
                         name: nameof(VillageLevelInfo)));
                 LevelInfo = s.DoAt(pointerTable[GBARRR_Pointer.LevelInfo],
                     () => s.SerializeObjectArray<GBARRR_LevelInfo>(LevelInfo, 32, name: nameof(LevelInfo)));
+                LevelProperties = s.DoAt(pointerTable[GBARRR_Pointer.LevelProperties],
+                    () => s.SerializeObjectArray<GBARRR_LevelProperties>(LevelProperties, 32, name: nameof(LevelProperties)));
 
                 // Get the current level info
                 var lvlInfo = GetLevelInfo(s.GameSettings);

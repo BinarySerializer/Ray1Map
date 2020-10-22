@@ -392,6 +392,7 @@ namespace R1Engine
                     return new Dictionary<GBARRR_Pointer, uint>() {
                         [GBARRR_Pointer.VillageLevelInfo] = 0x08055C60,
                         [GBARRR_Pointer.LevelInfo] = 0x08055CE4,
+                        [GBARRR_Pointer.LevelProperties] = 0x0866EA20,
                         [GBARRR_Pointer.OffsetTable] = 0x08708C04,
                         [GBARRR_Pointer.GraphicsTables] = 0x08056264,
 
@@ -435,6 +436,7 @@ namespace R1Engine
                     return new Dictionary<GBARRR_Pointer, uint>() {
                         [GBARRR_Pointer.VillageLevelInfo] = 0x08055F40,
                         [GBARRR_Pointer.LevelInfo] = 0x08055FC4,
+                        [GBARRR_Pointer.LevelProperties] = 0x08608220,
                         [GBARRR_Pointer.OffsetTable] = 0x08722374,
                         [GBARRR_Pointer.GraphicsTables] = 0x08056544,
 

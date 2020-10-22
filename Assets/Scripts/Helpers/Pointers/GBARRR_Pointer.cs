@@ -4,6 +4,7 @@
     {
         VillageLevelInfo,
         LevelInfo,
+        LevelProperties,
         OffsetTable,
         GraphicsTables,
 
