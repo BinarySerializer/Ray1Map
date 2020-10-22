@@ -22,8 +22,8 @@ namespace R1Engine
             CollisionDataPointer = data.RaymanCollisionDataPointer,
             AnimGroupPointer = data.RaymanAnimGroupPointer,
             XPosition = (short)(rayPos != null ? (rayPos.XPosition + rayPos.CollisionData.OffsetBX - data.RaymanCollisionData.OffsetBX) : 100),
-            YPosition = (short)(rayPos != null ? (rayPos.YPosition + rayPos.CollisionData.OffsetBY - data.RaymanCollisionData.OffsetBY) : 0),
-            Etat = 0,
+            YPosition = (short)(rayPos != null ? (rayPos.YPosition + rayPos.CollisionData.OffsetBY - data.RaymanCollisionData.OffsetBY) : 10),
+            Etat = 0, // It's supposed to be Etat 2, SubEtat 2, but the ray pos state has a better looking speed
             SubEtat = 19,
             MapLayer = ObjMapLayer.Front,
             Unk2 = new byte[17],
