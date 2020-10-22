@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace R1Engine {
 	public class GBARRR_MidiWriter {
-        public void Write(GBARRR_MusicTableEntry song, string outPath) {
+        public void Write(GAX2_SongHeader song, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();
 			Track t = new Track();
@@ -31,7 +31,7 @@ namespace R1Engine {
         }
 
 #if ISWINDOWS
-        private Track CreateTrack(GBARRR_MusicTableEntry song, int trackNum) {
+        private Track CreateTrack(GAX2_SongHeader song, int trackNum) {
 			Track t = new Track();
 			TempoChangeBuilder b = new TempoChangeBuilder();
 			b.Tempo = 500000;
@@ -50,7 +50,8 @@ namespace R1Engine {
                     GAX2_MusicCommand cmd = gaxTrack.Commands[i];
                     switch (cmd.Command) {
                         case GAX2_MusicCommand.Cmd.Note:
-                            if(cmd.Instrument == 250 || cmd.Instrument >= 128) continue;
+                             
+                            if(cmd.Instrument == 250 || song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.Sample >= 128) continue;
                             // Note off
                             if (lastNoteOn.HasValue) {
                                 builder.Command = ChannelCommand.NoteOff;
@@ -63,10 +64,10 @@ namespace R1Engine {
                             }
                             // Program change
                             {
-                                int instrument = cmd.Instrument;
+                                int instrument = song.InstrumentSet[cmd.Instrument].Value.Sample;
                                 builder.MidiChannel = 0;
                                 builder.Command = ChannelCommand.ProgramChange;
-                                builder.Data1 = cmd.Instrument;
+                                builder.Data1 = instrument;
                                 builder.Build();
                                 t.Insert(currentTime * timeScale, builder.Result);
                             }

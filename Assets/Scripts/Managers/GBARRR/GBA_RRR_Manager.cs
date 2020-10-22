@@ -185,7 +185,65 @@ namespace R1Engine
                         ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15768, 1);
                     }
                 });
-                s.DoAt(pointerTable[GBARRR_Pointer.MusicTable], () => {
+                uint[] ptrs = new uint[] {
+                    0x083C4DA4,
+                    0x083C54CC,
+                    0x083C66AC,
+                    0x083C769C,
+                    0x083C8E24,
+                    0x083C9334,
+                    0x083CA3D4,
+                    0x083CA7E4,
+                    0x083CAD88,
+                    0x083CB1B4,
+                    0x083CBEF0,
+                    0x083CC470,
+                    0x083CC6F8,
+                    0x083CC8D0,
+                    0x083CCB24,
+                    0x083CCCE0,
+                    0x083CCE70,
+                    0x083CD080,
+                    0x083CD274,
+                    0x083CD490,
+                    0x083CD6E0,
+                    0x083CD8F4,
+                    0x083CDB90,
+                    0x083CDCCC,
+                    0x083CDF3C,
+                    0x083CE104,
+                    0x083CE2A0,
+                    0x083CE4D0,
+                    0x083CE6F0,
+                    0x083CE890,
+                    0x083CEA88,
+                    0x083CEC64,
+                    0x083CEE70,
+                    0x083CF06C,
+                    0x083CF290,
+                    0x083CF484,
+                    0x083CF6E0,
+                    0x083CF974,
+                    0x083CFBA8,
+                    0x083D05A4,
+                    0x083D0938,
+                    0x083D0F80,
+                    0x083D2984,
+                    0x083D30E4,
+                    0x083D33E8,
+                    0x083D37C0,
+                    0x083D3F98
+                };
+                foreach (var ptr in ptrs) {
+                    s.DoAt(new Pointer(ptr, rom.Offset.file), () => {
+                        GAX2_SongHeader h = s.SerializeObject<GAX2_SongHeader>(default, name: "SongHeader");
+                        // For each entry
+                        GBARRR_MidiWriter w = new GBARRR_MidiWriter();
+                        Directory.CreateDirectory(Path.Combine(outputPath, "midi"));
+                        w.Write(h, Path.Combine(outputPath, "midi", $"{h.ParsedName}.mid"));
+                    });
+                }
+                /*s.DoAt(pointerTable[GBARRR_Pointer.MusicTable], () => {
                     var musicTable = s.SerializePointerArray<GBARRR_MusicTableEntry>(default, 0x1f, resolve: true, name: "MusicTable");
                     // For each entry
                     GBARRR_MidiWriter w = new GBARRR_MidiWriter();
@@ -195,7 +253,7 @@ namespace R1Engine
                             Path.Combine(outputPath, "midi",
                             $"{musicTable[i].Value.ParsedName}.mid"));
                     }
-                });
+                });*/
             }
         }
 
