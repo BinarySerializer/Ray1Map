@@ -185,7 +185,7 @@ namespace R1Engine
                         ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15768, 1);
                     }
                 });
-                uint[] ptrs = new uint[] {
+                uint[] ptrs_eu = new uint[] {
                     0x083C4DA4,
                     0x083C54CC,
                     0x083C66AC,
@@ -234,6 +234,56 @@ namespace R1Engine
                     0x083D37C0,
                     0x083D3F98
                 };
+                uint[] ptrs_us = new uint[] {
+                    0x083C4AC4,
+                    0x083C51EC,
+                    0x083C63CC,
+                    0x083C73BC,
+                    0x083C8B44,
+                    0x083C9054,
+                    0x083CA0F4,
+                    0x083CA504,
+                    0x083CAAA8,
+                    0x083CAED4,
+                    0x083CBC10,
+                    0x083CC190,
+                    0x083CC418,
+                    0x083CC5F0,
+                    0x083CC844,
+                    0x083CCA00,
+                    0x083CCB90,
+                    0x083CCDA0,
+                    0x083CCF94,
+                    0x083CD1B0,
+                    0x083CD400,
+                    0x083CD614,
+                    0x083CD8B0,
+                    0x083CD9EC,
+                    0x083CDC5C,
+                    0x083CDE24,
+                    0x083CDFC0,
+                    0x083CE1F0,
+                    0x083CE410,
+                    0x083CE5B0,
+                    0x083CE7A8,
+                    0x083CE984,
+                    0x083CEB90,
+                    0x083CED8C,
+                    0x083CEFB0,
+                    0x083CF1A4,
+                    0x083CF400,
+                    0x083CF694,
+                    0x083CF8C8,
+                    0x083D02C4,
+                    0x083D0658,
+                    0x083D0CA0,
+                    0x083D26A4,
+                    0x083D2E04,
+                    0x083D3108,
+                    0x083D34E0,
+                    0x083D3CB8
+                };
+                uint[] ptrs = s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAUS ? ptrs_us : ptrs_eu;
                 foreach (var ptr in ptrs) {
                     s.DoAt(new Pointer(ptr, rom.Offset.file), () => {
                         GAX2_SongHeader h = s.SerializeObject<GAX2_SongHeader>(default, name: "SongHeader");

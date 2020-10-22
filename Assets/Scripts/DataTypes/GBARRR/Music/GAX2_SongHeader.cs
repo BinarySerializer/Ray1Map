@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace R1Engine
 {
     public class GAX2_SongHeader : R1Serializable
     {
-        public ushort NumTracks { get; set; }
+        public ushort NumChannels { get; set; }
         public ushort TrackLength { get; set; }
         public ushort NumPatterns { get; set; }
         public ushort UShort_06 { get; set; }
@@ -31,7 +32,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            NumTracks = s.Serialize<ushort>(NumTracks, name: nameof(NumTracks));
+            NumChannels = s.Serialize<ushort>(NumChannels, name: nameof(NumChannels));
             TrackLength = s.Serialize<ushort>(TrackLength, name: nameof(TrackLength)); // In frames
             NumPatterns = s.Serialize<ushort>(NumPatterns, name: nameof(NumPatterns));
             UShort_06 = s.Serialize<ushort>(UShort_06, name: nameof(UShort_06));
@@ -44,9 +45,10 @@ namespace R1Engine
             UShort_1A = s.Serialize<ushort>(UShort_1A, name: nameof(UShort_1A));
             UShort_1C = s.Serialize<ushort>(UShort_1C, name: nameof(UShort_1C));
             UShort_1E = s.Serialize<ushort>(UShort_1E, name: nameof(UShort_1E));
-            PatternTablePointers = s.SerializePointerArray(PatternTablePointers, NumTracks, name: nameof(PatternTablePointers));
-            Reserved = s.SerializeArray<uint>(Reserved, NumTracks, name: nameof(Reserved));
+            PatternTablePointers = s.SerializePointerArray(PatternTablePointers, NumChannels, name: nameof(PatternTablePointers));
+            Reserved = s.SerializeArray<uint>(Reserved, NumChannels, name: nameof(Reserved));
 
+            List<int> instruments = new List<int>();
             if (PatternTable == null) {
                 int instrumentCount = 0;
                 PatternTable = new GAX2_PatternEntry[PatternTablePointers.Length][];
@@ -60,11 +62,14 @@ namespace R1Engine
                                 s.DoAt(SequenceDataPointer + PatternTable[i][j].SequenceOffset, () => {
                                     Tracks[i][j] = s.SerializeObject<GAX2_MusicTrack>(Tracks[i][j], onPreSerialize: t => t.Duration = TrackLength, name: $"{nameof(Tracks)}[{i}][{j}]");
                                     instrumentCount = Math.Max(instrumentCount, Tracks[i][j].Commands.Max(cmd => cmd.Command == GAX2_MusicCommand.Cmd.Note ? cmd.Instrument + 1 : 0));
+                                    instruments.AddRange(Tracks[i][j].Commands.Where(cmd => cmd.Command == GAX2_MusicCommand.Cmd.Note).Select(cmd => (int)cmd.Instrument));
                                 });
                             }
                         }
                     });
                 }
+                instruments = instruments.Distinct().ToList();
+                s.Log("Instrument Count: " + instruments.Count);
                 Pointer endOffset = Tracks.Max(ta => ta.Max(t => t.EndOffset));
                 s.DoAt(endOffset, () => {
                     Name = s.Serialize<string>(Name, name: nameof(Name));

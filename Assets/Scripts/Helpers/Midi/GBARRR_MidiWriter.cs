@@ -19,7 +19,7 @@ namespace R1Engine {
 #if ISWINDOWS
             Sequence s = new Sequence();
 			Track t = new Track();
-            for (int i = 0; i < song.NumTracks; i++) {
+            for (int i = 0; i < song.NumChannels; i++) {
                 s.Add(CreateTrack(song, i));
             }
 			// This plugin doesn't overwrite files
