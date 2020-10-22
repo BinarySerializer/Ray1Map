@@ -559,13 +559,21 @@ namespace R1Engine
 
         public R1_EventData InitRayman(R1_EventData rayPos)
         {
-            XPosition = rayPos?.XPosition ?? 100;
-            YPosition = rayPos?.YPosition ?? 0;
-            Type = R1_EventType.TYPE_RAYMAN;
             OffsetBX = 80;
             OffsetBY = 78;
-            SubEtat = 19;
-            Etat = 0;
+            if (rayPos != null)
+            {
+                XPosition = rayPos.XPosition + rayPos.OffsetBX - OffsetBX;
+                YPosition = rayPos.YPosition + rayPos.OffsetBY - OffsetBY;
+            }
+            else
+            {
+                XPosition = 100;
+                YPosition = 10;
+            }
+            Type = R1_EventType.TYPE_RAYMAN;
+            SubEtat = 2;
+            Etat = 2;
             OffsetHY = 20;
             FollowSprite = 0;
             HitPoints = 0;

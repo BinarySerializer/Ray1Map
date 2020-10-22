@@ -4,6 +4,7 @@
     {
         public uint RaymanExeCheckSum3 { get; set; }
 
+        // For R1 the indices are for Ray, Alpha, Alpha2, RayLittle, MapObj, ClockObj & DivObj
         public uint[] DESDataIndices { get; set; }
 
         /// <summary>
