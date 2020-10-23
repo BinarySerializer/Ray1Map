@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using R1Engine.Serialize;
+using System;
 using System.Linq;
-using R1Engine.Serialize;
 using UnityEngine;
 
 namespace R1Engine
@@ -35,6 +34,7 @@ namespace R1Engine
         /// Gets a new event instance for Rayman
         /// </summary>
         public static R1_EventData GetRayman(R1_EventData rayPos) => new R1_EventData().InitRayman(rayPos);
+        public static R1_EventData GetMapObj(short x, short y, int index) => new R1_EventData().InitMapObj(x, y, index);
 
         #endregion
 
@@ -584,6 +584,39 @@ namespace R1Engine
             PC_AnimationDescriptorsIndex = 1;
             PC_ImageBufferIndex = 1;
             PC_ETAIndex = 0;
+
+            Commands = new R1_EventCommandCollection()
+            {
+                Commands = new R1_EventCommand[0]
+            };
+            LabelOffsets = new ushort[0];
+
+            return this;
+        }
+
+        // Copied from INIT_CHEMIN
+        public R1_EventData InitMapObj(short x, short y, int index)
+        {
+            Type = R1_EventType.TYPE_MEDAILLON;
+            Etat = 5;
+            XPosition = x - 78;
+            YPosition = y - 64;
+
+            // Mr Dark
+            if (index == 17)
+                SubEtat = 59;
+            else if (index > 17)
+                SubEtat = 58;
+            else
+                SubEtat = 39;
+
+            OffsetBX = 80;
+            OffsetBY = 64;
+
+            PC_ImageDescriptorsIndex = 4;
+            PC_AnimationDescriptorsIndex = 4;
+            PC_ImageBufferIndex = 4;
+            PC_ETAIndex = 2;
 
             Commands = new R1_EventCommandCollection()
             {

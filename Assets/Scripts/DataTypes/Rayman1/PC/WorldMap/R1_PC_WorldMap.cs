@@ -12,9 +12,8 @@
         public byte[] Unk4 { get; set; }
         public byte Unk5 { get; set; }
         public ushort Unk6 { get; set; }
-        public byte[] Unk7 { get; set; }
 
-        public R1_PC_WorldMapLevel[] Levels { get; set; }
+        public R1_WorldMapInfo[] Levels { get; set; } // First entry is always the start point
 
         public uint Unk8 { get; set; }
         public byte[] Unk9 { get; set; }
@@ -43,9 +42,8 @@
             Unk4 = s.SerializeArray<byte>(Unk4, 7, name: nameof(Unk4));
             Unk5 = s.Serialize<byte>(Unk5, name: nameof(Unk5));
             Unk6 = s.Serialize<ushort>(Unk6, name: nameof(Unk6));
-            Unk7 = s.SerializeArray<byte>(Unk7, 123, name: nameof(Unk7));
 
-            Levels = s.SerializeObjectArray<R1_PC_WorldMapLevel>(Levels, 31, name: nameof(Levels));
+            Levels = s.SerializeObjectArray<R1_WorldMapInfo>(Levels, 32, name: nameof(Levels));
 
             Unk8 = s.Serialize<uint>(Unk8, name: nameof(Unk8));
             Unk9 = s.SerializeArray<byte>(Unk9, 17, name: nameof(Unk9));

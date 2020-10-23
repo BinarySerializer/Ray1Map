@@ -7,7 +7,7 @@ namespace R1Engine
     /// The available worlds in Rayman 1
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum R1_World 
+    public enum R1_World : byte
     {
         Jungle = 1,
         Music = 2,
