@@ -25,6 +25,9 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Unity_MapTileMap GetTileSet(Context context)
         {
+            if (context.Settings.R1_World == R1_World.Menu)
+                return new Unity_MapTileMap(Settings.CellSize);
+
             // Get the file name
             var filename = GetWorldFilePath(context.Settings);
 
@@ -167,22 +170,37 @@ namespace R1Engine
             await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
             FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
-            Controller.DetailedState = $"Loading world file";
+            R1_PS1_EventBlock eventBlock = null;
+            MapData mapData;
 
-            await Controller.WaitIfNecessary();
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                Controller.DetailedState = $"Loading world file";
 
-            // Read the world file
-            await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
-            FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
+                await Controller.WaitIfNecessary();
 
-            Controller.DetailedState = $"Loading map data";
+                // Read the world file
+                await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
+                FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
-            // Read the level data
-            await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
-            var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
+                Controller.DetailedState = $"Loading map data";
+
+                // Read the level data
+                await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
+                var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
+
+                eventBlock = level.EventData;
+                mapData = level.MapData;
+            }
+            else
+            {
+                await LoadExtraFile(context, GetFontFilePath(context.Settings), false);
+
+                mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
+            }
 
             // Load the level
-            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, 
+            return await LoadAsync(context, mapData, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures, 
                 // TODO: Include bg block once we parse the palette correctly
                 null);
         }

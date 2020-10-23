@@ -71,7 +71,10 @@ namespace R1Engine
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Where(x => x.Length == 5)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).Where(x => x.Maps.Any()).ToArray());
+            .ToArray())).Where(x => x.Maps.Any()).Append(new GameInfo_World(7, new int[]
+            {
+                0 // Worldmap
+            })).ToArray());
 
         /// <summary>
         /// Gets the available game actions
@@ -265,14 +268,13 @@ namespace R1Engine
             {
                 using (var bigRayContext = new Context(settings))
                 {
+                    await LoadFilesAsync(menuContext);
+                    await LoadFilesAsync(bigRayContext);
+
                     // Read the allfix & font files for the menu
                     await LoadExtraFile(menuContext, GetAllfixFilePath(menuContext.Settings), false);
                     var fix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(menuContext.Settings), menuContext);
                     await LoadExtraFile(menuContext, GetFontFilePath(menuContext.Settings), false);
-
-                    // Read the BigRay file
-                    await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.Settings), false);
-                    var br = FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.Settings), bigRayContext);
 
                     // Correct font palette
                     if (settings.EngineVersion == EngineVersion.R1_PS1_JP)
@@ -300,34 +302,61 @@ namespace R1Engine
                         }
                     }
 
+                    // Read the BigRay file
+                    await LoadExtraFile(bigRayContext, GetBigRayFilePath(bigRayContext.Settings), false);
+                    var br = bigRayContext.FileExists(GetBigRayFilePath(bigRayContext.Settings)) ? FileFactory.Read<R1_PS1_BigRayFile>(GetBigRayFilePath(bigRayContext.Settings), bigRayContext) : null;
+
                     // Export
-                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData.FontData, fix.AllfixData.MenuEvents, br.BigRayData);
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.AllfixData.FontData, fix.AllfixData.WldObj, br?.BigRayData);
                 }
             }
         }
-
-        public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context).AllfixData.MenuEvents[0];
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
 
-            if (exe.LevelBackgroundIndexTable == null)
-                return null;
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                if (exe.LevelBackgroundIndexTable == null)
+                    return null;
 
-            var bgIndex = exe.LevelBackgroundIndexTable[context.Settings.World - 1][context.Settings.Level - 1];
-            var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
+                var bgIndex = exe.LevelBackgroundIndexTable[context.Settings.World - 1][context.Settings.Level - 1];
+                var fndStartIndex = exe.GetFileTypeIndex(this, R1_PS1_FileType.fnd_file);
 
-            if (fndStartIndex == -1)
-                return null;
+                if (fndStartIndex == -1)
+                    return null;
 
-            var bgFilePath = exe.FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
+                string bgFilePath = exe.FileTable[fndStartIndex + bgIndex].ProcessedFilePath;
 
-            await LoadExtraFile(context, bgFilePath, true);
+                await LoadExtraFile(context, bgFilePath, true);
 
-            var bg = FileFactory.Read<R1_PS1_BackgroundVignetteFile>(bgFilePath, context);
+                var bg = FileFactory.Read<R1_PS1_BackgroundVignetteFile>(bgFilePath, context);
 
-            return bg.ImageBlock.ToTexture(context);
+                return bg.ImageBlock.ToTexture(context);
+            }
+            else
+            {
+                string bgFilePath = exe.FileTable[exe.GetFileTypeIndex(this, R1_PS1_FileType.img_file) + 2].ProcessedFilePath;
+                await LoadExtraFile(context, bgFilePath, true);
+
+                return FileFactory.Read<R1_PS1_VignetteBlockGroup>(bgFilePath, context, onPreSerialize: (s, x) => x.BlockGroupSize = (int)(s.CurrentLength / 2)).ToTexture(context);
+            }
+        }
+
+        public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
+        {
+            var allfix = FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context).AllfixData;
+            var wldObj = allfix.WldObj;
+
+            return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+            {
+                [Unity_ObjectManager_R1.WldObjType.Ray] = wldObj[0],
+                [Unity_ObjectManager_R1.WldObjType.RayLittle] = wldObj[1],
+                [Unity_ObjectManager_R1.WldObjType.ClockObj] = wldObj[2],
+                [Unity_ObjectManager_R1.WldObjType.DivObj] = wldObj[3],
+                [Unity_ObjectManager_R1.WldObjType.MapObj] = wldObj[4],
+            };
         }
     }
 }

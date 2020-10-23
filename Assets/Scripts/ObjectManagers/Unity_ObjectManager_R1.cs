@@ -11,7 +11,7 @@ namespace R1Engine
 {
     public class Unity_ObjectManager_R1 : Unity_ObjectManager
     {
-        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false) : base(context)
+        public Unity_ObjectManager_R1(Context context, DataContainer<DESData>[] des, DataContainer<R1_EventState[][]>[] eta, ushort[] linkTable, bool usesPointers = true, R1_ZDCEntry[] typeZDC = null, R1_ZDCData[] zdcData = null, R1_EventFlags[] eventFlags = null, bool hasDefinedDesEtaNames = false, Dictionary<WldObjType, R1_EventData> eventTemplates = null) : base(context)
         {
             // Set properties
             DES = des;
@@ -23,6 +23,7 @@ namespace R1Engine
             EventFlags = eventFlags;
             HasDefinedDesEtaNames = hasDefinedDesEtaNames;
             AvailableEvents = GetGeneralEventInfoData().ToArray();
+            EventTemplates = eventTemplates ?? new Dictionary<WldObjType, R1_EventData>();
 
             // Set initial random index to a random value
             RandomIndex = (byte)new Random().Next(0, 256);
@@ -44,6 +45,8 @@ namespace R1Engine
         public DataContainer<R1_EventState[][]>[] ETA { get; }
         public Dictionary<uint, int> DESLookup { get; } = new Dictionary<uint, int>();
         public Dictionary<uint, int> ETALookup { get; } = new Dictionary<uint, int>();
+
+        public Dictionary<WldObjType, R1_EventData> EventTemplates { get; }
 
         public ushort[] RandomArray { get; }
         public byte RandomIndex { get; set; }
@@ -282,6 +285,25 @@ namespace R1Engine
 
                         linkedIndex = LinkTable[linkedIndex];
                     } while (i != linkedIndex);
+                }
+            }
+
+            // Set DES and ETA for worldmap
+            if (Context.Settings.R1_World == R1_World.Menu)
+            {
+                var mapObj = EventTemplates[WldObjType.MapObj];
+
+                foreach (var e in level.EventData.Cast<Unity_Object_R1>().Select(x => x.EventData))
+                {
+                    e.ImageDescriptorsPointer = mapObj.ImageDescriptorsPointer;
+                    e.ImageBufferPointer = mapObj.ImageBufferPointer;
+                    e.AnimDescriptorsPointer = mapObj.AnimDescriptorsPointer;
+                    e.ETAPointer = mapObj.ETAPointer;
+
+                    e.PC_ImageDescriptorsIndex = mapObj.PC_ImageDescriptorsIndex;
+                    e.PC_ImageBufferIndex = mapObj.PC_ImageBufferIndex;
+                    e.PC_AnimationDescriptorsIndex = mapObj.PC_AnimationDescriptorsIndex;
+                    e.PC_ETAIndex = mapObj.PC_ETAIndex;
                 }
             }
         }
@@ -763,5 +785,16 @@ namespace R1Engine
             0xA9, 0x01, 0x09, 0x00, 0xDB, 0x01, 0xD2, 0x01, 0xBA, 0x00, 0x0A, 0x00,
             0x07, 0x03, 0x1B, 0x07, 0x07, 0x03, 0x1B, 0x03
         };
+
+        public enum WldObjType
+        {
+            Ray, // Template for Rayman
+            RayLittle, // Template for small Rayman
+            ClockObj, // The game over clock
+            DivObj, // ?
+            MapObj, // 24 map objects
+            Alpha, // Font 1
+            Alpha2 // Font 2
+        }
     }
 }

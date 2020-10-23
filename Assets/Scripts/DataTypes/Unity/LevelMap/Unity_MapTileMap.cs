@@ -76,6 +76,17 @@ namespace R1Engine
         }
 
         /// <summary>
+        /// Creates an empty tileset with a single transparent tile
+        /// </summary>
+        public Unity_MapTileMap(int cellSize) 
+        {
+            Tiles = new Unity_TileTexture[]
+            {
+                TextureHelpers.CreateTexture2D(cellSize, cellSize, true, true).CreateTile()
+            };
+        }
+
+        /// <summary>
         /// The tiles in this set
         /// </summary>
         public Unity_TileTexture[] Tiles { get; }

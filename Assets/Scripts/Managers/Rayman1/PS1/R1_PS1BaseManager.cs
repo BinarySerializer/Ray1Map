@@ -226,7 +226,7 @@ namespace R1Engine
             // Only load the v-ram if we're loading textures
             if (loadTextures)
                 // Get the v-ram
-                FillVRAM(context, VRAMMode.Level);
+                FillVRAM(context, context.Settings.R1_World == R1_World.Menu ? VRAMMode.Menu : VRAMMode.Level);
 
             // Load background sprites
             if (bg != null && loadTextures)
@@ -252,10 +252,13 @@ namespace R1Engine
                 eventDesigns.Add(new Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>(new Unity_ObjectManager_R1.DESData(finalDesign, bg.BackgroundLayerInfos, bg.BackgroundLayerInfos.First().Offset, null, null), bg.Offset));
             }
 
+            // Load event templates
+            var eventTemplates = GetEventTemplates(context);
+            
             // Load Rayman
-            var rayman = GetRaymanEvent(context);
+            var rayman = eventTemplates?[Unity_ObjectManager_R1.WldObjType.Ray];
 
-            var allEvents = (events ?? (events = new R1_EventData[0])).Append(rayman).Where(x => x != null).ToArray();
+            var allEvents = (events ?? (events = new R1_EventData[0])).Concat(eventTemplates?.Values).Where(x => x != null).ToArray();
 
             // Load graphics
             foreach (var des in GetLevelDES(context, allEvents))
@@ -314,6 +317,16 @@ namespace R1Engine
                 }
             }
 
+            // Worldmap
+            if (context.Settings.R1_World == R1_World.Menu)
+            {
+                // Load map object events for the world map
+                events = LoadMapObjects(FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).WorldInfo);
+
+                // Create a dummy linking table
+                eventLinkingTable = Enumerable.Range(0, events.Length).Select(x => (ushort)x).ToArray();
+            }
+
             // Read tables from exe
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
 
@@ -325,7 +338,8 @@ namespace R1Engine
                 typeZDC: exe?.TypeZDC,
                 zdcData: exe?.ZDCData,
                 eventFlags: exe?.EventFlags,
-                hasDefinedDesEtaNames: LevelEditorData.NameTable_R1PS1DES != null);
+                hasDefinedDesEtaNames: LevelEditorData.NameTable_R1PS1DES != null,
+                eventTemplates: eventTemplates);
 
             // Load the level background
             var lvlBg = await LoadLevelBackgroundAsync(context);
@@ -351,7 +365,7 @@ namespace R1Engine
             };
 
             // Initialize Rayman
-            rayman?.InitRayman(events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS));
+            rayman?.InitRayman(context, events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS));
 
             // Convert levelData to common level format
             Unity_Level level = new Unity_Level(
@@ -370,6 +384,8 @@ namespace R1Engine
 
         public virtual UniTask<Texture2D> LoadLevelBackgroundAsync(Context context) => UniTask.FromResult<Texture2D>(null);
 
+        public R1_EventData[] LoadMapObjects(R1_WorldMapInfo[] worldInfos) => worldInfos.Select((x, i) => R1_EventData.GetMapObj(x.XPosition, x.YPosition, i)).ToArray();
+
         public virtual uint? TypeZDCOffset => null;
         public virtual long TypeZDCCount => 256;
         public virtual uint? ZDCDataOffset => null;
@@ -377,10 +393,10 @@ namespace R1Engine
         public virtual uint? EventFlagsOffset => null;
         public virtual long EventFlagsCount => 256;
         public virtual uint? LevelBackgroundIndexTableOffset => null;
+        public virtual uint? WorldInfoOffset => null;
 
         public abstract FileTableInfo[] FileTableInfos { get; }
-
-        public virtual R1_EventData GetRaymanEvent(Context context) => null;
+        public virtual Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context) => null;
 
         /// <summary>
         /// Loads the specified level for the editor
@@ -425,8 +441,6 @@ namespace R1Engine
         /// <returns>The task</returns>
         public async UniTask ExportAllSpritesAsync(GameSettings baseGameSettings, string outputDir)
         {
-            // TODO: Extract BigRay from INI
-
             // Keep track of the hash for every DES
             var hashList = new List<string>();
 
@@ -816,7 +830,7 @@ namespace R1Engine
             // Fill the v-ram for each context
             FillVRAM(menuContext, VRAMMode.Menu);
 
-            if (bigRayContext != null)
+            if (bigRayContext != null && bigRay != null)
                 FillVRAM(bigRayContext, VRAMMode.BigRay);
 
             // Export each font DES

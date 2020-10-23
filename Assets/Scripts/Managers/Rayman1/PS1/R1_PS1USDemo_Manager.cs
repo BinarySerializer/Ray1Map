@@ -9,6 +9,7 @@
         public override uint? ZDCDataOffset => ExeBaseAddress + 0x9ADF8;
         public override uint? EventFlagsOffset => ExeBaseAddress + 0x9A5F8;
         public override uint? LevelBackgroundIndexTableOffset => ExeBaseAddress + 0x9D708;
+        public override uint? WorldInfoOffset => ExeBaseAddress + 0x9C6C0;
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {

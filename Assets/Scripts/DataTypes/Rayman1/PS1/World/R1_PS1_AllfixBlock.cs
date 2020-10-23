@@ -7,10 +7,11 @@
         /// </summary>
         public long Length { get; set; }
 
+        // Alpha, Alpha2
         public R1_PS1_FontData[] FontData { get; set; }
 
-        // Things like Rayman, the fist, game over clock etc.
-        public R1_EventData[] MenuEvents { get; set; }
+        // Ray, RayLittle, ClockObj, DivObj, MapObj, Unknown
+        public R1_EventData[] WldObj { get; set; }
 
         /// <summary>
         /// The data block
@@ -25,7 +26,7 @@
         {
             var p = s.CurrentPointer;
             FontData = s.SerializeObjectArray<R1_PS1_FontData>(FontData, 2, name: nameof(FontData));
-            MenuEvents = s.SerializeObjectArray<R1_EventData>(MenuEvents, 28, name: nameof(MenuEvents));
+            WldObj = s.SerializeObjectArray<R1_EventData>(WldObj, 29, name: nameof(WldObj));
             DataBlock = s.SerializeArray<byte>(DataBlock, Length - (s.CurrentPointer - p), name: nameof(DataBlock));
         }
     }

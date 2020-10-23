@@ -45,6 +45,7 @@ namespace R1Engine
         public override uint? ZDCDataOffset => ExeBaseAddress + 0x92998;
         public override uint? EventFlagsOffset => ExeBaseAddress + 0x92198;
         public override uint? LevelBackgroundIndexTableOffset => ExeBaseAddress + 0x9500C;
+        //public override uint? WorldInfoOffset => ExeBaseAddress + 0x; // TODO: Find offset
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {

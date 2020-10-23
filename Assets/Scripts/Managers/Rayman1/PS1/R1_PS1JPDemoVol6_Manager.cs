@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -242,7 +243,15 @@ namespace R1Engine
             }
         }
 
-        public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context).RaymanEvent;
+        public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
+        {
+            var level = FileFactory.Read<R1_PS1JPDemo_LevFile>(GetLevelFilePath(context.Settings), context);
+
+            return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+            {
+                [Unity_ObjectManager_R1.WldObjType.Ray] = level.RaymanEvent,
+            };
+        }
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {

@@ -237,6 +237,10 @@ namespace R1Engine
                 [3] = "Mr Dark's Dare 3",
                 [4] = "Mr Dark's Dare 4 - Boss",
             },
+            [7] = new Dictionary<int, string>()
+            {
+                [0] = "World Map",
+            },
             [8] = new Dictionary<int, string>()
             {
                 [1] = "Multiplayer (Jungle)",

@@ -33,7 +33,7 @@ namespace R1Engine
         /// <summary>
         /// Gets a new event instance for Rayman
         /// </summary>
-        public static R1_EventData GetRayman(R1_EventData rayPos) => new R1_EventData().InitRayman(rayPos);
+        public static R1_EventData GetRayman(Context context, R1_EventData rayPos) => new R1_EventData().InitRayman(context, rayPos);
         public static R1_EventData GetMapObj(short x, short y, int index) => new R1_EventData().InitMapObj(x, y, index);
 
         #endregion
@@ -557,10 +557,10 @@ namespace R1Engine
             }
         }
 
-        public R1_EventData InitRayman(R1_EventData rayPos)
+        public R1_EventData InitRayman(Context context, R1_EventData rayPos)
         {
             OffsetBX = 80;
-            OffsetBY = 78;
+            OffsetBY = (byte)(context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3 || context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol6 ? 80 : 78);
             if (rayPos != null)
             {
                 XPosition = rayPos.XPosition + rayPos.OffsetBX - OffsetBX;
@@ -599,7 +599,7 @@ namespace R1Engine
         {
             Type = R1_EventType.TYPE_MEDAILLON;
             Etat = 5;
-            XPosition = x - 78;
+            XPosition = x - 71; // In the code it's 78 - why do we have to offset it differently here?
             YPosition = y - 64;
 
             // Mr Dark

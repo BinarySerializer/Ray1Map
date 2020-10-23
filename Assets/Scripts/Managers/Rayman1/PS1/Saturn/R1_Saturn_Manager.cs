@@ -548,12 +548,25 @@ namespace R1Engine
                     var br = FileFactory.Read<R1_PS1_BigRayBlock>(GetBigRayFilePath(), bigRayContext, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
 
                     // Export
-                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.FontData, fix.MenuEvents, br);
+                    await ExportMenuSpritesAsync(menuContext, bigRayContext, outputPath, exportAnimFrames, fix.FontData, fix.WldObj, br);
                 }
             }
         }
 
-        public override R1_EventData GetRaymanEvent(Context context) => FileFactory.Read<R1_PS1_AllfixBlock>(GetAllfixFilePath(), context, onPreSerialize: (s, o) => o.Length = s.CurrentLength).MenuEvents[0];
+        public override Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData> GetEventTemplates(Context context)
+        {
+            var allfix = FileFactory.Read<R1_PS1_AllfixBlock>(GetAllfixFilePath(), context, onPreSerialize: (s, o) => o.Length = s.CurrentLength);
+            var wldObj = allfix.WldObj;
+
+            return new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+            {
+                [Unity_ObjectManager_R1.WldObjType.Ray] = wldObj[0],
+                [Unity_ObjectManager_R1.WldObjType.RayLittle] = wldObj[1],
+                [Unity_ObjectManager_R1.WldObjType.ClockObj] = wldObj[2],
+                [Unity_ObjectManager_R1.WldObjType.DivObj] = wldObj[3],
+                [Unity_ObjectManager_R1.WldObjType.MapObj] = wldObj[4],
+            };
+        }
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {

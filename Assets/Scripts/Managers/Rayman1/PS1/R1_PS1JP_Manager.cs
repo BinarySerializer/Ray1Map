@@ -53,7 +53,13 @@ namespace R1Engine
         /// </summary>
         /// <param name="context">The context</param>
         /// <returns>The tile set to use</returns>
-        public override Unity_MapTileMap GetTileSet(Context context) => new Unity_MapTileMap(GetTileSetColors(context), TileSetWidth, Settings.CellSize);
+        public override Unity_MapTileMap GetTileSet(Context context)
+        {
+            if (context.Settings.R1_World == R1_World.Menu)
+                return new Unity_MapTileMap(Settings.CellSize);
+
+            return new Unity_MapTileMap(GetTileSetColors(context), TileSetWidth, Settings.CellSize);
+        }
 
         /// <summary>
         /// Fills the PS1 v-ram and returns it
@@ -167,34 +173,47 @@ namespace R1Engine
             await LoadExtraFile(context, GetAllfixFilePath(context.Settings), false);
             FileFactory.Read<R1_PS1_AllfixFile>(GetAllfixFilePath(context.Settings), context);
 
-            Controller.DetailedState = $"Loading world file";
+            R1_PS1_EventBlock eventBlock = null;
+            MapData mapData;
 
-            await Controller.WaitIfNecessary();
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                Controller.DetailedState = $"Loading world file";
 
-            // Read the world file
-            await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
-            FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
+                await Controller.WaitIfNecessary();
 
-            Controller.DetailedState = $"Loading map data";
+                // Read the world file
+                await LoadExtraFile(context, GetWorldFilePath(context.Settings), false);
+                FileFactory.Read<R1_PS1_WorldFile>(GetWorldFilePath(context.Settings), context);
 
-            // Read the level data
-            await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
-            var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
+                Controller.DetailedState = $"Loading map data";
 
-            // Load special tile set file
-            await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings), true);
+                // Read the level data
+                await LoadExtraFile(context, GetLevelFilePath(context.Settings), true);
+                var level = FileFactory.Read<R1_PS1_LevFile>(GetLevelFilePath(context.Settings), context);
 
-            // Load the exe
-            await context.AddLinearSerializedFileAsync(ExeFilePath);
+                eventBlock = level.EventData;
+                mapData = level.MapData;
+
+                // Load special tile set file
+                await LoadExtraFile(context, GetSpecialTileSetPath(context.Settings), true);
+            }
+            else
+            {
+                await LoadExtraFile(context, GetFontFilePath(context.Settings), false);
+
+                mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
+            }
 
             // Load the level
-            return await LoadAsync(context, level.MapData, level.EventData.Events, level.EventData.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures);
+            return await LoadAsync(context, mapData, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(x => (ushort)x).ToArray(), loadTextures);
         }
 
         public override uint? TypeZDCOffset => ExeBaseAddress + 0x98308;
         public override uint? ZDCDataOffset => ExeBaseAddress + 0x97308;
         public override uint? EventFlagsOffset => ExeBaseAddress + 0x96B08;
         public override uint? LevelBackgroundIndexTableOffset => ExeBaseAddress + 0x99B58;
+        public override uint? WorldInfoOffset => ExeBaseAddress + 0x98BD0;
 
         public override FileTableInfo[] FileTableInfos => new FileTableInfo[]
         {

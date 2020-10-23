@@ -1327,7 +1327,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load Rayman
-            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
+            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(context, levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
 
             // Load background vignette textures
             var bg = await LoadBackgroundVignetteAsync(context, worldData, levelData, false);

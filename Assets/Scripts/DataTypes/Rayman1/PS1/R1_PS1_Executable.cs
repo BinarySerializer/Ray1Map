@@ -8,6 +8,8 @@ namespace R1Engine
         public R1_ZDCData[] ZDCData { get; set; }
         public R1_EventFlags[] EventFlags { get; set; }
 
+        public R1_WorldMapInfo[] WorldInfo { get; set; }
+
         public byte[][] LevelBackgroundIndexTable { get; set; }
 
         public R1_PS1_FileTableEntry[] FileTable { get; set; }
@@ -38,6 +40,9 @@ namespace R1Engine
                     EventFlags = s.DoAt(new Pointer(manager.EventFlagsOffset.Value, Offset.file), 
                         () => s.SerializeArray<R1_EventFlags>(EventFlags, manager.EventFlagsCount, name: nameof(EventFlags)));
             }
+
+            if (manager.WorldInfoOffset != null)
+                WorldInfo = s.DoAt(new Pointer(manager.WorldInfoOffset.Value, Offset.file), () => s.SerializeObjectArray<R1_WorldMapInfo>(WorldInfo, 24, name: nameof(WorldInfo)));
 
             if (manager.LevelBackgroundIndexTableOffset != null)
             {

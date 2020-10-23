@@ -1,4 +1,6 @@
-﻿namespace R1Engine
+﻿using System.Linq;
+
+namespace R1Engine
 {
     /// <summary>
     /// Common map data
@@ -41,5 +43,12 @@
         }
 
         #endregion
+
+        public static MapData GetEmptyMapData(int width, int height) => new MapData()
+        {
+            Width = (ushort)width,
+            Height = (ushort)height,
+            Tiles = Enumerable.Repeat(new MapTile(), width * height).ToArray()
+        };
     }
 }
