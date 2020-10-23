@@ -1296,7 +1296,7 @@ namespace R1Engine
                     Height = levelData.MapData.Height,
 
                     // Create the tile arrays
-                    TileSet = new Unity_MapTileMap[3],
+                    TileSet = new Unity_MapTileMap[levelData.MapData.ColorPalettes.Length],
                     MapTiles = levelData.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
                     TileSetWidth = 1,
 
@@ -1361,9 +1361,8 @@ namespace R1Engine
             var tileSets = ReadTileSets(levelData);
 
             // Set the tile sets
-            level.Maps[0].TileSet[0] = tileSets[0];
-            level.Maps[0].TileSet[1] = tileSets[1];
-            level.Maps[0].TileSet[2] = tileSets[2];
+            for (int i = 0; i < level.Maps[0].TileSet.Length; i++)
+                level.Maps[0].TileSet[i] = tileSets[i];
 
             // Enumerate each cell
             for (int cellY = 0; cellY < levelData.MapData.Height; cellY++) 
