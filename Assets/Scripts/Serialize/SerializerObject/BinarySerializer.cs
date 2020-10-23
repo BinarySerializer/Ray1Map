@@ -247,59 +247,66 @@ namespace R1Engine
         }
 
         public override T[] SerializeArray<T>(T[] obj, long count, string name = null) {
+            T[] buffer = GetArray(obj, count);
+
             if (Settings.Log) {
                 if (typeof(T) == typeof(byte)) {
                     string normalLog = LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>") + ": ";
                     Context.Log.Log(normalLog
-                        + Util.ByteArrayToHexString((byte[])(object)obj, Align: 16, NewLinePrefix: new string(' ', normalLog.Length), MaxLines: 10));
+                        + Util.ByteArrayToHexString((byte[])(object)buffer, Align: 16, NewLinePrefix: new string(' ', normalLog.Length), MaxLines: 10));
                 } else {
                     Context.Log.Log(LogPrefix + "(" + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
                 }
             }
             // Use byte writing method if requested
             if (typeof(T) == typeof(byte)) {
-                writer.Write((byte[])(object)obj);
-                return obj;
+                writer.Write((byte[])(object)buffer);
+                return buffer;
             }
 
             for (int i = 0; i < count; i++)
                 // Read the value
-                Serialize<T>(obj[i], name: name == null ? null : name + "[" + i + "]");
+                Serialize<T>(buffer[i], name: name == null ? null : name + "[" + i + "]");
 
-            return obj;
+            return buffer;
         }
 
         public override T[] SerializeObjectArray<T>(T[] obj, long count, Action<T> onPreSerialize = null, string name = null) {
+            T[] buffer = GetArray(obj, count);
+
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Object[] " + typeof(T) + "[" + count + "]) " + (name ?? "<no name>"));
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializeObject<T>(obj[i], onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
+                SerializeObject<T>(buffer[i], onPreSerialize: onPreSerialize, name: name == null ? null : name + "[" + i + "]");
 
-            return obj;
+            return buffer;
         }
 
         public override Pointer[] SerializePointerArray(Pointer[] obj, long count, Pointer anchor = null, bool allowInvalid = false, string name = null) {
+            Pointer[] buffer = GetArray(obj, count);
+
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer[" + count + "]) " + (name ?? "<no name>"));
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializePointer(obj[i], allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
+                SerializePointer(buffer[i], allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
-            return obj;
+            return buffer;
         }
 
         public override Pointer<T>[] SerializePointerArray<T>(Pointer<T>[] obj, long count, Pointer anchor = null, bool resolve = false, Action<T> onPreSerialize = null, bool allowInvalid = false, string name = null) {
+            Pointer<T>[] buffer = GetArray(obj, count);
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + "(Pointer<" + typeof(T) + ">[" + count + "]) " + (name ?? "<no name>"));
             }
             for (int i = 0; i < count; i++)
                 // Read the value
-                SerializePointer<T>(obj[i], resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
+                SerializePointer<T>(buffer[i], resolve: resolve, onPreSerialize: onPreSerialize, allowInvalid: allowInvalid, name: name == null ? null : name + "[" + i + "]");
 
-            return obj;
+            return buffer;
         }
 
         public override T[] SerializeArraySize<T, U>(T[] obj, string name = null) {
@@ -384,6 +391,20 @@ namespace R1Engine
             if (Settings.Log) {
                 Context.Log.Log(LogPrefix + logString);
             }
+        }
+
+        private T[] GetArray<T>(T[] obj, long count) {
+            // Create or resize array if necessary
+            T[] buffer;
+            if (obj != null) {
+                buffer = obj;
+                if (buffer.Length != count) {
+                    Array.Resize(ref buffer, (int)count);
+                }
+            } else {
+                buffer = new T[(int)count];
+            }
+            return buffer;
         }
 	}
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_MusicCommand : R1Serializable
+    public class GAX2_PatternRow : R1Serializable
     {
         public byte Note { get; set; }
         public byte Instrument { get; set; }
