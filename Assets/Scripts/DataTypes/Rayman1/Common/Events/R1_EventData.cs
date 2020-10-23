@@ -577,7 +577,7 @@ namespace R1Engine
             OffsetHY = 20;
             FollowSprite = 0;
             HitPoints = 0;
-            DisplayPrio = 7;
+            InitialDisplayPrio = DisplayPrio = 7;
             HitSprite = 0;
 
             PC_ImageDescriptorsIndex = 1;

@@ -227,10 +227,14 @@ namespace R1Engine
                 return;
 
             var miniRay = level.EventData.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_DEMI_RAYMAN);
+            var miniRayDESIndex = miniRay?.DESIndex;
 
-            if (miniRay != null)
+            if (miniRayDESIndex == null && EventTemplates.ContainsKey(WldObjType.RayLittle))
+                miniRayDESIndex = UsesPointers ? DESLookup.TryGetItem(EventTemplates[WldObjType.RayLittle].ImageDescriptorsPointer?.AbsoluteOffset ?? 0, -1) : (int)EventTemplates[WldObjType.RayLittle].PC_ImageDescriptorsIndex;
+
+            if (miniRayDESIndex != null)
             {
-                var miniRayDes = DES.ElementAtOrDefault(miniRay.DESIndex)?.Data.Graphics;
+                var miniRayDes = DES.ElementAtOrDefault(miniRayDESIndex.Value)?.Data.Graphics;
 
                 if (miniRayDes != null)
                 {
@@ -292,6 +296,20 @@ namespace R1Engine
             if (Context.Settings.R1_World == R1_World.Menu)
             {
                 var mapObj = EventTemplates[WldObjType.MapObj];
+                var rayman = level.Rayman as Unity_Object_R1;
+
+                // Change Rayman to small Rayman
+                if (miniRayDESIndex != null && rayman != null)
+                    rayman.DESIndex = miniRayDESIndex.Value;
+
+                // Set Rayman's properties
+                if (rayman != null)
+                {
+                    rayman.EventData.Etat = 0;
+                    rayman.EventData.SubEtat = 0;
+                    rayman.XPosition = (short)(level.EventData[0].XPosition + 71 - (rayman.EventData.OffsetBX / 2) + 7); // The game does +4 instead of 7 - why?
+                    rayman.YPosition = (short)(level.EventData[0].YPosition + 64 - (rayman.EventData.OffsetBY / 2) + 8); // Is this correct?
+                }
 
                 foreach (var e in level.EventData.Cast<Unity_Object_R1>().Select(x => x.EventData))
                 {

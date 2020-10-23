@@ -174,8 +174,7 @@ namespace R1Engine
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
         public override string SecondaryName { get; }
 
-        // TODO: Fix
-        public override int? GetLayer(int index) => (index + (EventData.InitialDisplayPrio * 512));
+        public override int? GetLayer(int index) => (index + (EventData.InitialDisplayPrio * 1000));
 
         public override bool FlipHorizontally
         {
