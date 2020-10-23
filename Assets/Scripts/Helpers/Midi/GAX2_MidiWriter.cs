@@ -14,7 +14,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace R1Engine {
-	public class GBARRR_MidiWriter {
+	public class GAX2_MidiWriter {
         /// <summary>
         /// Export single soundfont.
         /// Advantages: 1 soundfont for all tracks
@@ -22,7 +22,7 @@ namespace R1Engine {
         /// </summary>
         bool exportSingleSoundfont = false;
 
-        public void Write(GAX2_SongHeader song, string outPath) {
+        public void Write(GAX2_Song song, string outPath) {
 #if ISWINDOWS
             Sequence s = new Sequence();
 			Track t = new Track();
@@ -38,7 +38,7 @@ namespace R1Engine {
         }
 
 #if ISWINDOWS
-        private Track CreateTrack(GAX2_SongHeader song, int trackNum) {
+        private Track CreateTrack(GAX2_Song song, int trackNum) {
 			Track t = new Track();
 			TempoChangeBuilder b = new TempoChangeBuilder();
 			b.Tempo = 500000;
@@ -48,15 +48,15 @@ namespace R1Engine {
             int? lastNoteOn = null;
             int currentTime = 0;
             int timeScale = 5;
-            t.EndOfTrackOffset = (song.Tracks[trackNum].Length* song.TrackLength) * timeScale;
-            for (int trackPiece = 0; trackPiece < song.Tracks[trackNum].Length; trackPiece++) {
-                GAX2_MusicTrack gaxTrack = song.Tracks[trackNum][trackPiece];
-                int baseTime = trackPiece * song.TrackLength;
+            t.EndOfTrackOffset = (song.Patterns[trackNum].Length* song.NumRowsPerPattern) * timeScale;
+            for (int trackPiece = 0; trackPiece < song.Patterns[trackNum].Length; trackPiece++) {
+                GAX2_Pattern gaxTrack = song.Patterns[trackNum][trackPiece];
+                int baseTime = trackPiece * song.NumRowsPerPattern;
                 currentTime = baseTime;
-                for (int i = 0; i < gaxTrack.Commands.Length; i++) {
-                    GAX2_MusicCommand cmd = gaxTrack.Commands[i];
+                for (int i = 0; i < gaxTrack.Rows.Length; i++) {
+                    GAX2_PatternRow cmd = gaxTrack.Rows[i];
                     switch (cmd.Command) {
-                        case GAX2_MusicCommand.Cmd.Note:
+                        case GAX2_PatternRow.Cmd.Note:
                             if(cmd.Instrument == 250) continue;
                             if (exportSingleSoundfont) {
                                 if (song.InstrumentSet[cmd.Instrument]?.Value == null || song.InstrumentSet[cmd.Instrument].Value.Sample >= 128) continue;

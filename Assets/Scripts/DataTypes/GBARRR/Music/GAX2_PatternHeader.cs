@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace R1Engine
 {
-    public class GAX2_PatternEntry : R1Serializable
+    public class GAX2_PatternHeader : R1Serializable
     {
         public ushort SequenceOffset { get; set; }
         public sbyte Transpose { get; set; }

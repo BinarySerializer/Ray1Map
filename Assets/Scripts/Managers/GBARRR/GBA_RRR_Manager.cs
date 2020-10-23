@@ -170,7 +170,7 @@ namespace R1Engine
                 var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
                 var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
                 s.DoAt(pointerTable[GBARRR_Pointer.MusicSampleTable], () => {
-                    var sampleTable = s.SerializeObject<GBARRR_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
+                    var sampleTable = s.SerializeObject<GAX2_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
                     string outPath = outputPath + "/MusicSamples/";
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
@@ -178,7 +178,7 @@ namespace R1Engine
                     }
                 });
                 s.DoAt(pointerTable[GBARRR_Pointer.SoundEffectSampleTable], () => {
-                    var sampleTable = s.SerializeObject<GBARRR_SampleTable>(default, onPreSerialize: st => st.Length = 186, name: "SampleTable2");
+                    var sampleTable = s.SerializeObject<GAX2_SampleTable>(default, onPreSerialize: st => st.Length = 186, name: "SampleTable2");
                     string outPath = outputPath + "/SoundEffects/";
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
@@ -286,11 +286,35 @@ namespace R1Engine
                 uint[] ptrs = s.GameSettings.GameModeSelection == GameModeSelection.RaymanRavingRabbidsGBAUS ? ptrs_us : ptrs_eu;
                 foreach (var ptr in ptrs) {
                     s.DoAt(new Pointer(ptr, rom.Offset.file), () => {
-                        GAX2_SongHeader h = s.SerializeObject<GAX2_SongHeader>(default, name: "SongHeader");
+                        GAX2_Song h = s.SerializeObject<GAX2_Song>(default, name: "SongHeader");
                         // For each entry
-                        GBARRR_MidiWriter w = new GBARRR_MidiWriter();
+                        GAX2_MidiWriter w = new GAX2_MidiWriter();
                         Directory.CreateDirectory(Path.Combine(outputPath, "midi"));
                         w.Write(h, Path.Combine(outputPath, "midi", $"{h.ParsedName}.mid"));
+
+                        GAX2_XMWriter xmw = new GAX2_XMWriter();
+                        Directory.CreateDirectory(Path.Combine(outputPath, "xm"));
+
+                        XM xm = xmw.ConvertToXM(h);
+
+                        // Get the output path
+                        var outputFilePath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.xm");
+
+                        // Create and open the output file
+                        using (var outputStream = File.Create(outputFilePath)) {
+                            // Create a context
+                            using (var xmContext = new Context(settings)) {
+                                xmContext.Log.OverrideLogPath = Path.Combine(outputPath, "xm", $"{h.ParsedName}.txt");
+                                // Create a key
+                                string xmKey = $"{h.ParsedName}.xm";
+
+                                // Add the file to the context
+                                xmContext.AddFile(new StreamFile(xmKey, outputStream, context));
+
+                                // Write the data
+                                FileFactory.Write<XM>(xmKey, xm, xmContext);
+                            }
+                        }
                     });
                 }
                 /*s.DoAt(pointerTable[GBARRR_Pointer.MusicTable], () => {

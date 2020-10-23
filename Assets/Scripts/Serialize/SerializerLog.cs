@@ -8,6 +8,8 @@ using Cysharp.Threading.Tasks;
 namespace R1Engine.Serialize {
 	public class SerializerLog {
 		private StringBuilder log = new StringBuilder();
+		public string OverrideLogPath { get; set; }
+		public string LogFile => OverrideLogPath ?? Settings.LogFile;
 
 		public void Log(object obj) {
 			if (Settings.Log)
@@ -15,8 +17,8 @@ namespace R1Engine.Serialize {
 		}
 
 		public void WriteLog() {
-			if (Settings.Log && Settings.LogFile.Trim() != "") {
-				using (StreamWriter writer = new StreamWriter(Settings.LogFile)) {
+			if (Settings.Log && LogFile.Trim() != "") {
+				using (StreamWriter writer = new StreamWriter(LogFile)) {
 					writer.WriteLine(log.ToString());
 				}
 			}
