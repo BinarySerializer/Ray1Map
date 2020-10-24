@@ -398,9 +398,10 @@ namespace R1Engine
             T[] buffer;
             if (obj != null) {
                 buffer = obj;
-                if (buffer.Length != count) {
+                // For serialzier, don't resize array
+                /*if (buffer.Length != count) {
                     Array.Resize(ref buffer, (int)count);
-                }
+                }*/
             } else {
                 buffer = new T[(int)count];
             }

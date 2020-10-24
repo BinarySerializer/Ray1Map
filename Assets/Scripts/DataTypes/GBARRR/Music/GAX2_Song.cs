@@ -16,7 +16,7 @@ namespace R1Engine
         public Pointer SequenceDataPointer { get; set; }
         public Pointer InstrumentSetPointer { get; set; }
         public Pointer SampleSetPointer { get; set; }
-        public ushort UShort_18 { get; set; }
+        public ushort SampleRate { get; set; } // 0x3D99
         public ushort UShort_1A { get; set; }
         public ushort UShort_1C { get; set; }
         public ushort UShort_1E { get; set; }
@@ -43,7 +43,7 @@ namespace R1Engine
             SequenceDataPointer = s.SerializePointer(SequenceDataPointer, name: nameof(SequenceDataPointer));
             InstrumentSetPointer = s.SerializePointer(InstrumentSetPointer, name: nameof(InstrumentSetPointer));
             SampleSetPointer = s.SerializePointer(SampleSetPointer, name: nameof(SampleSetPointer));
-            UShort_18 = s.Serialize<ushort>(UShort_18, name: nameof(UShort_18));
+            SampleRate = s.Serialize<ushort>(SampleRate, name: nameof(SampleRate));
             UShort_1A = s.Serialize<ushort>(UShort_1A, name: nameof(UShort_1A));
             UShort_1C = s.Serialize<ushort>(UShort_1C, name: nameof(UShort_1C));
             UShort_1E = s.Serialize<ushort>(UShort_1E, name: nameof(UShort_1E));

@@ -115,7 +115,7 @@ namespace R1Engine
             using (var context = new Context(settings)) {
                 var s = context.Deserializer;
 
-                void ExportSample(string directory, string filename, byte[] data, uint freq, ushort channels) {
+                void ExportSample(string directory, string filename, byte[] data, uint sampleRate, ushort channels) {
                     // Create the directory
                     Directory.CreateDirectory(directory);
 
@@ -124,7 +124,7 @@ namespace R1Engine
                         ChunkHeader = "fmt ",
                         FormatType = 1,
                         ChannelCount = channels,
-                        SampleRate = freq,
+                        SampleRate = sampleRate,
                         BitsPerSample = 8,
                     };
 
@@ -169,12 +169,28 @@ namespace R1Engine
                 // Load the rom
                 var rom = FileFactory.Read<GBARRR_ROM>(GetROMFilePath, context);
                 var pointerTable = PointerTables.GBARRR_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
+                Pointer<GAX2_Instrument>[] instruments = null;
+                s.DoAt(new Pointer(0x0805C8EC, rom.Offset.file), () => {
+                    instruments = s.SerializePointerArray<GAX2_Instrument>(instruments, 156, resolve: true, name: nameof(instruments));
+                });
                 s.DoAt(pointerTable[GBARRR_Pointer.MusicSampleTable], () => {
                     var sampleTable = s.SerializeObject<GAX2_SampleTable>(default, onPreSerialize: st => st.Length = 141, name: "SampleTable1");
                     string outPath = outputPath + "/MusicSamples/";
+                    int GetMidiPitch(int freq, float tuning = 15769f) {
+                        // See https://anotherproducer.com/online-tools-for-musicians/frequency-to-pitch-calculator/
+                        // default pitch = F5, so 699
+                        return Mathf.RoundToInt(69 + 12 * Mathf.Log(freq / tuning, 2f));
+                    }
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15768, 2);
+                        var instr = instruments.FirstOrDefault(ins => ins.Value != null && ins.Value.Sample == i+1);
+                        /*if (instr != null) {
+                            int pitchAdj = Mathf.RoundToInt(instr.Value.PitchAdjustment / 1024f * 15769);
+                            Debug.Log(i + " - " + instr.Value.PitchAdjustment + " - " + pitchAdj + " - " + GetMidiPitch(15769 + pitchAdj));
+                            ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, (uint)(15769+pitchAdj), 2);
+                        } else {*/
+                            ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15769, 2);
+                        //}
                     }
                 });
                 s.DoAt(pointerTable[GBARRR_Pointer.SoundEffectSampleTable], () => {
@@ -182,7 +198,7 @@ namespace R1Engine
                     string outPath = outputPath + "/SoundEffects/";
                     for (int i = 0; i < sampleTable.Length; i++) {
                         var e = sampleTable.Entries[i];
-                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15768, 1);
+                        ExportSample(outPath, $"{i}_{e.SampleOffset.AbsoluteOffset:X8}", e.Sample, 15769, 1);
                     }
                 });
                 uint[] ptrs_eu = new uint[] {

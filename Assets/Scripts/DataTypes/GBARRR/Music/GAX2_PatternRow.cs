@@ -22,7 +22,7 @@ namespace R1Engine
                     case Cmd.StartTrack: return 0;
                     case Cmd.EmptyTrack: return 0;
                     case Cmd.Unknown81: return 1;
-                    case Cmd.ChangeLoudness: return 1;
+                    case Cmd.EffectOnly: return 1;
                     default: return 0;
                 }
             }
@@ -34,7 +34,7 @@ namespace R1Engine
                     case 1: return Cmd.EmptyTrack;
                     case 0x80: return Cmd.RestSingle;
                     case 0x81: return Cmd.Unknown81;
-                    case 0xFA: return Cmd.ChangeLoudness;
+                    case 0xFA: return Cmd.EffectOnly;
                     case 0xFF: return Cmd.RestMultiple;
                     default:
                         if ((Note & 0x80) == 0x80) {
@@ -57,7 +57,7 @@ namespace R1Engine
                 case Cmd.Unknown81:
                     Unknown81Arg = s.Serialize<byte>(Unknown81Arg, name: nameof(Unknown81Arg));
                     break;
-                case Cmd.ChangeLoudness:
+                case Cmd.EffectOnly:
                     Effect = s.Serialize<byte>(Effect, name: nameof(Effect));
                     Velocity = s.Serialize<byte>(Velocity, name: nameof(Velocity));
                     break;
@@ -74,7 +74,7 @@ namespace R1Engine
             Unknown,
             RestSingle = 0x80,
             Unknown81 = 0x81,
-            ChangeLoudness = 0xFA,
+            EffectOnly = 0xFA,
             RestMultiple = 0xFF
         }
     }

@@ -18,7 +18,7 @@ namespace R1Engine {
             xm.PatternOrderTable = Enumerable.Range(0,song.NumPatternsPerChannel).Select(i => (byte)i).ToArray();
             xm.SongLength = (ushort)xm.PatternOrderTable.Length;
             xm.DefaultTempo = 6;
-            xm.DefaultBPM = 134;
+            xm.DefaultBPM = 150;
             xm.Flags = 1;
             if (xm.PatternOrderTable.Length < 256) {
                 byte[] patOrderTable = xm.PatternOrderTable;
@@ -48,7 +48,8 @@ namespace R1Engine {
             smp.SampleData16 = ConvertSample(song.Samples[index].Sample); //song.Samples[index].Sample.Select(b => (sbyte)(b - 128)).ToArray();
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
-            smp.RelativeNoteNumber = 4;
+            smp.FineTune = gax_instr.Pitch1;
+            smp.RelativeNoteNumber = (sbyte)(gax_instr.Pitch2 * 12);
 
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;
@@ -77,7 +78,9 @@ namespace R1Engine {
             GAX2_Pattern gax = song.Patterns[channelIndex][patternIndex];
             XM_PatternRow[] rows = new XM_PatternRow[numRows];
             int curRow = 0;
-            int vol;
+            byte? vol = null;
+            byte? eff = null;
+            byte? effParam = null;
             foreach (var row in gax.Rows) {
                 switch (row.Command) {
                     case GAX2_PatternRow.Cmd.StartTrack:
@@ -90,9 +93,11 @@ namespace R1Engine {
                     // TODO: correct these
                     case GAX2_PatternRow.Cmd.Unknown:
                         break;
-                    case GAX2_PatternRow.Cmd.ChangeLoudness:
-                        vol = 0x10 + (row.Velocity >> 2);
-                        rows[curRow++] = new XM_PatternRow(volumeColumnByte: (byte)vol);
+                    case GAX2_PatternRow.Cmd.EffectOnly:
+                        eff = (row.Effect < 16 && row.Effect != 14 && row.Effect != 12) ? (byte?)row.Effect : null;
+                        effParam = eff.HasValue ? (byte?)(row.Velocity) : null;
+                        vol = (row.Effect == 12) ? (byte?)(0x10 + (row.Velocity >> 2)) : null;
+                        rows[curRow++] = new XM_PatternRow(volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         break;
                     case GAX2_PatternRow.Cmd.Unknown81:
                         rows[curRow++] = new XM_PatternRow();
@@ -106,12 +111,14 @@ namespace R1Engine {
                         }
                         break;
                     case GAX2_PatternRow.Cmd.Note:
+                        eff = (row.Effect < 16 && row.Effect != 14 && row.Effect != 12) ? (byte?)row.Effect : null;
+                        effParam = eff.HasValue ? (byte?)(row.Velocity) : null;
+                        vol = (row.Effect == 12) ? (byte?)(0x10 + (row.Velocity >> 2)) : null;
                         if (row.Instrument == 250) {
-                            rows[curRow++] = new XM_PatternRow(note: 97);
+                            rows[curRow++] = new XM_PatternRow(note: 97, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         } else {
                             int instr = 1 + Array.IndexOf(song.InstrumentIndices, row.Instrument);
-                            vol = 0x10 + (row.Velocity >> 2);
-                            rows[curRow++] = new XM_PatternRow(note: row.Note, instrument: (byte)instr, volumeColumnByte: (byte)vol);
+                            rows[curRow++] = new XM_PatternRow(note: row.Note, instrument: (byte)instr, volumeColumnByte: vol, effectType: eff, effectParameter: effParam);
                         }
                         break;
                 }

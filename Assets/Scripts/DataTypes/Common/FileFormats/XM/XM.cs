@@ -18,7 +18,7 @@ namespace R1Engine
         public ushort NumChannels { get; set; }
         public ushort NumPatterns { get; set; }
         public ushort NumInstruments { get; set; }
-        public ushort Flags { get; set; }
+        public ushort Flags { get; set; } = 1; // Linear Freq Table
         public ushort DefaultTempo { get; set; }
         public ushort DefaultBPM { get; set; }
 

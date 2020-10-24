@@ -48,8 +48,10 @@ namespace R1Engine
             byte? effectType = null,
             byte? effectParameter = null) {
             if(!(instrument.HasValue || volumeColumnByte.HasValue || effectType.HasValue || effectParameter.HasValue)) {
-                Flags = note.Value;
-                Note = note.Value;
+                if (note.HasValue) {
+                    Flags = note.Value;
+                    Note = note.Value;
+                }
                 Size = 1;
             } else {
                 Size = 1;
