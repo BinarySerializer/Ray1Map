@@ -60,7 +60,10 @@ namespace R1Engine
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetDataPath(), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).ToArray());
+            .ToArray())).Append(new GameInfo_World(7, new []
+        {
+            0
+        })).ToArray());
 
         /// <summary>
         /// Gets the DES file name for the current index in the current context
@@ -125,13 +128,19 @@ namespace R1Engine
                 Select(Path.GetFileName).
                 Select(x => new AdditionalSoundArchive($"SMP ({x})", GetSamplesArchiveFilePath(x))).ToArray();
 
-        public override string[] GetDESNameTable(Context context) => FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetDESNameTable(Context context) => context.Settings.R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).DESFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
-        public override string[] GetETANameTable(Context context) => FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
+        public override string[] GetETANameTable(Context context) => context.Settings.R1_World == R1_World.Menu ? new string[0] : FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context).ETAFileNames.Select(x => x.Length > 4 ? x.Substring(0, x.Length - 4) : x).ToArray();
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.KitPC_Type_ZDC;
         public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.KitPC_ZDCTable;
         public override byte[] GetEventFlagsBytes => R1_PC_EventFlagTables.KitPC_Flags;
+
+        public override R1_WorldMapInfo[] GetWorldMapInfos(Context context)
+        {
+            var wld = LoadArchiveFile<R1_PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01);
+            return wld.Levels.Take(wld.LevelsCount).ToArray();
+        }
 
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) => 
             UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
@@ -219,6 +228,13 @@ namespace R1Engine
             // Special
             foreach (var version in LoadArchiveFile<R1_PC_VersionFile>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.VERSION).VersionCodes)
                 await AddFile(context, GetSpecialArchiveFilePath(version));
+        }
+
+        public override UniTask<PCX> GetWorldMapVigAsync(Context context)
+        {
+            var worldVig = LoadArchiveFile<R1_PC_WorldMap>(context, GetCommonArchiveFilePath(), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
+
+            return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), worldVig));
         }
 
         public async UniTask ImportDESETA(GameSettings settings, bool edu)

@@ -1190,26 +1190,39 @@ namespace R1Engine
 
             await Controller.WaitIfNecessary();
 
-            Controller.DetailedState = $"Loading world";
+            IList<ARGBColor> bigRayPalette;
+            R1_PC_DES[] des;
 
-            // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                Controller.DetailedState = $"Loading world";
 
-            await Controller.WaitIfNecessary();
+                // Read the world data
+                var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
 
-            Controller.DetailedState = $"Loading big ray";
+                await Controller.WaitIfNecessary();
 
-            // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
-            // Read the big ray data
-            var bigRayData = FileFactory.Read<R1_PC_BigRayFile>(GetBigRayFilePath(context.Settings), context);
+                Controller.DetailedState = $"Loading big ray";
 
-            // Get the big ray palette
-            var bigRayPalette = GetBigRayPalette(context);
+                // NOTE: This is not loaded into normal levels and is purely loaded here so the animation can be viewed!
+                // Read the big ray data
+                var bigRayData = FileFactory.Read<R1_PC_BigRayFile>(GetBigRayFilePath(context.Settings), context);
 
-            await Controller.WaitIfNecessary();
+                // Get the big ray palette
+                bigRayPalette = GetBigRayPalette(context);
 
-            // Get the DES and ETA
-            var des = allfix.DesItems.Concat(worldData.DesItems).Concat(bigRayData.DesItems).ToArray();
+                await Controller.WaitIfNecessary();
+
+                // Get the DES
+                des = allfix.DesItems.Concat(worldData.DesItems).Concat(bigRayData.DesItems).ToArray();
+            }
+            else
+            {
+                bigRayPalette = null;
+
+                // Get the DES
+                des = allfix.DesItems;
+            }
 
             int desIndex = 0;
 
@@ -1249,16 +1262,63 @@ namespace R1Engine
         {
             Controller.DetailedState = $"Loading map data";
 
-            // Read the level data
-            var levelData = FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.Settings), context);
+            R1_PC_MapBlock mapData;
+            R1_PC_EventBlock eventData;
+            ARGBColor[][] palettes;
+            R1_PC_TileTextureBlock tileTextureData = null;
+            Texture2D bg;
+            Texture2D bg2;
+
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                // Read the level data
+                var levelData = FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.Settings), context);
+
+                // Read the world data
+                var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+
+                mapData = levelData.MapData;
+                eventData = levelData.EventData;
+                palettes = mapData.ColorPalettes;
+                tileTextureData = levelData.TileTextureData;
+
+                // Load background vignette textures
+                bg = await LoadBackgroundVignetteAsync(context, worldData, levelData, false);
+                bg2 = await LoadBackgroundVignetteAsync(context, worldData, levelData, true);
+            }
+            else
+            {
+                // Load the vignette
+                var vig = await GetWorldMapVigAsync(context);
+                bg = vig.ToTexture(true);
+                bg2 = null;
+                palettes = new ARGBColor[][] { vig.VGAPalette };
+
+                // Set empty map data
+                var width = (ushort)(vig.ImageWidth / Settings.CellSize);
+                var height = (ushort)(vig.ImageHeight / Settings.CellSize);
+
+                mapData = new R1_PC_MapBlock
+                {
+                    MapBlockChecksum = 0,
+                    Width = width,
+                    Height = height,
+                    Tiles = Enumerable.Repeat(new MapTile(), width * height).ToArray()
+                };
+
+                // Set event data
+                var events = GetWorldMapInfos(context).Select((x, i) => R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu || context.Settings.EngineVersion == EngineVersion.R1_PC_Kit ? x.Unk2[3] : i)).ToArray();
+                eventData = new R1_PC_EventBlock()
+                {
+                    Events = events,
+                    EventLinkingTable = Enumerable.Range(0, events.Length).Select(x => (ushort)x).ToArray()
+                };
+            }
 
             await Controller.WaitIfNecessary();
 
             // Load the sprites
-            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, levelData.MapData.ColorPalettes.First()) : new Unity_ObjectManager_R1.DESData[0];
-
-            // Read the world data
-            var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
+            var eventDesigns = loadTextures ? await LoadSpritesAsync(context, palettes.First()) : new Unity_ObjectManager_R1.DESData[0];
 
             var bigRayName = Path.GetFileNameWithoutExtension(GetBigRayFilePath(context.Settings));
 
@@ -1278,13 +1338,33 @@ namespace R1Engine
             R1_ZDCData[] zdcData = context.Deserializer.SerializeFromBytes<ObjectArray<R1_ZDCData>>(zdcTableBytes, "ZDCTable", x => x.Length = (uint)(zdcTableBytes.Length / 8), name: "ZDCTable").Value;
             R1_EventFlags[] eventFlags = context.Deserializer.SerializeFromBytes<Array<R1_EventFlags>>(eventFlagsBytes, "EventFlags", x => x.Length = (uint)(eventFlagsBytes.Length / 4), name: "EventFlags").Value;
 
+            // Read the world data
+            var allfix = FileFactory.Read<R1_PC_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+
             // Create the object manager
-            var objManager = new Unity_ObjectManager_R1(context, des, eta, levelData.EventData.EventLinkingTable, 
+            var objManager = new Unity_ObjectManager_R1(context, des, eta, eventData.EventLinkingTable, 
                 usesPointers: false, 
                 typeZDC: typeZDC, 
                 zdcData: zdcData,
                 eventFlags: eventFlags,
-                hasDefinedDesEtaNames: true);
+                hasDefinedDesEtaNames: true,
+                eventTemplates: new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>()
+                {
+                    // TODO: How does the game match the ETA?
+                    [Unity_ObjectManager_R1.WldObjType.Ray] = createEventDataTemplate(allfix.DESIndex_Ray, 0),
+                    [Unity_ObjectManager_R1.WldObjType.RayLittle] = createEventDataTemplate(allfix.DESIndex_RayLittle, 0),
+                    [Unity_ObjectManager_R1.WldObjType.MapObj] = createEventDataTemplate(allfix.DESIndex_MapObj, 2),
+                    [Unity_ObjectManager_R1.WldObjType.ClockObj] = createEventDataTemplate(allfix.DESIndex_ClockObj, 3),
+                    [Unity_ObjectManager_R1.WldObjType.DivObj] = createEventDataTemplate(allfix.DESIndex_DivObj, 1),
+                });
+
+            R1_EventData createEventDataTemplate(uint desIndex, uint etaIndex) => new R1_EventData()
+            {
+                PC_ImageDescriptorsIndex = desIndex,
+                PC_ImageBufferIndex = desIndex,
+                PC_AnimationDescriptorsIndex = desIndex,
+                PC_ETAIndex = etaIndex
+            };
 
             // Create the maps
             var maps = new Unity_Map[]
@@ -1292,15 +1372,15 @@ namespace R1Engine
                 new Unity_Map()
                 {
                     // Set the dimensions
-                    Width = levelData.MapData.Width,
-                    Height = levelData.MapData.Height,
+                    Width = mapData.Width,
+                    Height = mapData.Height,
 
                     // Create the tile arrays
-                    TileSet = new Unity_MapTileMap[levelData.MapData.ColorPalettes.Length],
-                    MapTiles = levelData.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    TileSet = new Unity_MapTileMap[palettes.Length],
+                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
                     TileSetWidth = 1,
 
-                    TileSetTransparencyModes = levelData.TileTextureData.TexturesOffsetTable.Select(x => levelData.TileTextureData.NonTransparentTextures.Concat(levelData.TileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
+                    TileSetTransparencyModes = tileTextureData?.TexturesOffsetTable.Select(x => tileTextureData.NonTransparentTextures.Concat(tileTextureData.TransparentTextures).FirstOrDefault(t => t.Offset == x)).Select(x =>
                     {
                         if (x == null)
                             return R1_PC_MapTileTransparencyMode.FullyTransparent;
@@ -1313,7 +1393,7 @@ namespace R1Engine
 
                         return R1_PC_MapTileTransparencyMode.PartiallyTransparent;
                     }).ToArray(),
-                    PCTileOffsetTable = levelData.TileTextureData.TexturesOffsetTable
+                    PCTileOffsetTable = tileTextureData?.TexturesOffsetTable
                 }
             };
 
@@ -1327,11 +1407,7 @@ namespace R1Engine
             await Controller.WaitIfNecessary();
 
             // Load Rayman
-            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(context, levelData.EventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
-
-            // Load background vignette textures
-            var bg = await LoadBackgroundVignetteAsync(context, worldData, levelData, false);
-            var bg2 = await LoadBackgroundVignetteAsync(context, worldData, levelData, true);
+            var rayman = new Unity_Object_R1(R1_EventData.GetRayman(context, eventData.Events.FirstOrDefault(x => x.Type == R1_EventType.TYPE_RAY_POS)), objManager);
 
             // Create a level object
             Unity_Level level = new Unity_Level(
@@ -1342,12 +1418,15 @@ namespace R1Engine
                 background: bg,
                 parallaxBackground: bg2);
 
-            for (var i = 0; i < levelData.EventData.Events.Length; i++)
+            for (var i = 0; i < eventData.Events.Length; i++)
             {
-                R1_EventData e = levelData.EventData.Events[i];
+                R1_EventData e = eventData.Events[i];
 
-                e.Commands = levelData.EventData.EventCommands[i].Commands;
-                e.LabelOffsets = levelData.EventData.EventCommands[i].LabelOffsetTable;
+                if (context.Settings.R1_World != R1_World.Menu)
+                {
+                    e.Commands = eventData.EventCommands[i].Commands;
+                    e.LabelOffsets = eventData.EventCommands[i].LabelOffsetTable;
+                }
 
                 // Add the event
                 level.EventData.Add(new Unity_Object_R1(e, objManager));
@@ -1357,24 +1436,18 @@ namespace R1Engine
 
             Controller.DetailedState = $"Loading tile set";
 
-            // Read the 3 tile sets (one for each palette)
-            var tileSets = ReadTileSets(levelData);
-
-            // Set the tile sets
-            for (int i = 0; i < level.Maps[0].TileSet.Length; i++)
-                level.Maps[0].TileSet[i] = tileSets[i];
-
-            // Enumerate each cell
-            for (int cellY = 0; cellY < levelData.MapData.Height; cellY++) 
+            if (context.Settings.R1_World != R1_World.Menu)
             {
-                for (int cellX = 0; cellX < levelData.MapData.Width; cellX++) 
-                {
-                    // Get the cell
-                    var cell = levelData.MapData.Tiles[cellY * levelData.MapData.Width + cellX];
+                // Read the 3 tile sets (one for each palette)
+                var tileSets = ReadTileSets(FileFactory.Read<R1_PC_LevFile>(GetLevelFilePath(context.Settings), context));
 
-                    // Set the common tile
-                    level.Maps[0].MapTiles[cellY * levelData.MapData.Width + cellX] = new Unity_Tile(cell);
-                }
+                // Set the tile sets
+                for (int i = 0; i < level.Maps[0].TileSet.Length; i++)
+                    level.Maps[0].TileSet[i] = tileSets[i];
+            }
+            else
+            {
+                level.Maps[0].TileSet[0] = new Unity_MapTileMap(Settings.CellSize);
             }
 
             // Return the level
@@ -1384,6 +1457,7 @@ namespace R1Engine
         public abstract byte[] GetTypeZDCBytes { get; }
         public abstract byte[] GetZDCTableBytes { get; }
         public abstract byte[] GetEventFlagsBytes { get; }
+        public abstract R1_WorldMapInfo[] GetWorldMapInfos(Context context);
 
         public abstract UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax);
 
@@ -1471,6 +1545,10 @@ namespace R1Engine
         /// <param name="level">The level</param>
         public UniTask SaveLevelAsync(Context context, Unity_Level level) 
         {
+            // Menu levels can't be saved
+            if (context.Settings.R1_World == R1_World.Menu)
+                return UniTask.CompletedTask;
+
             // Get the object manager
             var objManager = (Unity_ObjectManager_R1)level.ObjManager;
 
@@ -1544,14 +1622,17 @@ namespace R1Engine
             // Allfix
             await AddFile(context, GetAllfixFilePath(context.Settings));
 
-            // World
-            await AddFile(context, GetWorldFilePath(context.Settings));
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                // World
+                await AddFile(context, GetWorldFilePath(context.Settings));
 
-            // Level
-            await AddFile(context, GetLevelFilePath(context.Settings));
+                // Level
+                await AddFile(context, GetLevelFilePath(context.Settings));
 
-            // BigRay
-            await AddFile(context, GetBigRayFilePath(context.Settings));
+                // BigRay
+                await AddFile(context, GetBigRayFilePath(context.Settings));
+            }
 
             // Vignette
             await AddFile(context, GetVignetteFilePath(context.Settings));
@@ -1627,6 +1708,9 @@ namespace R1Engine
         {
             // Read the fixed data
             var allfix = FileFactory.Read<R1_PC_AllfixFile>(GetAllfixFilePath(context.Settings), context);
+
+            if (context.Settings.R1_World == R1_World.Menu)
+                return allfix.Eta;
 
             // Read the world data
             var worldData = FileFactory.Read<R1_PC_WorldFile>(GetWorldFilePath(context.Settings), context);
@@ -1770,6 +1854,8 @@ namespace R1Engine
 
             return FileFactory.Read<R1_PC_EncryptedFileArchive>(archivePath, context).ReadFile<T>(context, fileIndex);
         }
+
+        public abstract UniTask<PCX> GetWorldMapVigAsync(Context context);
 
         #endregion
 

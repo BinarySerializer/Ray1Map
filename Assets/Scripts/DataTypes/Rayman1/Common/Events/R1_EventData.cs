@@ -34,7 +34,7 @@ namespace R1Engine
         /// Gets a new event instance for Rayman
         /// </summary>
         public static R1_EventData GetRayman(Context context, R1_EventData rayPos) => new R1_EventData().InitRayman(context, rayPos);
-        public static R1_EventData GetMapObj(short x, short y, int index) => new R1_EventData().InitMapObj(x, y, index);
+        public static R1_EventData GetMapObj(Context context, short x, short y, int index) => new R1_EventData().InitMapObj(context, x, y, index);
 
         #endregion
 
@@ -595,23 +595,59 @@ namespace R1Engine
         }
 
         // Copied from INIT_CHEMIN
-        public R1_EventData InitMapObj(short x, short y, int index)
+        public R1_EventData InitMapObj(Context context, short x, short y, int index)
         {
             Type = R1_EventType.TYPE_MEDAILLON;
             Etat = 5;
-            XPosition = x - 71; // In the code it's 78 - why do we have to offset it differently here?
-            YPosition = y - 64;
 
-            // Mr Dark
-            if (index == 17)
-                SubEtat = 59;
-            else if (index > 17)
-                SubEtat = 58;
+            // Set correct sub-etat and position
+            if (context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
+            {
+                SubEtat = 69;
+
+                // ?
+                XPosition = x - 34;
+                YPosition = y - 39;
+
+                // ?
+                //OffsetBX = 80;
+                //OffsetBY = 64;
+            }
+            else if (context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu)
+            {
+                if (index == 0) // Normal
+                    SubEtat = 39;
+                else if (index == 2) // End
+                    SubEtat = 55;
+                else if (index == 4) // Demo
+                    SubEtat = 54;
+                else if (index == 3) // Start point
+                    SubEtat = 45;
+
+                // ?
+                XPosition = x - 34 - 36;
+                YPosition = y - 39 - 25;
+
+                // ?
+                //OffsetBX = 80;
+                //OffsetBY = 64;
+            }
             else
-                SubEtat = 39;
+            {
+                XPosition = x - 70; // In the code it's 78 - why do we have to offset it differently here?
+                YPosition = y - 64;
 
-            OffsetBX = 80;
-            OffsetBY = 64;
+                OffsetBX = 80;
+                OffsetBY = 64;
+
+                // Mr Dark
+                if (index == 17)
+                    SubEtat = 59;
+                else if (index > 17)
+                    SubEtat = 58;
+                else
+                    SubEtat = 39;
+            }
 
             PC_ImageDescriptorsIndex = 4;
             PC_AnimationDescriptorsIndex = 4;

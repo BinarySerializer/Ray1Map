@@ -21,7 +21,7 @@ namespace R1Engine
 
         // EDU
         public uint Unk1 { get; set; }
-        public byte[] Unk2 { get; set; }
+        public byte[] Unk2 { get; set; } // Third byte is level icon type
         public ushort LevelName { get; set; }
         public string LoadingVig { get; set; }
         public R1_PC_WorldMapLevelMapEntry[] MapEntries { get; set; }

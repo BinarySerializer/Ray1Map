@@ -1,8 +1,6 @@
-﻿using Cysharp.Threading.Tasks;
-using R1Engine.Serialize;
+﻿using R1Engine.Serialize;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Debug = UnityEngine.Debug;
@@ -36,9 +34,7 @@ namespace R1Engine
                 ETALookup[ETA[i]?.PrimaryPointer?.AbsoluteOffset ?? 0] = i;
 
             // Parse random array
-            var r = context.AddStreamFile("RandomArrayData", new MemoryStream(RandomArrayData));
-            var s = context.Deserializer;
-            RandomArray = s.DoAt(r.StartPointer, () => s.SerializeArray<ushort>(default, 256, name: nameof(RandomArray)));
+            RandomArray = context.Deserializer.SerializeFromBytes<Array<ushort>>(RandomArrayData, "RandomArrayData", onPreSerialize: x => x.Length = 256, name: nameof(RandomArray)).Value;
         }
 
         public DataContainer<DESData>[] DES { get; }
@@ -300,15 +296,36 @@ namespace R1Engine
 
                 // Change Rayman to small Rayman
                 if (miniRayDESIndex != null && rayman != null)
+                {
                     rayman.DESIndex = miniRayDESIndex.Value;
+                    rayman.EventData.OffsetBX = (byte)(rayman.EventData.OffsetBX / 2);
+                    rayman.EventData.OffsetBY = (byte)(rayman.EventData.OffsetBY / 2);
+                }
 
                 // Set Rayman's properties
                 if (rayman != null)
                 {
                     rayman.EventData.Etat = rayman.EventData.InitialEtat = 0;
                     rayman.EventData.SubEtat = rayman.EventData.InitialSubEtat = 0;
-                    rayman.XPosition = (short)(level.EventData[0].XPosition + 71 - (rayman.EventData.OffsetBX / 2) + 7); // The game does +4 instead of 7 - why?
-                    rayman.YPosition = (short)(level.EventData[0].YPosition + 64 - (rayman.EventData.OffsetBY / 2) + 8); // Is this correct?
+
+                    if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Kit)
+                    {
+                        // ?
+                        rayman.XPosition = (short)(level.EventData[0].XPosition + 42 - rayman.EventData.OffsetBX);
+                        rayman.YPosition = (short)(level.EventData[0].YPosition + 48 - rayman.EventData.OffsetBY);
+                    }
+                    else if (Context.Settings.EngineVersion == EngineVersion.R1_PC_Edu ||Context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu)
+                    {
+                        // ?
+                        rayman.XPosition = (short)(level.EventData[0].XPosition + 42 + 44 - rayman.EventData.OffsetBX);
+                        rayman.YPosition = (short)(level.EventData[0].YPosition + 48 + 24 - rayman.EventData.OffsetBY);
+                        rayman.EventData.PC_Flags |= R1_EventData.PC_EventFlags.IsFlipped;
+                    }
+                    else
+                    {
+                        rayman.XPosition = (short)(level.EventData[0].XPosition + 70 - rayman.EventData.OffsetBX + 9); // The game does +4 instead of 9 - why?
+                        rayman.YPosition = (short)(level.EventData[0].YPosition + 64 - rayman.EventData.OffsetBY + 8); // Is this correct?
+                    }
                 }
 
                 foreach (var e in level.EventData.Cast<Unity_Object_R1>().Select(x => x.EventData))
@@ -811,8 +828,6 @@ namespace R1Engine
             ClockObj, // The game over clock
             DivObj, // ?
             MapObj, // 24 map objects
-            Alpha, // Font 1
-            Alpha2 // Font 2
         }
     }
 }

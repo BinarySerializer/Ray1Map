@@ -63,7 +63,10 @@ namespace R1Engine
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => Directory.GetDirectories(settings.GameDirectory + "/" + GetDataPath(), "???", SearchOption.TopDirectoryOnly).Select(Path.GetFileName).Select(vol => new GameInfo_Volume(vol, WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetVolumePath(vol), $"{GetShortWorldName(w)}??.LEV", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(3)))
-            .ToArray())).ToArray())).ToArray();
+            .ToArray())).Append(new GameInfo_World(7, new []
+        {
+            0
+        })).ToArray())).ToArray();
 
         /// <summary>
         /// Gets the archive files which can be extracted
@@ -93,12 +96,19 @@ namespace R1Engine
 
         #region Manager Methods
 
-        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_EDUDES[context.Settings.World - 1];
-        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_EDUETA[context.Settings.World - 1];
+        public override string[] GetDESNameTable(Context context) => LevelEditorData.NameTable_EDUDES[context.Settings.R1_World == R1_World.Menu ? 0 : context.Settings.World - 1];
+        public override string[] GetETANameTable(Context context) => LevelEditorData.NameTable_EDUETA[context.Settings.R1_World == R1_World.Menu ? 0 : context.Settings.World - 1];
 
         public override byte[] GetTypeZDCBytes => R1_PC_ZDCTables.EduPC_Type_ZDC;
         public override byte[] GetZDCTableBytes => R1_PC_ZDCTables.EduPC_ZDCTable;
         public override byte[] GetEventFlagsBytes => R1_PC_EventFlagTables.EduPC_Flags;
+
+        public override R1_WorldMapInfo[] GetWorldMapInfos(Context context)
+        {
+            var wld = LoadArchiveFile<R1_PC_WorldMap>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.WLDMAP01);
+            return wld.Levels.Take(wld.LevelsCount + 1).Where(x => x.XPosition != 0 && x.YPosition != 0).ToArray();
+
+        }
 
         public override UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax) =>
             UniTask.FromResult(parallax ? null : LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), world.Plan0NumPcxFiles[level.KitLevelDefines.BG_0])?.ToTexture(true));
@@ -147,6 +157,13 @@ namespace R1Engine
 
             // Special
             await AddFile(context, GetSpecialArchiveFilePath(context.Settings.EduVolume));
+        }
+
+        public override UniTask<PCX> GetWorldMapVigAsync(Context context)
+        {
+            var worldVig = LoadArchiveFile<R1_PC_WorldMap>(context, GetSpecialArchiveFilePath(context.Settings.EduVolume), R1_PC_ArchiveFileName.WLDMAP01).WorldMapVig;
+
+            return UniTask.FromResult(LoadArchiveFile<PCX>(context, GetVignetteFilePath(context.Settings), worldVig));
         }
 
         #endregion

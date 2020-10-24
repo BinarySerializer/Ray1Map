@@ -124,8 +124,16 @@ namespace R1Engine
 
         public override async UniTask<Texture2D> LoadBackgroundVignetteAsync(Context context, R1_PC_WorldFile world, R1_PC_LevFile level, bool parallax)
         {
-            var index = world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex];
+            return (await LoadPCXAsync(context, world.Plan0NumPcx[parallax ? level.ParallaxBackgroundIndex : level.BackgroundIndex])).ToTexture(true);
+        }
 
+        public override async UniTask<PCX> GetWorldMapVigAsync(Context context)
+        {
+            return await LoadPCXAsync(context, 46);
+        }
+
+        protected async UniTask<PCX> LoadPCXAsync(Context context, int index)
+        {
             var xor = LoadVignetteHeader(context)[index].XORKey;
 
             var path = GetVignetteFilePath(index);
@@ -133,21 +141,18 @@ namespace R1Engine
             await AddFile(context, path);
 
             var s = context.Deserializer;
-            Texture2D tex = null;
+            PCX pcx = null;
 
             s.DoAt(context.GetFile(path).StartPointer, () =>
             {
                 s.DoXOR(xor, () =>
                 {
                     // Read the data
-                    var pcx = s.SerializeObject<PCX>(default, name: $"VIGNET");
-
-                    // Convert to a texture
-                    tex = pcx.ToTexture(true);
+                    pcx = s.SerializeObject<PCX>(default, name: $"VIGNET");
                 });
             });
 
-            return tex;
+            return pcx;
         }
 
         protected R1_PC_EncryptedFileArchiveEntry[] LoadVignetteHeader(Context context)

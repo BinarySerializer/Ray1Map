@@ -180,30 +180,28 @@ namespace R1Engine
         {
             get
             {
-                // If loading from memory, check runtime flags
-                if (Settings.LoadFromMemory)
+                if (IsPCFormat)
                 {
-                    if (IsPCFormat)
+                    if (EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.IsFlipped))
+                        return true;
+                }
+                else
+                {
+                    if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
                     {
-                        if (EventData.PC_Flags.HasFlag(R1_EventData.PC_EventFlags.IsFlipped))
+                        if (EventData.PS1Demo_IsFlipped && Settings.LoadFromMemory)
                             return true;
                     }
                     else
                     {
-                        if (ObjManager.Context.Settings.EngineVersion == EngineVersion.R1_PS1_JPDemoVol3)
-                        {
-                            if (EventData.PS1Demo_IsFlipped)
-                                return true;
-                        }
-                        else
-                        {
-                            if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.IsFlipped))
-                                return true;
-                        }
+                        if (EventData.PS1_RuntimeFlags.HasFlag(R1_EventData.PS1_EventFlags.IsFlipped))
+                            return true;
                     }
-
-                    return false;
                 }
+
+                // If loading from memory, check only runtime flags
+                if (Settings.LoadFromMemory)
+                    return false;
 
                 // Check if it's the pin event and if the hp flag is set
                 if (EventData.Type == R1_EventType.TYPE_PUNAISE3 && EventData.HitPoints == 1)

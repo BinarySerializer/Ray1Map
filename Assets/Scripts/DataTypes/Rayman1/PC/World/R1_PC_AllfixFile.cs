@@ -4,8 +4,15 @@
     {
         public uint RaymanExeCheckSum3 { get; set; }
 
-        // For R1 the indices are for Ray, Alpha, Alpha2, RayLittle, MapObj, ClockObj & DivObj
-        public uint[] DESDataIndices { get; set; }
+        public uint DESIndex_Ray { get; set; }
+        public uint DESIndex_Alpha { get; set; }
+        public uint DESIndex_Alpha2 { get; set; }
+        public uint DESIndex_Alpha3 { get; set; } // Japan/China only
+        public uint DESIndex_RayLittle { get; set; }
+        public uint DESIndex_MapObj { get; set; }
+        public uint DESIndex_ClockObj { get; set; }
+        public uint DESIndex_DivObj { get; set; }
+        public uint DESIndex_PARCHEM { get; set; } // EDU/Kit only
 
         /// <summary>
         /// Serializes the data
@@ -28,8 +35,20 @@
 
             RaymanExeCheckSum3 = s.Serialize(RaymanExeCheckSum3, name: nameof(RaymanExeCheckSum3));
 
-            // NOTE: The length is always hard-coded in the games, so it's not dependent on the DES count value
-            DESDataIndices = s.SerializeArray<uint>(DESDataIndices, DesItemCount - 1, name: nameof(DESDataIndices));
+            DESIndex_Ray = s.Serialize<uint>(DESIndex_Ray, name: nameof(DESIndex_Ray));
+            DESIndex_Alpha = s.Serialize<uint>(DESIndex_Alpha, name: nameof(DESIndex_Alpha));
+            DESIndex_Alpha2 = s.Serialize<uint>(DESIndex_Alpha2, name: nameof(DESIndex_Alpha2));
+
+            if (s.GameSettings.GameModeSelection == GameModeSelection.RaymanPC_1_21_JP)
+                DESIndex_Alpha3 = s.Serialize<uint>(DESIndex_Alpha3, name: nameof(DESIndex_Alpha3));
+
+            DESIndex_RayLittle = s.Serialize<uint>(DESIndex_RayLittle, name: nameof(DESIndex_RayLittle));
+            DESIndex_MapObj = s.Serialize<uint>(DESIndex_MapObj, name: nameof(DESIndex_MapObj));
+            DESIndex_ClockObj = s.Serialize<uint>(DESIndex_ClockObj, name: nameof(DESIndex_ClockObj));
+            DESIndex_DivObj = s.Serialize<uint>(DESIndex_DivObj, name: nameof(DESIndex_DivObj));
+
+            if (s.GameSettings.EngineVersion == EngineVersion.R1_PC_Kit || s.GameSettings.EngineVersion == EngineVersion.R1_PC_Edu || s.GameSettings.EngineVersion == EngineVersion.R1_PS1_Edu)
+                DESIndex_PARCHEM = s.Serialize<uint>(DESIndex_PARCHEM, name: nameof(DESIndex_PARCHEM));
         }
     }
 }

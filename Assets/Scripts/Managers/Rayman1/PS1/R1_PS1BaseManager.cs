@@ -321,7 +321,7 @@ namespace R1Engine
             if (context.Settings.R1_World == R1_World.Menu)
             {
                 // Load map object events for the world map
-                events = LoadMapObjects(FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).WorldInfo);
+                events = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).WorldInfo.Select((x, i) => R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, i)).ToArray();
 
                 // Create a dummy linking table
                 eventLinkingTable = Enumerable.Range(0, events.Length).Select(x => (ushort)x).ToArray();
@@ -383,8 +383,6 @@ namespace R1Engine
         }
 
         public virtual UniTask<Texture2D> LoadLevelBackgroundAsync(Context context) => UniTask.FromResult<Texture2D>(null);
-
-        public R1_EventData[] LoadMapObjects(R1_WorldMapInfo[] worldInfos) => worldInfos.Select((x, i) => R1_EventData.GetMapObj(x.XPosition, x.YPosition, i)).ToArray();
 
         public virtual uint? TypeZDCOffset => null;
         public virtual long TypeZDCCount => 256;
