@@ -212,6 +212,10 @@ namespace R1Engine
         /// <param name="lvl">The level</param>
         public override UniTask SaveLevelAsync(Context context, Unity_Level lvl)
         {
+            // Menu levels can't be saved
+            if (context.Settings.R1_World == R1_World.Menu)
+                return UniTask.CompletedTask;
+
             // Get the level file path
             var lvlPath = GetLevelFilePath(context.Settings);
 

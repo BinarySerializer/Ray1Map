@@ -305,8 +305,8 @@ namespace R1Engine
                 // Set Rayman's properties
                 if (rayman != null)
                 {
-                    rayman.EventData.Etat = 0;
-                    rayman.EventData.SubEtat = 0;
+                    rayman.EventData.Etat = rayman.EventData.InitialEtat = 0;
+                    rayman.EventData.SubEtat = rayman.EventData.InitialSubEtat = 0;
                     rayman.XPosition = (short)(level.EventData[0].XPosition + 71 - (rayman.EventData.OffsetBX / 2) + 7); // The game does +4 instead of 7 - why?
                     rayman.YPosition = (short)(level.EventData[0].YPosition + 64 - (rayman.EventData.OffsetBY / 2) + 8); // Is this correct?
                 }

@@ -50,5 +50,6 @@ namespace R1Engine
         public override uint? TypeZDCOffset => 0x7EB22;
         public override uint? ZDCDataOffset => 0x7DB22;
         public override uint? EventFlagsOffset => 0x7D320;
+        public override uint? WorldInfoOffset => 0x7F3F0;
     }
 }

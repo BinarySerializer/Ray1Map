@@ -10,5 +10,6 @@
         public override uint? TypeZDCOffset => 0x7F032;
         public override uint? ZDCDataOffset => 0x7e032;
         public override uint? EventFlagsOffset => 0x7D830;
+        public override uint? WorldInfoOffset => 0x7F900;
     }
 }

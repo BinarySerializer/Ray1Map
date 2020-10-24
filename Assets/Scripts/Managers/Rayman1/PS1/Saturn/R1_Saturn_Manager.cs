@@ -104,7 +104,10 @@ namespace R1Engine
         public override GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(WorldHelpers.GetR1Worlds().Select(w => new GameInfo_World((int)w, Directory.EnumerateFiles(settings.GameDirectory + GetWorldFolderPath(w), $"*.XMP", SearchOption.TopDirectoryOnly)
             .Select(FileSystem.GetFileNameWithoutExtensions)
             .Select(x => Int32.Parse(x.Substring(5)))
-            .ToArray())).Select(x => x.Index == 1 ? new GameInfo_World(x.Index, x.Maps.Append(140).ToArray()) : x).ToArray());
+            .ToArray())).Select(x => x.Index == 1 ? new GameInfo_World(x.Index, x.Maps.Append(140).ToArray()) : x).Append(new GameInfo_World(7, new int[]
+        {
+            0
+        })).ToArray());
 
         public override string ExeFilePath => "0";
         public override uint? ExeBaseAddress => null;
@@ -147,6 +150,9 @@ namespace R1Engine
         /// <returns>The tile set to use</returns>
         public override Unity_MapTileMap GetTileSet(Context context) 
         {
+            if (context.Settings.R1_World == R1_World.Menu)
+                return new Unity_MapTileMap(Settings.CellSize);
+
             // Read the files
             var tileSetPalette = FileFactory.Read<ObjectArray<ARGB1555Color>>(GetTileSetPaletteFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength / 2);
             var tileSetPaletteIndexTable = FileFactory.Read<Array<byte>>(GetTileSetPaletteIndexTableFilePath(context), context, onPreSerialize: (s, x) => x.Length = s.CurrentLength);
@@ -216,13 +222,11 @@ namespace R1Engine
         protected override void FillVRAM(Context context, VRAMMode mode)
         {
             string fixPath = GetFixImageFilePath();
-            string worldPath = GetWorldImageFilePath(context);
-            string levelPath = GetLevelImageFilePath(context);
             string bigRayPath = GetBigRayImageFilePath();
 
             var fixImg = context.FileExists(fixPath) && mode != VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(fixPath, context, (y, x) => x.Length = y.CurrentLength) : null;
-            var worldImg = context.FileExists(worldPath) && mode == VRAMMode.Level ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
-            var levelImg = context.FileExists(levelPath) && mode == VRAMMode.Level ? FileFactory.Read<Array<byte>>(levelPath, context, (y, x) => x.Length = y.CurrentLength) : null;
+            var worldImg = mode == VRAMMode.Level && context.FileExists(GetWorldImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetWorldImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
+            var levelImg = mode == VRAMMode.Level && context.FileExists(GetLevelImageFilePath(context)) ? FileFactory.Read<Array<byte>>(GetLevelImageFilePath(context), context, (y, x) => x.Length = y.CurrentLength) : null;
             var bigRayImg = context.FileExists(bigRayPath) && mode == VRAMMode.BigRay ? FileFactory.Read<Array<byte>>(bigRayPath, context, (y, x) => x.Length = y.CurrentLength) : null;
 
             ImageBuffer buf = new ImageBuffer();
@@ -323,53 +327,57 @@ namespace R1Engine
         {
             // Get the paths
             var allfixFilePath = GetAllfixFilePath();
-            var worldFilePath = GetWorldFilePath(context.Settings);
-            var levelFilePath = GetLevelFilePath(context.Settings);
-            var tileSetPaletteFilePath = GetTileSetPaletteFilePath(context);
-            var tileSetPaletteIndexTableFilePath = GetTileSetPaletteIndexTableFilePath(context);
-            var tileSetFilePath = GetTileSetFilePath(context);
-            var mapFilePath = GetMapFilePath(context);
 
             uint baseAddress = BaseAddress;
 
             // Load the memory mapped files
             baseAddress += await LoadFile(context, allfixFilePath, baseAddress);
 
-            baseAddress += await LoadFile(context, worldFilePath, baseAddress);
+            R1_PS1_EventBlock eventBlock = null;
+            MapData mapData;
 
-            baseAddress += await LoadFile(context, levelFilePath, baseAddress);
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                var worldFilePath = GetWorldFilePath(context.Settings);
+                var levelFilePath = GetLevelFilePath(context.Settings);
+                var tileSetPaletteFilePath = GetTileSetPaletteFilePath(context);
+                var tileSetPaletteIndexTableFilePath = GetTileSetPaletteIndexTableFilePath(context);
+                var tileSetFilePath = GetTileSetFilePath(context);
+                var mapFilePath = GetMapFilePath(context);
 
-            // Load the files
-            await LoadFile(context, tileSetPaletteFilePath);
-            await LoadFile(context, tileSetPaletteIndexTableFilePath);
-            await LoadFile(context, tileSetFilePath);
-            await LoadFile(context, mapFilePath);
+                baseAddress += await LoadFile(context, worldFilePath, baseAddress);
 
-            // Load executable to get the palettes and tables
-            await LoadFile(context, ExeFilePath);
+                baseAddress += await LoadFile(context, levelFilePath, baseAddress);
+
+                // Load the files
+                await LoadFile(context, tileSetPaletteFilePath);
+                await LoadFile(context, tileSetPaletteIndexTableFilePath);
+                await LoadFile(context, tileSetFilePath);
+                await LoadFile(context, mapFilePath);
+
+                if (FileSystem.FileExists(context.BasePath + levelFilePath))
+                {
+                    await LoadFile(context, GetWorldImageFilePath(context));
+                    await LoadFile(context, GetLevelImageFilePath(context));
+                }
+
+                // Read the map block
+                mapData = FileFactory.Read<MapData>(mapFilePath, context);
+
+                if (FileSystem.FileExists(context.BasePath + levelFilePath))
+                    // Read the event block
+                    eventBlock = FileFactory.Read<R1_PS1_EventBlock>(levelFilePath, context);
+            }
+            else
+            {
+                mapData = MapData.GetEmptyMapData(384 / Settings.CellSize, 288 / Settings.CellSize);
+            }
 
             // Load the texture files
             await LoadFile(context, GetFixImageFilePath());
 
-            if (FileSystem.FileExists(context.BasePath + levelFilePath))
-            {
-                await LoadFile(context, GetWorldImageFilePath(context));
-                await LoadFile(context, GetLevelImageFilePath(context));
-            }
-
-            // NOTE: Big ray data is always loaded at 0x00280000
-
-            // Read the map block
-            var map = FileFactory.Read<MapData>(mapFilePath, context);
-
-            R1_PS1_EventBlock eventBlock = null;
-
-            if (FileSystem.FileExists(context.BasePath + levelFilePath))
-                // Read the event block
-                eventBlock = FileFactory.Read<R1_PS1_EventBlock>(levelFilePath, context);
-
             // Load the level
-            return await LoadAsync(context, map, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(b => (ushort)b).ToArray(), loadTextures);
+            return await LoadAsync(context, mapData, eventBlock?.Events, eventBlock?.EventLinkingTable.Select(b => (ushort)b).ToArray(), loadTextures);
         }
 
         /// <summary>
@@ -570,21 +578,30 @@ namespace R1Engine
 
         public override async UniTask<Texture2D> LoadLevelBackgroundAsync(Context context)
         {
-            var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
-            var worldIndex = context.Settings.World - 1;
-            var lvlIndex = context.Settings.Level - 1;
+            string bgFilePath;
 
-            if (lvlIndex >= 25)
-                return null;
+            if (context.Settings.R1_World == R1_World.Menu)
+            {
+                bgFilePath = "VIGNET/NWORLD.BIT";
+            }
+            else
+            {
+                var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
+                var worldIndex = context.Settings.World - 1;
+                var lvlIndex = context.Settings.Level - 1;
 
-            var bgIndex = exe.Saturn_FNDIndexTable[context.Settings.World][lvlIndex];
-            var bgFile = exe.Saturn_FNDFileTable[worldIndex][bgIndex];
+                if (lvlIndex >= 25)
+                    return null;
 
-            if (String.IsNullOrEmpty(bgFile))
-                return null;
+                var bgIndex = exe.Saturn_FNDIndexTable[context.Settings.World][lvlIndex];
+                var bgFile = exe.Saturn_FNDFileTable[worldIndex][bgIndex];
 
-            var bgFilePath = GetWorldFolderPath(context.Settings.R1_World) + bgFile;
-            
+                if (String.IsNullOrEmpty(bgFile))
+                    return null;
+
+                bgFilePath = GetWorldFolderPath(context.Settings.R1_World) + bgFile;
+            }
+
             await LoadFile(context, bgFilePath);
 
             var bit = FileFactory.Read<BIT>(bgFilePath, context);
