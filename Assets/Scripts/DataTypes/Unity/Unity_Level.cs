@@ -82,8 +82,8 @@ namespace R1Engine
                 return;
 
             // Get the palette changers
-            var paletteXChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat < 6).ToDictionary(x => x.XPosition, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
-            var paletteYChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat >= 6).ToDictionary(x => x.YPosition, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
+            var paletteXChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat < 6).ToDictionary(x => x.XPosition + x.EventData.OffsetBX, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
+            var paletteYChangers = r1Events.Where(x => x.EventData.Type == R1_EventType.TYPE_PALETTE_SWAPPER && x.EventData.SubEtat >= 6).ToDictionary(x => x.YPosition + x.EventData.OffsetBY, x => (R1_PaletteChangerMode)x.EventData.SubEtat);
 
             // NOTE: The auto system won't always work since it just checks one type of palette swapper and doesn't take into account that the palette swappers only trigger when on-screen, rather than based on the axis. Because of this some levels, like Music 5, won't work. More are messed up in the EDU games. There is sadly no solution to this since it depends on the players movement.
             // Check which type of palette changer we have
