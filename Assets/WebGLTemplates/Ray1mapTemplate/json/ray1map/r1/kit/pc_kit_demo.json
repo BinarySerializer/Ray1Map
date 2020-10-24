@@ -9,18 +9,19 @@
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W4.png",
-			"level": 1
-		},
-		{
-			"image": ".\/img\/icon\/R1\/R1-W5.png",
 			"level": 2
 		},
 		{
-			"image": ".\/img\/icon\/R1\/R1-W6.png",
+			"image": ".\/img\/icon\/R1\/R1-W5.png",
 			"level": 3
+		},
+		{
+			"image": ".\/img\/icon\/R1\/R1-W6.png",
+			"level": 4
 		}
 	],
     "levels": [
+		{ "world": 7, "level": 0, "nameInternal": "WLDMAP01", "name": "Worldmap" },
         { "world": 2, "level": 1, "nameInternal": "MUS01", "name": "Gone with the Wind" },
         { "world": 4, "level": 2, "nameInternal": "IMA01", "name": "Pencil Pentathalon" },
         { "world": 5, "level": 1, "nameInternal": "CAV01", "name": "Peaks and Rocks" },

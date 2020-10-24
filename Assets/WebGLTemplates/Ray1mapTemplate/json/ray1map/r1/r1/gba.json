@@ -9,30 +9,31 @@
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W2.png",
-			"level": 21
+			"level": 22
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W3.png",
-			"level": 38
+			"level": 39
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W4.png",
-			"level": 51
+			"level": 52
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W5.png",
-			"level": 64
+			"level": 65
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W6.png",
-			"level": 76
+			"level": 77
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W8.png",
-			"level": 80
+			"level": 81
 		}
 	],
     "levels": [
+        { "world": 7, "level": 0, "nameInternal": "", "name": "Worldmap" },
         { "world": 1, "level": 1, "nameInternal": "0", "name": "Pink Plant Woods 1" },
         { "world": 1, "level": 2, "nameInternal": "1", "name": "Pink Plant Woods 2" },
         { "world": 1, "level": 3, "nameInternal": "2", "name": "Pink Plant Woods 3 - Betilla" },

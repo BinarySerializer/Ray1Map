@@ -1,8 +1,7 @@
-﻿using Boo.Lang;
-using System;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
-namespace R1Engine {
+namespace R1Engine
+{
     public class GAX2_Pattern : R1Serializable {
         public ushort Duration { get; set; }
         public GAX2_PatternRow[] Rows { get; set; }

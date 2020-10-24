@@ -9,26 +9,27 @@
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W2.png",
-			"level": 10
+			"level": 11
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W3.png",
-			"level": 20
+			"level": 21
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W4.png",
-			"level": 30
+			"level": 31
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W5.png",
-			"level": 40
+			"level": 41
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W6.png",
-			"level": 50
+			"level": 51
 		}
 	],
     "levels": [
+        { "world": 7, "level": 0, "nameInternal": "WLDMAP01", "name": "Worldmap" },
         { "world": 1, "level": 1, "nameInternal": "JUN01", "name": "JUNGLE 1" },
         { "world": 1, "level": 2, "nameInternal": "JUN02", "name": "JUNGLE 2" },
         { "world": 1, "level": 3, "nameInternal": "JUN03", "name": "JUNGLE 3" },

@@ -9,26 +9,27 @@
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W2.png",
-			"level": 7
+			"level": 8
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W3.png",
-			"level": 12
+			"level": 13
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W4.png",
-			"level": 22
+			"level": 23
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W5.png",
-			"level": 29
+			"level": 30
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W6.png",
-			"level": 34
+			"level": 35
 		}
 	],
     "levels": [
+        { "world": 7, "level": 0, "nameInternal": "WLDMAP01", "name": "Worldmap" },
         { "world": 1, "level": 1, "nameInternal": "JUN01", "name": "The O Pond" },
         { "world": 1, "level": 2, "nameInternal": "JUN02", "name": "Good Pickin'" },
         { "world": 1, "level": 3, "nameInternal": "JUN03", "name": "The Living Forest" },

@@ -9,26 +9,27 @@
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W2.png",
-			"level": 4
+			"level": 5
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W3.png",
-			"level": 8
+			"level": 9
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W4.png",
-			"level": 12
+			"level": 13
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W5.png",
-			"level": 16
+			"level": 17
 		},
 		{
 			"image": ".\/img\/icon\/R1\/R1-W6.png",
-			"level": 20
+			"level": 21
 		}
 	],
     "levels": [
+        { "world": 7, "level": 0, "nameInternal": "WLDMAP01", "name": "Worldmap" },
         { "world": 1, "level": 1, "nameInternal": "JUN01", "name": "The Sky's the Limit" },
         { "world": 1, "level": 2, "nameInternal": "JUN02", "name": "Fruity Fun" },
         { "world": 1, "level": 3, "nameInternal": "JUN03", "name": "Junglemania" },

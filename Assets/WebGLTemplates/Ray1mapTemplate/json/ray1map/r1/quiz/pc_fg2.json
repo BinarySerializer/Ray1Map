@@ -10,26 +10,32 @@
     },
     {
       "image": "./img/icon/R1/R1-W2.png",
-      "level": 13
+      "level": 14
     },
     {
       "image": "./img/icon/R1/R1-W3.png",
-      "level": 32
+      "level": 33
     },
     {
       "image": "./img/icon/R1/R1-W4.png",
-      "level": 45
+      "level": 46
     },
     {
       "image": "./img/icon/R1/R1-W5.png",
-      "level": 58
+      "level": 59
     },
     {
       "image": "./img/icon/R1/R1-W6.png",
-      "level": 78
+      "level": 79
     }
   ],
   "levels": [
+    {
+      "world": 7,
+      "level": 0,
+      "nameInternal": "WLDMAP01",
+      "name": "Worldmap"
+    },
     {
       "world": 1,
       "level": 11,
