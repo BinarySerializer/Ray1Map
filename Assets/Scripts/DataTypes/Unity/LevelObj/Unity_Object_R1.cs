@@ -531,7 +531,10 @@ namespace R1Engine
             var eta = ObjManager.ETA.ElementAtOrDefault(ETAIndex)?.Data;
             if (eta != null) {
                 for (byte i = 0; i < eta.Length; i++) {
-                    for (byte j = 0; j < eta[i].Length; j++) {
+                    for (byte j = 0; j < (eta[i]?.Length ?? 0); j++) {
+                        if (eta[i][j] == null)
+                            continue;
+                        
                         usedAnims.Add(eta[i][j].AnimationIndex);
                         uiStates.Add(new R1_UIState($"State {i}-{j}", i, j));
                     }

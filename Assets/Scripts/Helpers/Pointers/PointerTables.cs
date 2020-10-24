@@ -34,6 +34,7 @@ namespace R1Engine
                     
                     [R1_GBA_ROMPointer.WorldLevelOffsetTable] = 0x08153A40,
 
+                    [R1_GBA_ROMPointer.WorldInfo] = 0x0854A530,
                     [R1_GBA_ROMPointer.WorldMapVignetteImageData] = 0x081452A4,
                     [R1_GBA_ROMPointer.WorldMapVignetteBlockIndices] = 0x08151504,
                     [R1_GBA_ROMPointer.WorldMapVignettePaletteIndices] = 0x08152284,
@@ -47,14 +48,23 @@ namespace R1Engine
 
                     [R1_GBA_ROMPointer.WorldVignetteIndices] = 0x08153A1C,
 
-                    [R1_GBA_ROMPointer.DrumWalkerGraphics] = 0x082C6C5C,
-                    [R1_GBA_ROMPointer.ClockGraphics] = 0x082C90C8,
-                    [R1_GBA_ROMPointer.InkGraphics] = 0x082D33D0,
-                    [R1_GBA_ROMPointer.FontSmallGraphics] = 0x082E74F4,
-                    [R1_GBA_ROMPointer.FontLargeGraphics] = 0x082E7514,
-                    [R1_GBA_ROMPointer.PinsGraphics] = 0x0832CBF4,
+                    [R1_GBA_ROMPointer.DES_Ray] = 0x0835F9B4,
+                    [R1_GBA_ROMPointer.DES_RayLittle] = 0x0835F9D8,
+                    [R1_GBA_ROMPointer.DES_Clock] = 0x082C90C8,
+                    [R1_GBA_ROMPointer.DES_Div] = 0x082D1D98,
+                    [R1_GBA_ROMPointer.DES_Map] = 0x0832A2F0,
 
-                    [R1_GBA_ROMPointer.PinsGraphics] = 0x0835F9B4,
+                    [R1_GBA_ROMPointer.ETA_Ray] = 0x0832D234,
+                    //[R1_GBA_ROMPointer.ETA_Clock] = ,
+                    [R1_GBA_ROMPointer.ETA_Div] = 0x082CC884,
+                    [R1_GBA_ROMPointer.ETA_Map] = 0x082ED3B8,
+
+                    [R1_GBA_ROMPointer.DES_Alpha] = 0x082E74F4,
+                    [R1_GBA_ROMPointer.DES_Alpha2] = 0x082E7514,
+
+                    [R1_GBA_ROMPointer.DES_DrumWalkerGraphics] = 0x082C6C5C,
+                    [R1_GBA_ROMPointer.DES_InkGraphics] = 0x082D33D0,
+                    [R1_GBA_ROMPointer.DES_PinsGraphics] = 0x0832CBF4,
 
                     [R1_GBA_ROMPointer.ExtFontImgBuffers] = 0x086DCEE8,
                     [R1_GBA_ROMPointer.MultiplayerImgBuffers] = 0x086DCF98,
@@ -78,6 +88,7 @@ namespace R1Engine
                     
                     [R1_GBA_ROMPointer.WorldLevelOffsetTable] = 0x081539A4,
 
+                    [R1_GBA_ROMPointer.WorldInfo] = 0x0854A45C,
                     [R1_GBA_ROMPointer.WorldMapVignetteImageData] = 0x08145208,
                     [R1_GBA_ROMPointer.WorldMapVignetteBlockIndices] = 0x08151468,
                     [R1_GBA_ROMPointer.WorldMapVignettePaletteIndices] = 0x081521E8,
@@ -91,14 +102,23 @@ namespace R1Engine
 
                     [R1_GBA_ROMPointer.WorldVignetteIndices] = 0x08153980,
 
-                    [R1_GBA_ROMPointer.DrumWalkerGraphics] = 0x082C6B88,
-                    [R1_GBA_ROMPointer.ClockGraphics] = 0x082C8FF4,
-                    [R1_GBA_ROMPointer.InkGraphics] = 0x082D32FC,
-                    [R1_GBA_ROMPointer.FontSmallGraphics] = 0x082E7420,
-                    [R1_GBA_ROMPointer.FontLargeGraphics] = 0x082E7440,
-                    [R1_GBA_ROMPointer.PinsGraphics] = 0x0832CB20,
+                    [R1_GBA_ROMPointer.DES_Ray] = 0x0835F8E0,
+                    [R1_GBA_ROMPointer.DES_RayLittle] = 0x0835F904,
+                    [R1_GBA_ROMPointer.DES_Clock] = 0x082C8FF4,
+                    [R1_GBA_ROMPointer.DES_Div] = 0x082D1CC4,
+                    [R1_GBA_ROMPointer.DES_Map] = 0x0832A21C,
 
-                    [R1_GBA_ROMPointer.RaymanGraphics] = 0x0835F8E0,
+                    [R1_GBA_ROMPointer.ETA_Ray] = 0x0832D160,
+                    //[R1_GBA_ROMPointer.ETA_Clock] = ,
+                    [R1_GBA_ROMPointer.ETA_Div] = 0x082CC7B0,
+                    [R1_GBA_ROMPointer.ETA_Map] = 0x082ED2E4,
+
+                    [R1_GBA_ROMPointer.DES_Alpha] = 0x082E7420,
+                    [R1_GBA_ROMPointer.DES_Alpha2] = 0x082E7440,
+                    
+                    [R1_GBA_ROMPointer.DES_DrumWalkerGraphics] = 0x082C6B88,
+                    [R1_GBA_ROMPointer.DES_InkGraphics] = 0x082D32FC,
+                    [R1_GBA_ROMPointer.DES_PinsGraphics] = 0x0832CB20,
 
                     [R1_GBA_ROMPointer.ExtFontImgBuffers] = 0x086dce14,
                     [R1_GBA_ROMPointer.MultiplayerImgBuffers] = 0x086dcec4,
@@ -132,6 +152,7 @@ namespace R1Engine
                 [R1_DSi_Pointer.ZdcData] = 0x02262398,
                 [R1_DSi_Pointer.EventFlags] = 0x022600B8,
 
+                [R1_DSi_Pointer.WorldInfo] = 0x0225F144,
                 [R1_DSi_Pointer.WorldVignetteIndices] = 0x02236ED8,
                 [R1_DSi_Pointer.LevelMapsBGIndices] = 0x02913F94,
 
@@ -142,9 +163,16 @@ namespace R1Engine
                 [R1_DSi_Pointer.EventGraphicsGroupCountTablePointers] = 0x0284B988,
                 [R1_DSi_Pointer.LevelEventGraphicsGroupCounts] = 0x0284B840,
 
-                [R1_DSi_Pointer.ClockGraphics] = 0x0281BA8C,
+                [R1_DSi_Pointer.DES_Ray] = 0x02815BF4,
+                [R1_DSi_Pointer.DES_RayLittle] = 0x02815DA4,
+                [R1_DSi_Pointer.DES_Clock] = 0x0281BA8C,
+                [R1_DSi_Pointer.DES_Div] = 0x02816224,
+                [R1_DSi_Pointer.DES_Map] = 0x02815A20,
 
-                [R1_DSi_Pointer.RaymanGraphics] = 0x02815BF4,
+                [R1_DSi_Pointer.ETA_Ray] = 0x02814264,
+                //[R1_DSi_Pointer.ETA_Clock] = ,
+                [R1_DSi_Pointer.ETA_Div] = 0x02816C74,
+                [R1_DSi_Pointer.ETA_Map] = 0x02813048,
             }.ToDictionary(x => x.Key, x => new Pointer(x.Value, dataFile));
         }
 

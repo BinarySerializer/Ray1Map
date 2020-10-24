@@ -58,5 +58,16 @@
         R1_EventFlags[] EventFlags { get; }
 
         byte[] WorldVignetteIndices { get; }
+        R1_WorldMapInfo[] WorldInfos { get; }
+
+        R1_GBA_EventGraphicsData DES_Ray { get; }
+        R1_GBA_EventGraphicsData DES_RayLittle { get; }
+        R1_GBA_EventGraphicsData DES_Clock { get; }
+        R1_GBA_EventGraphicsData DES_Div { get; }
+        R1_GBA_EventGraphicsData DES_Map { get; }
+        R1_GBA_ETA ETA_Ray { get; }
+        R1_GBA_ETA ETA_Clock { get; }
+        R1_GBA_ETA ETA_Div { get; }
+        R1_GBA_ETA ETA_Map { get; }
     }
 }

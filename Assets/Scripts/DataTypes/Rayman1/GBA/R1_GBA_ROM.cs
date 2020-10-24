@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace R1Engine
 {
@@ -66,6 +67,18 @@ namespace R1Engine
         public Pointer[] WorldVignetteIndicesPointers { get; set; }
         public byte[] WorldVignetteIndices { get; set; }
 
+        public R1_WorldMapInfo[] WorldInfos { get; set; }
+
+        public R1_GBA_EventGraphicsData DES_Ray { get; set; }
+        public R1_GBA_EventGraphicsData DES_RayLittle { get; set; }
+        public R1_GBA_EventGraphicsData DES_Clock { get; set; }
+        public R1_GBA_EventGraphicsData DES_Div { get; set; }
+        public R1_GBA_EventGraphicsData DES_Map { get; set; }
+        public R1_GBA_ETA ETA_Ray { get; set; }
+        public R1_GBA_ETA ETA_Clock { get; set; }
+        public R1_GBA_ETA ETA_Div { get; set; }
+        public R1_GBA_ETA ETA_Map { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -108,12 +121,26 @@ namespace R1Engine
                     CreateFakeFile(7, 0x70);
                     CreateFakeFile(8, 0x70);
                 });
-
             }
 
+            DES_Ray = s.DoAt(pointerTable[R1_GBA_ROMPointer.DES_Ray], () => s.SerializeObject<R1_GBA_EventGraphicsData>(DES_Ray, name: nameof(DES_Ray)));
+            ETA_Ray = s.DoAt(pointerTable.TryGetItem(R1_GBA_ROMPointer.ETA_Ray), () => s.SerializeObject<R1_GBA_ETA>(ETA_Ray, x => x.Lengths = new byte[] { 66, 12, 34, 53, 14, 14, 1, 2 }, name: nameof(ETA_Ray)));
+
+            DES_RayLittle = s.DoAt(pointerTable[R1_GBA_ROMPointer.DES_RayLittle], () => s.SerializeObject<R1_GBA_EventGraphicsData>(DES_RayLittle, name: nameof(DES_RayLittle)));
+
+            DES_Clock = s.DoAt(pointerTable[R1_GBA_ROMPointer.DES_Clock], () => s.SerializeObject<R1_GBA_EventGraphicsData>(DES_Clock, name: nameof(DES_Clock)));
+            ETA_Clock = s.DoAt(pointerTable.TryGetItem(R1_GBA_ROMPointer.ETA_Clock), () => s.SerializeObject<R1_GBA_ETA>(ETA_Clock, x => x.Lengths = new byte[] { 3 }, name: nameof(ETA_Clock)));
+
+            DES_Div = s.DoAt(pointerTable[R1_GBA_ROMPointer.DES_Div], () => s.SerializeObject<R1_GBA_EventGraphicsData>(DES_Div, name: nameof(DES_Div)));
+            ETA_Div = s.DoAt(pointerTable.TryGetItem(R1_GBA_ROMPointer.ETA_Div), () => s.SerializeObject<R1_GBA_ETA>(ETA_Div, x => x.Lengths = new byte[] { 1, 1, 1, 1, 1, 1, 2, 2, 12, 12, 4 }, name: nameof(ETA_Div)));
+
+            DES_Map = s.DoAt(pointerTable[R1_GBA_ROMPointer.DES_Map], () => s.SerializeObject<R1_GBA_EventGraphicsData>(DES_Map, name: nameof(DES_Map)));
+            ETA_Map = s.DoAt(pointerTable.TryGetItem(R1_GBA_ROMPointer.ETA_Map), () => s.SerializeObject<R1_GBA_ETA>(ETA_Map, x => x.Lengths = new byte[] { 64, 1, 19, 1, 1, 69, 3 }, name: nameof(ETA_Map)));
+
             // Serialize data from the ROM
-            s.DoAt(pointerTable[R1_GBA_ROMPointer.LevelMaps] + (levelIndex * 28), 
-                () => LevelMapData = s.SerializeObject<R1_GBA_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
+            if (s.GameSettings.R1_World != R1_World.Menu)
+                s.DoAt(pointerTable[R1_GBA_ROMPointer.LevelMaps] + (levelIndex * 28),
+                    () => LevelMapData = s.SerializeObject<R1_GBA_LevelMapData>(LevelMapData, name: nameof(LevelMapData)));
 
             s.DoAt(pointerTable[R1_GBA_ROMPointer.BackgroundVignette], 
                 () => BackgroundVignettes = s.SerializeObjectArray<R1_GBA_BackgroundVignette>(BackgroundVignettes, 48, name: nameof(BackgroundVignettes)));
@@ -124,9 +151,12 @@ namespace R1Engine
             s.DoAt(pointerTable[R1_GBA_ROMPointer.SpritePalettes], 
                 () => SpritePalettes = s.SerializeObjectArray<ARGB1555Color>(SpritePalettes, 16 * 16, name: nameof(SpritePalettes)));
 
-            // Serialize the level event data
-            LevelEventData = new R1_GBA_LevelEventData();
-            LevelEventData.SerializeData(s, pointerTable[R1_GBA_ROMPointer.EventGraphicsPointers], pointerTable[R1_GBA_ROMPointer.EventDataPointers], pointerTable[R1_GBA_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[R1_GBA_ROMPointer.LevelEventGraphicsGroupCounts]);
+            if (s.GameSettings.R1_World != R1_World.Menu)
+            {
+                // Serialize the level event data
+                LevelEventData = new R1_GBA_LevelEventData();
+                LevelEventData.SerializeData(s, pointerTable[R1_GBA_ROMPointer.EventGraphicsPointers], pointerTable[R1_GBA_ROMPointer.EventDataPointers], pointerTable[R1_GBA_ROMPointer.EventGraphicsGroupCountTablePointers], pointerTable[R1_GBA_ROMPointer.LevelEventGraphicsGroupCounts]);
+            }
 
             // Serialize strings
             s.DoAt(pointerTable[R1_GBA_ROMPointer.StringPointers], () =>
@@ -170,6 +200,8 @@ namespace R1Engine
 
             WorldVignetteIndicesPointers = s.DoAt(pointerTable[R1_GBA_ROMPointer.WorldVignetteIndices], () => s.SerializePointerArray(WorldVignetteIndicesPointers, 9, name: nameof(WorldVignetteIndicesPointers)));
             WorldVignetteIndices = s.DoAt(WorldVignetteIndicesPointers[s.GameSettings.World], () => s.SerializeArray<byte>(WorldVignetteIndices, 8, name: nameof(WorldVignetteIndices))); // The max size is 8
+
+            WorldInfos = s.DoAt(pointerTable[R1_GBA_ROMPointer.WorldInfo], () => s.SerializeObjectArray<R1_WorldMapInfo>(WorldInfos, 24, name: nameof(WorldInfos)));
         }
     }
 

@@ -17,6 +17,7 @@
         ZdcData,
         EventFlags,
 
+        WorldInfo,
         WorldVignetteIndices,
         LevelMapsBGIndices,
 
@@ -27,8 +28,15 @@
         EventGraphicsGroupCountTablePointers,
         LevelEventGraphicsGroupCounts,
 
-        ClockGraphics,
+        DES_Ray,
+        DES_RayLittle,
+        DES_Clock,
+        DES_Div,
+        DES_Map,
 
-        RaymanGraphics
+        ETA_Ray,
+        ETA_Clock,
+        ETA_Div,
+        ETA_Map
     }
 }

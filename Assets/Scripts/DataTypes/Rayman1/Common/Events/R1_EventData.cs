@@ -276,7 +276,7 @@ namespace R1Engine
 
         public override void SerializeImpl(SerializerObject s)
         {
-            if (!IsPCFormat(s.GameSettings) || Offset?.file is ProcessMemoryStreamFile)
+            if (!IsPCFormat(s.GameSettings) || Offset?.file is ProcessMemoryStreamFile || s.GameSettings.EngineVersion == EngineVersion.R1_GBA || s.GameSettings.EngineVersion == EngineVersion.R1_DSi)
             {
                 ImageDescriptorsPointer = s.SerializePointer(ImageDescriptorsPointer, name: nameof(ImageDescriptorsPointer));
                 AnimDescriptorsPointer = s.SerializePointer(AnimDescriptorsPointer, name: nameof(AnimDescriptorsPointer));

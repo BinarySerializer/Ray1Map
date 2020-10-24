@@ -17,6 +17,7 @@
         
         WorldLevelOffsetTable,
 
+        WorldInfo,
         WorldMapVignetteImageData,
         WorldMapVignetteBlockIndices,
         WorldMapVignettePaletteIndices,
@@ -30,15 +31,23 @@
 
         WorldVignetteIndices,
 
-        // Graphics not referenced from events
-        DrumWalkerGraphics,
-        ClockGraphics,
-        InkGraphics,
-        FontSmallGraphics,
-        FontLargeGraphics,
-        PinsGraphics,
+        DES_Ray,
+        DES_RayLittle,
+        DES_Clock,
+        DES_Div,
+        DES_Map,
+        DES_Alpha,
+        DES_Alpha2,
 
-        RaymanGraphics,
+        ETA_Ray,
+        ETA_Clock,
+        ETA_Div,
+        ETA_Map,
+        
+        // Graphics not referenced from events
+        DES_DrumWalkerGraphics,
+        DES_InkGraphics,
+        DES_PinsGraphics,
 
         ExtFontImgBuffers,
         MultiplayerImgBuffers,

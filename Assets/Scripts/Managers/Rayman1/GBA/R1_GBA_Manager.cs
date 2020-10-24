@@ -24,7 +24,10 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The levels</returns>
-        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetLevelCounts.Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).ToArray());
+        public GameInfo_Volume[] GetLevels(GameSettings settings) => GameInfo_Volume.SingleVolume(GetLevelCounts.Select(x => new GameInfo_World((int)x.Key, Enumerable.Range(1, x.Value).ToArray())).Append(new GameInfo_World(7, new []
+        {
+            0
+        })).ToArray());
 
         public virtual KeyValuePair<R1_World, int>[] GetLevelCounts => new KeyValuePair<R1_World, int>[]
         {
@@ -144,17 +147,17 @@ namespace R1Engine
                 // Add unused graphics
                 if (isGBA)
                 {
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DrumWalkerGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.InkGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.FontSmallGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.FontLargeGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
-                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.PinsGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_DrumWalkerGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Clock], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_InkGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_Alpha2], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(gbaPointerTable[R1_GBA_ROMPointer.DES_PinsGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
                 }
                 else
                 {
                     // TODO: Where is the font?
-                    graphics.Add(dsiPointerTable[R1_DSi_Pointer.ClockGraphics], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
+                    graphics.Add(dsiPointerTable[R1_DSi_Pointer.DES_Clock], new List<KeyValuePair<R1_World, ARGB1555Color[]>>());
                 }
 
                 var desIndex = 0;
@@ -457,7 +460,8 @@ namespace R1Engine
         /// <param name="context">The context</param>
         /// <param name="levelMapData">The level to get the tile set for</param>
         /// <returns>The tile set to use</returns>
-        public virtual Unity_MapTileMap GetTileSet(Context context, R1_GBA_LevelMapData levelMapData) {
+        public virtual Unity_MapTileMap GetTileSet(Context context, R1_GBA_LevelMapData levelMapData) 
+        {
             // Read the tiles
             int block_size = Is4Bit ? 0x20 : 0x40;
 
@@ -775,76 +779,71 @@ namespace R1Engine
             var data = LoadData(context);
 
             // Get properties
-            var map = data.LevelMapData;
-            var eventData = data.LevelEventData;
+            MapData mapData;
+            R1_GBA_LevelEventData eventData;
+            Unity_MapTileMap tileset;
+            Texture2D bg;
+            Texture2D bg2;
+
+            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
+            var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
+
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                var map = data.LevelMapData;
+                eventData = data.LevelEventData;
+
+                Controller.DetailedState = $"Loading level data";
+                await Controller.WaitIfNecessary();
+
+                map.SerializeLevelData(context.Deserializer);
+
+                mapData = map.MapData;
+
+                Controller.DetailedState = $"Loading tile set";
+                await Controller.WaitIfNecessary();
+
+                tileset = GetTileSet(context, map);
+
+                Controller.DetailedState = $"Loading background";
+                await Controller.WaitIfNecessary();
+
+                bg = GetVignetteTexture(data.BackgroundVignettes[data.WorldVignetteIndices[map.BackgroundIndex]]);
+                bg2 = GetVignetteTexture(data.BackgroundVignettes[data.WorldVignetteIndices[map.ParallaxBackgroundIndex]]);
+
+                Controller.DetailedState = $"Loading events";
+                await Controller.WaitIfNecessary();
+            }
+            else
+            {
+                bg = GetVignetteTexture(data.WorldMapVignette);
+                bg2 = null;
+
+                mapData = MapData.GetEmptyMapData(bg.width / Settings.CellSize, bg.height / Settings.CellSize);
+                tileset = new Unity_MapTileMap(Settings.CellSize);
+
+                eventData = null;
+            }
+
             var spritePalette = data.GetSpritePalettes(context.Settings);
-
-            Controller.DetailedState = $"Loading level data";
-            await Controller.WaitIfNecessary();
-
-            map.SerializeLevelData(context.Deserializer);
-
-            Controller.DetailedState = $"Loading tile set";
-            await Controller.WaitIfNecessary();
-
-            Unity_MapTileMap tileset = GetTileSet(context, map);
 
             var maps = new Unity_Map[]
             {
                 new Unity_Map()
                 {
                     // Set the dimensions
-                    Width = map.MapData.Width,
-                    Height = map.MapData.Height,
+                    Width = mapData.Width,
+                    Height = mapData.Height,
 
                     // Create the tile arrays
                     TileSet = new Unity_MapTileMap[]
                     {
                         tileset
                     },
-                    MapTiles = map.MapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
+                    MapTiles = mapData.Tiles.Select(x => new Unity_Tile(x)).ToArray(),
                     TileSetWidth = 1
                 }
             };
-
-            Controller.DetailedState = $"Loading events";
-            await Controller.WaitIfNecessary();
-
-            // Create a linking table
-            var linkTable = new ushort[eventData.EventData.Select(x => x.Length).Sum()];
-
-            // Handle each event link group
-            foreach (var linkedEvents in eventData.EventData.SelectMany(x => x).Select((x, i) => new
-            {
-                Index = i,
-                Data = x,
-                LinkID = x.LinkGroup == 0xFFFF ? -1 : x.LinkGroup
-            }).GroupBy(x => x.LinkID))
-            {
-                // Get the group
-                var group = linkedEvents.ToArray();
-
-                // Handle every event
-                for (int i = 0; i < group.Length; i++)
-                {
-                    // Get the item
-                    var item = group[i];
-
-                    if (item.Data.LinkGroup == 0xFFFF)
-                        linkTable[item.Index] = (ushort)item.Index;
-                    else if (group.Length == i + 1)
-                        linkTable[item.Index] = (ushort)group[0].Index;
-                    else
-                        linkTable[item.Index] = (ushort)group[i + 1].Index;
-                }
-            }
-
-            var eventDesigns = new List<Unity_ObjectManager_R1.DataContainer<Unity_ObjectManager_R1.DESData>>();
-            var eventETA = new List<Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>>();
-
-            // Load Rayman's graphics
-            //var rayGraphics = FileFactory.Read<R1_GBA_EventGraphicsData>(GetRaymanGraphicsPointer(context), context);
-            //loadGraphics(rayGraphics);
 
             // Helper for loading graphics
             void loadGraphics(R1_GBA_EventGraphicsData graphics)
@@ -879,109 +878,184 @@ namespace R1Engine
             }
 
             // Helper for loading ETA
-            void loadETA(R1_GBA_EventData dat)
+            void loadETA(Pointer etaPointer, R1_EventState[][] eta)
             {
                 // Add if not found
-                if (dat.ETAPointer != null && eventETA.All(x => x.PrimaryPointer != dat.ETAPointer))
+                if (etaPointer != null && eventETA.All(x => x.PrimaryPointer != etaPointer))
                 {
                     // Add to the ETA
-                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(dat.ETA, dat.ETAPointer));
+                    eventETA.Add(new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(eta, etaPointer));
                 }
-                else if (dat.ETAPointer != null && context.Settings.EngineVersion == EngineVersion.R1_DSi)
+                else if (etaPointer != null && context.Settings.EngineVersion == EngineVersion.R1_DSi)
                 {
                     // Temporary solution - combine ETA
-                    var current = eventETA.First(x => x.PrimaryPointer == dat.ETAPointer).Data;
+                    var current = eventETA.First(x => x.PrimaryPointer == etaPointer).Data;
 
-                    if (dat.ETA.Length > current.Length)
-                        Array.Resize(ref current, dat.ETA.Length);
+                    if (eta.Length > current.Length)
+                        Array.Resize(ref current, eta.Length);
 
-                    for (int ii = 0; ii < dat.ETA.Length; ii++)
+                    for (int ii = 0; ii < eta.Length; ii++)
                     {
                         if (current[ii] == null)
-                            current[ii] = new R1_EventState[dat.ETA[ii]?.Length ?? 0];
+                            current[ii] = new R1_EventState[eta[ii]?.Length ?? 0];
 
-                        if ((dat.ETA[ii]?.Length ?? 0) > current[ii].Length)
-                            Array.Resize(ref current[ii], dat.ETA[ii].Length);
+                        if ((eta[ii]?.Length ?? 0) > current[ii].Length)
+                            Array.Resize(ref current[ii], eta[ii].Length);
 
-                        for (int jj = 0; jj < (dat.ETA[ii]?.Length ?? 0); jj++)
-                            current[ii][jj] = dat.ETA[ii][jj];
+                        for (int jj = 0; jj < (eta[ii]?.Length ?? 0); jj++)
+                            current[ii][jj] = eta[ii][jj];
                     }
 
-                    eventETA[eventETA.FindItemIndex(x => x.PrimaryPointer == dat.ETAPointer)] = new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(current, dat.ETAPointer);
+                    eventETA[eventETA.FindItemIndex(x => x.PrimaryPointer == etaPointer)] = new Unity_ObjectManager_R1.DataContainer<R1_EventState[][]>(current, etaPointer);
                 }
             }
 
             // Load graphics and ETA
-            for (int graphicsIndex = 0; graphicsIndex < eventData.GraphicsGroupCount; graphicsIndex++)
+            if (eventData != null)
             {
-                // Create ETA
-                for (int eventIndex = 0; eventIndex < eventData.EventData[graphicsIndex].Length; eventIndex++)
-                    loadETA(eventData.EventData[graphicsIndex][eventIndex]);
-
-                loadGraphics(eventData.GraphicData[graphicsIndex]);
-            }
-
-            var objManager = new Unity_ObjectManager_R1(
-                context: context, 
-                des: eventDesigns.ToArray(), 
-                eta: eventETA.ToArray(), 
-                linkTable: linkTable,
-                typeZDC: data.TypeZDC,
-                zdcData: data.ZdcData,
-                eventFlags: data.EventFlags);
-            Unity_Level level = new Unity_Level(
-                maps: maps, 
-                objManager: objManager, 
-                localization: LoadLocalization(data),
-                background: GetVignetteTexture(data.BackgroundVignettes[data.WorldVignetteIndices[map.BackgroundIndex]]),
-                parallaxBackground: GetVignetteTexture(data.BackgroundVignettes[data.WorldVignetteIndices[map.ParallaxBackgroundIndex]]));
-
-            // Load the events
-            for (int i = 0; i < eventData.GraphicsGroupCount; i++)
-            {
-                var graphics = eventData.GraphicData[i];
-
-                for (int j = 0; j < eventData.EventData[i].Length; j++)
+                for (int graphicsIndex = 0; graphicsIndex < eventData.GraphicsGroupCount; graphicsIndex++)
                 {
-                    var dat = eventData.EventData[i][j];
+                    // Create ETA
+                    for (int eventIndex = 0; eventIndex < eventData.EventData[graphicsIndex].Length; eventIndex++)
+                        loadETA(eventData.EventData[graphicsIndex][eventIndex].ETAPointer, eventData.EventData[graphicsIndex][eventIndex].ETA);
 
-                    var e = new R1_EventData()
-                    {
-                        Type = dat.Type,
-                        Etat = dat.Etat,
-                        SubEtat = dat.SubEtat,
-                        XPosition = dat.XPosition,
-                        YPosition = dat.YPosition,
-                        OffsetBX = dat.OffsetBX,
-                        OffsetBY = dat.OffsetBY,
-                        OffsetHY = dat.OffsetHY,
-                        FollowSprite = dat.FollowSprite,
-                        ActualHitPoints = dat.HitPoints,
-                        DisplayPrio = (byte)dat.DisplayPrio,
-                        HitSprite = dat.HitSprite,
-
-                        ImageDescriptorsPointer = graphics.ImageDescriptorsPointer,
-                        AnimDescriptorsPointer = graphics.ImageDescriptorsPointer,
-                        ImageBufferPointer = graphics.ImageDescriptorsPointer,
-                        ETAPointer = dat.ETAPointer,
-
-                        Commands = dat.Commands,
-                        LabelOffsets = new ushort[0]
-                    };
-
-                    e.SetFollowEnabled(context.Settings, dat.FollowEnabled);
-
-                    var editorEventData = new Unity_Object_R1(e, objManager);
-
-                    // Add the event
-                    level.EventData.Add(editorEventData);
+                    loadGraphics(eventData.GraphicData[graphicsIndex]);
                 }
             }
 
+            var eventTemplates = new Dictionary<Unity_ObjectManager_R1.WldObjType, R1_EventData>();
+
+            // Load allfix graphics and ETA
+            loadWldObj(data.DES_Ray, data.ETA_Ray, Unity_ObjectManager_R1.WldObjType.Ray);
+            loadWldObj(data.DES_RayLittle, data.ETA_Ray, Unity_ObjectManager_R1.WldObjType.RayLittle);
+            loadWldObj(data.DES_Clock, data.ETA_Clock, Unity_ObjectManager_R1.WldObjType.ClockObj);
+            loadWldObj(data.DES_Div, data.ETA_Div, Unity_ObjectManager_R1.WldObjType.DivObj);
+            loadWldObj(data.DES_Map, data.ETA_Map, Unity_ObjectManager_R1.WldObjType.MapObj);
+
+            void loadWldObj(R1_GBA_EventGraphicsData graphics, R1_GBA_ETA eta, Unity_ObjectManager_R1.WldObjType type)
+            {
+                // Load graphics and ETA
+                loadGraphics(graphics);
+
+                if (eta != null)
+                    loadETA(eta.Offset, eta.ETA);
+
+                // Add template
+                eventTemplates.Add(type, new R1_EventData()
+                {
+                    ImageBufferPointer = graphics.ImageBufferPointer,
+                    ImageDescriptorsPointer = graphics.ImageDescriptorsPointer,
+                    AnimDescriptorsPointer = graphics.AnimDescriptorsPointer,
+                    ETAPointer = eta?.Offset,
+                });
+            }
+
+            // Create a linking table
+            var linkTable = context.Settings.R1_World != R1_World.Menu ? new ushort[eventData.EventData.Select(x => x.Length).Sum()] : Enumerable.Range(0, 24).Select(x => (ushort)x).ToArray();
+
+            var objManager = new Unity_ObjectManager_R1(
+                context: context,
+                des: eventDesigns.ToArray(),
+                eta: eventETA.ToArray(),
+                linkTable: linkTable,
+                typeZDC: data.TypeZDC,
+                zdcData: data.ZdcData,
+                eventFlags: data.EventFlags,
+                eventTemplates: eventTemplates);
+
+            var events = new List<Unity_Object>();
+
+            if (context.Settings.R1_World != R1_World.Menu)
+            {
+                // Handle each event link group
+                foreach (var linkedEvents in eventData.EventData.SelectMany(x => x).Select((x, i) => new
+                {
+                    Index = i,
+                    Data = x,
+                    LinkID = x.LinkGroup == 0xFFFF ? -1 : x.LinkGroup
+                }).GroupBy(x => x.LinkID))
+                {
+                    // Get the group
+                    var group = linkedEvents.ToArray();
+
+                    // Handle every event
+                    for (int i = 0; i < group.Length; i++)
+                    {
+                        // Get the item
+                        var item = group[i];
+
+                        if (item.Data.LinkGroup == 0xFFFF)
+                            linkTable[item.Index] = (ushort)item.Index;
+                        else if (group.Length == i + 1)
+                            linkTable[item.Index] = (ushort)group[0].Index;
+                        else
+                            linkTable[item.Index] = (ushort)group[i + 1].Index;
+                    }
+                }
+
+                // Load the events
+                for (int i = 0; i < eventData.GraphicsGroupCount; i++)
+                {
+                    var graphics = eventData.GraphicData[i];
+
+                    for (int j = 0; j < eventData.EventData[i].Length; j++)
+                    {
+                        var dat = eventData.EventData[i][j];
+
+                        var e = new R1_EventData()
+                        {
+                            Type = dat.Type,
+                            Etat = dat.Etat,
+                            SubEtat = dat.SubEtat,
+                            XPosition = dat.XPosition,
+                            YPosition = dat.YPosition,
+                            OffsetBX = dat.OffsetBX,
+                            OffsetBY = dat.OffsetBY,
+                            OffsetHY = dat.OffsetHY,
+                            FollowSprite = dat.FollowSprite,
+                            ActualHitPoints = dat.HitPoints,
+                            DisplayPrio = (byte)dat.DisplayPrio,
+                            HitSprite = dat.HitSprite,
+
+                            ImageDescriptorsPointer = graphics.ImageDescriptorsPointer,
+                            AnimDescriptorsPointer = graphics.AnimDescriptorsPointer,
+                            ImageBufferPointer = graphics.ImageBufferPointer,
+                            ETAPointer = dat.ETAPointer,
+
+                            Commands = dat.Commands,
+                            LabelOffsets = new ushort[0]
+                        };
+
+                        e.SetFollowEnabled(context.Settings, dat.FollowEnabled);
+
+                        // Add the event
+                        events.Add(new Unity_Object_R1(e, objManager));
+                    }
+                }
+            }
+            else
+            {
+                events.AddRange(data.WorldInfos.Select((x, i) => new Unity_Object_R1(R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager)));
+            }
+
+            var ray = R1_EventData.GetRayman(context, events.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData);
+
+            ray.ImageBufferPointer = data.DES_Ray.ImageBufferPointer;
+            ray.ImageDescriptorsPointer = data.DES_Ray.ImageDescriptorsPointer;
+            ray.AnimDescriptorsPointer = data.DES_Ray.AnimDescriptorsPointer;
+            ray.ETAPointer = data.ETA_Ray?.Offset;
+
+            Unity_Level level = new Unity_Level(
+                maps: maps,
+                objManager: objManager,
+                localization: LoadLocalization(data),
+                background: bg,
+                parallaxBackground: bg2,
+                eventData: events,
+                rayman: new Unity_Object_R1(ray, objManager));
+
             return level;
         }
-
-        public virtual Pointer GetRaymanGraphicsPointer(Context context) => PointerTables.R1_GBA_PointerTable(context.Settings.GameModeSelection, context.GetFile(GetROMFilePath))[R1_GBA_ROMPointer.RaymanGraphics];
 
         /// <summary>
         /// Saves the specified level

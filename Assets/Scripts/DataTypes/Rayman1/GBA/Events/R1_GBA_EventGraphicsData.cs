@@ -3,7 +3,8 @@
     /// <summary>
     /// Event graphic data for Rayman Advance (GBA)
     /// </summary>
-    public class R1_GBA_EventGraphicsData : R1Serializable {
+    public class R1_GBA_EventGraphicsData : R1Serializable 
+    {
         // sub_50BA4((_BYTE*)eventPointer, 0, 116u);
 
         public Pointer ImageBufferPointer { get; set; }
@@ -82,7 +83,6 @@
             s.DoAt(ImageDescriptorsPointer, () => ImageDescriptors = s.SerializeObjectArray<R1_ImageDescriptor>(ImageDescriptors, ImageDescriptorLength / 12, name: nameof(ImageDescriptors)));
 
             s.DoAt(ImageBufferPointer, () => ImageBuffer = s.SerializeArray<byte>(ImageBuffer, ImageBufferSize, name: nameof(ImageBuffer)));
-
         }
     }
 }
