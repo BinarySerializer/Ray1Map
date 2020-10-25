@@ -8,7 +8,8 @@
 
         public GBA_PlayField MenuLevelPlayfield { get; set; }
 
-        public GBA_MadTraxPlayField MadTraxPlayfield { get; set; }
+        public GBA_MadTraxPlayField MadTraxPlayfield1 { get; set; }
+        public GBA_MadTraxPlayField MadTraxPlayfield2 { get; set; }
         public GBA_Palette MadTraxPalette { get; set; }
 
         /// <summary>
@@ -38,7 +39,8 @@
                     break;
 
                 case GBA_Manager.LevelType.MadTrax:
-                    MadTraxPlayfield = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_MadTraxPlayField>(MadTraxPlayfield, name: nameof(MadTraxPlayfield)));
+                    MadTraxPlayfield1 = s.DoAt(UiOffsetTable.GetPointer(0), () => s.SerializeObject<GBA_MadTraxPlayField>(MadTraxPlayfield1, name: nameof(MadTraxPlayfield1)));
+                    MadTraxPlayfield2 = s.DoAt(UiOffsetTable.GetPointer(1), () => s.SerializeObject<GBA_MadTraxPlayField>(MadTraxPlayfield2, name: nameof(MadTraxPlayfield2)));
                     MadTraxPalette = s.DoAt(UiOffsetTable.GetPointer(2), () => s.SerializeObject<GBA_Palette>(MadTraxPalette, name: nameof(MadTraxPalette)));
 
                     break;

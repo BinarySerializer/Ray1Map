@@ -631,11 +631,17 @@ namespace R1Engine
                         TilePalette = dataBlock.MadTraxPalette,
                         Layers = new GBA_TileLayer[]
                         {
-                            dataBlock.MadTraxPlayfield.TileLayer
+                            dataBlock.MadTraxPlayfield1.TileLayer,
+                            dataBlock.MadTraxPlayfield2.TileLayer,
                         },
                     };
-                    dataBlock.MadTraxPlayfield.TileLayer.TileKit = dataBlock.MadTraxPlayfield.TileKit;
-                    dataBlock.MadTraxPlayfield.TileLayer.TileKit.Palettes = new GBA_Palette[]
+                    dataBlock.MadTraxPlayfield1.TileLayer.TileKit = dataBlock.MadTraxPlayfield1.TileKit;
+                    dataBlock.MadTraxPlayfield1.TileLayer.TileKit.Palettes = new GBA_Palette[]
+                    {
+                        dataBlock.MadTraxPalette
+                    };
+                    dataBlock.MadTraxPlayfield2.TileLayer.TileKit = dataBlock.MadTraxPlayfield2.TileKit;
+                    dataBlock.MadTraxPlayfield2.TileLayer.TileKit.Palettes = new GBA_Palette[]
                     {
                         dataBlock.MadTraxPalette
                     };
