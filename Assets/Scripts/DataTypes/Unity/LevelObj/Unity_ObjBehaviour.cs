@@ -40,7 +40,7 @@ namespace R1Engine
 
         #endregion
 
-        public LineRenderer[] gbaLinkLines;
+        public LineRenderer[] oneWayLinkLines;
         // Default sprite
         public SpriteRenderer defautRenderer;
         // Reference to spritepart prefab
@@ -250,7 +250,7 @@ namespace R1Engine
 
             // Don't move link cube if it's part of a link
 
-            if (ObjData.R1_EditorLinkGroup != 0)
+            if (ObjData.EditorLinkGroup != 0)
                 linkCube.position = linkCubeLockPosition;
             else
                 linkCubeLockPosition = linkCube.position;
@@ -493,7 +493,7 @@ namespace R1Engine
             lineRend.SetPosition(1, linkCube.position);
 
             // Update link colors
-            if (ObjData.R1_EditorLinkGroup == 0)
+            if (ObjData.EditorLinkGroup == 0)
             {
                 lineRend.startColor = Controller.obj.levelEventController.linkColorDeactive;
                 lineRend.endColor = Controller.obj.levelEventController.linkColorDeactive;
@@ -513,9 +513,9 @@ namespace R1Engine
                 // Make sure links are set to show
                 Settings.ShowLinks && 
                 // Only show active links on web
-                !(FileSystem.mode == FileSystem.Mode.Web && ObjData.R1_EditorLinkGroup == 0) && 
+                !(FileSystem.mode == FileSystem.Mode.Web && ObjData.EditorLinkGroup == 0) && 
                 // Only show if available
-                ObjData.R1_CanBeLinked;
+                ObjData.CanBeLinkedToGroup;
 
             lineRend.enabled = showLinks;
             linkCube.gameObject.SetActive(showLinks);
@@ -532,10 +532,10 @@ namespace R1Engine
                 r1o.EventData.GetFollowEnabled(LevelEditorData.CurrentSettings) && 
                 !(engineVersion == EngineVersion.R1_PS1_JP || engineVersion == EngineVersion.R1_PS1_JPDemoVol3 || engineVersion == EngineVersion.R1_PS1_JPDemoVol6 || engineVersion == EngineVersion.R1_Saturn));
 
-            // Update GBA link lines
-            if (gbaLinkLines != null)
-                foreach (var lr in gbaLinkLines)
-                    lr.enabled = EnableBoxCollider && Settings.ShowLinks;
+            // Update one-way link lines
+            if (oneWayLinkLines != null)
+                foreach (var lr in oneWayLinkLines)
+                    lr.enabled = EnableBoxCollider && Settings.ShowLinks && ObjData.CanBeLinked;
 
             HasInitialized = true;
         }
@@ -563,8 +563,8 @@ namespace R1Engine
             // Remove the data
             LevelEditorData.Level.EventData.Remove(ObjData);
             // Remove GBA links
-            if (gbaLinkLines != null) {
-                foreach (var link in gbaLinkLines) {
+            if (oneWayLinkLines != null) {
+                foreach (var link in oneWayLinkLines) {
                     if(link != null) Destroy(link.gameObject);
                 }
             }

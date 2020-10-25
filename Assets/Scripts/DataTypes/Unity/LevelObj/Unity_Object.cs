@@ -13,7 +13,8 @@ namespace R1Engine
 
         // Editor
         public abstract string DebugText { get; }
-        public int R1_EditorLinkGroup { get; set; }
+        public int EditorLinkGroup { get; set; }
+        public virtual IEnumerable<int> Links => new int[0];
         public bool HasPendingEdits { get; set; }
 
         // TODO: Remove this once we rework the editor
@@ -24,7 +25,8 @@ namespace R1Engine
         public virtual bool IsAlways => false;
         public virtual bool IsEditor => false;
         public virtual bool IsActive => true;
-        public virtual bool R1_CanBeLinked => false;
+        public virtual bool CanBeLinkedToGroup => false;
+        public virtual bool CanBeLinked => false;
 
         // Display properties
         public abstract string PrimaryName { get; } // Official

@@ -181,46 +181,42 @@ namespace R1Engine
 
         protected void InitializeEventLinks()
         {
-            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
+            var objList = Controller.obj.levelController.Objects;
+
+            // Initialize one-way links
+            foreach (var obj in objList.Where(x => x.ObjData.CanBeLinked))
             {
-                foreach (var obj in Controller.obj.levelController.Objects)
+                var linkCount = obj.ObjData.Links.Count();
+
+                obj.oneWayLinkLines = new LineRenderer[linkCount];
+
+                for (int i = 0; i < linkCount; i++)
                 {
-                    var linkCount = ((Unity_Object_GBA)obj.ObjData).GetLinkedActors().Count();
-
-                    obj.gbaLinkLines = new LineRenderer[linkCount];
-
-                    for (int i = 0; i < linkCount; i++)
-                    {
-                        LineRenderer lr = new GameObject("GBALinkLine").AddComponent<LineRenderer>();
-                        //lr.transform.SetParent(transform);
-                        lr.sortingLayerName = "Links";
-                        lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
-                        lr.material = linkLineMaterial;
-                        lr.material.color = linkColorActive;
-                        lr.positionCount = 2;
-                        lr.widthMultiplier = 1f;
-                        obj.gbaLinkLines[i] = lr;
-                    }
+                    LineRenderer lr = new GameObject("OneWayLinkLine").AddComponent<LineRenderer>();
+                    //lr.transform.SetParent(transform);
+                    lr.sortingLayerName = "Links";
+                    lr.gameObject.hideFlags |= HideFlags.HideInHierarchy;
+                    lr.material = linkLineMaterial;
+                    lr.material.color = linkColorActive;
+                    lr.positionCount = 2;
+                    lr.widthMultiplier = 1f;
+                    obj.oneWayLinkLines[i] = lr;
                 }
             }
-            else
+
+            // Initialize link groups
+            currentId = LevelEditorData.ObjManager.InitR1LinkGroups(objList.Select(x => x.ObjData).ToArray());
+
+            // Set link positions
+            foreach (var linkedEvents in objList.Where(x => x.ObjData.EditorLinkGroup != 0 && x.ObjData.CanBeLinkedToGroup).GroupBy(x => x.ObjData.EditorLinkGroup))
             {
-                var objList = Controller.obj.levelController.Objects;
+                var prev = linkedEvents.Last();
 
-                // Initialize links
-                currentId = LevelEditorData.ObjManager.InitR1LinkGroups(objList.Select(x => x.ObjData).ToArray());
-
-                // Set link positions
-                foreach (var linkedEvents in objList.Where(x => x.ObjData.R1_EditorLinkGroup != 0).GroupBy(x => x.ObjData.R1_EditorLinkGroup))
+                foreach (var e in linkedEvents)
                 {
-                    var prev = linkedEvents.Last();
-
-                    foreach (var e in linkedEvents)
-                    {
-                        e.linkCube.position = prev.linkCube.position;
-                        e.linkCubeLockPosition = new Vector2(Mathf.FloorToInt(e.linkCube.position.x), Mathf.FloorToInt(e.linkCube.position.y));
-                        prev = e;
-                    }
+                    e.linkCube.position = prev.linkCube.position;
+                    e.linkCubeLockPosition = new Vector2(Mathf.FloorToInt(e.linkCube.position.x), Mathf.FloorToInt(e.linkCube.position.y));
+                    prev = e;
                 }
             }
         }
@@ -362,20 +358,20 @@ namespace R1Engine
                 selectedPosition = new Vector2(mousePos.x - e.transform.position.x, mousePos.y - e.transform.position.y);
 
                 // Change the link
-                if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null && SelectedEvent.ObjData.R1_CanBeLinked) {
+                if (modeLinks && SelectedEvent != Controller.obj.levelController.RaymanObject && SelectedEvent != null && SelectedEvent.ObjData.CanBeLinkedToGroup) {
                     
                     //If someone is left alone in a group, unlink them too
                     var objList = Controller.obj.levelController.Objects;
-                    var allLinkedEvents = objList.Where(x => x.ObjData.R1_EditorLinkGroup == SelectedEvent.ObjData.R1_EditorLinkGroup).ToList();
+                    var allLinkedEvents = objList.Where(x => x.ObjData.EditorLinkGroup == SelectedEvent.ObjData.EditorLinkGroup).ToList();
                     
                     if (allLinkedEvents.Count <= 2) {
                         foreach (var ev in allLinkedEvents) {
-                            ev.ObjData.R1_EditorLinkGroup = 0;
+                            ev.ObjData.EditorLinkGroup = 0;
                         }
                     }
 
                     //Unlink self
-                    SelectedEvent.ObjData.R1_EditorLinkGroup = 0;
+                    SelectedEvent.ObjData.EditorLinkGroup = 0;
                 }
             } else {
                 if (SelectedEvent != null)
@@ -449,60 +445,57 @@ namespace R1Engine
             // Update the fields
             UpdateEventFields();
 
-            // Check for changed obj positions on GBA
-            if (LevelEditorData.CurrentSettings.MajorEngineVersion == MajorEngineVersion.GBA)
+            // Check for changed obj positions for one-way links
+            foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.ObjData.CanBeLinked))
             {
-                foreach (var obj in Controller.obj.levelController.Objects)
+                var linkIndex = 0;
+
+                foreach (var linkedActorIndex in obj.ObjData.Links)
                 {
-                    var linkIndex = 0;
+                    var linkedObj = Controller.obj.levelController.Objects[linkedActorIndex];
+                    var lr = obj.oneWayLinkLines[linkIndex];
 
-                    foreach (var linkedActorIndex in ((Unity_Object_GBA)obj.ObjData).GetLinkedActors())
+                    if ((obj.transform.position != ObjPositions[obj] || linkedObj.transform.position != ObjPositions[linkedObj]) && obj.HasInitialized && linkedObj.HasInitialized)
                     {
-                        var linkedObj = Controller.obj.levelController.Objects[linkedActorIndex];
-                        var lr = obj.gbaLinkLines[linkIndex];
+                        Vector3 origin = obj.midpoint;
+                        Vector3 target = linkedObj.midpoint;
 
-                        if ((obj.transform.position != ObjPositions[obj] || linkedObj.transform.position != ObjPositions[linkedObj]) && obj.HasInitialized && linkedObj.HasInitialized)
+                        //Debug.Log($"Updated link arrow for actor {obj.Index} from {origin} to {target}");
+
+                        float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
+                        if (AdaptiveSize < 0.25f)
                         {
-                            Vector3 origin = obj.midpoint;
-                            Vector3 target = linkedObj.midpoint;
-
-                            //Debug.Log($"Updated link arrow for actor {obj.Index} from {origin} to {target}");
-
-                            float AdaptiveSize = 0.5f / Vector3.Distance(origin, target);
-                            if (AdaptiveSize < 0.25f)
-                            {
-                                lr.widthCurve = new AnimationCurve(
-                                    new Keyframe(0, 0f),
-                                    new Keyframe(AdaptiveSize / 2, 0.095f),
-                                    new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
-                                    new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
-                                    new Keyframe(1, 0f)); // tip of arrow
-                                lr.positionCount = 5;
-                                lr.SetPositions(new Vector3[] {
+                            lr.widthCurve = new AnimationCurve(
+                                new Keyframe(0, 0f),
+                                new Keyframe(AdaptiveSize / 2, 0.095f),
+                                new Keyframe(0.999f - AdaptiveSize, 0.095f),  // neck of arrow
+                                new Keyframe(1 - AdaptiveSize, 0.5f), // max width of arrow head
+                                new Keyframe(1, 0f)); // tip of arrow
+                            lr.positionCount = 5;
+                            lr.SetPositions(new Vector3[] {
                                     origin,
                                     Vector3.Lerp(origin, target, AdaptiveSize / 2),
                                     Vector3.Lerp(origin, target, 0.999f - AdaptiveSize),
                                     Vector3.Lerp(origin, target, 1 - AdaptiveSize),
                                     target });
-                            }
-                            else
-                            {
-                                lr.widthCurve = new AnimationCurve(
-                                    new Keyframe(0, 0.095f),
-                                    new Keyframe(1, 0.095f)); // tip of arrow
-                                lr.positionCount = 2;
-                                lr.SetPositions(new Vector3[] { origin, target });
-                            }
                         }
-
-                        linkIndex++;
+                        else
+                        {
+                            lr.widthCurve = new AnimationCurve(
+                                new Keyframe(0, 0.095f),
+                                new Keyframe(1, 0.095f)); // tip of arrow
+                            lr.positionCount = 2;
+                            lr.SetPositions(new Vector3[] { origin, target });
+                        }
                     }
-                }
 
-                // Update all positions
-                foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized))
-                    ObjPositions[obj] = obj.transform.position;
+                    linkIndex++;
+                }
             }
+
+            // Update all positions
+            foreach (var obj in Controller.obj.levelController.Objects.Where(x => x.HasInitialized && x.ObjData.CanBeLinked))
+                ObjPositions[obj] = obj.transform.position;
 
             bool makingChanges = false;
             if (Settings.LoadFromMemory)
@@ -614,7 +607,7 @@ namespace R1Engine
                 }
 
                 //Confirm links with ctrl+lmb
-                if (lctrl && Input.GetMouseButtonDown(0) && modeR1Links && SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
+                if (lctrl && Input.GetMouseButtonDown(0) && modeR1Links && SelectedEvent?.ObjData.EditorLinkGroup == 0)
                 {
                     bool alone = true;
                     
@@ -622,14 +615,14 @@ namespace R1Engine
                         Where(ee => ee.linkCube.position == SelectedEvent.linkCube.position).
                         Where(ee => ee != SelectedEvent))
                     {
-                        ee.ObjData.R1_EditorLinkGroup = currentId;
+                        ee.ObjData.EditorLinkGroup = currentId;
                         ee.linkCubeLockPosition = ee.linkCube.position;
                         alone = false;
                     }
 
                     if (!alone) 
                     {
-                        SelectedEvent.ObjData.R1_EditorLinkGroup = currentId;
+                        SelectedEvent.ObjData.EditorLinkGroup = currentId;
                         SelectedEvent.linkCubeLockPosition = SelectedEvent.linkCube.position;
                     }
                     currentId++;
@@ -690,7 +683,7 @@ namespace R1Engine
                 var e = editor.objectHighlight.highlightedObject;
                 if (e != null) {
                     if (SelectedEvent != null) {
-                        if (SelectedEvent?.ObjData.R1_EditorLinkGroup == 0)
+                        if (SelectedEvent?.ObjData.EditorLinkGroup == 0)
                             SelectedEvent.linkCube.position = new Vector2(Mathf.FloorToInt(e.transform.position.x), Mathf.FloorToInt(e.transform.position.y));
                     }
                 }

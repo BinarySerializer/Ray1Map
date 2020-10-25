@@ -32,9 +32,9 @@ namespace R1Engine
 
             foreach (var l in links.Where(x => x.Value.Count > 1))
                 foreach (var obj in l.Value)
-                    obj.R1_EditorLinkGroup = l.Key;
+                    obj.EditorLinkGroup = l.Key;
 
-            return objects.Max(x => x.R1_EditorLinkGroup) + 1;
+            return objects.Max(x => x.EditorLinkGroup) + 1;
         }
 
         public GraphicsData[] GraphicsDatas { get; }

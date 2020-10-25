@@ -1035,7 +1035,7 @@ namespace R1Engine
             }
             else
             {
-                events.AddRange(data.WorldInfos.Select((x, i) => new Unity_Object_R1(R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager)));
+                events.AddRange(data.WorldInfos.Select((x, i) => new Unity_Object_R1(R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)));
             }
 
             var ray = R1_EventData.GetRayman(context, events.Cast<Unity_Object_R1>().FirstOrDefault(x => x.EventData.Type == R1_EventType.TYPE_RAY_POS)?.EventData);

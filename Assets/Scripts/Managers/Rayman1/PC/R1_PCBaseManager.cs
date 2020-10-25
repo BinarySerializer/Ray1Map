@@ -1268,6 +1268,7 @@ namespace R1Engine
             R1_PC_TileTextureBlock tileTextureData = null;
             Texture2D bg;
             Texture2D bg2;
+            R1_WorldMapInfo[] worldInfos = null;
 
             if (context.Settings.R1_World != R1_World.Menu)
             {
@@ -1307,7 +1308,8 @@ namespace R1Engine
                 };
 
                 // Set event data
-                var events = GetWorldMapInfos(context).Select((x, i) => R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu || context.Settings.EngineVersion == EngineVersion.R1_PC_Kit ? x.Unk2[3] : i)).ToArray();
+                worldInfos = GetWorldMapInfos(context);
+                var events = worldInfos.Select((x, i) => R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, context.Settings.EngineVersion == EngineVersion.R1_PC_Edu || context.Settings.EngineVersion == EngineVersion.R1_PS1_Edu || context.Settings.EngineVersion == EngineVersion.R1_PC_Kit ? x.Unk2[3] : i)).ToArray();
                 eventData = new R1_PC_EventBlock()
                 {
                     Events = events,
@@ -1429,7 +1431,7 @@ namespace R1Engine
                 }
 
                 // Add the event
-                level.EventData.Add(new Unity_Object_R1(e, objManager));
+                level.EventData.Add(new Unity_Object_R1(e, objManager, worldInfo: worldInfos?[i]));
             }
 
             await Controller.WaitIfNecessary();

@@ -22,28 +22,6 @@ namespace R1Engine
         protected short InitialXPos { get; }
         protected short InitialYPos { get; }
 
-        public IEnumerable<byte> GetLinkedActors()
-        {
-            if (Actor.Link_0 != 0xFF)
-                yield return Actor.Link_0;
-
-            if (Actor.Link_1 != 0xFF)
-                yield return Actor.Link_1;
-
-            if (Actor.Link_2 != 0xFF)
-                yield return Actor.Link_2;
-
-            if (Actor.Link_3 != 0xFF)
-                yield return Actor.Link_3;
-
-            if (Actor.BoxActorBlock != null)
-                foreach (var d in Actor.BoxActorBlock.Data) {
-                    if (d.Type == 0) {
-                        yield return d.LinkedActor;
-                    }
-                }
-        }
-
         public Unity_ObjectManager_GBA ObjManager { get; }
 
         public GBA_ActorState State => GraphicsData?.States.ElementAtOrDefault(Actor.StateIndex);
@@ -196,11 +174,40 @@ namespace R1Engine
             }
         }
 
+        public override IEnumerable<int> Links
+        {
+            get
+            {
+                if (Actor.Link_0 != 0xFF)
+                    yield return Actor.Link_0;
+
+                if (Actor.Link_1 != 0xFF)
+                    yield return Actor.Link_1;
+
+                if (Actor.Link_2 != 0xFF)
+                    yield return Actor.Link_2;
+
+                if (Actor.Link_3 != 0xFF)
+                    yield return Actor.Link_3;
+
+                if (Actor.BoxActorBlock != null)
+                    foreach (var d in Actor.BoxActorBlock.Data)
+                    {
+                        if (d.Type == 0)
+                        {
+                            yield return d.LinkedActor;
+                        }
+                    }
+            }
+        }
+
         [Obsolete]
         public override ILegacyEditorWrapper LegacyWrapper => new LegacyEditorWrapper(this);
 
         public override bool IsAlways => Actor.Type == GBA_Actor.ActorType.Always || Actor.Type == GBA_Actor.ActorType.Main;
         public override bool IsEditor => Actor.Type == GBA_Actor.ActorType.BoxTrigger || Actor.Type == GBA_Actor.ActorType.Trigger;
+        public override bool CanBeLinked => true;
+
         public override string PrimaryName
         {
             get
@@ -215,7 +222,6 @@ namespace R1Engine
                 return $"ID_{Actor.ActorID}";
             }
         }
-
         public override string SecondaryName
         {
             get

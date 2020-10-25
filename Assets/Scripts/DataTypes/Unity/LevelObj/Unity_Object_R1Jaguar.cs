@@ -35,7 +35,7 @@ namespace R1Engine
                                             $"{nameof(Instance.OffsetX)}: {Instance?.OffsetX}{Environment.NewLine}" +
                                             $"{nameof(Instance.OffsetY)}: {Instance?.OffsetY}{Environment.NewLine}";
 
-        public override bool R1_CanBeLinked => true;
+        public override bool CanBeLinkedToGroup => true;
 
         protected Pointer EventDefinitionPointer { get; set; }
         public int EventDefinitionIndex

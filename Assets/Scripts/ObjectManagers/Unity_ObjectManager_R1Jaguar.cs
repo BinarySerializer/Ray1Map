@@ -24,22 +24,22 @@ namespace R1Engine
                 // No link
                 if (((Unity_Object_R1Jaguar)objects[i]).LinkIndex == i)
                 {
-                    objects[i].R1_EditorLinkGroup = 0;
+                    objects[i].EditorLinkGroup = 0;
                 }
                 else
                 {
                     // Ignore already assigned ones
-                    if (objects[i].R1_EditorLinkGroup != 0)
+                    if (objects[i].EditorLinkGroup != 0)
                         continue;
 
                     // Link found, loop through everyone on the link chain
                     int nextEvent = ((Unity_Object_R1Jaguar)objects[i]).LinkIndex;
-                    objects[i].R1_EditorLinkGroup = currentId;
+                    objects[i].EditorLinkGroup = currentId;
                     int prevEvent = i;
                     while (nextEvent != i && nextEvent != prevEvent)
                     {
                         prevEvent = nextEvent;
-                        objects[nextEvent].R1_EditorLinkGroup = currentId;
+                        objects[nextEvent].EditorLinkGroup = currentId;
                         nextEvent = ((Unity_Object_R1Jaguar)objects[nextEvent]).LinkIndex;
                     }
                     currentId++;

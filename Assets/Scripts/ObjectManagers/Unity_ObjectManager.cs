@@ -32,22 +32,22 @@ namespace R1Engine
                 // No link
                 if (linkTable[i] == i)
                 {
-                    objects[i].R1_EditorLinkGroup = 0;
+                    objects[i].EditorLinkGroup = 0;
                 }
                 else
                 {
                     // Ignore already assigned ones
-                    if (objects[i].R1_EditorLinkGroup != 0)
+                    if (objects[i].EditorLinkGroup != 0)
                         continue;
 
                     // Link found, loop through everyone on the link chain
                     int nextEvent = linkTable[i];
-                    objects[i].R1_EditorLinkGroup = currentId;
+                    objects[i].EditorLinkGroup = currentId;
                     int prevEvent = i;
                     while (nextEvent != i && nextEvent != prevEvent)
                     {
                         prevEvent = nextEvent;
-                        objects[nextEvent].R1_EditorLinkGroup = currentId;
+                        objects[nextEvent].EditorLinkGroup = currentId;
                         nextEvent = linkTable[nextEvent];
                     }
                     currentId++;
@@ -68,7 +68,7 @@ namespace R1Engine
                 var obj = objects[i];
                 
                 // No link
-                if (obj.R1_EditorLinkGroup == 0)
+                if (obj.EditorLinkGroup == 0)
                 {
                     linkTable[i] = i;
                 }
@@ -80,8 +80,8 @@ namespace R1Engine
 
                     // Find all the events with the same linkId and store their indexes
                     List<ushort> indexesOfSameId = new List<ushort>();
-                    int cur = obj.R1_EditorLinkGroup;
-                    foreach (var e in objects.Where(e => e.R1_EditorLinkGroup == cur))
+                    int cur = obj.EditorLinkGroup;
+                    foreach (var e in objects.Where(e => e.EditorLinkGroup == cur))
                     {
                         indexesOfSameId.Add((ushort)objects.IndexOf(e));
                         alreadyChained.Add(objects.IndexOf(e));

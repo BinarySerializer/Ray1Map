@@ -50,7 +50,7 @@ namespace R1Engine
             }
         }
 
-        public override bool R1_CanBeLinked => true;
+        public override bool CanBeLinkedToGroup => true;
 
         public override string PrimaryName => $"Type_{(byte)Actor.ObjectType}";
         public override string SecondaryName => $"{Actor.ObjectType}";

@@ -317,29 +317,38 @@ namespace R1Engine
                 }
             }
 
-            // Worldmap
-            if (context.Settings.R1_World == R1_World.Menu)
-            {
-                // Load map object events for the world map
-                events = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).WorldInfo.Select((x, i) => R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, i)).ToArray();
-
-                // Create a dummy linking table
-                eventLinkingTable = Enumerable.Range(0, events.Length).Select(x => (ushort)x).ToArray();
-            }
-
             // Read tables from exe
             var exe = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context);
 
+            // Create a dummy linking table
+            if (context.Settings.R1_World == R1_World.Menu)
+                eventLinkingTable = Enumerable.Range(0, 24).Select(x => (ushort)x).ToArray();
+
             var objManager = new Unity_ObjectManager_R1(
-                context: context, 
-                des: eventDesigns.ToArray(), 
-                eta: eventETA.ToArray(), 
+                context: context,
+                des: eventDesigns.ToArray(),
+                eta: eventETA.ToArray(),
                 linkTable: eventLinkingTable,
                 typeZDC: exe?.TypeZDC,
                 zdcData: exe?.ZDCData,
                 eventFlags: exe?.EventFlags,
                 hasDefinedDesEtaNames: LevelEditorData.NameTable_R1PS1DES != null,
                 eventTemplates: eventTemplates);
+
+            List<Unity_Object> objects;
+
+            // Create objects
+            if (context.Settings.R1_World == R1_World.Menu)
+            {
+                // Load map object events for the world map
+                objects = FileFactory.Read<R1_PS1_Executable>(ExeFilePath, context).WorldInfo.
+                    Select((x, i) => (Unity_Object)new Unity_Object_R1(R1_EventData.GetMapObj(context, x.XPosition, x.YPosition, i), objManager, worldInfo: x)).
+                    ToList();
+            }
+            else
+            {
+                objects = events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList();
+            }
 
             // Load the level background
             var lvlBg = await LoadLevelBackgroundAsync(context);
@@ -371,7 +380,7 @@ namespace R1Engine
             Unity_Level level = new Unity_Level(
                 maps: maps, 
                 objManager: objManager, 
-                eventData: events.Select(e => new Unity_Object_R1(e, objManager)).Cast<Unity_Object>().ToList(), 
+                eventData: objects, 
                 rayman: rayman != null ? new Unity_Object_R1(rayman, objManager) : null, 
                 localization: await LoadLocalizationAsync(context),
                 background: lvlBg);

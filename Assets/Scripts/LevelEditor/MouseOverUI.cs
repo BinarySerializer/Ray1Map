@@ -46,7 +46,7 @@ namespace R1Engine
                       $"{Environment.NewLine}" +
                       $"{nameof(e.Index)}: {e.Index}{Environment.NewLine}" +
                       $"{nameof(e.Layer)}: {e.Layer}{Environment.NewLine}" +
-                      $"{nameof(e.ObjData.R1_EditorLinkGroup)}: {e.ObjData.R1_EditorLinkGroup}{Environment.NewLine}" 
+                      $"{nameof(e.ObjData.EditorLinkGroup)}: {e.ObjData.EditorLinkGroup}{Environment.NewLine}" 
                     : String.Empty;
             }
             // Else Mouse over type

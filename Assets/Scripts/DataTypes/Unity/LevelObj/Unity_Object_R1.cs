@@ -7,12 +7,13 @@ namespace R1Engine
 {
     public class Unity_Object_R1 : Unity_Object
     {
-        public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null)
+        public Unity_Object_R1(R1_EventData eventData, Unity_ObjectManager_R1 objManager, int? ETAIndex = null, R1_WorldMapInfo worldInfo = null)
         {
             // Set properties
             EventData = eventData;
             ObjManager = objManager;
             TypeInfo = EventData.Type.GetAttribute<ObjTypeInfoAttribute>();
+            WorldInfo = worldInfo;
 
             // Set editor states
             EventData.InitialEtat = EventData.Etat;
@@ -41,6 +42,7 @@ namespace R1Engine
         }
 
         public R1_EventData EventData { get; }
+        public R1_WorldMapInfo WorldInfo { get; }
         public byte ForceFrame { get; set; }
 
         public Unity_ObjectManager_R1 ObjManager { get; }
@@ -138,6 +140,14 @@ namespace R1Engine
               $"PC_Flags: {EventData.PC_Flags}{Environment.NewLine}" +
               $"PS1_RuntimeFlags: {EventData.PS1_RuntimeFlags}{Environment.NewLine}";
 
+        public override IEnumerable<int> Links => new int[]
+            {
+                WorldInfo.UpIndex,
+                WorldInfo.DownIndex,
+                WorldInfo.LeftIndex,
+                WorldInfo.RightIndex,
+            };
+
         public bool IsPCFormat => EventData.IsPCFormat(ObjManager.Context.Settings);
 
         [Obsolete]
@@ -169,7 +179,8 @@ namespace R1Engine
             }
         }
 
-        public override bool R1_CanBeLinked => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(R1_EventFlags.NoLink) ?? false);
+        public override bool CanBeLinkedToGroup => !(ObjManager.EventFlags?[(int)EventData.Type].HasFlag(R1_EventFlags.NoLink) ?? false) && WorldInfo == null && EventData.Type != R1_EventType.TYPE_RAYMAN;
+        public override bool CanBeLinked => WorldInfo != null;
 
         public override string PrimaryName => (ushort)EventData.Type < 262 ? $"{EventData.Type.ToString().Replace("TYPE_","")}" : $"TYPE_{(ushort)EventData.Type}";
         public override string SecondaryName { get; }
