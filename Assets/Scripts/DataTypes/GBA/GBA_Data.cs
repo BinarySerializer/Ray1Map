@@ -15,7 +15,7 @@
         public override void SerializeImpl(SerializerObject s)
         {
             // Get the pointer table
-            var pointerTable = PointerTables.GBA_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.file);
 
             // Serialize the offset table
             s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => UiOffsetTable = s.SerializeObject<GBA_OffsetTable>(UiOffsetTable, name: nameof(UiOffsetTable)));

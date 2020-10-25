@@ -46,12 +46,12 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Get the file
-                var file = context.GetFile(GetROMFilePath);
+                var file = context.GetFile(GetROMFilePath(context));
 
                 // Get the deserialize
                 var s = context.Deserializer;
 
-                var pointerTable = PointerTables.GBA_PointerTable(settings.GameModeSelection, file);
+                var pointerTable = PointerTables.GBA_PointerTable(context, file);
 
                 int vigCount = settings.GameModeSelection == GameModeSelection.Rayman3GBAUSPrototype ? 18 : 20;
 

@@ -24,7 +24,7 @@
             var levelCount = ((GBA_Manager)s.Context.Settings.GetGameManager).LevelCount;
 
             // Get the pointer table
-            var pointerTable = PointerTables.GBA_PointerTable(s.GameSettings.GameModeSelection, Offset.file);
+            var pointerTable = PointerTables.GBA_PointerTable(s.Context, Offset.file);
 
             // Serialize the offset table
             s.DoAt(pointerTable[GBA_Pointer.UiOffsetTable], () => Data = s.SerializeObject<GBA_Data>(Data, name: nameof(Data)));

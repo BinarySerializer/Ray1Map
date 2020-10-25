@@ -44,7 +44,7 @@ namespace R1Engine
             return LevelType.Game;
         }
 
-        public virtual string GetROMFilePath => $"ROM.gba";
+        public virtual string GetROMFilePath(Context context) => $"ROM.gba";
         public virtual string GetGameCubeManifestFilePath => $"gba.nfo";
 
         public abstract IEnumerable<int>[] WorldLevels { get; }
@@ -76,7 +76,7 @@ namespace R1Engine
                 await LoadFilesAsync(context);
 
                 // Get the file
-                var file = context.GetFile(GetROMFilePath);
+                var file = context.GetFile(GetROMFilePath(context));
 
                 // Get the deserialize
                 var s = context.Deserializer;
@@ -569,8 +569,8 @@ namespace R1Engine
             }
         }
 
-        public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath, context).Data;
-        public virtual GBA_LocLanguageTable LoadLocalization(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath, context).Localization;
+        public virtual GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Data;
+        public virtual GBA_LocLanguageTable LoadLocalization(Context context) => FileFactory.Read<GBA_ROM>(GetROMFilePath(context), context).Localization;
 
         public virtual async UniTask<Unity_Level> LoadAsync(Context context, bool loadTextures)
         {
@@ -1195,7 +1195,7 @@ namespace R1Engine
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
 
-        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath, 0x08000000);
+        public virtual async UniTask LoadFilesAsync(Context context) => await context.AddGBAMemoryMappedFile(GetROMFilePath(context), 0x08000000);
 
         public enum LevelType
         {

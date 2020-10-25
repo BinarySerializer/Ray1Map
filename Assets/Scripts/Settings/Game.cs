@@ -24,6 +24,7 @@
         // GBA
 
         GBA_Rayman3,
+        GBA_Rayman3_MadTrax,
         GBA_PrinceOfPersiaTheSandsOfTime,
         GBA_SabrinaTheTeenageWitchPotionCommotion,
         GBA_SplinterCell,

@@ -7,7 +7,7 @@ namespace R1Engine
 {
     public class GBA_SplinterCellNGage_Manager : GBA_Manager
     {
-        public override string GetROMFilePath => $"splintercell_1.dat";
+        public override string GetROMFilePath(Context context) => $"splintercell_1.dat";
 
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
@@ -29,9 +29,9 @@ namespace R1Engine
 
         public override UniTask ExtractVignetteAsync(GameSettings settings, string outputDir) => throw new System.NotImplementedException();
 
-        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath, context);
+        public override GBA_Data LoadDataBlock(Context context) => FileFactory.Read<GBA_Data>(GetROMFilePath(context), context);
         public override GBA_LocLanguageTable LoadLocalization(Context context) => null;
 
-        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath);
+        public override async UniTask LoadFilesAsync(Context context) => await context.AddLinearSerializedFileAsync(GetROMFilePath(context));
     }
 }

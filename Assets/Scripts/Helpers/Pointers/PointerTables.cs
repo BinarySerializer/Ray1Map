@@ -219,12 +219,12 @@ namespace R1Engine
         /// <summary>
         /// Gets the pointer table for the specified GBA version
         /// </summary>
-        /// <param name="gameMode">The GBA game mode</param>
+        /// <param name="context">The context</param>
         /// <param name="romFile">The rom file</param>
         /// <returns>The pointer table</returns>
-        public static Dictionary<GBA_Pointer, Pointer> GBA_PointerTable(GameModeSelection gameMode, BinaryFile romFile)
+        public static Dictionary<GBA_Pointer, Pointer> GBA_PointerTable(Context context, BinaryFile romFile)
         {
-            switch (gameMode)
+            switch (context.Settings.GameModeSelection)
             {
                 case GameModeSelection.Rayman3GBAEU:
                     return new Dictionary<GBA_Pointer, uint>() {
@@ -255,6 +255,37 @@ namespace R1Engine
                         [GBA_Pointer.Vignette] = 0x0845FE3C,
                         [GBA_Pointer.VignettePalettes] = 0x080DC46A,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.Rayman3GBAMadTraxEU:
+                case GameModeSelection.Rayman3GBAMadTraxUS:
+                    switch ((GBA_R3MadTrax_Manager.Files)context.Settings.World)
+                    {
+                        case GBA_R3MadTrax_Manager.Files.client_pad_english:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_french:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_german:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_italian:
+                        case GBA_R3MadTrax_Manager.Files.client_pad_spanish:
+                            return new Dictionary<GBA_Pointer, uint>()
+                            {
+                                [GBA_Pointer.UiOffsetTable] = 0x0802F5EC
+                            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                        case GBA_R3MadTrax_Manager.Files.client_pad145:
+                            return new Dictionary<GBA_Pointer, uint>()
+                            {
+                                [GBA_Pointer.UiOffsetTable] = 0x0802e34c
+                            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                        case GBA_R3MadTrax_Manager.Files.client_pad2:
+                        case GBA_R3MadTrax_Manager.Files.client_pad3:
+                            return new Dictionary<GBA_Pointer, uint>()
+                            {
+                                [GBA_Pointer.UiOffsetTable] = 0x08025970
+                            }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
 
                 case GameModeSelection.Rayman3NGage:
                     return new Dictionary<GBA_Pointer, uint>() {

@@ -90,6 +90,20 @@ namespace R1Engine
                         [12] = "Unused Mode7",
                         [13] = "Menu",
                     };
+
+                case Game.GBA_Rayman3_MadTrax:
+                    return new Dictionary<int, string>()
+                    {
+                        [0] = "client_pad_english",
+                        [1] = "client_pad_french",
+                        [2] = "client_pad_german",
+                        [3] = "client_pad_italian",
+                        [4] = "client_pad_spanish",
+                        [5] = "client_pad145",
+                        [6] = "client_pad2",
+                        [7] = "client_pad3",
+                    };
+
                 case Game.GBA_PrinceOfPersiaTheSandsOfTime:
                 case Game.GBA_SabrinaTheTeenageWitchPotionCommotion:
                 case Game.GBA_SplinterCell:
