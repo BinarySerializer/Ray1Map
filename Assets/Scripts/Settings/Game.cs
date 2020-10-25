@@ -39,6 +39,10 @@
 
         // GBA RRR
         
-        GBARRR_RavingRabbids
+        GBARRR_RavingRabbids,
+
+        // GBA Isometric
+
+        GBAIsometric_RHR
     }
 }

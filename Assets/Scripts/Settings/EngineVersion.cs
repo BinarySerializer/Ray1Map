@@ -56,6 +56,10 @@ namespace R1Engine
 
         // GBA RRR
 
-        GBARRR
+        GBARRR,
+
+        // GBA Isometric
+
+        GBAIsometric_RHR
     }
 }

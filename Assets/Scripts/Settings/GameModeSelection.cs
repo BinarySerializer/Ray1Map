@@ -243,5 +243,13 @@ namespace R1Engine
 
         [GameMode(MajorEngineVersion.GBARRR, EngineVersion.GBARRR, Game.GBARRR_RavingRabbids, "Rayman Raving Rabbids (GBA - US)", typeof(GBA_RRR_Manager))]
         RaymanRavingRabbidsGBAUS,
+
+        // GBA Isometric
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - EU)", typeof(GBAIsometric_RHR_Manager))]
+        RaymanHoodlumsRevengeEU,
+
+        [GameMode(MajorEngineVersion.GBAIsometric, EngineVersion.GBAIsometric_RHR, Game.GBAIsometric_RHR, "Rayman Hoodlum's Revenge (GBA - US)", typeof(GBAIsometric_RHR_Manager))]
+        RaymanHoodlumsRevengeUS,
     }
 }
