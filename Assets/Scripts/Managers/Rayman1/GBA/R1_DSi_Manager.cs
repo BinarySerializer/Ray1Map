@@ -68,6 +68,20 @@ namespace R1Engine
             };
         }
 
+        /// <summary>
+        /// Gets the available game actions
+        /// </summary>
+        /// <param name="settings">The game settings</param>
+        /// <returns>The game actions</returns>
+        public override GameAction[] GetGameActions(GameSettings settings) {
+            return new GameAction[]
+            {
+                new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
+                new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
+                new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
+            };
+        }
+
         #endregion
     }
 }
