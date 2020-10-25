@@ -8,6 +8,9 @@
 
         public GBA_PlayField MenuLevelPlayfield { get; set; }
 
+        public GBA_MadTraxPlayField MadTraxPlayfield { get; set; }
+        public GBA_Palette MadTraxPalette { get; set; }
+
         /// <summary>
         /// Handles the data serialization
         /// </summary>
@@ -22,7 +25,7 @@
 
             var manager = (GBA_Manager)s.Context.Settings.GetGameManager;
 
-            switch (manager.GetLevelType(s.Context.Settings.World))
+            switch (manager.GetLevelType(s.Context))
             {
                 case GBA_Manager.LevelType.Game:
                     // Serialize the level block for the current level
@@ -32,6 +35,12 @@
                 case GBA_Manager.LevelType.Menu:
                     // Serialize the playfield for the current menu
                     MenuLevelPlayfield = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_PlayField>(MenuLevelPlayfield, name: nameof(MenuLevelPlayfield)));
+                    break;
+
+                case GBA_Manager.LevelType.MadTrax:
+                    MadTraxPlayfield = s.DoAt(UiOffsetTable.GetPointer(s.Context.Settings.Level), () => s.SerializeObject<GBA_MadTraxPlayField>(MadTraxPlayfield, name: nameof(MadTraxPlayfield)));
+                    MadTraxPalette = s.DoAt(UiOffsetTable.GetPointer(2), () => s.SerializeObject<GBA_Palette>(MadTraxPalette, name: nameof(MadTraxPalette)));
+
                     break;
 
                 case GBA_Manager.LevelType.DLC:

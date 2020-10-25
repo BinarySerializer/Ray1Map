@@ -53,6 +53,12 @@ namespace R1Engine
         // Batman
         public GBA_TileKit TileKit { get; set; }
 
+        // Mad Trax
+        public uint MadTrax_Uint_00 { get; set; }
+        public uint MadTrax_Uint_04 { get; set; }
+        public uint MadTrax_Uint_08 { get; set; }
+        public byte[] MadTraxUnk { get; set; }
+
         // Parsed
         public GBA_Cluster Cluster { get; set; }
 
@@ -71,7 +77,25 @@ namespace R1Engine
                     Unk_0E = s.Serialize<byte>(Unk_0E, name: nameof(Unk_0E));
                     ColorMode = s.Serialize<GBA_ColorMode>(ColorMode, name: nameof(ColorMode));
                 }
-            } else {
+            }
+            else if (s.GameSettings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+            {
+                MadTrax_Uint_00 = s.Serialize<uint>(MadTrax_Uint_00, name: nameof(MadTrax_Uint_00));
+                MadTrax_Uint_04 = s.Serialize<uint>(MadTrax_Uint_04, name: nameof(MadTrax_Uint_04));
+                MadTrax_Uint_08 = s.Serialize<uint>(MadTrax_Uint_08, name: nameof(MadTrax_Uint_08));
+
+                Width = s.Serialize<ushort>(Width, name: nameof(Width));
+                Height = s.Serialize<ushort>(Height, name: nameof(Height));
+
+                MadTraxUnk = s.SerializeArray<byte>(MadTraxUnk, 16, name: nameof(MadTraxUnk));
+
+                // TODO: Are these in the above values?
+                ColorMode = GBA_ColorMode.Color4bpp;
+                IsCompressed = false;
+                StructType = Type.Layer2D;
+            }
+            else 
+            {
                 StructType = s.Serialize<Type>(StructType, name: nameof(StructType));
 
                 if (StructType != Type.TextLayerMode7)

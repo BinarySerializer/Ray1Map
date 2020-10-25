@@ -10,14 +10,14 @@ namespace R1Engine
     {
         public override IEnumerable<int>[] WorldLevels => new IEnumerable<int>[]
         {
-            Enumerable.Range(0, 1),
-            Enumerable.Range(0, 1),
-            Enumerable.Range(0, 1),
-            Enumerable.Range(0, 1),
-            Enumerable.Range(0, 1),
-            Enumerable.Range(0, 1),
-            Enumerable.Range(0, 1),
-            Enumerable.Range(0, 1),
+            Enumerable.Range(0, 2),
+            Enumerable.Range(0, 2),
+            Enumerable.Range(0, 2),
+            Enumerable.Range(0, 2),
+            Enumerable.Range(0, 2),
+            Enumerable.Range(0, 2),
+            Enumerable.Range(0, 2),
+            Enumerable.Range(0, 2),
         };
 
         public override string GetROMFilePath(Context context) => $"{(Files)context.Settings.World}.bin";

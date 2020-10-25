@@ -31,14 +31,17 @@ namespace R1Engine
             return GameInfo_Volume.SingleVolume(output.ToArray());
         }
 
-        public LevelType GetLevelType(int world)
+        public LevelType GetLevelType(Context context)
         {
+            if (context.Settings.EngineVersion == EngineVersion.GBA_R3_MadTrax)
+                return LevelType.MadTrax;
+
             var worlds = WorldLevels.Length;
 
-            if (world == worlds && MenuLevels.Any())
+            if (context.Settings.World == worlds && MenuLevels.Any())
                 return LevelType.Menu;
 
-            if (world == (worlds + 1) && DLCLevelCount > 0)
+            if (context.Settings.World == (worlds + 1) && DLCLevelCount > 0)
                 return LevelType.DLC;
 
             return LevelType.Game;
@@ -577,7 +580,7 @@ namespace R1Engine
             Controller.DetailedState = $"Loading data";
             await Controller.WaitIfNecessary();
 
-            var lvlType = GetLevelType(context.Settings.World);
+            var lvlType = GetLevelType(context);
 
             GBA_PlayField playField;
             GBA_Scene scene;
@@ -619,6 +622,23 @@ namespace R1Engine
                 {
                     scene = dataBlock.Scene;
                     playField = dataBlock.Scene.PlayField;
+                }
+                else if (lvlType == LevelType.MadTrax)
+                {
+                    scene = null;
+                    playField = new GBA_PlayField()
+                    {
+                        TilePalette = dataBlock.MadTraxPalette,
+                        Layers = new GBA_TileLayer[]
+                        {
+                            dataBlock.MadTraxPlayfield.TileLayer
+                        },
+                    };
+                    dataBlock.MadTraxPlayfield.TileLayer.TileKit = dataBlock.MadTraxPlayfield.TileKit;
+                    dataBlock.MadTraxPlayfield.TileLayer.TileKit.Palettes = new GBA_Palette[]
+                    {
+                        dataBlock.MadTraxPalette
+                    };
                 }
                 else
                 {
@@ -748,7 +768,7 @@ namespace R1Engine
                         }).ToArray();
                     } else if (!map.UsesTileKitDirectly
                         && context.Settings.EngineVersion != EngineVersion.GBA_SplinterCell_NGage
-                        && context.Settings.EngineVersion != EngineVersion.GBA_BatmanVengeance) {
+                        && context.Settings.EngineVersion > EngineVersion.GBA_R3_MadTrax) {
                         //Controller.print(map.MapData?.Max(m => BitHelpers.ExtractBits(m.TileMapY, 10, 0)) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.Data1.Length + " - " + playField.BGTileTable.Data2.Length);
                         //Controller.print(map.MapData?.Where(m=>m.IsFirstBlock).Max(m => m.TileMapY) + " - " + mapData.Length + " - " + playField.BGTileTable.IndicesCount8bpp);
@@ -1017,7 +1037,7 @@ namespace R1Engine
             bool is8bpp;
             GBA_Palette[] tilePalettes;
             GBA_AnimatedTileKit[] animatedTilekits = null;
-            if (context.Settings.EngineVersion == EngineVersion.GBA_BatmanVengeance)
+            if (context.Settings.EngineVersion <= EngineVersion.GBA_R3_MadTrax)
             {
                 is8bpp = map.TileKit.Is8bpp;
                 tileset = is8bpp ? map.TileKit.TileSet8bpp : map.TileKit.TileSet4bpp;
@@ -1201,7 +1221,8 @@ namespace R1Engine
         {
             Game,
             Menu,
-            DLC
+            DLC,
+            MadTrax
         }
 
         protected class TilesetInfo

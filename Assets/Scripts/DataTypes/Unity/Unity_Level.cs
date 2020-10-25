@@ -31,7 +31,7 @@ namespace R1Engine
             Rayman = rayman;
             Localization = localization;
             DefaultMap = defaultMap;
-            DefaultCollisionMap = defaultCollisionMap;
+            DefaultCollisionMap = defaultCollisionMap == -1 ? 0 : defaultCollisionMap;
             PixelsPerUnit = pixelsPerUnit;
             CellSize = cellSize;
             GetCollisionTypeGraphicFunc = getCollisionTypeGraphicFunc ?? (x => ((R1_TileCollisionType)x).GetCollisionTypeGraphic());
