@@ -32,6 +32,8 @@
         GBA_StarWarsEpisodeIII,
         GBA_KingKong,
         GBA_BatmanVengeance,
+        GBA_DonaldDuckAdvance,
+        GBA_CrouchingTigerHiddenDragon,
         GBA_BatmanRiseOfSinTzu,
         GBA_OpenSeason,
         GBA_SurfsUp,

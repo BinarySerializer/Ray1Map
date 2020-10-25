@@ -360,6 +360,16 @@ namespace R1Engine
                         [GBA_Pointer.UiOffsetTable] = 0x084FD44C,
                     }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
 
+                case GameModeSelection.DonaldDuckAdvanceGBAUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x081DEFD4,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
+                case GameModeSelection.CrouchingTigerHiddenDragonGBAUS:
+                    return new Dictionary<GBA_Pointer, uint>() {
+                        [GBA_Pointer.UiOffsetTable] = 0x0829e810,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+
                 case GameModeSelection.BatmanRiseOfSinTzuGBAUS:
                     return new Dictionary<GBA_Pointer, uint>() {
                         [GBA_Pointer.UiOffsetTable] = 0x08207930,
