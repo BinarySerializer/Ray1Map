@@ -48,8 +48,8 @@ namespace R1Engine {
             smp.SampleData16 = ConvertSample(song.Samples[index].Sample); //song.Samples[index].Sample.Select(b => (sbyte)(b - 128)).ToArray();
             smp.Type = 1 << 4; // 16 bit sample data
             smp.SampleLength = (uint)smp.SampleData16.Length * 2;
-            smp.FineTune = gax_instr.Pitch1;
-            smp.RelativeNoteNumber = (sbyte)(gax_instr.Pitch2 * 12);
+            //smp.FineTune = gax_instr.Pitch1;
+            smp.RelativeNoteNumber = (sbyte)(gax_instr.Pitch2 * 10);
 
             XM_Instrument instr = new XM_Instrument();
             instr.InstrumentName = "Instrument " + ind;

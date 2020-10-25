@@ -76,13 +76,14 @@ namespace R1Engine
         /// </summary>
         /// <param name="settings">The game settings</param>
         /// <returns>The game actions</returns>
-        public GameAction[] GetGameActions(GameSettings settings)
+        public virtual GameAction[] GetGameActions(GameSettings settings)
         {
             return new GameAction[]
             {
                 new GameAction("Export Sprites", false, true, (input, output) => ExportAllSpritesAsync(settings, output)),
                 new GameAction("Export Vignette", false, true, (input, output) => ExtractVignetteAsync(settings, output)),
                 new GameAction("Export Palettes", false, true, (input, output) => ExportPaletteImage(settings, output)),
+                new GameAction("Export Music & Sample Data", false, true, (input, output) => ExportMusicAsync(settings, output))
             };
         }
 
@@ -451,6 +452,100 @@ namespace R1Engine
 
             // Export
             PaletteHelpers.ExportPalette(Path.Combine(outputPath, $"{settings.GameModeSelection}.png"), spritePals.Concat(tilePals).SelectMany(x => x).ToArray(), optionalWrap: settings.EngineVersion == EngineVersion.R1_GBA ? 16 : 256);
+        }
+
+        public async UniTask ExportMusicAsync(GameSettings settings, string outputPath) {
+            using (var context = new Context(settings)) {
+                var s = context.Deserializer;
+
+                void ExportSampleSigned(string directory, string filename, sbyte[] data, uint sampleRate, ushort channels) {
+                    // Create the directory
+                    Directory.CreateDirectory(directory);
+
+                    /*sbyte[] signedData = new sbyte[data.Length];
+                    byte[] unsignedData = new byte[data.Length];
+                    int oldb = 0;
+                    int newb = 0;
+                    for (int i = 0; i < data.Length; i++) {
+                        newb = data[i] + oldb;
+                        signedData[i] = (sbyte)newb;
+                        oldb = newb;
+                    }
+                    for (int i = 0; i < data.Length; i++) {
+                        unsignedData[i] = (byte)(signedData[i] + 128);
+                    }*/
+                    byte[] unsignedData = data.Select(b => (byte)(b + 128)).ToArray();
+
+                    // Create WAV data
+                    var formatChunk = new WAVFormatChunk() {
+                        ChunkHeader = "fmt ",
+                        FormatType = 1,
+                        ChannelCount = channels,
+                        SampleRate = sampleRate,
+                        BitsPerSample = 8,
+                    };
+
+                    var wav = new WAV {
+                        Magic = "RIFF",
+                        FileTypeHeader = "WAVE",
+                        Chunks = new WAVChunk[]
+                        {
+                            formatChunk,
+                            new WAVChunk()
+                            {
+                                ChunkHeader = "data",
+                                Data = unsignedData
+                            }
+                        }
+                    };
+
+                    formatChunk.ByteRate = (formatChunk.SampleRate * formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8;
+                    formatChunk.BlockAlign = (ushort)((formatChunk.BitsPerSample * formatChunk.ChannelCount) / 8);
+
+                    // Get the output path
+                    var outputFilePath = Path.Combine(directory, filename + ".wav");
+
+                    // Create and open the output file
+                    using (var outputStream = File.Create(outputFilePath)) {
+                        // Create a context
+                        using (var wavContext = new Context(settings)) {
+                            // Create a key
+                            const string wavKey = "wav";
+
+                            // Add the file to the context
+                            wavContext.AddFile(new StreamFile(wavKey, outputStream, wavContext));
+
+                            // Write the data
+                            FileFactory.Write<WAV>(wavKey, wav, wavContext);
+                        }
+                    }
+                }
+
+                await LoadFilesAsync(context);
+
+                var rom = FileFactory.Read<R1_GBA_ROM>(GetROMFilePath, context);
+                var pointerTable = PointerTables.R1_GBA_PointerTable(s.GameSettings.GameModeSelection, rom.Offset.file);
+                MusyX_File musyxFile = null;
+                s.DoAt(pointerTable[R1_GBA_ROMPointer.MusyxFile], () => {
+                    musyxFile = s.SerializeObject<MusyX_File>(musyxFile, name: nameof(musyxFile));
+                });
+                string outPath = outputPath + "/Sounds/";
+                for(int i = 0; i < musyxFile.SampleTable.Value.Samples.Length; i++) {
+                    var e = musyxFile.SampleTable.Value.Samples[i].Value;
+                    //Util.ByteArrayToFile(outPath + $"{i}_{e.Offset.AbsoluteOffset:X8}.bin", e.SampleData);
+                    ExportSampleSigned(outPath, $"{i}_{musyxFile.SampleTable.Value.Samples[i].pointer.SerializedOffset:X8}", e.SampleData, e.SampleRate, 1);
+                }
+                outPath = outputPath + "/SongData/";
+                for (int i = 0; i < musyxFile.SongTable.Value.Length; i++) {
+                    var songBytes = musyxFile.SongTable.Value.SongBytes[i];
+                    Util.ByteArrayToFile(outPath + $"{i}_{musyxFile.SongTable.Value.Songs[i].SerializedOffset:X8}.son", songBytes);
+                }
+                outPath = outputPath + "/InstrumentData/";
+                for (int i = 0; i < musyxFile.InstrumentTable.Value.Instruments.Length; i++) {
+                    var instrumentBytes = musyxFile.InstrumentTable.Value.InstrumentBytes[i];
+                    Util.ByteArrayToFile(outPath + $"{i}_{musyxFile.InstrumentTable.Value.Instruments[i].SerializedOffset:X8}.bin", instrumentBytes);
+                }
+            }
         }
 
 
