@@ -512,5 +512,26 @@ namespace R1Engine
                     return null;
             }
         }
+
+        /// <summary>
+        /// Gets the pointer table for the specified GBA Isometric version
+        /// </summary>
+        /// <param name="gameMode">The GBA game mode</param>
+        /// <param name="romFile">The rom file</param>
+        /// <returns>The pointer table</returns>
+        public static Dictionary<GBAIsometric_Pointer, Pointer> GBAIsometric_PointerTable(GameModeSelection gameMode, BinaryFile romFile) {
+            switch (gameMode) {
+                case GameModeSelection.RaymanHoodlumsRevengeEU:
+                    return new Dictionary<GBAIsometric_Pointer, uint>() {
+                        [GBAIsometric_Pointer.MusyxFile] = 0x080447AC,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+                case GameModeSelection.RaymanHoodlumsRevengeUS:
+                    return new Dictionary<GBAIsometric_Pointer, uint>() {
+                        [GBAIsometric_Pointer.MusyxFile] = 0x08044708,
+                    }.ToDictionary(x => x.Key, x => new Pointer(x.Value, romFile));
+                default:
+                    return null;
+            }
+        }
     }
 }
