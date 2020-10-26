@@ -30,6 +30,7 @@ namespace R1Engine
 
         public string AnimGroupName => ObjManager.Types[Object.ObjectType].DataPointer?.Value?.AnimSetPointer?.Value?.Name;
 
+        public override R1Serializable SerializableData => Object;
         public override ILegacyEditorWrapper LegacyWrapper { get; }
 
         public override string PrimaryName => $"{AnimGroupName?.Replace("AnimSet", String.Empty) ?? $"Type_{Object.ObjectType}"}";
@@ -40,8 +41,13 @@ namespace R1Engine
         {
             get
             {
+                // Normal link
                 if (Object.LinkIndex != 0xFF)
                     yield return Object.LinkIndex;
+
+                // Waypoint links
+                for (int i = 0; i < Object.WaypointCount; i++)
+                    yield return ObjManager.WaypointsStartIndex + Object.WaypointIndex + i;
             }
         }
 

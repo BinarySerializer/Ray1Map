@@ -16,6 +16,7 @@ namespace R1Engine
         public int EditorLinkGroup { get; set; }
         public virtual IEnumerable<int> Links => new int[0];
         public bool HasPendingEdits { get; set; }
+        public abstract R1Serializable SerializableData { get; }
 
         // TODO: Remove this once we rework the editor
         [Obsolete]

@@ -110,7 +110,10 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<GBAIsometric_ROM>(GetROMFilePath, context);
 
-            var maps = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.MapLayers.Select(x =>
+            var levelInfo = rom.LevelInfos[context.Settings.Level];
+            var levelData = levelInfo.LevelDataPointer.Value;
+
+            var maps = levelData.MapLayers.Select(x =>
             {
                 var width = (ushort)(x.DataPointer.Value.Width * (64 / CellSize));
                 var height = (ushort)(x.DataPointer.Value.Height * (64 / CellSize));
@@ -128,10 +131,17 @@ namespace R1Engine
                 };
             }).ToArray();
 
-            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes);
+            var objManager = new Unity_ObjectManager_GBAIsometric(context, rom.ObjectTypes, levelData.ObjectsCount);
 
-            var objects = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)).ToList();
+            var allObjects = new List<Unity_Object>();
 
+            // Add normal objects
+            allObjects.AddRange(levelData.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)));
+
+            // Add waypoints
+            allObjects.AddRange(levelData.Waypoints.Select(x => (Unity_Object)new Unity_Object_GBAIsometricWaypoint(x, objManager)));
+
+            // Add localization
             var loc = rom.Localization.Localization.Select((x, i) => new
             {
                 key = rom.Localization.Localization[0][i],
@@ -141,7 +151,7 @@ namespace R1Engine
             return UniTask.FromResult(new Unity_Level(
                 maps: maps, 
                 objManager: objManager,
-                eventData: objects,
+                eventData: allObjects,
                 cellSize: CellSize,
                 localization: loc));
         }

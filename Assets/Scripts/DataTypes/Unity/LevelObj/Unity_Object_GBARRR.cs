@@ -34,6 +34,7 @@ namespace R1Engine
               $"P_SpriteSize: {Actor.P_SpriteSize}{Environment.NewLine}" +
               $"P_FrameCount: {Actor.P_FrameCount}{Environment.NewLine}";
 
+        public override R1Serializable SerializableData => Actor;
         public override ILegacyEditorWrapper LegacyWrapper { get; }
 
         public override bool IsEditor => CurrentAnimation == null;
