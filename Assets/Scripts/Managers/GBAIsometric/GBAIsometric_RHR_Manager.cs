@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using R1Engine.Serialize;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 
@@ -128,11 +129,18 @@ namespace R1Engine
 
             var objects = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.Objects.Select(x => (Unity_Object)new Unity_Object_GBAIsometric(x, objManager)).ToList();
 
+            var loc = rom.Localization.Localization.Select((x, i) => new
+            {
+                key = rom.Localization.Localization[0][i],
+                strings = x
+            }).ToDictionary(x => x.key, x => x.strings);
+
             return UniTask.FromResult(new Unity_Level(
                 maps: maps, 
                 objManager: objManager,
                 eventData: objects,
-                cellSize: CellSize));
+                cellSize: CellSize,
+                localization: loc));
         }
 
         public UniTask SaveLevelAsync(Context context, Unity_Level level) => throw new NotImplementedException();
