@@ -2,10 +2,7 @@
 {
     public class GBAIsometric_LevelData : R1Serializable
     {
-        public GBAIsometric_LevelDataLayer BG0 { get; set; }
-        public GBAIsometric_LevelDataLayer BG1 { get; set; }
-        public GBAIsometric_LevelDataLayer BG2 { get; set; }
-        public GBAIsometric_LevelDataLayer BG3 { get; set; }
+        public GBAIsometric_LevelDataLayer[] MapLayers { get; set; }
 
         public uint ObjectsCount { get; set; }
         public uint UnkDataCount { get; set; } // Waypoints?
@@ -30,10 +27,7 @@
 
         public override void SerializeImpl(SerializerObject s)
         {
-            BG0 = s.SerializeObject<GBAIsometric_LevelDataLayer>(BG0, name: nameof(BG0));
-            BG1 = s.SerializeObject<GBAIsometric_LevelDataLayer>(BG1, name: nameof(BG1));
-            BG2 = s.SerializeObject<GBAIsometric_LevelDataLayer>(BG2, name: nameof(BG2));
-            BG3 = s.SerializeObject<GBAIsometric_LevelDataLayer>(BG3, name: nameof(BG3));
+            MapLayers = s.SerializeObjectArray<GBAIsometric_LevelDataLayer>(MapLayers, 4, name: nameof(MapLayers));
 
             ObjectsCount = s.Serialize<uint>(ObjectsCount, name: nameof(ObjectsCount));
             UnkDataCount = s.Serialize<uint>(UnkDataCount, name: nameof(UnkDataCount));

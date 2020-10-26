@@ -110,20 +110,23 @@ namespace R1Engine
             // Read the rom
             var rom = FileFactory.Read<GBAIsometric_ROM>(GetROMFilePath, context);
 
-            var maps = new Unity_Map[]
+            var maps = rom.LevelInfos[context.Settings.Level].LevelDataPointer.Value.MapLayers.Select(x =>
             {
-                new Unity_Map
+                var width = (ushort)(x.DataPointer.Value.Width * (64 / CellSize));
+                var height = (ushort)(x.DataPointer.Value.Height * (64 / CellSize));
+
+                return new Unity_Map
                 {
-                    Width = 120,
-                    Height = 120,
+                    Width = width,
+                    Height = height,
                     TileSetWidth = 1,
                     TileSet = new Unity_MapTileMap[]
                     {
                         new Unity_MapTileMap(CellSize),
                     },
-                    MapTiles = Enumerable.Repeat(new Unity_Tile(new MapTile()), 120 * 120).ToArray(),
-                }
-            };
+                    MapTiles = Enumerable.Repeat(new Unity_Tile(new MapTile()), width * height).ToArray(),
+                };
+            }).ToArray();
 
             var objManager = new Unity_ObjectManager(context);
 
